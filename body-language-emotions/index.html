@@ -134,8 +134,8 @@
       background-image:
         linear-gradient(rgba(248, 242, 232, 0.76), rgba(248, 242, 232, 0.82)),
         var(--module-bg-image, none);
-      background-size: cover, 106% auto;
-      background-position: center center, center 15%;
+      background-size: cover;
+      background-position: center 15%;
       /* Starts lower so it can pan down for night */
       background-repeat: no-repeat;
     }
@@ -214,6 +214,8 @@
       background-image: var(--module-bg-image, none);
       background-size: cover;
       background-position: center 15%;
+      transform: scale(1.04);
+      transform-origin: center center;
     }
 
     html[data-theme="night"] .cover-bg {
