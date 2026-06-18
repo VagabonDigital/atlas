@@ -1362,6 +1362,28 @@
             line-height: 1.6;
         }
 
+        .upgrade-panel-try {
+            margin-top: 0.85rem;
+            padding-top: 0.85rem;
+            border-top: 1px solid var(--stone-light);
+        }
+
+        .upgrade-panel-try-label {
+            margin: 0 0 0.3rem;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .upgrade-panel-review-prompt {
+            margin: 0;
+            font-size: 0.86rem;
+            line-height: 1.5;
+            color: var(--ink);
+        }
+
         /* ============================================================
         MOMENT ACTION AREA
         ============================================================ */
@@ -4693,7 +4715,8 @@
                     term: `gesture mismatch`,
                     type: `noun phrase`,
                     def: `A moment when a physical signal seems to contradict the spoken message, creating confusion about what someone means.`,
-                    in_action: `I think the whole misunderstanding came from a gesture mismatch — his words sounded positive, but his head movement seemed to suggest the opposite.`
+                    in_action: `I think the whole misunderstanding came from a gesture mismatch — his words sounded positive, but his head movement seemed to suggest the opposite.`,
+                    review_prompt: `If someone's words and head movement seem to disagree, what could you do to check what they mean?`
                 },
                 deeper: {
                     text: `Body language often feels natural because we learn it so early that we forget it is learned at all. A gesture like nodding can feel almost universal until we meet a context where it may mean something different. This creates a special kind of confusion because the body often feels faster and more instinctive than words. Even when someone explains the rule, it can still take time to adjust your automatic reactions. The deeper lesson is that non-verbal communication is not a simple shared human code. It is partly instinctive, partly cultural, and partly social training. That is why careful communication sometimes means slowing down, checking again, and accepting that your first interpretation may not be the safest one.`,
@@ -4715,7 +4738,8 @@
                     term: `social modesty`,
                     type: `noun phrase`,
                     def: `A way of managing your behaviour or expression so that you do not seem too loud, bold, or attention-seeking in a social setting.`,
-                    in_action: `Covering her mouth when she laughed seemed like social modesty — she was enjoying the moment, but still controlling how much she showed.`
+                    in_action: `Covering her mouth when she laughed seemed like social modesty — she was enjoying the moment, but still controlling how much she showed.`,
+                    review_prompt: `When might someone show enjoyment quietly because of social modesty?`
                 },
                 deeper: {
                     text: `Laughter is emotional, but the way people show laughter is shaped by social rules. In some contexts, open laughter can feel warm and natural; in others, it may feel too exposed, loud, uncontrolled, or attention-seeking. Gestures like covering the mouth show how the body can balance feeling and etiquette at the same time. This does not mean the emotion is fake, or that every person follows the same habit. It means people often learn socially acceptable ways to let emotion appear in public. The body becomes a kind of filter: the feeling is real, but the display is shaped by ideas about modesty, gender, politeness, and social awareness. Across cultures, many emotions are not simply released — they are softened, framed, managed, or made appropriate before others see them.`,
@@ -4737,7 +4761,8 @@
                     term: `quiet composure`,
                     type: `noun phrase`,
                     def: `A calm, controlled physical presence that shows little visible emotion but may still suggest attention or self-control.`,
-                    in_action: `At first I thought he was uninterested, but it was more like quiet composure — he was listening carefully without showing much on his face.`
+                    in_action: `At first I thought he was uninterested, but it was more like quiet composure — he was listening carefully without showing much on his face.`,
+                    review_prompt: `A calm face could mean several things. What might quiet composure suggest, and what might it not?`
                 },
                 deeper: {
                     text: `Some communication styles use the body expressively: nodding often, reacting visibly, leaning forward, smiling quickly, and showing emotion through the face. Other styles may value restraint, stillness, and careful control. This can create misunderstanding because many people judge interest through visible reaction. A still listener may seem distant to someone who expects constant feedback, while an expressive listener may seem overly intense to someone who values calmness. The important point is that a quiet body is not automatically an empty signal. It may suggest boredom, but it may also suggest attention, respect, thoughtfulness, or simple self-control. The best response is often to stay curious rather than assume too quickly.`,
@@ -4759,7 +4784,8 @@
                     term: `gesture taboo`,
                     type: `noun phrase`,
                     def: `A physical gesture that is considered rude, offensive, or inappropriate within a particular culture or social setting.`,
-                    in_action: `I had no idea it was a gesture taboo there — I thought I was just using my hand normally.`
+                    in_action: `I had no idea it was a gesture taboo there — I thought I was just using my hand normally.`,
+                    review_prompt: `How could a traveller find out whether a normal gesture is a taboo somewhere else?`
                 },
                 deeper: {
                     text: `Gestures are especially risky because people often use them without thinking. Words can be chosen slowly, but hands move quickly, automatically, and sometimes before we notice them. A gesture may also feel harmless because it has no strong meaning in your own culture. This makes cross-cultural body language difficult: the speaker may have no bad intention, while the listener still receives a strong negative signal. The Greek example is not just about one hand position; it shows how gestures can carry memory, history, insult, and social force. A movement that looks like a casual wave to one person may feel like a deliberate offence to another. The important point is not to become afraid of every movement, but to stay curious and humble. When a small gesture creates a big reaction, it usually means there is a cultural story behind it.`,
@@ -4781,7 +4807,8 @@
                     term: `personal boundary`,
                     type: `noun phrase`,
                     def: `A physical, emotional, or social limit that shows what kind of behaviour feels acceptable around a person.`,
-                    in_action: `I thought I was being friendly, but I crossed a personal boundary by touching his head without realising how serious that gesture could feel.`
+                    in_action: `I thought I was being friendly, but I crossed a personal boundary by touching his head without realising how serious that gesture could feel.`,
+                    review_prompt: `What kind of friendly action in one place might cross a personal boundary somewhere else?`
                 },
                 deeper: {
                     text: `Physical contact is never just physical. It carries ideas about respect, closeness, hierarchy, age, gender, religion, and relationship. A friendly touch on the arm, shoulder, back, or head can mean warmth in one situation and disrespect in another. These rules are often invisible until someone breaks them. What makes this especially sensitive is that touch involves the body directly, so people may react emotionally before they explain why. Learning these boundaries is not about memorising a list of rules. It is about noticing how different cultures protect personal dignity through the body. It also means accepting that good intentions do not always cancel out physical discomfort. Sometimes the respectful move is not to explain what you meant, but to notice the boundary and step back.`,
@@ -4803,7 +4830,8 @@
                     term: `gaze norms`,
                     type: `noun phrase`,
                     def: `The social expectations that shape when, how much, and with whom eye contact feels appropriate.`,
-                    in_action: `Their gaze norms were different — what I saw as confident eye contact may have felt too direct in that setting.`
+                    in_action: `Their gaze norms were different — what I saw as confident eye contact may have felt too direct in that setting.`,
+                    review_prompt: `How might gaze norms differ between a job interview and a relaxed chat with friends?`
                 },
                 deeper: {
                     text: `Eye contact is often treated as a universal sign of honesty, but that assumption can be misleading. In some settings, looking directly at someone suggests sincerity and confidence. In others, it may feel aggressive, challenging, flirtatious, disrespectful, or simply too intense. This matters in schools, interviews, workplaces, and cross-cultural relationships, where people may judge confidence or character from the wrong signal. A person who looks down may be respectful, thoughtful, nervous, or uncomfortable — not automatically dishonest or disengaged. Understanding gaze norms helps us separate our own expectations from the meaning another person may be working with. It also reminds us that “good communication” is not one fixed behaviour. Sometimes respect means meeting someone’s eyes; sometimes it means knowing when not to.`,
@@ -4825,7 +4853,8 @@
                     term: `display rules`,
                     type: `noun phrase`,
                     def: `Social expectations that shape how, when, and how much emotion people show through their face, voice, and body.`,
-                    in_action: `Their display rules were different — she expected grief to be visible, while he had learned to show emotion quietly and privately.`
+                    in_action: `Their display rules were different — she expected grief to be visible, while he had learned to show emotion quietly and privately.`,
+                    review_prompt: `How might display rules differ between a quiet office and a lively family gathering?`
                 },
                 deeper: {
                     text: `Emotions are human, but emotional display is shaped by family, culture, gender expectations, social class, age, religion, profession, and setting. Two people can feel the same thing and show it very differently. One person may cry, gesture, speak loudly, or move closer; another may become still, quiet, or physically controlled. This can create painful misunderstandings. A restrained person may be judged as cold or uncaring, while an expressive person may be judged as dramatic or uncontrolled. Display rules matter because they remind us that the body does not simply reveal emotion in a direct, universal way. It also manages emotion according to what feels safe, appropriate, dignified, or expected. Reading emotion carefully means noticing the signal without pretending it proves the whole story.`,
@@ -4847,7 +4876,8 @@
                     term: `proxemics`,
                     type: `noun`,
                     def: `The way people use physical distance and space to communicate social meaning.`,
-                    in_action: `Their proxemics were completely different — he thought standing close showed warmth, but she felt her personal space was being invaded.`
+                    in_action: `Their proxemics were completely different — he thought standing close showed warmth, but she felt her personal space was being invaded.`,
+                    review_prompt: `When might standing close feel warm to one person but like pressure to another?`
                 },
                 deeper: {
                     text: `Physical distance can suggest how people understand privacy, confidence, intimacy, authority, and friendliness. In a crowded city, close distance may feel normal. In a more reserved setting, the same closeness may feel intense. Relationships also change the meaning: a friend, colleague, stranger, teacher, or romantic partner may all be allowed different levels of closeness. The difficulty is that people often adjust distance automatically. They step closer, step back, lean in, turn away, or angle their body without saying anything. These small movements can create comfort or discomfort long before the conversation itself becomes clear. Proxemics matters because it shows that space is not empty. It is one of the quiet ways people negotiate trust, pressure, warmth, and respect.`,
@@ -4889,7 +4919,8 @@
                             term: `read the room`,
                             type: `idiom`,
                             def: `To quickly notice the mood, atmosphere, or social dynamic of a situation and adjust your behaviour carefully.`,
-                            in_action: `She walked in, read the room quickly, and realised it was better to listen before speaking.`
+                            in_action: `She walked in, read the room quickly, and realised it was better to listen before speaking.`,
+                            review_prompt: `When you walk into a room full of people, what tells you the mood?`
                         }
                     },
                     {
@@ -4900,7 +4931,8 @@
                             term: `tell-tale sign`,
                             type: `noun phrase`,
                             def: `A small detail that reveals something important, often before the person says it directly.`,
-                            in_action: `He said he was relaxed, but the tell-tale sign was the way he kept rubbing his hands together.`
+                            in_action: `He said he was relaxed, but the tell-tale sign was the way he kept rubbing his hands together.`,
+                            review_prompt: `What could be a tell-tale sign that someone feels nervous, without treating it as proof?`
                         }
                     },
                     {
@@ -4911,7 +4943,8 @@
                             term: `unclench`,
                             type: `verb`,
                             def: `To relax physically or emotionally after being tense, guarded, or uncomfortable.`,
-                            in_action: `As the conversation became warmer, he visibly unclenched — his shoulders dropped, his breathing slowed, and he started speaking more freely.`
+                            in_action: `As the conversation became warmer, he visibly unclenched — his shoulders dropped, his breathing slowed, and he started speaking more freely.`,
+                            review_prompt: `What might you see when someone starts to unclench as a conversation gets warmer?`
                         }
                     },
                     {
@@ -4922,7 +4955,8 @@
                             term: `forced smile`,
                             type: `noun phrase`,
                             def: `A smile that someone uses to look polite, calm, or friendly, even when the feeling may not be natural.`,
-                            in_action: `His forced smile made the apology feel less convincing, even though the words sounded polite.`
+                            in_action: `His forced smile made the apology feel less convincing, even though the words sounded polite.`,
+                            review_prompt: `When might someone use a forced smile, even if they do not feel relaxed?`
                         }
                     },
                     {
@@ -4933,7 +4967,8 @@
                             term: `put on a brave face`,
                             type: `idiom`,
                             def: `To try to look calm, strong, or happy when you are actually upset, worried, or under pressure.`,
-                            in_action: `She was putting on a brave face, but her tired eyes made me think something was wrong.`
+                            in_action: `She was putting on a brave face, but her tired eyes made me think something was wrong.`,
+                            review_prompt: `What kind of situation might make someone put on a brave face at work?`
                         }
                     }
                 ],
@@ -4956,7 +4991,8 @@
                             term: `context-dependent`,
                             type: `adjective`,
                             def: `Changing meaning depending on the situation, relationship, culture, or environment.`,
-                            in_action: `A long pause is context-dependent — in one conversation it may suggest thoughtfulness, while in another it may feel uncomfortable or tense.`
+                            in_action: `A long pause is context-dependent — in one conversation it may suggest thoughtfulness, while in another it may feel uncomfortable or tense.`,
+                            review_prompt: `How could the same pause feel thoughtful in one setting and tense in another?`
                         }
                     },
                     {
@@ -4967,7 +5003,8 @@
                             term: `read into`,
                             type: `phrasal verb`,
                             def: `To give something more meaning than it may actually have.`,
-                            in_action: `I may have read too much into his crossed arms — the room was freezing, and he was probably just trying to stay warm.`
+                            in_action: `I may have read too much into his crossed arms — the room was freezing, and he was probably just trying to stay warm.`,
+                            review_prompt: `Besides feeling defensive, what else could crossed arms mean before you read into it?`
                         }
                     },
                     {
@@ -4978,7 +5015,8 @@
                             term: `carry yourself`,
                             type: `verb phrase`,
                             def: `To hold and move your body in a way that gives people a particular impression of you.`,
-                            in_action: `She carries herself with quiet confidence, so people tend to listen before she even says much.`
+                            in_action: `She carries herself with quiet confidence, so people tend to listen before she even says much.`,
+                            review_prompt: `How might someone carry themselves differently in a job interview versus among close friends?`
                         }
                     },
                     {
@@ -4989,7 +5027,8 @@
                             term: `on edge`,
                             type: `idiom`,
                             def: `Nervous, tense, or unable to fully relax.`,
-                            in_action: `He tried to sound calm, but his quick breathing and restless hands made him look on edge.`
+                            in_action: `He tried to sound calm, but his quick breathing and restless hands made him look on edge.`,
+                            review_prompt: `What might make someone seem on edge before a big presentation?`
                         }
                     },
                     {
@@ -5000,7 +5039,8 @@
                             term: `body mirroring`,
                             type: `noun phrase`,
                             def: `The act of unconsciously matching another person’s posture, gestures, expression, or physical rhythm during an interaction.`,
-                            in_action: `Their body mirroring was obvious — they leaned forward at the same time, copied each other’s gestures, and seemed completely in sync.`
+                            in_action: `Their body mirroring was obvious — they leaned forward at the same time, copied each other’s gestures, and seemed completely in sync.`,
+                            review_prompt: `Where might you notice body mirroring, and what could it suggest about the conversation?`
                         }
                     }
                 ],
@@ -5023,7 +5063,8 @@
                             term: `gravitas`,
                             type: `noun`,
                             def: `A serious, calm, and impressive presence that makes people pay attention and take someone seriously.`,
-                            in_action: `She did not need to raise her voice; she had a natural gravitas that made the room listen.`
+                            in_action: `She did not need to raise her voice; she had a natural gravitas that made the room listen.`,
+                            review_prompt: `How could someone show gravitas in a meeting without raising their voice?`
                         }
                     },
                     {
@@ -5034,7 +5075,8 @@
                             term: `mannerism`,
                             type: `noun`,
                             def: `A repeated habit in the way someone moves, speaks, gestures, or holds themselves.`,
-                            in_action: `One of my mannerisms is tapping my fingers when I am thinking hard, even when I do not realise I am doing it.`
+                            in_action: `One of my mannerisms is tapping my fingers when I am thinking hard, even when I do not realise I am doing it.`,
+                            review_prompt: `What's one mannerism you've noticed in a friend or colleague when they're concentrating?`
                         }
                     },
                     {
@@ -5045,7 +5087,8 @@
                             term: `physically inhibited`,
                             type: `adjective phrase`,
                             def: `Physically restrained, awkward, or less expressive because you feel self-conscious, uncertain, or not fully comfortable in a situation.`,
-                            in_action: `When he spoke in his second language, he seemed physically inhibited — his gestures became smaller, his posture tightened, and he looked less like himself.`
+                            in_action: `When he spoke in his second language, he seemed physically inhibited — his gestures became smaller, his posture tightened, and he looked less like himself.`,
+                            review_prompt: `Why might someone seem physically inhibited when speaking a language they're less sure of?`
                         }
                     },
                     {
@@ -5056,7 +5099,8 @@
                             term: `guarded`,
                             type: `adjective`,
                             def: `Careful about showing your feelings, thoughts, or reactions.`,
-                            in_action: `He seemed guarded at first, but after a few minutes he relaxed and started speaking more honestly.`
+                            in_action: `He seemed guarded at first, but after a few minutes he relaxed and started speaking more honestly.`,
+                            review_prompt: `What kind of situation might make someone act guarded when they first meet people?`
                         }
                     },
                     {
@@ -5067,7 +5111,8 @@
                             term: `project confidence`,
                             type: `phrase`,
                             def: `To show confidence through posture, voice, movement, expression, or general presence.`,
-                            in_action: `She wanted to project confidence in meetings, so she worked on sitting upright, slowing her speech, and holding eye contact more naturally.`
+                            in_action: `She wanted to project confidence in meetings, so she worked on sitting upright, slowing her speech, and holding eye contact more naturally.`,
+                            review_prompt: `What small changes in posture or voice could help someone project confidence in a meeting?`
                         }
                     }
                 ],
@@ -5208,6 +5253,137 @@
             return `${MODULE.id}::${currentSession}`;
         }
 
+        function getUpgradeText(upgradeObj, keys) {
+            if (!upgradeObj || !Array.isArray(keys)) return '';
+
+            for (const key of keys) {
+                const value = upgradeObj[key];
+
+                if (typeof value === 'string' && value.trim()) {
+                    return value.trim();
+                }
+            }
+
+            return '';
+        }
+
+        function slugifyLedgerValue(value) {
+            return String(value || '')
+                .trim()
+                .toLowerCase()
+                .replace(/&/g, 'and')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '') || 'unknown';
+        }
+
+        function readLearningLedger() {
+            try {
+                const raw = storageGet('learning::ledger');
+                const parsed = raw ? JSON.parse(raw) : null;
+
+                if (parsed && parsed.entries && typeof parsed.entries === 'object') {
+                    return parsed;
+                }
+
+                return {
+                    schemaVersion: 1,
+                    entries: {}
+                };
+            } catch {
+                return {
+                    schemaVersion: 1,
+                    entries: {}
+                };
+            }
+        }
+
+        function writeLearningLedger(ledger) {
+            try {
+                storageSet('learning::ledger', JSON.stringify(ledger));
+            } catch {
+                // Learning ledger is optional. Never break the lesson module.
+            }
+        }
+
+        function findLessonUpgradeById(id) {
+            const culturalLensCard = clCards.find(card => card.id === id);
+
+            if (culturalLensCard && culturalLensCard.upgrade) {
+                return {
+                    sourceElementId: culturalLensCard.id,
+                    sourceKind: 'cultural-lens',
+                    upgrade: culturalLensCard.upgrade
+                };
+            }
+
+            for (const set of discussionSets) {
+                const moment = set.moments.find(item => item.id === id);
+
+                if (moment && moment.upgrade) {
+                    return {
+                        sourceElementId: moment.id,
+                        sourceKind: 'moment',
+                        upgrade: moment.upgrade
+                    };
+                }
+            }
+
+            return null;
+        }
+
+        function publishLearningLedgerUpgrade(id, status = 'covered') {
+            try {
+                const lessonUpgrade = findLessonUpgradeById(id);
+
+                if (!lessonUpgrade || !lessonUpgrade.upgrade) return;
+
+                const upgrade = lessonUpgrade.upgrade;
+                const phrase = getUpgradeText(upgrade, ['term', 'phrase', 'word']);
+                const type = getUpgradeText(upgrade, ['type']);
+                const meaning = getUpgradeText(upgrade, ['meaning', 'definition', 'def']);
+                const example = getUpgradeText(upgrade, ['example', 'in_action', 'inAction']);
+                const reviewPrompt = getUpgradeText(upgrade, ['review_prompt', 'reviewPrompt']);
+
+                if (!phrase || !meaning) return;
+
+                const ledger = readLearningLedger();
+                const now = Date.now();
+
+                const sourceElementId = lessonUpgrade.sourceElementId;
+                const sourceKind = lessonUpgrade.sourceKind || 'unknown';
+
+                const entryId = [
+                    'human-compass',
+                    MODULE.id,
+                    slugifyLedgerValue(currentSession),
+                    slugifyLedgerValue(sourceElementId)
+                ].join(':');
+
+                const entry = {
+                    schemaVersion: 1,
+                    id: entryId,
+                    sourceWorld: 'human-compass',
+                    sourceItem: MODULE.id,
+                    sourceElementId,
+                    sourceKind,
+                    activeSession: currentSession,
+                    phrase,
+                    meaning,
+                    lastTouchedAt: now,
+                    status
+                };
+
+                if (type) entry.type = type;
+                if (example) entry.example = example;
+                if (reviewPrompt) entry.reviewPrompt = reviewPrompt;
+
+                ledger.entries[entryId] = entry;
+                writeLearningLedger(ledger);
+            } catch {
+                // Learning ledger is non-critical. Never break the lesson module.
+            }
+        }
+
         function loadProgress() {
             const raw = storageGet(getSessionKey());
 
@@ -5307,6 +5483,7 @@
             progress.covered.add(id);
             progress.viewed.add(id);
             saveProgress();
+            publishLearningLedgerUpgrade(id);
             updateLessonCompleteButton();
             updateGlobalProgressRail();
             updateCoverActionUI();
@@ -5491,7 +5668,8 @@
                     upgradeTerm: card.upgrade.term,
                     upgradeType: card.upgrade.type,
                     upgradeDef: card.upgrade.def,
-                    upgradeExample: card.upgrade.in_action
+                    upgradeExample: card.upgrade.in_action,
+                    upgradeReviewPrompt: card.upgrade.review_prompt || ''
                 }));
 
                 const momentItems = discussionSets.flatMap(set =>
@@ -5506,7 +5684,8 @@
                         upgradeTerm: moment.upgrade.term,
                         upgradeType: moment.upgrade.type,
                         upgradeDef: moment.upgrade.def,
-                        upgradeExample: moment.upgrade.in_action
+                        upgradeExample: moment.upgrade.in_action,
+                        upgradeReviewPrompt: moment.upgrade.review_prompt || ''
                     }))
                 );
 
@@ -6251,16 +6430,24 @@
 
         // ---- UPGRADE CHIP ----
         function buildUpgradeChip(upgradeObj, contextId) {
+            const reviewPrompt = getUpgradeText(upgradeObj, ['review_prompt', 'reviewPrompt']);
+
             return `<button class="upgrade-chip" id="uc-${contextId}" onclick="toggleUpgrade('${contextId}', event)" aria-expanded="false">
-                ${UPGRADE_ICON_SVG}
-                Upgrade: ${escHtml(upgradeObj.term)}
-            </button>
-            <div class="upgrade-panel" id="up-${contextId}">
-                <p class="upgrade-panel-term">${escHtml(upgradeObj.term)}</p>
-                <p class="upgrade-panel-type">${escHtml(upgradeObj.type)}</p>
-                <p class="upgrade-panel-def">${escHtml(upgradeObj.def)}</p>
-                <p class="upgrade-panel-in-action">${escHtml(upgradeObj.in_action)}</p>
-            </div>`;
+        ${UPGRADE_ICON_SVG}
+        Upgrade: ${escHtml(upgradeObj.term)}
+    </button>
+    <div class="upgrade-panel" id="up-${contextId}">
+        <p class="upgrade-panel-term">${escHtml(upgradeObj.term)}</p>
+        <p class="upgrade-panel-type">${escHtml(upgradeObj.type)}</p>
+        <p class="upgrade-panel-def">${escHtml(upgradeObj.def)}</p>
+        <p class="upgrade-panel-in-action">${escHtml(upgradeObj.in_action)}</p>
+        ${reviewPrompt ? `
+            <div class="upgrade-panel-try">
+                <p class="upgrade-panel-try-label">Try this</p>
+                <p class="upgrade-panel-review-prompt">${escHtml(reviewPrompt)}</p>
+            </div>
+        ` : ''}
+    </div>`;
         }
 
         function gentlyRevealUpgradePanel(panel) {
@@ -6691,16 +6878,7 @@
                         <div class="moment-upgrade-wrap">
                             <div class="moment-action-row">
                                 <div class="moment-upgrade-slot">
-                                    <button class="upgrade-chip" id="uc-moment-${moment.id}" onclick="toggleUpgrade('moment-${moment.id}', event)" aria-expanded="false">
-                                        ${UPGRADE_ICON_SVG}
-                                        Upgrade: ${escHtml(moment.upgrade.term)}
-                                    </button>
-                                    <div class="upgrade-panel" id="up-moment-${moment.id}">
-                                        <p class="upgrade-panel-term">${escHtml(moment.upgrade.term)}</p>
-                                        <p class="upgrade-panel-type">${escHtml(moment.upgrade.type)}</p>
-                                        <p class="upgrade-panel-def">${escHtml(moment.upgrade.def)}</p>
-                                        <p class="upgrade-panel-in-action">${escHtml(moment.upgrade.in_action)}</p>
-                                    </div>
+                                    ${buildUpgradeChip(moment.upgrade, 'moment-' + moment.id)}
                                 </div>
                                 ${coveredBtnHtml}
                             </div>
