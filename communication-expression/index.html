@@ -1359,6 +1359,28 @@
             line-height: 1.6;
         }
 
+        .upgrade-panel-try {
+            margin-top: 0.85rem;
+            padding-top: 0.85rem;
+            border-top: 1px solid var(--stone-light);
+        }
+
+        .upgrade-panel-try-label {
+            margin: 0 0 0.3rem;
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .upgrade-panel-review-prompt {
+            margin: 0;
+            font-size: 0.86rem;
+            line-height: 1.5;
+            color: var(--ink);
+        }
+
         /* ============================================================
         MOMENT ACTION AREA
         ============================================================ */
@@ -4763,7 +4785,8 @@
                     term: `face-saving`,
                     type: `noun phrase`,
                     def: `A strategy of avoiding direct refusal or disagreement in order to protect someone's dignity and keep the atmosphere comfortable.`,
-                    in_action: `Looking back, I think a lot of the polite "yes" responses were face-saving — they were keeping things smooth rather than actually agreeing with me.`
+                    in_action: `Looking back, I think a lot of the polite "yes" responses were face-saving — they were keeping things smooth rather than actually agreeing with me.`,
+                    review_prompt: `What might a polite 'yes' actually mean when someone is trying to keep things smooth?`
                 },
                 deeper: {
                     text: `One reason this pattern exists is that in many Japanese social contexts, maintaining a harmonious atmosphere is treated as more important than making a position absolutely clear in the moment. Direct refusal can feel abrupt or even unkind — it places the other person in an awkward position and disrupts the flow of the conversation. So instead, a range of softer signals develop: a slow breath, a long pause, phrases like "that may be difficult," or a "yes" that means "I hear you" rather than "I agree." For someone unfamiliar with these signals, the gap between what is said and what is meant can be significant. Misunderstandings in these situations are not usually caused by dishonesty — they happen because both people are interpreting the same words through different conversational frameworks.`,
@@ -4785,7 +4808,8 @@
                     term: `comfortable silence`,
                     type: `noun phrase`,
                     def: `A quiet moment between people that feels natural and easy rather than tense or embarrassing.`,
-                    in_action: `I think we've reached the point where we can sit in comfortable silence — it actually shows how relaxed we are around each other.`
+                    in_action: `I think we've reached the point where we can sit in comfortable silence — it actually shows how relaxed we are around each other.`,
+                    review_prompt: `With which people in your life does a long pause feel easy rather than awkward?`
                 },
                 deeper: {
                     text: `In many communication cultures, silence in a conversation feels like a gap that needs filling — a signal that something has gone wrong or that the other person is bored. This instinct is much weaker in Finland, where pausing before speaking is often read as a sign that someone is thinking carefully rather than struggling or being unfriendly. This difference can cause real friction when people from different backgrounds interact. A colleague who pauses before answering may be giving the question genuine thought — but an outsider might interpret the quiet as disapproval or confusion, and rush to fill it. Equally, someone who talks constantly to avoid silence may come across as insincere or not really listening. The deeper idea is that silence is not the opposite of communication — it is part of it.`,
@@ -4807,7 +4831,8 @@
                     term: `deliberate ambiguity`,
                     type: `noun phrase`,
                     def: `A conscious choice to use language that can be interpreted in more than one way, in order to keep options open.`,
-                    in_action: `I think I used deliberate ambiguity in that email — I didn't say no, but I also didn't commit to anything, which gave me time to think.`
+                    in_action: `I think I used deliberate ambiguity in that email — I didn't say no, but I also didn't commit to anything, which gave me time to think.`,
+                    review_prompt: `When might someone reply vaguely on purpose instead of giving a clear answer?`
                 },
                 deeper: {
                     text: `Renaissance diplomatic language was a highly developed skill, not simply a form of dishonesty. Ambassadors were trained to say things that were technically accurate but flexible enough to survive if political circumstances changed. This kind of careful vagueness still appears in modern professional life — in politics, in legal language, even in ordinary workplace conversations where someone needs to stay on good terms with opposing sides. The interesting question is where the line sits between thoughtful precision and deliberate evasion. Saying "I'll consider it" is technically honest. But if you have already decided no, is it more respectful to say so clearly, or less hurtful to leave the door open? Different cultures, relationships, and situations can give very different answers to that question.`,
@@ -4829,7 +4854,8 @@
                     term: `veiled criticism`,
                     type: `noun phrase`,
                     def: `A negative message or complaint that is expressed indirectly, hidden inside a story, joke, or neutral-seeming remark.`,
-                    in_action: `I think his comment about "how some people handle feedback" was veiled criticism directed at me — he was just too polite to say it directly.`
+                    in_action: `I think his comment about "how some people handle feedback" was veiled criticism directed at me — he was just too polite to say it directly.`,
+                    review_prompt: `How might someone hint at a complaint through a joke or a story instead of saying it plainly?`
                 },
                 deeper: {
                     text: `This way of hiding a serious message inside a cultural or artistic form is far from unique to imperial China. Political satire, fables, allegory, and sharp comedy all work on the same principle — the surface content gives the speaker protection, while the real message reaches people who know how to listen for it. The audience is invited to complete the meaning themselves, which can make the message land more powerfully than a direct statement would. In everyday life, the same pattern shows up in the pointed joke, the story that is "obviously not about anyone in particular," or the example chosen a little too perfectly to illustrate a recent situation. Noticing this kind of indirect communication requires a different kind of listening — one that pays attention to what was chosen, and what was deliberately left unsaid.`,
@@ -4851,7 +4877,8 @@
                     term: `conversational overlap`,
                     type: `noun phrase`,
                     def: `When two people speak at the same time briefly, which in some styles signals enthusiasm and engagement rather than rudeness.`,
-                    in_action: `I grew up with a lot of conversational overlap in my family — people talk over each other all the time, but it's because everyone is engaged, not because they're being rude.`
+                    in_action: `I grew up with a lot of conversational overlap in my family — people talk over each other all the time, but it's because everyone is engaged, not because they're being rude.`,
+                    review_prompt: `In which settings does talking over each other show energy rather than rudeness?`
                 },
                 deeper: {
                     text: `What feels like an interruption from the outside can feel like genuine engagement from the inside. In some conversational styles, jumping in mid-sentence signals that the listener is so interested they can't hold back — it's a form of energy and presence, not dismissal. In other styles, waiting for a clear pause before speaking is the standard way of showing respect. When these two approaches meet, both people can end up misreading each other. The person who interrupts may feel they're being warm and enthusiastic. The person who waits their turn may feel overlooked or talked over. Neither is being rude on purpose — they're just following different unspoken rules about how conversation should flow.`,
@@ -4873,7 +4900,8 @@
                     term: `intellectual sparring`,
                     type: `noun phrase`,
                     def: `A lively exchange of opposing ideas in a spirit of enjoyment and curiosity rather than genuine conflict.`,
-                    in_action: `I actually enjoy a bit of intellectual sparring — I find that debating something properly helps me understand my own view better.`
+                    in_action: `I actually enjoy a bit of intellectual sparring — I find that debating something properly helps me understand my own view better.`,
+                    review_prompt: `What's the difference between a real argument and two people enjoying a debate?`
                 },
                 deeper: {
                     text: `One reason this pattern may exist is a long cultural tradition of treating the exchange of ideas as something valuable in itself — separate from whether anyone "wins" the argument. In this frame, challenging someone's position can be a sign of respect: it means you're taking them seriously enough to push back. The assumption is that both people can handle disagreement without it damaging the relationship. This can clash quite directly with communication cultures where public disagreement is seen as a threat to harmony or a sign that something has gone wrong. What one person experiences as a stimulating debate, another can feel as an uncomfortable confrontation, even when the topic is completely impersonal.`,
@@ -4895,7 +4923,8 @@
                     term: `straight-talking`,
                     type: `adjective`,
                     def: `Describing someone who says exactly what they think, without softening or hinting — often used approvingly when the honesty feels useful rather than blunt.`,
-                    in_action: `I appreciated her straight-talking style — she told me what wasn't working, and I left the meeting knowing exactly what to fix.`
+                    in_action: `I appreciated her straight-talking style — she told me what wasn't working, and I left the meeting knowing exactly what to fix.`,
+                    review_prompt: `When is very direct feedback actually more helpful than a softened version?`
                 },
                 deeper: {
                     text: `One reason directness is valued in some communication cultures is the belief that ambiguity can actually damage trust over time. If a colleague's work has real problems and you only hint at them vaguely, you're leaving them without the information they need to improve — and they may feel misled later when the consequences arrive. At the same time, directness without warmth or context can land badly, particularly across communication styles where the relationship tone matters as much as the content. The practical distinction worth making is between being direct — willing to say something clearly — and being blunt, which is about how it's said. Many skilled communicators manage to be honest and considerate at the same time.`,
@@ -4917,7 +4946,8 @@
                     term: `register`,
                     type: `noun`,
                     def: `The level of intensity, formality, or emotional tone that a person naturally uses when speaking in a particular context.`,
-                    in_action: `I think we were just speaking in different registers — her very expressive style was completely genuine, and my quieter tone didn't mean I was less serious.`
+                    in_action: `I think we were just speaking in different registers — her very expressive style was completely genuine, and my quieter tone didn't mean I was less serious.`,
+                    review_prompt: `How might the same message sound in a formal email versus a quick text to a friend?`
                 },
                 deeper: {
                     text: `In contexts where expressive speech is valued, a reserved or minimal delivery can sometimes make trust harder rather than easier. If you care deeply about something, people may expect that feeling to be visible in how you speak — in the energy of your voice, the warmth of your phrasing, or the rhythm of your sentences. A flat or very restrained delivery can be misread as indifference, even when none was intended. This creates a practical challenge when expressive and reserved communication styles meet: the more reserved speaker may feel their sincerity is being doubted, while the more expressive speaker may feel the other person is holding something back.`,
@@ -4959,7 +4989,8 @@
                             term: `read between the lines`,
                             type: `idiom`,
                             def: `To understand what someone really means, even when they have not said it directly.`,
-                            in_action: `She said she was fine with it, but I could read between the lines — she was not happy at all.`
+                            in_action: `She said she was fine with it, but I could read between the lines — she was not happy at all.`,
+                            review_prompt: `How can you tell someone isn't happy even when their words say they're fine?`
                         }
                     },
                     {
@@ -4970,7 +5001,8 @@
                             term: `land badly`,
                             type: `phrasal verb`,
                             def: `When something said or done has a negative effect, even if that was not the intention.`,
-                            in_action: `His joke landed badly — everyone went quiet, and he clearly had not expected that reaction.`
+                            in_action: `His joke landed badly — everyone went quiet, and he clearly had not expected that reaction.`,
+                            review_prompt: `What kind of comment could be reasonable but still land badly because of the timing?`
                         }
                     },
                     {
@@ -4981,7 +5013,8 @@
                             term: `loaded silence`,
                             type: `noun phrase`,
                             def: `A silence that carries strong emotion, tension, or meaning without anyone speaking.`,
-                            in_action: `After she told him the news, there was a loaded silence — nobody spoke, but everyone could feel the tension.`
+                            in_action: `After she told him the news, there was a loaded silence — nobody spoke, but everyone could feel the tension.`,
+                            review_prompt: `What kind of situation might create a loaded silence in a room?`
                         }
                     },
                     {
@@ -4992,7 +5025,8 @@
                             term: `pull your punches`,
                             type: `idiom`,
                             def: `To make your words or criticism less direct than you could be, to avoid upsetting someone.`,
-                            in_action: `She did not pull any punches — she told him exactly what she thought of the plan, and he was not prepared for it.`
+                            in_action: `She did not pull any punches — she told him exactly what she thought of the plan, and he was not prepared for it.`,
+                            review_prompt: `When giving feedback, would you pull your punches or say it straight? Why?`
                         }
                     },
                     {
@@ -5003,7 +5037,8 @@
                             term: `come across`,
                             type: `phrasal verb`,
                             def: `To give a particular impression through your words, tone, or behaviour, even if that impression was not what you intended.`,
-                            in_action: `I was trying to be helpful, but apparently I came across as quite rude — she thought I was criticising her.`
+                            in_action: `I was trying to be helpful, but apparently I came across as quite rude — she thought I was criticising her.`,
+                            review_prompt: `Have you ever come across differently from how you intended? What happened?`
                         }
                     }
                 ],
@@ -5026,7 +5061,8 @@
                             term: `subtext`,
                             type: `noun`,
                             def: `The real meaning or feeling beneath what someone is saying — the message behind the message.`,
-                            in_action: `On the surface it sounded polite, but the subtext was clear — he was not going to agree to it.`
+                            in_action: `On the surface it sounded polite, but the subtext was clear — he was not going to agree to it.`,
+                            review_prompt: `How could a polite sentence carry a subtext that means the opposite?`
                         }
                     },
                     {
@@ -5037,7 +5073,8 @@
                             term: `second-guess yourself`,
                             type: `phrasal verb`,
                             def: `To doubt your own judgement and keep changing your mind about what to say or do.`,
-                            in_action: `I second-guessed myself so many times writing that email that it took twenty minutes to write three sentences.`
+                            in_action: `I second-guessed myself so many times writing that email that it took twenty minutes to write three sentences.`,
+                            review_prompt: `What kind of message makes you second-guess yourself and rewrite it again and again?`
                         }
                     },
                     {
@@ -5048,7 +5085,8 @@
                             term: `high-context communication`,
                             type: `concept term`,
                             def: `A communication style where much of the meaning is implied, rather than stated directly.`,
-                            in_action: `In a high-context communication style, people may expect you to understand the meaning from tone, timing, silence, or the situation — not only from the words.`
+                            in_action: `In a high-context communication style, people may expect you to understand the meaning from tone, timing, silence, or the situation — not only from the words.`,
+                            review_prompt: `Besides the words, what signals tell you the real meaning in a high-context exchange?`
                         }
                     },
                     {
@@ -5059,7 +5097,8 @@
                             term: `tune out`,
                             type: `phrasal verb`,
                             def: `To stop paying attention to what someone is saying, even while appearing to listen.`,
-                            in_action: `I could tell he'd tuned out about halfway through — he was nodding, but his eyes had gone somewhere else.`
+                            in_action: `I could tell he'd tuned out about halfway through — he was nodding, but his eyes had gone somewhere else.`,
+                            review_prompt: `How can you tell when someone has tuned out even though they're still nodding?`
                         }
                     },
                     {
@@ -5070,7 +5109,8 @@
                             term: `connotation`,
                             type: `noun`,
                             def: `The emotional or social feeling that a word carries, beyond its basic dictionary meaning.`,
-                            in_action: `Both words mean roughly the same thing, but the connotations are very different — one sounds confident, the other sounds defeated.`
+                            in_action: `Both words mean roughly the same thing, but the connotations are very different — one sounds confident, the other sounds defeated.`,
+                            review_prompt: `Which sounds more suitable in a work message: 'cheap' or 'affordable', and why?`
                         }
                     }
                 ],
@@ -5093,7 +5133,8 @@
                             term: `brace yourself`,
                             type: `phrasal verb`,
                             def: `To mentally prepare yourself for something difficult, uncomfortable, or emotionally challenging.`,
-                            in_action: `Every time she had to give critical feedback, she would brace herself before starting the conversation — she hated how it might land.`
+                            in_action: `Every time she had to give critical feedback, she would brace herself before starting the conversation — she hated how it might land.`,
+                            review_prompt: `What kind of conversation makes you brace yourself before starting it?`
                         }
                     },
                     {
@@ -5104,7 +5145,8 @@
                             term: `feel heard`,
                             type: `spoken phrase`,
                             def: `The feeling that someone has truly understood and acknowledged what you have said, not just listened to the surface words.`,
-                            in_action: `She did not offer advice or solutions — she just listened, and somehow that was enough to make him feel heard.`
+                            in_action: `She did not offer advice or solutions — she just listened, and somehow that was enough to make him feel heard.`,
+                            review_prompt: `What does someone do in a conversation that makes you feel heard?`
                         }
                     },
                     {
@@ -5115,7 +5157,8 @@
                             term: `come out of your shell`,
                             type: `idiom`,
                             def: `To become more relaxed, confident, or open in social situations, often after a period of being reserved or quiet.`,
-                            in_action: `In his own language he was funny and talkative, but in English he had not quite come out of his shell yet.`
+                            in_action: `In his own language he was funny and talkative, but in English he had not quite come out of his shell yet.`,
+                            review_prompt: `What helps a quiet person come out of their shell in a group?`
                         }
                     },
                     {
@@ -5126,7 +5169,8 @@
                             term: `hold your tongue`,
                             type: `idiom`,
                             def: `To stop yourself from saying something, especially when you are tempted or when speaking would cause problems.`,
-                            in_action: `She had a strong opinion but decided to hold her tongue — it was not the right moment, and she knew it.`
+                            in_action: `She had a strong opinion but decided to hold her tongue — it was not the right moment, and she knew it.`,
+                            review_prompt: `When was a moment it was wiser to hold your tongue than to speak?`
                         }
                     },
                     {
@@ -5137,7 +5181,8 @@
                             term: `find your voice`,
                             type: `idiomatic phrase`,
                             def: `To develop the confidence and ability to express yourself clearly and authentically, especially in situations where you previously felt hesitant.`,
-                            in_action: `It took her a few years in the job before she really found her voice in meetings — now she speaks up without thinking twice.`
+                            in_action: `It took her a few years in the job before she really found her voice in meetings — now she speaks up without thinking twice.`,
+                            review_prompt: `In what kind of setting are you still working to find your voice?`
                         }
                     }
                 ],
@@ -5197,6 +5242,302 @@
                 return true;
             } catch {
                 return false;
+            }
+        }
+
+        // ============================================================
+        // ATLAS REGISTRY BRIDGE
+        // Writes a lightweight Human Compass summary for Atlas.
+        // Atlas reads this. The subject keeps its own detailed progress.
+        // ============================================================
+
+        const ATLAS_REGISTRY_KEY = 'atlas::registry';
+
+        function readAtlasRegistry() {
+            try {
+                const raw = storageGet(ATLAS_REGISTRY_KEY);
+
+                if (!raw) {
+                    return {
+                        schemaVersion: 1,
+                        updatedAt: Date.now(),
+                        worlds: {},
+                        items: {},
+                        recentActivity: []
+                    };
+                }
+
+                const parsed = JSON.parse(raw);
+
+                return {
+                    schemaVersion: parsed.schemaVersion || 1,
+                    updatedAt: parsed.updatedAt || Date.now(),
+                    worlds: parsed.worlds && typeof parsed.worlds === 'object' ? parsed.worlds : {},
+                    items: parsed.items && typeof parsed.items === 'object' ? parsed.items : {},
+                    recentActivity: Array.isArray(parsed.recentActivity) ? parsed.recentActivity : []
+                };
+            } catch {
+                return {
+                    schemaVersion: 1,
+                    updatedAt: Date.now(),
+                    worlds: {},
+                    items: {},
+                    recentActivity: []
+                };
+            }
+        }
+
+        function writeAtlasRegistry(registry) {
+            try {
+                registry.updatedAt = Date.now();
+                storageSet(ATLAS_REGISTRY_KEY, JSON.stringify(registry));
+            } catch {
+                // Atlas registry is optional. This subject must still work if storage fails.
+            }
+        }
+
+        // ============================================================
+        // LEARNING LEDGER BRIDGE
+        // Writes covered Upgrade terms for warm-up vocabulary review.
+        // ============================================================
+
+        const LEARNING_LEDGER_KEY = 'learning::ledger';
+
+        function readLearningLedger() {
+            try {
+                const raw = storageGet(LEARNING_LEDGER_KEY);
+
+                if (!raw) {
+                    return {
+                        schemaVersion: 1,
+                        updatedAt: Date.now(),
+                        entries: {}
+                    };
+                }
+
+                const parsed = JSON.parse(raw);
+
+                return {
+                    schemaVersion: parsed.schemaVersion || 1,
+                    updatedAt: parsed.updatedAt || Date.now(),
+                    entries: parsed.entries && typeof parsed.entries === 'object' ? parsed.entries : {}
+                };
+            } catch {
+                return {
+                    schemaVersion: 1,
+                    updatedAt: Date.now(),
+                    entries: {}
+                };
+            }
+        }
+
+        function writeLearningLedger(ledger) {
+            try {
+                ledger.updatedAt = Date.now();
+                storageSet(LEARNING_LEDGER_KEY, JSON.stringify(ledger));
+            } catch {
+                // Learning ledger is optional. Never break the lesson module.
+            }
+        }
+
+        function slugifyLedgerValue(value) {
+            return String(value || '')
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '') || 'item';
+        }
+
+        function getUpgradeText(upgrade, keys) {
+            if (!upgrade) return '';
+
+            for (const key of keys) {
+                if (upgrade[key]) return String(upgrade[key]).trim();
+            }
+
+            return '';
+        }
+
+        function findLessonUpgradeById(id) {
+            const culturalLensCard = clCards.find(card => card.id === id);
+
+            if (culturalLensCard && culturalLensCard.upgrade) {
+                return {
+                    sourceElementId: culturalLensCard.id,
+                    sourceKind: 'cultural-lens',
+                    upgrade: culturalLensCard.upgrade
+                };
+            }
+
+            for (const set of discussionSets) {
+                const moment = set.moments.find(item => item.id === id);
+
+                if (moment && moment.upgrade) {
+                    return {
+                        sourceElementId: moment.id,
+                        sourceKind: 'moment',
+                        upgrade: moment.upgrade
+                    };
+                }
+            }
+
+            return null;
+        }
+
+        function publishLearningLedgerUpgrade(id, status = 'covered') {
+            try {
+                const lessonUpgrade = findLessonUpgradeById(id);
+
+                if (!lessonUpgrade || !lessonUpgrade.upgrade) return;
+
+                const upgrade = lessonUpgrade.upgrade;
+                const phrase = getUpgradeText(upgrade, ['term', 'phrase', 'word']);
+                const type = getUpgradeText(upgrade, ['type']);
+                const meaning = getUpgradeText(upgrade, ['meaning', 'definition', 'def']);
+                const example = getUpgradeText(upgrade, ['example', 'in_action', 'inAction']);
+                const reviewPrompt = getUpgradeText(upgrade, ['review_prompt', 'reviewPrompt']);
+
+                if (!phrase || !meaning) return;
+
+                const ledger = readLearningLedger();
+                const now = Date.now();
+
+                const sourceElementId = lessonUpgrade.sourceElementId;
+                const sourceKind = lessonUpgrade.sourceKind || 'unknown';
+
+                const entryId = [
+                    'human-compass',
+                    MODULE.id,
+                    slugifyLedgerValue(currentSession),
+                    slugifyLedgerValue(sourceElementId)
+                ].join(':');
+
+                const entry = {
+                    schemaVersion: 1,
+                    id: entryId,
+                    sourceWorld: 'human-compass',
+                    sourceItem: MODULE.id,
+                    sourceElementId,
+                    sourceKind,
+                    activeSession: currentSession,
+                    phrase,
+                    meaning,
+                    lastTouchedAt: now,
+                    status
+                };
+
+                if (type) {
+                    entry.type = type;
+                }
+
+                if (example) {
+                    entry.example = example;
+                }
+
+                if (reviewPrompt) {
+                    entry.reviewPrompt = reviewPrompt;
+                }
+
+                ledger.entries[entryId] = entry;
+
+                writeLearningLedger(ledger);
+            } catch {
+                // Learning ledger is non-critical. Never break the lesson module.
+            }
+        }
+
+        function getAtlasLaunchUrl() {
+            try {
+                return window.location.href.split('#')[0];
+            } catch {
+                return '';
+            }
+        }
+
+        function publishAtlasHumanCompassItem(action = 'updated') {
+            try {
+                const registry = readAtlasRegistry();
+                const now = Date.now();
+                const registryId = `human-compass:${MODULE.id}`;
+
+                const culturalLensIds = clCards.map(card => card.id);
+                const momentIds = discussionSets.flatMap(set => set.moments.map(moment => moment.id));
+                const allIds = [...culturalLensIds, ...momentIds];
+
+                const total = allIds.length;
+                const viewed = allIds.filter(id => progress.viewed.has(id)).length;
+                const covered = allIds.filter(id => progress.covered.has(id)).length;
+
+                const culturalLensTotal = culturalLensIds.length;
+                const culturalLensViewed = culturalLensIds.filter(id => progress.viewed.has(id)).length;
+                const culturalLensCovered = culturalLensIds.filter(id => progress.covered.has(id)).length;
+
+                const momentsTotal = momentIds.length;
+                const momentsViewed = momentIds.filter(id => progress.viewed.has(id)).length;
+                const momentsCovered = momentIds.filter(id => progress.covered.has(id)).length;
+
+                const status = isLessonComplete()
+                    ? 'complete'
+                    : viewed > 0 || covered > 0
+                        ? 'in-progress'
+                        : 'opened';
+
+                registry.worlds['human-compass'] = {
+                    registryId: 'human-compass',
+                    world: 'human-compass',
+                    type: 'world',
+                    title: 'Human Compass',
+                    description: 'Deep conversation subjects for thoughtful English, cultural reflection, and human communication.',
+                    status: 'available',
+                    launchUrl: './human-compass/index.html'
+                };
+
+                const existing = registry.items[registryId] || {};
+
+                registry.items[registryId] = {
+                    ...existing,
+                    registryId,
+                    world: 'human-compass',
+                    type: 'subject',
+                    title: MODULE.title,
+                    status,
+                    activeSession: currentSession,
+                    lastOpenedAt: action === 'opened' ? now : existing.lastOpenedAt || now,
+                    lastUpdatedAt: now,
+                    launchUrl: getAtlasLaunchUrl(),
+                    progress: {
+                        viewed,
+                        covered,
+                        total,
+                        label: `Cultural Lens ${culturalLensCovered}/${culturalLensTotal} · Discussion ${momentsCovered}/${momentsTotal}`,
+                        culturalLens: {
+                            viewed: culturalLensViewed,
+                            covered: culturalLensCovered,
+                            total: culturalLensTotal
+                        },
+                        moments: {
+                            viewed: momentsViewed,
+                            covered: momentsCovered,
+                            total: momentsTotal
+                        }
+                    }
+                };
+
+                if (action !== 'progress-updated') {
+                    registry.recentActivity.unshift({
+                        registryId,
+                        world: 'human-compass',
+                        action,
+                        activeSession: currentSession,
+                        timestamp: now
+                    });
+
+                    registry.recentActivity = registry.recentActivity.slice(0, 50);
+                }
+
+                writeAtlasRegistry(registry);
+            } catch {
+                // Atlas bridge is non-critical. Never break the lesson module.
             }
         }
 
@@ -5271,6 +5612,8 @@
                 covered: [...progress.covered],
                 completionSnapshot: snapshot
             }));
+
+            publishAtlasHumanCompassItem('progress-updated');
         }
 
         function loadSessions() {
@@ -5317,6 +5660,7 @@
             progress.covered.add(id);
             progress.viewed.add(id);
             saveProgress();
+            publishLearningLedgerUpgrade(id, 'covered');
             updateLessonCompleteButton();
             updateGlobalProgressRail();
             updateCoverActionUI();
@@ -5501,7 +5845,8 @@
                     upgradeTerm: card.upgrade.term,
                     upgradeType: card.upgrade.type,
                     upgradeDef: card.upgrade.def,
-                    upgradeExample: card.upgrade.in_action
+                    upgradeExample: card.upgrade.in_action,
+                    upgradeReviewPrompt: card.upgrade.review_prompt || ''
                 }));
 
                 const momentItems = discussionSets.flatMap(set =>
@@ -5516,7 +5861,8 @@
                         upgradeTerm: moment.upgrade.term,
                         upgradeType: moment.upgrade.type,
                         upgradeDef: moment.upgrade.def,
-                        upgradeExample: moment.upgrade.in_action
+                        upgradeExample: moment.upgrade.in_action,
+                        upgradeReviewPrompt: moment.upgrade.review_prompt || ''
                     }))
                 );
 
@@ -6261,6 +6607,8 @@
 
         // ---- UPGRADE CHIP ----
         function buildUpgradeChip(upgradeObj, contextId) {
+            const reviewPrompt = getUpgradeText(upgradeObj, ['review_prompt', 'reviewPrompt']);
+
             return `<button class="upgrade-chip" id="uc-${contextId}" onclick="toggleUpgrade('${contextId}', event)" aria-expanded="false">
                 ${UPGRADE_ICON_SVG}
                 Upgrade: ${escHtml(upgradeObj.term)}
@@ -6270,6 +6618,12 @@
                 <p class="upgrade-panel-type">${escHtml(upgradeObj.type)}</p>
                 <p class="upgrade-panel-def">${escHtml(upgradeObj.def)}</p>
                 <p class="upgrade-panel-in-action">${escHtml(upgradeObj.in_action)}</p>
+                ${reviewPrompt ? `
+                    <div class="upgrade-panel-try">
+                        <p class="upgrade-panel-try-label">Try this</p>
+                        <p class="upgrade-panel-review-prompt">${escHtml(reviewPrompt)}</p>
+                    </div>
+                ` : ''}
             </div>`;
         }
 
@@ -6701,16 +7055,7 @@
                         <div class="moment-upgrade-wrap">
                             <div class="moment-action-row">
                                 <div class="moment-upgrade-slot">
-                                    <button class="upgrade-chip" id="uc-moment-${moment.id}" onclick="toggleUpgrade('moment-${moment.id}', event)" aria-expanded="false">
-                                        ${UPGRADE_ICON_SVG}
-                                        Upgrade: ${escHtml(moment.upgrade.term)}
-                                    </button>
-                                    <div class="upgrade-panel" id="up-moment-${moment.id}">
-                                        <p class="upgrade-panel-term">${escHtml(moment.upgrade.term)}</p>
-                                        <p class="upgrade-panel-type">${escHtml(moment.upgrade.type)}</p>
-                                        <p class="upgrade-panel-def">${escHtml(moment.upgrade.def)}</p>
-                                        <p class="upgrade-panel-in-action">${escHtml(moment.upgrade.in_action)}</p>
-                                    </div>
+                                 ${buildUpgradeChip(moment.upgrade, 'moment-' + moment.id)}
                                 </div>
                                 ${coveredBtnHtml}
                             </div>
@@ -7351,6 +7696,9 @@
             loadSessions();
             loadProgress();
             updateSessionUI();
+
+            // Publish lightweight subject summary for Atlas
+            publishAtlasHumanCompassItem('opened');
 
             // Render content grids
             renderCLGrid();
