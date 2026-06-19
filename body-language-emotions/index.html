@@ -600,19 +600,19 @@
             display: flex;
             align-items: center;
             gap: 0.42rem;
+            min-width: 0;
+            max-width: clamp(7.4rem, 12vw, 9.5rem);
             font-size: 0.74rem;
             font-weight: 500;
             color: var(--ink-light);
-            padding: 0.42rem 0.82rem;
+            padding: 0.42rem 0.78rem;
             border-radius: 999px;
             border: 1px solid rgba(200, 191, 176, 0.42);
             background: rgba(255, 255, 255, 0.58);
             cursor: pointer;
             transition: var(--transition);
             white-space: nowrap;
-            max-width: 128px;
             overflow: hidden;
-            text-overflow: ellipsis;
             box-shadow: 0 1px 3px rgba(30, 27, 22, 0.045);
         }
 
@@ -626,6 +626,14 @@
         .nav-session-indicator svg {
             flex-shrink: 0;
             opacity: 0.72;
+        }
+
+        .nav-session-indicator span {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: block;
         }
 
         /* ============================================================
@@ -663,8 +671,8 @@
             }
 
             .nav-session-indicator {
-                max-width: 104px;
-                padding: 0.42rem 0.68rem;
+                max-width: 7rem;
+                padding: 0.42rem 0.64rem;
             }
         }
 
@@ -5456,7 +5464,8 @@
 
         // ============================================================
         // LEARNING LEDGER BRIDGE
-        // Writes covered Upgrade terms for warm-up vocabulary review.
+        // Writes explicitly covered Upgrade entries for Vocabulary Refresher.
+        // Stores review-ready vocabulary, not full lesson content.
         // ============================================================
 
         const LEARNING_LEDGER_KEY = 'learning::ledger';
@@ -5557,44 +5566,67 @@
                 if (!lessonUpgrade || !lessonUpgrade.upgrade) return;
 
                 const upgrade = lessonUpgrade.upgrade;
-                const phrase = getUpgradeText(upgrade, ['term', 'phrase', 'word']);
+                const term = getUpgradeText(upgrade, ['term', 'phrase', 'word']);
                 const type = getUpgradeText(upgrade, ['type']);
-                const meaning = getUpgradeText(upgrade, ['meaning', 'definition', 'def']);
-                const example = getUpgradeText(upgrade, ['example', 'in_action', 'inAction']);
+                const def = getUpgradeText(upgrade, ['def', 'definition', 'meaning']);
+                const inAction = getUpgradeText(upgrade, ['in_action', 'inAction', 'example']);
                 const reviewPrompt = getUpgradeText(upgrade, ['review_prompt', 'reviewPrompt']);
 
-                if (!phrase || !meaning) return;
+                if (!term || !def) return;
 
                 const ledger = readLearningLedger();
                 const now = Date.now();
 
                 const sourceElementId = lessonUpgrade.sourceElementId;
                 const sourceKind = lessonUpgrade.sourceKind || 'unknown';
+                const sessionSlug = slugifyLedgerValue(currentSession);
+                const unitSlug = slugifyLedgerValue(sourceElementId);
+                const termSlug = slugifyLedgerValue(term);
 
                 const entryId = [
                     'human-compass',
                     MODULE.id,
-                    slugifyLedgerValue(currentSession),
-                    slugifyLedgerValue(sourceElementId)
+                    sessionSlug,
+                    unitSlug
                 ].join(':');
+
+                const existingEntry = ledger.entries[entryId] || {};
 
                 const entry = {
                     schemaVersion: 1,
                     id: entryId,
+
                     sourceWorld: 'human-compass',
                     sourceItem: MODULE.id,
                     sourceElementId,
                     sourceKind,
+                    contentVersion: MODULE.contentVersion,
+
                     activeSession: currentSession,
-                    phrase,
-                    meaning,
+                    session: currentSession,
+                    status,
+
+                    term,
+                    termSlug,
+                    upgradeId: termSlug,
+                    type,
+                    def,
+                    inAction,
+                    reviewPrompt,
+
+                    coveredAt: existingEntry.coveredAt || now,
+                    updatedAt: now,
                     lastTouchedAt: now,
-                    status
+
+                    reviewCount: existingEntry.reviewCount || 0,
+                    lastReviewedAt: existingEntry.lastReviewedAt || null,
+                    recallBucket: existingEntry.recallBucket || null
                 };
 
-                if (type) entry.type = type;
-                if (example) entry.example = example;
-                if (reviewPrompt) entry.reviewPrompt = reviewPrompt;
+                // Backward-friendly aliases for older diagnostics or future exports.
+                entry.phrase = term;
+                entry.meaning = def;
+                if (inAction) entry.example = inAction;
 
                 ledger.entries[entryId] = entry;
                 writeLearningLedger(ledger);
