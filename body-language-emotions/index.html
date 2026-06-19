@@ -2249,39 +2249,52 @@
         }
 
         #view-reflection.reflection-complete .reflection-progress-summary {
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
+            gap: 0.5rem;
             width: fit-content;
             max-width: calc(100% - 1rem);
             margin: 0 auto 2.1rem;
-            padding: 0.46rem 0.95rem;
+            padding: 0.52rem 1.2rem;
             border-radius: 999px;
-            border: 1px solid rgba(178, 135, 52, 0.34);
-            background: rgba(191, 154, 85, 0.13);
-            color: #8b6827;
-            box-shadow: 0 0 0 0 rgba(191, 154, 85, 0.18);
-            animation: reflectionProgressPulse 2.4s ease-in-out infinite;
+            border: 1px solid rgba(191, 154, 85, 0.22);
+            background: linear-gradient(180deg,
+                    rgba(255, 250, 240, 0.55),
+                    rgba(191, 154, 85, 0.12));
+            color: #875f1e;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.55),
+                0 1px 2px rgba(120, 90, 30, 0.08),
+                0 4px 14px rgba(120, 90, 30, 0.06);
+            animation: reflectionProgressSettle 0.55s ease-out both;
         }
 
-        @keyframes reflectionProgressPulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(191, 154, 85, 0.18);
+        @keyframes reflectionProgressSettle {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
             }
 
-            55% {
-                box-shadow: 0 0 0 9px rgba(191, 154, 85, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(191, 154, 85, 0);
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
         html[data-theme="night"] #view-reflection.reflection-complete .reflection-progress-summary {
-            border-color: rgba(228, 199, 131, 0.30);
-            background: rgba(191, 154, 85, 0.15);
-            color: #e4c783;
+            border: 1px solid rgba(228, 199, 131, 0.18);
+            background: linear-gradient(180deg,
+                    rgba(228, 199, 131, 0.14),
+                    rgba(228, 199, 131, 0.06));
+            color: #e8cd8c;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.10),
+                0 4px 14px rgba(0, 0, 0, 0.18);
         }
 
         .reflection-complete-mark {
@@ -4665,33 +4678,16 @@
                 discussionUnitSingular: 'moment',
                 discussionUnitPlural: 'moments',
                 vocabIntro: 'Higher-level expressions for discussing body language, emotion, and social signals — with definitions and natural in-action examples.'
-            },
-            iconSvg: `<svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M50 18C36.5 18 25.5 29 25.5 42.5C25.5 56 36.5 67 50 67C63.5 67 74.5 56 74.5 42.5C74.5 29 63.5 18 50 18Z"
-                    stroke="currentColor"
-                    stroke-width="5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"/>
-                <path d="M37 43C40 39.8 43.2 38.2 46.5 38.2C49.8 38.2 53 39.8 56 43C53 46.2 49.8 47.8 46.5 47.8C43.2 47.8 40 46.2 37 43Z"
-                    stroke="currentColor"
-                    stroke-width="4"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"/>
-                <path d="M64 38C69 44 71.5 50.2 71.5 56.5C71.5 68.5 62 78 50 78C42.5 78 35.9 74.2 32 68.4"
-                    stroke="currentColor"
-                    stroke-width="4.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    opacity="0.42"/>
-                <path d="M34 78C39 72.5 44.3 69.8 50 69.8C55.7 69.8 61 72.5 66 78"
-                    stroke="currentColor"
-                    stroke-width="4.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"/>
-            </svg>`
+            }
         };
 
         /* END FACTORY EDIT ZONE: MODULE CONFIG */
+
+        // ============================================================
+        // CONTENT DATA
+        // Subject-specific content lives in the factory edit zones below.
+        // Shared template UI assets in this section should stay unchanged.
+        // ============================================================
 
         /* ============================================================
            FACTORY EDIT ZONE: CULTURAL LENS CONTENT
@@ -4701,7 +4697,7 @@
         // ---- CULTURAL LENS CARDS ----
         // Each card id must stay stable. Atlas Hub data combines
         // MODULE.id + card.id to track progress and connect upgrade vocabulary.
-        // upgrade: { term, type, def, in_action }
+        // upgrade: { term, type, def, in_action, review_prompt }
 
         const clCards = [
             {
@@ -4902,7 +4898,7 @@
         // like set-1 or moment-1, because content may be reordered later.
         // Atlas Hub data combines MODULE.id + moment.id to track
         // progress and connect upgrade vocabulary.
-        // Each moment has: id, preview, text, upgrade: { term, type, def, in_action }
+        // Each moment has: id, preview, text, upgrade: { term, type, def, in_action, review_prompt }
 
         const discussionSets = [
             {
@@ -5126,12 +5122,19 @@
         /* END FACTORY EDIT ZONE: DISCUSSION CONTENT */
 
         // ============================================================
-        // TEMPLATE LOGIC
-        // Everything below is generic template code. When duplicating
-        // this module, the expected edits are MODULE config, visible
-        // subject copy in the HTML, clCards, and discussionSets.
+        // LOCKED TEMPLATE LOGIC
+        // Everything below is shared Human Compass template code.
+        //
+        // During subject conversion, edit only the factory zones above:
+        // MODULE config, visible subject copy, clCards, and discussionSets.
+        //
         // Keep MODULE.id and all card/moment ids stable after release.
-        // NAV_ITEMS and template functions should usually stay unchanged.
+        // NAV_ITEMS, UPGRADE_ICON_SVG, storage, Atlas/ledger bridges,
+        // rendering, progress, sessions, appearance mode, and init are
+        // locked shared systems.
+        //
+        // For shared UI or engine changes, update the master template,
+        // then propagate this locked section to each subject.
         // ============================================================
 
         /* ============================================================
@@ -5140,24 +5143,58 @@
            Do not edit below this line during subject conversion.
            ============================================================ */
 
-        const UPGRADE_ICON_SVG = `<svg class="upgrade-chip-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <path d="M7 1.5L7.9 5.1L11.5 6L7.9 6.9L7 12.5L6.1 6.9L2.5 6L6.1 5.1L7 1.5Z"
+        // ============================================================
+        // LOCKED SVG ASSETS
+        // Shared Human Compass visual assets used by the template.
+        // These are product/template assets, not subject-specific icons.
+        // Keep identical across all subjects.
+        // ============================================================
+
+        // Human Compass brand icon for header/nav brand slots.
+        const HC_BRAND_ICON_SVG = `<svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <text x="50" y="61"
+                text-anchor="middle"
+                font-family="Playfair Display, Georgia, serif"
+                font-size="42"
+                font-weight="600"
+                letter-spacing="-3"
+                fill="currentColor">HC</text>
+            <path d="M32 70H68"
                 stroke="currentColor"
-                stroke-width="1.2"
-                stroke-linejoin="round"/>
+                stroke-width="4"
+                stroke-linecap="round"
+                opacity="0.38"/>
         </svg>`;
+
+        // Shared Upgrade chip icon.
+        const UPGRADE_ICON_SVG = `<svg class="upgrade-chip-icon" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6.5 1.5 L7.1 4.9 L10.5 5.5 L7.1 6.1 L6.5 9.5 L5.9 6.1 L2.5 5.5 L5.9 4.9 Z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/>
+            <path d="M10.5 1.5 L10.9 2.8 L12.2 3.2 L10.9 3.6 L10.5 4.9 L10.1 3.6 L8.8 3.2 L10.1 2.8 Z" stroke="currentColor" stroke-width="0.9" stroke-linejoin="round"/>
+        </svg>`;
+
+        // ============================================================
+        // LOCKED NAV CONFIG
+        // Shared desktop and mobile navigation for every subject.
+        // Update only in the master template, then propagate globally.
+        // ============================================================
 
         const NAV_ITEMS = [
             {
                 id: 'overview',
                 label: 'Overview',
                 viewId: 'view-orientation',
-                desktopSvg: `<svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-                    <path d="M3 3.2h9M3 7.5h9M3 11.8h6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+                desktopSvg: `<svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                    <rect x="1" y="1" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.2" />
+                    <rect x="7.5" y="1" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.2" />
+                    <rect x="1" y="7.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.2" />
+                    <rect x="7.5" y="7.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.2" />
                 </svg>`,
-                mobileSvg: `<svg width="17" height="17" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-                    <path d="M3 3.2h9M3 7.5h9M3 11.8h6" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
-                </svg>`
+                mobileSvg: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <rect x="1" y="1" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.3" />
+                    <rect x="9" y="1" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.3" />
+                    <rect x="1" y="9" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.3" />
+                    <rect x="9" y="9" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.3" />
+                </svg>`,
             },
             {
                 id: 'cultural-lens',
@@ -5176,28 +5213,30 @@
                 id: 'discussion',
                 label: 'Discussion',
                 viewId: 'view-discussion',
-                desktopSvg: `<svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-                    <path d="M3 3.5h9a1.2 1.2 0 011.2 1.2v4.6a1.2 1.2 0 01-1.2 1.2H8.3L5 13v-2.5H3a1.2 1.2 0 01-1.2-1.2V4.7A1.2 1.2 0 013 3.5Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
-                    <path d="M4.5 6.3h6M4.5 8.4h4" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/>
+                desktopSvg: `<svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                    <path d="M2 3a1 1 0 011-1h7a1 1 0 011 1v5a1 1 0 01-1 1H7L4.5 11V9H3a1 1 0 01-1-1V3z" stroke="currentColor"
+                        stroke-width="1.2" stroke-linejoin="round" />
                 </svg>`,
-                mobileSvg: `<svg width="17" height="17" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-                    <path d="M3 3.5h9a1.2 1.2 0 011.2 1.2v4.6a1.2 1.2 0 01-1.2 1.2H8.3L5 13v-2.5H3a1.2 1.2 0 01-1.2-1.2V4.7A1.2 1.2 0 013 3.5Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
-                    <path d="M4.5 6.3h6M4.5 8.4h4" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/>
-                </svg>`
+                mobileSvg: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 4a1.5 1.5 0 011.5-1.5h7A1.5 1.5 0 0113 4v6a1.5 1.5 0 01-1.5 1.5H8.5L6 14V11.5H4.5A1.5 1.5 0 013 10V4z"
+                        stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+                </svg>`,
             },
             {
                 id: 'reflection',
                 label: 'Reflection',
                 viewId: 'view-reflection',
-                desktopSvg: `<svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-                    <path d="M7.5 2v11M4.2 10.2l3.3 2.8 3.3-2.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="7.5" cy="5.7" r="2.2" stroke="currentColor" stroke-width="1.2"/>
+                desktopSvg: `<svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                    <path d="M6.5 1v10M3 9l3.5 2.5L10 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <circle cx="6.5" cy="4.5" r="2" stroke="currentColor" stroke-width="1.2" />
                 </svg>`,
-                mobileSvg: `<svg width="17" height="17" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-                    <path d="M7.5 2v11M4.2 10.2l3.3 2.8 3.3-2.8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="7.5" cy="5.7" r="2.2" stroke="currentColor" stroke-width="1.2"/>
-                </svg>`
-            }
+                mobileSvg: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 2v12M4 12l4 2.5L12 12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <circle cx="8" cy="6" r="2.5" stroke="currentColor" stroke-width="1.3" />
+                </svg>`,
+            },
         ];
 
         // ---- STATE ----
@@ -5235,22 +5274,240 @@
             }
         }
 
-        function getGlobalActiveSession() {
+        // ============================================================
+        // ATLAS REGISTRY BRIDGE
+        // Writes a lightweight Human Compass summary for Atlas.
+        // Atlas reads this. The subject keeps its own detailed progress.
+        // ============================================================
+
+        const ATLAS_REGISTRY_KEY = 'atlas::registry';
+
+        function readAtlasRegistry() {
             try {
-                const raw = storageGet(GLOBAL_ACTIVE_SESSION_KEY);
-                if (!raw) return null;
+                const raw = storageGet(ATLAS_REGISTRY_KEY);
+                const parsed = raw ? JSON.parse(raw) : {};
 
-                const parsed = JSON.parse(raw);
-                if (typeof parsed === 'string') return parsed;
+                if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+                    return {
+                        schemaVersion: 1,
+                        updatedAt: Date.now(),
+                        worlds: {},
+                        items: {},
+                        recentActivity: []
+                    };
+                }
 
-                return parsed?.name || parsed?.label || null;
+                return {
+                    ...parsed,
+                    schemaVersion: parsed.schemaVersion || 1,
+                    updatedAt: parsed.updatedAt || Date.now(),
+                    worlds: parsed.worlds && typeof parsed.worlds === 'object' && !Array.isArray(parsed.worlds)
+                        ? parsed.worlds
+                        : {},
+                    items: parsed.items && typeof parsed.items === 'object' && !Array.isArray(parsed.items)
+                        ? parsed.items
+                        : {},
+                    recentActivity: Array.isArray(parsed.recentActivity)
+                        ? parsed.recentActivity
+                        : []
+                };
             } catch {
-                return null;
+                return {
+                    schemaVersion: 1,
+                    updatedAt: Date.now(),
+                    worlds: {},
+                    items: {},
+                    recentActivity: []
+                };
             }
         }
 
-        function getSessionKey() {
-            return `${MODULE.id}::${currentSession}`;
+        function writeAtlasRegistry(registry) {
+            try {
+                storageSet(ATLAS_REGISTRY_KEY, JSON.stringify({
+                    ...registry,
+                    schemaVersion: registry.schemaVersion || 1,
+                    updatedAt: Date.now()
+                }));
+            } catch {
+                // Atlas registry is a best-effort bridge. Never block the lesson module.
+            }
+        }
+
+        function getAtlasLaunchUrl() {
+            try {
+                return window.location.href.split('#')[0];
+            } catch {
+                return '';
+            }
+        }
+
+        function publishAtlasHumanCompassItem(action = 'updated') {
+            try {
+                const culturalLensTotal = clCards.length;
+                const momentItems = discussionSets.flatMap(set => set.moments);
+                const momentsTotal = momentItems.length;
+                const totalCount = culturalLensTotal + momentsTotal;
+
+                const culturalLensViewed = clCards.filter(card => progress.viewed?.has(card.id)).length;
+                const culturalLensCovered = clCards.filter(card => progress.covered?.has(card.id)).length;
+
+                const momentsViewed = momentItems.filter(moment => progress.viewed?.has(moment.id)).length;
+                const momentsCovered = momentItems.filter(moment => progress.covered?.has(moment.id)).length;
+
+                const viewedCount = culturalLensViewed + momentsViewed;
+                const coveredCount = culturalLensCovered + momentsCovered;
+
+                const status = isLessonComplete()
+                    ? 'complete'
+                    : viewedCount > 0 || coveredCount > 0
+                        ? 'in-progress'
+                        : 'opened';
+
+                const now = Date.now();
+                const registry = readAtlasRegistry();
+                const registryId = `human-compass:${MODULE.id}`;
+
+                registry.worlds = registry.worlds && typeof registry.worlds === 'object' && !Array.isArray(registry.worlds)
+                    ? registry.worlds
+                    : {};
+
+                const existingWorld = registry.worlds['human-compass'] || {};
+                const { modules, ...worldWithoutModules } = existingWorld;
+
+                registry.worlds['human-compass'] = {
+                    ...worldWithoutModules,
+                    registryId: 'human-compass',
+                    world: 'human-compass',
+                    type: 'world',
+                    title: 'Human Compass',
+                    description: 'Deep conversation subjects for thoughtful English, cultural reflection, and human communication.',
+                    status: 'available',
+                    launchUrl: existingWorld.launchUrl || './human-compass/index.html',
+                    updatedAt: now
+                };
+
+                registry.items = registry.items && typeof registry.items === 'object' && !Array.isArray(registry.items)
+                    ? registry.items
+                    : {};
+
+                const existingItem = registry.items[registryId] || {};
+
+                registry.items[registryId] = {
+                    ...existingItem,
+                    registryId,
+                    world: 'human-compass',
+                    type: 'subject',
+                    schemaVersion: MODULE.schemaVersion || 1,
+                    contentVersion: MODULE.contentVersion || '1.0.0',
+                    id: MODULE.id,
+                    title: MODULE.title,
+                    navTitle: MODULE.navTitle || MODULE.title,
+                    status,
+                    action,
+                    activeSession: currentSession,
+                    lastOpenedAt: action === 'opened' ? now : existingItem.lastOpenedAt || now,
+                    launchUrl: getAtlasLaunchUrl(),
+                    progress: {
+                        viewed: viewedCount,
+                        covered: coveredCount,
+                        total: totalCount,
+                        label: `Cultural Lens ${culturalLensCovered}/${culturalLensTotal} · Discussion ${momentsCovered}/${momentsTotal}`,
+                        culturalLens: {
+                            viewed: culturalLensViewed,
+                            covered: culturalLensCovered,
+                            total: culturalLensTotal
+                        },
+                        moments: {
+                            viewed: momentsViewed,
+                            covered: momentsCovered,
+                            total: momentsTotal
+                        }
+                    },
+                    lessonCompletedAt: progress.lessonCompletedAt || null,
+                    completionSnapshot: progress.completionSnapshot || null,
+                    updatedAt: now
+                };
+
+                delete registry.modules;
+
+                if (action !== 'progress-updated') {
+                    const previousActivity = Array.isArray(registry.recentActivity)
+                        ? registry.recentActivity
+                        : [];
+
+                    registry.recentActivity = [
+                        {
+                            registryId,
+                            world: 'human-compass',
+                            action,
+                            activeSession: currentSession,
+                            timestamp: now
+                        },
+                        ...previousActivity
+                    ].slice(0, 50);
+                }
+
+                writeAtlasRegistry(registry);
+            } catch {
+                // Atlas registry is a best-effort bridge. Never block the lesson module.
+            }
+        }
+
+        // ============================================================
+        // LEARNING LEDGER BRIDGE
+        // Writes covered Upgrade terms for warm-up vocabulary review.
+        // ============================================================
+
+        const LEARNING_LEDGER_KEY = 'learning::ledger';
+
+        function readLearningLedger() {
+            try {
+                const raw = storageGet(LEARNING_LEDGER_KEY);
+                const parsed = raw ? JSON.parse(raw) : null;
+
+                if (parsed && parsed.entries && typeof parsed.entries === 'object') {
+                    return {
+                        ...parsed,
+                        schemaVersion: parsed.schemaVersion || 1,
+                        updatedAt: parsed.updatedAt || Date.now(),
+                        entries: parsed.entries
+                    };
+                }
+
+                return {
+                    schemaVersion: 1,
+                    updatedAt: Date.now(),
+                    entries: {}
+                };
+            } catch {
+                return {
+                    schemaVersion: 1,
+                    updatedAt: Date.now(),
+                    entries: {}
+                };
+            }
+        }
+
+        function writeLearningLedger(ledger) {
+            try {
+                storageSet(LEARNING_LEDGER_KEY, JSON.stringify({
+                    ...ledger,
+                    schemaVersion: ledger.schemaVersion || 1,
+                    updatedAt: Date.now()
+                }));
+            } catch {
+                // Learning ledger is a best-effort bridge. Never block the lesson module.
+            }
+        }
+
+        function slugifyLedgerValue(value) {
+            return String(value || '')
+                .trim()
+                .toLowerCase()
+                .replace(/&/g, 'and')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '') || 'item';
         }
 
         function getUpgradeText(upgradeObj, keys) {
@@ -5265,44 +5522,6 @@
             }
 
             return '';
-        }
-
-        function slugifyLedgerValue(value) {
-            return String(value || '')
-                .trim()
-                .toLowerCase()
-                .replace(/&/g, 'and')
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/^-+|-+$/g, '') || 'unknown';
-        }
-
-        function readLearningLedger() {
-            try {
-                const raw = storageGet('learning::ledger');
-                const parsed = raw ? JSON.parse(raw) : null;
-
-                if (parsed && parsed.entries && typeof parsed.entries === 'object') {
-                    return parsed;
-                }
-
-                return {
-                    schemaVersion: 1,
-                    entries: {}
-                };
-            } catch {
-                return {
-                    schemaVersion: 1,
-                    entries: {}
-                };
-            }
-        }
-
-        function writeLearningLedger(ledger) {
-            try {
-                storageSet('learning::ledger', JSON.stringify(ledger));
-            } catch {
-                // Learning ledger is optional. Never break the lesson module.
-            }
         }
 
         function findLessonUpgradeById(id) {
@@ -5380,8 +5599,26 @@
                 ledger.entries[entryId] = entry;
                 writeLearningLedger(ledger);
             } catch {
-                // Learning ledger is non-critical. Never break the lesson module.
+                // Learning ledger is a best-effort bridge. Never block the lesson module.
             }
+        }
+
+        function getGlobalActiveSession() {
+            try {
+                const raw = storageGet(GLOBAL_ACTIVE_SESSION_KEY);
+                if (!raw) return null;
+
+                const parsed = JSON.parse(raw);
+                if (typeof parsed === 'string') return parsed;
+
+                return parsed?.name || parsed?.label || null;
+            } catch {
+                return null;
+            }
+        }
+
+        function getSessionKey() {
+            return `${MODULE.id}::${currentSession}`;
         }
 
         function loadProgress() {
@@ -5392,23 +5629,26 @@
                     const p = JSON.parse(raw);
                     const snapshot =
                         p.completionSnapshot &&
-                            Array.isArray(p.completionSnapshot.viewed) &&
-                            Array.isArray(p.completionSnapshot.covered)
+                            typeof p.completionSnapshot.coveredCount === 'number' &&
+                            typeof p.completionSnapshot.totalCount === 'number'
                             ? {
-                                viewed: p.completionSnapshot.viewed,
-                                covered: p.completionSnapshot.covered
+                                coveredCount: p.completionSnapshot.coveredCount,
+                                totalCount: p.completionSnapshot.totalCount,
+                                completedAt: p.completionSnapshot.completedAt || p.lessonCompletedAt || null
                             }
                             : null;
 
                     progress = {
                         viewed: new Set(p.viewed || []),
                         covered: new Set(p.covered || []),
+                        lessonCompletedAt: p.lessonCompletedAt || null,
                         completionSnapshot: snapshot
                     };
                 } catch {
                     progress = {
                         viewed: new Set(),
                         covered: new Set(),
+                        lessonCompletedAt: null,
                         completionSnapshot: null
                     };
                 }
@@ -5416,6 +5656,7 @@
                 progress = {
                     viewed: new Set(),
                     covered: new Set(),
+                    lessonCompletedAt: null,
                     completionSnapshot: null
                 };
             }
@@ -5424,17 +5665,19 @@
         function saveProgress() {
             const snapshot =
                 progress.completionSnapshot &&
-                    Array.isArray(progress.completionSnapshot.viewed) &&
-                    Array.isArray(progress.completionSnapshot.covered)
+                    typeof progress.completionSnapshot.coveredCount === 'number' &&
+                    typeof progress.completionSnapshot.totalCount === 'number'
                     ? {
-                        viewed: [...progress.completionSnapshot.viewed],
-                        covered: [...progress.completionSnapshot.covered]
+                        coveredCount: progress.completionSnapshot.coveredCount,
+                        totalCount: progress.completionSnapshot.totalCount,
+                        completedAt: progress.completionSnapshot.completedAt || progress.lessonCompletedAt || null
                     }
                     : null;
 
             storageSet(getSessionKey(), JSON.stringify({
                 viewed: [...progress.viewed],
                 covered: [...progress.covered],
+                lessonCompletedAt: progress.lessonCompletedAt || null,
                 completionSnapshot: snapshot
             }));
         }
@@ -5479,11 +5722,24 @@
             }
         }
 
+        // ============================================================
+        // COVERAGE & LEDGER RULE
+        // Covered units are the only source of Learning Ledger entries.
+        // Viewing cards, opening Upgrade chips, or completing the lesson
+        // must never publish inferred vocabulary progress.
+        // ============================================================
+
+        // A Cultural Lens card or Discussion moment is the atomic teaching unit.
+        // Its attached Upgrade belongs to that unit, not to a separate progress track.
+        // If a unit ever carries multiple Upgrades, revisit this rule.
+
+
         function markCovered(id) {
             progress.covered.add(id);
             progress.viewed.add(id);
             saveProgress();
-            publishLearningLedgerUpgrade(id);
+            publishLearningLedgerUpgrade(id, 'covered');
+            publishAtlasHumanCompassItem('progress-updated');
             updateLessonCompleteButton();
             updateGlobalProgressRail();
             updateCoverActionUI();
@@ -5514,6 +5770,10 @@
         }
 
         function isLessonComplete() {
+            return progress.lessonCompletedAt != null;
+        }
+
+        function isFullyCovered() {
             const allIds = getLessonItemIds();
             return allIds.length > 0 && allIds.every(id => progress.covered.has(id));
         }
@@ -5522,15 +5782,35 @@
             const allIds = getLessonItemIds();
             const total = allIds.length;
             const covered = total ? allIds.filter(id => progress.covered.has(id)).length : 0;
-            const percent = total ? Math.round((covered / total) * 100) : 0;
+            const coveragePercent = total ? Math.round((covered / total) * 100) : 0;
+            const lessonComplete = isLessonComplete();
+            const visualPercent = lessonComplete ? 100 : coveragePercent;
 
             document.querySelectorAll('.global-progress-rail').forEach(rail => {
                 const fill = rail.querySelector('.global-progress-fill');
 
-                if (fill) fill.style.width = `${percent}%`;
+                if (fill) fill.style.width = `${visualPercent}%`;
 
-                rail.classList.toggle('is-complete', total > 0 && covered === total);
-                rail.setAttribute('aria-valuenow', String(percent));
+                rail.classList.toggle('is-complete', lessonComplete || (total > 0 && covered === total));
+                rail.classList.toggle('is-lesson-complete', lessonComplete);
+                rail.classList.toggle('is-fully-covered', total > 0 && covered === total);
+
+                rail.setAttribute('aria-valuenow', String(visualPercent));
+
+                if (total === 0) {
+                    rail.setAttribute(
+                        'aria-valuetext',
+                        lessonComplete ? 'Lesson complete.' : 'Lesson progress not started.'
+                    );
+                    return;
+                }
+
+                rail.setAttribute(
+                    'aria-valuetext',
+                    lessonComplete
+                        ? `Lesson complete. ${covered} of ${total} items covered.`
+                        : `Lesson progress. ${covered} of ${total} items covered.`
+                );
             });
         }
 
@@ -5590,37 +5870,27 @@
 
             if (!allIds.length) return;
 
-            const complete = isLessonComplete();
-            const hasSnapshot =
-                progress.completionSnapshot &&
-                Array.isArray(progress.completionSnapshot.viewed) &&
-                Array.isArray(progress.completionSnapshot.covered);
-
-            if (complete) {
-                if (!hasSnapshot) return;
-
-                progress.viewed = new Set(progress.completionSnapshot.viewed || []);
-                progress.covered = new Set(progress.completionSnapshot.covered || []);
+            if (progress.lessonCompletedAt) {
+                progress.lessonCompletedAt = null;
                 progress.completionSnapshot = null;
 
                 saveProgress();
+                publishAtlasHumanCompassItem('progress-updated');
                 refreshProgressUI();
                 updateLessonCompleteButton();
 
                 return;
             }
 
+            progress.lessonCompletedAt = Date.now();
             progress.completionSnapshot = {
-                viewed: [...progress.viewed],
-                covered: [...progress.covered]
+                coveredCount: progress.covered.size,
+                totalCount: allIds.length,
+                completedAt: progress.lessonCompletedAt
             };
 
-            allIds.forEach(id => {
-                progress.viewed.add(id);
-                progress.covered.add(id);
-            });
-
             saveProgress();
+            publishAtlasHumanCompassItem('progress-updated');
             refreshProgressUI();
             updateLessonCompleteButton();
             revealReflectionCompleteState();
@@ -5632,28 +5902,18 @@
             if (!btn) return;
 
             const complete = isLessonComplete();
-            const hasSnapshot =
-                progress.completionSnapshot &&
-                Array.isArray(progress.completionSnapshot.viewed) &&
-                Array.isArray(progress.completionSnapshot.covered);
 
-            btn.disabled = complete && !hasSnapshot;
+            btn.disabled = false;
             btn.className = `btn-primary${complete ? ' btn-complete-done' : ''}`;
 
             if (!complete) {
                 btn.innerHTML = `${LESSON_COMPLETE_ICON} Mark lesson complete`;
-                btn.title = 'Mark every card and moment as covered for this session';
+                btn.title = 'Mark this session as complete without changing covered items';
                 return;
             }
 
-            if (hasSnapshot) {
-                btn.innerHTML = `${LESSON_UNDO_ICON} Undo lesson complete`;
-                btn.title = 'Restore progress to the state before lesson completion';
-                return;
-            }
-
-            btn.innerHTML = `${LESSON_COMPLETE_ICON} Lesson completed`;
-            btn.title = 'All cards and moments are covered for this session';
+            btn.innerHTML = `${LESSON_UNDO_ICON} Undo lesson complete`;
+            btn.title = 'Mark this session as not complete. Covered items will stay unchanged.';
         }
 
         function registerAtlasModuleManifest() {
@@ -5718,7 +5978,7 @@
 
                 storageSet('human-compass::moduleIndex', JSON.stringify(nextIndex));
             } catch {
-                // Atlas Hub data is optional. The module should still work if storage is blocked.
+                // Module manifest is a best-effort bridge. Never block the lesson module.
             }
         }
 
@@ -5906,10 +6166,10 @@
                 </button>`;
         }
 
-        // Inject subject icons into all .nav-brand-icon elements
-        function renderSubjectIcons() {
+        // Inject the locked Human Compass brand icon into all header/nav brand slots.
+        function renderBrandIcons() {
             document.querySelectorAll('.nav-brand-icon').forEach(icon => {
-                icon.innerHTML = MODULE.iconSvg;
+                icon.innerHTML = HC_BRAND_ICON_SVG;
             });
         }
 
@@ -6433,21 +6693,21 @@
             const reviewPrompt = getUpgradeText(upgradeObj, ['review_prompt', 'reviewPrompt']);
 
             return `<button class="upgrade-chip" id="uc-${contextId}" onclick="toggleUpgrade('${contextId}', event)" aria-expanded="false">
-        ${UPGRADE_ICON_SVG}
-        Upgrade: ${escHtml(upgradeObj.term)}
-    </button>
-    <div class="upgrade-panel" id="up-${contextId}">
-        <p class="upgrade-panel-term">${escHtml(upgradeObj.term)}</p>
-        <p class="upgrade-panel-type">${escHtml(upgradeObj.type)}</p>
-        <p class="upgrade-panel-def">${escHtml(upgradeObj.def)}</p>
-        <p class="upgrade-panel-in-action">${escHtml(upgradeObj.in_action)}</p>
-        ${reviewPrompt ? `
-            <div class="upgrade-panel-try">
-                <p class="upgrade-panel-try-label">Try this</p>
-                <p class="upgrade-panel-review-prompt">${escHtml(reviewPrompt)}</p>
-            </div>
-        ` : ''}
-    </div>`;
+                ${UPGRADE_ICON_SVG}
+                Upgrade: ${escHtml(upgradeObj.term)}
+            </button>
+            <div class="upgrade-panel" id="up-${contextId}">
+                <p class="upgrade-panel-term">${escHtml(upgradeObj.term)}</p>
+                <p class="upgrade-panel-type">${escHtml(upgradeObj.type)}</p>
+                <p class="upgrade-panel-def">${escHtml(upgradeObj.def)}</p>
+                <p class="upgrade-panel-in-action">${escHtml(upgradeObj.in_action)}</p>
+                ${reviewPrompt ? `
+                    <div class="upgrade-panel-try">
+                        <p class="upgrade-panel-try-label">Try this</p>
+                        <p class="upgrade-panel-review-prompt">${escHtml(reviewPrompt)}</p>
+                    </div>
+                ` : ''}
+            </div>`;
         }
 
         function gentlyRevealUpgradePanel(panel) {
@@ -6878,7 +7138,7 @@
                         <div class="moment-upgrade-wrap">
                             <div class="moment-action-row">
                                 <div class="moment-upgrade-slot">
-                                    ${buildUpgradeChip(moment.upgrade, 'moment-' + moment.id)}
+                                 ${buildUpgradeChip(moment.upgrade, 'moment-' + moment.id)}
                                 </div>
                                 ${coveredBtnHtml}
                             </div>
@@ -7311,13 +7571,17 @@
                 ? MODULE.labels.discussionUnitSingular
                 : MODULE.labels.discussionUnitPlural;
 
-            const useCompactSummary =
-                isLessonComplete() &&
-                window.matchMedia('(max-width: 680px)').matches;
+            const isCompact = window.matchMedia('(max-width: 680px)').matches;
 
-            summary.textContent = useCompactSummary
-                ? `${clCovered}/${clCards.length} ${clUnit} · ${discCovered}/${totalMoments} ${discUnit}`
-                : `${clCovered}/${clCards.length} ${clUnit} covered · ${discCovered}/${totalMoments} ${discUnit} covered`;
+            if (isLessonComplete()) {
+                summary.textContent = isCompact
+                    ? `${clCards.length} ${clUnit} · ${totalMoments} ${discUnit}`
+                    : `${clCards.length} cultural ${clUnit} · ${totalMoments} discussion ${discUnit}`;
+
+                return;
+            }
+
+            summary.textContent = `${clCovered}/${clCards.length} ${clUnit} covered · ${discCovered}/${totalMoments} ${discUnit} covered`;
         }
 
         function escHtml(str) {
@@ -7509,8 +7773,8 @@
             // Render shared mobile drawer nav
             renderMobileDrawerNav();
 
-            // Stamp subject icon into all brand slots (runs after nav HTML is injected)
-            renderSubjectIcons();
+            // Stamp the locked HC brand icon into all brand slots after nav HTML is injected.
+            renderBrandIcons();
 
             // Register lightweight module data for Atlas Hub
             registerAtlasModuleManifest();
@@ -7519,6 +7783,9 @@
             loadSessions();
             loadProgress();
             updateSessionUI();
+
+            // Publish lightweight subject summary for Atlas
+            publishAtlasHumanCompassItem('opened');
 
             // Render content grids
             renderCLGrid();
