@@ -1,0 +1,3031 @@
+<!DOCTYPE html>
+<!--
+  ==========================================================================
+  ATLAS V1 · GATEWAY RUNTIME
+  SmartStudy™ Methodology
+  --------------------------------------------------------------------------
+  The calm threshold between learning worlds.
+
+  Atlas does not teach the lesson.
+  Atlas remembers where the lesson lives.
+
+  It reads the bridge, restores the active session, surfaces the next path,
+  and gives the tutor a quiet place to begin: Continue, Review, or choose a
+  world.
+
+  Compass may deepen.
+  Arcade may play.
+  Business may sharpen.
+  The bridge remains the contract.
+  Atlas opens the way.
+  --------------------------------------------------------------------------
+  LIMEN APERIT · PONS MEMINIT · ORBES VOCANT
+  ==========================================================================
+-->
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atlas</title>
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 4L96 50L50 96L4 50Z' fill='%235EC8F2' stroke='%231E8CB8' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M50 18L82 50L50 82L18 50Z' fill='%23EAFBFF' stroke='%23FFFFFF' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 34L66 50L50 66L34 50Z' fill='%2347BDE8' stroke='%231E8CB8' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 18L50 34M82 50L66 50M50 82L50 66M18 50L34 50' stroke='%235EC8F2' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="./shared/atlas-search.css">
+  
+  <!-- Anti-flash: apply saved theme before first paint. Reads only the canonical key. -->
+  <script>
+    (function () {
+      var m = null;
+      try { m = localStorage.getItem('atlas::appearanceMode'); } catch (e) { m = null; }
+      document.documentElement.dataset.theme = (m === 'night') ? 'night' : 'light';
+    })();
+  </script>
+  <style>
+    /* ============================================================
+   ATLAS V1 — DESIGN TOKENS
+   Atlas is the threshold between worlds, not a world itself.
+   Identity by contrast: where the worlds are warm, saturated, and
+   atmospheric (Compass teal + photographic immersion, Arcade purple),
+   Atlas is cool, matte, and architectural — flat paper, not a place.
+   The accent is a neutral slate so it recedes behind every world and
+   never competes with their colours. Boldness is spent on stillness.
+   ============================================================ */
+    :root {
+      /* Neutrals — cool paper, stepping off the warm-cream default */
+      --bg: #eef0f1;
+      --bg-raised: #fbfbfc;
+      --bg-subtle: #e4e7e9;
+      --border: rgba(28, 34, 42, 0.10);
+      --border-mid: rgba(28, 34, 42, 0.16);
+      /* Ink — cool, slightly blue-grey rather than warm brown */
+      --ink: #181c22;
+      --ink-mid: #424954;
+      --ink-quiet: #717982;
+      --ink-faint: #a7adb5;
+      /* Accent — neutral slate-ink. Not Compass teal, not Arcade purple.
+     Connective tissue: recedes behind the worlds' saturated colours. */
+      --accent: #5a6675;
+      --accent-soft: #79838f;
+      --accent-pale: #e4e8ed;
+      --accent-rgb: 90, 102, 117;
+      /* Semantic */
+      --continue-bg: #e8ebef;
+      --continue-border: rgba(90, 102, 117, 0.30);
+      --door-hover: rgba(28, 34, 42, 0.025);
+      --danger: #b23a2e;
+      --danger-bg: #fbf1f0;
+      --danger-border: rgba(178, 58, 46, 0.3);
+      /* Shadows — halved against Compass; Atlas sits flat */
+      --shadow-sm: 0 1px 2px rgba(20, 26, 34, 0.05);
+      --shadow-md: 0 2px 8px rgba(20, 26, 34, 0.06);
+      --shadow-lg: 0 6px 24px rgba(20, 26, 34, 0.10);
+      /* Radii — slightly tighter, more architectural than the worlds */
+      --r-sm: 5px;
+      --r-md: 10px;
+      --r-lg: 14px;
+      --r-xl: 20px;
+      /* Type */
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      /* Motion */
+      --t: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Night mode — cool charcoal-slate, not the worlds' warm brown night.
+   Atlas stays the neutral threshold in the dark too. */
+    html[data-theme="night"] {
+      --bg: #181b1f;
+      --bg-raised: #23272d;
+      --bg-subtle: #1f2329;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-mid: rgba(255, 255, 255, 0.14);
+      --ink: #e8eaed;
+      --ink-mid: #b3b9c1;
+      --ink-quiet: #7e848d;
+      --ink-faint: #4a4f57;
+      --accent: #8a96a6;
+      --accent-soft: #a3adba;
+      --accent-pale: #262c34;
+      --accent-rgb: 138, 150, 166;
+      --continue-bg: #232932;
+      --continue-border: rgba(138, 150, 166, 0.32);
+      --door-hover: rgba(255, 255, 255, 0.04);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.22);
+      --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.30);
+      --shadow-lg: 0 6px 26px rgba(0, 0, 0, 0.40);
+    }
+
+    /* Smooth theme transitions */
+    html.theme-transitioning *,
+    html.theme-transitioning *::before,
+    html.theme-transitioning *::after {
+      transition: background-color 0.35s ease, color 0.35s ease,
+        border-color 0.35s ease, box-shadow 0.35s ease !important;
+    }
+
+    /* ============================================================ RESET */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      min-height: 100%;
+      scroll-behavior: smooth;
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100svh;
+      overflow-x: hidden;
+    }
+
+    .atmosphere-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity var(--t);
+    }
+
+    .atmosphere-layer.visible {
+      opacity: 0.10;
+    }
+
+    html[data-theme="night"] .atmosphere-layer.visible {
+      opacity: 0.08;
+    }
+
+    /* ============================================================ SPINE (desktop header) */
+    .spine {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(238, 240, 241, 0.90);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      height: 56px;
+      padding: 0 1.5rem;
+      gap: 0.5rem;
+    }
+
+    html[data-theme="night"] .spine {
+      background: rgba(24, 27, 31, 0.90);
+    }
+
+    .spine-mark {
+      font-family: var(--font-display);
+      font-size: 1.22rem;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      flex: 1 1 0;
+      cursor: default;
+      user-select: none;
+    }
+
+    .spine-mark span {
+      color: var(--accent);
+    }
+
+    /* Centered hub shortcut group */
+    .spine-worlds {
+      display: flex;
+      align-items: center;
+      gap: 0.18rem;
+      flex: 0 0 auto;
+      padding: 0.2rem;
+      border-radius: 999px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .spine-world-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.42rem;
+      min-height: 32px;
+      padding: 0.32rem 0.82rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: transparent;
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--ink-quiet);
+      cursor: pointer;
+      transition: var(--t);
+      white-space: nowrap;
+    }
+
+    .spine-world-btn svg {
+      width: 13px;
+      height: 13px;
+      opacity: 0.72;
+      flex-shrink: 0;
+    }
+
+    .spine-world-btn:hover {
+      color: var(--ink);
+      background: var(--bg-raised);
+      border-color: var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .spine-world-btn:hover svg {
+      opacity: 1;
+    }
+
+    .spine-world-btn.is-active {
+      color: var(--ink);
+      background: var(--bg-raised);
+      border-color: var(--border-mid);
+      box-shadow: var(--shadow-sm);
+      cursor: default;
+    }
+
+    .spine-world-btn.is-active svg {
+      opacity: 1;
+    }
+
+    .spine-world-btn[aria-disabled="true"] {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .spine-world-btn[aria-disabled="true"]:hover {
+      color: var(--ink-quiet);
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+    }
+
+    /* Right-side controls: session pill, appearance, quick jump */
+    .spine-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex: 1 1 0;
+      justify-content: flex-end;
+    }
+
+    .spine-session-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.48rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--ink-mid);
+      cursor: pointer;
+      transition: var(--t);
+      max-width: 170px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .spine-session-pill:hover {
+      border-color: var(--accent);
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .spine-session-pill .pill-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .spine-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-quiet);
+      cursor: pointer;
+      transition: var(--t);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .spine-btn:hover {
+      color: var(--ink);
+      border-color: var(--border-mid);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ============================================================ MOBILE HEADER */
+    .mobile-header {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(238, 240, 241, 0.93);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      height: 56px;
+      padding: 0 1rem;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    html[data-theme="night"] .mobile-header {
+      background: rgba(24, 27, 31, 0.93);
+    }
+
+    .mobile-header-mark {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      flex: 1;
+    }
+
+    .mobile-header-mark span {
+      color: var(--accent);
+    }
+
+    .mobile-header-session {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: var(--ink-mid);
+      cursor: pointer;
+      padding: 0.25rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--bg-raised);
+      max-width: 130px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      height: 40px;
+    }
+
+    .mobile-header-session span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mobile-header-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-quiet);
+      cursor: pointer;
+      transition: var(--t);
+      flex-shrink: 0;
+    }
+
+    .mobile-header-btn:hover {
+      color: var(--ink);
+    }
+
+    /* ============================================================ MOBILE DRAWER */
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 400;
+      backdrop-filter: blur(4px);
+    }
+
+    .drawer-overlay.open {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: min(300px, 85vw);
+      background: var(--bg-raised);
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+      transform: translateX(-100%);
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      padding: 1.2rem 1.2rem 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .drawer-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      color: var(--ink);
+    }
+
+    .drawer-title span {
+      color: var(--accent);
+    }
+
+    .drawer-close {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--ink-quiet);
+    }
+
+    .drawer-close:hover {
+      background: var(--bg-subtle);
+      color: var(--ink);
+    }
+
+    .drawer-nav {
+      flex: 1;
+      padding: 0.8rem;
+      overflow-y: auto;
+    }
+
+    .drawer-nav-label {
+      font-size: 0.64rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      padding: 0.6rem 0.9rem 0.4rem;
+    }
+
+    .drawer-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.8rem 0.9rem;
+      border-radius: var(--r-md);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--ink-mid);
+      cursor: pointer;
+      transition: var(--t);
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      min-height: 44px;
+    }
+
+    .drawer-nav-item:hover {
+      background: var(--bg-subtle);
+      color: var(--ink);
+    }
+
+    .drawer-nav-item[aria-disabled="true"] {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .drawer-nav-item[aria-disabled="true"]:hover {
+      background: none;
+      color: var(--ink-mid);
+    }
+
+    .drawer-nav-item .nav-soon {
+      margin-left: auto;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+
+    .drawer-nav-item.is-active {
+      background: var(--accent-pale);
+      color: var(--ink);
+      cursor: default;
+    }
+
+    .drawer-nav-item.is-active:hover {
+      background: var(--accent-pale);
+      color: var(--ink);
+    }
+
+    .drawer-footer {
+      padding: 0.8rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .drawer-footer-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .drawer-session-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: var(--r-md);
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--ink-mid);
+      cursor: pointer;
+      min-height: 44px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .drawer-session-btn span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .drawer-appearance-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--r-md);
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--ink-quiet);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================ MAIN LAYOUT */
+    .atlas-main {
+      position: relative;
+      z-index: 1;
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 4rem;
+    }
+
+    /* ============================================================ CONTEXT ANCHOR */
+    .context-anchor {
+      margin-bottom: 2rem;
+      padding-bottom: 1.75rem;
+      position: relative;
+    }
+
+    /* Signature: the threshold sill — a hairline horizon under the greeting,
+   with a single short accent tick at the left. Reads as the line between
+   "here" (Atlas) and "there" (the worlds). Atlas's one deliberate flourish. */
+    .context-anchor::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .today-label {
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.7rem;
+    }
+
+    .welcome-line {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 4vw, 2.1rem);
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 0.45rem;
+      font-weight: 400;
+    }
+
+    .welcome-sub {
+      font-size: 0.92rem;
+      color: var(--ink-quiet);
+      font-weight: 300;
+    }
+
+    /* ============================================================ CONTINUE CARD */
+    .continue-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--continue-bg);
+      border: 1.5px solid var(--continue-border);
+      border-radius: var(--r-lg);
+      padding: 1.15rem 1.3rem;
+      margin-bottom: 1.75rem;
+      cursor: pointer;
+      transition: var(--t);
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Extra bottom room so the rail doesn't crowd the text */
+    .continue-card.has-rail {
+      padding-bottom: 1.3rem;
+    }
+
+    .continue-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .continue-card:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Unlabeled coverage rail — pinned to the card's bottom edge. Reads as
+   shape, not numbers. Quieter than the worlds' rail: a hairline track with
+   a calm accent fill. */
+    .continue-rail {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      background: rgba(var(--accent-rgb), 0.14);
+      overflow: hidden;
+    }
+
+    .continue-rail-fill {
+      height: 100%;
+      background: var(--accent-soft);
+      border-radius: 0 2px 2px 0;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .continue-rail.is-complete .continue-rail-fill {
+      background: var(--accent);
+      border-radius: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .continue-rail-fill {
+        transition: none;
+      }
+    }
+
+    .continue-icon {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      border-radius: var(--r-sm);
+      background: rgba(var(--accent-rgb), 0.15);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .continue-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .continue-kicker {
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.2rem;
+    }
+
+    .continue-title {
+      font-size: 0.98rem;
+      font-weight: 500;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .continue-meta {
+      font-size: 0.76rem;
+      color: var(--ink-quiet);
+      margin-top: 0.12rem;
+    }
+
+    .continue-arrow {
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* ============================================================ LANGUAGE REVIEW ROW */
+    .review-row {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 0.85rem 1.1rem;
+      margin-bottom: 1.75rem;
+      cursor: pointer;
+      transition: var(--t);
+      width: 100%;
+      text-align: left;
+      font-family: var(--font-body);
+    }
+
+    .review-row:hover {
+      border-color: var(--border-mid);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .review-row:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .review-row-icon {
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      border-radius: var(--r-sm);
+      background: var(--accent-pale);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .review-row-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .review-row-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink-mid);
+      margin-bottom: 0.1rem;
+    }
+
+    .review-row-count {
+      font-size: 0.8rem;
+      color: var(--ink-quiet);
+    }
+
+    .review-row-arrow {
+      color: var(--ink-faint);
+      flex-shrink: 0;
+      transition: var(--t);
+    }
+
+    .review-row:hover .review-row-arrow {
+      color: var(--accent);
+      transform: translateX(2px);
+    }
+
+    /* ============================================================ DOORS */
+    .doors-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 0.85rem;
+    }
+
+    .doors-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .door {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-raised);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 1.5rem 1.4rem 1.3rem;
+      cursor: pointer;
+      transition: var(--t);
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      min-height: 150px;
+      width: 100%;
+      text-align: left;
+      font-family: var(--font-body);
+    }
+
+    .door::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      opacity: 0;
+      transition: opacity var(--t);
+    }
+
+    .door-compass::before {
+      background: linear-gradient(90deg, #5c7a6e, #7fa898);
+    }
+
+    .door-arcade::before {
+      background: linear-gradient(90deg, #7a6e9a, #9a8eb8);
+    }
+
+    .door:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+      border-color: var(--border-mid);
+    }
+
+    .door:hover::before {
+      opacity: 1;
+    }
+
+    .door:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .door-unavailable {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .door-unavailable:hover {
+      box-shadow: none;
+      transform: none;
+      border-color: var(--border);
+    }
+
+    .door-unavailable:hover::before {
+      opacity: 0;
+    }
+
+    .door-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
+    }
+
+    .door-compass .door-icon {
+      background: rgba(92, 122, 110, 0.12);
+      color: #5c7a6e;
+    }
+
+    .door-arcade .door-icon {
+      background: rgba(122, 110, 154, 0.12);
+      color: #7a6e9a;
+    }
+
+    html[data-theme="night"] .door-compass .door-icon {
+      background: rgba(127, 168, 150, 0.15);
+      color: #7fa896;
+    }
+
+    html[data-theme="night"] .door-arcade .door-icon {
+      background: rgba(160, 148, 190, 0.15);
+      color: #a094be;
+    }
+
+    .door-name {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+    }
+
+    .door-compass .door-name {
+      color: #5c7a6e;
+    }
+
+    .door-arcade .door-name {
+      color: #7a6e9a;
+    }
+
+    html[data-theme="night"] .door-compass .door-name {
+      color: #7fa896;
+    }
+
+    html[data-theme="night"] .door-arcade .door-name {
+      color: #a094be;
+    }
+
+    .door-title {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      color: var(--ink);
+      margin-bottom: 0.4rem;
+      line-height: 1.2;
+    }
+
+    .door-desc {
+      font-size: 0.82rem;
+      color: var(--ink-quiet);
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .door-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+
+    .door-arrow {
+      display: flex;
+      align-items: center;
+      color: var(--ink-faint);
+      transition: var(--t);
+      margin-left: auto;
+    }
+
+    .door:hover .door-arrow {
+      color: var(--accent);
+      transform: translateX(3px);
+    }
+
+    .door-soon-badge {
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      background: var(--bg-subtle);
+      border-radius: 20px;
+      padding: 0.22rem 0.6rem;
+    }
+
+    /* ============================================================ LANGUAGE REVIEW — FOCUSED INLINE VIEW */
+    .review-view {
+      position: relative;
+      z-index: 1;
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .review-topbar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .review-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.85rem 0.45rem 0.65rem;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-mid);
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--t);
+      min-height: 40px;
+    }
+
+    .review-back:hover {
+      border-color: var(--border-mid);
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .review-back:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .review-progress {
+      margin-left: auto;
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: var(--ink-quiet);
+      letter-spacing: 0.02em;
+    }
+
+    .review-heading {
+      margin-bottom: 0.3rem;
+    }
+
+    .review-heading-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .review-heading-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 3.5vw, 1.7rem);
+      color: var(--ink);
+      line-height: 1.2;
+      font-weight: 400;
+    }
+
+    .review-context {
+      font-size: 0.84rem;
+      color: var(--ink-quiet);
+      margin-bottom: 1.75rem;
+    }
+
+    /* The recall card */
+    .recall-card {
+      background: var(--bg-raised);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 2rem 1.9rem;
+      box-shadow: var(--shadow-sm);
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .recall-type {
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 0.6rem;
+    }
+
+    .recall-term {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 5vw, 2.1rem);
+      color: var(--ink);
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+    }
+
+    .recall-prompt {
+      font-size: 0.95rem;
+      color: var(--ink-mid);
+      line-height: 1.6;
+      padding: 0.9rem 1.1rem;
+      background: var(--accent-pale);
+      border-radius: var(--r-md);
+      border-left: 3px solid var(--accent-soft);
+    }
+
+    .recall-prompt-label {
+      display: block;
+      font-size: 0.64rem;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+    }
+
+    .recall-reveal-btn {
+      margin-top: 1.5rem;
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.25rem;
+      border-radius: var(--r-md);
+      border: 1px solid var(--accent);
+      background: none;
+      color: var(--accent);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--t);
+      min-height: 44px;
+    }
+
+    .recall-reveal-btn:hover {
+      background: var(--accent-pale);
+    }
+
+    .recall-reveal-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Revealed answer */
+    .recall-answer {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      animation: fadeIn 0.25s ease;
+    }
+
+    .recall-answer-label {
+      font-size: 0.64rem;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 0.4rem;
+    }
+
+    .recall-def {
+      font-size: 0.98rem;
+      color: var(--ink);
+      line-height: 1.6;
+      margin-bottom: 1.1rem;
+    }
+
+    .recall-inaction {
+      font-size: 0.9rem;
+      color: var(--ink-quiet);
+      font-style: italic;
+      line-height: 1.6;
+      padding-left: 0.9rem;
+      border-left: 2px solid var(--accent-pale);
+    }
+
+    /* Review nav controls */
+    .review-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 1.75rem;
+    }
+
+    .review-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.7rem 1.1rem;
+      border-radius: var(--r-md);
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-mid);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--t);
+      min-height: 44px;
+    }
+
+    .review-nav-btn:hover:not(:disabled) {
+      border-color: var(--border-mid);
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .review-nav-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .review-nav-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .review-nav-btn.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      margin-left: auto;
+    }
+
+    .review-nav-btn.primary:hover {
+      background: var(--accent-soft);
+    }
+
+    /* ============================================================ SESSION MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 700;
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+      animation: fadeIn 0.18s ease;
+    }
+
+    .modal-panel {
+      background: var(--bg-raised);
+      border-radius: var(--r-xl);
+      width: 100%;
+      max-width: 420px;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.22s cubic-bezier(0.34, 1.25, 0.64, 1);
+      max-height: 90svh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 1.3rem 1.5rem 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .modal-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--ink-quiet);
+    }
+
+    .modal-close:hover {
+      background: var(--bg-subtle);
+      color: var(--ink);
+    }
+
+    .modal-body {
+      padding: 1.2rem 1.5rem 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-helper {
+      font-size: 0.8rem;
+      color: var(--ink-quiet);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .session-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .session-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.65rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      background: var(--bg-subtle);
+      transition: var(--t);
+    }
+
+    .session-item.active {
+      border-color: var(--accent);
+      background: var(--accent-pale);
+    }
+
+    .session-item-name {
+      flex: 1;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .session-item-badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 20px;
+      padding: 0.15rem 0.5rem;
+    }
+
+    .session-item-actions {
+      display: flex;
+      gap: 0.3rem;
+      flex-shrink: 0;
+    }
+
+    .session-action-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-quiet);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--t);
+    }
+
+    .session-action-btn:hover {
+      color: var(--ink);
+      border-color: var(--border-mid);
+    }
+
+    .session-action-btn.danger:hover {
+      color: var(--danger);
+      border-color: var(--danger-border);
+      background: var(--danger-bg);
+    }
+
+    .modal-section-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin: 1rem 0 0.5rem;
+    }
+
+    .session-new-form {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .session-input {
+      flex: 1;
+      padding: 0.6rem 0.8rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      color: var(--ink);
+      background: var(--bg-raised);
+      outline: none;
+      transition: var(--t);
+      min-height: 44px;
+    }
+
+    .session-input:focus {
+      border-color: var(--accent);
+    }
+
+    .session-error {
+      font-size: 0.78rem;
+      color: var(--danger);
+      margin-top: 0.5rem;
+      min-height: 1rem;
+      opacity: 0;
+      transition: opacity var(--t);
+    }
+
+    .session-error.visible {
+      opacity: 1;
+    }
+
+    .btn-primary {
+      padding: 0.6rem 1.1rem;
+      border-radius: var(--r-sm);
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--t);
+      white-space: nowrap;
+      min-height: 44px;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-soft);
+    }
+
+    .btn-ghost {
+      padding: 0.6rem 1rem;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--ink-mid);
+      cursor: pointer;
+      transition: var(--t);
+      min-height: 44px;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--border-mid);
+      color: var(--ink);
+    }
+
+    /* ============================================================ CONFIRM DIALOG */
+    .confirm-dialog {
+      position: fixed;
+      inset: 0;
+      z-index: 800;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(6px);
+    }
+
+    .confirm-dialog.open {
+      display: flex;
+      animation: fadeIn 0.15s ease;
+    }
+
+    .confirm-panel {
+      background: var(--bg-raised);
+      border-radius: var(--r-lg);
+      max-width: 360px;
+      width: 100%;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.2s cubic-bezier(0.34, 1.25, 0.64, 1);
+    }
+
+    .confirm-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+
+    .confirm-message {
+      font-size: 0.85rem;
+      color: var(--ink-quiet);
+      line-height: 1.55;
+      margin-bottom: 1.2rem;
+    }
+
+    .confirm-input {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      color: var(--ink);
+      background: var(--bg-raised);
+      outline: none;
+      transition: var(--t);
+      margin-bottom: 0.5rem;
+      display: none;
+      min-height: 44px;
+    }
+
+    .confirm-input.visible {
+      display: block;
+    }
+
+    .confirm-input:focus {
+      border-color: var(--accent);
+    }
+
+    .confirm-error {
+      font-size: 0.78rem;
+      color: var(--danger);
+      margin-bottom: 0.8rem;
+      min-height: 1rem;
+      display: none;
+    }
+
+    .confirm-error.visible {
+      display: block;
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+
+    .btn-danger {
+      padding: 0.6rem 1rem;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--danger-border);
+      background: var(--danger-bg);
+      color: var(--danger);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--t);
+      min-height: 44px;
+    }
+
+    .btn-danger:hover {
+      background: #fee;
+    }
+
+    /* ============================================================ EMPTY STATE */
+    .empty-setup {
+      text-align: center;
+      padding: 1rem 1rem 2rem;
+    }
+
+    .empty-setup-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 4vw, 1.9rem);
+      color: var(--ink);
+      margin-bottom: 0.55rem;
+    }
+
+    .empty-setup-sub {
+      font-size: 0.92rem;
+      color: var(--ink-quiet);
+      margin-bottom: 2rem;
+      line-height: 1.55;
+    }
+
+    .empty-form {
+      display: flex;
+      gap: 0.5rem;
+      max-width: 360px;
+      margin: 0 auto 1rem;
+    }
+
+    .empty-default-link {
+      font-size: 0.82rem;
+      color: var(--ink-faint);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: var(--font-body);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: var(--t);
+    }
+
+    .empty-default-link:hover {
+      color: var(--ink-quiet);
+    }
+
+    /* ============================================================ TOAST */
+    .atlas-toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      background: var(--bg-raised);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--r-md);
+      padding: 0.7rem 1.2rem;
+      font-size: 0.85rem;
+      color: var(--ink-mid);
+      z-index: 900;
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      max-width: calc(100vw - 2rem);
+    }
+
+    .atlas-toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ============================================================ UTILITIES */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-12px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ============================================================ RESPONSIVE */
+    @media (max-width: 720px) {
+      .spine {
+        display: none;
+      }
+
+      .mobile-header {
+        display: flex;
+      }
+
+      .doors-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .atlas-main {
+        padding: 2rem 1rem 3rem;
+      }
+
+      .review-view {
+        padding: 1.5rem 1rem 3rem;
+      }
+
+      .recall-card {
+        padding: 1.6rem 1.4rem;
+      }
+
+      .empty-form {
+        flex-direction: column;
+      }
+
+      .jumpto-overlay {
+        padding: 2rem 0.75rem 1rem;
+      }
+
+      .review-controls {
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (min-width: 721px) {
+      .mobile-header {
+        display: none;
+      }
+
+      .spine {
+        display: flex;
+      }
+
+      .drawer-overlay,
+      .drawer {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="atmosphere-layer" id="atmosphere-layer" aria-hidden="true"></div>
+  <!-- ============================================================ SPINE (desktop) -->
+  <header class="spine" role="banner">
+    <div class="spine-mark">Atlas<span>.</span></div>
+    <div class="spine-worlds" id="spine-worlds" role="group" aria-label="World navigation"></div>
+    <div class="spine-actions">
+      <button class="spine-session-pill" onclick="openSessionModal()" aria-label="Sessions">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <circle cx="6" cy="4" r="2.2" stroke="currentColor" stroke-width="1.2" />
+          <path d="M1.5 10.5c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4" stroke="currentColor" stroke-width="1.2"
+            stroke-linecap="round" />
+        </svg>
+        <span class="pill-name" id="spine-session-name">—</span>
+      </button>
+
+      <button class="spine-btn" data-atlas-search title="Search (⌘K)" aria-label="Search">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <circle cx="6.5" cy="6.5" r="4.2" stroke="currentColor" stroke-width="1.3" />
+          <path d="M9.8 9.8l2.8 2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+      </button>
+
+      <button class="spine-btn" onclick="openSettingsModal()" title="Settings" aria-label="Settings">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+          <circle cx="6" cy="4" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
+          <circle cx="10" cy="8" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
+          <circle cx="7.5" cy="12" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
+        </svg>
+      </button>
+
+      <button class="spine-btn" id="spine-appearance-btn" onclick="toggleAppearance()"
+        aria-label="Toggle day/night"></button>
+    </div>
+  </header>
+  <!-- ============================================================ MOBILE HEADER -->
+  <header class="mobile-header" role="banner">
+    <div class="mobile-header-mark">Atlas<span>.</span></div>
+    <button class="mobile-header-session" onclick="openSessionModal()" aria-label="Sessions">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <circle cx="6" cy="4" r="2.2" stroke="currentColor" stroke-width="1.2" />
+        <path d="M1.5 10.5c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4" stroke="currentColor" stroke-width="1.2"
+          stroke-linecap="round" />
+      </svg>
+      <span id="mobile-session-name">—</span>
+    </button>
+    <button class="mobile-header-btn" data-atlas-search aria-label="Search">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3" />
+        <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+      </svg>
+    </button>
+    <button class="mobile-header-btn" id="mobile-appearance-btn" onclick="toggleAppearance()"
+      aria-label="Toggle day/night"></button>
+    <button class="mobile-header-btn" onclick="openDrawer()" aria-label="Menu">
+      <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+        <path d="M2 4h13M2 8.5h13M2 13h13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+      </svg>
+    </button>
+  </header>
+  <!-- Mobile drawer -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+  <nav class="drawer" id="drawer" aria-label="Navigation">
+    <div class="drawer-header">
+      <span class="drawer-title">Atlas<span>.</span></span>
+      <button class="drawer-close" onclick="closeDrawer()" aria-label="Close menu">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+    <div class="drawer-nav">
+      <div class="drawer-nav-label">Worlds</div>
+      <div id="drawer-worlds"></div>
+      <div class="drawer-nav-label">Find</div>
+      <button class="drawer-nav-item" onclick="closeDrawer();AtlasSearch.open()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3" />
+          <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+        Search
+      </button>
+    </div>
+    <div class="drawer-footer">
+      <div class="drawer-footer-row">
+        <button class="drawer-session-btn" onclick="closeDrawer();openSessionModal()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2" />
+            <path d="M2 12c0-2.5 2.2-4.5 5-4.5s5 2 5 4.5" stroke="currentColor" stroke-width="1.2"
+              stroke-linecap="round" />
+          </svg>
+          <span id="drawer-session-name">—</span>
+        </button>
+        <button class="drawer-appearance-btn" onclick="toggleAppearance()" aria-label="Toggle appearance"></button>
+      </div>
+    </div>
+  </nav>
+  <!-- ============================================================ MAIN CONTENT -->
+  <main class="atlas-main" id="atlas-main" role="main">
+    <!-- Rendered by JS based on bridge state -->
+  </main>
+  <!-- ============================================================ SESSION MODAL -->
+  <div class="modal-overlay" id="session-modal" onclick="handleSessionModalClick(event)" role="dialog"
+    aria-label="Sessions" aria-modal="true">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <span class="modal-title">Sessions</span>
+        <button class="modal-close" onclick="closeSessionModal()" aria-label="Close">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-helper" id="session-modal-helper"></p>
+        <div class="session-list" id="session-list"></div>
+        <p class="modal-section-label">New session</p>
+        <div class="session-new-form">
+          <input class="session-input" id="new-session-input" type="text" placeholder="Learner name" maxlength="40"
+            autocomplete="off">
+          <button class="btn-primary" onclick="handleCreateSession()">Add</button>
+        </div>
+        <div class="session-error" id="session-create-error"></div>
+        <p class="modal-helper" style="font-size:0.72rem; margin-top:0.7rem; margin-bottom:0">Progress is saved on this
+          device only.</p>
+      </div>
+    </div>
+  </div>
+  <!-- ============================================================ SETTINGS MODAL -->
+  <div class="modal-overlay" id="settings-modal" onclick="handleSettingsModalClick(event)" role="dialog"
+    aria-label="Settings" aria-modal="true">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <span class="modal-title">Settings</span>
+        <button class="modal-close" onclick="closeSettingsModal()" aria-label="Close">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-helper">Set a subtle atmosphere image for Atlas on this device.</p>
+
+        <p class="modal-section-label">Apply to</p>
+        <select class="session-input" id="atmosphere-scope" onchange="handleAtmosphereScopeChange()">
+          <option value="global">Default image</option>
+          <option value="session">This session only</option>
+        </select>
+
+        <p class="modal-helper" style="font-size:0.72rem; margin-top:0.6rem;">
+          The default image is used only when the current session has no custom image.
+        </p>
+
+        <p class="modal-section-label">Image URL</p>
+        <input class="session-input" id="atmosphere-input" type="url" placeholder="https://..." autocomplete="off">
+
+        <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
+          <button class="btn-primary" onclick="handleSaveSettings()">Save</button>
+          <button class="btn-ghost" onclick="handleClearAtmosphere()">Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ============================================================ CONFIRM DIALOG -->
+  <div class="confirm-dialog" id="confirm-dialog" role="alertdialog" aria-modal="true">
+    <div class="confirm-panel">
+      <div class="confirm-title" id="confirm-title"></div>
+      <div class="confirm-message" id="confirm-message"></div>
+      <input class="confirm-input" id="confirm-input" type="text" maxlength="40" autocomplete="off">
+      <div class="confirm-error" id="confirm-error"></div>
+      <div class="confirm-actions">
+        <button class="btn-ghost" onclick="resolveConfirm(false)">Cancel</button>
+        <button class="btn-danger" id="confirm-ok-btn" onclick="resolveConfirm(true)">OK</button>
+      </div>
+    </div>
+  </div>
+  <!-- ============================================================ SCRIPTS -->
+  <script src="./shared/atlas-bridge.js"></script>
+  <script src="./shared/atlas-search.js"></script>
+  <script>
+    'use strict';
+
+    /* ================================================================
+       ATLAS V1 RUNTIME
+       Atlas is a calm threshold/router. AtlasBridge owns all state.
+       Atlas reads through the bridge and writes only through public
+       bridge methods. No local session/registry/ledger systems.
+       ================================================================ */
+
+    // ---- Bridge guard -------------------------------------------------
+    // Atlas cannot function without the bridge. If it failed to load,
+    // show a direct, in-voice message rather than a blank or broken page.
+    if (!window.AtlasBridge) {
+      document.getElementById('atlas-main').innerHTML =
+        '<div class="empty-setup"><h1 class="empty-setup-title">Atlas can\u2019t start</h1>' +
+        '<p class="empty-setup-sub">The shared runtime didn\u2019t load. Reload the page, and if it keeps happening, check that shared/atlas-bridge.js is in place.</p></div>';
+    }
+    const Bridge = window.AtlasBridge;
+
+    // ---- Display labels (decoupled from storage) ----------------------
+    const ATLAS_ID = 'atlas';
+    const COMPASS_ID = 'compass';
+    const ARCADE_ID = 'arcade';
+    const ACTIVE_HUB_ID = ATLAS_ID;
+
+    const WORLDS = {
+      compass: {
+        id: COMPASS_ID,
+        name: 'Compass',
+        desc: 'Deeper English conversation subjects \u2014 reflective, human, lesson-ready.',
+        cssClass: 'door-compass',
+        iconSvg: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 3v2M10 15v2M3 10h2M15 10h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="10" r="2" fill="currentColor" opacity="0.4"/></svg>',
+        smallIcon: '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="4.8" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 1.7v1.4M6.5 9.9v1.4M1.7 6.5h1.4M9.9 6.5h1.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="6.5" cy="6.5" r="1.5" fill="currentColor" opacity="0.5"/></svg>'
+      },
+      arcade: {
+        id: ARCADE_ID,
+        name: 'Arcade',
+        desc: 'Conversation games for lighter, playful English practice.',
+        cssClass: 'door-arcade',
+        iconSvg: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="5.5" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 10h4M9 8v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="13" cy="10" r="0.9" fill="currentColor"/><circle cx="15" cy="8" r="0.9" fill="currentColor"/></svg>',
+        smallIcon: '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1.5" y="3" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 6.5h2M5.5 5.5v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8.5" cy="6.5" r="0.6" fill="currentColor"/><circle cx="10" cy="5.5" r="0.6" fill="currentColor"/></svg>'
+      }
+    };
+
+    const HUB_NAV = {
+      atlas: {
+        id: ATLAS_ID,
+        name: 'Atlas',
+        desc: 'Gateway',
+        alwaysAvailable: true,
+        launchUrl: './index.html',
+        smallIcon: '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.4L11.6 6.5L6.5 11.6L1.4 6.5Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/><path d="M6.5 3.6L9.4 6.5L6.5 9.4L3.6 6.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round" opacity="0.75"/></svg>'
+      },
+      compass: {
+        id: COMPASS_ID,
+        name: 'Compass',
+        desc: WORLDS.compass.desc,
+        worldId: COMPASS_ID,
+        smallIcon: WORLDS.compass.smallIcon
+      },
+      arcade: {
+        id: ARCADE_ID,
+        name: 'Arcade',
+        desc: WORLDS.arcade.desc,
+        worldId: ARCADE_ID,
+        smallIcon: WORLDS.arcade.smallIcon
+      }
+    };
+
+    const REVIEW_MAX = 5; // V1 shows up to 5 most-recent covered items
+    const ATMOSPHERE_KEY = 'atlas::atmosphereImage';
+    const SESSION_ATMOSPHERE_KEY = 'atlas::sessionAtmosphereImages';
+
+    // ================================================================
+    // SAFE BRIDGE READS
+    // ================================================================
+    function getActiveSession() {
+      try { return Bridge.readActiveSession(); }
+      catch (e) { return { id: Bridge.defaultSessionId || 'default', name: 'Default' }; }
+    }
+    function getSessions() {
+      try { return Bridge.readSessions() || []; }
+      catch (e) { return []; }
+    }
+    function getRegistry() {
+      try { return Bridge.readRegistry(); }
+      catch (e) { return { worlds: {}, items: {}, sessionStates: {}, recentActivity: [] }; }
+    }
+    function getLedger() {
+      try { return Bridge.readLedger(); }
+      catch (e) { return { entries: {} }; }
+    }
+    function isDefaultSession(session) {
+      return session && session.id === (Bridge.defaultSessionId || 'default');
+    }
+
+    // ================================================================
+    // WORLD RESOLUTION
+    // Prefer the clean key registry.worlds.compass; fall back narrowly
+    // to a current-identity scan only. No obsolete names.
+    // ================================================================
+    function resolveWorld(reg, worldId) {
+      const worlds = reg.worlds || {};
+      if (worlds[worldId]) return worlds[worldId];
+      return Object.values(worlds).find(w =>
+        w && (w.registryId === worldId || w.id === worldId || w.world === worldId)
+      ) || null;
+    }
+    function worldHasItems(reg, worldId) {
+      const prefix = worldId + ':';
+      return Object.keys(reg.items || {}).some(k => k.indexOf(prefix) === 0);
+    }
+    function getWorldLaunchUrl(reg, worldId) {
+      if (worldId === ARCADE_ID) return './arcade/index.html';
+
+      const w = resolveWorld(reg, worldId);
+      return (w && w.launchUrl) ? w.launchUrl : null;
+    }
+    // A world is "available" (navigable as a hub) if it has a launchUrl.
+    function isWorldAvailable(reg, worldId) {
+      return !!getWorldLaunchUrl(reg, worldId);
+    }
+
+    // ================================================================
+    // CONTINUE — most recent resumable item for the active session
+    // ================================================================
+    function getContinueItem(reg, sessionId) {
+      const states = (reg.sessionStates || {})[sessionId];
+      if (!states || typeof states !== 'object') return null;
+      const entries = Object.values(states);
+      if (!entries.length) return null;
+      entries.sort((a, b) =>
+        (b.lastTouchedAt || b.updatedAt || 0) - (a.lastTouchedAt || a.updatedAt || 0)
+      );
+      const best = entries[0];
+      if (!best || !best.registryId) return null;
+      const item = (reg.items || {})[best.registryId] || {};
+      // Merge identity (item) with session-scoped state (best).
+      return Object.assign({}, item, best);
+    }
+    // Qualitative label only — never detailed progress counts.
+    function continueLabel(item) {
+      const s = (item.status || '').toLowerCase();
+      if (s === 'complete' || s === 'completed' || item.complete === true) return 'Lesson complete';
+      if (s === 'in-progress' || s === 'in_progress' || s === 'started') return 'In progress';
+      if (s === 'opened' || s === 'viewed') return 'Recently opened';
+      // No explicit status: infer gently from whether there's prior touch.
+      return item.lastTouchedAt ? 'In progress' : 'Recently opened';
+    }
+    // Coverage fill for the Continue card. Reads the progress summary the world
+    // already publishes (item.progress = { covered, total }). Returns a 0–100
+    // number, or null when there's nothing meaningful to show. Unlabeled by
+    // design: it conveys shape, not counts, so the card stays a calm threshold.
+    // Mirrors the world's own rule — a completed lesson reads full.
+    function continueCoverage(item) {
+      const s = (item.status || '').toLowerCase();
+      const complete = s === 'complete' || s === 'completed' || item.complete === true || item.lessonCompletedAt;
+      if (complete) return 100;
+      const p = item.progress;
+      if (!p || typeof p !== 'object') return null;
+      const total = Number(p.total) || 0;
+      const covered = Number(p.covered) || 0;
+      if (total <= 0) return null;
+      const pct = Math.round((covered / total) * 100);
+      return Math.max(0, Math.min(100, pct));
+    }
+    function itemTitle(item) {
+      return item.navTitle || item.title || item.name || 'Untitled';
+    }
+    function itemWorldLabel(item) {
+      const w = item.world;
+      if (w === COMPASS_ID) return WORLDS.compass.name;
+      if (w === ARCADE_ID) return WORLDS.arcade.name;
+      return w || '';
+    }
+
+    // ================================================================
+    // LANGUAGE REVIEW — covered ledger entries for the active session
+    // Filter: sessionId match AND status === 'covered'. No fabrication.
+    // ================================================================
+    function getCoveredEntries(ledger, sessionId) {
+      return Object.values(ledger.entries || {})
+        .filter(entry =>
+          entry &&
+          entry.sessionId === sessionId &&
+          entry.status === 'covered'
+        )
+        .sort((a, b) =>
+          (b.coveredAt || b.updatedAt || 0) - (a.coveredAt || a.updatedAt || 0)
+        );
+    }
+    function getReviewSet(ledger, sessionId) {
+      return getCoveredEntries(ledger, sessionId).slice(0, REVIEW_MAX);
+    }
+
+    // ================================================================
+    // APPEARANCE — bridge only
+    // ================================================================
+    function applyAppearance(mode, animate) {
+      if (animate) {
+        document.documentElement.classList.add('theme-transitioning');
+        setTimeout(() => document.documentElement.classList.remove('theme-transitioning'), 400);
+      }
+      document.documentElement.dataset.theme = mode;
+      updateAppearanceButtons(mode);
+    }
+    function toggleAppearance() {
+      const cur = Bridge.readAppearanceMode();
+      const next = cur === 'night' ? 'light' : 'night';
+      Bridge.setAppearanceMode(next); // dispatches atlas:appearance-change
+      applyAppearance(next, true);
+    }
+    function moonSvg(size) {
+      size = size || 17;
+      return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 17 17" fill="none"><path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    }
+    function sunSvg(size) {
+      size = size || 17;
+      return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 17 17" fill="none"><circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35"/><path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>';
+    }
+    function updateAppearanceButtons(mode) {
+      const icon = mode === 'night' ? sunSvg(17) : moonSvg(17);
+      const label = mode === 'night' ? 'Switch to day mode' : 'Switch to night mode';
+      ['spine-appearance-btn', 'mobile-appearance-btn'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.innerHTML = icon; el.setAttribute('aria-label', label); }
+      });
+      const da = document.querySelector('.drawer-appearance-btn');
+      if (da) da.innerHTML = mode === 'night' ? sunSvg(16) : moonSvg(16);
+    }
+
+    // ================================================================
+    // NAVIGATION
+    // ================================================================
+    function navigateTo(url) {
+      if (!url) { showToast('That destination isn\u2019t available on this device yet.'); return; }
+      window.location.href = url;
+    }
+    // Open a world by its hub launchUrl. If Compass has items but no hub
+    // URL yet, say so plainly rather than inventing a route.
+    function openWorld(worldId) {
+      const reg = getRegistry();
+      const url = getWorldLaunchUrl(reg, worldId);
+      if (url) { navigateTo(url); return; }
+      if (worldId === COMPASS_ID && worldHasItems(reg, COMPASS_ID)) {
+        showToast('Compass is registered, but its hub isn\u2019t linked on this device yet.');
+        return;
+      }
+      showToast('This world is coming soon.');
+    }
+
+    let toastTimer = null;
+    function showToast(text) {
+      let el = document.getElementById('atlas-toast');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'atlas-toast';
+        el.className = 'atlas-toast';
+        el.setAttribute('role', 'status');
+        document.body.appendChild(el);
+      }
+      el.textContent = text;
+      requestAnimationFrame(() => el.classList.add('visible'));
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        el.classList.remove('visible');
+      }, 3200);
+    }
+
+    // ================================================================
+    // CONFIRM DIALOG (promise-based)
+    // ================================================================
+    let confirmResolver = null;
+    function showConfirm(opts) {
+      opts = opts || {};
+      return new Promise(resolve => {
+        confirmResolver = resolve;
+        document.getElementById('confirm-title').textContent = opts.title || '';
+        document.getElementById('confirm-message').textContent = opts.message || '';
+        const okBtn = document.getElementById('confirm-ok-btn');
+        okBtn.textContent = opts.okLabel || 'Confirm';
+        okBtn.className = opts.okClass || 'btn-danger';
+        const inp = document.getElementById('confirm-input');
+        inp.className = 'confirm-input' + (opts.inputMode ? ' visible' : '');
+        inp.value = opts.inputValue || '';
+        const err = document.getElementById('confirm-error');
+        err.className = 'confirm-error';
+        err.textContent = '';
+        document.getElementById('confirm-dialog').classList.add('open');
+        if (opts.inputMode) setTimeout(() => { inp.focus(); inp.select(); }, 50);
+      });
+    }
+    function showConfirmError(msg) {
+      const err = document.getElementById('confirm-error');
+      err.textContent = msg;
+      err.className = 'confirm-error visible';
+    }
+    function resolveConfirm(ok) {
+      const inp = document.getElementById('confirm-input');
+      const isInput = inp.classList.contains('visible');
+      if (!ok) {
+        document.getElementById('confirm-dialog').classList.remove('open');
+        if (confirmResolver) { confirmResolver(isInput ? null : false); confirmResolver = null; }
+        return;
+      }
+      const value = isInput ? inp.value.trim() : true;
+      document.getElementById('confirm-dialog').classList.remove('open');
+      if (confirmResolver) { confirmResolver(value); confirmResolver = null; }
+    }
+    document.getElementById('confirm-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') resolveConfirm(true);
+      if (e.key === 'Escape') resolveConfirm(false);
+    });
+
+    // ================================================================
+    // SESSION MODAL — bridge methods only
+    // ================================================================
+    function openSessionModal() {
+      renderSessionList();
+      clearSessionError();
+      document.getElementById('session-modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeSessionModal() {
+      document.getElementById('session-modal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function handleSessionModalClick(e) {
+      if (e.target === document.getElementById('session-modal')) closeSessionModal();
+    }
+    function clearSessionError() {
+      const el = document.getElementById('session-create-error');
+      el.textContent = '';
+      el.className = 'session-error';
+    }
+    function showSessionError(msg) {
+      const el = document.getElementById('session-create-error');
+      el.textContent = msg;
+      el.className = 'session-error visible';
+    }
+    function renderSessionList() {
+      const sessions = getSessions();
+      const active = getActiveSession();
+      const defId = Bridge.defaultSessionId || 'default';
+      const helper = document.getElementById('session-modal-helper');
+      if (isDefaultSession(active)) {
+        helper.textContent = 'Add a learner name to keep each student\u2019s progress and review separate.';
+      } else {
+        helper.textContent = 'Active session: ' + active.name + '. Switch to change the active learner.';
+      }
+      const list = document.getElementById('session-list');
+      list.innerHTML = sessions.map(s => {
+        const isActive = s.id === active.id;
+        const isDefault = s.id === defId;
+        return '<div class="session-item ' + (isActive ? 'active' : '') + '">' +
+          '<span class="session-item-name">' + escHtml(s.name) + '</span>' +
+          (isActive ? '<span class="session-item-badge">Active</span>' : '') +
+          '<div class="session-item-actions">' +
+          (!isActive ? '<button class="session-action-btn" title="Switch to ' + escAttr(s.name) + '" onclick="handleSwitchSession(\'' + escAttr(s.id) + '\')" aria-label="Switch to ' + escAttr(s.name) + '">' +
+            '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' : '') +
+          (!isDefault ? '<button class="session-action-btn" title="Rename" onclick="handleRenameSession(\'' + escAttr(s.id) + '\')" aria-label="Rename ' + escAttr(s.name) + '">' +
+            '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2l2 2M2 10l.5-2 5-5L9.5 4.5l-5 5L2 10Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' : '') +
+          '<button class="session-action-btn danger" title="Reset progress" onclick="handleResetSession(\'' + escAttr(s.id) + '\')" aria-label="Reset progress for ' + escAttr(s.name) + '">' +
+          '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6a4 4 0 1 1 .7 2.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M2 9V6h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
+          (!isDefault ? '<button class="session-action-btn danger" title="Delete session" onclick="handleDeleteSession(\'' + escAttr(s.id) + '\')" aria-label="Delete ' + escAttr(s.name) + '">' +
+            '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>' : '') +
+          '</div>' +
+          '</div>';
+      }).join('');
+    }
+    function handleCreateSession() {
+      const input = document.getElementById('new-session-input');
+      const name = input.value.trim();
+      clearSessionError();
+      if (!name) { showSessionError('Enter a name to create a session.'); return; }
+      const created = Bridge.createSession(name); // auto-activates + dispatches event
+      if (!created) {
+        showSessionError('That name is already in use. Try a different one.');
+        input.style.borderColor = 'var(--danger)';
+        setTimeout(() => { input.style.borderColor = ''; }, 1200);
+        return;
+      }
+      input.value = '';
+      // Event listener will re-render home + labels; refresh modal list now.
+      renderSessionList();
+    }
+    function handleSwitchSession(id) {
+      const result = Bridge.setActiveSession(id); // dispatches event
+      if (!result) { showSessionError('Couldn\u2019t switch to that session.'); return; }
+      closeSessionModal();
+      // Event listener re-renders home.
+    }
+    async function handleRenameSession(id) {
+      const sessions = getSessions();
+      const s = sessions.find(x => x.id === id);
+      if (!s) return;
+      const newName = await showConfirm({
+        title: 'Rename session',
+        message: 'Give this session a new name.',
+        okLabel: 'Rename',
+        okClass: 'btn-primary',
+        inputMode: true,
+        inputValue: s.name
+      });
+      if (newName === null || newName === '' || newName === s.name) return;
+      const renamed = Bridge.renameSession(id, newName);
+      if (!renamed) {
+        await showConfirm({
+          title: 'Name taken',
+          message: 'A session called \u201c' + newName + '\u201d already exists. Choose a different name.',
+          okLabel: 'OK', okClass: 'btn-ghost'
+        });
+        return;
+      }
+      renderSessionList();
+      renderHome();
+    }
+    async function handleResetSession(id) {
+      const sessions = getSessions();
+      const s = sessions.find(x => x.id === id);
+      if (!s) return;
+      const ok = await showConfirm({
+        title: 'Reset progress?',
+        message: 'This clears lesson progress for ' + s.name + ' on this device. Covered language stays in Language Review.',
+        okLabel: 'Reset progress'
+      });
+      if (!ok) return;
+      // Narrowly scoped read-mutate-write through public bridge methods.
+      const reg = getRegistry();
+      if (reg.sessionStates) delete reg.sessionStates[id];
+      reg.recentActivity = (reg.recentActivity || []).filter(a => a && a.sessionId !== id);
+      Bridge.writeRegistry(reg);
+      renderSessionList();
+      renderHome();
+    }
+    async function handleDeleteSession(id) {
+      const defId = Bridge.defaultSessionId || 'default';
+      if (id === defId) return; // default can't be deleted
+      const sessions = getSessions();
+      const s = sessions.find(x => x.id === id);
+      if (!s) return;
+      const ok = await showConfirm({
+        title: 'Delete session?',
+        message: 'This permanently removes ' + s.name + ', their progress, and their covered language from this device.',
+        okLabel: 'Delete session'
+      });
+      if (!ok) return;
+
+      // 1) Purge ledger entries for this session.
+      const ledger = getLedger();
+      let ledgerChanged = false;
+      Object.keys(ledger.entries || {}).forEach(k => {
+        if (ledger.entries[k] && ledger.entries[k].sessionId === id) {
+          delete ledger.entries[k];
+          ledgerChanged = true;
+        }
+      });
+      if (ledgerChanged) Bridge.writeLedger(ledger);
+
+      // 2) Scrub this session's registry state + recent activity.
+      const reg = getRegistry();
+      if (reg.sessionStates) delete reg.sessionStates[id];
+      reg.recentActivity = (reg.recentActivity || []).filter(a => a && a.sessionId !== id);
+      Bridge.writeRegistry(reg);
+
+      // 3) Remove the session record itself (bridge owns active reassignment).
+      Bridge.deleteSession(id); // dispatches event if it was active
+
+      renderSessionList();
+      renderHome();
+    }
+
+    // ================================================================
+    // MOBILE DRAWER
+    // ================================================================
+    function openDrawer() {
+      renderDrawerHubNav();
+      const overlay = document.getElementById('drawer-overlay');
+      overlay.style.display = 'block';
+      document.getElementById('drawer').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => overlay.classList.add('open'), 10);
+    }
+    function closeDrawer() {
+      const overlay = document.getElementById('drawer-overlay');
+      overlay.classList.remove('open');
+      document.getElementById('drawer').classList.remove('open');
+      document.body.style.overflow = '';
+      setTimeout(() => { overlay.style.display = ''; }, 300);
+    }
+
+    // ================================================================
+    // HEADER / DRAWER HUB NAVIGATION
+    // Header nav is hub-level: Atlas, Compass, Arcade.
+    // WORLDS remains lesson-world data for Atlas cards.
+    // ================================================================
+    function isHubAvailable(hub, reg) {
+      if (!hub) return false;
+      if (hub.alwaysAvailable) return true;
+
+      if (hub.worldId === COMPASS_ID) {
+        return isWorldAvailable(reg, COMPASS_ID) || worldHasItems(reg, COMPASS_ID);
+      }
+
+      if (hub.worldId === ARCADE_ID) {
+        return isWorldAvailable(reg, ARCADE_ID);
+      }
+
+      return false;
+    }
+
+    function openHub(hubId) {
+      const hub = HUB_NAV[hubId];
+      if (!hub) return;
+
+      if (hub.id === ACTIVE_HUB_ID) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      if (hub.worldId) {
+        openWorld(hub.worldId);
+        return;
+      }
+
+      if (hub.launchUrl) {
+        navigateTo(hub.launchUrl);
+        return;
+      }
+
+      showToast('That destination is not available yet.');
+    }
+
+    function renderSpineHubNav() {
+      const reg = getRegistry();
+      const host = document.getElementById('spine-worlds');
+      if (!host) return;
+
+      host.innerHTML = Object.values(HUB_NAV).map(hub => {
+        const active = hub.id === ACTIVE_HUB_ID;
+        const available = isHubAvailable(hub, reg);
+        const disabledAttr = available ? '' : ' aria-disabled="true"';
+        const activeClass = active ? ' is-active' : '';
+        const onclick = available ? ' onclick="openHub(\'' + hub.id + '\')"' : '';
+        const title = active
+          ? hub.name
+          : available
+            ? 'Open ' + hub.name
+            : hub.name + ' \u2014 coming soon';
+
+        return '<button class="spine-world-btn' + activeClass + '"' +
+          disabledAttr +
+          onclick +
+          (active ? ' aria-current="page"' : '') +
+          ' title="' + escAttr(title) + '">' +
+          hub.smallIcon +
+          hub.name +
+          '</button>';
+      }).join('');
+    }
+
+    function renderDrawerHubNav() {
+      const reg = getRegistry();
+      const host = document.getElementById('drawer-worlds');
+      if (!host) return;
+
+      host.innerHTML = Object.values(HUB_NAV).map(hub => {
+        const active = hub.id === ACTIVE_HUB_ID;
+        const available = isHubAvailable(hub, reg);
+        const disabledAttr = available ? '' : ' aria-disabled="true"';
+        const activeClass = active ? ' is-active' : '';
+        const onclick = available ? ' onclick="closeDrawer();openHub(\'' + hub.id + '\')"' : '';
+
+        return '<button class="drawer-nav-item' + activeClass + '"' +
+          disabledAttr +
+          onclick +
+          (active ? ' aria-current="page"' : '') +
+          '>' +
+          hub.smallIcon +
+          hub.name +
+          (available ? '' : '<span class="nav-soon">Soon</span>') +
+          '</button>';
+      }).join('');
+    }
+
+    // ================================================================
+    // LANGUAGE REVIEW — focused inline view (replaces home content)
+    // ================================================================
+    let reviewState = null; // { set: [...], idx, revealed }
+    let defaultSetupDismissed = false;
+
+    function openLanguageReview() {
+      const session = getActiveSession();
+      const ledger = getLedger();
+      const set = getReviewSet(ledger, session.id);
+      if (!set.length) { renderHome(); return; } // nothing to review; stay home
+      reviewState = { set: set, idx: 0, revealed: false };
+      renderReviewView();
+    }
+    function closeLanguageReview() {
+      reviewState = null;
+      renderHome();
+    }
+    function reviewReveal() {
+      if (!reviewState) return;
+      reviewState.revealed = true;
+      renderReviewView();
+    }
+    function reviewNext() {
+      if (!reviewState) return;
+      if (reviewState.idx < reviewState.set.length - 1) {
+        reviewState.idx++;
+        reviewState.revealed = false;
+        renderReviewView();
+      }
+    }
+    function reviewPrev() {
+      if (!reviewState) return;
+      if (reviewState.idx > 0) {
+        reviewState.idx--;
+        reviewState.revealed = false;
+        renderReviewView();
+      }
+    }
+    function renderReviewView() {
+      const session = getActiveSession();
+      const st = reviewState;
+      const entry = st.set[st.idx];
+      const total = st.set.length;
+      const atLast = st.idx === total - 1;
+      const contextName = isDefaultSession(session) ? 'this session' : escHtml(session.name);
+
+      const type = entry.type ? '<div class="recall-type">' + escHtml(entry.type) + '</div>' : '';
+      const prompt = entry.reviewPrompt
+        ? '<div class="recall-prompt"><span class="recall-prompt-label">Try this</span>' + escHtml(entry.reviewPrompt) + '</div>'
+        : '';
+
+      let answer = '';
+      if (st.revealed) {
+        const def = entry.def ? '<div class="recall-answer-label">Meaning</div><div class="recall-def">' + escHtml(entry.def) + '</div>' : '';
+        const inAction = entry.inAction ? '<div class="recall-answer-label">In action</div><div class="recall-inaction">' + escHtml(entry.inAction) + '</div>' : '';
+        answer = '<div class="recall-answer">' + def + inAction +
+          (!def && !inAction ? '<div class="recall-def" style="color:var(--ink-quiet)">No further detail was saved for this item.</div>' : '') +
+          '</div>';
+      }
+
+      const revealOrNav = st.revealed
+        ? '<div class="review-controls">' +
+        '<button class="review-nav-btn" onclick="reviewPrev()" ' + (st.idx === 0 ? 'disabled' : '') + '>' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 3L5 7l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Previous</button>' +
+        (atLast
+          ? '<button class="review-nav-btn primary" onclick="closeLanguageReview()">Done</button>'
+          : '<button class="review-nav-btn primary" onclick="reviewNext()">Next' +
+          '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>') +
+        '</div>'
+        : '<button class="recall-reveal-btn" onclick="reviewReveal()">' +
+        '<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1 7.5S3.5 3 7.5 3s6.5 4.5 6.5 4.5-2.5 4.5-6.5 4.5S1 7.5 1 7.5Z" stroke="currentColor" stroke-width="1.2"/><circle cx="7.5" cy="7.5" r="1.8" stroke="currentColor" stroke-width="1.2"/></svg>' +
+        'Reveal meaning</button>';
+
+      const main = document.getElementById('atlas-main');
+      main.className = ''; // detach .atlas-main constraints; review-view sets its own
+      main.innerHTML =
+        '<div class="review-view">' +
+        '<div class="review-topbar">' +
+        '<button class="review-back" onclick="closeLanguageReview()">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 3L4.5 7l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</button>' +
+        '<span class="review-progress">' + (st.idx + 1) + ' of ' + total + '</span>' +
+        '</div>' +
+        '<div class="review-heading">' +
+        '<div class="review-heading-label">Language Review</div>' +
+        '<h1 class="review-heading-title">Warm up before you start</h1>' +
+        '</div>' +
+        '<p class="review-context">Covered language for ' + contextName + '. Try to recall the meaning before revealing.</p>' +
+        '<div class="recall-card">' +
+        type +
+        '<div class="recall-term">' + escHtml(entry.term || '\u2014') + '</div>' +
+        prompt +
+        (st.revealed ? answer : revealOrNav) +
+        '</div>' +
+        (st.revealed ? revealOrNav : '') +
+        '</div>';
+    }
+
+    // ================================================================
+    // HOME RENDER
+    // ================================================================
+    function setSessionLabels() {
+      const session = getActiveSession();
+      const display = isDefaultSession(session) || !session.name ? 'Session' : session.name;
+      ['spine-session-name', 'mobile-session-name', 'drawer-session-name'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = display;
+      });
+    }
+
+    function renderHome() {
+      reviewState = null;
+      const main = document.getElementById('atlas-main');
+      main.className = 'atlas-main';
+
+      const session = getActiveSession();
+      const reg = getRegistry();
+      const ledger = getLedger();
+
+      applyEffectiveAtmosphereImage();
+
+      setSessionLabels();
+      renderSpineHubNav();
+
+      const isDefault = isDefaultSession(session);
+      const continueItem = getContinueItem(reg, session.id);
+      const reviewSet = getReviewSet(ledger, session.id);
+      const hasContinue = !!continueItem;
+      const hasReview = reviewSet.length > 0;
+      const sessionStates = (reg.sessionStates || {})[session.id];
+      const hasHistory = !!(sessionStates && Object.keys(sessionStates).length);
+
+      // True-empty state: default session, nothing covered, no history.
+      if (isDefault && !defaultSetupDismissed && !hasContinue && !hasReview && !hasHistory) {
+        main.innerHTML = renderEmptyState();
+        return;
+      }
+
+      main.innerHTML = renderGateway(session, isDefault, continueItem, hasContinue, reviewSet, hasReview);
+    }
+
+    function renderEmptyState() {
+      return '' +
+        '<div class="empty-setup">' +
+        '<div class="today-label">Welcome</div>' +
+        '<h1 class="empty-setup-title">Who is this lesson with?</h1>' +
+        '<p class="empty-setup-sub">Add a name to keep each learner\u2019s progress and review separate, or continue without one.</p>' +
+        '<div class="empty-form">' +
+        '<input class="session-input" id="empty-name-input" type="text" placeholder="Learner name" maxlength="40" autocomplete="off" style="flex:1">' +
+        '<button class="btn-primary" onclick="startWithName()">Start lesson</button>' +
+        '</div>' +
+        '<button class="empty-default-link" onclick="startWithDefault()">Continue without a name</button>' +
+        '</div>' +
+        '<p class="doors-label" style="margin-top:2.25rem">Choose a world</p>' +
+        renderDoors();
+    }
+    function startWithName() {
+      const inp = document.getElementById('empty-name-input');
+      if (!inp) return;
+      const name = inp.value.trim();
+      if (!name) { inp.focus(); return; }
+      const created = Bridge.createSession(name);
+      if (!created) {
+        inp.style.borderColor = 'var(--danger)';
+        setTimeout(() => { inp.style.borderColor = ''; }, 1200);
+        return;
+      }
+      // Event listener re-renders; call renderHome directly too for immediacy.
+      renderHome();
+    }
+    function startWithDefault() {
+      defaultSetupDismissed = true;
+      renderHome();
+    }
+
+    function renderGateway(session, isDefault, continueItem, hasContinue, reviewSet, hasReview) {
+      // Greeting copy — warm, plain, no system language.
+      let welcomeMain, welcomeSub;
+      if (hasContinue) {
+        welcomeMain = isDefault ? 'Ready to continue.' : 'Welcome back, ' + escHtml(session.name) + '.';
+        welcomeSub = 'Last time: ' + escHtml(itemTitle(continueItem)) + '.';
+      } else {
+        welcomeMain = isDefault ? 'Ready when you are.' : 'Welcome, ' + escHtml(session.name) + '.';
+        welcomeSub = 'Choose a direction for today\u2019s lesson.';
+      }
+
+      return '' +
+        '<div class="context-anchor">' +
+        '<div class="today-label">Today</div>' +
+        '<h1 class="welcome-line">' + welcomeMain + '</h1>' +
+        '<p class="welcome-sub">' + welcomeSub + '</p>' +
+        '</div>' +
+        (hasContinue ? renderContinueCard(continueItem) : '') +
+        (hasReview ? renderReviewRow(reviewSet.length) : '') +
+        '<p class="doors-label">Choose a world</p>' +
+        renderDoors();
+    }
+
+    function renderContinueCard(item) {
+      const url = item.launchUrl || '';
+      const meta = continueLabel(item);
+      const world = itemWorldLabel(item);
+      const metaLine = world ? meta + ' \u00b7 ' + world : meta;
+      const pct = continueCoverage(item);
+
+      const rail = (pct !== null)
+        ? '<div class="continue-rail' + (pct >= 100 ? ' is-complete' : '') + '" aria-hidden="true">' +
+        '<div class="continue-rail-fill" style="width:' + pct + '%"></div>' +
+        '</div>'
+        : '';
+
+      return '' +
+        '<div class="continue-card' + (rail ? ' has-rail' : '') + '" role="button" tabindex="0" ' +
+        'onclick="navigateTo(\'' + escAttr(url) + '\')" ' +
+        'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navigateTo(\'' + escAttr(url) + '\')}">' +
+        '<div class="continue-icon">' +
+        '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '</div>' +
+        '<div class="continue-body">' +
+        '<div class="continue-kicker">Continue</div>' +
+        '<div class="continue-title">' + escHtml(itemTitle(item)) + '</div>' +
+        '<div class="continue-meta">' + escHtml(metaLine) + '</div>' +
+        '</div>' +
+        '<div class="continue-arrow">' +
+        '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8h8M9 5l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '</div>' +
+        rail +
+        '</div>';
+    }
+
+    function renderReviewRow(count) {
+      const countLabel = count + ' covered item' + (count !== 1 ? 's' : '') + ' ready';
+      return '' +
+        '<button class="review-row" onclick="openLanguageReview()" aria-label="Open Language Review">' +
+        '<div class="review-row-icon">' +
+        '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 2.5h5c.7 0 1.3.3 1.8.7.5-.4 1.1-.7 1.8-.7H14c.3 0 .5.2.5.5v10c0 .3-.2.5-.5.5h-2.5c-.7 0-1.3.3-1.8.7-.5-.4-1.1-.7-1.8-.7H4c-.3 0-.5-.2-.5-.5v-10C3.5 2.7 3.7 2.5 4 2.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M9.5 3v11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>' +
+        '</div>' +
+        '<div class="review-row-body">' +
+        '<div class="review-row-name">Language Review</div>' +
+        '<div class="review-row-count">Review before you start \u00b7 ' + countLabel + '</div>' +
+        '</div>' +
+        '<div class="review-row-arrow">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '</div>' +
+        '</button>';
+    }
+
+    function renderDoors() {
+      const reg = getRegistry();
+      return '<div class="doors-grid">' +
+        renderDoor(WORLDS.compass, reg) +
+        renderDoor(WORLDS.arcade, reg) +
+        '</div>';
+    }
+    function renderDoor(world, reg) {
+      // Compass counts as available if it has a hub URL OR registered items.
+      const available = isWorldAvailable(reg, world.id) ||
+        (world.id === COMPASS_ID && worldHasItems(reg, COMPASS_ID));
+      const cls = 'door ' + world.cssClass + (available ? '' : ' door-unavailable');
+      const interactive = available
+        ? 'role="button" tabindex="0" onclick="openWorld(\'' + world.id + '\')" ' +
+        'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openWorld(\'' + world.id + '\')}"'
+        : 'aria-disabled="true"';
+      const footer = available
+        ? '<div class="door-footer"><div class="door-arrow"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8h8M9 5l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>'
+        : '<div class="door-footer"><span class="door-soon-badge">Coming soon</span></div>';
+      return '<div class="' + cls + '" ' + interactive +
+        ' aria-label="' + escAttr(world.name) + (available ? '' : ' (coming soon)') + '">' +
+        '<div class="door-icon">' + world.iconSvg + '</div>' +
+        '<div class="door-name">' + escHtml(world.name) + '</div>' +
+        '<h2 class="door-title">' + escHtml(world.name) + '</h2>' +
+        '<p class="door-desc">' + escHtml(world.desc) + '</p>' +
+        footer +
+        '</div>';
+    }
+
+    // ================================================================
+    // SETTINGS — local Atlas atmosphere image
+    // ================================================================
+    function readGlobalAtmosphereImage() {
+      try { return localStorage.getItem(ATMOSPHERE_KEY) || ''; }
+      catch (e) { return ''; }
+    }
+
+    function readSessionAtmosphereImages() {
+      try { return JSON.parse(localStorage.getItem(SESSION_ATMOSPHERE_KEY) || '{}') || {}; }
+      catch (e) { return {}; }
+    }
+
+    function writeSessionAtmosphereImages(map) {
+      try {
+        if (Object.keys(map).length) {
+          localStorage.setItem(SESSION_ATMOSPHERE_KEY, JSON.stringify(map));
+        } else {
+          localStorage.removeItem(SESSION_ATMOSPHERE_KEY);
+        }
+      } catch (e) { }
+    }
+
+    function readSessionAtmosphereImage(sessionId) {
+      return readSessionAtmosphereImages()[sessionId] || '';
+    }
+
+    function readEffectiveAtmosphereImage() {
+      const session = getActiveSession();
+      return readSessionAtmosphereImage(session.id) || readGlobalAtmosphereImage();
+    }
+
+    function applyAtmosphereImage(url) {
+      const layer = document.getElementById('atmosphere-layer');
+      if (!layer) return;
+
+      const clean = (url || '').trim();
+      if (!clean) {
+        layer.style.backgroundImage = '';
+        layer.classList.remove('visible');
+        return;
+      }
+
+      layer.style.backgroundImage = 'url("' + clean.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '")';
+      layer.classList.add('visible');
+    }
+
+    function applyEffectiveAtmosphereImage() {
+      applyAtmosphereImage(readEffectiveAtmosphereImage());
+    }
+
+    function openSettingsModal() {
+      const session = getActiveSession();
+      const sessionUrl = readSessionAtmosphereImage(session.id);
+      const scope = sessionUrl ? 'session' : 'global';
+
+      document.getElementById('atmosphere-scope').value = scope;
+      document.getElementById('atmosphere-input').value =
+        scope === 'session' ? sessionUrl : readGlobalAtmosphereImage();
+
+      document.getElementById('settings-modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => document.getElementById('atmosphere-input').focus(), 50);
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settings-modal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function handleSettingsModalClick(e) {
+      if (e.target === document.getElementById('settings-modal')) closeSettingsModal();
+    }
+
+    function handleAtmosphereScopeChange() {
+      const scope = document.getElementById('atmosphere-scope').value;
+      const session = getActiveSession();
+
+      document.getElementById('atmosphere-input').value =
+        scope === 'session'
+          ? readSessionAtmosphereImage(session.id)
+          : readGlobalAtmosphereImage();
+    }
+
+    function handleSaveSettings() {
+      const input = document.getElementById('atmosphere-input');
+      const scope = document.getElementById('atmosphere-scope').value;
+      const clean = input.value.trim();
+
+      if (scope === 'session') {
+        const session = getActiveSession();
+        const map = readSessionAtmosphereImages();
+        if (clean) map[session.id] = clean;
+        else delete map[session.id];
+        writeSessionAtmosphereImages(map);
+      } else {
+        try {
+          if (clean) localStorage.setItem(ATMOSPHERE_KEY, clean);
+          else localStorage.removeItem(ATMOSPHERE_KEY);
+        } catch (e) { }
+      }
+
+      applyEffectiveAtmosphereImage();
+      closeSettingsModal();
+      showToast(clean ? 'Atmosphere image saved.' : 'Atmosphere image cleared.');
+    }
+
+    function handleClearAtmosphere() {
+      document.getElementById('atmosphere-input').value = '';
+      handleSaveSettings();
+    }
+
+    // ================================================================
+    // GLOBAL KEYS
+    // ================================================================
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        if (window.AtlasSearch && AtlasSearch.isOpen && AtlasSearch.isOpen()) return;
+        if (document.getElementById('confirm-dialog').classList.contains('open')) { resolveConfirm(false); return; }
+        if (document.getElementById('session-modal').classList.contains('open')) { closeSessionModal(); return; }
+        if (document.getElementById('settings-modal').classList.contains('open')) { closeSettingsModal(); return; }
+        if (document.getElementById('drawer').classList.contains('open')) { closeDrawer(); return; }
+        if (reviewState) { closeLanguageReview(); return; }
+      }
+    });
+
+    // ================================================================
+    // LIVE RE-READ
+    // Re-read bridge state on the agreed triggers. No invented events.
+    // When in the focused review view, refresh it in place (re-validating
+    // the covered set) instead of bouncing the user back home.
+    // ================================================================
+    function refreshFromBridge() {
+      if (reviewState) {
+        const session = getActiveSession();
+        const ledger = getLedger();
+        const set = getReviewSet(ledger, session.id);
+        if (!set.length) { closeLanguageReview(); return; }
+        // Keep position where possible.
+        reviewState.set = set;
+        if (reviewState.idx > set.length - 1) reviewState.idx = set.length - 1;
+        renderReviewView();
+        return;
+      }
+      renderHome();
+    }
+
+    window.addEventListener('atlas:session-change', () => {
+      // Switching learners must reset any in-progress review.
+      reviewState = null;
+      renderHome();
+    });
+    window.addEventListener('atlas:appearance-change', e => {
+      const mode = (e.detail && e.detail.mode) || Bridge.readAppearanceMode();
+      applyAppearance(mode, false);
+    });
+    window.addEventListener('focus', refreshFromBridge);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshFromBridge(); });
+    window.addEventListener('pageshow', refreshFromBridge);
+    window.addEventListener('storage', e => {
+      // React only to keys the bridge owns.
+      if (!e || !e.key) return;
+      const k = e.key;
+      if (k === 'atlas::appearanceMode') {
+        applyAppearance(Bridge.readAppearanceMode(), false);
+        return;
+      }
+      if (k === 'atlas::sessions' || k === 'atlas::activeSessionId' ||
+        k === 'atlas::registry' || k === 'learning::ledger') {
+        refreshFromBridge();
+      }
+    });
+
+    // ================================================================
+    // UTILITIES
+    // ================================================================
+    function escHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function escAttr(s) { return escHtml(s); }
+
+    // ================================================================
+    // INIT
+    // ================================================================
+    function init() {
+      if (!window.AtlasBridge) return; // guard already rendered a message
+
+      const mode = Bridge.readAppearanceMode();
+      document.documentElement.dataset.theme = mode;
+      updateAppearanceButtons(mode);
+      applyEffectiveAtmosphereImage();
+
+      AtlasSearch.init({
+        activeHubId: 'atlas',
+        atlasUrl: './index.html',
+        compassUrl: './compass/index.html',
+        arcadeUrl: './arcade/index.html'
+      });
+
+      renderHome();
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+
+</html>
