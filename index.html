@@ -39,7 +39,7 @@
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="./shared/atlas-search.css">
-  
+
   <!-- Anti-flash: apply saved theme before first paint. Reads only the canonical key. -->
   <script>
     (function () {
@@ -1749,7 +1749,7 @@
         flex-direction: column;
       }
 
-      .jumpto-overlay {
+      .atlas-search-overlay {
         padding: 2rem 0.75rem 1rem;
       }
 
@@ -2069,6 +2069,7 @@
       return Object.keys(reg.items || {}).some(k => k.indexOf(prefix) === 0);
     }
     function getWorldLaunchUrl(reg, worldId) {
+      if (worldId === COMPASS_ID) return './compass/index.html';
       if (worldId === ARCADE_ID) return './arcade/index.html';
 
       const w = resolveWorld(reg, worldId);
