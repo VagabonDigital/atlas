@@ -2327,6 +2327,11 @@
       }
     };
 
+    const COMPASS_AVAILABLE_SUBJECT_SLUGS = [
+      'body-language-emotions',
+      'communication-expression'
+    ];
+
     /* ================================================================
        REGISTRATION
        Compass world and subject items are registered idempotently on load.
@@ -2340,7 +2345,7 @@
 
     function getCompassSubjectLaunchUrl(subject) {
       const slug = compassSubjectSlug(subject);
-      return slug ? './subjects/' + slug + '.html' : '';
+      return slug ? './' + slug + '/index.html' : '';
     }
 
     function registerWithBridge() {
@@ -2360,6 +2365,9 @@
 
       Object.values(COMPASS_CATALOG).forEach(subject => {
         try {
+          const slug = compassSubjectSlug(subject);
+          if (!COMPASS_AVAILABLE_SUBJECT_SLUGS.includes(slug)) return;
+
           const launchUrl = getCompassSubjectLaunchUrl(subject);
           if (!launchUrl) return;
 
