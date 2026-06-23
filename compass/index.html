@@ -28,7 +28,7 @@
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="../shared/atlas-search.css">
-  
+
   <!-- Anti-flash: apply saved theme before first paint -->
   <script>
     (function () {
@@ -168,9 +168,9 @@
       left: 0;
       right: 0;
       z-index: 200;
-      background: rgba(247, 244, 239, 0.95);
+      background: rgba(245, 247, 243, 0.96);
       backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--stone-light);
+      border-bottom: 1px solid rgba(var(--accent-rgb), 0.12);
       display: flex;
       align-items: center;
       height: 56px;
@@ -1538,6 +1538,19 @@
       color: var(--ink);
     }
 
+    select.session-input {
+      appearance: none;
+      padding-right: 2.35rem;
+      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 5.25L7 8.75L10.5 5.25' stroke='%237a7268' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-size: 14px 14px;
+      background-position: right 0.7rem center;
+    }
+
+    html[data-theme="night"] select.session-input {
+      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 5.25L7 8.75L10.5 5.25' stroke='%23d6cabc' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    }
+
     .btn-primary {
       padding: 0.58rem 1.05rem;
       border-radius: var(--radius-sm);
@@ -1971,15 +1984,24 @@
         </button>
       </div>
       <div class="modal-body">
-        <p class="modal-helper">Set a subtle atmosphere image for Compass on this device.</p>
+        <p class="modal-helper">Choose the Compass atmosphere for this device.</p>
 
-        <p class="modal-section-label">Image URL</p>
-        <input class="session-input" id="compass-atmosphere-input" type="url" placeholder="https://..."
-          autocomplete="off">
+        <p class="modal-section-label">Atmosphere</p>
+        <select class="session-input" id="compass-atmosphere-mode" onchange="handleCompassAtmosphereModeChange()">
+          <option value="default">Default Compass atmosphere</option>
+          <option value="custom">Custom image URL</option>
+          <option value="none">No atmosphere image</option>
+        </select>
+
+        <div id="compass-custom-atmosphere-row" style="margin-top:0.9rem;">
+          <p class="modal-section-label">Custom image URL</p>
+          <input class="session-input" id="compass-atmosphere-input" type="url" placeholder="https://..."
+            autocomplete="off">
+        </div>
 
         <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
           <button class="btn-primary" onclick="handleSaveSettings()">Save</button>
-          <button class="btn-ghost" onclick="handleClearAtmosphere()">Clear</button>
+          <button class="btn-ghost" onclick="handleRevertAtmosphere()">Revert to default</button>
         </div>
       </div>
     </div>
@@ -2025,6 +2047,8 @@
     const ARCADE_ID = 'arcade';
     const ACTIVE_HUB_ID = COMPASS_ID;
     const COMPASS_ATMOSPHERE_KEY = 'compass::atmosphereImage';
+    const COMPASS_ATMOSPHERE_MODE_KEY = 'compass::atmosphereMode';
+    const COMPASS_DEFAULT_ATMOSPHERE = './compass-hub-atmosphere.jpg';
 
     const HUB_NAV = {
       atlas: {
@@ -2304,6 +2328,60 @@
     };
 
     /* ================================================================
+       REGISTRATION
+       Compass world and subject items are registered idempotently on load.
+       ================================================================ */
+
+    function compassSubjectSlug(subject) {
+      return String(subject.registryId || '')
+        .replace(/^compass:/, '')
+        .trim();
+    }
+
+    function getCompassSubjectLaunchUrl(subject) {
+      const slug = compassSubjectSlug(subject);
+      return slug ? './subjects/' + slug + '.html' : '';
+    }
+
+    function registerWithBridge() {
+      if (!Bridge) return;
+
+      try {
+        Bridge.upsertWorld({
+          registryId: 'compass',
+          world: 'compass',
+          type: 'world',
+          title: 'Compass',
+          description: 'Deep conversation subjects for thoughtful English, cultural reflection, and human communication.',
+          status: 'available',
+          launchUrl: new URL('./index.html', window.location.href).href
+        });
+      } catch (e) { }
+
+      Object.values(COMPASS_CATALOG).forEach(subject => {
+        try {
+          const launchUrl = getCompassSubjectLaunchUrl(subject);
+          if (!launchUrl) return;
+
+          Bridge.upsertItem({
+            registryId: subject.registryId,
+            world: 'compass',
+            type: 'subject',
+            title: subject.title,
+            description: subject.hook || '',
+            hook: subject.hook || '',
+            categoryId: subject.categoryId || '',
+            categoryTitle: getCategoryTitle(subject.categoryId),
+            durationLabel: subject.durationLabel || '45–60 min',
+            order: subject.order || 0,
+            status: 'available',
+            launchUrl: new URL(launchUrl, window.location.href).href
+          });
+        } catch (e) { }
+      });
+    }
+
+    /* ================================================================
        HELPERS
        ================================================================ */
 
@@ -2479,50 +2557,95 @@
     }
 
     /* ================================================================
-   SETTINGS — Compass atmosphere image
-   ================================================================ */
+             SETTINGS — Compass atmosphere image
+             ================================================================ */
 
-    function readCompassAtmosphereImage() {
+    function readCompassAtmosphereMode() {
+      try {
+        const mode = localStorage.getItem(COMPASS_ATMOSPHERE_MODE_KEY);
+        if (mode === 'custom' || mode === 'none' || mode === 'default') return mode;
+
+        return localStorage.getItem(COMPASS_ATMOSPHERE_KEY) ? 'custom' : 'default';
+      } catch (e) {
+        return 'default';
+      }
+    }
+
+    function readCompassCustomAtmosphereImage() {
       try { return localStorage.getItem(COMPASS_ATMOSPHERE_KEY) || ''; }
       catch (e) { return ''; }
     }
 
-    function writeCompassAtmosphereImage(url) {
-      const clean = (url || '').trim();
+    function getCompassAtmosphereImage() {
+      const mode = readCompassAtmosphereMode();
+
+      if (mode === 'none') return '';
+      if (mode === 'custom') return readCompassCustomAtmosphereImage();
+
+      return COMPASS_DEFAULT_ATMOSPHERE;
+    }
+
+    function writeCompassAtmosphereSettings(mode, url) {
+      const cleanMode = (mode === 'custom' || mode === 'none' || mode === 'default') ? mode : 'default';
+      const cleanUrl = (url || '').trim();
 
       try {
-        if (clean) localStorage.setItem(COMPASS_ATMOSPHERE_KEY, clean);
+        localStorage.setItem(COMPASS_ATMOSPHERE_MODE_KEY, cleanMode);
+
+        if (cleanUrl) localStorage.setItem(COMPASS_ATMOSPHERE_KEY, cleanUrl);
         else localStorage.removeItem(COMPASS_ATMOSPHERE_KEY);
       } catch (e) { }
 
       applyCompassAtmosphereImage();
     }
 
+    function cssImageUrl(url) {
+      return 'url("' + String(url || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '")';
+    }
+
     function applyCompassAtmosphereImage() {
       const layer = document.getElementById('hub-atmosphere-layer');
       if (!layer) return;
 
-      const clean = readCompassAtmosphereImage();
+      const image = getCompassAtmosphereImage();
 
-      if (!clean) {
+      if (!image) {
         layer.style.backgroundImage = '';
         layer.classList.remove('visible');
         return;
       }
 
-      layer.style.backgroundImage = 'url("' + clean.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '")';
+      layer.style.backgroundImage = cssImageUrl(image);
       layer.classList.add('visible');
     }
 
+    function handleCompassAtmosphereModeChange() {
+      const mode = document.getElementById('compass-atmosphere-mode');
+      const row = document.getElementById('compass-custom-atmosphere-row');
+
+      if (!mode || !row) return;
+
+      row.style.display = mode.value === 'custom' ? '' : 'none';
+    }
+
     function openSettingsModal() {
+      const mode = document.getElementById('compass-atmosphere-mode');
       const input = document.getElementById('compass-atmosphere-input');
-      if (input) input.value = readCompassAtmosphereImage();
+
+      if (mode) mode.value = readCompassAtmosphereMode();
+      if (input) input.value = readCompassCustomAtmosphereImage();
+
+      handleCompassAtmosphereModeChange();
 
       document.getElementById('settings-modal').classList.add('open');
       document.body.style.overflow = 'hidden';
 
       setTimeout(() => {
-        const el = document.getElementById('compass-atmosphere-input');
+        const currentMode = readCompassAtmosphereMode();
+        const el = currentMode === 'custom'
+          ? document.getElementById('compass-atmosphere-input')
+          : document.getElementById('compass-atmosphere-mode');
+
         if (el) el.focus();
       }, 50);
     }
@@ -2537,17 +2660,36 @@
     }
 
     function handleSaveSettings() {
+      const modeEl = document.getElementById('compass-atmosphere-mode');
       const input = document.getElementById('compass-atmosphere-input');
-      writeCompassAtmosphereImage(input ? input.value : '');
+
+      const mode = modeEl ? modeEl.value : 'default';
+      const customUrl = input ? input.value.trim() : '';
+
+      if (mode === 'custom' && !customUrl) {
+        showToast('Add a custom image URL, or choose Default or No atmosphere.');
+        if (input) input.focus();
+        return;
+      }
+
+      writeCompassAtmosphereSettings(mode, customUrl);
       closeSettingsModal();
-      showToast(readCompassAtmosphereImage() ? 'Compass atmosphere saved.' : 'Compass atmosphere cleared.');
+
+      const labels = {
+        default: 'Compass atmosphere reset to default.',
+        custom: 'Compass custom atmosphere saved.',
+        none: 'Compass atmosphere removed.'
+      };
+
+      showToast(labels[mode] || 'Compass atmosphere saved.');
     }
 
-    function handleClearAtmosphere() {
-      const input = document.getElementById('compass-atmosphere-input');
-      if (input) input.value = '';
-      handleSaveSettings();
+    function handleRevertAtmosphere() {
+      writeCompassAtmosphereSettings('default', '');
+      closeSettingsModal();
+      showToast('Compass atmosphere reset to default.');
     }
+
 
     /* ================================================================
        SESSION LABELS
@@ -2806,25 +2948,14 @@
     function renderHub() {
       if (!Bridge) return;
 
+      registerWithBridge();
+
       const main = document.getElementById('hub-main');
       const session = getActiveSession();
       const merged = getMergedSubjects();
       const inProgress = getInProgressSubjects(merged);
 
       applyCompassAtmosphereImage();
-
-      // Register Compass world in the bridge before rendering hub navigation
-      try {
-        Bridge.upsertWorld({
-          registryId: 'compass',
-          world: 'compass',
-          type: 'world',
-          title: 'Compass',
-          description: 'Deep conversation subjects for thoughtful English, cultural reflection, and human communication.',
-          status: 'available',
-          launchUrl: window.location.href
-        });
-      } catch (e) { }
 
       setSessionLabels();
       renderSpineHubNav();
@@ -3292,10 +3423,23 @@
 
     function init() {
       if (!Bridge) return;
+
       const mode = Bridge.readAppearanceMode();
       document.documentElement.dataset.theme = mode;
       updateAppearanceButtons(mode);
       applyCompassAtmosphereImage();
+
+      registerWithBridge();
+
+      if (window.AtlasSearch && typeof AtlasSearch.init === 'function') {
+        AtlasSearch.init({
+          activeHubId: 'compass',
+          atlasUrl: '../index.html',
+          compassUrl: './index.html',
+          arcadeUrl: '../arcade/index.html'
+        });
+      }
+
       renderHub();
     }
 
