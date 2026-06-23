@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<!--
+  ==========================================================================
+  ATLAS · COMPASS SUBJECT MODULE
+  SmartStudy™ Methodology
+  Communication & Expression
+  --------------------------------------------------------------------------
+  A premium interactive speaking module for exploring how tone, timing,
+  silence, culture, and context shape what people really mean.
+  Built for live lessons, thoughtful discussion, and sharper social awareness
+  around expression, meaning, and human communication.
+  Subject content may change.
+  The compass remains.
+  --------------------------------------------------------------------------
+  VERBA PONTES FACIUNT · SENSUS VIAM APERIT · DISCIPLINA VIVA EST
+  ==========================================================================
+-->
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communication & Expression</title>
+
+    <!-- Shared Compass favicon. Subject icons live in MODULE.iconSvg. -->
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 4L96 50L50 96L4 50Z' fill='%2357C7B7' stroke='%232D7D78' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M50 18L82 50L50 82L18 50Z' fill='%23F3FFFC' stroke='%23FFFFFF' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 15L62 50L50 85L38 50Z' fill='%233F8F88' stroke='%232D7D78' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 15L62 50L50 47Z' fill='%2389DDD0'/%3E%3Ccircle cx='50' cy='50' r='5' fill='%232D7D78'/%3E%3Cpath d='M50 18L50 30M82 50L70 50M50 82L50 70M18 50L30 50' stroke='%2357C7B7' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
+        rel="stylesheet">
+
+    <!-- Appearance mode: apply saved theme before first paint to prevent light-mode flash -->
+    <script>
+        (function () {
+            var saved = null;
+
+            try {
+                saved = localStorage.getItem('atlas::appearanceMode');
+            } catch (e) {
+                saved = null;
+            }
+
+            document.documentElement.dataset.theme = (saved === 'night') ? 'night' : 'light';
+        })();
+    </script>
+
+    <link rel="stylesheet" href="../shared/compass-subject.css">
+    <link rel="stylesheet" href="../../shared/atlas-search.css">
+
+</head>
+
+<body>
+
+    <!-- ============================================================
+     VIEW 1: COVER
+     ============================================================ -->
+
+    <div id="view-cover" class="view active">
+        <div class="cover-bg"></div>
+        <div class="cover-overlay"></div>
+        <div class="cover-pattern"></div>
+        <div class="cover-utility-row">
+            <button class="cover-appearance-toggle" id="cover-appearance-toggle" onclick="toggleAppearanceMode()"
+                title="Switch to night mode" aria-label="Switch to night mode">
+            </button>
+            <button class="cover-session-btn" onclick="openSessionModal()">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <circle cx="6" cy="4" r="2.2" stroke="currentColor" stroke-width="1.2" />
+                    <path d="M1.5 11c0-2.485 2.015-4 4.5-4s4.5 1.515 4.5 4" stroke="currentColor" stroke-width="1.2"
+                        stroke-linecap="round" />
+                </svg>
+                <span id="cover-session-label">Current Session</span>
+            </button>
+        </div>
+        <div class="cover-card">
+            <div class="cover-eyebrow">
+                <span class="cover-eyebrow-line"></span>
+                COMPASS SUBJECT
+            </div>
+            <h1 class="cover-title" id="cover-title"></h1>
+            <p class="cover-hook" id="cover-hook"></p>
+            <p class="cover-returning" id="cover-returning"></p>
+            <div class="cover-actions">
+                <button class="btn-begin" id="cover-begin-btn" onclick="beginModule()">
+                    Begin lesson
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                        <path d="M3 7.5h9M8.5 4l3.5 3.5-3.5 3.5" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     VIEW 2: ORIENTATION
+     ============================================================ -->
+
+    <div id="view-orientation" class="view view-inner-bg">
+        <!-- Mobile header injected by renderMobileHeader('overview') -->
+        <div id="mob-header-orientation" class="mobile-header-shell"></div>
+        <!-- Desktop nav injected by renderNav('view-orientation') -->
+        <div id="nav-orientation" class="nav-shell"></div>
+        <div class="orientation-wrap">
+            <div class="section-stage">
+                <!-- Per-subject content: Overview intro -->
+                <div class="subject-intro-block">
+                    <p class="section-eyebrow" id="orient-eyebrow"></p>
+                    <h1>How we speak shapes what people hear</h1>
+                    <p>Communication is never only about choosing the right words. Tone, timing, silence, expression,
+                        and cultural
+                        expectations can all change how a message feels.</p>
+                    <p style="margin-top:0.9rem;">In this subject, you'll explore how meaning is created through voice,
+                        language,
+                        and social context — from everyday misunderstandings to deeper questions about honesty,
+                        subtlety, emotion,
+                        and connection.</p>
+                </div>
+                <!-- Per-subject content: Overview path cards -->
+                <div class="main-paths">
+                    <div class="main-path-card" role="button" tabindex="0" onclick="goToView('view-cultural-lens')"
+                        onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-cultural-lens'); }">
+                        <div class="path-icon">
+                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                                <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5" />
+                                <circle cx="11" cy="11" r="3" stroke="currentColor" stroke-width="1.5" />
+                                <path d="M4 11h2M16 11h2M11 4v2M11 16v2" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <p class="path-label" id="path-label-cl"></p>
+                        <h2 class="path-title">Cultural Lens</h2>
+                        <p class="path-desc">Explore how different cultures approach silence, directness, emotional
+                            expression, and
+                            the meaning behind words — and discover what makes each approach make sense in context.</p>
+                        <div class="path-arrow">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="main-path-card" role="button" tabindex="0" onclick="goToView('view-discussion')"
+                        onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-discussion'); }">
+                        <div class="path-icon">
+                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                                <path d="M4 6a2 2 0 012-2h10a2 2 0 012 2v7a2 2 0 01-2 2h-4l-4 3v-3H6a2 2 0 01-2-2V6z"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                                <path d="M8 9h6M8 12h4" stroke="currentColor" stroke-width="1.3"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <p class="path-label" id="path-label-disc"></p>
+                        <h2 class="path-title">Discussion</h2>
+                        <p class="path-desc">Work through real-life communication moments — from awkward everyday slips
+                            to subtle
+                            signals and deeper meaning — using language that helps your ideas land more clearly.</p>
+                        <div class="path-arrow">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="reflection-path-card" role="button" tabindex="0" onclick="goToView('view-reflection')"
+                    onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-reflection'); }">
+                    <div class="reflection-icon-small">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M9 2L9 16M4 13l5 3 5-3" stroke="currentColor" stroke-width="1.4"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="1.4" />
+                        </svg>
+                    </div>
+                    <div class="reflection-path-text">
+                        <h4>Complete the Conversation</h4>
+                        <p>Closing reflection — revisit what you've explored and carry something forward</p>
+                    </div>
+                    <div class="card-arrow-badge" aria-hidden="true">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M4 8h8M9 5l3 3-3 3" stroke="currentColor" stroke-width="1.35"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     VIEW 3: CULTURAL LENS
+     ============================================================ -->
+
+    <div id="view-cultural-lens" class="view view-inner-bg">
+        <!-- Mobile header injected by renderMobileHeader('cultural-lens') -->
+        <div id="mob-header-cultural-lens" class="mobile-header-shell"></div>
+        <!-- Desktop nav injected by renderNav('view-cultural-lens') -->
+        <div id="nav-cultural-lens" class="nav-shell"></div>
+        <div class="section-wrap">
+            <div class="section-stage">
+                <!-- Per-subject content: Cultural Lens section header -->
+                <div class="section-header">
+                    <p class="section-eyebrow">Cultural Lens</p>
+                    <h2>Communication expectations across cultures</h2>
+                    <p>Communication is not just about exchanging information — it also reflects deep ideas about
+                        respect,
+                        hierarchy, and social harmony. Across cultures and history, people have developed very different
+                        expectations about
+                        when to speak clearly, when to stay vague, and when silence or emotion carries more weight than
+                        words.</p>
+                    <div class="progress-strip">
+                        <span id="cl-progress-text">Explore the cards below — choose any that interest you.</span>
+                        <span class="progress-pill viewed" id="cl-viewed-count" style="display:none">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.2" />
+                                <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1.2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>0 viewed</span>
+                        </span>
+                        <span class="progress-pill covered" id="cl-covered-count" style="display:none">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                <path d="M2 5l2.5 2.5L8 2.5" stroke="currentColor" stroke-width="1.4"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>0 covered</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cl-grid" id="cl-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     VIEW 4: DISCUSSION
+     ============================================================ -->
+
+    <div id="view-discussion" class="view view-inner-bg">
+        <!-- Mobile header injected by renderMobileHeader('discussion') -->
+        <div id="mob-header-discussion" class="mobile-header-shell"></div>
+        <!-- Desktop nav injected by renderNav('view-discussion') -->
+        <div id="nav-discussion" class="nav-shell"></div>
+        <div class="section-wrap">
+            <div class="section-stage">
+                <!-- Per-subject content: Discussion section header -->
+                <div class="section-header">
+                    <p class="section-eyebrow">Discussion</p>
+                    <h2>Between the Lines</h2>
+                    <p>Every conversation carries more than words. A pause before a reply, a tone that does not match
+                        the message, or a moment when someone chooses not to speak can change everything. These
+                        conversations move from quick first reactions into deeper questions about what people really
+                        mean, what goes unspoken, and how you express yourself when it matters most. Choose a set to
+                        begin.</p>
+                    <div class="progress-strip">
+                        <span id="disc-progress-text">Choose a set below — open anything that interests you.</span>
+                        <span class="progress-pill viewed" id="disc-viewed-count" style="display:none">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.2" />
+                                <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1.2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>0 opened</span>
+                        </span>
+                        <span class="progress-pill covered" id="disc-covered-count" style="display:none">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                <path d="M2 5l2.5 2.5L8 2.5" stroke="currentColor" stroke-width="1.4"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>0 covered</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="discussion-sets" id="discussion-sets"></div>
+                <div class="moments-panel" id="moments-panel">
+                    <div class="moments-panel-header">
+                        <h3 class="moments-panel-title" id="moments-panel-title">Set</h3>
+                        <button class="btn-close-set" onclick="closeSet()">
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                <path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.4"
+                                    stroke-linecap="round" />
+                            </svg>
+                            Close set
+                        </button>
+                    </div>
+                    <div id="moments-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     VIEW 5: REFLECTION
+     ============================================================ -->
+
+    <div id="view-reflection" class="view view-inner-bg">
+        <!-- Mobile header injected by renderMobileHeader('reflection') -->
+        <div id="mob-header-reflection" class="mobile-header-shell"></div>
+        <!-- Desktop nav injected by renderNav('view-reflection') -->
+        <div id="nav-reflection" class="nav-shell"></div>
+        <div class="reflection-wrap">
+            <div class="section-stage">
+                <!-- Per-subject content: Reflection -->
+                <div class="reflection-icon-large">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <path d="M14 3L14 25" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                        <path d="M6 19l8 6 8-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <circle cx="14" cy="10" r="4.5" stroke="currentColor" stroke-width="1.8" />
+                    </svg>
+                </div>
+                <div class="reflection-complete-mark" id="reflection-complete-mark" aria-hidden="true">
+                    <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+                        <path d="M12 22.8L18.9 29.7L32 14.8" stroke="currentColor" stroke-width="3.4"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <p class="reflection-complete-kicker" id="reflection-complete-kicker">Congratulations!</p>
+                <h2 id="reflection-title" aria-live="polite">Complete the Conversation</h2>
+                <p class="reflection-summary">You've explored how tone, timing, silence, directness, and emotion change
+                    what people really mean — across cultures, real-life moments, and your own experience. These
+                    conversations help you express ideas more clearly, interpret others with more care, and navigate
+                    everyday interactions with greater confidence.</p>
+                <div class="reflection-questions">
+                    <div class="reflection-q">
+                        <div class="reflection-q-num">1</div>
+                        <p class="reflection-q-text">Looking back at the cultural examples today, which communication
+                            style felt
+                            most familiar to you — and which felt most different from how you naturally communicate?</p>
+                    </div>
+                    <div class="reflection-q">
+                        <div class="reflection-q-num">2</div>
+                        <p class="reflection-q-text">Think of a recent real-life moment when a message was
+                            misunderstood. What would you try differently next time — one specific word choice, pause,
+                            tone, or follow-up question?</p>
+                    </div>
+                    <div class="reflection-q">
+                        <div class="reflection-q-num">3</div>
+                        <p class="reflection-q-text">Which word or phrase from today's conversation gave you a more
+                            precise way to describe something you've experienced — and can you think of a real situation
+                            where you'd actually use it?</p>
+                    </div>
+                </div>
+                <p class="reflection-progress-summary" id="reflection-progress-summary"></p>
+                <div class="reflection-actions">
+                    <button class="btn-primary" id="complete-lesson-btn" onclick="completeLesson()">
+                        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                            <path d="M3 8.2l3.1 3.1L13 4.5" stroke="currentColor" stroke-width="1.6"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Mark lesson complete
+                    </button>
+                    <button class="btn-primary" onclick="openVocabBank()">
+                        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                            <path
+                                d="M4.2 2.5h7.3a1.2 1.2 0 011.2 1.2v6.1a1.2 1.2 0 01-1.2 1.2H7.8L5 13.2V11H4.2A1.2 1.2 0 013 9.8V3.7a1.2 1.2 0 011.2-1.2z"
+                                stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" />
+                            <path d="M5.5 5.7h5M5.5 8.1h3.6" stroke="currentColor" stroke-width="1.25"
+                                stroke-linecap="round" />
+                        </svg>
+                        Review Key Language
+                    </button>
+                    <button class="btn-ghost" onclick="goToView('view-orientation')">Back to overview</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     MOBILE NAVIGATION DRAWER
+     ============================================================ -->
+
+    <div class="mobile-drawer-overlay" id="mobile-drawer-overlay" onclick="closeMobileDrawer()"></div>
+    <div class="mobile-drawer" id="mobile-drawer">
+        <div class="mobile-drawer-header">
+            <span class="mobile-drawer-title" id="mobile-drawer-subject-title"></span>
+            <button class="mobile-drawer-close" onclick="closeMobileDrawer()" aria-label="Close menu">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+            </button>
+        </div>
+        <div class="mobile-drawer-nav" id="mobile-drawer-nav">
+            <!-- Injected by renderMobileDrawerNav() -->
+        </div>
+        <div class="mobile-drawer-footer">
+            <div class="mobile-footer-actions">
+                <button class="mobile-session-btn" onclick="openSessionModalFromDrawer()">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3" />
+                        <path d="M2 12c0-2.485 2.239-4.5 5-4.5s5 2.015 5 4.5" stroke="currentColor" stroke-width="1.3"
+                            stroke-linecap="round" />
+                    </svg>
+                    <span id="mobile-session-label">Current Session</span>
+                </button>
+                <button class="mobile-appearance-toggle" id="mobile-appearance-toggle" onclick="toggleAppearanceMode()"
+                    title="Switch to night mode" aria-label="Switch to night mode">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     CULTURAL LENS MODAL
+     ============================================================ -->
+
+    <div class="modal-overlay" id="cl-modal-overlay" onclick="handleModalOverlayClick(event)">
+        <div class="modal-panel" id="cl-modal-panel">
+            <div class="modal-header">
+                <div class="modal-heading">
+                    <p class="modal-location" id="modal-location"></p>
+                    <h2 class="modal-title" id="modal-title"></h2>
+                </div>
+                <button class="modal-close-x" onclick="closeModal()" aria-label="Close modal">
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                        <path d="M3 3l9 9M12 3l-9 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-insight" id="modal-insight"></p>
+                <div class="modal-question-block">
+                    <p class="modal-question-label">Discussion question</p>
+                    <p class="modal-question" id="modal-question"></p>
+                    <div class="upgrade-row" id="modal-upgrade-row">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+                <button class="explore-deeper-toggle" id="explore-toggle" onclick="toggleExploreDeeper()"
+                    aria-expanded="false" aria-controls="explore-deeper-content">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 2.4L13 5.2L8 8L3 5.2L8 2.4Z" stroke="currentColor" stroke-width="1.25"
+                            stroke-linejoin="round" />
+                        <path d="M3.2 8.2L8 10.9L12.8 8.2" stroke="currentColor" stroke-width="1.25"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M3.2 11L8 13.7L12.8 11" stroke="currentColor" stroke-width="1.25"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Explore Deeper
+                    <svg class="explore-deeper-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <div class="explore-deeper-content" id="explore-deeper-content">
+                    <p class="explore-deeper-text" id="explore-deeper-text"></p>
+                    <div class="explore-questions" id="explore-questions"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-footer-nav">
+                    <button class="btn-ghost" id="modal-prev-btn" onclick="navigateModal(-1)">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M7 2L3 6l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                        Previous
+                    </button>
+                    <button class="btn-ghost" id="modal-next-btn" onclick="navigateModal(1)">
+                        Next
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M5 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-footer-actions">
+                    <button class="btn-covered" onclick="markCLCovered()">
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                            <path d="M2 6.5l3.5 3.5L11 3" stroke="currentColor" stroke-width="1.6"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Mark covered &amp; close
+                    </button>
+                    <button class="btn-ghost modal-footer-close" onclick="closeModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     KEY LANGUAGE DRAWER
+     ============================================================ -->
+
+    <div class="vb-overlay" id="vb-overlay" onclick="closeVocabBank()"></div>
+    <div class="vb-drawer" id="vb-drawer">
+        <div class="vb-header">
+            <h3>Key Language</h3>
+            <div class="vb-actions">
+                <button class="vb-close-btn" onclick="closeVocabBank()" aria-label="Close Key Language">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="vb-list" id="vb-list"></div>
+    </div>
+    <div id="print-key-language" class="print-key-language" aria-hidden="true"></div>
+    <dialog class="session-dialog" id="session-dialog" aria-labelledby="session-dialog-title"
+        aria-describedby="session-dialog-message">
+        <div class="session-dialog-panel">
+            <p class="session-dialog-kicker" id="session-dialog-kicker">Session action</p>
+            <h3 class="session-dialog-title" id="session-dialog-title">Are you sure?</h3>
+            <p class="session-dialog-message" id="session-dialog-message"></p>
+            <input class="session-input session-dialog-input" id="session-dialog-input" type="text" maxlength="40"
+                autocomplete="off">
+            <p class="session-dialog-error" id="session-dialog-error" role="alert"></p>
+            <div class="session-dialog-actions">
+                <button class="btn-ghost" type="button" id="session-dialog-cancel">Cancel</button>
+                <button class="btn-danger-confirm" type="button" id="session-dialog-ok">OK</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- ============================================================
+     SESSION MODAL
+     ============================================================ -->
+
+    <div class="session-modal-overlay" id="session-modal-overlay" onclick="handleSessionOverlayClick(event)">
+        <div class="session-modal-panel">
+            <div class="session-modal-header">
+                <h3>Session &amp; Progress</h3>
+                <button class="vb-close-btn" onclick="closeSessionModal()" aria-label="Close session settings">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+            <div class="session-modal-body">
+                <p id="session-helper-text" style="font-size:0.82rem;color:var(--ink-light);margin-bottom:1rem;"></p>
+                <p
+                    style="font-size:0.75rem;color:var(--stone-dark);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.6rem;">
+                    Saved Sessions</p>
+                <div class="session-list" id="session-list"></div>
+                <p style="font-size:0.78rem;color:var(--stone-dark);margin-bottom:0.6rem;margin-top:1rem;">New session
+                </p>
+                <div class="session-new-form">
+                    <input class="session-input" id="session-name-input" type="text" placeholder="Name this session"
+                        maxlength="40" onkeydown="if(event.key==='Enter')addSession()">
+                    <button class="btn-add-session" onclick="addSession()">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         JAVASCRIPT
+         ============================================================ -->
+
+    <script>
+
+        /* ============================================================
+           FACTORY EDIT ZONE: MODULE CONFIG
+           Replace this object for each subject.
+           ============================================================ */
+
+        const MODULE = {
+            id: 'communication-expression',
+            schemaVersion: 1,
+            contentVersion: '1.0.0',
+            title: 'Communication & Expression',
+            titleHtml: 'Communication<br>&amp; <em>Expression</em>',
+            navTitle: 'Communication',
+            coverHook: 'How tone, timing, silence, and small social signals change what people really mean — across cultures and everyday life.',
+            bgImage: 'https://as1.ftcdn.net/jpg/03/71/98/22/1000_F_371982277_7nj9Ex7pVFD3tYDewVz9ViBLc54Kb0rZ.jpg',
+            labels: {
+                culturalLensUnitSingular: 'culture',
+                culturalLensUnitPlural: 'cultures',
+                discussionUnitSingular: 'moment',
+                discussionUnitPlural: 'moments',
+                vocabIntro: 'Higher-level expressions from this subject — with definitions and natural in-action examples.'
+            }
+        };
+
+        /* END FACTORY EDIT ZONE: MODULE CONFIG */
+
+        // ============================================================
+        // CONTENT DATA
+        // Subject-specific content lives in the factory edit zones below.
+        // Shared template systems begin after the final factory edit zone.
+        // ============================================================
+
+        /* ============================================================
+           FACTORY EDIT ZONE: CULTURAL LENS CONTENT
+           Replace this array for each subject.
+           ============================================================ */
+
+        // ---- CULTURAL LENS CARDS ----
+        // Each card id must stay stable. Atlas Hub data combines
+        // MODULE.id + card.id to track progress and connect upgrade vocabulary.
+        // upgrade: { term, type, def, in_action, review_prompt }
+
+        const clCards = [
+            {
+                id: `cl-japan`,
+                location: `Japan`,
+                title: `Saying "yes" doesn't always mean agreement`,
+                teaser: `Politeness can carry more meaning than the words themselves.`,
+                insight: `In many situations in Japan, people may say "yes" simply to show they are listening or following what you mean, not that they fully agree. Direct refusal is often softened or avoided so the conversation can stay polite and harmonious. What sounds like agreement on the surface may actually be acknowledgement, hesitation, or a quietly held reservation.`,
+                question: `If someone kept saying "yes" politely but you were not sure they truly agreed, what would you do — ask directly, watch for indirect signals, or leave it for now?`,
+                upgrade: {
+                    term: `face-saving`,
+                    type: `noun phrase`,
+                    def: `A strategy of avoiding direct refusal or disagreement in order to protect someone's dignity and keep the atmosphere comfortable.`,
+                    in_action: `Looking back, I think a lot of the polite "yes" responses were face-saving — they were keeping things smooth rather than actually agreeing with me.`,
+                    review_prompt: `What might a polite 'yes' actually mean when someone is trying to keep things smooth?`
+                },
+                deeper: {
+                    text: `One reason this pattern exists is that in many Japanese social contexts, maintaining a harmonious atmosphere is treated as more important than making a position absolutely clear in the moment. Direct refusal can feel abrupt or even unkind — it places the other person in an awkward position and disrupts the flow of the conversation. So instead, a range of softer signals develop: a slow breath, a long pause, phrases like "that may be difficult," or a "yes" that means "I hear you" rather than "I agree." For someone unfamiliar with these signals, the gap between what is said and what is meant can be significant. Misunderstandings in these situations are not usually caused by dishonesty — they happen because both people are interpreting the same words through different conversational frameworks.`,
+                    questions: [
+                        `Can you think of a time when you said "yes" or "of course" to avoid awkwardness, even though you weren't really sure?`,
+                        `If a colleague in a meeting seemed to agree with your idea but then didn't follow through, how would you handle that conversation?`,
+                        `In your own culture, what signals — other than a direct "no" — would tell you that someone actually disagrees?`
+                    ]
+                }
+            },
+            {
+                id: `cl-finland`,
+                location: `Finland`,
+                title: `Silence can be sincere`,
+                teaser: `Comfortable quiet is not emptiness — it can be its own kind of honesty.`,
+                insight: `In Finland, silence in conversation is often more comfortable than in many other cultures. Speaking only when you have something real to say can feel more honest than filling every pause with conversation. Silence is not considered awkward by default — it can signal thought, trust, or simply a shared comfort in not performing conversation.`,
+                question: `If a conversation with someone you did not know very well suddenly went quiet, would you feel peaceful, awkward, or pressured to fill the gap?`,
+                upgrade: {
+                    term: `comfortable silence`,
+                    type: `noun phrase`,
+                    def: `A quiet moment between people that feels natural and easy rather than tense or embarrassing.`,
+                    in_action: `I think we've reached the point where we can sit in comfortable silence — it actually shows how relaxed we are around each other.`,
+                    review_prompt: `With which people in your life does a long pause feel easy rather than awkward?`
+                },
+                deeper: {
+                    text: `In many communication cultures, silence in a conversation feels like a gap that needs filling — a signal that something has gone wrong or that the other person is bored. This instinct is much weaker in Finland, where pausing before speaking is often read as a sign that someone is thinking carefully rather than struggling or being unfriendly. This difference can cause real friction when people from different backgrounds interact. A colleague who pauses before answering may be giving the question genuine thought — but an outsider might interpret the quiet as disapproval or confusion, and rush to fill it. Equally, someone who talks constantly to avoid silence may come across as insincere or not really listening. The deeper idea is that silence is not the opposite of communication — it is part of it.`,
+                    questions: [
+                        `Is there someone in your life — a friend, family member, or colleague — with whom silence feels comfortable rather than awkward?`,
+                        `Have you ever felt pressure to speak just to fill a quiet moment, even when you didn't really have anything to add?`,
+                        `Do you think people who speak less are usually seen as shy, thoughtful, or something else — and does that feel fair to you?`
+                    ]
+                }
+            },
+            {
+                id: `cl-renaissance-italy`,
+                location: `Renaissance Italy`,
+                title: `Speaking carefully to stay safe`,
+                teaser: `When words could be used against you, vagueness became a survival skill.`,
+                insight: `In the political world of Renaissance Italy, diplomats often spoke in vague or flexible ways so their words could still work if alliances changed. Communication was not always about being clear — sometimes it was about leaving yourself room to survive. A statement had to be true enough to repeat publicly, but open enough to reinterpret if circumstances shifted.`,
+                question: `If you were in a situation where your words could be used against you later, would you speak clearly, stay vague, or say as little as possible?`,
+                upgrade: {
+                    term: `deliberate ambiguity`,
+                    type: `noun phrase`,
+                    def: `A conscious choice to use language that can be interpreted in more than one way, in order to keep options open.`,
+                    in_action: `I think I used deliberate ambiguity in that email — I didn't say no, but I also didn't commit to anything, which gave me time to think.`,
+                    review_prompt: `When might someone reply vaguely on purpose instead of giving a clear answer?`
+                },
+                deeper: {
+                    text: `Renaissance diplomatic language was a highly developed skill, not simply a form of dishonesty. Ambassadors were trained to say things that were technically accurate but flexible enough to survive if political circumstances changed. This kind of careful vagueness still appears in modern professional life — in politics, in legal language, even in ordinary workplace conversations where someone needs to stay on good terms with opposing sides. The interesting question is where the line sits between thoughtful precision and deliberate evasion. Saying "I'll consider it" is technically honest. But if you have already decided no, is it more respectful to say so clearly, or less hurtful to leave the door open? Different cultures, relationships, and situations can give very different answers to that question.`,
+                    questions: [
+                        `Can you think of a message or reply — from work, school, or personal life — where you deliberately chose words that left things open rather than being definite?`,
+                        `Do you think being vague is sometimes the kinder option, or does it usually just delay a difficult conversation?`,
+                        `If someone gave you a carefully worded non-answer, would you usually push for clarity or accept the ambiguity?`
+                    ]
+                }
+            },
+            {
+                id: `cl-imperial-china`,
+                location: `Imperial China`,
+                title: `Criticism hidden inside art`,
+                teaser: `A poem could carry a political message that a direct report never could.`,
+                insight: `In imperial China, officials sometimes criticised rulers indirectly through poetry, symbolism, or historical references instead of open attack. A message could be serious and political without sounding openly rebellious on the surface. This allowed ideas to circulate that could not survive as direct speech, and protected the writer with a layer of plausible deniability.`,
+                question: `If someone criticised you using a story, a joke, or a carefully chosen example rather than saying it directly, would you notice — and would you prefer they had just been honest?`,
+                upgrade: {
+                    term: `veiled criticism`,
+                    type: `noun phrase`,
+                    def: `A negative message or complaint that is expressed indirectly, hidden inside a story, joke, or neutral-seeming remark.`,
+                    in_action: `I think his comment about "how some people handle feedback" was veiled criticism directed at me — he was just too polite to say it directly.`,
+                    review_prompt: `How might someone hint at a complaint through a joke or a story instead of saying it plainly?`
+                },
+                deeper: {
+                    text: `This way of hiding a serious message inside a cultural or artistic form is far from unique to imperial China. Political satire, fables, allegory, and sharp comedy all work on the same principle — the surface content gives the speaker protection, while the real message reaches people who know how to listen for it. The audience is invited to complete the meaning themselves, which can make the message land more powerfully than a direct statement would. In everyday life, the same pattern shows up in the pointed joke, the story that is "obviously not about anyone in particular," or the example chosen a little too perfectly to illustrate a recent situation. Noticing this kind of indirect communication requires a different kind of listening — one that pays attention to what was chosen, and what was deliberately left unsaid.`,
+                    questions: [
+                        `Have you ever used a joke, a story, or an example to hint at something you didn't want to say directly — and did the other person understand?`,
+                        `Think of a time when you received feedback wrapped inside a compliment or a general observation. Was it easier or harder to hear than direct criticism?`,
+                        `Can you think of a film, book, or piece of comedy that carries a serious social or political message beneath the surface?`
+                    ]
+                }
+            },
+            {
+                id: `cl-new-york`,
+                location: `New York City`,
+                title: `Interrupting can mean interest`,
+                teaser: `What reads as rudeness in one setting can feel like energy and engagement in another.`,
+                insight: `In New York City and some other fast-paced urban environments, cutting into someone's speech can sometimes signal energy, enthusiasm, or strong engagement rather than disrespect. For someone from a different communication background, it can sound like an interruption — but for participants it may feel like lively, connected involvement in the conversation.`,
+                question: `If someone jumps into your story because they are excited about what you are saying, do you usually see that as energy and interest — or as them taking over?`,
+                upgrade: {
+                    term: `conversational overlap`,
+                    type: `noun phrase`,
+                    def: `When two people speak at the same time briefly, which in some styles signals enthusiasm and engagement rather than rudeness.`,
+                    in_action: `I grew up with a lot of conversational overlap in my family — people talk over each other all the time, but it's because everyone is engaged, not because they're being rude.`,
+                    review_prompt: `In which settings does talking over each other show energy rather than rudeness?`
+                },
+                deeper: {
+                    text: `What feels like an interruption from the outside can feel like genuine engagement from the inside. In some conversational styles, jumping in mid-sentence signals that the listener is so interested they can't hold back — it's a form of energy and presence, not dismissal. In other styles, waiting for a clear pause before speaking is the standard way of showing respect. When these two approaches meet, both people can end up misreading each other. The person who interrupts may feel they're being warm and enthusiastic. The person who waits their turn may feel overlooked or talked over. Neither is being rude on purpose — they're just following different unspoken rules about how conversation should flow.`,
+                    questions: [
+                        `When someone cuts into what you're saying, does your reaction depend more on what they say, or on how they do it?`,
+                        `Have you ever been in a group conversation where some people kept talking over others — how did that feel to be on different sides of it?`,
+                        `Do you think there's a difference between an interruption that adds to your point and one that replaces it?`
+                    ]
+                }
+            },
+            {
+                id: `cl-france`,
+                location: `France`,
+                title: `Debate as pleasure`,
+                teaser: `A lively argument at dinner is not a crisis — it can be the whole point.`,
+                insight: `In France, lively disagreement can sometimes be part of social pleasure rather than a sign that something is wrong. People may challenge each other strongly during a discussion, then continue the evening completely normally afterwards. The exchange of ideas — including opposing ones — is treated as a sign of intellectual engagement rather than personal conflict.`,
+                question: `If a dinner conversation turned into a lively debate where people strongly challenged each other's views, would you enjoy the energy, stay quiet, or try to find a calmer topic?`,
+                upgrade: {
+                    term: `intellectual sparring`,
+                    type: `noun phrase`,
+                    def: `A lively exchange of opposing ideas in a spirit of enjoyment and curiosity rather than genuine conflict.`,
+                    in_action: `I actually enjoy a bit of intellectual sparring — I find that debating something properly helps me understand my own view better.`,
+                    review_prompt: `What's the difference between a real argument and two people enjoying a debate?`
+                },
+                deeper: {
+                    text: `One reason this pattern may exist is a long cultural tradition of treating the exchange of ideas as something valuable in itself — separate from whether anyone "wins" the argument. In this frame, challenging someone's position can be a sign of respect: it means you're taking them seriously enough to push back. The assumption is that both people can handle disagreement without it damaging the relationship. This can clash quite directly with communication cultures where public disagreement is seen as a threat to harmony or a sign that something has gone wrong. What one person experiences as a stimulating debate, another can feel as an uncomfortable confrontation, even when the topic is completely impersonal.`,
+                    questions: [
+                        `Think of the last time you disagreed with someone in conversation — did you say so openly, soften it, or hold back entirely?`,
+                        `Is there a topic or setting where you feel genuinely comfortable debating, and one where you'd rather keep the peace?`,
+                        `Have you ever had a heated conversation that ended fine — where both people moved on without it affecting the relationship?`
+                    ]
+                }
+            },
+            {
+                id: `cl-germany`,
+                location: `Germany`,
+                title: `Direct honesty as respect`,
+                teaser: `Softening a message too much can sometimes feel less respectful, not more.`,
+                insight: `In Germany, direct feedback is often seen as respectful because it avoids confusion, mixed signals, or hidden criticism. Being clear can feel more honest than trying too hard to protect someone's feelings. One assumption behind this approach is that the other person is capable of receiving honest information without needing it wrapped in reassurance.`,
+                question: `If your work, your outfit, or your idea had a real problem, would you want someone to tell you directly — or would you prefer they soften the message first?`,
+                upgrade: {
+                    term: `straight-talking`,
+                    type: `adjective`,
+                    def: `Describing someone who says exactly what they think, without softening or hinting — often used approvingly when the honesty feels useful rather than blunt.`,
+                    in_action: `I appreciated her straight-talking style — she told me what wasn't working, and I left the meeting knowing exactly what to fix.`,
+                    review_prompt: `When is very direct feedback actually more helpful than a softened version?`
+                },
+                deeper: {
+                    text: `One reason directness is valued in some communication cultures is the belief that ambiguity can actually damage trust over time. If a colleague's work has real problems and you only hint at them vaguely, you're leaving them without the information they need to improve — and they may feel misled later when the consequences arrive. At the same time, directness without warmth or context can land badly, particularly across communication styles where the relationship tone matters as much as the content. The practical distinction worth making is between being direct — willing to say something clearly — and being blunt, which is about how it's said. Many skilled communicators manage to be honest and considerate at the same time.`,
+                    questions: [
+                        `Think of a piece of feedback you received that actually helped you — was it delivered gently, directly, or somewhere in between?`,
+                        `Is it harder for you to give honest feedback to someone, or to receive it without getting defensive?`,
+                        `Have you ever wished someone had just told you something clearly rather than dancing around it — what was the situation?`
+                    ]
+                }
+            },
+            {
+                id: `cl-arabic`,
+                location: `Arabic-speaking communication traditions`,
+                title: `Expressiveness as sincerity`,
+                teaser: `A more reserved delivery can sometimes sound unconvincing rather than restrained.`,
+                insight: `In some Arabic-speaking communication contexts, especially when the topic carries emotional weight, tone, repetition, emphasis, and expressive phrasing can add warmth, sincerity, and human connection to speech. A more expressive style may feel natural or heartfelt rather than exaggerated. What sounds intense in one communication context can be part of the expected register of genuine feeling in another.`,
+                question: `When someone speaks with strong emotion, repetition, and a lot of emphasis, do you find yourself reading it as sincerity, drama, confidence — or something else entirely?`,
+                upgrade: {
+                    term: `register`,
+                    type: `noun`,
+                    def: `The level of intensity, formality, or emotional tone that a person naturally uses when speaking in a particular context.`,
+                    in_action: `I think we were just speaking in different registers — her very expressive style was completely genuine, and my quieter tone didn't mean I was less serious.`,
+                    review_prompt: `How might the same message sound in a formal email versus a quick text to a friend?`
+                },
+                deeper: {
+                    text: `In contexts where expressive speech is valued, a reserved or minimal delivery can sometimes make trust harder rather than easier. If you care deeply about something, people may expect that feeling to be visible in how you speak — in the energy of your voice, the warmth of your phrasing, or the rhythm of your sentences. A flat or very restrained delivery can be misread as indifference, even when none was intended. This creates a practical challenge when expressive and reserved communication styles meet: the more reserved speaker may feel their sincerity is being doubted, while the more expressive speaker may feel the other person is holding something back.`,
+                    questions: [
+                        `When you feel strongly about something in a conversation, does your communication style change noticeably — and in what way?`,
+                        `Have you ever felt that someone was being cold or disengaged, and later realised they were just being reserved rather than distant?`,
+                        `Do you think we sometimes judge whether someone is sincere based on how similar their communication style is to our own?`
+                    ]
+                }
+            }
+        ];
+
+        /* END FACTORY EDIT ZONE: CULTURAL LENS CONTENT */
+
+        /* ============================================================
+           FACTORY EDIT ZONE: DISCUSSION CONTENT
+           Replace this array for each subject.
+           ============================================================ */
+
+        // ---- DISCUSSION SETS ----
+        // Set and moment ids must stay stable. Do not use position-based ids
+        // like set-1 or moment-1, because content may be reordered later.
+        // Atlas Hub data combines MODULE.id + moment.id to track
+        // progress and connect upgrade vocabulary.
+        // Each moment has: id, preview, text, upgrade: { term, type, def, in_action, review_prompt }
+
+        const discussionSets = [
+            {
+                id: `set-first-read`,
+                title: `First Read`,
+                desc: `Quick reactions to familiar communication moments — the kind you recognise instantly, even if you have never put them into words.`,
+                icon: `react`,
+                moments: [
+                    {
+                        id: `moment-tone-off`,
+                        preview: `The words were fine. Something else was not.`,
+                        text: `Someone sends you a message that says “Sure, no problem” — but something about it does not feel right. What do you usually pick up on first: the words themselves, the way they are written, or something harder to name?`,
+                        upgrade: {
+                            term: `read between the lines`,
+                            type: `idiom`,
+                            def: `To understand what someone really means, even when they have not said it directly.`,
+                            in_action: `She said she was fine with it, but I could read between the lines — she was not happy at all.`,
+                            review_prompt: `How can you tell someone isn't happy even when their words say they're fine?`
+                        }
+                    },
+                    {
+                        id: `moment-wrong-moment`,
+                        preview: `The right thing at the wrong time.`,
+                        text: `Think of a moment when someone said something completely reasonable, but it landed badly because the timing was off. What made the timing wrong — and does timing matter as much as the words themselves?`,
+                        upgrade: {
+                            term: `land badly`,
+                            type: `phrasal verb`,
+                            def: `When something said or done has a negative effect, even if that was not the intention.`,
+                            in_action: `His joke landed badly — everyone went quiet, and he clearly had not expected that reaction.`,
+                            review_prompt: `What kind of comment could be reasonable but still land badly because of the timing?`
+                        }
+                    },
+                    {
+                        id: `moment-silence-speaks`,
+                        preview: `When not saying anything says everything.`,
+                        text: `When someone goes silent in the middle of a conversation — no reply, no explanation — what do you assume? Is silence usually comfortable, awkward, or something else entirely for you?`,
+                        upgrade: {
+                            term: `loaded silence`,
+                            type: `noun phrase`,
+                            def: `A silence that carries strong emotion, tension, or meaning without anyone speaking.`,
+                            in_action: `After she told him the news, there was a loaded silence — nobody spoke, but everyone could feel the tension.`,
+                            review_prompt: `What kind of situation might create a loaded silence in a room?`
+                        }
+                    },
+                    {
+                        id: `moment-blunt-or-kind`,
+                        preview: `Honest, or just harsh?`,
+                        text: `Some people say exactly what they think, and some soften everything they say. Which style do you find easier to trust — and which do you find harder to deal with?`,
+                        upgrade: {
+                            term: `pull your punches`,
+                            type: `idiom`,
+                            def: `To make your words or criticism less direct than you could be, to avoid upsetting someone.`,
+                            in_action: `She did not pull any punches — she told him exactly what she thought of the plan, and he was not prepared for it.`,
+                            review_prompt: `When giving feedback, would you pull your punches or say it straight? Why?`
+                        }
+                    },
+                    {
+                        id: `moment-misread`,
+                        preview: `The message you sent was not the one they received.`,
+                        text: `Have you ever said something that was completely misunderstood — not because you were unclear, but because the other person heard it differently? What happened, and how did you realise the gap?`,
+                        upgrade: {
+                            term: `come across`,
+                            type: `phrasal verb`,
+                            def: `To give a particular impression through your words, tone, or behaviour, even if that impression was not what you intended.`,
+                            in_action: `I was trying to be helpful, but apparently I came across as quite rude — she thought I was criticising her.`,
+                            review_prompt: `Have you ever come across differently from how you intended? What happened?`
+                        }
+                    }
+                ],
+                makeItReal: {
+                    title: `A moment that stayed with you`,
+                    prompt: `Think of a recent conversation — at work, at home, or with a friend — where something was communicated but not quite said. What was the moment, and how did you know what was really meant?`
+                }
+            },
+            {
+                id: `set-under-the-surface`,
+                title: `Under the Surface`,
+                desc: `Go deeper into how communication actually works — why the same words mean different things, what shapes how we listen, and what we are really doing when we speak.`,
+                icon: `explain`,
+                moments: [
+                    {
+                        id: `moment-same-words`,
+                        preview: `Same sentence, completely different meaning.`,
+                        text: `“I’m fine.” “That’s interesting.” “We’ll see.” These phrases can mean very different things depending on who says them and how. How do you decide what someone really means when the words alone do not tell you?`,
+                        upgrade: {
+                            term: `subtext`,
+                            type: `noun`,
+                            def: `The real meaning or feeling beneath what someone is saying — the message behind the message.`,
+                            in_action: `On the surface it sounded polite, but the subtext was clear — he was not going to agree to it.`,
+                            review_prompt: `How could a polite sentence carry a subtext that means the opposite?`
+                        }
+                    },
+                    {
+                        id: `moment-overthink-reply`,
+                        preview: `Before you send, you rewrite it three times.`,
+                        text: `Do you ever spend much longer crafting a message than the conversation actually needs? What are you usually trying to get right — and does it usually work?`,
+                        upgrade: {
+                            term: `second-guess yourself`,
+                            type: `phrasal verb`,
+                            def: `To doubt your own judgement and keep changing your mind about what to say or do.`,
+                            in_action: `I second-guessed myself so many times writing that email that it took twenty minutes to write three sentences.`,
+                            review_prompt: `What kind of message makes you second-guess yourself and rewrite it again and again?`
+                        }
+                    },
+                    {
+                        id: `moment-direct-culture`,
+                        preview: `Where you are from changes what “polite” means.`,
+                        text: `You explain your view clearly, but the other person seems uncomfortable — or you soften your message to be polite, and they miss your point. What do you think happened in that moment: different expectations about honesty, politeness, or how much should be left unsaid?`,
+                        upgrade: {
+                            term: `high-context communication`,
+                            type: `concept term`,
+                            def: `A communication style where much of the meaning is implied, rather than stated directly.`,
+                            in_action: `In a high-context communication style, people may expect you to understand the meaning from tone, timing, silence, or the situation — not only from the words.`,
+                            review_prompt: `Besides the words, what signals tell you the real meaning in a high-context exchange?`
+                        }
+                    },
+                    {
+                        id: `moment-half-listening`,
+                        preview: `Physically present. Not really there.`,
+                        text: `What is the difference between actually listening and just waiting for your turn to speak? How can you usually tell which one someone is doing — and which one do you catch yourself doing more often than you would like to admit?`,
+                        upgrade: {
+                            term: `tune out`,
+                            type: `phrasal verb`,
+                            def: `To stop paying attention to what someone is saying, even while appearing to listen.`,
+                            in_action: `I could tell he'd tuned out about halfway through — he was nodding, but his eyes had gone somewhere else.`,
+                            review_prompt: `How can you tell when someone has tuned out even though they're still nodding?`
+                        }
+                    },
+                    {
+                        id: `moment-word-choice-weight`,
+                        preview: `One word changes everything.`,
+                        text: `Imagine saying “I need help with this” versus “I’m struggling with this” versus “I can’t manage this on my own.” They describe the same situation, but each one creates a different impression. How much do you think about your word choices in conversations that matter?`,
+                        upgrade: {
+                            term: `connotation`,
+                            type: `noun`,
+                            def: `The emotional or social feeling that a word carries, beyond its basic dictionary meaning.`,
+                            in_action: `Both words mean roughly the same thing, but the connotations are very different — one sounds confident, the other sounds defeated.`,
+                            review_prompt: `Which sounds more suitable in a work message: 'cheap' or 'affordable', and why?`
+                        }
+                    }
+                ],
+                makeItReal: {
+                    title: `A message that took effort`,
+                    prompt: `Think of a time you had to communicate something carefully — a difficult message, a sensitive topic, or something where the words really mattered. How did you approach it, and do you think it worked?`
+                }
+            },
+            {
+                id: `set-your-voice`,
+                title: `Your Voice`,
+                desc: `The conversation turns personal — how you express yourself, where your communication style comes from, and what you are still learning about being understood.`,
+                icon: `reflect`,
+                moments: [
+                    {
+                        id: `moment-hard-to-say`,
+                        preview: `You knew what you wanted to say. Getting it out was another thing.`,
+                        text: `Is there a type of conversation that you find genuinely difficult to start — not because you do not know what to say, but because saying it out loud feels hard? What makes that kind of conversation so uncomfortable?`,
+                        upgrade: {
+                            term: `brace yourself`,
+                            type: `phrasal verb`,
+                            def: `To mentally prepare yourself for something difficult, uncomfortable, or emotionally challenging.`,
+                            in_action: `Every time she had to give critical feedback, she would brace herself before starting the conversation — she hated how it might land.`,
+                            review_prompt: `What kind of conversation makes you brace yourself before starting it?`
+                        }
+                    },
+                    {
+                        id: `moment-feel-understood`,
+                        preview: `The relief of someone actually getting it.`,
+                        text: `Think of a person in your life who almost always understands what you mean — not just your words, but what you are actually trying to say. What do they do differently from other listeners?`,
+                        upgrade: {
+                            term: `feel heard`,
+                            type: `spoken phrase`,
+                            def: `The feeling that someone has truly understood and acknowledged what you have said, not just listened to the surface words.`,
+                            in_action: `She did not offer advice or solutions — she just listened, and somehow that was enough to make him feel heard.`,
+                            review_prompt: `What does someone do in a conversation that makes you feel heard?`
+                        }
+                    },
+                    {
+                        id: `moment-language-self`,
+                        preview: `Who are you in a different language?`,
+                        text: `If you speak more than one language, does your personality or communication style feel different depending on which language you are using? What shifts — your sense of humour, your confidence, your directness?`,
+                        upgrade: {
+                            term: `come out of your shell`,
+                            type: `idiom`,
+                            def: `To become more relaxed, confident, or open in social situations, often after a period of being reserved or quiet.`,
+                            in_action: `In his own language he was funny and talkative, but in English he had not quite come out of his shell yet.`,
+                            review_prompt: `What helps a quiet person come out of their shell in a group?`
+                        }
+                    },
+                    {
+                        id: `moment-silence-habit`,
+                        preview: `The things you chose not to say.`,
+                        text: `Are you someone who tends to say less or more than you mean? Looking back, are there things you wish you had said — or things you are glad you kept to yourself?`,
+                        upgrade: {
+                            term: `hold your tongue`,
+                            type: `idiom`,
+                            def: `To stop yourself from saying something, especially when you are tempted or when speaking would cause problems.`,
+                            in_action: `She had a strong opinion but decided to hold her tongue — it was not the right moment, and she knew it.`,
+                            review_prompt: `When was a moment it was wiser to hold your tongue than to speak?`
+                        }
+                    },
+                    {
+                        id: `moment-growing-communicator`,
+                        preview: `You communicate differently now than you used to.`,
+                        text: `How has the way you communicate changed over time — at work, in relationships, or just in everyday conversation? What made you change, and is there anything you are still trying to improve?`,
+                        upgrade: {
+                            term: `find your voice`,
+                            type: `idiomatic phrase`,
+                            def: `To develop the confidence and ability to express yourself clearly and authentically, especially in situations where you previously felt hesitant.`,
+                            in_action: `It took her a few years in the job before she really found her voice in meetings — now she speaks up without thinking twice.`,
+                            review_prompt: `In what kind of setting are you still working to find your voice?`
+                        }
+                    }
+                ],
+                makeItReal: {
+                    title: `The conversation that changed something`,
+                    prompt: `Think of a conversation that genuinely changed the way you communicate — maybe a difficult one, a surprisingly honest one, or one where you finally understood something about yourself. What happened, and what did it teach you?`
+                }
+            }
+        ];
+
+        /* END FACTORY EDIT ZONE: DISCUSSION CONTENT */
+
+    </script>
+    <script src="../../shared/atlas-bridge.js"></script>
+    <script src="../../shared/atlas-search.js"></script>
+    <script src="../shared/compass-engine.js"></script>
+</body>
+
+</html>
