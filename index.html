@@ -1446,6 +1446,11 @@
       border-color: var(--accent);
     }
 
+    select.session-input {
+      padding-right: 2.7rem;
+      background-position: right 0.85rem center;
+    }
+
     .session-error {
       font-size: 0.78rem;
       color: var(--danger);
@@ -1495,6 +1500,133 @@
     .btn-ghost:hover {
       border-color: var(--border-mid);
       color: var(--ink);
+    }
+
+    /* ============================================================ ATLAS WELCOME IMAGE */
+    .atmosphere-preview {
+      position: relative;
+      height: 92px;
+      border-radius: var(--r-md);
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-faint);
+      font-size: 0.78rem;
+      margin-top: 0.65rem;
+    }
+
+    .atmosphere-preview-image {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.78;
+      display: none;
+    }
+
+    .atmosphere-preview.has-image .atmosphere-preview-image {
+      display: block;
+    }
+
+    .atmosphere-preview.has-image .atmosphere-preview-empty {
+      display: none;
+    }
+
+    .atmosphere-preview-empty {
+      position: relative;
+      z-index: 1;
+    }
+
+    .atmosphere-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.55rem;
+      margin-top: 0.85rem;
+    }
+
+    .atmosphere-actions .btn-primary {
+      grid-column: 1 / -1;
+      width: 100%;
+    }
+
+    .atmosphere-actions .btn-ghost {
+      width: 100%;
+    }
+
+    .atmosphere-favorites-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin-top: 0.6rem;
+    }
+
+    .atmosphere-favorite-item {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      background: var(--bg-subtle);
+    }
+
+    .atmosphere-favorite-thumb {
+      width: 52px;
+      height: 34px;
+      border-radius: var(--r-sm);
+      background-size: cover;
+      background-position: center;
+      background-color: var(--bg-raised);
+      border: 1px solid var(--border);
+    }
+
+    .atmosphere-favorite-url {
+      font-size: 0.74rem;
+      color: var(--ink-quiet);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .atmosphere-favorite-actions {
+      display: flex;
+      gap: 0.3rem;
+      flex-shrink: 0;
+    }
+
+    .atmosphere-mini-btn {
+      min-height: 32px;
+      padding: 0.35rem 0.65rem;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-mid);
+      font-family: var(--font-body);
+      font-size: 0.74rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--t);
+    }
+
+    .atmosphere-mini-btn:hover {
+      border-color: var(--border-mid);
+      color: var(--ink);
+    }
+
+    .atmosphere-mini-btn.danger:hover {
+      color: var(--danger);
+      border-color: var(--danger-border);
+      background: var(--danger-bg);
+    }
+
+    .atmosphere-empty-favorites {
+      font-size: 0.76rem;
+      color: var(--ink-faint);
+      padding: 0.55rem 0;
     }
 
     /* ============================================================ CONFIRM DIALOG */
@@ -1891,19 +2023,25 @@
       </div>
       <div class="modal-body">
         <p class="modal-helper" id="session-modal-helper"></p>
+
         <div class="session-list" id="session-list"></div>
+
         <p class="modal-section-label">New session</p>
         <div class="session-new-form">
           <input class="session-input" id="new-session-input" type="text" placeholder="Learner name" maxlength="40"
             autocomplete="off">
           <button class="btn-primary" onclick="handleCreateSession()">Add</button>
         </div>
+
         <div class="session-error" id="session-create-error"></div>
-        <p class="modal-helper" style="font-size:0.72rem; margin-top:0.7rem; margin-bottom:0">Progress is saved on this
-          device only.</p>
+
+        <p class="modal-helper" style="font-size:0.72rem; margin-top:0.7rem; margin-bottom:0">
+          Progress is saved on this device only.
+        </p>
       </div>
     </div>
   </div>
+
   <!-- ============================================================ SETTINGS MODAL -->
   <div class="modal-overlay" id="settings-modal" onclick="handleSettingsModalClick(event)" role="dialog"
     aria-label="Settings" aria-modal="true">
@@ -1917,28 +2055,30 @@
         </button>
       </div>
       <div class="modal-body">
-        <p class="modal-helper">Set a subtle atmosphere image for Atlas on this device.</p>
+        <p class="modal-helper">Set a welcome image for the active session. Atlas stays clean by default; this image
+          appears only for this learner.</p>
 
-        <p class="modal-section-label">Apply to</p>
-        <select class="session-input" id="atmosphere-scope" onchange="handleAtmosphereScopeChange()">
-          <option value="global">Default image</option>
-          <option value="session">This session only</option>
-        </select>
+        <p class="modal-section-label">Welcome image URL</p>
+        <input class="session-input" id="atmosphere-input" type="url" placeholder="https://..." autocomplete="off"
+          oninput="handleAtmospherePreviewInput()">
 
-        <p class="modal-helper" style="font-size:0.72rem; margin-top:0.6rem;">
-          The default image is used only when the current session has no custom image.
-        </p>
-
-        <p class="modal-section-label">Image URL</p>
-        <input class="session-input" id="atmosphere-input" type="url" placeholder="https://..." autocomplete="off">
-
-        <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
-          <button class="btn-primary" onclick="handleSaveSettings()">Save</button>
-          <button class="btn-ghost" onclick="handleClearAtmosphere()">Clear</button>
+        <div class="atmosphere-preview" id="atmosphere-preview">
+          <div class="atmosphere-preview-image" id="atmosphere-preview-image"></div>
+          <span class="atmosphere-preview-empty">No image selected</span>
         </div>
+
+        <div class="atmosphere-actions">
+          <button class="btn-primary" onclick="handleSaveSettings()">Save image</button>
+          <button class="btn-ghost" onclick="handleRemoveAtmosphere()">Remove image</button>
+          <button class="btn-ghost" onclick="handleSaveAtmosphereFavorite()">Save to favourites</button>
+        </div>
+
+        <p class="modal-section-label">Favourites</p>
+        <div class="atmosphere-favorites-list" id="atmosphere-favorites-list"></div>
       </div>
     </div>
   </div>
+
   <!-- ============================================================ CONFIRM DIALOG -->
   <div class="confirm-dialog" id="confirm-dialog" role="alertdialog" aria-modal="true">
     <div class="confirm-panel">
@@ -2026,8 +2166,9 @@
     };
 
     const REVIEW_MAX = 5; // V1 shows up to 5 most-recent covered items
-    const ATMOSPHERE_KEY = 'atlas::atmosphereImage';
     const SESSION_ATMOSPHERE_KEY = 'atlas::sessionAtmosphereImages';
+    const ATMOSPHERE_FAVORITES_KEY = 'atlas::welcomeImageFavorites';
+    const MAX_ATMOSPHERE_FAVORITES = 12;
 
     // ================================================================
     // SAFE BRIDGE READS
@@ -2422,7 +2563,14 @@
       reg.recentActivity = (reg.recentActivity || []).filter(a => a && a.sessionId !== id);
       Bridge.writeRegistry(reg);
 
-      // 3) Remove the session record itself (bridge owns active reassignment).
+      // 3) Remove this session's welcome image.
+      const atmosphereMap = readSessionAtmosphereImages();
+      if (atmosphereMap[id]) {
+        delete atmosphereMap[id];
+        writeSessionAtmosphereImages(atmosphereMap);
+      }
+
+      // 4) Remove the session record itself (bridge owns active reassignment).
       Bridge.deleteSession(id); // dispatches event if it was active
 
       renderSessionList();
@@ -2819,12 +2967,9 @@
     }
 
     // ================================================================
-    // SETTINGS — local Atlas atmosphere image
+    // SETTINGS — Atlas welcome image
+    // Session-specific image. Global favourites only.
     // ================================================================
-    function readGlobalAtmosphereImage() {
-      try { return localStorage.getItem(ATMOSPHERE_KEY) || ''; }
-      catch (e) { return ''; }
-    }
 
     function readSessionAtmosphereImages() {
       try { return JSON.parse(localStorage.getItem(SESSION_ATMOSPHERE_KEY) || '{}') || {}; }
@@ -2845,9 +2990,43 @@
       return readSessionAtmosphereImages()[sessionId] || '';
     }
 
+    function writeCurrentSessionAtmosphereImage(url) {
+      const session = getActiveSession();
+      const clean = (url || '').trim();
+      const map = readSessionAtmosphereImages();
+
+      if (clean) map[session.id] = clean;
+      else delete map[session.id];
+
+      writeSessionAtmosphereImages(map);
+    }
+
     function readEffectiveAtmosphereImage() {
       const session = getActiveSession();
-      return readSessionAtmosphereImage(session.id) || readGlobalAtmosphereImage();
+      return readSessionAtmosphereImage(session.id);
+    }
+
+    function readAtmosphereFavorites() {
+      try {
+        const list = JSON.parse(localStorage.getItem(ATMOSPHERE_FAVORITES_KEY) || '[]');
+        return Array.isArray(list) ? list.filter(Boolean) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function writeAtmosphereFavorites(list) {
+      const clean = Array.from(new Set((list || []).map(x => String(x || '').trim()).filter(Boolean)))
+        .slice(0, MAX_ATMOSPHERE_FAVORITES);
+
+      try {
+        if (clean.length) localStorage.setItem(ATMOSPHERE_FAVORITES_KEY, JSON.stringify(clean));
+        else localStorage.removeItem(ATMOSPHERE_FAVORITES_KEY);
+      } catch (e) { }
+    }
+
+    function cssImageUrl(url) {
+      return 'url("' + String(url || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '")';
     }
 
     function applyAtmosphereImage(url) {
@@ -2861,7 +3040,7 @@
         return;
       }
 
-      layer.style.backgroundImage = 'url("' + clean.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '")';
+      layer.style.backgroundImage = cssImageUrl(clean);
       layer.classList.add('visible');
     }
 
@@ -2869,65 +3048,140 @@
       applyAtmosphereImage(readEffectiveAtmosphereImage());
     }
 
+    function updateAtmospherePreview(url) {
+      const preview = document.getElementById('atmosphere-preview');
+      const image = document.getElementById('atmosphere-preview-image');
+      if (!preview || !image) return;
+
+      const clean = (url || '').trim();
+
+      if (!clean) {
+        image.style.backgroundImage = '';
+        preview.classList.remove('has-image');
+        return;
+      }
+
+      image.style.backgroundImage = cssImageUrl(clean);
+      preview.classList.add('has-image');
+    }
+
+    function renderAtmosphereFavorites() {
+      const host = document.getElementById('atmosphere-favorites-list');
+      if (!host) return;
+
+      const favorites = readAtmosphereFavorites();
+
+      if (!favorites.length) {
+        host.innerHTML = '<div class="atmosphere-empty-favorites">No saved favourites yet.</div>';
+        return;
+      }
+
+      host.innerHTML = favorites.map(url => {
+        const encoded = escAttr(encodeURIComponent(url));
+
+        return '<div class="atmosphere-favorite-item">' +
+          '<div class="atmosphere-favorite-thumb" style="background-image:' + escAttr(cssImageUrl(url)) + '"></div>' +
+          '<div class="atmosphere-favorite-url" title="' + escAttr(url) + '">' + escHtml(url) + '</div>' +
+          '<div class="atmosphere-favorite-actions">' +
+          '<button class="atmosphere-mini-btn" data-url="' + encoded + '" onclick="useAtmosphereFavoriteFromButton(this)">Use</button>' +
+          '<button class="atmosphere-mini-btn danger" data-url="' + encoded + '" onclick="deleteAtmosphereFavoriteFromButton(this)">Delete</button>' +
+          '</div>' +
+          '</div>';
+      }).join('');
+    }
+
     function openSettingsModal() {
       const session = getActiveSession();
-      const sessionUrl = readSessionAtmosphereImage(session.id);
-      const scope = sessionUrl ? 'session' : 'global';
+      const currentUrl = readSessionAtmosphereImage(session.id);
 
-      document.getElementById('atmosphere-scope').value = scope;
-      document.getElementById('atmosphere-input').value =
-        scope === 'session' ? sessionUrl : readGlobalAtmosphereImage();
+      const input = document.getElementById('atmosphere-input');
+      if (input) input.value = currentUrl;
+
+      updateAtmospherePreview(currentUrl);
+      renderAtmosphereFavorites();
 
       document.getElementById('settings-modal').classList.add('open');
       document.body.style.overflow = 'hidden';
-      setTimeout(() => document.getElementById('atmosphere-input').focus(), 50);
+
+      setTimeout(() => {
+        const el = document.getElementById('atmosphere-input');
+        if (el) el.focus();
+      }, 50);
     }
 
     function closeSettingsModal() {
       document.getElementById('settings-modal').classList.remove('open');
       document.body.style.overflow = '';
+      applyEffectiveAtmosphereImage();
     }
 
     function handleSettingsModalClick(e) {
       if (e.target === document.getElementById('settings-modal')) closeSettingsModal();
     }
 
-    function handleAtmosphereScopeChange() {
-      const scope = document.getElementById('atmosphere-scope').value;
-      const session = getActiveSession();
-
-      document.getElementById('atmosphere-input').value =
-        scope === 'session'
-          ? readSessionAtmosphereImage(session.id)
-          : readGlobalAtmosphereImage();
+    function handleAtmospherePreviewInput() {
+      const input = document.getElementById('atmosphere-input');
+      updateAtmospherePreview(input ? input.value : '');
     }
 
     function handleSaveSettings() {
       const input = document.getElementById('atmosphere-input');
-      const scope = document.getElementById('atmosphere-scope').value;
-      const clean = input.value.trim();
+      const clean = input ? input.value.trim() : '';
 
-      if (scope === 'session') {
-        const session = getActiveSession();
-        const map = readSessionAtmosphereImages();
-        if (clean) map[session.id] = clean;
-        else delete map[session.id];
-        writeSessionAtmosphereImages(map);
-      } else {
-        try {
-          if (clean) localStorage.setItem(ATMOSPHERE_KEY, clean);
-          else localStorage.removeItem(ATMOSPHERE_KEY);
-        } catch (e) { }
+      if (!clean) {
+        showToast('Add an image URL, or use Remove image.');
+        if (input) input.focus();
+        return;
       }
 
+      writeCurrentSessionAtmosphereImage(clean);
       applyEffectiveAtmosphereImage();
       closeSettingsModal();
-      showToast(clean ? 'Atmosphere image saved.' : 'Atmosphere image cleared.');
+      showToast('Welcome image saved for this session.');
     }
 
-    function handleClearAtmosphere() {
-      document.getElementById('atmosphere-input').value = '';
-      handleSaveSettings();
+    function handleRemoveAtmosphere() {
+      writeCurrentSessionAtmosphereImage('');
+      const input = document.getElementById('atmosphere-input');
+      if (input) input.value = '';
+
+      updateAtmospherePreview('');
+      applyEffectiveAtmosphereImage();
+      closeSettingsModal();
+      showToast('Welcome image removed for this session.');
+    }
+
+    function handleSaveAtmosphereFavorite() {
+      const input = document.getElementById('atmosphere-input');
+      const clean = input ? input.value.trim() : '';
+
+      if (!clean) {
+        showToast('Add an image URL before saving it to favourites.');
+        if (input) input.focus();
+        return;
+      }
+
+      const favorites = readAtmosphereFavorites();
+      writeAtmosphereFavorites([clean].concat(favorites));
+      renderAtmosphereFavorites();
+      showToast('Image saved to favourites.');
+    }
+
+    function useAtmosphereFavoriteFromButton(btn) {
+      const url = decodeURIComponent(btn.getAttribute('data-url') || '');
+      const input = document.getElementById('atmosphere-input');
+
+      if (input) input.value = url;
+      updateAtmospherePreview(url);
+    }
+
+    function deleteAtmosphereFavoriteFromButton(btn) {
+      const url = decodeURIComponent(btn.getAttribute('data-url') || '');
+      const favorites = readAtmosphereFavorites().filter(x => x !== url);
+
+      writeAtmosphereFavorites(favorites);
+      renderAtmosphereFavorites();
+      showToast('Favourite removed.');
     }
 
     // ================================================================
@@ -2985,6 +3239,16 @@
         applyAppearance(Bridge.readAppearanceMode(), false);
         return;
       }
+      if (k === SESSION_ATMOSPHERE_KEY || k === ATMOSPHERE_FAVORITES_KEY) {
+        applyEffectiveAtmosphereImage();
+
+        if (document.getElementById('settings-modal').classList.contains('open')) {
+          renderAtmosphereFavorites();
+        }
+
+        return;
+      }
+
       if (k === 'atlas::sessions' || k === 'atlas::activeSessionId' ||
         k === 'atlas::registry' || k === 'learning::ledger') {
         refreshFromBridge();
