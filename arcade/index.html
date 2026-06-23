@@ -17,14 +17,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arcade · Game Library</title>
-  <link rel="icon" type="image/svg+xml"
-    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='12' y='28' width='76' height='50' rx='12' fill='%23E8562A' stroke='%23C4401A' stroke-width='4'/%3E%3Cpath d='M36 53h14M43 46v14' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='64' cy='53' r='4' fill='white'/%3E%3Ccircle cx='74' cy='45' r='4' fill='white'/%3E%3C/svg%3E">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <link rel="icon" type="image/svg+xml"
     href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 4L96 50L50 96L4 50Z' fill='%23FF7A4A' stroke='%23C94A24' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M50 18L82 50L50 82L18 50Z' fill='%23FFF5EE' stroke='%23FFFFFF' stroke-width='3' stroke-linejoin='round'/%3E%3Crect x='27' y='39' width='46' height='26' rx='10' fill='%23FF7A4A' stroke='%23C94A24' stroke-width='4'/%3E%3Cpath d='M38 52H50M44 46V58' stroke='%23FFF5EE' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='59' cy='49' r='3.5' fill='%23FFF5EE'/%3E%3Ccircle cx='66' cy='55' r='3.5' fill='%23FFF5EE'/%3E%3Cpath d='M50 18L50 31M82 50L74 50M50 82L50 69M18 50L26 50' stroke='%23FFB08D' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
+    rel="stylesheet">
+
   <link rel="stylesheet" href="../shared/atlas-search.css">
-  
+
   <!-- Anti-flash: read appearance before first paint -->
   <script>
     (function () {
@@ -182,9 +186,9 @@
       left: 0;
       right: 0;
       z-index: 200;
-      background: rgba(250, 246, 240, 0.95);
+      background: rgba(251, 244, 238, 0.96);
       backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid rgba(var(--arcade-rgb), 0.12);
       display: flex;
       align-items: center;
       height: 56px;
@@ -198,7 +202,7 @@
 
     .spine-mark {
       font-family: var(--font-display);
-      font-size: 1.2rem;
+      font-size: 1.22rem;
       font-weight: 400;
       color: var(--ink);
       letter-spacing: -0.01em;
@@ -232,7 +236,7 @@
       justify-content: center;
       gap: 0.42rem;
       min-height: 32px;
-      padding: 0.3rem 0.8rem;
+      padding: 0.32rem 0.82rem;
       border-radius: 999px;
       border: 1px solid transparent;
       background: transparent;
@@ -1441,6 +1445,19 @@
       border-color: var(--arcade);
     }
 
+    select.session-input {
+      appearance: none;
+      padding-right: 2.35rem;
+      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 5.25L7 8.75L10.5 5.25' stroke='%235a4a6e' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-size: 14px 14px;
+      background-position: right 0.7rem center;
+    }
+
+    html[data-theme="night"] select.session-input {
+      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 5.25L7 8.75L10.5 5.25' stroke='%23c8b8d8' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    }
+
     .session-error {
       font-size: 0.76rem;
       color: var(--danger);
@@ -1825,16 +1842,21 @@
       </div>
       <div class="modal-body">
         <p class="modal-helper" id="session-modal-helper"></p>
+
         <div class="session-list" id="session-list"></div>
+
         <p class="modal-section-label">New session</p>
         <div class="session-new-form">
           <input class="session-input" id="new-session-input" type="text" placeholder="Learner name" maxlength="40"
             autocomplete="off">
           <button class="btn-primary" onclick="handleCreateSession()">Add</button>
         </div>
+
         <div class="session-error" id="session-create-error"></div>
-        <p class="modal-helper" style="font-size:0.70rem;margin-top:0.65rem;margin-bottom:0">Progress is saved on this
-          device only.</p>
+
+        <p class="modal-helper" style="font-size:0.72rem; margin-top:0.7rem; margin-bottom:0">
+          Progress is saved on this device only.
+        </p>
       </div>
     </div>
   </div>
@@ -1852,12 +1874,20 @@
         </button>
       </div>
       <div class="modal-body">
-        <p class="modal-helper">Set a subtle atmosphere image for Arcade on this device. Leave it blank to use the
-          default Arcade atmosphere.</p>
+        <p class="modal-helper">Choose the Arcade atmosphere for this device.</p>
 
-        <p class="modal-section-label">Custom image URL</p>
-        <input class="session-input" id="arcade-atmosphere-input" type="url" placeholder="https://..."
-          autocomplete="off">
+        <p class="modal-section-label">Atmosphere</p>
+        <select class="session-input" id="arcade-atmosphere-mode" onchange="handleArcadeAtmosphereModeChange()">
+          <option value="default">Default Arcade atmosphere</option>
+          <option value="custom">Custom image URL</option>
+          <option value="none">No atmosphere image</option>
+        </select>
+
+        <div id="arcade-custom-atmosphere-row" style="margin-top:0.9rem;">
+          <p class="modal-section-label">Custom image URL</p>
+          <input class="session-input" id="arcade-atmosphere-input" type="url" placeholder="https://..."
+            autocomplete="off">
+        </div>
 
         <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
           <button class="btn-primary" onclick="handleSaveSettings()">Save</button>
@@ -1903,6 +1933,7 @@
     const Bridge = window.AtlasBridge;
     const ACTIVE_HUB_ID = 'arcade';
     const ARCADE_ATMOSPHERE_KEY = 'arcade::atmosphereImage';
+    const ARCADE_ATMOSPHERE_MODE_KEY = 'arcade::atmosphereMode';
     const ARCADE_DEFAULT_ATMOSPHERE = './arcade-hub-atmosphere.jpg';
 
     // ---- Hub navigation map ------------------------------------
@@ -2358,22 +2389,42 @@
     }
 
     /* ================================================================
-       SETTINGS — Arcade atmosphere image
-       ================================================================ */
+           SETTINGS — Arcade atmosphere image
+           ================================================================ */
+    function readArcadeAtmosphereMode() {
+      try {
+        const mode = localStorage.getItem(ARCADE_ATMOSPHERE_MODE_KEY);
+        if (mode === 'custom' || mode === 'none' || mode === 'default') return mode;
+
+        // Preserve old Arcade behaviour for anyone who already saved a custom image.
+        return localStorage.getItem(ARCADE_ATMOSPHERE_KEY) ? 'custom' : 'default';
+      } catch (e) {
+        return 'default';
+      }
+    }
+
     function readArcadeCustomAtmosphereImage() {
       try { return localStorage.getItem(ARCADE_ATMOSPHERE_KEY) || ''; }
       catch (e) { return ''; }
     }
 
     function getArcadeAtmosphereImage() {
-      return readArcadeCustomAtmosphereImage() || ARCADE_DEFAULT_ATMOSPHERE;
+      const mode = readArcadeAtmosphereMode();
+
+      if (mode === 'none') return '';
+      if (mode === 'custom') return readArcadeCustomAtmosphereImage();
+
+      return ARCADE_DEFAULT_ATMOSPHERE;
     }
 
-    function writeArcadeAtmosphereImage(url) {
-      const clean = (url || '').trim();
+    function writeArcadeAtmosphereSettings(mode, url) {
+      const cleanMode = (mode === 'custom' || mode === 'none' || mode === 'default') ? mode : 'default';
+      const cleanUrl = (url || '').trim();
 
       try {
-        if (clean) localStorage.setItem(ARCADE_ATMOSPHERE_KEY, clean);
+        localStorage.setItem(ARCADE_ATMOSPHERE_MODE_KEY, cleanMode);
+
+        if (cleanUrl) localStorage.setItem(ARCADE_ATMOSPHERE_KEY, cleanUrl);
         else localStorage.removeItem(ARCADE_ATMOSPHERE_KEY);
       } catch (e) { }
 
@@ -2400,15 +2451,33 @@
       layer.classList.add('visible');
     }
 
+    function handleArcadeAtmosphereModeChange() {
+      const mode = document.getElementById('arcade-atmosphere-mode');
+      const row = document.getElementById('arcade-custom-atmosphere-row');
+
+      if (!mode || !row) return;
+
+      row.style.display = mode.value === 'custom' ? '' : 'none';
+    }
+
     function openSettingsModal() {
+      const mode = document.getElementById('arcade-atmosphere-mode');
       const input = document.getElementById('arcade-atmosphere-input');
+
+      if (mode) mode.value = readArcadeAtmosphereMode();
       if (input) input.value = readArcadeCustomAtmosphereImage();
+
+      handleArcadeAtmosphereModeChange();
 
       document.getElementById('settings-modal').classList.add('open');
       document.body.style.overflow = 'hidden';
 
       setTimeout(() => {
-        const el = document.getElementById('arcade-atmosphere-input');
+        const currentMode = readArcadeAtmosphereMode();
+        const el = currentMode === 'custom'
+          ? document.getElementById('arcade-atmosphere-input')
+          : document.getElementById('arcade-atmosphere-mode');
+
         if (el) el.focus();
       }, 50);
     }
@@ -2423,19 +2492,32 @@
     }
 
     function handleSaveSettings() {
+      const modeEl = document.getElementById('arcade-atmosphere-mode');
       const input = document.getElementById('arcade-atmosphere-input');
-      writeArcadeAtmosphereImage(input ? input.value : '');
+
+      const mode = modeEl ? modeEl.value : 'default';
+      const customUrl = input ? input.value.trim() : '';
+
+      if (mode === 'custom' && !customUrl) {
+        showToast('Add a custom image URL, or choose Default or No atmosphere.');
+        if (input) input.focus();
+        return;
+      }
+
+      writeArcadeAtmosphereSettings(mode, customUrl);
       closeSettingsModal();
 
-      showToast(readArcadeCustomAtmosphereImage()
-        ? 'Arcade atmosphere saved.'
-        : 'Arcade atmosphere reset to default.');
+      const labels = {
+        default: 'Arcade atmosphere reset to default.',
+        custom: 'Arcade custom atmosphere saved.',
+        none: 'Arcade atmosphere removed.'
+      };
+
+      showToast(labels[mode] || 'Arcade atmosphere saved.');
     }
 
     function handleRevertAtmosphere() {
-      const input = document.getElementById('arcade-atmosphere-input');
-      if (input) input.value = '';
-      writeArcadeAtmosphereImage('');
+      writeArcadeAtmosphereSettings('default', '');
       closeSettingsModal();
       showToast('Arcade atmosphere reset to default.');
     }
@@ -2899,7 +2981,7 @@
         return;
       }
 
-      if (k === ARCADE_ATMOSPHERE_KEY) {
+      if (k === ARCADE_ATMOSPHERE_KEY || k === ARCADE_ATMOSPHERE_MODE_KEY) {
         applyArcadeAtmosphereImage();
         return;
       }
