@@ -1,0 +1,2951 @@
+<!DOCTYPE html>
+<!--
+  ==========================================================================
+  ARCADE HUB V1 · GAME LIBRARY
+  SmartStudy™ Methodology
+  --------------------------------------------------------------------------
+  The improv studio floor. Fast, spontaneous, low-friction.
+  No wrong answers. No vocabulary tracking. No completion pressure.
+  Progress = position in a deck. Continue = pick up where you left off.
+  --------------------------------------------------------------------------
+  LUDIT CELERITER · PONS MEMINIT · MUNDUS RIDET
+  ==========================================================================
+-->
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arcade · Game Library</title>
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='12' y='28' width='76' height='50' rx='12' fill='%23E8562A' stroke='%23C4401A' stroke-width='4'/%3E%3Cpath d='M36 53h14M43 46v14' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='64' cy='53' r='4' fill='white'/%3E%3Ccircle cx='74' cy='45' r='4' fill='white'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 4L96 50L50 96L4 50Z' fill='%23FF7A4A' stroke='%23C94A24' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M50 18L82 50L50 82L18 50Z' fill='%23FFF5EE' stroke='%23FFFFFF' stroke-width='3' stroke-linejoin='round'/%3E%3Crect x='27' y='39' width='46' height='26' rx='10' fill='%23FF7A4A' stroke='%23C94A24' stroke-width='4'/%3E%3Cpath d='M38 52H50M44 46V58' stroke='%23FFF5EE' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='59' cy='49' r='3.5' fill='%23FFF5EE'/%3E%3Ccircle cx='66' cy='55' r='3.5' fill='%23FFF5EE'/%3E%3Cpath d='M50 18L50 31M82 50L74 50M50 82L50 69M18 50L26 50' stroke='%23FFB08D' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../shared/atlas-search.css">
+  
+  <!-- Anti-flash: read appearance before first paint -->
+  <script>
+    (function () {
+      var m = null;
+      try { m = localStorage.getItem('atlas::appearanceMode'); } catch (e) { }
+      document.documentElement.dataset.theme = (m === 'night') ? 'night' : 'light';
+    })();
+  </script>
+
+  <style>
+    /* ============================================================
+       ARCADE HUB — DESIGN TOKENS
+       Premium prompt-deck table inside a fast improv studio.
+       Day: warm studio ivory, coral-orange accent, aubergine ink.
+       Night: warm charcoal/plum, coral-orange glow.
+       Distinct from Compass (editorial cream/teal) and Atlas (cool slate).
+       ============================================================ */
+    :root {
+      /* Base surfaces — warm studio ivory, not Compass's book cream */
+      --bg: #faf6f0;
+      --bg-raised: #ffffff;
+      --bg-subtle: #f2ede6;
+      --bg-card: #ffffff;
+
+      /* Arcade identity — coral-orange, warm and energetic, adult not candy */
+      --arcade: #E8562A;
+      --arcade-soft: #F07348;
+      --arcade-pale: #fde8e0;
+      --arcade-dim: #fef3ef;
+      --arcade-rgb: 232, 86, 42;
+
+      /* Ink — aubergine/deep navy, grounds the energy */
+      --ink: #2d1f3d;
+      --ink-mid: #5a4a6e;
+      --ink-quiet: #8a7a9a;
+      --ink-faint: #c4bad0;
+
+      /* Borders */
+      --border: rgba(45, 31, 61, 0.10);
+      --border-mid: rgba(45, 31, 61, 0.18);
+
+      /* Semantic */
+      --danger: #c0392b;
+      --danger-bg: #fdf2f1;
+      --danger-border: rgba(192, 57, 43, 0.28);
+
+      /* Shadows — warm-toned, not cold */
+      --shadow-xs: 0 1px 2px rgba(45, 31, 61, 0.05);
+      --shadow-sm: 0 1px 6px rgba(45, 31, 61, 0.08);
+      --shadow-md: 0 4px 18px rgba(45, 31, 61, 0.11);
+      --shadow-lg: 0 8px 36px rgba(45, 31, 61, 0.14);
+
+      /* Radii — rounded but not bubbly */
+      --r-sm: 6px;
+      --r-md: 12px;
+      --r-lg: 16px;
+      --r-xl: 22px;
+
+      /* Type */
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+
+      /* Motion */
+      --t: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html[data-theme="night"] {
+      /* After-hours studio — same room, lights dimmed, neon sign on */
+      --bg: #1e1720;
+      --bg-raised: #2a2130;
+      --bg-subtle: #251d2c;
+      --bg-card: #2a2130;
+
+      --arcade: #f06840;
+      --arcade-soft: #f57f5a;
+      --arcade-pale: rgba(240, 104, 64, 0.18);
+      --arcade-dim: rgba(240, 104, 64, 0.10);
+      --arcade-rgb: 240, 104, 64;
+
+      --ink: #f0e8f8;
+      --ink-mid: #c8b8d8;
+      --ink-quiet: #8878a0;
+      --ink-faint: #4a3d58;
+
+      --border: rgba(255, 255, 255, 0.08);
+      --border-mid: rgba(255, 255, 255, 0.14);
+
+      --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.22);
+      --shadow-sm: 0 1px 6px rgba(0, 0, 0, 0.28);
+      --shadow-md: 0 4px 18px rgba(0, 0, 0, 0.36);
+      --shadow-lg: 0 8px 36px rgba(0, 0, 0, 0.48);
+    }
+
+    html.theme-changing *,
+    html.theme-changing *::before,
+    html.theme-changing *::after {
+      transition: background-color 0.38s ease, color 0.38s ease,
+        border-color 0.38s ease, box-shadow 0.38s ease !important;
+    }
+
+    /* ============================================================ RESET */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      min-height: 100%;
+      scroll-behavior: smooth;
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100svh;
+      overflow-x: hidden;
+      padding-top: 56px;
+    }
+
+    .arcade-atmosphere-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0;
+      filter: saturate(0.95);
+      transition: opacity var(--t), filter var(--t);
+    }
+
+    .arcade-atmosphere-layer.visible {
+      opacity: 0.085;
+      filter: saturate(0.82) contrast(0.88);
+    }
+
+    html[data-theme="night"] .arcade-atmosphere-layer.visible {
+      opacity: 0.065;
+      filter: saturate(0.76) brightness(0.62) contrast(0.9);
+    }
+
+    /* ============================================================ SPINE (desktop) */
+    .spine {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      background: rgba(250, 246, 240, 0.95);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      height: 56px;
+      padding: 0 1.5rem;
+      gap: 0.6rem;
+    }
+
+    html[data-theme="night"] .spine {
+      background: rgba(30, 23, 32, 0.95);
+    }
+
+    .spine-mark {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      flex: 1 1 0;
+      cursor: default;
+      user-select: none;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .spine-mark span {
+      color: var(--arcade);
+    }
+
+    /* Centred world switcher pill group */
+    .spine-worlds {
+      display: flex;
+      align-items: center;
+      gap: 0.18rem;
+      flex: 0 0 auto;
+      padding: 0.2rem;
+      border-radius: 999px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-xs);
+    }
+
+    .spine-world-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.42rem;
+      min-height: 32px;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: transparent;
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--ink-quiet);
+      cursor: pointer;
+      transition: var(--t);
+      white-space: nowrap;
+    }
+
+    .spine-world-btn svg {
+      width: 13px;
+      height: 13px;
+      opacity: 0.72;
+      flex-shrink: 0;
+    }
+
+    .spine-world-btn:hover {
+      color: var(--ink);
+      background: var(--bg-raised);
+      border-color: var(--border);
+      box-shadow: var(--shadow-xs);
+    }
+
+    .spine-world-btn.is-active {
+      color: var(--arcade);
+      background: var(--arcade-dim);
+      border-color: rgba(var(--arcade-rgb), 0.24);
+      box-shadow: var(--shadow-xs);
+      cursor: default;
+    }
+
+    .spine-world-btn.is-active svg {
+      opacity: 1;
+    }
+
+    .spine-world-btn[aria-disabled="true"] {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .spine-world-btn[aria-disabled="true"]:hover {
+      color: var(--ink-quiet);
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+    }
+
+    /* Right actions */
+    .spine-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex: 1 1 0;
+      justify-content: flex-end;
+    }
+
+    .spine-session-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.46rem 0.88rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--ink-mid);
+      cursor: pointer;
+      transition: var(--t);
+      max-width: 170px;
+      white-space: nowrap;
+      overflow: hidden;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .spine-session-pill:hover {
+      border-color: var(--arcade-soft);
+      color: var(--ink);
+    }
+
+    .spine-session-pill .pill-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .spine-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-quiet);
+      cursor: pointer;
+      transition: var(--t);
+      box-shadow: var(--shadow-xs);
+      flex-shrink: 0;
+    }
+
+    .spine-btn:hover {
+      color: var(--ink);
+      border-color: var(--border-mid);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ============================================================ MOBILE HEADER */
+    .mobile-header {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      background: rgba(250, 246, 240, 0.96);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      height: 56px;
+      padding: 0 1rem;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    html[data-theme="night"] .mobile-header {
+      background: rgba(30, 23, 32, 0.96);
+    }
+
+    .mobile-header-mark {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+      flex: 1;
+      line-height: 1;
+    }
+
+    .mobile-header-mark span {
+      color: var(--arcade);
+    }
+
+    .mobile-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      flex-shrink: 0;
+    }
+
+    .mobile-header-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-quiet);
+      cursor: pointer;
+      transition: var(--t);
+      flex-shrink: 0;
+    }
+
+    .mobile-header-btn:hover {
+      color: var(--ink);
+    }
+
+    .mobile-session-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.28rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      font-size: 0.74rem;
+      font-weight: 500;
+      color: var(--ink-mid);
+      cursor: pointer;
+      max-width: 120px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    /* ============================================================ MOBILE DRAWER */
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 400;
+      backdrop-filter: blur(4px);
+    }
+
+    .drawer-overlay.open {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: min(300px, 85vw);
+      background: var(--bg-raised);
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+      transform: translateX(-100%);
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      padding: 1.2rem 1.2rem 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .drawer-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      color: var(--ink);
+    }
+
+    .drawer-title span {
+      color: var(--arcade);
+    }
+
+    .drawer-close {
+      width: 30px;
+      height: 30px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--ink-quiet);
+    }
+
+    .drawer-close:hover {
+      background: var(--bg-subtle);
+      color: var(--ink);
+    }
+
+    .drawer-nav {
+      flex: 1;
+      padding: 0.8rem;
+      overflow-y: auto;
+    }
+
+    .drawer-nav-label {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      padding: 0.6rem 0.75rem 0.35rem;
+    }
+
+    .drawer-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: var(--r-md);
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--ink-mid);
+      cursor: pointer;
+      transition: var(--t);
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      min-height: 44px;
+    }
+
+    .drawer-nav-item:hover {
+      background: var(--bg-subtle);
+      color: var(--ink);
+    }
+
+    .drawer-nav-item[aria-disabled="true"] {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .drawer-nav-item[aria-disabled="true"]:hover {
+      background: none;
+      color: var(--ink-mid);
+    }
+
+    .drawer-nav-item .nav-soon {
+      margin-left: auto;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+
+    .drawer-nav-item.is-active {
+      background: var(--arcade-dim);
+      color: var(--arcade);
+      cursor: default;
+    }
+
+    .drawer-nav-item.is-active:hover {
+      background: var(--arcade-dim);
+      color: var(--arcade);
+    }
+
+    .drawer-footer {
+      padding: 0.8rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .drawer-footer-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 0.5rem;
+    }
+
+    .drawer-session-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 0.9rem;
+      border-radius: var(--r-md);
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: var(--ink-mid);
+      cursor: pointer;
+      min-height: 44px;
+      overflow: hidden;
+    }
+
+    .drawer-session-btn span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .drawer-appearance-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--r-md);
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      color: var(--ink-quiet);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================ MAIN LAYOUT */
+    .arcade-main {
+      position: relative;
+      z-index: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+
+    /* ============================================================ HUB INTRO */
+    .hub-intro {
+      padding: 0 0 1.75rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .hub-intro-text {
+      min-width: 0;
+    }
+
+    .hub-eyebrow {
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      text-transform: none;
+      color: var(--arcade);
+      margin-bottom: 0.55rem;
+    }
+
+    .hub-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 3.5vw, 2.1rem);
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 0.4rem;
+    }
+
+    .hub-desc {
+      font-size: 0.9rem;
+      color: var(--ink-quiet);
+      font-weight: 400;
+      line-height: 1.6;
+      max-width: 52ch;
+    }
+
+    .hub-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-shrink: 0;
+    }
+
+    .hub-meta-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.32rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.86);
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: var(--ink-mid);
+      box-shadow: var(--shadow-xs);
+    }
+
+    html[data-theme="night"] .hub-meta-chip {
+      background: rgba(42, 33, 48, 0.88);
+      border-color: rgba(255, 255, 255, 0.12);
+      color: var(--ink-mid);
+    }
+
+    /* ============================================================ SECTION LABELS */
+    .section-label {
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--arcade);
+      opacity: 0.88;
+      margin-bottom: 0.85rem;
+    }
+
+    html[data-theme="night"] .section-label {
+      color: var(--arcade-soft);
+      opacity: 0.92;
+    }
+
+    /* ============================================================ CONTINUE PLAYING */
+    .continue-zone {
+      padding: 1.5rem 0 0;
+    }
+
+    .continue-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1rem;
+    }
+
+    .continue-card {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.965);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 1.05rem 1.15rem;
+      cursor: pointer;
+      transition: var(--t);
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      min-height: 96px;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.68) inset,
+        0 8px 24px rgba(45, 31, 61, 0.07);
+    }
+
+    html[data-theme="night"] .continue-card {
+      background: rgba(42, 33, 48, 0.965);
+      border-color: var(--border-mid);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.05) inset,
+        0 18px 48px rgba(0, 0, 0, 0.26),
+        0 0 26px rgba(var(--arcade-rgb), 0.07);
+    }
+
+    .continue-card:hover {
+      border-color: var(--arcade-soft);
+      box-shadow:
+        0 0 0 1px rgba(var(--arcade-rgb), 0.24),
+        0 1px 0 rgba(255, 255, 255, 0.72) inset,
+        var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    html[data-theme="night"] .continue-card:hover {
+      border-color: var(--arcade-soft);
+      box-shadow:
+        0 0 0 1px rgba(var(--arcade-rgb), 0.30),
+        0 1px 0 rgba(255, 255, 255, 0.06) inset,
+        0 20px 54px rgba(0, 0, 0, 0.34),
+        0 0 34px rgba(var(--arcade-rgb), 0.14);
+    }
+
+    .continue-card:focus-visible {
+      outline: 2px solid var(--arcade);
+      outline-offset: 2px;
+    }
+
+    .continue-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--arcade);
+      border-radius: var(--r-sm) 0 0 var(--r-sm);
+    }
+
+    .continue-icon {
+      width: 38px;
+      height: 38px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+
+    .continue-body {
+      min-width: 0;
+    }
+
+    .continue-title {
+      font-size: 1.08rem;
+      font-weight: 650;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 0.16rem;
+      line-height: 1.25;
+    }
+
+    .continue-progress {
+      font-size: 0.82rem;
+      color: var(--ink-mid);
+      opacity: 0.86;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.45;
+    }
+
+    html[data-theme="night"] .continue-progress {
+      color: #baa6cf;
+      opacity: 0.96;
+    }
+
+    .continue-resume {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.32rem;
+      min-width: 88px;
+      padding: 0.42rem 0.82rem;
+      border-radius: var(--r-sm);
+      background: var(--arcade-pale);
+      color: var(--arcade);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 650;
+      border: 1px solid rgba(var(--arcade-rgb), 0.28);
+      cursor: pointer;
+      transition: var(--t);
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .continue-resume:hover {
+      background: var(--arcade);
+      color: #fff;
+      border-color: var(--arcade);
+      box-shadow: var(--shadow-sm);
+    }
+
+    html[data-theme="night"] .continue-resume {
+      background: rgba(var(--arcade-rgb), 0.18);
+      border-color: rgba(var(--arcade-rgb), 0.32);
+      color: var(--arcade-soft);
+    }
+
+    html[data-theme="night"] .continue-resume:hover {
+      background: rgba(var(--arcade-rgb), 0.48);
+      color: #fff;
+      border-color: rgba(var(--arcade-rgb), 0.58);
+    }
+
+    /* ============================================================ GAME LIBRARY */
+    .library-zone {
+      padding: 2rem 0 0;
+    }
+
+    .library-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.1rem;
+      gap: 1rem;
+    }
+
+    .library-title {
+      font-family: var(--font-display);
+      font-size: 1.08rem;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.25;
+    }
+
+    .library-title-group {
+      display: flex;
+      align-items: baseline;
+      gap: 0.55rem;
+      min-width: 0;
+    }
+
+    /* Search field */
+    .library-search-wrap {
+      position: relative;
+    }
+
+    .library-search {
+      width: 260px;
+      padding: 0.58rem 0.95rem 0.58rem 2.25rem;
+      border: 1.5px solid rgba(45, 31, 61, 0.16);
+      border-radius: var(--r-md);
+      background: rgba(255, 255, 255, 0.96);
+      font-family: var(--font-body);
+      font-size: 0.86rem;
+      color: var(--ink);
+      outline: none;
+      transition: var(--t);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.66) inset,
+        var(--shadow-xs);
+    }
+
+    html[data-theme="night"] .library-search {
+      background: rgba(42, 33, 48, 0.98);
+      border-color: rgba(255, 255, 255, 0.18);
+      color: var(--ink);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.05) inset,
+        0 12px 30px rgba(0, 0, 0, 0.22);
+    }
+
+    .library-search::placeholder {
+      color: #9b8cab;
+    }
+
+    html[data-theme="night"] .library-search::placeholder {
+      color: #8d7aa3;
+    }
+
+    .library-search:focus {
+      border-color: var(--arcade);
+      box-shadow: 0 0 0 3px rgba(var(--arcade-rgb), 0.10);
+    }
+
+    .library-search-icon {
+      position: absolute;
+      left: 0.7rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9b8cab;
+      pointer-events: none;
+    }
+
+    html[data-theme="night"] .library-search-icon {
+      color: #8d7aa3;
+    }
+
+    .library-search-clear {
+      position: absolute;
+      right: 0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg-subtle);
+      color: var(--ink-quiet);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 10px;
+      transition: var(--t);
+    }
+
+    .library-search-clear.visible {
+      display: flex;
+    }
+
+    .library-search-clear:hover {
+      background: var(--border-mid);
+      color: var(--ink);
+    }
+
+    /* Game grid */
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    /* ---- GAME CARD ---- */
+    .game-card {
+      display: flex;
+      flex-direction: column;
+      background: rgba(255, 255, 255, 0.955);
+      border: 1.5px solid rgba(45, 31, 61, 0.15);
+      border-radius: var(--r-lg);
+      padding: 1.3rem 1.3rem 1.15rem;
+      transition: var(--t);
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      cursor: pointer;
+      text-align: left;
+      font-family: var(--font-body);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.58) inset;
+    }
+
+    html[data-theme="night"] .game-card {
+      background: rgba(42, 33, 48, 0.955);
+      border-color: rgba(255, 255, 255, 0.14);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.045) inset,
+        0 10px 34px rgba(0, 0, 0, 0.22);
+    }
+
+    /* Thin top accent edge — colour comes from JS per game */
+    .game-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      opacity: 0;
+      transition: opacity var(--t);
+    }
+
+    .game-card:hover {
+      box-shadow:
+        0 0 0 1px rgba(var(--arcade-rgb), 0.18),
+        var(--shadow-md);
+      transform: translateY(-2px);
+      border-color: var(--arcade-soft);
+    }
+
+    html[data-theme="night"] .game-card:hover {
+      background: rgba(48, 38, 56, 0.98);
+      border-color: var(--arcade-soft);
+      box-shadow:
+        0 0 0 1px rgba(var(--arcade-rgb), 0.24),
+        0 14px 40px rgba(0, 0, 0, 0.30);
+    }
+
+    .game-card:hover::before {
+      opacity: 1;
+    }
+
+    .game-card:focus-visible {
+      outline: 2px solid var(--arcade);
+      outline-offset: 2px;
+    }
+
+    /* Cards that are coming-soon — no hover lift */
+    .game-card.is-soon {
+      cursor: default;
+      opacity: 0.72;
+    }
+
+    .game-card.is-soon:hover {
+      box-shadow: none;
+      transform: none;
+      border-color: var(--border);
+    }
+
+    .game-card.is-soon::before {
+      display: none;
+    }
+
+    /* In-progress state dot on the card */
+    .game-card.is-inprogress .game-card-status::before {
+      background: var(--arcade);
+    }
+
+    .game-card-mark {
+      font-size: 1.6rem;
+      margin-bottom: 0.85rem;
+      display: block;
+      line-height: 1;
+    }
+
+    .game-card-title {
+      font-family: var(--font-display);
+      font-size: 1.02rem;
+      font-weight: 400;
+      color: var(--ink);
+      line-height: 1.25;
+      margin-bottom: 0.4rem;
+    }
+
+    .game-card-premise {
+      font-size: 0.82rem;
+      color: var(--ink-mid);
+      opacity: 0.78;
+      line-height: 1.55;
+      flex: 1;
+      margin-bottom: 1rem;
+    }
+
+    html[data-theme="night"] .game-card-premise {
+      color: #ad9ac1;
+      opacity: 0.95;
+    }
+
+    .game-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-top: auto;
+    }
+
+    .game-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .game-card-unit {
+      font-size: 0.72rem;
+      color: var(--ink-quiet);
+      font-weight: 500;
+    }
+
+    html[data-theme="night"] .game-card-unit {
+      color: #9886ad;
+      opacity: 0.96;
+    }
+
+    .game-card-format {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.15rem 0.52rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-mid);
+      background: rgba(242, 237, 230, 0.78);
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--ink-mid);
+      text-transform: uppercase;
+    }
+
+    html[data-theme="night"] .game-card-format {
+      background: rgba(255, 255, 255, 0.045);
+      border-color: rgba(255, 255, 255, 0.13);
+      color: #ad9ac1;
+    }
+
+    .game-card-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+    }
+
+    .game-card-status.status-available {
+      background: var(--bg-subtle);
+      color: var(--ink-quiet);
+    }
+
+    .game-card-status.status-inprogress {
+      background: var(--arcade-pale);
+      color: var(--arcade);
+    }
+
+    .game-card-status.status-inprogress::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--arcade);
+      flex-shrink: 0;
+    }
+
+    .game-card-status.status-soon {
+      background: var(--bg-subtle);
+      color: var(--ink-faint);
+    }
+
+    .game-card-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: var(--r-sm);
+      background: var(--arcade-pale);
+      color: var(--arcade);
+      font-family: var(--font-body);
+      font-size: 0.76rem;
+      font-weight: 600;
+      border: 1px solid rgba(var(--arcade-rgb), 0.25);
+      cursor: pointer;
+      transition: var(--t);
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .game-card-action:hover {
+      background: var(--arcade);
+      color: #fff;
+      border-color: var(--arcade);
+    }
+
+    .game-card-action.disabled {
+      background: var(--bg-subtle);
+      color: var(--ink-faint);
+      border-color: var(--border);
+      cursor: default;
+      pointer-events: none;
+    }
+
+    html[data-theme="night"] .game-card-action {
+      background: rgba(var(--arcade-rgb), 0.18);
+      border-color: rgba(var(--arcade-rgb), 0.32);
+      color: var(--arcade);
+    }
+
+    html[data-theme="night"] .game-card-action:hover {
+      background: rgba(var(--arcade-rgb), 0.45);
+      color: #fff;
+    }
+
+    /* Divider between available and coming-soon sections */
+    .library-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 2rem 0 1.5rem;
+    }
+
+    .library-divider::before,
+    .library-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .library-divider-label {
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-quiet);
+      opacity: 0.8;
+      white-space: nowrap;
+    }
+
+    html[data-theme="night"] .library-divider-label {
+      color: #a894bd;
+      opacity: 0.9;
+    }
+
+    /* No-results state */
+    .no-results {
+      display: none;
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--ink-quiet);
+    }
+
+    .no-results.visible {
+      display: block;
+    }
+
+    .no-results p {
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* ============================================================ SESSION MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.48);
+      backdrop-filter: blur(6px);
+      z-index: 600;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+      animation: fadeIn 0.18s ease;
+    }
+
+    .modal-panel {
+      background: var(--bg-raised);
+      border-radius: var(--r-xl);
+      max-width: 420px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.22s cubic-bezier(0.34, 1.25, 0.64, 1);
+      max-height: 90svh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 1.3rem 1.5rem 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .modal-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .modal-close {
+      width: 30px;
+      height: 30px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--ink-quiet);
+    }
+
+    .modal-close:hover {
+      background: var(--bg-subtle);
+      color: var(--ink);
+    }
+
+    .modal-body {
+      padding: 1.2rem 1.5rem 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-helper {
+      font-size: 0.78rem;
+      color: var(--ink-quiet);
+      margin-bottom: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .modal-section-label {
+      font-size: 0.64rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin: 0.9rem 0 0.45rem;
+    }
+
+    .session-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .session-item {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      background: var(--bg-subtle);
+      transition: var(--t);
+    }
+
+    .session-item.active {
+      border-color: var(--arcade);
+      background: var(--arcade-pale);
+    }
+
+    .session-item-name {
+      flex: 1;
+      font-size: 0.86rem;
+      font-weight: 500;
+      color: var(--ink);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .session-item-badge {
+      font-size: 0.64rem;
+      font-weight: 600;
+      background: var(--arcade);
+      color: #fff;
+      border-radius: 20px;
+      padding: 0.12rem 0.45rem;
+    }
+
+    .session-item-actions {
+      display: flex;
+      gap: 0.3rem;
+      flex-shrink: 0;
+    }
+
+    .session-action-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-quiet);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--t);
+    }
+
+    .session-action-btn:hover {
+      color: var(--ink);
+      border-color: var(--border-mid);
+    }
+
+    .session-action-btn.danger:hover {
+      color: var(--danger);
+      border-color: var(--danger-border);
+      background: var(--danger-bg);
+    }
+
+    .session-new-form {
+      display: flex;
+      gap: 0.45rem;
+    }
+
+    .session-input {
+      flex: 1;
+      padding: 0.58rem 0.8rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      font-family: var(--font-body);
+      font-size: 0.86rem;
+      color: var(--ink);
+      background: var(--bg-raised);
+      outline: none;
+      transition: border-color var(--t);
+      min-height: 42px;
+    }
+
+    .session-input:focus {
+      border-color: var(--arcade);
+    }
+
+    .session-error {
+      font-size: 0.76rem;
+      color: var(--danger);
+      margin-top: 0.45rem;
+      min-height: 1rem;
+      opacity: 0;
+      transition: opacity var(--t);
+    }
+
+    .session-error.visible {
+      opacity: 1;
+    }
+
+    .btn-primary {
+      padding: 0.58rem 1.05rem;
+      border-radius: var(--r-sm);
+      border: none;
+      background: var(--arcade);
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 0.84rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--t);
+      white-space: nowrap;
+      min-height: 42px;
+    }
+
+    .btn-primary:hover {
+      background: var(--arcade-soft);
+    }
+
+    .btn-ghost {
+      padding: 0.58rem 0.95rem;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      font-family: var(--font-body);
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: var(--ink-mid);
+      cursor: pointer;
+      transition: var(--t);
+      min-height: 42px;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--border-mid);
+      color: var(--ink);
+    }
+
+    /* ============================================================ CONFIRM DIALOG */
+    .confirm-dialog {
+      position: fixed;
+      inset: 0;
+      z-index: 800;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(6px);
+    }
+
+    .confirm-dialog.open {
+      display: flex;
+      animation: fadeIn 0.15s ease;
+    }
+
+    .confirm-panel {
+      background: var(--bg-raised);
+      border-radius: var(--r-lg);
+      max-width: 360px;
+      width: 100%;
+      padding: 1.4rem;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.2s cubic-bezier(0.34, 1.25, 0.64, 1);
+    }
+
+    .confirm-title {
+      font-size: 0.94rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 0.45rem;
+    }
+
+    .confirm-message {
+      font-size: 0.83rem;
+      color: var(--ink-quiet);
+      line-height: 1.55;
+      margin-bottom: 1.1rem;
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 0.45rem;
+      justify-content: flex-end;
+    }
+
+    .btn-danger {
+      padding: 0.55rem 0.95rem;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--danger-border);
+      background: var(--danger-bg);
+      color: var(--danger);
+      font-family: var(--font-body);
+      font-size: 0.83rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--t);
+      min-height: 40px;
+    }
+
+    /* ============================================================ TOAST */
+    .arcade-toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      background: var(--bg-raised);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--r-md);
+      padding: 0.65rem 1.15rem;
+      font-size: 0.84rem;
+      color: var(--ink-mid);
+      z-index: 900;
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      max-width: calc(100vw - 2rem);
+    }
+
+    .arcade-toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ============================================================ BRIDGE ERROR */
+    .bridge-error {
+      max-width: 480px;
+      margin: 4rem auto;
+      text-align: center;
+      padding: 0 1rem;
+    }
+
+    .bridge-error h2 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: var(--ink);
+      font-weight: 400;
+      margin-bottom: 0.5rem;
+    }
+
+    .bridge-error p {
+      font-size: 0.88rem;
+      color: var(--ink-quiet);
+      line-height: 1.65;
+    }
+
+    /* ============================================================ UTILITIES */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ============================================================ RESPONSIVE */
+    @media (max-width: 680px) {
+      .spine {
+        display: none !important;
+      }
+
+      .mobile-header {
+        display: flex !important;
+      }
+
+      .arcade-main {
+        padding: 0 1rem 4rem;
+      }
+
+      .game-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .continue-list {
+        grid-template-columns: 1fr;
+      }
+
+      .continue-card {
+        flex-wrap: wrap;
+      }
+
+      .continue-resume {
+        width: 100%;
+        justify-content: center;
+        margin-top: 0.5rem;
+      }
+
+      .library-search {
+        width: 180px;
+      }
+
+      .jumpto-overlay {
+        padding: 2rem 0.75rem 1rem;
+      }
+    }
+
+    @media (min-width: 681px) {
+      .mobile-header {
+        display: none !important;
+      }
+
+      .drawer-overlay,
+      .drawer {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="arcade-atmosphere-layer" id="arcade-atmosphere-layer" aria-hidden="true"></div>
+
+  <!-- ============================================================ DESKTOP SPINE -->
+  <header class="spine" role="banner">
+    <div class="spine-mark">Arcade<span>.</span></div>
+    <div class="spine-worlds" id="spine-hub-nav" role="group" aria-label="Hub navigation"></div>
+    <div class="spine-actions">
+      <button class="spine-session-pill" onclick="openSessionModal()" aria-label="Switch session">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+          <circle cx="5.5" cy="3.5" r="2" stroke="currentColor" stroke-width="1.2" />
+          <path d="M1 9.5c0-2 2-3.5 4.5-3.5s4.5 1.5 4.5 3.5" stroke="currentColor" stroke-width="1.2"
+            stroke-linecap="round" />
+        </svg>
+        <span class="pill-name" id="spine-session-name">—</span>
+      </button>
+      <button class="spine-btn" type="button" data-atlas-search title="Search" aria-label="Search">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <circle cx="6.5" cy="6.5" r="4.2" stroke="currentColor" stroke-width="1.3" />
+          <path d="M9.8 9.8l2.8 2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+      </button>
+      <button class="spine-btn" onclick="openSettingsModal()" title="Settings" aria-label="Settings">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+          <circle cx="6" cy="4" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
+          <circle cx="10" cy="8" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
+          <circle cx="7.5" cy="12" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
+        </svg>
+      </button>
+      <button class="spine-btn" id="spine-appearance-btn" onclick="toggleAppearance()"
+        aria-label="Toggle appearance"></button>
+    </div>
+  </header>
+
+  <!-- ============================================================ MOBILE HEADER -->
+  <header class="mobile-header" role="banner">
+    <span class="mobile-header-mark" onclick="openDrawer()" style="cursor:pointer">Arcade<span>.</span></span>
+    <div class="mobile-header-actions">
+      <button class="mobile-session-pill" onclick="openSessionModal()" aria-label="Sessions">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+          <circle cx="5.5" cy="3.5" r="2" stroke="currentColor" stroke-width="1.2" />
+          <path d="M1 9.5c0-2 2-3.5 4.5-3.5s4.5 1.5 4.5 3.5" stroke="currentColor" stroke-width="1.2"
+            stroke-linecap="round" />
+        </svg>
+        <span id="mobile-session-name">—</span>
+      </button>
+      <button class="mobile-header-btn" type="button" data-atlas-search aria-label="Search">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3" />
+          <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+      </button>
+      <button class="mobile-header-btn" id="mobile-appearance-btn" onclick="toggleAppearance()"
+        aria-label="Toggle appearance"></button>
+      <button class="mobile-header-btn" onclick="openDrawer()" aria-label="Menu">
+        <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+          <path d="M2 4h13M2 8.5h13M2 13h13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile drawer -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+  <nav class="drawer" id="drawer" aria-label="Navigation">
+    <div class="drawer-header">
+      <span class="drawer-title">Arcade<span>.</span></span>
+      <button class="drawer-close" onclick="closeDrawer()" aria-label="Close menu">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+    <div class="drawer-nav">
+      <div class="drawer-nav-label">Hubs</div>
+      <div id="drawer-hub-nav"></div>
+      <div class="drawer-nav-label">Find</div>
+      <button class="drawer-nav-item" type="button" onclick="closeDrawer()" data-atlas-search>
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <circle cx="6.5" cy="6.5" r="4.2" stroke="currentColor" stroke-width="1.3" />
+          <path d="M9.8 9.8l2.8 2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+        Search
+      </button>
+      <button class="drawer-nav-item" onclick="closeDrawer(); openSettingsModal()">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+          <path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+          <circle cx="6" cy="4" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
+          <circle cx="10" cy="8" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
+          <circle cx="7.5" cy="12" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
+        </svg>
+        Settings
+      </button>
+    </div>
+    <div class="drawer-footer">
+      <div class="drawer-footer-row">
+        <button class="drawer-session-btn" onclick="closeDrawer(); openSessionModal()">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <circle cx="6.5" cy="4.5" r="2.2" stroke="currentColor" stroke-width="1.2" />
+            <path d="M1.5 11.5c0-2.4 2.2-4.2 5-4.2s5 1.8 5 4.2" stroke="currentColor" stroke-width="1.2"
+              stroke-linecap="round" />
+          </svg>
+          <span id="drawer-session-name">—</span>
+        </button>
+        <button class="drawer-appearance-btn" id="drawer-appearance-btn" onclick="toggleAppearance()"
+          aria-label="Toggle appearance"></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============================================================ MAIN -->
+  <main class="arcade-main" id="arcade-main" role="main">
+    <!-- Rendered by JS -->
+  </main>
+
+  <!-- ============================================================ SESSION MODAL -->
+  <div class="modal-overlay" id="session-modal" onclick="handleSessionModalClick(event)" role="dialog"
+    aria-label="Sessions" aria-modal="true">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <span class="modal-title">Sessions</span>
+        <button class="modal-close" onclick="closeSessionModal()" aria-label="Close">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-helper" id="session-modal-helper"></p>
+        <div class="session-list" id="session-list"></div>
+        <p class="modal-section-label">New session</p>
+        <div class="session-new-form">
+          <input class="session-input" id="new-session-input" type="text" placeholder="Learner name" maxlength="40"
+            autocomplete="off">
+          <button class="btn-primary" onclick="handleCreateSession()">Add</button>
+        </div>
+        <div class="session-error" id="session-create-error"></div>
+        <p class="modal-helper" style="font-size:0.70rem;margin-top:0.65rem;margin-bottom:0">Progress is saved on this
+          device only.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ SETTINGS MODAL -->
+  <div class="modal-overlay" id="settings-modal" onclick="handleSettingsModalClick(event)" role="dialog"
+    aria-label="Settings" aria-modal="true">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <span class="modal-title">Settings</span>
+        <button class="modal-close" onclick="closeSettingsModal()" aria-label="Close">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-helper">Set a subtle atmosphere image for Arcade on this device. Leave it blank to use the
+          default Arcade atmosphere.</p>
+
+        <p class="modal-section-label">Custom image URL</p>
+        <input class="session-input" id="arcade-atmosphere-input" type="url" placeholder="https://..."
+          autocomplete="off">
+
+        <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
+          <button class="btn-primary" onclick="handleSaveSettings()">Save</button>
+          <button class="btn-ghost" onclick="handleRevertAtmosphere()">Revert to default</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ CONFIRM DIALOG -->
+  <div class="confirm-dialog" id="confirm-dialog" role="alertdialog" aria-modal="true">
+    <div class="confirm-panel">
+      <div class="confirm-title" id="confirm-title"></div>
+      <div class="confirm-message" id="confirm-message"></div>
+      <div class="confirm-actions">
+        <button class="btn-ghost" onclick="resolveConfirm(false)">Cancel</button>
+        <button class="btn-danger" id="confirm-ok-btn" onclick="resolveConfirm(true)">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ SCRIPTS -->
+  <script src="../shared/atlas-bridge.js"></script>
+  <script src="../shared/atlas-search.js"></script>
+  <script>
+    'use strict';
+    /* ================================================================
+       ARCADE HUB V1
+       Reads and writes state only through window.AtlasBridge.
+       No Arcade-specific localStorage. No parallel session system.
+       No vocabulary tracking. No gamification metrics.
+       ================================================================ */
+
+    // ---- Bridge guard -------------------------------------------
+    if (!window.AtlasBridge) {
+      document.getElementById('arcade-main').innerHTML =
+        '<div class="bridge-error">' +
+        '<h2>Arcade can\'t start</h2>' +
+        '<p>The shared runtime didn\'t load. Reload the page and check that <code>shared/atlas-bridge.js</code> is in place.</p>' +
+        '</div>';
+    }
+
+    const Bridge = window.AtlasBridge;
+    const ACTIVE_HUB_ID = 'arcade';
+    const ARCADE_ATMOSPHERE_KEY = 'arcade::atmosphereImage';
+    const ARCADE_DEFAULT_ATMOSPHERE = './arcade-hub-atmosphere.jpg';
+
+    // ---- Hub navigation map ------------------------------------
+    // Atlas is always available. Compass resolves from registry.
+    // Arcade is this hub (always available, no navigation needed).
+    const HUB_NAV = {
+      atlas: {
+        id: 'atlas',
+        name: 'Atlas',
+        alwaysAvailable: true,
+        launchUrl: '../index.html',
+        icon: '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.4L11.6 6.5L6.5 11.6L1.4 6.5Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/><path d="M6.5 3.6L9.4 6.5L6.5 9.4L3.6 6.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round" opacity="0.75"/></svg>'
+      },
+      compass: {
+        id: 'compass',
+        name: 'Compass',
+        worldId: 'compass',
+        icon: '<svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.2" stroke="currentColor" stroke-width="1.25"/><circle cx="7" cy="7" r="1.6" stroke="currentColor" stroke-width="1.15"/><path d="M7 1.8v1.6M7 10.6v1.6M1.8 7h1.6M10.6 7h1.6" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/></svg>'
+      },
+      arcade: {
+        id: 'arcade',
+        name: 'Arcade',
+        alwaysAvailable: true,
+        launchUrl: new URL('./index.html', window.location.href).href,
+        icon: '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1.5" y="3" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 6.5h2M5.5 5.5v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8.5" cy="6.5" r="0.6" fill="currentColor"/><circle cx="10" cy="5.5" r="0.6" fill="currentColor"/></svg>'
+      }
+    };
+
+    /* ================================================================
+       GAME CATALOGUE
+       Three games exist as files. Remaining 12 are planned/coming soon.
+       Status 'available' = file exists and is launchable.
+       Status 'soon' = planned but not built yet.
+       Bridge retrofit status is separate from availability.
+       ================================================================ */
+    const GAME_CATALOGUE = [
+      // ── AVAILABLE NOW (legacy games, unretrofitted) ───────────────
+      {
+        registryId: 'arcade:tomorrow-got-weird',
+        title: 'Tomorrow Got Weird',
+        premise: 'Drop yourself into strange future scenarios and decide what you\'d do next.',
+        unitLabel: 'Scenarios',
+        total: 25,
+        formatLabel: 'Imagination',
+        mark: '🛸',
+        accent: '#7c3aed',
+        accentLight: '#ede9fe',
+        order: 1,
+        status: 'available',
+        launchUrl: './tomorrow-got-weird/index.html'
+      },
+      {
+        registryId: 'arcade:truth-trap',
+        title: 'Truth Trap',
+        premise: 'Two truths, one lie. Study the evidence and spot the fake.',
+        unitLabel: 'Cases',
+        total: 20,
+        formatLabel: 'Reasoning',
+        mark: '🕵️',
+        accent: '#b45309',
+        accentLight: '#fef3c7',
+        order: 2,
+        status: 'available',
+        launchUrl: './truth-trap/index.html'
+      },
+      {
+        registryId: 'arcade:would-you-rather',
+        title: 'Would You Rather',
+        premise: 'Impossible choices, instant reactions. No wrong answers.',
+        unitLabel: 'Questions',
+        total: 50,
+        formatLabel: 'Choices',
+        mark: '🤔',
+        accent: '#0369a1',
+        accentLight: '#e0f2fe',
+        order: 3,
+        status: 'available',
+        launchUrl: './would-you-rather/index.html'
+      },
+      // ── COMING SOON (planned, not yet built) ──────────────────────
+      {
+        registryId: 'arcade:bad-advice-only',
+        title: 'Bad Advice Only',
+        premise: 'Give the worst possible advice to any situation. The wronger, the better.',
+        unitLabel: 'Dilemmas',
+        total: null,
+        formatLabel: 'Debate',
+        mark: '💀',
+        accent: '#be123c',
+        accentLight: '#ffe4e6',
+        order: 4,
+        status: 'soon',
+        launchUrl: null
+      },
+      {
+        registryId: 'arcade:butterfly-effect',
+        title: 'Butterfly Effect',
+        premise: 'One tiny change in history. Follow the chaos that follows.',
+        unitLabel: 'Scenarios',
+        total: null,
+        formatLabel: 'Imagination',
+        mark: '🦋',
+        accent: '#059669',
+        accentLight: '#d1fae5',
+        order: 5,
+        status: 'soon',
+        launchUrl: null
+      },
+      {
+        registryId: 'arcade:couch-potato',
+        title: 'Couch Potato',
+        premise: 'Discuss TV, films, and streaming — and the guilty pleasures you can\'t stop watching.',
+        unitLabel: 'Topics',
+        total: null,
+        formatLabel: 'Culture',
+        mark: '📺',
+        accent: '#7c3aed',
+        accentLight: '#ede9fe',
+        order: 6,
+        status: 'soon',
+        launchUrl: null
+      },
+      {
+        registryId: 'arcade:devils-advocate',
+        title: 'Devil\'s Advocate',
+        premise: 'Argue the opposite of whatever you actually believe.',
+        unitLabel: 'Rounds',
+        total: null,
+        formatLabel: 'Debate',
+        mark: '😈',
+        accent: '#dc2626',
+        accentLight: '#fee2e2',
+        order: 7,
+        status: 'soon',
+        launchUrl: null
+      },
+      {
+        registryId: 'arcade:explain-like-5',
+        title: 'Explain Like I\'m 5',
+        premise: 'Take any complex topic and explain it simply enough for a child.',
+        unitLabel: 'Topics',
+        total: null,
+        formatLabel: 'Quickfire',
+        mark: '🧒',
+        accent: '#d97706',
+        accentLight: '#fef3c7',
+        order: 8,
+        status: 'soon',
+        launchUrl: null
+      },
+      {
+        registryId: 'arcade:guilty-or-innocent',
+        title: 'Guilty or Innocent',
+        premise: 'Read the situation. Decide in 30 seconds. Defend your verdict.',
+        unitLabel: 'Cases',
+        total: null,
+        formatLabel: 'Reasoning',
+        mark: '⚖️',
+        accent: '#1e40af',
+        accentLight: '#dbeafe',
+        order: 9,
+        status: 'soon',
+        launchUrl: null
+      },
+      {
+        registryId: 'arcade:hidden-truth',
+        title: 'Hidden Truth',
+        premise: 'Every answer contains a secret. Can you find what\'s really being said?',
+        unitLabel: 'Rounds',
+        total: null,
+        formatLabel: 'Reasoning',
+        mark: '🔍',
+        accent: '#0f766e',
+        accentLight: '#ccfbf1',
+        order: 10,
+        status: 'soon',
+        launchUrl: null
+      },
+      {
+        registryId: 'arcade:hot-takes',
+        title: 'Hot Takes',
+        premise: 'Controversial opinions on everyday things. Defend yours or steal theirs.',
+        unitLabel: 'Takes',
+        total: null,
+        formatLabel: 'Debate',
+        mark: '🔥',
+        accent: '#ea580c',
+        accentLight: '#ffedd5',
+        order: 11,
+        status: 'soon',
+        launchUrl: null
+      },
+      {
+        registryId: 'arcade:instant-decision',
+        title: 'Instant Decision',
+        premise: 'Five seconds. One choice. No going back. React first, explain second.',
+        unitLabel: 'Decisions',
+        total: null,
+        formatLabel: 'Quickfire',
+        mark: '⚡',
+        accent: '#ca8a04',
+        accentLight: '#fef9c3',
+        order: 12,
+        status: 'soon',
+        launchUrl: null
+      },
+      {
+        registryId: 'arcade:life-trade',
+        title: 'Life Trade',
+        premise: 'Swap one thing about your life for something else. Then live with it.',
+        unitLabel: 'Trades',
+        total: null,
+        formatLabel: 'Choices',
+        mark: '🔄',
+        accent: '#7c3aed',
+        accentLight: '#ede9fe',
+        order: 13,
+        status: 'soon',
+        launchUrl: null
+      },
+      {
+        registryId: 'arcade:personal-lore',
+        title: 'Personal Lore',
+        premise: 'Your most embarrassing, strange, or surprising real-life stories.',
+        unitLabel: 'Stories',
+        total: null,
+        formatLabel: 'Culture',
+        mark: '📖',
+        accent: '#be185d',
+        accentLight: '#fce7f3',
+        order: 14,
+        status: 'soon',
+        launchUrl: null
+      },
+      {
+        registryId: 'arcade:cats-pyjamas',
+        title: 'The Cat\'s Pyjamas',
+        premise: 'Weird British idioms, colourful slang, and the expressions nobody can explain.',
+        unitLabel: 'Phrases',
+        total: null,
+        formatLabel: 'Language',
+        mark: '🐱',
+        accent: '#0f766e',
+        accentLight: '#ccfbf1',
+        order: 15,
+        status: 'soon',
+        launchUrl: null
+      }
+    ];
+
+    /* ================================================================
+       SAFE BRIDGE READS
+       ================================================================ */
+    function getActiveSession() {
+      try { return Bridge.readActiveSession(); }
+      catch (e) { return { id: 'default', name: 'Default' }; }
+    }
+    function getSessions() {
+      try { return Bridge.readSessions() || []; }
+      catch (e) { return []; }
+    }
+    function getRegistry() {
+      try { return Bridge.readRegistry(); }
+      catch (e) { return { worlds: {}, items: {}, sessionStates: {}, recentActivity: [] }; }
+    }
+    function isDefaultSession(s) {
+      return s && s.id === (Bridge.defaultSessionId || 'default');
+    }
+    function resolveWorldLaunchUrl(reg, worldId) {
+      const worlds = reg.worlds || {};
+      const w = worlds[worldId] || Object.values(worlds).find(x => x && (x.registryId === worldId || x.world === worldId));
+      return (w && w.launchUrl) ? w.launchUrl : null;
+    }
+
+    /* ================================================================
+       REGISTRATION
+       Arcade world and game items are registered idempotently on load.
+       Only available games get a launchUrl in the registry.
+       ================================================================ */
+    function registerWithBridge() {
+      if (!Bridge) return;
+      try {
+        Bridge.upsertWorld({
+          registryId: 'arcade',
+          world: 'arcade',
+          type: 'world',
+          title: 'Arcade',
+          description: 'Quickfire conversation games for spontaneous English practice.',
+          status: 'available',
+          launchUrl: new URL('./index.html', window.location.href).href
+        });
+      } catch (e) { }
+
+      GAME_CATALOGUE.forEach(game => {
+        try {
+          const item = {
+            registryId: game.registryId,
+            world: 'arcade',
+            type: 'game',
+            title: game.title,
+            premise: game.premise,
+            status: game.status,
+            unitLabel: game.unitLabel,
+            total: game.total,
+            formatLabel: game.formatLabel,
+            accent: game.accent,
+            order: game.order
+          };
+          if (game.status === 'available' && game.launchUrl) {
+            item.launchUrl = new URL(game.launchUrl, window.location.href).href;
+          }
+          Bridge.upsertItem(item);
+        } catch (e) { }
+      });
+    }
+
+    /* ================================================================
+       CONTINUE PLAYING
+       Reads active session's state for Arcade games.
+       Only shows games with status 'in-progress' (not 'complete', not absent).
+       Only Tomorrow Got Weird can write Bridge state currently —
+       Truth Trap and Would You Rather are not retrofitted, so they
+       will never appear here unless retrofitted in a future pass.
+       ================================================================ */
+    function singularUnitLabel(label) {
+      const clean = String(label || 'Round').trim();
+      return clean.endsWith('s') ? clean.slice(0, -1) : clean;
+    }
+
+    function formatArcadeRelativeTime(ts) {
+      if (!ts) return '';
+
+      const now = Date.now();
+      const diff = now - ts;
+      const days = Math.floor(diff / 86400000);
+
+      if (days === 0) return 'played today';
+      if (days === 1) return 'played yesterday';
+      if (days < 7) return 'played ' + days + ' days ago';
+      if (days < 14) return 'played last week';
+
+      const weeks = Math.floor(days / 7);
+      if (weeks < 5) return 'played ' + weeks + ' weeks ago';
+
+      return 'played a while ago';
+    }
+
+    function formatResumePointLabel(item, state) {
+      if (item.registryId === 'arcade:would-you-rather') {
+        const p = state.progress || {};
+        const total = Number(p.total) || Number(item.total) || 50;
+        const covered = Number(p.covered) || 0;
+        const left = Math.max(0, total - covered);
+
+        return left === 1 ? '1 question left' : left + ' questions left';
+      }
+
+      const pos = Number(state.currentPosition) || null;
+      const unit = singularUnitLabel(item.unitLabel || 'Round');
+
+      if (pos) return 'Resume from ' + unit + ' ' + pos;
+
+      if (state.currentLabel) {
+        return 'Resume from ' + String(state.currentLabel).replace(/\s+of\s+\d+$/i, '');
+      }
+
+      return 'In progress';
+    }
+
+    function getContinueGames(reg, sessionId) {
+      const states = (reg.sessionStates || {})[sessionId] || {};
+      const results = [];
+
+      Object.entries(states).forEach(([registryId, state]) => {
+        if (!state) return;
+        // Only Arcade games
+        const item = (reg.items || {})[registryId];
+        if (!item || item.world !== 'arcade' || item.type !== 'game') return;
+        // Only in-progress (not complete, not absent)
+        if ((state.status || '').toLowerCase() !== 'in-progress') return;
+        const catalogueGame = GAME_CATALOGUE.find(g => g.registryId === registryId);
+        if (!catalogueGame || !catalogueGame.launchUrl) return;
+
+        results.push({
+          registryId,
+          title: catalogueGame.title,
+          currentLabel: formatResumePointLabel(item, state),
+          launchUrl: catalogueGame.launchUrl,
+          mark: catalogueGame.mark,
+          formatLabel: catalogueGame.formatLabel,
+          lastTouchedAt: state.lastTouchedAt || state.updatedAt || 0
+        });
+      });
+
+      // Newest first, cap at 3
+      return results.sort((a, b) => b.lastTouchedAt - a.lastTouchedAt).slice(0, 3);
+    }
+
+    /* ================================================================
+       APPEARANCE
+       ================================================================ */
+    function sunSvg(s) {
+      return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 17 17" fill="none"><circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35"/><path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>';
+    }
+    function moonSvg(s) {
+      return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 17 17" fill="none"><path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    }
+    function updateAppearanceButtons(mode) {
+      const icon = mode === 'night' ? sunSvg(16) : moonSvg(16);
+      const label = mode === 'night' ? 'Switch to day mode' : 'Switch to night mode';
+      ['spine-appearance-btn', 'mobile-appearance-btn', 'drawer-appearance-btn'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.innerHTML = icon; el.setAttribute('aria-label', label); }
+      });
+    }
+    function toggleAppearance() {
+      const cur = Bridge.readAppearanceMode();
+      const next = cur === 'night' ? 'light' : 'night';
+      document.documentElement.classList.add('theme-changing');
+      setTimeout(() => document.documentElement.classList.remove('theme-changing'), 420);
+      Bridge.setAppearanceMode(next);
+      document.documentElement.dataset.theme = next;
+      updateAppearanceButtons(next);
+    }
+
+    /* ================================================================
+       NAVIGATION
+       ================================================================ */
+    function navigateTo(url) {
+      if (!url) { showToast('That destination isn\'t available yet.'); return; }
+      window.location.href = url;
+    }
+
+    function openHub(hubId) {
+      const hub = HUB_NAV[hubId];
+      if (!hub) return;
+      if (hub.id === ACTIVE_HUB_ID) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+      if (hub.worldId) {
+        const reg = getRegistry();
+        const url = resolveWorldLaunchUrl(reg, hub.worldId);
+        if (url) { navigateTo(url); return; }
+        showToast(hub.name + ' isn\'t available on this device yet.');
+        return;
+      }
+      if (hub.launchUrl) { navigateTo(hub.launchUrl); return; }
+      showToast('That destination isn\'t available yet.');
+    }
+
+    function isHubAvailable(hub, reg) {
+      if (hub.alwaysAvailable) return true;
+      if (hub.worldId) return !!resolveWorldLaunchUrl(reg, hub.worldId);
+      return false;
+    }
+
+    /* ================================================================
+       SETTINGS — Arcade atmosphere image
+       ================================================================ */
+    function readArcadeCustomAtmosphereImage() {
+      try { return localStorage.getItem(ARCADE_ATMOSPHERE_KEY) || ''; }
+      catch (e) { return ''; }
+    }
+
+    function getArcadeAtmosphereImage() {
+      return readArcadeCustomAtmosphereImage() || ARCADE_DEFAULT_ATMOSPHERE;
+    }
+
+    function writeArcadeAtmosphereImage(url) {
+      const clean = (url || '').trim();
+
+      try {
+        if (clean) localStorage.setItem(ARCADE_ATMOSPHERE_KEY, clean);
+        else localStorage.removeItem(ARCADE_ATMOSPHERE_KEY);
+      } catch (e) { }
+
+      applyArcadeAtmosphereImage();
+    }
+
+    function cssImageUrl(url) {
+      return 'url("' + String(url || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '")';
+    }
+
+    function applyArcadeAtmosphereImage() {
+      const layer = document.getElementById('arcade-atmosphere-layer');
+      if (!layer) return;
+
+      const image = getArcadeAtmosphereImage();
+
+      if (!image) {
+        layer.style.backgroundImage = '';
+        layer.classList.remove('visible');
+        return;
+      }
+
+      layer.style.backgroundImage = cssImageUrl(image);
+      layer.classList.add('visible');
+    }
+
+    function openSettingsModal() {
+      const input = document.getElementById('arcade-atmosphere-input');
+      if (input) input.value = readArcadeCustomAtmosphereImage();
+
+      document.getElementById('settings-modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+
+      setTimeout(() => {
+        const el = document.getElementById('arcade-atmosphere-input');
+        if (el) el.focus();
+      }, 50);
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settings-modal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function handleSettingsModalClick(e) {
+      if (e.target === document.getElementById('settings-modal')) closeSettingsModal();
+    }
+
+    function handleSaveSettings() {
+      const input = document.getElementById('arcade-atmosphere-input');
+      writeArcadeAtmosphereImage(input ? input.value : '');
+      closeSettingsModal();
+
+      showToast(readArcadeCustomAtmosphereImage()
+        ? 'Arcade atmosphere saved.'
+        : 'Arcade atmosphere reset to default.');
+    }
+
+    function handleRevertAtmosphere() {
+      const input = document.getElementById('arcade-atmosphere-input');
+      if (input) input.value = '';
+      writeArcadeAtmosphereImage('');
+      closeSettingsModal();
+      showToast('Arcade atmosphere reset to default.');
+    }
+
+    /* ================================================================
+       SESSION LABELS
+       ================================================================ */
+    function setSessionLabels() {
+      const s = getActiveSession();
+      const name = (isDefaultSession(s) || !s.name) ? 'Session' : s.name;
+      ['spine-session-name', 'mobile-session-name', 'drawer-session-name'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = name;
+      });
+    }
+
+    /* ================================================================
+       RENDER SPINE HUB NAV
+       ================================================================ */
+    function renderSpineHubNav() {
+      const reg = getRegistry();
+      const host = document.getElementById('spine-hub-nav');
+      if (!host) return;
+      host.innerHTML = Object.values(HUB_NAV).map(hub => {
+        const active = hub.id === ACTIVE_HUB_ID;
+        const available = isHubAvailable(hub, reg);
+        const cls = 'spine-world-btn' + (active ? ' is-active' : '');
+        const disabled = available ? '' : ' aria-disabled="true"';
+        const click = available && !active ? ' onclick="openHub(\'' + hub.id + '\')"' : '';
+        const title = active ? hub.name : (available ? 'Open ' + hub.name : hub.name + ' — coming soon');
+        return '<button class="' + cls + '"' + disabled + click +
+          (active ? ' aria-current="page"' : '') +
+          ' title="' + escHtml(title) + '">' +
+          hub.icon + '<span>' + escHtml(hub.name) + '</span>' +
+          '</button>';
+      }).join('');
+    }
+
+    function renderDrawerHubNav() {
+      const reg = getRegistry();
+      const host = document.getElementById('drawer-hub-nav');
+      if (!host) return;
+      host.innerHTML = Object.values(HUB_NAV).map(hub => {
+        const active = hub.id === ACTIVE_HUB_ID;
+        const available = isHubAvailable(hub, reg);
+        const cls = 'drawer-nav-item' + (active ? ' is-active' : '');
+        const disabled = available ? '' : ' aria-disabled="true"';
+        const click = available && !active ? ' onclick="closeDrawer();openHub(\'' + hub.id + '\')"' : '';
+        return '<button class="' + cls + '"' + disabled + click +
+          (active ? ' aria-current="page"' : '') + '>' +
+          hub.icon + escHtml(hub.name) +
+          (available ? '' : '<span class="nav-soon">Soon</span>') +
+          '</button>';
+      }).join('');
+    }
+
+    /* ================================================================
+       RENDER MAIN HUB
+       ================================================================ */
+    function renderHub() {
+      if (!Bridge) return;
+      const session = getActiveSession();
+      const reg = getRegistry();
+
+      setSessionLabels();
+      renderSpineHubNav();
+      renderDrawerHubNav();
+
+      const continueGames = getContinueGames(reg, session.id);
+      const availableGames = GAME_CATALOGUE.filter(g => g.status === 'available');
+      const soonGames = GAME_CATALOGUE.filter(g => g.status === 'soon');
+
+      // Build in-progress lookup from Bridge for status badges on library cards
+      const sessionStates = (reg.sessionStates || {})[session.id] || {};
+
+      let html = '';
+
+      // ── Identity strip ──
+      const eyebrow = isDefaultSession(session) ? 'Arcade' : 'Welcome, ' + session.name;
+
+      html += '<div class="hub-intro">' +
+        '<div class="hub-intro-text">' +
+        '<div class="hub-eyebrow">' + escHtml(eyebrow) + '</div>' +
+        '<h1 class="hub-title">Quickfire conversation games.</h1>' +
+        '<p class="hub-desc">No scripts. No wrong answers. Pick a game and go.</p>' +
+        '</div>' +
+        '<div class="hub-meta">' +
+        '<div class="hub-meta-chip">' + availableGames.length + ' playable game' + (availableGames.length !== 1 ? 's' : '') + '</div>' +
+        '</div>' +
+        '</div>';
+
+      // ── Continue Playing (conditional) ──
+      if (continueGames.length > 0) {
+        html += '<div class="continue-zone">';
+        html += '<div class="section-label">Continue Playing</div>';
+        html += '<div class="continue-list">';
+        continueGames.forEach(game => {
+          html += renderContinueCard(game);
+        });
+        html += '</div>';
+        html += '</div>';
+      }
+
+      // ── Game Library ──
+      html += '<div class="library-zone">';
+      html += '<div class="library-header">';
+      html += '<h2 class="library-title">Game Library</h2>';
+      html += '<div class="library-search-wrap">' +
+        '<span class="library-search-icon" aria-hidden="true">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="3.8" stroke="currentColor" stroke-width="1.2"/><path d="M9 9l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>' +
+        '</span>' +
+        '<input class="library-search" id="library-search" type="text" placeholder="Search games…" autocomplete="off" aria-label="Search games">' +
+        '<button class="library-search-clear" id="library-search-clear" onclick="clearLibrarySearch()" aria-label="Clear search">✕</button>' +
+        '</div>';
+      html += '</div>'; // library-header
+
+      // Available games grid
+      html += '<div class="game-grid" id="game-grid-available">';
+      availableGames.forEach(game => {
+        const bridgeState = sessionStates[game.registryId];
+        const inProgress = bridgeState && (bridgeState.status || '').toLowerCase() === 'in-progress';
+        html += renderGameCard(game, inProgress);
+      });
+      html += '</div>';
+
+      // Coming soon divider + grid
+      if (soonGames.length > 0) {
+        html += '<div class="library-divider"><span class="library-divider-label">Coming next</span></div>';
+        html += '<div class="game-grid" id="game-grid-soon">';
+        soonGames.forEach(game => {
+          html += renderGameCard(game, false);
+        });
+        html += '</div>';
+      }
+
+      html += '<div class="no-results" id="no-results"><p>No games match that search.</p></div>';
+      html += '</div>'; // library-zone
+
+      document.getElementById('arcade-main').innerHTML = html;
+
+      // Bind search after render
+      bindLibrarySearch();
+    }
+
+    function renderContinueCard(game) {
+      const playedLabel = formatArcadeRelativeTime(game.lastTouchedAt);
+
+      const meta = [
+        game.currentLabel,
+        playedLabel
+      ].filter(Boolean).join(' · ');
+
+      return '<div class="continue-card" role="button" tabindex="0" ' +
+        'onclick="navigateTo(\'' + escAttr(game.launchUrl) + '\')" ' +
+        'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navigateTo(\'' + escAttr(game.launchUrl) + '\')}">' +
+        '<div class="continue-icon" aria-hidden="true">' +
+        escHtml(game.mark) +
+        '</div>' +
+        '<div class="continue-body">' +
+        '<div class="continue-title">' + escHtml(game.title) + '</div>' +
+        (meta ? '<div class="continue-progress">' + escHtml(meta) + '</div>' : '') +
+        '</div>' +
+        '<a class="continue-resume" href="' + escAttr(game.launchUrl) + '" onclick="event.stopPropagation()">Resume' +
+        '<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '</a>' +
+        '</div>';
+    }
+
+    function renderGameCard(game, inProgress) {
+      const isAvailable = game.status === 'available';
+      const isSoon = game.status === 'soon';
+
+      // Card class
+      let cardClass = 'game-card';
+      if (isSoon) cardClass += ' is-soon';
+      if (inProgress) cardClass += ' is-inprogress';
+
+      // Accent top stripe colour
+      const accentStyle = isAvailable
+        ? 'style="background:' + game.accent + '"'
+        : '';
+
+      // Status badge
+      let statusHtml = '';
+      if (inProgress) {
+        statusHtml = '<span class="game-card-status status-inprogress" aria-label="In progress">In progress</span>';
+      } else if (isSoon) {
+        statusHtml = '<span class="game-card-status status-soon">Coming soon</span>';
+      } else {
+        statusHtml = '<span class="game-card-status status-available">Available</span>';
+      }
+
+      // Action button
+      let actionHtml = '';
+      if (isAvailable) {
+        const label = inProgress ? 'Resume' : 'Play';
+        actionHtml = '<a class="game-card-action" href="' + escAttr(game.launchUrl) + '" aria-label="' + label + ' ' + escAttr(game.title) + '">' +
+          label +
+          '<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+          '</a>';
+      } else {
+        actionHtml = '<span class="game-card-action disabled" aria-label="Coming soon">Soon</span>';
+      }
+
+      // Unit info
+      const unitText = game.total
+        ? game.total + ' ' + (game.unitLabel || 'rounds').toLowerCase()
+        : 'Open-ended';
+
+      const clickHandler = isAvailable
+        ? 'onclick="navigateTo(\'' + escAttr(game.launchUrl) + '\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navigateTo(\'' + escAttr(game.launchUrl) + '\')}" tabindex="0"'
+        : 'aria-disabled="true" tabindex="0"';
+
+      return '<div class="' + cardClass + '" ' + clickHandler +
+        ' role="' + (isAvailable ? 'button' : 'article') + '"' +
+        ' aria-label="' + escAttr(game.title) + (isSoon ? ' — coming soon' : '') + '"' +
+        ' data-title="' + escAttr(game.title.toLowerCase()) + '"' +
+        ' data-format="' + escAttr((game.formatLabel || '').toLowerCase()) + '">' +
+        '<span style="position:absolute;top:0;left:0;right:0;height:3px;' + (isAvailable ? 'background:' + game.accent : 'background:var(--border)') + ';opacity:' + (isAvailable ? '0' : '1') + '" class="card-accent-bar" aria-hidden="true"></span>' +
+        '<span class="game-card-mark" aria-hidden="true">' + game.mark + '</span>' +
+        '<div class="game-card-title">' + escHtml(game.title) + '</div>' +
+        '<p class="game-card-premise">' + escHtml(game.premise) + '</p>' +
+        '<div class="game-card-footer">' +
+        '<div class="game-card-meta">' +
+        '<span class="game-card-unit">' + escHtml(unitText) + '</span>' +
+        '<span class="game-card-format">' + escHtml(game.formatLabel || '') + '</span>' +
+        '</div>' +
+        actionHtml +
+        '</div>' +
+        '</div>';
+    }
+
+    /* ================================================================
+       LIBRARY SEARCH
+       ================================================================ */
+    function bindLibrarySearch() {
+      const field = document.getElementById('library-search');
+      const clearBtn = document.getElementById('library-search-clear');
+      if (!field) return;
+      field.addEventListener('input', e => {
+        const q = (e.target.value || '').trim().toLowerCase();
+        clearBtn && clearBtn.classList.toggle('visible', q.length > 0);
+        filterLibrary(q);
+      });
+      field.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { clearLibrarySearch(); field.blur(); }
+      });
+    }
+
+    function clearLibrarySearch() {
+      const field = document.getElementById('library-search');
+      const clearBtn = document.getElementById('library-search-clear');
+      if (field) field.value = '';
+      if (clearBtn) clearBtn.classList.remove('visible');
+      filterLibrary('');
+    }
+
+    function filterLibrary(q) {
+      const cards = document.querySelectorAll('.game-card');
+      let visible = 0;
+      cards.forEach(card => {
+        const title = card.dataset.title || '';
+        const format = card.dataset.format || '';
+        const match = !q || title.includes(q) || format.includes(q);
+        card.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      // Show/hide divider if no soon games visible
+      const divider = document.querySelector('.library-divider');
+      if (divider) {
+        const soonGrid = document.getElementById('game-grid-soon');
+        if (soonGrid) {
+          const soonVisible = Array.from(soonGrid.querySelectorAll('.game-card')).some(c => c.style.display !== 'none');
+          divider.style.display = soonVisible ? '' : 'none';
+        }
+      }
+      const noResults = document.getElementById('no-results');
+      if (noResults) noResults.classList.toggle('visible', q.length > 0 && visible === 0);
+    }
+
+    /* ================================================================
+       SESSION MODAL
+       ================================================================ */
+    function openSessionModal() {
+      renderSessionList();
+      clearSessionError();
+      document.getElementById('session-modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeSessionModal() {
+      document.getElementById('session-modal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function handleSessionModalClick(e) {
+      if (e.target === document.getElementById('session-modal')) closeSessionModal();
+    }
+    function clearSessionError() {
+      const el = document.getElementById('session-create-error');
+      el.textContent = ''; el.className = 'session-error';
+    }
+    function showSessionError(msg) {
+      const el = document.getElementById('session-create-error');
+      el.textContent = msg; el.className = 'session-error visible';
+    }
+
+    function renderSessionList() {
+      const sessions = getSessions();
+      const active = getActiveSession();
+      const defId = Bridge.defaultSessionId || 'default';
+      const helper = document.getElementById('session-modal-helper');
+      helper.textContent = isDefaultSession(active)
+        ? 'Add a learner name to keep each student\'s progress separate.'
+        : 'Active session: ' + active.name + '. Switch to change the active learner.';
+      document.getElementById('session-list').innerHTML = sessions.map(s => {
+        const isActive = s.id === active.id;
+        const isDefault = s.id === defId;
+        return '<div class="session-item ' + (isActive ? 'active' : '') + '">' +
+          '<span class="session-item-name">' + escHtml(s.name) + '</span>' +
+          (isActive ? '<span class="session-item-badge">Active</span>' : '') +
+          '<div class="session-item-actions">' +
+          (!isActive ? '<button class="session-action-btn" title="Switch to ' + escAttr(s.name) + '" onclick="handleSwitchSession(\'' + escAttr(s.id) + '\')" aria-label="Switch to ' + escAttr(s.name) + '">' +
+            '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5h7M6 2.5l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' : '') +
+          (!isDefault ? '<button class="session-action-btn danger" title="Delete" onclick="handleDeleteSession(\'' + escAttr(s.id) + '\')" aria-label="Delete ' + escAttr(s.name) + '">' +
+            '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1 1l9 9M10 1L1 10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>' : '') +
+          '</div></div>';
+      }).join('');
+    }
+
+    function handleCreateSession() {
+      const input = document.getElementById('new-session-input');
+      const name = input.value.trim();
+      clearSessionError();
+      if (!name) { showSessionError('Enter a name to create a session.'); return; }
+      const created = Bridge.createSession(name);
+      if (!created) {
+        showSessionError('That name is already in use.');
+        input.style.borderColor = 'var(--danger)';
+        setTimeout(() => { input.style.borderColor = ''; }, 1200);
+        return;
+      }
+      input.value = '';
+      renderSessionList();
+      renderHub();
+    }
+
+    function handleSwitchSession(id) {
+      const result = Bridge.setActiveSession(id);
+      if (!result) { showSessionError('Couldn\'t switch to that session.'); return; }
+      closeSessionModal();
+    }
+
+    async function handleDeleteSession(id) {
+      const sessions = getSessions();
+      const s = sessions.find(x => x.id === id);
+      if (!s) return;
+      const ok = await showConfirm({
+        title: 'Delete session?',
+        message: 'This permanently removes ' + s.name + ' and their Arcade progress on this device.',
+        okLabel: 'Delete session'
+      });
+      if (!ok) return;
+      Bridge.deleteSession(id);
+      renderSessionList();
+      renderHub();
+    }
+
+    /* ================================================================
+       CONFIRM DIALOG
+       ================================================================ */
+    let confirmResolver = null;
+    function showConfirm(opts) {
+      opts = opts || {};
+      return new Promise(resolve => {
+        confirmResolver = resolve;
+        document.getElementById('confirm-title').textContent = opts.title || '';
+        document.getElementById('confirm-message').textContent = opts.message || '';
+        const okBtn = document.getElementById('confirm-ok-btn');
+        okBtn.textContent = opts.okLabel || 'Confirm';
+        document.getElementById('confirm-dialog').classList.add('open');
+      });
+    }
+    function resolveConfirm(ok) {
+      document.getElementById('confirm-dialog').classList.remove('open');
+      if (confirmResolver) { confirmResolver(ok); confirmResolver = null; }
+    }
+
+    /* ================================================================
+       MOBILE DRAWER
+       ================================================================ */
+    function openDrawer() {
+      renderDrawerHubNav();
+      const overlay = document.getElementById('drawer-overlay');
+      overlay.style.display = 'block';
+      document.getElementById('drawer').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => overlay.classList.add('open'), 10);
+    }
+    function closeDrawer() {
+      const overlay = document.getElementById('drawer-overlay');
+      overlay.classList.remove('open');
+      document.getElementById('drawer').classList.remove('open');
+      document.body.style.overflow = '';
+      setTimeout(() => { overlay.style.display = ''; }, 300);
+    }
+
+    /* ================================================================
+       TOAST
+       ================================================================ */
+    let toastTimer = null;
+    function showToast(text) {
+      let el = document.getElementById('arcade-toast-el');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'arcade-toast-el';
+        el.className = 'arcade-toast';
+        el.setAttribute('role', 'status');
+        document.body.appendChild(el);
+      }
+      el.textContent = text;
+      requestAnimationFrame(() => el.classList.add('visible'));
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('visible'), 3200);
+    }
+
+    /* ================================================================
+       GLOBAL KEYBOARD SHORTCUTS
+       ================================================================ */
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        if (document.getElementById('confirm-dialog').classList.contains('open')) { resolveConfirm(false); return; }
+        if (document.getElementById('session-modal').classList.contains('open')) { closeSessionModal(); return; }
+        if (document.getElementById('settings-modal').classList.contains('open')) { closeSettingsModal(); return; }
+        if (document.getElementById('drawer').classList.contains('open')) { closeDrawer(); return; }
+      }
+    });
+
+    /* ================================================================
+       LIVE REFRESH LISTENERS
+       ================================================================ */
+    function refresh() {
+      if (!Bridge) return;
+      renderHub();
+    }
+
+    window.addEventListener('atlas:session-change', refresh);
+    window.addEventListener('atlas:appearance-change', e => {
+      const mode = (e.detail && e.detail.mode) || Bridge.readAppearanceMode();
+      document.documentElement.dataset.theme = mode;
+      updateAppearanceButtons(mode);
+    });
+    window.addEventListener('focus', refresh);
+    window.addEventListener('pageshow', refresh);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+    window.addEventListener('storage', e => {
+      if (!e || !e.key) return;
+      const k = e.key;
+      if (k === 'atlas::appearanceMode') {
+        const mode = Bridge.readAppearanceMode();
+        document.documentElement.dataset.theme = mode;
+        updateAppearanceButtons(mode);
+        return;
+      }
+
+      if (k === ARCADE_ATMOSPHERE_KEY) {
+        applyArcadeAtmosphereImage();
+        return;
+      }
+
+      if (k === 'atlas::sessions' || k === 'atlas::activeSessionId' || k === 'atlas::registry') {
+        refresh();
+      }
+    });
+
+    /* ================================================================
+       UTILITIES
+       ================================================================ */
+    function escHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function escAttr(s) { return escHtml(s); }
+
+    /* ================================================================
+       INIT
+       ================================================================ */
+    function init() {
+      if (!Bridge) return;
+      const mode = Bridge.readAppearanceMode();
+      document.documentElement.dataset.theme = mode;
+      updateAppearanceButtons(mode);
+      applyArcadeAtmosphereImage();
+      registerWithBridge();
+
+      AtlasSearch.init({
+        activeHubId: 'arcade',
+        atlasUrl: '../index.html',
+        compassUrl: '../compass/index.html',
+        arcadeUrl: './index.html'
+      });
+
+      renderHub();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+
+</html>

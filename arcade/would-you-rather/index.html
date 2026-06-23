@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Would You Rather — Arcade Edition</title>
+  <link rel="icon"
+    href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="82" font-size="82">🤔</text></svg>'>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/atlas-search.css">
+  <!-- Anti-flash: read appearance before first paint -->
+  <script>
+    (function () {
+      var m = null;
+      try { m = localStorage.getItem('atlas::appearanceMode'); } catch (e) { }
+      document.documentElement.dataset.theme = (m === 'night') ? 'night' : 'light';
+    })();
+  </script>
+
+  <style>
+    /* ════════════════════════════════════════
+     APPEARANCE TOKENS
+     Night = original WYR personality (loud, dark, arcade energy).
+     Light = bright version that keeps the same boldness.
+  ════════════════════════════════════════ */
+    :root {
+      /* Shared */
+      --yellow: #FFD600;
+      --blue: #1A3CFF;
+      --red: #FF2D55;
+      --radius: 16px;
+      --arcade: #E8562A;
+      --arcade-pale: rgba(232, 86, 42, 0.12);
+    }
+
+    /* Night mode — original WYR palette */
+    html[data-theme="night"] {
+      --bg: #0D0D1A;
+      --card-bg: #13132B;
+      --surface: #1C1C38;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #F0F0FF;
+      --muted: rgba(240, 240, 255, 0.5);
+      --hdr-bg: rgba(13, 13, 26, 0.92);
+      --intro-bg: rgba(13, 13, 26, 0.78);
+      --intro-border: rgba(255, 255, 255, 0.14);
+    }
+
+    /* Light mode — bright studio, same bold energy */
+    html[data-theme="light"] {
+      --bg: #f5f3ff;
+      --card-bg: #ffffff;
+      --surface: #ece9f8;
+      --border: rgba(45, 30, 90, 0.12);
+      --text: #1a1030;
+      --muted: rgba(45, 30, 90, 0.52);
+      --hdr-bg: rgba(245, 243, 255, 0.94);
+      --intro-bg: rgba(255, 255, 255, 0.88);
+      --intro-border: rgba(45, 30, 90, 0.16);
+    }
+
+    html.theme-changing *,
+    html.theme-changing *::before,
+    html.theme-changing *::after {
+      transition: background-color 0.32s ease, color 0.32s ease,
+        border-color 0.32s ease, box-shadow 0.32s ease !important;
+    }
+
+    /* ════ RESET ════ */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      min-height: 100%;
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Noise overlay (night only, fades in light) */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    html[data-theme="light"] body::before {
+      opacity: 0.3;
+    }
+
+    /* ════════════════════════════
+     REDUCED ARCADE GAME HEADER
+  ════════════════════════════ */
+    .game-header {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: var(--hdr-bg);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 1.25rem;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .header-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.38rem 0.75rem 0.38rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--arcade-pale);
+      color: var(--arcade);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+      min-height: 34px;
+      flex-shrink: 0;
+      text-decoration: none;
+    }
+
+    .header-back:hover {
+      background: var(--arcade);
+      color: #fff;
+      border-color: var(--arcade);
+    }
+
+    .header-back:focus-visible {
+      outline: 2px solid var(--arcade);
+      outline-offset: 2px;
+    }
+
+    .header-title {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, var(--yellow), var(--red));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .header-spacer {
+      flex: 1;
+    }
+
+    .header-remaining {
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .header-remaining strong {
+      color: var(--yellow);
+      font-weight: 700;
+    }
+
+    html[data-theme="light"] .header-remaining strong {
+      color: #b07d00;
+    }
+
+    .header-session {
+      font-size: 0.72rem;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 110px;
+    }
+
+    .header-search,
+    .header-appearance {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.18s;
+      flex-shrink: 0;
+    }
+
+    .header-search:hover,
+    .header-appearance:hover {
+      color: var(--text);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    html[data-theme="light"] .header-search:hover,
+    html[data-theme="light"] .header-appearance:hover {
+      border-color: rgba(45, 30, 90, 0.25);
+    }
+
+    .header-search:focus-visible,
+    .header-appearance:focus-visible {
+      outline: 2px solid var(--yellow);
+      outline-offset: 2px;
+    }
+
+    /* ════════════════════════════
+     INTRO SCREEN — preserved
+  ════════════════════════════ */
+    #intro-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: opacity 0.4s ease;
+    }
+
+    #intro-screen.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .intro-cover {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      max-width: none;
+      margin: 0;
+    }
+
+    .intro-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+
+    .intro-cover::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(13, 13, 26, 0.1), rgba(13, 13, 26, 0.92)),
+        radial-gradient(circle at center, rgba(13, 13, 26, 0.15), rgba(13, 13, 26, 0.85));
+    }
+
+    html[data-theme="light"] .intro-cover::after {
+      background:
+        linear-gradient(to bottom, rgba(245, 243, 255, 0.1), rgba(245, 243, 255, 0.88)),
+        radial-gradient(circle at center, rgba(245, 243, 255, 0.15), rgba(245, 243, 255, 0.82));
+    }
+
+    .intro-cover-fallback {
+      display: none;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1A3CFF 0%, #FF2D55 50%, #FFD600 100%);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .intro-cover-fallback span {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(48px, 10vw, 120px);
+      color: white;
+      letter-spacing: 4px;
+      text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
+    }
+
+    .intro-body {
+      position: relative;
+      z-index: 2;
+      max-width: 780px;
+      width: calc(100% - 40px);
+      margin: 0 auto;
+      padding: 34px 38px 40px;
+      text-align: center;
+      background: var(--intro-bg);
+      border: 1px solid var(--intro-border);
+      border-radius: 28px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+    }
+
+    html[data-theme="light"] .intro-body {
+      box-shadow: 0 24px 80px rgba(45, 30, 90, 0.18);
+    }
+
+    .intro-title {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(48px, 7vw, 92px);
+      letter-spacing: 3px;
+      margin: 0 0 8px;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--yellow) 0%, #FF9D00 45%, var(--red) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .intro-subtitle {
+      font-size: 13px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 26px;
+    }
+
+    .intro-divider {
+      width: 72px;
+      height: 4px;
+      background: var(--yellow);
+      margin: 0 auto 28px;
+      border-radius: 999px;
+    }
+
+    .intro-text {
+      font-size: clamp(15px, 1.8vw, 18px);
+      line-height: 1.65;
+      color: var(--muted);
+      margin-bottom: 34px;
+      font-weight: 300;
+    }
+
+    html[data-theme="light"] .intro-text {
+      color: rgba(45, 30, 90, 0.75);
+    }
+
+    .intro-text p+p {
+      margin-top: 16px;
+    }
+
+    .btn-start {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--yellow);
+      color: #0D0D1A;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 26px;
+      letter-spacing: 2px;
+      padding: 18px 54px;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 8px 36px rgba(255, 214, 0, 0.38);
+    }
+
+    .btn-start:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 46px rgba(255, 214, 0, 0.52);
+    }
+
+    .btn-start:active {
+      transform: translateY(0);
+    }
+
+    .btn-start:focus-visible {
+      outline: 2px solid var(--yellow);
+      outline-offset: 3px;
+    }
+
+    /* ════════════════════════════
+     GAME SCREEN
+  ════════════════════════════ */
+    #game-screen {
+      display: none;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    .game-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 40px 20px 60px;
+      max-width: 820px;
+      margin: 0 auto;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Question number chip */
+    .q-chip {
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .q-chip::before,
+    .q-chip::after {
+      content: '';
+      display: block;
+      height: 1px;
+      width: 40px;
+      background: var(--border);
+    }
+
+    /* Question card — personality preserved */
+    .question-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: clamp(28px, 4vw, 48px);
+      width: 100%;
+      margin-bottom: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+      animation: cardIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    html[data-theme="light"] .question-card {
+      box-shadow: 0 8px 32px rgba(45, 30, 90, 0.10);
+    }
+
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.97);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .question-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--blue), var(--red), var(--yellow));
+    }
+
+    .emoji-badge {
+      font-size: 28px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .question-label {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    .question-text {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(26px, 4.5vw, 46px);
+      line-height: 1.15;
+      letter-spacing: 1px;
+      color: var(--text);
+    }
+
+    /* ── Action buttons ── */
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 100%;
+      margin-bottom: 12px;
+    }
+
+    .btn-main {
+      padding: 16px 20px;
+      border-radius: var(--radius);
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-main:focus-visible {
+      outline: 2px solid var(--yellow);
+      outline-offset: 2px;
+    }
+
+    .btn-random {
+      grid-column: 1 / -1;
+      background: var(--yellow);
+      color: #0D0D1A;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 20px;
+      letter-spacing: 1.5px;
+      padding: 20px;
+      box-shadow: 0 4px 24px rgba(255, 214, 0, 0.3);
+    }
+
+    .btn-random:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(255, 214, 0, 0.45);
+    }
+
+    .btn-random:active {
+      transform: translateY(0);
+    }
+
+    .btn-mark {
+      background: rgba(26, 60, 255, 0.15);
+      color: #7B9BFF;
+      border: 1px solid rgba(26, 60, 255, 0.3);
+    }
+
+    .btn-mark:hover {
+      background: rgba(26, 60, 255, 0.25);
+      border-color: rgba(26, 60, 255, 0.5);
+    }
+
+    html[data-theme="light"] .btn-mark {
+      color: #1A3CFF;
+    }
+
+    .btn-skip {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-skip:hover {
+      background: rgba(255, 255, 255, 0.09);
+      color: var(--text);
+    }
+
+    html[data-theme="light"] .btn-skip {
+      background: var(--surface);
+    }
+
+    html[data-theme="light"] .btn-skip:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .btn-reset-deck {
+      grid-column: 1 / -1;
+      justify-self: center;
+      width: auto;
+      min-width: 0;
+      margin-top: 2px;
+      padding: 7px 13px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+      opacity: 0.72;
+    }
+
+    .btn-reset-deck:hover {
+      opacity: 1;
+      color: var(--red);
+      border-color: rgba(255, 45, 85, 0.4);
+    }
+
+    /* ── Empty state — preserved ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state .big-emoji {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .empty-state h3 {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 28px;
+      letter-spacing: 1px;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .btn-reset-empty {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--yellow);
+      color: #0D0D1A;
+      font-family: 'Bebas Neue', cursive;
+      font-size: 18px;
+      letter-spacing: 1.5px;
+      padding: 14px 36px;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.18s;
+      box-shadow: 0 4px 20px rgba(255, 214, 0, 0.3);
+    }
+
+    .btn-reset-empty:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(255, 214, 0, 0.45);
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface);
+      border: 1px solid rgba(255, 214, 0, 0.3);
+      color: var(--yellow);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 12px 24px;
+      border-radius: 100px;
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 999;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    html[data-theme="light"] .toast {
+      color: #b07d00;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Hidden states ── */
+    #no-question {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    #question-display {
+      width: 100%;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 700px) {
+      .intro-body {
+        width: calc(100% - 24px);
+        padding: 26px 22px 30px;
+        border-radius: 22px;
+      }
+
+      .intro-text {
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .btn-start {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .header-session {
+        display: none;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .game-main {
+        padding: 24px 14px 50px;
+      }
+
+      .action-row {
+        gap: 8px;
+      }
+
+      .btn-main {
+        font-size: 14px;
+        padding: 14px 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════
+     INTRO SCREEN
+══════════════════════════════ -->
+  <div id="intro-screen">
+    <div class="intro-cover" id="cover-wrap">
+      <img src="would-you-rather-cover.png" alt="Would You Rather cover" id="cover-img" onerror="handleImgError()">
+      <div class="intro-cover-fallback" id="cover-fallback">
+        <span>WOULD YOU RATHER</span>
+      </div>
+    </div>
+    <div class="intro-body">
+      <h1 class="intro-title">Would You Rather</h1>
+      <div class="intro-subtitle">Arcade Edition &nbsp;·&nbsp; 50 Questions</div>
+      <div class="intro-divider"></div>
+      <div class="intro-text">
+        <p>You're about to face a series of strange, difficult, and sometimes surprisingly revealing questions. Some
+          will be light and ridiculous, some will be uncomfortable, and some might say more about your personality than
+          you expect.</p>
+        <p>The interesting part is that there are no perfect answers — only choices, instincts, and the reasons behind
+          them.</p>
+        <p>So get ready to think quickly, choose carefully, and maybe learn something unexpected about yourself along
+          the way.</p>
+      </div>
+      <button class="btn-start" id="btn-start" onclick="startGame()">
+        ⚡ Start Game
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+     GAME SCREEN
+══════════════════════════════ -->
+  <div id="game-screen">
+
+    <!-- Reduced Arcade game header -->
+    <header class="game-header">
+      <button class="header-back" onclick="goToArcade()" aria-label="Back to Arcade">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M7.5 2L3.5 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        Arcade
+      </button>
+      <span class="header-title">Would You Rather</span>
+      <span class="header-spacer"></span>
+      <span class="header-remaining"><strong id="remaining-count">50</strong> left</span>
+      <span class="header-session" id="hdr-session" aria-label="Active session"></span>
+
+      <button class="header-search" data-atlas-search aria-label="Atlas Search" title="Atlas Search">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3" />
+          <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+      </button>
+
+      <button class="header-appearance" id="btn-appearance" onclick="toggleAppearance()"
+        aria-label="Toggle appearance"></button>
+    </header>
+
+    <main class="game-main">
+
+      <!-- All done state -->
+      <div id="no-question" class="empty-state">
+        <div class="big-emoji">🎉</div>
+        <h3>All Done!</h3>
+        <p>You've gone through all 50 questions.</p>
+        <button class="btn-reset-empty" onclick="resetDeck()">↺ Reset Deck</button>
+      </div>
+
+      <!-- Question display -->
+      <div id="question-display">
+        <div class="q-chip" id="q-chip">Question</div>
+        <div class="question-card" id="question-card">
+          <span class="emoji-badge" id="q-emoji"></span>
+          <div class="question-label">Would You Rather…</div>
+          <div class="question-text" id="q-text"></div>
+        </div>
+
+        <div class="action-row">
+          <button class="btn-main btn-random" id="btn-random" onclick="randomQuestion()">⚡ Next Random Question</button>
+          <button class="btn-main btn-mark" onclick="markUsed()">✓ Mark as Used</button>
+          <button class="btn-main btn-skip" onclick="skipQuestion()">→ Skip</button>
+          <button class="btn-main btn-reset-deck" onclick="resetDeck()">↺ Reset Deck</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- ══════════════════════════════
+     SCRIPTS
+══════════════════════════════ -->
+  <script src="../../shared/atlas-bridge.js"></script>
+  <script src="../../shared/atlas-search.js"></script>
+  <script>
+    'use strict';
+    /* ================================================================
+       WOULD YOU RATHER — BRIDGE RETROFIT
+       - Source of truth: Bridge registry.sessionStates
+       - No localStorage game state
+       - No vocabulary panels (removed)
+       - No ledger writes
+       - No XP / badges / streaks
+       Progress model:
+         progress.covered = used count (questions marked used)
+         progress.total   = 50
+         currentIndex     = index of currently displayed question
+         used             = object keyed by index { "3": true, "12": true, … }
+         currentLabel     = "Resume from current question" (not "Q X of 50")
+    ================================================================ */
+
+    const REGISTRY_ID = 'arcade:would-you-rather';
+    const TOTAL_Q = 50;
+
+    // ---- Bridge guard -------------------------------------------
+    if (!window.AtlasBridge) {
+      document.getElementById('intro-screen').innerHTML =
+        '<div style="display:flex;align-items:center;justify-content:center;height:100vh;padding:2rem;text-align:center">' +
+        '<div><h2 style="font-family:\'Bebas Neue\',cursive;font-size:2rem;margin-bottom:1rem;color:#F0F0FF">Can\'t start</h2>' +
+        '<p style="color:rgba(240,240,255,0.6)">The shared runtime didn\'t load.<br>Check that <code>shared/atlas-bridge.js</code> is in place.</p></div>' +
+        '</div>';
+    }
+
+    const Bridge = window.AtlasBridge;
+
+    /* ================================================================
+       QUESTION DATA — vocabulary fields stripped
+    ================================================================ */
+    const questions = [
+      { emoji: "😮", question: "Would you rather live 100 years in the past or 100 years in the future?" },
+      { emoji: "😬", question: "Would you rather be forced to sing along to every song you hear or dance to every song you hear?" },
+      { emoji: "🤯", question: "Would you rather lose your vision or your memories?" },
+      { emoji: "😎", question: "Would you rather teleport anywhere or be able to read minds?" },
+      { emoji: "🤔", question: "Would you rather have the ability to see 10 minutes into the future or 150 years into the future?" },
+      { emoji: "😬", question: "Would you rather always say exactly what you're thinking or never speak again?" },
+      { emoji: "🫧", question: "Would you rather live one life that lasts 1,000 years or ten lives that last 100 years each?" },
+      { emoji: "🤯", question: "Would you rather remember everything you've ever experienced or be able to forget anything you choose?" },
+      { emoji: "🫣", question: "Would you rather have skin that changes colour based on your emotions or tattoos appear all over your body showing what you did yesterday?" },
+      { emoji: "😮", question: "Would you rather be trapped in a library or a museum overnight?" },
+      { emoji: "😎", question: "Would you rather have a personal chef or a personal driver?" },
+      { emoji: "🫥", question: "Would you rather go back and meet your ancestors or forward and meet your great-grandchildren?" },
+      { emoji: "😬", question: "Would you rather be famous and misunderstood or completely unknown and deeply understood?" },
+      { emoji: "🤔", question: "Would you rather be unable to lie or always know when someone else is lying?" },
+      { emoji: "😮", question: "Would you rather have a perfect memory or be able to learn any new skill instantly?" },
+      { emoji: "🔁", question: "Would you rather have a rewind button or a pause button for your life?" },
+      { emoji: "😎", question: "Would you rather be able to speak all human languages fluently or communicate with animals?" },
+      { emoji: "🫣", question: "Would you rather have people spread a terrible lie about you or spread terrible but true stories about you?" },
+      { emoji: "🤯", question: "Would you rather live in a world where nobody has emotions or one where everyone feels everything intensely?" },
+      { emoji: "😮", question: "Would you rather explore a new planet or the inside of your own mind?" },
+      { emoji: "😬", question: "Would you rather only be able to whisper or only be able to shout?" },
+      { emoji: "🤔", question: "Would you rather have another 10 years with your partner or a one-night stand with your celebrity crush?" },
+      { emoji: "😎", question: "Would you rather control fire or water?" },
+      { emoji: "😮", question: "Would you rather be famous for inventing something that saves lives or for creating something that entertains billions?" },
+      { emoji: "🔮", question: "Would you rather have a third ear or a third eye?" },
+      { emoji: "🧐", question: "Would you rather live in a world where every secret eventually becomes public or one where nobody can ever prove anything?" },
+      { emoji: "🤔", question: "Would you rather have a job you love with a small salary or a job you hate with a high salary?" },
+      { emoji: "😎", question: "Would you rather have unlimited international first-class tickets or never have to pay for food at restaurants?" },
+      { emoji: "😬", question: "Would you rather start every sentence with \"I'm not sure but…\" or end every sentence with \"just kidding!\"?" },
+      { emoji: "🤯", question: "Would you rather live in a world where everyone always tells the truth or a world where everyone always lies?" },
+      { emoji: "😮", question: "Would you rather have the power to heal or to time travel?" },
+      { emoji: "🤔", question: "Would you rather be the smartest person in the room or the funniest?" },
+      { emoji: "🔁", question: "Would you rather never age physically or never age mentally?" },
+      { emoji: "🫣", question: "Would you rather only be able to travel within your country or never be allowed to return home once you leave?" },
+      { emoji: "😮", question: "Would you rather know exactly how you will die or exactly when you will die?" },
+      { emoji: "🤯", question: "Would you rather never feel pain or never feel fear?" },
+      { emoji: "😮", question: "Would you rather win $1 million today or get $100,000 every year for 15 years?" },
+      { emoji: "😬", question: "Would you rather always be 10 minutes late or always be 20 minutes early?" },
+      { emoji: "🤔", question: "Would you rather be famous for your looks or your intelligence?" },
+      { emoji: "🔁", question: "Would you rather be able to control time or control the weather?" },
+      { emoji: "🫤", question: "Would you rather always know what to say or never say the wrong thing?" },
+      { emoji: "😎", question: "Would you rather be completely invisible for one day or be able to fly for one day?" },
+      { emoji: "🤯", question: "Would you rather always be busy or always be bored?" },
+      { emoji: "😮", question: "Would you rather live without music or without movies?" },
+      { emoji: "😬", question: "Would you rather always be slightly cold or slightly hot?" },
+      { emoji: "🤔", question: "Would you rather never use a phone again or never use a computer again?" },
+      { emoji: "😎", question: "Would you rather have a talking pet or a flying car?" },
+      { emoji: "🫣", question: "Would you rather always forget names or always forget faces?" },
+      { emoji: "🤯", question: "Would you rather be famous but lonely, or unknown but loved?" },
+      { emoji: "🤔", question: "Would you rather find true love today or win the lottery next year?" }
+    ];
+
+    /* ================================================================
+       STATE — Bridge is the only source of truth
+    ================================================================ */
+    let session = null;
+    let currentIndex = -1;   // index into questions[]
+    let used = {};     // { "3": true, "12": true, … }
+    let hasStarted = false;  // true after first question is shown
+
+    function unusedPool() {
+      return questions.map((_, i) => i).filter(i => !used[String(i)]);
+    }
+
+    function usedCount() {
+      return Object.keys(used).length;
+    }
+
+    /* ================================================================
+       BRIDGE READ / WRITE
+    ================================================================ */
+    function readBridgeState() {
+      try {
+        const reg = Bridge.readRegistry();
+        const sid = session.id;
+        return ((reg.sessionStates || {})[sid] || {})[REGISTRY_ID] || null;
+      } catch (e) { return null; }
+    }
+
+    function saveState() {
+      if (!session) return;
+      const ts = Date.now();
+      const pool = unusedPool();
+      const done = usedCount();
+
+      Bridge.upsertSessionState(session.id, REGISTRY_ID, {
+        status: pool.length === 0 ? 'complete' : 'in-progress',
+        currentIndex: currentIndex,
+        currentLabel: 'last question',
+        used: used,
+        progress: {
+          covered: done,
+          total: TOTAL_Q
+        },
+        lastTouchedAt: ts
+      });
+    }
+
+    function touchActivity() {
+      try {
+        Bridge.touchRecentActivity({
+          sessionId: session.id,
+          registryId: REGISTRY_ID,
+          title: 'Would You Rather',
+          launchUrl: './arcade/would-you-rather/index.html'
+        });
+      } catch (e) { }
+    }
+
+    /* ================================================================
+       APPEARANCE
+    ================================================================ */
+    function sunSvg(s) {
+      return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 17 17" fill="none"><circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35"/><path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>';
+    }
+    function moonSvg(s) {
+      return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 17 17" fill="none"><path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    }
+    function updateAppearanceBtn(mode) {
+      const btn = document.getElementById('btn-appearance');
+      if (!btn) return;
+      btn.innerHTML = mode === 'night' ? sunSvg(15) : moonSvg(15);
+      btn.setAttribute('aria-label', mode === 'night' ? 'Switch to day mode' : 'Switch to night mode');
+    }
+    function toggleAppearance() {
+      const cur = Bridge.readAppearanceMode();
+      const next = cur === 'night' ? 'light' : 'night';
+      document.documentElement.classList.add('theme-changing');
+      setTimeout(() => document.documentElement.classList.remove('theme-changing'), 360);
+      Bridge.setAppearanceMode(next);
+      document.documentElement.dataset.theme = next;
+      updateAppearanceBtn(next);
+    }
+
+    /* ================================================================
+       NAVIGATION
+    ================================================================ */
+    function goToArcade() {
+      saveState();
+      window.location.href = '../index.html';
+    }
+
+    /* ================================================================
+       QUESTION LOGIC
+    ================================================================ */
+    function randomQuestion() {
+      const pool = unusedPool();
+      if (pool.length === 0) { showEmpty(); return; }
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      currentIndex = pick;
+      renderQuestion(questions[currentIndex]);
+      saveState();
+    }
+
+    function skipQuestion() {
+      const pool = unusedPool();
+      if (pool.length === 0) { showEmpty(); return; }
+      // Pick from pool excluding current if possible
+      const others = pool.filter(i => i !== currentIndex);
+      const source = others.length > 0 ? others : pool;
+      const pick = source[Math.floor(Math.random() * source.length)];
+      currentIndex = pick;
+      renderQuestion(questions[currentIndex]);
+      saveState();
+    }
+
+    function markUsed() {
+      if (currentIndex === -1) return;
+      used[String(currentIndex)] = true;
+      updateRemaining();
+      showToast('Marked as used');
+      saveState();
+      // Move to next unused question automatically
+      const pool = unusedPool();
+      if (pool.length === 0) { showEmpty(); return; }
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      currentIndex = pick;
+      renderQuestion(questions[currentIndex]);
+      saveState();
+    }
+
+    function resetDeck() {
+      used = {};
+      currentIndex = -1;
+      updateRemaining();
+      showToast('Deck reset');
+      saveState();
+      // Pick a fresh question
+      randomQuestion();
+    }
+
+    function renderQuestion(q) {
+      document.getElementById('q-emoji').textContent = q.emoji;
+      document.getElementById('q-text').textContent = q.question;
+
+      const remaining = unusedPool().length;
+      document.getElementById('q-chip').textContent =
+        'Question ' + (currentIndex + 1);
+
+      // Re-trigger animation
+      const card = document.getElementById('question-card');
+      card.style.animation = 'none';
+      void card.offsetHeight;
+      card.style.animation = '';
+
+      document.getElementById('question-display').style.display = 'block';
+      document.getElementById('no-question').style.display = 'none';
+
+      // Update random button label after first card
+      const btn = document.getElementById('btn-random');
+      if (btn) btn.textContent = '⚡ Next Random Question';
+    }
+
+    function showEmpty() {
+      document.getElementById('question-display').style.display = 'none';
+      document.getElementById('no-question').style.display = 'flex';
+      currentIndex = -1;
+      saveState();
+    }
+
+    function updateRemaining() {
+      const rem = unusedPool().length;
+      const el = document.getElementById('remaining-count');
+      if (el) el.textContent = rem;
+    }
+
+    /* ================================================================
+       SCREEN TRANSITIONS
+    ================================================================ */
+    function startGame() {
+      const intro = document.getElementById('intro-screen');
+      intro.classList.add('fade-out');
+      setTimeout(() => { intro.style.display = 'none'; }, 420);
+
+      const gs = document.getElementById('game-screen');
+      gs.style.display = 'flex';
+
+      if (!hasStarted) {
+        hasStarted = true;
+        touchActivity();
+      }
+
+      const pool = unusedPool();
+
+      if (pool.length === 0) {
+        showEmpty();
+        return;
+      }
+
+      if (currentIndex !== -1 && !used[String(currentIndex)] && questions[currentIndex]) {
+        renderQuestion(questions[currentIndex]);
+        saveState();
+        return;
+      }
+
+      randomQuestion();
+    }
+
+    function handleImgError() {
+      document.getElementById('cover-img').style.display = 'none';
+      const fb = document.getElementById('cover-fallback');
+      fb.style.display = 'flex';
+    }
+
+    /* ================================================================
+       TOAST
+    ================================================================ */
+    let toastTimer;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    /* ================================================================
+       INIT
+    ================================================================ */
+    function isDefaultSession(s) {
+      return s && s.id === (Bridge.defaultSessionId || 'default');
+    }
+
+    function init() {
+      if (!Bridge) return;
+
+      // Appearance
+      const mode = Bridge.readAppearanceMode();
+      document.documentElement.dataset.theme = mode;
+      updateAppearanceBtn(mode);
+
+      // Session
+      session = Bridge.readActiveSession();
+
+      // Session label
+      const hdrSess = document.getElementById('hdr-session');
+      if (hdrSess && session && !isDefaultSession(session)) {
+        hdrSess.textContent = session.name;
+        hdrSess.setAttribute('aria-label', 'Session: ' + session.name);
+      }
+
+      // Register with Bridge
+      try {
+        Bridge.upsertItem({
+          registryId: REGISTRY_ID,
+          world: 'arcade',
+          type: 'game',
+          title: 'Would You Rather',
+          premise: 'Impossible choices, instant reactions. No wrong answers.',
+          status: 'available',
+          unitLabel: 'Questions',
+          total: TOTAL_Q,
+          formatLabel: 'Choices',
+          launchUrl: './arcade/would-you-rather/index.html'
+        });
+      } catch (e) { }
+
+      // Restore Bridge state if exists, but always show the landing first.
+      const saved = readBridgeState();
+      if (saved) {
+        used = (saved.used && typeof saved.used === 'object') ? saved.used : {};
+        currentIndex = (typeof saved.currentIndex === 'number') ? saved.currentIndex : -1;
+
+        updateRemaining();
+
+        const btn = document.getElementById('btn-start');
+        if (btn && saved.status === 'in-progress') {
+          btn.textContent = '⚡ Resume Game';
+        }
+
+        return;
+      }
+
+      // Fresh start — show intro
+      used = {};
+      currentIndex = -1;
+      updateRemaining();
+    }
+
+    /* ================================================================
+       BRIDGE LISTENER — appearance changes from other tabs
+    ================================================================ */
+    window.addEventListener('atlas:appearance-change', e => {
+      const mode = (e.detail && e.detail.mode) || Bridge.readAppearanceMode();
+      document.documentElement.dataset.theme = mode;
+      updateAppearanceBtn(mode);
+    });
+
+    /* ================================================================
+       RUN
+    ================================================================ */
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
+</body>
+
+</html>
