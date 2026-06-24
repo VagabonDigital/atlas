@@ -1,14 +1,25 @@
 <!DOCTYPE html>
 <!--
   ==========================================================================
-  ARCADE HUB V1 · GAME LIBRARY
+  ATLAS V1 · GATEWAY RUNTIME
   SmartStudy™ Methodology
   --------------------------------------------------------------------------
-  The improv studio floor. Fast, spontaneous, low-friction.
-  No wrong answers. No vocabulary tracking. No completion pressure.
-  Progress = position in a deck. Continue = pick up where you left off.
+  The calm threshold between learning worlds.
+
+  Atlas does not teach the lesson.
+  Atlas remembers where the lesson lives.
+
+  It reads the bridge, restores the active session, surfaces the next path,
+  and gives the tutor a quiet place to begin: Continue, Review, or choose a
+  world.
+
+  Compass may deepen.
+  Arcade may play.
+  Business may sharpen.
+  The bridge remains the contract.
+  Atlas opens the way.
   --------------------------------------------------------------------------
-  LUDIT CELERITER · PONS MEMINIT · MUNDUS RIDET
+  LIMEN APERIT · PONS MEMINIT · ORBES VOCANT
   ==========================================================================
 -->
 <html lang="en">
@@ -16,121 +27,108 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Arcade · Game Library</title>
-
+  <title>Atlas</title>
   <link rel="icon" type="image/svg+xml"
-    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 4L96 50L50 96L4 50Z' fill='%23FF7A4A' stroke='%23C94A24' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M50 18L82 50L50 82L18 50Z' fill='%23FFF5EE' stroke='%23FFFFFF' stroke-width='3' stroke-linejoin='round'/%3E%3Crect x='27' y='39' width='46' height='26' rx='10' fill='%23FF7A4A' stroke='%23C94A24' stroke-width='4'/%3E%3Cpath d='M38 52H50M44 46V58' stroke='%23FFF5EE' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='59' cy='49' r='3.5' fill='%23FFF5EE'/%3E%3Ccircle cx='66' cy='55' r='3.5' fill='%23FFF5EE'/%3E%3Cpath d='M50 18L50 31M82 50L74 50M50 82L50 69M18 50L26 50' stroke='%23FFB08D' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 4L96 50L50 96L4 50Z' fill='%235EC8F2' stroke='%231E8CB8' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M50 18L82 50L50 82L18 50Z' fill='%23EAFBFF' stroke='%23FFFFFF' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 34L66 50L50 66L34 50Z' fill='%2347BDE8' stroke='%231E8CB8' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 18L50 34M82 50L66 50M50 82L50 66M18 50L34 50' stroke='%235EC8F2' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
     rel="stylesheet">
+  <link rel="stylesheet" href="./shared/atlas-search.css">
 
-  <link rel="stylesheet" href="../shared/atlas-search.css">
-
-  <!-- Anti-flash: read appearance before first paint -->
+  <!-- Anti-flash: apply saved theme before first paint. Reads only the canonical key. -->
   <script>
     (function () {
       var m = null;
-      try { m = localStorage.getItem('atlas::appearanceMode'); } catch (e) { }
+      try { m = localStorage.getItem('atlas::appearanceMode'); } catch (e) { m = null; }
       document.documentElement.dataset.theme = (m === 'night') ? 'night' : 'light';
     })();
   </script>
-
   <style>
     /* ============================================================
-       ARCADE HUB — DESIGN TOKENS
-       Premium prompt-deck table inside a fast improv studio.
-       Day: warm studio ivory, coral-orange accent, aubergine ink.
-       Night: warm charcoal/plum, coral-orange glow.
-       Distinct from Compass (editorial cream/teal) and Atlas (cool slate).
-       ============================================================ */
+   ATLAS V1 — DESIGN TOKENS
+   Atlas is the threshold between worlds, not a world itself.
+   Identity by contrast: where the worlds are warm, saturated, and
+   atmospheric (Compass teal + photographic immersion, Arcade purple),
+   Atlas is cool, matte, and architectural — flat paper, not a place.
+   The accent is a neutral slate so it recedes behind every world and
+   never competes with their colours. Boldness is spent on stillness.
+   ============================================================ */
     :root {
-      /* Base surfaces — warm studio ivory, not Compass's book cream */
-      --bg: #faf6f0;
-      --bg-raised: #ffffff;
-      --bg-subtle: #f2ede6;
-      --bg-card: #ffffff;
-
-      /* Arcade identity — coral-orange, warm and energetic, adult not candy */
-      --arcade: #E8562A;
-      --arcade-soft: #F07348;
-      --arcade-pale: #fde8e0;
-      --arcade-dim: #fef3ef;
-      --arcade-rgb: 232, 86, 42;
-
-      /* Ink — aubergine/deep navy, grounds the energy */
-      --ink: #2d1f3d;
-      --ink-mid: #5a4a6e;
-      --ink-quiet: #8a7a9a;
-      --ink-faint: #c4bad0;
-
-      /* Borders */
-      --border: rgba(45, 31, 61, 0.10);
-      --border-mid: rgba(45, 31, 61, 0.18);
-
+      /* Neutrals — cool paper, stepping off the warm-cream default */
+      --bg: #eef0f1;
+      --bg-raised: #fbfbfc;
+      --bg-subtle: #e4e7e9;
+      --border: rgba(28, 34, 42, 0.10);
+      --border-mid: rgba(28, 34, 42, 0.16);
+      /* Ink — cool, slightly blue-grey rather than warm brown */
+      --ink: #181c22;
+      --ink-mid: #424954;
+      --ink-quiet: #717982;
+      --ink-faint: #a7adb5;
+      /* Accent — neutral slate-ink. Not Compass teal, not Arcade purple.
+     Connective tissue: recedes behind the worlds' saturated colours. */
+      --accent: #5a6675;
+      --accent-soft: #79838f;
+      --accent-pale: #e4e8ed;
+      --accent-rgb: 90, 102, 117;
       /* Semantic */
-      --danger: #c0392b;
-      --danger-bg: #fdf2f1;
-      --danger-border: rgba(192, 57, 43, 0.28);
-
-      /* Shadows — warm-toned, not cold */
-      --shadow-xs: 0 1px 2px rgba(45, 31, 61, 0.05);
-      --shadow-sm: 0 1px 6px rgba(45, 31, 61, 0.08);
-      --shadow-md: 0 4px 18px rgba(45, 31, 61, 0.11);
-      --shadow-lg: 0 8px 36px rgba(45, 31, 61, 0.14);
-
-      /* Radii — rounded but not bubbly */
-      --r-sm: 6px;
-      --r-md: 12px;
-      --r-lg: 16px;
-      --r-xl: 22px;
-
+      --continue-bg: #e8ebef;
+      --continue-border: rgba(90, 102, 117, 0.30);
+      --door-hover: rgba(28, 34, 42, 0.025);
+      --danger: #b23a2e;
+      --danger-bg: #fbf1f0;
+      --danger-border: rgba(178, 58, 46, 0.3);
+      /* Shadows — halved against Compass; Atlas sits flat */
+      --shadow-sm: 0 1px 2px rgba(20, 26, 34, 0.05);
+      --shadow-md: 0 2px 8px rgba(20, 26, 34, 0.06);
+      --shadow-lg: 0 6px 24px rgba(20, 26, 34, 0.10);
+      /* Radii — slightly tighter, more architectural than the worlds */
+      --r-sm: 5px;
+      --r-md: 10px;
+      --r-lg: 14px;
+      --r-xl: 20px;
       /* Type */
       --font-display: 'DM Serif Display', Georgia, serif;
       --font-body: 'DM Sans', system-ui, sans-serif;
-
       /* Motion */
       --t: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    /* Night mode — cool charcoal-slate, not the worlds' warm brown night.
+   Atlas stays the neutral threshold in the dark too. */
     html[data-theme="night"] {
-      /* After-hours studio — same room, lights dimmed, neon sign on */
-      --bg: #1e1720;
-      --bg-raised: #2a2130;
-      --bg-subtle: #251d2c;
-      --bg-card: #2a2130;
-
-      --arcade: #f06840;
-      --arcade-soft: #f57f5a;
-      --arcade-pale: rgba(240, 104, 64, 0.18);
-      --arcade-dim: rgba(240, 104, 64, 0.10);
-      --arcade-rgb: 240, 104, 64;
-
-      --ink: #f0e8f8;
-      --ink-mid: #c8b8d8;
-      --ink-quiet: #8878a0;
-      --ink-faint: #4a3d58;
-
+      --bg: #181b1f;
+      --bg-raised: #23272d;
+      --bg-subtle: #1f2329;
       --border: rgba(255, 255, 255, 0.08);
       --border-mid: rgba(255, 255, 255, 0.14);
-
-      --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.22);
-      --shadow-sm: 0 1px 6px rgba(0, 0, 0, 0.28);
-      --shadow-md: 0 4px 18px rgba(0, 0, 0, 0.36);
-      --shadow-lg: 0 8px 36px rgba(0, 0, 0, 0.48);
+      --ink: #e8eaed;
+      --ink-mid: #b3b9c1;
+      --ink-quiet: #7e848d;
+      --ink-faint: #4a4f57;
+      --accent: #8a96a6;
+      --accent-soft: #a3adba;
+      --accent-pale: #262c34;
+      --accent-rgb: 138, 150, 166;
+      --continue-bg: #232932;
+      --continue-border: rgba(138, 150, 166, 0.32);
+      --door-hover: rgba(255, 255, 255, 0.04);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.22);
+      --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.30);
+      --shadow-lg: 0 6px 26px rgba(0, 0, 0, 0.40);
     }
 
-    html.theme-changing *,
-    html.theme-changing *::before,
-    html.theme-changing *::after {
-      transition:
-        background-color 0.35s ease,
-        background 0.35s ease,
-        color 0.35s ease,
-        border-color 0.35s ease,
-        box-shadow 0.35s ease !important;
+    /* Smooth theme transitions */
+    html.theme-transitioning *,
+    html.theme-transitioning *::before,
+    html.theme-transitioning *::after {
+      transition: background-color 0.35s ease, color 0.35s ease,
+        border-color 0.35s ease, box-shadow 0.35s ease !important;
     }
 
     /* ============================================================ RESET */
@@ -157,71 +155,61 @@
       line-height: 1.6;
       min-height: 100svh;
       overflow-x: hidden;
-      padding-top: 56px;
     }
 
-    .arcade-atmosphere-layer {
+    .atmosphere-layer {
       position: fixed;
       inset: 0;
       z-index: 0;
       pointer-events: none;
       background-size: cover;
       background-position: center;
-      background-repeat: no-repeat;
       opacity: 0;
-      filter: saturate(0.95);
-      transition: opacity var(--t), filter var(--t);
+      transition: opacity var(--t);
     }
 
-    .arcade-atmosphere-layer.visible {
-      opacity: 0.085;
-      filter: saturate(0.82) contrast(0.88);
+    .atmosphere-layer.visible {
+      opacity: 0.10;
     }
 
-    html[data-theme="night"] .arcade-atmosphere-layer.visible {
-      opacity: 0.065;
-      filter: saturate(0.76) brightness(0.62) contrast(0.9);
+    html[data-theme="night"] .atmosphere-layer.visible {
+      opacity: 0.08;
     }
 
-    /* ============================================================ SPINE (desktop) */
+    /* ============================================================ SPINE (desktop header) */
     .spine {
-      position: fixed;
+      position: sticky;
       top: 0;
-      left: 0;
-      right: 0;
       z-index: 200;
-      background: rgba(251, 244, 238, 0.96);
+      background: rgba(238, 240, 241, 0.90);
       backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(var(--arcade-rgb), 0.12);
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       height: 56px;
       padding: 0 1.5rem;
-      gap: 0.6rem;
+      gap: 0.5rem;
     }
 
     html[data-theme="night"] .spine {
-      background: rgba(30, 23, 32, 0.95);
+      background: rgba(24, 27, 31, 0.90);
     }
 
     .spine-mark {
       font-family: var(--font-display);
       font-size: 1.22rem;
-      font-weight: 400;
       color: var(--ink);
       letter-spacing: -0.01em;
       flex: 1 1 0;
       cursor: default;
       user-select: none;
-      white-space: nowrap;
-      line-height: 1;
     }
 
     .spine-mark span {
-      color: var(--arcade);
+      color: var(--accent);
     }
 
-    /* Centred world switcher pill group */
+    /* Centered hub shortcut group */
     .spine-worlds {
       display: flex;
       align-items: center;
@@ -231,7 +219,7 @@
       border-radius: 999px;
       background: var(--bg-subtle);
       border: 1px solid var(--border);
-      box-shadow: var(--shadow-xs);
+      box-shadow: var(--shadow-sm);
     }
 
     .spine-world-btn {
@@ -264,14 +252,18 @@
       color: var(--ink);
       background: var(--bg-raised);
       border-color: var(--border);
-      box-shadow: var(--shadow-xs);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .spine-world-btn:hover svg {
+      opacity: 1;
     }
 
     .spine-world-btn.is-active {
-      color: var(--arcade);
-      background: var(--arcade-dim);
-      border-color: rgba(var(--arcade-rgb), 0.24);
-      box-shadow: var(--shadow-xs);
+      color: var(--ink);
+      background: var(--bg-raised);
+      border-color: var(--border-mid);
+      box-shadow: var(--shadow-sm);
       cursor: default;
     }
 
@@ -291,7 +283,7 @@
       box-shadow: none;
     }
 
-    /* Right actions */
+    /* Right-side controls: session pill, appearance, quick jump */
     .spine-actions {
       display: flex;
       align-items: center;
@@ -304,7 +296,7 @@
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      padding: 0.46rem 0.88rem;
+      padding: 0.48rem 0.9rem;
       border-radius: 999px;
       border: 1px solid var(--border);
       background: var(--bg-raised);
@@ -317,12 +309,12 @@
       max-width: 170px;
       white-space: nowrap;
       overflow: hidden;
-      box-shadow: var(--shadow-xs);
     }
 
     .spine-session-pill:hover {
-      border-color: var(--arcade-soft);
+      border-color: var(--accent);
       color: var(--ink);
+      box-shadow: var(--shadow-sm);
     }
 
     .spine-session-pill .pill-name {
@@ -342,25 +334,22 @@
       color: var(--ink-quiet);
       cursor: pointer;
       transition: var(--t);
-      box-shadow: var(--shadow-xs);
-      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
     }
 
     .spine-btn:hover {
       color: var(--ink);
       border-color: var(--border-mid);
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow-md);
     }
 
     /* ============================================================ MOBILE HEADER */
     .mobile-header {
       display: none;
-      position: fixed;
+      position: sticky;
       top: 0;
-      left: 0;
-      right: 0;
       z-index: 200;
-      background: rgba(250, 246, 240, 0.96);
+      background: rgba(238, 240, 241, 0.93);
       backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border);
       height: 56px;
@@ -370,7 +359,7 @@
     }
 
     html[data-theme="night"] .mobile-header {
-      background: rgba(30, 23, 32, 0.96);
+      background: rgba(24, 27, 31, 0.93);
     }
 
     .mobile-header-mark {
@@ -379,11 +368,10 @@
       color: var(--ink);
       letter-spacing: -0.01em;
       flex: 1;
-      line-height: 1;
     }
 
     .mobile-header-mark span {
-      color: var(--arcade);
+      color: var(--accent);
     }
 
     .mobile-header-actions {
@@ -393,12 +381,36 @@
       flex-shrink: 0;
     }
 
+    .mobile-header-session {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: var(--ink-mid);
+      cursor: pointer;
+      padding: 0.25rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--bg-raised);
+      max-width: 130px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      height: 40px;
+    }
+
+    .mobile-header-session span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .mobile-header-btn {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       border-radius: 12px;
       border: 1px solid var(--border);
       background: var(--bg-raised);
@@ -410,30 +422,6 @@
 
     .mobile-header-btn:hover {
       color: var(--ink);
-    }
-
-    .mobile-session-pill {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.25rem 0.7rem;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      background: var(--bg-raised);
-      font-size: 0.76rem;
-      font-weight: 500;
-      color: var(--ink-mid);
-      cursor: pointer;
-      max-width: 130px;
-      height: 40px;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-
-    .mobile-session-pill span {
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     /* ============================================================ MOBILE DRAWER */
@@ -480,17 +468,17 @@
 
     .drawer-title {
       font-family: var(--font-display);
-      font-size: 1rem;
+      font-size: 1.05rem;
       color: var(--ink);
     }
 
     .drawer-title span {
-      color: var(--arcade);
+      color: var(--accent);
     }
 
     .drawer-close {
-      width: 30px;
-      height: 30px;
+      width: 32px;
+      height: 32px;
       border-radius: var(--r-sm);
       border: 1px solid var(--border);
       background: none;
@@ -513,21 +501,21 @@
     }
 
     .drawer-nav-label {
-      font-size: 0.62rem;
+      font-size: 0.64rem;
       font-weight: 600;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--ink-faint);
-      padding: 0.6rem 0.75rem 0.35rem;
+      padding: 0.6rem 0.9rem 0.4rem;
     }
 
     .drawer-nav-item {
       display: flex;
       align-items: center;
-      gap: 0.7rem;
-      padding: 0.75rem 0.9rem;
+      gap: 0.75rem;
+      padding: 0.8rem 0.9rem;
       border-radius: var(--r-md);
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       font-weight: 500;
       color: var(--ink-mid);
       cursor: pointer;
@@ -557,54 +545,59 @@
     .drawer-nav-item .nav-soon {
       margin-left: auto;
       font-size: 0.62rem;
-      font-weight: 700;
+      font-weight: 600;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--ink-faint);
     }
 
     .drawer-nav-item.is-active {
-      background: var(--arcade-dim);
-      color: var(--arcade);
+      background: var(--accent-pale);
+      color: var(--ink);
       cursor: default;
     }
 
     .drawer-nav-item.is-active:hover {
-      background: var(--arcade-dim);
-      color: var(--arcade);
+      background: var(--accent-pale);
+      color: var(--ink);
     }
 
     .drawer-footer {
       padding: 0.8rem;
       border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
 
     .drawer-footer-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      display: flex;
+      align-items: center;
       gap: 0.5rem;
     }
 
     .drawer-session-btn {
+      flex: 1;
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.7rem 0.9rem;
+      padding: 0.75rem 0.9rem;
       border-radius: var(--r-md);
       border: 1px solid var(--border);
       background: var(--bg-subtle);
-      font-size: 0.84rem;
+      font-size: 0.88rem;
       font-weight: 500;
       color: var(--ink-mid);
       cursor: pointer;
       min-height: 44px;
+      white-space: nowrap;
       overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .drawer-session-btn span {
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
     .drawer-appearance-btn {
@@ -622,400 +615,271 @@
     }
 
     /* ============================================================ MAIN LAYOUT */
-    .arcade-main {
+    .atlas-main {
       position: relative;
       z-index: 1;
-      max-width: 960px;
+      max-width: 820px;
       margin: 0 auto;
-      padding: 2.5rem 1.5rem 5rem;
+      padding: 3rem 1.5rem 4rem;
     }
 
-    /* ============================================================ HUB INTRO */
-    .hub-intro {
-      padding: 0 0 1.75rem;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 0;
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .hub-intro-text {
-      min-width: 0;
-    }
-
-    .hub-eyebrow {
-      font-size: 0.78rem;
-      font-weight: 500;
-      letter-spacing: 0.02em;
-      text-transform: none;
-      color: var(--arcade);
-      margin-bottom: 0.55rem;
-    }
-
-    .hub-title {
-      font-family: var(--font-display);
-      font-size: clamp(1.6rem, 3.5vw, 2.1rem);
-      font-weight: 400;
-      color: var(--ink);
-      line-height: 1.2;
-      margin-bottom: 0.4rem;
-    }
-
-    .hub-desc {
-      font-size: 0.9rem;
-      color: var(--ink-quiet);
-      font-weight: 400;
-      line-height: 1.6;
-      max-width: 52ch;
-    }
-
-    .hub-meta {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      flex-shrink: 0;
-    }
-
-    .hub-meta-chip {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.32rem 0.75rem;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.86);
-      font-size: 0.76rem;
-      font-weight: 500;
-      color: var(--ink-mid);
-      box-shadow: var(--shadow-xs);
-    }
-
-    html[data-theme="night"] .hub-meta-chip {
-      background: rgba(42, 33, 48, 0.88);
-      border-color: rgba(255, 255, 255, 0.12);
-      color: var(--ink-mid);
-    }
-
-    /* ============================================================ SECTION LABELS */
-    .section-label {
-      font-size: 0.66rem;
-      font-weight: 700;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--arcade);
-      opacity: 0.88;
-      margin-bottom: 0.85rem;
-    }
-
-    html[data-theme="night"] .section-label {
-      color: var(--arcade-soft);
-      opacity: 0.92;
-    }
-
-    /* ============================================================ CONTINUE PLAYING */
-    .continue-zone {
-      padding: 1.5rem 0 0;
-    }
-
-    .continue-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1rem;
-    }
-
-    .continue-card {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      align-items: center;
-      gap: 1rem;
-      background: rgba(255, 255, 255, 0.965);
-      border: 1.5px solid var(--border);
-      border-radius: var(--r-lg);
-      padding: 1.05rem 1.15rem;
-      cursor: pointer;
-      transition: var(--t);
-      text-decoration: none;
+    /* ============================================================ CONTEXT ANCHOR */
+    .context-anchor {
+      margin-bottom: 2rem;
+      padding-bottom: 1.75rem;
       position: relative;
-      overflow: hidden;
-      min-height: 96px;
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.68) inset,
-        0 8px 24px rgba(45, 31, 61, 0.07);
     }
 
-    html[data-theme="night"] .continue-card {
-      background: rgba(42, 33, 48, 0.965);
-      border-color: var(--border-mid);
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.05) inset,
-        0 18px 48px rgba(0, 0, 0, 0.26),
-        0 0 26px rgba(var(--arcade-rgb), 0.07);
-    }
-
-    .continue-card:hover {
-      border-color: var(--arcade-soft);
-      box-shadow:
-        0 0 0 1px rgba(var(--arcade-rgb), 0.24),
-        0 1px 0 rgba(255, 255, 255, 0.72) inset,
-        var(--shadow-md);
-      transform: translateY(-1px);
-    }
-
-    html[data-theme="night"] .continue-card:hover {
-      border-color: var(--arcade-soft);
-      box-shadow:
-        0 0 0 1px rgba(var(--arcade-rgb), 0.30),
-        0 1px 0 rgba(255, 255, 255, 0.06) inset,
-        0 20px 54px rgba(0, 0, 0, 0.34),
-        0 0 34px rgba(var(--arcade-rgb), 0.14);
-    }
-
-    .continue-card:focus-visible {
-      outline: 2px solid var(--arcade);
-      outline-offset: 2px;
-    }
-
-    .continue-card::before {
+    /* Signature: the threshold sill — a hairline horizon under the greeting,
+   with a single short accent tick at the left. Reads as the line between
+   "here" (Atlas) and "there" (the worlds). Atlas's one deliberate flourish. */
+    .context-anchor::after {
       content: '';
       position: absolute;
       left: 0;
-      top: 0;
+      right: 0;
       bottom: 0;
-      width: 3px;
-      background: var(--arcade);
-      border-radius: var(--r-sm) 0 0 var(--r-sm);
+      height: 1px;
+      background: var(--border);
+    }
+
+    .today-label {
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.7rem;
+    }
+
+    .welcome-line {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 4vw, 2.1rem);
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 0.45rem;
+      font-weight: 400;
+    }
+
+    .welcome-sub {
+      font-size: 0.92rem;
+      color: var(--ink-quiet);
+      font-weight: 300;
+    }
+
+    /* ============================================================ CONTINUE CARD */
+    .continue-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--continue-bg);
+      border: 1.5px solid var(--continue-border);
+      border-radius: var(--r-lg);
+      padding: 1.15rem 1.3rem;
+      margin-bottom: 1.75rem;
+      cursor: pointer;
+      transition: var(--t);
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Extra bottom room so the rail doesn't crowd the text */
+    .continue-card.has-rail {
+      padding-bottom: 1.3rem;
+    }
+
+    .continue-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .continue-card:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Unlabeled coverage rail — pinned to the card's bottom edge. Reads as
+   shape, not numbers. Quieter than the worlds' rail: a hairline track with
+   a calm accent fill. */
+    .continue-rail {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      background: rgba(var(--accent-rgb), 0.14);
+      overflow: hidden;
+    }
+
+    .continue-rail-fill {
+      height: 100%;
+      background: var(--accent-soft);
+      border-radius: 0 2px 2px 0;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .continue-rail.is-complete .continue-rail-fill {
+      background: var(--accent);
+      border-radius: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .continue-rail-fill {
+        transition: none;
+      }
     }
 
     .continue-icon {
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       flex-shrink: 0;
+      border-radius: var(--r-sm);
+      background: rgba(var(--accent-rgb), 0.15);
+      color: var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
-      line-height: 1;
     }
 
     .continue-body {
+      flex: 1;
       min-width: 0;
+    }
+
+    .continue-kicker {
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.2rem;
     }
 
     .continue-title {
-      font-size: 1.08rem;
-      font-weight: 650;
+      font-size: 0.98rem;
+      font-weight: 500;
       color: var(--ink);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-bottom: 0.16rem;
-      line-height: 1.25;
     }
 
-    .continue-progress {
-      font-size: 0.82rem;
-      color: var(--ink-mid);
-      opacity: 0.86;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      line-height: 1.45;
+    .continue-meta {
+      font-size: 0.76rem;
+      color: var(--ink-quiet);
+      margin-top: 0.12rem;
     }
 
-    html[data-theme="night"] .continue-progress {
-      color: #baa6cf;
-      opacity: 0.96;
-    }
-
-    .continue-resume {
+    .continue-arrow {
+      color: var(--accent);
       flex-shrink: 0;
-      display: inline-flex;
+    }
+
+    /* ============================================================ LANGUAGE REVIEW ROW */
+    .review-row {
+      display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 0.32rem;
-      min-width: 88px;
-      padding: 0.42rem 0.82rem;
-      border-radius: var(--r-sm);
-      background: var(--arcade-pale);
-      color: var(--arcade);
-      font-family: var(--font-body);
-      font-size: 0.78rem;
-      font-weight: 650;
-      border: 1px solid rgba(var(--arcade-rgb), 0.28);
+      gap: 0.9rem;
+      background: var(--bg-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 0.85rem 1.1rem;
+      margin-bottom: 1.75rem;
       cursor: pointer;
       transition: var(--t);
-      white-space: nowrap;
-      text-decoration: none;
+      width: 100%;
+      text-align: left;
+      font-family: var(--font-body);
     }
 
-    .continue-resume:hover {
-      background: var(--arcade);
-      color: #fff;
-      border-color: var(--arcade);
+    .review-row:hover {
+      border-color: var(--border-mid);
       box-shadow: var(--shadow-sm);
     }
 
-    html[data-theme="night"] .continue-resume {
-      background: rgba(var(--arcade-rgb), 0.18);
-      border-color: rgba(var(--arcade-rgb), 0.32);
-      color: var(--arcade-soft);
+    .review-row:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
 
-    html[data-theme="night"] .continue-resume:hover {
-      background: rgba(var(--arcade-rgb), 0.48);
-      color: #fff;
-      border-color: rgba(var(--arcade-rgb), 0.58);
-    }
-
-    /* ============================================================ GAME LIBRARY */
-    .library-zone {
-      padding: 2rem 0 0;
-    }
-
-    .library-header {
+    .review-row-icon {
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      border-radius: var(--r-sm);
+      background: var(--accent-pale);
+      color: var(--accent);
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1.1rem;
-      gap: 1rem;
+      justify-content: center;
     }
 
-    .library-title {
-      font-family: var(--font-display);
-      font-size: 1.08rem;
-      font-weight: 400;
-      color: var(--ink);
-      line-height: 1.25;
-    }
-
-    .library-title-group {
-      display: flex;
-      align-items: baseline;
-      gap: 0.55rem;
+    .review-row-body {
+      flex: 1;
       min-width: 0;
     }
 
-    /* Search field */
-    .library-search-wrap {
-      position: relative;
+    .review-row-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink-mid);
+      margin-bottom: 0.1rem;
     }
 
-    .library-search {
-      width: 260px;
-      padding: 0.58rem 0.95rem 0.58rem 2.25rem;
-      border: 1.5px solid rgba(45, 31, 61, 0.16);
-      border-radius: var(--r-md);
-      background: rgba(255, 255, 255, 0.96);
-      font-family: var(--font-body);
-      font-size: 0.86rem;
-      color: var(--ink);
-      outline: none;
-      transition: var(--t);
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.66) inset,
-        var(--shadow-xs);
-    }
-
-    html[data-theme="night"] .library-search {
-      background: rgba(42, 33, 48, 0.98);
-      border-color: rgba(255, 255, 255, 0.18);
-      color: var(--ink);
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.05) inset,
-        0 12px 30px rgba(0, 0, 0, 0.22);
-    }
-
-    .library-search::placeholder {
-      color: #9b8cab;
-    }
-
-    html[data-theme="night"] .library-search::placeholder {
-      color: #8d7aa3;
-    }
-
-    .library-search:focus {
-      border-color: var(--arcade);
-      box-shadow: 0 0 0 3px rgba(var(--arcade-rgb), 0.10);
-    }
-
-    .library-search-icon {
-      position: absolute;
-      left: 0.7rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #9b8cab;
-      pointer-events: none;
-    }
-
-    html[data-theme="night"] .library-search-icon {
-      color: #8d7aa3;
-    }
-
-    .library-search-clear {
-      position: absolute;
-      right: 0.6rem;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      border: none;
-      background: var(--bg-subtle);
+    .review-row-count {
+      font-size: 0.8rem;
       color: var(--ink-quiet);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 10px;
+    }
+
+    .review-row-arrow {
+      color: var(--ink-faint);
+      flex-shrink: 0;
       transition: var(--t);
     }
 
-    .library-search-clear.visible {
-      display: flex;
+    .review-row:hover .review-row-arrow {
+      color: var(--accent);
+      transform: translateX(2px);
     }
 
-    .library-search-clear:hover {
-      background: var(--border-mid);
-      color: var(--ink);
+    /* ============================================================ DOORS */
+    .doors-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 0.85rem;
     }
 
-    /* Game grid */
-    .game-grid {
+    .doors-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      grid-template-columns: 1fr 1fr;
       gap: 1rem;
+      margin-bottom: 1.5rem;
     }
 
-    /* ---- GAME CARD ---- */
-    .game-card {
+    .door {
       display: flex;
       flex-direction: column;
-      background: rgba(255, 255, 255, 0.955);
-      border: 1.5px solid rgba(45, 31, 61, 0.15);
+      background: var(--bg-raised);
+      border: 1.5px solid var(--border);
       border-radius: var(--r-lg);
-      padding: 1.3rem 1.3rem 1.15rem;
+      padding: 1.5rem 1.4rem 1.3rem;
+      cursor: pointer;
       transition: var(--t);
+      text-decoration: none;
       position: relative;
       overflow: hidden;
-      text-decoration: none;
-      cursor: pointer;
+      min-height: 150px;
+      width: 100%;
       text-align: left;
       font-family: var(--font-body);
-      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.58) inset;
     }
 
-    html[data-theme="night"] .game-card {
-      background: rgba(42, 33, 48, 0.955);
-      border-color: rgba(255, 255, 255, 0.14);
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.045) inset,
-        0 10px 34px rgba(0, 0, 0, 0.22);
-    }
-
-    /* Thin top accent edge — colour comes from JS per game */
-    .game-card::before {
+    .door::before {
       content: '';
       position: absolute;
       top: 0;
@@ -1026,251 +890,385 @@
       transition: opacity var(--t);
     }
 
-    .game-card:hover {
-      box-shadow:
-        0 0 0 1px rgba(var(--arcade-rgb), 0.18),
-        var(--shadow-md);
-      transform: translateY(-2px);
-      border-color: var(--arcade-soft);
+    .door-compass::before {
+      background: linear-gradient(90deg, #5c7a6e, #7fa898);
     }
 
-    html[data-theme="night"] .game-card:hover {
-      background: rgba(48, 38, 56, 0.98);
-      border-color: var(--arcade-soft);
-      box-shadow:
-        0 0 0 1px rgba(var(--arcade-rgb), 0.24),
-        0 14px 40px rgba(0, 0, 0, 0.30);
+    .door-arcade::before {
+      background: linear-gradient(90deg, #7a6e9a, #9a8eb8);
     }
 
-    .game-card:hover::before {
+    .door:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+      border-color: var(--border-mid);
+    }
+
+    .door:hover::before {
       opacity: 1;
     }
 
-    .game-card:focus-visible {
-      outline: 2px solid var(--arcade);
+    .door:focus-visible {
+      outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
 
-    /* Cards that are coming-soon — no hover lift */
-    .game-card.is-soon {
+    .door-unavailable {
+      opacity: 0.6;
       cursor: default;
-      opacity: 0.72;
     }
 
-    .game-card.is-soon:hover {
+    .door-unavailable:hover {
       box-shadow: none;
       transform: none;
       border-color: var(--border);
     }
 
-    .game-card.is-soon::before {
-      display: none;
+    .door-unavailable:hover::before {
+      opacity: 0;
     }
 
-    /* In-progress state dot on the card */
-    .game-card.is-inprogress .game-card-status::before {
-      background: var(--arcade);
-    }
-
-    .game-card-mark {
-      font-size: 1.6rem;
-      margin-bottom: 0.85rem;
-      display: block;
-      line-height: 1;
-    }
-
-    .game-card-title {
-      font-family: var(--font-display);
-      font-size: 1.02rem;
-      font-weight: 400;
-      color: var(--ink);
-      line-height: 1.25;
-      margin-bottom: 0.4rem;
-    }
-
-    .game-card-premise {
-      font-size: 0.82rem;
-      color: var(--ink-mid);
-      opacity: 0.78;
-      line-height: 1.55;
-      flex: 1;
+    .door-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       margin-bottom: 1rem;
-    }
-
-    html[data-theme="night"] .game-card-premise {
-      color: #ad9ac1;
-      opacity: 0.95;
-    }
-
-    .game-card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-      margin-top: auto;
-    }
-
-    .game-card-meta {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
-    .game-card-unit {
-      font-size: 0.72rem;
-      color: var(--ink-quiet);
-      font-weight: 500;
-    }
-
-    html[data-theme="night"] .game-card-unit {
-      color: #9886ad;
-      opacity: 0.96;
-    }
-
-    .game-card-format {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.15rem 0.52rem;
-      border-radius: 999px;
-      border: 1px solid var(--border-mid);
-      background: rgba(242, 237, 230, 0.78);
-      font-size: 0.66rem;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      color: var(--ink-mid);
-      text-transform: uppercase;
-    }
-
-    html[data-theme="night"] .game-card-format {
-      background: rgba(255, 255, 255, 0.045);
-      border-color: rgba(255, 255, 255, 0.13);
-      color: #ad9ac1;
-    }
-
-    .game-card-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      font-size: 0.72rem;
-      font-weight: 500;
-      padding: 0.18rem 0.55rem;
-      border-radius: 999px;
-    }
-
-    .game-card-status.status-available {
-      background: var(--bg-subtle);
-      color: var(--ink-quiet);
-    }
-
-    .game-card-status.status-inprogress {
-      background: var(--arcade-pale);
-      color: var(--arcade);
-    }
-
-    .game-card-status.status-inprogress::before {
-      content: '';
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--arcade);
       flex-shrink: 0;
     }
 
-    .game-card-status.status-soon {
-      background: var(--bg-subtle);
-      color: var(--ink-faint);
+    .door-compass .door-icon {
+      background: rgba(92, 122, 110, 0.12);
+      color: #5c7a6e;
     }
 
-    .game-card-action {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      padding: 0.4rem 0.85rem;
-      border-radius: var(--r-sm);
-      background: var(--arcade-pale);
-      color: var(--arcade);
-      font-family: var(--font-body);
-      font-size: 0.76rem;
+    .door-arcade .door-icon {
+      background: rgba(122, 110, 154, 0.12);
+      color: #7a6e9a;
+    }
+
+    html[data-theme="night"] .door-compass .door-icon {
+      background: rgba(127, 168, 150, 0.15);
+      color: #7fa896;
+    }
+
+    html[data-theme="night"] .door-arcade .door-icon {
+      background: rgba(160, 148, 190, 0.15);
+      color: #a094be;
+    }
+
+    .door-name {
+      font-size: 0.68rem;
       font-weight: 600;
-      border: 1px solid rgba(var(--arcade-rgb), 0.25);
-      cursor: pointer;
-      transition: var(--t);
-      white-space: nowrap;
-      text-decoration: none;
-    }
-
-    .game-card-action:hover {
-      background: var(--arcade);
-      color: #fff;
-      border-color: var(--arcade);
-    }
-
-    .game-card-action.disabled {
-      background: var(--bg-subtle);
-      color: var(--ink-faint);
-      border-color: var(--border);
-      cursor: default;
-      pointer-events: none;
-    }
-
-    html[data-theme="night"] .game-card-action {
-      background: rgba(var(--arcade-rgb), 0.18);
-      border-color: rgba(var(--arcade-rgb), 0.32);
-      color: var(--arcade);
-    }
-
-    html[data-theme="night"] .game-card-action:hover {
-      background: rgba(var(--arcade-rgb), 0.45);
-      color: #fff;
-    }
-
-    /* Divider between available and coming-soon sections */
-    .library-divider {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin: 2rem 0 1.5rem;
-    }
-
-    .library-divider::before,
-    .library-divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    .library-divider-label {
-      font-size: 0.66rem;
-      font-weight: 700;
       letter-spacing: 0.14em;
       text-transform: uppercase;
+      margin-bottom: 0.3rem;
+    }
+
+    .door-compass .door-name {
+      color: #5c7a6e;
+    }
+
+    .door-arcade .door-name {
+      color: #7a6e9a;
+    }
+
+    html[data-theme="night"] .door-compass .door-name {
+      color: #7fa896;
+    }
+
+    html[data-theme="night"] .door-arcade .door-name {
+      color: #a094be;
+    }
+
+    .door-title {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      color: var(--ink);
+      margin-bottom: 0.4rem;
+      line-height: 1.2;
+    }
+
+    .door-desc {
+      font-size: 0.82rem;
       color: var(--ink-quiet);
-      opacity: 0.8;
-      white-space: nowrap;
+      line-height: 1.5;
+      flex: 1;
     }
 
-    html[data-theme="night"] .library-divider-label {
-      color: #a894bd;
-      opacity: 0.9;
+    .door-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1rem;
     }
 
-    /* No-results state */
-    .no-results {
-      display: none;
-      text-align: center;
-      padding: 3rem 1rem;
+    .door-arrow {
+      display: flex;
+      align-items: center;
+      color: var(--ink-faint);
+      transition: var(--t);
+      margin-left: auto;
+    }
+
+    .door:hover .door-arrow {
+      color: var(--accent);
+      transform: translateX(3px);
+    }
+
+    .door-soon-badge {
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      background: var(--bg-subtle);
+      border-radius: 20px;
+      padding: 0.22rem 0.6rem;
+    }
+
+    /* ============================================================ LANGUAGE REVIEW — FOCUSED INLINE VIEW */
+    .review-view {
+      position: relative;
+      z-index: 1;
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .review-topbar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .review-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.85rem 0.45rem 0.65rem;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-mid);
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--t);
+      min-height: 40px;
+    }
+
+    .review-back:hover {
+      border-color: var(--border-mid);
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .review-back:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .review-progress {
+      margin-left: auto;
+      font-size: 0.76rem;
+      font-weight: 500;
       color: var(--ink-quiet);
+      letter-spacing: 0.02em;
     }
 
-    .no-results.visible {
-      display: block;
+    .review-heading {
+      margin-bottom: 0.3rem;
     }
 
-    .no-results p {
-      font-size: 0.9rem;
+    .review-heading-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .review-heading-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 3.5vw, 1.7rem);
+      color: var(--ink);
+      line-height: 1.2;
+      font-weight: 400;
+    }
+
+    .review-context {
+      font-size: 0.84rem;
+      color: var(--ink-quiet);
+      margin-bottom: 1.75rem;
+    }
+
+    /* The recall card */
+    .recall-card {
+      background: var(--bg-raised);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 2rem 1.9rem;
+      box-shadow: var(--shadow-sm);
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .recall-type {
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 0.6rem;
+    }
+
+    .recall-term {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 5vw, 2.1rem);
+      color: var(--ink);
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+    }
+
+    .recall-prompt {
+      font-size: 0.95rem;
+      color: var(--ink-mid);
       line-height: 1.6;
+      padding: 0.9rem 1.1rem;
+      background: var(--accent-pale);
+      border-radius: var(--r-md);
+      border-left: 3px solid var(--accent-soft);
+    }
+
+    .recall-prompt-label {
+      display: block;
+      font-size: 0.64rem;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+    }
+
+    .recall-reveal-btn {
+      margin-top: 1.5rem;
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.25rem;
+      border-radius: var(--r-md);
+      border: 1px solid var(--accent);
+      background: none;
+      color: var(--accent);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--t);
+      min-height: 44px;
+    }
+
+    .recall-reveal-btn:hover {
+      background: var(--accent-pale);
+    }
+
+    .recall-reveal-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Revealed answer */
+    .recall-answer {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      animation: fadeIn 0.25s ease;
+    }
+
+    .recall-answer-label {
+      font-size: 0.64rem;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 0.4rem;
+    }
+
+    .recall-def {
+      font-size: 0.98rem;
+      color: var(--ink);
+      line-height: 1.6;
+      margin-bottom: 1.1rem;
+    }
+
+    .recall-inaction {
+      font-size: 0.9rem;
+      color: var(--ink-quiet);
+      font-style: italic;
+      line-height: 1.6;
+      padding-left: 0.9rem;
+      border-left: 2px solid var(--accent-pale);
+    }
+
+    /* Review nav controls */
+    .review-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 1.75rem;
+    }
+
+    .review-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.7rem 1.1rem;
+      border-radius: var(--r-md);
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-mid);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--t);
+      min-height: 44px;
+    }
+
+    .review-nav-btn:hover:not(:disabled) {
+      border-color: var(--border-mid);
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .review-nav-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .review-nav-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .review-nav-btn.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      margin-left: auto;
+    }
+
+    .review-nav-btn.primary:hover {
+      background: var(--accent-soft);
     }
 
     /* ============================================================ SESSION MODAL */
@@ -1278,9 +1276,9 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.48);
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 700;
       backdrop-filter: blur(6px);
-      z-index: 600;
       align-items: center;
       justify-content: center;
       padding: 1.5rem;
@@ -1294,8 +1292,8 @@
     .modal-panel {
       background: var(--bg-raised);
       border-radius: var(--r-xl);
-      max-width: 420px;
       width: 100%;
+      max-width: 420px;
       box-shadow: var(--shadow-lg);
       animation: slideUp 0.22s cubic-bezier(0.34, 1.25, 0.64, 1);
       max-height: 90svh;
@@ -1320,8 +1318,8 @@
     }
 
     .modal-close {
-      width: 30px;
-      height: 30px;
+      width: 32px;
+      height: 32px;
       border-radius: var(--r-sm);
       border: 1px solid var(--border);
       background: none;
@@ -1344,33 +1342,24 @@
     }
 
     .modal-helper {
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       color: var(--ink-quiet);
-      margin-bottom: 0.9rem;
+      margin-bottom: 1rem;
       line-height: 1.5;
-    }
-
-    .modal-section-label {
-      font-size: 0.64rem;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
-      margin: 0.9rem 0 0.45rem;
     }
 
     .session-list {
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
-      margin-bottom: 0.7rem;
+      margin-bottom: 0.8rem;
     }
 
     .session-item {
       display: flex;
       align-items: center;
-      gap: 0.55rem;
-      padding: 0.6rem 0.8rem;
+      gap: 0.6rem;
+      padding: 0.65rem 0.85rem;
       border: 1px solid var(--border);
       border-radius: var(--r-sm);
       background: var(--bg-subtle);
@@ -1378,27 +1367,27 @@
     }
 
     .session-item.active {
-      border-color: var(--arcade);
-      background: var(--arcade-pale);
+      border-color: var(--accent);
+      background: var(--accent-pale);
     }
 
     .session-item-name {
       flex: 1;
-      font-size: 0.86rem;
+      font-size: 0.88rem;
       font-weight: 500;
       color: var(--ink);
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
     .session-item-badge {
-      font-size: 0.64rem;
+      font-size: 0.65rem;
       font-weight: 600;
-      background: var(--arcade);
+      background: var(--accent);
       color: #fff;
       border-radius: 20px;
-      padding: 0.12rem 0.45rem;
+      padding: 0.15rem 0.5rem;
     }
 
     .session-item-actions {
@@ -1408,8 +1397,8 @@
     }
 
     .session-action-btn {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: var(--r-sm);
       border: 1px solid var(--border);
       background: var(--bg-raised);
@@ -1432,46 +1421,47 @@
       background: var(--danger-bg);
     }
 
+    .modal-section-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin: 1rem 0 0.5rem;
+    }
+
     .session-new-form {
       display: flex;
-      gap: 0.45rem;
+      gap: 0.5rem;
     }
 
     .session-input {
       flex: 1;
-      padding: 0.58rem 0.8rem;
+      padding: 0.6rem 0.8rem;
       border: 1.5px solid var(--border);
       border-radius: var(--r-sm);
       font-family: var(--font-body);
-      font-size: 0.86rem;
+      font-size: 0.88rem;
       color: var(--ink);
       background: var(--bg-raised);
       outline: none;
-      transition: border-color var(--t);
-      min-height: 42px;
+      transition: var(--t);
+      min-height: 44px;
     }
 
     .session-input:focus {
-      border-color: var(--arcade);
+      border-color: var(--accent);
     }
 
     select.session-input {
-      appearance: none;
-      padding-right: 2.35rem;
-      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 5.25L7 8.75L10.5 5.25' stroke='%235a4a6e' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-size: 14px 14px;
-      background-position: right 0.7rem center;
-    }
-
-    html[data-theme="night"] select.session-input {
-      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 5.25L7 8.75L10.5 5.25' stroke='%23c8b8d8' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      padding-right: 2.7rem;
+      background-position: right 0.85rem center;
     }
 
     .session-error {
-      font-size: 0.76rem;
+      font-size: 0.78rem;
       color: var(--danger);
-      margin-top: 0.45rem;
+      margin-top: 0.5rem;
       min-height: 1rem;
       opacity: 0;
       transition: opacity var(--t);
@@ -1482,41 +1472,168 @@
     }
 
     .btn-primary {
-      padding: 0.58rem 1.05rem;
+      padding: 0.6rem 1.1rem;
       border-radius: var(--r-sm);
       border: none;
-      background: var(--arcade);
+      background: var(--accent);
       color: #fff;
       font-family: var(--font-body);
-      font-size: 0.84rem;
+      font-size: 0.85rem;
       font-weight: 500;
       cursor: pointer;
       transition: var(--t);
       white-space: nowrap;
-      min-height: 42px;
+      min-height: 44px;
     }
 
     .btn-primary:hover {
-      background: var(--arcade-soft);
+      background: var(--accent-soft);
     }
 
     .btn-ghost {
-      padding: 0.58rem 0.95rem;
+      padding: 0.6rem 1rem;
       border-radius: var(--r-sm);
       border: 1px solid var(--border);
-      background: var(--bg-subtle);
+      background: var(--bg-raised);
       font-family: var(--font-body);
-      font-size: 0.84rem;
+      font-size: 0.85rem;
       font-weight: 500;
       color: var(--ink-mid);
       cursor: pointer;
       transition: var(--t);
-      min-height: 42px;
+      min-height: 44px;
     }
 
     .btn-ghost:hover {
       border-color: var(--border-mid);
       color: var(--ink);
+    }
+
+    /* ============================================================ ATLAS WELCOME IMAGE */
+    .atmosphere-preview {
+      position: relative;
+      height: 92px;
+      border-radius: var(--r-md);
+      border: 1px solid var(--border);
+      background: var(--bg-subtle);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-faint);
+      font-size: 0.78rem;
+      margin-top: 0.65rem;
+    }
+
+    .atmosphere-preview-image {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.78;
+      display: none;
+    }
+
+    .atmosphere-preview.has-image .atmosphere-preview-image {
+      display: block;
+    }
+
+    .atmosphere-preview.has-image .atmosphere-preview-empty {
+      display: none;
+    }
+
+    .atmosphere-preview-empty {
+      position: relative;
+      z-index: 1;
+    }
+
+    .atmosphere-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.55rem;
+      margin-top: 0.85rem;
+    }
+
+    .atmosphere-actions .btn-primary {
+      grid-column: 1 / -1;
+      width: 100%;
+    }
+
+    .atmosphere-actions .btn-ghost {
+      width: 100%;
+    }
+
+    .atmosphere-favorites-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin-top: 0.6rem;
+    }
+
+    .atmosphere-favorite-item {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      background: var(--bg-subtle);
+    }
+
+    .atmosphere-favorite-thumb {
+      width: 52px;
+      height: 34px;
+      border-radius: var(--r-sm);
+      background-size: cover;
+      background-position: center;
+      background-color: var(--bg-raised);
+      border: 1px solid var(--border);
+    }
+
+    .atmosphere-favorite-url {
+      font-size: 0.74rem;
+      color: var(--ink-quiet);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .atmosphere-favorite-actions {
+      display: flex;
+      gap: 0.3rem;
+      flex-shrink: 0;
+    }
+
+    .atmosphere-mini-btn {
+      min-height: 32px;
+      padding: 0.35rem 0.65rem;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      color: var(--ink-mid);
+      font-family: var(--font-body);
+      font-size: 0.74rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--t);
+    }
+
+    .atmosphere-mini-btn:hover {
+      border-color: var(--border-mid);
+      color: var(--ink);
+    }
+
+    .atmosphere-mini-btn.danger:hover {
+      color: var(--danger);
+      border-color: var(--danger-border);
+      background: var(--danger-bg);
+    }
+
+    .atmosphere-empty-favorites {
+      font-size: 0.76rem;
+      color: var(--ink-faint);
+      padding: 0.55rem 0;
     }
 
     /* ============================================================ CONFIRM DIALOG */
@@ -1542,47 +1659,130 @@
       border-radius: var(--r-lg);
       max-width: 360px;
       width: 100%;
-      padding: 1.4rem;
+      padding: 1.5rem;
       box-shadow: var(--shadow-lg);
       animation: slideUp 0.2s cubic-bezier(0.34, 1.25, 0.64, 1);
     }
 
     .confirm-title {
-      font-size: 0.94rem;
+      font-size: 0.95rem;
       font-weight: 600;
       color: var(--ink);
-      margin-bottom: 0.45rem;
+      margin-bottom: 0.5rem;
     }
 
     .confirm-message {
-      font-size: 0.83rem;
+      font-size: 0.85rem;
       color: var(--ink-quiet);
       line-height: 1.55;
-      margin-bottom: 1.1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .confirm-input {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      color: var(--ink);
+      background: var(--bg-raised);
+      outline: none;
+      transition: var(--t);
+      margin-bottom: 0.5rem;
+      display: none;
+      min-height: 44px;
+    }
+
+    .confirm-input.visible {
+      display: block;
+    }
+
+    .confirm-input:focus {
+      border-color: var(--accent);
+    }
+
+    .confirm-error {
+      font-size: 0.78rem;
+      color: var(--danger);
+      margin-bottom: 0.8rem;
+      min-height: 1rem;
+      display: none;
+    }
+
+    .confirm-error.visible {
+      display: block;
     }
 
     .confirm-actions {
       display: flex;
-      gap: 0.45rem;
+      gap: 0.5rem;
       justify-content: flex-end;
     }
 
     .btn-danger {
-      padding: 0.55rem 0.95rem;
+      padding: 0.6rem 1rem;
       border-radius: var(--r-sm);
       border: 1px solid var(--danger-border);
       background: var(--danger-bg);
       color: var(--danger);
       font-family: var(--font-body);
-      font-size: 0.83rem;
+      font-size: 0.85rem;
       font-weight: 500;
       cursor: pointer;
       transition: var(--t);
-      min-height: 40px;
+      min-height: 44px;
+    }
+
+    .btn-danger:hover {
+      background: #fee;
+    }
+
+    /* ============================================================ EMPTY STATE */
+    .empty-setup {
+      text-align: center;
+      padding: 1rem 1rem 2rem;
+    }
+
+    .empty-setup-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 4vw, 1.9rem);
+      color: var(--ink);
+      margin-bottom: 0.55rem;
+    }
+
+    .empty-setup-sub {
+      font-size: 0.92rem;
+      color: var(--ink-quiet);
+      margin-bottom: 2rem;
+      line-height: 1.55;
+    }
+
+    .empty-form {
+      display: flex;
+      gap: 0.5rem;
+      max-width: 360px;
+      margin: 0 auto 1rem;
+    }
+
+    .empty-default-link {
+      font-size: 0.82rem;
+      color: var(--ink-faint);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: var(--font-body);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: var(--t);
+    }
+
+    .empty-default-link:hover {
+      color: var(--ink-quiet);
     }
 
     /* ============================================================ TOAST */
-    .arcade-toast {
+    .atlas-toast {
       position: fixed;
       bottom: 1.5rem;
       left: 50%;
@@ -1590,8 +1790,8 @@
       background: var(--bg-raised);
       border: 1px solid var(--border-mid);
       border-radius: var(--r-md);
-      padding: 0.65rem 1.15rem;
-      font-size: 0.84rem;
+      padding: 0.7rem 1.2rem;
+      font-size: 0.85rem;
       color: var(--ink-mid);
       z-index: 900;
       box-shadow: var(--shadow-md);
@@ -1600,31 +1800,9 @@
       max-width: calc(100vw - 2rem);
     }
 
-    .arcade-toast.visible {
+    .atlas-toast.visible {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
-    }
-
-    /* ============================================================ BRIDGE ERROR */
-    .bridge-error {
-      max-width: 480px;
-      margin: 4rem auto;
-      text-align: center;
-      padding: 0 1rem;
-    }
-
-    .bridge-error h2 {
-      font-family: var(--font-display);
-      font-size: 1.3rem;
-      color: var(--ink);
-      font-weight: 400;
-      margin-bottom: 0.5rem;
-    }
-
-    .bridge-error p {
-      font-size: 0.88rem;
-      color: var(--ink-quiet);
-      line-height: 1.65;
     }
 
     /* ============================================================ UTILITIES */
@@ -1649,7 +1827,19 @@
     @keyframes slideUp {
       from {
         opacity: 0;
-        transform: translateY(14px)
+        transform: translateY(16px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-12px)
       }
 
       to {
@@ -1669,49 +1859,51 @@
     }
 
     /* ============================================================ RESPONSIVE */
-    @media (max-width: 680px) {
+    @media (max-width: 720px) {
       .spine {
-        display: none !important;
+        display: none;
       }
 
       .mobile-header {
-        display: flex !important;
+        display: flex;
       }
 
-      .arcade-main {
-        padding: 1.75rem 1rem 4rem;
-      }
-
-      .game-grid {
+      .doors-grid {
         grid-template-columns: 1fr;
       }
 
-      .continue-list {
-        grid-template-columns: 1fr;
+      .atlas-main {
+        padding: 2rem 1rem 3rem;
       }
 
-      .continue-card {
-        flex-wrap: wrap;
+      .review-view {
+        padding: 1.5rem 1rem 3rem;
       }
 
-      .continue-resume {
-        width: 100%;
-        justify-content: center;
-        margin-top: 0.5rem;
+      .recall-card {
+        padding: 1.6rem 1.4rem;
       }
 
-      .library-search {
-        width: 180px;
+      .empty-form {
+        flex-direction: column;
       }
 
-      .jumpto-overlay {
+      .atlas-search-overlay {
         padding: 2rem 0.75rem 1rem;
+      }
+
+      .review-controls {
+        flex-wrap: wrap;
       }
     }
 
-    @media (min-width: 681px) {
+    @media (min-width: 721px) {
       .mobile-header {
-        display: none !important;
+        display: none;
+      }
+
+      .spine {
+        display: flex;
       }
 
       .drawer-overlay,
@@ -1723,27 +1915,28 @@
 </head>
 
 <body>
-  <div class="arcade-atmosphere-layer" id="arcade-atmosphere-layer" aria-hidden="true"></div>
-
-  <!-- ============================================================ DESKTOP SPINE -->
+  <div class="atmosphere-layer" id="atmosphere-layer" aria-hidden="true"></div>
+  <!-- ============================================================ SPINE (desktop) -->
   <header class="spine" role="banner">
-    <div class="spine-mark">Arcade<span>.</span></div>
-    <div class="spine-worlds" id="spine-hub-nav" role="group" aria-label="Hub navigation"></div>
+    <div class="spine-mark">Atlas<span>.</span></div>
+    <div class="spine-worlds" id="spine-worlds" role="group" aria-label="World navigation"></div>
     <div class="spine-actions">
-      <button class="spine-session-pill" onclick="openSessionModal()" aria-label="Switch session">
-        <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-          <circle cx="5.5" cy="3.5" r="2" stroke="currentColor" stroke-width="1.2" />
-          <path d="M1 9.5c0-2 2-3.5 4.5-3.5s4.5 1.5 4.5 3.5" stroke="currentColor" stroke-width="1.2"
+      <button class="spine-session-pill" onclick="openSessionModal()" aria-label="Sessions">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <circle cx="6" cy="4" r="2.2" stroke="currentColor" stroke-width="1.2" />
+          <path d="M1.5 10.5c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4" stroke="currentColor" stroke-width="1.2"
             stroke-linecap="round" />
         </svg>
         <span class="pill-name" id="spine-session-name">—</span>
       </button>
-      <button class="spine-btn" type="button" data-atlas-search title="Search" aria-label="Search">
+
+      <button class="spine-btn" data-atlas-search title="Search (⌘K)" aria-label="Search">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
           <circle cx="6.5" cy="6.5" r="4.2" stroke="currentColor" stroke-width="1.3" />
           <path d="M9.8 9.8l2.8 2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
         </svg>
       </button>
+
       <button class="spine-btn" onclick="openSettingsModal()" title="Settings" aria-label="Settings">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
@@ -1752,29 +1945,32 @@
           <circle cx="7.5" cy="12" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
         </svg>
       </button>
+
       <button class="spine-btn" id="spine-appearance-btn" onclick="toggleAppearance()"
-        aria-label="Toggle appearance"></button>
+        aria-label="Toggle day/night"></button>
     </div>
   </header>
-
   <!-- ============================================================ MOBILE HEADER -->
   <header class="mobile-header" role="banner">
-    <span class="mobile-header-mark">Arcade<span>.</span></span>
+    <div class="mobile-header-mark">Atlas<span>.</span></div>
+
     <div class="mobile-header-actions">
-      <button class="mobile-session-pill" onclick="openSessionModal()" aria-label="Sessions">
-        <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-          <circle cx="5.5" cy="3.5" r="2" stroke="currentColor" stroke-width="1.2" />
-          <path d="M1 9.5c0-2 2-3.5 4.5-3.5s4.5 1.5 4.5 3.5" stroke="currentColor" stroke-width="1.2"
+      <button class="mobile-header-session" onclick="openSessionModal()" aria-label="Sessions">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <circle cx="6" cy="4" r="2.2" stroke="currentColor" stroke-width="1.2" />
+          <path d="M1.5 10.5c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4" stroke="currentColor" stroke-width="1.2"
             stroke-linecap="round" />
         </svg>
         <span id="mobile-session-name">—</span>
       </button>
-      <button class="mobile-header-btn" type="button" data-atlas-search aria-label="Search">
+
+      <button class="mobile-header-btn" data-atlas-search aria-label="Search">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3" />
           <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
         </svg>
       </button>
+
       <button class="mobile-header-btn" onclick="openDrawer()" aria-label="Menu">
         <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
           <path d="M2 4h13M2 8.5h13M2 13h13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
@@ -1782,31 +1978,30 @@
       </button>
     </div>
   </header>
-
   <!-- Mobile drawer -->
   <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
   <nav class="drawer" id="drawer" aria-label="Navigation">
     <div class="drawer-header">
-      <span class="drawer-title">Arcade<span>.</span></span>
+      <span class="drawer-title">Atlas<span>.</span></span>
       <button class="drawer-close" onclick="closeDrawer()" aria-label="Close menu">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-          <path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
         </svg>
       </button>
     </div>
     <div class="drawer-nav">
       <div class="drawer-nav-label">Worlds</div>
-      <div id="drawer-hub-nav"></div>
+      <div id="drawer-worlds"></div>
       <div class="drawer-nav-label">Find</div>
-      <button class="drawer-nav-item" type="button" onclick="closeDrawer(); AtlasSearch.open()">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <circle cx="6.5" cy="6.5" r="4.2" stroke="currentColor" stroke-width="1.3" />
-          <path d="M9.8 9.8l2.8 2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+      <button class="drawer-nav-item" onclick="closeDrawer();AtlasSearch.open()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3" />
+          <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
         </svg>
         Search
       </button>
-      <button class="drawer-nav-item" onclick="closeDrawer(); openSettingsModal()">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+      <button class="drawer-nav-item" onclick="closeDrawer();openSettingsModal()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
           <circle cx="6" cy="4" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
           <circle cx="10" cy="8" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
@@ -1817,25 +2012,22 @@
     </div>
     <div class="drawer-footer">
       <div class="drawer-footer-row">
-        <button class="drawer-session-btn" onclick="closeDrawer(); openSessionModal()">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <circle cx="6.5" cy="4.5" r="2.2" stroke="currentColor" stroke-width="1.2" />
-            <path d="M1.5 11.5c0-2.4 2.2-4.2 5-4.2s5 1.8 5 4.2" stroke="currentColor" stroke-width="1.2"
+        <button class="drawer-session-btn" onclick="closeDrawer();openSessionModal()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2" />
+            <path d="M2 12c0-2.5 2.2-4.5 5-4.5s5 2 5 4.5" stroke="currentColor" stroke-width="1.2"
               stroke-linecap="round" />
           </svg>
           <span id="drawer-session-name">—</span>
         </button>
-        <button class="drawer-appearance-btn" id="drawer-appearance-btn" onclick="toggleAppearance()"
-          aria-label="Toggle appearance"></button>
+        <button class="drawer-appearance-btn" onclick="toggleAppearance()" aria-label="Toggle appearance"></button>
       </div>
     </div>
   </nav>
-
-  <!-- ============================================================ MAIN -->
-  <main class="arcade-main" id="arcade-main" role="main">
-    <!-- Rendered by JS -->
+  <!-- ============================================================ MAIN CONTENT -->
+  <main class="atlas-main" id="atlas-main" role="main">
+    <!-- Rendered by JS based on bridge state -->
   </main>
-
   <!-- ============================================================ SESSION MODAL -->
   <div class="modal-overlay" id="session-modal" onclick="handleSessionModalClick(event)" role="dialog"
     aria-label="Sessions" aria-modal="true">
@@ -1843,8 +2035,8 @@
       <div class="modal-header">
         <span class="modal-title">Sessions</span>
         <button class="modal-close" onclick="closeSessionModal()" aria-label="Close">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
           </svg>
         </button>
       </div>
@@ -1876,31 +2068,32 @@
       <div class="modal-header">
         <span class="modal-title">Settings</span>
         <button class="modal-close" onclick="closeSettingsModal()" aria-label="Close">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
           </svg>
         </button>
       </div>
       <div class="modal-body">
-        <p class="modal-helper">Choose the Arcade atmosphere for this device.</p>
+        <p class="modal-helper">Set a welcome image for the active session. Atlas stays clean by default; this image
+          appears only for this learner.</p>
 
-        <p class="modal-section-label">Atmosphere</p>
-        <select class="session-input" id="arcade-atmosphere-mode" onchange="handleArcadeAtmosphereModeChange()">
-          <option value="default">Default Arcade atmosphere</option>
-          <option value="custom">Custom image URL</option>
-          <option value="none">No atmosphere image</option>
-        </select>
+        <p class="modal-section-label">Welcome image URL</p>
+        <input class="session-input" id="atmosphere-input" type="url" placeholder="https://..." autocomplete="off"
+          oninput="handleAtmospherePreviewInput()">
 
-        <div id="arcade-custom-atmosphere-row" style="margin-top:0.9rem;">
-          <p class="modal-section-label">Custom image URL</p>
-          <input class="session-input" id="arcade-atmosphere-input" type="url" placeholder="https://..."
-            autocomplete="off">
+        <div class="atmosphere-preview" id="atmosphere-preview">
+          <div class="atmosphere-preview-image" id="atmosphere-preview-image"></div>
+          <span class="atmosphere-preview-empty">No image selected</span>
         </div>
 
-        <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
-          <button class="btn-primary" onclick="handleSaveSettings()">Save</button>
-          <button class="btn-ghost" onclick="handleRevertAtmosphere()">Revert to default</button>
+        <div class="atmosphere-actions">
+          <button class="btn-primary" onclick="handleSaveSettings()">Save image</button>
+          <button class="btn-ghost" onclick="handleRemoveAtmosphere()">Remove image</button>
+          <button class="btn-ghost" onclick="handleSaveAtmosphereFavorite()">Save to favourites</button>
         </div>
+
+        <p class="modal-section-label">Favourites</p>
+        <div class="atmosphere-favorites-list" id="atmosphere-favorites-list"></div>
       </div>
     </div>
   </div>
@@ -1910,294 +2103,98 @@
     <div class="confirm-panel">
       <div class="confirm-title" id="confirm-title"></div>
       <div class="confirm-message" id="confirm-message"></div>
+      <input class="confirm-input" id="confirm-input" type="text" maxlength="40" autocomplete="off">
+      <div class="confirm-error" id="confirm-error"></div>
       <div class="confirm-actions">
         <button class="btn-ghost" onclick="resolveConfirm(false)">Cancel</button>
-        <button class="btn-danger" id="confirm-ok-btn" onclick="resolveConfirm(true)">Delete</button>
+        <button class="btn-danger" id="confirm-ok-btn" onclick="resolveConfirm(true)">OK</button>
       </div>
     </div>
   </div>
-
   <!-- ============================================================ SCRIPTS -->
-  <script src="../shared/atlas-bridge.js"></script>
-  <script src="../shared/atlas-search.js"></script>
+  <script src="./shared/atlas-bridge.js"></script>
+  <script src="./shared/atlas-search.js"></script>
   <script>
     'use strict';
+
     /* ================================================================
-       ARCADE HUB V1
-       Reads and writes state only through window.AtlasBridge.
-       No Arcade-specific localStorage. No parallel session system.
-       No vocabulary tracking. No gamification metrics.
+       ATLAS V1 RUNTIME
+       Atlas is a calm threshold/router. AtlasBridge owns all state.
+       Atlas reads through the bridge and writes only through public
+       bridge methods. No local session/registry/ledger systems.
        ================================================================ */
 
-    // ---- Bridge guard -------------------------------------------
+    // ---- Bridge guard -------------------------------------------------
+    // Atlas cannot function without the bridge. If it failed to load,
+    // show a direct, in-voice message rather than a blank or broken page.
     if (!window.AtlasBridge) {
-      document.getElementById('arcade-main').innerHTML =
-        '<div class="bridge-error">' +
-        '<h2>Arcade can\'t start</h2>' +
-        '<p>The shared runtime didn\'t load. Reload the page and check that <code>shared/atlas-bridge.js</code> is in place.</p>' +
-        '</div>';
+      document.getElementById('atlas-main').innerHTML =
+        '<div class="empty-setup"><h1 class="empty-setup-title">Atlas can\u2019t start</h1>' +
+        '<p class="empty-setup-sub">The shared runtime didn\u2019t load. Reload the page, and if it keeps happening, check that shared/atlas-bridge.js is in place.</p></div>';
     }
-
     const Bridge = window.AtlasBridge;
-    const ACTIVE_HUB_ID = 'arcade';
-    const ARCADE_ATMOSPHERE_KEY = 'arcade::atmosphereImage';
-    const ARCADE_ATMOSPHERE_MODE_KEY = 'arcade::atmosphereMode';
-    const ARCADE_DEFAULT_ATMOSPHERE = './arcade-hub-atmosphere.jpg';
 
-    // ---- Hub navigation map ------------------------------------
-    // Atlas is always available. Compass resolves from registry.
-    // Arcade is this hub (always available, no navigation needed).
-    const HUB_NAV = {
-      atlas: {
-        id: 'atlas',
-        name: 'Atlas',
-        alwaysAvailable: true,
-        launchUrl: '../index.html',
-        icon: '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.4L11.6 6.5L6.5 11.6L1.4 6.5Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/><path d="M6.5 3.6L9.4 6.5L6.5 9.4L3.6 6.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round" opacity="0.75"/></svg>'
-      },
+    // ---- Display labels (decoupled from storage) ----------------------
+    const ATLAS_ID = 'atlas';
+    const COMPASS_ID = 'compass';
+    const ARCADE_ID = 'arcade';
+    const ACTIVE_HUB_ID = ATLAS_ID;
+
+    const WORLDS = {
       compass: {
-        id: 'compass',
+        id: COMPASS_ID,
         name: 'Compass',
-        worldId: 'compass',
-        icon: '<svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.2" stroke="currentColor" stroke-width="1.25"/><circle cx="7" cy="7" r="1.6" stroke="currentColor" stroke-width="1.15"/><path d="M7 1.8v1.6M7 10.6v1.6M1.8 7h1.6M10.6 7h1.6" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/></svg>'
+        desc: 'Deeper English conversation subjects \u2014 reflective, human, lesson-ready.',
+        cssClass: 'door-compass',
+        iconSvg: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 3v2M10 15v2M3 10h2M15 10h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="10" r="2" fill="currentColor" opacity="0.4"/></svg>',
+        smallIcon: '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="4.8" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 1.7v1.4M6.5 9.9v1.4M1.7 6.5h1.4M9.9 6.5h1.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="6.5" cy="6.5" r="1.5" fill="currentColor" opacity="0.5"/></svg>'
       },
       arcade: {
-        id: 'arcade',
+        id: ARCADE_ID,
         name: 'Arcade',
-        alwaysAvailable: true,
-        launchUrl: new URL('./index.html', window.location.href).href,
-        icon: '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1.5" y="3" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 6.5h2M5.5 5.5v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8.5" cy="6.5" r="0.6" fill="currentColor"/><circle cx="10" cy="5.5" r="0.6" fill="currentColor"/></svg>'
+        desc: 'Conversation games for lighter, playful English practice.',
+        cssClass: 'door-arcade',
+        iconSvg: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="5.5" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 10h4M9 8v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="13" cy="10" r="0.9" fill="currentColor"/><circle cx="15" cy="8" r="0.9" fill="currentColor"/></svg>',
+        smallIcon: '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1.5" y="3" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 6.5h2M5.5 5.5v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8.5" cy="6.5" r="0.6" fill="currentColor"/><circle cx="10" cy="5.5" r="0.6" fill="currentColor"/></svg>'
       }
     };
 
-    /* ================================================================
-       GAME CATALOGUE
-       Three games exist as files. Remaining 12 are planned/coming soon.
-       Status 'available' = file exists and is launchable.
-       Status 'soon' = planned but not built yet.
-       Bridge retrofit status is separate from availability.
-       ================================================================ */
-    const GAME_CATALOGUE = [
-      // ── AVAILABLE NOW (legacy games, unretrofitted) ───────────────
-      {
-        registryId: 'arcade:tomorrow-got-weird',
-        title: 'Tomorrow Got Weird',
-        premise: 'Drop yourself into strange future scenarios and decide what you\'d do next.',
-        unitLabel: 'Scenarios',
-        total: 25,
-        formatLabel: 'Imagination',
-        mark: '🛸',
-        accent: '#7c3aed',
-        accentLight: '#ede9fe',
-        order: 1,
-        status: 'available',
-        launchUrl: './tomorrow-got-weird/index.html'
+    const HUB_NAV = {
+      atlas: {
+        id: ATLAS_ID,
+        name: 'Atlas',
+        desc: 'Gateway',
+        alwaysAvailable: true,
+        launchUrl: './index.html',
+        smallIcon: '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.4L11.6 6.5L6.5 11.6L1.4 6.5Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/><path d="M6.5 3.6L9.4 6.5L6.5 9.4L3.6 6.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round" opacity="0.75"/></svg>'
       },
-      {
-        registryId: 'arcade:truth-trap',
-        title: 'Truth Trap',
-        premise: 'Two truths, one lie. Study the evidence and spot the fake.',
-        unitLabel: 'Cases',
-        total: 20,
-        formatLabel: 'Reasoning',
-        mark: '🕵️',
-        accent: '#b45309',
-        accentLight: '#fef3c7',
-        order: 2,
-        status: 'available',
-        launchUrl: './truth-trap/index.html'
+      compass: {
+        id: COMPASS_ID,
+        name: 'Compass',
+        desc: WORLDS.compass.desc,
+        worldId: COMPASS_ID,
+        smallIcon: WORLDS.compass.smallIcon
       },
-      {
-        registryId: 'arcade:would-you-rather',
-        title: 'Would You Rather',
-        premise: 'Impossible choices, instant reactions. No wrong answers.',
-        unitLabel: 'Questions',
-        total: 50,
-        formatLabel: 'Choices',
-        mark: '🤔',
-        accent: '#0369a1',
-        accentLight: '#e0f2fe',
-        order: 3,
-        status: 'available',
-        launchUrl: './would-you-rather/index.html'
-      },
-      // ── COMING SOON (planned, not yet built) ──────────────────────
-      {
-        registryId: 'arcade:bad-advice-only',
-        title: 'Bad Advice Only',
-        premise: 'Give the worst possible advice to any situation. The wronger, the better.',
-        unitLabel: 'Dilemmas',
-        total: null,
-        formatLabel: 'Debate',
-        mark: '💀',
-        accent: '#be123c',
-        accentLight: '#ffe4e6',
-        order: 4,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:butterfly-effect',
-        title: 'Butterfly Effect',
-        premise: 'One tiny change in history. Follow the chaos that follows.',
-        unitLabel: 'Scenarios',
-        total: null,
-        formatLabel: 'Imagination',
-        mark: '🦋',
-        accent: '#059669',
-        accentLight: '#d1fae5',
-        order: 5,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:couch-potato',
-        title: 'Couch Potato',
-        premise: 'Discuss TV, films, and streaming — and the guilty pleasures you can\'t stop watching.',
-        unitLabel: 'Topics',
-        total: null,
-        formatLabel: 'Culture',
-        mark: '📺',
-        accent: '#7c3aed',
-        accentLight: '#ede9fe',
-        order: 6,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:devils-advocate',
-        title: 'Devil\'s Advocate',
-        premise: 'Argue the opposite of whatever you actually believe.',
-        unitLabel: 'Rounds',
-        total: null,
-        formatLabel: 'Debate',
-        mark: '😈',
-        accent: '#dc2626',
-        accentLight: '#fee2e2',
-        order: 7,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:explain-like-5',
-        title: 'Explain Like I\'m 5',
-        premise: 'Take any complex topic and explain it simply enough for a child.',
-        unitLabel: 'Topics',
-        total: null,
-        formatLabel: 'Quickfire',
-        mark: '🧒',
-        accent: '#d97706',
-        accentLight: '#fef3c7',
-        order: 8,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:guilty-or-innocent',
-        title: 'Guilty or Innocent',
-        premise: 'Read the situation. Decide in 30 seconds. Defend your verdict.',
-        unitLabel: 'Cases',
-        total: null,
-        formatLabel: 'Reasoning',
-        mark: '⚖️',
-        accent: '#1e40af',
-        accentLight: '#dbeafe',
-        order: 9,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:hidden-truth',
-        title: 'Hidden Truth',
-        premise: 'Every answer contains a secret. Can you find what\'s really being said?',
-        unitLabel: 'Rounds',
-        total: null,
-        formatLabel: 'Reasoning',
-        mark: '🔍',
-        accent: '#0f766e',
-        accentLight: '#ccfbf1',
-        order: 10,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:hot-takes',
-        title: 'Hot Takes',
-        premise: 'Controversial opinions on everyday things. Defend yours or steal theirs.',
-        unitLabel: 'Takes',
-        total: null,
-        formatLabel: 'Debate',
-        mark: '🔥',
-        accent: '#ea580c',
-        accentLight: '#ffedd5',
-        order: 11,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:instant-decision',
-        title: 'Instant Decision',
-        premise: 'Five seconds. One choice. No going back. React first, explain second.',
-        unitLabel: 'Decisions',
-        total: null,
-        formatLabel: 'Quickfire',
-        mark: '⚡',
-        accent: '#ca8a04',
-        accentLight: '#fef9c3',
-        order: 12,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:life-trade',
-        title: 'Life Trade',
-        premise: 'Swap one thing about your life for something else. Then live with it.',
-        unitLabel: 'Trades',
-        total: null,
-        formatLabel: 'Choices',
-        mark: '🔄',
-        accent: '#7c3aed',
-        accentLight: '#ede9fe',
-        order: 13,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:personal-lore',
-        title: 'Personal Lore',
-        premise: 'Your most embarrassing, strange, or surprising real-life stories.',
-        unitLabel: 'Stories',
-        total: null,
-        formatLabel: 'Culture',
-        mark: '📖',
-        accent: '#be185d',
-        accentLight: '#fce7f3',
-        order: 14,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:cats-pyjamas',
-        title: 'The Cat\'s Pyjamas',
-        premise: 'Weird British idioms, colourful slang, and the expressions nobody can explain.',
-        unitLabel: 'Phrases',
-        total: null,
-        formatLabel: 'Language',
-        mark: '🐱',
-        accent: '#0f766e',
-        accentLight: '#ccfbf1',
-        order: 15,
-        status: 'soon',
-        launchUrl: null
+      arcade: {
+        id: ARCADE_ID,
+        name: 'Arcade',
+        desc: WORLDS.arcade.desc,
+        worldId: ARCADE_ID,
+        smallIcon: WORLDS.arcade.smallIcon
       }
-    ];
+    };
 
-    /* ================================================================
-       SAFE BRIDGE READS
-       ================================================================ */
+    const REVIEW_MAX = 5; // V1 shows up to 5 most-recent covered items
+    const SESSION_ATMOSPHERE_KEY = 'atlas::sessionAtmosphereImages';
+    const ATMOSPHERE_FAVORITES_KEY = 'atlas::welcomeImageFavorites';
+    const MAX_ATMOSPHERE_FAVORITES = 12;
+
+    // ================================================================
+    // SAFE BRIDGE READS
+    // ================================================================
     function getActiveSession() {
       try { return Bridge.readActiveSession(); }
-      catch (e) { return { id: 'default', name: 'Default' }; }
+      catch (e) { return { id: Bridge.defaultSessionId || 'default', name: 'Default' }; }
     }
     function getSessions() {
       try { return Bridge.readSessions() || []; }
@@ -2207,608 +2204,236 @@
       try { return Bridge.readRegistry(); }
       catch (e) { return { worlds: {}, items: {}, sessionStates: {}, recentActivity: [] }; }
     }
-    function isDefaultSession(s) {
-      return s && s.id === (Bridge.defaultSessionId || 'default');
+    function getLedger() {
+      try { return Bridge.readLedger(); }
+      catch (e) { return { entries: {} }; }
     }
-    function resolveWorldLaunchUrl(reg, worldId) {
+    function isDefaultSession(session) {
+      return session && session.id === (Bridge.defaultSessionId || 'default');
+    }
+
+    // ================================================================
+    // WORLD RESOLUTION
+    // Prefer the clean key registry.worlds.compass; fall back narrowly
+    // to a current-identity scan only. No obsolete names.
+    // ================================================================
+    function resolveWorld(reg, worldId) {
       const worlds = reg.worlds || {};
-      const w = worlds[worldId] || Object.values(worlds).find(x => x && (x.registryId === worldId || x.world === worldId));
+      if (worlds[worldId]) return worlds[worldId];
+      return Object.values(worlds).find(w =>
+        w && (w.registryId === worldId || w.id === worldId || w.world === worldId)
+      ) || null;
+    }
+    function worldHasItems(reg, worldId) {
+      const prefix = worldId + ':';
+      return Object.keys(reg.items || {}).some(k => k.indexOf(prefix) === 0);
+    }
+    function getWorldLaunchUrl(reg, worldId) {
+      if (worldId === COMPASS_ID) return './compass/index.html';
+      if (worldId === ARCADE_ID) return './arcade/index.html';
+
+      const w = resolveWorld(reg, worldId);
       return (w && w.launchUrl) ? w.launchUrl : null;
     }
-
-    /* ================================================================
-       REGISTRATION
-       Arcade world and game items are registered idempotently on load.
-       Only available games get a launchUrl in the registry.
-       ================================================================ */
-    function registerWithBridge() {
-      if (!Bridge) return;
-      try {
-        Bridge.upsertWorld({
-          registryId: 'arcade',
-          world: 'arcade',
-          type: 'world',
-          title: 'Arcade',
-          description: 'Quickfire conversation games for spontaneous English practice.',
-          status: 'available',
-          launchUrl: new URL('./index.html', window.location.href).href
-        });
-      } catch (e) { }
-
-      GAME_CATALOGUE.forEach(game => {
-        try {
-          const item = {
-            registryId: game.registryId,
-            world: 'arcade',
-            type: 'game',
-            title: game.title,
-            premise: game.premise,
-            status: game.status,
-            unitLabel: game.unitLabel,
-            total: game.total,
-            formatLabel: game.formatLabel,
-            accent: game.accent,
-            order: game.order
-          };
-          if (game.status === 'available' && game.launchUrl) {
-            item.launchUrl = new URL(game.launchUrl, window.location.href).href;
-          }
-          Bridge.upsertItem(item);
-        } catch (e) { }
-      });
+    // A world is "available" (navigable as a hub) if it has a launchUrl.
+    function isWorldAvailable(reg, worldId) {
+      return !!getWorldLaunchUrl(reg, worldId);
     }
 
-    /* ================================================================
-       CONTINUE PLAYING
-       Reads active session's state for Arcade games.
-       Only shows games with status 'in-progress' (not 'complete', not absent).
-       Only Tomorrow Got Weird can write Bridge state currently —
-       Truth Trap and Would You Rather are not retrofitted, so they
-       will never appear here unless retrofitted in a future pass.
-       ================================================================ */
-    function singularUnitLabel(label) {
-      const clean = String(label || 'Round').trim();
-      return clean.endsWith('s') ? clean.slice(0, -1) : clean;
+    // ================================================================
+    // CONTINUE — most recent resumable item for the active session
+    // ================================================================
+    function getContinueItem(reg, sessionId) {
+      const states = (reg.sessionStates || {})[sessionId];
+      if (!states || typeof states !== 'object') return null;
+      const entries = Object.values(states);
+      if (!entries.length) return null;
+      entries.sort((a, b) =>
+        (b.lastTouchedAt || b.updatedAt || 0) - (a.lastTouchedAt || a.updatedAt || 0)
+      );
+      const best = entries[0];
+      if (!best || !best.registryId) return null;
+      const item = (reg.items || {})[best.registryId] || {};
+      // Merge identity (item) with session-scoped state (best).
+      return Object.assign({}, item, best);
+    }
+    // Qualitative label only — never detailed progress counts.
+    function continueLabel(item) {
+      const s = (item.status || '').toLowerCase();
+      if (s === 'complete' || s === 'completed' || item.complete === true) return 'Lesson complete';
+      if (s === 'in-progress' || s === 'in_progress' || s === 'started') return 'In progress';
+      if (s === 'opened' || s === 'viewed') return 'Recently opened';
+      // No explicit status: infer gently from whether there's prior touch.
+      return item.lastTouchedAt ? 'In progress' : 'Recently opened';
+    }
+    // Coverage fill for the Continue card. Reads the progress summary the world
+    // already publishes (item.progress = { covered, total }). Returns a 0–100
+    // number, or null when there's nothing meaningful to show. Unlabeled by
+    // design: it conveys shape, not counts, so the card stays a calm threshold.
+    // Mirrors the world's own rule — a completed lesson reads full.
+    function continueCoverage(item) {
+      const s = (item.status || '').toLowerCase();
+      const complete = s === 'complete' || s === 'completed' || item.complete === true || item.lessonCompletedAt;
+      if (complete) return 100;
+      const p = item.progress;
+      if (!p || typeof p !== 'object') return null;
+      const total = Number(p.total) || 0;
+      const covered = Number(p.covered) || 0;
+      if (total <= 0) return null;
+      const pct = Math.round((covered / total) * 100);
+      return Math.max(0, Math.min(100, pct));
+    }
+    function itemTitle(item) {
+      return item.navTitle || item.title || item.name || 'Untitled';
+    }
+    function itemWorldLabel(item) {
+      const w = item.world;
+      if (w === COMPASS_ID) return WORLDS.compass.name;
+      if (w === ARCADE_ID) return WORLDS.arcade.name;
+      return w || '';
     }
 
-    function formatArcadeRelativeTime(ts) {
-      if (!ts) return '';
-
-      const now = Date.now();
-      const diff = now - ts;
-      const days = Math.floor(diff / 86400000);
-
-      if (days === 0) return 'played today';
-      if (days === 1) return 'played yesterday';
-      if (days < 7) return 'played ' + days + ' days ago';
-      if (days < 14) return 'played last week';
-
-      const weeks = Math.floor(days / 7);
-      if (weeks < 5) return 'played ' + weeks + ' weeks ago';
-
-      return 'played a while ago';
+    // ================================================================
+    // LANGUAGE REVIEW — covered ledger entries for the active session
+    // Filter: sessionId match AND status === 'covered'. No fabrication.
+    // ================================================================
+    function getCoveredEntries(ledger, sessionId) {
+      return Object.values(ledger.entries || {})
+        .filter(entry =>
+          entry &&
+          entry.sessionId === sessionId &&
+          entry.status === 'covered'
+        )
+        .sort((a, b) =>
+          (b.coveredAt || b.updatedAt || 0) - (a.coveredAt || a.updatedAt || 0)
+        );
+    }
+    function getReviewSet(ledger, sessionId) {
+      return getCoveredEntries(ledger, sessionId).slice(0, REVIEW_MAX);
     }
 
-    function formatResumePointLabel(item, state) {
-      if (item.registryId === 'arcade:would-you-rather') {
-        const p = state.progress || {};
-        const total = Number(p.total) || Number(item.total) || 50;
-        const covered = Number(p.covered) || 0;
-        const left = Math.max(0, total - covered);
-
-        return left === 1 ? '1 question left' : left + ' questions left';
+    // ================================================================
+    // APPEARANCE — bridge only
+    // ================================================================
+    function applyAppearance(mode, animate) {
+      if (animate) {
+        document.documentElement.classList.add('theme-transitioning');
+        setTimeout(() => document.documentElement.classList.remove('theme-transitioning'), 400);
       }
-
-      const pos = Number(state.currentPosition) || null;
-      const unit = singularUnitLabel(item.unitLabel || 'Round');
-
-      if (pos) return 'Resume from ' + unit + ' ' + pos;
-
-      if (state.currentLabel) {
-        return 'Resume from ' + String(state.currentLabel).replace(/\s+of\s+\d+$/i, '');
-      }
-
-      return 'In progress';
-    }
-
-    function getContinueGames(reg, sessionId) {
-      const states = (reg.sessionStates || {})[sessionId] || {};
-      const results = [];
-
-      Object.entries(states).forEach(([registryId, state]) => {
-        if (!state) return;
-        // Only Arcade games
-        const item = (reg.items || {})[registryId];
-        if (!item || item.world !== 'arcade' || item.type !== 'game') return;
-        // Only in-progress (not complete, not absent)
-        if ((state.status || '').toLowerCase() !== 'in-progress') return;
-        const catalogueGame = GAME_CATALOGUE.find(g => g.registryId === registryId);
-        if (!catalogueGame || !catalogueGame.launchUrl) return;
-
-        results.push({
-          registryId,
-          title: catalogueGame.title,
-          currentLabel: formatResumePointLabel(item, state),
-          launchUrl: catalogueGame.launchUrl,
-          mark: catalogueGame.mark,
-          formatLabel: catalogueGame.formatLabel,
-          lastTouchedAt: state.lastTouchedAt || state.updatedAt || 0
-        });
-      });
-
-      // Newest first, cap at 3
-      return results.sort((a, b) => b.lastTouchedAt - a.lastTouchedAt).slice(0, 3);
-    }
-
-    /* ================================================================
-       APPEARANCE
-       ================================================================ */
-    function sunSvg(s) {
-      return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 17 17" fill="none"><circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35"/><path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>';
-    }
-    function moonSvg(s) {
-      return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 17 17" fill="none"><path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    }
-    function updateAppearanceButtons(mode) {
-      const icon = mode === 'night' ? sunSvg(16) : moonSvg(16);
-      const label = mode === 'night' ? 'Switch to day mode' : 'Switch to night mode';
-      ['spine-appearance-btn', 'mobile-appearance-btn', 'drawer-appearance-btn'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) { el.innerHTML = icon; el.setAttribute('aria-label', label); }
-      });
+      document.documentElement.dataset.theme = mode;
+      updateAppearanceButtons(mode);
     }
     function toggleAppearance() {
       const cur = Bridge.readAppearanceMode();
       const next = cur === 'night' ? 'light' : 'night';
-      document.documentElement.classList.add('theme-changing');
-      setTimeout(() => document.documentElement.classList.remove('theme-changing'), 400);
-      Bridge.setAppearanceMode(next);
-      document.documentElement.dataset.theme = next;
-      updateAppearanceButtons(next);
+      Bridge.setAppearanceMode(next); // dispatches atlas:appearance-change
+      applyAppearance(next, true);
+    }
+    function moonSvg(size) {
+      size = size || 17;
+      return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 17 17" fill="none"><path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    }
+    function sunSvg(size) {
+      size = size || 17;
+      return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 17 17" fill="none"><circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35"/><path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>';
+    }
+    function updateAppearanceButtons(mode) {
+      const icon = mode === 'night' ? sunSvg(17) : moonSvg(17);
+      const label = mode === 'night' ? 'Switch to day mode' : 'Switch to night mode';
+      ['spine-appearance-btn', 'mobile-appearance-btn'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.innerHTML = icon; el.setAttribute('aria-label', label); }
+      });
+      const da = document.querySelector('.drawer-appearance-btn');
+      if (da) da.innerHTML = mode === 'night' ? sunSvg(16) : moonSvg(16);
     }
 
-    /* ================================================================
-       NAVIGATION
-       ================================================================ */
+    // ================================================================
+    // NAVIGATION
+    // ================================================================
     function navigateTo(url) {
-      if (!url) { showToast('That destination isn\'t available yet.'); return; }
+      if (!url) { showToast('That destination isn\u2019t available on this device yet.'); return; }
       window.location.href = url;
     }
-
-    function openHub(hubId) {
-      const hub = HUB_NAV[hubId];
-      if (!hub) return;
-      if (hub.id === ACTIVE_HUB_ID) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-      if (hub.worldId) {
-        const reg = getRegistry();
-        const url = resolveWorldLaunchUrl(reg, hub.worldId);
-        if (url) { navigateTo(url); return; }
-        showToast(hub.name + ' isn\'t available on this device yet.');
+    // Open a world by its hub launchUrl. If Compass has items but no hub
+    // URL yet, say so plainly rather than inventing a route.
+    function openWorld(worldId) {
+      const reg = getRegistry();
+      const url = getWorldLaunchUrl(reg, worldId);
+      if (url) { navigateTo(url); return; }
+      if (worldId === COMPASS_ID && worldHasItems(reg, COMPASS_ID)) {
+        showToast('Compass is registered, but its hub isn\u2019t linked on this device yet.');
         return;
       }
-      if (hub.launchUrl) { navigateTo(hub.launchUrl); return; }
-      showToast('That destination isn\'t available yet.');
+      showToast('This world is coming soon.');
     }
 
-    function isHubAvailable(hub, reg) {
-      if (hub.alwaysAvailable) return true;
-      if (hub.worldId) return !!resolveWorldLaunchUrl(reg, hub.worldId);
-      return false;
-    }
-
-    /* ================================================================
-           SETTINGS — Arcade atmosphere image
-           ================================================================ */
-    function readArcadeAtmosphereMode() {
-      try {
-        const mode = localStorage.getItem(ARCADE_ATMOSPHERE_MODE_KEY);
-        if (mode === 'custom' || mode === 'none' || mode === 'default') return mode;
-
-        // Preserve old Arcade behaviour for anyone who already saved a custom image.
-        return localStorage.getItem(ARCADE_ATMOSPHERE_KEY) ? 'custom' : 'default';
-      } catch (e) {
-        return 'default';
+    let toastTimer = null;
+    function showToast(text) {
+      let el = document.getElementById('atlas-toast');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'atlas-toast';
+        el.className = 'atlas-toast';
+        el.setAttribute('role', 'status');
+        document.body.appendChild(el);
       }
+      el.textContent = text;
+      requestAnimationFrame(() => el.classList.add('visible'));
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        el.classList.remove('visible');
+      }, 3200);
     }
 
-    function readArcadeCustomAtmosphereImage() {
-      try { return localStorage.getItem(ARCADE_ATMOSPHERE_KEY) || ''; }
-      catch (e) { return ''; }
+    // ================================================================
+    // CONFIRM DIALOG (promise-based)
+    // ================================================================
+    let confirmResolver = null;
+    function showConfirm(opts) {
+      opts = opts || {};
+      return new Promise(resolve => {
+        confirmResolver = resolve;
+        document.getElementById('confirm-title').textContent = opts.title || '';
+        document.getElementById('confirm-message').textContent = opts.message || '';
+        const okBtn = document.getElementById('confirm-ok-btn');
+        okBtn.textContent = opts.okLabel || 'Confirm';
+        okBtn.className = opts.okClass || 'btn-danger';
+        const inp = document.getElementById('confirm-input');
+        inp.className = 'confirm-input' + (opts.inputMode ? ' visible' : '');
+        inp.value = opts.inputValue || '';
+        const err = document.getElementById('confirm-error');
+        err.className = 'confirm-error';
+        err.textContent = '';
+        document.getElementById('confirm-dialog').classList.add('open');
+        if (opts.inputMode) setTimeout(() => { inp.focus(); inp.select(); }, 50);
+      });
     }
-
-    function getArcadeAtmosphereImage() {
-      const mode = readArcadeAtmosphereMode();
-
-      if (mode === 'none') return '';
-      if (mode === 'custom') return readArcadeCustomAtmosphereImage();
-
-      return ARCADE_DEFAULT_ATMOSPHERE;
+    function showConfirmError(msg) {
+      const err = document.getElementById('confirm-error');
+      err.textContent = msg;
+      err.className = 'confirm-error visible';
     }
-
-    function writeArcadeAtmosphereSettings(mode, url) {
-      const cleanMode = (mode === 'custom' || mode === 'none' || mode === 'default') ? mode : 'default';
-      const cleanUrl = (url || '').trim();
-
-      try {
-        localStorage.setItem(ARCADE_ATMOSPHERE_MODE_KEY, cleanMode);
-
-        if (cleanUrl) localStorage.setItem(ARCADE_ATMOSPHERE_KEY, cleanUrl);
-        else localStorage.removeItem(ARCADE_ATMOSPHERE_KEY);
-      } catch (e) { }
-
-      applyArcadeAtmosphereImage();
-    }
-
-    function cssImageUrl(url) {
-      return 'url("' + String(url || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '")';
-    }
-
-    function applyArcadeAtmosphereImage() {
-      const layer = document.getElementById('arcade-atmosphere-layer');
-      if (!layer) return;
-
-      const image = getArcadeAtmosphereImage();
-
-      if (!image) {
-        layer.style.backgroundImage = '';
-        layer.classList.remove('visible');
+    function resolveConfirm(ok) {
+      const inp = document.getElementById('confirm-input');
+      const isInput = inp.classList.contains('visible');
+      if (!ok) {
+        document.getElementById('confirm-dialog').classList.remove('open');
+        if (confirmResolver) { confirmResolver(isInput ? null : false); confirmResolver = null; }
         return;
       }
-
-      layer.style.backgroundImage = cssImageUrl(image);
-      layer.classList.add('visible');
+      const value = isInput ? inp.value.trim() : true;
+      document.getElementById('confirm-dialog').classList.remove('open');
+      if (confirmResolver) { confirmResolver(value); confirmResolver = null; }
     }
+    document.getElementById('confirm-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') resolveConfirm(true);
+      if (e.key === 'Escape') resolveConfirm(false);
+    });
 
-    function handleArcadeAtmosphereModeChange() {
-      const mode = document.getElementById('arcade-atmosphere-mode');
-      const row = document.getElementById('arcade-custom-atmosphere-row');
-
-      if (!mode || !row) return;
-
-      row.style.display = mode.value === 'custom' ? '' : 'none';
-    }
-
-    function openSettingsModal() {
-      const mode = document.getElementById('arcade-atmosphere-mode');
-      const input = document.getElementById('arcade-atmosphere-input');
-
-      if (mode) mode.value = readArcadeAtmosphereMode();
-      if (input) input.value = readArcadeCustomAtmosphereImage();
-
-      handleArcadeAtmosphereModeChange();
-
-      document.getElementById('settings-modal').classList.add('open');
-      document.body.style.overflow = 'hidden';
-
-      setTimeout(() => {
-        const currentMode = readArcadeAtmosphereMode();
-        const el = currentMode === 'custom'
-          ? document.getElementById('arcade-atmosphere-input')
-          : document.getElementById('arcade-atmosphere-mode');
-
-        if (el) el.focus();
-      }, 50);
-    }
-
-    function closeSettingsModal() {
-      document.getElementById('settings-modal').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    function handleSettingsModalClick(e) {
-      if (e.target === document.getElementById('settings-modal')) closeSettingsModal();
-    }
-
-    function handleSaveSettings() {
-      const modeEl = document.getElementById('arcade-atmosphere-mode');
-      const input = document.getElementById('arcade-atmosphere-input');
-
-      const mode = modeEl ? modeEl.value : 'default';
-      const customUrl = input ? input.value.trim() : '';
-
-      if (mode === 'custom' && !customUrl) {
-        showToast('Add a custom image URL, or choose Default or No atmosphere.');
-        if (input) input.focus();
-        return;
-      }
-
-      writeArcadeAtmosphereSettings(mode, customUrl);
-      closeSettingsModal();
-
-      const labels = {
-        default: 'Arcade atmosphere reset to default.',
-        custom: 'Arcade custom atmosphere saved.',
-        none: 'Arcade atmosphere removed.'
-      };
-
-      showToast(labels[mode] || 'Arcade atmosphere saved.');
-    }
-
-    function handleRevertAtmosphere() {
-      writeArcadeAtmosphereSettings('default', '');
-      closeSettingsModal();
-      showToast('Arcade atmosphere reset to default.');
-    }
-
-    /* ================================================================
-       SESSION LABELS
-       ================================================================ */
-    function setSessionLabels() {
-      const s = getActiveSession();
-      const name = (isDefaultSession(s) || !s.name) ? 'Session' : s.name;
-      ['spine-session-name', 'mobile-session-name', 'drawer-session-name'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = name;
-      });
-    }
-
-    /* ================================================================
-       RENDER SPINE HUB NAV
-       ================================================================ */
-    function renderSpineHubNav() {
-      const reg = getRegistry();
-      const host = document.getElementById('spine-hub-nav');
-      if (!host) return;
-      host.innerHTML = Object.values(HUB_NAV).map(hub => {
-        const active = hub.id === ACTIVE_HUB_ID;
-        const available = isHubAvailable(hub, reg);
-        const cls = 'spine-world-btn' + (active ? ' is-active' : '');
-        const disabled = available ? '' : ' aria-disabled="true"';
-        const click = available && !active ? ' onclick="openHub(\'' + hub.id + '\')"' : '';
-        const title = active ? hub.name : (available ? 'Open ' + hub.name : hub.name + ' — coming soon');
-        return '<button class="' + cls + '"' + disabled + click +
-          (active ? ' aria-current="page"' : '') +
-          ' title="' + escHtml(title) + '">' +
-          hub.icon + '<span>' + escHtml(hub.name) + '</span>' +
-          '</button>';
-      }).join('');
-    }
-
-    function renderDrawerHubNav() {
-      const reg = getRegistry();
-      const host = document.getElementById('drawer-hub-nav');
-      if (!host) return;
-      host.innerHTML = Object.values(HUB_NAV).map(hub => {
-        const active = hub.id === ACTIVE_HUB_ID;
-        const available = isHubAvailable(hub, reg);
-        const cls = 'drawer-nav-item' + (active ? ' is-active' : '');
-        const disabled = available ? '' : ' aria-disabled="true"';
-        const click = available && !active ? ' onclick="closeDrawer();openHub(\'' + hub.id + '\')"' : '';
-        return '<button class="' + cls + '"' + disabled + click +
-          (active ? ' aria-current="page"' : '') + '>' +
-          hub.icon + escHtml(hub.name) +
-          (available ? '' : '<span class="nav-soon">Soon</span>') +
-          '</button>';
-      }).join('');
-    }
-
-    /* ================================================================
-       RENDER MAIN HUB
-       ================================================================ */
-    function renderHub() {
-      if (!Bridge) return;
-      const session = getActiveSession();
-      const reg = getRegistry();
-
-      setSessionLabels();
-      renderSpineHubNav();
-      renderDrawerHubNav();
-
-      const continueGames = getContinueGames(reg, session.id);
-      const availableGames = GAME_CATALOGUE.filter(g => g.status === 'available');
-      const soonGames = GAME_CATALOGUE.filter(g => g.status === 'soon');
-
-      // Build in-progress lookup from Bridge for status badges on library cards
-      const sessionStates = (reg.sessionStates || {})[session.id] || {};
-
-      let html = '';
-
-      // ── Identity strip ──
-      const eyebrow = isDefaultSession(session) ? 'Arcade' : 'Welcome, ' + session.name;
-
-      html += '<div class="hub-intro">' +
-        '<div class="hub-intro-text">' +
-        '<div class="hub-eyebrow">' + escHtml(eyebrow) + '</div>' +
-        '<h1 class="hub-title">Quickfire conversation games.</h1>' +
-        '<p class="hub-desc">No scripts. No wrong answers. Pick a game and go.</p>' +
-        '</div>' +
-        '<div class="hub-meta">' +
-        '<div class="hub-meta-chip">' + availableGames.length + ' playable game' + (availableGames.length !== 1 ? 's' : '') + '</div>' +
-        '</div>' +
-        '</div>';
-
-      // ── Continue Playing (conditional) ──
-      if (continueGames.length > 0) {
-        html += '<div class="continue-zone">';
-        html += '<div class="section-label">Continue Playing</div>';
-        html += '<div class="continue-list">';
-        continueGames.forEach(game => {
-          html += renderContinueCard(game);
-        });
-        html += '</div>';
-        html += '</div>';
-      }
-
-      // ── Game Library ──
-      html += '<div class="library-zone">';
-      html += '<div class="library-header">';
-      html += '<h2 class="library-title">Game Library</h2>';
-      html += '<div class="library-search-wrap">' +
-        '<span class="library-search-icon" aria-hidden="true">' +
-        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="3.8" stroke="currentColor" stroke-width="1.2"/><path d="M9 9l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>' +
-        '</span>' +
-        '<input class="library-search" id="library-search" type="text" placeholder="Search games…" autocomplete="off" aria-label="Search games">' +
-        '<button class="library-search-clear" id="library-search-clear" onclick="clearLibrarySearch()" aria-label="Clear search">✕</button>' +
-        '</div>';
-      html += '</div>'; // library-header
-
-      // Available games grid
-      html += '<div class="game-grid" id="game-grid-available">';
-      availableGames.forEach(game => {
-        const bridgeState = sessionStates[game.registryId];
-        const inProgress = bridgeState && (bridgeState.status || '').toLowerCase() === 'in-progress';
-        html += renderGameCard(game, inProgress);
-      });
-      html += '</div>';
-
-      // Coming soon divider + grid
-      if (soonGames.length > 0) {
-        html += '<div class="library-divider"><span class="library-divider-label">Coming next</span></div>';
-        html += '<div class="game-grid" id="game-grid-soon">';
-        soonGames.forEach(game => {
-          html += renderGameCard(game, false);
-        });
-        html += '</div>';
-      }
-
-      html += '<div class="no-results" id="no-results"><p>No games match that search.</p></div>';
-      html += '</div>'; // library-zone
-
-      document.getElementById('arcade-main').innerHTML = html;
-
-      // Bind search after render
-      bindLibrarySearch();
-    }
-
-    function renderContinueCard(game) {
-      const playedLabel = formatArcadeRelativeTime(game.lastTouchedAt);
-
-      const meta = [
-        game.currentLabel,
-        playedLabel
-      ].filter(Boolean).join(' · ');
-
-      return '<div class="continue-card" role="button" tabindex="0" ' +
-        'onclick="navigateTo(\'' + escAttr(game.launchUrl) + '\')" ' +
-        'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navigateTo(\'' + escAttr(game.launchUrl) + '\')}">' +
-        '<div class="continue-icon" aria-hidden="true">' +
-        escHtml(game.mark) +
-        '</div>' +
-        '<div class="continue-body">' +
-        '<div class="continue-title">' + escHtml(game.title) + '</div>' +
-        (meta ? '<div class="continue-progress">' + escHtml(meta) + '</div>' : '') +
-        '</div>' +
-        '<a class="continue-resume" href="' + escAttr(game.launchUrl) + '" onclick="event.stopPropagation()">Resume' +
-        '<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-        '</a>' +
-        '</div>';
-    }
-
-    function renderGameCard(game, inProgress) {
-      const isAvailable = game.status === 'available';
-      const isSoon = game.status === 'soon';
-
-      // Card class
-      let cardClass = 'game-card';
-      if (isSoon) cardClass += ' is-soon';
-      if (inProgress) cardClass += ' is-inprogress';
-
-      // Accent top stripe colour
-      const accentStyle = isAvailable
-        ? 'style="background:' + game.accent + '"'
-        : '';
-
-      // Status badge
-      let statusHtml = '';
-      if (inProgress) {
-        statusHtml = '<span class="game-card-status status-inprogress" aria-label="In progress">In progress</span>';
-      } else if (isSoon) {
-        statusHtml = '<span class="game-card-status status-soon">Coming soon</span>';
-      } else {
-        statusHtml = '<span class="game-card-status status-available">Available</span>';
-      }
-
-      // Action button
-      let actionHtml = '';
-      if (isAvailable) {
-        const label = inProgress ? 'Resume' : 'Play';
-        actionHtml = '<a class="game-card-action" href="' + escAttr(game.launchUrl) + '" aria-label="' + label + ' ' + escAttr(game.title) + '">' +
-          label +
-          '<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-          '</a>';
-      } else {
-        actionHtml = '<span class="game-card-action disabled" aria-label="Coming soon">Soon</span>';
-      }
-
-      // Unit info
-      const unitText = game.total
-        ? game.total + ' ' + (game.unitLabel || 'rounds').toLowerCase()
-        : 'Open-ended';
-
-      const clickHandler = isAvailable
-        ? 'onclick="navigateTo(\'' + escAttr(game.launchUrl) + '\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navigateTo(\'' + escAttr(game.launchUrl) + '\')}" tabindex="0"'
-        : 'aria-disabled="true" tabindex="0"';
-
-      return '<div class="' + cardClass + '" ' + clickHandler +
-        ' role="' + (isAvailable ? 'button' : 'article') + '"' +
-        ' aria-label="' + escAttr(game.title) + (isSoon ? ' — coming soon' : '') + '"' +
-        ' data-title="' + escAttr(game.title.toLowerCase()) + '"' +
-        ' data-format="' + escAttr((game.formatLabel || '').toLowerCase()) + '">' +
-        '<span style="position:absolute;top:0;left:0;right:0;height:3px;' + (isAvailable ? 'background:' + game.accent : 'background:var(--border)') + ';opacity:' + (isAvailable ? '0' : '1') + '" class="card-accent-bar" aria-hidden="true"></span>' +
-        '<span class="game-card-mark" aria-hidden="true">' + game.mark + '</span>' +
-        '<div class="game-card-title">' + escHtml(game.title) + '</div>' +
-        '<p class="game-card-premise">' + escHtml(game.premise) + '</p>' +
-        '<div class="game-card-footer">' +
-        '<div class="game-card-meta">' +
-        '<span class="game-card-unit">' + escHtml(unitText) + '</span>' +
-        '<span class="game-card-format">' + escHtml(game.formatLabel || '') + '</span>' +
-        '</div>' +
-        actionHtml +
-        '</div>' +
-        '</div>';
-    }
-
-    /* ================================================================
-       LIBRARY SEARCH
-       ================================================================ */
-    function bindLibrarySearch() {
-      const field = document.getElementById('library-search');
-      const clearBtn = document.getElementById('library-search-clear');
-      if (!field) return;
-      field.addEventListener('input', e => {
-        const q = (e.target.value || '').trim().toLowerCase();
-        clearBtn && clearBtn.classList.toggle('visible', q.length > 0);
-        filterLibrary(q);
-      });
-      field.addEventListener('keydown', e => {
-        if (e.key === 'Escape') { clearLibrarySearch(); field.blur(); }
-      });
-    }
-
-    function clearLibrarySearch() {
-      const field = document.getElementById('library-search');
-      const clearBtn = document.getElementById('library-search-clear');
-      if (field) field.value = '';
-      if (clearBtn) clearBtn.classList.remove('visible');
-      filterLibrary('');
-    }
-
-    function filterLibrary(q) {
-      const cards = document.querySelectorAll('.game-card');
-      let visible = 0;
-      cards.forEach(card => {
-        const title = card.dataset.title || '';
-        const format = card.dataset.format || '';
-        const match = !q || title.includes(q) || format.includes(q);
-        card.style.display = match ? '' : 'none';
-        if (match) visible++;
-      });
-      // Show/hide divider if no soon games visible
-      const divider = document.querySelector('.library-divider');
-      if (divider) {
-        const soonGrid = document.getElementById('game-grid-soon');
-        if (soonGrid) {
-          const soonVisible = Array.from(soonGrid.querySelectorAll('.game-card')).some(c => c.style.display !== 'none');
-          divider.style.display = soonVisible ? '' : 'none';
-        }
-      }
-      const noResults = document.getElementById('no-results');
-      if (noResults) noResults.classList.toggle('visible', q.length > 0 && visible === 0);
-    }
-
-    /* ================================================================
-       SESSION MODAL
-       ================================================================ */
+    // ================================================================
+    // SESSION MODAL — bridge methods only
+    // ================================================================
     function openSessionModal() {
       renderSessionList();
       clearSessionError();
@@ -2824,22 +2449,26 @@
     }
     function clearSessionError() {
       const el = document.getElementById('session-create-error');
-      el.textContent = ''; el.className = 'session-error';
+      el.textContent = '';
+      el.className = 'session-error';
     }
     function showSessionError(msg) {
       const el = document.getElementById('session-create-error');
-      el.textContent = msg; el.className = 'session-error visible';
+      el.textContent = msg;
+      el.className = 'session-error visible';
     }
-
     function renderSessionList() {
       const sessions = getSessions();
       const active = getActiveSession();
       const defId = Bridge.defaultSessionId || 'default';
       const helper = document.getElementById('session-modal-helper');
-      helper.textContent = isDefaultSession(active)
-        ? 'Add a learner name to keep each student\'s progress separate.'
-        : 'Active session: ' + active.name + '. Switch to change the active learner.';
-      document.getElementById('session-list').innerHTML = sessions.map(s => {
+      if (isDefaultSession(active)) {
+        helper.textContent = 'Add a learner name to keep each student\u2019s progress and review separate.';
+      } else {
+        helper.textContent = 'Active session: ' + active.name + '. Switch to change the active learner.';
+      }
+      const list = document.getElementById('session-list');
+      list.innerHTML = sessions.map(s => {
         const isActive = s.id === active.id;
         const isDefault = s.id === defId;
         return '<div class="session-item ' + (isActive ? 'active' : '') + '">' +
@@ -2847,74 +2476,129 @@
           (isActive ? '<span class="session-item-badge">Active</span>' : '') +
           '<div class="session-item-actions">' +
           (!isActive ? '<button class="session-action-btn" title="Switch to ' + escAttr(s.name) + '" onclick="handleSwitchSession(\'' + escAttr(s.id) + '\')" aria-label="Switch to ' + escAttr(s.name) + '">' +
-            '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5h7M6 2.5l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' : '') +
-          (!isDefault ? '<button class="session-action-btn danger" title="Delete" onclick="handleDeleteSession(\'' + escAttr(s.id) + '\')" aria-label="Delete ' + escAttr(s.name) + '">' +
-            '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1 1l9 9M10 1L1 10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>' : '') +
-          '</div></div>';
+            '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' : '') +
+          (!isDefault ? '<button class="session-action-btn" title="Rename" onclick="handleRenameSession(\'' + escAttr(s.id) + '\')" aria-label="Rename ' + escAttr(s.name) + '">' +
+            '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2l2 2M2 10l.5-2 5-5L9.5 4.5l-5 5L2 10Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' : '') +
+          '<button class="session-action-btn danger" title="Reset progress" onclick="handleResetSession(\'' + escAttr(s.id) + '\')" aria-label="Reset progress for ' + escAttr(s.name) + '">' +
+          '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6a4 4 0 1 1 .7 2.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M2 9V6h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
+          (!isDefault ? '<button class="session-action-btn danger" title="Delete session" onclick="handleDeleteSession(\'' + escAttr(s.id) + '\')" aria-label="Delete ' + escAttr(s.name) + '">' +
+            '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>' : '') +
+          '</div>' +
+          '</div>';
       }).join('');
     }
-
     function handleCreateSession() {
       const input = document.getElementById('new-session-input');
       const name = input.value.trim();
       clearSessionError();
       if (!name) { showSessionError('Enter a name to create a session.'); return; }
-      const created = Bridge.createSession(name);
+      const created = Bridge.createSession(name); // auto-activates + dispatches event
       if (!created) {
-        showSessionError('That name is already in use.');
+        showSessionError('That name is already in use. Try a different one.');
         input.style.borderColor = 'var(--danger)';
         setTimeout(() => { input.style.borderColor = ''; }, 1200);
         return;
       }
       input.value = '';
+      // Event listener will re-render home + labels; refresh modal list now.
       renderSessionList();
-      renderHub();
     }
-
     function handleSwitchSession(id) {
-      const result = Bridge.setActiveSession(id);
-      if (!result) { showSessionError('Couldn\'t switch to that session.'); return; }
+      const result = Bridge.setActiveSession(id); // dispatches event
+      if (!result) { showSessionError('Couldn\u2019t switch to that session.'); return; }
       closeSessionModal();
+      // Event listener re-renders home.
     }
-
+    async function handleRenameSession(id) {
+      const sessions = getSessions();
+      const s = sessions.find(x => x.id === id);
+      if (!s) return;
+      const newName = await showConfirm({
+        title: 'Rename session',
+        message: 'Give this session a new name.',
+        okLabel: 'Rename',
+        okClass: 'btn-primary',
+        inputMode: true,
+        inputValue: s.name
+      });
+      if (newName === null || newName === '' || newName === s.name) return;
+      const renamed = Bridge.renameSession(id, newName);
+      if (!renamed) {
+        await showConfirm({
+          title: 'Name taken',
+          message: 'A session called \u201c' + newName + '\u201d already exists. Choose a different name.',
+          okLabel: 'OK', okClass: 'btn-ghost'
+        });
+        return;
+      }
+      renderSessionList();
+      renderHome();
+    }
+    async function handleResetSession(id) {
+      const sessions = getSessions();
+      const s = sessions.find(x => x.id === id);
+      if (!s) return;
+      const ok = await showConfirm({
+        title: 'Reset progress?',
+        message: 'This clears lesson progress for ' + s.name + ' on this device. Covered language stays in Language Review.',
+        okLabel: 'Reset progress'
+      });
+      if (!ok) return;
+      // Narrowly scoped read-mutate-write through public bridge methods.
+      const reg = getRegistry();
+      if (reg.sessionStates) delete reg.sessionStates[id];
+      reg.recentActivity = (reg.recentActivity || []).filter(a => a && a.sessionId !== id);
+      Bridge.writeRegistry(reg);
+      renderSessionList();
+      renderHome();
+    }
     async function handleDeleteSession(id) {
+      const defId = Bridge.defaultSessionId || 'default';
+      if (id === defId) return; // default can't be deleted
       const sessions = getSessions();
       const s = sessions.find(x => x.id === id);
       if (!s) return;
       const ok = await showConfirm({
         title: 'Delete session?',
-        message: 'This permanently removes ' + s.name + ' and their Arcade progress on this device.',
+        message: 'This permanently removes ' + s.name + ', their progress, and their covered language from this device.',
         okLabel: 'Delete session'
       });
       if (!ok) return;
-      Bridge.deleteSession(id);
-      renderSessionList();
-      renderHub();
-    }
 
-    /* ================================================================
-       CONFIRM DIALOG
-       ================================================================ */
-    let confirmResolver = null;
-    function showConfirm(opts) {
-      opts = opts || {};
-      return new Promise(resolve => {
-        confirmResolver = resolve;
-        document.getElementById('confirm-title').textContent = opts.title || '';
-        document.getElementById('confirm-message').textContent = opts.message || '';
-        const okBtn = document.getElementById('confirm-ok-btn');
-        okBtn.textContent = opts.okLabel || 'Confirm';
-        document.getElementById('confirm-dialog').classList.add('open');
+      // 1) Purge ledger entries for this session.
+      const ledger = getLedger();
+      let ledgerChanged = false;
+      Object.keys(ledger.entries || {}).forEach(k => {
+        if (ledger.entries[k] && ledger.entries[k].sessionId === id) {
+          delete ledger.entries[k];
+          ledgerChanged = true;
+        }
       });
-    }
-    function resolveConfirm(ok) {
-      document.getElementById('confirm-dialog').classList.remove('open');
-      if (confirmResolver) { confirmResolver(ok); confirmResolver = null; }
+      if (ledgerChanged) Bridge.writeLedger(ledger);
+
+      // 2) Scrub this session's registry state + recent activity.
+      const reg = getRegistry();
+      if (reg.sessionStates) delete reg.sessionStates[id];
+      reg.recentActivity = (reg.recentActivity || []).filter(a => a && a.sessionId !== id);
+      Bridge.writeRegistry(reg);
+
+      // 3) Remove this session's welcome image.
+      const atmosphereMap = readSessionAtmosphereImages();
+      if (atmosphereMap[id]) {
+        delete atmosphereMap[id];
+        writeSessionAtmosphereImages(atmosphereMap);
+      }
+
+      // 4) Remove the session record itself (bridge owns active reassignment).
+      Bridge.deleteSession(id); // dispatches event if it was active
+
+      renderSessionList();
+      renderHome();
     }
 
-    /* ================================================================
-       MOBILE DRAWER
-       ================================================================ */
+    // ================================================================
+    // MOBILE DRAWER
+    // ================================================================
     function openDrawer() {
       renderDrawerHubNav();
       const overlay = document.getElementById('drawer-overlay');
@@ -2931,77 +2615,668 @@
       setTimeout(() => { overlay.style.display = ''; }, 300);
     }
 
-    /* ================================================================
-       TOAST
-       ================================================================ */
-    let toastTimer = null;
-    function showToast(text) {
-      let el = document.getElementById('arcade-toast-el');
-      if (!el) {
-        el = document.createElement('div');
-        el.id = 'arcade-toast-el';
-        el.className = 'arcade-toast';
-        el.setAttribute('role', 'status');
-        document.body.appendChild(el);
+    // ================================================================
+    // HEADER / DRAWER HUB NAVIGATION
+    // Header nav is hub-level: Atlas, Compass, Arcade.
+    // WORLDS remains lesson-world data for Atlas cards.
+    // ================================================================
+    function isHubAvailable(hub, reg) {
+      if (!hub) return false;
+      if (hub.alwaysAvailable) return true;
+
+      if (hub.worldId === COMPASS_ID) {
+        return isWorldAvailable(reg, COMPASS_ID) || worldHasItems(reg, COMPASS_ID);
       }
-      el.textContent = text;
-      requestAnimationFrame(() => el.classList.add('visible'));
-      if (toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => el.classList.remove('visible'), 3200);
+
+      if (hub.worldId === ARCADE_ID) {
+        return isWorldAvailable(reg, ARCADE_ID);
+      }
+
+      return false;
     }
 
-    /* ================================================================
-       GLOBAL KEYBOARD SHORTCUTS
-       ================================================================ */
+    function openHub(hubId) {
+      const hub = HUB_NAV[hubId];
+      if (!hub) return;
+
+      if (hub.id === ACTIVE_HUB_ID) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      if (hub.worldId) {
+        openWorld(hub.worldId);
+        return;
+      }
+
+      if (hub.launchUrl) {
+        navigateTo(hub.launchUrl);
+        return;
+      }
+
+      showToast('That destination is not available yet.');
+    }
+
+    function renderSpineHubNav() {
+      const reg = getRegistry();
+      const host = document.getElementById('spine-worlds');
+      if (!host) return;
+
+      host.innerHTML = Object.values(HUB_NAV).map(hub => {
+        const active = hub.id === ACTIVE_HUB_ID;
+        const available = isHubAvailable(hub, reg);
+        const disabledAttr = available ? '' : ' aria-disabled="true"';
+        const activeClass = active ? ' is-active' : '';
+        const onclick = available ? ' onclick="openHub(\'' + hub.id + '\')"' : '';
+        const title = active
+          ? hub.name
+          : available
+            ? 'Open ' + hub.name
+            : hub.name + ' \u2014 coming soon';
+
+        return '<button class="spine-world-btn' + activeClass + '"' +
+          disabledAttr +
+          onclick +
+          (active ? ' aria-current="page"' : '') +
+          ' title="' + escAttr(title) + '">' +
+          hub.smallIcon +
+          hub.name +
+          '</button>';
+      }).join('');
+    }
+
+    function renderDrawerHubNav() {
+      const reg = getRegistry();
+      const host = document.getElementById('drawer-worlds');
+      if (!host) return;
+
+      host.innerHTML = Object.values(HUB_NAV).map(hub => {
+        const active = hub.id === ACTIVE_HUB_ID;
+        const available = isHubAvailable(hub, reg);
+        const disabledAttr = available ? '' : ' aria-disabled="true"';
+        const activeClass = active ? ' is-active' : '';
+        const onclick = available ? ' onclick="closeDrawer();openHub(\'' + hub.id + '\')"' : '';
+
+        return '<button class="drawer-nav-item' + activeClass + '"' +
+          disabledAttr +
+          onclick +
+          (active ? ' aria-current="page"' : '') +
+          '>' +
+          hub.smallIcon +
+          hub.name +
+          (available ? '' : '<span class="nav-soon">Soon</span>') +
+          '</button>';
+      }).join('');
+    }
+
+    // ================================================================
+    // LANGUAGE REVIEW — focused inline view (replaces home content)
+    // ================================================================
+    let reviewState = null; // { set: [...], idx, revealed }
+    let defaultSetupDismissed = false;
+
+    function openLanguageReview() {
+      const session = getActiveSession();
+      const ledger = getLedger();
+      const set = getReviewSet(ledger, session.id);
+      if (!set.length) { renderHome(); return; } // nothing to review; stay home
+      reviewState = { set: set, idx: 0, revealed: false };
+      renderReviewView();
+    }
+    function closeLanguageReview() {
+      reviewState = null;
+      renderHome();
+    }
+    function reviewReveal() {
+      if (!reviewState) return;
+      reviewState.revealed = true;
+      renderReviewView();
+    }
+    function reviewNext() {
+      if (!reviewState) return;
+      if (reviewState.idx < reviewState.set.length - 1) {
+        reviewState.idx++;
+        reviewState.revealed = false;
+        renderReviewView();
+      }
+    }
+    function reviewPrev() {
+      if (!reviewState) return;
+      if (reviewState.idx > 0) {
+        reviewState.idx--;
+        reviewState.revealed = false;
+        renderReviewView();
+      }
+    }
+    function renderReviewView() {
+      const session = getActiveSession();
+      const st = reviewState;
+      const entry = st.set[st.idx];
+      const total = st.set.length;
+      const atLast = st.idx === total - 1;
+      const contextName = isDefaultSession(session) ? 'this session' : escHtml(session.name);
+
+      const type = entry.type ? '<div class="recall-type">' + escHtml(entry.type) + '</div>' : '';
+      const prompt = entry.reviewPrompt
+        ? '<div class="recall-prompt"><span class="recall-prompt-label">Try this</span>' + escHtml(entry.reviewPrompt) + '</div>'
+        : '';
+
+      let answer = '';
+      if (st.revealed) {
+        const def = entry.def ? '<div class="recall-answer-label">Meaning</div><div class="recall-def">' + escHtml(entry.def) + '</div>' : '';
+        const inAction = entry.inAction ? '<div class="recall-answer-label">In action</div><div class="recall-inaction">' + escHtml(entry.inAction) + '</div>' : '';
+        answer = '<div class="recall-answer">' + def + inAction +
+          (!def && !inAction ? '<div class="recall-def" style="color:var(--ink-quiet)">No further detail was saved for this item.</div>' : '') +
+          '</div>';
+      }
+
+      const revealOrNav = st.revealed
+        ? '<div class="review-controls">' +
+        '<button class="review-nav-btn" onclick="reviewPrev()" ' + (st.idx === 0 ? 'disabled' : '') + '>' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 3L5 7l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Previous</button>' +
+        (atLast
+          ? '<button class="review-nav-btn primary" onclick="closeLanguageReview()">Done</button>'
+          : '<button class="review-nav-btn primary" onclick="reviewNext()">Next' +
+          '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>') +
+        '</div>'
+        : '<button class="recall-reveal-btn" onclick="reviewReveal()">' +
+        '<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M1 7.5S3.5 3 7.5 3s6.5 4.5 6.5 4.5-2.5 4.5-6.5 4.5S1 7.5 1 7.5Z" stroke="currentColor" stroke-width="1.2"/><circle cx="7.5" cy="7.5" r="1.8" stroke="currentColor" stroke-width="1.2"/></svg>' +
+        'Reveal meaning</button>';
+
+      const main = document.getElementById('atlas-main');
+      main.className = ''; // detach .atlas-main constraints; review-view sets its own
+      main.innerHTML =
+        '<div class="review-view">' +
+        '<div class="review-topbar">' +
+        '<button class="review-back" onclick="closeLanguageReview()">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 3L4.5 7l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</button>' +
+        '<span class="review-progress">' + (st.idx + 1) + ' of ' + total + '</span>' +
+        '</div>' +
+        '<div class="review-heading">' +
+        '<div class="review-heading-label">Language Review</div>' +
+        '<h1 class="review-heading-title">Warm up before you start</h1>' +
+        '</div>' +
+        '<p class="review-context">Covered language for ' + contextName + '. Try to recall the meaning before revealing.</p>' +
+        '<div class="recall-card">' +
+        type +
+        '<div class="recall-term">' + escHtml(entry.term || '\u2014') + '</div>' +
+        prompt +
+        (st.revealed ? answer : revealOrNav) +
+        '</div>' +
+        (st.revealed ? revealOrNav : '') +
+        '</div>';
+    }
+
+    // ================================================================
+    // HOME RENDER
+    // ================================================================
+    function setSessionLabels() {
+      const session = getActiveSession();
+      const display = isDefaultSession(session) || !session.name ? 'Session' : session.name;
+      ['spine-session-name', 'mobile-session-name', 'drawer-session-name'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = display;
+      });
+    }
+
+    function renderHome() {
+      reviewState = null;
+      const main = document.getElementById('atlas-main');
+      main.className = 'atlas-main';
+
+      const session = getActiveSession();
+      const reg = getRegistry();
+      const ledger = getLedger();
+
+      applyEffectiveAtmosphereImage();
+
+      setSessionLabels();
+      renderSpineHubNav();
+
+      const isDefault = isDefaultSession(session);
+      const continueItem = getContinueItem(reg, session.id);
+      const reviewSet = getReviewSet(ledger, session.id);
+      const hasContinue = !!continueItem;
+      const hasReview = reviewSet.length > 0;
+      const sessionStates = (reg.sessionStates || {})[session.id];
+      const hasHistory = !!(sessionStates && Object.keys(sessionStates).length);
+
+      // True-empty state: default session, nothing covered, no history.
+      if (isDefault && !defaultSetupDismissed && !hasContinue && !hasReview && !hasHistory) {
+        main.innerHTML = renderEmptyState();
+        return;
+      }
+
+      main.innerHTML = renderGateway(session, isDefault, continueItem, hasContinue, reviewSet, hasReview);
+    }
+
+    function renderEmptyState() {
+      return '' +
+        '<div class="empty-setup">' +
+        '<div class="today-label">Welcome</div>' +
+        '<h1 class="empty-setup-title">Who is this lesson with?</h1>' +
+        '<p class="empty-setup-sub">Add a name to keep each learner\u2019s progress and review separate, or continue without one.</p>' +
+        '<div class="empty-form">' +
+        '<input class="session-input" id="empty-name-input" type="text" placeholder="Learner name" maxlength="40" autocomplete="off" style="flex:1">' +
+        '<button class="btn-primary" onclick="startWithName()">Start lesson</button>' +
+        '</div>' +
+        '<button class="empty-default-link" onclick="startWithDefault()">Continue without a name</button>' +
+        '</div>' +
+        '<p class="doors-label" style="margin-top:2.25rem">Choose a world</p>' +
+        renderDoors();
+    }
+    function startWithName() {
+      const inp = document.getElementById('empty-name-input');
+      if (!inp) return;
+      const name = inp.value.trim();
+      if (!name) { inp.focus(); return; }
+      const created = Bridge.createSession(name);
+      if (!created) {
+        inp.style.borderColor = 'var(--danger)';
+        setTimeout(() => { inp.style.borderColor = ''; }, 1200);
+        return;
+      }
+      // Event listener re-renders; call renderHome directly too for immediacy.
+      renderHome();
+    }
+    function startWithDefault() {
+      defaultSetupDismissed = true;
+      renderHome();
+    }
+
+    function renderGateway(session, isDefault, continueItem, hasContinue, reviewSet, hasReview) {
+      // Greeting copy — warm, plain, no system language.
+      let welcomeMain, welcomeSub;
+      if (hasContinue) {
+        welcomeMain = isDefault ? 'Ready to continue.' : 'Welcome back, ' + escHtml(session.name) + '.';
+        welcomeSub = 'Last time: ' + escHtml(itemTitle(continueItem)) + '.';
+      } else {
+        welcomeMain = isDefault ? 'Ready when you are.' : 'Welcome, ' + escHtml(session.name) + '.';
+        welcomeSub = 'Choose a direction for today\u2019s lesson.';
+      }
+
+      return '' +
+        '<div class="context-anchor">' +
+        '<div class="today-label">Today</div>' +
+        '<h1 class="welcome-line">' + welcomeMain + '</h1>' +
+        '<p class="welcome-sub">' + welcomeSub + '</p>' +
+        '</div>' +
+        (hasContinue ? renderContinueCard(continueItem) : '') +
+        (hasReview ? renderReviewRow(reviewSet.length) : '') +
+        '<p class="doors-label">Choose a world</p>' +
+        renderDoors();
+    }
+
+    function renderContinueCard(item) {
+      const url = item.launchUrl || '';
+      const meta = continueLabel(item);
+      const world = itemWorldLabel(item);
+      const metaLine = world ? meta + ' \u00b7 ' + world : meta;
+      const pct = continueCoverage(item);
+
+      const rail = (pct !== null)
+        ? '<div class="continue-rail' + (pct >= 100 ? ' is-complete' : '') + '" aria-hidden="true">' +
+        '<div class="continue-rail-fill" style="width:' + pct + '%"></div>' +
+        '</div>'
+        : '';
+
+      return '' +
+        '<div class="continue-card' + (rail ? ' has-rail' : '') + '" role="button" tabindex="0" ' +
+        'onclick="navigateTo(\'' + escAttr(url) + '\')" ' +
+        'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navigateTo(\'' + escAttr(url) + '\')}">' +
+        '<div class="continue-icon">' +
+        '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '</div>' +
+        '<div class="continue-body">' +
+        '<div class="continue-kicker">Continue</div>' +
+        '<div class="continue-title">' + escHtml(itemTitle(item)) + '</div>' +
+        '<div class="continue-meta">' + escHtml(metaLine) + '</div>' +
+        '</div>' +
+        '<div class="continue-arrow">' +
+        '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8h8M9 5l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '</div>' +
+        rail +
+        '</div>';
+    }
+
+    function renderReviewRow(count) {
+      const countLabel = count + ' covered item' + (count !== 1 ? 's' : '') + ' ready';
+      return '' +
+        '<button class="review-row" onclick="openLanguageReview()" aria-label="Open Language Review">' +
+        '<div class="review-row-icon">' +
+        '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 2.5h5c.7 0 1.3.3 1.8.7.5-.4 1.1-.7 1.8-.7H14c.3 0 .5.2.5.5v10c0 .3-.2.5-.5.5h-2.5c-.7 0-1.3.3-1.8.7-.5-.4-1.1-.7-1.8-.7H4c-.3 0-.5-.2-.5-.5v-10C3.5 2.7 3.7 2.5 4 2.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M9.5 3v11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>' +
+        '</div>' +
+        '<div class="review-row-body">' +
+        '<div class="review-row-name">Language Review</div>' +
+        '<div class="review-row-count">Review before you start \u00b7 ' + countLabel + '</div>' +
+        '</div>' +
+        '<div class="review-row-arrow">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '</div>' +
+        '</button>';
+    }
+
+    function renderDoors() {
+      const reg = getRegistry();
+      return '<div class="doors-grid">' +
+        renderDoor(WORLDS.compass, reg) +
+        renderDoor(WORLDS.arcade, reg) +
+        '</div>';
+    }
+    function renderDoor(world, reg) {
+      // Compass counts as available if it has a hub URL OR registered items.
+      const available = isWorldAvailable(reg, world.id) ||
+        (world.id === COMPASS_ID && worldHasItems(reg, COMPASS_ID));
+      const cls = 'door ' + world.cssClass + (available ? '' : ' door-unavailable');
+      const interactive = available
+        ? 'role="button" tabindex="0" onclick="openWorld(\'' + world.id + '\')" ' +
+        'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openWorld(\'' + world.id + '\')}"'
+        : 'aria-disabled="true"';
+      const footer = available
+        ? '<div class="door-footer"><div class="door-arrow"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8h8M9 5l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>'
+        : '<div class="door-footer"><span class="door-soon-badge">Coming soon</span></div>';
+      return '<div class="' + cls + '" ' + interactive +
+        ' aria-label="' + escAttr(world.name) + (available ? '' : ' (coming soon)') + '">' +
+        '<div class="door-icon">' + world.iconSvg + '</div>' +
+        '<div class="door-name">' + escHtml(world.name) + '</div>' +
+        '<h2 class="door-title">' + escHtml(world.name) + '</h2>' +
+        '<p class="door-desc">' + escHtml(world.desc) + '</p>' +
+        footer +
+        '</div>';
+    }
+
+    // ================================================================
+    // SETTINGS — Atlas welcome image
+    // Session-specific image. Global favourites only.
+    // ================================================================
+
+    function readSessionAtmosphereImages() {
+      try { return JSON.parse(localStorage.getItem(SESSION_ATMOSPHERE_KEY) || '{}') || {}; }
+      catch (e) { return {}; }
+    }
+
+    function writeSessionAtmosphereImages(map) {
+      try {
+        if (Object.keys(map).length) {
+          localStorage.setItem(SESSION_ATMOSPHERE_KEY, JSON.stringify(map));
+        } else {
+          localStorage.removeItem(SESSION_ATMOSPHERE_KEY);
+        }
+      } catch (e) { }
+    }
+
+    function readSessionAtmosphereImage(sessionId) {
+      return readSessionAtmosphereImages()[sessionId] || '';
+    }
+
+    function writeCurrentSessionAtmosphereImage(url) {
+      const session = getActiveSession();
+      const clean = (url || '').trim();
+      const map = readSessionAtmosphereImages();
+
+      if (clean) map[session.id] = clean;
+      else delete map[session.id];
+
+      writeSessionAtmosphereImages(map);
+    }
+
+    function readEffectiveAtmosphereImage() {
+      const session = getActiveSession();
+      return readSessionAtmosphereImage(session.id);
+    }
+
+    function readAtmosphereFavorites() {
+      try {
+        const list = JSON.parse(localStorage.getItem(ATMOSPHERE_FAVORITES_KEY) || '[]');
+        return Array.isArray(list) ? list.filter(Boolean) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function writeAtmosphereFavorites(list) {
+      const clean = Array.from(new Set((list || []).map(x => String(x || '').trim()).filter(Boolean)))
+        .slice(0, MAX_ATMOSPHERE_FAVORITES);
+
+      try {
+        if (clean.length) localStorage.setItem(ATMOSPHERE_FAVORITES_KEY, JSON.stringify(clean));
+        else localStorage.removeItem(ATMOSPHERE_FAVORITES_KEY);
+      } catch (e) { }
+    }
+
+    function cssImageUrl(url) {
+      return 'url("' + String(url || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '")';
+    }
+
+    function applyAtmosphereImage(url) {
+      const layer = document.getElementById('atmosphere-layer');
+      if (!layer) return;
+
+      const clean = (url || '').trim();
+      if (!clean) {
+        layer.style.backgroundImage = '';
+        layer.classList.remove('visible');
+        return;
+      }
+
+      layer.style.backgroundImage = cssImageUrl(clean);
+      layer.classList.add('visible');
+    }
+
+    function applyEffectiveAtmosphereImage() {
+      applyAtmosphereImage(readEffectiveAtmosphereImage());
+    }
+
+    function updateAtmospherePreview(url) {
+      const preview = document.getElementById('atmosphere-preview');
+      const image = document.getElementById('atmosphere-preview-image');
+      if (!preview || !image) return;
+
+      const clean = (url || '').trim();
+
+      if (!clean) {
+        image.style.backgroundImage = '';
+        preview.classList.remove('has-image');
+        return;
+      }
+
+      image.style.backgroundImage = cssImageUrl(clean);
+      preview.classList.add('has-image');
+    }
+
+    function renderAtmosphereFavorites() {
+      const host = document.getElementById('atmosphere-favorites-list');
+      if (!host) return;
+
+      const favorites = readAtmosphereFavorites();
+
+      if (!favorites.length) {
+        host.innerHTML = '<div class="atmosphere-empty-favorites">No saved favourites yet.</div>';
+        return;
+      }
+
+      host.innerHTML = favorites.map(url => {
+        const encoded = escAttr(encodeURIComponent(url));
+
+        return '<div class="atmosphere-favorite-item">' +
+          '<div class="atmosphere-favorite-thumb" style="background-image:' + escAttr(cssImageUrl(url)) + '"></div>' +
+          '<div class="atmosphere-favorite-url" title="' + escAttr(url) + '">' + escHtml(url) + '</div>' +
+          '<div class="atmosphere-favorite-actions">' +
+          '<button class="atmosphere-mini-btn" data-url="' + encoded + '" onclick="useAtmosphereFavoriteFromButton(this)">Use</button>' +
+          '<button class="atmosphere-mini-btn danger" data-url="' + encoded + '" onclick="deleteAtmosphereFavoriteFromButton(this)">Delete</button>' +
+          '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    function openSettingsModal() {
+      const session = getActiveSession();
+      const currentUrl = readSessionAtmosphereImage(session.id);
+
+      const input = document.getElementById('atmosphere-input');
+      if (input) input.value = currentUrl;
+
+      updateAtmospherePreview(currentUrl);
+      renderAtmosphereFavorites();
+
+      document.getElementById('settings-modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+
+      setTimeout(() => {
+        const el = document.getElementById('atmosphere-input');
+        if (el) el.focus();
+      }, 50);
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settings-modal').classList.remove('open');
+      document.body.style.overflow = '';
+      applyEffectiveAtmosphereImage();
+    }
+
+    function handleSettingsModalClick(e) {
+      if (e.target === document.getElementById('settings-modal')) closeSettingsModal();
+    }
+
+    function handleAtmospherePreviewInput() {
+      const input = document.getElementById('atmosphere-input');
+      updateAtmospherePreview(input ? input.value : '');
+    }
+
+    function handleSaveSettings() {
+      const input = document.getElementById('atmosphere-input');
+      const clean = input ? input.value.trim() : '';
+
+      if (!clean) {
+        showToast('Add an image URL, or use Remove image.');
+        if (input) input.focus();
+        return;
+      }
+
+      writeCurrentSessionAtmosphereImage(clean);
+      applyEffectiveAtmosphereImage();
+      closeSettingsModal();
+      showToast('Welcome image saved for this session.');
+    }
+
+    function handleRemoveAtmosphere() {
+      writeCurrentSessionAtmosphereImage('');
+      const input = document.getElementById('atmosphere-input');
+      if (input) input.value = '';
+
+      updateAtmospherePreview('');
+      applyEffectiveAtmosphereImage();
+      closeSettingsModal();
+      showToast('Welcome image removed for this session.');
+    }
+
+    function handleSaveAtmosphereFavorite() {
+      const input = document.getElementById('atmosphere-input');
+      const clean = input ? input.value.trim() : '';
+
+      if (!clean) {
+        showToast('Add an image URL before saving it to favourites.');
+        if (input) input.focus();
+        return;
+      }
+
+      const favorites = readAtmosphereFavorites();
+      writeAtmosphereFavorites([clean].concat(favorites));
+      renderAtmosphereFavorites();
+      showToast('Image saved to favourites.');
+    }
+
+    function useAtmosphereFavoriteFromButton(btn) {
+      const url = decodeURIComponent(btn.getAttribute('data-url') || '');
+      const input = document.getElementById('atmosphere-input');
+
+      if (input) input.value = url;
+      updateAtmospherePreview(url);
+    }
+
+    function deleteAtmosphereFavoriteFromButton(btn) {
+      const url = decodeURIComponent(btn.getAttribute('data-url') || '');
+      const favorites = readAtmosphereFavorites().filter(x => x !== url);
+
+      writeAtmosphereFavorites(favorites);
+      renderAtmosphereFavorites();
+      showToast('Favourite removed.');
+    }
+
+    // ================================================================
+    // GLOBAL KEYS
+    // ================================================================
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
+        if (window.AtlasSearch && AtlasSearch.isOpen && AtlasSearch.isOpen()) return;
         if (document.getElementById('confirm-dialog').classList.contains('open')) { resolveConfirm(false); return; }
         if (document.getElementById('session-modal').classList.contains('open')) { closeSessionModal(); return; }
         if (document.getElementById('settings-modal').classList.contains('open')) { closeSettingsModal(); return; }
         if (document.getElementById('drawer').classList.contains('open')) { closeDrawer(); return; }
+        if (reviewState) { closeLanguageReview(); return; }
       }
     });
 
-    /* ================================================================
-       LIVE REFRESH LISTENERS
-       ================================================================ */
-    function refresh() {
-      if (!Bridge) return;
-      renderHub();
+    // ================================================================
+    // LIVE RE-READ
+    // Re-read bridge state on the agreed triggers. No invented events.
+    // When in the focused review view, refresh it in place (re-validating
+    // the covered set) instead of bouncing the user back home.
+    // ================================================================
+    function refreshFromBridge() {
+      if (reviewState) {
+        const session = getActiveSession();
+        const ledger = getLedger();
+        const set = getReviewSet(ledger, session.id);
+        if (!set.length) { closeLanguageReview(); return; }
+        // Keep position where possible.
+        reviewState.set = set;
+        if (reviewState.idx > set.length - 1) reviewState.idx = set.length - 1;
+        renderReviewView();
+        return;
+      }
+      renderHome();
     }
 
-    window.addEventListener('atlas:session-change', refresh);
+    window.addEventListener('atlas:session-change', () => {
+      // Switching learners must reset any in-progress review.
+      reviewState = null;
+      renderHome();
+    });
     window.addEventListener('atlas:appearance-change', e => {
       const mode = (e.detail && e.detail.mode) || Bridge.readAppearanceMode();
-      document.documentElement.dataset.theme = mode;
-      updateAppearanceButtons(mode);
+      applyAppearance(mode, false);
     });
-    window.addEventListener('focus', refresh);
-    window.addEventListener('pageshow', refresh);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+    window.addEventListener('focus', refreshFromBridge);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshFromBridge(); });
+    window.addEventListener('pageshow', refreshFromBridge);
     window.addEventListener('storage', e => {
+      // React only to keys the bridge owns.
       if (!e || !e.key) return;
       const k = e.key;
       if (k === 'atlas::appearanceMode') {
-        const mode = Bridge.readAppearanceMode();
-        document.documentElement.dataset.theme = mode;
-        updateAppearanceButtons(mode);
+        applyAppearance(Bridge.readAppearanceMode(), false);
+        return;
+      }
+      if (k === SESSION_ATMOSPHERE_KEY || k === ATMOSPHERE_FAVORITES_KEY) {
+        applyEffectiveAtmosphereImage();
+
+        if (document.getElementById('settings-modal').classList.contains('open')) {
+          renderAtmosphereFavorites();
+        }
+
         return;
       }
 
-      if (k === ARCADE_ATMOSPHERE_KEY || k === ARCADE_ATMOSPHERE_MODE_KEY) {
-        applyArcadeAtmosphereImage();
-        return;
-      }
-
-      if (k === 'atlas::sessions' || k === 'atlas::activeSessionId' || k === 'atlas::registry') {
-        refresh();
+      if (k === 'atlas::sessions' || k === 'atlas::activeSessionId' ||
+        k === 'atlas::registry' || k === 'learning::ledger') {
+        refreshFromBridge();
       }
     });
 
-    /* ================================================================
-       UTILITIES
-       ================================================================ */
+    // ================================================================
+    // UTILITIES
+    // ================================================================
     function escHtml(s) {
       return String(s == null ? '' : s)
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -3009,27 +3284,26 @@
     }
     function escAttr(s) { return escHtml(s); }
 
-    /* ================================================================
-       INIT
-       ================================================================ */
+    // ================================================================
+    // INIT
+    // ================================================================
     function init() {
-      if (!Bridge) return;
+      if (!window.AtlasBridge) return; // guard already rendered a message
+
       const mode = Bridge.readAppearanceMode();
       document.documentElement.dataset.theme = mode;
       updateAppearanceButtons(mode);
-      applyArcadeAtmosphereImage();
-      registerWithBridge();
+      applyEffectiveAtmosphereImage();
 
       AtlasSearch.init({
-        activeHubId: 'arcade',
-        atlasUrl: '../index.html',
-        compassUrl: '../compass/index.html',
-        arcadeUrl: './index.html'
+        activeHubId: 'atlas',
+        atlasUrl: './index.html',
+        compassUrl: './compass/index.html',
+        arcadeUrl: './arcade/index.html'
       });
 
-      renderHub();
+      renderHome();
     }
-
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init);
     } else {
