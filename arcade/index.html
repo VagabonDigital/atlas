@@ -462,12 +462,14 @@
       display: flex;
       flex-direction: column;
       box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
-      transform: translateX(-100%);
+      transform: translate3d(-100%, 0, 0);
       transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+      backface-visibility: hidden;
     }
 
     .drawer.open {
-      transform: translateX(0);
+      transform: translate3d(0, 0, 0);
     }
 
     .drawer-header {
