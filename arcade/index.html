@@ -125,8 +125,12 @@
     html.theme-changing *,
     html.theme-changing *::before,
     html.theme-changing *::after {
-      transition: background-color 0.38s ease, color 0.38s ease,
-        border-color 0.38s ease, box-shadow 0.38s ease !important;
+      transition:
+        background-color 0.35s ease,
+        background 0.35s ease,
+        color 0.35s ease,
+        border-color 0.35s ease,
+        box-shadow 0.35s ease !important;
     }
 
     /* ============================================================ RESET */
@@ -395,7 +399,7 @@
       justify-content: center;
       width: 38px;
       height: 38px;
-      border-radius: var(--r-sm);
+      border-radius: 12px;
       border: 1px solid var(--border);
       background: var(--bg-raised);
       color: var(--ink-quiet);
@@ -412,17 +416,23 @@
       display: flex;
       align-items: center;
       gap: 0.35rem;
-      padding: 0.28rem 0.65rem;
-      border-radius: 999px;
+      padding: 0.25rem 0.7rem;
+      border-radius: 20px;
       border: 1px solid var(--border);
       background: var(--bg-raised);
-      font-size: 0.74rem;
+      font-size: 0.76rem;
       font-weight: 500;
       color: var(--ink-mid);
       cursor: pointer;
-      max-width: 120px;
+      max-width: 130px;
+      height: 40px;
       overflow: hidden;
       white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .mobile-session-pill span {
+      overflow: hidden;
       text-overflow: ellipsis;
     }
 
@@ -1669,7 +1679,7 @@
       }
 
       .arcade-main {
-        padding: 0 1rem 4rem;
+        padding: 1.75rem 1rem 4rem;
       }
 
       .game-grid {
@@ -1749,7 +1759,7 @@
 
   <!-- ============================================================ MOBILE HEADER -->
   <header class="mobile-header" role="banner">
-    <span class="mobile-header-mark" onclick="openDrawer()" style="cursor:pointer">Arcade<span>.</span></span>
+    <span class="mobile-header-mark">Arcade<span>.</span></span>
     <div class="mobile-header-actions">
       <button class="mobile-session-pill" onclick="openSessionModal()" aria-label="Sessions">
         <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
@@ -1765,8 +1775,6 @@
           <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
         </svg>
       </button>
-      <button class="mobile-header-btn" id="mobile-appearance-btn" onclick="toggleAppearance()"
-        aria-label="Toggle appearance"></button>
       <button class="mobile-header-btn" onclick="openDrawer()" aria-label="Menu">
         <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
           <path d="M2 4h13M2 8.5h13M2 13h13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
@@ -1787,10 +1795,10 @@
       </button>
     </div>
     <div class="drawer-nav">
-      <div class="drawer-nav-label">Hubs</div>
+      <div class="drawer-nav-label">Worlds</div>
       <div id="drawer-hub-nav"></div>
       <div class="drawer-nav-label">Find</div>
-      <button class="drawer-nav-item" type="button" onclick="closeDrawer()" data-atlas-search>
+      <button class="drawer-nav-item" type="button" onclick="closeDrawer(); AtlasSearch.open()">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
           <circle cx="6.5" cy="6.5" r="4.2" stroke="currentColor" stroke-width="1.3" />
           <path d="M9.8 9.8l2.8 2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
@@ -2353,7 +2361,7 @@
       const cur = Bridge.readAppearanceMode();
       const next = cur === 'night' ? 'light' : 'night';
       document.documentElement.classList.add('theme-changing');
-      setTimeout(() => document.documentElement.classList.remove('theme-changing'), 420);
+      setTimeout(() => document.documentElement.classList.remove('theme-changing'), 400);
       Bridge.setAppearanceMode(next);
       document.documentElement.dataset.theme = next;
       updateAppearanceButtons(next);
