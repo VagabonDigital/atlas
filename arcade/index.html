@@ -438,17 +438,26 @@
 
     /* ============================================================ MOBILE DRAWER */
     .drawer-overlay {
-      display: none;
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.4);
       z-index: 400;
       backdrop-filter: blur(4px);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition:
+        opacity 0.2s ease,
+        visibility 0s linear 0.2s;
     }
 
     .drawer-overlay.open {
-      display: block;
-      animation: fadeIn 0.2s ease;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transition:
+        opacity 0.2s ease,
+        visibility 0s;
     }
 
     .drawer {
