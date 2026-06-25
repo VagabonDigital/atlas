@@ -1,3480 +1,1047 @@
 <!DOCTYPE html>
 <!--
   ==========================================================================
-  COMPASS HUB V1 · SUBJECT LIBRARY
+  ATLAS · COMPASS SUBJECT MODULE
   SmartStudy™ Methodology
+  Communication & Expression
   --------------------------------------------------------------------------
-  The reading room for the Compass world.
-  Not a lesson. Not Atlas. The operational library between them.
-  Compass opens here. Subjects live here. Progress lives in the bridge.
+  A premium interactive speaking module for exploring how tone, timing,
+  silence, culture, and context shape what people really mean.
+  Built for live lessons, thoughtful discussion, and sharper social awareness
+  around expression, meaning, and human communication.
+  Subject content may change.
+  The compass remains.
   --------------------------------------------------------------------------
-  LEGIT APERIT · MUNDUS RESPICIT · PONS MEMINIT
+  VERBA PONTES FACIUNT · SENSUS VIAM APERIT · DISCIPLINA VIVA EST
   ==========================================================================
 -->
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Compass · Subject Library</title>
-  <link rel="icon" type="image/svg+xml"
-    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 4L96 50L50 96L4 50Z' fill='%2357C7B7' stroke='%232D7D78' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M50 18L82 50L50 82L18 50Z' fill='%23F3FFFC' stroke='%23FFFFFF' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 15L62 50L50 85L38 50Z' fill='%233F8F88' stroke='%232D7D78' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 15L62 50L50 47Z' fill='%2389DDD0'/%3E%3Ccircle cx='50' cy='50' r='5' fill='%232D7D78'/%3E%3Cpath d='M50 18L50 30M82 50L70 50M50 82L50 70M18 50L30 50' stroke='%2357C7B7' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communication & Expression</title>
+
+    <!-- Shared Compass favicon. Subject brand icon is the shared COMPASS_BRAND_ICON_SVG in compass-engine.js. No per-subject icon. -->
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 4L96 50L50 96L4 50Z' fill='%2357C7B7' stroke='%232D7D78' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M50 18L82 50L50 82L18 50Z' fill='%23F3FFFC' stroke='%23FFFFFF' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 15L62 50L50 85L38 50Z' fill='%233F8F88' stroke='%232D7D78' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 15L62 50L50 47Z' fill='%2389DDD0'/%3E%3Ccircle cx='50' cy='50' r='5' fill='%232D7D78'/%3E%3Cpath d='M50 18L50 30M82 50L70 50M50 82L50 70M18 50L30 50' stroke='%2357C7B7' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
+        rel="stylesheet">
+
+    <!-- Appearance mode: apply saved theme before first paint to prevent light-mode flash -->
+    <script>
+        (function () {
+            var saved = null;
+
+            try {
+                saved = localStorage.getItem('atlas::appearanceMode');
+            } catch (e) {
+                saved = null;
+            }
+
+            document.documentElement.dataset.theme = (saved === 'night') ? 'night' : 'light';
+        })();
+    </script>
+
+    <link rel="stylesheet" href="../shared/compass-subject.css">
+    <link rel="stylesheet" href="../../shared/atlas-search.css">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="../shared/atlas-search.css">
-
-  <!-- Anti-flash: apply saved theme before first paint -->
-  <script>
-    (function () {
-      var m = null;
-      try { m = localStorage.getItem('atlas::appearanceMode'); } catch (e) { }
-      document.documentElement.dataset.theme = (m === 'night') ? 'night' : 'light';
-    })();
-  </script>
-  <style>
-    /* ============================================================
-       COMPASS HUB — DESIGN TOKENS
-       Library surface: warmer than Atlas, less immersive than a lesson module.
-       Cream paper, teal accent, high readability. No heavy background overlays.
-       ============================================================ */
-    :root {
-      --cream: #f7f4ef;
-      --cream-warm: #f0ebe2;
-      --stone-light: #e8e2d9;
-      --stone: #c8bfb0;
-      --stone-dark: #9a9083;
-      --ink-faint: #d4cfc8;
-      --ink-light: #7a7268;
-      --ink: #3d3830;
-      --ink-dark: #1e1b16;
-      --accent: #4a7c78;
-      --accent-soft: #6b9e9a;
-      --accent-pale: #d6eae8;
-      --accent-dim: #e8f4f3;
-      --accent-rgb: 74, 124, 120;
-      --accent-soft-rgb: 107, 158, 154;
-      --white: #ffffff;
-      --viewed-bg: #f0f7f6;
-      --covered-bg: #d6eae8;
-      --covered-acc: #4a7c78;
-      --danger-bg: #fef2f2;
-      --danger-text: #dc2626;
-      --danger-border: #fca5a5;
-      --shadow-xs: 0 1px 2px rgba(30, 27, 22, 0.05);
-      --shadow-sm: 0 1px 4px rgba(30, 27, 22, 0.07);
-      --shadow-md: 0 4px 16px rgba(30, 27, 22, 0.10);
-      --shadow-lg: 0 8px 32px rgba(30, 27, 22, 0.13);
-      --radius-sm: 6px;
-      --radius-md: 12px;
-      --radius-lg: 18px;
-      --font-display: 'DM Serif Display', Georgia, serif;
-      --font-body: 'DM Sans', system-ui, sans-serif;
-      --t: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    html[data-theme="night"] {
-      --cream: #3a332b;
-      --cream-warm: #463d33;
-      --stone-light: #6d6052;
-      --stone: #837568;
-      --stone-dark: #b9aea1;
-      --ink-faint: #746759;
-      --ink-light: #d6cabc;
-      --ink: #eee4d7;
-      --ink-dark: #f3eadf;
-      --white: #4c4237;
-      --accent: #83b9b3;
-      --accent-soft: #9fcec9;
-      --accent-pale: #3d625e;
-      --accent-dim: #344f4b;
-      --accent-rgb: 131, 185, 179;
-      --accent-soft-rgb: 159, 206, 201;
-      --viewed-bg: #374f4b;
-      --covered-bg: #416a64;
-      --covered-acc: #a8d6d1;
-      --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.18);
-      --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.16);
-      --shadow-md: 0 4px 18px rgba(0, 0, 0, 0.22);
-      --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.30);
-    }
-
-    html.theme-changing *,
-    html.theme-changing *::before,
-    html.theme-changing *::after {
-      transition:
-        background-color 0.35s ease,
-        background 0.35s ease,
-        color 0.35s ease,
-        border-color 0.35s ease,
-        box-shadow 0.35s ease !important;
-    }
-
-    /* ============================================================ RESET */
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      min-height: 100%;
-      scroll-behavior: smooth;
-      overflow-y: scroll;
-      scrollbar-gutter: stable;
-    }
-
-    body {
-      font-family: var(--font-body);
-      background: var(--cream);
-      color: var(--ink);
-      font-size: 15px;
-      line-height: 1.65;
-      min-height: 100svh;
-      overflow-x: hidden;
-      padding-top: 56px;
-    }
-
-    .hub-atmosphere-layer {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      background-size: cover;
-      background-position: center;
-      opacity: 0;
-      transition: opacity var(--t);
-    }
-
-    .hub-atmosphere-layer.visible {
-      opacity: 0.08;
-    }
-
-    html[data-theme="night"] .hub-atmosphere-layer.visible {
-      opacity: 0.06;
-    }
-
-    /* ============================================================ SPINE (desktop) */
-    .spine {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 200;
-      background: rgba(245, 247, 243, 0.96);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(var(--accent-rgb), 0.12);
-      display: flex;
-      align-items: center;
-      height: 56px;
-      padding: 0 1.5rem;
-      gap: 0.6rem;
-    }
-
-    html[data-theme="night"] .spine {
-      background: rgba(50, 44, 37, 0.95);
-      border-bottom-color: rgba(109, 96, 82, 0.55);
-    }
-
-    .spine-mark {
-      font-family: var(--font-display);
-      font-size: 1.22rem;
-      font-weight: 400;
-      color: var(--ink-dark);
-      letter-spacing: -0.01em;
-      flex: 1 1 0;
-      cursor: default;
-      user-select: none;
-      white-space: nowrap;
-      line-height: 1;
-    }
-
-    .spine-mark span {
-      color: #18b98f;
-    }
-
-    /* Centered hub shortcut group */
-    .spine-worlds {
-      display: flex;
-      align-items: center;
-      gap: 0.18rem;
-      flex: 0 0 auto;
-      padding: 0.2rem;
-      border-radius: 999px;
-      background: rgba(240, 235, 226, 0.72);
-      border: 1px solid rgba(200, 191, 176, 0.52);
-      box-shadow: 0 1px 3px rgba(30, 27, 22, 0.035);
-    }
-
-    .spine-world-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.42rem;
-      min-height: 32px;
-      padding: 0.32rem 0.82rem;
-      border-radius: 999px;
-      border: 1px solid transparent;
-      background: transparent;
-      font-family: var(--font-body);
-      font-size: 0.78rem;
-      font-weight: 500;
-      color: var(--ink-light);
-      cursor: pointer;
-      transition: var(--t);
-      white-space: nowrap;
-    }
-
-    .spine-world-icon {
-      width: 13px;
-      height: 13px;
-      opacity: 0.72;
-      flex-shrink: 0;
-    }
-
-    .spine-world-btn:hover {
-      color: var(--accent);
-      background: rgba(255, 255, 255, 0.72);
-      border-color: rgba(var(--accent-rgb), 0.20);
-      box-shadow: var(--shadow-xs);
-    }
-
-    .spine-world-btn:hover .spine-world-icon {
-      opacity: 1;
-    }
-
-    .spine-world-btn.is-active {
-      color: var(--accent);
-      background: rgba(255, 255, 255, 0.86);
-      border-color: rgba(var(--accent-rgb), 0.24);
-      box-shadow: var(--shadow-xs);
-      cursor: default;
-    }
-
-    .spine-world-btn.is-active .spine-world-icon {
-      opacity: 1;
-    }
-
-    .spine-world-btn[aria-disabled="true"] {
-      opacity: 0.5;
-      cursor: default;
-    }
-
-    .spine-world-btn[aria-disabled="true"]:hover {
-      color: var(--ink-light);
-      background: transparent;
-      border-color: transparent;
-      box-shadow: none;
-    }
-
-    html[data-theme="night"] .spine-worlds {
-      background: rgba(70, 61, 51, 0.72);
-      border-color: rgba(255, 255, 255, 0.13);
-    }
-
-    html[data-theme="night"] .spine-world-btn:hover {
-      background: rgba(88, 76, 64, 0.88);
-      border-color: rgba(var(--accent-rgb), 0.34);
-      color: var(--accent-soft);
-    }
-
-    html[data-theme="night"] .spine-world-btn.is-active {
-      background: rgba(88, 76, 64, 0.94);
-      border-color: rgba(var(--accent-rgb), 0.42);
-      color: var(--accent-soft);
-    }
-
-    /* Right actions */
-    .spine-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      flex: 1 1 0;
-      justify-content: flex-end;
-    }
-
-    .spine-session-pill {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.48rem 0.9rem;
-      border-radius: 999px;
-      border: 1px solid var(--stone-light);
-      background: var(--white);
-      font-family: var(--font-body);
-      font-size: 0.78rem;
-      font-weight: 500;
-      color: var(--ink-light);
-      cursor: pointer;
-      transition: var(--t);
-      max-width: 170px;
-      white-space: nowrap;
-      overflow: hidden;
-      box-shadow: var(--shadow-xs);
-    }
-
-    .spine-session-pill:hover {
-      border-color: var(--accent-soft);
-      color: var(--ink);
-      background: var(--accent-dim);
-    }
-
-    .spine-session-pill .pill-name {
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .spine-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
-      border: 1px solid rgba(200, 191, 176, 0.42);
-      background: rgba(255, 255, 255, 0.58);
-      color: var(--ink-light);
-      cursor: pointer;
-      transition: var(--t);
-      box-shadow: 0 1px 3px rgba(30, 27, 22, 0.045);
-      flex-shrink: 0;
-    }
-
-    .spine-btn:hover {
-      background: rgba(255, 255, 255, 0.86);
-      border-color: rgba(var(--accent-rgb), 0.28);
-      color: var(--accent);
-    }
-
-    html[data-theme="night"] .spine-btn {
-      background: rgba(76, 66, 55, 0.78);
-      border-color: rgba(255, 255, 255, 0.15);
-    }
-
-    html[data-theme="night"] .spine-btn:hover {
-      background: rgba(88, 76, 64, 0.90);
-      border-color: rgba(131, 185, 179, 0.38);
-      color: var(--accent-soft);
-    }
-
-    /* ============================================================ MOBILE HEADER */
-    .mobile-header {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 200;
-      background: rgba(247, 244, 239, 0.96);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--stone-light);
-      height: 56px;
-      padding: 0 1rem;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    html[data-theme="night"] .mobile-header {
-      background: rgba(50, 44, 37, 0.96);
-      border-bottom-color: rgba(109, 96, 82, 0.55);
-    }
-
-    .mobile-header-brand {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .mobile-header-mark {
-      font-family: var(--font-display);
-      font-size: 1.05rem;
-      font-weight: 400;
-      color: var(--ink-dark);
-      letter-spacing: -0.01em;
-      line-height: 1;
-    }
-
-    .mobile-header-mark span {
-      color: #18b98f;
-    }
-
-    .mobile-header-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      flex-shrink: 0;
-    }
-
-    .mobile-header-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
-      border: 1px solid var(--stone-light);
-      background: var(--white);
-      color: var(--ink-light);
-      cursor: pointer;
-      transition: var(--t);
-      flex-shrink: 0;
-    }
-
-    .mobile-header-btn:hover {
-      color: var(--ink);
-      background: var(--stone-light);
-    }
-
-    html[data-theme="night"] .mobile-header-btn {
-      background: rgba(76, 66, 55, 0.78);
-      border-color: rgba(255, 255, 255, 0.15);
-    }
-
-    .mobile-session-pill {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.25rem 0.7rem;
-      border-radius: 20px;
-      border: 1px solid var(--stone-light);
-      background: var(--white);
-      font-size: 0.76rem;
-      font-weight: 500;
-      color: var(--ink-light);
-      cursor: pointer;
-      max-width: 130px;
-      height: 40px;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-
-    .mobile-session-pill span {
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* ============================================================ MOBILE DRAWER */
-    .drawer-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.4);
-      z-index: 400;
-      backdrop-filter: blur(4px);
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      transition:
-        opacity 0.2s ease,
-        visibility 0s linear 0.2s;
-    }
-
-    .drawer-overlay.open {
-      opacity: 1;
-      visibility: visible;
-      pointer-events: auto;
-      transition:
-        opacity 0.2s ease,
-        visibility 0s;
-    }
-
-    .drawer {
-      position: fixed;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      width: min(300px, 85vw);
-      background: var(--white);
-      z-index: 500;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 4px 0 24px rgba(20, 17, 12, 0.15);
-      transform: translate3d(-100%, 0, 0);
-      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-      will-change: transform;
-      backface-visibility: hidden;
-    }
-
-    .drawer.open {
-      transform: translate3d(0, 0, 0);
-    }
-
-    .drawer-header {
-      padding: 1.2rem 1.2rem 1rem;
-      border-bottom: 1px solid var(--stone-light);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .drawer-title {
-      font-family: var(--font-display);
-      font-size: 1rem;
-      color: var(--ink-dark);
-    }
-
-    .drawer-title span {
-      color: #18b98f;
-    }
-
-    .drawer-close {
-      width: 30px;
-      height: 30px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--stone-light);
-      background: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: var(--ink-light);
-    }
-
-    .drawer-close:hover {
-      background: var(--cream-warm);
-    }
-
-    .drawer-nav {
-      flex: 1;
-      padding: 0.8rem;
-      overflow-y: auto;
-    }
-
-    .drawer-nav-label {
-      font-size: 0.62rem;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
-      padding: 0.6rem 0.75rem 0.35rem;
-    }
-
-    .drawer-nav-item {
-      display: flex;
-      align-items: center;
-      gap: 0.7rem;
-      padding: 0.75rem 0.9rem;
-      border-radius: var(--radius-md);
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: var(--ink-light);
-      cursor: pointer;
-      transition: var(--t);
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-      min-height: 44px;
-    }
-
-    .drawer-nav-item:hover {
-      background: var(--stone-light);
-      color: var(--ink);
-    }
-
-    .drawer-nav-item[aria-disabled="true"] {
-      opacity: 0.5;
-      cursor: default;
-    }
-
-    .drawer-nav-item[aria-disabled="true"]:hover {
-      background: none;
-      color: var(--ink-light);
-    }
-
-    .drawer-nav-item .nav-soon {
-      margin-left: auto;
-      font-size: 0.62rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--stone-dark);
-    }
-
-    .drawer-nav-item.is-active {
-      background: var(--accent-dim);
-      color: var(--accent);
-      cursor: default;
-    }
-
-    .drawer-nav-item.is-active:hover {
-      background: var(--accent-dim);
-      color: var(--accent);
-    }
-
-    .drawer-footer {
-      padding: 0.8rem;
-      border-top: 1px solid var(--stone-light);
-    }
-
-    .drawer-footer-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 0.5rem;
-    }
-
-    .drawer-session-btn {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.7rem 0.9rem;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--stone-light);
-      background: var(--cream-warm);
-      font-size: 0.84rem;
-      font-weight: 500;
-      color: var(--ink-light);
-      cursor: pointer;
-      min-height: 44px;
-      overflow: hidden;
-    }
-
-    .drawer-session-btn span {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .drawer-appearance-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--stone-light);
-      background: var(--cream-warm);
-      color: var(--ink-light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
-    html[data-theme="night"] .drawer,
-    html[data-theme="night"] .mobile-header {
-      background: #4c4237;
-    }
-
-    html[data-theme="night"] .drawer-header,
-    html[data-theme="night"] .drawer-footer {
-      background: #463d33;
-      border-color: rgba(255, 255, 255, 0.13);
-    }
-
-    html[data-theme="night"] .drawer-session-btn,
-    html[data-theme="night"] .drawer-appearance-btn {
-      background: rgba(76, 66, 55, 0.78);
-      border-color: rgba(255, 255, 255, 0.15);
-      color: var(--ink-light);
-    }
-
-    /* ============================================================ MAIN LAYOUT */
-    .hub-main {
-      position: relative;
-      z-index: 1;
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 2.5rem 1.5rem 5rem;
-    }
-
-    /* ============================================================ HUB INTRO */
-    .hub-intro {
-      margin-bottom: 2rem;
-      padding-bottom: 1.75rem;
-      border-bottom: 1px solid rgba(var(--accent-rgb), 0.26);
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    html[data-theme="night"] .hub-intro {
-      border-bottom-color: rgba(var(--accent-rgb), 0.28);
-    }
-
-    .hub-eyebrow {
-      font-size: 0.78rem;
-      font-weight: 500;
-      letter-spacing: 0.02em;
-      text-transform: none;
-      color: var(--accent);
-      margin-bottom: 0.55rem;
-    }
-
-    .hub-title {
-      font-family: var(--font-display);
-      font-size: clamp(1.6rem, 3.5vw, 2.1rem);
-      color: var(--ink-dark);
-      font-weight: 400;
-      line-height: 1.2;
-      margin-bottom: 0.4rem;
-    }
-
-    .hub-desc {
-      font-size: 0.9rem;
-      color: var(--ink);
-      opacity: 0.68;
-      font-weight: 400;
-      line-height: 1.6;
-      max-width: 52ch;
-    }
-
-    .hub-meta {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-      flex-shrink: 0;
-    }
-
-    .hub-meta-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.32rem 0.75rem;
-      border-radius: 999px;
-      border: 1px solid var(--stone-light);
-      background: var(--white);
-      font-size: 0.76rem;
-      font-weight: 500;
-      color: var(--ink-light);
-    }
-
-    .hub-meta-chip.session {
-      color: var(--accent);
-      border-color: rgba(var(--accent-rgb), 0.25);
-      background: var(--accent-dim);
-    }
-
-    .hub-meta-chip.count {
-      color: var(--stone-dark);
-    }
-
-    /* ============================================================ IN PROGRESS ZONE */
-    .zone-label {
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 0.85rem;
-    }
-
-    .inprogress-zone {
-      margin-bottom: 2rem;
-    }
-
-    .inprogress-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 0.85rem;
-    }
-
-    .progress-card {
-      display: flex;
-      flex-direction: column;
-      background: var(--white);
-      border: 1.5px solid var(--stone-light);
-      border-radius: var(--radius-md);
-      padding: 1.1rem 1.2rem 1.3rem;
-      transition: var(--t);
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
-    }
-
-    .progress-rail {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 3px;
-      background: rgba(var(--accent-rgb), 0.14);
-      overflow: hidden;
-    }
-
-    .progress-rail-fill {
-      height: 100%;
-      background: var(--accent-soft);
-      border-radius: 0 2px 2px 0;
-      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .progress-rail.is-complete .progress-rail-fill {
-      background: var(--accent);
-      border-radius: 0;
-    }
-
-    .progress-card:hover {
-      border-color: var(--accent-soft);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-1px);
-    }
-
-    .progress-card-hook {
-      font-size: 0.81rem;
-      color: var(--ink-light);
-      line-height: 1.5;
-      margin-bottom: 0.85rem;
-      display: -webkit-box;
-      line-clamp: 1;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .progress-card-title {
-      font-family: var(--font-display);
-      font-size: 0.98rem;
-      color: var(--ink-dark);
-      line-height: 1.3;
-      margin-bottom: 0.5rem;
-    }
-
-    .progress-card-meta {
-      font-size: 0.74rem;
-      color: var(--stone-dark);
-      line-height: 1.4;
-      min-width: 0;
-    }
-
-    .progress-card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.75rem;
-      margin-top: auto;
-    }
-
-    .btn-launch-sm {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.3rem;
-      min-width: 108px;
-      padding: 0.42rem 0.9rem;
-      border-radius: var(--radius-sm);
-      border: 1px solid rgba(var(--accent-rgb), 0.3);
-      background: var(--accent-pale);
-      color: var(--accent);
-      font-family: var(--font-body);
-      font-size: 0.78rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--t);
-    }
-
-    .btn-launch-sm:hover {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
-
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      font-size: 0.7rem;
-      font-weight: 500;
-      padding: 0.2rem 0.55rem;
-      border-radius: 20px;
-    }
-
-    .status-badge.new {
-      background: var(--cream-warm);
-      color: var(--stone-dark);
-    }
-
-    .status-badge.inprogress {
-      background: var(--accent-dim);
-      color: var(--accent);
-    }
-
-    .status-badge.explored {
-      background: var(--covered-bg);
-      color: var(--covered-acc);
-    }
-
-    html[data-theme="night"] .status-badge.explored {
-      color: var(--accent-soft);
-    }
-
-    .inprogress-empty {
-      background: var(--cream-warm);
-      border: 1px dashed var(--stone);
-      border-radius: var(--radius-md);
-      padding: 1.5rem 1.75rem;
-      font-size: 0.88rem;
-      color: var(--stone-dark);
-      line-height: 1.6;
-    }
-
-    .inprogress-empty strong {
-      display: block;
-      font-size: 0.9rem;
-      color: var(--ink-light);
-      margin-bottom: 0.25rem;
-    }
-
-    /* ============================================================ SEARCH */
-    .search-zone {
-      margin-bottom: 2rem;
-    }
-
-    .search-field-wrap {
-      position: relative;
-      max-width: 520px;
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 0.9rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--stone-dark);
-      pointer-events: none;
-    }
-
-    .search-field {
-      width: 100%;
-      padding: 0.72rem 2.5rem 0.72rem 2.5rem;
-      border: 1.5px solid var(--stone-light);
-      border-radius: var(--radius-md);
-      font-family: var(--font-body);
-      font-size: 0.92rem;
-      color: var(--ink);
-      background: var(--white);
-      outline: none;
-      transition: border-color var(--t), box-shadow var(--t);
-      box-shadow: var(--shadow-xs);
-    }
-
-    .search-field::placeholder {
-      color: var(--stone-dark);
-    }
-
-    .search-field:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.10);
-    }
-
-    .search-clear {
-      position: absolute;
-      right: 0.75rem;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: none;
-      background: var(--stone-light);
-      color: var(--ink-light);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: var(--t);
-    }
-
-    .search-clear.visible {
-      display: flex;
-    }
-
-    .search-clear:hover {
-      background: var(--stone);
-      color: var(--ink);
-    }
-
-    .search-hint {
-      margin-top: 0.55rem;
-      font-size: 0.74rem;
-      color: var(--stone-dark);
-    }
-
-    .search-results-label {
-      display: none;
-      margin-top: 0.75rem;
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--ink-light);
-    }
-
-    .search-results-label.visible {
-      display: block;
-    }
-
-    /* ============================================================ CATEGORY GROUPS */
-    .category-group {
-      margin-bottom: 2.5rem;
-    }
-
-    .category-header {
-      display: flex;
-      align-items: baseline;
-      gap: 0.6rem;
-      margin-bottom: 1rem;
-      padding-bottom: 0.6rem;
-      border-bottom: 1px solid var(--stone-light);
-    }
-
-    .category-title {
-      font-family: var(--font-display);
-      font-size: 1.05rem;
-      color: var(--ink-dark);
-      font-weight: 400;
-    }
-
-    .category-count {
-      font-size: 0.72rem;
-      font-weight: 500;
-      color: var(--stone-dark);
-      letter-spacing: 0.04em;
-    }
-
-    .category-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 0.9rem;
-    }
-
-    /* ============================================================ SUBJECT CARDS */
-    .subject-card {
-      display: flex;
-      flex-direction: column;
-      background: var(--white);
-      border: 1.5px solid var(--stone-light);
-      border-radius: var(--radius-md);
-      padding: 1.2rem 1.25rem 1.1rem;
-      cursor: pointer;
-      transition: var(--t);
-      position: relative;
-      overflow: hidden;
-      text-align: left;
-      font-family: var(--font-body);
-    }
-
-    .subject-card::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-soft));
-      opacity: 0;
-      transition: opacity var(--t);
-    }
-
-    .subject-card:hover {
-      border-color: var(--accent-soft);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
-    }
-
-    .subject-card:hover::after {
-      opacity: 1;
-    }
-
-    .subject-card:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }
-
-    .subject-card.is-explored {
-      opacity: 0.82;
-      border-color: rgba(var(--accent-rgb), 0.3);
-    }
-
-    .subject-card.is-explored::after {
-      opacity: 0.6;
-    }
-
-    .subject-card.is-hidden {
-      display: none;
-    }
-
-    .subject-card-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 0.5rem;
-      margin-bottom: 0.55rem;
-    }
-
-    .subject-card-title {
-      font-family: var(--font-display);
-      font-size: 0.98rem;
-      color: var(--ink-dark);
-      line-height: 1.3;
-      font-weight: 400;
-      flex: 1;
-    }
-
-    .subject-card-hook {
-      font-size: 0.81rem;
-      color: var(--ink-light);
-      line-height: 1.55;
-      flex: 1;
-      margin-bottom: 0.9rem;
-      min-height: calc(0.81rem * 1.55 * 3);
-      display: -webkit-box;
-      line-clamp: 3;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .subject-card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-      margin-top: auto;
-    }
-
-    .subject-card-meta {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      min-width: 0;
-    }
-
-    .category-chip {
-      --chip-rgb: 74, 124, 120;
-      display: inline-flex;
-      align-items: center;
-      padding: 0.18rem 0.5rem;
-      border-radius: 999px;
-      border: 1px solid rgba(var(--chip-rgb), 0.24);
-      background: rgba(var(--chip-rgb), 0.11);
-      color: rgb(var(--chip-rgb));
-      font-size: 0.68rem;
-      font-weight: 600;
-      line-height: 1.2;
-    }
-
-    .category-chip.cat-relationships-society {
-      --chip-rgb: 166, 78, 88;
-    }
-
-    .category-chip.cat-self-identity {
-      --chip-rgb: 126, 82, 174;
-    }
-
-    .category-chip.cat-mind-behaviour {
-      --chip-rgb: 62, 116, 184;
-    }
-
-    .category-chip.cat-work-purpose {
-      --chip-rgb: 178, 118, 42;
-    }
-
-    .category-chip.cat-culture-world {
-      --chip-rgb: 78, 138, 72;
-    }
-
-    .category-chip.cat-language-expression {
-      --chip-rgb: 34, 138, 132;
-    }
-
-    .category-chip.cat-society-ideas {
-      --chip-rgb: 88, 96, 148;
-    }
-
-    html[data-theme="night"] .category-chip {
-      background: rgba(var(--chip-rgb), 0.20);
-      border-color: rgba(var(--chip-rgb), 0.36);
-    }
-
-    .timestamp-chip {
-      font-size: 0.7rem;
-      color: var(--stone-dark);
-      font-style: italic;
-    }
-
-    .btn-launch {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.3rem;
-      min-width: 104px;
-      padding: 0.4rem 0.85rem;
-      padding: 0.4rem 0.85rem;
-      border-radius: var(--radius-sm);
-      border: 1px solid rgba(var(--accent-rgb), 0.3);
-      background: var(--accent-pale);
-      color: var(--accent);
-      font-family: var(--font-body);
-      font-size: 0.76rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--t);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .btn-launch:hover {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
-
-    /* Night mode card overrides */
-    html[data-theme="night"] .subject-card,
-    html[data-theme="night"] .progress-card {
-      background: rgba(88, 76, 64, 0.55);
-      border-color: rgba(255, 255, 255, 0.13);
-    }
-
-    html[data-theme="night"] .subject-card:hover,
-    html[data-theme="night"] .progress-card:hover {
-      background: rgba(98, 85, 71, 0.72);
-      border-color: rgba(var(--accent-rgb), 0.48);
-    }
-
-    html[data-theme="night"] .btn-launch,
-    html[data-theme="night"] .btn-launch-sm {
-      background: rgba(var(--accent-rgb), 0.22);
-      border-color: rgba(var(--accent-rgb), 0.38);
-      color: var(--accent-soft);
-    }
-
-    html[data-theme="night"] .btn-launch:hover,
-    html[data-theme="night"] .btn-launch-sm:hover {
-      background: rgba(var(--accent-rgb), 0.55);
-      color: #fff;
-    }
-
-    html[data-theme="night"] .hub-meta-chip {
-      background: rgba(76, 66, 55, 0.78);
-      border-color: rgba(255, 255, 255, 0.13);
-    }
-
-    html[data-theme="night"] .hub-meta-chip.session {
-      background: rgba(var(--accent-rgb), 0.18);
-      border-color: rgba(var(--accent-rgb), 0.28);
-      color: var(--accent-soft);
-    }
-
-    /* ============================================================ NO RESULTS */
-    .no-results-banner {
-      display: none;
-      text-align: center;
-      padding: 3rem 1rem;
-      color: var(--stone-dark);
-    }
-
-    .no-results-banner.visible {
-      display: block;
-    }
-
-    .no-results-banner p {
-      font-size: 0.9rem;
-      line-height: 1.6;
-    }
-
-    .no-results-title {
-      font-family: var(--font-display);
-      font-size: 1.1rem;
-      color: var(--ink-light);
-      margin-bottom: 0.4rem;
-    }
-
-    /* ============================================================ EMPTY STATE (no registered subjects) */
-    .empty-library {
-      text-align: center;
-      padding: 4rem 1rem;
-    }
-
-    .empty-library-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: var(--accent-pale);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 1.25rem;
-      color: var(--accent);
-    }
-
-    .empty-library h2 {
-      font-family: var(--font-display);
-      font-size: 1.35rem;
-      color: var(--ink-dark);
-      font-weight: 400;
-      margin-bottom: 0.5rem;
-    }
-
-    .empty-library p {
-      font-size: 0.88rem;
-      color: var(--ink-light);
-      line-height: 1.65;
-      max-width: 44ch;
-      margin: 0 auto;
-    }
-
-    /* ============================================================ BRIDGE ERROR */
-    .bridge-error {
-      max-width: 480px;
-      margin: 4rem auto;
-      text-align: center;
-      padding: 0 1rem;
-    }
-
-    .bridge-error h2 {
-      font-family: var(--font-display);
-      font-size: 1.3rem;
-      color: var(--ink-dark);
-      font-weight: 400;
-      margin-bottom: 0.5rem;
-    }
-
-    .bridge-error p {
-      font-size: 0.88rem;
-      color: var(--ink-light);
-      line-height: 1.65;
-    }
-
-    /* ============================================================ SESSION MODAL */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(20, 17, 12, 0.52);
-      backdrop-filter: blur(6px);
-      z-index: 600;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-    }
-
-    .modal-overlay.open {
-      display: flex;
-      animation: fadeIn 0.18s ease;
-    }
-
-    .modal-panel {
-      background: var(--white);
-      border-radius: var(--radius-lg);
-      max-width: 420px;
-      width: 100%;
-      box-shadow: var(--shadow-lg);
-      animation: slideUp 0.22s cubic-bezier(0.34, 1.25, 0.64, 1);
-      max-height: 90svh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    html[data-theme="night"] .modal-panel {
-      background: #4c4237;
-      border: 1px solid rgba(255, 255, 255, 0.13);
-    }
-
-    .modal-header {
-      padding: 1.3rem 1.5rem 1rem;
-      border-bottom: 1px solid var(--stone-light);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-    }
-
-    html[data-theme="night"] .modal-header {
-      background: #463d33;
-      border-bottom-color: rgba(255, 255, 255, 0.13);
-    }
-
-    .modal-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--ink-dark);
-    }
-
-    .modal-close {
-      width: 30px;
-      height: 30px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--stone-light);
-      background: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: var(--ink-light);
-    }
-
-    .modal-close:hover {
-      background: var(--cream-warm);
-    }
-
-    .modal-body {
-      padding: 1.2rem 1.5rem 1.5rem;
-      overflow-y: auto;
-      flex: 1;
-    }
-
-    .modal-helper {
-      font-size: 0.78rem;
-      color: var(--stone-dark);
-      margin-bottom: 0.9rem;
-      line-height: 1.5;
-    }
-
-    .modal-section-label {
-      font-size: 0.65rem;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
-      margin: 0.9rem 0 0.45rem;
-    }
-
-    .session-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-      margin-bottom: 0.7rem;
-    }
-
-    .session-item {
-      display: flex;
-      align-items: center;
-      gap: 0.55rem;
-      padding: 0.6rem 0.8rem;
-      border: 1px solid var(--stone-light);
-      border-radius: var(--radius-sm);
-      background: var(--cream-warm);
-      transition: var(--t);
-    }
-
-    .session-item.active {
-      border-color: var(--accent);
-      background: var(--accent-pale);
-    }
-
-    html[data-theme="night"] .session-item {
-      background: rgba(70, 61, 51, 0.74);
-      border-color: rgba(255, 255, 255, 0.13);
-    }
-
-    html[data-theme="night"] .session-item.active {
-      background: rgba(52, 79, 75, 0.76);
-      border-color: rgba(131, 185, 179, 0.48);
-    }
-
-    .session-item-name {
-      flex: 1;
-      font-size: 0.86rem;
-      font-weight: 500;
-      color: var(--ink);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .session-item-badge {
-      font-size: 0.64rem;
-      font-weight: 600;
-      background: var(--accent);
-      color: #fff;
-      border-radius: 20px;
-      padding: 0.12rem 0.45rem;
-    }
-
-    .session-item-actions {
-      display: flex;
-      gap: 0.3rem;
-      flex-shrink: 0;
-    }
-
-    .session-action-btn {
-      width: 28px;
-      height: 28px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--stone-light);
-      background: var(--white);
-      color: var(--stone-dark);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--t);
-    }
-
-    .session-action-btn:hover {
-      color: var(--ink);
-      border-color: var(--stone);
-    }
-
-    .session-action-btn.danger:hover {
-      color: var(--danger-text);
-      border-color: var(--danger-border);
-      background: var(--danger-bg);
-    }
-
-    html[data-theme="night"] .session-action-btn {
-      background: rgba(76, 66, 55, 0.78);
-      border-color: rgba(255, 255, 255, 0.13);
-      color: var(--ink-light);
-    }
-
-    .session-new-form {
-      display: flex;
-      gap: 0.45rem;
-    }
-
-    .session-input {
-      flex: 1;
-      padding: 0.58rem 0.8rem;
-      border: 1.5px solid var(--stone-light);
-      border-radius: var(--radius-sm);
-      font-family: var(--font-body);
-      font-size: 0.86rem;
-      color: var(--ink);
-      background: var(--white);
-      outline: none;
-      transition: border-color var(--t);
-      min-height: 42px;
-    }
-
-    .session-input:focus {
-      border-color: var(--accent);
-    }
-
-    html[data-theme="night"] .session-input {
-      background: rgba(58, 51, 43, 0.82);
-      border-color: rgba(255, 255, 255, 0.16);
-      color: var(--ink);
-    }
-
-    select.session-input {
-      appearance: none;
-      padding-right: 2.35rem;
-      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 5.25L7 8.75L10.5 5.25' stroke='%237a7268' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-size: 14px 14px;
-      background-position: right 0.7rem center;
-    }
-
-    html[data-theme="night"] select.session-input {
-      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 5.25L7 8.75L10.5 5.25' stroke='%23d6cabc' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    }
-
-    .btn-primary {
-      padding: 0.58rem 1.05rem;
-      border-radius: var(--radius-sm);
-      border: none;
-      background: var(--accent);
-      color: #fff;
-      font-family: var(--font-body);
-      font-size: 0.84rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--t);
-      white-space: nowrap;
-      min-height: 42px;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-soft);
-    }
-
-    .btn-ghost {
-      padding: 0.58rem 0.95rem;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--stone-light);
-      background: var(--cream-warm);
-      font-family: var(--font-body);
-      font-size: 0.84rem;
-      font-weight: 500;
-      color: var(--ink-light);
-      cursor: pointer;
-      transition: var(--t);
-      min-height: 42px;
-    }
-
-    .btn-ghost:hover {
-      border-color: var(--stone);
-      color: var(--ink);
-    }
-
-    .session-error {
-      font-size: 0.76rem;
-      color: var(--danger-text);
-      margin-top: 0.45rem;
-      min-height: 1rem;
-      opacity: 0;
-      transition: opacity var(--t);
-    }
-
-    .session-error.visible {
-      opacity: 1;
-    }
-
-    /* ============================================================ CONFIRM DIALOG */
-    .confirm-dialog {
-      position: fixed;
-      inset: 0;
-      z-index: 800;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      background: rgba(20, 17, 12, 0.50);
-      backdrop-filter: blur(6px);
-    }
-
-    .confirm-dialog.open {
-      display: flex;
-      animation: fadeIn 0.15s ease;
-    }
-
-    .confirm-panel {
-      background: var(--white);
-      border-radius: var(--radius-md);
-      max-width: 360px;
-      width: 100%;
-      padding: 1.4rem;
-      box-shadow: var(--shadow-lg);
-      animation: slideUp 0.2s cubic-bezier(0.34, 1.25, 0.64, 1);
-    }
-
-    html[data-theme="night"] .confirm-panel {
-      background: #4c4237;
-      border: 1px solid rgba(255, 255, 255, 0.13);
-    }
-
-    .confirm-title {
-      font-size: 0.94rem;
-      font-weight: 600;
-      color: var(--ink-dark);
-      margin-bottom: 0.45rem;
-    }
-
-    .confirm-message {
-      font-size: 0.83rem;
-      color: var(--ink-light);
-      line-height: 1.55;
-      margin-bottom: 1.1rem;
-    }
-
-    .confirm-input {
-      width: 100%;
-      padding: 0.58rem 0.8rem;
-      border: 1.5px solid var(--stone-light);
-      border-radius: var(--radius-sm);
-      font-family: var(--font-body);
-      font-size: 0.86rem;
-      color: var(--ink);
-      background: var(--white);
-      outline: none;
-      transition: var(--t);
-      margin-bottom: 0.45rem;
-      display: none;
-      min-height: 42px;
-    }
-
-    .confirm-input.visible {
-      display: block;
-    }
-
-    .confirm-input:focus {
-      border-color: var(--accent);
-    }
-
-    .confirm-error {
-      font-size: 0.76rem;
-      color: var(--danger-text);
-      margin-bottom: 0.75rem;
-      display: none;
-    }
-
-    .confirm-error.visible {
-      display: block;
-    }
-
-    .confirm-actions {
-      display: flex;
-      gap: 0.45rem;
-      justify-content: flex-end;
-    }
-
-    .btn-danger {
-      padding: 0.55rem 0.95rem;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--danger-border);
-      background: var(--danger-bg);
-      color: var(--danger-text);
-      font-family: var(--font-body);
-      font-size: 0.83rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--t);
-      min-height: 40px;
-    }
-
-    .btn-danger:hover {
-      background: #fee2e2;
-    }
-
-    /* ============================================================ TOAST */
-    .hub-toast {
-      position: fixed;
-      bottom: 1.5rem;
-      left: 50%;
-      transform: translateX(-50%) translateY(8px);
-      background: var(--white);
-      border: 1px solid var(--stone);
-      border-radius: var(--radius-md);
-      padding: 0.65rem 1.15rem;
-      font-size: 0.84rem;
-      color: var(--ink-light);
-      z-index: 900;
-      box-shadow: var(--shadow-md);
-      opacity: 0;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      max-width: calc(100vw - 2rem);
-    }
-
-    .hub-toast.visible {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    /* ============================================================ UTILITIES */
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(14px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-
-      *,
-      *::before,
-      *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
-
-    /* ============================================================ RESPONSIVE */
-    @media (max-width: 680px) {
-      .spine {
-        display: none !important;
-      }
-
-      .mobile-header {
-        display: flex !important;
-      }
-
-      .hub-main {
-        padding: 1.75rem 1rem 4rem;
-      }
-
-      .hub-intro {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.75rem;
-      }
-
-      .category-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .inprogress-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .hub-meta {
-        flex-direction: row;
-      }
-    }
-
-    @media (min-width: 681px) {
-      .mobile-header {
-        display: none !important;
-      }
-
-      .drawer-overlay,
-      .drawer {
-        display: none !important;
-      }
-    }
-  </style>
 </head>
 
 <body>
-  <div class="hub-atmosphere-layer" id="hub-atmosphere-layer" aria-hidden="true"></div>
-  <!-- ============================================================ DESKTOP SPINE -->
-  <header class="spine" role="banner">
-    <div class="spine-mark">Compass<span>.</span></div>
 
-    <div class="spine-worlds" id="spine-hub-nav" role="group" aria-label="World navigation"></div>
+    <!-- ============================================================
+     VIEW 1: COVER
+     ============================================================ -->
 
-    <div class="spine-actions">
-      <button class="spine-session-pill" onclick="openSessionModal()" aria-label="Switch session">
-        <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-          <circle cx="5.5" cy="3.5" r="2" stroke="currentColor" stroke-width="1.2" />
-          <path d="M1 9.5c0-2 2-3.5 4.5-3.5s4.5 1.5 4.5 3.5" stroke="currentColor" stroke-width="1.2"
-            stroke-linecap="round" />
-        </svg>
-        <span class="pill-name" id="spine-session-name">—</span>
-      </button>
-
-      <button class="spine-btn" data-atlas-search title="Search" aria-label="Search">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <circle cx="6.5" cy="6.5" r="4.2" stroke="currentColor" stroke-width="1.3" />
-          <path d="M9.8 9.8l2.8 2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-        </svg>
-      </button>
-
-      <button class="spine-btn" onclick="openSettingsModal()" title="Settings" aria-label="Settings">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
-          <circle cx="6" cy="4" r="1.2" fill="var(--white)" stroke="currentColor" stroke-width="1.2" />
-          <circle cx="10" cy="8" r="1.2" fill="var(--white)" stroke="currentColor" stroke-width="1.2" />
-          <circle cx="7.5" cy="12" r="1.2" fill="var(--white)" stroke="currentColor" stroke-width="1.2" />
-        </svg>
-      </button>
-
-      <button class="spine-btn" id="spine-appearance-btn" onclick="toggleAppearance()"
-        aria-label="Toggle appearance"></button>
-    </div>
-  </header>
-
-  <!-- ============================================================ MOBILE HEADER -->
-  <header class="mobile-header" role="banner">
-    <div class="mobile-header-brand">
-      <span class="mobile-header-mark">Compass<span>.</span></span>
-    </div>
-    <div class="mobile-header-actions">
-      <button class="mobile-session-pill" onclick="openSessionModal()" aria-label="Sessions">
-        <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-          <circle cx="5.5" cy="3.5" r="2" stroke="currentColor" stroke-width="1.2" />
-          <path d="M1 9.5c0-2 2-3.5 4.5-3.5s4.5 1.5 4.5 3.5" stroke="currentColor" stroke-width="1.2"
-            stroke-linecap="round" />
-        </svg>
-        <span id="mobile-session-name">—</span>
-      </button>
-
-      <button class="mobile-header-btn" data-atlas-search aria-label="Search">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3" />
-          <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-        </svg>
-      </button>
-
-      <button class="mobile-header-btn" onclick="openDrawer()" aria-label="Menu">
-        <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-          <path d="M2 4h13M2 8.5h13M2 13h13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-        </svg>
-      </button>
-
-    </div>
-  </header>
-
-  <!-- Mobile drawer -->
-  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
-  <nav class="drawer" id="drawer" aria-label="Navigation">
-    <div class="drawer-header">
-      <span class="drawer-title">Compass<span>.</span></span>
-      <button class="drawer-close" onclick="closeDrawer()" aria-label="Close menu">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-          <path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-        </svg>
-      </button>
-    </div>
-    <div class="drawer-nav">
-      <div class="drawer-nav-label">Worlds</div>
-      <div id="drawer-hub-nav"></div>
-
-      <div class="drawer-nav-label">Find</div>
-      <button class="drawer-nav-item" onclick="closeDrawer(); AtlasSearch.open()">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <circle cx="6.5" cy="6.5" r="4.2" stroke="currentColor" stroke-width="1.3" />
-          <path d="M9.8 9.8l2.8 2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-        </svg>
-        Search
-      </button>
-      <button class="drawer-nav-item" onclick="closeDrawer(); openSettingsModal()">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-          <path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
-          <circle cx="6" cy="4" r="1.2" fill="var(--white)" stroke="currentColor" stroke-width="1.2" />
-          <circle cx="10" cy="8" r="1.2" fill="var(--white)" stroke="currentColor" stroke-width="1.2" />
-          <circle cx="7.5" cy="12" r="1.2" fill="var(--white)" stroke="currentColor" stroke-width="1.2" />
-        </svg>
-        Settings
-      </button>
-    </div>
-    <div class="drawer-footer">
-      <div class="drawer-footer-row">
-        <button class="drawer-session-btn" onclick="closeDrawer(); openSessionModal()">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <circle cx="6.5" cy="4.5" r="2.2" stroke="currentColor" stroke-width="1.2" />
-            <path d="M1.5 11.5c0-2.4 2.2-4.2 5-4.2s5 1.8 5 4.2" stroke="currentColor" stroke-width="1.2"
-              stroke-linecap="round" />
-          </svg>
-          <span id="drawer-session-name">—</span>
-        </button>
-        <button class="drawer-appearance-btn" id="drawer-appearance-btn" onclick="toggleAppearance()"
-          aria-label="Toggle appearance"></button>
-      </div>
-    </div>
-  </nav>
-
-  <!-- ============================================================ MAIN -->
-  <main class="hub-main" id="hub-main" role="main"></main>
-  <!-- ============================================================ SESSION MODAL -->
-  <div class="modal-overlay" id="session-modal" onclick="handleSessionModalClick(event)" role="dialog"
-    aria-label="Sessions" aria-modal="true">
-    <div class="modal-panel">
-      <div class="modal-header">
-        <span class="modal-title">Sessions</span>
-        <button class="modal-close" onclick="closeSessionModal()" aria-label="Close">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p class="modal-helper" id="session-modal-helper"></p>
-        <div class="session-list" id="session-list"></div>
-        <p class="modal-section-label">New session</p>
-        <div class="session-new-form">
-          <input class="session-input" id="new-session-input" type="text" placeholder="Learner name" maxlength="40"
-            autocomplete="off">
-          <button class="btn-primary" onclick="handleCreateSession()">Add</button>
+    <div id="view-cover" class="view active">
+        <div class="cover-bg"></div>
+        <div class="cover-overlay"></div>
+        <div class="cover-pattern"></div>
+        <div class="cover-utility-row">
+            <button class="cover-appearance-toggle" id="cover-appearance-toggle" onclick="toggleAppearanceMode()"
+                title="Switch to night mode" aria-label="Switch to night mode">
+            </button>
+            <button class="cover-session-btn" onclick="openSessionModal()">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <circle cx="6" cy="4" r="2.2" stroke="currentColor" stroke-width="1.2" />
+                    <path d="M1.5 11c0-2.485 2.015-4 4.5-4s4.5 1.515 4.5 4" stroke="currentColor" stroke-width="1.2"
+                        stroke-linecap="round" />
+                </svg>
+                <span id="cover-session-label">Current Session</span>
+            </button>
         </div>
-        <div class="session-error" id="session-create-error"></div>
-        <p class="modal-helper" style="font-size:0.70rem;margin-top:0.65rem;margin-bottom:0">Progress is saved on this
-          device only.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============================================================ SETTINGS MODAL -->
-  <div class="modal-overlay" id="settings-modal" onclick="handleSettingsModalClick(event)" role="dialog"
-    aria-label="Settings" aria-modal="true">
-    <div class="modal-panel">
-      <div class="modal-header">
-        <span class="modal-title">Settings</span>
-        <button class="modal-close" onclick="closeSettingsModal()" aria-label="Close">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p class="modal-helper">Choose the Compass atmosphere for this device.</p>
-
-        <p class="modal-section-label">Atmosphere</p>
-        <select class="session-input" id="compass-atmosphere-mode" onchange="handleCompassAtmosphereModeChange()">
-          <option value="default">Default Compass atmosphere</option>
-          <option value="custom">Custom image URL</option>
-          <option value="none">No atmosphere image</option>
-        </select>
-
-        <div id="compass-custom-atmosphere-row" style="margin-top:0.9rem;">
-          <p class="modal-section-label">Custom image URL</p>
-          <input class="session-input" id="compass-atmosphere-input" type="url" placeholder="https://..."
-            autocomplete="off">
+        <div class="cover-card">
+            <div class="cover-eyebrow">
+                <span class="cover-eyebrow-line"></span>
+                COMPASS SUBJECT
+            </div>
+            <h1 class="cover-title" id="cover-title"></h1>
+            <p class="cover-hook" id="cover-hook"></p>
+            <p class="cover-returning" id="cover-returning"></p>
+            <div class="cover-actions">
+                <button class="btn-begin" id="cover-begin-btn" onclick="beginModule()">
+                    Begin lesson
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                        <path d="M3 7.5h9M8.5 4l3.5 3.5-3.5 3.5" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
         </div>
+    </div>
 
-        <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
-          <button class="btn-primary" onclick="handleSaveSettings()">Save</button>
-          <button class="btn-ghost" onclick="handleRevertAtmosphere()">Revert to default</button>
+    <!-- ============================================================
+     VIEW 2: ORIENTATION
+     ============================================================ -->
+
+    <div id="view-orientation" class="view view-inner-bg">
+        <!-- Mobile header injected by renderMobileHeader('overview') -->
+        <div id="mob-header-orientation" class="mobile-header-shell"></div>
+        <!-- Desktop nav injected by renderNav('view-orientation') -->
+        <div id="nav-orientation" class="nav-shell"></div>
+        <div class="orientation-wrap">
+            <div class="section-stage">
+
+                <!-- FACTORY EDIT ZONE: OVERVIEW INTRO — replace heading + paragraphs per subject -->
+                <div class="subject-intro-block">
+                    <p class="section-eyebrow" id="orient-eyebrow"></p>
+                    <h1>How we speak shapes what people hear</h1>
+                    <p>Communication is never only about choosing the right words. Tone, timing, silence, expression,
+                        and cultural
+                        expectations can all change how a message feels.</p>
+                    <p style="margin-top:0.9rem;">In this subject, you'll explore how meaning is created through voice,
+                        language,
+                        and social context — from everyday misunderstandings to deeper questions about honesty,
+                        subtlety, emotion,
+                        and connection.</p>
+                </div>
+                <!-- END FACTORY EDIT ZONE: OVERVIEW INTRO -->
+
+                <!-- Per-subject content: Overview path cards -->
+                <div class="main-paths">
+                    <div class="main-path-card" role="button" tabindex="0" onclick="goToView('view-cultural-lens')"
+                        onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-cultural-lens'); }">
+                        <div class="path-icon">
+                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                                <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5" />
+                                <circle cx="11" cy="11" r="3" stroke="currentColor" stroke-width="1.5" />
+                                <path d="M4 11h2M16 11h2M11 4v2M11 16v2" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <p class="path-label" id="path-label-cl"></p>
+                        <h2 class="path-title">Cultural Lens</h2>
+
+                        <!-- FACTORY EDIT: Cultural Lens path-card description -->
+                        <p class="path-desc">Explore how different cultures approach silence, directness, emotional
+                            expression, and
+                            the meaning behind words — and discover what makes each approach make sense in context.</p>
+                        <div class="path-arrow">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="main-path-card" role="button" tabindex="0" onclick="goToView('view-discussion')"
+                        onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-discussion'); }">
+                        <div class="path-icon">
+                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                                <path d="M4 6a2 2 0 012-2h10a2 2 0 012 2v7a2 2 0 01-2 2h-4l-4 3v-3H6a2 2 0 01-2-2V6z"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                                <path d="M8 9h6M8 12h4" stroke="currentColor" stroke-width="1.3"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <p class="path-label" id="path-label-disc"></p>
+                        <h2 class="path-title">Discussion</h2>
+                        <p class="path-desc">Work through real-life communication moments — from awkward everyday slips
+                            to subtle
+                            signals and deeper meaning — using language that helps your ideas land more clearly.</p>
+                        <div class="path-arrow">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="reflection-path-card" role="button" tabindex="0" onclick="goToView('view-reflection')"
+                    onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-reflection'); }">
+                    <div class="reflection-icon-small">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M9 2L9 16M4 13l5 3 5-3" stroke="currentColor" stroke-width="1.4"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="1.4" />
+                        </svg>
+                    </div>
+                    <div class="reflection-path-text">
+                        <!-- LOCKED LABEL: keep "Complete the Conversation" — do not make subject-specific -->
+                        <h4>Complete the Conversation</h4>
+
+                        <!-- FACTORY EDIT: Reflection path-card description (the <p> below) -->
+                        <p>Closing reflection — revisit what you've explored and carry something forward</p>
+                    </div>
+                    <div class="card-arrow-badge" aria-hidden="true">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M4 8h8M9 5l3 3-3 3" stroke="currentColor" stroke-width="1.35"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 
-  <!-- ============================================================ CONFIRM DIALOG -->
-  <div class="confirm-dialog" id="confirm-dialog" role="alertdialog" aria-modal="true">
-    <div class="confirm-panel">
-      <div class="confirm-title" id="confirm-title"></div>
-      <div class="confirm-message" id="confirm-message"></div>
-      <input class="confirm-input" id="confirm-input" type="text" maxlength="40" autocomplete="off">
-      <div class="confirm-error" id="confirm-error"></div>
-      <div class="confirm-actions">
-        <button class="btn-ghost" onclick="resolveConfirm(false)">Cancel</button>
-        <button class="btn-danger" id="confirm-ok-btn" onclick="resolveConfirm(true)">OK</button>
-      </div>
+    <!-- ============================================================
+     VIEW 3: CULTURAL LENS
+     ============================================================ -->
+
+    <div id="view-cultural-lens" class="view view-inner-bg">
+        <!-- Mobile header injected by renderMobileHeader('cultural-lens') -->
+        <div id="mob-header-cultural-lens" class="mobile-header-shell"></div>
+        <!-- Desktop nav injected by renderNav('view-cultural-lens') -->
+        <div id="nav-cultural-lens" class="nav-shell"></div>
+        <div class="section-wrap">
+            <div class="section-stage">
+
+                <!-- FACTORY EDIT ZONE: CULTURAL LENS SECTION COPY — eyebrow stays "Cultural Lens"; replace h2 + intro p -->
+                <div class="section-header">
+                    <!-- LOCKED LABEL: "Cultural Lens" -->
+                    <p class="section-eyebrow">Cultural Lens</p>
+                    <h2>Communication expectations across cultures</h2>
+                    <p>Communication is not just about exchanging information — it also reflects deep ideas about
+                        respect,
+                        hierarchy, and social harmony. Across cultures and history, people have developed very different
+                        expectations about
+                        when to speak clearly, when to stay vague, and when silence or emotion carries more weight than
+                        words.</p>
+                    <!-- END FACTORY EDIT ZONE: CULTURAL LENS SECTION COPY -->
+
+                    <div class="progress-strip">
+                        <span id="cl-progress-text">Explore the cards below — choose any that interest you.</span>
+                        <span class="progress-pill viewed" id="cl-viewed-count" style="display:none">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.2" />
+                                <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1.2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>0 viewed</span>
+                        </span>
+                        <span class="progress-pill covered" id="cl-covered-count" style="display:none">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                <path d="M2 5l2.5 2.5L8 2.5" stroke="currentColor" stroke-width="1.4"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>0 covered</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cl-grid" id="cl-grid"></div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- ============================================================ SCRIPTS -->
-  <script src="../shared/atlas-bridge.js"></script>
-  <script src="../shared/atlas-search.js"></script>
-  <script>
-    'use strict';
-
-    /* ================================================================
-       COMPASS HUB V1
-       Reads state only through AtlasBridge. All catalog data is local.
-       ================================================================ */
-
-    // ---- Bridge guard -----------------------------------------------
-    if (!window.AtlasBridge) {
-      document.getElementById('hub-main').innerHTML =
-        '<div class="bridge-error">' +
-        '<h2>Compass can\'t start</h2>' +
-        '<p>The shared runtime didn\'t load. Reload the page, and check that <code>shared/atlas-bridge.js</code> is in place.</p>' +
-        '</div>';
-    }
-    const Bridge = window.AtlasBridge;
-
-    const ATLAS_ID = 'atlas';
-    const COMPASS_ID = 'compass';
-    const ARCADE_ID = 'arcade';
-    const ACTIVE_HUB_ID = COMPASS_ID;
-    const COMPASS_ATMOSPHERE_KEY = 'compass::atmosphereImage';
-    const COMPASS_ATMOSPHERE_MODE_KEY = 'compass::atmosphereMode';
-    const COMPASS_DEFAULT_ATMOSPHERE = './compass-hub-atmosphere.jpg';
-
-    const HUB_NAV = {
-      atlas: {
-        id: ATLAS_ID,
-        name: 'Atlas',
-        desc: 'Gateway',
-        alwaysAvailable: true,
-        launchUrl: '../index.html',
-        smallIcon: '<svg class="spine-world-icon" width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><path d="M6.5 1.4L11.6 6.5L6.5 11.6L1.4 6.5Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/><path d="M6.5 3.6L9.4 6.5L6.5 9.4L3.6 6.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round" opacity="0.75"/></svg>'
-      },
-      compass: {
-        id: COMPASS_ID,
-        name: 'Compass',
-        desc: 'Deep conversation subjects for thoughtful English.',
-        alwaysAvailable: true,
-        launchUrl: window.location.href,
-        smallIcon: '<svg class="spine-world-icon" width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5.2" stroke="currentColor" stroke-width="1.25"/><circle cx="7" cy="7" r="1.6" stroke="currentColor" stroke-width="1.15"/><path d="M7 1.8v1.6M7 10.6v1.6M1.8 7h1.6M10.6 7h1.6" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/></svg>'
-      },
-      arcade: {
-        id: ARCADE_ID,
-        name: 'Arcade',
-        desc: 'Conversation games.',
-        worldId: ARCADE_ID,
-        smallIcon: '<svg class="spine-world-icon" width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><rect x="1.5" y="3" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 6.5h2M5.5 5.5v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8.5" cy="6.5" r="0.6" fill="currentColor"/><circle cx="10" cy="5.5" r="0.6" fill="currentColor"/></svg>'
-      }
-    };
-
-    /* ================================================================
-       COMPASS CATALOG
-       Edit COMPASS_CATEGORIES and COMPASS_CATALOG here.
-       Registry ids follow the pattern: 'compass:' + slug
-       ================================================================ */
-
-    const COMPASS_CATEGORIES = [
-      { id: 'relationships-society', title: 'Relationships & Society', order: 10 },
-      { id: 'self-identity', title: 'Self & Identity', order: 20 },
-      { id: 'mind-behaviour', title: 'Mind & Behaviour', order: 30 },
-      { id: 'work-purpose', title: 'Work & Purpose', order: 40 },
-      { id: 'culture-world', title: 'Culture & the World', order: 50 },
-      { id: 'language-expression', title: 'Language & Expression', order: 60 },
-      { id: 'society-ideas', title: 'Society & Ideas', order: 70 },
-    ];
-
-    const COMPASS_CATALOG = {
-      'compass:body-language-emotions': {
-        registryId: 'compass:body-language-emotions',
-        title: 'Body Language & Emotions',
-        categoryId: 'language-expression',
-        order: 10,
-        durationLabel: '45–60 min',
-        hook: 'Read the small signals people send through posture, expression, eye contact, distance, and emotional tone.'
-      },
-      'compass:communication-expression': {
-        registryId: 'compass:communication-expression',
-        title: 'Communication & Expression',
-        categoryId: 'language-expression',
-        order: 20,
-        durationLabel: '45–60 min',
-        hook: 'Explore how people explain themselves, choose words, handle misunderstanding, and shape the feeling of a conversation.'
-      },
-      'compass:conflict-resolution': {
-        registryId: 'compass:conflict-resolution',
-        title: 'Conflict & Resolution',
-        categoryId: 'relationships-society',
-        order: 30,
-        durationLabel: '45–60 min',
-        hook: 'Look at tension, blame, apology, repair, boundaries, and the choices people make when things become difficult.'
-      },
-      'compass:conformity-rebellion': {
-        registryId: 'compass:conformity-rebellion',
-        title: 'Conformity & Rebellion',
-        categoryId: 'self-identity',
-        order: 10,
-        durationLabel: '45–60 min',
-        hook: 'Talk about fitting in, pushing back, social pressure, independence, and the moments when people decide not to follow the script.'
-      },
-      'compass:creativity-imagination': {
-        registryId: 'compass:creativity-imagination',
-        title: 'Creativity & Imagination',
-        categoryId: 'self-identity',
-        order: 20,
-        durationLabel: '45–60 min',
-        hook: 'Explore ideas, originality, taste, inspiration, creative blocks, and how people turn imagination into something real.'
-      },
-      'compass:cultural-etiquette-social-norms': {
-        registryId: 'compass:cultural-etiquette-social-norms',
-        title: 'Cultural Etiquette & Social Norms',
-        categoryId: 'culture-world',
-        order: 10,
-        durationLabel: '45–60 min',
-        hook: 'Compare the invisible rules people follow in different places, from politeness and silence to greetings, manners, and social expectations.'
-      },
-      'compass:culture-global-awareness': {
-        registryId: 'compass:culture-global-awareness',
-        title: 'Culture & Global Awareness',
-        categoryId: 'culture-world',
-        order: 20,
-        durationLabel: '45–60 min',
-        hook: 'Discuss how travel, language, migration, media, and everyday assumptions shape the way people understand the wider world.'
-      },
-      'compass:dreams-ambitions': {
-        registryId: 'compass:dreams-ambitions',
-        title: 'Dreams & Ambitions',
-        categoryId: 'self-identity',
-        order: 30,
-        durationLabel: '45–60 min',
-        hook: 'Talk about goals, imagined futures, pressure, disappointment, reinvention, and what people are willing to sacrifice for a bigger life.'
-      },
-      'compass:education-learning': {
-        registryId: 'compass:education-learning',
-        title: 'Education & Learning',
-        categoryId: 'society-ideas',
-        order: 10,
-        durationLabel: '45–60 min',
-        hook: 'Explore how people learn, what schools reward, why curiosity fades or grows, and what education is really supposed to do.'
-      },
-      'compass:environment-sustainability': {
-        registryId: 'compass:environment-sustainability',
-        title: 'Environment & Sustainability',
-        categoryId: 'culture-world',
-        order: 30,
-        durationLabel: '45–60 min',
-        hook: 'Discuss nature, responsibility, lifestyle choices, climate anxiety, waste, consumption, and the gap between caring and acting.'
-      },
-      'compass:grace-conduct': {
-        registryId: 'compass:grace-conduct',
-        title: 'Grace & Conduct',
-        categoryId: 'relationships-society',
-        order: 10,
-        durationLabel: '45–60 min',
-        hook: 'Look at tact, dignity, restraint, generosity, awkward moments, and the quiet behaviours that make someone easy or difficult to respect.'
-      },
-      'compass:habits-daily-routines': {
-        registryId: 'compass:habits-daily-routines',
-        title: 'Habits & Daily Routines',
-        categoryId: 'mind-behaviour',
-        order: 10,
-        durationLabel: '45–60 min',
-        hook: 'Talk about routines, discipline, comfort, small decisions, self-control, and the repeated behaviours that quietly shape a life.'
-      },
-      'compass:health-wellbeing': {
-        registryId: 'compass:health-wellbeing',
-        title: 'Health & Wellbeing',
-        categoryId: 'self-identity',
-        order: 40,
-        durationLabel: '45–60 min',
-        hook: 'Explore energy, stress, sleep, food, movement, mental balance, and the difference between looking fine and actually feeling well.'
-      },
-      'compass:history-human-experience': {
-        registryId: 'compass:history-human-experience',
-        title: 'History & Human Experience',
-        categoryId: 'culture-world',
-        order: 40,
-        durationLabel: '45–60 min',
-        hook: 'Use the past to discuss memory, progress, survival, injustice, change, and what people repeat across generations.'
-      },
-      'compass:human-behaviour-the-mind': {
-        registryId: 'compass:human-behaviour-the-mind',
-        title: 'Human Behaviour & The Mind',
-        categoryId: 'mind-behaviour',
-        order: 20,
-        durationLabel: '45–60 min',
-        hook: 'Explore why people react, avoid, judge, overthink, attach meaning, change their minds, and misunderstand themselves.'
-      },
-      'compass:identity-self-image': {
-        registryId: 'compass:identity-self-image',
-        title: 'Identity & Self-Image',
-        categoryId: 'self-identity',
-        order: 50,
-        durationLabel: '45–60 min',
-        hook: 'Talk about who people think they are, how they want to be seen, and the gap between private identity and public image.'
-      },
-      'compass:justice-ethics': {
-        registryId: 'compass:justice-ethics',
-        title: 'Justice & Ethics',
-        categoryId: 'society-ideas',
-        order: 20,
-        durationLabel: '45–60 min',
-        hook: 'Discuss fairness, responsibility, punishment, forgiveness, moral trade-offs, and what people do when the right answer is not simple.'
-      },
-      'compass:media-influence': {
-        registryId: 'compass:media-influence',
-        title: 'Media & Influence',
-        categoryId: 'society-ideas',
-        order: 30,
-        durationLabel: '45–60 min',
-        hook: 'Explore attention, persuasion, image, algorithms, outrage, trust, and how media changes what people notice and believe.'
-      },
-      'compass:mindset-motivation': {
-        registryId: 'compass:mindset-motivation',
-        title: 'Mindset & Motivation',
-        categoryId: 'mind-behaviour',
-        order: 30,
-        durationLabel: '45–60 min',
-        hook: 'Talk about confidence, effort, excuses, ambition, failure, momentum, and what helps people keep going when motivation drops.'
-      },
-      'compass:personal-growth-self-discovery': {
-        registryId: 'compass:personal-growth-self-discovery',
-        title: 'Personal Growth & Self-Discovery',
-        categoryId: 'self-identity',
-        order: 60,
-        durationLabel: '45–60 min',
-        hook: 'Explore change, maturity, self-knowledge, uncomfortable lessons, old patterns, and the moments that make people see themselves differently.'
-      },
-      'compass:personality-character-traits': {
-        registryId: 'compass:personality-character-traits',
-        title: 'Personality & Character Traits',
-        categoryId: 'mind-behaviour',
-        order: 40,
-        durationLabel: '45–60 min',
-        hook: 'Discuss temperament, charm, stubbornness, sensitivity, reliability, charisma, and the traits people admire, hide, or misunderstand.'
-      },
-      'compass:relationships-connection': {
-        registryId: 'compass:relationships-connection',
-        title: 'Relationships & Connection',
-        categoryId: 'relationships-society',
-        order: 20,
-        durationLabel: '45–60 min',
-        hook: 'Talk about closeness, trust, distance, friendship, family, romance, loneliness, and what makes people feel genuinely understood.'
-      },
-      'compass:society-values': {
-        registryId: 'compass:society-values',
-        title: 'Society & Values',
-        categoryId: 'society-ideas',
-        order: 40,
-        durationLabel: '45–60 min',
-        hook: 'Explore status, success, freedom, respect, money, tradition, community, and the values a society rewards or quietly punishes.'
-      },
-      'compass:technology-innovation': {
-        registryId: 'compass:technology-innovation',
-        title: 'Technology & Innovation',
-        categoryId: 'society-ideas',
-        order: 50,
-        durationLabel: '45–60 min',
-        hook: 'Discuss convenience, dependence, creativity, privacy, AI, progress, and what people gain or lose when life becomes more automated.'
-      },
-      'compass:thinking-reasoning': {
-        registryId: 'compass:thinking-reasoning',
-        title: 'Thinking & Reasoning',
-        categoryId: 'mind-behaviour',
-        order: 50,
-        durationLabel: '45–60 min',
-        hook: 'Look at logic, bias, intuition, doubt, certainty, decision-making, and how people convince themselves they are being reasonable.'
-      },
-      'compass:time-priorities': {
-        registryId: 'compass:time-priorities',
-        title: 'Time & Priorities',
-        categoryId: 'work-purpose',
-        order: 10,
-        durationLabel: '45–60 min',
-        hook: 'Talk about busyness, urgency, regret, attention, delayed choices, and how people decide what deserves their time.'
-      },
-      'compass:travel-exploration': {
-        registryId: 'compass:travel-exploration',
-        title: 'Travel & Exploration',
-        categoryId: 'culture-world',
-        order: 50,
-        durationLabel: '45–60 min',
-        hook: 'Explore movement, curiosity, discomfort, adaptation, tourism, belonging, and what travel reveals about places and people.'
-      },
-      'compass:workplace-dynamics-professionalism': {
-        registryId: 'compass:workplace-dynamics-professionalism',
-        title: 'Workplace Dynamics & Professionalism',
-        categoryId: 'work-purpose',
-        order: 20,
-        durationLabel: '45–60 min',
-        hook: 'Discuss meetings, feedback, hierarchy, tone, pressure, boundaries, trust, and the unwritten rules of working with other people.'
-      },
-      'compass:work-purpose': {
-        registryId: 'compass:work-purpose',
-        title: 'Work & Purpose',
-        categoryId: 'work-purpose',
-        order: 30,
-        durationLabel: '45–60 min',
-        hook: 'Talk about ambition, usefulness, burnout, status, money, meaning, and what people want their work to say about their life.'
-      }
-    };
-
-    const COMPASS_AVAILABLE_SUBJECT_SLUGS = [
-      'body-language-emotions',
-      'communication-expression'
-    ];
-
-    /* ================================================================
-       REGISTRATION
-       Compass world and subject items are registered idempotently on load.
-       ================================================================ */
-
-    function compassSubjectSlug(subject) {
-      return String(subject.registryId || '')
-        .replace(/^compass:/, '')
-        .trim();
-    }
-
-    function getCompassSubjectLaunchUrl(subject) {
-      const slug = compassSubjectSlug(subject);
-      return slug ? './' + slug + '/index.html' : '';
-    }
-
-    function registerWithBridge() {
-      if (!Bridge) return;
-
-      try {
-        Bridge.upsertWorld({
-          registryId: 'compass',
-          world: 'compass',
-          type: 'world',
-          title: 'Compass',
-          description: 'Deep conversation subjects for thoughtful English, cultural reflection, and human communication.',
-          status: 'available',
-          launchUrl: new URL('./index.html', window.location.href).href
-        });
-      } catch (e) { }
-
-      Object.values(COMPASS_CATALOG).forEach(subject => {
-        try {
-          const slug = compassSubjectSlug(subject);
-          if (!COMPASS_AVAILABLE_SUBJECT_SLUGS.includes(slug)) return;
-
-          const launchUrl = getCompassSubjectLaunchUrl(subject);
-          if (!launchUrl) return;
-
-          Bridge.upsertItem({
-            registryId: subject.registryId,
-            world: 'compass',
-            type: 'subject',
-            title: subject.title,
-            description: subject.hook || '',
-            hook: subject.hook || '',
-            categoryId: subject.categoryId || '',
-            categoryTitle: getCategoryTitle(subject.categoryId),
-            durationLabel: subject.durationLabel || '45–60 min',
-            order: subject.order || 0,
-            status: 'available',
-            launchUrl: new URL(launchUrl, window.location.href).href
-          });
-        } catch (e) { }
-      });
-    }
-
-    /* ================================================================
-       HELPERS
-       ================================================================ */
-
-    function escHtml(s) {
-      return String(s == null ? '' : s)
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
-
-    function formatRelativeTime(ts) {
-      if (!ts) return '';
-      const now = Date.now();
-      const diff = now - ts;
-      const days = Math.floor(diff / 86400000);
-      if (days === 0) return 'opened today';
-      if (days === 1) return 'opened yesterday';
-      if (days < 7) return 'opened ' + days + ' days ago';
-      if (days < 14) return 'opened last week';
-      const weeks = Math.floor(days / 7);
-      if (weeks < 5) return 'opened ' + weeks + ' weeks ago';
-      return 'opened a while ago';
-    }
-
-    function resolveStatus(state) {
-      if (!state || state.status === 'not-started') return 'new';
-      const s = (state.status || '').toLowerCase();
-      if (s === 'completed' || s === 'complete' || s === 'explored' || state.lessonCompletedAt) return 'explored';
-      if (
-        s === 'in-progress' || s === 'in_progress' || s === 'started' ||
-        (state.progress && (
-          (Number(state.progress.viewed) > 0) ||
-          (Number(state.progress.covered) > 0)
-        ))
-      ) return 'inprogress';
-      if (state.lastTouchedAt || state.lastOpenedAt || state.updatedAt) return 'inprogress';
-      return 'new';
-    }
-
-    function getCategoryTitle(categoryId) {
-      const cat = COMPASS_CATEGORIES.find(c => c.id === categoryId);
-      return cat ? cat.title : 'Compass';
-    }
-
-    function statusBadgeHtml(status) {
-      const labels = { new: 'New', inprogress: 'In progress', explored: 'Explored' };
-      return '<span class="status-badge ' + status + '">' + (labels[status] || status) + '</span>';
-    }
-
-    function subjectButtonLabel(status) {
-      const labels = { new: 'Explore', inprogress: 'Continue', explored: 'Revisit' };
-      return labels[status] || 'Explore';
-    }
-
-    function subjectProgressPercent(s) {
-      if (!s) return null;
-      if (s.status === 'explored') return 100;
-
-      const p = s.state && s.state.progress ? s.state.progress : null;
-      if (!p || typeof p !== 'object') return null;
-
-      const total = Number(p.total) || 0;
-      const covered = Number(p.covered) || 0;
-
-      if (total <= 0 || covered <= 0) return null;
-
-      const pct = Math.round((covered / total) * 100);
-      return Math.max(0, Math.min(100, pct));
-    }
-
-    /* ================================================================
-       SAFE BRIDGE READS
-       ================================================================ */
-
-    function getActiveSession() {
-      try { return Bridge.readActiveSession(); }
-      catch (e) { return { id: 'default', name: 'Default' }; }
-    }
-    function getSessions() {
-      try { return Bridge.readSessions() || []; }
-      catch (e) { return []; }
-    }
-    function getRegistry() {
-      try { return Bridge.readRegistry(); }
-      catch (e) { return { worlds: {}, items: {}, sessionStates: {}, recentActivity: [] }; }
-    }
-    function isDefaultSession(s) {
-      return s && s.id === (Bridge.defaultSessionId || 'default');
-    }
-
-    /* ================================================================
-       CATALOG MERGE
-       Returns a flat array of merged subject objects.
-       Only subjects registered in the bridge with world=compass,
-       type=subject, status=available are included.
-       ================================================================ */
-
-    function getMergedSubjects() {
-      const reg = getRegistry();
-      const session = getActiveSession();
-      const sessionStates = ((reg.sessionStates || {})[session.id]) || {};
-      const merged = [];
-
-      Object.values(COMPASS_CATALOG).forEach(cat => {
-        const item = (reg.items || {})[cat.registryId] || null;
-        const state = sessionStates[cat.registryId] || null;
-
-        const isAvailable =
-          item &&
-          item.world === 'compass' &&
-          item.type === 'subject' &&
-          item.status === 'available' &&
-          item.launchUrl;
-
-        const status = isAvailable ? resolveStatus(state) : 'new';
-        const ts = state ? (state.lastTouchedAt || state.lastOpenedAt || state.updatedAt || 0) : 0;
-
-        merged.push({
-          registryId: cat.registryId,
-          title: (item && item.title) || cat.title,
-          launchUrl: isAvailable ? item.launchUrl : '',
-          categoryId: cat.categoryId,
-          order: cat.order,
-          durationLabel: cat.durationLabel || '45–60 min',
-          hook: cat.hook || '',
-          status: status,
-          ts: ts,
-          state: state,
-          available: !!isAvailable,
-          contentVersion: item ? item.contentVersion || null : null
-        });
-      });
-
-      return merged;
-    }
-
-    function getInProgressSubjects(merged) {
-      return merged
-        .filter(s => s.status === 'inprogress')
-        .sort((a, b) => b.ts - a.ts)
-        .slice(0, 3);
-    }
-
-    /* ================================================================
-       APPEARANCE
-       ================================================================ */
-
-    function sunSvg(size) {
-      return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 17 17" fill="none"><circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35"/><path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>';
-    }
-    function moonSvg(size) {
-      return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 17 17" fill="none"><path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    }
-
-    function updateAppearanceButtons(mode) {
-      const icon = mode === 'night' ? sunSvg(16) : moonSvg(16);
-      const label = mode === 'night' ? 'Switch to day mode' : 'Switch to night mode';
-      ['spine-appearance-btn', 'mobile-appearance-btn'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) { el.innerHTML = icon; el.setAttribute('aria-label', label); }
-      });
-      const da = document.getElementById('drawer-appearance-btn');
-      if (da) da.innerHTML = mode === 'night' ? sunSvg(16) : moonSvg(16);
-    }
-
-    function toggleAppearance() {
-      const cur = Bridge.readAppearanceMode();
-      const next = cur === 'night' ? 'light' : 'night';
-      document.documentElement.classList.add('theme-changing');
-      setTimeout(() => document.documentElement.classList.remove('theme-changing'), 400);
-      Bridge.setAppearanceMode(next);
-      document.documentElement.dataset.theme = next;
-      updateAppearanceButtons(next);
-    }
-
-    /* ================================================================
-             SETTINGS — Compass atmosphere image
-             ================================================================ */
-
-    function readCompassAtmosphereMode() {
-      try {
-        const mode = localStorage.getItem(COMPASS_ATMOSPHERE_MODE_KEY);
-        if (mode === 'custom' || mode === 'none' || mode === 'default') return mode;
-
-        return localStorage.getItem(COMPASS_ATMOSPHERE_KEY) ? 'custom' : 'default';
-      } catch (e) {
-        return 'default';
-      }
-    }
-
-    function readCompassCustomAtmosphereImage() {
-      try { return localStorage.getItem(COMPASS_ATMOSPHERE_KEY) || ''; }
-      catch (e) { return ''; }
-    }
-
-    function getCompassAtmosphereImage() {
-      const mode = readCompassAtmosphereMode();
-
-      if (mode === 'none') return '';
-      if (mode === 'custom') return readCompassCustomAtmosphereImage();
-
-      return COMPASS_DEFAULT_ATMOSPHERE;
-    }
-
-    function writeCompassAtmosphereSettings(mode, url) {
-      const cleanMode = (mode === 'custom' || mode === 'none' || mode === 'default') ? mode : 'default';
-      const cleanUrl = (url || '').trim();
-
-      try {
-        localStorage.setItem(COMPASS_ATMOSPHERE_MODE_KEY, cleanMode);
-
-        if (cleanUrl) localStorage.setItem(COMPASS_ATMOSPHERE_KEY, cleanUrl);
-        else localStorage.removeItem(COMPASS_ATMOSPHERE_KEY);
-      } catch (e) { }
-
-      applyCompassAtmosphereImage();
-    }
-
-    function cssImageUrl(url) {
-      return 'url("' + String(url || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '")';
-    }
-
-    function applyCompassAtmosphereImage() {
-      const layer = document.getElementById('hub-atmosphere-layer');
-      if (!layer) return;
-
-      const image = getCompassAtmosphereImage();
-
-      if (!image) {
-        layer.style.backgroundImage = '';
-        layer.classList.remove('visible');
-        return;
-      }
-
-      layer.style.backgroundImage = cssImageUrl(image);
-      layer.classList.add('visible');
-    }
-
-    function handleCompassAtmosphereModeChange() {
-      const mode = document.getElementById('compass-atmosphere-mode');
-      const row = document.getElementById('compass-custom-atmosphere-row');
-
-      if (!mode || !row) return;
-
-      row.style.display = mode.value === 'custom' ? '' : 'none';
-    }
-
-    function openSettingsModal() {
-      const mode = document.getElementById('compass-atmosphere-mode');
-      const input = document.getElementById('compass-atmosphere-input');
-
-      if (mode) mode.value = readCompassAtmosphereMode();
-      if (input) input.value = readCompassCustomAtmosphereImage();
-
-      handleCompassAtmosphereModeChange();
-
-      document.getElementById('settings-modal').classList.add('open');
-      document.body.style.overflow = 'hidden';
-
-      setTimeout(() => {
-        const currentMode = readCompassAtmosphereMode();
-        const el = currentMode === 'custom'
-          ? document.getElementById('compass-atmosphere-input')
-          : document.getElementById('compass-atmosphere-mode');
-
-        if (el) el.focus();
-      }, 50);
-    }
-
-    function closeSettingsModal() {
-      document.getElementById('settings-modal').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    function handleSettingsModalClick(e) {
-      if (e.target === document.getElementById('settings-modal')) closeSettingsModal();
-    }
-
-    function handleSaveSettings() {
-      const modeEl = document.getElementById('compass-atmosphere-mode');
-      const input = document.getElementById('compass-atmosphere-input');
-
-      const mode = modeEl ? modeEl.value : 'default';
-      const customUrl = input ? input.value.trim() : '';
-
-      if (mode === 'custom' && !customUrl) {
-        showToast('Add a custom image URL, or choose Default or No atmosphere.');
-        if (input) input.focus();
-        return;
-      }
-
-      writeCompassAtmosphereSettings(mode, customUrl);
-      closeSettingsModal();
-
-      const labels = {
-        default: 'Compass atmosphere reset to default.',
-        custom: 'Compass custom atmosphere saved.',
-        none: 'Compass atmosphere removed.'
-      };
-
-      showToast(labels[mode] || 'Compass atmosphere saved.');
-    }
-
-    function handleRevertAtmosphere() {
-      writeCompassAtmosphereSettings('default', '');
-      closeSettingsModal();
-      showToast('Compass atmosphere reset to default.');
-    }
-
-
-    /* ================================================================
-       SESSION LABELS
-       ================================================================ */
-
-    function setSessionLabels() {
-      const s = getActiveSession();
-      const name = isDefaultSession(s) ? 'Session' : (s.name || 'Session');
-      ['spine-session-name', 'mobile-session-name', 'drawer-session-name'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = name;
-      });
-    }
-
-    /* ================================================================
-       NAVIGATION
-       Matches Atlas hub navigation, adapted only for Compass host IDs.
-       ================================================================ */
-
-    function navigateTo(url) {
-      if (!url) {
-        showToast('That destination is not available on this device yet.');
-        return;
-      }
-
-      if (window.AtlasSearch && typeof AtlasSearch.navigateTo === 'function') {
-        AtlasSearch.navigateTo(url);
-        return;
-      }
-
-      window.location.href = url;
-    }
-
-    function resolveWorld(reg, worldId) {
-      const worlds = reg.worlds || {};
-      if (worlds[worldId]) return worlds[worldId];
-
-      return Object.values(worlds).find(w =>
-        w && (w.registryId === worldId || w.id === worldId || w.world === worldId)
-      ) || null;
-    }
-
-    function worldHasItems(reg, worldId) {
-      const prefix = worldId + ':';
-      return Object.keys(reg.items || {}).some(k => k.indexOf(prefix) === 0);
-    }
-
-    function getWorldLaunchUrl(reg, worldId) {
-      if (worldId === ARCADE_ID) return '../arcade/index.html';
-
-      const w = resolveWorld(reg, worldId);
-      return (w && w.launchUrl) ? w.launchUrl : null;
-    }
-
-    function isWorldAvailable(reg, worldId) {
-      return !!getWorldLaunchUrl(reg, worldId);
-    }
-
-    function openWorld(worldId) {
-      const reg = getRegistry();
-      const url = getWorldLaunchUrl(reg, worldId);
-
-      if (url) {
-        navigateTo(url);
-        return;
-      }
-
-      if (worldId === COMPASS_ID && worldHasItems(reg, COMPASS_ID)) {
-        showToast('Compass is registered, but its hub is not linked on this device yet.');
-        return;
-      }
-
-      showToast('This world is coming soon.');
-    }
-
-    function isHubAvailable(hub, reg) {
-      if (!hub) return false;
-      if (hub.alwaysAvailable) return true;
-
-      if (hub.worldId === COMPASS_ID) {
-        return isWorldAvailable(reg, COMPASS_ID) || worldHasItems(reg, COMPASS_ID);
-      }
-
-      if (hub.worldId === ARCADE_ID) {
-        return isWorldAvailable(reg, ARCADE_ID);
-      }
-
-      return false;
-    }
-
-    function openHub(hubId) {
-      const hub = HUB_NAV[hubId];
-      if (!hub) return;
-
-      if (hub.id === ACTIVE_HUB_ID) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        return;
-      }
-
-      if (hub.worldId) {
-        openWorld(hub.worldId);
-        return;
-      }
-
-      if (hub.launchUrl) {
-        navigateTo(hub.launchUrl);
-        return;
-      }
-
-      showToast('That destination is not available yet.');
-    }
-
-    function renderSpineHubNav() {
-      const reg = getRegistry();
-      const host = document.getElementById('spine-hub-nav');
-      if (!host) return;
-
-      host.innerHTML = Object.values(HUB_NAV).map(hub => {
-        const active = hub.id === ACTIVE_HUB_ID;
-        const available = isHubAvailable(hub, reg);
-        const disabledAttr = available ? '' : ' aria-disabled="true"';
-        const activeClass = active ? ' is-active' : '';
-        const onclick = available ? ' onclick="openHub(\'' + hub.id + '\')"' : '';
-        const title = active
-          ? hub.name
-          : available
-            ? 'Open ' + hub.name
-            : hub.name + ' — coming soon';
-
-        return '<button class="spine-world-btn' + activeClass + '"' +
-          disabledAttr +
-          onclick +
-          (active ? ' aria-current="page"' : '') +
-          ' title="' + escHtml(title) + '">' +
-          hub.smallIcon +
-          '<span>' + escHtml(hub.name) + '</span>' +
-          '</button>';
-      }).join('');
-    }
-
-    function renderDrawerHubNav() {
-      const reg = getRegistry();
-      const host = document.getElementById('drawer-hub-nav');
-      if (!host) return;
-
-      host.innerHTML = Object.values(HUB_NAV).map(hub => {
-        const active = hub.id === ACTIVE_HUB_ID;
-        const available = isHubAvailable(hub, reg);
-        const disabledAttr = available ? '' : ' aria-disabled="true"';
-        const activeClass = active ? ' is-active' : '';
-        const onclick = available ? ' onclick="closeDrawer();openHub(\'' + hub.id + '\')"' : '';
-
-        return '<button class="drawer-nav-item' + activeClass + '"' +
-          disabledAttr +
-          onclick +
-          (active ? ' aria-current="page"' : '') +
-          '>' +
-          hub.smallIcon +
-          escHtml(hub.name) +
-          (available ? '' : '<span class="nav-soon">Soon</span>') +
-          '</button>';
-      }).join('');
-    }
-
-    let toastTimer = null;
-    function showToast(text) {
-      let el = document.getElementById('hub-toast');
-      if (!el) {
-        el = document.createElement('div');
-        el.id = 'hub-toast';
-        el.className = 'hub-toast';
-        el.setAttribute('role', 'status');
-        document.body.appendChild(el);
-      }
-      el.textContent = text;
-      requestAnimationFrame(() => el.classList.add('visible'));
-      if (toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => el.classList.remove('visible'), 3200);
-    }
-
-    /* ================================================================
-       SEARCH
-       ================================================================ */
-
-    let currentQuery = '';
-
-    function focusSearch() {
-      const field = document.getElementById('search-field');
-      if (field) { field.focus(); field.select(); }
-    }
-
-    function handleSearchInput(val) {
-      currentQuery = (val || '').trim().toLowerCase();
-      const clearBtn = document.getElementById('search-clear');
-      if (clearBtn) clearBtn.classList.toggle('visible', currentQuery.length > 0);
-      applySearchFilter();
-    }
-
-    function clearSearch() {
-      const field = document.getElementById('search-field');
-      if (field) field.value = '';
-      handleSearchInput('');
-      field && field.focus();
-    }
-
-    function applySearchFilter() {
-      const q = currentQuery;
-      const groups = document.querySelectorAll('.category-group');
-      let totalVisible = 0;
-
-      groups.forEach(group => {
-        const cards = group.querySelectorAll('.subject-card');
-        let groupVisible = 0;
-        cards.forEach(card => {
-          const title = (card.dataset.title || '').toLowerCase();
-          const hook = (card.dataset.hook || '').toLowerCase();
-          const cat = (card.dataset.cat || '').toLowerCase();
-          const matches = !q || title.includes(q) || hook.includes(q) || cat.includes(q);
-          card.classList.toggle('is-hidden', !matches);
-          if (matches) groupVisible++;
-        });
-        group.style.display = groupVisible > 0 ? '' : 'none';
-        totalVisible += groupVisible;
-      });
-
-      const noBanner = document.getElementById('no-results-banner');
-      if (noBanner) noBanner.classList.toggle('visible', q.length > 0 && totalVisible === 0);
-
-      const resultsLabel = document.getElementById('search-results-label');
-      if (resultsLabel) {
-        if (q) {
-          resultsLabel.textContent = totalVisible + ' subject' + (totalVisible !== 1 ? 's' : '') + ' match' + (totalVisible === 1 ? 'es' : '') + ' \u201c' + q + '\u201d';
-          resultsLabel.classList.add('visible');
-        } else {
-          resultsLabel.classList.remove('visible');
-        }
-      }
-    }
-
-    function handleSearchKeydown(e) {
-      if (e.key === 'Enter') {
-        // Launch first visible registered result
-        const first = document.querySelector('.subject-card:not(.is-hidden)');
-        if (first && first.dataset.url) navigateTo(first.dataset.url);
-      }
-      if (e.key === 'Escape') {
-        clearSearch();
-        document.getElementById('search-field').blur();
-      }
-    }
-
-    /* ================================================================
-       RENDER
-       ================================================================ */
-
-    function renderHub() {
-      if (!Bridge) return;
-
-      registerWithBridge();
-
-      const main = document.getElementById('hub-main');
-      const session = getActiveSession();
-      const merged = getMergedSubjects();
-      const inProgress = getInProgressSubjects(merged);
-
-      applyCompassAtmosphereImage();
-
-      setSessionLabels();
-      renderSpineHubNav();
-      renderDrawerHubNav();
-
-      // No registered subjects yet
-      if (merged.length === 0) {
-        main.innerHTML = renderIntro(session, 0) + renderEmptyLibrary();
-        bindSearch();
-        return;
-      }
-
-      main.innerHTML =
-        renderIntro(session, merged.length) +
-        renderInProgressZone(inProgress, session) +
-        renderSearchZone() +
-        renderNoResultsBanner() +
-        renderCategoryGroups(merged);
-
-      bindSearch();
-    }
-
-    function renderIntro(session, count) {
-      const isDefault = isDefaultSession(session);
-      const eyebrow = isDefault ? 'Compass' : 'Welcome, ' + escHtml(session.name);
-      const countText = count > 0
-        ? count + ' available path' + (count !== 1 ? 's' : '')
-        : 'No subjects registered yet';
-
-      return (
-        '<div class="hub-intro">' +
-        '<div class="hub-intro-text">' +
-        '<div class="hub-eyebrow">' + eyebrow + '</div>' +
-        '<h1 class="hub-title">Choose a subject</h1>' +
-        '<p class="hub-desc">Open a conversation path, continue something already started, or search for the direction that fits today’s lesson.</p>' +
-        '</div>' +
-        '<div class="hub-meta">' +
-        '<div class="hub-meta-chip count">' + escHtml(countText) + '</div>' +
-        '</div>' +
-        '</div>'
-      );
-    }
-
-    function renderInProgressZone(inProgress, session) {
-      let inner = '';
-      if (inProgress.length === 0) {
-        inner =
-          '<div class="inprogress-empty">' +
-          '<strong>Nothing in progress yet.</strong>' +
-          'Start with a Compass subject below. Browse by category or search for a topic.' +
-          '</div>';
-      } else {
-        const cards = inProgress.map(s => {
-          const ts = s.ts ? formatRelativeTime(s.ts) : '';
-          const meta = getCategoryTitle(s.categoryId) + (ts ? ' · ' + ts : '');
-          const pct = subjectProgressPercent(s);
-          const rail = pct !== null
-            ? '<div class="progress-rail' + (pct >= 100 ? ' is-complete' : '') + '" aria-hidden="true">' +
-            '<div class="progress-rail-fill" style="width:' + pct + '%"></div>' +
-            '</div>'
-            : '';
-
-          return (
-            '<div class="progress-card" role="button" tabindex="0" ' +
-            'onclick="navigateTo(\'' + escHtml(s.launchUrl) + '\')" ' +
-            'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navigateTo(\'' + escHtml(s.launchUrl) + '\')}" ' +
-            'aria-label="Continue ' + escHtml(s.title) + '">' +
-            '<div class="progress-card-title">' + escHtml(s.title) + '</div>' +
-            (s.hook ? '<p class="progress-card-hook">' + escHtml(s.hook) + '</p>' : '') +
-            '<div class="progress-card-footer">' +
-            '<div class="progress-card-meta">' + escHtml(meta) + '</div>' +
-            '<button class="btn-launch-sm" onclick="event.stopPropagation();navigateTo(\'' + escHtml(s.launchUrl) + '\')" aria-label="Continue ' + escHtml(s.title) + '">' +
-            'Continue' +
-            '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5h7M6 2.5l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-            '</button>' +
-            '</div>' +
-            rail +
-            '</div>'
-          );
-        }).join('');
-        inner = '<div class="inprogress-grid">' + cards + '</div>';
-      }
-
-      return (
-        '<div class="inprogress-zone">' +
-        '<div class="zone-label">In Progress</div>' +
-        inner +
-        '</div>'
-      );
-    }
-
-    function renderSearchZone() {
-      return (
-        '<div class="search-zone">' +
-        '<div class="search-field-wrap">' +
-        '<span class="search-icon" aria-hidden="true">' +
-        '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>' +
-        '</span>' +
-        '<input class="search-field" id="search-field" type="text" placeholder="Search subjects by title, category, or topic…" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Search subjects">' +
-        '<button class="search-clear" id="search-clear" onclick="clearSearch()" aria-label="Clear search">' +
-        '<svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1 1l7 7M8 1L1 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>' +
-        '</button>' +
-        '</div>' +
-        '<div class="search-results-label" id="search-results-label"></div>' +
-        '</div>'
-      );
-    }
-
-    function renderNoResultsBanner() {
-      return (
-        '<div class="no-results-banner" id="no-results-banner">' +
-        '<p class="no-results-title">No subjects match that search.</p>' +
-        '<p>Try a different word, or browse the categories below.</p>' +
-        '</div>'
-      );
-    }
-
-    function renderCategoryGroups(merged) {
-      // Build category map
-      const catMap = {};
-      COMPASS_CATEGORIES.forEach(c => { catMap[c.id] = c; });
-
-      // Group merged subjects by categoryId
-      const groups = {}; // categoryId -> subjects[]
-      const uncategorized = [];
-
-      merged.forEach(s => {
-        if (s.categoryId === '__uncategorized__' || !catMap[s.categoryId]) {
-          uncategorized.push(s);
-        } else {
-          if (!groups[s.categoryId]) groups[s.categoryId] = [];
-          groups[s.categoryId].push(s);
-        }
-      });
-
-      // Sort subjects within each group
-      Object.values(groups).forEach(arr => arr.sort((a, b) => a.order - b.order));
-      if (uncategorized.length) uncategorized.sort((a, b) => a.title.localeCompare(b.title));
-
-      // Render in category order
-      let html = '<div class="categories-zone">';
-
-      COMPASS_CATEGORIES
-        .slice()
-        .sort((a, b) => a.order - b.order)
-        .forEach(cat => {
-          const subjects = groups[cat.id];
-          if (!subjects || subjects.length === 0) return;
-          html += renderCategoryGroup(cat.title, subjects);
-        });
-
-      if (uncategorized.length) {
-        html += renderCategoryGroup('Uncategorized', uncategorized);
-      }
-
-      html += '</div>';
-      return html;
-    }
-
-    function renderCategoryGroup(title, subjects) {
-      const cards = subjects.map(s => renderSubjectCard(s)).join('');
-      return (
-        '<div class="category-group">' +
-        '<div class="category-header">' +
-        '<h2 class="category-title">' + escHtml(title) + '</h2>' +
-        '<span class="category-count">' + subjects.length + ' subject' + (subjects.length !== 1 ? 's' : '') + '</span>' +
-        '</div>' +
-        '<div class="category-grid">' + cards + '</div>' +
-        '</div>'
-      );
-    }
-
-    function renderSubjectCard(s) {
-      const ts = s.ts ? formatRelativeTime(s.ts) : '';
-      const isExplored = s.status === 'explored';
-
-      // data attributes for search filtering
-      const catEntry = COMPASS_CATALOG[s.registryId];
-      const catTitle = catEntry ? (COMPASS_CATEGORIES.find(c => c.id === catEntry.categoryId) || {}).title || '' : '';
-
-      return (
-        '<div class="subject-card' + (isExplored ? ' is-explored' : '') + '" ' +
-        'role="button" tabindex="0" ' +
-        'data-title="' + escHtml(s.title.toLowerCase()) + '" ' +
-        'data-hook="' + escHtml((s.hook || '').toLowerCase()) + '" ' +
-        'data-cat="' + escHtml(catTitle.toLowerCase()) + '" ' +
-        'data-url="' + escHtml(s.launchUrl) + '" ' +
-        'onclick="navigateTo(\'' + escHtml(s.launchUrl) + '\')" ' +
-        'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navigateTo(\'' + escHtml(s.launchUrl) + '\')}"' +
-        'aria-label="' + escHtml(s.title) + (isExplored ? ' — Explored' : '') + '">' +
-        '<div class="subject-card-header">' +
-        '<h3 class="subject-card-title">' + escHtml(s.title) + '</h3>' +
-        (s.status !== 'new' ? statusBadgeHtml(s.status) : '') +
-        '</div>' +
-        (s.hook ? '<p class="subject-card-hook">' + escHtml(s.hook) + '</p>' : '') +
-        '<div class="subject-card-footer">' +
-        '<div class="subject-card-meta">' +
-        (ts ? '<span class="timestamp-chip">' + escHtml(ts) + '</span>' : '') +
-        '</div>' +
-        '<button class="btn-launch" onclick="event.stopPropagation();navigateTo(\'' + escHtml(s.launchUrl) + '\')" ' +
-        'aria-label="Launch ' + escHtml(s.title) + '">' +
-        escHtml(subjectButtonLabel(s.status)) +
-        '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5h7M6 2.5l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-        '</button>' +
-        '</div>' +
-        '</div>'
-      );
-    }
-
-    function renderEmptyLibrary() {
-      return (
-        '<div class="empty-library">' +
-        '<div class="empty-library-icon">' +
-        '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M12 4v3M12 17v3M4 12h3M17 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' +
-        '</div>' +
-        '<h2>No subjects registered yet</h2>' +
-        '<p>Compass subjects will appear here once they\'re registered with the bridge. Open a subject module to register it.</p>' +
-        '</div>'
-      );
-    }
-
-    function bindSearch() {
-      const field = document.getElementById('search-field');
-      if (!field) return;
-      field.addEventListener('input', e => handleSearchInput(e.target.value));
-      field.addEventListener('keydown', handleSearchKeydown);
-    }
-
-    /* ================================================================
-       DRAWER
-       ================================================================ */
-
-    function openDrawer() {
-      renderDrawerHubNav();
-      const overlay = document.getElementById('drawer-overlay');
-      overlay.style.display = 'block';
-      document.getElementById('drawer').classList.add('open');
-      document.body.style.overflow = 'hidden';
-      setTimeout(() => overlay.classList.add('open'), 10);
-    }
-    function closeDrawer() {
-      const overlay = document.getElementById('drawer-overlay');
-      overlay.classList.remove('open');
-      document.getElementById('drawer').classList.remove('open');
-      document.body.style.overflow = '';
-      setTimeout(() => { overlay.style.display = ''; }, 300);
-    }
-
-    /* ================================================================
-       SESSION MODAL
-       ================================================================ */
-
-    function openSessionModal() {
-      renderSessionList();
-      clearSessionError();
-      document.getElementById('session-modal').classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-    function closeSessionModal() {
-      document.getElementById('session-modal').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-    function handleSessionModalClick(e) {
-      if (e.target === document.getElementById('session-modal')) closeSessionModal();
-    }
-    function clearSessionError() {
-      const el = document.getElementById('session-create-error');
-      el.textContent = ''; el.className = 'session-error';
-    }
-    function showSessionError(msg) {
-      const el = document.getElementById('session-create-error');
-      el.textContent = msg; el.className = 'session-error visible';
-    }
-
-    function renderSessionList() {
-      const sessions = getSessions();
-      const active = getActiveSession();
-      const defId = Bridge.defaultSessionId || 'default';
-      const helper = document.getElementById('session-modal-helper');
-      helper.textContent = isDefaultSession(active)
-        ? 'Add a learner name to keep each student\'s progress separate.'
-        : 'Active session: ' + active.name + '. Switch to change the active learner.';
-
-      document.getElementById('session-list').innerHTML = sessions.map(s => {
-        const isActive = s.id === active.id;
-        const isDefault = s.id === defId;
-        return (
-          '<div class="session-item ' + (isActive ? 'active' : '') + '">' +
-          '<span class="session-item-name">' + escHtml(s.name) + '</span>' +
-          (isActive ? '<span class="session-item-badge">Active</span>' : '') +
-          '<div class="session-item-actions">' +
-          (!isActive ? '<button class="session-action-btn" title="Switch" onclick="handleSwitchSession(\'' + escHtml(s.id) + '\')" aria-label="Switch to ' + escHtml(s.name) + '">' +
-            '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5h7M6 2.5l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' : '') +
-          (!isDefault ? '<button class="session-action-btn" title="Rename" onclick="handleRenameSession(\'' + escHtml(s.id) + '\')" aria-label="Rename ' + escHtml(s.name) + '">' +
-            '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M7.5 1.5l2 2M1 9.5l.5-2 5-5L8 4.5l-5 5L1 9.5Z" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' : '') +
-          (!isDefault ? '<button class="session-action-btn danger" title="Delete" onclick="handleDeleteSession(\'' + escHtml(s.id) + '\')" aria-label="Delete ' + escHtml(s.name) + '">' +
-            '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1 1l9 9M10 1L1 10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>' : '') +
-          '</div>' +
-          '</div>'
-        );
-      }).join('');
-    }
-
-    function handleCreateSession() {
-      const input = document.getElementById('new-session-input');
-      const name = input.value.trim();
-      clearSessionError();
-      if (!name) { showSessionError('Enter a name to create a session.'); return; }
-      const created = Bridge.createSession(name);
-      if (!created) {
-        showSessionError('That name is already in use.');
-        input.style.borderColor = 'var(--danger-text)';
-        setTimeout(() => { input.style.borderColor = ''; }, 1200);
-        return;
-      }
-      input.value = '';
-      renderSessionList();
-    }
-
-    function handleSwitchSession(id) {
-      const result = Bridge.setActiveSession(id);
-      if (!result) { showSessionError('Couldn\'t switch to that session.'); return; }
-      closeSessionModal();
-    }
-
-    async function handleRenameSession(id) {
-      const sessions = getSessions();
-      const s = sessions.find(x => x.id === id);
-      if (!s) return;
-      const newName = await showConfirm({
-        title: 'Rename session',
-        message: 'Give this session a new name.',
-        okLabel: 'Rename', okClass: 'btn-primary',
-        inputMode: true, inputValue: s.name
-      });
-      if (!newName || newName === s.name) return;
-      const renamed = Bridge.renameSession(id, newName);
-      if (!renamed) {
-        showToast('That name is already in use.');
-        return;
-      }
-      renderSessionList();
-      renderHub();
-    }
-
-    async function handleDeleteSession(id) {
-      const sessions = getSessions();
-      const s = sessions.find(x => x.id === id);
-      if (!s) return;
-      const ok = await showConfirm({
-        title: 'Delete session?',
-        message: 'This permanently removes ' + s.name + ', their progress, and their covered language from this device.',
-        okLabel: 'Delete session'
-      });
-      if (!ok) return;
-      Bridge.deleteSession(id);
-      renderSessionList();
-      renderHub();
-    }
-
-    /* ================================================================
-       CONFIRM DIALOG
-       ================================================================ */
-
-    let confirmResolver = null;
-    function showConfirm(opts) {
-      opts = opts || {};
-      return new Promise(resolve => {
-        confirmResolver = resolve;
-        document.getElementById('confirm-title').textContent = opts.title || '';
-        document.getElementById('confirm-message').textContent = opts.message || '';
-        const okBtn = document.getElementById('confirm-ok-btn');
-        okBtn.textContent = opts.okLabel || 'OK';
-        okBtn.className = opts.okClass || 'btn-danger';
-        const inp = document.getElementById('confirm-input');
-        inp.className = 'confirm-input' + (opts.inputMode ? ' visible' : '');
-        inp.value = opts.inputValue || '';
-        document.getElementById('confirm-error').className = 'confirm-error';
-        document.getElementById('confirm-dialog').classList.add('open');
-        if (opts.inputMode) setTimeout(() => { inp.focus(); inp.select(); }, 50);
-      });
-    }
-    function resolveConfirm(ok) {
-      const inp = document.getElementById('confirm-input');
-      const isInput = inp.classList.contains('visible');
-      if (!ok) {
-        document.getElementById('confirm-dialog').classList.remove('open');
-        if (confirmResolver) { confirmResolver(isInput ? null : false); confirmResolver = null; }
-        return;
-      }
-      const value = isInput ? inp.value.trim() : true;
-      document.getElementById('confirm-dialog').classList.remove('open');
-      if (confirmResolver) { confirmResolver(value); confirmResolver = null; }
-    }
-    document.getElementById('confirm-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter') resolveConfirm(true);
-      if (e.key === 'Escape') resolveConfirm(false);
-    });
-
-    /* ================================================================
-       GLOBAL KEYS
-       ================================================================ */
-
-    document.addEventListener('keydown', e => {
-      if (e.defaultPrevented) return;
-
-      const active = document.activeElement;
-      const inInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
-
-      if (e.key === '/' && !inInput) {
-        e.preventDefault();
-        focusSearch();
-        return;
-      }
-
-      if (e.key === 'Escape') {
-        if (document.getElementById('confirm-dialog').classList.contains('open')) { resolveConfirm(false); return; }
-        if (document.getElementById('session-modal').classList.contains('open')) { closeSessionModal(); return; }
-        if (document.getElementById('settings-modal').classList.contains('open')) { closeSettingsModal(); return; }
-        if (document.getElementById('drawer').classList.contains('open')) { closeDrawer(); return; }
-        if (currentQuery) { clearSearch(); return; }
-      }
-    });
-
-    /* ================================================================
-       LIVE REFRESH
-       ================================================================ */
-
-    function refresh() {
-      if (!Bridge) return;
-      renderHub();
-    }
-
-    window.addEventListener('atlas:session-change', refresh);
-    window.addEventListener('atlas:appearance-change', e => {
-      const mode = (e.detail && e.detail.mode) || Bridge.readAppearanceMode();
-      document.documentElement.dataset.theme = mode;
-      updateAppearanceButtons(mode);
-    });
-    window.addEventListener('focus', refresh);
-    window.addEventListener('pageshow', refresh);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
-    window.addEventListener('storage', e => {
-      if (!e || !e.key) return;
-      const k = e.key;
-      if (k === 'atlas::appearanceMode') {
-        document.documentElement.dataset.theme = Bridge.readAppearanceMode();
-        updateAppearanceButtons(Bridge.readAppearanceMode());
-        return;
-      }
-
-      if (k === COMPASS_ATMOSPHERE_KEY) {
-        applyCompassAtmosphereImage();
-        return;
-      }
-
-      if (k === 'atlas::sessions' || k === 'atlas::activeSessionId' || k === 'atlas::registry' || k === 'learning::ledger') {
-        refresh();
-      }
-    });
-
-    /* ================================================================
-       INIT
-       ================================================================ */
-
-    function init() {
-      if (!Bridge) return;
-
-      const mode = Bridge.readAppearanceMode();
-      document.documentElement.dataset.theme = mode;
-      updateAppearanceButtons(mode);
-      applyCompassAtmosphereImage();
-
-      registerWithBridge();
-
-      if (window.AtlasSearch && typeof AtlasSearch.init === 'function') {
-        AtlasSearch.init({
-          activeHubId: 'compass',
-          atlasUrl: '../index.html',
-          compassUrl: './index.html',
-          arcadeUrl: '../arcade/index.html'
-        });
-      }
-
-      renderHub();
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
-  </script>
+    <!-- ============================================================
+     VIEW 4: DISCUSSION
+     ============================================================ -->
+
+    <div id="view-discussion" class="view view-inner-bg">
+        <!-- Mobile header injected by renderMobileHeader('discussion') -->
+        <div id="mob-header-discussion" class="mobile-header-shell"></div>
+        <!-- Desktop nav injected by renderNav('view-discussion') -->
+        <div id="nav-discussion" class="nav-shell"></div>
+        <div class="section-wrap">
+            <div class="section-stage">
+
+                <!-- FACTORY EDIT ZONE: DISCUSSION SECTION COPY — eyebrow stays "Discussion"; replace h2 + intro p -->
+                <div class="section-header">
+                    <!-- LOCKED LABEL: "Discussion" -->
+                    <p class="section-eyebrow">Discussion</p>
+                    <h2>Between the Lines</h2>
+                    <p>Every conversation carries more than words. A pause before a reply, a tone that does not match
+                        the message, or a moment when someone chooses not to speak can change everything. These
+                        conversations move from quick first reactions into deeper questions about what people really
+                        mean, what goes unspoken, and how you express yourself when it matters most. Choose a set to
+                        begin.</p>
+                    <!-- END FACTORY EDIT ZONE: DISCUSSION SECTION COPY -->
+
+                    <div class="progress-strip">
+                        <span id="disc-progress-text">Choose a set below — open anything that interests you.</span>
+                        <span class="progress-pill viewed" id="disc-viewed-count" style="display:none">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.2" />
+                                <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1.2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>0 opened</span>
+                        </span>
+                        <span class="progress-pill covered" id="disc-covered-count" style="display:none">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                <path d="M2 5l2.5 2.5L8 2.5" stroke="currentColor" stroke-width="1.4"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>0 covered</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="discussion-sets" id="discussion-sets"></div>
+                <div class="moments-panel" id="moments-panel">
+                    <div class="moments-panel-header">
+                        <h3 class="moments-panel-title" id="moments-panel-title">Set</h3>
+                        <button class="btn-close-set" onclick="closeSet()">
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                <path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.4"
+                                    stroke-linecap="round" />
+                            </svg>
+                            Close set
+                        </button>
+                    </div>
+                    <div id="moments-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     VIEW 5: REFLECTION
+     ============================================================ -->
+
+    <div id="view-reflection" class="view view-inner-bg">
+        <!-- Mobile header injected by renderMobileHeader('reflection') -->
+        <div id="mob-header-reflection" class="mobile-header-shell"></div>
+        <!-- Desktop nav injected by renderNav('view-reflection') -->
+        <div id="nav-reflection" class="nav-shell"></div>
+        <div class="reflection-wrap">
+            <div class="section-stage">
+
+                <!-- FACTORY EDIT ZONE: REFLECTION COPY — replace summary + 3 questions ONLY -->
+                <div class="reflection-icon-large">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <path d="M14 3L14 25" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                        <path d="M6 19l8 6 8-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <circle cx="14" cy="10" r="4.5" stroke="currentColor" stroke-width="1.8" />
+                    </svg>
+                </div>
+                <div class="reflection-complete-mark" id="reflection-complete-mark" aria-hidden="true">
+                    <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+                        <path d="M12 22.8L18.9 29.7L32 14.8" stroke="currentColor" stroke-width="3.4"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <p class="reflection-complete-kicker" id="reflection-complete-kicker">Congratulations!</p>
+                <!-- LOCKED: title is "Complete the Conversation"; JS swaps to "[title] Complete" on completion. Do not edit. -->
+                <h2 id="reflection-title" aria-live="polite">Complete the Conversation</h2>
+                <p class="reflection-summary">You've explored how tone, timing, silence, directness, and emotion change
+                    what people really mean — across cultures, real-life moments, and your own experience. These
+                    conversations help you express ideas more clearly, interpret others with more care, and navigate
+                    everyday interactions with greater confidence.</p>
+                <div class="reflection-questions">
+                    <div class="reflection-q">
+                        <div class="reflection-q-num">1</div>
+                        <p class="reflection-q-text">Looking back at the cultural examples today, which communication
+                            style felt
+                            most familiar to you — and which felt most different from how you naturally communicate?</p>
+                    </div>
+                    <div class="reflection-q">
+                        <div class="reflection-q-num">2</div>
+                        <p class="reflection-q-text">Think of a recent real-life moment when a message was
+                            misunderstood. What would you try differently next time — one specific word choice, pause,
+                            tone, or follow-up question?</p>
+                    </div>
+                    <div class="reflection-q">
+                        <div class="reflection-q-num">3</div>
+                        <p class="reflection-q-text">Which word or phrase from today's conversation gave you a more
+                            precise way to describe something you've experienced — and can you think of a real situation
+                            where you'd actually use it?</p>
+                    </div>
+                </div>
+                <!-- END FACTORY EDIT ZONE: REFLECTION COPY -->
+
+                <p class="reflection-progress-summary" id="reflection-progress-summary"></p>
+                <div class="reflection-actions">
+                    <button class="btn-primary" id="complete-lesson-btn" onclick="completeLesson()">
+                        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                            <path d="M3 8.2l3.1 3.1L13 4.5" stroke="currentColor" stroke-width="1.6"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Mark lesson complete
+                    </button>
+                    <button class="btn-primary" onclick="openVocabBank()">
+                        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                            <path
+                                d="M4.2 2.5h7.3a1.2 1.2 0 011.2 1.2v6.1a1.2 1.2 0 01-1.2 1.2H7.8L5 13.2V11H4.2A1.2 1.2 0 013 9.8V3.7a1.2 1.2 0 011.2-1.2z"
+                                stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" />
+                            <path d="M5.5 5.7h5M5.5 8.1h3.6" stroke="currentColor" stroke-width="1.25"
+                                stroke-linecap="round" />
+                        </svg>
+                        Review Key Language
+                    </button>
+                    <button class="btn-ghost" onclick="goToView('view-orientation')">Back to overview</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     MOBILE NAVIGATION DRAWER
+     ============================================================ -->
+
+    <div class="mobile-drawer-overlay" id="mobile-drawer-overlay" onclick="closeMobileDrawer()"></div>
+    <div class="mobile-drawer" id="mobile-drawer">
+        <div class="mobile-drawer-header">
+            <span class="mobile-drawer-title" id="mobile-drawer-subject-title"></span>
+            <button class="mobile-drawer-close" onclick="closeMobileDrawer()" aria-label="Close menu">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+            </button>
+        </div>
+        <div class="mobile-drawer-nav" id="mobile-drawer-nav">
+            <!-- Injected by renderMobileDrawerNav() -->
+        </div>
+        <div class="mobile-drawer-footer">
+            <div class="mobile-footer-actions">
+                <button class="mobile-session-btn" onclick="openSessionModalFromDrawer()">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3" />
+                        <path d="M2 12c0-2.485 2.239-4.5 5-4.5s5 2.015 5 4.5" stroke="currentColor" stroke-width="1.3"
+                            stroke-linecap="round" />
+                    </svg>
+                    <span id="mobile-session-label">Current Session</span>
+                </button>
+                <button class="mobile-appearance-toggle" id="mobile-appearance-toggle" onclick="toggleAppearanceMode()"
+                    title="Switch to night mode" aria-label="Switch to night mode">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     CULTURAL LENS MODAL
+     ============================================================ -->
+
+    <div class="modal-overlay" id="cl-modal-overlay" onclick="handleModalOverlayClick(event)">
+        <div class="modal-panel" id="cl-modal-panel">
+            <div class="modal-header">
+                <div class="modal-heading">
+                    <p class="modal-location" id="modal-location"></p>
+                    <h2 class="modal-title" id="modal-title"></h2>
+                </div>
+                <button class="modal-close-x" onclick="closeModal()" aria-label="Close modal">
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                        <path d="M3 3l9 9M12 3l-9 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-insight" id="modal-insight"></p>
+                <div class="modal-question-block">
+                    <p class="modal-question-label">Discussion question</p>
+                    <p class="modal-question" id="modal-question"></p>
+                    <div class="upgrade-row" id="modal-upgrade-row">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+                <button class="explore-deeper-toggle" id="explore-toggle" onclick="toggleExploreDeeper()"
+                    aria-expanded="false" aria-controls="explore-deeper-content">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 2.4L13 5.2L8 8L3 5.2L8 2.4Z" stroke="currentColor" stroke-width="1.25"
+                            stroke-linejoin="round" />
+                        <path d="M3.2 8.2L8 10.9L12.8 8.2" stroke="currentColor" stroke-width="1.25"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M3.2 11L8 13.7L12.8 11" stroke="currentColor" stroke-width="1.25"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Explore Deeper
+                    <svg class="explore-deeper-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <div class="explore-deeper-content" id="explore-deeper-content">
+                    <p class="explore-deeper-text" id="explore-deeper-text"></p>
+                    <div class="explore-questions" id="explore-questions"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-footer-nav">
+                    <button class="btn-ghost" id="modal-prev-btn" onclick="navigateModal(-1)">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M7 2L3 6l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                        Previous
+                    </button>
+                    <button class="btn-ghost" id="modal-next-btn" onclick="navigateModal(1)">
+                        Next
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M5 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-footer-actions">
+                    <button class="btn-covered" onclick="markCLCovered()">
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                            <path d="M2 6.5l3.5 3.5L11 3" stroke="currentColor" stroke-width="1.6"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Mark covered &amp; close
+                    </button>
+                    <button class="btn-ghost modal-footer-close" onclick="closeModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     KEY LANGUAGE DRAWER
+     ============================================================ -->
+
+    <div class="vb-overlay" id="vb-overlay" onclick="closeVocabBank()"></div>
+    <div class="vb-drawer" id="vb-drawer">
+        <div class="vb-header">
+            <h3>Key Language</h3>
+            <div class="vb-actions">
+                <button class="vb-close-btn" onclick="closeVocabBank()" aria-label="Close Key Language">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="vb-list" id="vb-list"></div>
+    </div>
+    <div id="print-key-language" class="print-key-language" aria-hidden="true"></div>
+    <dialog class="session-dialog" id="session-dialog" aria-labelledby="session-dialog-title"
+        aria-describedby="session-dialog-message">
+        <div class="session-dialog-panel">
+            <p class="session-dialog-kicker" id="session-dialog-kicker">Session action</p>
+            <h3 class="session-dialog-title" id="session-dialog-title">Are you sure?</h3>
+            <p class="session-dialog-message" id="session-dialog-message"></p>
+            <input class="session-input session-dialog-input" id="session-dialog-input" type="text" maxlength="40"
+                autocomplete="off">
+            <p class="session-dialog-error" id="session-dialog-error" role="alert"></p>
+            <div class="session-dialog-actions">
+                <button class="btn-ghost" type="button" id="session-dialog-cancel">Cancel</button>
+                <button class="btn-danger-confirm" type="button" id="session-dialog-ok">OK</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- ============================================================
+     SESSION MODAL
+     ============================================================ -->
+
+    <div class="session-modal-overlay" id="session-modal-overlay" onclick="handleSessionOverlayClick(event)">
+        <div class="session-modal-panel">
+            <div class="session-modal-header">
+                <h3>Session &amp; Progress</h3>
+                <button class="vb-close-btn" onclick="closeSessionModal()" aria-label="Close session settings">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+            <div class="session-modal-body">
+                <p id="session-helper-text" style="font-size:0.82rem;color:var(--ink-light);margin-bottom:1rem;"></p>
+                <p
+                    style="font-size:0.75rem;color:var(--stone-dark);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.6rem;">
+                    Saved Sessions</p>
+                <div class="session-list" id="session-list"></div>
+                <p style="font-size:0.78rem;color:var(--stone-dark);margin-bottom:0.6rem;margin-top:1rem;">New session
+                </p>
+                <div class="session-new-form">
+                    <input class="session-input" id="session-name-input" type="text" placeholder="Name this session"
+                        maxlength="40" onkeydown="if(event.key==='Enter')addSession()">
+                    <button class="btn-add-session" onclick="addSession()">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         JAVASCRIPT
+         ============================================================ -->
+
+    <script>
+
+        /* ============================================================
+           FACTORY EDIT ZONE: MODULE CONFIG
+           Replace this object for each subject.
+           ============================================================ */
+
+        const MODULE = {
+            id: 'communication-expression',
+            schemaVersion: 1,
+            contentVersion: '1.0.0',
+            title: 'Communication & Expression',
+            titleHtml: 'Communication<br>&amp; <em>Expression</em>',
+            navTitle: 'Communication',
+            coverHook: 'How tone, timing, silence, and small social signals change what people really mean — across cultures and everyday life.',
+            bgImage: 'https://as1.ftcdn.net/jpg/03/71/98/22/1000_F_371982277_7nj9Ex7pVFD3tYDewVz9ViBLc54Kb0rZ.jpg',
+            labels: {
+                culturalLensUnitSingular: 'culture',
+                culturalLensUnitPlural: 'cultures',
+                discussionUnitSingular: 'moment',
+                discussionUnitPlural: 'moments',
+                vocabIntro: 'Higher-level expressions from this subject — with definitions and natural in-action examples.'
+            }
+        };
+
+        /* END FACTORY EDIT ZONE: MODULE CONFIG */
+
+        // ============================================================
+        // CONTENT DATA
+        // Subject-specific content lives in the factory edit zones below.
+        // Shared template systems begin after the final factory edit zone.
+        // ============================================================
+
+        /* ============================================================
+           FACTORY EDIT ZONE: CULTURAL LENS CONTENT
+           Replace this array for each subject.
+           ============================================================ */
+
+        // ---- CULTURAL LENS CARDS ----
+        // Each card id must stay stable. Atlas Hub data combines
+        // MODULE.id + card.id to track progress and connect upgrade vocabulary.
+        // upgrade: { term, type, def, in_action, review_prompt }
+
+        const clCards = [
+            {
+                id: `cl-japan`,
+                location: `Japan`,
+                title: `Saying "yes" doesn't always mean agreement`,
+                teaser: `Politeness can carry more meaning than the words themselves.`,
+                insight: `In many situations in Japan, people may say "yes" simply to show they are listening or following what you mean, not that they fully agree. Direct refusal is often softened or avoided so the conversation can stay polite and harmonious. What sounds like agreement on the surface may actually be acknowledgement, hesitation, or a quietly held reservation.`,
+                question: `If someone kept saying "yes" politely but you were not sure they truly agreed, what would you do — ask directly, watch for indirect signals, or leave it for now?`,
+                upgrade: {
+                    term: `save face`,
+                    type: `verb phrase`,
+                    def: `To protect your own dignity or avoid embarrassment, often by not refusing or admitting something directly.`,
+                    in_action: `Sometimes people say "yes" just to save face — refusing outright would feel awkward, so they agree on the surface.`,
+                    review_prompt: `When have you said yes mainly to save face, rather than because you really agreed?`
+                },
+                deeper: {
+                    text: `One reason this pattern exists is that in many Japanese social contexts, maintaining a harmonious atmosphere is treated as more important than making a position absolutely clear in the moment. Direct refusal can feel abrupt or even unkind — it places the other person in an awkward position and disrupts the flow of the conversation. So instead, a range of softer signals develop: a slow breath, a long pause, phrases like "that may be difficult," or a "yes" that means "I hear you" rather than "I agree." For someone unfamiliar with these signals, the gap between what is said and what is meant can be significant. Misunderstandings in these situations are not usually caused by dishonesty — they happen because both people are interpreting the same words through different conversational frameworks.`,
+                    questions: [
+                        `Can you think of a time when you said "yes" or "of course" to avoid awkwardness, even though you weren't really sure?`,
+                        `If a colleague in a meeting seemed to agree with your idea but then didn't follow through, how would you handle that conversation?`,
+                        `In your own culture, what signals — other than a direct "no" — would tell you that someone actually disagrees?`
+                    ]
+                }
+            },
+            {
+                id: `cl-finland`,
+                location: `Finland`,
+                title: `Silence can be sincere`,
+                teaser: `Comfortable quiet is not emptiness — it can be its own kind of honesty.`,
+                insight: `In Finland, silence in conversation is often more comfortable than in many other cultures. Speaking only when you have something real to say can feel more honest than filling every pause with conversation. Silence is not considered awkward by default — it can signal thought, trust, or simply a shared comfort in not performing conversation.`,
+                question: `If a conversation with someone you did not know very well suddenly went quiet, would you feel peaceful, awkward, or pressured to fill the gap?`,
+                upgrade: {
+                    term: `comfortable silence`,
+                    type: `noun phrase`,
+                    def: `A quiet moment between people that feels natural and easy rather than tense or embarrassing.`,
+                    in_action: `I think we've reached the point where we can sit in comfortable silence — it actually shows how relaxed we are around each other.`,
+                    review_prompt: `With which people in your life does a long pause feel easy rather than awkward?`
+                },
+                deeper: {
+                    text: `In many communication cultures, silence in a conversation feels like a gap that needs filling — a signal that something has gone wrong or that the other person is bored. This instinct is much weaker in Finland, where pausing before speaking is often read as a sign that someone is thinking carefully rather than struggling or being unfriendly. This difference can cause real friction when people from different backgrounds interact. A colleague who pauses before answering may be giving the question genuine thought — but an outsider might interpret the quiet as disapproval or confusion, and rush to fill it. Equally, someone who talks constantly to avoid silence may come across as insincere or not really listening. The deeper idea is that silence is not the opposite of communication — it is part of it.`,
+                    questions: [
+                        `Is there someone in your life — a friend, family member, or colleague — with whom silence feels comfortable rather than awkward?`,
+                        `Have you ever felt pressure to speak just to fill a quiet moment, even when you didn't really have anything to add?`,
+                        `Do you think people who speak less are usually seen as shy, thoughtful, or something else — and does that feel fair to you?`
+                    ]
+                }
+            },
+            {
+                id: `cl-renaissance-italy`,
+                location: `Renaissance Italy`,
+                title: `Speaking carefully to stay safe`,
+                teaser: `When words could be used against you, vagueness became a survival skill.`,
+                insight: `In the political world of Renaissance Italy, diplomats often spoke in vague or flexible ways so their words could still work if alliances changed. Communication was not always about being clear — sometimes it was about leaving yourself room to survive. A statement had to be true enough to repeat publicly, but open enough to reinterpret if circumstances shifted.`,
+                question: `If you were in a situation where your words could be used against you later, would you speak clearly, stay vague, or say as little as possible?`,
+                upgrade: {
+                    term: `hedge`,
+                    type: `verb`,
+                    def: `To avoid giving a clear or direct answer, keeping your words vague so you don't fully commit.`,
+                    in_action: `I hedged in that email — I didn't say no, but I didn't commit to anything either, which gave me time to think.`,
+                    review_prompt: `When was the last time you hedged instead of giving a straight answer?`
+                },
+                deeper: {
+                    text: `Renaissance diplomatic language was a highly developed skill, not simply a form of dishonesty. Ambassadors were trained to say things that were technically accurate but flexible enough to survive if political circumstances changed. This kind of careful vagueness still appears in modern professional life — in politics, in legal language, even in ordinary workplace conversations where someone needs to stay on good terms with opposing sides. The interesting question is where the line sits between thoughtful precision and deliberate evasion. Saying "I'll consider it" is technically honest. But if you have already decided no, is it more respectful to say so clearly, or less hurtful to leave the door open? Different cultures, relationships, and situations can give very different answers to that question.`,
+                    questions: [
+                        `Can you think of a message or reply — from work, school, or personal life — where you deliberately chose words that left things open rather than being definite?`,
+                        `Do you think being vague is sometimes the kinder option, or does it usually just delay a difficult conversation?`,
+                        `If someone gave you a carefully worded non-answer, would you usually push for clarity or accept the ambiguity?`
+                    ]
+                }
+            },
+            {
+                id: `cl-imperial-china`,
+                location: `Imperial China`,
+                title: `Criticism hidden inside art`,
+                teaser: `A poem could carry a political message that a direct report never could.`,
+                insight: `In imperial China, officials sometimes criticised rulers indirectly through poetry, symbolism, or historical references instead of open attack. A message could be serious and political without sounding openly rebellious on the surface. This allowed ideas to circulate that could not survive as direct speech, and protected the writer with a layer of plausible deniability.`,
+                question: `If someone criticised you using a story, a joke, or a carefully chosen example rather than saying it directly, would you notice — and would you prefer they had just been honest?`,
+                upgrade: {
+                    term: `veiled criticism`,
+                    type: `noun phrase`,
+                    def: `A negative message or complaint that is expressed indirectly, hidden inside a story, joke, or neutral-seeming remark.`,
+                    in_action: `I think his comment about "how some people handle feedback" was veiled criticism directed at me — he was just too polite to say it directly.`,
+                    review_prompt: `How might someone hint at a complaint through a joke or a story instead of saying it plainly?`
+                },
+                deeper: {
+                    text: `This way of hiding a serious message inside a cultural or artistic form is far from unique to imperial China. Political satire, fables, allegory, and sharp comedy all work on the same principle — the surface content gives the speaker protection, while the real message reaches people who know how to listen for it. The audience is invited to complete the meaning themselves, which can make the message land more powerfully than a direct statement would. In everyday life, the same pattern shows up in the pointed joke, the story that is "obviously not about anyone in particular," or the example chosen a little too perfectly to illustrate a recent situation. Noticing this kind of indirect communication requires a different kind of listening — one that pays attention to what was chosen, and what was deliberately left unsaid.`,
+                    questions: [
+                        `Have you ever used a joke, a story, or an example to hint at something you didn't want to say directly — and did the other person understand?`,
+                        `Think of a time when you received feedback wrapped inside a compliment or a general observation. Was it easier or harder to hear than direct criticism?`,
+                        `Can you think of a film, book, or piece of comedy that carries a serious social or political message beneath the surface?`
+                    ]
+                }
+            },
+            {
+                id: `cl-new-york`,
+                location: `New York City`,
+                title: `Interrupting can mean interest`,
+                teaser: `What reads as rudeness in one setting can feel like energy and engagement in another.`,
+                insight: `In New York City and some other fast-paced urban environments, cutting into someone's speech can sometimes signal energy, enthusiasm, or strong engagement rather than disrespect. For someone from a different communication background, it can sound like an interruption — but for participants it may feel like lively, connected involvement in the conversation.`,
+                question: `If someone jumps into your story because they are excited about what you are saying, do you usually see that as energy and interest — or as them taking over?`,
+                upgrade: {
+                    term: `talk over each other`,
+                    type: `phrasal verb`,
+                    def: `To speak at the same time as someone else, which in some styles signals excitement and engagement rather than rudeness.`,
+                    in_action: `In my family everyone talks over each other constantly — it's not rude, it just means everyone's interested at once.`,
+                    review_prompt: `In which settings does talking over each other feel like energy rather than rudeness?`
+                },
+                deeper: {
+                    text: `What feels like an interruption from the outside can feel like genuine engagement from the inside. In some conversational styles, jumping in mid-sentence signals that the listener is so interested they can't hold back — it's a form of energy and presence, not dismissal. In other styles, waiting for a clear pause before speaking is the standard way of showing respect. When these two approaches meet, both people can end up misreading each other. The person who interrupts may feel they're being warm and enthusiastic. The person who waits their turn may feel overlooked or talked over. Neither is being rude on purpose — they're just following different unspoken rules about how conversation should flow.`,
+                    questions: [
+                        `When someone cuts into what you're saying, does your reaction depend more on what they say, or on how they do it?`,
+                        `Have you ever been in a group conversation where some people kept talking over others — how did that feel to be on different sides of it?`,
+                        `Do you think there's a difference between an interruption that adds to your point and one that replaces it?`
+                    ]
+                }
+            },
+            {
+                id: `cl-france`,
+                location: `France`,
+                title: `Debate as pleasure`,
+                teaser: `A lively argument at dinner is not a crisis — it can be the whole point.`,
+                insight: `In France, lively disagreement can sometimes be part of social pleasure rather than a sign that something is wrong. People may challenge each other strongly during a discussion, then continue the evening completely normally afterwards. The exchange of ideas — including opposing ones — is treated as a sign of intellectual engagement rather than personal conflict.`,
+                question: `If a dinner conversation turned into a lively debate where people strongly challenged each other's views, would you enjoy the energy, stay quiet, or try to find a calmer topic?`,
+                upgrade: {
+                    term: `intellectual sparring`,
+                    type: `noun phrase`,
+                    def: `A lively exchange of opposing ideas in a spirit of enjoyment and curiosity rather than genuine conflict.`,
+                    in_action: `I actually enjoy a bit of intellectual sparring — I find that debating something properly helps me understand my own view better.`,
+                    review_prompt: `What's the difference between a real argument and two people enjoying a debate?`
+                },
+                deeper: {
+                    text: `One reason this pattern may exist is a long cultural tradition of treating the exchange of ideas as something valuable in itself — separate from whether anyone "wins" the argument. In this frame, challenging someone's position can be a sign of respect: it means you're taking them seriously enough to push back. The assumption is that both people can handle disagreement without it damaging the relationship. This can clash quite directly with communication cultures where public disagreement is seen as a threat to harmony or a sign that something has gone wrong. What one person experiences as a stimulating debate, another can feel as an uncomfortable confrontation, even when the topic is completely impersonal.`,
+                    questions: [
+                        `Think of the last time you disagreed with someone in conversation — did you say so openly, soften it, or hold back entirely?`,
+                        `Is there a topic or setting where you feel genuinely comfortable debating, and one where you'd rather keep the peace?`,
+                        `Have you ever had a heated conversation that ended fine — where both people moved on without it affecting the relationship?`
+                    ]
+                }
+            },
+            {
+                id: `cl-germany`,
+                location: `Germany`,
+                title: `Direct honesty as respect`,
+                teaser: `Softening a message too much can sometimes feel less respectful, not more.`,
+                insight: `In Germany, direct feedback is often seen as respectful because it avoids confusion, mixed signals, or hidden criticism. Being clear can feel more honest than trying too hard to protect someone's feelings. One assumption behind this approach is that the other person is capable of receiving honest information without needing it wrapped in reassurance.`,
+                question: `If your work, your outfit, or your idea had a real problem, would you want someone to tell you directly — or would you prefer they soften the message first?`,
+                upgrade: {
+                    term: `straight-talking`,
+                    type: `adjective`,
+                    def: `Describing someone who says exactly what they think, without softening or hinting — often used approvingly when the honesty feels useful rather than blunt.`,
+                    in_action: `I appreciated her straight-talking style — she told me what wasn't working, and I left the meeting knowing exactly what to fix.`,
+                    review_prompt: `When is very direct feedback actually more helpful than a softened version?`
+                },
+                deeper: {
+                    text: `One reason directness is valued in some communication cultures is the belief that ambiguity can actually damage trust over time. If a colleague's work has real problems and you only hint at them vaguely, you're leaving them without the information they need to improve — and they may feel misled later when the consequences arrive. At the same time, directness without warmth or context can land badly, particularly across communication styles where the relationship tone matters as much as the content. The practical distinction worth making is between being direct — willing to say something clearly — and being blunt, which is about how it's said. Many skilled communicators manage to be honest and considerate at the same time.`,
+                    questions: [
+                        `Think of a piece of feedback you received that actually helped you — was it delivered gently, directly, or somewhere in between?`,
+                        `Is it harder for you to give honest feedback to someone, or to receive it without getting defensive?`,
+                        `Have you ever wished someone had just told you something clearly rather than dancing around it — what was the situation?`
+                    ]
+                }
+            },
+            {
+                id: `cl-arabic`,
+                location: `Arabic-speaking communication traditions`,
+                title: `Expressiveness as sincerity`,
+                teaser: `A more reserved delivery can sometimes sound unconvincing rather than restrained.`,
+                insight: `In some Arabic-speaking communication contexts, especially when the topic carries emotional weight, tone, repetition, emphasis, and expressive phrasing can add warmth, sincerity, and human connection to speech. A more expressive style may feel natural or heartfelt rather than exaggerated. What sounds intense in one communication context can be part of the expected register of genuine feeling in another.`,
+                question: `When someone speaks with strong emotion, repetition, and a lot of emphasis, do you find yourself reading it as sincerity, drama, confidence — or something else entirely?`,
+                upgrade: {
+                    term: `register`,
+                    type: `noun`,
+                    def: `The level of intensity, formality, or emotional tone that a person naturally uses when speaking in a particular context.`,
+                    in_action: `I think we were just speaking in different registers — her very expressive style was completely genuine, and my quieter tone didn't mean I was less serious.`,
+                    review_prompt: `How might the same message sound in a formal email versus a quick text to a friend?`
+                },
+                deeper: {
+                    text: `In contexts where expressive speech is valued, a reserved or minimal delivery can sometimes make trust harder rather than easier. If you care deeply about something, people may expect that feeling to be visible in how you speak — in the energy of your voice, the warmth of your phrasing, or the rhythm of your sentences. A flat or very restrained delivery can be misread as indifference, even when none was intended. This creates a practical challenge when expressive and reserved communication styles meet: the more reserved speaker may feel their sincerity is being doubted, while the more expressive speaker may feel the other person is holding something back.`,
+                    questions: [
+                        `When you feel strongly about something in a conversation, does your communication style change noticeably — and in what way?`,
+                        `Have you ever felt that someone was being cold or disengaged, and later realised they were just being reserved rather than distant?`,
+                        `Do you think we sometimes judge whether someone is sincere based on how similar their communication style is to our own?`
+                    ]
+                }
+            }
+        ];
+
+        /* END FACTORY EDIT ZONE: CULTURAL LENS CONTENT */
+
+        /* ============================================================
+           FACTORY EDIT ZONE: DISCUSSION CONTENT
+           Replace this array for each subject.
+           ============================================================ */
+
+        // ---- DISCUSSION SETS ----
+        // Set and moment ids must stay stable. Do not use position-based ids
+        // like set-1 or moment-1, because content may be reordered later.
+        // Atlas Hub data combines MODULE.id + moment.id to track
+        // progress and connect upgrade vocabulary.
+        // Each moment has: id, preview, text, upgrade: { term, type, def, in_action, review_prompt }
+
+        const discussionSets = [
+            {
+                id: `set-first-read`,
+                title: `First Read`,
+                desc: `Quick reactions to familiar communication moments — the kind you recognise instantly, even if you have never put them into words.`,
+                icon: `react`,
+                moments: [
+                    {
+                        id: `moment-tone-off`,
+                        preview: `The words were fine. Something else was not.`,
+                        text: `Someone sends you a message that says “Sure, no problem” — but something about it does not feel right. What do you usually pick up on first: the words themselves, the way they are written, or something harder to name?`,
+                        upgrade: {
+                            term: `read between the lines`,
+                            type: `idiom`,
+                            def: `To understand what someone really means, even when they have not said it directly.`,
+                            in_action: `She said she was fine with it, but I could read between the lines — she was not happy at all.`,
+                            review_prompt: `How can you tell someone isn't happy even when their words say they're fine?`
+                        }
+                    },
+                    {
+                        id: `moment-wrong-moment`,
+                        preview: `The right thing at the wrong time.`,
+                        text: `Think of a moment when someone said something completely reasonable, but it landed badly because the timing was off. What made the timing wrong — and does timing matter as much as the words themselves?`,
+                        upgrade: {
+                            term: `land badly`,
+                            type: `phrasal verb`,
+                            def: `When something said or done has a negative effect, even if that was not the intention.`,
+                            in_action: `His joke landed badly — everyone went quiet, and he clearly had not expected that reaction.`,
+                            review_prompt: `What kind of comment could be reasonable but still land badly because of the timing?`
+                        }
+                    },
+                    {
+                        id: `moment-silence-speaks`,
+                        preview: `When not saying anything says everything.`,
+                        text: `When someone goes silent in the middle of a conversation — no reply, no explanation — what do you assume? Is silence usually comfortable, awkward, or something else entirely for you?`,
+                        upgrade: {
+                            term: `loaded silence`,
+                            type: `noun phrase`,
+                            def: `A silence that carries strong emotion, tension, or meaning without anyone speaking.`,
+                            in_action: `After she told him the news, there was a loaded silence — nobody spoke, but everyone could feel the tension.`,
+                            review_prompt: `What kind of situation might create a loaded silence in a room?`
+                        }
+                    },
+                    {
+                        id: `moment-blunt-or-kind`,
+                        preview: `Honest, or just harsh?`,
+                        text: `Some people say exactly what they think, and some soften everything they say. Which style do you find easier to trust — and which do you find harder to deal with?`,
+                        upgrade: {
+                            term: `pull your punches`,
+                            type: `idiom`,
+                            def: `To make your words or criticism less direct than you could be, to avoid upsetting someone.`,
+                            in_action: `She did not pull any punches — she told him exactly what she thought of the plan, and he was not prepared for it.`,
+                            review_prompt: `When giving feedback, would you pull your punches or say it straight? Why?`
+                        }
+                    },
+                    {
+                        id: `moment-misread`,
+                        preview: `The message you sent was not the one they received.`,
+                        text: `Have you ever said something that was completely misunderstood — not because you were unclear, but because the other person heard it differently? What happened, and how did you realise the gap?`,
+                        upgrade: {
+                            term: `come across`,
+                            type: `phrasal verb`,
+                            def: `To give a particular impression through your words, tone, or behaviour, even if that impression was not what you intended.`,
+                            in_action: `I was trying to be helpful, but apparently I came across as quite rude — she thought I was criticising her.`,
+                            review_prompt: `Have you ever come across differently from how you intended? What happened?`
+                        }
+                    }
+                ],
+                makeItReal: {
+                    title: `A moment that stayed with you`,
+                    prompt: `Think of a recent conversation — at work, at home, or with a friend — where something was communicated but not quite said. What was the moment, and how did you know what was really meant?`
+                }
+            },
+            {
+                id: `set-under-the-surface`,
+                title: `Under the Surface`,
+                desc: `Go deeper into how communication actually works — why the same words mean different things, what shapes how we listen, and what we are really doing when we speak.`,
+                icon: `explain`,
+                moments: [
+                    {
+                        id: `moment-same-words`,
+                        preview: `Same sentence, completely different meaning.`,
+                        text: `“I’m fine.” “That’s interesting.” “We’ll see.” These phrases can mean very different things depending on who says them and how. How do you decide what someone really means when the words alone do not tell you?`,
+                        upgrade: {
+                            term: `subtext`,
+                            type: `noun`,
+                            def: `The real meaning or feeling beneath what someone is saying — the message behind the message.`,
+                            in_action: `On the surface it sounded polite, but the subtext was clear — he was not going to agree to it.`,
+                            review_prompt: `How could a polite sentence carry a subtext that means the opposite?`
+                        }
+                    },
+                    {
+                        id: `moment-overthink-reply`,
+                        preview: `Before you send, you rewrite it three times.`,
+                        text: `Do you ever spend much longer crafting a message than the conversation actually needs? What are you usually trying to get right — and does it usually work?`,
+                        upgrade: {
+                            term: `second-guess yourself`,
+                            type: `phrasal verb`,
+                            def: `To doubt your own judgement and keep changing your mind about what to say or do.`,
+                            in_action: `I second-guessed myself so many times writing that email that it took twenty minutes to write three sentences.`,
+                            review_prompt: `What kind of message makes you second-guess yourself and rewrite it again and again?`
+                        }
+                    },
+                    {
+                        id: `moment-direct-culture`,
+                        preview: `Where you are from changes what “polite” means.`,
+                        text: `You explain your view clearly, but the other person seems uncomfortable — or you soften your message to be polite, and they miss your point. What do you think happened in that moment: different expectations about honesty, politeness, or how much should be left unsaid?`,
+                        upgrade: {
+                            term: `high-context communication`,
+                            type: `concept term`,
+                            def: `A communication style where much of the meaning is implied, rather than stated directly.`,
+                            in_action: `In a high-context communication style, people may expect you to understand the meaning from tone, timing, silence, or the situation — not only from the words.`,
+                            review_prompt: `Besides the words, what signals tell you the real meaning in a high-context exchange?`
+                        }
+                    },
+                    {
+                        id: `moment-half-listening`,
+                        preview: `Physically present. Not really there.`,
+                        text: `What is the difference between actually listening and just waiting for your turn to speak? How can you usually tell which one someone is doing — and which one do you catch yourself doing more often than you would like to admit?`,
+                        upgrade: {
+                            term: `tune out`,
+                            type: `phrasal verb`,
+                            def: `To stop paying attention to what someone is saying, even while appearing to listen.`,
+                            in_action: `I could tell he'd tuned out about halfway through — he was nodding, but his eyes had gone somewhere else.`,
+                            review_prompt: `How can you tell when someone has tuned out even though they're still nodding?`
+                        }
+                    },
+                    {
+                        id: `moment-word-choice-weight`,
+                        preview: `One word changes everything.`,
+                        text: `Imagine saying “I need help with this” versus “I’m struggling with this” versus “I can’t manage this on my own.” They describe the same situation, but each one creates a different impression. How much do you think about your word choices in conversations that matter?`,
+                        upgrade: {
+                            term: `connotation`,
+                            type: `noun`,
+                            def: `The emotional or social feeling that a word carries, beyond its basic dictionary meaning.`,
+                            in_action: `Both words mean roughly the same thing, but the connotations are very different — one sounds confident, the other sounds defeated.`,
+                            review_prompt: `Which sounds more suitable in a work message: 'cheap' or 'affordable', and why?`
+                        }
+                    }
+                ],
+                makeItReal: {
+                    title: `A message that took effort`,
+                    prompt: `Think of a time you had to communicate something carefully — a difficult message, a sensitive topic, or something where the words really mattered. How did you approach it, and do you think it worked?`
+                }
+            },
+            {
+                id: `set-your-voice`,
+                title: `Your Voice`,
+                desc: `The conversation turns personal — how you express yourself, where your communication style comes from, and what you are still learning about being understood.`,
+                icon: `reflect`,
+                moments: [
+                    {
+                        id: `moment-hard-to-say`,
+                        preview: `You knew what you wanted to say. Getting it out was another thing.`,
+                        text: `Is there a type of conversation that you find genuinely difficult to start — not because you do not know what to say, but because saying it out loud feels hard? What makes that kind of conversation so uncomfortable?`,
+                        upgrade: {
+                            term: `brace yourself`,
+                            type: `phrasal verb`,
+                            def: `To mentally prepare yourself for something difficult, uncomfortable, or emotionally challenging.`,
+                            in_action: `Every time she had to give critical feedback, she would brace herself before starting the conversation — she hated how it might land.`,
+                            review_prompt: `What kind of conversation makes you brace yourself before starting it?`
+                        }
+                    },
+                    {
+                        id: `moment-feel-understood`,
+                        preview: `The relief of someone actually getting it.`,
+                        text: `Think of a person in your life who almost always understands what you mean — not just your words, but what you are actually trying to say. What do they do differently from other listeners?`,
+                        upgrade: {
+                            term: `feel heard`,
+                            type: `spoken phrase`,
+                            def: `The feeling that someone has truly understood and acknowledged what you have said, not just listened to the surface words.`,
+                            in_action: `She did not offer advice or solutions — she just listened, and somehow that was enough to make him feel heard.`,
+                            review_prompt: `What does someone do in a conversation that makes you feel heard?`
+                        }
+                    },
+                    {
+                        id: `moment-language-self`,
+                        preview: `Who are you in a different language?`,
+                        text: `If you speak more than one language, does your personality or communication style feel different depending on which language you are using? What shifts — your sense of humour, your confidence, your directness?`,
+                        upgrade: {
+                            term: `come out of your shell`,
+                            type: `idiom`,
+                            def: `To become more relaxed, confident, or open in social situations, often after a period of being reserved or quiet.`,
+                            in_action: `In his own language he was funny and talkative, but in English he had not quite come out of his shell yet.`,
+                            review_prompt: `What helps a quiet person come out of their shell in a group?`
+                        }
+                    },
+                    {
+                        id: `moment-silence-habit`,
+                        preview: `The things you chose not to say.`,
+                        text: `Are you someone who tends to say less or more than you mean? Looking back, are there things you wish you had said — or things you are glad you kept to yourself?`,
+                        upgrade: {
+                            term: `hold your tongue`,
+                            type: `idiom`,
+                            def: `To stop yourself from saying something, especially when you are tempted or when speaking would cause problems.`,
+                            in_action: `She had a strong opinion but decided to hold her tongue — it was not the right moment, and she knew it.`,
+                            review_prompt: `When was a moment it was wiser to hold your tongue than to speak?`
+                        }
+                    },
+                    {
+                        id: `moment-growing-communicator`,
+                        preview: `You communicate differently now than you used to.`,
+                        text: `How has the way you communicate changed over time — at work, in relationships, or just in everyday conversation? What made you change, and is there anything you are still trying to improve?`,
+                        upgrade: {
+                            term: `find your voice`,
+                            type: `idiomatic phrase`,
+                            def: `To develop the confidence and ability to express yourself clearly and authentically, especially in situations where you previously felt hesitant.`,
+                            in_action: `It took her a few years in the job before she really found her voice in meetings — now she speaks up without thinking twice.`,
+                            review_prompt: `In what kind of setting are you still working to find your voice?`
+                        }
+                    }
+                ],
+                makeItReal: {
+                    title: `The conversation that changed something`,
+                    prompt: `Think of a conversation that genuinely changed the way you communicate — maybe a difficult one, a surprisingly honest one, or one where you finally understood something about yourself. What happened, and what did it teach you?`
+                }
+            }
+        ];
+
+        /* END FACTORY EDIT ZONE: DISCUSSION CONTENT */
+
+    </script>
+    <script src="../../shared/atlas-bridge.js"></script>
+    <script src="../../shared/atlas-search.js"></script>
+    <script src="../shared/compass-engine.js"></script>
 </body>
 
 </html>
