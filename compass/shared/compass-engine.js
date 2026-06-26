@@ -129,6 +129,13 @@ const COMPASS_WORLD_ID = 'compass';
 const COMPASS_WORLD_TITLE = 'Compass';
 const COMPASS_APPEARANCE_MODE_KEY = 'atlas::appearanceMode';
 
+const COMPASS_LABELS = {
+    culturalLensUnitSingular: 'culture',
+    culturalLensUnitPlural: 'cultures',
+    discussionUnitSingular: 'moment',
+    discussionUnitPlural: 'moments'
+};
+
 // ---- STATE ----
 let currentSession = 'Default';
 let currentSessionId = 'default';
@@ -596,7 +603,7 @@ function updateReflectionCompleteState() {
     const sessionName = getActiveSessionDisplayName();
 
     view.classList.toggle('reflection-complete', complete);
-    title.textContent = complete ? `${MODULE.title} Complete` : 'Complete the Conversation';
+    title.textContent = complete ? `${MODULE.title} Complete` : subjectCopy.reflection.title;
 
     if (kicker) {
         kicker.textContent = complete && sessionName
@@ -697,11 +704,39 @@ function applyCoverConfig() {
     const coverTitle = document.getElementById('cover-title');
     if (coverTitle) coverTitle.innerHTML = MODULE.titleHtml;
 
-    const coverHook = document.getElementById('cover-hook');
-    if (coverHook) coverHook.textContent = MODULE.coverHook;
-
     // Set CSS variable used by cover-bg, body::before, and body.module-active::before
     document.documentElement.style.setProperty('--module-bg-image', `url('${MODULE.bgImage}')`);
+}
+
+function setText(id, value) {
+    const el = document.getElementById(id);
+
+    if (el) el.textContent = value || '';
+}
+
+function applySubjectCopy() {
+    setText('cover-hook', subjectCopy.cover.hook);
+
+    setText('overview-heading', subjectCopy.overview.heading);
+    setText('overview-intro-1', subjectCopy.overview.intro[0]);
+    setText('overview-intro-2', subjectCopy.overview.intro[1]);
+
+    setText('path-desc-cl', subjectCopy.paths.culturalLensDescription);
+    setText('path-desc-disc', subjectCopy.paths.discussionDescription);
+    setText('reflection-path-title', subjectCopy.paths.reflectionTitle);
+    setText('reflection-path-desc', subjectCopy.paths.reflectionDescription);
+
+    setText('cl-section-heading', subjectCopy.culturalLens.heading);
+    setText('cl-section-intro', subjectCopy.culturalLens.intro);
+
+    setText('discussion-section-heading', subjectCopy.discussion.heading);
+    setText('discussion-section-intro', subjectCopy.discussion.intro);
+
+    setText('reflection-title', subjectCopy.reflection.title);
+    setText('reflection-summary', subjectCopy.reflection.summary);
+    setText('reflection-question-1', subjectCopy.reflection.questions[0]);
+    setText('reflection-question-2', subjectCopy.reflection.questions[1]);
+    setText('reflection-question-3', subjectCopy.reflection.questions[2]);
 }
 
 // ---- LABELS CALCULATED FROM DATA ----
@@ -723,14 +758,14 @@ function applyDerivedLabels() {
     const clLabel = document.getElementById('path-label-cl');
 
     if (clLabel) {
-        clLabel.textContent = `${countLabel(clCount)} ${clCount === 1 ? MODULE.labels.culturalLensUnitSingular : MODULE.labels.culturalLensUnitPlural}`;
+        clLabel.textContent = `${countLabel(clCount)} ${clCount === 1 ? COMPASS_LABELS.culturalLensUnitSingular : COMPASS_LABELS.culturalLensUnitPlural}`;
     }
 
     const totalMoments = discussionSets.reduce((acc, s) => acc + s.moments.length, 0);
     const discLabel = document.getElementById('path-label-disc');
 
     if (discLabel) {
-        discLabel.textContent = `${countLabel(totalMoments)} ${totalMoments === 1 ? MODULE.labels.discussionUnitSingular : MODULE.labels.discussionUnitPlural}`;
+        discLabel.textContent = `${countLabel(totalMoments)} ${totalMoments === 1 ? COMPASS_LABELS.discussionUnitSingular : COMPASS_LABELS.discussionUnitPlural}`;
     }
 
     const orientEyebrow = document.getElementById('orient-eyebrow');
@@ -1784,7 +1819,7 @@ function renderDiscussionSets() {
             <h3 class="set-title">${escHtml(set.title)}</h3>
             <p class="set-desc">${escHtml(set.desc)}</p>
             <div class="set-progress-mini">
-                ${totalMoments} ${totalMoments === 1 ? MODULE.labels.discussionUnitSingular : MODULE.labels.discussionUnitPlural}${viewedCount > 0 ? ` · ${viewedCount} opened` : ''}${coveredCount > 0 ? ` · ${coveredCount} covered` : ''}
+                ${totalMoments} ${totalMoments === 1 ? COMPASS_LABELS.discussionUnitSingular : COMPASS_LABELS.discussionUnitPlural}${viewedCount > 0 ? ` · ${viewedCount} opened` : ''}${coveredCount > 0 ? ` · ${coveredCount} covered` : ''}
             </div>`;
 
         container.appendChild(el);
@@ -1816,7 +1851,7 @@ function updateDiscussionProgress() {
     }
 
     if (viewed === 0 && textEl) {
-        textEl.textContent = `Choose a set below — open any ${MODULE.labels.discussionUnitSingular} that interests you.`;
+        textEl.textContent = `Choose a set below — open any ${COMPASS_LABELS.discussionUnitSingular} that interests you.`;
     } else if (textEl) {
         textEl.textContent = '';
     }
@@ -2054,7 +2089,7 @@ function renderVocabBank() {
     const intro = document.createElement('div');
 
     intro.innerHTML = `<p style="font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:0.3rem;">${totalCount} upgrade terms</p>
-        <p style="font-size:0.8rem;color:var(--stone-dark);line-height:1.5;padding-bottom:0.8rem;border-bottom:1px solid var(--stone-light);">${escHtml(MODULE.labels.vocabIntro)}</p>`;
+        <p style="font-size:0.8rem;color:var(--stone-dark);line-height:1.5;padding-bottom:0.8rem;border-bottom:1px solid var(--stone-light);">${escHtml(subjectCopy.keyLanguage.intro)}</p>`;
 
     list.appendChild(intro);
 
@@ -2223,7 +2258,7 @@ function printKeyLanguage() {
         <div class="print-doc">
             <p class="print-doc-kicker">Compass · Key Language</p>
             <h1 class="print-doc-title">${escHtml(MODULE.title)}</h1>
-            <p class="print-doc-intro">${escHtml(MODULE.labels.vocabIntro)}</p>
+            <p class="print-doc-intro">${escHtml(subjectCopy.keyLanguage.intro)}</p>
             <p class="print-doc-meta">${totalCount} upgrade terms</p>
             ${groups.map(group => `
                 <section>
@@ -2360,19 +2395,17 @@ function updateReflectionProgressSummary() {
         .filter(moment => progress.covered.has(moment.id)).length;
 
     const clUnit = clCards.length === 1
-        ? MODULE.labels.culturalLensUnitSingular
-        : MODULE.labels.culturalLensUnitPlural;
+        ? COMPASS_LABELS.culturalLensUnitSingular
+        : COMPASS_LABELS.culturalLensUnitPlural;
 
     const discUnit = totalMoments === 1
-        ? MODULE.labels.discussionUnitSingular
-        : MODULE.labels.discussionUnitPlural;
+        ? COMPASS_LABELS.discussionUnitSingular
+        : COMPASS_LABELS.discussionUnitPlural;
 
     const isCompact = window.matchMedia('(max-width: 680px)').matches;
 
     if (isLessonComplete()) {
-        summary.textContent = isCompact
-            ? `${clCards.length} ${clUnit} · ${totalMoments} ${discUnit}`
-            : `${clCards.length} cultural ${clUnit} · ${totalMoments} discussion ${discUnit}`;
+        summary.textContent = `${clCards.length} ${clUnit} · ${totalMoments} ${discUnit}`;
 
         return;
     }
@@ -2559,6 +2592,7 @@ function initAppearanceMode() {
 function init() {
     applyCoverConfig();
     applyDerivedLabels();
+    applySubjectCopy();
 
     renderNav('nav-orientation', 'view-orientation');
     renderNav('nav-cultural-lens', 'view-cultural-lens');
