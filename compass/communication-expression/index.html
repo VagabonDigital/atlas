@@ -20,9 +20,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Communication & Expression</title>
+    <title>Compass Subject</title>
 
-    <!-- Shared Compass favicon. Subject brand icon is the shared COMPASS_BRAND_ICON_SVG in compass-engine.js. No per-subject icon. -->
+    <!-- Shared Compass favicon. Subject brand icon is the shared COMPASS_BRAND_ICON_SVG in compass-engine.js. -->
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 4L96 50L50 96L4 50Z' fill='%2357C7B7' stroke='%232D7D78' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M50 18L82 50L50 82L18 50Z' fill='%23F3FFFC' stroke='%23FFFFFF' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 15L62 50L50 85L38 50Z' fill='%233F8F88' stroke='%232D7D78' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 15L62 50L50 47Z' fill='%2389DDD0'/%3E%3Ccircle cx='50' cy='50' r='5' fill='%232D7D78'/%3E%3Cpath d='M50 18L50 30M82 50L70 50M50 82L50 70M18 50L30 50' stroke='%2357C7B7' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
 
@@ -107,22 +107,14 @@
         <div class="orientation-wrap">
             <div class="section-stage">
 
-                <!-- FACTORY EDIT ZONE: OVERVIEW INTRO — replace heading + paragraphs per subject -->
                 <div class="subject-intro-block">
                     <p class="section-eyebrow" id="orient-eyebrow"></p>
-                    <h1>How we speak shapes what people hear</h1>
-                    <p>Communication is never only about choosing the right words. Tone, timing, silence, expression,
-                        and cultural
-                        expectations can all change how a message feels.</p>
-                    <p style="margin-top:0.9rem;">In this subject, you'll explore how meaning is created through voice,
-                        language,
-                        and social context — from everyday misunderstandings to deeper questions about honesty,
-                        subtlety, emotion,
-                        and connection.</p>
+                    <h1 id="overview-heading"></h1>
+                    <p id="overview-intro-1"></p>
+                    <p id="overview-intro-2" style="margin-top:0.9rem;"></p>
                 </div>
-                <!-- END FACTORY EDIT ZONE: OVERVIEW INTRO -->
 
-                <!-- Per-subject content: Overview path cards -->
+                <!-- Overview path cards -->
                 <div class="main-paths">
                     <div class="main-path-card" role="button" tabindex="0" onclick="goToView('view-cultural-lens')"
                         onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-cultural-lens'); }">
@@ -136,11 +128,7 @@
                         </div>
                         <p class="path-label" id="path-label-cl"></p>
                         <h2 class="path-title">Cultural Lens</h2>
-
-                        <!-- FACTORY EDIT: Cultural Lens path-card description -->
-                        <p class="path-desc">Explore how different cultures approach silence, directness, emotional
-                            expression, and
-                            the meaning behind words — and discover what makes each approach make sense in context.</p>
+                        <p class="path-desc" id="path-desc-cl"></p>
                         <div class="path-arrow">
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                                 <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.5"
@@ -160,9 +148,7 @@
                         </div>
                         <p class="path-label" id="path-label-disc"></p>
                         <h2 class="path-title">Discussion</h2>
-                        <p class="path-desc">Work through real-life communication moments — from awkward everyday slips
-                            to subtle
-                            signals and deeper meaning — using language that helps your ideas land more clearly.</p>
+                        <p class="path-desc" id="path-desc-disc"></p>
                         <div class="path-arrow">
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                                 <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.5"
@@ -181,11 +167,8 @@
                         </svg>
                     </div>
                     <div class="reflection-path-text">
-                        <!-- LOCKED LABEL: keep "Complete the Conversation" — do not make subject-specific -->
-                        <h4>Complete the Conversation</h4>
-
-                        <!-- FACTORY EDIT: Reflection path-card description (the <p> below) -->
-                        <p>Closing reflection — revisit what you've explored and carry something forward</p>
+                        <h4 id="reflection-path-title"></h4>
+                        <p id="reflection-path-desc"></p>
                     </div>
                     <div class="card-arrow-badge" aria-hidden="true">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -209,20 +192,10 @@
         <div id="nav-cultural-lens" class="nav-shell"></div>
         <div class="section-wrap">
             <div class="section-stage">
-
-                <!-- FACTORY EDIT ZONE: CULTURAL LENS SECTION COPY — eyebrow stays "Cultural Lens"; replace h2 + intro p -->
                 <div class="section-header">
-                    <!-- LOCKED LABEL: "Cultural Lens" -->
                     <p class="section-eyebrow">Cultural Lens</p>
-                    <h2>Communication expectations across cultures</h2>
-                    <p>Communication is not just about exchanging information — it also reflects deep ideas about
-                        respect,
-                        hierarchy, and social harmony. Across cultures and history, people have developed very different
-                        expectations about
-                        when to speak clearly, when to stay vague, and when silence or emotion carries more weight than
-                        words.</p>
-                    <!-- END FACTORY EDIT ZONE: CULTURAL LENS SECTION COPY -->
-
+                    <h2 id="cl-section-heading"></h2>
+                    <p id="cl-section-intro"></p>
                     <div class="progress-strip">
                         <span id="cl-progress-text">Explore the cards below — choose any that interest you.</span>
                         <span class="progress-pill viewed" id="cl-viewed-count" style="display:none">
@@ -258,19 +231,10 @@
         <div id="nav-discussion" class="nav-shell"></div>
         <div class="section-wrap">
             <div class="section-stage">
-
-                <!-- FACTORY EDIT ZONE: DISCUSSION SECTION COPY — eyebrow stays "Discussion"; replace h2 + intro p -->
                 <div class="section-header">
-                    <!-- LOCKED LABEL: "Discussion" -->
                     <p class="section-eyebrow">Discussion</p>
-                    <h2>Between the Lines</h2>
-                    <p>Every conversation carries more than words. A pause before a reply, a tone that does not match
-                        the message, or a moment when someone chooses not to speak can change everything. These
-                        conversations move from quick first reactions into deeper questions about what people really
-                        mean, what goes unspoken, and how you express yourself when it matters most. Choose a set to
-                        begin.</p>
-                    <!-- END FACTORY EDIT ZONE: DISCUSSION SECTION COPY -->
-
+                    <h2 id="discussion-section-heading"></h2>
+                    <p id="discussion-section-intro"></p>
                     <div class="progress-strip">
                         <span id="disc-progress-text">Choose a set below — open anything that interests you.</span>
                         <span class="progress-pill viewed" id="disc-viewed-count" style="display:none">
@@ -319,8 +283,6 @@
         <div id="nav-reflection" class="nav-shell"></div>
         <div class="reflection-wrap">
             <div class="section-stage">
-
-                <!-- FACTORY EDIT ZONE: REFLECTION COPY — replace summary + 3 questions ONLY -->
                 <div class="reflection-icon-large">
                     <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
                         <path d="M14 3L14 25" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
@@ -336,34 +298,22 @@
                     </svg>
                 </div>
                 <p class="reflection-complete-kicker" id="reflection-complete-kicker">Congratulations!</p>
-                <!-- LOCKED: title is "Complete the Conversation"; JS swaps to "[title] Complete" on completion. Do not edit. -->
-                <h2 id="reflection-title" aria-live="polite">Complete the Conversation</h2>
-                <p class="reflection-summary">You've explored how tone, timing, silence, directness, and emotion change
-                    what people really mean — across cultures, real-life moments, and your own experience. These
-                    conversations help you express ideas more clearly, interpret others with more care, and navigate
-                    everyday interactions with greater confidence.</p>
+                <h2 id="reflection-title" aria-live="polite"></h2>
+                <p class="reflection-summary" id="reflection-summary"></p>
                 <div class="reflection-questions">
                     <div class="reflection-q">
                         <div class="reflection-q-num">1</div>
-                        <p class="reflection-q-text">Looking back at the cultural examples today, which communication
-                            style felt
-                            most familiar to you — and which felt most different from how you naturally communicate?</p>
+                        <p class="reflection-q-text" id="reflection-question-1"></p>
                     </div>
                     <div class="reflection-q">
                         <div class="reflection-q-num">2</div>
-                        <p class="reflection-q-text">Think of a recent real-life moment when a message was
-                            misunderstood. What would you try differently next time — one specific word choice, pause,
-                            tone, or follow-up question?</p>
+                        <p class="reflection-q-text" id="reflection-question-2"></p>
                     </div>
                     <div class="reflection-q">
                         <div class="reflection-q-num">3</div>
-                        <p class="reflection-q-text">Which word or phrase from today's conversation gave you a more
-                            precise way to describe something you've experienced — and can you think of a real situation
-                            where you'd actually use it?</p>
+                        <p class="reflection-q-text" id="reflection-question-3"></p>
                     </div>
                 </div>
-                <!-- END FACTORY EDIT ZONE: REFLECTION COPY -->
-
                 <p class="reflection-progress-summary" id="reflection-progress-summary"></p>
                 <div class="reflection-actions">
                     <button class="btn-primary" id="complete-lesson-btn" onclick="completeLesson()">
@@ -570,14 +520,17 @@
     </div>
 
     <!-- ============================================================
-         JAVASCRIPT
+         SUBJECT JAVASCRIPT DATA
+         Only the four factory edit zones below should change per subject.
+         Shared behaviour lives in compass-engine.js.
          ============================================================ -->
 
     <script>
 
         /* ============================================================
-           FACTORY EDIT ZONE: MODULE CONFIG
+           FACTORY EDIT ZONE 1/4: MODULE IDENTITY
            Replace this object for each subject.
+           Identity/config only. No visible prose here.
            ============================================================ */
 
         const MODULE = {
@@ -587,27 +540,66 @@
             title: 'Communication & Expression',
             titleHtml: 'Communication<br>&amp; <em>Expression</em>',
             navTitle: 'Communication',
-            coverHook: 'How tone, timing, silence, and small social signals change what people really mean — across cultures and everyday life.',
-            bgImage: 'https://as1.ftcdn.net/jpg/03/71/98/22/1000_F_371982277_7nj9Ex7pVFD3tYDewVz9ViBLc54Kb0rZ.jpg',
-            labels: {
-                culturalLensUnitSingular: 'culture',
-                culturalLensUnitPlural: 'cultures',
-                discussionUnitSingular: 'moment',
-                discussionUnitPlural: 'moments',
-                vocabIntro: 'Higher-level expressions from this subject — with definitions and natural in-action examples.'
+            bgImage: 'https://as1.ftcdn.net/jpg/03/71/98/22/1000_F_371982277_7nj9Ex7pVFD3tYDewVz9ViBLc54Kb0rZ.jpg'
+        };
+
+        /* END FACTORY EDIT ZONE 1/4: MODULE IDENTITY */
+
+        /* ============================================================
+           FACTORY EDIT ZONE 2/4: SUBJECT COPY
+           Replace this object for each subject.
+           Static visible subject prose only. Do not put card content here.
+           ============================================================ */
+
+        const subjectCopy = {
+            cover: {
+                hook: `How tone, timing, silence, and small social signals change what people really mean — across cultures and everyday life.`
+            },
+            overview: {
+                heading: `How we speak shapes what people hear`,
+                intro: [
+                    `Communication is never only about choosing the right words. Tone, timing, silence, expression, and cultural expectations can all change how a message feels.`,
+                    `In this subject, you'll explore how meaning is created through voice, language, and social context — from everyday misunderstandings to deeper questions about honesty, subtlety, emotion, and connection.`
+                ]
+            },
+            paths: {
+                culturalLensDescription: `Explore how different cultures approach silence, directness, emotional expression, and the meaning behind words — and discover what makes each approach make sense in context.`,
+                discussionDescription: `Work through real-life communication moments — from awkward everyday slips to subtle signals and deeper meaning — using language that helps your ideas land more clearly.`,
+                reflectionTitle: `Complete the Conversation`,
+                reflectionDescription: `Closing reflection — revisit what you've explored and carry something forward`
+            },
+            culturalLens: {
+                heading: `Communication expectations across cultures`,
+                intro: `Communication is not just about exchanging information — it also reflects deep ideas about respect, hierarchy, and social harmony. Across cultures and history, people have developed very different expectations about when to speak clearly, when to stay vague, and when silence or emotion carries more weight than words.`
+            },
+            discussion: {
+                heading: `Between the Lines`,
+                intro: `Every conversation carries more than words. A pause before a reply, a tone that does not match the message, or a moment when someone chooses not to speak can change everything. These conversations move from quick first reactions into deeper questions about what people really mean, what goes unspoken, and how you express yourself when it matters most. Choose a set to begin.`
+            },
+            reflection: {
+                title: `Complete the Conversation`,
+                summary: `You've explored how tone, timing, silence, directness, and emotion change what people really mean — across cultures, real-life moments, and your own experience. These conversations help you express ideas more clearly, interpret others with more care, and navigate everyday interactions with greater confidence.`,
+                questions: [
+                    `Looking back at the cultural examples today, which communication style felt most familiar to you — and which felt most different from how you naturally communicate?`,
+                    `Think of a recent real-life moment when a message was misunderstood. What would you try differently next time — one specific word choice, pause, tone, or follow-up question?`,
+                    `Which word or phrase from today's conversation gave you a more precise way to describe something you've experienced — and can you think of a real situation where you'd actually use it?`
+                ]
+            },
+            keyLanguage: {
+                intro: `Higher-level expressions from this subject — with definitions and natural in-action examples.`
             }
         };
 
-        /* END FACTORY EDIT ZONE: MODULE CONFIG */
+        /* END FACTORY EDIT ZONE 2/4: SUBJECT COPY */
 
         // ============================================================
-        // CONTENT DATA
-        // Subject-specific content lives in the factory edit zones below.
-        // Shared template systems begin after the final factory edit zone.
+        // CARD CONTENT DATA
+        // Cultural Lens and Discussion content live in the arrays below.
+        // Shared template behaviour begins in compass-engine.js.
         // ============================================================
 
         /* ============================================================
-           FACTORY EDIT ZONE: CULTURAL LENS CONTENT
+           FACTORY EDIT ZONE 3/4: CULTURAL LENS CONTENT
            Replace this array for each subject.
            ============================================================ */
 
@@ -803,10 +795,10 @@
             }
         ];
 
-        /* END FACTORY EDIT ZONE: CULTURAL LENS CONTENT */
+        /* END FACTORY EDIT ZONE 3/4: CULTURAL LENS CONTENT */
 
         /* ============================================================
-           FACTORY EDIT ZONE: DISCUSSION CONTENT
+           FACTORY EDIT ZONE 4/4: DISCUSSION CONTENT
            Replace this array for each subject.
            ============================================================ */
 
@@ -1036,7 +1028,7 @@
             }
         ];
 
-        /* END FACTORY EDIT ZONE: DISCUSSION CONTENT */
+        /* END FACTORY EDIT ZONE 4/4: DISCUSSION CONTENT */
 
     </script>
     <script src="../../shared/atlas-bridge.js"></script>
