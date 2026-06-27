@@ -2512,8 +2512,6 @@ function applyAppearanceMode(mode) {
 }
 
 function setAppearanceMode(mode) {
-    document.documentElement.classList.add('theme-changing');
-
     storageSet(APPEARANCE_MODE_KEY, mode);
     applyAppearanceMode(mode);
     updateAppearanceToggleUI();
@@ -2521,12 +2519,6 @@ function setAppearanceMode(mode) {
     window.dispatchEvent(new CustomEvent('atlas:appearance-change', {
         detail: { mode }
     }));
-
-    window.clearTimeout(window.__compassThemeTimer);
-
-    window.__compassThemeTimer = window.setTimeout(() => {
-        document.documentElement.classList.remove('theme-changing');
-    }, 720);
 }
 
 function toggleAppearanceMode() {
