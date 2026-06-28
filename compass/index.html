@@ -2351,8 +2351,7 @@
     const COMPASS_AVAILABLE_SUBJECT_SLUGS = [
       'body-language-emotions',
       'communication-expression',
-      'personality-character-traits',
-      'family-belonging'
+      'personality-character-traits'
     ];
 
     /* ================================================================
@@ -2389,10 +2388,11 @@
       Object.values(COMPASS_CATALOG).forEach(subject => {
         try {
           const slug = compassSubjectSlug(subject);
-          if (!COMPASS_AVAILABLE_SUBJECT_SLUGS.includes(slug)) return;
-
-          const launchUrl = getCompassSubjectLaunchUrl(subject);
-          if (!launchUrl) return;
+          const isAvailable = COMPASS_AVAILABLE_SUBJECT_SLUGS.includes(slug);
+          const relativeLaunchUrl = isAvailable ? getCompassSubjectLaunchUrl(subject) : '';
+          const launchUrl = relativeLaunchUrl
+            ? new URL(relativeLaunchUrl, window.location.href).href
+            : '';
 
           Bridge.upsertItem({
             registryId: subject.registryId,
@@ -2405,8 +2405,8 @@
             categoryTitle: getCategoryTitle(subject.categoryId),
             durationLabel: subject.durationLabel || '45–60 min',
             order: subject.order || 0,
-            status: 'available',
-            launchUrl: new URL(launchUrl, window.location.href).href
+            status: isAvailable ? 'available' : 'soon',
+            launchUrl: launchUrl
           });
         } catch (e) { }
       });
@@ -2518,23 +2518,24 @@
       const merged = [];
 
       Object.values(COMPASS_CATALOG).forEach(cat => {
+        const slug = compassSubjectSlug(cat);
+        const locallyAvailable = COMPASS_AVAILABLE_SUBJECT_SLUGS.includes(slug);
+        const relativeLaunchUrl = locallyAvailable ? getCompassSubjectLaunchUrl(cat) : '';
+        const launchUrl = relativeLaunchUrl
+          ? new URL(relativeLaunchUrl, window.location.href).href
+          : '';
+
         const item = (reg.items || {})[cat.registryId] || null;
         const state = sessionStates[cat.registryId] || null;
 
-        const isAvailable =
-          item &&
-          item.world === 'compass' &&
-          item.type === 'subject' &&
-          item.status === 'available' &&
-          item.launchUrl;
-
+        const isAvailable = locallyAvailable && !!launchUrl;
         const status = isAvailable ? resolveStatus(state) : 'new';
         const ts = state ? (state.lastTouchedAt || state.lastOpenedAt || state.updatedAt || 0) : 0;
 
         merged.push({
           registryId: cat.registryId,
-          title: (item && item.title) || cat.title,
-          launchUrl: isAvailable ? item.launchUrl : '',
+          title: cat.title,
+          launchUrl: isAvailable ? launchUrl : '',
           categoryId: cat.categoryId,
           order: cat.order,
           durationLabel: cat.durationLabel || '45–60 min',
