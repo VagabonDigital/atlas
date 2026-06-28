@@ -54,16 +54,10 @@ Edit only in this file.
 }
 
 html {
-    scroll-behavior: smooth;
-}
-
-html {
     min-height: 100%;
     background: var(--cream);
-}
-
-html {
     overflow-y: scroll;
+    overflow-x: clip;
     scrollbar-gutter: stable;
 }
 
@@ -74,7 +68,7 @@ body {
     line-height: 1.65;
     font-size: 15px;
     min-height: 100svh;
-    overflow-x: hidden;
+    overflow-x: visible;
     position: relative;
     isolation: isolate;
 }
@@ -1725,6 +1719,7 @@ VIEW 4: DISCUSSION
 .moments-panel {
     display: none;
     animation: fadeInUp 0.28s ease both;
+    scroll-margin-top: 72px;
 }
 
 .moments-panel.open {
