@@ -223,6 +223,14 @@ function getCompassWorldLaunchUrl() {
     }
 }
 
+function getAtlasHomeUrl() {
+    try {
+        return new URL('../../index.html', window.location.href).href;
+    } catch {
+        return '../../index.html';
+    }
+}
+
 function publishAtlasCompassItem(action = 'updated') {
     try {
         const Bridge = requireAtlasBridge();
@@ -824,7 +832,7 @@ function openAtlasSearchFromDrawer() {
 
 function getCompassBrandModel() {
     return {
-        system: 'Compass Subject',
+        system: 'Compass Library',
         subject: MODULE.title
     };
 }
@@ -853,8 +861,9 @@ function renderNav(containerId, activeViewId) {
 
     if (!container) return;
 
-    // Session label element id is derived from the view id for updateSessionUI()
     const sessionSpanId = `nav-session-${activeViewId}`;
+    const compassUrl = escHtml(getCompassWorldLaunchUrl());
+    const atlasUrl = escHtml(getAtlasHomeUrl());
 
     const links = NAV_ITEMS.map(item => {
         const isActive = item.viewId === activeViewId;
@@ -867,15 +876,22 @@ function renderNav(containerId, activeViewId) {
     }).join('\n');
 
     container.innerHTML = `<nav class="top-nav">
-        <div class="nav-brand" role="button" tabindex="0" onclick="goToView('view-orientation')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-orientation'); }">
+        <a class="nav-brand nav-brand-link" href="${compassUrl}" aria-label="Back to Compass Library">
             ${renderCompassBrandLockup({
         textClass: 'nav-brand-copy',
         systemClass: 'nav-brand-system',
         subjectClass: 'nav-brand-subject'
     })}
-        </div>
+        </a>
         <div class="nav-links">${links}</div>
         <div class="nav-actions">
+            <a class="nav-atlas-link" href="${atlasUrl}" title="Back to Atlas" aria-label="Back to Atlas">
+                <svg class="nav-atlas-icon" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                    <path d="M7.5 1.7L13.3 7.5L7.5 13.3L1.7 7.5Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                    <path d="M7.5 4.1L10.9 7.5L7.5 10.9L4.1 7.5Z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" opacity="0.72"/>
+                </svg>
+                <span>Atlas</span>
+            </a>
             <button class="nav-session-indicator" onclick="openSessionModal()" title="Session settings">
                 ${NAV_SVG.session}
                 <span id="${sessionSpanId}">Current Session</span>
@@ -903,14 +919,16 @@ function renderMobileHeader(containerId, viewKey) {
 
     if (!container) return;
 
+    const compassUrl = escHtml(getCompassWorldLaunchUrl());
+
     container.innerHTML = `<header class="mobile-header">
-        <div class="mobile-header-brand" role="button" tabindex="0" onclick="goToView('view-orientation')" onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-orientation'); }">
+        <a class="mobile-header-brand mobile-header-brand-link" href="${compassUrl}" aria-label="Back to Compass Library">
             ${renderCompassBrandLockup({
         textClass: 'mobile-header-title-block',
         systemClass: 'mobile-header-system',
         subjectClass: 'mobile-header-context'
     })}
-        </div>
+        </a>
         <div class="mobile-header-actions">
             <button class="mobile-menu-btn mobile-search-btn" onclick="openAtlasSearch()" title="Search" aria-label="Search">
                 ${getAtlasSearchIcon()}
@@ -944,6 +962,13 @@ function renderMobileDrawerNav() {
 
     container.innerHTML = `${items}
         <div class="mobile-drawer-divider"></div>
+        <button class="mobile-nav-item" onclick="window.location.href=${jsArg(getAtlasHomeUrl())}">
+            <svg width="16" height="16" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                <path d="M7.5 1.7L13.3 7.5L7.5 13.3L1.7 7.5Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                <path d="M7.5 4.1L10.9 7.5L7.5 10.9L4.1 7.5Z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" opacity="0.72"/>
+            </svg>
+            Atlas
+        </button>
         <button class="mobile-nav-item" onclick="openAtlasSearchFromDrawer()">
             ${getAtlasSearchIcon()}
             Search
