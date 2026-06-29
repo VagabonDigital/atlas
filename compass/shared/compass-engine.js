@@ -7,7 +7,8 @@
 //
 // This file owns shared Compass subject behaviour:
 // navigation, rendering, progress UI, session UI, reflection,
-// Key Language, modals, drawers, appearance UI, and init.
+// Key Language, modals, drawers, appearance UI, favicon,
+// and init.
 //
 // Cross-surface ecosystem state is delegated to window.AtlasBridge:
 // registry access, learning ledger access, shared slugging,
@@ -17,26 +18,36 @@
 // For shared subject-engine changes, update this file once.
 // ============================================================
 
-// Compass brand icon for header/nav brand slots.
-const COMPASS_BRAND_ICON_SVG = `<svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <circle cx="50" cy="50" r="34"
-        stroke="currentColor"
-        stroke-width="4"
-        opacity="0.22"/>
-    <path d="M50 22L58 49L50 78L42 49L50 22Z"
-        stroke="currentColor"
-        stroke-width="4"
+// Compass mark SVG.
+// Used by both the header/nav brand mark and the browser favicon.
+function getCompassMarkSvg({
+    width = 18,
+    height = 18,
+    color = 'currentColor',
+    ariaHidden = true
+} = {}) {
+    const ariaAttr = ariaHidden ? ' aria-hidden="true"' : '';
+
+    return `<svg width="${width}" height="${height}" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"${ariaAttr}>
+    <path d="M10 3.8L16.2 10L10 16.2L3.8 10L10 3.8Z"
+        fill="${color}"
+        fill-opacity="0.18"
+        stroke="${color}"
+        stroke-width="1.65"
+        stroke-linejoin="round"/>
+    <path d="M10 7.35L12.65 10L10 12.65L7.35 10L10 7.35Z"
+        fill="${color}"
+        fill-opacity="0.14"
+        stroke="${color}"
+        stroke-width="1.4"
         stroke-linejoin="round"
-        opacity="0.9"/>
-    <path d="M32 50H68"
-        stroke="currentColor"
-        stroke-width="3.5"
-        stroke-linecap="round"
-        opacity="0.32"/>
-    <circle cx="50" cy="50" r="4"
-        fill="currentColor"
-        opacity="0.85"/>
+        opacity="0.86"/>
+    <circle cx="10" cy="10" r="1.15"
+        fill="${color}"/>
 </svg>`;
+}
+
+const COMPASS_BRAND_ICON_SVG = getCompassMarkSvg();
 
 // Shared Upgrade chip icon.
 const UPGRADE_ICON_SVG = `<svg class="upgrade-chip-icon" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -220,14 +231,6 @@ function getCompassWorldLaunchUrl() {
         return new URL('../index.html', window.location.href).href;
     } catch {
         return '../index.html';
-    }
-}
-
-function getAtlasHomeUrl() {
-    try {
-        return new URL('../../index.html', window.location.href).href;
-    } catch {
-        return '../../index.html';
     }
 }
 
@@ -702,6 +705,46 @@ function updateLessonCompleteButton() {
     the static HTML shell.
     ============================================================ */
 
+// ---- DOCUMENT HEAD ----
+// Compass subjects do not carry per-subject favicon SVG.
+// The shared engine injects the browser favicon from the same Compass mark
+// used by the header brand control.
+
+function applyCompassFavicon() {
+    const faviconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <path d="M50 4L96 50L50 96L4 50Z"
+            fill="#7FA898"
+            stroke="#5C7A6E"
+            stroke-width="5"
+            stroke-linejoin="round"/>
+        <path d="M50 18L82 50L50 82L18 50Z"
+            fill="#EFFFF9"
+            stroke="#FFFFFF"
+            stroke-width="3"
+            stroke-linejoin="round"/>
+        <path d="M50 34L66 50L50 66L34 50Z"
+            fill="#5C7A6E"
+            stroke="#3F6B5C"
+            stroke-width="3"
+            stroke-linejoin="round"/>
+        <path d="M50 18L50 34M82 50L66 50M50 82L50 66M18 50L34 50"
+            stroke="#7FA898"
+            stroke-width="3"
+            stroke-linecap="round"/>
+    </svg>`;
+
+    let icon = document.querySelector('link[rel~="icon"]');
+
+    if (!icon) {
+        icon = document.createElement('link');
+        icon.rel = 'icon';
+        document.head.appendChild(icon);
+    }
+
+    icon.type = 'image/svg+xml';
+    icon.href = `data:image/svg+xml,${encodeURIComponent(faviconSvg)}`;
+}
+
 // ---- COVER ----
 // The cover view uses .view.active like all other views.
 // CSS override makes #view-cover display as flex when active.
@@ -838,15 +881,18 @@ function getCompassBrandModel() {
 }
 
 function renderCompassBrandLockup({
-    iconClass = 'nav-brand-icon',
+    iconClass = 'nav-brand-mark',
     textClass,
     systemClass,
     subjectClass
 }) {
     const brand = getCompassBrandModel();
+    const compassUrl = escHtml(getCompassWorldLaunchUrl());
 
     return `
-        <div class="${iconClass}" aria-hidden="true">${COMPASS_BRAND_ICON_SVG}</div>
+        <a class="${iconClass}" href="${compassUrl}" aria-label="Back to Compass Library">
+            ${COMPASS_BRAND_ICON_SVG}
+        </a>
         <span class="${textClass}">
             <span class="${systemClass}">${escHtml(brand.system)}</span>
             <span class="${subjectClass}">${escHtml(brand.subject)}</span>
@@ -862,8 +908,6 @@ function renderNav(containerId, activeViewId) {
     if (!container) return;
 
     const sessionSpanId = `nav-session-${activeViewId}`;
-    const compassUrl = escHtml(getCompassWorldLaunchUrl());
-    const atlasUrl = escHtml(getAtlasHomeUrl());
 
     const links = NAV_ITEMS.map(item => {
         const isActive = item.viewId === activeViewId;
@@ -876,22 +920,15 @@ function renderNav(containerId, activeViewId) {
     }).join('\n');
 
     container.innerHTML = `<nav class="top-nav">
-        <a class="nav-brand nav-brand-link" href="${compassUrl}" aria-label="Back to Compass Library">
+        <div class="nav-brand">
             ${renderCompassBrandLockup({
         textClass: 'nav-brand-copy',
         systemClass: 'nav-brand-system',
         subjectClass: 'nav-brand-subject'
     })}
-        </a>
+        </div>
         <div class="nav-links">${links}</div>
         <div class="nav-actions">
-            <a class="nav-atlas-link" href="${atlasUrl}" title="Back to Atlas" aria-label="Back to Atlas">
-                <svg class="nav-atlas-icon" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-                    <path d="M7.5 1.7L13.3 7.5L7.5 13.3L1.7 7.5Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
-                    <path d="M7.5 4.1L10.9 7.5L7.5 10.9L4.1 7.5Z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" opacity="0.72"/>
-                </svg>
-                <span>Atlas</span>
-            </a>
             <button class="nav-session-indicator" onclick="openSessionModal()" title="Session settings">
                 ${NAV_SVG.session}
                 <span id="${sessionSpanId}">Current Session</span>
@@ -913,22 +950,19 @@ function renderNav(containerId, activeViewId) {
 }
 
 // Render a sticky mobile header for inner views (cultural-lens / discussion / reflection).
-// viewKey matches the key used in openMobileDrawer() — e.g. 'cultural-lens'.
 function renderMobileHeader(containerId, viewKey) {
     const container = document.getElementById(containerId);
 
     if (!container) return;
 
-    const compassUrl = escHtml(getCompassWorldLaunchUrl());
-
     container.innerHTML = `<header class="mobile-header">
-        <a class="mobile-header-brand mobile-header-brand-link" href="${compassUrl}" aria-label="Back to Compass Library">
+        <div class="mobile-header-brand">
             ${renderCompassBrandLockup({
         textClass: 'mobile-header-title-block',
         systemClass: 'mobile-header-system',
         subjectClass: 'mobile-header-context'
     })}
-        </a>
+        </div>
         <div class="mobile-header-actions">
             <button class="mobile-menu-btn mobile-search-btn" onclick="openAtlasSearch()" title="Search" aria-label="Search">
                 ${getAtlasSearchIcon()}
@@ -962,13 +996,6 @@ function renderMobileDrawerNav() {
 
     container.innerHTML = `${items}
         <div class="mobile-drawer-divider"></div>
-        <button class="mobile-nav-item" onclick="window.location.href=${jsArg(getAtlasHomeUrl())}">
-            <svg width="16" height="16" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-                <path d="M7.5 1.7L13.3 7.5L7.5 13.3L1.7 7.5Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
-                <path d="M7.5 4.1L10.9 7.5L7.5 10.9L4.1 7.5Z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" opacity="0.72"/>
-            </svg>
-            Atlas
-        </button>
         <button class="mobile-nav-item" onclick="openAtlasSearchFromDrawer()">
             ${getAtlasSearchIcon()}
             Search
@@ -2607,6 +2634,7 @@ function initAppearanceMode() {
 // ============================================================
 
 function init() {
+    applyCompassFavicon();
     applyCoverConfig();
     applyDerivedLabels();
     applySubjectCopy();

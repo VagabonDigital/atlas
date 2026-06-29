@@ -56,6 +56,7 @@ Edit only in this file.
 html {
     min-height: 100%;
     background: var(--cream);
+    scroll-behavior: smooth;
     overflow-y: scroll;
     overflow-x: clip;
     scrollbar-gutter: stable;
@@ -376,43 +377,52 @@ GLOBAL NAV BAR
 .nav-brand {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
+    gap: 0.58rem;
     text-decoration: none;
     flex-shrink: 0;
 }
 
-.nav-brand-link,
-.mobile-header-brand-link {
-    color: inherit;
-    text-decoration: none;
-}
-
-.nav-brand-link {
-    margin-left: -0.35rem;
-    padding: 0.25rem 0.45rem 0.25rem 0.35rem;
-    border-radius: 12px;
-    transition: background-color var(--transition), color var(--transition);
-}
-
-.nav-brand-link:hover {
-    background: rgba(var(--accent-rgb), 0.07);
-}
-
-.mobile-header-brand-link {
-    border-radius: 10px;
-}
-
-.nav-brand-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    background: var(--accent-pale);
+.nav-brand-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    border: 1px solid rgba(var(--accent-rgb), 0.22);
+    background: rgba(255, 255, 255, 0.54);
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--accent);
     flex-shrink: 0;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(30, 27, 22, 0.045);
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.nav-brand-mark:hover,
+.nav-brand-mark:focus-visible {
+    background: rgba(var(--accent-rgb), 0.07);
+    border-color: rgba(var(--accent-rgb), 0.42);
+    color: var(--accent);
+    box-shadow: 0 3px 10px rgba(30, 27, 22, 0.07);
+    transform: translateY(-1px);
+}
+
+.nav-brand-mark:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+.nav-brand-mark:hover + .nav-brand-copy .nav-brand-system,
+.nav-brand-mark:focus-visible + .nav-brand-copy .nav-brand-system,
+.nav-brand-mark:hover + .mobile-header-title-block .mobile-header-system,
+.nav-brand-mark:focus-visible + .mobile-header-title-block .mobile-header-system {
+    color: var(--accent);
 }
 
 .nav-brand-copy,
@@ -517,41 +527,6 @@ GLOBAL NAV BAR
     align-items: center;
     gap: 0.55rem;
     flex-shrink: 0;
-}
-
-.nav-atlas-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.38rem;
-    min-height: 38px;
-    padding: 0 0.78rem;
-    border-radius: 999px;
-    border: 1px solid rgba(200, 191, 176, 0.42);
-    background: rgba(255, 255, 255, 0.58);
-    color: var(--ink-light);
-    font-family: var(--font-body);
-    font-size: 0.74rem;
-    font-weight: 500;
-    text-decoration: none;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: var(--transition);
-    box-shadow: 0 1px 3px rgba(30, 27, 22, 0.045);
-}
-
-.nav-atlas-link:hover {
-    background: rgba(255, 255, 255, 0.86);
-    border-color: rgba(var(--accent-rgb), 0.28);
-    color: var(--accent);
-    box-shadow: 0 3px 10px rgba(30, 27, 22, 0.07);
-}
-
-.nav-atlas-icon {
-    width: 15px;
-    height: 15px;
-    flex-shrink: 0;
-    opacity: 0.78;
 }
 
 .nav-icon-btn {
@@ -706,17 +681,6 @@ Prevents nav labels from truncating at zoomed or mid-width layouts.
     }
 
     .nav-session-indicator span {
-        display: none;
-    }
-
-        .nav-atlas-link {
-        width: 38px;
-        height: 38px;
-        padding: 0;
-        border-radius: 12px;
-    }
-
-    .nav-atlas-link span {
         display: none;
     }
 }
@@ -3116,13 +3080,14 @@ MOBILE NAVIGATION DRAWER
 .mobile-header-brand {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
+    gap: 0.58rem;
     flex: 1;
     min-width: 0;
 }
 
-.mobile-header-brand .nav-brand-icon {
+.mobile-header-brand .nav-brand-mark {
+    width: 40px;
+    height: 40px;
     flex-shrink: 0;
 }
 
@@ -3243,6 +3208,7 @@ MOBILE NAVIGATION DRAWER
     background: none;
     text-align: left;
     width: 100%;
+    text-decoration: none;
 }
 
 .mobile-nav-item:hover {
@@ -3513,7 +3479,7 @@ html[data-theme="night"] .mobile-header {
     border-bottom-color: rgba(131, 117, 104, 0.50) !important;
 }
 
-html[data-theme="night"] .nav-brand-icon,
+html[data-theme="night"] .nav-brand-mark,
 html[data-theme="night"] .path-icon,
 html[data-theme="night"] .set-icon,
 html[data-theme="night"] .reflection-icon-small,
@@ -3646,7 +3612,6 @@ html[data-theme="night"] .session-modal-overlay {
 html[data-theme="night"] .btn-ghost,
 html[data-theme="night"] .btn-close-set,
 html[data-theme="night"] .btn-close-set-bottom,
-html[data-theme="night"] .nav-atlas-link,
 html[data-theme="night"] .nav-session-indicator,
 html[data-theme="night"] .nav-keylang-btn,
 html[data-theme="night"] .mobile-menu-btn,
@@ -3662,7 +3627,6 @@ html[data-theme="night"] .session-item-btn {
 html[data-theme="night"] .btn-ghost:hover,
 html[data-theme="night"] .btn-close-set:hover,
 html[data-theme="night"] .btn-close-set-bottom:hover,
-html[data-theme="night"] .nav-atlas-link:hover,
 html[data-theme="night"] .nav-session-indicator:hover,
 html[data-theme="night"] .nav-keylang-btn:hover,
 html[data-theme="night"] .mobile-menu-btn:hover,
