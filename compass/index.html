@@ -213,6 +213,10 @@
       box-shadow: 0 1px 3px rgba(30, 27, 22, 0.035);
     }
 
+    .spine-worlds.is-loading {
+      visibility: hidden;
+    }
+
     .spine-world-btn {
       display: inline-flex;
       align-items: center;
@@ -1843,7 +1847,7 @@
   <header class="spine" role="banner">
     <div class="spine-mark">Compass<span>.</span></div>
 
-    <div class="spine-worlds" id="spine-hub-nav" role="group" aria-label="World navigation"></div>
+    <div class="spine-worlds is-loading" id="spine-hub-nav" role="group" aria-label="World navigation"></div>
 
     <div class="spine-actions">
       <button class="spine-session-pill" onclick="openSessionModal()" aria-label="Switch session">
@@ -2925,6 +2929,8 @@
           '<span>' + escHtml(hub.name) + '</span>' +
           '</button>';
       }).join('');
+
+      host.classList.remove('is-loading');
     }
 
     function renderDrawerHubNav() {
@@ -3537,7 +3543,9 @@
       updateAppearanceButtons(mode);
       applyCompassAtmosphereImage();
 
-      registerWithBridge();
+      setSessionLabels();
+      renderSpineHubNav();
+      renderDrawerHubNav();
 
       if (window.AtlasSearch && typeof AtlasSearch.init === 'function') {
         AtlasSearch.init({
@@ -3551,11 +3559,7 @@
       renderHub();
     }
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
+    init();
   </script>
 </body>
 
