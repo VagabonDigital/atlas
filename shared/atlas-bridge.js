@@ -414,8 +414,8 @@
 
         registry.sessionStates[sessionId] =
             registry.sessionStates[sessionId] &&
-            typeof registry.sessionStates[sessionId] === 'object' &&
-            !Array.isArray(registry.sessionStates[sessionId])
+                typeof registry.sessionStates[sessionId] === 'object' &&
+                !Array.isArray(registry.sessionStates[sessionId])
                 ? registry.sessionStates[sessionId]
                 : {};
 
@@ -525,10 +525,21 @@
         return mode === 'night' ? 'night' : 'light';
     }
 
+    function applyAppearanceMode(mode = readAppearanceMode()) {
+        const normalized = mode === 'night' ? 'night' : 'light';
+
+        if (typeof document !== 'undefined' && document.documentElement) {
+            document.documentElement.dataset.theme = normalized;
+        }
+
+        return normalized;
+    }
+
     function setAppearanceMode(mode) {
         const normalized = mode === 'night' ? 'night' : 'light';
 
         storageSet(KEYS.appearance, normalized);
+        applyAppearanceMode(normalized);
 
         window.dispatchEvent(new CustomEvent('atlas:appearance-change', {
             detail: { mode: normalized }
@@ -594,13 +605,17 @@
         upsertLedgerEntry,
 
         readAppearanceMode,
+        applyAppearanceMode,
         setAppearanceMode,
 
         resetAllAtlasState
     };
 
-    // Ensure a valid default session exists immediately after bridge load.
-    readSessions();
+// Apply saved appearance immediately when Bridge is loaded in <head>.
+applyAppearanceMode();
+
+// Ensure a valid default session exists immediately after bridge load.
+readSessions();
 
     if (!storageGet(KEYS.activeSessionId)) {
         storageSet(KEYS.activeSessionId, DEFAULT_SESSION_ID);
