@@ -1,0 +1,480 @@
+/* ============================================================
+   COMPASS SUBJECT SHELL
+   Shared DOM scaffold for every Compass subject page.
+
+   This file owns the reusable subject interface:
+   cover, orientation, Cultural Lens, Discussion, Reflection,
+   mobile drawer, modals, session UI, and Key Language drawer.
+
+   Subject-specific content lives in each subject's subject-data.js.
+   Shared behaviour lives in compass-engine.js.
+   ============================================================ */
+
+function mountCompassSubjectShell() {
+    document.body.innerHTML = `
+    <!-- ============================================================
+     VIEW 1: COVER
+     ============================================================ -->
+
+    <div id="view-cover" class="view active">
+        <div class="cover-bg"></div>
+        <div class="cover-overlay"></div>
+        <div class="cover-pattern"></div>
+        <div class="cover-utility-row">
+            <button class="cover-appearance-toggle" id="cover-appearance-toggle" onclick="toggleAppearanceMode()"
+                title="Switch to night mode" aria-label="Switch to night mode">
+            </button>
+            <button class="cover-session-btn" onclick="openSessionModal()">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <circle cx="6" cy="4" r="2.2" stroke="currentColor" stroke-width="1.2" />
+                    <path d="M1.5 11c0-2.485 2.015-4 4.5-4s4.5 1.515 4.5 4" stroke="currentColor" stroke-width="1.2"
+                        stroke-linecap="round" />
+                </svg>
+                <span id="cover-session-label">Current Session</span>
+            </button>
+        </div>
+        <div class="cover-card">
+            <div class="cover-eyebrow">
+                <span class="cover-eyebrow-line"></span>
+                COMPASS SUBJECT
+            </div>
+            <h1 class="cover-title" id="cover-title"></h1>
+            <p class="cover-hook" id="cover-hook"></p>
+            <p class="cover-returning" id="cover-returning"></p>
+            <div class="cover-actions">
+                <button class="btn-begin" id="cover-begin-btn" onclick="beginModule()">
+                    Begin lesson
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                        <path d="M3 7.5h9M8.5 4l3.5 3.5-3.5 3.5" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     VIEW 2: ORIENTATION
+     ============================================================ -->
+
+    <div id="view-orientation" class="view view-inner-bg">
+        <!-- Mobile header injected by renderMobileHeader('overview') -->
+        <div id="mob-header-orientation" class="mobile-header-shell"></div>
+        <!-- Desktop nav injected by renderNav('view-orientation') -->
+        <div id="nav-orientation" class="nav-shell"></div>
+        <div class="orientation-wrap">
+            <div class="section-stage">
+
+                <div class="subject-intro-block">
+                    <p class="section-eyebrow" id="orient-eyebrow"></p>
+                    <h1 id="overview-heading"></h1>
+                    <p id="overview-intro-1"></p>
+                    <p id="overview-intro-2" style="margin-top:0.9rem;"></p>
+                </div>
+
+                <!-- Overview path cards -->
+                <div class="main-paths">
+                    <div class="main-path-card" role="button" tabindex="0" onclick="goToView('view-cultural-lens')"
+                        onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-cultural-lens'); }">
+                        <div class="path-icon">
+                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                                <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5" />
+                                <circle cx="11" cy="11" r="3" stroke="currentColor" stroke-width="1.5" />
+                                <path d="M4 11h2M16 11h2M11 4v2M11 16v2" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <p class="path-label" id="path-label-cl"></p>
+                        <h2 class="path-title">Cultural Lens</h2>
+                        <p class="path-desc" id="path-desc-cl"></p>
+                        <div class="path-arrow">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="main-path-card" role="button" tabindex="0" onclick="goToView('view-discussion')"
+                        onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-discussion'); }">
+                        <div class="path-icon">
+                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                                <path d="M4 6a2 2 0 012-2h10a2 2 0 012 2v7a2 2 0 01-2 2h-4l-4 3v-3H6a2 2 0 01-2-2V6z"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+                                <path d="M8 9h6M8 12h4" stroke="currentColor" stroke-width="1.3"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <p class="path-label" id="path-label-disc"></p>
+                        <h2 class="path-title">Discussion</h2>
+                        <p class="path-desc" id="path-desc-disc"></p>
+                        <div class="path-arrow">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="reflection-path-card" role="button" tabindex="0" onclick="goToView('view-reflection')"
+                    onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-reflection'); }">
+                    <div class="reflection-icon-small">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M9 2L9 16M4 13l5 3 5-3" stroke="currentColor" stroke-width="1.4"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="1.4" />
+                        </svg>
+                    </div>
+                    <div class="reflection-path-text">
+                        <h4 id="reflection-path-title"></h4>
+                        <p id="reflection-path-desc"></p>
+                    </div>
+                    <div class="card-arrow-badge" aria-hidden="true">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M4 8h8M9 5l3 3-3 3" stroke="currentColor" stroke-width="1.35"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     VIEW 3: CULTURAL LENS
+     ============================================================ -->
+
+    <div id="view-cultural-lens" class="view view-inner-bg">
+        <!-- Mobile header injected by renderMobileHeader('cultural-lens') -->
+        <div id="mob-header-cultural-lens" class="mobile-header-shell"></div>
+        <!-- Desktop nav injected by renderNav('view-cultural-lens') -->
+        <div id="nav-cultural-lens" class="nav-shell"></div>
+        <div class="section-wrap">
+            <div class="section-stage">
+                <div class="section-header">
+                    <p class="section-eyebrow">Cultural Lens</p>
+                    <h2 id="cl-section-heading"></h2>
+                    <p id="cl-section-intro"></p>
+                    <div class="progress-strip">
+                        <span id="cl-progress-text">Explore the cards below — choose any that interest you.</span>
+                        <span class="progress-pill viewed" id="cl-viewed-count" style="display:none">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.2" />
+                                <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1.2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>0 viewed</span>
+                        </span>
+                        <span class="progress-pill covered" id="cl-covered-count" style="display:none">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                <path d="M2 5l2.5 2.5L8 2.5" stroke="currentColor" stroke-width="1.4"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>0 covered</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cl-grid" id="cl-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     VIEW 4: DISCUSSION
+     ============================================================ -->
+
+    <div id="view-discussion" class="view view-inner-bg">
+        <!-- Mobile header injected by renderMobileHeader('discussion') -->
+        <div id="mob-header-discussion" class="mobile-header-shell"></div>
+        <!-- Desktop nav injected by renderNav('view-discussion') -->
+        <div id="nav-discussion" class="nav-shell"></div>
+        <div class="section-wrap">
+            <div class="section-stage">
+                <div class="section-header">
+                    <p class="section-eyebrow">Discussion</p>
+                    <h2 id="discussion-section-heading"></h2>
+                    <p id="discussion-section-intro"></p>
+                    <div class="progress-strip">
+                        <span id="disc-progress-text">Choose a set below — open anything that interests you.</span>
+                        <span class="progress-pill viewed" id="disc-viewed-count" style="display:none">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.2" />
+                                <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1.2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>0 opened</span>
+                        </span>
+                        <span class="progress-pill covered" id="disc-covered-count" style="display:none">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                <path d="M2 5l2.5 2.5L8 2.5" stroke="currentColor" stroke-width="1.4"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>0 covered</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="discussion-sets" id="discussion-sets"></div>
+                <div class="moments-panel" id="moments-panel">
+                    <div class="moments-panel-header">
+                        <h3 class="moments-panel-title" id="moments-panel-title">Set</h3>
+                        <button class="btn-close-set" onclick="closeSet()">
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                <path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.4"
+                                    stroke-linecap="round" />
+                            </svg>
+                            Close set
+                        </button>
+                    </div>
+                    <div id="moments-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     VIEW 5: REFLECTION
+     ============================================================ -->
+
+    <div id="view-reflection" class="view view-inner-bg">
+        <!-- Mobile header injected by renderMobileHeader('reflection') -->
+        <div id="mob-header-reflection" class="mobile-header-shell"></div>
+        <!-- Desktop nav injected by renderNav('view-reflection') -->
+        <div id="nav-reflection" class="nav-shell"></div>
+        <div class="reflection-wrap">
+            <div class="section-stage">
+                <div class="reflection-icon-large">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <path d="M14 3L14 25" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                        <path d="M6 19l8 6 8-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <circle cx="14" cy="10" r="4.5" stroke="currentColor" stroke-width="1.8" />
+                    </svg>
+                </div>
+                <div class="reflection-complete-mark" id="reflection-complete-mark" aria-hidden="true">
+                    <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+                        <path d="M12 22.8L18.9 29.7L32 14.8" stroke="currentColor" stroke-width="3.4"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <p class="reflection-complete-kicker" id="reflection-complete-kicker">Congratulations!</p>
+                <h2 id="reflection-title" aria-live="polite"></h2>
+                <p class="reflection-summary" id="reflection-summary"></p>
+                <div class="reflection-questions">
+                    <div class="reflection-q">
+                        <div class="reflection-q-num">1</div>
+                        <p class="reflection-q-text" id="reflection-question-1"></p>
+                    </div>
+                    <div class="reflection-q">
+                        <div class="reflection-q-num">2</div>
+                        <p class="reflection-q-text" id="reflection-question-2"></p>
+                    </div>
+                    <div class="reflection-q">
+                        <div class="reflection-q-num">3</div>
+                        <p class="reflection-q-text" id="reflection-question-3"></p>
+                    </div>
+                </div>
+                <p class="reflection-progress-summary" id="reflection-progress-summary"></p>
+                <div class="reflection-actions">
+                    <button class="btn-primary" id="complete-lesson-btn" onclick="completeLesson()">
+                        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                            <path d="M3 8.2l3.1 3.1L13 4.5" stroke="currentColor" stroke-width="1.6"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Mark lesson complete
+                    </button>
+                    <button class="btn-primary" onclick="openVocabBank()">
+                        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                            <path
+                                d="M4.2 2.5h7.3a1.2 1.2 0 011.2 1.2v6.1a1.2 1.2 0 01-1.2 1.2H7.8L5 13.2V11H4.2A1.2 1.2 0 013 9.8V3.7a1.2 1.2 0 011.2-1.2z"
+                                stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" />
+                            <path d="M5.5 5.7h5M5.5 8.1h3.6" stroke="currentColor" stroke-width="1.25"
+                                stroke-linecap="round" />
+                        </svg>
+                        Review Key Language
+                    </button>
+                    <button class="btn-ghost" onclick="goToView('view-orientation')">Back to overview</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     MOBILE NAVIGATION DRAWER
+     ============================================================ -->
+
+    <div class="mobile-drawer-overlay" id="mobile-drawer-overlay" onclick="closeMobileDrawer()"></div>
+    <div class="mobile-drawer" id="mobile-drawer">
+        <div class="mobile-drawer-header">
+            <span class="mobile-drawer-title" id="mobile-drawer-subject-title"></span>
+            <button class="mobile-drawer-close" onclick="closeMobileDrawer()" aria-label="Close menu">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+            </button>
+        </div>
+        <div class="mobile-drawer-nav" id="mobile-drawer-nav">
+            <!-- Injected by renderMobileDrawerNav() -->
+        </div>
+        <div class="mobile-drawer-footer">
+            <div class="mobile-footer-actions">
+                <button class="mobile-session-btn" onclick="openSessionModalFromDrawer()">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3" />
+                        <path d="M2 12c0-2.485 2.239-4.5 5-4.5s5 2.015 5 4.5" stroke="currentColor" stroke-width="1.3"
+                            stroke-linecap="round" />
+                    </svg>
+                    <span id="mobile-session-label">Current Session</span>
+                </button>
+                <button class="mobile-appearance-toggle" id="mobile-appearance-toggle" onclick="toggleAppearanceMode()"
+                    title="Switch to night mode" aria-label="Switch to night mode">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     CULTURAL LENS MODAL
+     ============================================================ -->
+
+    <div class="modal-overlay" id="cl-modal-overlay" onclick="handleModalOverlayClick(event)">
+        <div class="modal-panel" id="cl-modal-panel">
+            <div class="modal-header">
+                <div class="modal-heading">
+                    <p class="modal-location" id="modal-location"></p>
+                    <h2 class="modal-title" id="modal-title"></h2>
+                </div>
+                <button class="modal-close-x" onclick="closeModal()" aria-label="Close modal">
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                        <path d="M3 3l9 9M12 3l-9 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-insight" id="modal-insight"></p>
+                <div class="modal-question-block">
+                    <p class="modal-question-label">Discussion question</p>
+                    <p class="modal-question" id="modal-question"></p>
+                    <div class="upgrade-row" id="modal-upgrade-row">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+                <button class="explore-deeper-toggle" id="explore-toggle" onclick="toggleExploreDeeper()"
+                    aria-expanded="false" aria-controls="explore-deeper-content">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 2.4L13 5.2L8 8L3 5.2L8 2.4Z" stroke="currentColor" stroke-width="1.25"
+                            stroke-linejoin="round" />
+                        <path d="M3.2 8.2L8 10.9L12.8 8.2" stroke="currentColor" stroke-width="1.25"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M3.2 11L8 13.7L12.8 11" stroke="currentColor" stroke-width="1.25"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Explore Deeper
+                    <svg class="explore-deeper-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <div class="explore-deeper-content" id="explore-deeper-content">
+                    <p class="explore-deeper-text" id="explore-deeper-text"></p>
+                    <div class="explore-questions" id="explore-questions"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-footer-nav">
+                    <button class="btn-ghost" id="modal-prev-btn" onclick="navigateModal(-1)">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M7 2L3 6l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                        Previous
+                    </button>
+                    <button class="btn-ghost" id="modal-next-btn" onclick="navigateModal(1)">
+                        Next
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M5 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-footer-actions">
+                    <button class="btn-covered" onclick="markCLCovered()">
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                            <path d="M2 6.5l3.5 3.5L11 3" stroke="currentColor" stroke-width="1.6"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Mark covered &amp; close
+                    </button>
+                    <button class="btn-ghost modal-footer-close" onclick="closeModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     KEY LANGUAGE DRAWER
+     ============================================================ -->
+
+    <div class="vb-overlay" id="vb-overlay" onclick="closeVocabBank()"></div>
+    <div class="vb-drawer" id="vb-drawer">
+        <div class="vb-header">
+            <h3>Key Language</h3>
+            <div class="vb-actions">
+                <button class="vb-close-btn" onclick="closeVocabBank()" aria-label="Close Key Language">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="vb-list" id="vb-list"></div>
+    </div>
+    <div id="print-key-language" class="print-key-language" aria-hidden="true"></div>
+    <dialog class="session-dialog" id="session-dialog" aria-labelledby="session-dialog-title"
+        aria-describedby="session-dialog-message">
+        <div class="session-dialog-panel">
+            <p class="session-dialog-kicker" id="session-dialog-kicker">Session action</p>
+            <h3 class="session-dialog-title" id="session-dialog-title">Are you sure?</h3>
+            <p class="session-dialog-message" id="session-dialog-message"></p>
+            <input class="session-input session-dialog-input" id="session-dialog-input" type="text" maxlength="40"
+                autocomplete="off">
+            <p class="session-dialog-error" id="session-dialog-error" role="alert"></p>
+            <div class="session-dialog-actions">
+                <button class="btn-ghost" type="button" id="session-dialog-cancel">Cancel</button>
+                <button class="btn-danger-confirm" type="button" id="session-dialog-ok">OK</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- ============================================================
+     SESSION MODAL
+     ============================================================ -->
+
+    <div class="session-modal-overlay" id="session-modal-overlay" onclick="handleSessionOverlayClick(event)">
+        <div class="session-modal-panel">
+            <div class="session-modal-header">
+                <h3>Session &amp; Progress</h3>
+                <button class="vb-close-btn" onclick="closeSessionModal()" aria-label="Close session settings">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+            <div class="session-modal-body">
+                <p id="session-helper-text" style="font-size:0.82rem;color:var(--ink-light);margin-bottom:1rem;"></p>
+                <p
+                    style="font-size:0.75rem;color:var(--stone-dark);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.6rem;">
+                    Saved Sessions</p>
+                <div class="session-list" id="session-list"></div>
+                <p style="font-size:0.78rem;color:var(--stone-dark);margin-bottom:0.6rem;margin-top:1rem;">New session
+                </p>
+                <div class="session-new-form">
+                    <input class="session-input" id="session-name-input" type="text" placeholder="Name this session"
+                        maxlength="40" onkeydown="if(event.key==='Enter')addSession()">
+                    <button class="btn-add-session" onclick="addSession()">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+}
