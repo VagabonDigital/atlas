@@ -119,11 +119,11 @@ const clCards = [
         insight: `In many Indian families, the joint family — several generations, and sometimes several brothers' households, sharing a home or a common economic life — has long been a central model. Major decisions about money, marriage, work, or property may be made collectively, with significant weight given to elders. For someone raised to value individual independence, this can look like a loss of personal freedom; but for many within it, the same arrangement offers security, shared burdens, and a strong, dependable safety net that a lone individual rarely has.`,
         question: `When people make a big life decision where you're from, how much do family expectations usually weigh on it — a lot, a little, or somewhere in between?`,
         upgrade: {
-            term: `under one roof`,
+            term: `shared household`,
             type: `noun phrase`,
-            def: `Living together as a single household, often across more than one generation.`,
-            in_action: `Three generations under one roof sounds chaotic, but they say it's actually how they get everything done.`,
-            review_prompt: `What might be the best and the hardest parts of several generations living under one roof?`
+            def: `A home where several people or generations live together and share daily life.`,
+            in_action: `In a shared household, childcare, money, meals, and decisions often become everyone's business.`,
+            review_prompt: `What might be the best and hardest parts of living in a shared household?`
         },
         deeper: {
             text: `One reason a collective model may hold so strongly is that it spreads risk: when one person loses a job, falls ill, or faces a crisis, a larger family unit can absorb the shock far better than a single household can. The trade-off is autonomy. Decisions an individualist might consider entirely personal — who to marry, what career to pursue, where to live — can become matters the wider family feels entitled to weigh in on. This is where misunderstanding often arises across cultures. What one person experiences as warm, supportive involvement, another experiences as pressure or control. And as cities grow and younger generations move away for work, many families are now negotiating a middle path — staying closely connected and mutually responsible, while living more independently than their parents or grandparents did.`,
@@ -188,14 +188,14 @@ const clCards = [
         insight: `In many East Asian languages, there isn't a single neutral word for "brother" or "sister" — you must specify older or younger, and often use different terms again for relatives on each side of the family. Birth order and seniority are built right into everyday speech, so respect for elders is reinforced every time family is mentioned. For a speaker of a language with one all-purpose word like "brother," this can be surprising: a whole quiet system of hierarchy and respect is doing its work inside words that seem, at first, completely ordinary.`,
         question: `In your language, how are siblings and relatives referred to — with neutral words, or ones that mark age, side of the family, or status?`,
         upgrade: {
-            term: `pecking order`,
-            type: `idiom`,
-            def: `The unofficial hierarchy of rank or seniority within a group.`,
-            in_action: `At family dinners there's a clear pecking order — the eldest speaks first, and somehow everyone just knows it.`,
-            review_prompt: `How does a pecking order tend to show itself at a family gathering?`
+            term: `seniority`,
+            type: `noun`,
+            def: `The status that comes from being older or higher in rank within a group or family.`,
+            in_action: `At family dinners, seniority quietly shapes who speaks first, who gets listened to, and who is expected to wait.`,
+            review_prompt: `How can seniority show itself in a family without anyone saying it directly?`
         },
         deeper: {
-            text: `Language doesn't just describe family relationships; it can quietly train how people feel about them. When a child grows up unable to refer to a sibling without naming who is older, seniority becomes part of the texture of everyday life rather than an abstract rule to be taught. This often connects to wider expectations: an older sibling may carry real responsibility for younger ones, and may also receive particular respect in return. To an outsider, the system can look rigid, but it can also be reassuring — everyone knows where they stand and what is expected of them. The contrast with cultures that play down hierarchy between siblings is sharp. In one, calling an older brother by a special respectful term feels natural and warm; in another, treating siblings as equals regardless of age is precisely the point. Both are teaching children something about fairness and respect — just very different lessons.`,
+            text: `Language doesn't just describe family relationships; it can quietly train how people feel about them. When a child grows up unable to refer to a sibling without naming who is older, age order becomes part of the texture of everyday life rather than an abstract rule to be taught. In some Korean families, even twins may still be understood through this older-younger order, with the first-born twin treated as senior by a matter of minutes. This often connects to wider expectations: an older sibling may carry real responsibility for younger ones, and may also receive particular respect in return. To an outsider, the system can look rigid, but it can also be reassuring — everyone knows where they stand and what is expected of them. The contrast with cultures that play down hierarchy between siblings is sharp. In one, calling an older brother by a special respectful term feels natural and warm; in another, treating siblings as equals regardless of age is precisely the point. Both are teaching children something about fairness and respect — just very different lessons.`,
             questions: [
                 `Does being older or younger tend to come with particular duties, privileges, or expectations where you're from?`,
                 `Do you think a clear seniority order between siblings is more reassuring or more limiting?`,
@@ -211,11 +211,11 @@ const clCards = [
         insight: `In much of the United States and Northern Europe, leaving the family home in early adulthood — for university, work, or simply independence — is widely treated as a natural sign of maturity. Moving out, paying your own way, and "standing on your own" can be sources of real pride. Seen from a culture where staying close to family is the loving default, this can look surprisingly cold, even like abandoning your parents. Seen from within, it's not rejection at all — it's how care and respect are expressed: by becoming someone who doesn't need to be looked after.`,
         question: `In your culture, when is someone "supposed" to leave home — and is staying longer seen as sensible, or as not quite growing up?`,
         upgrade: {
-            term: `stand on your own two feet`,
-            type: `idiom`,
-            def: `To be independent and self-reliant, without needing support from others.`,
-            in_action: `My parents helped at the start, but they were keen for me to stand on my own two feet pretty quickly.`,
-            review_prompt: `At what age, in your view, should someone be expected to stand on their own two feet?`
+            term: `self-reliant`,
+            type: `adjective`,
+            def: `Able to manage your own life without depending too much on other people.`,
+            in_action: `His parents wanted him to become self-reliant early, so moving out was treated as a normal step, not a rejection.`,
+            review_prompt: `When does becoming self-reliant feel healthy, and when can it feel lonely?`
         },
         deeper: {
             text: `The age at which someone leaves home — and whether leaving is even expected at all — is one of the clearest places where ideas about family quietly diverge. In more individualist cultures, early independence is read as healthy and admirable; an adult child still living at home may face gentle questions about when they'll "move on." In many other cultures the opposite holds: remaining close, sharing a home, and caring for parents directly is the obvious expression of a good family. Neither is simply right. But the gap causes real misreadings. One person sees independence as strength and distance as freedom; another sees the same distance as a failure of duty, and closeness as love. As economies shift and housing grows expensive, even strongly individualist cultures are seeing more adult children stay or return home — and quietly renegotiating what that's supposed to mean.`,
@@ -287,7 +287,7 @@ const discussionSets = [
                 text: `Most families have a relative everyone has an opinion about — the one who gets mentioned before they even arrive. Without naming anyone, what kind of relative is that usually: the loud one, the difficult one, the one who went their own way?`,
                 upgrade: {
                     term: `black sheep`,
-                    type: `noun phrase`,
+                    type: `idiom`,
                     def: `The family member seen as different, difficult, or the odd one out — often spoken about more than the rest.`,
                     in_action: `Every family seems to have a black sheep — the one the others quietly talk about at every gathering.`,
                     review_prompt: `What kind of behaviour gets someone labelled the black sheep of a family?`
@@ -298,11 +298,11 @@ const discussionSets = [
                 preview: `You walk in the door and you're twelve again.`,
                 text: `Some people find that the moment they're back with family, they slide straight into an old version of themselves — quieter, bossier, more childish, whatever it is. Why do you think family has that effect on people?`,
                 upgrade: {
-                    term: `revert to type`,
-                    type: `idiom`,
-                    def: `To slip back into an old, familiar way of behaving, especially one you thought you'd grown out of.`,
-                    in_action: `I'm independent all year, but two days at my parents' house and I revert to type — suddenly I'm the baby of the family again.`,
-                    review_prompt: `In what kind of situation do people tend to revert to type, even when they don't mean to?`
+                    term: `fall back into old habits`,
+                    type: `phrasal verb`,
+                    def: `To return to an old way of behaving, especially when a familiar situation brings it out.`,
+                    in_action: `I'm independent all year, but two days at my parents' house and I fall back into old habits — suddenly I'm the baby again.`,
+                    review_prompt: `What kind of family setting makes people fall back into old habits?`
                 }
             },
             {
@@ -358,11 +358,11 @@ const discussionSets = [
                 preview: `Where does duty end?`,
                 text: `People disagree about how much grown children owe their parents — time, money, care, presence. Where do you think a reasonable line sits, and does it change depending on the relationship behind it?`,
                 upgrade: {
-                    term: `look after your own`,
-                    type: `idiom`,
-                    def: `To take care of the people in your family or close circle — often used to describe a strong sense of duty toward relatives.`,
-                    in_action: `In her family, looking after your own wasn't a choice — it was simply what you did, no question.`,
-                    review_prompt: `Where you're from, how strong is the idea of "looking after your own"?`
+                    term: `sense of duty`,
+                    type: `noun phrase`,
+                    def: `A feeling that you should do something because it is your responsibility, not just because you want to.`,
+                    in_action: `There was a strong sense of duty in her family — when someone needed help, everyone was expected to step in.`,
+                    review_prompt: `Where does a sense of duty usually come from in family life?`
                 }
             },
             {
@@ -466,11 +466,11 @@ const discussionSets = [
                 preview: `What gets sent down the line.`,
                 text: `Most people have a sense of what's worth passing on — a value, a story, a way of treating people. Of all the things that get sent down the generations, which kind do you think matters most?`,
                 upgrade: {
-                    term: `leave your mark`,
-                    type: `idiom`,
-                    def: `To have a lasting influence that stays with people after you're gone.`,
-                    in_action: `He left his mark on all of us — not through money, but through the way he treated strangers.`,
-                    review_prompt: `What's one way a person can leave their mark on the people who come after them?`
+                    term: `lasting influence`,
+                    type: `noun phrase`,
+                    def: `An effect on people or a family that continues over time.`,
+                    in_action: `Her lasting influence wasn't money or property — it was the way everyone learned to welcome people at the table.`,
+                    review_prompt: `What kind of lasting influence can someone have on the people who come after them?`
                 }
             },
             {
