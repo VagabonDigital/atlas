@@ -454,19 +454,19 @@ const discussionSets = [
             {
                 id: `moment-who-you-are-becoming`,
                 preview: `You are not finished yet.`,
-                text: `Character is not fixed — most of us are still becoming someone, shaped by what we go through. Looking at how you have changed over the past few years, who are you becoming? Is there a version of yourself you are deliberately growing into?`,
+                text: `Think of something you handle differently now than you did five years ago — conflict, confidence, pressure, honesty, criticism, or change. What shifted in you, and did it happen deliberately or slowly without you noticing?`,
                 upgrade: {
                     term: `grow into yourself`,
                     type: `spoken phrase`,
                     def: `To gradually become more comfortable and settled in your own character and identity over time.`,
                     in_action: `She spent her twenties unsure of who she was, but lately she has really grown into herself — calmer, surer, more herself.`,
-                    review_prompt: `In what way are you growing into yourself right now — what is settling?`
+                    review_prompt: `Where do you feel you are growing into yourself — more confident, calmer, or less worried about others?`
                 }
             }
         ],
         makeItReal: {
             title: `The character you are still writing`,
-            prompt: `Think about who you are now compared to who you were five or ten years ago. What part of your character has genuinely changed, what has stayed constant no matter what, and is there a version of yourself you are still working towards? Tell the story of how you became who you are — and where you are still heading.`
+            prompt: `Think about one part of your character that has changed over the past few years — maybe how you handle pressure, speak up, trust people, or see yourself. What changed it, what has stayed the same, and what are you still growing into?`
         }
     }
 ];
