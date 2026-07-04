@@ -117,7 +117,7 @@ const clCards = [
         title: `Speaking carefully to stay safe`,
         teaser: `When words could be used against you, vagueness became a survival skill.`,
         insight: `In the political world of Renaissance Italy, diplomats often spoke in vague or flexible ways so their words could still work if alliances changed. Communication was not always about being clear — sometimes it was about leaving yourself room to survive. A statement had to be true enough to repeat publicly, but open enough to reinterpret if circumstances shifted.`,
-        question: `If you were in a situation where your words could be used against you later, would you speak clearly, stay vague, or say as little as possible?`,
+        question: `Imagine writing a message you know might be screenshotted, forwarded, or quoted back to you later. Would you say exactly what you mean, soften it, or leave yourself room to move?`,
         upgrade: {
             term: `hedge`,
             type: `verb`,
@@ -140,7 +140,7 @@ const clCards = [
         title: `Criticism hidden inside art`,
         teaser: `A poem could carry a political message that a direct report never could.`,
         insight: `In imperial China, officials sometimes criticised rulers indirectly through poetry, symbolism, or historical references instead of open attack. A message could be serious and political without sounding openly rebellious on the surface. This allowed ideas to circulate that could not survive as direct speech, and protected the writer with a layer of plausible deniability.`,
-        question: `If someone criticised you using a story, a joke, or a carefully chosen example rather than saying it directly, would you notice — and would you prefer they had just been honest?`,
+        question: `If someone made a joke that was clearly “not about you” but somehow felt aimed straight at you, would you call it out, laugh it off, or pretend not to notice?`,
         upgrade: {
             term: `veiled criticism`,
             type: `noun phrase`,
@@ -192,7 +192,7 @@ const clCards = [
             type: `noun phrase`,
             def: `A lively exchange of opposing ideas in a spirit of enjoyment and curiosity rather than genuine conflict.`,
             in_action: `I actually enjoy a bit of intellectual sparring — I find that debating something properly helps me understand my own view better.`,
-            review_prompt: `What's the difference between a real argument and two people enjoying a debate?`
+            review_prompt: `How can you tell when two people are enjoying intellectual sparring, rather than actually fighting?`
         },
         deeper: {
             text: `One reason this pattern may exist is a long cultural tradition of treating the exchange of ideas as something valuable in itself — separate from whether anyone "wins" the argument. In this frame, challenging someone's position can be a sign of respect: it means you're taking them seriously enough to push back. The assumption is that both people can handle disagreement without it damaging the relationship. This can clash quite directly with communication cultures where public disagreement is seen as a threat to harmony or a sign that something has gone wrong. What one person experiences as a stimulating debate, another can feel as an uncomfortable confrontation, even when the topic is completely impersonal.`,
@@ -209,7 +209,7 @@ const clCards = [
         title: `Direct honesty as respect`,
         teaser: `Softening a message too much can sometimes feel less respectful, not more.`,
         insight: `In Germany, direct feedback is often seen as respectful because it avoids confusion, mixed signals, or hidden criticism. Being clear can feel more honest than trying too hard to protect someone's feelings. One assumption behind this approach is that the other person is capable of receiving honest information without needing it wrapped in reassurance.`,
-        question: `If your work, your outfit, or your idea had a real problem, would you want someone to tell you directly — or would you prefer they soften the message first?`,
+        question: `If your idea had a real flaw and everyone else could see it, would you rather someone told you plainly in the moment, softened it later, or said nothing unless you asked?`,
         upgrade: {
             term: `straight-talking`,
             type: `adjective`,
@@ -232,7 +232,7 @@ const clCards = [
         title: `Expressiveness as sincerity`,
         teaser: `A more reserved delivery can sometimes sound unconvincing rather than restrained.`,
         insight: `In some Arabic-speaking communication contexts, especially when the topic carries emotional weight, tone, repetition, emphasis, and expressive phrasing can add warmth, sincerity, and human connection to speech. A more expressive style may feel natural or heartfelt rather than exaggerated. What sounds intense in one communication context can be exactly what genuine feeling looks like in another.`,
-        question: `When someone speaks with strong emotion, repetition, and a lot of emphasis, do you find yourself reading it as sincerity, drama, confidence — or something else entirely?`,
+        question: `When someone tells a story with huge feeling — repeating points, raising their voice, really leaning into it — do you trust it more, pull back, or wonder if they are overdoing it?`,
         upgrade: {
             term: `wear your heart on your sleeve`,
             type: `idiom`,
@@ -297,7 +297,7 @@ const discussionSets = [
             {
                 id: `moment-blunt-or-kind`,
                 preview: `Honest, or just harsh?`,
-                text: `Some people say exactly what they think, and some soften everything they say. Which style do you find easier to trust — and which do you find harder to deal with?`,
+                text: `A friend asks what you honestly think of their plan, and you can see a real problem with it. Do you say it plainly, soften it carefully, or wait to see if they notice?`,
                 upgrade: {
                     term: `pull your punches`,
                     type: `idiom`,
@@ -387,7 +387,7 @@ const discussionSets = [
                     type: `noun`,
                     def: `The emotional or social feeling that a word carries, beyond its basic dictionary meaning.`,
                     in_action: `Both words mean roughly the same thing, but the connotations are very different — one sounds confident, the other sounds defeated.`,
-                    review_prompt: `Which sounds more suitable in a work message: 'cheap' or 'affordable', and why?`
+                    review_prompt: `What is a word you choose carefully because the wrong version sounds rude, weak, or too blunt?`
                 }
             }
         ],
@@ -453,7 +453,7 @@ const discussionSets = [
             {
                 id: `moment-growing-communicator`,
                 preview: `You communicate differently now than you used to.`,
-                text: `How has the way you communicate changed over time — at work, in relationships, or just in everyday conversation? What made you change, and is there anything you are still trying to improve?`,
+                text: `Think of a conversation you would have avoided five years ago but could probably handle now. What changed in the way you speak, listen, or stand up for yourself?`,
                 upgrade: {
                     term: `find your voice`,
                     type: `idiomatic phrase`,
