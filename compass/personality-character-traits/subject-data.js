@@ -28,7 +28,7 @@ const MODULE = {
 
 const subjectCopy = {
     cover: {
-        hook: `How traits are read, performed, and shaped by context — and the gap between who someone shows you and who they really are.`
+        hook: `How traits are read, performed, and shaped by context — and the gap between who someone shows you and what may be underneath.`
     },
     overview: {
         heading: `Who someone is, and who they show you`,
@@ -48,15 +48,15 @@ const subjectCopy = {
         intro: `What we call personality can feel like the most personal thing about us — simply who we are. Yet across cultures and history, societies have actively shaped character: training people to hide or show emotion, rewarding some traits and punishing others, and deciding which version of a person is acceptable in public. The same quality can read as strength in one place and weakness in another. These cards explore how character is moulded by the world around it — and how easily an outsider can misread it.`
     },
     discussion: {
-        heading: `Between the Lines`,
+        heading: `First Impressions and Hidden Sides`,
         intro: `Personality feels like the most fixed thing about a person — yet the way we read each other shifts constantly with context, timing, and what people choose to show. These conversations move from quick first reactions to deeper questions about where character comes from, how it gets performed, and what you are still learning about yourself and the people around you. Choose a set to begin.`
     },
     reflection: {
         title: `Complete the Conversation`,
-        summary: `You have explored how character is shaped, shown, and judged — across cultures that trained particular traits, real moments where first impressions proved wrong, and your own sense of who you are and who you are becoming. These conversations help you read people with more care, describe character with more precision, and hold lightly the gap between the self someone shows and the self underneath.`,
+        summary: `You have explored how character is shaped, shown, and judged — across cultures that trained particular traits, real moments where first impressions proved wrong, and your own sense of who you are and who you are becoming. These conversations help you read people with more care, describe character with more precision, and hold lightly the gap between the self someone shows and the parts they may not show.`,
         questions: [
             `Looking back at the cultural examples today, which way of shaping character felt closest to your own upbringing — and which felt most unfamiliar?`,
-            `Think of someone you have recently judged quickly. What might you have misread, and what would you want to look at more carefully before deciding who they are?`,
+            `Think of someone you have recently judged quickly. What might you have misread, and what would you want to notice before settling on that impression?`,
             `Which word or phrase from today gave you a more precise way to describe something about character you have noticed but struggled to name — and where would you actually use it?`
         ]
     },
@@ -120,11 +120,11 @@ const clCards = [
         insight: `Among the samurai of feudal Japan, emotional composure was held as a central virtue — warriors were expected to remain calm and dignified even when facing death. Losing control of one's emotions in a critical moment could be seen as a loss of honour, not merely a personal weakness. Character here was measured less by what a person felt and more by their ability to master the outward expression of it when it mattered most.`,
         question: `Do you admire people who stay calm and controlled in extreme moments — or do you sometimes trust open emotion more than a composed surface?`,
         upgrade: {
-            term: `hold it together`,
-            type: `spoken phrase`,
-            def: `To stay calm and in control of your emotions in a difficult or distressing situation, often with visible effort.`,
-            in_action: `However badly the meeting went, she held it together — only afterwards, in the car, did she let herself react.`,
-            review_prompt: `Think of a moment you managed to hold it together when it was hard. What helped?`
+            term: `steadiness`,
+            type: `noun`,
+            def: `A calm, controlled quality that stays present under pressure.`,
+            in_action: `What impressed people was her steadiness — everyone else panicked, but she kept thinking clearly.`,
+            review_prompt: `Where does steadiness matter more than showing strong emotion?`
         },
         deeper: {
             text: `The samurai ideal points to something many cultures share in some form: the belief that the measure of character is not the absence of strong feeling, but the ability to govern it under pressure. The reasoning is that anyone can stay calm when nothing is at stake — true self-mastery only shows when the stakes are highest. Yet this ideal carries a familiar tension. Prized too far, composure can shade into emotional distance, or into an inability to ask for help when it is genuinely needed. Modern versions appear in any high-pressure world — surgery, aviation, leadership — where steadiness is essential, but where the same trait, pushed too hard, can leave a person unreachable. As ever, the calm exterior tells you how someone is behaving, not necessarily what they are carrying.`,
@@ -143,11 +143,11 @@ const clCards = [
         insight: `In the strict royal courts of medieval Europe, how you behaved could matter as much as who you were. Laughing too loudly, speaking too casually, or letting the wrong expression cross your face could damage your standing in an instant. Personality at court was something to be carefully managed and performed — a polished public self, maintained at all times, often quite separate from whatever the person actually felt.`,
         question: `Are there places in your life — work, certain social settings — where you feel you have to perform a careful version of yourself rather than simply be relaxed?`,
         upgrade: {
-            term: `walk on eggshells`,
-            type: `idiom`,
-            def: `To behave very carefully and cautiously to avoid upsetting someone or making a mistake.`,
-            in_action: `Around the new manager everyone walks on eggshells — nobody is quite sure what will set him off.`,
-            review_prompt: `Is there a person or setting that makes you walk on eggshells? What does that feel like?`
+            term: `public persona`,
+            type: `noun phrase`,
+            def: `The version of yourself you show in public, especially when it is more controlled than your private self.`,
+            in_action: `At work he has a polished public persona, but with close friends he is much warmer and sillier.`,
+            review_prompt: `Where do people usually show a more controlled public persona?`
         },
         deeper: {
             text: `The medieval court is an extreme case of something almost everyone does to some degree: adjusting our character to fit the rules of the room. Where the cost of a slip is high — to status, safety, or reputation — people naturally develop a more controlled, performed self. The interesting question is what this performance does over time. A carefully maintained public self can become so habitual that the line between performing and being blurs, and a person may struggle to locate where the "real" them ends and the role begins. We see gentler versions in corporate culture, in politics, in any environment where image is currency. The point is not that performance is dishonest — almost all social life involves some — but that the more tightly a self is policed, the harder it can be for anyone, including the person themselves, to see clearly underneath.`,
@@ -163,7 +163,7 @@ const clCards = [
         location: `The medieval court jester`,
         title: `The one allowed to be honest`,
         teaser: `A single role with permission everyone else was denied.`,
-        insight: `In many royal courts, the jester occupied a strange and privileged position: through humour, they could mock powerful rulers and voice uncomfortable truths that would have been dangerous from anyone else. Their character — playful, sharp, seemingly foolish — earned them a freedom others did not have. It is a striking example of how a social role can licence a personality: the same words were permitted from the fool and forbidden from the courtier.`,
+        insight: `In many royal courts, the jester occupied a strange and privileged position: through humour, they could mock powerful rulers and voice uncomfortable truths that would have been dangerous from anyone else. Their character — playful, sharp, seemingly foolish — earned them a freedom others did not have. It is a striking example of how a social role can give a personality permission: the same words were permitted from the fool and forbidden from the courtier.`,
         question: `Is there someone in your life or workplace who is "allowed" to say things others cannot — and what is it about them that gives them that freedom?`,
         upgrade: {
             term: `get away with`,
@@ -322,7 +322,7 @@ const discussionSets = [
         ],
         makeItReal: {
             title: `The person who surprised you`,
-            prompt: `Think of someone in your life who turned out to be very different from your first impression of them. What did you assume at the start, how did the real person reveal themselves, and what did that teach you about reading people?`
+            prompt: `Think of someone in your life who turned out to be very different from your first impression of them. What did you assume at the start, how did you start to see a fuller picture, and what did that teach you about reading people?`
         }
     },
     {
@@ -382,7 +382,7 @@ const discussionSets = [
             {
                 id: `moment-changes-with-power`,
                 preview: `Same person, new title. Watch what happens.`,
-                text: `People sometimes seem to change when their situation changes — when they gain authority, money, stress, or status. Have you ever watched someone's character shift because of a new role or pressure? Did it reveal who they really were, or turn them into someone different?`,
+                text: `People sometimes seem to change when their situation changes — when they gain authority, money, stress, or status. Have you ever watched someone's character shift because of a new role or pressure? Did it bring out a side that was already there, or turn them into someone different?`,
                 upgrade: {
                     term: `go to someone's head`,
                     type: `idiom`,
@@ -432,11 +432,11 @@ const discussionSets = [
                 preview: `The you that nobody is watching.`,
                 text: `Some people feel they are most themselves with others; some feel most themselves completely alone. When you are on your own, with no one to react to, does a different version of you appear — and is that one more "real," or just another side?`,
                 upgrade: {
-                    term: `let your guard down`,
-                    type: `idiom`,
-                    def: `To stop protecting yourself emotionally and allow your true feelings or character to show.`,
-                    in_action: `It takes me a long time to let my guard down, but once I trust someone they see a completely different person.`,
-                    review_prompt: `Who do you let your guard down with most easily — and what makes that possible?`
+                    term: `open up`,
+                    type: `phrasal verb`,
+                    def: `To become more honest, relaxed, or emotionally open with someone.`,
+                    in_action: `It takes me a long time to open up, but once I trust someone they see a much softer side of me.`,
+                    review_prompt: `Who do people usually open up with, and what makes that feel safe?`
                 }
             },
             {
@@ -444,11 +444,11 @@ const discussionSets = [
                 preview: `People think they know exactly who you are.`,
                 text: `Sometimes people decide what kind of person you are — "the reliable one," "the funny one," "the difficult one" — and that label sticks, whether or not it is still true. Have you ever felt boxed in by a reputation or a role that did not match who you actually are now?`,
                 upgrade: {
-                    term: `pigeonhole`,
-                    type: `verb`,
-                    def: `To label someone as a fixed type and treat them as if they cannot be anything else.`,
-                    in_action: `Early on I got pigeonholed as the quiet one, and it took years before people noticed I had plenty to say.`,
-                    review_prompt: `Have you ever been pigeonholed in a way that no longer fit? How did it feel?`
+                    term: `shake off`,
+                    type: `phrasal verb`,
+                    def: `To get rid of an unwanted image, habit, feeling, or reputation over time.`,
+                    in_action: `It took years to shake off the quiet-one reputation, even after I had become much more confident.`,
+                    review_prompt: `What kind of reputation is hardest to shake off?`
                 }
             },
             {
