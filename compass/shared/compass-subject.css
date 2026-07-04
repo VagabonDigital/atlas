@@ -10,6 +10,8 @@ Shared across Compass subject modules.
 Edit only in this file.
 ============================================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+
 :root {
     --cream: #f7f4ef;
     --cream-warm: #f0ebe2;
