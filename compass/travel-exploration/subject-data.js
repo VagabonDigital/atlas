@@ -71,7 +71,7 @@ const clCards = [
         location: `The Pacific, ancient and medieval ocean voyaging`,
         title: `Reading the Ocean`,
         teaser: `Crossing an ocean without modern instruments — and arriving.`,
-        insight: `Long before modern instruments, Polynesian navigators crossed thousands of kilometres of open Pacific using stars, swell patterns, bird flight, cloud colour, and a vast memory of the sea passed down by training. To an outsider this can look like luck or mysticism, but it was a precise, learned skill — a way of knowing the ocean that lived in the body and the senses rather than on paper. The human meaning underneath: knowledge doesn't have to be written down to be real. A whole science of the sea was carried in memory, instinct, and apprenticeship, and it worked.`,
+        insight: `Long before modern instruments, Polynesian navigators crossed thousands of kilometres of open Pacific using stars, swell patterns, bird flight, cloud colour, and a vast memory of the sea passed down by training. To an outsider this can look like luck or mysticism, but it was a precise, learned skill — a way of knowing the ocean that lived in the body and the senses rather than on paper. The human meaning underneath: knowledge doesn't have to be written down to be real. A whole science of the sea was carried in memory, observation, and apprenticeship, and it worked.`,
         question: `Have you ever trusted instinct or a "feel" for something over a map, a guide, or instructions — and were you right to?`,
         upgrade: {
             term: `know it like the back of your hand`,
@@ -120,11 +120,11 @@ const clCards = [
         insight: `For roughly two centuries, wealthy young Europeans were sent on a long tour of the continent — not for fun, but to acquire taste, languages, confidence, and social polish before taking their place in society. Travel here was deliberately educational, almost a finishing school on the move. To modern eyes it can look like a privileged holiday, but the underlying idea is one we've quietly kept: that going out into the world forms you in ways staying home cannot. The human meaning: some cultures and classes have long treated travel as a rite of passage — proof you've grown up — rather than as leisure.`,
         question: `Do you think travelling actually teaches you things you couldn't learn at home — or is that idea a bit overstated?`,
         upgrade: {
-            term: `broaden your horizons`,
-            type: `idiom`,
-            def: `To widen your experience, understanding, or outlook.`,
-            in_action: `A year working abroad really broadened her horizons.`,
-            review_prompt: `What's one thing that genuinely broadened your horizons — and did it have to be travel?`
+            term: `worldly`,
+            type: `adjective`,
+            def: `Experienced and knowledgeable about life, people, or culture beyond your own narrow world.`,
+            in_action: `Travel made him more worldly, but not necessarily wiser about everything.`,
+            review_prompt: `Can someone become worldly without travelling much? What would give them that quality?`
         },
         deeper: {
             text: `The Grand Tour belonged to a tiny, wealthy few, and that's part of what makes it interesting now — because the idea behind it has gone fully mainstream. The modern "gap year," the post-graduation backpacking trip, the belief that a young person should "see the world" before settling down: all of these are the Grand Tour's democratic grandchildren. But the assumption deserves a gentle poke. Does travel really form character, or do we just credit it because the people who could afford to travel were already going to turn out fine? Someone from a culture without this tradition might reasonably point out that wisdom, taste, and confidence can grow just as well from staying, working, raising a family, or reading deeply at home. The question of whether you must leave to grow is far less settled than the travel industry would like us to believe.`,
@@ -166,11 +166,11 @@ const clCards = [
         insight: `Early Antarctic expeditions faced months of darkness, brutal cold, and no possibility of rescue. Some crews endured not only through physical toughness but through strict daily routines — meals, tasks, shared rituals — that protected their minds from the crushing isolation. The surprise here is that the deadliest threat wasn't always the cold but the emptiness, and that the cure was structure. The human meaning underneath: when the outside world disappears entirely, ordinary routine stops being boring and becomes the thing that holds a person together.`,
         question: `When you've been isolated or stuck somewhere, what kept you steady — routine, people, distraction, or something else?`,
         upgrade: {
-            term: `keep your head`,
-            type: `idiom`,
-            def: `To stay calm and clear-thinking under pressure or stress.`,
-            in_action: `Snowed in for a week with no power, she somehow kept her head while everyone else panicked.`,
-            review_prompt: `In a stressful, stuck situation, what helps you keep your head?`
+            term: `anchor`,
+            type: `noun`,
+            def: `Something that keeps you steady, calm, or connected when life feels difficult or uncertain.`,
+            in_action: `During those long dark weeks, the daily routine became an anchor — it gave everyone something to hold on to.`,
+            review_prompt: `What routines or small rituals can become an anchor when life feels uncertain?`
         },
         deeper: {
             text: `There's a powerful lesson buried in those frozen expeditions about what humans actually need to stay sane, and it isn't comfort — it's structure and meaning. Crews that kept fixed mealtimes, gave everyone a job, and marked small occasions tended to hold together; those that let the days blur into shapeless dark struggled. We saw a faint, mass echo of this during long lockdowns, when many people discovered that loose, empty days were harder on the mind than busy ones, and that small rituals — a morning walk, a set mealtime — quietly kept them afloat. It suggests something counter-intuitive: freedom from all routine, which sounds like paradise, can actually be destabilising, while a little imposed order can be deeply protective. The polar crews understood, long before psychology had the words for it, that the mind needs a scaffold — especially when the world outside goes dark.`,
@@ -187,13 +187,13 @@ const clCards = [
         title: `The Journey With No Return`,
         teaser: `Everything you owned, and no way back.`,
         insight: `Millions crossed oceans in cramped lower-decks with everything they owned in one bag and no real prospect of returning. For them, travel was not adventure or escape for a season — it was a permanent break with one life and the uncertain start of another. To anyone whose travel always assumes a return ticket, this is a profoundly different act. The human meaning underneath: for much of history, and for many still today, leaving has been one-way and irreversible — not a holiday from your life, but the end of one version of it and the gamble on another.`,
-        question: `Could you leave your home for good — no return, only what you could carry — if it meant a better chance elsewhere?`,
+        question: `Could most people leave home for good — no return, only what they could carry — if it meant a better chance elsewhere? What do you think would make that possible?`,
         upgrade: {
-            term: `burn your bridges`,
-            type: `idiom`,
-            def: `To cut off any possibility of going back to how things were.`,
-            in_action: `Selling the house and leaving for good — that's really burning your bridges.`,
-            review_prompt: `Have you ever made a choice that burned your bridges? Would you do it again?`
+            term: `one-way journey`,
+            type: `noun phrase`,
+            def: `A journey made without a realistic chance of returning to the life you left behind.`,
+            in_action: `For many migrants, the crossing was a one-way journey — not an adventure, but the start of a completely different life.`,
+            review_prompt: `What makes a one-way journey feel different from a trip with a return ticket?`
         },
         deeper: {
             text: `It's worth holding the two kinds of journey side by side: the modern traveller, who leaves precisely because they know they can come home, and the one-way migrant, who leaves knowing they almost certainly can't. Those are nearly opposite emotional experiences hiding inside the same word, "travel." The return ticket changes everything — it makes a journey an experience rather than a fate. This still shapes how different people hear the word today: for someone whose family arrived as migrants or refugees, "travelling abroad" may carry a weight and an ache that a casual holidaymaker never feels. The same flight can be an adventure for one passenger and the hardest decision of a life for the person in the next seat. Remembering that gap is part of travelling thoughtfully — knowing that the freedom to come home is itself a kind of privilege not everyone has ever had.`,
@@ -235,11 +235,11 @@ const clCards = [
         insight: `Technology now lets some people live in one country while working for another, blurring old ideas of home, nation, and the boundary between work and travel. The journey is no longer a break from ordinary life — it becomes the structure of life itself. What looks like a permanent holiday is often something stranger: belonging fully to nowhere. The human meaning underneath: when you can leave at any moment, the meaning of "staying" changes too — and it becomes a real question whether you can truly belong to a place you're always free to walk away from.`,
         question: `Does working while travelling still feel like travel to you — or does it quietly turn the journey into ordinary life in a different postcode?`,
         upgrade: {
-            term: `have one foot out the door`,
-            type: `idiom`,
-            def: `To be only half-committed, ready to leave at any moment.`,
-            in_action: `He's lived there two years but he's always had one foot out the door.`,
-            review_prompt: `Have you ever been somewhere with one foot out the door? Did it stop you settling in?`
+            term: `untethered`,
+            type: `adjective`,
+            def: `Not strongly tied to one place, routine, or way of life.`,
+            in_action: `The freedom was exciting at first, but after a while he started to feel untethered rather than free.`,
+            review_prompt: `When might feeling untethered be exciting, and when might it feel lonely?`
         },
         deeper: {
             text: `There's a quiet trade-off inside this lifestyle that its glossy images rarely show. The freedom is real — to follow good weather, low costs, or simple curiosity, untied to one place. But belonging tends to be built from the very things this life avoids: staying through the dull stretches, knowing your neighbours over years, being part of a place when it's inconvenient as well as when it's lovely. A traveller who's always passing through often experiences a place as a guest sees it — the surface, the highlights — rather than as a resident knows it, with all its tedium and depth. Different cultures weigh this differently: some prize the freedom and adaptability, others quietly believe you only really know a place once you've been stuck in it through a hard winter. It raises an honest question about our connected age — whether the freedom to be everywhere has quietly cost us the deeper belonging that only comes from being somewhere, fully, for a long time.`,
@@ -276,11 +276,11 @@ const discussionSets = [
                 preview: `Nothing like the postcard.`,
                 text: `Think of a place that turned out completely different from what you expected — better, worse, or just stranger. What had you imagined, and what was actually there when you arrived?`,
                 upgrade: {
-                    term: `not what it's cracked up to be`,
-                    type: `idiom`,
-                    def: `Less impressive than its reputation suggests.`,
-                    in_action: `Everyone raves about that beach, but honestly it wasn't what it's cracked up to be.`,
-                    review_prompt: `Name somewhere famous that wasn't what it's cracked up to be — why not?`
+                    term: `fall short`,
+                    type: `phrasal verb`,
+                    def: `To be less good, impressive, or satisfying than expected.`,
+                    in_action: `The city looked amazing online, but the actual trip fell short of what I had imagined.`,
+                    review_prompt: `Has a famous place ever fallen short for you? What was missing?`
                 }
             },
             {
@@ -432,11 +432,11 @@ const discussionSets = [
                 preview: `Something a journey rearranged in you.`,
                 text: `People say travel changes you, though it's hard to pin down how. Looking back at a real trip, did something actually shift in how you saw your life or what you wanted — or is that more myth than truth?`,
                 upgrade: {
-                    term: `put things in perspective`,
-                    type: `idiom`,
-                    def: `To make you see what really matters, often by comparison.`,
-                    in_action: `Seeing how little they had and how content they were really put things in perspective.`,
-                    review_prompt: `Has a trip ever put something in perspective for you? What changed?`
+                    term: `a shift in perspective`,
+                    type: `noun phrase`,
+                    def: `A change in how you see a situation, often after experiencing or comparing something different.`,
+                    in_action: `That trip gave me a real shift in perspective — I came home less worried about things that used to feel huge.`,
+                    review_prompt: `Has a trip ever given you a shift in perspective? What changed?`
                 }
             },
             {
