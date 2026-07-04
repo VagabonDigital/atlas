@@ -312,7 +312,7 @@ const discussionSets = [
                     type: `noun phrase`,
                     def: `A small detail that reveals something important, often before the person says it directly.`,
                     in_action: `He said he was relaxed, but the telltale sign was the way he kept rubbing his hands together.`,
-                    review_prompt: `What is a telltale sign that someone might be nervous in a meeting or first date?`
+                    review_prompt: `What is a telltale sign that someone might be nervous in a meeting — and what else would you check before assuming?`
                 }
             },
             {
