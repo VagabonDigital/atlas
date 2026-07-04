@@ -355,7 +355,7 @@ const discussionSets = [
                 }
             },
             {
-                id: `moment-direct-culture`,
+                id: `moment-spell-it-out`,
                 preview: `Where you are from changes what “polite” means.`,
                 text: `You explain your view clearly, but the other person seems uncomfortable — or you soften your message to be polite, and they miss your point. What do you think happened in that moment: different expectations about honesty, politeness, or how much should be left unsaid?`,
                 upgrade: {
