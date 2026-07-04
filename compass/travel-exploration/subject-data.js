@@ -187,7 +187,7 @@ const clCards = [
         title: `The Journey With No Return`,
         teaser: `Everything you owned, and no way back.`,
         insight: `Millions crossed oceans in cramped lower-decks with everything they owned in one bag and no real prospect of returning. For them, travel was not adventure or escape for a season — it was a permanent break with one life and the uncertain start of another. To anyone whose travel always assumes a return ticket, this is a profoundly different act. The human meaning underneath: for much of history, and for many still today, leaving has been one-way and irreversible — not a holiday from your life, but the end of one version of it and the gamble on another.`,
-        question: `Could most people leave home for good — no return, only what they could carry — if it meant a better chance elsewhere? What do you think would make that possible?`,
+        question: `Imagine leaving home with one bag and no realistic way back. What would have to be true for someone to make that choice?`,
         upgrade: {
             term: `one-way journey`,
             type: `noun phrase`,
