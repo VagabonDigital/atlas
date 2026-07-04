@@ -22,7 +22,7 @@ const MODULE = {
     title: 'Communication & Expression',
     titleHtml: 'Communication<br>&amp; <em>Expression</em>',
     navTitle: 'Communication',
-    bgImage: 'https://as1.ftcdn.net/jpg/03/71/98/22/1000_F_371982277_7nj9Ex7pVFD3tYDewVz9ViBLc54Kb0rZ.jpg'
+    bgImage: 'https://photos.smugmug.com/Atlas/i-HRxxfKm/0/LxfwrSftsBGtshL2rMnbjKdDnxpzS6kRwnZFvCXF5/O/2d9b20d4-fb4f-4a9d-b2de-80dd6a13a04a.pnghttps://photos.smugmug.com/Atlas/i-zTV8wZp/0/KDfWGJp6zXrHCfjpJmrM6Ssxmr26wk6RtBbf7hvpF/O/2d9b20d4-fb4f-4a9d-b2de-80dd6a13a04a.png'
 };
 
 const subjectCopy = {
@@ -54,9 +54,9 @@ const subjectCopy = {
         title: `Complete the Conversation`,
         summary: `Words do far more than carry information. They land softly or sharply depending on how and when they're said; they hide meaning as often as they reveal it; and now and then they change something the instant they leave your mouth. Across cultures, the same silence, the same bluntness, the same polite refusal can mean opposite things — and the same feeling can have a perfect word in one language and none at all in another. Somewhere between the message you agonised over and the moment you felt completely understood is the real work of talking: not just being heard, but being understood the way you meant.`,
         questions: [
-            `Looking back, what's one conversation you'd word completely differently now — and what would you change about how you said it?`,
+            `What is one moment from this subject that changed how you think about words — a silence, a name, an apology, a refusal, a translation, or a line that stayed with you?`,
             `Do you think you're understood the way you mean to be most of the time — or does something often get lost between what you feel and what comes out?`,
-            `What matters more to you in the people close to you: that they speak to you plainly, or that they always say things gently?`
+            `Which Upgrade word or phrase from today gives you a sharper way to describe how expression lands — and where could you actually use it?`
         ]
     },
     keyLanguage: {
@@ -90,7 +90,7 @@ const clCards = [
     },
     {
         id: `cl-formal-you`,
-        location: `Languages with a formal and informal "you" (French, German, Spanish, and many others)`,
+        location: `Formal / informal "you"`,
         title: `When "You" Gets Closer`,
         teaser: `In many languages, growing closer to someone is a moment you can hear.`,
         insight: `English has just one "you" for everyone — a stranger, a boss, a child, a lover. Many other languages have two: a formal one for distance and respect, and an informal one for closeness. That makes the shift from formal to familiar an actual event — often marked, sometimes even invited out loud ("we can use the informal now"). Choosing the wrong one can feel cold, or too familiar too fast. For English speakers this hidden layer is easy to miss, because their language quietly flattens all of it. The human meaning underneath: in these languages, how close you are to someone isn't only felt — it's built into the grammar, and you choose it every time you speak.`,
@@ -113,8 +113,8 @@ const clCards = [
     },
     {
         id: `cl-taarof`,
-        location: `Iran and parts of the wider region (the custom often called ta'arof)`,
-        title: `The "No" That Means "Ask Again"`,
+        location: `Iran · ta'arof`,
+        title: `The "No" Before Yes`,
         teaser: `Sometimes refusing politely is the first step of accepting.`,
         insight: `In many Iranian social settings, a custom often called ta'arof shapes offers and refusals. A host offers food again and again; the guest declines — once, twice — and only accepts after being urged again. A taxi driver may wave away payment, expecting the passenger to insist on paying. The first "no" isn't always a real no; it can be politeness doing its work, a graceful dance both sides know the steps to. For an outsider who takes the refusal at face value, the results can be awkward — a guest left unfed, a driver left unpaid. The human meaning underneath: in some cultures, the polite surface of a conversation isn't a barrier to the real meaning — it's a shared performance everyone present knows how to read.`,
         question: `When someone offers you something and you'd actually love it, do you accept straight away — or do you politely say "no, no, I couldn't" first? Where did that habit come from?`,
@@ -136,7 +136,7 @@ const clCards = [
     },
     {
         id: `cl-taboo-words`,
-        location: `Across cultures and languages`,
+        location: `Across languages`,
         title: `The Worst Thing You Can Say`,
         teaser: `What a language forbids reveals what it holds sacred.`,
         insight: `Every language has words you don't say — but which words carry the real shock changes dramatically from place to place. In some cultures the strongest taboos are religious, and blasphemy is the worst offence; in others they're bodily; in some the deepest insults reach for your family or your mother; and in a few, remarkably, the harshest swear words are drawn from serious illnesses. A word that would end a friendship in one language can be almost harmless in another. The human meaning underneath: what a culture makes unspeakable is a kind of map of what it holds most sacred or most fragile — and stepping on the wrong taboo, even innocently, can cause real damage a dictionary would never warn you about.`,
@@ -161,7 +161,7 @@ const clCards = [
         id: `cl-finland`,
         location: `Finland`,
         title: `When Silence Isn't Awkward`,
-        teaser: `A pause can be trust, not trouble.`,
+        teaser: `A quiet pause can mean thought, trust, or comfort — not that the conversation has failed.`,
         insight: `In many Finnish social settings, a silence in conversation is read very differently than in cultures where every gap must be filled. Speaking only when you have something worth saying can feel more honest than keeping the words flowing, and a pause is often taken as thinking, comfort, or ease rather than a sign something's gone wrong. For someone from a talk-to-connect culture, that quiet can feel like disapproval or a conversation dying — when to the other person it may be one of the most relaxed parts of the exchange. The human meaning underneath: silence isn't the opposite of communication; in some places it's one of its warmest forms, a sign you're comfortable enough not to perform.`,
         question: `When a conversation suddenly goes quiet, do you rush to fill the gap or let it sit? And does it depend on who you're with?`,
         upgrade: {
@@ -251,7 +251,7 @@ const clCards = [
     },
     {
         id: `cl-backchannel`,
-        location: `Japan and elsewhere (the listening signals sometimes called aizuchi)`,
+        location: `Japan · listening signals`,
         title: `The Sounds That Mean "I'm Listening"`,
         teaser: `In some places, silence while you listen is the rude part.`,
         insight: `While someone is speaking, listeners in many Japanese conversations produce a steady stream of small sounds and words — a soft "hai," "ee," "sou desu ne" — a practice sometimes called aizuchi. These aren't interruptions or attempts to take the floor; they're signals meaning "I'm with you, keep going." A listener who stays completely silent can seem cold or even disengaged. Yet in other cultures the same frequent sounds read as impatience, as if the listener is rushing the speaker along. The human meaning underneath: even listening — the quiet half of a conversation — follows unwritten rules, and what counts as good listening in one culture can read as rude in another, with neither person aware they're playing by different scripts.`,
