@@ -2634,6 +2634,10 @@ function initAppearanceMode() {
 // ============================================================
 
 function init() {
+    if (typeof mountCompassSubjectShell === 'function') {
+        mountCompassSubjectShell();
+    }
+
     applyCompassFavicon();
     applyCoverConfig();
     applyDerivedLabels();
