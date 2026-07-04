@@ -287,11 +287,11 @@ const discussionSets = [
                 preview: `When not saying anything says everything.`,
                 text: `When someone goes silent in the middle of a conversation — no reply, no explanation — what do you assume? Is silence usually comfortable, awkward, or something else entirely for you?`,
                 upgrade: {
-                    term: `loaded silence`,
-                    type: `noun phrase`,
-                    def: `A silence that carries strong emotion, tension, or meaning without anyone speaking.`,
-                    in_action: `After she told him the news, there was a loaded silence — nobody spoke, but everyone could feel the tension.`,
-                    review_prompt: `What kind of situation might create a loaded silence in a room?`
+                    term: `speak volumes`,
+                    type: `idiom`,
+                    def: `To communicate something clearly and powerfully without needing words.`,
+                    in_action: `She didn't say anything, but her silence spoke volumes.`,
+                    review_prompt: `What's a time someone's silence spoke volumes to you?`
                 }
             },
             {
@@ -359,11 +359,11 @@ const discussionSets = [
                 preview: `Where you are from changes what “polite” means.`,
                 text: `You explain your view clearly, but the other person seems uncomfortable — or you soften your message to be polite, and they miss your point. What do you think happened in that moment: different expectations about honesty, politeness, or how much should be left unsaid?`,
                 upgrade: {
-                    term: `high-context communication`,
-                    type: `concept term`,
-                    def: `A communication style where much of the meaning is implied, rather than stated directly.`,
-                    in_action: `In a high-context communication style, people may expect you to understand the meaning from tone, timing, silence, or the situation — not only from the words.`,
-                    review_prompt: `Besides the words, what signals tell you the real meaning in a high-context exchange?`
+                    term: `spell it out`,
+                    type: `phrasal verb`,
+                    def: `To say something clearly and directly instead of expecting the other person to work it out from the situation.`,
+                    in_action: `I kept dropping hints, hoping he'd get the message — eventually I just had to spell it out.`,
+                    review_prompt: `When is it better to spell something out than to let people read the situation?`
                 }
             },
             {
