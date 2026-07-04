@@ -71,13 +71,13 @@ const clCards = [
         title: `One name in a very long list`,
         teaser: `You're not just yourself — you're the latest entry in a line that runs both ways.`,
         insight: `In many Chinese family traditions, a person is understood not only as an individual but as one link between the generations that came before and those still to come. Detailed family genealogies, shared generational names, and a strong sense of continuing the line can give people a place in something much larger than a single lifetime. For someone from a more individualist background, this can be hard to feel from the outside — but the underlying idea is that who you are includes where you sit in a long, ongoing line.`,
-        question: `Do some people genuinely feel themselves to be part of a longer family line — those before and after them — while others feel mostly like their own separate individual? Which pull seems stronger to you?`,
+        question: `If someone knew their family line going back hundreds of years, do you think that would make them feel rooted, pressured, proud, or trapped?`,
         upgrade: {
             term: `lineage`,
             type: `noun`,
             def: `The line of people you are descended from, traced through the generations.`,
             in_action: `He could trace his lineage back several hundred years, and you could tell he felt the weight of it.`,
-            review_prompt: `How far back can most people trace their lineage, and why might it matter to them?`
+            review_prompt: `Would knowing your lineage back several generations feel meaningful, heavy, or strangely distant?`
         },
         deeper: {
             text: `One reason this way of seeing family may run so deep is that, in many East Asian traditions, the family line was treated as something with real duties attached — to remember those who came before, and to provide for those who come after. Keeping a genealogy, continuing a family name, or honouring earlier generations were ways of locating yourself in a story already in progress. The contrast with a more individualist outlook is striking. Where one person feels mainly responsible for their own choices and future, another may feel quietly accountable to a line stretching in both directions. Neither is more loving; they simply answer the question "who am I?" differently — one starting from the self, the other from the line the self belongs to. Even today, the pull between those two instincts shapes decisions about names, careers, and where people choose to live.`,
