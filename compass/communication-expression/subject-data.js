@@ -4,10 +4,10 @@
   SmartStudy™ Methodology
   Communication & Expression
   --------------------------------------------------------------------------
-  A premium interactive speaking module for exploring how tone, timing,
-  silence, culture, and context shape what people really mean.
+  A premium interactive speaking module for exploring how words, tone,
+  timing, silence, culture, and context shape what people really mean.
   Built for live lessons, thoughtful discussion, and sharper social awareness
-  around expression, meaning, and human communication.
+  around expression, meaning, listening, and human communication.
   Subject content may change.
   The compass remains.
   --------------------------------------------------------------------------
@@ -27,225 +27,248 @@ const MODULE = {
 
 const subjectCopy = {
     cover: {
-        hook: `How tone, timing, silence, and small social signals change what people really mean — across cultures and everyday life.`
+        hook: `A few words can open a door, close one, or change everything — depending on how they're said.`
     },
     overview: {
-        heading: `How we speak shapes what people hear`,
+        heading: `What We Really Do When We Talk`,
         intro: [
-            `Communication is never only about choosing the right words. Tone, timing, silence, expression, and cultural expectations can all change how a message feels.`,
-            `In this subject, you'll explore how meaning is created through voice, language, and social context — from everyday misunderstandings to deeper questions about honesty, subtlety, emotion, and connection.`
+            `It's easy to think of talking as passing information from one person to another — you say a thing, they receive it, done. But the interesting part is everything that happens around the words. The same sentence can comfort or wound depending on its timing. A single "fine" can mean the opposite of fine. A few words — "you're hired," "it's over," "I forgive you" — can change a life the second they're spoken. This subject is about that gap between what we say and what we actually do to each other when we speak.`,
+            `Here you'll explore how expression lands, hides, softens, and sharpens — the message you rewrote six times, the compliment with a sting in it, the thing everyone understood but no one said out loud. You'll look at how silence, directness, and politeness are read completely differently around the world, at the words one language has and another doesn't, and at who you become when you switch languages. Some of it is about being misheard. Just as much is about the quiet pleasure of being truly understood.`
         ]
     },
     paths: {
-        culturalLensDescription: `Explore how different cultures approach silence, directness, emotional expression, and the meaning behind words — and discover what makes each approach make sense in context.`,
-        discussionDescription: `Work through real-life communication moments — from awkward everyday slips to subtle signals and deeper meaning — using language that helps your ideas land more clearly.`,
+        culturalLensDescription: `How cultures give weight to words, silence, names, refusal, taboo, and listening — from a pause that means trust to a "no" that really means "ask me again."`,
+        discussionDescription: `The line you never forgot, the message you agonised over, the apology that actually worked, and the words that changed something the moment they were said.`,
         reflectionTitle: `Complete the Conversation`,
-        reflectionDescription: `Closing reflection — revisit what you've explored and carry something forward`
+        reflectionDescription: `Carry something forward — a thought about how you speak, listen, or want to be understood.`
     },
     culturalLens: {
-        heading: `Communication expectations across cultures`,
-        intro: `Communication is not just about exchanging information — it also reflects deep ideas about respect, hierarchy, and social harmony. Across cultures and history, people have developed very different expectations about when to speak clearly, when to stay vague, and when silence or emotion carries more weight than words.`
+        heading: `The Unwritten Rules of Talk`,
+        intro: `Talking has never meant the same thing everywhere. A silence that feels warm in one place feels like failure in another; bluntness that reads as rude to some is a mark of respect to others; a polite "no" can be the first step of saying yes. These cards look at how different cultures and eras handle the unwritten rules of expression — when to speak plainly, when to soften, when to stay quiet, which words are off-limits, and how listening or even "you" can carry social meaning.`
     },
     discussion: {
-        heading: `Between the Lines`,
-        intro: `Every conversation carries more than words. A pause before a reply, a tone that does not match the message, or a moment when someone chooses not to speak can change everything. These conversations move from quick first reactions into deeper questions about what people really mean, what goes unspoken, and how you express yourself when it matters most. Choose a set to begin.`
+        heading: `Everything the Words Are Doing`,
+        intro: `Every one of us has the line we can't forget, the "fine" we saw straight through, the message we rewrote too many times. These sets move from the small moments where words hit hard, through the choices we make in how we say things, to what our words carry underneath — the ones that change something, and the feeling of being truly heard. Some moments are quick reactions; others ask for a proper story. Choose a set to begin.`
     },
     reflection: {
         title: `Complete the Conversation`,
-        summary: `You've explored how tone, timing, silence, directness, and emotion change what people really mean — across cultures, real-life moments, and your own experience. These conversations help you express ideas more clearly, interpret others with more care, and navigate everyday interactions with greater confidence.`,
+        summary: `Words do far more than carry information. They land softly or sharply depending on how and when they're said; they hide meaning as often as they reveal it; and now and then they change something the instant they leave your mouth. Across cultures, the same silence, the same bluntness, the same polite refusal can mean opposite things — and the same feeling can have a perfect word in one language and none at all in another. Somewhere between the message you agonised over and the moment you felt completely understood is the real work of talking: not just being heard, but being understood the way you meant.`,
         questions: [
-            `Looking back at the cultural examples today, which communication style felt most familiar to you — and which felt most different from how you naturally communicate?`,
-            `Think of a recent real-life moment when a message was misunderstood. What would you try differently next time — one specific word choice, pause, tone, or follow-up question?`,
-            `Which word or phrase from today's conversation gave you a more precise way to describe something you've experienced — and can you think of a real situation where you'd actually use it?`
+            `Looking back, what's one conversation you'd word completely differently now — and what would you change about how you said it?`,
+            `Do you think you're understood the way you mean to be most of the time — or does something often get lost between what you feel and what comes out?`,
+            `What matters more to you in the people close to you: that they speak to you plainly, or that they always say things gently?`
         ]
     },
     keyLanguage: {
-        intro: `Higher-level expressions from this subject — with definitions and natural in-action examples.`
+        intro: `Useful words and phrases for talking about how we express ourselves, listen, and understand each other.`
     }
 };
 
 const clCards = [
     {
-        id: `cl-japan`,
-        location: `Japan`,
-        title: `Saying "yes" doesn't always mean agreement`,
-        teaser: `Politeness can carry more meaning than the words themselves.`,
-        insight: `In many situations in Japan, people may say "yes" simply to show they are listening or following what you mean, not that they fully agree. Direct refusal is often softened or avoided so the conversation can stay polite and harmonious. What sounds like agreement on the surface may actually be acknowledgement, hesitation, or a quietly held reservation.`,
-        question: `If someone kept saying "yes" politely but you were not sure they truly agreed, what would you do — ask directly, watch for indirect signals, or leave it for now?`,
+        id: `cl-untranslatable`,
+        location: `Across many languages`,
+        title: `The Word You Don't Have`,
+        teaser: `Some feelings have a name in one language and a paragraph in another.`,
+        insight: `Every language hands its speakers a slightly different set of ready-made words — and leaves gaps where another language has a single, perfect term. Portuguese is often pointed to for saudade, a warm ache for something loved and absent; other languages have compact words for the specific comfort of being cosy indoors, or for a joke that's funny only to you. When your language has the word, the feeling is easy to name and share; when it doesn't, you may notice the thing less, or reach for a whole sentence to explain it. The human meaning underneath: the words you're given quietly shape what you find easy to say — and sometimes what you even stop to notice at all.`,
+        question: `Is there a word in a language you know that says something English can't manage in one go? What does it mean — and when do you most wish English had it?`,
         upgrade: {
-            term: `save face`,
-            type: `verb phrase`,
-            def: `To protect your own dignity or avoid embarrassment, often by not refusing or admitting something directly.`,
-            in_action: `Sometimes people say "yes" just to save face — refusing outright would feel awkward, so they agree on the surface.`,
-            review_prompt: `When have you said yes mainly to save face, rather than because you really agreed?`
+            term: `lost in translation`,
+            type: `idiom`,
+            def: `When the full meaning of something is missing after it's moved from one language to another.`,
+            in_action: `I tried to explain the word to my English friends, but it just got lost in translation.`,
+            review_prompt: `What's something that always gets lost in translation when you explain it in English?`
         },
         deeper: {
-            text: `One reason this pattern exists is that in many Japanese social contexts, maintaining a harmonious atmosphere is treated as more important than making a position absolutely clear in the moment. Direct refusal can feel abrupt or even unkind — it places the other person in an awkward position and disrupts the flow of the conversation. So instead, a range of softer signals develop: a slow breath, a long pause, phrases like "that may be difficult," or a "yes" that means "I hear you" rather than "I agree." For someone unfamiliar with these signals, the gap between what is said and what is meant can be significant. Misunderstandings in these situations are not usually caused by dishonesty — they happen because both people are interpreting the same words through different conversational frameworks.`,
+            text: `It's tempting to think words are just labels we stick onto feelings everyone has anyway — but the relationship may run deeper. When a language gives a feeling its own compact name, that feeling becomes easier to point at, talk about, and share; it turns into something you can name in a single breath rather than sketch out slowly. A speaker of another language feels the same thing, most likely, but has to build it from scratch each time, and so may mention it less. This is why translating poetry, jokes, and terms of affection is so hard: the dictionary meaning crosses over easily, but the warmth, the specific shade, the cultural weight often don't. For someone learning a new language, this is one of the quiet pleasures and frustrations — discovering a word that finally names something you'd always felt, or losing a word from your own language that no one around you understands anymore.`,
             questions: [
-                `Can you think of a time when you said "yes" or "of course" to avoid awkwardness, even though you weren't really sure?`,
-                `If a colleague in a meeting seemed to agree with your idea but then didn't follow through, how would you handle that conversation?`,
-                `In your own culture, what signals — other than a direct "no" — would tell you that someone actually disagrees?`
+                `Do you think having a word for a feeling makes it easier to notice, or would you feel it just the same either way?`,
+                `Is there a word from your first language you wish everyone around you understood?`,
+                `When you can't translate something exactly, do you explain it, replace it, or just skip it?`
+            ]
+        }
+    },
+    {
+        id: `cl-formal-you`,
+        location: `Languages with a formal and informal "you" (French, German, Spanish, and many others)`,
+        title: `When "You" Gets Closer`,
+        teaser: `In many languages, growing closer to someone is a moment you can hear.`,
+        insight: `English has just one "you" for everyone — a stranger, a boss, a child, a lover. Many other languages have two: a formal one for distance and respect, and an informal one for closeness. That makes the shift from formal to familiar an actual event — often marked, sometimes even invited out loud ("we can use the informal now"). Choosing the wrong one can feel cold, or too familiar too fast. For English speakers this hidden layer is easy to miss, because their language quietly flattens all of it. The human meaning underneath: in these languages, how close you are to someone isn't only felt — it's built into the grammar, and you choose it every time you speak.`,
+        question: `If you could mark the exact moment a relationship became less formal — a real switch from "distant" to "close" — would you welcome that, or is it easier when it just happens quietly?`,
+        upgrade: {
+            term: `on first-name terms`,
+            type: `idiomatic phrase`,
+            def: `Close or informal enough with someone to use their first name rather than a title.`,
+            in_action: `We were on first-name terms within a week — it felt friendly rather than stiff.`,
+            review_prompt: `Who did you recently get on first-name terms with, and did the shift feel natural?`
+        },
+        deeper: {
+            text: `The interesting part isn't the grammar itself but what it forces speakers to keep noticing. In languages with two forms of "you," every conversation quietly asks: how close are we, really? Who ranks above whom here? Has something changed between us? English speakers rarely think about this, because their language lets them address a president and a toddler with the same word — closeness gets carried by tone, name, and warmth instead. Neither system is better, but they train different habits. A speaker of a two-form language moving into English can feel oddly unanchored, missing the built-in signal for respect and distance. An English speaker learning one of these languages often panics at the choice, terrified of being accidentally rude or overly familiar. And in both systems, the moment someone offers the closer form — or drops the title and uses your name — can be a small, genuine milestone in a relationship.`,
+            questions: [
+                `In your language, is there a clear way of showing you've become closer to someone — in words, names, or how you address them?`,
+                `Have you ever felt someone was too formal, or too familiar too quickly? What did it change?`,
+                `Do you think English loses something by having only one "you," or is it freeing?`
+            ]
+        }
+    },
+    {
+        id: `cl-taarof`,
+        location: `Iran and parts of the wider region (the custom often called ta'arof)`,
+        title: `The "No" That Means "Ask Again"`,
+        teaser: `Sometimes refusing politely is the first step of accepting.`,
+        insight: `In many Iranian social settings, a custom often called ta'arof shapes offers and refusals. A host offers food again and again; the guest declines — once, twice — and only accepts after being urged again. A taxi driver may wave away payment, expecting the passenger to insist on paying. The first "no" isn't always a real no; it can be politeness doing its work, a graceful dance both sides know the steps to. For an outsider who takes the refusal at face value, the results can be awkward — a guest left unfed, a driver left unpaid. The human meaning underneath: in some cultures, the polite surface of a conversation isn't a barrier to the real meaning — it's a shared performance everyone present knows how to read.`,
+        question: `When someone offers you something and you'd actually love it, do you accept straight away — or do you politely say "no, no, I couldn't" first? Where did that habit come from?`,
+        upgrade: {
+            term: `press`,
+            type: `verb`,
+            def: `To strongly but politely encourage someone to accept, agree, or continue, especially after they first refuse.`,
+            in_action: `She pressed me to take more food even after I said I was fine.`,
+            review_prompt: `When is it polite to press someone after they refuse once, and when does it become pushy?`
+        },
+        deeper: {
+            text: `Rituals like this can look inefficient — why not just say what you mean? — but they're doing real social work. The back-and-forth gives everyone a graceful way to be generous and humble at once: the host insists, the guest resists, and both come away having shown respect. It also protects people from awkward corners. A guest who's genuinely not hungry can decline without insulting the food; a host short on money can offer without losing face if the offer is politely refused. The danger comes when two systems meet. Someone from a more literal culture hears "no thank you" and stops offering, unaware a second push was expected. Someone raised inside the ritual can find blunt cultures oddly cold — where's the warmth, the insistence, the care? Neither is rude; they're simply reading the same words through completely different rules about what politeness requires.`,
+            questions: [
+                `In your culture, is there a "polite refusal" that isn't really a refusal? How do people know the difference?`,
+                `Have you ever misread someone by taking their politeness too literally, or not literally enough?`,
+                `Do you find these small rituals warm and respectful, or would you rather people just said what they meant?`
+            ]
+        }
+    },
+    {
+        id: `cl-taboo-words`,
+        location: `Across cultures and languages`,
+        title: `The Worst Thing You Can Say`,
+        teaser: `What a language forbids reveals what it holds sacred.`,
+        insight: `Every language has words you don't say — but which words carry the real shock changes dramatically from place to place. In some cultures the strongest taboos are religious, and blasphemy is the worst offence; in others they're bodily; in some the deepest insults reach for your family or your mother; and in a few, remarkably, the harshest swear words are drawn from serious illnesses. A word that would end a friendship in one language can be almost harmless in another. The human meaning underneath: what a culture makes unspeakable is a kind of map of what it holds most sacred or most fragile — and stepping on the wrong taboo, even innocently, can cause real damage a dictionary would never warn you about.`,
+        question: `In the languages or communities you know, what kind of word carries the real shock — religion, the body, family, something else? Has a word that's mild to you ever landed much harder for someone else?`,
+        upgrade: {
+            term: `off-limits`,
+            type: `adjective`,
+            def: `Not allowed to be talked about, touched, or done.`,
+            in_action: `Politics is completely off-limits at our family dinners — everyone learned that the hard way.`,
+            review_prompt: `What topics or words are off-limits in a setting you know well, and why those ones?`
+        },
+        deeper: {
+            text: `The fascinating thing about taboo language is how badly it survives translation. Learners often reach a stage where they know a language's forbidden words but not their real weight — so they either drop a serious insult thinking it's mild, or flinch at something locals treat as everyday. The strength of a taboo word rarely matches its literal meaning; it comes from history, religion, and social fear layered onto the sound over centuries. This is also why swearing in a second language can feel strangely weightless: the words don't carry the childhood charge they do for native speakers, so they slip out more easily and land less heavily on the person saying them. It cuts the other way too — a phrase loaded with a lifetime of meaning for you might come out of a foreigner's mouth with no idea of the wound it opens. Knowing which words are truly dangerous is one of the last things a language teaches you.`,
+            questions: [
+                `Why do you think illness, religion, or family end up as the source of the strongest words in different places?`,
+                `Does swearing in a second language feel lighter to you than in your first — and why might that be?`,
+                `Have you ever seen someone cause real offence with a word they didn't realise was serious?`
             ]
         }
     },
     {
         id: `cl-finland`,
         location: `Finland`,
-        title: `Silence can be sincere`,
-        teaser: `Comfortable quiet is not emptiness — it can be its own kind of honesty.`,
-        insight: `In Finland, silence in conversation is often more comfortable than in many other cultures. Speaking only when you have something real to say can feel more honest than filling every pause with conversation. Silence is not considered awkward by default — it can signal thought, trust, or simply a shared comfort in not performing conversation.`,
-        question: `If a conversation with someone you did not know very well suddenly went quiet, would you feel peaceful, awkward, or pressured to fill the gap?`,
+        title: `When Silence Isn't Awkward`,
+        teaser: `A pause can be trust, not trouble.`,
+        insight: `In many Finnish social settings, a silence in conversation is read very differently than in cultures where every gap must be filled. Speaking only when you have something worth saying can feel more honest than keeping the words flowing, and a pause is often taken as thinking, comfort, or ease rather than a sign something's gone wrong. For someone from a talk-to-connect culture, that quiet can feel like disapproval or a conversation dying — when to the other person it may be one of the most relaxed parts of the exchange. The human meaning underneath: silence isn't the opposite of communication; in some places it's one of its warmest forms, a sign you're comfortable enough not to perform.`,
+        question: `When a conversation suddenly goes quiet, do you rush to fill the gap or let it sit? And does it depend on who you're with?`,
         upgrade: {
-            term: `comfortable silence`,
-            type: `noun phrase`,
-            def: `A quiet moment between people that feels natural and easy rather than tense or embarrassing.`,
-            in_action: `I think we've reached the point where we can sit in comfortable silence — it actually shows how relaxed we are around each other.`,
-            review_prompt: `With which people in your life does a long pause feel easy rather than awkward?`
+            term: `lull`,
+            type: `noun`,
+            def: `A quiet pause in activity or conversation.`,
+            in_action: `There was a lull, but nobody felt the need to fill it — it was actually nice.`,
+            review_prompt: `With which people does a lull in conversation feel easy rather than uncomfortable?`
         },
         deeper: {
-            text: `In many communication cultures, silence in a conversation feels like a gap that needs filling — a signal that something has gone wrong or that the other person is bored. This instinct is much weaker in Finland, where pausing before speaking is often read as a sign that someone is thinking carefully rather than struggling or being unfriendly. This difference can cause real friction when people from different backgrounds interact. A colleague who pauses before answering may be giving the question genuine thought — but an outsider might interpret the quiet as disapproval or confusion, and rush to fill it. Equally, someone who talks constantly to avoid silence may come across as insincere or not really listening. The deeper idea is that silence is not the opposite of communication — it is part of it.`,
+            text: `In many communication cultures, a silence feels like a problem to be solved — a signal that someone's bored, upset, or that the exchange has failed. That instinct is much weaker in some cultures, where pausing before answering reads as taking the question seriously rather than struggling with it. The gap between these habits causes real friction. A person who pauses to think may be giving you their full consideration, but a talk-to-fill listener can read the quiet as coldness and rush in to rescue it — accidentally talking over the very thought they were waiting for. Meanwhile someone who chatters through every silence can come across, to a quieter culture, as nervous or not really listening. What's striking is how physical the discomfort is: for people raised to fill silence, a long pause can feel almost unbearable, a pressure to say anything at all. Learning to sit inside a silence comfortably is, for many, a genuinely new skill.`,
             questions: [
-                `Is there someone in your life — a friend, family member, or colleague — with whom silence feels comfortable rather than awkward?`,
-                `Have you ever felt pressure to speak just to fill a quiet moment, even when you didn't really have anything to add?`,
-                `Do you think people who speak less are usually seen as shy, thoughtful, or something else — and does that feel fair to you?`
-            ]
-        }
-    },
-    {
-        id: `cl-renaissance-italy`,
-        location: `Renaissance Italy`,
-        title: `Speaking carefully to stay safe`,
-        teaser: `When words could be used against you, vagueness became a survival skill.`,
-        insight: `In the political world of Renaissance Italy, diplomats often spoke in vague or flexible ways so their words could still work if alliances changed. Communication was not always about being clear — sometimes it was about leaving yourself room to survive. A statement had to be true enough to repeat publicly, but open enough to reinterpret if circumstances shifted.`,
-        question: `Imagine writing a message you know might be screenshotted, forwarded, or quoted back to you later. Would you say exactly what you mean, soften it, or leave yourself room to move?`,
-        upgrade: {
-            term: `hedge`,
-            type: `verb`,
-            def: `To avoid giving a clear or direct answer, keeping your words vague so you don't fully commit.`,
-            in_action: `I hedged in that email — I didn't say no, but I didn't commit to anything either, which gave me time to think.`,
-            review_prompt: `When was the last time you hedged instead of giving a straight answer?`
-        },
-        deeper: {
-            text: `Renaissance diplomatic language was a highly developed skill, not simply a form of dishonesty. Ambassadors were trained to say things that were technically accurate but flexible enough to survive if political circumstances changed. This kind of careful vagueness still appears in modern professional life — in politics, in legal language, even in ordinary workplace conversations where someone needs to stay on good terms with opposing sides. The interesting question is where the line sits between thoughtful precision and deliberate evasion. Saying "I'll consider it" is technically honest. But if you have already decided no, is it more respectful to say so clearly, or less hurtful to leave the door open? Different cultures, relationships, and situations can give very different answers to that question.`,
-            questions: [
-                `Can you think of a message or reply — from work, school, or personal life — where you deliberately chose words that left things open rather than being definite?`,
-                `Do you think being vague is sometimes the kinder option, or does it usually just delay a difficult conversation?`,
-                `If someone gave you a carefully worded non-answer, would you usually push for clarity or accept the ambiguity?`
-            ]
-        }
-    },
-    {
-        id: `cl-imperial-china`,
-        location: `Imperial China`,
-        title: `Criticism hidden inside art`,
-        teaser: `A poem could carry a political message that a direct report never could.`,
-        insight: `In imperial China, officials sometimes criticised rulers indirectly through poetry, symbolism, or historical references instead of open attack. A message could be serious and political without sounding openly rebellious on the surface. This allowed ideas to circulate that could not survive as direct speech, and protected the writer with a layer of plausible deniability.`,
-        question: `If someone made a joke that was clearly “not about you” but somehow felt aimed straight at you, would you call it out, laugh it off, or pretend not to notice?`,
-        upgrade: {
-            term: `veiled criticism`,
-            type: `noun phrase`,
-            def: `A negative message or complaint that is expressed indirectly, hidden inside a story, joke, or neutral-seeming remark.`,
-            in_action: `I think his comment about "how some people handle feedback" was veiled criticism directed at me — he was just too polite to say it directly.`,
-            review_prompt: `How might someone hint at a complaint through a joke or a story instead of saying it plainly?`
-        },
-        deeper: {
-            text: `This way of hiding a serious message inside a cultural or artistic form is far from unique to imperial China. Political satire, fables, allegory, and sharp comedy all work on the same principle — the surface content gives the speaker protection, while the real message reaches people who know how to listen for it. The audience is invited to complete the meaning themselves, which can make the message land more powerfully than a direct statement would. In everyday life, the same pattern shows up in the pointed joke, the story that is "obviously not about anyone in particular," or the example chosen a little too perfectly to illustrate a recent situation. Noticing this kind of indirect communication requires a different kind of listening — one that pays attention to what was chosen, and what was deliberately left unsaid.`,
-            questions: [
-                `Have you ever used a joke, a story, or an example to hint at something you didn't want to say directly — and did the other person understand?`,
-                `Think of a time when you received feedback wrapped inside a compliment or a general observation. Was it easier or harder to hear than direct criticism?`,
-                `Can you think of a film, book, or piece of comedy that carries a serious social or political message beneath the surface?`
-            ]
-        }
-    },
-    {
-        id: `cl-new-york`,
-        location: `New York City`,
-        title: `Interrupting can mean interest`,
-        teaser: `What reads as rudeness in one setting can feel like energy and engagement in another.`,
-        insight: `In New York City and some other fast-paced urban environments, cutting into someone's speech can sometimes signal energy, enthusiasm, or strong engagement rather than disrespect. For someone from a different communication background, it can sound like an interruption — but for participants it may feel like lively, connected involvement in the conversation.`,
-        question: `If someone jumps into your story because they are excited about what you are saying, do you usually see that as energy and interest — or as them taking over?`,
-        upgrade: {
-            term: `talk over each other`,
-            type: `phrasal verb`,
-            def: `To speak at the same time as someone else, which in some styles signals excitement and engagement rather than rudeness.`,
-            in_action: `In my family everyone talks over each other constantly — it's not rude, it just means everyone's interested at once.`,
-            review_prompt: `In which settings does talking over each other feel like energy rather than rudeness?`
-        },
-        deeper: {
-            text: `What feels like an interruption from the outside can feel like genuine engagement from the inside. In some conversational styles, jumping in mid-sentence signals that the listener is so interested they can't hold back — it's a form of energy and presence, not dismissal. In other styles, waiting for a clear pause before speaking is the standard way of showing respect. When these two approaches meet, both people can end up misreading each other. The person who interrupts may feel they're being warm and enthusiastic. The person who waits their turn may feel overlooked or talked over. Neither is being rude on purpose — they're just following different unspoken rules about how conversation should flow.`,
-            questions: [
-                `When someone cuts into what you're saying, does your reaction depend more on what they say, or on how they do it?`,
-                `Have you ever been in a group conversation where some people kept talking over others — how did that feel to be on different sides of it?`,
-                `Do you think there's a difference between an interruption that adds to your point and one that replaces it?`
-            ]
-        }
-    },
-    {
-        id: `cl-france`,
-        location: `France`,
-        title: `Debate as pleasure`,
-        teaser: `A lively argument at dinner is not a crisis — it can be the whole point.`,
-        insight: `In France, lively disagreement can sometimes be part of social pleasure rather than a sign that something is wrong. People may challenge each other strongly during a discussion, then continue the evening completely normally afterwards. The exchange of ideas — including opposing ones — is treated as a sign of intellectual engagement rather than personal conflict.`,
-        question: `If a dinner conversation turned into a lively debate where people strongly challenged each other's views, would you enjoy the energy, stay quiet, or try to find a calmer topic?`,
-        upgrade: {
-            term: `intellectual sparring`,
-            type: `noun phrase`,
-            def: `A lively exchange of opposing ideas in a spirit of enjoyment and curiosity rather than genuine conflict.`,
-            in_action: `I actually enjoy a bit of intellectual sparring — I find that debating something properly helps me understand my own view better.`,
-            review_prompt: `How can you tell when two people are enjoying intellectual sparring, rather than actually fighting?`
-        },
-        deeper: {
-            text: `One reason this pattern may exist is a long cultural tradition of treating the exchange of ideas as something valuable in itself — separate from whether anyone "wins" the argument. In this frame, challenging someone's position can be a sign of respect: it means you're taking them seriously enough to push back. The assumption is that both people can handle disagreement without it damaging the relationship. This can clash quite directly with communication cultures where public disagreement is seen as a threat to harmony or a sign that something has gone wrong. What one person experiences as a stimulating debate, another can feel as an uncomfortable confrontation, even when the topic is completely impersonal.`,
-            questions: [
-                `Think of the last time you disagreed with someone in conversation — did you say so openly, soften it, or hold back entirely?`,
-                `Is there a topic or setting where you feel genuinely comfortable debating, and one where you'd rather keep the peace?`,
-                `Have you ever had a heated conversation that ended fine — where both people moved on without it affecting the relationship?`
+                `Do you think people who speak less are usually seen as thoughtful, shy, or cold — and is that fair?`,
+                `Have you ever felt real pressure to talk just to end a silence, with nothing actually to say?`,
+                `Is there someone you can be quiet with for a long time and still feel completely at ease?`
             ]
         }
     },
     {
         id: `cl-germany`,
         location: `Germany`,
-        title: `Direct honesty as respect`,
-        teaser: `Softening a message too much can sometimes feel less respectful, not more.`,
-        insight: `In Germany, direct feedback is often seen as respectful because it avoids confusion, mixed signals, or hidden criticism. Being clear can feel more honest than trying too hard to protect someone's feelings. One assumption behind this approach is that the other person is capable of receiving honest information without needing it wrapped in reassurance.`,
-        question: `If your idea had a real flaw and everyone else could see it, would you rather someone told you plainly in the moment, softened it later, or said nothing unless you asked?`,
+        title: `When Bluntness Is Kindness`,
+        teaser: `Softening a message too much can read as respecting someone less, not more.`,
+        insight: `In many German settings, direct feedback is often seen as a form of respect. Saying plainly what isn't working avoids mixed signals and hidden meanings, and carries a quiet assumption: that the other person is capable enough to hear the truth without it being wrapped in cushioning. To someone from a culture that softens hard messages, this can sound harsh or even rude. But the intention is frequently the opposite — clarity offered as a courtesy, on the belief that leaving someone guessing does them no favours. The human meaning underneath: what counts as "kind" in communication isn't universal; in some places kindness means protecting feelings, and in others it means respecting someone enough to be straight with them.`,
+        question: `If your idea had a real flaw everyone could see, would you rather someone told you plainly on the spot, mentioned it gently later, or said nothing unless you asked?`,
         upgrade: {
-            term: `straight-talking`,
-            type: `adjective`,
-            def: `Describing someone who says exactly what they think, without softening or hinting — often used approvingly when the honesty feels useful rather than blunt.`,
-            in_action: `I appreciated her straight-talking style — she told me what wasn't working, and I left the meeting knowing exactly what to fix.`,
-            review_prompt: `When is very direct feedback actually more helpful than a softened version?`
+            term: `home truth`,
+            type: `noun phrase`,
+            def: `An honest and often uncomfortable fact about yourself that someone tells you directly.`,
+            in_action: `Nobody enjoys a home truth, but she told me one that day that I really needed to hear.`,
+            review_prompt: `When has a home truth actually helped you, even if it stung at the time?`
         },
         deeper: {
-            text: `One reason directness is valued in some communication cultures is the belief that ambiguity can actually damage trust over time. If a colleague's work has real problems and you only hint at them vaguely, you're leaving them without the information they need to improve — and they may feel misled later when the consequences arrive. At the same time, directness without warmth or context can land badly, particularly across communication styles where the relationship tone matters as much as the content. The practical distinction worth making is between being direct — willing to say something clearly — and being blunt, which is about how it's said. Many skilled communicators manage to be honest and considerate at the same time.`,
+            text: `One reason directness is valued in some cultures is a belief that vagueness quietly damages trust. If your work has real problems and a colleague only hints at them, you're left without what you need to fix things — and you may feel misled later when the consequences land. Seen that way, plain speaking is a gift, not an attack. But directness has a failure mode too: without any warmth or context, the same honest message can wound, especially across styles where the tone of a relationship matters as much as the content. The useful distinction is between being direct — willing to say the thing clearly — and being blunt, which is about how coldly it's delivered. Plenty of skilled communicators manage both at once: honest about the problem, warm about the person. The trouble usually starts when someone assumes their own culture's setting is simply "normal," and reads a gentler or a plainer style as a character flaw rather than a different rule.`,
             questions: [
-                `Think of a piece of feedback you received that actually helped you — was it delivered gently, directly, or somewhere in between?`,
-                `Is it harder for you to give honest feedback to someone, or to receive it without getting defensive?`,
-                `Have you ever wished someone had just told you something clearly rather than dancing around it — what was the situation?`
+                `Think of feedback that genuinely helped you — was it delivered gently, plainly, or somewhere in between?`,
+                `Is it harder for you to give an honest hard message, or to receive one without getting defensive?`,
+                `Where's the line, for you, between someone being refreshingly direct and just being rude?`
             ]
         }
     },
     {
-        id: `cl-arabic`,
-        location: `Arabic-speaking world`,
-        title: `Expressiveness as sincerity`,
-        teaser: `A more reserved delivery can sometimes sound unconvincing rather than restrained.`,
-        insight: `In some Arabic-speaking communication contexts, especially when the topic carries emotional weight, tone, repetition, emphasis, and expressive phrasing can add warmth, sincerity, and human connection to speech. A more expressive style may feel natural or heartfelt rather than exaggerated. What sounds intense in one communication context can be exactly what genuine feeling looks like in another.`,
-        question: `When someone tells a story with huge feeling — repeating points, raising their voice, really leaning into it — do you trust it more, pull back, or wonder if they are overdoing it?`,
+        id: `cl-imperial-china`,
+        location: `Imperial China`,
+        title: `Saying It Without Saying It`,
+        teaser: `When speaking plainly was dangerous, meaning learned to travel in disguise.`,
+        insight: `In imperial China, officials who couldn't safely criticise a ruler directly sometimes did it sideways — through a poem, a historical example, a story about a long-dead emperor that everyone understood was really about the present one. The surface stayed innocent; the real message reached those who knew how to listen. This wasn't only caution — it was a refined skill, letting dangerous ideas circulate while giving the speaker a layer of deniability if challenged. The human meaning underneath: when it's costly to say something outright, people don't go silent — expression gets cleverer, folding the real meaning inside something safer and trusting the listener to unwrap it.`,
+        question: `Have you ever needed to get a real message across without stating it outright — wrapping it in a joke, a story, or a "hypothetical"? Did the other person catch what you meant?`,
         upgrade: {
-            term: `wear your heart on your sleeve`,
-            type: `idiom`,
-            def: `To show your feelings openly and visibly, without trying to hide or contain them.`,
-            in_action: `In some cultures it's normal to wear your heart on your sleeve when you speak — strong feeling in your voice is a sign you mean it, not that you're overdoing it.`,
-            review_prompt: `Is wearing your heart on your sleeve something you do naturally, or something you tend to hold back?`
+            term: `dress up`,
+            type: `phrasal verb`,
+            def: `To present something in a way that makes it look different, nicer, or more acceptable than it is.`,
+            in_action: `He dressed the complaint up as friendly advice, but we all knew what he meant.`,
+            review_prompt: `When might someone dress up a criticism as something softer — and does it usually work?`
         },
         deeper: {
-            text: `In contexts where expressive speech is valued, a reserved or minimal delivery can sometimes make trust harder rather than easier. If you care deeply about something, people may expect that feeling to be visible in how you speak — in the energy of your voice, the warmth of your phrasing, or the rhythm of your sentences. A flat or very restrained delivery can be misread as indifference, even when none was intended. This creates a practical challenge when expressive and reserved communication styles meet: the more reserved speaker may feel their sincerity is being doubted, while the more expressive speaker may feel the other person is holding something back.`,
+            text: `Hiding a serious message inside a safe form is far from a purely historical trick — it's alive wherever speaking plainly carries a cost. Political satire, fables, and sharp comedy all run on the same engine: the innocent surface protects the speaker while the real point reaches anyone paying attention. Part of the power is that the audience completes the meaning themselves, which can make it land harder than a blunt statement would. The same move fills ordinary life — the pointed "asking for a friend," the story that's obviously not about anyone in particular, the example chosen a little too perfectly to match a recent situation. Reading this kind of communication takes a different sort of attention: listening not just to what was said, but to what was chosen, and what was carefully left out. And it carries a built-in escape hatch — if challenged, the speaker can always retreat to the innocent surface: "I was only telling a story." That deniability is exactly what makes indirect speech so useful, and sometimes so slippery.`,
             questions: [
-                `When you feel strongly about something in a conversation, does your communication style change noticeably — and in what way?`,
-                `Have you ever felt that someone was being cold or disengaged, and later realised they were just being reserved rather than distant?`,
-                `Do you think we sometimes judge whether someone is sincere based on how similar their communication style is to our own?`
+                `Can you think of a film, book, or comedian that carries a serious message under a light surface?`,
+                `Is indirect criticism usually kinder than direct criticism, or just harder to challenge?`,
+                `Have you received a "general observation" you were sure was really aimed at you? How did you respond?`
+            ]
+        }
+    },
+    {
+        id: `cl-france`,
+        location: `France`,
+        title: `Arguing for the Pleasure of It`,
+        teaser: `A heated debate over dinner can be the evening's entertainment, not its ruin.`,
+        insight: `In many French social settings, lively disagreement is treated as a pleasure rather than a warning sign. People may challenge each other hard over dinner — really pushing on an idea — and then carry on the evening as though nothing happened, because nothing has: for them, the clash was the fun. Taking someone's argument seriously enough to challenge it can be a form of respect, resting on the assumption that a strong disagreement won't damage the relationship. To someone from a harmony-first culture, the same exchange can feel like a genuine fight breaking out. The human meaning underneath: in some places, disagreement isn't a threat to connection — it's one of the ways people enjoy each other's company.`,
+        question: `If a dinner turned into a proper debate, with people strongly challenging each other's views, would you dive in and enjoy it, go quiet, or try to steer everyone to calmer ground?`,
+        upgrade: {
+            term: `push back`,
+            type: `phrasal verb`,
+            def: `To express disagreement or resistance to an idea rather than simply accepting it.`,
+            in_action: `She pushed back hard on my point, and honestly the conversation was better for it.`,
+            review_prompt: `In what kind of conversation do you feel free to push back, and when do you hold it in?`
+        },
+        deeper: {
+            text: `One reason this pattern may exist is a long tradition of treating the exchange of ideas as valuable in itself, apart from whether anyone "wins." In that frame, challenging your position isn't hostility — it's a compliment, a sign you're being taken seriously. The whole thing rests on a shared confidence that the relationship can absorb the disagreement without cracking. That assumption is exactly what clashes with cultures where open disagreement reads as a threat to harmony or a sign something has gone wrong. What one person experiences as a stimulating debate, another can feel as an uncomfortable confrontation — even when the topic is completely impersonal, like a film or a policy neither of them will ever be affected by. The friction is rarely about the subject; it's about two different beliefs over what disagreement means. Is pushing back an act of engagement, or an act of aggression? Whole conversations can go wrong on that single hidden question.`,
+            questions: [
+                `Think of the last time you disagreed with someone out loud — did you say it plainly, soften it, or hold back?`,
+                `Is there a topic or setting where you genuinely enjoy debating, and one where you'd rather keep the peace?`,
+                `Have you had a heated conversation that ended completely fine — where both of you just moved on?`
+            ]
+        }
+    },
+    {
+        id: `cl-backchannel`,
+        location: `Japan and elsewhere (the listening signals sometimes called aizuchi)`,
+        title: `The Sounds That Mean "I'm Listening"`,
+        teaser: `In some places, silence while you listen is the rude part.`,
+        insight: `While someone is speaking, listeners in many Japanese conversations produce a steady stream of small sounds and words — a soft "hai," "ee," "sou desu ne" — a practice sometimes called aizuchi. These aren't interruptions or attempts to take the floor; they're signals meaning "I'm with you, keep going." A listener who stays completely silent can seem cold or even disengaged. Yet in other cultures the same frequent sounds read as impatience, as if the listener is rushing the speaker along. The human meaning underneath: even listening — the quiet half of a conversation — follows unwritten rules, and what counts as good listening in one culture can read as rude in another, with neither person aware they're playing by different scripts.`,
+        question: `When you're really listening to someone, do you stay quiet and still, or do you nod and make little sounds along the way? Does a silent listener make you wonder if they're even interested?`,
+        upgrade: {
+            term: `attentive`,
+            type: `adjective`,
+            def: `Paying close attention and showing that you're really listening or watching.`,
+            in_action: `He's such an attentive listener — you can tell he's actually taking in every word.`,
+            review_prompt: `What does an attentive listener do, in your experience, that a distracted one doesn't?`
+        },
+        deeper: {
+            text: `We tend to think of listening as simply not talking, but it turns out to be an active performance with its own regional accents. In some cultures, showing you're listening means staying quiet and letting the speaker have the floor completely; in others, it means constantly feeding back small signals of attention. When these habits meet, both people can walk away misjudging each other. A quiet listener can seem, to a signal-heavy speaker, strangely blank — bored, offended, not following? A listener who makes frequent encouraging sounds can strike a quieter speaker as impatient, or as hurrying them to the point. There's a modern version of this online, where a video call strips out many of these cues and leaves everyone slightly unsure whether they're being heard at all — hence the exaggerated nodding and the "mm-hmm"s people add to fill the gap. Underneath it all is a simple truth: being a good listener isn't just about attention, but about showing attention in the way the other person expects to see it.`,
+            questions: [
+                `How do you show someone you're listening — and have you ever felt unsure whether someone was listening to you?`,
+                `Does a listener who makes lots of little sounds seem warm to you, or a bit impatient?`,
+                `Why do you think being properly listened to feels so good — and so rare?`
             ]
         }
     }
@@ -253,219 +276,219 @@ const clCards = [
 
 const discussionSets = [
     {
-        id: `set-first-read`,
-        title: `First Read`,
-        desc: `Quick reactions to familiar communication moments — the kind you recognise instantly, even if you have never put them into words.`,
+        id: `set-how-words-land`,
+        title: `How Words Land`,
+        desc: `The line you can't forget, the "fine" that meant the opposite, the reply you thought of too late — the small moments where a few words hit hard.`,
         icon: `react`,
         moments: [
             {
-                id: `moment-tone-off`,
-                preview: `The words were fine. Something else was not.`,
-                text: `Someone sends you a message that says “Sure, no problem” — but something about it does not feel right. What do you usually pick up on first: the words themselves, the way they are written, or something harder to name?`,
+                id: `moment-overthought-text`,
+                preview: `Type, delete, retype, delete again.`,
+                text: `You start a simple message, then delete it. Rewrite it. Soften it, sharpen it, add a word, cut the word. Ten minutes later you finally send three lines that took the effort of an essay. What kind of message turns you into this — and who is it usually going to?`,
                 upgrade: {
-                    term: `read between the lines`,
+                    term: `agonise over`,
+                    type: `verb phrase`,
+                    def: `To spend a lot of worried effort on something small, especially getting the wording exactly right.`,
+                    in_action: `I agonised over that text for half an hour — it was two sentences.`,
+                    review_prompt: `What's the last message you agonised over? What made it so hard to word?`
+                }
+            },
+            {
+                id: `moment-fine-not-fine`,
+                preview: `One word, the exact opposite of what it says.`,
+                text: `Someone answers "fine" — but the tone, the pause, or the look tells you it's the last thing they are. When you catch that gap between the word and what's behind it, do you go with the word, gently push, or back off?`,
+                upgrade: {
+                    term: `take something at face value`,
                     type: `idiom`,
-                    def: `To understand what someone really means, even when they have not said it directly.`,
-                    in_action: `She said she was fine with it, but I could read between the lines — she was not happy at all.`,
-                    review_prompt: `How can you tell someone isn't happy even when their words say they're fine?`
+                    def: `To accept what someone says exactly as it sounds, without looking for a hidden meaning.`,
+                    in_action: `I took his "no problem" at face value, but he'd clearly minded a lot.`,
+                    review_prompt: `When is it safer to take words at face value, and when do you look past them?`
                 }
             },
             {
-                id: `moment-wrong-moment`,
-                preview: `The right thing at the wrong time.`,
-                text: `Think of a moment when someone said something completely reasonable, but it landed badly because the timing was off. What made the timing wrong — and does timing matter as much as the words themselves?`,
+                id: `moment-line-you-remember`,
+                preview: `Years later, you can still hear it.`,
+                text: `Most of what people say to us fades within a day. But one sentence — a kind one or a cruel one — can stay word-for-word for years. Think of a line someone once said to you that never quite left. What was it, and why has that one lasted?`,
                 upgrade: {
-                    term: `land badly`,
-                    type: `phrasal verb`,
-                    def: `When something said or done has a negative effect, even if that was not the intention.`,
-                    in_action: `His joke landed badly — everyone went quiet, and he clearly had not expected that reaction.`,
-                    review_prompt: `What kind of comment could be reasonable but still land badly because of the timing?`
-                }
-            },
-            {
-                id: `moment-silence-speaks`,
-                preview: `When not saying anything says everything.`,
-                text: `When someone goes silent in the middle of a conversation — no reply, no explanation — what do you assume? Is silence usually comfortable, awkward, or something else entirely for you?`,
-                upgrade: {
-                    term: `speak volumes`,
+                    term: `hit home`,
                     type: `idiom`,
-                    def: `To communicate something clearly and powerfully without needing words.`,
-                    in_action: `She didn't say anything, but her silence spoke volumes.`,
-                    review_prompt: `What's a time someone's silence spoke volumes to you?`
+                    def: `(Of words) to affect you strongly because they feel true or personal.`,
+                    in_action: `I laughed it off, but that comment about me always running late really hit home.`,
+                    review_prompt: `What's something someone said that hit home — and did they mean it to?`
                 }
             },
             {
-                id: `moment-blunt-or-kind`,
-                preview: `Honest, or just harsh?`,
-                text: `A friend asks what you honestly think of their plan, and you can see a real problem with it. Do you say it plainly, soften it carefully, or wait to see if they notice?`,
+                id: `moment-compliment-that-stung`,
+                preview: `It sounded nice. It didn't feel nice.`,
+                text: `"You look so much better than usual." "That's brave of you to wear." Some compliments arrive with a sting hidden inside them — praise on the surface, something sharper underneath. Have you been handed one of these? Did you smile and take it, or catch what was really going on?`,
                 upgrade: {
-                    term: `pull your punches`,
-                    type: `idiom`,
-                    def: `To make your words or criticism less direct than you could be, to avoid upsetting someone.`,
-                    in_action: `She did not pull any punches — she told him exactly what she thought of the plan, and he was not prepared for it.`,
-                    review_prompt: `When giving feedback, would you pull your punches or say it straight? Why?`
+                    term: `backhanded compliment`,
+                    type: `noun phrase`,
+                    def: `A remark that sounds like praise but carries a hidden insult.`,
+                    in_action: `"You're smart for someone who left school at sixteen" — classic backhanded compliment.`,
+                    review_prompt: `What's the most memorable backhanded compliment you've heard — and did the person know they'd done it?`
                 }
             },
             {
-                id: `moment-misread`,
-                preview: `The message you sent was not the one they received.`,
-                text: `Have you ever said something that was completely misunderstood — not because you were unclear, but because the other person heard it differently? What happened, and how did you realise the gap?`,
+                id: `moment-the-late-comeback`,
+                preview: `The perfect reply — arriving an hour late.`,
+                text: `Someone says something that catches you off guard, and you freeze or mumble. Then, on the walk home or lying in bed, the perfect reply arrives — sharp, funny, exactly right, and completely useless now. Does this happen to you, or are you someone who can fire back in the moment?`,
                 upgrade: {
-                    term: `come across`,
-                    type: `phrasal verb`,
-                    def: `To give a particular impression through your words, tone, or behaviour, even if that impression was not what you intended.`,
-                    in_action: `I was trying to be helpful, but apparently I came across as quite rude — she thought I was criticising her.`,
-                    review_prompt: `Have you ever come across differently from how you intended? What happened?`
+                    term: `quick-witted`,
+                    type: `adjective`,
+                    def: `Able to think and respond fast, often in a clever or funny way.`,
+                    in_action: `I'm hopeless in arguments — my sister's the quick-witted one who always has a comeback ready.`,
+                    review_prompt: `Who's the most quick-witted person you know? What do they do that you can't?`
                 }
             }
         ],
         makeItReal: {
-            title: `A moment that stayed with you`,
-            prompt: `Think of a recent conversation — at work, at home, or with a friend — where something was communicated but not quite said. What was the moment, and how did you know what was really meant?`
+            title: `The words that landed harder than you meant`,
+            prompt: `Think of something you once said to someone that landed much harder than you expected — a throwaway line that delighted them, or one you'd give anything to take back. What happened afterwards, and what did it teach you about the weight a few words can carry?`
         }
     },
     {
-        id: `set-under-the-surface`,
-        title: `Under the Surface`,
-        desc: `Go deeper into how communication actually works — why the same words mean different things, what shapes how we listen, and what we are really doing when we speak.`,
+        id: `set-the-way-you-say-it`,
+        title: `The Way You Say It`,
+        desc: `Softening or saying it straight, the apology that works, reading what's unsaid, and who you become in another language.`,
         icon: `explain`,
         moments: [
             {
-                id: `moment-same-words`,
-                preview: `Same sentence, completely different meaning.`,
-                text: `“I’m fine.” “That’s interesting.” “We’ll see.” These phrases can mean very different things depending on who says them and how. How do you decide what someone really means when the words alone do not tell you?`,
+                id: `moment-straight-or-softened`,
+                preview: `Straight to the point, or gently wrapped?`,
+                text: `You've got something awkward to tell someone — a no, a criticism, a hard truth. Some people just say it plainly; others cushion it in so much padding the point almost disappears. When it's your turn, which way do you lean — and does it change depending on who's in front of you?`,
                 upgrade: {
-                    term: `subtext`,
-                    type: `noun`,
-                    def: `The real meaning or feeling beneath what someone is saying — the message behind the message.`,
-                    in_action: `On the surface it sounded polite, but the subtext was clear — he was not going to agree to it.`,
-                    review_prompt: `How could a polite sentence carry a subtext that means the opposite?`
+                    term: `sugar-coat`,
+                    type: `verb`,
+                    def: `To make bad or unwelcome news sound nicer or gentler than it really is.`,
+                    in_action: `Don't sugar-coat it — just tell me if the plan didn't work.`,
+                    review_prompt: `When does sugar-coating actually help, and when does it just get in the way?`
                 }
             },
             {
-                id: `moment-overthink-reply`,
-                preview: `Before you send, you rewrite it three times.`,
-                text: `Do you ever spend much longer crafting a message than the conversation actually needs? What are you usually trying to get right — and does it usually work?`,
+                id: `moment-too-much-too-little`,
+                preview: `Three paragraphs, or three words?`,
+                text: `Some people send you an essay when a single line would do; others reply with one word when you were hoping for a proper answer. Both can leave the other person a bit lost. Which mistake do you catch yourself making more often — saying far too much, or far too little?`,
                 upgrade: {
-                    term: `second-guess yourself`,
+                    term: `ramble on`,
                     type: `phrasal verb`,
-                    def: `To doubt your own judgement and keep changing your mind about what to say or do.`,
-                    in_action: `I second-guessed myself so many times writing that email that it took twenty minutes to write three sentences.`,
-                    review_prompt: `What kind of message makes you second-guess yourself and rewrite it again and again?`
+                    def: `To keep talking for a long time in a way that loses the point or the listener.`,
+                    in_action: `Sorry, I'm rambling on — the short version is I can't make it Friday.`,
+                    review_prompt: `When do you tend to ramble on — nerves, excitement, or dodging a straight answer?`
                 }
             },
             {
-                id: `moment-spell-it-out`,
-                preview: `Where you are from changes what “polite” means.`,
-                text: `You explain your view clearly, but the other person seems uncomfortable — or you soften your message to be polite, and they miss your point. What do you think happened in that moment: different expectations about honesty, politeness, or how much should be left unsaid?`,
+                id: `moment-apology-that-works`,
+                preview: `Some sorries fix things. Some make them worse.`,
+                text: `We've all been on the end of an apology that made everything worse — "I'm sorry you feel that way," or a "sorry" so quick it clearly meant nothing. And we've had the rare one that sounded honest enough to shift the conversation. What do you think separates an apology that truly lands from one that just checks a box?`,
                 upgrade: {
-                    term: `spell it out`,
+                    term: `empty words`,
+                    type: `noun phrase`,
+                    def: `Words that sound right but feel meaningless because they are not sincere or not backed up.`,
+                    in_action: `His apology felt like empty words — he said sorry, but it seemed like he just wanted the issue gone.`,
+                    review_prompt: `What makes an apology feel like empty words instead of something real?`
+                }
+            },
+            {
+                id: `moment-the-unsaid`,
+                preview: `Nobody said it. Everybody knew it.`,
+                text: `When you walk into a room and can feel something's off before anyone's said a word — the tension, the real reason, the thing everyone understands but no one states out loud — how do you usually work out what's really going on?`,
+                upgrade: {
+                    term: `pick up on`,
                     type: `phrasal verb`,
-                    def: `To say something clearly and directly instead of expecting the other person to work it out from the situation.`,
-                    in_action: `I kept dropping hints, hoping he'd get the message — eventually I just had to spell it out.`,
-                    review_prompt: `When is it better to spell something out than to let people read the situation?`
+                    def: `To notice something that isn't said directly, like a mood, a hint, or a change.`,
+                    in_action: `She never complained, but I picked up on the fact that she was upset.`,
+                    review_prompt: `Are you quick to pick up on what's unsaid, or do you need people to say things outright?`
                 }
             },
             {
-                id: `moment-half-listening`,
-                preview: `Physically present. Not really there.`,
-                text: `What is the difference between actually listening and just waiting for your turn to speak? How can you usually tell which one someone is doing — and which one do you catch yourself doing more often than you would like to admit?`,
+                id: `moment-you-in-another-language`,
+                preview: `A slightly different you, in another tongue.`,
+                text: `People often say they feel like a slightly different person in another language — funnier in one, blunter in another, shyer or more polite. If you speak more than one, or even just switch between formal and casual, what changes about the version of you that shows up when the language changes?`,
                 upgrade: {
-                    term: `tune out`,
+                    term: `come across`,
                     type: `phrasal verb`,
-                    def: `To stop paying attention to what someone is saying, even while appearing to listen.`,
-                    in_action: `I could tell he'd tuned out about halfway through — he was nodding, but his eyes had gone somewhere else.`,
-                    review_prompt: `How can you tell when someone has tuned out even though they're still nodding?`
-                }
-            },
-            {
-                id: `moment-word-choice-weight`,
-                preview: `One word changes everything.`,
-                text: `Imagine saying “I need help with this” versus “I’m struggling with this” versus “I can’t manage this on my own.” They describe the same situation, but each one creates a different impression. How much do you think about your word choices in conversations that matter?`,
-                upgrade: {
-                    term: `connotation`,
-                    type: `noun`,
-                    def: `The emotional or social feeling that a word carries, beyond its basic dictionary meaning.`,
-                    in_action: `Both words mean roughly the same thing, but the connotations are very different — one sounds confident, the other sounds defeated.`,
-                    review_prompt: `What is a word you choose carefully because the wrong version sounds rude, weak, or too blunt?`
+                    def: `To give a particular impression to others through how you speak or act.`,
+                    in_action: `In English I come across as quite direct, but in my own language I'm much gentler.`,
+                    review_prompt: `How do you come across differently in another language or a more formal setting?`
                 }
             }
         ],
         makeItReal: {
-            title: `A message that took effort`,
-            prompt: `Think of a time you had to communicate something carefully — a difficult message, a sensitive topic, or something where the words really mattered. How did you approach it, and do you think it worked?`
+            title: `The message you got exactly right`,
+            prompt: `Think of a time when how you said something mattered as much as what you said — a message, a conversation, or a piece of news you handled just right, or one you'd word completely differently if you had the chance again. What were you trying to do with your words, and did they do it?`
         }
     },
     {
-        id: `set-your-voice`,
-        title: `Your Voice`,
-        desc: `The conversation turns personal — how you express yourself, where your communication style comes from, and what you are still learning about being understood.`,
+        id: `set-what-words-carry`,
+        title: `What Words Carry`,
+        desc: `Words that change things the moment they're said, being truly listened to, the language you wish you had, and finding the words for what matters.`,
         icon: `reflect`,
         moments: [
             {
-                id: `moment-hard-to-say`,
-                preview: `You knew what you wanted to say. Getting it out was another thing.`,
-                text: `Is there a type of conversation that you find genuinely difficult to start — not because you do not know what to say, but because saying it out loud feels hard? What makes that kind of conversation so uncomfortable?`,
+                id: `moment-words-that-do-things`,
+                preview: `Some sentences don't describe — they do.`,
+                text: `A few words can change the world the instant they're spoken. "You're hired." "It's over." "I forgive you." "I do." "Not guilty." Nothing physical happens, yet everything is different the moment they land. What's a sentence you've either said or heard that changed something the second it was spoken?`,
                 upgrade: {
-                    term: `brace yourself`,
+                    term: `make it official`,
+                    type: `verb phrase`,
+                    def: `To make a decision, agreement, relationship, or change recognised as real or settled.`,
+                    in_action: `They'd been together for years, but saying "I do" made it official.`,
+                    review_prompt: `What words can make something official — "I do," "you're hired," "it's over," or something else?`
+                }
+            },
+            {
+                id: `moment-no-word-for-it`,
+                preview: `The word your language has, and English doesn't.`,
+                text: `Every language has a word or two that says something no other language can quite manage in one go — a very specific feeling, a kind of person, a passing moment. Is there a word like that in a language you know? What does it mean, and what does it tell you that English needs a whole sentence to explain?`,
+                upgrade: {
+                    term: `capture`,
+                    type: `verb`,
+                    def: `To express a feeling or idea exactly and completely in words.`,
+                    in_action: `There's no English word that quite captures it — the closest is "cosy," but it's more than that.`,
+                    review_prompt: `What feeling do you wish English had a single word to capture?`
+                }
+            },
+            {
+                id: `moment-actually-listened-to`,
+                preview: `Being actually listened to. You notice.`,
+                text: `There's a real difference between someone who's listening to you and someone who's just waiting for their turn to talk. When you're with the first kind — someone who genuinely takes in what you say — you can feel it. What does a person like that do differently, and how does it change what you're willing to say?`,
+                upgrade: {
+                    term: `hear someone out`,
                     type: `phrasal verb`,
-                    def: `To mentally prepare yourself for something difficult, uncomfortable, or emotionally challenging.`,
-                    in_action: `Every time she had to give critical feedback, she would brace herself before starting the conversation — she hated how it might land.`,
-                    review_prompt: `What kind of conversation makes you brace yourself before starting it?`
+                    def: `To listen to everything someone has to say before responding or judging.`,
+                    in_action: `I know you disagree, but just hear me out before you say no.`,
+                    review_prompt: `Who in your life really hears you out? What do they do that most people don't?`
                 }
             },
             {
-                id: `moment-feel-understood`,
-                preview: `The relief of someone actually getting it.`,
-                text: `Think of a person in your life who almost always understands what you mean — not just your words, but what you are actually trying to say. What do they do differently from other listeners?`,
+                id: `moment-what-they-call-you`,
+                preview: `What they call you says a lot.`,
+                text: `The name someone uses for you carries more than it seems — your full name when you're in trouble, a nickname only old friends use, a title that keeps its distance, the pet name that means you're close. Has what someone called you ever quietly changed how the whole relationship felt?`,
                 upgrade: {
-                    term: `feel heard`,
-                    type: `spoken phrase`,
-                    def: `The feeling that someone has truly understood and acknowledged what you have said, not just listened to the surface words.`,
-                    in_action: `She did not offer advice or solutions — she just listened, and somehow that was enough to make him feel heard.`,
-                    review_prompt: `What does someone do in a conversation that makes you feel heard?`
+                    term: `go by`,
+                    type: `phrasal verb`,
+                    def: `To use a particular name, often not your official or full one.`,
+                    in_action: `His name's Robert, but he's gone by Bertie since he was a kid.`,
+                    review_prompt: `What name do you go by with different people — and does it shift who you are with them?`
                 }
             },
             {
-                id: `moment-language-self`,
-                preview: `Who are you in a different language?`,
-                text: `If you speak more than one language, does your personality or communication style feel different depending on which language you are using? What shifts — your sense of humour, your confidence, your directness?`,
+                id: `moment-finally-said-it`,
+                preview: `The thing you carried, finally spoken.`,
+                text: `Sometimes you hold something in for a long time — a thank you, an apology, a truth, an "I've had enough" — and then one day it finally comes out. Whatever the reaction, saying it changes something. Is there a moment like that you can think of, when you finally put into words the thing you'd been carrying?`,
                 upgrade: {
-                    term: `come out of your shell`,
+                    term: `get something off your chest`,
                     type: `idiom`,
-                    def: `To become more relaxed, confident, or open in social situations, often after a period of being reserved or quiet.`,
-                    in_action: `In his own language he was funny and talkative, but in English he had not quite come out of his shell yet.`,
-                    review_prompt: `What helps a quiet person come out of their shell in a group?`
-                }
-            },
-            {
-                id: `moment-silence-habit`,
-                preview: `The things you chose not to say.`,
-                text: `Are you someone who tends to say less or more than you mean? Looking back, are there things you wish you had said — or things you are glad you kept to yourself?`,
-                upgrade: {
-                    term: `hold your tongue`,
-                    type: `idiom`,
-                    def: `To stop yourself from saying something, especially when you are tempted or when speaking would cause problems.`,
-                    in_action: `She had a strong opinion but decided to hold her tongue — it was not the right moment, and she knew it.`,
-                    review_prompt: `When was a moment it was wiser to hold your tongue than to speak?`
-                }
-            },
-            {
-                id: `moment-growing-communicator`,
-                preview: `You communicate differently now than you used to.`,
-                text: `Think of a conversation you would have avoided five years ago but could probably handle now. What changed in the way you speak, listen, or stand up for yourself?`,
-                upgrade: {
-                    term: `find your voice`,
-                    type: `idiomatic phrase`,
-                    def: `To develop the confidence and ability to express yourself clearly and authentically, especially in situations where you previously felt hesitant.`,
-                    in_action: `It took her a few years in the job before she really found her voice in meetings — now she speaks up without thinking twice.`,
-                    review_prompt: `In what kind of setting are you still working to find your voice?`
+                    def: `To finally say something that's been worrying you, so you feel lighter afterwards.`,
+                    in_action: `I'd been meaning to tell her for months — it was such a relief to finally get it off my chest.`,
+                    review_prompt: `What's something people often need to get off their chest — and why is it so hard to start?`
                 }
             }
         ],
         makeItReal: {
-            title: `The conversation that changed something`,
-            prompt: `Think of a conversation that genuinely changed the way you communicate — maybe a difficult one, a surprisingly honest one, or one where you finally understood something about yourself. What happened, and what did it teach you?`
+            title: `The time you felt truly heard`,
+            prompt: `Think of a moment when you felt genuinely understood — someone who really got what you meant, not just the words you used — or a time you finally found the right language for something that mattered. Tell the story of what it was like to be properly heard.`
         }
     }
 ];
