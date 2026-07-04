@@ -85,11 +85,11 @@ const subjectCopy = {
     },
     reflection: {
         title: `Complete the Conversation`,
-        summary: `You’ve explored how posture, expression, eye contact, stillness, gesture, distance, and physical presence can shape first impressions, emotional understanding, and the way people carry themselves. This lesson is not about decoding people perfectly or treating body language as proof. It is about noticing signals with care, checking assumptions with humility, and becoming more aware of how your own body language can affect connection, confidence, and communication.`,
+        summary: `You’ve explored how posture, expression, eye contact, stillness, gesture, distance, and physical presence can shape first impressions, emotional understanding, and the way people carry themselves. Body language can be revealing, but it is never the whole story. The useful skill is noticing what a signal might suggest, checking it against context, and becoming more aware of how your own body language can affect connection, confidence, and communication.`,
         questions: [
             `Looking back at the cultural examples today, which body-language expectation surprised you most — and what assumption might you have made if you saw that behaviour in real life without knowing the cultural context?`,
-            `Which Upgrade word or phrase from today helps you describe body language, presence, or emotional signals more clearly without pretending you know exactly what someone is thinking?`,
-            `Think of a real moment when someone’s body language shaped your impression of them — or when your body language may have shaped someone’s impression of you. What did you notice, what did you assume, and how could that interpretation be checked carefully?`
+            `Which Upgrade word or phrase from today gives you a sharper way to describe body language, presence, or emotional signals — and where would you actually use it?`,
+            `Think of a real moment when someone’s body language shaped your impression of them — or when yours may have shaped someone’s impression of you. What did you notice, what did you assume, and what else might have been going on?`
         ]
     },
     keyLanguage: {
@@ -196,7 +196,7 @@ const clCards = [
         title: `Why touching the head can feel disrespectful`,
         teaser: `Affection in one place can cross a serious boundary in another.`,
         insight: `In Thailand, the head is often treated as the most important or sacred part of the body. Because of this, touching someone’s head — even playfully or affectionately — can feel disrespectful, especially outside close family contexts. A gesture that might seem warm in one place can feel intrusive or inappropriate in another.`,
-        question: `Have you ever been surprised to learn that something innocent in one culture could feel rude or disrespectful in another?`,
+        question: `Imagine you touched someone lightly in a friendly way and suddenly realised it had landed badly. Would you apologise, explain yourself, or ask what you had missed?`,
         upgrade: {
             term: `personal boundary`,
             type: `noun phrase`,
@@ -306,7 +306,7 @@ const discussionSets = [
             {
                 id: `moment-telltale-face`,
                 preview: `Someone’s face says more than their words…`,
-                text: `Think of a time you could tell how someone was feeling even though they said very little — or said the opposite. What did their face, posture, voice, or movement do that gave the feeling away?`,
+                text: `Think of a time you sensed how someone might be feeling even though they said very little — or said the opposite. What did you notice in their face, posture, voice, or movement?`,
                 upgrade: {
                     term: `telltale sign`,
                     type: `noun phrase`,
@@ -486,7 +486,7 @@ const discussionSets = [
             {
                 id: `moment-project-confidence`,
                 preview: `One thing you would change…`,
-                text: `If you could change one thing about your own body language or social presence, what would it be? Would you like to seem calmer, warmer, more confident, more open, more professional, or more relaxed? Why would that change matter to you?`,
+                text: `Imagine walking into a room where nobody knows you yet. What would you want your body language to communicate before you even speak — calm, warmth, confidence, openness, professionalism, or something else?`,
                 upgrade: {
                     term: `project confidence`,
                     type: `verb phrase`,
