@@ -1,6 +1,6 @@
 /*
   ==========================================================================
-  ATLAS · COMPASS SUBJECT MODULE TEST
+  ATLAS · COMPASS SUBJECT MODULE
   SmartStudy™ Methodology
   Body Language & Emotions
   --------------------------------------------------------------------------
