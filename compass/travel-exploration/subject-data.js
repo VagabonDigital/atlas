@@ -33,8 +33,8 @@ const subjectCopy = {
     overview: {
         heading: `Why We Leave, and What We Bring Back`,
         intro: [
-            `Travel is easy to mistake for a list of places. But the interesting part has never really been the destinations — it's what happens to a person in the gap between leaving and returning: the small disorientation of arriving somewhere that doesn't know you, the moment a foreign city stops feeling foreign, and the odd, brief strangeness of your own front door when you get back. This subject is about that gap, and what it does.`,
-            `Here you'll explore the pull that sends people somewhere new, the gap between the traveller you imagine yourself to be and the one you actually are on the road, and the long human story of what it has meant — across cultures and eras — to leave the familiar behind. Some journeys were made for discovery, some for survival, some with no route home. All of them changed something.`
+            `The best part of travel was never the sights: it's the first disorienting hour somewhere that doesn't know you, the moment a foreign city stops feeling foreign, and the strange smallness of your own front door when you finally get back.`,
+            `People have always left — for discovery, for escape, for survival, some with no way home — and nobody returns quite the same. This is a subject about the going, and everything it quietly leaves behind.`
         ]
     },
     paths: {
