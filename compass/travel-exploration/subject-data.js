@@ -21,7 +21,7 @@ const MODULE = {
     schemaVersion: 1,
     contentVersion: '1.0.0',
     title: 'Travel & Exploration',
-    titleHtml: 'Travel &amp;<br><em>Exploration</em>',
+    titleHtml: 'Travel &amp; <em>Exploration</em>',
     navTitle: 'Travel',
     bgImage: 'https://images.ctfassets.net/rxqefefl3t5b/5O97g6xmvivvkS7jXptUaV/f62d63859e4c8d1a2f355a3dc06ce055/shutterstock_740247808.jpg?fl=progressive&q=80'
 };
