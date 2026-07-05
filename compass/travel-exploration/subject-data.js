@@ -23,7 +23,7 @@ const MODULE = {
     title: 'Travel & Exploration',
     titleHtml: 'Travel &amp;<br><em>Exploration</em>',
     navTitle: 'Travel',
-    bgImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfY-NhvVgfEgIbLH673_HONFPonCXSMtXnlcwUtBO88A&s=10'
+    bgImage: 'https://images.ctfassets.net/rxqefefl3t5b/5O97g6xmvivvkS7jXptUaV/f62d63859e4c8d1a2f355a3dc06ce055/shutterstock_740247808.jpg?fl=progressive&q=80'
 };
 
 const subjectCopy = {
