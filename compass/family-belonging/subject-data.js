@@ -452,7 +452,7 @@ const discussionSets = [
             {
                 id: `moment-distance-and-closeness`,
                 preview: `Close, even from far away.`,
-                text: `Some relatives live nearby and barely speak; others live across the world and somehow stay central to family life. What do you think keeps a family tie alive when people no longer share the same place?`,
+                text: `Some relatives live nearby and barely speak; others live across the world and somehow stay central to family life. What do you think keeps that connection strong when people no longer share the same place?`,
                 upgrade: {
                     term: `family ties`,
                     type: `noun phrase`,
@@ -463,8 +463,8 @@ const discussionSets = [
             },
             {
                 id: `moment-pass-forward`,
-                preview: `What lives on after someone.`,
-                text: `Sometimes a person leaves something behind without meaning to — a phrase, a recipe, a way of welcoming people, a way of arguing, a standard everyone still measures things by. What kind of thing can live on in a family long after the person who started it is gone?`,
+                preview: `What stays after someone.`,
+                text: `Sometimes a person leaves something behind without meaning to — a phrase, a recipe, a way of welcoming people, a way of arguing, a standard everyone still measures things by. What kind of thing can remain in a family long after the person who started it is gone?`,
                 upgrade: {
                     term: `live on`,
                     type: `phrasal verb`,
@@ -474,9 +474,9 @@ const discussionSets = [
                 }
             },
             {
-                id: `moment-roots-and-wings`,
-                preview: `The pattern someone breaks.`,
-                text: `In some families, people are expected to follow a familiar path — the same work, the same values, the same way of living. Then someone breaks the mould. What makes that admirable, difficult, or threatening inside a family?`,
+                id: `moment-break-the-pattern`,
+                preview: `The pattern someone refuses.`,
+                text: `In some families, people are expected to follow a familiar path — the same work, the same values, the same way of living. Then someone chooses something different. What makes that admirable, difficult, or threatening inside a family?`,
                 upgrade: {
                     term: `break the mould`,
                     type: `idiom`,
