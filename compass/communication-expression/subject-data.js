@@ -1,6 +1,6 @@
 /*
   ==========================================================================
-  ATLAS · COMPASS SUBJECT MODULE
+  ATLAS · COMPASS SUBJECT MODULE TEST
   SmartStudy™ Methodology
   Communication & Expression
   --------------------------------------------------------------------------
