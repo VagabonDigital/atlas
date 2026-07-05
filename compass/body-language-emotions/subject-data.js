@@ -23,7 +23,7 @@ const MODULE = {
     title: 'Body Language & Emotions',
     titleHtml: 'Body Language<br>&amp; <em>Emotions</em>',
     navTitle: 'Body Language',
-    bgImage: 'https://img.magnific.com/premium-vector/abstract-background-with-colorful-swirls-vector-illustration-eps-10_707339-1785.jpg'
+    bgImage: 'https://images.unsplash.com/photo-1725819327642-1e5062f3ebc3?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mzd8fHBlcnNvbiUyMG5lcnZvdXMlMjBoYW5kcyUyMGNpbmVtYXRpY3xlbnwwfDB8MHx8fDI%3D'
 };
 
 /* TEMP BODY LANGUAGE COVER VISUAL OVERRIDE
@@ -110,7 +110,7 @@ const clCards = [
             type: `idiom`,
             def: `A calm, controlled way of hiding your feelings when you're upset or under pressure.`,
             in_action: `His father never cried at the funeral — he kept a stiff upper lip the whole day.`,
-            review_prompt: `In your culture, is staying controlled at a funeral usually read as strength, distance, or something else?`
+            review_prompt: `What kind of situation might make someone keep a stiff upper lip?`
         },
         deeper: {
             text: `It's easy to assume that visible grief equals deep grief, and that a calm face means someone isn't feeling much — but funerals across the world quietly disprove this. Where mourning is loud and communal, weeping together is a way of carrying the loss as a group, and holding it in can look like you didn't care. Where mourning is contained, composure is the gift you give the family, and falling apart can seem like making someone else's loss about you. Neither is more real; they're different ideas about what respect looks like on the outside. There's a modern echo whenever people disagree about how someone "should" behave after a death — the relative who stays busy and dry-eyed, and the one who sobs openly, may feel exactly the same thing underneath. The mistake is reading the surface as the measurement. How much a body shows and how much a heart feels are simply not the same dial.`,
