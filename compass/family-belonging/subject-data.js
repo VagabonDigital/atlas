@@ -22,25 +22,25 @@ const MODULE = {
     title: 'Family & Belonging',
     titleHtml: 'Family &amp; <em>Belonging</em>',
     navTitle: 'Family',
-    bgImage: 'https://www.personal-art.uk/wp-content/uploads/2019/04/Pop-Art-Collage-Warhol-Light-Colours-22-1024x730.jpg'
+    bgImage: 'https://plus.unsplash.com/premium_photo-1661455879453-0074b541e205?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDh8fHxlbnwwfHx8fHw%3D'
 };
 
 const subjectCopy = {
     cover: {
-        hook: `The family you were born into — the roles, duties, and expectations that arrived before you could choose any of them.`
+        hook: `No one can embarrass you quite like the people who knew you first — the ones who remember every old version of you.`
     },
     overview: {
-        heading: `The bond you didn't sign up for`,
+        heading: `The Ties You Inherit`,
         intro: [
-            `Family is unlike almost any other relationship — it arrives unchosen, comes with roles already assigned, and holds on whether you tend it or not. The relative you avoid is still your relative. The duty you resent is still the duty. What makes family endlessly interesting is exactly that: the pull of a tie that was never yours to negotiate.`,
-            `In this subject, you'll explore what belonging to a family actually means — across cultures, across history, and in everyday life. From who counts as family and what gets passed down, to the roles each person gets cast in and what we'd choose to carry forward, these conversations open up the human experience of being part of something you didn't choose.`
+            `Family is the belonging that arrives before choice: a name, a face people recognise, a story retold at every gathering, a duty nobody voted on, and the strange moment someone says you're exactly like a person you never meant to become.`,
+            `This subject follows what families hand down — roles, recipes, tempers, jokes, obligations, names — and why the people we come from can be funny, tender, awkward, maddening, and still somehow ours.`
         ]
     },
     paths: {
         culturalLensDescription: `Discover how different cultures answer the most fundamental family questions — who counts as kin, what you owe the people you were born to, and what gets passed on through the generations.`,
         discussionDescription: `Talk through the characters, duties, inheritances, and unspoken rules of family life — from quick reactions to the relatives everyone has an opinion about, to deeper questions about obligation, belonging, and what we carry forward.`,
         reflectionTitle: `Complete the Conversation`,
-        reflectionDescription: `Closing reflection — look back at what you've explored and carry something forward`
+        reflectionDescription: `Carry something forward — a thought about what families hand down, and what people choose to keep.`
     },
     culturalLens: {
         heading: `Family across cultures and history`,
@@ -54,7 +54,7 @@ const subjectCopy = {
         title: `Complete the Conversation`,
         summary: `You've explored family as the one belonging that arrives unchosen — across cultures and history, through the characters and duties and inheritances that shape a life, and through what it means to belong somewhere nobody signs up for. These are conversations worth sitting with: how obligation works, what gets passed forward, and what it means to come from somewhere in particular.`,
         questions: [
-            `Looking back at the cultural examples today, which approach to family did you find most appealing — and which would be hardest to live inside, whoever you are?`,
+            `Looking back at the cultural examples today, which approach to family did you find most appealing — and which would be hardest to imagine living inside?`,
             `Think about the things families hand down — a role, a saying, a duty, an expectation. Which kind do you think is hardest to put down once it's been handed to you?`,
             `Which word or phrase from today gave you a more precise way to describe something about family life you'd felt but never quite named — and where might you actually use it?`
         ]
@@ -186,7 +186,7 @@ const clCards = [
         title: `No simple word for "brother"`,
         teaser: `In some languages, you can't mention a sibling without marking who's older.`,
         insight: `In many East Asian languages, there isn't a single neutral word for "brother" or "sister" — you must specify older or younger, and often use different terms again for relatives on each side of the family. Birth order and seniority are built right into everyday speech, so respect for elders is reinforced every time family is mentioned. For a speaker of a language with one all-purpose word like "brother," this can be surprising: a whole quiet system of hierarchy and respect is doing its work inside words that seem, at first, completely ordinary.`,
-        question: `In your language, how are siblings and relatives referred to — with neutral words, or ones that mark age, side of the family, or status?`,
+        question: `In your language, are words for siblings and relatives mostly neutral, or do they mark age, side of the family, or status?`,
         upgrade: {
             term: `seniority`,
             type: `noun`,
@@ -284,7 +284,7 @@ const discussionSets = [
             {
                 id: `moment-the-one-everyone-talks-about`,
                 preview: `Every family has one.`,
-                text: `Most families have a relative everyone has an opinion about — the one who gets mentioned before they even arrive. Without naming anyone, what kind of relative is that usually: the loud one, the difficult one, the one who went their own way?`,
+                text: `Most families have a relative everyone has an opinion about — the one who gets mentioned before they even arrive. No names needed: what kind of relative is that usually — the loud one, the dramatic one, the difficult one, the one who went their own way?`,
                 upgrade: {
                     term: `black sheep`,
                     type: `idiom`,
@@ -392,7 +392,7 @@ const discussionSets = [
             {
                 id: `moment-inheritance-beyond-money`,
                 preview: `Not everything you inherit is in the will.`,
-                text: `Families pass down more than money or belongings — they pass down temperaments, fears, ways of arguing, attitudes to work. What kind of thing do you think gets inherited that has nothing to do with money?`,
+                text: `Families pass down more than money or belongings — they pass down sayings, tempers, ways of arguing, attitudes to work, even how people welcome guests. What kind of thing gets inherited without ever appearing in a will?`,
                 upgrade: {
                     term: `run in the family`,
                     type: `idiom`,
@@ -451,38 +451,38 @@ const discussionSets = [
             },
             {
                 id: `moment-distance-and-closeness`,
-                preview: `Sometimes distance is what keeps you close.`,
-                text: `Some people are closest to family when they live far apart; others only feel the bond up close. Does distance tend to strengthen family ties, or quietly loosen them?`,
+                preview: `Close, even from far away.`,
+                text: `Some relatives live nearby and barely speak; others live across the world and somehow stay central to family life. What do you think keeps a family tie alive when people no longer share the same place?`,
                 upgrade: {
-                    term: `drift apart`,
-                    type: `phrasal verb`,
-                    def: `To gradually become less close to someone over time, often without any argument or clear reason.`,
-                    in_action: `After everyone moved away for work, we slowly drifted apart — no falling-out, just less and less contact.`,
-                    review_prompt: `What tends to make family members drift apart, even when nothing went wrong?`
+                    term: `family ties`,
+                    type: `noun phrase`,
+                    def: `The connections and obligations between family members, whether they are close day to day or not.`,
+                    in_action: `They live on different continents, but the family ties are still strong — everyone knows who will show up if needed.`,
+                    review_prompt: `What keeps family ties strong when people live far apart?`
                 }
             },
             {
                 id: `moment-pass-forward`,
-                preview: `What gets sent down the line.`,
-                text: `Most people have a sense of what's worth passing on — a value, a story, a way of treating people. Of all the things that get sent down the generations, which kind do you think matters most?`,
+                preview: `What lives on after someone.`,
+                text: `Sometimes a person leaves something behind without meaning to — a phrase, a recipe, a way of welcoming people, a way of arguing, a standard everyone still measures things by. What kind of thing can live on in a family long after the person who started it is gone?`,
                 upgrade: {
-                    term: `lasting influence`,
-                    type: `noun phrase`,
-                    def: `An effect on people or a family that continues over time.`,
-                    in_action: `Her lasting influence wasn't money or property — it was the way everyone learned to welcome people at the table.`,
-                    review_prompt: `What kind of lasting influence can someone have on the people who come after them?`
+                    term: `live on`,
+                    type: `phrasal verb`,
+                    def: `To continue to exist or be remembered after a person, moment, or tradition has passed.`,
+                    in_action: `Her warmth lived on in the way the whole family treated guests.`,
+                    review_prompt: `What can live on in a family long after one person is gone?`
                 }
             },
             {
                 id: `moment-roots-and-wings`,
-                preview: `Where you're from, and where you're going.`,
-                text: `People often talk about wanting both "roots and wings" — a sense of where you belong and the freedom to leave it. Which of the two do you think is harder for a family to give well?`,
+                preview: `The pattern someone breaks.`,
+                text: `In some families, people are expected to follow a familiar path — the same work, the same values, the same way of living. Then someone breaks the mould. What makes that admirable, difficult, or threatening inside a family?`,
                 upgrade: {
-                    term: `put down roots`,
+                    term: `break the mould`,
                     type: `idiom`,
-                    def: `To settle somewhere or build lasting ties that give you a sense of belonging.`,
-                    in_action: `After years of moving around, I finally felt ready to put down roots somewhere of my own.`,
-                    review_prompt: `What makes a place or a group of people somewhere a person can put down roots?`
+                    def: `To do something different from what is expected, especially after the same pattern has repeated for a long time.`,
+                    in_action: `Everyone expected her to join the family business, but she broke the mould and became a musician.`,
+                    review_prompt: `In what kind of family would breaking the mould be admired, and in what kind would it cause tension?`
                 }
             }
         ],
