@@ -4,11 +4,11 @@
   SmartStudy™ Methodology
   Body Language & Emotions
   --------------------------------------------------------------------------
-  A premium interactive speaking module for exploring how posture, expression,
-  eye contact, distance, and small physical signals shape what people notice,
-  assume, and check with care.
+  A premium interactive speaking module for exploring the body as the visible
+  life of emotion — how feeling appears, hides, performs, leaks, protects,
+  contradicts, and is read or misread across cultures and situations.
   Built for live lessons, thoughtful discussion, and sharper social awareness
-  around body language, emotion, and human communication.
+  around presence, expression, posture, gaze, movement, space, and emotion.
   Subject content may change.
   The compass remains.
   --------------------------------------------------------------------------
@@ -60,225 +60,248 @@ const MODULE = {
 
 const subjectCopy = {
     cover: {
-        hook: `How posture, expression, eye contact, distance, and small physical signals shape what people notice, assume, and check with care.`
+        hook: `Long before anyone speaks, the body has already started talking — and it doesn't always say what we mean.`
     },
     overview: {
-        heading: `What the body may suggest before words arrive`,
+        heading: `What the Body Says Before We Do`,
         intro: [
-            `Communication does not only happen through words. Posture, facial expression, eye contact, gestures, tone, movement, and physical distance can all shape how a message feels before anyone explains it directly.`,
-            `In this subject, you’ll explore real-life moments where body language shapes first impressions, emotional understanding, careful interpretation, and the way people carry themselves in social, personal, and professional situations.`
+            `Feelings rarely wait for words. A face changes, shoulders drop, a hand goes still, someone leans in or pulls away — and we sense something before anyone explains it.`,
+            `This subject is about the body as the visible life of emotion: how it reveals, hides, performs, protects, and sometimes gives away what someone hoped to keep in. The aim is not to decode people, but to notice more carefully and assume less quickly.`
         ]
     },
     paths: {
-        culturalLensDescription: `Explore how body-language expectations can change across cultures — and how the same gesture, stillness, gaze, posture, or physical habit can feel respectful in one setting and completely misleading in another.`,
-        discussionDescription: `Work through real-life moments where emotions may appear through posture, expression, silence, tension, movement, and tiny signals people often send before they fully explain themselves.`,
+        culturalLensDescription: `How different cultures read the same body — the gaze, the grief, the smile, the space between people — and how easily an outsider gets it wrong.`,
+        discussionDescription: `Real moments where the body speaks first — the face someone didn't mean to show, the smile that isn't quite genuine, the nerves that leak out, and how you carry yourself when it counts.`,
         reflectionTitle: `Complete the Conversation`,
-        reflectionDescription: `Closing reflection — revisit what body language suggested and carry sharper social awareness forward`
+        reflectionDescription: `Carry something forward — a sharper eye for what the body shows, and a lighter hand with what it might mean.`
     },
     culturalLens: {
-        heading: `Body-language signals that can easily mislead us`,
-        intro: `Body language may feel instinctive, but culture, history, etiquette, and social expectation shape it in very different ways. A gesture that seems friendly, confident, harmless, or honest in one place can suggest confusion, disrespect, nervousness, warmth, aggression, or humility somewhere else. These examples explore how easily people can misread the body when they assume everyone is using the same silent rules.`
+        heading: `The Same Body, Read Different Ways`,
+        intro: `The way we hold ourselves feels natural — so natural we forget we ever learned it. But how much emotion a body shows, how close it stands, where the eyes rest, how grief or joy appears in public: all of it is shaped by culture, history, and habit. What reads as warm, honest, or respectful in one place can read as cold, rude, or strange somewhere else. These cards look at how differently the world reads a body — and how much an outsider can miss.`
     },
     discussion: {
-        heading: `Signals before words`,
-        intro: `These moments explore how posture, expression, eye contact, movement, stillness, and physical presence shape first impressions, emotional understanding, and the way people carry themselves. As the discussion develops, you’ll move from quick social reads into careful interpretation, then into personal questions about presence, habits, confidence, language, and self-awareness. Choose a set to begin.`
+        heading: `When the Body Speaks First`,
+        intro: `Every one of us reads bodies all day — the mood of a room, a face that gives more away than the person means to, the nerves someone can't quite hide. These sets move from the quick reads we make in a second, into the trickier question of what a signal really means, and finally to your own body: your habits, your presence, how you change under pressure. Some moments are fast reactions; others ask for a real story. Choose a set to begin.`
     },
     reflection: {
         title: `Complete the Conversation`,
-        summary: `You’ve explored how posture, expression, eye contact, stillness, gesture, distance, and physical presence can shape first impressions, emotional understanding, and the way people carry themselves. Body language can be revealing, but it is never the whole story. The useful skill is noticing what a signal might suggest, checking it against context, and becoming more aware of how your own body language can affect connection, confidence, and communication.`,
+        summary: `You've looked at the body as the place where feeling becomes visible — the face someone didn't mean to show, the composed one, the grief that's shown or held back, the space people keep, the way a whole room can shift its mood at once. Across cultures, the same body gets read in completely different ways, which is exactly why a single signal is never the whole story. The most useful thing to carry from here isn't a code for decoding people — it's a sharper eye and a lighter touch: noticing what the body might be saying, staying curious about what else could be true, and being a little more aware of what your own body says for you.`,
         questions: [
-            `Looking back at the cultural examples today, which body-language expectation surprised you most — and what assumption might you have made if you saw that behaviour in real life without knowing the cultural context?`,
-            `Which Upgrade word or phrase from today gives you a sharper way to describe body language, presence, or emotional signals — and where would you actually use it?`,
-            `Think of a real moment when someone’s body language shaped your impression of them — or when yours may have shaped someone’s impression of you. What did you notice, what did you assume, and what else might have been going on?`
+            `Of everything today, which idea most changed how you'll read a body — a face, a posture, a distance, a stillness — the next time you're in a room full of people?`,
+            `Where do you think you sit: do you tend to show what you feel, or keep it off your face — and has that changed over the years?`,
+            `If a friend asked you how much you can really tell about someone from their body language, what would you honestly say now?`
         ]
     },
     keyLanguage: {
-        intro: `Higher-level expressions for discussing body language, emotion, and social signals — with definitions and natural in-action examples.`
+        intro: `Stronger words and phrases for talking about presence, expression, and the way emotion shows up in the body — with clear definitions and natural examples.`
     }
 };
 
 const clCards = [
     {
-        id: `cl-bulgaria-nod`,
-        location: `Bulgaria`,
-        title: `When nodding means “no”`,
-        teaser: `The movement that feels like agreement may send the opposite message.`,
-        insight: `In Bulgaria, head movements can sometimes work differently from what many visitors expect. A nod may signal disagreement, while a shake of the head may signal agreement. For someone from a different background, this can make even a simple conversation feel uncertain. The words may sound clear, but the body seems to be giving a different signal.`,
-        question: `If someone’s words said one thing but their head movement seemed to say the opposite, would you trust the words, the gesture, or ask again to be sure?`,
+        id: `cl-ritual-mourning`,
+        location: `Mourning traditions across cultures and history`,
+        title: `The Loudest Grief in the Room`,
+        teaser: `Sometimes the person weeping hardest never met the one who died.`,
+        insight: `In many traditions, grief has been something to show, not hide. Historically, families in parts of the Mediterranean, the Middle East, and South Asia hired professional mourners — people whose role at a funeral was to weep, wail, and lament out loud, so the dead were seen to be properly mourned. Elsewhere, the honourable response to loss has been the opposite: a still face, a steady voice, grief held quietly inside. For someone raised in one tradition, the other can look shocking — the loud mourner may seem hysterical or even fake, the quiet one cold or unloving. But neither shows how much a person feels. In some places, showing grief loudly is how you honour the dead; in others, holding it in is.`,
+        question: `At a funeral, would you feel more comfortable around open, visible weeping, or around quiet, contained grief — and what does each one seem to say to you?`,
         upgrade: {
-            term: `mixed signals`,
-            type: `noun phrase`,
-            def: `Signals that seem to suggest different or opposite meanings, making it unclear what someone really means.`,
-            in_action: `His words sounded positive, but his head movement gave me mixed signals, so I asked again to be sure.`,
-            review_prompt: `What should you do when someone's words and body language give you mixed signals?`
+            term: `stiff upper lip`,
+            type: `idiom`,
+            def: `A calm, controlled way of hiding your feelings when you're upset or under pressure.`,
+            in_action: `His father never cried at the funeral — he kept a stiff upper lip the whole day.`,
+            review_prompt: `In your culture, is staying controlled at a funeral usually read as strength, distance, or something else?`
         },
         deeper: {
-            text: `Body language often feels natural because we learn it so early that we forget it is learned at all. A gesture like nodding can feel almost universal until we meet a context where it may mean something different. This creates a special kind of confusion because the body often feels faster and more instinctive than words. Even when someone explains the rule, it can still take time to adjust your automatic reactions. The deeper lesson is that non-verbal communication is not a simple shared human code. It is partly instinctive, partly cultural, and partly social training. That is why careful communication sometimes means slowing down, checking again, and accepting that your first interpretation may not be the safest one.`,
+            text: `It's easy to assume that visible grief equals deep grief, and that a calm face means someone isn't feeling much — but funerals across the world quietly disprove this. Where mourning is loud and communal, weeping together is a way of carrying the loss as a group, and holding it in can look like you didn't care. Where mourning is contained, composure is the gift you give the family, and falling apart can seem like making someone else's loss about you. Neither is more real; they're different ideas about what respect looks like on the outside. There's a modern echo whenever people disagree about how someone "should" behave after a death — the relative who stays busy and dry-eyed, and the one who sobs openly, may feel exactly the same thing underneath. The mistake is reading the surface as the measurement. How much a body shows and how much a heart feels are simply not the same dial.`,
             questions: [
-                `Have you ever misunderstood someone because their body language seemed to say something different from their words?`,
-                `Would you find it harder to change a spoken habit or a body-language habit?`,
-                `In your own culture, what gesture feels so natural that you rarely think about it?`
+                `In your culture, how are people expected to behave at a funeral — and what happens if someone behaves differently?`,
+                `Have you ever judged how much someone was grieving by how much they showed — and could you have been wrong?`,
+                `Why do you think some cultures grieve loudly and together, while others grieve quietly and alone?`
             ]
         }
     },
     {
-        id: `cl-japan-mouth-covering`,
-        location: `Japan`,
-        title: `Hiding laughter behind the hand`,
-        teaser: `A small gesture can show modesty, politeness, or social awareness.`,
-        insight: `In some Japanese social contexts, covering the mouth while laughing has traditionally been connected with modesty, especially in feminine etiquette. The gesture can soften the expression and make laughter feel more controlled or polite. To an outsider, it may look shy or self-conscious, but in context it can be a learned way of managing public expression.`,
-        question: `If everyone around you covered their mouth while laughing, do you think you would copy the gesture naturally, or forget it as soon as something was genuinely funny?`,
+        id: `cl-strangers-smile`,
+        location: `Smiling norms across cultures`,
+        title: `The Smile That Doesn't Mean What You Think`,
+        teaser: `In some places, smiling at a stranger is warmth. In others, it's a warning sign.`,
+        insight: `A smile feels like the most universal friendly signal there is — but it isn't read the same way everywhere. In some cultures, especially where service and friendliness go hand in hand, smiling at strangers is normal, warm, and expected; a person who doesn't smile can seem cold or rude. In others, a smile is saved for people you actually know, or for something genuinely funny, and smiling at a stranger for no clear reason can seem odd, insincere, or even a little suspicious. For a visitor, this cuts both ways: the constant smiler abroad may come across as fake, while the reserved local may seem unfriendly when they simply smile less. The same expression carries very different weight depending on where you are.`,
+        question: `When a stranger smiles at you for no particular reason, does it feel warm and friendly — or does part of you wonder what they want?`,
         upgrade: {
-            term: `show restraint`,
+            term: `put someone at ease`,
             type: `verb phrase`,
-            def: `To control how much emotion, reaction, or behaviour you show, especially in a social situation.`,
-            in_action: `She was laughing, but she showed restraint by covering her mouth and keeping the moment polite.`,
-            review_prompt: `When might someone show restraint instead of expressing their reaction freely?`
+            def: `To help someone feel relaxed and comfortable, especially when they're nervous or unsure.`,
+            in_action: `She has a way of putting people at ease the moment they walk in — warm smile, open posture.`,
+            review_prompt: `Besides a smile, what puts you at ease when you first meet someone?`
         },
         deeper: {
-            text: `Laughter is emotional, but the way people show laughter is shaped by social rules. In some contexts, open laughter can feel warm and natural; in others, it may feel too exposed, loud, uncontrolled, or attention-seeking. Gestures like covering the mouth show how the body can balance feeling and etiquette at the same time. This does not mean the emotion is fake, or that every person follows the same habit. It means people often learn socially acceptable ways to let emotion appear in public. The body becomes a kind of filter: the feeling is real, but the display is shaped by ideas about modesty, gender, politeness, and social awareness. Across cultures, many emotions are not simply released — they are softened, framed, managed, or made appropriate before others see them.`,
+            text: `A smile is one of the first things we learn to trust, which is exactly why it can mislead us abroad. In places where friendliness is shown openly and often, a smile lubricates ordinary life — the shop, the street, the lift — and its absence stands out. In places where expressions are saved for real feeling, that same easy smile can seem to mean nothing, or to be hiding something. Neither culture is warmer or colder underneath; they've simply learned different rules about when the face should perform friendliness and when it should stay honest. There's a lesson in it about first impressions generally: we tend to judge warmth and trustworthiness from a face in a fraction of a second, then feel very sure about it. But the smile — or the serious face — you're reading may be doing a completely different job than the one you'd assume back home.`,
             questions: [
-                `Do you think people in your culture usually laugh freely, quietly, or differently depending on the setting?`,
-                `Have you ever controlled your face or body because you did not want to show too much emotion?`,
-                `When does emotional restraint feel polite, and when does it feel unnatural?`
+                `In your culture, do people smile easily at strangers, or is a smile more reserved for people you know?`,
+                `Have you ever misjudged someone as unfriendly or fake because of how much they smiled?`,
+                `Do you trust a warm, smiling face more than a serious one — and should you?`
             ]
         }
     },
     {
-        id: `cl-finland-composure`,
-        location: `Finland`,
-        title: `Stillness can show calm attention`,
-        teaser: `A quiet body does not always mean boredom, distance, or discomfort.`,
-        insight: `In Finland, communication can sometimes include more physical stillness and restrained body language than visitors from more expressive settings expect. A person may listen calmly, pause before responding, and avoid dramatic facial reactions without being cold or uninterested. What looks emotionally muted to one person may simply be quiet attention or social composure in another context.`,
-        question: `If someone listened with very little facial expression or movement, would you read them as calm, bored, thoughtful, or hard to understand?`,
+        id: `cl-managed-laughter`,
+        location: `Laughter and expressiveness in public`,
+        title: `Laughing Out Loud, or Behind Your Hand`,
+        teaser: `The same joke, in two rooms, comes out completely differently.`,
+        insight: `Laughter is one of the most honest things a body does — but how freely we let it out is shaped by where we are. In some settings, big, open, loud laughter is a sign of warmth and connection, and holding back can seem stiff or unfriendly. In others, laughter is softened — a hand over the mouth, a quieter chuckle, a more controlled face — as a matter of modesty or composure, and roaring with laughter in the wrong room can feel too loud or attention-seeking. For an outsider, the softer laugher can seem shy or unamused, and the louder one can seem over the top. The feeling underneath may be exactly the same joy; only the volume the body is allowed changes.`,
+        question: `Are you someone who laughs loudly and openly, or more quietly — and does it change depending on who you're with and where you are?`,
         upgrade: {
-            term: `stay composed`,
-            type: `verb phrase`,
-            def: `To remain calm and controlled, especially when you might be expected to show stronger emotion.`,
-            in_action: `At first I thought he was uninterested, but he was just staying composed — he was listening carefully without showing much on his face.`,
-            review_prompt: `When might staying composed be misunderstood as being cold or uninterested?`
+            term: `infectious`,
+            type: `adjective`,
+            def: `Describing a feeling — especially laughter or enthusiasm — that spreads quickly to other people.`,
+            in_action: `Her laugh was so infectious that the whole table was soon laughing at nothing.`,
+            review_prompt: `Think of someone whose laughter is infectious — what does it do to a room?`
         },
         deeper: {
-            text: `Some communication styles use the body expressively: nodding often, reacting visibly, leaning forward, smiling quickly, and showing emotion through the face. Other styles may value restraint, stillness, and careful control. This can create misunderstanding because many people judge interest through visible reaction. A still listener may seem distant to someone who expects constant feedback, while an expressive listener may seem overly intense to someone who values calmness. The important point is that a quiet body is not automatically an empty signal. It may suggest boredom, but it may also suggest attention, respect, thoughtfulness, or simple self-control. The best response is often to stay curious rather than assume too quickly.`,
+            text: `There's something almost physical about how laughter travels — one person goes, and suddenly a whole room is helpless, often without anyone quite knowing what's funny anymore. That contagious quality is part of why cultures develop rules around it. Where shared, open laughter is prized, letting go together builds warmth fast, and a person who stays composed can seem to be holding themselves apart. Where restraint is valued, softening your laughter is a way of not dominating the room, and the loud laugher can seem to be demanding attention. Both are ways of managing the same powerful signal. It's worth noticing your own settings: many people laugh very differently with old friends than with a boss, or in their own language versus a second one where they feel less at home. The joy is real either way — but how much of it the body is willing to release is a very social decision.`,
             questions: [
-                `Do you usually need visible reactions from someone to feel that they are listening?`,
-                `Have you ever misread a calm person as cold, bored, or uninterested?`,
-                `In your culture, is emotional control usually admired, mistrusted, or something in between?`
+                `Do people in your culture tend to laugh openly and loudly, or more quietly and modestly?`,
+                `Have you ever tried to hold back laughter at completely the wrong moment — what happened?`,
+                `Do you laugh differently with close friends than you do at work or with people you've just met?`
             ]
         }
     },
     {
-        id: `cl-greece-open-palm`,
-        location: `Greece`,
-        title: `The open palm that can insult`,
-        teaser: `A harmless-looking gesture can carry a much heavier history.`,
-        insight: `In Greece, showing an open palm outward towards someone can be interpreted as insulting in some contexts. To outsiders, the gesture may look like a normal wave, stop signal, or casual movement. But because gestures can carry historical and cultural meaning, the same hand position can feel far more aggressive or disrespectful than intended.`,
-        question: `If you discovered that one of your normal hand gestures could offend people in another country, how quickly do you think you could stop using it?`,
+        id: `cl-composed-face`,
+        location: `Emotional composure across cultures`,
+        title: `The Face That Gives Nothing Away`,
+        teaser: `Bad news lands — and not a muscle moves. Is that strength or coldness?`,
+        insight: `When something big happens — hard news, a shock, a sharp disagreement — cultures differ on what the face is supposed to do. In some settings, keeping a calm, neutral expression is a mark of maturity, dignity, and respect, and letting your feelings spill onto your face can seem like a loss of control. In others, a still face at an emotional moment reads as cold, distant, or as though the person doesn't care at all. So the very same composure can be admired in one room and quietly resented in another. For someone reading across that gap, the danger is obvious: a controlled face can look like indifference when it may actually be someone working very hard to hold themselves together.`,
+        question: `When someone hears difficult news and keeps a completely calm face, do you read that as strength, as distance, or as something they're holding in?`,
         upgrade: {
-            term: `offensive gesture`,
-            type: `noun phrase`,
-            def: `A movement of the hands, face, or body that can insult or upset people in a particular culture or setting.`,
-            in_action: `I had no idea it was an offensive gesture there — I thought I was just using my hand normally.`,
-            review_prompt: `How could a traveller find out whether a normal gesture might be offensive somewhere else?`
+            term: `composure`,
+            type: `noun`,
+            def: `A calm, controlled state you keep even when you might be expected to show strong emotion.`,
+            in_action: `She kept her composure through the whole meeting, even when the news was clearly a blow.`,
+            review_prompt: `When have you had to keep your composure while feeling something much stronger inside?`
         },
         deeper: {
-            text: `Gestures are especially risky because people often use them without thinking. Words can be chosen slowly, but hands move quickly, automatically, and sometimes before we notice them. A gesture may also feel harmless because it has no strong meaning in your own culture. This makes cross-cultural body language difficult: the speaker may have no bad intention, while the listener still receives a strong negative signal. The Greek example is not just about one hand position; it shows how gestures can carry memory, history, insult, and social force. A movement that looks like a casual wave to one person may feel like a deliberate offence to another. The important point is not to become afraid of every movement, but to stay curious and humble. When a small gesture creates a big reaction, it usually means there is a cultural story behind it.`,
+            text: `Beneath this lies a genuine difference in what people think self-control is for. In traditions that prize composure, keeping the face steady protects everyone around you — it says "I've got this, you don't need to worry about me," and it can be a deep form of care. In traditions that prize openness, the same steadiness can feel like a wall, as if the person is refusing to share what's real. Neither is wrong, but they collide badly in mixed settings — a workplace, a marriage, a friendship across cultures — where one person is being respectful in the only way they know, and the other is feeling shut out. The useful move is to remember that a calm surface is not a reading of the depths. Some of the most controlled faces in a hard moment belong to the people feeling the most, holding it together precisely because so much is going on underneath.`,
             questions: [
-                `Have you ever accidentally used a gesture, expression, or tone that was taken the wrong way?`,
-                `Is it fair to judge someone harshly if they offend people with a gesture they did not understand?`,
-                `Which is easier to forgive: rude words, rude tone, or rude body language?`
+                `In your culture, is staying calm under emotional pressure seen as admirable, or as being closed off?`,
+                `Have you ever thought someone was cold or uncaring, then realised they were just holding it together?`,
+                `Do you tend to show what you feel in a hard moment, or keep it off your face?`
             ]
         }
     },
     {
-        id: `cl-thailand-head-touching`,
-        location: `Thailand`,
-        title: `Why touching the head can feel disrespectful`,
-        teaser: `Affection in one place can cross a serious boundary in another.`,
-        insight: `In Thailand, the head is often treated as the most important or sacred part of the body. Because of this, touching someone’s head — even playfully or affectionately — can feel disrespectful, especially outside close family contexts. A gesture that might seem warm in one place can feel intrusive or inappropriate in another.`,
-        question: `Imagine you touched someone lightly in a friendly way and suddenly realised it had landed badly. Would you apologise, explain yourself, or ask what you had missed?`,
-        upgrade: {
-            term: `personal boundary`,
-            type: `noun phrase`,
-            def: `A physical, emotional, or social limit that shows what kind of behaviour feels acceptable around a person.`,
-            in_action: `I thought I was being friendly, but I crossed a personal boundary by touching his head without realising how serious that gesture could feel.`,
-            review_prompt: `What kind of friendly action in one place might cross a personal boundary somewhere else?`
-        },
-        deeper: {
-            text: `Physical contact is never just physical. It carries ideas about respect, closeness, hierarchy, age, gender, religion, and relationship. A friendly touch on the arm, shoulder, back, or head can mean warmth in one situation and disrespect in another. These rules are often invisible until someone breaks them. What makes this especially sensitive is that touch involves the body directly, so people may react emotionally before they explain why. Learning these boundaries is not about memorising a list of rules. It is about noticing how different cultures protect personal dignity through the body. It also means accepting that good intentions do not always cancel out physical discomfort. Sometimes the respectful move is not to explain what you meant, but to notice the boundary and step back.`,
-            questions: [
-                `Are people in your culture generally comfortable with casual touch, or more physically reserved?`,
-                `Is there a part of the body that people should be especially careful about touching?`,
-                `How would you respond if someone crossed a physical boundary but clearly meant no harm?`
-            ]
-        }
-    },
-    {
-        id: `cl-eye-contact-expectations`,
-        location: `Eye contact expectations across cultures`,
-        title: `Respect does not always look like eye contact`,
-        teaser: `Looking directly at someone can suggest confidence in one setting and disrespect in another.`,
-        insight: `Eye contact expectations vary widely across cultures, families, education systems, communities, age groups, authority relationships, and social settings. In some contexts, direct eye contact may suggest confidence, honesty, or attention. In others, it can feel challenging, disrespectful, too bold, or inappropriate — especially when speaking with elders, teachers, authority figures, or people you do not know well.`,
-        question: `If eye contact made you seem rude instead of respectful, do you think you would adjust quickly, or keep doing it automatically?`,
-        upgrade: {
-            term: `hold someone’s gaze`,
-            type: `verb phrase`,
-            def: `To keep looking directly into someone’s eyes for a period of time.`,
-            in_action: `In some settings, holding someone’s gaze can seem confident; in others, it can feel too direct or disrespectful.`,
-            review_prompt: `When might holding someone’s gaze feel respectful, and when might it feel too intense?`
-        },
-        deeper: {
-            text: `Eye contact is often treated as a universal sign of honesty, but that assumption can be misleading. In some settings, looking directly at someone suggests sincerity and confidence. In others, it may feel aggressive, challenging, flirtatious, disrespectful, or simply too intense. This matters in schools, interviews, workplaces, and cross-cultural relationships, where people may judge confidence or character from the wrong signal. A person who looks down may be respectful, thoughtful, nervous, or uncomfortable — not automatically dishonest or disengaged. Expectations around eye contact help us separate our own habits from the meaning another person may be working with, and remind us that “good communication” is not one fixed behaviour. Sometimes respect means meeting someone’s eyes; sometimes it means knowing when not to.`,
-            questions: [
-                `In your culture, what does strong eye contact usually suggest?`,
-                `Have you ever felt uncomfortable because someone looked at you too directly or not directly enough?`,
-                `Do you think people judge confidence too quickly from eye contact?`
-            ]
-        }
-    },
-    {
-        id: `cl-emotional-expression`,
-        location: `Emotional display across cultures`,
-        title: `When emotion is public — and when it is private`,
-        teaser: `Feeling strongly does not always mean showing it strongly.`,
-        insight: `Across cultures, people learn different expectations about when emotion should be shown openly and when it should be controlled. In some settings, visible emotion may suggest honesty, warmth, and sincerity. In others, the same display may feel too intense, immature, or inappropriate. A calm face does not always mean a person feels nothing; it may mean they have learned to manage emotion in public.`,
-        question: `If someone stayed physically calm while discussing something emotional, would you read that as strength, distance, control, discomfort, or something else?`,
-        upgrade: {
-            term: `keep your emotions in check`,
-            type: `idiomatic phrase`,
-            def: `To control your emotions so they do not show too strongly.`,
-            in_action: `In her family, people were taught to keep their emotions in check in public, even when they felt something deeply.`,
-            review_prompt: `When is it useful to keep your emotions in check, and when can it create distance?`
-        },
-        deeper: {
-            text: `Emotions are human, but emotional display is shaped by family, culture, gender expectations, social class, age, religion, profession, and setting. Two people can feel the same thing and show it very differently. One person may cry, gesture, speak loudly, or move closer; another may become still, quiet, or physically controlled. This can create painful misunderstandings. A restrained person may be judged as cold or uncaring, while an expressive person may be judged as dramatic or uncontrolled. Expectations around emotional expression matter because the body does not simply reveal emotion in a direct, universal way. The body also manages emotion according to what feels safe, appropriate, dignified, or expected. Reading emotion carefully means noticing the signal without pretending it proves the whole story.`,
-            questions: [
-                `In your family or culture, are strong emotions usually shown openly or managed quietly?`,
-                `Have you ever been misread because you showed too much emotion — or not enough?`,
-                `Do you think emotional control is usually a sign of strength, distance, maturity, or something else?`
-            ]
-        }
-    },
-    {
-        id: `cl-personal-space`,
+        id: `cl-standing-distance`,
         location: `Personal space across cultures`,
-        title: `Distance can mean warmth or discomfort`,
-        teaser: `How close people stand can completely change the feeling of a conversation.`,
-        insight: `Personal space varies widely across cultures, relationships, and situations. In some contexts, standing close can feel warm, friendly, and engaged. In others, it can feel intrusive or uncomfortable. The same distance between two people may suggest connection in one place and pressure in another. This makes physical space one of the easiest non-verbal signals to misread.`,
-        question: `If someone stood closer to you than you expected while speaking, would you read it as warmth, confidence, pressure, or lack of awareness?`,
+        title: `The Conversation That Moves Across the Room`,
+        teaser: `One steps in, the other steps back — and neither knows they're dancing.`,
+        insight: `Every person carries an invisible sense of how close is comfortable — and that distance is set partly by culture. In some places, standing close in conversation is warm, normal, and engaged; in others, the same closeness feels like pressure or intrusion. When two people with different settings talk, something almost comic can happen: one keeps drifting closer to reach a comfortable distance, the other keeps easing back to restore theirs, and the whole conversation slowly travels across the room. Neither is being rude — their bodies are simply speaking different dialects of distance. But without knowing that, the close-stander can seem pushy, and the back-stepper can seem cold or evasive.`,
+        question: `When someone stands closer to you than you're used to while talking, what does your body want to do — and what do you assume about them?`,
         upgrade: {
-            term: `invade someone’s personal space`,
-            type: `verb phrase`,
+            term: `crowd someone`,
+            type: `verb`,
             def: `To stand or move too close to someone in a way that feels uncomfortable or intrusive.`,
-            in_action: `He did not mean to invade her personal space, but he stood much closer than she was used to.`,
-            review_prompt: `When might standing close feel friendly to one person but like invading personal space to another?`
+            in_action: `I didn't mean to crowd him — I just stand close when I talk, and I could see him backing away.`,
+            review_prompt: `Have you ever felt someone crowding you in a conversation? What did you do?`
         },
         deeper: {
-            text: `Physical distance can suggest how people understand privacy, confidence, intimacy, authority, and friendliness. In a crowded city, close distance may feel normal. In a more reserved setting, the same closeness may feel intense. Relationships also change the meaning: a friend, colleague, stranger, teacher, or romantic partner may all be allowed different levels of closeness. The difficulty is that people often adjust distance automatically. They step closer, step back, lean in, turn away, or angle their body without saying anything. These small movements can create comfort or discomfort long before the conversation itself becomes clear. Physical distance is not empty. It is one of the quiet ways people negotiate trust, pressure, warmth, and respect.`,
+            text: `Distance is one of the quietest ways people negotiate comfort, and one of the easiest to misread, because almost nobody does it on purpose. We drift closer, angle away, lean in, or create a little more room without ever saying a word about it — and the other person feels it instantly, often before they can explain why. The setting changes the rules too: a packed train makes closeness normal that would feel strange in an empty office, and the distance we allow a friend, a colleague, a stranger, or an elder can all be different. What makes cross-cultural distance tricky is that the discomfort arrives as a feeling, not a thought — "something about them was a bit much" — which we then wrongly pin on the person's character rather than on a simple mismatch of comfortable space. Noticing the mismatch, instead of judging the person, is most of the skill.`,
             questions: [
-                `Do you usually notice when someone is standing too close or too far away?`,
-                `Does comfortable distance change for you depending on age, gender, relationship, or setting?`,
-                `Have you ever stepped back from someone and then realised they might have noticed?`
+                `Do you tend to stand close when you talk, or do you like a bit more space?`,
+                `Have you ever felt uncomfortable with someone and later realised it was just about distance?`,
+                `How does comfortable distance change for you between a friend, a stranger, and someone senior to you?`
+            ]
+        }
+    },
+    {
+        id: `cl-public-warmth`,
+        location: `Physical warmth and touch across cultures`,
+        title: `When Friends Walk Arm in Arm`,
+        teaser: `In one country it's ordinary friendship. In another, outsiders read romance.`,
+        insight: `How much people touch in everyday life — a hand on the arm, a kiss on the cheek in greeting, friends walking arm in arm or hand in hand — varies enormously, and it's easily misread from the outside. In some cultures, warm physical contact between friends, including friends of the same gender, is completely ordinary and says nothing about romance. To a visitor from a more physically reserved culture, that same closeness can be startling — they may read affection, or attraction, where the locals see simple friendship. The reverse happens too: in a warm-touch culture, a reserved visitor who keeps their distance can seem cold, stiff, or unfriendly. The body's warmth is telling the truth about the relationship — but only to people who share the code.`,
+        question: `In your culture, how much physical warmth is normal between friends — and would some of it be misread as something more by an outsider?`,
+        upgrade: {
+            term: `tactile`,
+            type: `adjective`,
+            def: `Describing a person or culture that touches a lot when interacting — hugs, pats, a hand on the arm.`,
+            in_action: `He's a very tactile person, so a handshake never feels like enough — you're getting a hug.`,
+            review_prompt: `Are you a tactile person, or do you prefer more physical space with people?`
+        },
+        deeper: {
+            text: `Touch is never only physical — it carries messages about closeness, trust, respect, and where the line between people sits. That's why getting it wrong feels like more than a small mistake: a touch that's ordinary in one culture can feel intrusive in another, and a reserve that's polite in one can feel cold somewhere else. The added trap is that outsiders often read physical warmth through their own map of what touch means, and their map may only have a couple of settings — friendly, or romantic — when the local map has many more. So same-gender friends holding hands, or a warm two-cheek greeting, gets slotted into the wrong category entirely. None of this is about one culture being more affectionate underneath; it's about how freely warmth is shown on the body, and how confidently outsiders assume they know what it means. When touch surprises you abroad, it's usually a sign your map is smaller than the place you're in.`,
+            questions: [
+                `Is your culture generally quite tactile, or more physically reserved?`,
+                `Have you ever misread how close two people were because of how much they touched?`,
+                `How do you feel when someone is more physically warm — or more distant — than you expected?`
+            ]
+        }
+    },
+    {
+        id: `cl-lowered-eyes`,
+        location: `Eye contact and authority across cultures`,
+        title: `Looking Down as a Sign of Respect`,
+        teaser: `The lowered eyes that mean respect at home can cost you a job interview abroad.`,
+        insight: `How much you're supposed to look someone in the eye depends heavily on who they are to you — and cultures set that dial differently. In some contexts, meeting a person's eyes directly, even an elder, a teacher, or a boss, shows confidence and honesty. In others, holding the direct gaze of someone senior is bold or disrespectful, and lowering your eyes is exactly how you show respect. This collides painfully in places like interviews, classrooms, or courtrooms: a young person taught that looking down is polite may be read by someone from another background as shifty, evasive, or dishonest — when they are, in fact, being respectful in the only way they were taught.`,
+        question: `If someone avoided your eyes while talking to you, would you read it as respect, shyness, discomfort, or something to be suspicious of — and would that depend on the situation?`,
+        upgrade: {
+            term: `hold someone's gaze`,
+            type: `verb phrase`,
+            def: `To keep looking directly into someone's eyes for a period of time.`,
+            in_action: `In that culture, holding a teacher's gaze can seem bold, so students often look down out of respect.`,
+            review_prompt: `When does holding someone's gaze feel confident, and when does it start to feel like too much?`
+        },
+        deeper: {
+            text: `Eye contact is one of the most over-trusted signals we have — many people treat steady eyes as proof of honesty and lowered eyes as proof of guilt, when both are far more about upbringing than character. In settings that reward the direct gaze, looking away can quietly damage you in an interview or a negotiation, however sincere you are. In settings that read a strong gaze at an elder as a challenge, that same directness can seem arrogant. The stakes are highest where the two systems meet and one person is judging the other's honesty or confidence by the wrong rulebook — a teacher misreading a respectful student, an interviewer misreading a nervous but honest candidate. Someone looking down may be respectful, shy, thoughtful, or simply uncomfortable, none of which is dishonesty. The safest habit is to hold your read of the eyes loosely, and to remember how much of it you learned rather than discovered.`,
+            questions: [
+                `In your culture, what does strong, direct eye contact usually suggest — and does it change with age or authority?`,
+                `Have you ever felt judged for looking at someone too much, or not enough?`,
+                `Do you think people trust "steady eye contact" more than they should?`
+            ]
+        }
+    },
+    {
+        id: `cl-taking-up-space`,
+        location: `Posture, space, and social presence`,
+        title: `Taking Up Room, or Folding Yourself Small`,
+        teaser: `Some people fill a room without a word. Others are trained to disappear in it.`,
+        insight: `Bodies claim space in very different ways, and those ways are partly taught. Some people spread out, stand tall, gesture widely, and take up room comfortably; others keep their arms in, their voice low, their movements small, and quietly try to occupy as little space as possible. Often this isn't personality but training — in many settings, and frequently along lines of gender, age, or rank, making yourself small is taught as modesty, humility, or good manners. To an outsider, though, the person folding themselves in can look nervous, unconfident, or unimportant, and the person spreading out can look confident or arrogant. The posture may be a learned social habit, not a true measure of how the person feels about themselves.`,
+        question: `Do you tend to fill a room when you're in it, or make yourself smaller — and where do you think that habit came from?`,
+        upgrade: {
+            term: `take up space`,
+            type: `verb phrase`,
+            def: `To occupy room physically and socially through posture, movement, and presence — literally, or in the sense of feeling entitled to be noticed.`,
+            in_action: `Some people take up space the second they walk in; others seem to apologise for being there.`,
+            review_prompt: `Who's someone you know who takes up space in a room — and how do they do it?`
+        },
+        deeper: {
+            text: `There's a quiet politics in how much room a body claims, and it often has less to do with character than with what someone was taught they were allowed. In many cultures, and across many upbringings, some people are gently trained to shrink — to sit neatly, speak softly, not spread out, not draw the eye — while others grow up assuming a room is theirs to fill. Watch a meeting or a classroom and you can often see it: who leans back and stretches out, who tucks themselves in. The misread is to treat the big presence as natural confidence and the small one as natural timidity, when both may be habits built over years. It also shifts with setting — the same person can take up space among friends and fold in front of authority. Noticing the pattern, in others and in yourself, says more than any single confident stance ever could.`,
+            questions: [
+                `In your culture, is anyone taught to make themselves smaller — and does it fall along lines of age, gender, or rank?`,
+                `Do you take up more or less space depending on who you're with?`,
+                `Have you ever mistaken someone's quiet, small presence for a lack of confidence?`
+            ]
+        }
+    },
+    {
+        id: `cl-body-in-crowd`,
+        location: `The body in ritual and crowds`,
+        title: `When a Crowd Moves as One Body`,
+        teaser: `Thousands of people, one movement — and being carried into it feels like belonging.`,
+        insight: `Much of the time we think of body language as one person's signals, but some of the most powerful physical experiences happen in groups — a congregation standing, bowing, or swaying together; a stadium rising as one; dancers or marchers moving in time; mourners or celebrants carried by a shared rhythm. In these moments, individual bodies stop being separate and briefly become a single "we," and the feeling that produces — belonging, uplift, sometimes a loss of self — is real and often deeply moving. To an outsider who doesn't share it, the same synchronised movement can look strange, mechanical, or even unsettling. But from the inside, moving with everyone else can be one of the most powerful emotional experiences a body ever has.`,
+        question: `When have you felt yourself carried along by a crowd all moving together — a concert, a match, a service, a celebration — and what did being part of it feel like?`,
+        upgrade: {
+            term: `get swept up in`,
+            type: `idiomatic phrase`,
+            def: `To be carried along by a strong shared feeling or excitement, often more than you expected.`,
+            in_action: `I don't even follow the team, but I got completely swept up in it when the whole stand stood up.`,
+            review_prompt: `When did you last get swept up in a crowd's energy — what did it feel like?`
+        },
+        deeper: {
+            text: `There's a reason so many cultures build collective movement into their most important moments — worship, mourning, celebration, sport. Moving together does something to people that moving alone can't: it dissolves the usual distance between bodies and creates a fast, powerful sense of being one group. Anyone who's felt a whole crowd rise at once, or joined a room all moving to the same rhythm, knows the pull of it — and also, sometimes, how easily individual judgement can soften inside it. That's the double edge. The same carried-along feeling that makes a celebration or a service so moving is also what makes crowds powerful and, at times, unpredictable. An outsider watching may see only strange, synchronised motion; a participant feels belonging, meaning, or joy. Both are true. The body in a crowd is running on something older than words — the deep human comfort of not being separate, of moving, for a moment, as part of something larger.`,
+            questions: [
+                `In your culture, when do people move together as a group — in worship, celebration, sport, or mourning?`,
+                `Have you ever felt part of a crowd in a way that moved you — or in a way that unsettled you?`,
+                `Why do you think moving together with others can feel so powerful?`
             ]
         }
     }
@@ -286,219 +309,219 @@ const clCards = [
 
 const discussionSets = [
     {
-        id: `set-first-signals`,
-        title: `First Signals`,
-        desc: `Start with immediate, recognisable moments where the body seems to say something before anyone explains it in words.`,
+        id: `set-first-read`,
+        title: `Quicker Than Words`,
+        desc: `The fast, gut-level reads we make in a second — the mood of a room, a face, a nervous hand — before anyone explains a thing.`,
         icon: `react`,
         moments: [
             {
-                id: `moment-read-room`,
-                preview: `The first sweep of a room…`,
-                text: `When you walk into a room full of people — a party, a meeting, a class, or a family gathering — what do you notice first? Do you look at people’s faces, posture, energy, distance, or how they are grouped together? What does that first sweep of the room usually tell you?`,
+                id: `moment-room-mood`,
+                preview: `You feel it before anyone speaks…`,
+                text: `You open a door and step into a room — a meeting, a party, a family kitchen. Before a single word, you can often feel the temperature: warm and easy, or tight and a bit off. What did your body pick up on that told you the mood before anyone said anything?`,
                 upgrade: {
                     term: `read the room`,
                     type: `idiom`,
-                    def: `To quickly notice the mood, atmosphere, or social dynamic of a situation and adjust your behaviour carefully.`,
-                    in_action: `She walked in, read the room quickly, and realised it was better to listen before speaking.`,
-                    review_prompt: `When you walk into a room full of people, what tells you the mood?`
+                    def: `To quickly sense the mood or atmosphere of a situation and adjust how you behave.`,
+                    in_action: `She read the room in seconds and decided it wasn't the moment for a joke.`,
+                    review_prompt: `Walking into a room, what's the first thing that tells you the mood?`
                 }
             },
             {
-                id: `moment-telltale-face`,
-                preview: `Someone’s face says more than their words…`,
-                text: `Think of a time you sensed how someone might be feeling even though they said very little — or said the opposite. What did you notice in their face, posture, voice, or movement?`,
+                id: `moment-unguarded-face`,
+                preview: `The face they didn't mean to show…`,
+                text: `You glance over and catch someone's real expression for a second — tired, annoyed, sad, somewhere far away — before they notice you looking and rearrange it into something else. Have you had a moment like that? What did that split-second expression seem to show?`,
                 upgrade: {
-                    term: `telltale sign`,
+                    term: `an unguarded moment`,
                     type: `noun phrase`,
-                    def: `A small detail that reveals something important, often before the person says it directly.`,
-                    in_action: `He said he was relaxed, but the telltale sign was the way he kept rubbing his hands together.`,
-                    review_prompt: `What is a telltale sign that someone might be nervous in a meeting — and what else would you check before assuming?`
+                    def: `A brief moment when someone shows their true feelings because they think no one is watching.`,
+                    in_action: `In an unguarded moment, her face fell completely — then the smile was back.`,
+                    review_prompt: `What might you notice about someone in an unguarded moment that they'd usually hide?`
                 }
             },
             {
-                id: `moment-unclench`,
-                preview: `Comfort changes the body…`,
-                text: `What does someone look like when they are genuinely comfortable in a conversation? What changes when someone feels uncomfortable, nervous, or unsure? Which signs do you usually notice first?`,
-                upgrade: {
-                    term: `unclench`,
-                    type: `verb`,
-                    def: `To relax physically or emotionally after being tense, guarded, or uncomfortable.`,
-                    in_action: `As the conversation became warmer, he visibly unclenched — his shoulders dropped, his breathing slowed, and he started speaking more freely.`,
-                    review_prompt: `What might you see when someone starts to unclench as a conversation gets warmer?`
-                }
-            },
-            {
-                id: `moment-forced-smile`,
-                preview: `A smile that does not quite feel genuine…`,
-                text: `How do you tell the difference between a genuine smile and a polite or forced one? Is it the eyes, the timing, the way it fades, or something else? How reliable do you think that instinct is?`,
+                id: `moment-real-smile`,
+                preview: `A smile that doesn't reach the eyes…`,
+                text: `Most of us can feel the difference between a real smile and a polite one, even if we can't say exactly how. Is it the eyes, the timing, how fast it fades? Think of a time you could tell a smile wasn't quite genuine — what gave it away?`,
                 upgrade: {
                     term: `forced smile`,
                     type: `noun phrase`,
-                    def: `A smile that someone uses to look polite, calm, or friendly, even when the feeling may not be natural.`,
-                    in_action: `His forced smile made the apology feel less convincing, even though the words sounded polite.`,
-                    review_prompt: `When might someone use a forced smile, even if they do not feel relaxed?`
+                    def: `A smile someone puts on to seem polite or friendly when the feeling isn't really there.`,
+                    in_action: `He thanked me with a forced smile that disappeared the second I turned away.`,
+                    review_prompt: `What's the difference, for you, between a real smile and a forced one?`
                 }
             },
             {
-                id: `moment-brave-face`,
-                preview: `“I’m fine,” but the body suggests otherwise…`,
-                text: `A friend says, “I’m fine,” but their voice is flat, their posture looks heavy, and they avoid eye contact. Do you ask again, give them space, or wait for them to open up? What would feel caring without being too pushy?`,
+                id: `moment-nerves-leak`,
+                preview: `The body that won't keep the secret…`,
+                text: `Someone's trying hard to seem calm and in control — but a foot is tapping, a hand won't stay still, they keep touching their face. What are the little physical things that tend to leak out when a person is nervous, no matter how calm they're trying to look?`,
                 upgrade: {
-                    term: `put on a brave face`,
+                    term: `give yourself away`,
                     type: `idiom`,
-                    def: `To try to look calm, strong, or happy when you are actually upset, worried, or under pressure.`,
-                    in_action: `She was putting on a brave face, but her tired eyes made me think something was wrong.`,
-                    review_prompt: `What kind of situation might make someone put on a brave face at work?`
+                    def: `To accidentally show a feeling you were trying to hide, through your face or body.`,
+                    in_action: `He said he wasn't worried, but his shaking hands gave him away.`,
+                    review_prompt: `What small physical habit tends to give people away when they're nervous?`
+                }
+            },
+            {
+                id: `moment-heavy-shoulders`,
+                preview: `You can see the week on them…`,
+                text: `Sometimes you can tell someone's had a hard day or a hard week before they say one word — it's in the shoulders, the walk, the way they drop into a chair. Have you ever seen the weight of something on a person's body like that? What did you notice?`,
+                upgrade: {
+                    term: `weigh someone down`,
+                    type: `phrasal verb`,
+                    def: `To make someone feel heavy, tired, or low, so that it shows in how they move or hold themselves.`,
+                    in_action: `You could see the stress weighing him down — shoulders slumped, moving like everything was an effort.`,
+                    review_prompt: `How can you tell when something's weighing someone down before they mention it?`
                 }
             }
         ],
         makeItReal: {
-            title: `A signal you noticed`,
-            prompt: `Think of a real moment when someone’s body language gave you an immediate impression. What did you notice first, what did you think it meant, and did your interpretation turn out to be right?`
+            title: `A read you made in a second`,
+            prompt: `Think of a real moment when someone's body or face gave you an instant impression — in a shop, a meeting, at home, anywhere. What did you notice first, what did you think it meant, and did it turn out to be right?`
         }
     },
     {
-        id: `set-behind-gesture`,
-        title: `Behind the Gesture`,
-        desc: `Look more carefully at what body language might mean, why the same signal can be read in different ways, and how context changes interpretation.`,
+        id: `set-what-it-means`,
+        title: `What the Body Isn't Saying`,
+        desc: `The trickier middle ground — where the same signal has more than one meaning, and reading it wrong is easy.`,
         icon: `explain`,
         moments: [
             {
-                id: `moment-context-dependent`,
-                preview: `One gesture, more than one meaning…`,
-                text: `Think of a gesture, expression, or habit that could mean something positive in one situation and something very different in another — for example, a long pause, intense eye contact, crossed arms, a quiet voice, or a touch on the arm. How does context change what the body seems to say?`,
-                upgrade: {
-                    term: `context-dependent`,
-                    type: `adjective`,
-                    def: `Changing meaning depending on the situation, relationship, culture, or environment.`,
-                    in_action: `A long pause is context-dependent — in one conversation it may suggest thoughtfulness, while in another it may feel uncomfortable or tense.`,
-                    review_prompt: `How could the same pause feel thoughtful in one setting and tense in another?`
-                }
-            },
-            {
-                id: `moment-crossed-arms`,
-                preview: `Cold, comfortable, or closed off?`,
-                text: `Some people say crossed arms mean a person is defensive or closed off. Others say it may simply mean they are cold, comfortable, tired, or listening carefully. What makes the difference? How can we avoid assuming too much from one signal?`,
+                id: `moment-over-reading`,
+                preview: `One signal, a whole story invented…`,
+                text: `Someone crosses their arms, and a friend leans over and whispers, "They're not happy." Maybe — or maybe the room's cold, or that's just how they stand. When have you seen someone build a whole story out of one small signal that probably didn't mean that much?`,
                 upgrade: {
                     term: `read too much into`,
                     type: `idiomatic phrase`,
-                    def: `To give something more meaning or importance than it may actually have.`,
-                    in_action: `I may have read too much into his crossed arms — the room was freezing, and he was probably just trying to stay warm.`,
-                    review_prompt: `What body-language signal do people sometimes read too much into?`
+                    def: `To give something more meaning than it probably has.`,
+                    in_action: `I think I read too much into his silence — turns out he was just tired.`,
+                    review_prompt: `What body-language signal do people most often read too much into?`
                 }
             },
             {
-                id: `moment-carry-yourself`,
-                preview: `Confidence and arrogance can look similar…`,
-                text: `Two people watch someone walk into a room with a straight back, calm movement, and strong eye contact. One person reads it as confidence; another reads it as arrogance. What makes confident body language feel positive in one person and uncomfortable in another?`,
+                id: `moment-confidence-arrogance`,
+                preview: `Confidence and arrogance can look the same…`,
+                text: `Someone walks in with a straight back, calm movements, steady eye contact. One person sees quiet confidence; another sees arrogance — same body, opposite read. What do you think tips confident body language over into looking arrogant?`,
                 upgrade: {
                     term: `carry yourself`,
                     type: `verb phrase`,
-                    def: `To hold and move your body in a way that gives people a particular impression of you.`,
-                    in_action: `She carries herself with quiet confidence, so people tend to listen before she even says much.`,
-                    review_prompt: `How might someone carry themselves differently in a job interview versus among close friends?`
+                    def: `To hold and move your body in a way that shapes the impression people have of you.`,
+                    in_action: `She carries herself so calmly that people listen before she's even said much.`,
+                    review_prompt: `How might someone carry themselves differently in an interview and among close friends?`
                 }
             },
             {
-                id: `moment-on-edge`,
-                preview: `Nervousness that leaks through…`,
-                text: `What physical signs of nervousness are hardest to hide? Think about voice changes, small hand movements, breathing, eye contact, posture, or speed of speech. Why does the body often show pressure before the person explains it?`,
+                id: `moment-under-pressure`,
+                preview: `Pressure shows before the words do…`,
+                text: `Think about someone right before something stressful — a presentation, a hard conversation, a test. What are the physical signs that tend to show they're under pressure, even while they're trying to look relaxed? Why does the body so often show it first?`,
                 upgrade: {
                     term: `on edge`,
                     type: `idiom`,
-                    def: `Nervous, tense, or unable to fully relax.`,
-                    in_action: `He tried to sound calm, but his quick breathing and restless hands made him look on edge.`,
-                    review_prompt: `What might make someone seem on edge before a big presentation?`
+                    def: `Nervous, tense, and unable to fully relax.`,
+                    in_action: `He looked on edge all morning — jumpy, restless, checking his phone every minute.`,
+                    review_prompt: `What tells you someone's on edge, even before they admit anything's wrong?`
                 }
             },
             {
-                id: `moment-body-mirroring`,
-                preview: `People copying each other without noticing…`,
-                text: `Have you ever noticed two friends, colleagues, or a couple sitting in a similar position, using similar gestures, or matching each other’s rhythm without realising it? Why do you think people sometimes mirror each other physically, and what effect can it have on the conversation?`,
+                id: `moment-loosen-up`,
+                preview: `The stiff start that slowly thaws…`,
+                text: `You've probably watched someone start a conversation stiff and closed — short answers, arms in, a bit formal — and then gradually relax as they get comfortable. What changes in the body as someone settles into a conversation? And what do you think helps that happen?`,
                 upgrade: {
-                    term: `mirror someone’s body language`,
-                    type: `verb phrase`,
-                    def: `To copy another person’s posture, gestures, or movement, often without realising it.`,
-                    in_action: `They were mirroring each other’s body language — leaning forward at the same time and using similar gestures.`,
-                    review_prompt: `When might people mirror each other's body language without noticing?`
+                    term: `loosen up`,
+                    type: `phrasal verb`,
+                    def: `To become more relaxed and less stiff or tense, in body or manner.`,
+                    in_action: `After a few minutes he loosened up — sat back, started using his hands, actually laughed.`,
+                    review_prompt: `What helps someone loosen up when they've started off stiff and guarded?`
+                }
+            },
+            {
+                id: `moment-making-small`,
+                preview: `Folding in to take up less room…`,
+                text: `Some people, in certain situations, seem to physically fold inward — shoulders in, head down, making themselves as small as possible, especially around louder or more senior people. When have you noticed someone doing that? What do you think makes a person fold in on themselves like that?`,
+                upgrade: {
+                    term: `shrink back`,
+                    type: `phrasal verb`,
+                    def: `To physically pull yourself in or move away, often from fear, shyness, or feeling out of place.`,
+                    in_action: `When the boss raised his voice, she shrank back and went completely quiet.`,
+                    review_prompt: `What kind of situation makes someone shrink back and try to take up less space?`
                 }
             }
         ],
         makeItReal: {
-            title: `A signal with more than one meaning`,
-            prompt: `Think of a time when you misread someone’s body language, or someone misread yours. What did the signal seem to suggest, what else was actually going on, and what would you check next time?`
+            title: `A signal you got wrong`,
+            prompt: `Think of a time you misread someone's body language — or someone misread yours. What did the signal seem to say, what was actually going on underneath, and what would you check before assuming next time?`
         }
     },
     {
-        id: `set-body-story`,
-        title: `Your Body, Your Story`,
-        desc: `Connect body language to your own habits, relationships, culture, language, confidence, and the way people learn to present themselves.`,
+        id: `set-your-own-body`,
+        title: `The Body You Carry`,
+        desc: `Turning it on yourself — your presence, your habits, your nerves, and how you've changed in the way you carry what you feel.`,
         icon: `reflect`,
         moments: [
             {
-                id: `moment-gravitas`,
-                preview: `Someone whose presence you remember…`,
-                text: `Think of someone from your life — a teacher, parent, boss, friend, colleague, or public figure — who has a strong physical presence. Not necessarily loud or dramatic, but memorable in the way they stand, move, pause, or hold attention. What makes their presence powerful?`,
+                id: `moment-presence`,
+                preview: `Someone who fills a room quietly…`,
+                text: `Think of someone you've known — a teacher, a relative, a boss, a friend — who had a strong physical presence. Not loud or showy, but memorable in how they stood, moved, paused, or held people's attention. What was it about their physical presence that stayed with you?`,
                 upgrade: {
                     term: `gravitas`,
                     type: `noun`,
-                    def: `A serious, calm, and impressive presence that makes people pay attention and take someone seriously.`,
-                    in_action: `She did not need to raise her voice; she had a natural gravitas that made the room listen.`,
-                    review_prompt: `How could someone show gravitas in a meeting without raising their voice?`
+                    def: `A calm, serious presence that makes people pay attention and take someone seriously.`,
+                    in_action: `He never raised his voice — he just had a natural gravitas, and the room would go quiet.`,
+                    review_prompt: `Who's someone with real gravitas, and how do they show it without trying hard?`
                 }
             },
             {
-                id: `moment-mannerism`,
-                preview: `A habit your body gives away…`,
-                text: `What is one body-language habit people might notice in you when you are nervous, excited, bored, focused, or uncomfortable? How did you become aware of it, and have you ever tried to change it?`,
+                id: `moment-own-tell`,
+                preview: `The habit your body gives away…`,
+                text: `Most of us have a physical habit that shows up when we're nervous, focused, bored, or excited — tapping, fidgeting, a certain way of standing, playing with something. What's yours? How did you become aware of it, and have you ever tried to stop?`,
                 upgrade: {
                     term: `mannerism`,
                     type: `noun`,
-                    def: `A repeated habit in the way someone moves, speaks, gestures, or holds themselves.`,
-                    in_action: `One of my mannerisms is tapping my fingers when I am thinking hard, even when I do not realise I am doing it.`,
-                    review_prompt: `What's one mannerism you've noticed in a friend or colleague when they're concentrating?`
+                    def: `A repeated, often unconscious habit in the way someone moves, gestures, or holds themselves.`,
+                    in_action: `One of my mannerisms is clicking my pen when I'm thinking — I don't even notice I'm doing it.`,
+                    review_prompt: `What's one mannerism you've noticed in yourself when you're concentrating?`
                 }
             },
             {
-                id: `moment-second-language-body`,
+                id: `moment-other-language`,
                 preview: `A different body in a different language…`,
-                text: `Does your body language change when you speak another language? Do you become more cautious, more expressive, more formal, more relaxed, or more self-conscious? What changes in your face, hands, posture, or confidence?`,
+                text: `Does your body change when you speak another language? Some people get more careful, smaller in their gestures, more self-conscious; others feel freer. What happens to your face, hands, posture, or confidence when you switch into a language you're less sure of?`,
                 upgrade: {
                     term: `tense up`,
                     type: `phrasal verb`,
-                    def: `To become physically tight, stiff, or nervous because you feel uncomfortable or under pressure.`,
-                    in_action: `When he switched to his second language, he tensed up — his gestures became smaller, his shoulders tightened, and he looked less like himself.`,
-                    review_prompt: `Why might someone tense up when speaking a language they are less confident in?`
+                    def: `To become physically tight or stiff because you feel nervous or under pressure.`,
+                    in_action: `The moment I have to speak English on the phone, I tense up and forget half my words.`,
+                    review_prompt: `What happens in your body when you tense up speaking a less familiar language?`
                 }
             },
             {
-                id: `moment-guarded`,
-                preview: `Becoming easier or harder to read…`,
-                text: `As you have got older, do you think you have become better at hiding what you feel, or more willing to let your feelings show? Is being hard to read useful, or can it create distance between people?`,
+                id: `moment-harder-to-read`,
+                preview: `Easier or harder to read, over the years…`,
+                text: `As you've got older, do you think you've become better at keeping your feelings off your face — or more willing to let them show? Is being hard to read something you value, or does it sometimes put distance between you and people?`,
                 upgrade: {
                     term: `guarded`,
                     type: `adjective`,
-                    def: `Careful about showing your feelings, thoughts, or reactions.`,
-                    in_action: `He seemed guarded at first, but after a few minutes he relaxed and started speaking more honestly.`,
-                    review_prompt: `What kind of situation might make someone act guarded when they first meet people?`
+                    def: `Careful not to show your feelings, thoughts, or reactions to others.`,
+                    in_action: `She was guarded at first, but once she trusted us, a completely different side came out.`,
+                    review_prompt: `In what kind of situation do you become more guarded with what you show?`
                 }
             },
             {
-                id: `moment-project-confidence`,
-                preview: `One thing you would change…`,
-                text: `Imagine walking into a room where nobody knows you yet. What would you want your body language to communicate before you even speak — calm, warmth, confidence, openness, professionalism, or something else?`,
+                id: `moment-show-or-hide`,
+                preview: `The open book and the closed one…`,
+                text: `Some people show everything on their face — you always know exactly where you stand with them. Others keep it all in, and you can never quite tell. Which are you closer to — and do you think it's better to be easy to read, or hard to read?`,
                 upgrade: {
-                    term: `project confidence`,
-                    type: `verb phrase`,
-                    def: `To show confidence through posture, voice, movement, expression, or general presence.`,
-                    in_action: `She wanted to project confidence in meetings, so she worked on sitting upright, slowing her speech, and holding eye contact more naturally.`,
-                    review_prompt: `What small changes in posture or voice could help someone project confidence in a meeting?`
+                    term: `wear your heart on your sleeve`,
+                    type: `idiom`,
+                    def: `To show your feelings openly so that everyone can see how you feel.`,
+                    in_action: `He wears his heart on his sleeve — one look at him and you know exactly how the day's gone.`,
+                    review_prompt: `Do you wear your heart on your sleeve, or keep it hidden — and how does that work out for you?`
                 }
             }
         ],
         makeItReal: {
-            title: `Your body in a moment that mattered`,
-            prompt: `Think of a real moment when you were very aware of your own body language — perhaps during a presentation, interview, argument, date, lesson, meeting, or new social situation. What were you feeling, what were you trying to show or hide, and what did your body actually communicate?`
+            title: `Your body when it counted`,
+            prompt: `Think of a real moment when you were very aware of your own body — a presentation, an interview, a first meeting, a hard conversation, a big occasion. What were you feeling, what were you trying to show or hide, and what do you think your body actually communicated?`
         }
     }
 ];
