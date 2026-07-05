@@ -26,14 +26,14 @@ const MODULE = {
 };
 
 const subjectCopy = {
-    cover: {
-        hook: `A few words can open a door, close one, or change everything — depending on how they're said.`
-    },
+cover: {
+    hook: `A sentence can stay with someone for years — whether you meant it to or not.`
+}   ,
     overview: {
-        heading: `What We Really Do When We Talk`,
+        heading: `The Weight of Words`,
         intro: [
-            `It's easy to think of talking as passing information from one person to another — you say a thing, they receive it, done. But the interesting part is everything that happens around the words. The same sentence can comfort or wound depending on its timing. A single "fine" can mean the opposite of fine. A few words — "you're hired," "it's over," "I forgive you" — can change a life the second they're spoken. This subject is about that gap between what we say and what we actually do to each other when we speak.`,
-            `Here you'll explore how expression lands, hides, softens, and sharpens — the message you rewrote six times, the compliment with a sting in it, the thing everyone understood but no one said out loud. You'll look at how silence, directness, and politeness are read completely differently around the world, at the words one language has and another doesn't, and at who you become when you switch languages. Some of it is about being misheard. Just as much is about the quiet pleasure of being truly understood.`
+            `We do it all day long, and still it trips us up: the message rewritten five times, the "fine" that clearly wasn't, the joke that landed wrong, the thing everyone in the room understood but nobody said.`,
+            `Words are never just information. They soothe, sting, hide, and reveal — and every so often they change something the moment they're spoken. This is a subject about all the things we're really doing when we talk.`
         ]
     },
     paths: {
