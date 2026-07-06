@@ -23,7 +23,7 @@ const MODULE = {
     title: 'Body Language & Emotions',
     titleHtml: 'Body Language<br>&amp; <em>Emotions</em>',
     navTitle: 'Body Language',
-    bgImage: 'https://images.unsplash.com/photo-1725819327642-1e5062f3ebc3?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mzd8fHBlcnNvbiUyMG5lcnZvdXMlMjBoYW5kcyUyMGNpbmVtYXRpY3xlbnwwfDB8MHx8fDI%3D'
+    bgImage: 'https://images.unsplash.com/photo-1712772606217-12daab838196?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
 };
 
 /* TEMP BODY LANGUAGE COVER VISUAL OVERRIDE
@@ -66,7 +66,7 @@ const subjectCopy = {
         heading: `What the Body Says Before We Do`,
         intro: [
             `Feelings rarely wait for words. A face changes, shoulders drop, a hand goes still, someone leans in or pulls away — and we sense something before anyone explains it.`,
-            `This subject is about the body as the visible life of emotion: how it reveals, hides, performs, protects, and sometimes gives away what someone hoped to keep in. The aim is not to decode people, but to notice more carefully and assume less quickly.`
+            `This subject looks at how emotion shows up in the body: how people reveal it, hide it, perform it, protect themselves, or give themselves away without meaning to. The aim is not to decode people like a secret code, but to notice more carefully and assume less quickly.`
         ]
     },
     paths: {
@@ -77,7 +77,7 @@ const subjectCopy = {
     },
     culturalLens: {
         heading: `The Same Body, Read Different Ways`,
-        intro: `The way we hold ourselves feels natural — so natural we forget we ever learned it. But how much emotion a body shows, how close it stands, where the eyes rest, how grief or joy appears in public: all of it is shaped by culture, history, and habit. What reads as warm, honest, or respectful in one place can read as cold, rude, or strange somewhere else. These cards look at how differently the world reads a body — and how much an outsider can miss.`
+        intro: `The way we hold ourselves can feel completely natural — so natural we forget it was learned. But how much emotion a body shows, how close it stands, where the eyes rest, and which gestures feel polite, warm, rude, or strange are all shaped by culture, history, and habit. These cards look at how differently the world reads the body — and how much an outsider can miss.`
     },
     discussion: {
         heading: `When the Body Speaks First`,
@@ -99,25 +99,25 @@ const subjectCopy = {
 
 const clCards = [
     {
-        id: `cl-ritual-mourning`,
-        location: `Mourning traditions across cultures and history`,
-        title: `The Loudest Grief in the Room`,
-        teaser: `Sometimes the person weeping hardest never met the one who died.`,
-        insight: `In many traditions, grief has been something to show, not hide. Historically, families in parts of the Mediterranean, the Middle East, and South Asia hired professional mourners — people whose role at a funeral was to weep, wail, and lament out loud, so the dead were seen to be properly mourned. Elsewhere, the honourable response to loss has been the opposite: a still face, a steady voice, grief held quietly inside. For someone raised in one tradition, the other can look shocking — the loud mourner may seem hysterical or even fake, the quiet one cold or unloving. But neither shows how much a person feels. In some places, showing grief loudly is how you honour the dead; in others, holding it in is.`,
-        question: `At a funeral, would you feel more comfortable around open, visible weeping, or around quiet, contained grief — and what does each one seem to say to you?`,
+        id: `cl-bulgaria-nod`,
+        location: `Bulgaria (and parts of the Balkans, Greece, and beyond)`,
+        title: `The Nod That Means "No"`,
+        teaser: `You ask, they nod — and you've just been turned down.`,
+        insight: `In Bulgaria, and in pockets of the surrounding region, the head does the opposite of what many visitors expect: a nod can mean "no," and a shake of the head can mean "yes." It sounds like a small quirk until you're actually in it — asking directions, ordering food, checking whether the last bus has gone — and your body keeps reading the wrong answer off someone's head while their words say something else. Even once you know the rule, your instinct fights it, because head movements feel less like a choice and more like a reflex you never think about. It's one of the cleanest proofs there is that body language isn't a shared human code — the most "obvious" gesture in the world can be reversed a border away.`,
+        question: `If someone's words said "yes" but their head clearly shook "no," which would your gut believe in the moment — the words or the movement?`,
         upgrade: {
-            term: `stiff upper lip`,
-            type: `idiom`,
-            def: `A calm, controlled way of hiding your feelings when you're upset or under pressure.`,
-            in_action: `His father never cried at the funeral — he kept a stiff upper lip the whole day.`,
-            review_prompt: `What kind of situation might make someone keep a stiff upper lip?`
+            term: `throw someone off`,
+            type: `phrasal verb`,
+            def: `To confuse or unsettle someone because something is different from what they expected.`,
+            in_action: `The reversed nod really threw me off — I knew the words meant yes, but my brain kept reading the gesture as no.`,
+            review_prompt: `What kind of gesture or behaviour would throw you off in another culture?`
         },
         deeper: {
-            text: `It's easy to assume that visible grief equals deep grief, and that a calm face means someone isn't feeling much — but funerals across the world quietly disprove this. Where mourning is loud and communal, weeping together is a way of carrying the loss as a group, and holding it in can look like you didn't care. Where mourning is contained, composure is the gift you give the family, and falling apart can seem like making someone else's loss about you. Neither is more real; they're different ideas about what respect looks like on the outside. There's a modern echo whenever people disagree about how someone "should" behave after a death — the relative who stays busy and dry-eyed, and the one who sobs openly, may feel exactly the same thing underneath. The mistake is reading the surface as the measurement. How much a body shows and how much a heart feels are simply not the same dial.`,
+            text: `We tend to trust the body over words — the idea that "actions speak louder" runs deep, and a gesture feels more honest than speech precisely because it seems automatic. The reversed nod quietly explodes that. Here the automatic signal is the one that's culturally learned and locally specific, while the spoken word is the reliable part. That inversion is disorienting in a way a vocabulary difference never is: you can look up a word, but you can't easily override a lifetime of reading heads a certain way. There's a wider point underneath it about how confidently we all read bodies. Most of us walk around sure we can tell agreement from refusal, comfort from unease, interest from boredom, on sight — and mostly, at home, we can. Step across the right border and that confidence turns out to be local knowledge wearing the costume of universal truth. The humbling fix isn't to stop reading bodies, but to hold the reading a little more loosely.`,
             questions: [
-                `In your culture, how are people expected to behave at a funeral — and what happens if someone behaves differently?`,
-                `Have you ever judged how much someone was grieving by how much they showed — and could you have been wrong?`,
-                `Why do you think some cultures grieve loudly and together, while others grieve quietly and alone?`
+                `Have you ever kept misreading someone because a gesture of theirs meant the opposite of what you expected?`,
+                `Which do you trust more when they clash — what someone says, or what their body does? Should you?`,
+                `What gesture in your own culture feels so obvious that you'd assume the whole world shares it?`
             ]
         }
     },
