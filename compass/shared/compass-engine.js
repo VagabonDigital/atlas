@@ -80,19 +80,6 @@ const NAV_ITEMS = [
         </svg>`,
     },
     {
-        id: 'cultural-lens',
-        label: 'Cultural Lens',
-        viewId: 'view-cultural-lens',
-        desktopSvg: `<svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-            <circle cx="7.5" cy="7.5" r="5.2" stroke="currentColor" stroke-width="1.35"/>
-            <path d="M2.3 7.5h10.4M7.5 2.3c1.35 1.45 2.05 3.2 2.05 5.2s-.7 3.75-2.05 5.2M7.5 2.3C6.15 3.75 5.45 5.5 5.45 7.5s.7 3.75 2.05 5.2" stroke="currentColor" stroke-width="1.05" stroke-linecap="round"/>
-        </svg>`,
-        mobileSvg: `<svg width="17" height="17" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-            <circle cx="7.5" cy="7.5" r="5.2" stroke="currentColor" stroke-width="1.35"/>
-            <path d="M2.3 7.5h10.4M7.5 2.3c1.35 1.45 2.05 3.2 2.05 5.2s-.7 3.75-2.05 5.2M7.5 2.3C6.15 3.75 5.45 5.5 5.45 7.5s.7 3.75 2.05 5.2" stroke="currentColor" stroke-width="1.05" stroke-linecap="round"/>
-        </svg>`
-    },
-    {
         id: 'discussion',
         label: 'Discussion',
         viewId: 'view-discussion',
@@ -104,6 +91,19 @@ const NAV_ITEMS = [
             <path d="M3 4a1.5 1.5 0 011.5-1.5h7A1.5 1.5 0 0113 4v6a1.5 1.5 0 01-1.5 1.5H8.5L6 14V11.5H4.5A1.5 1.5 0 013 10V4z"
                 stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
         </svg>`,
+    },
+    {
+        id: 'cultural-lens',
+        label: 'Cultural Lens',
+        viewId: 'view-cultural-lens',
+        desktopSvg: `<svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+            <circle cx="7.5" cy="7.5" r="5.2" stroke="currentColor" stroke-width="1.35"/>
+            <path d="M2.3 7.5h10.4M7.5 2.3c1.35 1.45 2.05 3.2 2.05 5.2s-.7 3.75-2.05 5.2M7.5 2.3C6.15 3.75 5.45 5.5 5.45 7.5s.7 3.75 2.05 5.2" stroke="currentColor" stroke-width="1.05" stroke-linecap="round"/>
+        </svg>`,
+        mobileSvg: `<svg width="17" height="17" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+            <circle cx="7.5" cy="7.5" r="5.2" stroke="currentColor" stroke-width="1.35"/>
+            <path d="M2.3 7.5h10.4M7.5 2.3c1.35 1.45 2.05 3.2 2.05 5.2s-.7 3.75-2.05 5.2M7.5 2.3C6.15 3.75 5.45 5.5 5.45 7.5s.7 3.75 2.05 5.2" stroke="currentColor" stroke-width="1.05" stroke-linecap="round"/>
+        </svg>`
     },
     {
         id: 'reflection',
@@ -152,8 +152,7 @@ let currentSession = 'Default';
 let currentSessionId = 'default';
 let sessions = ['Default'];
 let progress = {
-    viewed: new Set(),
-    covered: new Set(),
+    explored: new Set(),
     lessonCompletedAt: null,
     completionSnapshot: null
 };
@@ -246,41 +245,33 @@ function publishAtlasCompassItem(action = 'updated') {
         const momentsTotal = momentItems.length;
         const totalCount = culturalLensTotal + momentsTotal;
 
-        const culturalLensViewed = clCards.filter(card => progress.viewed?.has(card.id)).length;
-        const culturalLensCovered = clCards.filter(card => progress.covered?.has(card.id)).length;
+        const culturalLensExplored = clCards.filter(card => progress.explored?.has(card.id)).length;
+        const momentsExplored = momentItems.filter(moment => progress.explored?.has(moment.id)).length;
 
-        const momentsViewed = momentItems.filter(moment => progress.viewed?.has(moment.id)).length;
-        const momentsCovered = momentItems.filter(moment => progress.covered?.has(moment.id)).length;
-
-        const viewedCount = culturalLensViewed + momentsViewed;
-        const coveredCount = culturalLensCovered + momentsCovered;
+        const exploredCount = culturalLensExplored + momentsExplored;
 
         const status = isLessonComplete()
             ? 'complete'
-            : viewedCount > 0 || coveredCount > 0
+            : exploredCount > 0
                 ? 'in-progress'
                 : 'not-started';
 
         const progressSummary = {
-            viewed: viewedCount,
-            covered: coveredCount,
+            explored: exploredCount,
             total: totalCount,
-            label: `Cultural Lens ${culturalLensCovered}/${culturalLensTotal} · Discussion ${momentsCovered}/${momentsTotal}`,
+            label: `${culturalLensExplored} ${COMPASS_LABELS.culturalLensUnitPlural} explored · ${momentsExplored} ${COMPASS_LABELS.discussionUnitPlural} explored`,
             culturalLens: {
-                viewed: culturalLensViewed,
-                covered: culturalLensCovered,
+                explored: culturalLensExplored,
                 total: culturalLensTotal
             },
             moments: {
-                viewed: momentsViewed,
-                covered: momentsCovered,
+                explored: momentsExplored,
                 total: momentsTotal
             }
         };
 
         const progressRaw = {
-            viewedIds: [...progress.viewed],
-            coveredIds: [...progress.covered],
+            exploredIds: [...progress.explored],
             lessonCompletedAt: progress.lessonCompletedAt || null,
             completionSnapshot: progress.completionSnapshot || null
         };
@@ -388,74 +379,168 @@ function findLessonUpgradeById(id) {
     return null;
 }
 
-function publishLearningLedgerUpgrade(id, status = 'covered') {
-    try {
-        const Bridge = requireAtlasBridge();
-        const activeSession = getCurrentBridgeSession();
-        const lessonUpgrade = findLessonUpgradeById(id);
+// ============================================================
+// SAVED LANGUAGE RULE
+// Saved language is learner-curated Language Bank data.
+// It writes to the Learning Ledger only when the user presses Save.
+// Explored progress stays in progress.explored and never writes ledger entries.
+// ============================================================
 
-        if (!lessonUpgrade || !lessonUpgrade.upgrade) return;
+function getSourceElementIdFromUpgradeContextId(contextId) {
+    const value = String(contextId || '');
 
-        const upgrade = lessonUpgrade.upgrade;
-        const term = getUpgradeText(upgrade, ['term', 'phrase', 'word']);
-        const type = getUpgradeText(upgrade, ['type']);
-        const def = getUpgradeText(upgrade, ['def', 'definition', 'meaning']);
-        const inAction = getUpgradeText(upgrade, ['in_action', 'inAction', 'example']);
-        const reviewPrompt = getUpgradeText(upgrade, ['review_prompt', 'reviewPrompt']);
+    if (value.startsWith('moment-')) {
+        return value.slice('moment-'.length);
+    }
 
-        if (!term || !def) return;
+    if (value.startsWith('cl-')) {
+        return value.slice('cl-'.length);
+    }
 
-        const timestamp = Date.now();
+    return value;
+}
 
-        const sourceElementId = lessonUpgrade.sourceElementId;
-        const sourceKind = lessonUpgrade.sourceKind || 'unknown';
-        const unitSlug = Bridge.slugify(sourceElementId);
-        const termSlug = Bridge.slugify(term);
+function getUpgradeSourceFromContextId(contextId) {
+    const sourceElementId = getSourceElementIdFromUpgradeContextId(contextId);
+    const found = findLessonUpgradeById(sourceElementId);
 
-        const entryId = [
-            COMPASS_WORLD_ID,
-            MODULE.id,
-            activeSession.id,
-            unitSlug
-        ].join(':');
+    if (!found) return null;
 
-        const ledger = Bridge.readLedger();
-        const existingEntry = ledger.entries?.[entryId] || {};
+    return {
+        ...found,
+        contextId,
+        sourceElementId
+    };
+}
 
-        const entry = {
-            schemaVersion: 1,
-            id: entryId,
+function getSavedLanguageEntryId(contextId) {
+    const Bridge = requireAtlasBridge();
+    const activeSession = getCurrentBridgeSession();
+    const source = getUpgradeSourceFromContextId(contextId);
 
-            sourceWorld: COMPASS_WORLD_ID,
-            sourceItem: MODULE.id,
-            sourceElementId,
-            sourceKind,
-            contentVersion: MODULE.contentVersion || '1.0.0',
+    if (!source || !source.upgrade) return '';
 
-            sessionId: activeSession.id,
-            sessionName: activeSession.name,
-            status,
+    const termSlug = Bridge.slugify(source.upgrade.term || source.sourceElementId);
 
-            term,
-            termSlug,
-            upgradeId: termSlug,
-            type,
-            def,
-            inAction,
-            reviewPrompt,
+    return [
+        COMPASS_WORLD_ID,
+        'language',
+        activeSession.id,
+        MODULE.id,
+        source.sourceElementId,
+        termSlug
+    ].join(':');
+}
 
-            coveredAt: existingEntry.coveredAt || timestamp,
-            updatedAt: timestamp,
-            lastTouchedAt: timestamp,
+function isUpgradeSaved(contextId) {
+    const entryId = getSavedLanguageEntryId(contextId);
 
-            reviewCount: existingEntry.reviewCount || 0,
-            lastReviewedAt: existingEntry.lastReviewedAt || null,
-            recallBucket: existingEntry.recallBucket || null
-        };
+    if (!entryId) return false;
 
-        Bridge.upsertLedgerEntry(entry);
-    } catch (error) {
-        console.warn('[Compass] Learning ledger publish failed:', error);
+    const ledger = requireAtlasBridge().readLedger();
+    const entry = ledger.entries?.[entryId];
+
+    return !!entry && entry.status === 'saved';
+}
+
+function buildSavedLanguageEntry(contextId) {
+    const Bridge = requireAtlasBridge();
+    const activeSession = getCurrentBridgeSession();
+    const source = getUpgradeSourceFromContextId(contextId);
+
+    if (!source || !source.upgrade) return null;
+
+    const upgrade = source.upgrade;
+    const timestamp = Date.now();
+    const reviewPrompt = getUpgradeText(upgrade, ['review_prompt', 'reviewPrompt']);
+    const entryId = getSavedLanguageEntryId(contextId);
+
+    if (!entryId) return null;
+
+    return {
+        id: entryId,
+        kind: 'language',
+        status: 'saved',
+
+        sessionId: activeSession.id,
+        sessionName: activeSession.name,
+
+        sourceWorld: COMPASS_WORLD_ID,
+        sourceItem: MODULE.id,
+        sourceRegistryId: getContentRegistryId(),
+        sourceTitle: MODULE.title,
+        sourceNavTitle: MODULE.navTitle || MODULE.title,
+        sourceElementId: source.sourceElementId,
+        sourceKind: source.sourceKind,
+
+        term: upgrade.term || '',
+        type: upgrade.type || '',
+        def: upgrade.def || '',
+        inAction: upgrade.in_action || '',
+        reviewPrompt,
+
+        savedAt: timestamp,
+        lastTouchedAt: timestamp
+    };
+}
+
+function updateUpgradeSaveButton(contextId) {
+    const btn = document.getElementById(`us-${contextId}`);
+
+    if (!btn) return;
+
+    const saved = isUpgradeSaved(contextId);
+
+    btn.classList.toggle('is-saved', saved);
+    btn.setAttribute('aria-pressed', String(saved));
+    btn.title = saved ? 'Remove from Language Bank' : 'Save to Language Bank';
+    btn.textContent = saved ? 'Saved' : 'Save';
+}
+
+function saveLanguageFromUpgrade(contextId) {
+    const entry = buildSavedLanguageEntry(contextId);
+
+    if (!entry) return;
+
+    requireAtlasBridge().upsertLedgerEntry(entry);
+
+    updateUpgradeSaveButton(contextId);
+    publishAtlasCompassItem('language-saved');
+}
+
+function unsaveLanguageFromUpgrade(contextId) {
+    const Bridge = requireAtlasBridge();
+    const entryId = getSavedLanguageEntryId(contextId);
+
+    if (!entryId) return;
+
+    const ledger = Bridge.readLedger();
+
+    if (ledger.entries?.[entryId]) {
+        delete ledger.entries[entryId];
+        Bridge.writeLedger(ledger);
+    }
+
+    updateUpgradeSaveButton(contextId);
+    publishAtlasCompassItem('language-unsaved');
+}
+
+function toggleSavedLanguage(contextId, event) {
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+
+    if (isUpgradeSaved(contextId)) {
+        unsaveLanguageFromUpgrade(contextId);
+    } else {
+        saveLanguageFromUpgrade(contextId);
+    }
+
+    const drawer = document.getElementById('vb-drawer');
+
+    if (drawer?.classList.contains('open')) {
+        renderVocabBank();
     }
 }
 
@@ -469,8 +554,7 @@ function loadProgress() {
         const raw = state?.progressRaw || {};
 
         progress = {
-            viewed: new Set(Array.isArray(raw.viewedIds) ? raw.viewedIds : []),
-            covered: new Set(Array.isArray(raw.coveredIds) ? raw.coveredIds : []),
+            explored: new Set(Array.isArray(raw.exploredIds) ? raw.exploredIds : []),
             lessonCompletedAt: raw.lessonCompletedAt || state?.lessonCompletedAt || null,
             completionSnapshot: raw.completionSnapshot || state?.completionSnapshot || null
         };
@@ -478,8 +562,7 @@ function loadProgress() {
         console.warn('[Compass] Progress load failed:', error);
 
         progress = {
-            viewed: new Set(),
-            covered: new Set(),
+            explored: new Set(),
             lessonCompletedAt: null,
             completionSnapshot: null
         };
@@ -502,38 +585,38 @@ function saveSessions() {
     }
 }
 
-function markViewed(id) {
-    if (!progress.covered.has(id)) {
-        progress.viewed.add(id);
-        saveProgress();
-    }
-}
-
 // ============================================================
-// COVERAGE & LEDGER RULE
-// Covered units are the only source of Learning Ledger entries.
-// Viewing cards, opening Upgrade chips, or completing the lesson
-// must never publish inferred vocabulary progress.
+// EXPLORED STATE RULE
+// Explored units are subject progress only.
+// They must not publish Learning Ledger entries.
+// Language Bank entries require an explicit saved-language action.
 // ============================================================
 
-// A Cultural Lens card or Discussion moment is the atomic teaching unit.
-// Its attached Upgrade belongs to that unit, not to a separate progress track.
-// If a unit ever carries multiple Upgrades, revisit this rule.
-
-function markCovered(id) {
-    progress.covered.add(id);
-    progress.viewed.add(id);
+function markExplored(id) {
+    progress.explored.add(id);
     saveProgress();
-    publishLearningLedgerUpgrade(id, 'covered');
     updateLessonCompleteButton();
     updateGlobalProgressRail();
     updateCoverActionUI();
+    updateReflectionProgressSummary();
+}
+
+function unmarkExplored(id) {
+    progress.explored.delete(id);
+    saveProgress();
+    updateLessonCompleteButton();
+    updateGlobalProgressRail();
+    updateCoverActionUI();
+    updateReflectionProgressSummary();
 }
 
 function getItemState(id) {
-    if (progress.covered.has(id)) return 'covered';
-    if (progress.viewed.has(id)) return 'viewed';
+    if (progress.explored.has(id)) return 'explored';
     return 'default';
+}
+
+function getExploredButtonContent(isExplored) {
+    return `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> ${isExplored ? 'Explored' : 'Mark explored'}`;
 }
 
 const LESSON_COMPLETE_ICON = `<svg width="15" height="15" viewBox="0 0 16 16" fill="none">
@@ -558,27 +641,27 @@ function isLessonComplete() {
     return progress.lessonCompletedAt != null;
 }
 
-function isFullyCovered() {
+function isFullyExplored() {
     const allIds = getLessonItemIds();
-    return allIds.length > 0 && allIds.every(id => progress.covered.has(id));
+    return allIds.length > 0 && allIds.every(id => progress.explored.has(id));
 }
 
 function updateGlobalProgressRail() {
     const allIds = getLessonItemIds();
     const total = allIds.length;
-    const covered = total ? allIds.filter(id => progress.covered.has(id)).length : 0;
-    const coveragePercent = total ? Math.round((covered / total) * 100) : 0;
+    const explored = total ? allIds.filter(id => progress.explored.has(id)).length : 0;
+    const exploredPercent = total ? Math.round((explored / total) * 100) : 0;
     const lessonComplete = isLessonComplete();
-    const visualPercent = lessonComplete ? 100 : coveragePercent;
+    const visualPercent = lessonComplete ? 100 : exploredPercent;
 
     document.querySelectorAll('.global-progress-rail').forEach(rail => {
         const fill = rail.querySelector('.global-progress-fill');
 
         if (fill) fill.style.width = `${visualPercent}%`;
 
-        rail.classList.toggle('is-complete', lessonComplete || (total > 0 && covered === total));
+        rail.classList.toggle('is-complete', lessonComplete || (total > 0 && explored === total));
         rail.classList.toggle('is-lesson-complete', lessonComplete);
-        rail.classList.toggle('is-fully-covered', total > 0 && covered === total);
+        rail.classList.toggle('is-fully-explored', total > 0 && explored === total);
 
         rail.setAttribute('aria-valuenow', String(visualPercent));
 
@@ -593,8 +676,8 @@ function updateGlobalProgressRail() {
         rail.setAttribute(
             'aria-valuetext',
             lessonComplete
-                ? `Lesson complete. ${covered} of ${total} items covered.`
-                : `Lesson progress. ${covered} of ${total} items covered.`
+                ? `Wrapped up. ${explored} items explored.`
+                : `Lesson progress. ${explored} items explored.`
         );
     });
 }
@@ -668,7 +751,7 @@ function completeLesson() {
 
     progress.lessonCompletedAt = Date.now();
     progress.completionSnapshot = {
-        coveredCount: progress.covered.size,
+        exploredCount: progress.explored.size,
         totalCount: allIds.length,
         completedAt: progress.lessonCompletedAt
     };
@@ -690,13 +773,13 @@ function updateLessonCompleteButton() {
     btn.className = `btn-primary${complete ? ' btn-complete-done' : ''}`;
 
     if (!complete) {
-        btn.innerHTML = `${LESSON_COMPLETE_ICON} Mark lesson complete`;
-        btn.title = 'Mark this session as complete without changing covered items';
+        btn.innerHTML = `${LESSON_COMPLETE_ICON} Wrap up`;
+        btn.title = 'Wrap up this session without changing explored items';
         return;
     }
 
-    btn.innerHTML = `${LESSON_UNDO_ICON} Undo lesson complete`;
-    btn.title = 'Mark this session as not complete. Covered items will stay unchanged.';
+    btn.innerHTML = `${LESSON_UNDO_ICON} Undo wrap up`;
+    btn.title = 'Mark this session as not wrapped up. Explored items will stay unchanged.';
 }
 
 /* ============================================================
@@ -936,7 +1019,7 @@ function renderNav(containerId, activeViewId) {
             <button class="nav-keylang-btn nav-search-btn" onclick="openAtlasSearch()" title="Search" aria-label="Search">
                 ${getAtlasSearchIcon()}
             </button>
-            <button class="nav-keylang-btn" onclick="openVocabBank()" title="Key Language" aria-label="Open Key Language">
+            <button class="nav-keylang-btn" onclick="openVocabBank()" title="Language Bank" aria-label="Open Language Bank">
                 ${NAV_SVG.keylang}
             </button>
             <button class="appearance-toggle nav-appearance-toggle" onclick="toggleAppearanceMode()"
@@ -1002,7 +1085,7 @@ function renderMobileDrawerNav() {
         </button>
         <button class="mobile-nav-item" onclick="openVocabBankFromDrawer()">
             ${NAV_SVG.keylangMobile}
-            Key Language
+            Language Bank
         </button>`;
 }
 
@@ -1042,9 +1125,7 @@ function updateCoverActionUI() {
 
     if (!btn) return;
 
-    const hasProgress =
-        progress?.viewed?.size > 0 ||
-        progress?.covered?.size > 0;
+    const hasProgress = progress?.explored?.size > 0;
 
     const complete = isLessonComplete();
 
@@ -1076,9 +1157,7 @@ function updateSessionUI() {
             returningEl.classList.remove('is-visible');
             returningEl.textContent = '';
         } else {
-            const hasProgress =
-                progress?.viewed?.size > 0 ||
-                progress?.covered?.size > 0;
+            const hasProgress = progress?.explored?.size > 0;
 
             returningEl.classList.add('is-visible');
             returningEl.innerHTML = `${hasProgress ? 'Welcome back' : 'Welcome'}, <span class="cover-returning-name">${escHtml(currentSession)}</span>!`;
@@ -1573,13 +1652,16 @@ function openSessionModalFromDrawer() {
 
 // ---- UPGRADE CHIP ----
 function buildUpgradeChip(upgradeObj, contextId) {
-    const reviewPrompt = getUpgradeText(upgradeObj, ['review_prompt', 'reviewPrompt']);
+    if (!upgradeObj) return '';
 
-    return `<button class="upgrade-chip" id="uc-${contextId}" onclick="toggleUpgrade('${contextId}', event)" aria-expanded="false">
+    const reviewPrompt = getUpgradeText(upgradeObj, ['review_prompt', 'reviewPrompt']);
+    const saved = isUpgradeSaved(contextId);
+
+    return `<button class="upgrade-chip" id="uc-${escHtml(contextId)}" onclick="toggleUpgrade(${jsArg(contextId)}, event)" aria-expanded="false">
         ${UPGRADE_ICON_SVG}
         Upgrade: ${escHtml(upgradeObj.term)}
     </button>
-    <div class="upgrade-panel" id="up-${contextId}">
+    <div class="upgrade-panel" id="up-${escHtml(contextId)}">
         <p class="upgrade-panel-term">${escHtml(upgradeObj.term)}</p>
         <p class="upgrade-panel-type">${escHtml(upgradeObj.type)}</p>
         <p class="upgrade-panel-def">${escHtml(upgradeObj.def)}</p>
@@ -1590,6 +1672,16 @@ function buildUpgradeChip(upgradeObj, contextId) {
                 <p class="upgrade-panel-review-prompt">${escHtml(reviewPrompt)}</p>
             </div>
         ` : ''}
+        <div class="upgrade-panel-actions">
+            <button class="upgrade-save-btn${saved ? ' is-saved' : ''}"
+                id="us-${escHtml(contextId)}"
+                type="button"
+                onclick="toggleSavedLanguage(${jsArg(contextId)}, event)"
+                aria-pressed="${String(saved)}"
+                title="${saved ? 'Remove from Language Bank' : 'Save to Language Bank'}">
+                ${saved ? 'Saved' : 'Save'}
+            </button>
+        </div>
     </div>`;
 }
 
@@ -1678,7 +1770,7 @@ function renderCLGrid() {
 
         el.innerHTML = `
             <div class="cl-card-state-badge">
-                ${state === 'covered'
+                ${state === 'explored'
                 ? `<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5l2.5 2.5L9 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
                 : `<svg width="9" height="9" viewBox="0 0 9 9" fill="none"><circle cx="4.5" cy="4.5" r="3.5" stroke="currentColor" stroke-width="1.2"/></svg>`
             }
@@ -1694,27 +1786,18 @@ function renderCLGrid() {
 }
 
 function updateCLProgress() {
-    const viewed = clCards.filter(c => progress.viewed.has(c.id)).length;
-    const covered = clCards.filter(c => progress.covered.has(c.id)).length;
-    const vEl = document.getElementById('cl-viewed-count');
-    const cEl = document.getElementById('cl-covered-count');
+    const explored = clCards.filter(c => progress.explored.has(c.id)).length;
+    const cEl = document.getElementById('cl-explored-count');
     const textEl = document.getElementById('cl-progress-text');
 
-    if (viewed > 0 && vEl) {
-        vEl.style.display = 'inline-flex';
-        vEl.querySelector('span').textContent = `${viewed} viewed`;
-    } else if (vEl) {
-        vEl.style.display = 'none';
-    }
-
-    if (covered > 0 && cEl) {
+    if (explored > 0 && cEl) {
         cEl.style.display = 'inline-flex';
-        cEl.querySelector('span').textContent = `${covered} covered`;
+        cEl.querySelector('span').textContent = `${explored} explored`;
     } else if (cEl) {
         cEl.style.display = 'none';
     }
 
-    if (viewed === 0 && textEl) {
+    if (explored === 0 && textEl) {
         textEl.textContent = 'Explore the cards below — choose any that interest you.';
     } else if (textEl) {
         textEl.textContent = '';
@@ -1726,8 +1809,6 @@ function openCLModal(index) {
     currentModalIndex = index;
 
     const card = clCards[index];
-
-    markViewed(card.id);
 
     document.getElementById('modal-location').textContent = card.location;
     document.getElementById('modal-title').textContent = card.title;
@@ -1763,6 +1844,9 @@ function openCLModal(index) {
     document.getElementById('modal-prev-btn').disabled = index === 0;
     document.getElementById('modal-next-btn').style.opacity = index === clCards.length - 1 ? '0.35' : '1';
     document.getElementById('modal-next-btn').disabled = index === clCards.length - 1;
+
+    updateCLModalExploredButton();
+
     document.getElementById('cl-modal-overlay').classList.add('open');
 
     document.body.style.overflow = 'hidden';
@@ -1807,8 +1891,37 @@ function navigateModal(dir) {
     if (next >= 0 && next < clCards.length) openCLModal(next);
 }
 
-function markCLCovered() {
-    markCovered(clCards[currentModalIndex].id);
+function updateCLModalExploredButton() {
+    const btn = document.getElementById('cl-modal-explored-btn');
+    const card = clCards[currentModalIndex];
+
+    if (!btn || !card) return;
+
+    const explored = progress.explored.has(card.id);
+
+    btn.classList.toggle('is-explored', explored);
+    btn.setAttribute('aria-pressed', String(explored));
+    btn.setAttribute('aria-label', explored ? 'Mark as not explored' : 'Mark explored');
+    btn.title = explored ? 'Click to mark this card as not explored' : 'Mark this card as explored';
+    btn.innerHTML = getExploredButtonContent(explored);
+}
+
+function toggleCLExploredFromModal() {
+    const card = clCards[currentModalIndex];
+
+    if (!card) return;
+
+    const wasExplored = progress.explored.has(card.id);
+
+    if (wasExplored) {
+        unmarkExplored(card.id);
+        renderCLGrid();
+        updateCLProgress();
+        updateCLModalExploredButton();
+        return;
+    }
+
+    markExplored(card.id);
     closeModal();
     renderCLGrid();
     updateCLProgress();
@@ -1847,8 +1960,7 @@ function renderDiscussionSets() {
 
     discussionSets.forEach(set => {
         const totalMoments = set.moments.length;
-        const viewedCount = set.moments.filter(s => progress.viewed.has(s.id)).length;
-        const coveredCount = set.moments.filter(s => progress.covered.has(s.id)).length;
+        const exploredCount = set.moments.filter(s => progress.explored.has(s.id)).length;
         const el = document.createElement('div');
 
         el.className = 'set-card' + (activeSetId === set.id ? ' active-set' : '');
@@ -1871,7 +1983,7 @@ function renderDiscussionSets() {
             <h3 class="set-title">${escHtml(set.title)}</h3>
             <p class="set-desc">${escHtml(set.desc)}</p>
             <div class="set-progress-mini">
-                ${totalMoments} ${totalMoments === 1 ? COMPASS_LABELS.discussionUnitSingular : COMPASS_LABELS.discussionUnitPlural}${viewedCount > 0 ? ` · ${viewedCount} opened` : ''}${coveredCount > 0 ? ` · ${coveredCount} covered` : ''}
+                ${totalMoments} ${totalMoments === 1 ? COMPASS_LABELS.discussionUnitSingular : COMPASS_LABELS.discussionUnitPlural}${exploredCount > 0 ? ` · ${exploredCount} explored` : ''}
             </div>`;
 
         container.appendChild(el);
@@ -1882,27 +1994,18 @@ function renderDiscussionSets() {
 
 function updateDiscussionProgress() {
     const moments = discussionSets.flatMap(set => set.moments);
-    const viewed = moments.filter(s => progress.viewed.has(s.id)).length;
-    const covered = moments.filter(s => progress.covered.has(s.id)).length;
-    const vEl = document.getElementById('disc-viewed-count');
-    const cEl = document.getElementById('disc-covered-count');
+    const explored = moments.filter(s => progress.explored.has(s.id)).length;
+    const cEl = document.getElementById('disc-explored-count');
     const textEl = document.getElementById('disc-progress-text');
 
-    if (viewed > 0 && vEl) {
-        vEl.style.display = 'inline-flex';
-        vEl.querySelector('span').textContent = `${viewed} opened`;
-    } else if (vEl) {
-        vEl.style.display = 'none';
-    }
-
-    if (covered > 0 && cEl) {
+    if (explored > 0 && cEl) {
         cEl.style.display = 'inline-flex';
-        cEl.querySelector('span').textContent = `${covered} covered`;
+        cEl.querySelector('span').textContent = `${explored} explored`;
     } else if (cEl) {
         cEl.style.display = 'none';
     }
 
-    if (viewed === 0 && textEl) {
+    if (explored === 0 && textEl) {
         textEl.textContent = `Choose a set below — open any ${COMPASS_LABELS.discussionUnitSingular} that interests you.`;
     } else if (textEl) {
         textEl.textContent = '';
@@ -1998,13 +2101,15 @@ function renderMoments(set) {
         card.className = `moment-card state-${state}`;
         card.id = `moment-card-${moment.id}`;
 
-        const coveredBtnHtml = `<button class="btn-mark-covered ${state === 'covered' ? 'is-covered' : ''}"
+        const isExplored = state === 'explored';
+
+        const exploredBtnHtml = `<button class="btn-mark-explored ${isExplored ? 'is-explored' : ''}"
             id="moment-btn-${moment.id}"
-            onclick="markMomentCovered('${moment.id}')">
-            ${state === 'covered'
-                ? `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Covered`
-                : `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Mark covered`
-            }
+            onclick="toggleMomentExplored('${moment.id}')"
+            aria-pressed="${String(isExplored)}"
+            aria-label="${isExplored ? 'Mark as not explored' : 'Mark explored'}"
+            title="${isExplored ? 'Click to mark this moment as not explored' : 'Mark this moment as explored'}">
+            ${getExploredButtonContent(isExplored)}
         </button>`;
 
         card.innerHTML = `
@@ -2023,7 +2128,7 @@ function renderMoments(set) {
                         <div class="moment-upgrade-slot">
                             ${buildUpgradeChip(moment.upgrade, 'moment-' + moment.id)}
                         </div>
-                        ${coveredBtnHtml}
+                        ${exploredBtnHtml}
                     </div>
                 </div>
             </div>`;
@@ -2081,7 +2186,6 @@ function toggleMoment(momentId) {
 
     if (!wasExpanded) {
         card.classList.add('expanded');
-        markViewed(momentId);
         updateMomentCard(momentId);
         renderDiscussionSets();
     }
@@ -2097,26 +2201,96 @@ function updateMomentCard(momentId) {
     card.className = `moment-card state-${state}${card.classList.contains('expanded') ? ' expanded' : ''}`;
 }
 
-function markMomentCovered(momentId) {
-    markCovered(momentId);
+function openNextMomentAfter(momentId) {
+    const set = discussionSets.find(item =>
+        item.moments.some(moment => moment.id === momentId)
+    );
+
+    if (!set) return;
+
+    const currentIndex = set.moments.findIndex(moment => moment.id === momentId);
+    const nextMoment = set.moments[currentIndex + 1];
+
+    closeAllUpgradePanels();
+
+    document.querySelectorAll('.moment-card.expanded').forEach(card => {
+        card.classList.remove('expanded');
+    });
+
+    updateMomentCard(momentId);
+
+    if (!nextMoment) return;
+
+    const nextCard = document.getElementById(`moment-card-${nextMoment.id}`);
+
+    if (!nextCard) return;
+
+    nextCard.classList.add('expanded');
+    updateMomentCard(nextMoment.id);
+
+    requestAnimationFrame(() => {
+        nextCard.scrollIntoView({
+            behavior: getScrollBehavior(),
+            block: 'nearest'
+        });
+    });
+}
+
+function toggleMomentExplored(momentId) {
+    const wasExplored = progress.explored.has(momentId);
+
+    if (wasExplored) {
+        unmarkExplored(momentId);
+
+        const btn = document.getElementById(`moment-btn-${momentId}`);
+
+        if (btn) {
+            btn.className = 'btn-mark-explored';
+            btn.setAttribute('aria-pressed', 'false');
+            btn.setAttribute('aria-label', 'Mark explored');
+            btn.title = 'Mark this moment as explored';
+            btn.innerHTML = getExploredButtonContent(false);
+        }
+
+        updateMomentCard(momentId);
+        renderDiscussionSets();
+        updateDiscussionProgress();
+        return;
+    }
+
+    markExplored(momentId);
 
     const btn = document.getElementById(`moment-btn-${momentId}`);
 
     if (btn) {
-        btn.className = 'btn-mark-covered is-covered';
-        btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Covered`;
+        btn.className = 'btn-mark-explored is-explored';
+        btn.setAttribute('aria-pressed', 'true');
+        btn.setAttribute('aria-label', 'Mark as not explored');
+        btn.title = 'Click to mark this moment as not explored';
+        btn.innerHTML = getExploredButtonContent(true);
     }
 
     updateMomentCard(momentId);
     renderDiscussionSets();
+    updateDiscussionProgress();
+    openNextMomentAfter(momentId);
 }
 
-// ---- KEY LANGUAGE DRAWER ----
+// ---- LANGUAGE BANK DRAWER ----
+let vocabBankActiveTab = 'saved';
+let vocabBankEditMode = false;
+
 function openVocabBank() {
+    vocabBankActiveTab = 'saved';
+    vocabBankEditMode = false;
     renderVocabBank();
 
     document.getElementById('vb-overlay').classList.add('open');
     document.getElementById('vb-drawer').classList.add('open');
+
+    document.body.style.overflow = '';
+
+    scrollVocabBankToTop();
 
     document.body.style.overflow = 'hidden';
 
@@ -2132,106 +2306,270 @@ function closeVocabBank() {
     releaseFocusTrap();
 }
 
-function renderVocabBank() {
-    const list = document.getElementById('vb-list');
-
-    list.innerHTML = '';
-
-    const totalCount = clCards.length + discussionSets.reduce((acc, s) => acc + s.moments.length, 0);
-    const intro = document.createElement('div');
-
-    intro.innerHTML = `<p style="font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:0.3rem;">${totalCount} upgrade terms</p>
-        <p style="font-size:0.8rem;color:var(--stone-dark);line-height:1.5;padding-bottom:0.8rem;border-bottom:1px solid var(--stone-light);">${escHtml(subjectCopy.keyLanguage.intro)}</p>`;
-
-    list.appendChild(intro);
-
-    const clLabel = document.createElement('p');
-
-    clLabel.className = 'vb-section-label';
-    clLabel.textContent = 'Cultural Lens';
-
-    list.appendChild(clLabel);
-
-    clCards.forEach(card => {
-        const up = card.upgrade;
-        const entry = document.createElement('div');
-
-        entry.className = 'vb-entry';
-        entry.innerHTML = `
-            <p class="vb-entry-word">${escHtml(up.term)}</p>
-            <p class="vb-entry-type">${escHtml(up.type)}</p>
-            <p class="vb-entry-def">${escHtml(up.def)}</p>
-            <p class="vb-entry-example">${escHtml(up.in_action)}</p>`;
-
-        list.appendChild(entry);
-    });
-
-    discussionSets.forEach(set => {
-        const setLabel = document.createElement('p');
-
-        setLabel.className = 'vb-section-label';
-        setLabel.textContent = set.title;
-
-        list.appendChild(setLabel);
-
-        set.moments.forEach(moment => {
-            const up = moment.upgrade;
-            const entry = document.createElement('div');
-
-            entry.className = 'vb-entry';
-            entry.innerHTML = `
-                <p class="vb-entry-word">${escHtml(up.term)}</p>
-                <p class="vb-entry-type">${escHtml(up.type)}</p>
-                <p class="vb-entry-def">${escHtml(up.def)}</p>
-                <p class="vb-entry-example">${escHtml(up.in_action)}</p>`;
-
-            list.appendChild(entry);
-        });
-    });
-
-    const printArea = document.createElement('div');
-
-    printArea.className = 'vb-print-area';
-    printArea.innerHTML = `
-        <button class="vb-print-btn vb-print-btn-bottom" type="button" onclick="copyKeyLanguage(this)">
-            Copy Key Language
-        </button>
-        <button class="vb-print-btn vb-print-btn-bottom vb-print-btn-pdf" type="button" onclick="printKeyLanguage()">
-            Print / Save PDF
-        </button>`;
-
-    list.appendChild(printArea);
+function setVocabBankTab(tab) {
+    vocabBankActiveTab = tab === 'all' ? 'all' : 'saved';
+    vocabBankEditMode = false;
+    renderVocabBank();
+    scrollVocabBankToTop();
 }
 
-function buildKeyLanguagePlainText() {
-    const groups = [
+function toggleVocabBankEditMode() {
+    vocabBankEditMode = !vocabBankEditMode;
+    renderVocabBank();
+}
+
+function scrollVocabBankToTop() {
+    const list = document.getElementById('vb-list');
+
+    if (!list) return;
+
+    list.scrollTop = 0;
+
+    requestAnimationFrame(() => {
+        list.scrollTop = 0;
+    });
+}
+
+function updateVocabBankTabs() {
+    const savedTab = document.getElementById('vb-tab-saved');
+    const allTab = document.getElementById('vb-tab-all');
+
+    if (!savedTab || !allTab) return;
+
+    const savedActive = vocabBankActiveTab === 'saved';
+
+    savedTab.classList.toggle('active', savedActive);
+    allTab.classList.toggle('active', !savedActive);
+
+    savedTab.setAttribute('aria-selected', String(savedActive));
+    allTab.setAttribute('aria-selected', String(!savedActive));
+
+    savedTab.setAttribute('tabindex', savedActive ? '0' : '-1');
+    allTab.setAttribute('tabindex', savedActive ? '-1' : '0');
+}
+
+function getSavedLanguageEntriesForCurrentSubject() {
+    const Bridge = requireAtlasBridge();
+    const activeSession = getCurrentBridgeSession();
+    const ledger = Bridge.readLedger();
+
+    return Object.values(ledger.entries || {})
+        .filter(entry =>
+            entry &&
+            entry.kind === 'language' &&
+            entry.status === 'saved' &&
+            entry.sessionId === activeSession.id &&
+            entry.sourceWorld === COMPASS_WORLD_ID &&
+            entry.sourceItem === MODULE.id
+        )
+        .sort((a, b) =>
+            (b.savedAt || b.lastTouchedAt || b.updatedAt || 0) -
+            (a.savedAt || a.lastTouchedAt || a.updatedAt || 0)
+        );
+}
+
+function getUpgradeContextIdFromSource(sourceKind, sourceElementId) {
+    if (sourceKind === 'cultural-lens') {
+        return `cl-${sourceElementId}`;
+    }
+
+    if (sourceKind === 'moment') {
+        return `moment-${sourceElementId}`;
+    }
+
+    return sourceElementId;
+}
+
+function getAllLanguageGroups() {
+    return [
         {
             title: 'Cultural Lens',
-            entries: clCards.map(card => card.upgrade)
+            entries: clCards
+                .filter(card => card.upgrade)
+                .map(card => ({
+                    ...card.upgrade,
+                    contextId: `cl-${card.id}`
+                }))
         },
         ...discussionSets.map(set => ({
             title: set.title,
-            entries: set.moments.map(moment => moment.upgrade)
+            entries: set.moments
+                .filter(moment => moment.upgrade)
+                .map(moment => ({
+                    ...moment.upgrade,
+                    contextId: `moment-${moment.id}`
+                }))
         }))
     ];
+}
+
+function renderVocabEntry({
+    term = '',
+    type = '',
+    def = '',
+    inAction = '',
+    contextId = '',
+    showSaveControl = false,
+    saveControlMode = 'toggle'
+} = {}) {
+    const canSave = showSaveControl && contextId;
+    const removeMode = saveControlMode === 'remove';
+    const saved = canSave ? isUpgradeSaved(contextId) : false;
+
+    const buttonLabel = removeMode
+        ? 'Remove'
+        : saved ? 'Saved' : 'Save';
+
+    const buttonTitle = removeMode
+        ? 'Remove from Language Bank'
+        : saved ? 'Remove from Language Bank' : 'Save to Language Bank';
+
+    const buttonClass = [
+        'vb-entry-save-btn',
+        saved && !removeMode ? 'is-saved' : '',
+        removeMode ? 'is-remove' : ''
+    ].filter(Boolean).join(' ');
+
+    return `
+        <div class="vb-entry">
+            <div class="vb-entry-head">
+                <div class="vb-entry-title-wrap">
+                    <p class="vb-entry-word">${escHtml(term)}</p>
+                    <p class="vb-entry-type">${escHtml(type)}</p>
+                </div>
+                ${canSave ? `
+                    <button class="${buttonClass}"
+                        type="button"
+                        onclick="toggleSavedLanguage(${jsArg(contextId)}, event)"
+                        aria-pressed="${String(saved)}"
+                        title="${escHtml(buttonTitle)}">
+                        ${escHtml(buttonLabel)}
+                    </button>
+                ` : ''}
+            </div>
+            <p class="vb-entry-def">${escHtml(def)}</p>
+            <p class="vb-entry-example">${escHtml(inAction)}</p>
+        </div>
+    `;
+}
+
+function renderSavedLanguageTab() {
+    const savedEntries = getSavedLanguageEntriesForCurrentSubject();
+
+    if (!savedEntries.length) {
+        return `
+            <div class="vb-empty-state">
+                <p class="vb-empty-title">No saved language yet.</p>
+                <p class="vb-empty-text">Explore this subject and save language you want to revisit.</p>
+                <button class="vb-empty-action" type="button" onclick="setVocabBankTab('all')">
+                    Browse all language
+                </button>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="vb-intro">
+            <div class="vb-intro-top">
+                <p class="vb-intro-count">${savedEntries.length} saved</p>
+                <button class="vb-edit-btn" type="button" onclick="toggleVocabBankEditMode()">
+                    ${vocabBankEditMode ? 'Done' : 'Edit'}
+                </button>
+            </div>
+            <p class="vb-intro-copy">Your saved language for this subject</p>
+        </div>
+        ${savedEntries.map(entry => renderVocabEntry({
+            term: entry.term,
+            type: entry.type,
+            def: entry.def,
+            inAction: entry.inAction,
+            contextId: getUpgradeContextIdFromSource(entry.sourceKind, entry.sourceElementId),
+            showSaveControl: vocabBankEditMode,
+            saveControlMode: 'remove'
+        })).join('')}
+        <div class="vb-print-area">
+            <button class="vb-print-btn vb-print-btn-bottom" type="button" onclick="copySavedLanguage(this)">
+                Copy saved language
+            </button>
+            <button class="vb-print-btn vb-print-btn-bottom vb-print-btn-pdf" type="button" onclick="printSavedLanguage()">
+                Print / Save PDF
+            </button>
+        </div>
+    `;
+}
+
+function renderAllLanguageTab() {
+    const groups = getAllLanguageGroups();
+    const totalCount = groups.reduce((acc, group) => acc + group.entries.length, 0);
+    const introCopy = subjectCopy.keyLanguage?.intro || 'Language from this subject.';
+
+    return `
+        <div class="vb-intro">
+            <p class="vb-intro-count">${totalCount} entries</p>
+            <p class="vb-intro-copy">${escHtml(introCopy)}</p>
+        </div>
+        ${groups.map(group => `
+            <p class="vb-section-label">${escHtml(group.title)}</p>
+            ${group.entries.map(up => renderVocabEntry({
+                term: up.term,
+                type: up.type,
+                def: up.def,
+                inAction: up.in_action,
+                contextId: up.contextId,
+                showSaveControl: true
+            })).join('')}
+        `).join('')}
+        <div class="vb-print-area">
+            <button class="vb-print-btn vb-print-btn-bottom" type="button" onclick="copyAllLanguage(this)">
+                Copy all language
+            </button>
+            <button class="vb-print-btn vb-print-btn-bottom vb-print-btn-pdf" type="button" onclick="printAllLanguage()">
+                Print / Save PDF
+            </button>
+        </div>
+    `;
+}
+
+function renderVocabBank() {
+    const list = document.getElementById('vb-list');
+
+    if (!list) return;
+
+    updateVocabBankTabs();
+
+    list.innerHTML = vocabBankActiveTab === 'all'
+        ? renderAllLanguageTab()
+        : renderSavedLanguageTab();
+}
+
+function getLanguageEntryPlainText(entry = {}) {
+    const inAction = entry.inAction || entry.in_action || '';
+
+    return [
+        `Term: ${entry.term || ''}`,
+        `Type: ${entry.type || ''}`,
+        `Meaning: ${entry.def || ''}`,
+        `Example: ${inAction}`,
+        ''
+    ].join('\n');
+}
+
+function buildAllLanguagePlainText() {
+    const groups = getAllLanguageGroups();
+    const totalCount = groups.reduce((acc, group) => acc + group.entries.length, 0);
 
     const lines = [
         `Compass · ${MODULE.title}`,
-        'Key Language',
+        'All Language',
+        `${totalCount} entries`,
         ''
     ];
 
     groups.forEach(group => {
         lines.push(group.title.toUpperCase(), '');
 
-        group.entries.forEach(up => {
-            lines.push(
-                `Term: ${up.term}`,
-                `Type: ${up.type}`,
-                `Meaning: ${up.def}`,
-                `Example: ${up.in_action}`,
-                ''
-            );
+        group.entries.forEach(entry => {
+            lines.push(getLanguageEntryPlainText(entry));
         });
 
         lines.push('');
@@ -2240,8 +2578,24 @@ function buildKeyLanguagePlainText() {
     return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
 }
 
-async function copyKeyLanguage(button) {
-    const text = buildKeyLanguagePlainText();
+function buildSavedLanguagePlainText() {
+    const entries = getSavedLanguageEntriesForCurrentSubject();
+
+    const lines = [
+        `Compass · ${MODULE.title}`,
+        'Saved Language',
+        `${entries.length} saved`,
+        ''
+    ];
+
+    entries.forEach(entry => {
+        lines.push(getLanguageEntryPlainText(entry));
+    });
+
+    return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+}
+
+async function copyLanguageText(text, button) {
     let copied = false;
 
     try {
@@ -2288,6 +2642,110 @@ async function copyKeyLanguage(button) {
     }, 1400);
 }
 
+function copyAllLanguage(button) {
+    return copyLanguageText(buildAllLanguagePlainText(), button);
+}
+
+function copySavedLanguage(button) {
+    return copyLanguageText(buildSavedLanguagePlainText(), button);
+}
+
+function renderPrintLanguageEntry(entry = {}) {
+    const inAction = entry.inAction || entry.in_action || '';
+
+    return `
+        <div class="print-entry">
+            <p class="print-entry-term">
+                ${escHtml(entry.term || '')}
+                <span class="print-entry-type">${escHtml(entry.type || '')}</span>
+            </p>
+            <p class="print-entry-def">${escHtml(entry.def || '')}</p>
+            <p class="print-entry-example">${escHtml(inAction)}</p>
+        </div>
+    `;
+}
+
+function printLanguageDocument({
+    kicker = 'Compass · Language',
+    titleSuffix = 'Language',
+    intro = '',
+    meta = '',
+    sections = []
+} = {}) {
+    const printArea = document.getElementById('print-key-language');
+
+    if (!printArea) return;
+
+    printArea.innerHTML = `
+        <div class="print-doc">
+            <p class="print-doc-kicker">${escHtml(kicker)}</p>
+            <h1 class="print-doc-title">${escHtml(MODULE.title)}</h1>
+            ${intro ? `<p class="print-doc-intro">${escHtml(intro)}</p>` : ''}
+            ${meta ? `<p class="print-doc-meta">${escHtml(meta)}</p>` : ''}
+            ${sections.map(section => `
+                <section>
+                    ${section.title ? `<h2 class="print-group-title">${escHtml(section.title)}</h2>` : ''}
+                    ${section.entries.map(entry => renderPrintLanguageEntry(entry)).join('')}
+                </section>
+            `).join('')}
+        </div>
+    `;
+
+    const originalTitle = document.title;
+
+    document.title = `${MODULE.title} — ${titleSuffix}`;
+    document.body.classList.add('printing-key-language');
+
+    const cleanupPrint = () => {
+        setTimeout(() => {
+            document.body.classList.remove('printing-key-language');
+            document.title = originalTitle;
+            printArea.innerHTML = '';
+        }, 2000);
+
+        window.removeEventListener('afterprint', cleanupPrint);
+    };
+
+    window.addEventListener('afterprint', cleanupPrint);
+
+    setTimeout(() => {
+        window.print();
+    }, 300);
+}
+
+function printAllLanguage() {
+    const groups = getAllLanguageGroups();
+    const totalCount = groups.reduce((acc, group) => acc + group.entries.length, 0);
+    const intro = subjectCopy.keyLanguage?.intro || '';
+
+    printLanguageDocument({
+        kicker: 'Compass · All Language',
+        titleSuffix: 'All Language',
+        intro,
+        meta: `${totalCount} entries`,
+        sections: groups
+    });
+}
+
+function printSavedLanguage() {
+    const entries = getSavedLanguageEntriesForCurrentSubject();
+
+    if (!entries.length) return;
+
+    printLanguageDocument({
+        kicker: 'Compass · Saved Language',
+        titleSuffix: 'Saved Language',
+        intro: 'Language saved from this subject.',
+        meta: `${entries.length} saved`,
+        sections: [
+            {
+                title: 'Saved language',
+                entries
+            }
+        ]
+    });
+}
+
 function printKeyLanguage() {
     const printArea = document.getElementById('print-key-language');
 
@@ -2308,10 +2766,10 @@ function printKeyLanguage() {
 
     printArea.innerHTML = `
         <div class="print-doc">
-            <p class="print-doc-kicker">Compass · Key Language</p>
+            <p class="print-doc-kicker">Compass · All Language</p>
             <h1 class="print-doc-title">${escHtml(MODULE.title)}</h1>
             <p class="print-doc-intro">${escHtml(subjectCopy.keyLanguage.intro)}</p>
-            <p class="print-doc-meta">${totalCount} upgrade terms</p>
+            <p class="print-doc-meta">${totalCount} terms</p>
             ${groups.map(group => `
                 <section>
                     <h2 class="print-group-title">${escHtml(group.title)}</h2>
@@ -2332,7 +2790,7 @@ function printKeyLanguage() {
 
     const originalTitle = document.title;
 
-    document.title = `${MODULE.title} — Key Language`;
+    document.title = `${MODULE.title} — All Language`;
     document.body.classList.add('printing-key-language');
 
     const cleanupPrint = () => {
@@ -2440,29 +2898,40 @@ function updateReflectionProgressSummary() {
 
     if (!summary) return;
 
-    const clCovered = clCards.filter(card => progress.covered.has(card.id)).length;
+    const totalCultures = clCards.length;
     const totalMoments = discussionSets.reduce((acc, set) => acc + set.moments.length, 0);
-    const discCovered = discussionSets
-        .flatMap(set => set.moments)
-        .filter(moment => progress.covered.has(moment.id)).length;
 
-    const clUnit = clCards.length === 1
+    const culturesExplored = clCards
+        .filter(card => progress.explored.has(card.id))
+        .length;
+
+    const momentsExplored = discussionSets
+        .flatMap(set => set.moments)
+        .filter(moment => progress.explored.has(moment.id))
+        .length;
+
+    const cultureTotalUnit = totalCultures === 1
         ? COMPASS_LABELS.culturalLensUnitSingular
         : COMPASS_LABELS.culturalLensUnitPlural;
 
-    const discUnit = totalMoments === 1
+    const momentTotalUnit = totalMoments === 1
         ? COMPASS_LABELS.discussionUnitSingular
         : COMPASS_LABELS.discussionUnitPlural;
 
-    const isCompact = window.matchMedia('(max-width: 680px)').matches;
+    const cultureExploredUnit = culturesExplored === 1
+        ? COMPASS_LABELS.culturalLensUnitSingular
+        : COMPASS_LABELS.culturalLensUnitPlural;
+
+    const momentExploredUnit = momentsExplored === 1
+        ? COMPASS_LABELS.discussionUnitSingular
+        : COMPASS_LABELS.discussionUnitPlural;
 
     if (isLessonComplete()) {
-        summary.textContent = `${clCards.length} ${clUnit} · ${totalMoments} ${discUnit}`;
-
+        summary.textContent = `${totalMoments} ${momentTotalUnit} · ${totalCultures} ${cultureTotalUnit}`;
         return;
     }
 
-    summary.textContent = `${clCovered}/${clCards.length} ${clUnit} covered · ${discCovered}/${totalMoments} ${discUnit} covered`;
+    summary.textContent = `${momentsExplored} ${momentExploredUnit} explored · ${culturesExplored} ${cultureExploredUnit} explored`;
 }
 
 function escHtml(str) {
