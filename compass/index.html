@@ -2505,16 +2505,24 @@
 
     function resolveStatus(state) {
       if (!state || state.status === 'not-started') return 'new';
+
       const s = (state.status || '').toLowerCase();
-      if (s === 'completed' || s === 'complete' || s === 'explored' || state.lessonCompletedAt) return 'explored';
+
+      if (s === 'completed' || s === 'complete' || s === 'explored' || state.lessonCompletedAt) {
+        return 'explored';
+      }
+
       if (
-        s === 'in-progress' || s === 'in_progress' || s === 'started' ||
-        (state.progress && (
-          (Number(state.progress.viewed) > 0) ||
-          (Number(state.progress.covered) > 0)
-        ))
-      ) return 'inprogress';
+        s === 'in-progress' ||
+        s === 'in_progress' ||
+        s === 'started' ||
+        (state.progress && Number(state.progress.explored) > 0)
+      ) {
+        return 'inprogress';
+      }
+
       if (state.lastTouchedAt || state.lastOpenedAt || state.updatedAt) return 'inprogress';
+
       return 'new';
     }
 
@@ -2543,11 +2551,11 @@
       if (!p || typeof p !== 'object') return null;
 
       const total = Number(p.total) || 0;
-      const covered = Number(p.covered) || 0;
+      const explored = Number(p.explored) || 0;
 
-      if (total <= 0 || covered <= 0) return null;
+      if (total <= 0 || explored <= 0) return null;
 
-      const pct = Math.round((covered / total) * 100);
+      const pct = Math.round((explored / total) * 100);
       return Math.max(0, Math.min(100, pct));
     }
 
@@ -3418,14 +3426,47 @@
     async function handleDeleteSession(id) {
       const sessions = getSessions();
       const s = sessions.find(x => x.id === id);
+
       if (!s) return;
+
       const ok = await showConfirm({
         title: 'Delete session?',
-        message: 'This permanently removes ' + s.name + ', their progress, and their covered language from this device.',
+        message: 'This permanently removes ' + s.name + ', their progress, and their saved language from this device.',
         okLabel: 'Delete session'
       });
+
       if (!ok) return;
+
+      const ledger = Bridge.readLedger();
+      let ledgerChanged = false;
+
+      Object.keys(ledger.entries || {}).forEach(entryId => {
+        const entry = ledger.entries[entryId];
+
+        if (entry && entry.sessionId === id) {
+          delete ledger.entries[entryId];
+          ledgerChanged = true;
+        }
+      });
+
+      if (ledgerChanged) {
+        Bridge.writeLedger(ledger);
+      }
+
+      const reg = getRegistry();
+
+      if (reg.sessionStates) {
+        delete reg.sessionStates[id];
+      }
+
+      reg.recentActivity = (reg.recentActivity || []).filter(item =>
+        item && item.sessionId !== id
+      );
+
+      Bridge.writeRegistry(reg);
+
       Bridge.deleteSession(id);
+
       renderSessionList();
       renderHub();
     }
