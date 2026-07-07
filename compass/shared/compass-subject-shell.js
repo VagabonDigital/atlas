@@ -3,8 +3,8 @@
    Shared DOM scaffold for every Compass subject page.
 
    This file owns the reusable subject interface:
-   cover, orientation, Cultural Lens, Discussion, Reflection,
-   mobile drawer, modals, session UI, and Key Language drawer.
+   cover, orientation, Discussion, Cultural Lens, Reflection,
+   mobile drawer, modals, session UI, and Language Bank drawer.
 
    Subject-specific content lives in each subject's subject-data.js.
    Shared behaviour lives in compass-engine.js.
@@ -74,26 +74,6 @@ function mountCompassSubjectShell() {
 
                 <!-- Overview path cards -->
                 <div class="main-paths">
-                    <div class="main-path-card" role="button" tabindex="0" onclick="goToView('view-cultural-lens')"
-                        onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-cultural-lens'); }">
-                        <div class="path-icon">
-                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                                <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5" />
-                                <circle cx="11" cy="11" r="3" stroke="currentColor" stroke-width="1.5" />
-                                <path d="M4 11h2M16 11h2M11 4v2M11 16v2" stroke="currentColor" stroke-width="1.5"
-                                    stroke-linecap="round" />
-                            </svg>
-                        </div>
-                        <p class="path-label" id="path-label-cl"></p>
-                        <h2 class="path-title">Cultural Lens</h2>
-                        <p class="path-desc" id="path-desc-cl"></p>
-                        <div class="path-arrow">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.5"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </div>
-                    </div>
                     <div class="main-path-card" role="button" tabindex="0" onclick="goToView('view-discussion')"
                         onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-discussion'); }">
                         <div class="path-icon">
@@ -107,6 +87,27 @@ function mountCompassSubjectShell() {
                         <p class="path-label" id="path-label-disc"></p>
                         <h2 class="path-title">Discussion</h2>
                         <p class="path-desc" id="path-desc-disc"></p>
+                        <div class="path-arrow">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="main-path-card" role="button" tabindex="0" onclick="goToView('view-cultural-lens')"
+                        onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-cultural-lens'); }">
+                        <div class="path-icon">
+                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                                <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5" />
+                                <circle cx="11" cy="11" r="3" stroke="currentColor" stroke-width="1.5" />
+                                <path d="M4 11h2M16 11h2M11 4v2M11 16v2" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <p class="path-label" id="path-label-cl"></p>
+                        <h2 class="path-title">Cultural Lens</h2>
+                        <p class="path-desc" id="path-desc-cl"></p>
                         <div class="path-arrow">
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                                 <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.5"
@@ -140,46 +141,7 @@ function mountCompassSubjectShell() {
     </div>
 
     <!-- ============================================================
-     VIEW 3: CULTURAL LENS
-     ============================================================ -->
-
-    <div id="view-cultural-lens" class="view view-inner-bg">
-        <!-- Mobile header injected by renderMobileHeader('cultural-lens') -->
-        <div id="mob-header-cultural-lens" class="mobile-header-shell"></div>
-        <!-- Desktop nav injected by renderNav('view-cultural-lens') -->
-        <div id="nav-cultural-lens" class="nav-shell"></div>
-        <div class="section-wrap">
-            <div class="section-stage">
-                <div class="section-header">
-                    <p class="section-eyebrow">Cultural Lens</p>
-                    <h2 id="cl-section-heading"></h2>
-                    <p id="cl-section-intro"></p>
-                    <div class="progress-strip">
-                        <span id="cl-progress-text">Explore the cards below — choose any that interest you.</span>
-                        <span class="progress-pill viewed" id="cl-viewed-count" style="display:none">
-                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                                <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.2" />
-                                <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1.2"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <span>0 viewed</span>
-                        </span>
-                        <span class="progress-pill covered" id="cl-covered-count" style="display:none">
-                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                                <path d="M2 5l2.5 2.5L8 2.5" stroke="currentColor" stroke-width="1.4"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <span>0 covered</span>
-                        </span>
-                    </div>
-                </div>
-                <div class="cl-grid" id="cl-grid"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================================================
-     VIEW 4: DISCUSSION
+     VIEW 3: DISCUSSION
      ============================================================ -->
 
     <div id="view-discussion" class="view view-inner-bg">
@@ -195,20 +157,12 @@ function mountCompassSubjectShell() {
                     <p id="discussion-section-intro"></p>
                     <div class="progress-strip">
                         <span id="disc-progress-text">Choose a set below — open anything that interests you.</span>
-                        <span class="progress-pill viewed" id="disc-viewed-count" style="display:none">
-                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                                <circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.2" />
-                                <path d="M3 5l1.5 1.5L7 3.5" stroke="currentColor" stroke-width="1.2"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <span>0 opened</span>
-                        </span>
-                        <span class="progress-pill covered" id="disc-covered-count" style="display:none">
+                        <span class="progress-pill explored" id="disc-explored-count" style="display:none">
                             <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                                 <path d="M2 5l2.5 2.5L8 2.5" stroke="currentColor" stroke-width="1.4"
                                     stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
-                            <span>0 covered</span>
+                            <span>0 explored</span>
                         </span>
                     </div>
                 </div>
@@ -226,6 +180,37 @@ function mountCompassSubjectShell() {
                     </div>
                     <div id="moments-list"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     VIEW 4: CULTURAL LENS
+     ============================================================ -->
+
+    <div id="view-cultural-lens" class="view view-inner-bg">
+        <!-- Mobile header injected by renderMobileHeader('cultural-lens') -->
+        <div id="mob-header-cultural-lens" class="mobile-header-shell"></div>
+        <!-- Desktop nav injected by renderNav('view-cultural-lens') -->
+        <div id="nav-cultural-lens" class="nav-shell"></div>
+        <div class="section-wrap">
+            <div class="section-stage">
+                <div class="section-header">
+                    <p class="section-eyebrow">Cultural Lens</p>
+                    <h2 id="cl-section-heading"></h2>
+                    <p id="cl-section-intro"></p>
+                    <div class="progress-strip">
+                        <span id="cl-progress-text">Explore the cards below — choose any that interest you.</span>
+                        <span class="progress-pill explored" id="cl-explored-count" style="display:none">
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                <path d="M2 5l2.5 2.5L8 2.5" stroke="currentColor" stroke-width="1.4"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>0 explored</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="cl-grid" id="cl-grid"></div>
             </div>
         </div>
     </div>
@@ -279,7 +264,7 @@ function mountCompassSubjectShell() {
                             <path d="M3 8.2l3.1 3.1L13 4.5" stroke="currentColor" stroke-width="1.6"
                                 stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
-                        Mark lesson complete
+                        Wrap up
                     </button>
                     <button class="btn-primary" onclick="openVocabBank()">
                         <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
@@ -289,7 +274,7 @@ function mountCompassSubjectShell() {
                             <path d="M5.5 5.7h5M5.5 8.1h3.6" stroke="currentColor" stroke-width="1.25"
                                 stroke-linecap="round" />
                         </svg>
-                        Review Key Language
+                        Open Language Bank
                     </button>
                     <button class="btn-ghost" onclick="goToView('view-orientation')">Back to overview</button>
                 </div>
@@ -396,12 +381,9 @@ function mountCompassSubjectShell() {
                     </button>
                 </div>
                 <div class="modal-footer-actions">
-                    <button class="btn-covered" onclick="markCLCovered()">
-                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                            <path d="M2 6.5l3.5 3.5L11 3" stroke="currentColor" stroke-width="1.6"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        Mark covered &amp; close
+                    <button class="btn-mark-explored" id="cl-modal-explored-btn" onclick="toggleCLExploredFromModal()" aria-pressed="false">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Mark explored
                     </button>
                     <button class="btn-ghost modal-footer-close" onclick="closeModal()">Close</button>
                 </div>
@@ -416,15 +398,26 @@ function mountCompassSubjectShell() {
     <div class="vb-overlay" id="vb-overlay" onclick="closeVocabBank()"></div>
     <div class="vb-drawer" id="vb-drawer">
         <div class="vb-header">
-            <h3>Key Language</h3>
+            <div class="vb-heading">
+                <h3>Language Bank</h3>
+                <p class="vb-subtitle">Save language from this subject.</p>
+            </div>
             <div class="vb-actions">
-                <button class="vb-close-btn" onclick="closeVocabBank()" aria-label="Close Key Language">
+                <button class="vb-close-btn" onclick="closeVocabBank()" aria-label="Close Language Bank">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                         <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5"
                             stroke-linecap="round" />
                     </svg>
                 </button>
             </div>
+        </div>
+        <div class="vb-tabs" role="tablist" aria-label="Language Bank views">
+            <button class="vb-tab-btn" id="vb-tab-saved" type="button" role="tab" onclick="setVocabBankTab('saved')">
+                Saved language
+            </button>
+            <button class="vb-tab-btn" id="vb-tab-all" type="button" role="tab" onclick="setVocabBankTab('all')">
+                All language
+            </button>
         </div>
         <div class="vb-list" id="vb-list"></div>
     </div>
