@@ -29,9 +29,8 @@ Edit only in this file.
     --accent-rgb: 74, 124, 120;
     --accent-soft-rgb: 107, 158, 154;
     --accent-pale-rgb: 214, 234, 232;
-    --viewed-bg: #f0f7f6;
-    --covered-bg: #d6eae8;
-    --covered-acc: #4a7c78;
+    --explored-bg: #d6eae8;
+    --explored-acc: #4a7c78;
     --danger-bg: #fef2f2;
     --danger-text: #dc2626;
     --danger-border: #fca5a5;
@@ -767,8 +766,8 @@ body::after,
 .mobile-nav-item,
 .btn-primary,
 .btn-ghost,
-.btn-covered,
-.btn-mark-covered,
+.btn-mark-explored,
+.btn-mark-explored,
 .btn-close-set,
 .upgrade-chip {
     transition:
@@ -1037,14 +1036,15 @@ VIEW 3: CULTURAL LENS
     font-weight: 500;
 }
 
-.progress-pill.viewed {
-    background: var(--viewed-bg);
-    color: var(--accent);
+.progress-pill.explored {
+    background: var(--explored-bg);
+    color: var(--explored-acc);
 }
 
-.progress-pill.covered {
-    background: var(--covered-bg);
-    color: var(--covered-acc);
+.progress-pill.explored svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
 }
 
 .cl-grid {
@@ -1087,24 +1087,15 @@ VIEW 3: CULTURAL LENS
     transform: translateY(-2px);
 }
 
-.cl-card.state-viewed {
-    border-color: var(--accent-soft);
-    background: var(--viewed-bg);
-}
-
-.cl-card.state-viewed::after {
-    opacity: 0.5;
-}
-
-.cl-card.state-covered {
-    border-color: var(--covered-acc);
-    background: var(--covered-bg);
+.cl-card.state-explored {
+    border-color: var(--explored-acc);
+    background: var(--explored-bg);
     opacity: 0.88;
 }
 
-.cl-card.state-covered::after {
+.cl-card.state-explored::after {
     opacity: 1;
-    background: var(--covered-acc);
+    background: var(--explored-acc);
 }
 
 .cl-card-state-badge {
@@ -1121,15 +1112,9 @@ VIEW 3: CULTURAL LENS
     transition: var(--transition);
 }
 
-.cl-card.state-viewed .cl-card-state-badge {
+.cl-card.state-explored .cl-card-state-badge {
     opacity: 1;
-    background: var(--accent-pale);
-    color: var(--accent);
-}
-
-.cl-card.state-covered .cl-card-state-badge {
-    opacity: 1;
-    background: var(--covered-acc);
+    background: var(--explored-acc);
     color: white;
 }
 
@@ -1423,6 +1408,42 @@ UPGRADE CHIP
     line-height: 1.6;
 }
 
+.upgrade-panel-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.85rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--stone-light);
+}
+
+.upgrade-save-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.25rem;
+    padding: 0.42rem 0.82rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(var(--accent-rgb), 0.28);
+    background: rgba(var(--accent-pale-rgb), 0.34);
+    color: var(--accent);
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.upgrade-save-btn:hover {
+    background: rgba(var(--accent-pale-rgb), 0.58);
+    border-color: rgba(var(--accent-rgb), 0.42);
+}
+
+.upgrade-save-btn.is-saved {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
 .upgrade-panel-try {
     margin-top: 0.85rem;
     padding-top: 0.85rem;
@@ -1474,7 +1495,7 @@ MOMENT ACTION AREA
     grid-template-columns: minmax(0, 1fr);
 }
 
-.moment-upgrade-wrap.upgrade-open .btn-mark-covered {
+.moment-upgrade-wrap.upgrade-open .btn-mark-explored {
     justify-self: end;
     margin-top: 0.15rem;
 }
@@ -1659,7 +1680,7 @@ MAKE IT REAL CARD
     background: var(--cream-warm);
 }
 
-.btn-covered {
+.btn-mark-explored {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1677,7 +1698,7 @@ MAKE IT REAL CARD
     box-shadow: 0 4px 14px rgba(var(--accent-rgb), 0.12);
 }
 
-.btn-covered:hover {
+.btn-mark-explored:hover {
     background: rgba(var(--accent-rgb), 0.98);
     border-color: rgba(var(--accent-rgb), 0.34);
 }
@@ -1836,13 +1857,9 @@ VIEW 4: DISCUSSION
     transition: border-color var(--transition);
 }
 
-.moment-card.state-viewed {
-    border-color: var(--accent-soft);
-}
-
-.moment-card.state-covered {
-    border-color: var(--covered-acc);
-    background: var(--covered-bg);
+.moment-card.state-explored {
+    border-color: var(--explored-acc);
+    background: var(--explored-bg);
 }
 
 .moment-card-header {
@@ -1868,12 +1885,8 @@ VIEW 4: DISCUSSION
     transition: var(--transition);
 }
 
-.moment-card.state-viewed .moment-state-dot {
-    background: var(--accent-soft);
-}
-
-.moment-card.state-covered .moment-state-dot {
-    background: var(--covered-acc);
+.moment-card.state-explored .moment-state-dot {
+    background: var(--explored-acc);
 }
 
 .moment-num {
@@ -1930,7 +1943,7 @@ VIEW 4: DISCUSSION
     gap: 0.5rem;
 }
 
-.btn-mark-covered {
+.btn-mark-explored {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1948,17 +1961,17 @@ VIEW 4: DISCUSSION
     transition: var(--transition);
 }
 
-.btn-mark-covered:hover {
+.btn-mark-explored:hover {
     background: rgba(var(--accent-pale-rgb), 0.45);
     border-color: rgba(var(--accent-rgb), 0.72);
     color: var(--accent);
 }
 
-.btn-mark-covered.is-covered {
-    background: var(--covered-bg);
-    border-color: var(--covered-acc);
-    color: var(--covered-acc);
-    cursor: default;
+.btn-mark-explored.is-explored {
+    background: var(--explored-bg);
+    border-color: var(--explored-acc);
+    color: var(--explored-acc);
+    cursor: pointer;
 }
 
 /* ============================================================
@@ -2009,6 +2022,151 @@ KEY LANGUAGE DRAWER
 .vb-header h3 {
     font-size: 1.1rem;
     color: var(--ink-dark);
+}
+
+.vb-heading {
+    min-width: 0;
+}
+
+.vb-subtitle {
+    margin-top: 0.18rem;
+    font-size: 0.76rem;
+    line-height: 1.35;
+    color: var(--stone-dark);
+    max-width: none;
+}
+
+.vb-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.35rem;
+    padding: 0.75rem 1.8rem;
+    border-bottom: 1px solid var(--stone-light);
+    background: var(--cream);
+    flex-shrink: 0;
+}
+
+.vb-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.35rem;
+    padding: 0.45rem 0.7rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--ink-light);
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.vb-tab-btn:hover {
+    background: rgba(var(--accent-pale-rgb), 0.34);
+    color: var(--accent);
+}
+
+.vb-tab-btn.active {
+    background: var(--white);
+    border-color: rgba(var(--accent-rgb), 0.24);
+    color: var(--accent);
+    box-shadow: var(--shadow-sm);
+}
+
+.vb-intro {
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--stone-light);
+    margin-bottom: 0.2rem;
+}
+
+.vb-intro-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.3rem;
+}
+
+.vb-intro-count {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+}
+
+.vb-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1.9rem;
+    padding: 0.32rem 0.68rem;
+    border-radius: 999px;
+    border: 1px solid rgba(200, 191, 176, 0.7);
+    background: transparent;
+    color: var(--stone-dark);
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.vb-edit-btn:hover {
+    background: var(--cream-warm);
+    border-color: rgba(var(--accent-rgb), 0.26);
+    color: var(--accent);
+}
+
+.vb-intro-copy {
+    font-size: 0.8rem;
+    color: var(--stone-dark);
+    line-height: 1.5;
+    max-width: none;
+}
+
+.vb-empty-state {
+    padding: 1.6rem 0.2rem 0;
+}
+
+.vb-empty-title {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--ink-dark);
+    margin-bottom: 0.4rem;
+}
+
+.vb-empty-text {
+    font-size: 0.84rem;
+    color: var(--ink-light);
+    line-height: 1.55;
+    max-width: 34ch;
+    margin-bottom: 1rem;
+}
+
+.vb-empty-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.45rem;
+    padding: 0.55rem 0.9rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(var(--accent-rgb), 0.28);
+    background: rgba(var(--accent-pale-rgb), 0.34);
+    color: var(--accent);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.vb-empty-action:hover {
+    background: rgba(var(--accent-pale-rgb), 0.58);
+    border-color: rgba(var(--accent-rgb), 0.42);
 }
 
 .vb-close-btn {
@@ -2220,6 +2378,61 @@ KEY LANGUAGE DRAWER
 
 .vb-entry:last-child {
     border-bottom: none;
+}
+
+.vb-entry-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.75rem;
+    margin-bottom: 0.15rem;
+}
+
+.vb-entry-title-wrap {
+    min-width: 0;
+}
+
+.vb-entry-save-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1.9rem;
+    padding: 0.32rem 0.68rem;
+    border-radius: 999px;
+    border: 1px solid rgba(var(--accent-rgb), 0.24);
+    background: rgba(var(--accent-pale-rgb), 0.28);
+    color: var(--accent);
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.vb-entry-save-btn:hover {
+    background: rgba(var(--accent-pale-rgb), 0.52);
+    border-color: rgba(var(--accent-rgb), 0.38);
+}
+
+.vb-entry-save-btn.is-saved {
+    background: rgba(var(--accent-pale-rgb), 0.5);
+    border-color: rgba(var(--accent-rgb), 0.34);
+    color: var(--accent);
+}
+
+.vb-entry-save-btn.is-remove {
+    background: transparent;
+    border-color: rgba(200, 191, 176, 0.7);
+    color: var(--stone-dark);
+    font-weight: 500;
+}
+
+.vb-entry-save-btn.is-remove:hover {
+    background: var(--cream-warm);
+    border-color: rgba(var(--accent-rgb), 0.26);
+    color: var(--accent);
 }
 
 .vb-entry-word {
@@ -3023,14 +3236,9 @@ FROSTED SECTION STAGE
     border-color: var(--accent-soft) !important;
 }
 
-.cl-card.state-viewed {
-    background: rgba(240, 247, 246, 0.88) !important;
-    border-color: var(--accent-soft) !important;
-}
-
-.cl-card.state-covered {
+.cl-card.state-explored {
     background: rgba(var(--accent-pale-rgb), 0.88) !important;
-    border-color: var(--covered-acc) !important;
+    border-color: var(--explored-acc) !important;
 }
 
 .moment-card {
@@ -3039,13 +3247,9 @@ FROSTED SECTION STAGE
     backdrop-filter: none !important;
 }
 
-.moment-card.state-viewed {
-    border-color: var(--accent-soft) !important;
-}
-
-.moment-card.state-covered {
-    background: var(--covered-bg) !important;
-    border-color: var(--covered-acc) !important;
+.moment-card.state-explored {
+    background: var(--explored-bg) !important;
+    border-color: var(--explored-acc) !important;
 }
 
 .route-hint {
@@ -3444,9 +3648,8 @@ html[data-theme="night"] {
     --accent-soft: #9fcec9;
     --accent-pale: #3d625e;
     --accent-dim: #344f4b;
-    --viewed-bg: #374f4b;
-    --covered-bg: #416a64;
-    --covered-acc: #a8d6d1;
+    --explored-bg: #416a64;
+    --explored-acc: #a8d6d1;
     --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.14);
     --shadow-md: 0 4px 18px rgba(0, 0, 0, 0.20);
     --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.30);
@@ -3571,21 +3774,12 @@ html[data-theme="night"] .moment-body {
     border-top-color: rgba(214, 202, 188, 0.20);
 }
 
-html[data-theme="night"] .moment-card.state-viewed {
-    border-color: rgba(131, 185, 179, 0.60) !important;
-}
-
-html[data-theme="night"] .moment-card.state-covered {
+html[data-theme="night"] .moment-card.state-explored {
     background: rgba(65, 106, 100, 0.76) !important;
     border-color: rgba(168, 214, 209, 0.64) !important;
 }
 
-html[data-theme="night"] .cl-card.state-viewed {
-    background: rgba(55, 79, 75, 0.72) !important;
-    border-color: rgba(131, 185, 179, 0.58) !important;
-}
-
-html[data-theme="night"] .cl-card.state-covered {
+html[data-theme="night"] .cl-card.state-explored {
     background: rgba(65, 106, 100, 0.76) !important;
     border-color: rgba(168, 214, 209, 0.64) !important;
 }
@@ -3680,6 +3874,27 @@ html[data-theme="night"] .upgrade-panel-in-action {
     border-color: rgba(255, 255, 255, 0.13);
 }
 
+html[data-theme="night"] .upgrade-panel-actions {
+    border-top-color: rgba(255, 255, 255, 0.13);
+}
+
+html[data-theme="night"] .upgrade-save-btn {
+    background: rgba(61, 98, 94, 0.42);
+    border-color: rgba(131, 185, 179, 0.34);
+    color: var(--accent-soft);
+}
+
+html[data-theme="night"] .upgrade-save-btn:hover {
+    background: rgba(61, 98, 94, 0.62);
+    border-color: rgba(159, 206, 201, 0.48);
+}
+
+html[data-theme="night"] .upgrade-save-btn.is-saved {
+    background: rgba(131, 185, 179, 0.72);
+    border-color: rgba(159, 206, 201, 0.54);
+    color: #2f2923;
+}
+
 html[data-theme="night"] .upgrade-panel-in-action {
     border-left-color: rgba(159, 206, 201, 0.40);
 }
@@ -3705,47 +3920,96 @@ html[data-theme="night"] .vb-section-label {
     border-color: rgba(255, 255, 255, 0.12);
 }
 
+html[data-theme="night"] .vb-tabs {
+    background: #463d33;
+    border-bottom-color: rgba(255, 255, 255, 0.13);
+}
+
+html[data-theme="night"] .vb-tab-btn {
+    color: var(--ink-light);
+}
+
+html[data-theme="night"] .vb-tab-btn:hover {
+    background: rgba(61, 98, 94, 0.42);
+    color: var(--accent-soft);
+}
+
+html[data-theme="night"] .vb-tab-btn.active {
+    background: #4c4237;
+    border-color: rgba(131, 185, 179, 0.34);
+    color: var(--accent-soft);
+}
+
+html[data-theme="night"] .vb-intro {
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+html[data-theme="night"] .vb-empty-action {
+    background: rgba(61, 98, 94, 0.42);
+    border-color: rgba(131, 185, 179, 0.34);
+    color: var(--accent-soft);
+}
+
+html[data-theme="night"] .vb-empty-action:hover {
+    background: rgba(61, 98, 94, 0.62);
+    border-color: rgba(159, 206, 201, 0.48);
+}
+
+html[data-theme="night"] .vb-entry-save-btn {
+    background: rgba(61, 98, 94, 0.42);
+    border-color: rgba(131, 185, 179, 0.34);
+    color: var(--accent-soft);
+}
+
+html[data-theme="night"] .vb-entry-save-btn:hover {
+    background: rgba(61, 98, 94, 0.62);
+    border-color: rgba(159, 206, 201, 0.48);
+}
+
+html[data-theme="night"] .vb-edit-btn,
+html[data-theme="night"] .vb-entry-save-btn.is-remove {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.16);
+    color: var(--stone-dark);
+}
+
+html[data-theme="night"] .vb-edit-btn:hover,
+html[data-theme="night"] .vb-entry-save-btn.is-remove:hover {
+    background: rgba(88, 76, 64, 0.9);
+    border-color: rgba(131, 185, 179, 0.34);
+    color: var(--accent-soft);
+}
+
+html[data-theme="night"] .vb-entry-save-btn.is-saved {
+    background: rgba(61, 98, 94, 0.52);
+    border-color: rgba(131, 185, 179, 0.38);
+    color: var(--accent-soft);
+}
+
 /* Night mode: soften progress/card states */
-html[data-theme="night"] .progress-pill.viewed,
-html[data-theme="night"] .progress-pill.covered {
+html[data-theme="night"] .progress-pill.explored {
     background: rgba(61, 98, 94, 0.52);
     color: var(--accent-soft);
-    border: 1px solid rgba(131, 185, 179, 0.22);
 }
 
-html[data-theme="night"] .cl-card.state-viewed {
-    background: rgba(88, 76, 64, 0.66) !important;
-    border-color: rgba(131, 185, 179, 0.36) !important;
-}
-
-html[data-theme="night"] .cl-card.state-covered {
+html[data-theme="night"] .cl-card.state-explored {
     background: rgba(88, 76, 64, 0.68) !important;
     border-color: rgba(168, 214, 209, 0.48) !important;
 }
 
-html[data-theme="night"] .cl-card.state-viewed::after {
-    opacity: 0.45;
-    background: rgba(131, 185, 179, 0.75);
-}
-
-html[data-theme="night"] .cl-card.state-covered::after {
+html[data-theme="night"] .cl-card.state-explored::after {
     opacity: 0.65;
     background: rgba(168, 214, 209, 0.82);
 }
 
-html[data-theme="night"] .cl-card.state-viewed .cl-card-state-badge {
-    background: rgba(61, 98, 94, 0.72);
-    color: var(--accent-soft);
-}
-
-html[data-theme="night"] .cl-card.state-covered .cl-card-state-badge {
+html[data-theme="night"] .cl-card.state-explored .cl-card-state-badge {
     background: rgba(168, 214, 209, 0.72);
     color: #2f2923;
 }
 
 /* Night mode: soften primary action buttons */
 html[data-theme="night"] .btn-primary,
-html[data-theme="night"] .btn-covered {
+html[data-theme="night"] .btn-mark-explored {
     background: rgba(131, 185, 179, 0.64);
     border: 1px solid rgba(159, 206, 201, 0.36);
     color: #2f2923;
@@ -3753,7 +4017,7 @@ html[data-theme="night"] .btn-covered {
 }
 
 html[data-theme="night"] .btn-primary:hover,
-html[data-theme="night"] .btn-covered:hover {
+html[data-theme="night"] .btn-mark-explored:hover {
     background: rgba(159, 206, 201, 0.72);
     border-color: rgba(159, 206, 201, 0.52);
     color: #2f2923;
@@ -3781,19 +4045,19 @@ html[data-theme="night"] .btn-primary:disabled:hover {
     color: var(--accent-soft);
 }
 
-html[data-theme="night"] .btn-mark-covered {
+html[data-theme="night"] .btn-mark-explored {
     background: rgba(61, 98, 94, 0.46);
     border-color: rgba(131, 185, 179, 0.34);
     color: var(--accent-soft);
 }
 
-html[data-theme="night"] .btn-mark-covered:hover {
+html[data-theme="night"] .btn-mark-explored:hover {
     background: rgba(61, 98, 94, 0.62);
     border-color: rgba(159, 206, 201, 0.48);
     color: var(--accent-soft);
 }
 
-html[data-theme="night"] .btn-mark-covered.is-covered {
+html[data-theme="night"] .btn-mark-explored.is-explored {
     background: rgba(65, 106, 100, 0.62);
     border-color: rgba(168, 214, 209, 0.48);
     color: var(--accent-soft);
@@ -3945,7 +4209,7 @@ RESPONSIVE
         padding: 0.62rem 0.8rem;
     }
 
-    .modal-footer-actions .btn-covered {
+    .modal-footer-actions .btn-mark-explored {
         width: 100%;
         min-height: 3.05rem;
         justify-content: center;
@@ -4059,7 +4323,7 @@ RESPONSIVE
         overflow-wrap: anywhere;
     }
 
-    .moment-action-row .btn-mark-covered {
+    .moment-action-row .btn-mark-explored {
         width: 100%;
         min-height: 2.9rem;
         justify-content: center;
@@ -4067,7 +4331,7 @@ RESPONSIVE
         margin-left: 0;
     }
 
-    .moment-upgrade-wrap.upgrade-open .btn-mark-covered {
+    .moment-upgrade-wrap.upgrade-open .btn-mark-explored {
         width: 100%;
         justify-self: stretch;
         margin-top: 0;
