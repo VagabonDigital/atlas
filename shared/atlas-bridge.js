@@ -611,11 +611,11 @@
         resetAllAtlasState
     };
 
-// Apply saved appearance immediately when Bridge is loaded in <head>.
-applyAppearanceMode();
+    // Apply saved appearance immediately when Bridge is loaded in <head>.
+    applyAppearanceMode();
 
-// Ensure a valid default session exists immediately after bridge load.
-readSessions();
+    // Ensure a valid default session exists immediately after bridge load.
+    readSessions();
 
     if (!storageGet(KEYS.activeSessionId)) {
         storageSet(KEYS.activeSessionId, DEFAULT_SESSION_ID);
