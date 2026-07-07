@@ -1,6 +1,6 @@
 /*
   ==========================================================================
-  ATLAS · COMPASS SUBJECT MODULE TEST
+  ATLAS · COMPASS SUBJECT MODULE
   SmartStudy™ Methodology
   Travel & Exploration
   --------------------------------------------------------------------------
@@ -28,7 +28,7 @@ const MODULE = {
 
 const subjectCopy = {
     cover: {
-        hook: `Every journey changes the view — including the one back home.`
+hook: `We leave for the view, the story, the escape — but the real journey is often what changes when we come back.`
     },
     overview: {
         heading: `Why We Leave, and What We Bring Back`,
@@ -64,193 +64,6 @@ const subjectCopy = {
         intro: `Useful words and phrases for talking about journeys, arrivals, and the experience of going somewhere new.`
     }
 };
-
-const clCards = [
-    {
-        id: `cl-polynesian-navigators`,
-        location: `The Pacific, ancient and medieval ocean voyaging`,
-        title: `Reading the Ocean`,
-        teaser: `Crossing an ocean without modern instruments — and arriving.`,
-        insight: `Long before modern instruments, Polynesian navigators crossed thousands of kilometres of open Pacific using stars, swell patterns, bird flight, cloud colour, and a vast memory of the sea passed down by training. To an outsider this can look like luck or mysticism, but it was a precise, learned skill — a way of knowing the ocean that lived in the body and the senses rather than on paper. The human meaning underneath: knowledge doesn't have to be written down to be real. A whole science of the sea was carried in memory, observation, and apprenticeship, and it worked.`,
-        question: `Have you ever trusted instinct or a "feel" for something over a map, a guide, or instructions — and were you right to?`,
-        upgrade: {
-            term: `know it like the back of your hand`,
-            type: `idiom`,
-            def: `To know a place or thing so well you need no help with it.`,
-            in_action: `He's never used a map here — he knows these streets like the back of his hand.`,
-            review_prompt: `What place or route do you know like the back of your hand? How did you learn it?`
-        },
-        deeper: {
-            text: `It's tempting to assume that knowledge only counts when it's written, measured, or taught in a classroom — that's the form many of us were raised to trust. But the Polynesian system suggests a different idea: that deep expertise can live in observation and memory, refined over a lifetime and handed from teacher to student. The misread happens when outsiders see no charts and assume there's no method, when in fact the method is simply held somewhere they're not looking. There's a modern echo every time an experienced fisher reads the weather better than the forecast, or a local takes a shortcut no app would ever suggest. It raises a quiet question about our own moment: as we hand more and more of our knowing to devices, are we slowly losing the kind of deep, embodied knowledge that once carried people safely across an ocean?`,
-            questions: [
-                `Is there a skill in your culture that's learned by doing and watching, not from books?`,
-                `Do you trust technology or experienced people more when you're genuinely lost?`,
-                `What kind of knowledge do you think we're at risk of losing as we rely more on devices?`
-            ]
-        }
-    },
-    {
-        id: `cl-silk-road-exchange`,
-        location: `The Silk Road, roughly 200 BCE onward`,
-        title: `What Travels With the Traveller`,
-        teaser: `The goods were the smallest thing being carried.`,
-        insight: `For centuries, merchants along the Silk Road carried silk, spices, and silver — but alongside the goods travelled religions, recipes, instruments, words, and stories, passing between civilisations that never met directly. The trade route was almost a side effect; the deeper exchange was cultural. Outsiders often picture travel as seeing places, but this reveals travel as mixing them — a slow blending where an idea born in one place quietly takes root a continent away. The human meaning: movement spreads more than objects. Wherever people go, a little of where they came from goes with them, and a little of where they've been comes back.`,
-        question: `When you travel, do you think you're changed more by the places you see — or by the people you meet along the way?`,
-        upgrade: {
-            term: `cross-pollinate`,
-            type: `verb`,
-            def: `When ideas, styles, or cultures mix and influence each other.`,
-            in_action: `That city's food is amazing because so many cultures cross-pollinated there for centuries.`,
-            review_prompt: `Name a food, word, or style in your country that clearly came from somewhere else. How did it arrive?`
-        },
-        deeper: {
-            text: `We tend to imagine cultures as separate boxes — this one here, that one there — but a route like the Silk Road shows how leaky those boxes have always been. An instrument plucked in one empire reappears, reshaped, in another. A faith carried by a few travelling believers becomes the heart of a distant society. The misunderstanding many people hold is that cultures are "pure" and that mixing is modern — when in truth, blending has been the normal state of human life for as long as people have moved. There's a contrast of styles worth noticing too: some cultures take pride in absorbing outside influences and remixing them, while others work hard to protect what they see as authentic and untouched. Both instincts are understandable. The interesting question is what we each think is worth keeping pure, and what's better left open to the world.`,
-            questions: [
-                `Is there something in your culture that's clearly borrowed from elsewhere but now feels completely "yours"?`,
-                `Do you think a culture is stronger when it stays distinct, or when it mixes freely?`,
-                `Have you ever brought a habit or taste home from abroad that your friends or family picked up too?`
-            ]
-        }
-    },
-    {
-        id: `cl-grand-tour`,
-        location: `Europe, 17th–19th centuries`,
-        title: `Travel as Finishing School`,
-        teaser: `A journey designed to make you a certain kind of person.`,
-        insight: `For roughly two centuries, wealthy young Europeans were sent on a long tour of the continent — not for fun, but to acquire taste, languages, confidence, and social polish before taking their place in society. Travel here was deliberately educational, almost a finishing school on the move. To modern eyes it can look like a privileged holiday, but the underlying idea is one we've quietly kept: that going out into the world forms you in ways staying home cannot. The human meaning: some cultures and classes have long treated travel as a rite of passage — proof you've grown up — rather than as leisure.`,
-        question: `Do you think travelling actually teaches you things you couldn't learn at home — or is that idea a bit overstated?`,
-        upgrade: {
-            term: `worldly`,
-            type: `adjective`,
-            def: `Experienced and knowledgeable about life, people, or culture beyond your own narrow world.`,
-            in_action: `Travel made him more worldly, but not necessarily wiser about everything.`,
-            review_prompt: `Can someone become worldly without travelling much? What would give them that quality?`
-        },
-        deeper: {
-            text: `The Grand Tour belonged to a tiny, wealthy few, and that's part of what makes it interesting now — because the idea behind it has gone fully mainstream. The modern "gap year," the post-graduation backpacking trip, the belief that a young person should "see the world" before settling down: all of these are the Grand Tour's democratic grandchildren. But the assumption deserves a gentle poke. Does travel really form character, or do we just credit it because the people who could afford to travel were already going to turn out fine? Someone from a culture without this tradition might reasonably point out that wisdom, taste, and confidence can grow just as well from staying, working, raising a family, or reading deeply at home. The question of whether you must leave to grow is far less settled than the travel industry would like us to believe.`,
-            questions: [
-                `In your culture, is travelling young seen as important for growing up — or as a luxury or even a distraction?`,
-                `Do you know someone wise and worldly who has barely travelled at all?`,
-                `If you had a free year at eighteen, would you have spent it travelling, working, or studying — and why?`
-            ]
-        }
-    },
-    {
-        id: `cl-sahara-caravans`,
-        location: `The Sahara, medieval and early-modern periods`,
-        title: `Where One Mistake Could Kill You`,
-        teaser: `Months of desert, and survival hanging on memory.`,
-        insight: `Crossing the Sahara by caravan could take months, and survival depended entirely on guides who held the route, the animals, and the hidden wells in living memory. A single wrong turn could end everyone. To us, comfortable with maps and rescue, it's hard to grasp travel where error meant death and trust in your guide was absolute. The human meaning underneath: for most of history, going somewhere meant placing your life in the hands of a person who knew the way — and travel was less about freedom than about whom you could trust to get you through.`,
-        question: `Could you put your life in the hands of a guide or stranger who knew the way, the way desert travellers had to — or does that idea unsettle you?`,
-        upgrade: {
-            term: `at the mercy of`,
-            type: `idiom`,
-            def: `Completely dependent on something or someone you can't control.`,
-            in_action: `Out there you're at the mercy of the weather and whoever's leading you.`,
-            review_prompt: `When travelling, when have you been at the mercy of someone or something? How did it feel?`
-        },
-        deeper: {
-            text: `Modern travel has quietly removed almost all of this. We carry maps in our pockets, summon help with a tap, and rarely have to trust a single human being with our survival. That's an enormous gain — but it may have changed the texture of travel itself. The desert crossing bound a group together through shared danger and total reliance on a guide's memory; the journey was the relationship. Some argue that the safety and independence of modern travel, wonderful as they are, have made it lonelier and lighter — you need no one, so you bond with no one. A traveller from a high-trust, guide-dependent tradition might find our solo, app-led wandering strangely isolated. It's worth asking what we've traded away along with the danger: perhaps some of the deep trust and togetherness that only real shared risk can create.`,
-            questions: [
-                `Do you think modern travel is lonelier now that we rarely have to rely on other people?`,
-                `Have you ever bonded with someone quickly because you were both out of your depth somewhere?`,
-                `Would you feel safer with a map and a phone, or with a person who truly knew the place?`
-            ]
-        }
-    },
-    {
-        id: `cl-antarctic-isolation`,
-        location: `Antarctica, late 19th–early 20th centuries`,
-        title: `Surviving the Dark`,
-        teaser: `Months of darkness, no rescue, and routine as a lifeline.`,
-        insight: `Early Antarctic expeditions faced months of darkness, brutal cold, and no possibility of rescue. Some crews endured not only through physical toughness but through strict daily routines — meals, tasks, shared rituals — that protected their minds from the crushing isolation. The surprise here is that the deadliest threat wasn't always the cold but the emptiness, and that the cure was structure. The human meaning underneath: when the outside world disappears entirely, ordinary routine stops being boring and becomes the thing that holds a person together.`,
-        question: `When you've been isolated or stuck somewhere, what kept you steady — routine, people, distraction, or something else?`,
-        upgrade: {
-            term: `anchor`,
-            type: `noun`,
-            def: `Something that keeps you steady, calm, or connected when life feels difficult or uncertain.`,
-            in_action: `During those long dark weeks, the daily routine became an anchor — it gave everyone something to hold on to.`,
-            review_prompt: `What routines or small rituals can become an anchor when life feels uncertain?`
-        },
-        deeper: {
-            text: `There's a powerful lesson buried in those frozen expeditions about what humans actually need to stay sane, and it isn't comfort — it's structure and meaning. Crews that kept fixed mealtimes, gave everyone a job, and marked small occasions tended to hold together; those that let the days blur into shapeless dark struggled. We saw a faint, mass echo of this during long lockdowns, when many people discovered that loose, empty days were harder on the mind than busy ones, and that small rituals — a morning walk, a set mealtime — quietly kept them afloat. It suggests something counter-intuitive: freedom from all routine, which sounds like paradise, can actually be destabilising, while a little imposed order can be deeply protective. The polar crews understood, long before psychology had the words for it, that the mind needs a scaffold — especially when the world outside goes dark.`,
-            questions: [
-                `Have you ever found that having a routine helped you more than having total freedom?`,
-                `During a hard or empty stretch of time, what small rituals kept you going?`,
-                `Why do you think too much unstructured freedom can actually be hard on people?`
-            ]
-        }
-    },
-    {
-        id: `cl-one-way-crossing`,
-        location: `Transoceanic migration, 19th–early 20th centuries`,
-        title: `The Journey With No Return`,
-        teaser: `Everything you owned, and no way back.`,
-        insight: `Millions crossed oceans in cramped lower-decks with everything they owned in one bag and no real prospect of returning. For them, travel was not adventure or escape for a season — it was a permanent break with one life and the uncertain start of another. To anyone whose travel always assumes a return ticket, this is a profoundly different act. The human meaning underneath: for much of history, and for many still today, leaving has been one-way and irreversible — not a holiday from your life, but the end of one version of it and the gamble on another.`,
-        question: `Imagine leaving home with one bag and no realistic way back. What would have to be true for someone to make that choice?`,
-        upgrade: {
-            term: `one-way journey`,
-            type: `noun phrase`,
-            def: `A journey made without a realistic chance of returning to the life you left behind.`,
-            in_action: `For many migrants, the crossing was a one-way journey — not an adventure, but the start of a completely different life.`,
-            review_prompt: `What makes a one-way journey feel different from a trip with a return ticket?`
-        },
-        deeper: {
-            text: `It's worth holding the two kinds of journey side by side: the modern traveller, who leaves precisely because they know they can come home, and the one-way migrant, who leaves knowing they almost certainly can't. Those are nearly opposite emotional experiences hiding inside the same word, "travel." The return ticket changes everything — it makes a journey an experience rather than a fate. This still shapes how different people hear the word today: for someone whose family arrived as migrants or refugees, "travelling abroad" may carry a weight and an ache that a casual holidaymaker never feels. The same flight can be an adventure for one passenger and the hardest decision of a life for the person in the next seat. Remembering that gap is part of travelling thoughtfully — knowing that the freedom to come home is itself a kind of privilege not everyone has ever had.`,
-            questions: [
-                `Does your family have a story of someone who left home for good? What do you know of it?`,
-                `How is travelling for fun different, emotionally, from being forced to leave?`,
-                `Do you think people who can always return home travel differently from those who can't?`
-            ]
-        }
-    },
-    {
-        id: `cl-backpacker-identity`,
-        location: `Global, late 20th century to today`,
-        title: `When the Trip Never Really Ends`,
-        teaser: `Some build a whole life out of not staying.`,
-        insight: `From the late twentieth century on, some travellers stopped taking trips and started living them — countries as temporary homes, friendships built fast and left behind, each place a chapter rather than a destination. To an outsider it can look enviable or aimless depending on their own values. The human meaning underneath: when travel stops being a break from ordinary life and becomes the shape of it, the experience of any single place changes too — and it becomes worth asking whether always moving means you're really arriving anywhere.`,
-        question: `Does constant travel sound like freedom to you — or do you think each place starts to feel a little less special when there's always another one coming?`,
-        upgrade: {
-            term: `wanderlust`,
-            type: `noun`,
-            def: `A strong, restless desire to travel and keep seeing new places.`,
-            in_action: `Her wanderlust never faded — she's never lived anywhere more than a year.`,
-            review_prompt: `Do you have wanderlust, or do you feel happiest somewhere familiar? Why do you think that is?`
-        },
-        deeper: {
-            text: `This way of living exposes a real difference in values that runs across cultures and even within families. In some traditions, a person who keeps moving and won't settle is admired as free, brave, and open; in others, the very same person is quietly seen as rootless, unserious, or running from something. Neither reading is simply correct — they come from genuinely different ideas about what a good life is. The settled person looks at the wanderer and sees someone missing out on deep roots, lasting friendship, and a place to belong. The wanderer looks back and sees someone trapped by routine and afraid of the unknown. Both can be a little right. What's interesting is to notice which instinct lives more strongly in you — and where you got it: from your family, your culture, your generation, or your own restlessness or need for home.`,
-            questions: [
-                `In your culture, is a person who never settles admired, pitied, or quietly judged?`,
-                `Do you think you can build deep friendships while constantly moving — or does closeness need time and place?`,
-                `Where do you think your own pull toward roots or movement comes from?`
-            ]
-        }
-    },
-    {
-        id: `cl-digital-nomads`,
-        location: `Global, 21st century`,
-        title: `Living Here, Working There`,
-        teaser: `A life stretched across two places at once.`,
-        insight: `Technology now lets some people live in one country while working for another, blurring old ideas of home, nation, and the boundary between work and travel. The journey is no longer a break from ordinary life — it becomes the structure of life itself. What looks like a permanent holiday is often something stranger: belonging fully to nowhere. The human meaning underneath: when you can leave at any moment, the meaning of "staying" changes too — and it becomes a real question whether you can truly belong to a place you're always free to walk away from.`,
-        question: `Does working while travelling still feel like travel to you — or does it quietly turn the journey into ordinary life in a different postcode?`,
-        upgrade: {
-            term: `untethered`,
-            type: `adjective`,
-            def: `Not strongly tied to one place, routine, or way of life.`,
-            in_action: `The freedom was exciting at first, but after a while he started to feel untethered rather than free.`,
-            review_prompt: `When might feeling untethered be exciting, and when might it feel lonely?`
-        },
-        deeper: {
-            text: `There's a quiet trade-off inside this lifestyle that its glossy images rarely show. The freedom is real — to follow good weather, low costs, or simple curiosity, untied to one place. But belonging tends to be built from the very things this life avoids: staying through the dull stretches, knowing your neighbours over years, being part of a place when it's inconvenient as well as when it's lovely. A traveller who's always passing through often experiences a place as a guest sees it — the surface, the highlights — rather than as a resident knows it, with all its tedium and depth. Different cultures weigh this differently: some prize the freedom and adaptability, others quietly believe you only really know a place once you've been stuck in it through a hard winter. It raises an honest question about our connected age — whether the freedom to be everywhere has quietly cost us the deeper belonging that only comes from being somewhere, fully, for a long time.`,
-            questions: [
-                `Do you think you can know a place properly as a visitor, or only by living through its ordinary, boring times?`,
-                `Would a life of working remotely from beautiful places appeal to you, or wear thin?`,
-                `What do you think actually makes someone "belong" to a place — time, effort, or something else?`
-            ]
-        }
-    }
-];
 
 const discussionSets = [
     {
@@ -467,6 +280,193 @@ const discussionSets = [
         makeItReal: {
             title: `What the going gave you`,
             prompt: `Think of one journey that left a real mark — somewhere that shifted how you see home, other people, or your own life, even slightly. What did you carry back that's still with you now? Tell the story of what the going gave you.`
+        }
+    }
+];
+
+const clCards = [
+    {
+        id: `cl-polynesian-navigators`,
+        location: `The Pacific, ancient and medieval ocean voyaging`,
+        title: `Reading the Ocean`,
+        teaser: `Crossing an ocean without modern instruments — and arriving.`,
+        insight: `Long before modern instruments, Polynesian navigators crossed thousands of kilometres of open Pacific using stars, swell patterns, bird flight, cloud colour, and a vast memory of the sea passed down by training. To an outsider this can look like luck or mysticism, but it was a precise, learned skill — a way of knowing the ocean that lived in the body and the senses rather than on paper. The human meaning underneath: knowledge doesn't have to be written down to be real. A whole science of the sea was carried in memory, observation, and apprenticeship, and it worked.`,
+        question: `Have you ever trusted instinct or a "feel" for something over a map, a guide, or instructions — and were you right to?`,
+        upgrade: {
+            term: `know it like the back of your hand`,
+            type: `idiom`,
+            def: `To know a place or thing so well you need no help with it.`,
+            in_action: `He's never used a map here — he knows these streets like the back of his hand.`,
+            review_prompt: `What place or route do you know like the back of your hand? How did you learn it?`
+        },
+        deeper: {
+            text: `It's tempting to assume that knowledge only counts when it's written, measured, or taught in a classroom — that's the form many of us were raised to trust. But the Polynesian system suggests a different idea: that deep expertise can live in observation and memory, refined over a lifetime and handed from teacher to student. The misread happens when outsiders see no charts and assume there's no method, when in fact the method is simply held somewhere they're not looking. There's a modern echo every time an experienced fisher reads the weather better than the forecast, or a local takes a shortcut no app would ever suggest. It raises a quiet question about our own moment: as we hand more and more of our knowing to devices, are we slowly losing the kind of deep, embodied knowledge that once carried people safely across an ocean?`,
+            questions: [
+                `Is there a skill in your culture that's learned by doing and watching, not from books?`,
+                `Do you trust technology or experienced people more when you're genuinely lost?`,
+                `What kind of knowledge do you think we're at risk of losing as we rely more on devices?`
+            ]
+        }
+    },
+    {
+        id: `cl-silk-road-exchange`,
+        location: `The Silk Road, roughly 200 BCE onward`,
+        title: `What Travels With the Traveller`,
+        teaser: `The goods were the smallest thing being carried.`,
+        insight: `For centuries, merchants along the Silk Road carried silk, spices, and silver — but alongside the goods travelled religions, recipes, instruments, words, and stories, passing between civilisations that never met directly. The trade route was almost a side effect; the deeper exchange was cultural. Outsiders often picture travel as seeing places, but this reveals travel as mixing them — a slow blending where an idea born in one place quietly takes root a continent away. The human meaning: movement spreads more than objects. Wherever people go, a little of where they came from goes with them, and a little of where they've been comes back.`,
+        question: `When you travel, do you think you're changed more by the places you see — or by the people you meet along the way?`,
+        upgrade: {
+            term: `cross-pollinate`,
+            type: `verb`,
+            def: `When ideas, styles, or cultures mix and influence each other.`,
+            in_action: `That city's food is amazing because so many cultures cross-pollinated there for centuries.`,
+            review_prompt: `Name a food, word, or style in your country that clearly came from somewhere else. How did it arrive?`
+        },
+        deeper: {
+            text: `We tend to imagine cultures as separate boxes — this one here, that one there — but a route like the Silk Road shows how leaky those boxes have always been. An instrument plucked in one empire reappears, reshaped, in another. A faith carried by a few travelling believers becomes the heart of a distant society. The misunderstanding many people hold is that cultures are "pure" and that mixing is modern — when in truth, blending has been the normal state of human life for as long as people have moved. There's a contrast of styles worth noticing too: some cultures take pride in absorbing outside influences and remixing them, while others work hard to protect what they see as authentic and untouched. Both instincts are understandable. The interesting question is what we each think is worth keeping pure, and what's better left open to the world.`,
+            questions: [
+                `Is there something in your culture that's clearly borrowed from elsewhere but now feels completely "yours"?`,
+                `Do you think a culture is stronger when it stays distinct, or when it mixes freely?`,
+                `Have you ever brought a habit or taste home from abroad that your friends or family picked up too?`
+            ]
+        }
+    },
+    {
+        id: `cl-grand-tour`,
+        location: `Europe, 17th–19th centuries`,
+        title: `Travel as Finishing School`,
+        teaser: `A journey designed to make you a certain kind of person.`,
+        insight: `For roughly two centuries, wealthy young Europeans were sent on a long tour of the continent — not for fun, but to acquire taste, languages, confidence, and social polish before taking their place in society. Travel here was deliberately educational, almost a finishing school on the move. To modern eyes it can look like a privileged holiday, but the underlying idea is one we've quietly kept: that going out into the world forms you in ways staying home cannot. The human meaning: some cultures and classes have long treated travel as a rite of passage — proof you've grown up — rather than as leisure.`,
+        question: `Do you think travelling actually teaches you things you couldn't learn at home — or is that idea a bit overstated?`,
+        upgrade: {
+            term: `worldly`,
+            type: `adjective`,
+            def: `Experienced and knowledgeable about life, people, or culture beyond your own narrow world.`,
+            in_action: `Travel made him more worldly, but not necessarily wiser about everything.`,
+            review_prompt: `Can someone become worldly without travelling much? What would give them that quality?`
+        },
+        deeper: {
+            text: `The Grand Tour belonged to a tiny, wealthy few, and that's part of what makes it interesting now — because the idea behind it has gone fully mainstream. The modern "gap year," the post-graduation backpacking trip, the belief that a young person should "see the world" before settling down: all of these are the Grand Tour's democratic grandchildren. But the assumption deserves a gentle poke. Does travel really form character, or do we just credit it because the people who could afford to travel were already going to turn out fine? Someone from a culture without this tradition might reasonably point out that wisdom, taste, and confidence can grow just as well from staying, working, raising a family, or reading deeply at home. The question of whether you must leave to grow is far less settled than the travel industry would like us to believe.`,
+            questions: [
+                `In your culture, is travelling young seen as important for growing up — or as a luxury or even a distraction?`,
+                `Do you know someone wise and worldly who has barely travelled at all?`,
+                `If you had a free year at eighteen, would you have spent it travelling, working, or studying — and why?`
+            ]
+        }
+    },
+    {
+        id: `cl-sahara-caravans`,
+        location: `The Sahara, medieval and early-modern periods`,
+        title: `Where One Mistake Could Kill You`,
+        teaser: `Months of desert, and survival hanging on memory.`,
+        insight: `Crossing the Sahara by caravan could take months, and survival depended entirely on guides who held the route, the animals, and the hidden wells in living memory. A single wrong turn could end everyone. To us, comfortable with maps and rescue, it's hard to grasp travel where error meant death and trust in your guide was absolute. The human meaning underneath: for most of history, going somewhere meant placing your life in the hands of a person who knew the way — and travel was less about freedom than about whom you could trust to get you through.`,
+        question: `Could you put your life in the hands of a guide or stranger who knew the way, the way desert travellers had to — or does that idea unsettle you?`,
+        upgrade: {
+            term: `at the mercy of`,
+            type: `idiom`,
+            def: `Completely dependent on something or someone you can't control.`,
+            in_action: `Out there you're at the mercy of the weather and whoever's leading you.`,
+            review_prompt: `When travelling, when have you been at the mercy of someone or something? How did it feel?`
+        },
+        deeper: {
+            text: `Modern travel has quietly removed almost all of this. We carry maps in our pockets, summon help with a tap, and rarely have to trust a single human being with our survival. That's an enormous gain — but it may have changed the texture of travel itself. The desert crossing bound a group together through shared danger and total reliance on a guide's memory; the journey was the relationship. Some argue that the safety and independence of modern travel, wonderful as they are, have made it lonelier and lighter — you need no one, so you bond with no one. A traveller from a high-trust, guide-dependent tradition might find our solo, app-led wandering strangely isolated. It's worth asking what we've traded away along with the danger: perhaps some of the deep trust and togetherness that only real shared risk can create.`,
+            questions: [
+                `Do you think modern travel is lonelier now that we rarely have to rely on other people?`,
+                `Have you ever bonded with someone quickly because you were both out of your depth somewhere?`,
+                `Would you feel safer with a map and a phone, or with a person who truly knew the place?`
+            ]
+        }
+    },
+    {
+        id: `cl-antarctic-isolation`,
+        location: `Antarctica, late 19th–early 20th centuries`,
+        title: `Surviving the Dark`,
+        teaser: `Months of darkness, no rescue, and routine as a lifeline.`,
+        insight: `Early Antarctic expeditions faced months of darkness, brutal cold, and no possibility of rescue. Some crews endured not only through physical toughness but through strict daily routines — meals, tasks, shared rituals — that protected their minds from the crushing isolation. The surprise here is that the deadliest threat wasn't always the cold but the emptiness, and that the cure was structure. The human meaning underneath: when the outside world disappears entirely, ordinary routine stops being boring and becomes the thing that holds a person together.`,
+        question: `When you've been isolated or stuck somewhere, what kept you steady — routine, people, distraction, or something else?`,
+        upgrade: {
+            term: `anchor`,
+            type: `noun`,
+            def: `Something that keeps you steady, calm, or connected when life feels difficult or uncertain.`,
+            in_action: `During those long dark weeks, the daily routine became an anchor — it gave everyone something to hold on to.`,
+            review_prompt: `What routines or small rituals can become an anchor when life feels uncertain?`
+        },
+        deeper: {
+            text: `There's a powerful lesson buried in those frozen expeditions about what humans actually need to stay sane, and it isn't comfort — it's structure and meaning. Crews that kept fixed mealtimes, gave everyone a job, and marked small occasions tended to hold together; those that let the days blur into shapeless dark struggled. We saw a faint, mass echo of this during long lockdowns, when many people discovered that loose, empty days were harder on the mind than busy ones, and that small rituals — a morning walk, a set mealtime — quietly kept them afloat. It suggests something counter-intuitive: freedom from all routine, which sounds like paradise, can actually be destabilising, while a little imposed order can be deeply protective. The polar crews understood, long before psychology had the words for it, that the mind needs a scaffold — especially when the world outside goes dark.`,
+            questions: [
+                `Have you ever found that having a routine helped you more than having total freedom?`,
+                `During a hard or empty stretch of time, what small rituals kept you going?`,
+                `Why do you think too much unstructured freedom can actually be hard on people?`
+            ]
+        }
+    },
+    {
+        id: `cl-one-way-crossing`,
+        location: `Transoceanic migration, 19th–early 20th centuries`,
+        title: `The Journey With No Return`,
+        teaser: `Everything you owned, and no way back.`,
+        insight: `Millions crossed oceans in cramped lower-decks with everything they owned in one bag and no real prospect of returning. For them, travel was not adventure or escape for a season — it was a permanent break with one life and the uncertain start of another. To anyone whose travel always assumes a return ticket, this is a profoundly different act. The human meaning underneath: for much of history, and for many still today, leaving has been one-way and irreversible — not a holiday from your life, but the end of one version of it and the gamble on another.`,
+        question: `Imagine leaving home with one bag and no realistic way back. What would have to be true for someone to make that choice?`,
+        upgrade: {
+            term: `one-way journey`,
+            type: `noun phrase`,
+            def: `A journey made without a realistic chance of returning to the life you left behind.`,
+            in_action: `For many migrants, the crossing was a one-way journey — not an adventure, but the start of a completely different life.`,
+            review_prompt: `What makes a one-way journey feel different from a trip with a return ticket?`
+        },
+        deeper: {
+            text: `It's worth holding the two kinds of journey side by side: the modern traveller, who leaves precisely because they know they can come home, and the one-way migrant, who leaves knowing they almost certainly can't. Those are nearly opposite emotional experiences hiding inside the same word, "travel." The return ticket changes everything — it makes a journey an experience rather than a fate. This still shapes how different people hear the word today: for someone whose family arrived as migrants or refugees, "travelling abroad" may carry a weight and an ache that a casual holidaymaker never feels. The same flight can be an adventure for one passenger and the hardest decision of a life for the person in the next seat. Remembering that gap is part of travelling thoughtfully — knowing that the freedom to come home is itself a kind of privilege not everyone has ever had.`,
+            questions: [
+                `Does your family have a story of someone who left home for good? What do you know of it?`,
+                `How is travelling for fun different, emotionally, from being forced to leave?`,
+                `Do you think people who can always return home travel differently from those who can't?`
+            ]
+        }
+    },
+    {
+        id: `cl-backpacker-identity`,
+        location: `Global, late 20th century to today`,
+        title: `When the Trip Never Really Ends`,
+        teaser: `Some build a whole life out of not staying.`,
+        insight: `From the late twentieth century on, some travellers stopped taking trips and started living them — countries as temporary homes, friendships built fast and left behind, each place a chapter rather than a destination. To an outsider it can look enviable or aimless depending on their own values. The human meaning underneath: when travel stops being a break from ordinary life and becomes the shape of it, the experience of any single place changes too — and it becomes worth asking whether always moving means you're really arriving anywhere.`,
+        question: `Does constant travel sound like freedom to you — or do you think each place starts to feel a little less special when there's always another one coming?`,
+        upgrade: {
+            term: `wanderlust`,
+            type: `noun`,
+            def: `A strong, restless desire to travel and keep seeing new places.`,
+            in_action: `Her wanderlust never faded — she's never lived anywhere more than a year.`,
+            review_prompt: `Do you have wanderlust, or do you feel happiest somewhere familiar? Why do you think that is?`
+        },
+        deeper: {
+            text: `This way of living exposes a real difference in values that runs across cultures and even within families. In some traditions, a person who keeps moving and won't settle is admired as free, brave, and open; in others, the very same person is quietly seen as rootless, unserious, or running from something. Neither reading is simply correct — they come from genuinely different ideas about what a good life is. The settled person looks at the wanderer and sees someone missing out on deep roots, lasting friendship, and a place to belong. The wanderer looks back and sees someone trapped by routine and afraid of the unknown. Both can be a little right. What's interesting is to notice which instinct lives more strongly in you — and where you got it: from your family, your culture, your generation, or your own restlessness or need for home.`,
+            questions: [
+                `In your culture, is a person who never settles admired, pitied, or quietly judged?`,
+                `Do you think you can build deep friendships while constantly moving — or does closeness need time and place?`,
+                `Where do you think your own pull toward roots or movement comes from?`
+            ]
+        }
+    },
+    {
+        id: `cl-digital-nomads`,
+        location: `Global, 21st century`,
+        title: `Living Here, Working There`,
+        teaser: `A life stretched across two places at once.`,
+        insight: `Technology now lets some people live in one country while working for another, blurring old ideas of home, nation, and the boundary between work and travel. The journey is no longer a break from ordinary life — it becomes the structure of life itself. What looks like a permanent holiday is often something stranger: belonging fully to nowhere. The human meaning underneath: when you can leave at any moment, the meaning of "staying" changes too — and it becomes a real question whether you can truly belong to a place you're always free to walk away from.`,
+        question: `Does working while travelling still feel like travel to you — or does it quietly turn the journey into ordinary life in a different postcode?`,
+        upgrade: {
+            term: `untethered`,
+            type: `adjective`,
+            def: `Not strongly tied to one place, routine, or way of life.`,
+            in_action: `The freedom was exciting at first, but after a while he started to feel untethered rather than free.`,
+            review_prompt: `When might feeling untethered be exciting, and when might it feel lonely?`
+        },
+        deeper: {
+            text: `There's a quiet trade-off inside this lifestyle that its glossy images rarely show. The freedom is real — to follow good weather, low costs, or simple curiosity, untied to one place. But belonging tends to be built from the very things this life avoids: staying through the dull stretches, knowing your neighbours over years, being part of a place when it's inconvenient as well as when it's lovely. A traveller who's always passing through often experiences a place as a guest sees it — the surface, the highlights — rather than as a resident knows it, with all its tedium and depth. Different cultures weigh this differently: some prize the freedom and adaptability, others quietly believe you only really know a place once you've been stuck in it through a hard winter. It raises an honest question about our connected age — whether the freedom to be everywhere has quietly cost us the deeper belonging that only comes from being somewhere, fully, for a long time.`,
+            questions: [
+                `Do you think you can know a place properly as a visitor, or only by living through its ordinary, boring times?`,
+                `Would a life of working remotely from beautiful places appeal to you, or wear thin?`,
+                `What do you think actually makes someone "belong" to a place — time, effort, or something else?`
+            ]
         }
     }
 ];
