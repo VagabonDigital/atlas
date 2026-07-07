@@ -21,9 +21,9 @@ const MODULE = {
     schemaVersion: 1,
     contentVersion: '1.0.0',
     title: 'Personality & Character Traits',
-    titleHtml: 'Personality &amp; <em>Character Traits</em>',
+    titleHtml: 'Personality &amp; <br><em>Character Traits</em>',
     navTitle: 'Personality',
-    bgImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSW2XX5CGq4BH5i6_Tmvm-5FmWqFm4173_F937ppNn05Kf99B2ftqP1Uw1s&s=10'
+    bgImage: 'https://images.unsplash.com/photo-1521220546621-cf34a1165c67?q=80&w=2076&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D0'
 };
 
 const subjectCopy = {
@@ -64,193 +64,6 @@ const subjectCopy = {
         intro: `Higher-level expressions from this subject — with definitions and natural in-action examples.`
     }
 };
-
-const clCards = [
-    {
-        id: `cl-sparta`,
-        location: `Ancient Sparta`,
-        title: `Toughness you could be trained into`,
-        teaser: `A whole society built to manufacture one trait.`,
-        insight: `In ancient Sparta, boys were deliberately raised through hardship — exposed to cold, hunger, and pain — so that toughness and emotional control became the defining marks of character. Showing fear or distress could bring punishment, because composure under pressure was treated as the highest sign of worth. What looks like a natural trait was, in significant part, a social product: a quality shaped into people by design rather than simply born in them.`,
-        question: `Is there a quality you have built in yourself that did not come naturally at first — and what made you develop it?`,
-        upgrade: {
-            term: `thick-skinned`,
-            type: `adjective`,
-            def: `Able to handle criticism, difficulty, or pressure without being easily upset.`,
-            in_action: `You need to be fairly thick-skinned in that industry — the feedback is constant and nobody softens it.`,
-            review_prompt: `In what part of your life have you had to become more thick-skinned over time?`
-        },
-        deeper: {
-            text: `The Spartan example raises a question that still sits underneath modern life: how much of someone's character is chosen, and how much is manufactured by the environment they were placed in? A child raised to suppress fear may genuinely become someone who stays calm in a crisis — but they may also lose easy access to softer feelings they were never allowed to show. This is the hidden cost of training a trait so hard: strengths and limitations often grow from the same root. We see milder versions everywhere — the family that prizes resilience and quietly discourages complaint, the workplace that rewards people who never appear rattled. For an outsider, the danger is reading the calm surface as the whole person, and missing how much effort, or suppression, is holding it in place.`,
-            questions: [
-                `Were you raised to show certain feelings and hide others? Which ones, and has that stayed with you?`,
-                `Do you think a workplace or family can shape someone's personality as strongly as their nature does?`,
-                `Is there a trait your environment rewarded so much that it became hard to be any other way?`
-            ]
-        }
-    },
-    {
-        id: `cl-victorian-england`,
-        location: `Victorian England`,
-        title: `The composed surface`,
-        teaser: `Strong feeling was real — it just was not for public view.`,
-        insight: `In Victorian England, open displays of anger, excitement, or affection in public were widely discouraged, especially among the respectable classes. Staying composed regardless of what you felt inside was treated as a mark of good character. This did not mean people felt less — it meant the visible self and the inner self were deliberately kept apart, and emotional restraint became a social signal of maturity and self-control.`,
-        question: `Have you ever completely misjudged what someone was feeling because they showed so little on the surface — assuming they were fine, or cold, when they were not?`,
-        upgrade: {
-            term: `keep up appearances`,
-            type: `idiom`,
-            def: `To maintain a respectable or composed outward image, regardless of difficulties or feelings underneath.`,
-            in_action: `They were going through a hard time financially, but they kept up appearances so well that none of their friends suspected a thing.`,
-            review_prompt: `When have you kept up appearances while feeling quite different underneath?`
-        },
-        deeper: {
-            text: `A culture of emotional restraint creates a particular kind of reading problem: the calmer the surface, the harder it is to know what is beneath it. Where composure is expected, a person in real distress may look completely fine, and others may genuinely fail to notice. This is very different from cultures where strong feeling is shown openly and read as sincerity. When the two styles meet, misjudgement runs both ways — the restrained person can seem cold or unfeeling, while the expressive person can seem dramatic or out of control. Neither is the truth of who they are; each is simply following a different rule about how much of the inner self belongs in public. The skill, when reading across these styles, is to remember that a flat surface is not always a flat feeling.`,
-            questions: [
-                `Do you think hiding strong emotion in public is a sign of strength, politeness, or something lost?`,
-                `Are there situations where you deliberately show less than you feel — and does it cost you anything?`,
-                `In your own family, were some feelings fine to show openly and others kept firmly private?`
-            ]
-        }
-    },
-    {
-        id: `cl-japan-samurai`,
-        location: `Feudal Japan`,
-        title: `Composure as the highest honour`,
-        teaser: `Where staying calm mattered even in the face of death.`,
-        insight: `Among the samurai of feudal Japan, emotional composure was held as a central virtue — warriors were expected to remain calm and dignified even when facing death. Losing control of one's emotions in a critical moment could be seen as a loss of honour, not merely a personal weakness. Character here was measured less by what a person felt and more by their ability to master the outward expression of it when it mattered most.`,
-        question: `Do you admire people who stay calm and controlled in extreme moments — or do you sometimes trust open emotion more than a composed surface?`,
-        upgrade: {
-            term: `steadiness`,
-            type: `noun`,
-            def: `A calm, controlled quality that stays present under pressure.`,
-            in_action: `What impressed people was her steadiness — everyone else panicked, but she kept thinking clearly.`,
-            review_prompt: `Where does steadiness matter more than showing strong emotion?`
-        },
-        deeper: {
-            text: `The samurai ideal points to something many cultures share in some form: the belief that the measure of character is not the absence of strong feeling, but the ability to govern it under pressure. The reasoning is that anyone can stay calm when nothing is at stake — true self-mastery only shows when the stakes are highest. Yet this ideal carries a familiar tension. Prized too far, composure can shade into emotional distance, or into an inability to ask for help when it is genuinely needed. Modern versions appear in any high-pressure world — surgery, aviation, leadership — where steadiness is essential, but where the same trait, pushed too hard, can leave a person unreachable. As ever, the calm exterior tells you how someone is behaving, not necessarily what they are carrying.`,
-            questions: [
-                `Is there a situation in your life where staying composed is expected of you, even when you do not feel it?`,
-                `Do you think it is possible to be too controlled — to the point that it becomes a problem?`,
-                `Who do you know who stays calm under pressure, and do you read it as strength, distance, or both?`
-            ]
-        }
-    },
-    {
-        id: `cl-medieval-court`,
-        location: `Medieval royal courts`,
-        title: `The self you performed to survive`,
-        teaser: `One careless laugh could cost you your standing.`,
-        insight: `In the strict royal courts of medieval Europe, how you behaved could matter as much as who you were. Laughing too loudly, speaking too casually, or letting the wrong expression cross your face could damage your standing in an instant. Personality at court was something to be carefully managed and performed — a polished public self, maintained at all times, often quite separate from whatever the person actually felt.`,
-        question: `Are there places in your life — work, certain social settings — where you feel you have to perform a careful version of yourself rather than simply be relaxed?`,
-        upgrade: {
-            term: `public persona`,
-            type: `noun phrase`,
-            def: `The version of yourself you show in public, especially when it is more controlled than your private self.`,
-            in_action: `At work he has a polished public persona, but with close friends he is much warmer and sillier.`,
-            review_prompt: `Where do people usually show a more controlled public persona?`
-        },
-        deeper: {
-            text: `The medieval court is an extreme case of something almost everyone does to some degree: adjusting our character to fit the rules of the room. Where the cost of a slip is high — to status, safety, or reputation — people naturally develop a more controlled, performed self. The interesting question is what this performance does over time. A carefully maintained public self can become so habitual that the line between performing and being blurs, and a person may struggle to locate where the "real" them ends and the role begins. We see gentler versions in corporate culture, in politics, in any environment where image is currency. The point is not that performance is dishonest — almost all social life involves some — but that the more tightly a self is policed, the harder it can be for anyone, including the person themselves, to see clearly underneath.`,
-            questions: [
-                `Where do you feel the gap between your performed self and your relaxed self is widest?`,
-                `Do you think a strongly performed public role can slowly change who a person actually becomes?`,
-                `Have you ever watched someone drop the performance, and seen a noticeably different person underneath?`
-            ]
-        }
-    },
-    {
-        id: `cl-court-jester`,
-        location: `The medieval court jester`,
-        title: `The one allowed to be honest`,
-        teaser: `A single role with permission everyone else was denied.`,
-        insight: `In many royal courts, the jester occupied a strange and privileged position: through humour, they could mock powerful rulers and voice uncomfortable truths that would have been dangerous from anyone else. Their character — playful, sharp, seemingly foolish — earned them a freedom others did not have. It is a striking example of how a social role can give a personality permission: the same words were permitted from the fool and forbidden from the courtier.`,
-        question: `Is there someone in your life or workplace who is "allowed" to say things others cannot — and what is it about them that gives them that freedom?`,
-        upgrade: {
-            term: `get away with`,
-            type: `phrasal verb`,
-            def: `To do or say something risky or rule-breaking without facing the consequences others would.`,
-            in_action: `He gets away with saying things in meetings that would get anyone else in trouble — somehow it always comes across as charm.`,
-            review_prompt: `Who do you know who gets away with saying what others cannot? Why do you think they can?`
-        },
-        deeper: {
-            text: `The jester reveals something that still operates in modern groups: certain roles come with a hidden permission slip. The person seen as the funny one, the harmless one, or the outsider can sometimes voice criticism that would be unacceptable from a rival or a subordinate — humour and a non-threatening character disarm what would otherwise feel like an attack. This is why comedy has so often carried serious political weight: the laugh provides cover for the truth. In offices, families, and friend groups, the same dynamic appears — the one who can "get away with" honesty is usually the one whose character makes the honesty feel safe. It is worth noticing, because it reveals how much of what we are "allowed" to say depends not on the words themselves, but on the role we are read as occupying.`,
-            questions: [
-                `Are you ever the person who says the thing nobody else will — and how is it usually received?`,
-                `Why do you think humour makes a difficult truth easier to accept than a direct statement?`,
-                `Have you noticed that the same comment can be fine from one person and offensive from another?`
-            ]
-        }
-    },
-    {
-        id: `cl-honour-shame-cultures`,
-        location: `Communal and individualist societies`,
-        title: `Is character yours, or your family's?`,
-        teaser: `In some places, your behaviour is never only your own.`,
-        insight: `In many communal cultures, a person's behaviour is understood to reflect on their whole family or group, not only on themselves — so character is partly a shared responsibility rather than a purely private matter. In more individualist cultures, behaviour is read mainly as an expression of the individual alone. This shapes how people act: where reputation is collective, there can be far stronger pressure to display the traits the group values and to avoid bringing shame on others.`,
-        question: `Can you think of a time you acted differently — more carefully, or held something back — because of how it might reflect on your family or group rather than just on you?`,
-        upgrade: {
-            term: `a reflection on`,
-            type: `noun phrase`,
-            def: `Something that reveals or affects how a related person or group is judged, beyond the individual involved.`,
-            in_action: `In my parents' eyes, how I behave in public is a reflection on the whole family, not just on me.`,
-            review_prompt: `In what situations do your actions feel like a reflection on more than just yourself?`
-        },
-        deeper: {
-            text: `Whether character is read as individual or collective changes the very meaning of a person's behaviour. In more individualist settings, a young person acting unwisely is usually seen as their own concern; in more communal settings, the same act may be felt as affecting parents, siblings, and the family name. Neither framing is simply right — each carries something. A strong sense of collective reputation can foster real responsibility, belonging, and care for how one's actions affect others; it can also create heavy pressure to conform and to hide anything that might reflect badly on the group. For someone moving between these worlds, the misreadings can be sharp: what looks like excessive caution from one side can look like basic respect from the other. Understanding which frame a person is operating in often explains behaviour that would otherwise seem puzzling.`,
-            questions: [
-                `Growing up, were you taught that your behaviour affected your family's reputation — and how did that feel?`,
-                `Do you think a strong sense of collective reputation builds responsibility, creates pressure, or both?`,
-                `Have you ever misread someone's caution or boldness because they were operating by a different rule about whose reputation was at stake?`
-            ]
-        }
-    },
-    {
-        id: `cl-online-performance`,
-        location: `Today's online life`,
-        title: `The edited self`,
-        teaser: `Funnier, kinder, more confident — and not quite real.`,
-        insight: `Online, people often present a sharpened version of themselves — funnier, more confident, more attractive, or more certain than they feel offline. This is not always dishonesty; it can be a natural response to a setting that rewards a polished, performable self. But it widens the familiar gap between the displayed character and the lived one, and it can quietly distort how people judge both others and themselves, comparing their messy inner life to everyone else's edited surface.`,
-        question: `Do you think the version of yourself you present online is close to who you really are — or a noticeably edited one? What gets left out?`,
-        upgrade: {
-            term: `curate`,
-            type: `verb`,
-            def: `To carefully select and present only certain parts of something — here, the version of yourself you show others.`,
-            in_action: `Her feed is beautifully curated, but she is the first to admit it shows almost nothing of an ordinary, difficult day.`,
-            review_prompt: `What do you tend to curate out of the version of yourself you show online?`
-        },
-        deeper: {
-            text: `The edited online self is the latest chapter in a very old story — people have always managed how they appear, from court manners to the composed public face. What has changed is the scale and the constancy: the performance is now continuous, visible to many, and measured in reactions. This intensifies an effect worth naming: when we compare our unedited inner experience to everyone else's curated outer one, almost everyone can end up feeling they fall short. It also blurs self-perception, as the performed self starts to shape how people see themselves, not only how others see them. The deeper thread connecting this card to the rest is constant — across Sparta, the Victorian drawing room, the court, and the feed, the same question keeps returning: how far is the self we show the self we are?`,
-            questions: [
-                `When you compare your real life to other people's online versions, how does it affect how you feel about yourself?`,
-                `Do you think performing a more confident self online can, over time, actually change who you are offline?`,
-                `Where is the line, for you, between presenting yourself well and presenting someone who is not quite you?`
-            ]
-        }
-    },
-    {
-        id: `cl-age-and-character`,
-        location: `Life stages across cultures`,
-        title: `The traits your age allows you`,
-        teaser: `The same behaviour, forgiven at twenty, frowned on at fifty.`,
-        insight: `In most cultures, the same person is permitted very different traits at different stages of life. Boldness, recklessness, or strong opinions are often tolerated, even expected, in the young — "they will grow out of it" — while the same qualities in an older person can read as undignified or stubborn. Calm, restraint, and settledness are quietly demanded with age. What we read as someone's fixed character is partly the version their current life stage is allowed to show.`,
-        question: `Are there things you did comfortably when you were younger that would feel strange to do now — or traits you have only felt allowed to show as you have got older?`,
-        upgrade: {
-            term: `act your age`,
-            type: `idiom`,
-            def: `To behave in a way considered appropriate for how old you are, rather than younger.`,
-            in_action: `He was told more than once to act his age, but honestly his sense of fun is the best thing about him.`,
-            review_prompt: `Is there something you do that others think you are "too old" or "too young" for? How do you feel about that?`
-        },
-        deeper: {
-            text: `The traits a person is allowed to display shift with age, and the rules vary sharply across cultures. In some societies, age brings rising authority and the right to speak plainly, so older people grow more outspoken, not less; in others, the expectation tips toward gentleness and stepping back. The young face the mirror image — granted licence to experiment in some cultures, held to strict respect and restraint in others. This matters for how we read people: a quality we treat as someone's permanent character may really be the trait their stage of life currently permits, and it may change as their social position does. The bold young person and the mellow older one may not have different essences at all — they may be the same disposition, shown through whatever the moment allows. It is another version of the question running through this whole subject: how much of "who someone is" is simply what they are, at this point, allowed to be.`,
-            questions: [
-                `In your culture, do people generally become more outspoken with age, or more reserved? Has that been true for you?`,
-                `Is there a part of your personality you feel freer to show now than you did when you were younger?`,
-                `Have you ever judged someone for not "acting their age" — and was that judgement really fair?`
-            ]
-        }
-    }
-];
 
 const discussionSets = [
     {
@@ -467,6 +280,193 @@ const discussionSets = [
         makeItReal: {
             title: `The character you are still writing`,
             prompt: `Think about one part of your character that has changed over the past few years — maybe how you handle pressure, speak up, trust people, or see yourself. What changed it, what has stayed the same, and what are you still growing into?`
+        }
+    }
+];
+
+const clCards = [
+    {
+        id: `cl-sparta`,
+        location: `Ancient Sparta`,
+        title: `Toughness you could be trained into`,
+        teaser: `A whole society built to manufacture one trait.`,
+        insight: `In ancient Sparta, boys were deliberately raised through hardship — exposed to cold, hunger, and pain — so that toughness and emotional control became the defining marks of character. Showing fear or distress could bring punishment, because composure under pressure was treated as the highest sign of worth. What looks like a natural trait was, in significant part, a social product: a quality shaped into people by design rather than simply born in them.`,
+        question: `Is there a quality you have built in yourself that did not come naturally at first — and what made you develop it?`,
+        upgrade: {
+            term: `thick-skinned`,
+            type: `adjective`,
+            def: `Able to handle criticism, difficulty, or pressure without being easily upset.`,
+            in_action: `You need to be fairly thick-skinned in that industry — the feedback is constant and nobody softens it.`,
+            review_prompt: `In what part of your life have you had to become more thick-skinned over time?`
+        },
+        deeper: {
+            text: `The Spartan example raises a question that still sits underneath modern life: how much of someone's character is chosen, and how much is manufactured by the environment they were placed in? A child raised to suppress fear may genuinely become someone who stays calm in a crisis — but they may also lose easy access to softer feelings they were never allowed to show. This is the hidden cost of training a trait so hard: strengths and limitations often grow from the same root. We see milder versions everywhere — the family that prizes resilience and quietly discourages complaint, the workplace that rewards people who never appear rattled. For an outsider, the danger is reading the calm surface as the whole person, and missing how much effort, or suppression, is holding it in place.`,
+            questions: [
+                `Were you raised to show certain feelings and hide others? Which ones, and has that stayed with you?`,
+                `Do you think a workplace or family can shape someone's personality as strongly as their nature does?`,
+                `Is there a trait your environment rewarded so much that it became hard to be any other way?`
+            ]
+        }
+    },
+    {
+        id: `cl-victorian-england`,
+        location: `Victorian England`,
+        title: `The composed surface`,
+        teaser: `Strong feeling was real — it just was not for public view.`,
+        insight: `In Victorian England, open displays of anger, excitement, or affection in public were widely discouraged, especially among the respectable classes. Staying composed regardless of what you felt inside was treated as a mark of good character. This did not mean people felt less — it meant the visible self and the inner self were deliberately kept apart, and emotional restraint became a social signal of maturity and self-control.`,
+        question: `Have you ever completely misjudged what someone was feeling because they showed so little on the surface — assuming they were fine, or cold, when they were not?`,
+        upgrade: {
+            term: `keep up appearances`,
+            type: `idiom`,
+            def: `To maintain a respectable or composed outward image, regardless of difficulties or feelings underneath.`,
+            in_action: `They were going through a hard time financially, but they kept up appearances so well that none of their friends suspected a thing.`,
+            review_prompt: `When have you kept up appearances while feeling quite different underneath?`
+        },
+        deeper: {
+            text: `A culture of emotional restraint creates a particular kind of reading problem: the calmer the surface, the harder it is to know what is beneath it. Where composure is expected, a person in real distress may look completely fine, and others may genuinely fail to notice. This is very different from cultures where strong feeling is shown openly and read as sincerity. When the two styles meet, misjudgement runs both ways — the restrained person can seem cold or unfeeling, while the expressive person can seem dramatic or out of control. Neither is the truth of who they are; each is simply following a different rule about how much of the inner self belongs in public. The skill, when reading across these styles, is to remember that a flat surface is not always a flat feeling.`,
+            questions: [
+                `Do you think hiding strong emotion in public is a sign of strength, politeness, or something lost?`,
+                `Are there situations where you deliberately show less than you feel — and does it cost you anything?`,
+                `In your own family, were some feelings fine to show openly and others kept firmly private?`
+            ]
+        }
+    },
+    {
+        id: `cl-japan-samurai`,
+        location: `Feudal Japan`,
+        title: `Composure as the highest honour`,
+        teaser: `Where staying calm mattered even in the face of death.`,
+        insight: `Among the samurai of feudal Japan, emotional composure was held as a central virtue — warriors were expected to remain calm and dignified even when facing death. Losing control of one's emotions in a critical moment could be seen as a loss of honour, not merely a personal weakness. Character here was measured less by what a person felt and more by their ability to master the outward expression of it when it mattered most.`,
+        question: `Do you admire people who stay calm and controlled in extreme moments — or do you sometimes trust open emotion more than a composed surface?`,
+        upgrade: {
+            term: `steadiness`,
+            type: `noun`,
+            def: `A calm, controlled quality that stays present under pressure.`,
+            in_action: `What impressed people was her steadiness — everyone else panicked, but she kept thinking clearly.`,
+            review_prompt: `Where does steadiness matter more than showing strong emotion?`
+        },
+        deeper: {
+            text: `The samurai ideal points to something many cultures share in some form: the belief that the measure of character is not the absence of strong feeling, but the ability to govern it under pressure. The reasoning is that anyone can stay calm when nothing is at stake — true self-mastery only shows when the stakes are highest. Yet this ideal carries a familiar tension. Prized too far, composure can shade into emotional distance, or into an inability to ask for help when it is genuinely needed. Modern versions appear in any high-pressure world — surgery, aviation, leadership — where steadiness is essential, but where the same trait, pushed too hard, can leave a person unreachable. As ever, the calm exterior tells you how someone is behaving, not necessarily what they are carrying.`,
+            questions: [
+                `Is there a situation in your life where staying composed is expected of you, even when you do not feel it?`,
+                `Do you think it is possible to be too controlled — to the point that it becomes a problem?`,
+                `Who do you know who stays calm under pressure, and do you read it as strength, distance, or both?`
+            ]
+        }
+    },
+    {
+        id: `cl-medieval-court`,
+        location: `Medieval royal courts`,
+        title: `The self you performed to survive`,
+        teaser: `One careless laugh could cost you your standing.`,
+        insight: `In the strict royal courts of medieval Europe, how you behaved could matter as much as who you were. Laughing too loudly, speaking too casually, or letting the wrong expression cross your face could damage your standing in an instant. Personality at court was something to be carefully managed and performed — a polished public self, maintained at all times, often quite separate from whatever the person actually felt.`,
+        question: `Are there places in your life — work, certain social settings — where you feel you have to perform a careful version of yourself rather than simply be relaxed?`,
+        upgrade: {
+            term: `public persona`,
+            type: `noun phrase`,
+            def: `The version of yourself you show in public, especially when it is more controlled than your private self.`,
+            in_action: `At work he has a polished public persona, but with close friends he is much warmer and sillier.`,
+            review_prompt: `Where do people usually show a more controlled public persona?`
+        },
+        deeper: {
+            text: `The medieval court is an extreme case of something almost everyone does to some degree: adjusting our character to fit the rules of the room. Where the cost of a slip is high — to status, safety, or reputation — people naturally develop a more controlled, performed self. The interesting question is what this performance does over time. A carefully maintained public self can become so habitual that the line between performing and being blurs, and a person may struggle to locate where the "real" them ends and the role begins. We see gentler versions in corporate culture, in politics, in any environment where image is currency. The point is not that performance is dishonest — almost all social life involves some — but that the more tightly a self is policed, the harder it can be for anyone, including the person themselves, to see clearly underneath.`,
+            questions: [
+                `Where do you feel the gap between your performed self and your relaxed self is widest?`,
+                `Do you think a strongly performed public role can slowly change who a person actually becomes?`,
+                `Have you ever watched someone drop the performance, and seen a noticeably different person underneath?`
+            ]
+        }
+    },
+    {
+        id: `cl-court-jester`,
+        location: `The medieval court jester`,
+        title: `The one allowed to be honest`,
+        teaser: `A single role with permission everyone else was denied.`,
+        insight: `In many royal courts, the jester occupied a strange and privileged position: through humour, they could mock powerful rulers and voice uncomfortable truths that would have been dangerous from anyone else. Their character — playful, sharp, seemingly foolish — earned them a freedom others did not have. It is a striking example of how a social role can give a personality permission: the same words were permitted from the fool and forbidden from the courtier.`,
+        question: `Is there someone in your life or workplace who is "allowed" to say things others cannot — and what is it about them that gives them that freedom?`,
+        upgrade: {
+            term: `get away with`,
+            type: `phrasal verb`,
+            def: `To do or say something risky or rule-breaking without facing the consequences others would.`,
+            in_action: `He gets away with saying things in meetings that would get anyone else in trouble — somehow it always comes across as charm.`,
+            review_prompt: `Who do you know who gets away with saying what others cannot? Why do you think they can?`
+        },
+        deeper: {
+            text: `The jester reveals something that still operates in modern groups: certain roles come with a hidden permission slip. The person seen as the funny one, the harmless one, or the outsider can sometimes voice criticism that would be unacceptable from a rival or a subordinate — humour and a non-threatening character disarm what would otherwise feel like an attack. This is why comedy has so often carried serious political weight: the laugh provides cover for the truth. In offices, families, and friend groups, the same dynamic appears — the one who can "get away with" honesty is usually the one whose character makes the honesty feel safe. It is worth noticing, because it reveals how much of what we are "allowed" to say depends not on the words themselves, but on the role we are read as occupying.`,
+            questions: [
+                `Are you ever the person who says the thing nobody else will — and how is it usually received?`,
+                `Why do you think humour makes a difficult truth easier to accept than a direct statement?`,
+                `Have you noticed that the same comment can be fine from one person and offensive from another?`
+            ]
+        }
+    },
+    {
+        id: `cl-honour-shame-cultures`,
+        location: `Communal and individualist societies`,
+        title: `Is character yours, or your family's?`,
+        teaser: `In some places, your behaviour is never only your own.`,
+        insight: `In many communal cultures, a person's behaviour is understood to reflect on their whole family or group, not only on themselves — so character is partly a shared responsibility rather than a purely private matter. In more individualist cultures, behaviour is read mainly as an expression of the individual alone. This shapes how people act: where reputation is collective, there can be far stronger pressure to display the traits the group values and to avoid bringing shame on others.`,
+        question: `Can you think of a time you acted differently — more carefully, or held something back — because of how it might reflect on your family or group rather than just on you?`,
+        upgrade: {
+            term: `a reflection on`,
+            type: `noun phrase`,
+            def: `Something that reveals or affects how a related person or group is judged, beyond the individual involved.`,
+            in_action: `In my parents' eyes, how I behave in public is a reflection on the whole family, not just on me.`,
+            review_prompt: `In what situations do your actions feel like a reflection on more than just yourself?`
+        },
+        deeper: {
+            text: `Whether character is read as individual or collective changes the very meaning of a person's behaviour. In more individualist settings, a young person acting unwisely is usually seen as their own concern; in more communal settings, the same act may be felt as affecting parents, siblings, and the family name. Neither framing is simply right — each carries something. A strong sense of collective reputation can foster real responsibility, belonging, and care for how one's actions affect others; it can also create heavy pressure to conform and to hide anything that might reflect badly on the group. For someone moving between these worlds, the misreadings can be sharp: what looks like excessive caution from one side can look like basic respect from the other. Understanding which frame a person is operating in often explains behaviour that would otherwise seem puzzling.`,
+            questions: [
+                `Growing up, were you taught that your behaviour affected your family's reputation — and how did that feel?`,
+                `Do you think a strong sense of collective reputation builds responsibility, creates pressure, or both?`,
+                `Have you ever misread someone's caution or boldness because they were operating by a different rule about whose reputation was at stake?`
+            ]
+        }
+    },
+    {
+        id: `cl-online-performance`,
+        location: `Today's online life`,
+        title: `The edited self`,
+        teaser: `Funnier, kinder, more confident — and not quite real.`,
+        insight: `Online, people often present a sharpened version of themselves — funnier, more confident, more attractive, or more certain than they feel offline. This is not always dishonesty; it can be a natural response to a setting that rewards a polished, performable self. But it widens the familiar gap between the displayed character and the lived one, and it can quietly distort how people judge both others and themselves, comparing their messy inner life to everyone else's edited surface.`,
+        question: `Do you think the version of yourself you present online is close to who you really are — or a noticeably edited one? What gets left out?`,
+        upgrade: {
+            term: `curate`,
+            type: `verb`,
+            def: `To carefully select and present only certain parts of something — here, the version of yourself you show others.`,
+            in_action: `Her feed is beautifully curated, but she is the first to admit it shows almost nothing of an ordinary, difficult day.`,
+            review_prompt: `What do you tend to curate out of the version of yourself you show online?`
+        },
+        deeper: {
+            text: `The edited online self is the latest chapter in a very old story — people have always managed how they appear, from court manners to the composed public face. What has changed is the scale and the constancy: the performance is now continuous, visible to many, and measured in reactions. This intensifies an effect worth naming: when we compare our unedited inner experience to everyone else's curated outer one, almost everyone can end up feeling they fall short. It also blurs self-perception, as the performed self starts to shape how people see themselves, not only how others see them. The deeper thread connecting this card to the rest is constant — across Sparta, the Victorian drawing room, the court, and the feed, the same question keeps returning: how far is the self we show the self we are?`,
+            questions: [
+                `When you compare your real life to other people's online versions, how does it affect how you feel about yourself?`,
+                `Do you think performing a more confident self online can, over time, actually change who you are offline?`,
+                `Where is the line, for you, between presenting yourself well and presenting someone who is not quite you?`
+            ]
+        }
+    },
+    {
+        id: `cl-age-and-character`,
+        location: `Life stages across cultures`,
+        title: `The traits your age allows you`,
+        teaser: `The same behaviour, forgiven at twenty, frowned on at fifty.`,
+        insight: `In most cultures, the same person is permitted very different traits at different stages of life. Boldness, recklessness, or strong opinions are often tolerated, even expected, in the young — "they will grow out of it" — while the same qualities in an older person can read as undignified or stubborn. Calm, restraint, and settledness are quietly demanded with age. What we read as someone's fixed character is partly the version their current life stage is allowed to show.`,
+        question: `Are there things you did comfortably when you were younger that would feel strange to do now — or traits you have only felt allowed to show as you have got older?`,
+        upgrade: {
+            term: `act your age`,
+            type: `idiom`,
+            def: `To behave in a way considered appropriate for how old you are, rather than younger.`,
+            in_action: `He was told more than once to act his age, but honestly his sense of fun is the best thing about him.`,
+            review_prompt: `Is there something you do that others think you are "too old" or "too young" for? How do you feel about that?`
+        },
+        deeper: {
+            text: `The traits a person is allowed to display shift with age, and the rules vary sharply across cultures. In some societies, age brings rising authority and the right to speak plainly, so older people grow more outspoken, not less; in others, the expectation tips toward gentleness and stepping back. The young face the mirror image — granted licence to experiment in some cultures, held to strict respect and restraint in others. This matters for how we read people: a quality we treat as someone's permanent character may really be the trait their stage of life currently permits, and it may change as their social position does. The bold young person and the mellow older one may not have different essences at all — they may be the same disposition, shown through whatever the moment allows. It is another version of the question running through this whole subject: how much of "who someone is" is simply what they are, at this point, allowed to be.`,
+            questions: [
+                `In your culture, do people generally become more outspoken with age, or more reserved? Has that been true for you?`,
+                `Is there a part of your personality you feel freer to show now than you did when you were younger?`,
+                `Have you ever judged someone for not "acting their age" — and was that judgement really fair?`
+            ]
         }
     }
 ];
