@@ -2196,7 +2196,7 @@
       }
     };
 
-    const REVIEW_MAX = 5; // V1 shows up to 5 most-recent covered items
+    const REVIEW_MAX = 5; // V1 shows up to 5 most-recent saved language items
     const SESSION_ATMOSPHERE_KEY = 'atlas::sessionAtmosphereImages';
     const ATMOSPHERE_FAVORITES_KEY = 'atlas::welcomeImageFavorites';
     const MAX_ATMOSPHERE_FAVORITES = 12;
@@ -2257,42 +2257,74 @@
     // ================================================================
     function getContinueItem(reg, sessionId) {
       const states = (reg.sessionStates || {})[sessionId];
+
       if (!states || typeof states !== 'object') return null;
-      const entries = Object.values(states);
+
+      const entries = Object.values(states).filter(state => {
+        if (!state || typeof state !== 'object') return false;
+
+        const status = String(state.status || '').toLowerCase();
+        const action = String(state.action || '').toLowerCase();
+        const progress = state.progress || {};
+        const raw = state.progressRaw || {};
+
+        const explored = Number(progress.explored) || 0;
+        const exploredIds = Array.isArray(raw.exploredIds) ? raw.exploredIds.length : 0;
+
+        const wrappedUp =
+          status === 'complete' ||
+          status === 'completed' ||
+          status === 'explored' ||
+          state.complete === true ||
+          !!state.lessonCompletedAt ||
+          !!raw.lessonCompletedAt;
+
+        if (wrappedUp) return false;
+        if (status === 'not-started') return false;
+        if (action === 'opened' && explored <= 0 && exploredIds <= 0) return false;
+
+        return explored > 0 || exploredIds > 0;
+      });
+
       if (!entries.length) return null;
+
       entries.sort((a, b) =>
         (b.lastTouchedAt || b.updatedAt || 0) - (a.lastTouchedAt || a.updatedAt || 0)
       );
+
       const best = entries[0];
+
       if (!best || !best.registryId) return null;
+
       const item = (reg.items || {})[best.registryId] || {};
-      // Merge identity (item) with session-scoped state (best).
+      
+    // Merge identity (item) with session-scoped state (best).
       return Object.assign({}, item, best);
     }
+
     // Qualitative label only — never detailed progress counts.
     function continueLabel(item) {
-      const s = (item.status || '').toLowerCase();
-      if (s === 'complete' || s === 'completed' || item.complete === true) return 'Lesson complete';
-      if (s === 'in-progress' || s === 'in_progress' || s === 'started') return 'In progress';
-      if (s === 'opened' || s === 'viewed') return 'Recently opened';
-      // No explicit status: infer gently from whether there's prior touch.
-      return item.lastTouchedAt ? 'In progress' : 'Recently opened';
+      return 'In progress';
     }
-    // Coverage fill for the Continue card. Reads the progress summary the world
-    // already publishes (item.progress = { covered, total }). Returns a 0–100
-    // number, or null when there's nothing meaningful to show. Unlabeled by
-    // design: it conveys shape, not counts, so the card stays a calm threshold.
-    // Mirrors the world's own rule — a completed lesson reads full.
+    // Soft continuity fill for the Continue card. Reads the progress summary
+    // the world already publishes (item.progress = { explored, total }).
+    // Unlabeled by design: it conveys shape, not counts.
+    // A wrapped-up lesson reads full.
     function continueCoverage(item) {
       const s = (item.status || '').toLowerCase();
-      const complete = s === 'complete' || s === 'completed' || item.complete === true || item.lessonCompletedAt;
-      if (complete) return 100;
+      const wrappedUp = s === 'complete' || s === 'completed' || item.complete === true || item.lessonCompletedAt;
+      if (wrappedUp) return 100;
+
       const p = item.progress;
       if (!p || typeof p !== 'object') return null;
+
       const total = Number(p.total) || 0;
-      const covered = Number(p.covered) || 0;
+      const explored = Number(p.explored) || 0;
+
       if (total <= 0) return null;
-      const pct = Math.round((covered / total) * 100);
+
+      const pct = Math.round((explored / total) * 100);
+
       return Math.max(0, Math.min(100, pct));
     }
     function itemTitle(item) {
@@ -2306,22 +2338,26 @@
     }
 
     // ================================================================
-    // LANGUAGE REVIEW — covered ledger entries for the active session
-    // Filter: sessionId match AND status === 'covered'. No fabrication.
+    // LANGUAGE REVIEW — saved language entries for the active session
+    // Filter: sessionId match, kind === 'language', status === 'saved'.
+    // No legacy covered/viewed review data.
     // ================================================================
-    function getCoveredEntries(ledger, sessionId) {
+    function getSavedLanguageEntries(ledger, sessionId) {
       return Object.values(ledger.entries || {})
         .filter(entry =>
           entry &&
           entry.sessionId === sessionId &&
-          entry.status === 'covered'
+          entry.kind === 'language' &&
+          entry.status === 'saved'
         )
         .sort((a, b) =>
-          (b.coveredAt || b.updatedAt || 0) - (a.coveredAt || a.updatedAt || 0)
+          (b.savedAt || b.lastTouchedAt || b.updatedAt || 0) -
+          (a.savedAt || a.lastTouchedAt || a.updatedAt || 0)
         );
     }
+
     function getReviewSet(ledger, sessionId) {
-      return getCoveredEntries(ledger, sessionId).slice(0, REVIEW_MAX);
+      return getSavedLanguageEntries(ledger, sessionId).slice(0, REVIEW_MAX);
     }
 
     // ================================================================
@@ -2552,7 +2588,7 @@
       if (!s) return;
       const ok = await showConfirm({
         title: 'Reset progress?',
-        message: 'This clears lesson progress for ' + s.name + ' on this device. Covered language stays in Language Review.',
+        message: 'This permanently removes ' + s.name + ', their progress, and their saved language from this device.',
         okLabel: 'Reset progress'
       });
       if (!ok) return;
@@ -2805,10 +2841,10 @@
         '<span class="review-progress">' + (st.idx + 1) + ' of ' + total + '</span>' +
         '</div>' +
         '<div class="review-heading">' +
-        '<div class="review-heading-label">Language Review</div>' +
+        '<div class="review-heading-label">Saved language</div>' +
         '<h1 class="review-heading-title">Warm up before you start</h1>' +
         '</div>' +
-        '<p class="review-context">Covered language for ' + contextName + '. Try to recall the meaning before revealing.</p>' +
+        '<p class="review-context">Saved language for ' + contextName + '. Try to recall the meaning before revealing.</p>' +
         '<div class="recall-card">' +
         type +
         '<div class="recall-term">' + escHtml(entry.term || '\u2014') + '</div>' +
@@ -2853,7 +2889,7 @@
       const sessionStates = (reg.sessionStates || {})[session.id];
       const hasHistory = !!(sessionStates && Object.keys(sessionStates).length);
 
-      // True-empty state: default session, nothing covered, no history.
+      // True-empty state: default session, no saved language, no history.
       if (isDefault && !defaultSetupDismissed && !hasContinue && !hasReview && !hasHistory) {
         main.innerHTML = renderEmptyState();
         return;
@@ -2952,14 +2988,14 @@
     }
 
     function renderReviewRow(count) {
-      const countLabel = count + ' covered item' + (count !== 1 ? 's' : '') + ' ready';
+      const countLabel = count + ' saved item' + (count !== 1 ? 's' : '') + ' ready';
       return '' +
-        '<button class="review-row" onclick="openLanguageReview()" aria-label="Open Language Review">' +
+        '<button class="review-row" onclick="openLanguageReview()" aria-label="Open saved language review">' +
         '<div class="review-row-icon">' +
         '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 2.5h5c.7 0 1.3.3 1.8.7.5-.4 1.1-.7 1.8-.7H14c.3 0 .5.2.5.5v10c0 .3-.2.5-.5.5h-2.5c-.7 0-1.3.3-1.8.7-.5-.4-1.1-.7-1.8-.7H4c-.3 0-.5-.2-.5-.5v-10C3.5 2.7 3.7 2.5 4 2.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M9.5 3v11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>' +
         '</div>' +
         '<div class="review-row-body">' +
-        '<div class="review-row-name">Language Review</div>' +
+        '<div class="review-row-name">Saved language</div>' +
         '<div class="review-row-count">Review before you start \u00b7 ' + countLabel + '</div>' +
         '</div>' +
         '<div class="review-row-arrow">' +
@@ -3233,7 +3269,7 @@
     // LIVE RE-READ
     // Re-read bridge state on the agreed triggers. No invented events.
     // When in the focused review view, refresh it in place (re-validating
-    // the covered set) instead of bouncing the user back home.
+    // the saved language set) instead of bouncing the user back home.
     // ================================================================
     function refreshFromBridge() {
       if (reviewState) {
