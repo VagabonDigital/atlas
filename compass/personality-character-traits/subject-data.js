@@ -410,7 +410,7 @@ const clCards = [
         mainQuestion: `So describe your siblings — or somebody else's. Then tell me why the numbers can't find what you can see.`,
         followTheThread: [
             `Is it the birth order doing it — or were you all told what you were, and became it?`,
-            `Who in your family got a label at five and still has it at fifty?`
+            `If one eldest child is responsible and one youngest child is spoiled, why does that feel like proof?`
         ],
         upgrade: {
             term: `chalk and cheese`,
