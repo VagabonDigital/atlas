@@ -4,11 +4,13 @@
   SmartStudy™ Methodology
   Family & Belonging
   --------------------------------------------------------------------------
-  A premium interactive speaking module for exploring the unchosen bonds
-  of family — the roles, duties, and inheritances that shape who we are.
-  Built for live lessons, thoughtful discussion, and sharper awareness
-  of obligation, belonging, and what we carry forward.
-  Subject content may change.
+  A premium interactive speaking subject about the small strange country
+  you were born into: its private language, its unwritten laws, its running
+  accounts, and the version of its history that everybody disputes.
+  The Compass subject where the learner is both the unreliable narrator
+  and the defence lawyer.
+  Compass v3 rebuild. Rough editorial pass.
+  The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
   VERBA PONTES FACIUNT · SENSUS VIAM APERIT · DISCIPLINA VIVA EST
@@ -17,478 +19,490 @@
 
 const MODULE = {
     id: 'family-belonging',
-    schemaVersion: 1,
-    contentVersion: '1.0.0',
+    schemaVersion: 2,
+    contentVersion: '3.0.0',
     title: 'Family & Belonging',
-    titleHtml: 'Family &amp; <em>Belonging</em>',
+    titleHtml: 'Family & <em>Belonging</em>',
     navTitle: 'Family',
-    bgImage: 'https://plus.unsplash.com/premium_photo-1661455879453-0074b541e205?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDh8fHxlbnwwfHx8fHw%3D'
+    bgImage: 'https://revistavelvet.cl/wp-content/uploads/2022/08/Modern-Family.jpg'
 };
 
 const subjectCopy = {
     cover: {
-        hook: `No one can embarrass you quite like the people who knew you first — the ones who remember every old version of you.`
+        hook: `Every family thinks it's the normal one.`
     },
     overview: {
-        heading: `The Ties You Inherit`,
+        heading: `Nobody Wrote It Down`,
         intro: [
-            `Family is the belonging that arrives before choice: a name, a face people recognise, a story retold at every gathering, a duty nobody voted on, and the strange moment someone says you're exactly like a person you never meant to become.`,
-            `This subject follows what families hand down — roles, recipes, tempers, jokes, obligations, names — and why the people we come from can be funny, tender, awkward, maddening, and still somehow ours.`
+            `Every family runs on rules nobody wrote down. There is a chair you don't sit in, a subject you don't raise, a story that gets slightly better every year, and a word for something that isn't a real word. You can see all of this instantly in somebody else's family and almost none of it in your own. So which of your family's rules would a stranger find genuinely strange — and which ones would you defend anyway?`
         ]
     },
     paths: {
-        culturalLensDescription: `Discover how different cultures answer the most fundamental family questions — who counts as kin, what you owe the people you were born to, and what gets passed on through the generations.`,
-        discussionDescription: `Talk through the characters, duties, inheritances, and unspoken rules of family life — from quick reactions to the relatives everyone has an opinion about, to deeper questions about obligation, belonging, and what we carry forward.`,
-        reflectionTitle: `Complete the Conversation`,
-        reflectionDescription: `Carry something forward — a thought about what families hand down, and what people choose to keep.`
+        culturalLensDescription: `Baby names vetoed by a committee, sons adopted at thirty, and one farm with four children.`,
+        discussionDescription: `The favourite, the loan that was never repaid, the family argument nobody can end, and the aunt who means well.`,
+        reflectionTitle: `Reflection`,
+        reflectionDescription: `A place to bring together ideas from different parts of the subject.`
     },
     culturalLens: {
-        heading: `Family across cultures and history`,
-        intro: `Who counts as family, who you owe something to, and what gets passed down — these are questions every culture answers differently. From households spanning many generations to naming customs that carry the memory of the dead, from birth order that once fixed your entire future to bonds deliberately created and loaded with real duty, the shape of family turns out to be less fixed than it first appears. What feels like the obvious arrangement in one culture is one option among many.`
+        heading: `Other People's Families`,
+        intro: `Everybody assumes their own family is the normal one and everybody else's is slightly odd. Here are some arrangements that will make yours look extremely conventional — and one or two that might not.`
     },
     discussion: {
-        heading: `The Ties You Didn't Choose`,
-        intro: `Family comes before you can agree to it — with roles already set, duties already implied, and a cast of characters you didn't pick. These conversations move from quick, recognisable reactions to the relatives everyone has an opinion about, into the deeper questions of obligation, inheritance, and belonging that family quietly raises for everyone. The closer you look, the more there is to say. Choose a set to begin.`
+        heading: `The House You Come From`
     },
     reflection: {
-        title: `Complete the Conversation`,
-        summary: `You've explored family as the one belonging that arrives unchosen — across cultures and history, through the characters and duties and inheritances that shape a life, and through what it means to belong somewhere nobody signs up for. These are conversations worth sitting with: how obligation works, what gets passed forward, and what it means to come from somewhere in particular.`,
+        title: `Your Version`,
+        summary: `Look back at what came up — the rules, responsibilities, stories, and arrangements people inherit or create. Notice which ideas felt familiar, which felt strange, and which changed how you would describe belonging.`,
         questions: [
-            `Looking back at the cultural examples today, which approach to family did you find most appealing — and which would be hardest to imagine living inside?`,
-            `Think about the things families hand down — a role, a saying, a duty, an expectation. Which kind do you think is hardest to put down once it's been handed to you?`,
-            `Which word or phrase from today gave you a more precise way to describe something about family life you'd felt but never quite named — and where might you actually use it?`
+            `Which of the arrangements you heard about would you actually want in your family?`,
+            `Whose version of your family would you most like to hear — and what would they get wrong about you?`
         ]
     },
     keyLanguage: {
-        intro: `Higher-level expressions from this subject — with definitions and natural in-action examples.`
+        intro: `Expressions for describing relatives, arguing about fairness, and admitting what you've inherited.`
     }
 };
 
 const discussionSets = [
     {
-        id: `set-the-relatives`,
-        title: `The Relatives`,
-        desc: `Quick reactions to the people you didn't pick but got anyway — the family characters, scenes, and habits everyone recognises.`,
-        icon: `react`,
+        id: 'set-nobody-sits-there',
+        title: `Nobody Sits There`,
+        stage: `React`,
+        icon: 'react',
+        description: `The word only your family uses, the newcomer who needs a warning, and the story that gets bigger every year.`,
         moments: [
             {
-                id: `moment-the-one-everyone-talks-about`,
-                preview: `Every family has one.`,
-                text: `Most families have a relative everyone has an opinion about — the one who gets mentioned before they even arrive. No names needed: what kind of relative is that usually — the loud one, the dramatic one, the difficult one, the one who went their own way?`,
+                id: 'moment-the-family-word',
+                preview: `A word that isn't a real word.`,
+                question: `Most families have a word that no dictionary contains — a name for the remote control, a dish nobody else calls that, a toddler's mispronunciation that stuck for thirty years. What's yours, and who invented it?`,
                 upgrade: {
-                    term: `black sheep`,
+                    term: `catch on`,
+                    type: `phrasal verb`,
+                    definition: `To become popular or widely used by a group.`,
+                    ordinary: `“My little brother couldn't pronounce it properly, and somehow the whole family started using his version and never stopped.”`,
+                    upgraded: `“My brother couldn't pronounce it, and his version caught on.”`,
+                    priority: 'standard',
+                    atlasPrompt: `What word, nickname, or habit caught on at your work — and does anyone remember who started it?`
+                }
+            },
+            {
+                id: 'moment-nobody-sits-there',
+                preview: `Nobody wrote it down. Everybody obeys it.`,
+                question: `The chair. Who carves. Who is never trusted with the music. What you do not mention in front of your grandmother. What is the rule in your family that nobody ever wrote down — and what happens to the person who breaks it?`,
+                upgrade: {
+                    term: `there'll be hell to pay`,
                     type: `idiom`,
-                    def: `The family member seen as different, difficult, or the odd one out — often spoken about more than the rest.`,
-                    in_action: `Every family seems to have a black sheep — the one the others quietly talk about at every gathering.`,
-                    review_prompt: `What kind of behaviour gets someone labelled the black sheep of a family?`
+                    definition: `There will be serious trouble and somebody will be very angry.`,
+                    ordinary: `“If anyone sat in my father's chair, he would be extremely angry and the whole house would hear about it.”`,
+                    upgraded: `“If anyone sat in Dad's chair, there'd be hell to pay.”`,
+                    priority: 'key',
+                    atlasPrompt: `What would there be hell to pay for at your work — being late, going over someone's head, touching the wrong mug?`
                 }
             },
             {
-                id: `moment-back-in-the-role`,
-                preview: `You walk in the door and you're twelve again.`,
-                text: `Some people find that the moment they're back with family, they slide straight into an old version of themselves — quieter, bossier, more childish, whatever it is. Why do you think family has that effect on people?`,
+                id: 'moment-the-story-that-grew',
+                preview: `Every year, the fish gets bigger.`,
+                question: `Every family has the story that comes out at every gathering, and it has grown. Which one is yours, who tells it, and how much of it is still true? Tell it the way they tell it.`,
                 upgrade: {
-                    term: `fall back into old habits`,
+                    term: `trot something out`,
                     type: `phrasal verb`,
-                    def: `To return to an old way of behaving, especially when a familiar situation brings it out.`,
-                    in_action: `I'm independent all year, but two days at my parents' house and I fall back into old habits — suddenly I'm the baby again.`,
-                    review_prompt: `What kind of family setting makes people fall back into old habits?`
+                    definition: `To repeat the same story, excuse, or argument you have used many times before.`,
+                    ordinary: `“He tells exactly the same story at every single dinner, and everybody has heard it a hundred times.”`,
+                    upgraded: `“He trots out the same story at every dinner.”`,
+                    priority: 'standard',
+                    atlasPrompt: `Who trots out the same excuse, the same argument, or the same anecdote every time — and does anyone stop them?`
                 }
             },
             {
-                id: `moment-obligatory-gathering`,
-                preview: `You're going. You were always going.`,
-                text: `Some family events get attended not because anyone chose to, but because not going was never really an option. What kind of gathering is that usually — and is the obligation more of a comfort, a burden, or a bit of both?`,
+                id: 'moment-the-permanent-record',
+                preview: `You were fourteen. They have not forgotten.`,
+                question: `The haircut. The boyfriend. The thing you said at the wedding. What does your family still bring up — and at what point does affectionate teasing quietly become a grudge?`,
                 upgrade: {
-                    term: `turn up`,
-                    type: `phrasal verb`,
-                    def: `To arrive or attend, especially when you feel you have to rather than because you really want to.`,
-                    in_action: `Half the people at these reunions just turn up out of duty — but somehow it still matters that they came.`,
-                    review_prompt: `What kind of event do people turn up to even when they'd rather stay home?`
+                    term: `hold something against someone`,
+                    type: `phrase`,
+                    definition: `To continue to blame someone for something they did in the past.`,
+                    ordinary: `“I forgot her birthday once, six years ago, and she still blames me for it every time we argue.”`,
+                    upgraded: `“I forgot her birthday once and she still holds it against me.”`,
+                    priority: 'key',
+                    atlasPrompt: `Are you someone who holds things against people, or do you genuinely let them go?`
                 }
             },
             {
-                id: `moment-family-saying`,
-                preview: `A phrase you'd know anywhere.`,
-                text: `Lots of families have a saying, a phrase, or a piece of advice that gets repeated for generations — sometimes wise, sometimes ridiculous. What kind of saying tends to survive like that, and why do they stick?`,
+                id: 'moment-meeting-them-for-the-first-time',
+                preview: `Their first Christmas with your lot.`,
+                question: `Somebody new arrives — a partner, a friend, an in-law. What do they get wrong first, and who is the relative they will not survive?`,
                 upgrade: {
-                    term: `hand down`,
-                    type: `phrasal verb`,
-                    def: `To pass something — a belief, object, saying, or tradition — from older generations to younger ones.`,
-                    in_action: `That phrase got handed down from my grandmother, and now I catch myself saying it to the kids.`,
-                    review_prompt: `What kind of thing — a saying, a recipe, a habit — most often gets handed down in families?`
-                }
-            },
-            {
-                id: `moment-resemblance-remark`,
-                preview: `"You're just like your father."`,
-                text: `At some point most people get told they're "just like" a parent or relative — in how they look, talk, or behave. When someone hears that, why can it land as a compliment, a warning, or something they'd rather argue with?`,
-                upgrade: {
-                    term: `the spitting image of`,
-                    type: `idiom`,
-                    def: `Looking almost exactly like an older family member — a striking physical resemblance.`,
-                    in_action: `Everyone says I'm the spitting image of my uncle — same face, same terrible jokes, apparently.`,
-                    review_prompt: `When is being the spitting image of a relative a nice thing to be told, and when isn't it?`
+                    term: `a baptism of fire`,
+                    type: `noun`,
+                    definition: `An extremely difficult first experience of a new situation.`,
+                    ordinary: `“Her first Christmas with my family was an extremely difficult introduction — all forty of us, plus the arguing.”`,
+                    upgraded: `“Her first Christmas with my family was a real baptism of fire.”`,
+                    priority: 'standard',
+                    atlasPrompt: `When has a first day, a first week, or a first meeting been a real baptism of fire?`
                 }
             }
         ],
         makeItReal: {
-            title: `The family character`,
-            prompt: `Most families — or families you've known — have a real "character" everyone has a story about. What's the kind of thing they get known for, and how do people tend to talk about them when they're not in the room?`
+            title: `The briefing`,
+            prompt: `Someone is meeting your family for the first time next week. Brief them properly: where to sit, what not to mention, who to charm first, and who will corner them by the sink.`
         }
     },
     {
-        id: `set-the-ties-that-bind`,
-        title: `The Ties That Bind`,
-        desc: `Go deeper into how family actually works — the duties no one signed up for, the roles each person gets handed, and the things that pass down whether you want them or not.`,
-        icon: `explain`,
+        id: 'set-keeping-score',
+        title: `Somebody's Keeping Score`,
+        stage: `Explain`,
+        icon: 'explain',
+        description: `The favourite, the one who does everything, the money that was never repaid, and the aunt who means well.`,
         moments: [
             {
-                id: `moment-how-much-owed`,
-                preview: `Where does duty end?`,
-                text: `People disagree about how much grown children owe their parents — time, money, care, presence. Where do you think a reasonable line sits, and does it change depending on the relationship behind it?`,
+                id: 'moment-the-favourite',
+                preview: `There is one. Everybody denies it.`,
+                question: `People often suspect there is a favourite, even when nobody admits it. In a family you know — real or fictional — how can people tell, and what does the favourite get away with?`,
                 upgrade: {
-                    term: `sense of duty`,
-                    type: `noun phrase`,
-                    def: `A feeling that you should do something because it is your responsibility, not just because you want to.`,
-                    in_action: `There was a strong sense of duty in her family — when someone needed help, everyone was expected to step in.`,
-                    review_prompt: `Where does a sense of duty usually come from in family life?`
+                    term: `get away with murder`,
+                    type: `idiom`,
+                    definition: `To be allowed to do things that other people would be punished for.`,
+                    ordinary: `“My younger brother was allowed to do absolutely anything and was never once punished for any of it.”`,
+                    upgraded: `“My younger brother got away with murder.”`,
+                    priority: 'key',
+                    atlasPrompt: `Who gets away with murder at your work — and why does nobody say anything?`
                 }
             },
             {
-                id: `moment-cast-in-a-role`,
-                preview: `The responsible one. The wild one. The peacemaker.`,
-                text: `Families often hand each child a role early on — the sensible one, the difficult one, the funny one — and it can stick for life. Why do you think these roles form, and how easy is it for someone to escape the one they were given?`,
+                id: 'moment-the-one-who-does-everything',
+                preview: `One person books the flights. Every time.`,
+                question: `Somebody remembers the birthdays, drives to the hospital, hosts the whole thing. It is almost never shared out evenly. Who is it in your family — and did they take the job, or did everyone else quietly hand it to them?`,
                 upgrade: {
-                    term: `pegged as`,
+                    term: `a thankless task`,
+                    type: `noun`,
+                    definition: `A necessary job that nobody ever thanks you for doing.`,
+                    ordinary: `“Organising every single birthday is a job that has to be done, and nobody has ever once said thank you for it.”`,
+                    upgraded: `“Organising every birthday is a thankless task.”`,
+                    priority: 'standard',
+                    atlasPrompt: `What is the most thankless task in your workplace — and who ended up with it?`
+                }
+            },
+            {
+                id: 'moment-lending-money',
+                preview: `A relative asks. It is not a small amount.`,
+                question: `Do you lend it, give it, or say no? And if you lend it and it never comes back, what have you actually lost — the money, or something more expensive?`,
+                upgrade: {
+                    term: `write something off`,
                     type: `phrasal verb`,
-                    def: `Fixed in everyone's mind as a particular type, often early and hard to shake off.`,
-                    in_action: `He got pegged as the irresponsible one at fifteen, and forty years later the family still treats him that way.`,
-                    review_prompt: `How might someone get pegged as one thing early and struggle to shake it off?`
+                    definition: `To accept that money, time, or effort is lost and stop expecting it back.`,
+                    ordinary: `“I lent it to him, but honestly I accepted I would never see it again on the day I handed it over.”`,
+                    upgraded: `“I lent it to him, but honestly I wrote it off the day I handed it over.”`,
+                    priority: 'standard',
+                    atlasPrompt: `What have you written off — money, time, an apology you are never going to get?`
                 }
             },
             {
-                id: `moment-keeping-the-peace`,
-                preview: `Some things just don't get said at the table.`,
-                text: `Many families have topics everyone quietly avoids to keep things calm — politics, money, an old falling-out. Is keeping the peace that way wise, or does avoiding it just store the problem up for later?`,
+                id: 'moment-not-speaking',
+                preview: `Two of them haven't spoken in nine years.`,
+                question: `Some families contain a disagreement that has lasted so long nobody clearly remembers the beginning. Why do these arguments survive — and what would make either side finally move?`,
                 upgrade: {
-                    term: `elephant in the room`,
-                    type: `idiom`,
-                    def: `An obvious problem or tension that everyone is aware of but no one is willing to mention.`,
-                    in_action: `We all sat there making small talk, completely ignoring the elephant in the room.`,
-                    review_prompt: `What kind of subject becomes the elephant in the room at a family gathering?`
+                    term: `fall out over something`,
+                    type: `phrasal verb`,
+                    definition: `To have a serious argument and stop being friendly with someone.`,
+                    ordinary: `“They had a serious argument about their mother's house and they have not spoken to each other since.”`,
+                    upgraded: `“They fell out over the house and haven't spoken since.”`,
+                    priority: 'standard',
+                    atlasPrompt: `What do neighbours, friends, or colleagues most often fall out over?`
                 }
             },
             {
-                id: `moment-inheritance-beyond-money`,
-                preview: `Not everything you inherit is in the will.`,
-                text: `Families pass down more than money or belongings — they pass down sayings, tempers, ways of arguing, attitudes to work, even how people welcome guests. What kind of thing gets inherited without ever appearing in a will?`,
+                id: 'moment-the-question-nobody-asked-for',
+                preview: `“And when are you going to settle down?”`,
+                question: `Families sometimes ask questions that no colleague or casual friend would dare to ask. Which questions cross the line — and when does concern become interference?`,
                 upgrade: {
-                    term: `run in the family`,
-                    type: `idiom`,
-                    def: `To be a trait, tendency, or condition shared by many members of the same family.`,
-                    in_action: `Stubbornness runs in our family — we're all convinced we're the reasonable one.`,
-                    review_prompt: `What's a trait or habit that seems to run in families you know?`
-                }
-            },
-            {
-                id: `moment-chosen-vs-given`,
-                preview: `Friends you pick. Family you don't.`,
-                text: `There's an old idea that you can choose your friends but not your family. Does that unchosen quality make family bonds stronger, more complicated, or just harder to walk away from than other relationships?`,
-                upgrade: {
-                    term: `flesh and blood`,
-                    type: `idiom`,
-                    def: `Your blood relatives — used to stress the strength or inescapability of a family tie.`,
-                    in_action: `We don't always get along, but he's my flesh and blood, so I'd never turn him away.`,
-                    review_prompt: `Does being someone's flesh and blood change what people will do for them? How?`
+                    term: `mean well`,
+                    type: `phrase`,
+                    definition: `To have good intentions, even when the effect is unwelcome or exhausting.`,
+                    ordinary: `“She has good intentions, I know she does, but she is completely exhausting to be around.”`,
+                    upgraded: `“She means well, but she's exhausting.”`,
+                    priority: 'key',
+                    atlasPrompt: `Who means well and is still exhausting — a colleague, a neighbour, a friend?`
                 }
             }
         ],
         makeItReal: {
-            title: `The role and the inheritance`,
-            prompt: `Think about the roles in a family you know well — who got cast as what, and what kinds of things (habits, sayings, attitudes) seem to have passed down through the generations. What stands out to you?`
+            title: `Argue the other side`,
+            prompt: `Pick a disagreement in a family you know well — money, a wedding, who does more, who was favoured. Now argue the side you don't agree with, as well as you possibly can. Then tell me which parts of it are actually true.`
         }
     },
     {
-        id: `set-where-you-come-from`,
-        title: `Where You Come From`,
-        desc: `The conversation turns to roots — what family belonging gives people, what's worth keeping, what's worth changing, and what gets carried forward.`,
-        icon: `reflect`,
+        id: 'set-the-bits-you-kept',
+        title: `The Bits You Kept`,
+        stage: `Reflect and Relate`,
+        icon: 'reflect',
+        description: `The habit you swore you'd never have, the rule you refused, and the grandmother who is still winning arguments.`,
         moments: [
             {
-                id: `moment-keep-or-leave-traditions`,
-                preview: `Some traditions you keep. Some you quietly drop.`,
-                text: `As people grow up, they often keep some family traditions and quietly let others fade. What kind of tradition tends to survive that journey — and what kind usually gets dropped?`,
+                id: 'moment-you-have-become-them',
+                preview: `That is your mother's exact sigh.`,
+                question: `The phrase. The sigh. The way you check the locks. The way you fold a towel. Which of your parents' habits have you found in yourself — and did you fight it?`,
                 upgrade: {
-                    term: `carry on`,
-                    type: `phrasal verb`,
-                    def: `To continue a tradition, practice, or way of doing things started by others before you.`,
-                    in_action: `I carry on my grandmother's Sunday cooking, but I happily let the stiff formal dinners go.`,
-                    review_prompt: `What kind of tradition is worth carrying on, and what kind is fine to let fade?`
+                    term: `catch yourself doing something`,
+                    type: `phrase`,
+                    definition: `To suddenly notice you are doing something without having decided to.`,
+                    ordinary: `“I suddenly noticed I was saying exactly the same thing my mother always used to say.”`,
+                    upgraded: `“I caught myself saying exactly what my mother says.”`,
+                    priority: 'key',
+                    atlasPrompt: `What do you catch yourself doing at work that you swore you would never do?`
                 }
             },
             {
-                id: `moment-meaning-of-home-family`,
-                preview: `"Family" might not mean what the dictionary says.`,
-                text: `For some people "family" means blood relatives; for others it's the people who actually showed up — close friends, mentors, a community. What do you think decides which way a person leans?`,
+                id: 'moment-the-thing-you-refused',
+                preview: `That one stops with you.`,
+                question: `Every generation quietly drops something — a rule, a routine, a way of arguing, a job everyone was supposed to take. What did you decide not to carry, and did anyone notice you had put it down?`,
                 upgrade: {
-                    term: `kindred spirit`,
-                    type: `noun phrase`,
-                    def: `Someone who feels like family because they share your outlook or values, whether related to you or not.`,
-                    in_action: `She's not a relative, but she's a kindred spirit — she feels more like family than some of my cousins.`,
-                    review_prompt: `What turns someone into a kindred spirit — close enough to count as family without being related?`
-                }
-            },
-            {
-                id: `moment-distance-and-closeness`,
-                preview: `Close, even from far away.`,
-                text: `Some relatives live nearby and barely speak; others live across the world and somehow stay central to family life. What do you think keeps that connection strong when people no longer share the same place?`,
-                upgrade: {
-                    term: `family ties`,
-                    type: `noun phrase`,
-                    def: `The connections and obligations between family members, whether they are close day to day or not.`,
-                    in_action: `They live on different continents, but the family ties are still strong — everyone knows who will show up if needed.`,
-                    review_prompt: `What keeps family ties strong when people live far apart?`
-                }
-            },
-            {
-                id: `moment-pass-forward`,
-                preview: `What stays after someone.`,
-                text: `Sometimes a person leaves something behind without meaning to — a phrase, a recipe, a way of welcoming people, a way of arguing, a standard everyone still measures things by. What kind of thing can remain in a family long after the person who started it is gone?`,
-                upgrade: {
-                    term: `live on`,
-                    type: `phrasal verb`,
-                    def: `To continue to exist or be remembered after a person, moment, or tradition has passed.`,
-                    in_action: `Her warmth lived on in the way the whole family treated guests.`,
-                    review_prompt: `What can live on in a family long after one person is gone?`
-                }
-            },
-            {
-                id: `moment-break-the-pattern`,
-                preview: `The pattern someone refuses.`,
-                text: `In some families, people are expected to follow a familiar path — the same work, the same values, the same way of living. Then someone chooses something different. What makes that admirable, difficult, or threatening inside a family?`,
-                upgrade: {
-                    term: `break the mould`,
+                    term: `draw the line at something`,
                     type: `idiom`,
-                    def: `To do something different from what is expected, especially after the same pattern has repeated for a long time.`,
-                    in_action: `Everyone expected her to join the family business, but she broke the mould and became a musician.`,
-                    review_prompt: `In what kind of family would breaking the mould be admired, and in what kind would it cause tension?`
+                    definition: `To refuse to do or accept something, setting a firm limit.`,
+                    ordinary: `“I am happy to keep most of the traditions, but I absolutely refuse to do the shouting.”`,
+                    upgraded: `“I'll keep most of it, but I draw the line at the shouting.”`,
+                    priority: 'key',
+                    atlasPrompt: `Where do you draw the line at work — the thing you simply will not do?`
+                }
+            },
+            {
+                id: 'moment-still-winning-arguments',
+                preview: `She's been dead nine years and she is still right.`,
+                question: `The recipe that is still the standard. The holiday ritual nobody is allowed to change. The opinion everybody still quotes to end an argument. Who in your family is gone and still running the place?`,
+                upgrade: {
+                    term: `turn in your grave`,
+                    type: `idiom`,
+                    definition: `Used to say that a dead person would be horrified by something happening now.`,
+                    ordinary: `“My grandmother would be absolutely horrified if she could see what they have done to that kitchen.”`,
+                    upgraded: `“My grandmother would turn in her grave.”`,
+                    priority: 'standard',
+                    atlasPrompt: `Who would turn in their grave if they saw how things are done now?`
+                }
+            },
+            {
+                id: 'moment-what-you-would-keep',
+                preview: `One thing survives you. Choose.`,
+                question: `You get to make exactly one thing in your family survive you — a habit, a dish, a rule, a way of welcoming people. What is it? And what would you be quietly relieved to see them drop?`,
+                upgrade: {
+                    term: `keep something going`,
+                    type: `phrasal verb`,
+                    definition: `To make sure something continues, especially when it depends on you.`,
+                    ordinary: `“Somebody in the family has to continue doing it, otherwise it will simply stop when she is gone.”`,
+                    upgraded: `“Somebody has to keep it going, or it dies with her.”`,
+                    priority: 'standard',
+                    atlasPrompt: `What tradition, group, or friendship are you the one keeping going — and what happens if you stop?`
+                }
+            },
+            {
+                id: 'moment-who-you-took-in',
+                preview: `He came for a fortnight. He stayed three years.`,
+                question: `Families absorb people — the friend who never left, the neighbour who became an aunt, the one who turned up with a bag. Who did yours take in, and at what point did they simply stop being a guest?`,
+                upgrade: {
+                    term: `take someone in`,
+                    type: `phrasal verb`,
+                    definition: `To let someone live in your home, especially when they have nowhere else to go.`,
+                    ordinary: `“When he had nowhere at all to live, my parents let him come and stay with us for two years.”`,
+                    upgraded: `“When he had nowhere to go, my parents took him in.”`,
+                    priority: 'standard',
+                    atlasPrompt: `Who would you take in if they turned up with a bag — and who would you absolutely not?`
                 }
             }
         ],
         makeItReal: {
-            title: `What gets carried forward`,
-            prompt: `When people leave home and build their own lives, certain things tend to travel with them — a value, a habit, a way of seeing the world. What kind of thing do you think is most worth carrying forward, and is there something you'd want to keep?`
+            title: `In fifty years`,
+            prompt: `Choose one thing your family actually does — not a value, a thing people do. Describe it precisely enough that someone in fifty years could still do it: where, when, who's there, who complains, and what happens if it rains.`
         }
     }
 ];
 
 const clCards = [
     {
-        id: `cl-china-lineage`,
-        location: `China`,
-        title: `One name in a very long list`,
-        teaser: `You're not just yourself — you're the latest entry in a line that runs both ways.`,
-        insight: `In many Chinese family traditions, a person is understood not only as an individual but as one link between the generations that came before and those still to come. Detailed family genealogies, shared generational names, and a strong sense of continuing the line can give people a place in something much larger than a single lifetime. For someone from a more individualist background, this can be hard to feel from the outside — but the underlying idea is that who you are includes where you sit in a long, ongoing line.`,
-        question: `If someone knew their family line going back hundreds of years, do you think that would make them feel rooted, pressured, proud, or trapped?`,
+        id: 'cl-iceland-names',
+        contextLine: `Iceland`,
+        title: `The Committee That Vetoes Your Baby's Name`,
+        teaser: `You have chosen the name. Now the state has to approve it.`,
+        context: `Iceland keeps an official list of approved first names, and new names may be checked under the country's naming rules. Most people use a last name based on a parent's first name rather than one shared family surname, so parents and children may have different last names.`,
+        mainQuestion: `Your child's name has just been refused by a committee. Do you fight it, or pick another one?`,
+        followTheThread: [
+            `If the family name doesn't survive at all, what does?`,
+            `Who gets an opinion about a baby's name where you're from — and does anybody listen to them?`
+        ],
         upgrade: {
-            term: `lineage`,
-            type: `noun`,
-            def: `The line of people you are descended from, traced through the generations.`,
-            in_action: `He could trace his lineage back several hundred years, and you could tell he felt the weight of it.`,
-            review_prompt: `Would knowing your lineage back several generations feel meaningful, heavy, or strangely distant?`
-        },
-        deeper: {
-            text: `One reason this way of seeing family may run so deep is that, in many East Asian traditions, the family line was treated as something with real duties attached — to remember those who came before, and to provide for those who come after. Keeping a genealogy, continuing a family name, or honouring earlier generations were ways of locating yourself in a story already in progress. The contrast with a more individualist outlook is striking. Where one person feels mainly responsible for their own choices and future, another may feel quietly accountable to a line stretching in both directions. Neither is more loving; they simply answer the question "who am I?" differently — one starting from the self, the other from the line the self belongs to. Even today, the pull between those two instincts shapes decisions about names, careers, and where people choose to live.`,
-            questions: [
-                `What kinds of names, stories, or traditions tend to get kept alive across several generations?`,
-                `Do you think people feel a real responsibility to relatives who came before them, or who will come after — or is that fading?`,
-                `Do you think seeing yourself as part of a long line would feel more like support or more like pressure?`
-            ]
+            term: `have the final say`,
+            type: `phrase`,
+            definition: `To be the person who makes the final decision, whatever anyone else thinks.`,
+            ordinary: `“In our family my grandmother makes the final decision about absolutely everything, and nobody argues with her.”`,
+            upgraded: `“My grandmother has the final say, and nobody argues.”`,
+            priority: 'standard',
+            atlasPrompt: `Who has the final say at your work — and is it the person whose name is on the door?`
         }
     },
     {
-        id: `cl-pacific-village`,
-        location: `Pacific Islands`,
-        title: `A child with many parents`,
-        teaser: `In some places, "who's raising you?" doesn't have a single answer.`,
-        insight: `In many Pacific Island cultures, and in plenty of other communities around the world, raising a child is shared widely across the extended family rather than resting on two parents alone. Grandparents, aunts, uncles, and older cousins may all take a real, ongoing role, and children sometimes spend long stretches living with relatives as a normal part of life. To an outsider used to a tight nuclear unit, this can look confusing or even unsettling — but within these communities it can offer a child many sources of care, attention, and belonging.`,
-        question: `Where you're from, is raising a child mostly down to the parents, or are grandparents and other relatives expected to be closely involved too?`,
+        id: 'cl-milk-kinship',
+        contextLine: `Islamic law · milk kinship`,
+        title: `The Sibling You Never Grew Up With`,
+        teaser: `The same woman breastfed you both. Under Islamic law, that can create a family bond.`,
+        context: `In Islamic tradition, breastfeeding can create a recognised family bond between children who are not biologically related. Under certain conditions, they become milk-siblings and cannot marry each other. The exact rules differ between traditions, but the bond can carry lasting family and religious importance.`,
+        mainQuestion: `You discover that somebody you have never met is considered your milk-sibling. Would you want to meet them — and would the relationship feel real to you?`,
+        followTheThread: [
+            `Who is family to you who isn't related to you at all?`,
+            `Is it really the blood doing the work — or the years in the same house?`
+        ],
         upgrade: {
-            term: `it takes a village`,
-            type: `idiom`,
-            def: `The idea that raising a child well depends on a whole community, not just the parents.`,
-            in_action: `My sister and I help with each other's kids constantly — honestly, it takes a village.`,
-            review_prompt: `In what situations does the idea that "it takes a village" really hold true?`
-        },
-        deeper: {
-            text: `One reason this shared approach may develop is practical as much as cultural: when households are close together and life is demanding, spreading the work of raising children across many willing hands simply makes sense. But it also reflects a particular idea of belonging — that a child is not the private project of two people, but a member of a wider web of relatives who all have a stake in how they grow up. This can sit awkwardly against the more nuclear model, where parents are expected to be the central, almost exclusive authority. A relative who "interferes" in one setting is simply "helping" in another. Children raised this way often describe a strong sense of always having someone to turn to — though some also notice they had far less privacy, and many more adults entitled to an opinion about their lives.`,
-            questions: [
-                `Besides parents, who else often has a real hand in raising children — and what might they give that the parents don't?`,
-                `Do you think a child gains more from a close circle of one or two parents, or from a wide net of relatives?`,
-                `Have you seen a relative's involvement in raising a child welcomed as help in one family and resented as interference in another?`
-            ]
+            term: `in name only`,
+            type: `phrase`,
+            definition: `Officially something, but not in any real or meaningful way.`,
+            ordinary: `“He is officially my brother-in-law, but there is no real relationship there of any kind.”`,
+            upgraded: `“He's my brother-in-law in name only.”`,
+            priority: 'standard',
+            atlasPrompt: `What is yours in name only — a title, a job, a membership, a qualification?`
         }
     },
     {
-        id: `cl-india-joint-family`,
-        location: `India`,
-        title: `The family decides together`,
-        teaser: `In some homes, the big choices were never yours to make alone.`,
-        insight: `In many Indian families, the joint family — several generations, and sometimes several brothers' households, sharing a home or a common economic life — has long been a central model. Major decisions about money, marriage, work, or property may be made collectively, with significant weight given to elders. For someone raised to value individual independence, this can look like a loss of personal freedom; but for many within it, the same arrangement offers security, shared burdens, and a strong, dependable safety net that a lone individual rarely has.`,
-        question: `When people make a big life decision where you're from, how much do family expectations usually weigh on it — a lot, a little, or somewhere in between?`,
+        id: 'cl-primogeniture',
+        contextLine: `Europe · primogeniture`,
+        title: `One Farm, Four Children`,
+        teaser: `Split the farm four ways and it feeds nobody. So it all went to one of them.`,
+        context: `In many wealthy landowning families, most or all of the property passed to one heir, often the eldest son. The logic was practical as well as unfair: divide a working farm again and again, and eventually it may support nobody. The system protected the land, but left the other children to find another future.`,
+        mainQuestion: `It's your farm and you have four children. Split it and it feeds none of them. What do you actually do?`,
+        followTheThread: [
+            `Should the child who stayed and did the work get more than the one who left?`,
+            `Where you're from, is anyone still expected to take over?`
+        ],
         upgrade: {
-            term: `shared household`,
-            type: `noun phrase`,
-            def: `A home where several people or generations live together and share daily life.`,
-            in_action: `In a shared household, childcare, money, meals, and decisions often become everyone's business.`,
-            review_prompt: `What might be the best and hardest parts of living in a shared household?`
-        },
-        deeper: {
-            text: `One reason a collective model may hold so strongly is that it spreads risk: when one person loses a job, falls ill, or faces a crisis, a larger family unit can absorb the shock far better than a single household can. The trade-off is autonomy. Decisions an individualist might consider entirely personal — who to marry, what career to pursue, where to live — can become matters the wider family feels entitled to weigh in on. This is where misunderstanding often arises across cultures. What one person experiences as warm, supportive involvement, another experiences as pressure or control. And as cities grow and younger generations move away for work, many families are now negotiating a middle path — staying closely connected and mutually responsible, while living more independently than their parents or grandparents did.`,
-            questions: [
-                `Are there decisions most people would consider entirely their own that, in some families, the whole family would expect a say in?`,
-                `Do you think shared family decision-making offers more security or more restriction — and might that change at different stages of life?`,
-                `Have you noticed the balance between family involvement and independence shifting between generations in families you know?`
-            ]
+            term: `cut someone out`,
+            type: `phrasal verb`,
+            definition: `To deliberately exclude someone, especially from a will or a decision.`,
+            ordinary: `“He deliberately excluded his eldest daughter from the will and left absolutely everything to his son.”`,
+            upgraded: `“He cut his eldest daughter out of the will completely.”`,
+            priority: 'key',
+            atlasPrompt: `Who has been quietly cut out of something at your work — a decision, a project, an email chain?`
         }
     },
     {
-        id: `cl-jewish-naming`,
-        location: `Jewish communities`,
-        title: `A name that remembers someone`,
-        teaser: `The person you're named after may say more than the name itself.`,
-        insight: `In many Jewish families, children are named in honour of a relative — and the custom can run in opposite directions. In many Ashkenazi communities, children are traditionally named after a relative who has died, keeping that person's memory alive in a new life. In many Sephardic communities, by contrast, naming a child after a living grandparent is a cherished honour. Either way, a name is not just a label but a thread of memory and connection. For an outsider, it's easy to miss how much family history a single first name can quietly carry.`,
-        question: `Where you're from, is it common to name a child after a relative — and does it tend to mean something when it happens?`,
+        id: 'cl-mukoyoshi',
+        contextLine: `Japan`,
+        title: `Adopting a Grown Man`,
+        teaser: `No suitable son. So the family finds one and adopts him at thirty.`,
+        context: `A Japanese family business without a suitable heir has a solution: adopt one. The daughter's husband — or sometimes a promising employee — is legally adopted as a son, takes the family name, and inherits the company. The overwhelming majority of adoptions in Japan are of adult men rather than children.`,
+        mainQuestion: `They want you to take their name, become their son, and run the company. Do you do it?`,
+        followTheThread: [
+            `What exactly would you be giving up?`,
+            `Is a family that recruits stronger than one that just hopes for the best?`
+        ],
         upgrade: {
-            term: `namesake`,
-            type: `noun`,
-            def: `A person named after someone else, or the person they were named for.`,
-            in_action: `I'm my grandfather's namesake, so his name turns up every time someone calls me.`,
-            review_prompt: `What does it mean to be someone's namesake, and why might a family choose that?`
-        },
-        deeper: {
-            text: `Naming customs are one of the quietest but most powerful ways families carry memory forward. A name chosen to honour a grandparent, a lost sibling, or an admired ancestor turns an everyday word into a small act of remembrance, repeated every time the name is spoken. Different traditions encode different values in this: naming after the dead can express continuity and respect for those who came before, while naming after the living can celebrate a bond in the present. The same logic appears far beyond any one community — in families who reuse a name every generation, who pass down a middle name, or who name a child after a place or person that mattered. The interesting tension is between honouring the past and letting a child be entirely their own person, free of someone else's story.`,
-            questions: [
-                `What kinds of names carry a story or a connection to someone else?`,
-                `Do you think being named after a relative is more of a gift, or more of a quiet expectation to live up to?`,
-                `If someone were naming a child, would honouring a relative or choosing a wholly new name be the better gift — and why?`
-            ]
+            term: `marry into something`,
+            type: `phrasal verb`,
+            definition: `To become part of a family, a business, or a social position through marriage.`,
+            ordinary: `“He became part of an extremely wealthy family by marrying their daughter, and everybody knows it.”`,
+            upgraded: `“He married into money, and everybody knows it.”`,
+            priority: 'standard',
+            atlasPrompt: `What would you happily marry into — a business, a country, a name, a very large house?`
         }
     },
     {
-        id: `cl-primogeniture`,
-        location: `Historical Europe`,
-        title: `Everything to the eldest`,
-        teaser: `For centuries, your whole future could be decided by the order you were born in.`,
-        insight: `Across much of European history, the custom of primogeniture meant the eldest son typically inherited the land, the title, and the family wealth, while younger sons and daughters had to find another path — often the church, the military, marriage, or migration. A person's prospects could be set not by talent or effort, but simply by their position in the birth order. To modern eyes this seems strikingly unfair, but it had a cold logic: it kept estates whole rather than splitting them into ever-smaller, weaker pieces.`,
-        question: `In families you know, does birth order still seem to shape what's expected of people — the eldest, the youngest, the middle child?`,
+        id: 'cl-rent-a-partner',
+        contextLine: `China · Lunar New Year`,
+        title: `Rent a Boyfriend, Save Your New Year`,
+        teaser: `Everyone is going to ask when you're getting married. So you hire somebody.`,
+        context: `Every Lunar New Year, unmarried adults travel home to a fortnight of the same questions: when are you marrying, why aren't you, what is wrong with you. Services have been widely reported that will rent you a convincing partner for the visit. The rate, the rules, and the backstory are all agreed in advance.`,
+        mainQuestion: `The questions are coming. Would you hire somebody to make them stop — or is that funnier as an idea than as a plan?`,
+        followTheThread: [
+            `What do your relatives ask you that nobody else would dare to ask?`,
+            `Do they actually want the answer, or do they just want to ask?`
+        ],
         upgrade: {
-            term: `birthright`,
-            type: `noun`,
-            def: `Something you're entitled to simply by being born into a particular family or position.`,
-            in_action: `Running the company felt like his birthright — he'd assumed it was his since he was a boy.`,
-            review_prompt: `Is there something — a role, a name, an expectation — treated as someone's birthright in a family you know?`
-        },
-        deeper: {
-            text: `Although formal primogeniture has largely faded, its echo lingers wherever something valuable must pass to the next generation. Family businesses still wrestle with who takes over; family homes, names, and even unspoken roles still tend to land on particular shoulders, often the eldest. Birth order continues to carry quiet expectations — the eldest cast as responsible and dependable, the youngest as freer but less seriously regarded. None of this is destiny, and plenty of families overturn it completely. But the old pattern reveals something that still matters: inheritance is rarely only about money. What gets handed down includes duties, reputations, and assumptions about who is "meant" to carry the family forward — and being passed over, or being the one chosen, can shape a person's sense of their place for life.`,
-            questions: [
-                `What roles or expectations tend to get attached to being the oldest, the youngest, or somewhere in the middle?`,
-                `Do you think birth order genuinely shapes people, or do we just enjoy the stories we tell about it?`,
-                `Have you seen a family business or family role pass down in a way that caused tension over who "should" get it?`
-            ]
+            term: `keep someone off your back`,
+            type: `phrase`,
+            definition: `To stop someone from pestering, nagging, or criticising you.`,
+            ordinary: `“I told them I had a girlfriend purely so that they would stop constantly asking me about it.”`,
+            upgraded: `“I told them I had a girlfriend just to keep them off my back.”`,
+            priority: 'key',
+            atlasPrompt: `What do you do purely to keep someone off your back — a boss, a landlord, a relative?`
         }
     },
     {
-        id: `cl-east-asian-sibling-terms`,
-        location: `China, Korea & Vietnam`,
-        title: `No simple word for "brother"`,
-        teaser: `In some languages, you can't mention a sibling without marking who's older.`,
-        insight: `In many East Asian languages, there isn't a single neutral word for "brother" or "sister" — you must specify older or younger, and often use different terms again for relatives on each side of the family. Birth order and seniority are built right into everyday speech, so respect for elders is reinforced every time family is mentioned. For a speaker of a language with one all-purpose word like "brother," this can be surprising: a whole quiet system of hierarchy and respect is doing its work inside words that seem, at first, completely ordinary.`,
-        question: `In your language, are words for siblings and relatives mostly neutral, or do they mark age, side of the family, or status?`,
+        id: 'cl-akan-matrilineal',
+        contextLine: `Ghana · Akan`,
+        title: `Your Uncle, Not Your Father`,
+        teaser: `A man's heirs are his sister's children, not his own.`,
+        context: `In some Akan traditions in Ghana, family descent and inheritance follow the mother's side. A man's sister's children may therefore have a stronger traditional claim than his own children, and a maternal uncle can play a major role in family life. Modern law makes the reality more varied, but the family logic remains very different from father-to-child inheritance.`,
+        mainQuestion: `Which side of your family — your mother's or your father's — actually feels like the real one? And be honest.`,
+        followTheThread: [
+            `Who is the uncle or the aunt who genuinely mattered?`,
+            `Would you feel cheated if your father's money went to your cousins?`
+        ],
         upgrade: {
-            term: `seniority`,
-            type: `noun`,
-            def: `The status that comes from being older or higher in rank within a group or family.`,
-            in_action: `At family dinners, seniority quietly shapes who speaks first, who gets listened to, and who is expected to wait.`,
-            review_prompt: `How can seniority show itself in a family without anyone saying it directly?`
-        },
-        deeper: {
-            text: `Language doesn't just describe family relationships; it can quietly train how people feel about them. When a child grows up unable to refer to a sibling without naming who is older, age order becomes part of the texture of everyday life rather than an abstract rule to be taught. In some Korean families, even twins may still be understood through this older-younger order, with the first-born twin treated as senior by a matter of minutes. This often connects to wider expectations: an older sibling may carry real responsibility for younger ones, and may also receive particular respect in return. To an outsider, the system can look rigid, but it can also be reassuring — everyone knows where they stand and what is expected of them. The contrast with cultures that play down hierarchy between siblings is sharp. In one, calling an older brother by a special respectful term feels natural and warm; in another, treating siblings as equals regardless of age is precisely the point. Both are teaching children something about fairness and respect — just very different lessons.`,
-            questions: [
-                `Does being older or younger tend to come with particular duties, privileges, or expectations where you're from?`,
-                `Do you think a clear seniority order between siblings is more reassuring or more limiting?`,
-                `Are there words in your language that carry respect or status which are hard to translate into another language?`
-            ]
+            term: `take sides`,
+            type: `phrase`,
+            definition: `To support one person or group in a disagreement rather than staying neutral.`,
+            ordinary: `“When my parents argued, all the relatives immediately decided which one of them they were going to support.”`,
+            upgraded: `“When my parents argued, everybody took sides immediately.”`,
+            priority: 'standard',
+            atlasPrompt: `When did you last have to take sides — at work, between friends, in an argument you had no part in?`
         }
     },
     {
-        id: `cl-western-independence`,
-        location: `United States & Northern Europe`,
-        title: `The day you're supposed to leave`,
-        teaser: `In some places staying close is care; in others, it can look like never growing up.`,
-        insight: `In much of the United States and Northern Europe, leaving the family home in early adulthood — for university, work, or simply independence — is widely treated as a natural sign of maturity. Moving out, paying your own way, and "standing on your own" can be sources of real pride. Seen from a culture where staying close to family is the loving default, this can look surprisingly cold, even like abandoning your parents. Seen from within, it's not rejection at all — it's how care and respect are expressed: by becoming someone who doesn't need to be looked after.`,
-        question: `In your culture, when is someone "supposed" to leave home — and is staying longer seen as sensible, or as not quite growing up?`,
+        id: 'cl-sworn-virgins',
+        contextLine: `Northern Albania`,
+        title: `The Family Needed a Man`,
+        teaser: `She swore never to marry, and the household got its head.`,
+        context: `Under the old code of the northern highlands, a household without a man had no head, no voice, and little protection. A woman could take a lifelong oath of celibacy and step into the role — running the house, inheriting the property, carrying a weapon, sitting and drinking with the men, and being addressed as one of them. Very few are left.`,
+        mainQuestion: `She got the property, the voice, and the freedom of the house. She gave up marriage and children for good. Was that a good deal?`,
+        followTheThread: [
+            `What has somebody in your family given up for everybody else?`,
+            `Is a sacrifice still a sacrifice if the person chose it?`
+        ],
         upgrade: {
-            term: `self-reliant`,
-            type: `adjective`,
-            def: `Able to manage your own life without depending too much on other people.`,
-            in_action: `His parents wanted him to become self-reliant early, so moving out was treated as a normal step, not a rejection.`,
-            review_prompt: `When does becoming self-reliant feel healthy, and when can it feel lonely?`
-        },
-        deeper: {
-            text: `The age at which someone leaves home — and whether leaving is even expected at all — is one of the clearest places where ideas about family quietly diverge. In more individualist cultures, early independence is read as healthy and admirable; an adult child still living at home may face gentle questions about when they'll "move on." In many other cultures the opposite holds: remaining close, sharing a home, and caring for parents directly is the obvious expression of a good family. Neither is simply right. But the gap causes real misreadings. One person sees independence as strength and distance as freedom; another sees the same distance as a failure of duty, and closeness as love. As economies shift and housing grows expensive, even strongly individualist cultures are seeing more adult children stay or return home — and quietly renegotiating what that's supposed to mean.`,
-            questions: [
-                `When you picture a healthy adult relationship with parents, does it involve living near them, far from them, or does distance not matter much?`,
-                `Have you seen someone judged — fairly or unfairly — for living with their parents as an adult?`,
-                `Do you think living far from family tends to strengthen independence, weaken the bond, or both?`
-            ]
+            term: `fall to someone`,
+            type: `phrasal verb`,
+            definition: `(Of a duty or a job) to become someone's responsibility, often because nobody else will do it.`,
+            ordinary: `“Nobody else was prepared to do it, so looking after my grandmother became my aunt's responsibility.”`,
+            upgraded: `“It fell to my aunt to look after my grandmother.”`,
+            priority: 'key',
+            atlasPrompt: `What has fallen to you that nobody else wanted — at work, at home, in a group you belong to?`
         }
     },
     {
-        id: `cl-akan-matrilineal`,
-        location: `Ghana (Akan tradition)`,
-        title: `Your uncle, not your father`,
-        teaser: `In some families, the most important man in a child's life isn't the one you'd expect.`,
-        insight: `In the matrilineal tradition of the Akan people of Ghana, descent and inheritance pass through the mother's line rather than the father's. This can mean a child belongs primarily to the mother's family, and that a man's heirs are traditionally his sister's children rather than his own — giving the maternal uncle a central role in a child's upbringing and future. For someone who assumes family runs through the father's name and wealth, this can be genuinely surprising: it shows that even "who counts as your closest relative" is shaped by culture, not fixed by nature.`,
-        question: `In families where you're from, does one side — the mother's or the father's — often end up feeling closer or more central? Why might that be?`,
+        id: 'cl-ancestor-altar',
+        contextLine: `China and Vietnam`,
+        title: `Telling the Dead Your News`,
+        teaser: `The exam results, the promotion, the engagement. Somebody has to tell your grandmother.`,
+        context: `In many Chinese and Vietnamese homes the ancestors have a place in the house — a shelf or an altar with photographs, incense, and a little food. They are not only remembered; they are kept informed. A marriage, a birth, a new job, an exam passed: somebody stands there and says it out loud.`,
+        mainQuestion: `You get the promotion. Would you go and tell your dead grandmother — and would that be for her, or for you?`,
+        followTheThread: [
+            `Who in your family is dead and still consulted?`,
+            `Where do people go to talk to somebody who isn't there?`
+        ],
         upgrade: {
-            term: `next of kin`,
-            type: `noun phrase`,
-            def: `Your closest living relative, often the one with recognised responsibility for you.`,
-            in_action: `The form asked for my next of kin, and I realised I wasn't sure whether to put my brother or my mother.`,
-            review_prompt: `Who counts as a person's next of kin, and what tends to make them the obvious choice?`
-        },
-        deeper: {
-            text: `Matrilineal systems are a powerful reminder that the shape of a family is not simply given by biology — it is decided by the rules a culture chooses to follow. In a society that traces belonging and inheritance through mothers, a father may love his children deeply while his formal duties and wealth flow towards his sister's children instead. To outsiders this can seem strange, even unfair, but it has its own coherence: it binds the mother's line tightly together and gives every child a clear, dependable place within it. The wider lesson reaches beyond any one tradition. Around the world, cultures answer basic questions — whose name you take, whose property you inherit, who is responsible for you — in strikingly different ways. What feels like the obvious, natural arrangement to one family is simply one option among many, and often the reverse of what another family takes for granted.`,
-            questions: [
-                `Whose family name do people take where you're from, and what happens to that name when people marry?`,
-                `Have you noticed one side of a family tending to be closer or more involved than the other, in families you know?`,
-                `Does it surprise you that something as basic as "who your closest relative is" can be decided so differently across cultures?`
-            ]
+            term: `keep someone in the loop`,
+            type: `phrase`,
+            definition: `To keep someone informed about what is happening.`,
+            ordinary: `“Somebody always makes sure to tell her everything that happens in this family, even now.”`,
+            upgraded: `“Somebody always keeps her in the loop, even now.”`,
+            priority: 'standard',
+            atlasPrompt: `Who forgets to keep you in the loop — and what have you found out far too late?`
         }
     },
     {
-        id: `cl-compadrazgo`,
-        location: `Latin America`,
-        title: `Family you choose on purpose`,
-        teaser: `Some bonds are deliberately made into family — with duties to match.`,
-        insight: `In much of Latin America — and in parts of southern Europe and the Philippines — the bond of compadrazgo, or godparenthood, creates a serious, lasting tie that goes well beyond a religious formality. Godparents (padrinos) take on real responsibility for a child, and the two sets of parents become compadres — a kind of chosen kin, bound by mutual obligation and respect. For an outsider who thinks of a godparent as a mostly symbolic role, the depth of this can be surprising: here, family is something you can deliberately extend, with genuine duties attached, not only something you're born into.`,
-        question: `Is it common where you're from for someone who isn't a blood relative to count as real family — and how does that kind of bond usually come about?`,
+        id: 'cl-grandmother-effect',
+        contextLine: `Grandmothers`,
+        title: `Why Grandmothers Exist`,
+        teaser: `Almost no other animal lives for decades after it stops reproducing. We do.`,
+        context: `Human women live for decades after they can no longer have children, which is rare in the animal world and takes some explaining. One well-supported answer is grandmothers. In old Finnish and Canadian parish records, children with a living maternal grandmother nearby were measurably more likely to survive. She wasn't spare. She was load-bearing.`,
+        mainQuestion: `Who is the load-bearing person in your family — and does anybody actually thank them?`,
+        followTheThread: [
+            `What would collapse tomorrow if they stopped?`,
+            `Do they enjoy it, or would they hand it over in a second if anyone offered?`
+        ],
         upgrade: {
-            term: `take under your wing`,
-            type: `idiom`,
-            def: `To take responsibility for guiding, protecting, or caring for someone less established than you.`,
-            in_action: `My godfather took me under his wing early on — advice, introductions, the lot — and it shaped my whole start in life.`,
-            review_prompt: `What does it look like when someone takes another person under their wing?`
-        },
-        deeper: {
-            text: `The idea that family can be deliberately created — not just inherited — runs through many cultures, even if the forms differ. Godparenthood is one formal version, complete with ceremony and lifelong duties, but the same instinct appears in chosen "aunts" and "uncles" who are close family friends, in mentors who become like parents, and in tight communities where unrelated elders are treated with a relative's respect. What makes these bonds distinctive is that they carry obligation, not just affection: a true godparent is expected to step in if something happens to the parents, to guide the child, to be genuinely present. This blurs a line some assume is fixed — that family is only blood. In practice, many people's most family-like relationships are with people they're not related to at all, formed by choice and held together by a sense of duty as real as any inherited one.`,
-            questions: [
-                `In your culture, is godparenthood (or anything like it) a serious lifelong role, or more of a symbolic one?`,
-                `What do you think turns a close friend into someone who genuinely counts as family?`,
-                `Do you think a chosen family bond can carry the same weight as a blood one — or is there always a difference?`
-            ]
+            term: `do the heavy lifting`,
+            type: `phrase`,
+            definition: `To do the hardest and most demanding part of the work.`,
+            ordinary: `“My aunt does all the hardest and most demanding work in this family, and nobody ever notices.”`,
+            upgraded: `“My aunt does all the heavy lifting, and nobody notices.”`,
+            priority: 'key',
+            atlasPrompt: `Who does the heavy lifting on your team — and does the credit go to them?`
         }
     }
 ];
