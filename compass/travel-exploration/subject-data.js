@@ -4,12 +4,18 @@
   SmartStudy™ Methodology
   Travel & Exploration
   --------------------------------------------------------------------------
-  A premium interactive speaking module for exploring why humans leave the
-  familiar — the pull of elsewhere, what the journey reveals, and what
-  home looks like on the way back.
-  Built for live lessons, thoughtful discussion, and sharper spoken English
-  around travel, culture shock, and the meaning of going somewhere new.
-  Subject content may change.
+  A premium interactive speaking subject for exploring the people, choices,
+  habits, tensions, surprises, and cultural assumptions that shape travel.
+
+  Built for tutor-led conversation, shared-screen teaching, thoughtful
+  disagreement, cultural reflection, and sharper spoken English.
+
+  Compass v3 provisional implementation subject.
+  Editorially frozen for the build phase.
+  Copy should change only when rendering or live testing exposes a concrete
+  failure.
+
+  The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
   VERBA PONTES FACIUNT · SENSUS VIAM APERIT · DISCIPLINA VIVA EST
@@ -18,455 +24,563 @@
 
 const MODULE = {
     id: 'travel-exploration',
-    schemaVersion: 1,
-    contentVersion: '1.0.0',
+    schemaVersion: 2,
+    contentVersion: '3.1.0',
     title: 'Travel & Exploration',
-    titleHtml: 'Travel &amp; <em>Exploration</em>',
+    titleHtml: 'Travel & <em>Exploration</em>',
     navTitle: 'Travel',
-    bgImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1173&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+    bgImage: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi2lmdQM4psQaMkjfD9_oEcSyYotoHZLhcmLe6VSYRNsJIeMKss3ol57bH5E-UAKrYdF9zBzC2bqaxJYJj-8-IDp4umNP-PevoJpHPpH9lrIBisztiwq56af7NseoacPMmH3E3D1tG4olo/s2048/pexels-photo-3935702.jpeg'
 };
 
 const subjectCopy = {
     cover: {
-hook: `We leave for the view, the story, the escape — but the real journey is often what changes when we come back.`
+        hook: `The place is only part of it.`
     },
+
     overview: {
-        heading: `Why We Leave, and What We Bring Back`,
+        heading: `Travel Up Close`,
         intro: [
-            `The best part of travel was never the sights: it's the first disorienting hour somewhere that doesn't know you, the moment a foreign city stops feeling foreign, and the strange smallness of your own front door when you finally get back.`,
-            `People have always left — for discovery, for escape, for survival, some with no way home — and nobody returns quite the same. This is a subject about the going, and everything it quietly leaves behind.`
+            `Two people can take the same trip and experience it completely differently. The place may be the same, but the people, choices, timing, and unexpected moments are not. What decides how a trip turns out for you: where you go, who you go with, or what happens once you're there?`
         ]
     },
+
     paths: {
-        culturalLensDescription: `How different cultures and eras have understood the act of going — from Pacific navigators reading the ocean to digital nomads who've made movement their whole life.`,
-        discussionDescription: `The places that surprised you, the trips that went wrong and became the best stories, and what home looked like when you finally got back.`,
-        reflectionTitle: `Complete the Conversation`,
-        reflectionDescription: `Carry something forward from the journey — a thought, a shift, a question that stayed with you.`
+        culturalLensDescription: `Explore the customs, rules, and ideas that have shaped how people move through the world.`,
+        discussionDescription: `Trips, habits, choices, and opinions — from small everyday details to strong disagreements.`,
+        reflectionTitle: `Reflection`,
+        reflectionDescription: `A place to connect ideas from different parts of the subject.`
     },
+
     culturalLens: {
-        heading: `Why Humans Leave the Familiar`,
-        intro: `Travel has never meant one thing. People have left home to survive, to trade, to worship, to learn, to escape, or simply because they couldn't sit still — and each reason makes the same act of going feel completely different. These cards look at how different cultures and eras have understood leaving the familiar, and what an outsider can so easily misread about a journey that isn't their own.`
+        heading: `Other Places, Other Centuries`,
+        intro: `Travel has never worked the same way everywhere. Step into another place or century, where a journey could feel stranger, freer, riskier, or more demanding than anything familiar today.`
     },
+
     discussion: {
-        heading: `The Journey and the Return`,
-        intro: `Travel gives everyone a story — the arrival that surprised you, the disaster that became the best memory, the moment your own home looked briefly unfamiliar. These sets move from the immediate pull of elsewhere, through what kind of traveller you really are, to what the going actually leaves behind. Some moments are quick reactions; others ask for a proper story. Choose a set to begin.`
+        heading: `Travel as It Happens`
     },
+
     reflection: {
-        title: `Complete the Conversation`,
-        summary: `Every journey — the smooth ones, the ones that went pear-shaped, the brief stays and the long ones — leaves something behind. Sometimes it's a habit or a taste you carried home without noticing. Sometimes it's a quieter shift: the way a place looked different on return, or the moment you understood, from the outside, what being a foreigner actually feels like. Travel doesn't always change you in the ways the brochure promises — but it rarely leaves you entirely as you were.`,
+        title: `What Stays With You?`,
+        summary: `Pause on the conversation before you leave it. Notice what surprised you, shifted your thinking, or connected with your own experience.`,
         questions: [
-            `Of all the places you've been, which one changed something — however small — in how you see your life at home?`,
-            `What's one thing you believed about travel before you'd done much of it that turned out not to be quite right?`,
-            `If someone with very little travel experience asked you whether it was worth it, what would you honestly say?`
+            `Which idea from the conversation stayed with you most?`,
+            `What do you think makes a journey feel meaningful?`
         ]
     },
+
     keyLanguage: {
-        intro: `Useful words and phrases for talking about journeys, arrivals, and the experience of going somewhere new.`
+        intro: `Expressions for telling what happened, reacting to it, and saying where you stand.`
     }
 };
 
 const discussionSets = [
     {
-        id: `set-first-pull`,
-        title: `The Pull of Elsewhere`,
-        desc: `First reactions to travel — the wanting, the arriving, and the places that stick with you.`,
-        icon: `react`,
+        id: 'set-honest-bit',
+        title: `The Honest Bit`,
+        stage: `React`,
+        icon: 'react',
+        description: `The mess, the wanting, and the small things you only notice once you're away.`,
+
         moments: [
             {
-                id: `moment-departures-board`,
-                preview: `That feeling before you've gone anywhere.`,
-                text: `You're standing in an airport or station, bags packed, the board flickering with places you've never been. What does that exact moment feel like to you — excitement, nerves, freedom, or something harder to name?`,
+                id: 'moment-worst-place-slept',
+                preview: `A bed you still complain about.`,
+                question: `What's the worst place you've ever ended up sleeping away from home — the grim hostel bunk, a night on an airport floor, a sofa that wrecked your back? Set the scene: what made it so bad?`,
+
                 upgrade: {
-                    term: `itchy feet`,
+                    term: `grotty`,
+                    type: `adjective`,
+                    definition: `Dirty, shabby, and unpleasant.`,
+                    ordinary: `“The room was so dirty and unpleasant that I slept in my clothes on top of the covers.”`,
+                    upgraded: `“The room was so grotty I slept in my clothes on top of the covers.”`,
+                    priority: 'standard',
+                    atlasPrompt: `Think of a café, flat, office, or changing room that looked grotty. What made it feel that way?`
+                }
+            },
+            {
+                id: 'moment-ordinary-thing-made-no-sense',
+                preview: `Everyone else understood it.`,
+                question: `You're somewhere unfamiliar and something completely ordinary makes no sense — a bathroom fixture, a ticket machine, a door that will not open, a bin with a mysterious purpose. What's the most baffled you've been by something everyone else seemed to understand?`,
+
+                upgrade: {
+                    term: `work something out`,
+                    type: `phrasal verb`,
+                    definition: `To figure out how something functions or what is happening.`,
+                    ordinary: `“It took me a full minute to understand that you paid the driver at the back, not the front.”`,
+                    upgraded: `“It took me a full minute to work out that you paid the driver at the back, not the front.”`,
+                    priority: 'key',
+                    atlasPrompt: `Think of a device, rule, or process that took you a while to work out. What finally made sense?`
+                }
+            },
+            {
+                id: 'moment-photo-made-it-look-better',
+                preview: `What the perfect photo left out.`,
+                question: `Have you ever taken — or helped stage — a travel photo that made the moment look much better than it really was? What did the picture hide?`,
+
+                upgrade: {
+                    term: `get the shot`,
+                    type: `informal phrase`,
+                    definition: `To capture the exact photograph or video someone wants.`,
+                    ordinary: `“She turned one sunset photo into a twenty-minute production and had everyone moving bags and waiting while she tried to take exactly the photo she wanted.”`,
+                    upgraded: `“She turned one sunset photo into a twenty-minute production and had everyone moving bags and waiting while she tried to get the shot.”`,
+                    priority: 'standard',
+                    atlasPrompt: `Think of a photo that people spent far too long trying to get. What was happening behind the picture?`
+                }
+            },
+            {
+                id: 'moment-have-it-again',
+                preview: `One taste worth going back for.`,
+                question: `What’s something you ate or drank away from home that you would love to have again exactly as it was? What made it so good?`,
+
+                upgrade: {
+                    term: `speciality`,
+                    type: `noun`,
+                    definition: `A food, drink, or product that a particular place is known for.`,
+                    ordinary: `“That restaurant was known for its spicy noodle soup, and people queued for it.”`,
+                    upgraded: `“That restaurant’s speciality was a spicy noodle soup, and people queued for it.”`,
+                    priority: 'standard',
+                    atlasPrompt: `Think of a shop, café, or restaurant near you that's known for one particular thing. What's its speciality, and is it actually the best thing on the menu?`
+                }
+            },
+            {
+                id: 'moment-took-on-too-much',
+                preview: `You said yes too quickly.`,
+                question: `What have you agreed to on a trip and then realised you could not handle? What made you say yes — or have you seen it happen to someone else?`,
+
+                upgrade: {
+                    term: `out of your depth`,
                     type: `idiom`,
-                    def: `A restless urge to travel or move on from where you are.`,
-                    in_action: `I'd only been home three weeks and I already had itchy feet.`,
-                    review_prompt: `When was the last time you got itchy feet — what set it off?`
-                }
-            },
-            {
-                id: `moment-place-surprised`,
-                preview: `Nothing like the postcard.`,
-                text: `Think of a place that turned out completely different from what you expected — better, worse, or just stranger. What had you imagined, and what was actually there when you arrived?`,
-                upgrade: {
-                    term: `fall short`,
-                    type: `phrasal verb`,
-                    def: `To be less good, impressive, or satisfying than expected.`,
-                    in_action: `The city looked amazing online, but the actual trip fell short of what I had imagined.`,
-                    review_prompt: `Has a famous place ever fallen short for you? What was missing?`
-                }
-            },
-            {
-                id: `moment-first-foreign`,
-                preview: `The first hour in a country that isn't yours.`,
-                text: `Remember arriving somewhere that felt genuinely unfamiliar — abroad, or even somewhere in your own country. The smell of the air, the signs you couldn't quite read, the money that felt like toy money. What's the detail that's stayed with you?`,
-                upgrade: {
-                    term: `sensory overload`,
-                    type: `noun phrase`,
-                    def: `The feeling of too much to take in at once through the senses.`,
-                    in_action: `Stepping out of that station was total sensory overload — noise, colour, smell, all at once.`,
-                    review_prompt: `Describe a place that gave you sensory overload — what hit you first?`
-                }
-            },
-            {
-                id: `moment-got-lost`,
-                preview: `Lost, with no common language.`,
-                text: `You're somewhere unfamiliar, properly lost, and nobody around speaks your language. How do you usually handle it — panic, point and gesture, follow your gut, or just wander until something makes sense?`,
-                upgrade: {
-                    term: `wing it`,
-                    type: `phrasal verb`,
-                    def: `To manage without a plan, improvising as you go.`,
-                    in_action: `We had no map and no signal, so we just winged it and somehow found the hotel.`,
-                    review_prompt: `Tell me about a time you had to wing it abroad — how did it go?`
-                }
-            },
-            {
-                id: `moment-go-back`,
-                preview: `The one you'd return to tomorrow.`,
-                text: `Some places you tick off and never think about again; one or two you'd go back to in a heartbeat. Which place keeps pulling you back, and what is it that won't let go?`,
-                upgrade: {
-                    term: `stick with you`,
-                    type: `phrasal verb`,
-                    def: `To stay in your mind or feelings for a long time.`,
-                    in_action: `I was only there for two days, but that little town really stuck with me.`,
-                    review_prompt: `What place has stuck with you most — and what keeps it there?`
+                    definition: `In a situation you do not have the knowledge or skills to handle comfortably.`,
+                    ordinary: `“I thought I could manage the hike, but after an hour I realised I couldn’t handle it, so I turned back.”`,
+                    upgraded: `“I thought I could manage the hike, but after an hour I realised I was completely out of my depth, so I turned back.”`,
+                    priority: 'key',
+                    atlasPrompt: `When have you felt out of your depth at work or while learning something new? What made it difficult?`
                 }
             }
         ],
+
         makeItReal: {
-            title: `The trip you'd take tomorrow`,
-            prompt: `Picture the trip you'd take tomorrow if time and money were no object — not the dream resort, but a place that genuinely pulls at you. Where would you go, and what is it really about that place that draws you? Tell the story of the pull.`
+            title: `The version you usually leave out`,
+            prompt: `Choose one trip story you normally tell quickly. Now tell the honest version: what were you feeling, what had gone wrong, and which small detail makes the scene real?`
         }
     },
+
     {
-        id: `set-why-we-go`,
-        title: `Tourist or Traveller`,
-        desc: `Why we travel, what kind of traveller we really are, and the ethics of how we go.`,
-        icon: `explain`,
+        id: 'set-what-kind-of-traveller',
+        title: `What Kind of Traveller Are You?`,
+        stage: `Explain`,
+        icon: 'explain',
+        description: `The types you defend, the habits you would never change, and the choices travellers quietly judge one another for.`,
+
         moments: [
             {
-                id: `moment-tourist-traveller`,
-                preview: `Two words people get oddly proud about.`,
-                text: `Some people insist there's a difference between a "tourist" and a "traveller," and quietly think one is better. Do you think there's a real difference — and is anyone honestly above being a tourist?`,
+                id: 'moment-traveller-or-tourist',
+                preview: `Two labels, one quiet hierarchy.`,
+                question: `Some people call themselves "travellers" rather than "tourists." What, if anything, is the real difference — and why do people care so much about the label?`,
+
                 upgrade: {
                     term: `look down on`,
                     type: `phrasal verb`,
-                    def: `To think of someone as inferior or less worthy.`,
-                    in_action: `He looks down on package holidays, but he's just on a slightly fancier one.`,
-                    review_prompt: `Is there a kind of traveller people look down on unfairly? Who, and why?`
+                    definition: `To believe that you are better than someone else.`,
+                    ordinary: `“He thinks he is better than people who take package holidays, but he's just on a slightly posher version of one.”`,
+                    upgraded: `“He looks down on package holidays, but he's just on a slightly posher version of one.”`,
+                    priority: 'standard',
+                    atlasPrompt: `What hobby, job, or taste do people unfairly look down on?`
                 }
             },
             {
-                id: `moment-escape-or-discover`,
-                preview: `Running towards, or running away.`,
-                text: `People travel for very different reasons — to discover something new, or to escape something at home. When you think about your own trips, which has it usually been, and does the reason change the trip?`,
+                id: 'moment-planner-or-spontaneous',
+                preview: `Every hour planned—or none of it.`,
+                question: `Some people plan every hour before they leave; others arrive with a bag and almost no plan. Which are you — and what habit in the other type drives you mad?`,
+
                 upgrade: {
-                    term: `a change of scenery`,
-                    type: `noun phrase`,
-                    def: `A new environment, wanted as relief from the familiar.`,
-                    in_action: `I wasn't chasing adventure — I just needed a change of scenery.`,
-                    review_prompt: `When has a change of scenery actually helped you? What shifted?`
-                }
-            },
-            {
-                id: `moment-trip-went-wrong`,
-                preview: `The disaster that became the best story.`,
-                text: `Often the trip where everything went wrong — missed trains, lost bags, terrible weather — becomes the one you tell most. Why do you think the disasters make the best stories, while the perfect trips fade?`,
-                upgrade: {
-                    term: `go pear-shaped`,
+                    term: `play it by ear`,
                     type: `idiom`,
-                    def: `To go badly wrong, often unexpectedly.`,
-                    in_action: `The whole plan went pear-shaped the moment we missed the ferry.`,
-                    review_prompt: `Tell me about a trip that went pear-shaped — and was it worth it in the end?`
+                    definition: `To decide what to do as events happen rather than planning everything beforehand.`,
+                    ordinary: `“We didn't book anything after the first night. We decided what to do as we went along.”`,
+                    upgraded: `“We didn't book anything after the first night. We just played it by ear.”`,
+                    priority: 'key',
+                    atlasPrompt: `When is it better to play something by ear rather than make a detailed plan?`
                 }
             },
             {
-                id: `moment-package-vs-rough`,
-                preview: `Everything arranged, or nothing arranged.`,
-                text: `Some travellers want every detail booked and smooth; others want no plan, rough edges, room for things to go sideways. Which are you, and what do you think each kind of traveller gains — and misses?`,
+                id: 'moment-seller-accepted-the-price',
+                preview: `The price was accepted too quickly.`,
+                question: `You're bargaining in a market, and the seller accepts your price immediately. Do you feel pleased, embarrassed, or suspicious that you pushed too far? Where would you draw the line?`,
+
                 upgrade: {
-                    term: `off the beaten track`,
-                    type: `idiom`,
-                    def: `Away from the usual, well-known routes.`,
-                    in_action: `We skipped the big sights and stayed somewhere off the beaten track.`,
-                    review_prompt: `Is "off the beaten track" always better, or is that a bit of a myth?`
+                    term: `haggle`,
+                    type: `verb`,
+                    definition: `To argue about a price until the buyer and seller reach an agreement.`,
+                    ordinary: `“We argued about the price for ten minutes before agreeing.”`,
+                    upgraded: `“We haggled for ten minutes before agreeing on a price.”`,
+                    priority: 'standard',
+                    atlasPrompt: `Would you ever haggle over a second-hand item or a service? What would make you try?`
                 }
             },
             {
-                id: `moment-ethics-of-going`,
-                preview: `The crowd you're part of without meaning to be.`,
-                text: `Some famous places are now overwhelmed by their own popularity — crowds, rising prices, locals priced out. When you visit somewhere like that, do you ever feel part of the problem, or is that someone else's worry?`,
+                id: 'moment-visitor-would-photograph',
+                preview: `Ordinary to you, fascinating to them.`,
+                question: `What completely ordinary thing where you live would a visitor probably stop to photograph — and what do local people fail to notice about it?`,
+
                 upgrade: {
-                    term: `love something to death`,
-                    type: `idiom`,
-                    def: `To harm something through too much enthusiasm or attention.`,
-                    in_action: `That little fishing village got loved to death — now it's all souvenir shops.`,
-                    review_prompt: `Name a place that's been loved to death. What was lost?`
+                    term: `take something for granted`,
+                    type: `phrase`,
+                    definition: `To stop noticing or valuing something because it is always available.`,
+                    ordinary: `“I hardly notice the sea view anymore, but friends from the city cannot stop looking at it.”`,
+                    upgraded: `“I take the sea view for granted, but friends from the city cannot stop looking at it.”`,
+                    priority: 'key',
+                    atlasPrompt: `What convenience in your daily life do you take for granted until it stops working?`
+                }
+            },
+            {
+                id: 'moment-brings-out-the-worst',
+                preview: `The trigger that changes your personality.`,
+                question: `Every traveller has one thing that brings out the worst in them — delays, hunger, getting lost, bad rooms, or someone else moving too slowly. What is yours, and what are you like when it happens?`,
+
+                upgrade: {
+                    term: `lose your cool`,
+                    type: `phrase`,
+                    definition: `To stop staying calm and become angry, impatient, or upset.`,
+                    ordinary: `“I’m normally patient, but after three hours at the airport I became really angry.”`,
+                    upgraded: `“I’m normally patient, but after three hours at the airport I completely lost my cool.”`,
+                    priority: 'standard',
+                    atlasPrompt: `What small situation is most likely to make you lose your cool?`
                 }
             }
         ],
+
         makeItReal: {
-            title: `The journey that meant something`,
-            prompt: `Think back to a journey that mattered to you — not necessarily the most beautiful one, but one that meant something. What were you really going for, and did the trip give you that, or something you didn't expect? Tell the story of why you went.`
+            title: `The rule you travel by`,
+            prompt: `What's one travel rule you learned the hard way? What happened?`
         }
     },
+
     {
-        id: `set-changed-by-going`,
-        title: `Home, Seen from Away`,
-        desc: `What the journey leaves behind — in how you see home, other people, and yourself.`,
-        icon: `reflect`,
+        id: 'set-what-the-going-leaves',
+        title: `What the Going Leaves`,
+        stage: `Reflect and Relate`,
+        icon: 'reflect',
+        description: `The people you remember, the stories that improve with time, and what feels different when you come home.`,
+
         moments: [
             {
-                id: `moment-home-different`,
-                preview: `Your own front door, suddenly strange.`,
-                text: `Coming home after a long trip, your own city can look briefly unfamiliar — smaller, stranger, or somehow not quite yours anymore. Have you felt that? What looked different when you got back?`,
+                id: 'moment-travel-companion',
+                preview: `Wonderful company—or a day-three nightmare.`,
+                question: `Some people are wonderful to travel with, and others become a quiet nightmare by day three. Who was the best — or the worst — and what did they do?`,
+
                 upgrade: {
-                    term: `see something with fresh eyes`,
+                    term: `get on someone's nerves`,
                     type: `idiom`,
-                    def: `To notice something familiar as if for the first time.`,
-                    in_action: `After a year away, I saw my hometown with fresh eyes — the good and the dull.`,
-                    review_prompt: `What did you see with fresh eyes after time away? What stood out?`
+                    definition: `To annoy someone, especially repeatedly or over time.`,
+                    ordinary: `“By the end of the trip, every little thing he did was annoying me.”`,
+                    upgraded: `“By the end of the trip, every little thing he did was getting on my nerves.”`,
+                    priority: 'standard',
+                    atlasPrompt: `What harmless habit can quickly get on your nerves when somebody repeats it?`
                 }
             },
             {
-                id: `moment-foreigner-feeling`,
-                preview: `The day you were the outsider.`,
-                text: `Travelling makes you the foreigner — the one who doesn't know the rules, the one being patient with. What did it teach you about being on the other side, when you're usually the one who belongs?`,
+                id: 'moment-stranger-went-out-of-their-way',
+                preview: `A stranger who did more than expected.`,
+                question: `Has a stranger ever gone out of their way to help you when you were away from home — or have you done that for someone else? What happened?`,
+
                 upgrade: {
-                    term: `fish out of water`,
-                    type: `idiom`,
-                    def: `Someone who feels out of place in unfamiliar surroundings.`,
-                    in_action: `First day there I was a total fish out of water — couldn't even order coffee right.`,
-                    review_prompt: `When did you most feel like a fish out of water abroad? What made it ease?`
-                }
-            },
-            {
-                id: `moment-changed-you`,
-                preview: `Something a journey rearranged in you.`,
-                text: `People say travel changes you, though it's hard to pin down how. Looking back at a real trip, did something actually shift in how you saw your life or what you wanted — or is that more myth than truth?`,
-                upgrade: {
-                    term: `a shift in perspective`,
-                    type: `noun phrase`,
-                    def: `A change in how you see a situation, often after experiencing or comparing something different.`,
-                    in_action: `That trip gave me a real shift in perspective — I came home less worried about things that used to feel huge.`,
-                    review_prompt: `Has a trip ever given you a shift in perspective? What changed?`
-                }
-            },
-            {
-                id: `moment-stay-or-go`,
-                preview: `The ones who left, and the ones who stayed.`,
-                text: `Some people build a whole life around movement; others can't imagine leaving where they're from. Where do you fall — and do you think constant travelling makes you freer, or just harder to root anywhere?`,
-                upgrade: {
-                    term: `branch out`,
+                    term: `go out of your way`,
                     type: `phrasal verb`,
-                    def: `To try something new or extend your life beyond what's familiar and safe.`,
-                    in_action: `After years in the same city, she felt she needed to branch out — somewhere no one knew her.`,
-                    review_prompt: `When did you last branch out — travel or otherwise? Did it pay off?`
+                    definition: `To make a special effort beyond what is normally expected.`,
+                    ordinary: `“A woman made a special effort to walk us all the way to the station.”`,
+                    upgraded: `“A woman went out of her way to walk us all the way to the station.”`,
+                    priority: 'key',
+                    atlasPrompt: `When has somebody gone out of their way to help you at work or in daily life?`
                 }
             },
             {
-                id: `moment-souvenir-meaning`,
-                preview: `The thing you brought back that wasn't a thing.`,
-                text: `The best thing people bring home from travel often isn't an object — it's a habit, a taste, a way of seeing, a word they kept using. What have you carried back from somewhere that quietly stuck with you?`,
+                id: 'moment-disliked-now-love-telling',
+                preview: `A bad trip that improved with time.`,
+                question: `Is there a trip or day out that you disliked at the time but now love telling people about? What changed — the memory, the story, or you?`,
+
                 upgrade: {
-                    term: `rub off on`,
-                    type: `phrasal verb`,
-                    def: `When a quality or habit passes from one person or place to you.`,
-                    in_action: `Their slower way of eating really rubbed off on me after that summer.`,
-                    review_prompt: `What rubbed off on you from a place you visited? Has it lasted?`
+                    term: `with hindsight`,
+                    type: `spoken phrase`,
+                    definition: `Looking back later, with knowledge of how events developed.`,
+                    ordinary: `“Looking back, it was a great trip, but at the time I just wanted to go home.”`,
+                    upgraded: `“With hindsight, it was a great trip, but at the time I just wanted to go home.”`,
+                    priority: 'key',
+                    atlasPrompt: `With hindsight, what decision would you handle differently now?`
+                }
+            },
+            {
+                id: 'moment-miss-and-relieved-to-leave',
+                preview: `What you miss—and what you don't.`,
+                question: `When a trip ends, what do you miss first — and what are you relieved to leave behind?`,
+
+                upgrade: {
+                    term: `have had enough of something`,
+                    type: `phrase`,
+                    definition: `To feel that you no longer want to deal with or experience something.`,
+                    ordinary: `“By the end of the week, I didn't want to deal with the noise and the crowds anymore.”`,
+                    upgraded: `“By the end of the week, I’d had enough of the noise and the crowds.”`,
+                    priority: 'standard',
+                    atlasPrompt: `What situation have you recently had enough of, and what would need to change?`
+                }
+            },
+            {
+                id: 'moment-travel-spoiled-home',
+                preview: `When home stops measuring up.`,
+                question: `Sometimes a trip ruins something back home for you — the coffee, the bread, public transport, beaches, or customer service. What has travel spoiled for you, and do people around you think you’re being a bit of a snob about it?`,
+
+                upgrade: {
+                    term: `not live up to something`,
+                    type: `phrase`,
+                    definition: `To be less good than expected, or less good than something you are comparing it with.`,
+                    ordinary: `“Coffee at home has never been as good as what we had in Italy.”`,
+                    upgraded: `“Coffee at home has never quite lived up to what we had in Italy.”`,
+                    priority: 'standard',
+                    atlasPrompt: `Think of a product, film, or event that did not live up to expectations. What disappointed you?`
                 }
             }
         ],
+
         makeItReal: {
-            title: `What the going gave you`,
-            prompt: `Think of one journey that left a real mark — somewhere that shifted how you see home, other people, or your own life, even slightly. What did you carry back that's still with you now? Tell the story of what the going gave you.`
+            title: `The postcard you didn’t send`,
+            prompt: `Choose one trip you now remember fondly. What would you have written on the postcard at the time — and what honest sentence would you have left off?`
         }
     }
 ];
 
 const clCards = [
     {
-        id: `cl-polynesian-navigators`,
-        location: `The Pacific, ancient and medieval ocean voyaging`,
-        title: `Reading the Ocean`,
-        teaser: `Crossing an ocean without modern instruments — and arriving.`,
-        insight: `Long before modern instruments, Polynesian navigators crossed thousands of kilometres of open Pacific using stars, swell patterns, bird flight, cloud colour, and a vast memory of the sea passed down by training. To an outsider this can look like luck or mysticism, but it was a precise, learned skill — a way of knowing the ocean that lived in the body and the senses rather than on paper. The human meaning underneath: knowledge doesn't have to be written down to be real. A whole science of the sea was carried in memory, observation, and apprenticeship, and it worked.`,
-        question: `Have you ever trusted instinct or a "feel" for something over a map, a guide, or instructions — and were you right to?`,
+        id: 'cl-different-clock',
+        contextLine: `Slow-clock places`,
+        title: `We'll Get There When We Get There`,
+        teaser: `The bus leaves when full, and “ten minutes” may mean an hour.`,
+
+        context: `Often, the first real surprise abroad is not the language or food but the pace. You arrive expecting timetables and quick service. Then the bus leaves only when it is full, the shops close for a long afternoon, and "ten minutes" turns out to mean nearer an hour.`,
+
+        mainQuestion: `Have you ever arrived somewhere that ran much slower — or much faster — than home? Did it relax you or slowly drive you up the wall?`,
+
+        followTheThread: [
+            `Could you happily live in a place with a completely different relationship to time?`,
+            `Have you ever judged someone as rude or lazy when they were simply following a different rhythm?`
+        ],
+
         upgrade: {
-            term: `know it like the back of your hand`,
-            type: `idiom`,
-            def: `To know a place or thing so well you need no help with it.`,
-            in_action: `He's never used a map here — he knows these streets like the back of his hand.`,
-            review_prompt: `What place or route do you know like the back of your hand? How did you learn it?`
-        },
-        deeper: {
-            text: `It's tempting to assume that knowledge only counts when it's written, measured, or taught in a classroom — that's the form many of us were raised to trust. But the Polynesian system suggests a different idea: that deep expertise can live in observation and memory, refined over a lifetime and handed from teacher to student. The misread happens when outsiders see no charts and assume there's no method, when in fact the method is simply held somewhere they're not looking. There's a modern echo every time an experienced fisher reads the weather better than the forecast, or a local takes a shortcut no app would ever suggest. It raises a quiet question about our own moment: as we hand more and more of our knowing to devices, are we slowly losing the kind of deep, embodied knowledge that once carried people safely across an ocean?`,
-            questions: [
-                `Is there a skill in your culture that's learned by doing and watching, not from books?`,
-                `Do you trust technology or experienced people more when you're genuinely lost?`,
-                `What kind of knowledge do you think we're at risk of losing as we rely more on devices?`
-            ]
+            term: `laid-back`,
+            type: `adjective`,
+            definition: `Relaxed, informal, and not worried about rushing or strict timing.`,
+            ordinary: `“Everyone was so relaxed that arriving ten minutes late meant nothing.”`,
+            upgraded: `"Everyone was so laid-back that arriving ten minutes late meant nothing."`,
+            priority: 'key',
+            atlasPrompt: `Who is the most laid-back person you know, and when does their attitude help—or frustrate—other people?`
         }
     },
+
     {
-        id: `cl-silk-road-exchange`,
-        location: `The Silk Road, roughly 200 BCE onward`,
-        title: `What Travels With the Traveller`,
-        teaser: `The goods were the smallest thing being carried.`,
-        insight: `For centuries, merchants along the Silk Road carried silk, spices, and silver — but alongside the goods travelled religions, recipes, instruments, words, and stories, passing between civilisations that never met directly. The trade route was almost a side effect; the deeper exchange was cultural. Outsiders often picture travel as seeing places, but this reveals travel as mixing them — a slow blending where an idea born in one place quietly takes root a continent away. The human meaning: movement spreads more than objects. Wherever people go, a little of where they came from goes with them, and a little of where they've been comes back.`,
-        question: `When you travel, do you think you're changed more by the places you see — or by the people you meet along the way?`,
+        id: 'cl-rude-without-knowing-it',
+        contextLine: `Everyday manners`,
+        title: `Rude Without Knowing It`,
+        teaser: `A polite gesture at home may offend somewhere else.`,
+
+        context: `The same small gesture can feel warm in one place and offensive in another — a thumbs-up, showing the sole of your shoe, eating with the wrong hand, or keeping your shoes on indoors. A visitor may repeat it for days without realising.`,
+
+        mainQuestion: `A visitor where you live keeps getting one of these things wrong. Would you tell them? How?`,
+
+        followTheThread: [
+            `Is it the visitor's responsibility to learn local manners, or the host's responsibility to forgive an honest mistake?`,
+            `What piece of politeness where you live do newcomers often misunderstand?`
+        ],
+
         upgrade: {
-            term: `cross-pollinate`,
+            term: `misread the situation`,
+            type: `phrase`,
+            definition: `To understand a social situation incorrectly and respond in the wrong way.`,
+            ordinary: `“I completely misunderstood what was expected and kept my shoes on while everyone else took theirs off.”`,
+            upgraded: `“I completely misread the situation and kept my shoes on while everyone else took theirs off.”`,
+            priority: 'key',
+            atlasPrompt: `Think of a meeting, conversation, or social event where someone misread the situation. What signal did they miss?`
+        }
+    },
+
+    {
+        id: 'cl-mandatory-souvenir',
+        contextLine: `Japan`,
+        title: `The Mandatory Souvenir`,
+        teaser: `The holiday ends with one last duty: gifts for everyone back home.`,
+
+        context: `In Japan, travellers commonly bring back omiyage — often regional sweets or snacks — for family, friends, and coworkers. Station and airport shops sell carefully packed boxes designed to be shared piece by piece. The gift is not simply a private reminder of the trip; it also acknowledges the people who stayed behind.`,
+
+        mainQuestion: `Would choosing omiyage for your coworkers feel generous to you — or like one more job waiting at the end of the holiday?`,
+
+        followTheThread: [
+            `Does a gift lose some of its meaning when people expect it?`,
+            `What custom where you live appears voluntary but carries strong social pressure?`
+        ],
+
+        upgrade: {
+            term: `empty-handed`,
+            type: `adjective or adverb`,
+            definition: `Without bringing a gift or contribution when one may be expected.`,
+            ordinary: `“I felt awkward arriving back at the office without bringing anything.”`,
+            upgraded: `“I felt awkward arriving back at the office empty-handed.”`,
+            priority: 'standard',
+            atlasPrompt: `When would you feel uncomfortable arriving empty-handed—to a dinner, celebration, visit, or meeting?`
+        }
+    },
+
+    {
+        id: 'cl-no-room-of-your-own',
+        contextLine: `Colonial North America`,
+        title: `No Room of Your Own`,
+        teaser: `The only bed left already has a stranger in it.`,
+
+        context: `Travellers staying at busy inns often shared bedrooms and sometimes beds with strangers. Privacy might not be available, and objecting could make someone seem unusually fussy. A long journey could therefore end beside a snoring, drunken, blanket-stealing bedmate whom you had never met before.`,
+
+        mainQuestion: `The only bed left already has a stranger in it. Would you share it or sleep alone on the floor?`,
+
+        followTheThread: [
+            `Which kinds of privacy now feel like basic needs but might once have been treated as luxuries?`,
+            `If everyone around you treated bed-sharing as normal, do you think you would eventually adapt?`
+        ],
+
+        upgrade: {
+            term: `fussy`,
+            type: `adjective`,
+            definition: `Difficult to please or unusually concerned about small details.`,
+            ordinary: `“People thought he was being difficult because he refused to share the room.”`,
+            upgraded: `"People thought he was being fussy because he refused to share the room."`,
+            priority: 'standard',
+            atlasPrompt: `What is one thing you are genuinely fussy about, even when other people think it does not matter?`
+        }
+    },
+
+    {
+        id: 'cl-speed-of-madness',
+        contextLine: `Britain · Early railways`,
+        title: `The Speed of Madness`,
+        teaser: `Early trains seemed faster than the body could safely bear.`,
+
+        context: `Before passenger railways, most people had never travelled over land much faster than a horse. Early locomotives suddenly carried crowds at unprecedented speeds, producing fascination as well as fear. The noise, vibration, speed, and possibility of catastrophe made the new machine feel thrilling and physically unnatural at the same time.`,
+
+        mainQuestion: `Would you have trusted the first fast trains? Why or why not?`,
+
+        followTheThread: [
+            `What might have persuaded you to get on despite the fear?`,
+            `Do driverless cars or space tourism create the same mix of excitement and fear?`
+        ],
+
+        upgrade: {
+            term: `put someone off`,
+            type: `phrasal verb`,
+            definition: `To make someone less interested in doing something or discourage them from trying it.`,
+            ordinary: `“The warnings were enough to discourage some passengers from travelling by train.”`,
+            upgraded: `“The warnings were enough to put some passengers off travelling by train.”`,
+            priority: 'key',
+            atlasPrompt: `What has put you off trying something before you gave it a chance?`
+        }
+    },
+
+    {
+        id: 'cl-crossing-the-line',
+        contextLine: `Equator crossing`,
+        title: `Crossing the Line`,
+        teaser: `A mock court, a soaking, and then the newcomer belongs.`,
+
+        context: `For centuries, sailors crossing the Equator for the first time have taken part in a ceremony known as “Crossing the Line.” Newcomers may be brought before a mock court ruled by King Neptune, dressed up, soaked with water, and declared accepted by the crew. The details vary, but the newcomer is always made the centre of attention.`,
+
+        mainQuestion: `When does a ridiculous initiation make someone feel part of the group — and when is “tradition” just an excuse to embarrass the newcomer?`,
+
+        followTheThread: [
+            `What makes public embarrassment funny rather than cruel?`,
+            `Why do journeys and closed groups create rituals people would never accept in ordinary life?`
+        ],
+
+        upgrade: {
+            term: `be a good sport`,
+            type: `phrase`,
+            definition: `To accept teasing, embarrassment, or an inconvenience without becoming angry or complaining.`,
+            ordinary: `“They expected every newcomer to accept the joke without complaining and take part in the ceremony.”`,
+            upgraded: `“They expected every newcomer to be a good sport and take part in the ceremony.”`,
+            priority: 'key',
+            atlasPrompt: `When is it reasonable to expect someone to be a good sport, and when does that phrase become pressure?`
+        }
+    },
+
+    {
+        id: 'cl-put-on-for-the-tourists',
+        contextLine: `Global tourism`,
+        title: `Put On for the Tourists`,
+        teaser: `The welcome dance runs again for every arriving coach.`,
+
+        context: `A welcome dance may run three times a day, once for each arriving coach. A market may sell the same "local" souvenirs as one two countries over. A village may slowly reshape itself around the photograph visitors arrive expecting to take.`,
+
+        mainQuestion: `Would the welcome dance still feel special if it happened for every arriving coach? Why or why not?`,
+
+        followTheThread: [
+            `Can something be staged and still feel genuine?`,
+            `When does adapting a tradition for visitors start changing the tradition itself?`
+        ],
+
+        upgrade: {
+            term: `touristy`,
+            type: `adjective`,
+            definition: `Full of tourists and businesses or experiences designed mainly for them, often in a way that feels artificial.`,
+            ordinary: `“The old town was lovely, but the main square felt artificial and designed mainly for visitors, so we did not stay long.”`,
+            upgraded: `"The old town was lovely, but the main square was so touristy that we did not stay long."`,
+            priority: 'standard',
+            atlasPrompt: `Think of a popular area that has become too touristy. What still feels genuine there, if anything?`
+        }
+    },
+
+    {
+        id: 'cl-does-going-really-change-you',
+        contextLine: `Travel as education`,
+        title: `Does Going Really Change You?`,
+        teaser: `Travel has long been treated as a form of education.`,
+
+        context: `There is an old belief that travel improves people — that going out into the world teaches what cannot be learned at home. Wealthy young Europeans once took long continental tours to acquire culture and polish. Modern versions include gap years, backpacking trips, and the idea that young people ought to "see the world."`,
+
+        mainQuestion: `Do you believe travel changes people for the better — or is that partly a flattering story told by those who can afford to go?`,
+
+        followTheThread: [
+            `Do you know anyone wise and worldly who has hardly travelled at all?`,
+            `If a young person had a free year, would you advise them to travel, work, or study?`
+        ],
+
+        upgrade: {
+            term: `broaden your horizons`,
+            type: `phrase`,
+            definition: `To increase your experience and understanding by encountering unfamiliar people or ideas.`,
+            ordinary: `“Travel can increase your experience and understanding, but it does not automatically make you open-minded.”`,
+            upgraded: `"Travel can broaden your horizons, but it does not automatically make you open-minded."`,
+            priority: 'standard',
+            atlasPrompt: `What experience other than travel has broadened your horizons—a job, friendship, book, class, or major change?`
+        }
+    },
+
+    {
+        id: 'cl-you-may-cross-my-land',
+        contextLine: `Sweden`,
+        title: `You May Cross My Land`,
+        teaser: `You may cross private land, provided you leave no trace.`,
+
+        context: `In Sweden, people can walk, pick berries and mushrooms, and camp briefly across much of the countryside, including some privately owned land. The freedom depends on restraint: stay away from homes and crops, avoid damage, and leave no disturbance behind. Access is treated as a shared right tied to shared responsibility.`,
+
+        mainQuestion: `Should responsible people be free to cross and camp on privately owned countryside without asking — or should ownership always include the right to keep others out?`,
+
+        followTheThread: [
+            `What would make you trust strangers with that freedom?`,
+            `Would a system like this work where you live, or would people abuse it?`
+        ],
+
+        upgrade: {
+            term: `roam`,
             type: `verb`,
-            def: `When ideas, styles, or cultures mix and influence each other.`,
-            in_action: `That city's food is amazing because so many cultures cross-pollinated there for centuries.`,
-            review_prompt: `Name a food, word, or style in your country that clearly came from somewhere else. How did it arrive?`
-        },
-        deeper: {
-            text: `We tend to imagine cultures as separate boxes — this one here, that one there — but a route like the Silk Road shows how leaky those boxes have always been. An instrument plucked in one empire reappears, reshaped, in another. A faith carried by a few travelling believers becomes the heart of a distant society. The misunderstanding many people hold is that cultures are "pure" and that mixing is modern — when in truth, blending has been the normal state of human life for as long as people have moved. There's a contrast of styles worth noticing too: some cultures take pride in absorbing outside influences and remixing them, while others work hard to protect what they see as authentic and untouched. Both instincts are understandable. The interesting question is what we each think is worth keeping pure, and what's better left open to the world.`,
-            questions: [
-                `Is there something in your culture that's clearly borrowed from elsewhere but now feels completely "yours"?`,
-                `Do you think a culture is stronger when it stays distinct, or when it mixes freely?`,
-                `Have you ever brought a habit or taste home from abroad that your friends or family picked up too?`
-            ]
-        }
-    },
-    {
-        id: `cl-grand-tour`,
-        location: `Europe, 17th–19th centuries`,
-        title: `Travel as Finishing School`,
-        teaser: `A journey designed to make you a certain kind of person.`,
-        insight: `For roughly two centuries, wealthy young Europeans were sent on a long tour of the continent — not for fun, but to acquire taste, languages, confidence, and social polish before taking their place in society. Travel here was deliberately educational, almost a finishing school on the move. To modern eyes it can look like a privileged holiday, but the underlying idea is one we've quietly kept: that going out into the world forms you in ways staying home cannot. The human meaning: some cultures and classes have long treated travel as a rite of passage — proof you've grown up — rather than as leisure.`,
-        question: `Do you think travelling actually teaches you things you couldn't learn at home — or is that idea a bit overstated?`,
-        upgrade: {
-            term: `worldly`,
-            type: `adjective`,
-            def: `Experienced and knowledgeable about life, people, or culture beyond your own narrow world.`,
-            in_action: `Travel made him more worldly, but not necessarily wiser about everything.`,
-            review_prompt: `Can someone become worldly without travelling much? What would give them that quality?`
-        },
-        deeper: {
-            text: `The Grand Tour belonged to a tiny, wealthy few, and that's part of what makes it interesting now — because the idea behind it has gone fully mainstream. The modern "gap year," the post-graduation backpacking trip, the belief that a young person should "see the world" before settling down: all of these are the Grand Tour's democratic grandchildren. But the assumption deserves a gentle poke. Does travel really form character, or do we just credit it because the people who could afford to travel were already going to turn out fine? Someone from a culture without this tradition might reasonably point out that wisdom, taste, and confidence can grow just as well from staying, working, raising a family, or reading deeply at home. The question of whether you must leave to grow is far less settled than the travel industry would like us to believe.`,
-            questions: [
-                `In your culture, is travelling young seen as important for growing up — or as a luxury or even a distraction?`,
-                `Do you know someone wise and worldly who has barely travelled at all?`,
-                `If you had a free year at eighteen, would you have spent it travelling, working, or studying — and why?`
-            ]
-        }
-    },
-    {
-        id: `cl-sahara-caravans`,
-        location: `The Sahara, medieval and early-modern periods`,
-        title: `Where One Mistake Could Kill You`,
-        teaser: `Months of desert, and survival hanging on memory.`,
-        insight: `Crossing the Sahara by caravan could take months, and survival depended entirely on guides who held the route, the animals, and the hidden wells in living memory. A single wrong turn could end everyone. To us, comfortable with maps and rescue, it's hard to grasp travel where error meant death and trust in your guide was absolute. The human meaning underneath: for most of history, going somewhere meant placing your life in the hands of a person who knew the way — and travel was less about freedom than about whom you could trust to get you through.`,
-        question: `Could you put your life in the hands of a guide or stranger who knew the way, the way desert travellers had to — or does that idea unsettle you?`,
-        upgrade: {
-            term: `at the mercy of`,
-            type: `idiom`,
-            def: `Completely dependent on something or someone you can't control.`,
-            in_action: `Out there you're at the mercy of the weather and whoever's leading you.`,
-            review_prompt: `When travelling, when have you been at the mercy of someone or something? How did it feel?`
-        },
-        deeper: {
-            text: `Modern travel has quietly removed almost all of this. We carry maps in our pockets, summon help with a tap, and rarely have to trust a single human being with our survival. That's an enormous gain — but it may have changed the texture of travel itself. The desert crossing bound a group together through shared danger and total reliance on a guide's memory; the journey was the relationship. Some argue that the safety and independence of modern travel, wonderful as they are, have made it lonelier and lighter — you need no one, so you bond with no one. A traveller from a high-trust, guide-dependent tradition might find our solo, app-led wandering strangely isolated. It's worth asking what we've traded away along with the danger: perhaps some of the deep trust and togetherness that only real shared risk can create.`,
-            questions: [
-                `Do you think modern travel is lonelier now that we rarely have to rely on other people?`,
-                `Have you ever bonded with someone quickly because you were both out of your depth somewhere?`,
-                `Would you feel safer with a map and a phone, or with a person who truly knew the place?`
-            ]
-        }
-    },
-    {
-        id: `cl-antarctic-isolation`,
-        location: `Antarctica, late 19th–early 20th centuries`,
-        title: `Surviving the Dark`,
-        teaser: `Months of darkness, no rescue, and routine as a lifeline.`,
-        insight: `Early Antarctic expeditions faced months of darkness, brutal cold, and no possibility of rescue. Some crews endured not only through physical toughness but through strict daily routines — meals, tasks, shared rituals — that protected their minds from the crushing isolation. The surprise here is that the deadliest threat wasn't always the cold but the emptiness, and that the cure was structure. The human meaning underneath: when the outside world disappears entirely, ordinary routine stops being boring and becomes the thing that holds a person together.`,
-        question: `When you've been isolated or stuck somewhere, what kept you steady — routine, people, distraction, or something else?`,
-        upgrade: {
-            term: `anchor`,
-            type: `noun`,
-            def: `Something that keeps you steady, calm, or connected when life feels difficult or uncertain.`,
-            in_action: `During those long dark weeks, the daily routine became an anchor — it gave everyone something to hold on to.`,
-            review_prompt: `What routines or small rituals can become an anchor when life feels uncertain?`
-        },
-        deeper: {
-            text: `There's a powerful lesson buried in those frozen expeditions about what humans actually need to stay sane, and it isn't comfort — it's structure and meaning. Crews that kept fixed mealtimes, gave everyone a job, and marked small occasions tended to hold together; those that let the days blur into shapeless dark struggled. We saw a faint, mass echo of this during long lockdowns, when many people discovered that loose, empty days were harder on the mind than busy ones, and that small rituals — a morning walk, a set mealtime — quietly kept them afloat. It suggests something counter-intuitive: freedom from all routine, which sounds like paradise, can actually be destabilising, while a little imposed order can be deeply protective. The polar crews understood, long before psychology had the words for it, that the mind needs a scaffold — especially when the world outside goes dark.`,
-            questions: [
-                `Have you ever found that having a routine helped you more than having total freedom?`,
-                `During a hard or empty stretch of time, what small rituals kept you going?`,
-                `Why do you think too much unstructured freedom can actually be hard on people?`
-            ]
-        }
-    },
-    {
-        id: `cl-one-way-crossing`,
-        location: `Transoceanic migration, 19th–early 20th centuries`,
-        title: `The Journey With No Return`,
-        teaser: `Everything you owned, and no way back.`,
-        insight: `Millions crossed oceans in cramped lower-decks with everything they owned in one bag and no real prospect of returning. For them, travel was not adventure or escape for a season — it was a permanent break with one life and the uncertain start of another. To anyone whose travel always assumes a return ticket, this is a profoundly different act. The human meaning underneath: for much of history, and for many still today, leaving has been one-way and irreversible — not a holiday from your life, but the end of one version of it and the gamble on another.`,
-        question: `Imagine leaving home with one bag and no realistic way back. What would have to be true for someone to make that choice?`,
-        upgrade: {
-            term: `one-way journey`,
-            type: `noun phrase`,
-            def: `A journey made without a realistic chance of returning to the life you left behind.`,
-            in_action: `For many migrants, the crossing was a one-way journey — not an adventure, but the start of a completely different life.`,
-            review_prompt: `What makes a one-way journey feel different from a trip with a return ticket?`
-        },
-        deeper: {
-            text: `It's worth holding the two kinds of journey side by side: the modern traveller, who leaves precisely because they know they can come home, and the one-way migrant, who leaves knowing they almost certainly can't. Those are nearly opposite emotional experiences hiding inside the same word, "travel." The return ticket changes everything — it makes a journey an experience rather than a fate. This still shapes how different people hear the word today: for someone whose family arrived as migrants or refugees, "travelling abroad" may carry a weight and an ache that a casual holidaymaker never feels. The same flight can be an adventure for one passenger and the hardest decision of a life for the person in the next seat. Remembering that gap is part of travelling thoughtfully — knowing that the freedom to come home is itself a kind of privilege not everyone has ever had.`,
-            questions: [
-                `Does your family have a story of someone who left home for good? What do you know of it?`,
-                `How is travelling for fun different, emotionally, from being forced to leave?`,
-                `Do you think people who can always return home travel differently from those who can't?`
-            ]
-        }
-    },
-    {
-        id: `cl-backpacker-identity`,
-        location: `Global, late 20th century to today`,
-        title: `When the Trip Never Really Ends`,
-        teaser: `Some build a whole life out of not staying.`,
-        insight: `From the late twentieth century on, some travellers stopped taking trips and started living them — countries as temporary homes, friendships built fast and left behind, each place a chapter rather than a destination. To an outsider it can look enviable or aimless depending on their own values. The human meaning underneath: when travel stops being a break from ordinary life and becomes the shape of it, the experience of any single place changes too — and it becomes worth asking whether always moving means you're really arriving anywhere.`,
-        question: `Does constant travel sound like freedom to you — or do you think each place starts to feel a little less special when there's always another one coming?`,
-        upgrade: {
-            term: `wanderlust`,
-            type: `noun`,
-            def: `A strong, restless desire to travel and keep seeing new places.`,
-            in_action: `Her wanderlust never faded — she's never lived anywhere more than a year.`,
-            review_prompt: `Do you have wanderlust, or do you feel happiest somewhere familiar? Why do you think that is?`
-        },
-        deeper: {
-            text: `This way of living exposes a real difference in values that runs across cultures and even within families. In some traditions, a person who keeps moving and won't settle is admired as free, brave, and open; in others, the very same person is quietly seen as rootless, unserious, or running from something. Neither reading is simply correct — they come from genuinely different ideas about what a good life is. The settled person looks at the wanderer and sees someone missing out on deep roots, lasting friendship, and a place to belong. The wanderer looks back and sees someone trapped by routine and afraid of the unknown. Both can be a little right. What's interesting is to notice which instinct lives more strongly in you — and where you got it: from your family, your culture, your generation, or your own restlessness or need for home.`,
-            questions: [
-                `In your culture, is a person who never settles admired, pitied, or quietly judged?`,
-                `Do you think you can build deep friendships while constantly moving — or does closeness need time and place?`,
-                `Where do you think your own pull toward roots or movement comes from?`
-            ]
-        }
-    },
-    {
-        id: `cl-digital-nomads`,
-        location: `Global, 21st century`,
-        title: `Living Here, Working There`,
-        teaser: `A life stretched across two places at once.`,
-        insight: `Technology now lets some people live in one country while working for another, blurring old ideas of home, nation, and the boundary between work and travel. The journey is no longer a break from ordinary life — it becomes the structure of life itself. What looks like a permanent holiday is often something stranger: belonging fully to nowhere. The human meaning underneath: when you can leave at any moment, the meaning of "staying" changes too — and it becomes a real question whether you can truly belong to a place you're always free to walk away from.`,
-        question: `Does working while travelling still feel like travel to you — or does it quietly turn the journey into ordinary life in a different postcode?`,
-        upgrade: {
-            term: `untethered`,
-            type: `adjective`,
-            def: `Not strongly tied to one place, routine, or way of life.`,
-            in_action: `The freedom was exciting at first, but after a while he started to feel untethered rather than free.`,
-            review_prompt: `When might feeling untethered be exciting, and when might it feel lonely?`
-        },
-        deeper: {
-            text: `There's a quiet trade-off inside this lifestyle that its glossy images rarely show. The freedom is real — to follow good weather, low costs, or simple curiosity, untied to one place. But belonging tends to be built from the very things this life avoids: staying through the dull stretches, knowing your neighbours over years, being part of a place when it's inconvenient as well as when it's lovely. A traveller who's always passing through often experiences a place as a guest sees it — the surface, the highlights — rather than as a resident knows it, with all its tedium and depth. Different cultures weigh this differently: some prize the freedom and adaptability, others quietly believe you only really know a place once you've been stuck in it through a hard winter. It raises an honest question about our connected age — whether the freedom to be everywhere has quietly cost us the deeper belonging that only comes from being somewhere, fully, for a long time.`,
-            questions: [
-                `Do you think you can know a place properly as a visitor, or only by living through its ordinary, boring times?`,
-                `Would a life of working remotely from beautiful places appeal to you, or wear thin?`,
-                `What do you think actually makes someone "belong" to a place — time, effort, or something else?`
-            ]
+            definition: `To move freely around a wide area without following one fixed route.`,
+            ordinary: `“People are free to move around much of the countryside without following one fixed route.”`,
+            upgraded: `“People are free to roam across much of the countryside.”`,
+            priority: 'standard',
+            atlasPrompt: `Where would you most enjoy being free to roam without a route, schedule, or particular destination?`
         }
     }
 ];
