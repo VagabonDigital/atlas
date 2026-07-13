@@ -26,7 +26,8 @@
         activeSessionId: 'atlas::activeSessionId',
         registry: 'atlas::registry',
         ledger: 'learning::ledger',
-        appearance: 'atlas::appearanceMode'
+        appearance: 'atlas::appearanceMode',
+        preferences: 'atlas::preferences'
     };
 
     const DEFAULT_SESSION_ID = 'default';
@@ -517,6 +518,72 @@
     }
 
     // ============================================================
+    // TUTOR PREFERENCES
+    // ============================================================
+
+    function createDefaultPreferences() {
+        return {
+            schemaVersion: 1,
+            upgradeVisibility: 'key'
+        };
+    }
+
+    function normalizePreferences(preferences) {
+        const fallback = createDefaultPreferences();
+
+        if (!preferences || typeof preferences !== 'object' || Array.isArray(preferences)) {
+            return fallback;
+        }
+
+        const upgradeVisibility = ['off', 'key', 'all'].includes(preferences.upgradeVisibility)
+            ? preferences.upgradeVisibility
+            : fallback.upgradeVisibility;
+
+        return {
+            ...fallback,
+            ...preferences,
+            schemaVersion: 1,
+            upgradeVisibility
+        };
+    }
+
+    function readPreferences() {
+        return normalizePreferences(readJson(KEYS.preferences, null));
+    }
+
+    function writePreferences(preferences) {
+        const normalized = normalizePreferences(preferences);
+
+        writeJson(KEYS.preferences, normalized);
+
+        return normalized;
+    }
+
+    function readUpgradeVisibility() {
+        return readPreferences().upgradeVisibility;
+    }
+
+    function setUpgradeVisibility(mode) {
+        const upgradeVisibility = ['off', 'key', 'all'].includes(mode)
+            ? mode
+            : 'key';
+
+        const preferences = writePreferences({
+            ...readPreferences(),
+            upgradeVisibility
+        });
+
+        window.dispatchEvent(new CustomEvent('atlas:preferences-change', {
+            detail: {
+                preferences,
+                upgradeVisibility
+            }
+        }));
+
+        return upgradeVisibility;
+    }
+
+    // ============================================================
     // APPEARANCE
     // ============================================================
 
@@ -603,6 +670,11 @@
         readLedger,
         writeLedger,
         upsertLedgerEntry,
+
+        readPreferences,
+        writePreferences,
+        readUpgradeVisibility,
+        setUpgradeVisibility,
 
         readAppearanceMode,
         applyAppearanceMode,
