@@ -9,7 +9,7 @@
   accounts, and the version of its history that everybody disputes.
   The Compass subject where the learner is both the unreliable narrator
   and the defence lawyer.
-  Compass v3 rebuild. Rough editorial pass.
+  Compass active subject · contentVersion 3.0.1
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 const MODULE = {
     id: 'family-belonging',
     schemaVersion: 2,
-    contentVersion: '3.0.0',
+    contentVersion: '3.0.1',
     title: 'Family & Belonging',
     titleHtml: 'Family & <em>Belonging</em>',
     navTitle: 'Family',
@@ -116,7 +116,7 @@ const discussionSets = [
             {
                 id: 'moment-the-permanent-record',
                 preview: `You were fourteen. They have not forgotten.`,
-                question: `The haircut. The boyfriend. The thing you said at the wedding. What does your family still bring up — and at what point does affectionate teasing quietly become a grudge?`,
+                question: `The haircut. The boyfriend. The thing someone said at the wedding. What do families keep bringing up years later — and at what point does affectionate teasing quietly become a grudge?`,
                 upgrade: {
                     term: `hold something against someone`,
                     type: `phrase`,
@@ -124,7 +124,7 @@ const discussionSets = [
                     ordinary: `“I forgot her birthday once, six years ago, and she still blames me for it every time we argue.”`,
                     upgraded: `“I forgot her birthday once and she still holds it against me.”`,
                     priority: 'key',
-                    atlasPrompt: `Are you someone who holds things against people, or do you genuinely let them go?`
+                    atlasPrompt: `What do people find hardest to let go of — being forgotten, being embarrassed, being left out, or being proved wrong?`
                 }
             },
             {
@@ -171,7 +171,7 @@ const discussionSets = [
             {
                 id: 'moment-the-one-who-does-everything',
                 preview: `One person books the flights. Every time.`,
-                question: `Somebody remembers the birthdays, drives to the hospital, hosts the whole thing. It is almost never shared out evenly. Who is it in your family — and did they take the job, or did everyone else quietly hand it to them?`,
+                question: `Somebody remembers the birthdays, drives to the hospital, hosts the whole thing. It is almost never shared out evenly. In your family, or a family you know well, who carries it — and did they take the job, or did everyone else quietly hand it to them?`,
                 upgrade: {
                     term: `a thankless task`,
                     type: `noun`,
@@ -240,7 +240,7 @@ const discussionSets = [
             {
                 id: 'moment-you-have-become-them',
                 preview: `That is your mother's exact sigh.`,
-                question: `The phrase. The sigh. The way you check the locks. The way you fold a towel. Which of your parents' habits have you found in yourself — and did you fight it?`,
+                question: `The phrase. The sigh. The way someone checks the locks or folds a towel. Which family habit have you found in yourself — or watched somebody else inherit — and did they fight it?`,
                 upgrade: {
                     term: `catch yourself doing something`,
                     type: `phrase`,
@@ -268,7 +268,7 @@ const discussionSets = [
             {
                 id: 'moment-still-winning-arguments',
                 preview: `She's been dead nine years and she is still right.`,
-                question: `The recipe that is still the standard. The holiday ritual nobody is allowed to change. The opinion everybody still quotes to end an argument. Who in your family is gone and still running the place?`,
+                question: `The recipe that is still the standard. The holiday ritual nobody is allowed to change. The opinion everybody still quotes to end an argument. In your family, or one you know well, who is gone and still running the place?`,
                 upgrade: {
                     term: `turn in your grave`,
                     type: `idiom`,
