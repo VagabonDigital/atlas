@@ -25,9 +25,9 @@
 const MODULE = {
     id: 'travel-exploration',
     schemaVersion: 2,
-    contentVersion: '3.1.0',
+    contentVersion: '3.3.0',
     title: 'Travel & Exploration',
-    titleHtml: 'Travel & <em>Exploration</em>',
+    titleHtml: 'Travel &amp; <em>Exploration</em>',
     navTitle: 'Travel',
     bgImage: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi2lmdQM4psQaMkjfD9_oEcSyYotoHZLhcmLe6VSYRNsJIeMKss3ol57bH5E-UAKrYdF9zBzC2bqaxJYJj-8-IDp4umNP-PevoJpHPpH9lrIBisztiwq56af7NseoacPMmH3E3D1tG4olo/s2048/pexels-photo-3935702.jpeg'
 };
@@ -101,7 +101,7 @@ const discussionSets = [
             {
                 id: 'moment-ordinary-thing-made-no-sense',
                 preview: `Everyone else understood it.`,
-                question: `You're somewhere unfamiliar and something completely ordinary makes no sense — a bathroom fixture, a ticket machine, a door that will not open, a bin with a mysterious purpose. What's the most baffled you've been by something everyone else seemed to understand?`,
+                question: `What ordinary thing took you longer than expected to work out while you were away — a ticket machine, public transport, a door or shower, ordering food, paying, or following a local rule? What finally made sense?`,
 
                 upgrade: {
                     term: `work something out`,
@@ -120,7 +120,7 @@ const discussionSets = [
 
                 upgrade: {
                     term: `get the shot`,
-                    type: `informal phrase`,
+                    type: `phrase`,
                     definition: `To capture the exact photograph or video someone wants.`,
                     ordinary: `“She turned one sunset photo into a twenty-minute production and had everyone moving bags and waiting while she tried to take exactly the photo she wanted.”`,
                     upgraded: `“She turned one sunset photo into a twenty-minute production and had everyone moving bags and waiting while she tried to get the shot.”`,
@@ -146,7 +146,7 @@ const discussionSets = [
             {
                 id: 'moment-took-on-too-much',
                 preview: `You said yes too quickly.`,
-                question: `What have you agreed to on a trip and then realised you could not handle? What made you say yes — or have you seen it happen to someone else?`,
+                question: `Have you ever said yes to something on a trip — a difficult hike, unfamiliar food, an activity, a long journey, or a night out — and then realised you were out of your depth? What made you agree, or have you seen it happen to someone else?`,
 
                 upgrade: {
                     term: `out of your depth`,
@@ -162,7 +162,7 @@ const discussionSets = [
 
         makeItReal: {
             title: `The version you usually leave out`,
-            prompt: `Choose one trip story you normally tell quickly. Now tell the honest version: what were you feeling, what had gone wrong, and which small detail makes the scene real?`
+            prompt: `Choose one trip story you normally tell quickly. Tell it again with one small detail you usually leave out — a sound, smell, delay, awkward moment, minor problem, or something happening in the background.`
         }
     },
 
@@ -419,7 +419,7 @@ const clCards = [
 
         upgrade: {
             term: `empty-handed`,
-            type: `adjective or adverb`,
+            type: `adjective`,
             definition: `Without bringing a gift or contribution when one may be expected.`,
             ordinary: `“I felt awkward arriving back at the office without bringing anything.”`,
             upgraded: `“I felt awkward arriving back at the office empty-handed.”`,
