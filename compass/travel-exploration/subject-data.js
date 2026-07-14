@@ -6,15 +6,9 @@
   --------------------------------------------------------------------------
   A premium interactive speaking subject for exploring the people, choices,
   habits, tensions, surprises, and cultural assumptions that shape travel.
-
   Built for tutor-led conversation, shared-screen teaching, thoughtful
   disagreement, cultural reflection, and sharper spoken English.
-
-  Compass v3 provisional implementation subject.
-  Editorially frozen for the build phase.
-  Copy should change only when rendering or live testing exposes a concrete
-  failure.
-
+  Gold Exemplar · contentVersion 3.3.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
