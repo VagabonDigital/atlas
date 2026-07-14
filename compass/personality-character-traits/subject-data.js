@@ -35,7 +35,7 @@ const subjectCopy = {
     overview: {
         heading: `Four Seconds`,
         intro: [
-            `The verdict arrives before they've sat down. Something in how they said your name, or what they did with the waiter, and you've decided — without consciously deciding anything at all. Most of us are quietly certain we're excellent judges of character. Most of us have also been spectacularly wrong about at least one person. So which do you actually trust: the four seconds, or the four years?`
+            `Sometimes we form an opinion of someone almost immediately — from how they speak, how they treat other people, or the way they enter a room. We often trust these first impressions, but they can be completely wrong. So what tells you more about a person: the first few seconds, or what you learn over time?`
         ]
     },
     paths: {
