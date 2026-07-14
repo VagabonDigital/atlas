@@ -9,7 +9,7 @@
   the handful of sentences that turn out to have done something.
   Built for tutor-led conversation, shared-screen teaching, recognition,
   confession, playful disagreement, and sharper spoken English.
-  Compass v3 rebuild. Rough editorial pass.
+  Compass active subject · contentVersion 3.0.1
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 const MODULE = {
     id: 'communication-expression',
     schemaVersion: 2,
-    contentVersion: '3.0.0',
+    contentVersion: '3.0.1',
     title: 'Communication & Expression',
     titleHtml: 'Communication & <em>Expression</em>',
     navTitle: 'Communication',
@@ -216,7 +216,7 @@ const discussionSets = [
                 question: `Some people can do a devastating impression of a colleague, a relative, a politician — the voice, the pauses, the little cough before bad news. Can you? And when does imitating someone stop being affectionate?`,
                 upgrade: {
                     term: `spot on`,
-                    type: `informal phrase`,
+                    type: `phrase`,
                     definition: `Exactly right; completely accurate.`,
                     ordinary: `“Her imitation of the manager was exactly right, all the way down to the throat-clearing.”`,
                     upgraded: `“Her impression of the manager was spot on, right down to the throat-clearing.”`,
@@ -321,7 +321,7 @@ const clCards = [
         contextLine: `La Gomera · Canary Islands`,
         title: `The Language You Whistle`,
         teaser: `A full conversation, whistled across a valley — and everyone can hear it.`,
-        context: `On the island of La Gomera, people whistle Spanish. Silbo is a whistled form of the language, developed to cross deep ravines where a shout would die halfway. It travels far further than a voice, it is taught in the island's schools — and every single person within range hears exactly what you said.`,
+        context: `On the island of La Gomera, people whistle Spanish. Silbo is a whistled form of the language, developed to cross deep ravines where a shout would die halfway. It travels far further than a voice, it is taught in the island's schools — and anyone within range may hear exactly what you said.`,
         mainQuestion: `Everything you whistle is public. What would you happily send across a valley — and what could you never say that way?`,
         followTheThread: [
             `Would a place where nothing can be said quietly be friendlier, or unbearable?`,
