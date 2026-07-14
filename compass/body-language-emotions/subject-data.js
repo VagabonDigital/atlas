@@ -9,7 +9,7 @@
   perform, and the handful of things it turns out to know first.
   Built for tutor-led conversation, shared-screen teaching, confession,
   playful disagreement, cultural curiosity, and sharper spoken English.
-  Compass v3 rebuild. Rough editorial pass.
+  Compass active subject · contentVersion 3.0.1
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 const MODULE = {
     id: 'body-language-emotions',
     schemaVersion: 2,
-    contentVersion: '3.0.0',
+    contentVersion: '3.0.1',
     title: 'Body Language & Emotions',
     titleHtml: 'Body Language <br>& <em>Emotions</em>',
     navTitle: 'Body Language',
@@ -39,7 +39,7 @@ const subjectCopy = {
     },
     paths: {
         culturalLensDescription: `Reversed nods, hired mourners, a district that couldn't stop laughing, and the face you didn't choose.`,
-        discussionDescription: `The blush, the laugh you couldn't hold in, the face you put on for the present, and the moment your body knew first.`,
+        discussionDescription: `Going red, the laugh you couldn't hold in, the face you put on for the present, and the moment your body knew first.`,
         reflectionTitle: `Reflection`,
         reflectionDescription: `A place to pull together what came up along the way.`
     },
@@ -69,12 +69,12 @@ const discussionSets = [
         title: `The Body Has Its Own Ideas`,
         stage: `React`,
         icon: 'react',
-        description: `The blush you can't stop, the laugh at the worst possible moment, and the tears at a television advert.`,
+        description: `Going red when you cannot stop it, laughing at the worst possible moment, and tears at a television advert.`,
         moments: [
             {
                 id: 'moment-going-red',
                 preview: `You can feel it arriving. You can't stop it.`,
-                question: `The blush arrives, everyone can see it, and worrying about it only makes it worse. Are you a blusher — and what sets yours off? Or is there somebody in your life who goes bright red at nothing?`,
+                question: `Your face goes red, everyone can see it, and worrying about it only makes it worse. Does that happen to you — or is there somebody in your life who goes bright red at nothing? What sets it off?`,
                 upgrade: {
                     term: `give the game away`,
                     type: `idiom`,
@@ -268,7 +268,7 @@ const discussionSets = [
             {
                 id: 'moment-who-gets-to-touch-you',
                 preview: `The hugger. The hand on the arm. The one who leans in.`,
-                question: `The colleague who hugs. The relative who holds your face. One friend puts a hand on your arm and it's fine; another does exactly the same thing and you want to leave the country. Who is allowed, and how did they earn it?`,
+                question: `The colleague who hugs. The relative who holds your face. One friend puts a hand on your arm and it's fine; another does exactly the same thing and you want to leave the country. Who gets allowed closer — in your life, or in a group you know — and how did they earn it?`,
                 upgrade: {
                     term: `keep someone at arm's length`,
                     type: `idiom`,
@@ -276,7 +276,7 @@ const discussionSets = [
                     ordinary: `“I'm perfectly polite to him, but I make sure we never actually become close.”`,
                     upgraded: `“I'm polite to him, but I keep him at arm's length.”`,
                     priority: 'key',
-                    atlasPrompt: `Who do you keep at arm's length, and what would they have to do to get any closer?`
+                    atlasPrompt: `When might someone keep another person at arm's length — politeness, history, caution, or simple lack of trust?`
                 }
             },
             {
@@ -296,7 +296,7 @@ const discussionSets = [
             {
                 id: 'moment-what-the-years-did',
                 preview: `The knee. The back. The three-day hangover.`,
-                question: `Your body used to do things it doesn't do now, and it has started doing things you never agreed to. What's changed — and has it changed how people read you, or how much room they give you?`,
+                question: `Bodies change what they can do, and sometimes how people read them. What change have you noticed in yourself or someone around you — and did it change how much room other people gave them?`,
                 upgrade: {
                     term: `take its toll`,
                     type: `phrase`,
@@ -460,7 +460,7 @@ const clCards = [
             ordinary: `“I felt so guilty that I couldn't look directly at her for the whole of the rest of the evening.”`,
             upgraded: `“I felt so guilty that I couldn't meet her eye all evening.”`,
             priority: 'key',
-            atlasPrompt: `Whose eye can you not quite meet at the moment — and what would fix it?`
+            atlasPrompt: `When might someone find it hard to meet another person's eye — guilt, bad news, attraction, or being told off?`
         }
     },
     {
@@ -484,7 +484,7 @@ const clCards = [
             atlasPrompt: `What's your instinctive reaction to bad news — go quiet, get busy, make a joke, call somebody?`
         }
     },
-{
+    {
         id: 'cl-frozen-face',
         contextLine: `The frozen face`,
         title: `Switch Your Face Off`,
