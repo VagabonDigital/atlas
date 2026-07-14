@@ -34,7 +34,7 @@ const subjectCopy = {
     overview: {
         heading: `Whose Side Is It On?`,
         intro: [
-            `Your body blushes when you would rather it didn't, laughs at the worst possible moment, and cries at a television advert you don't even like. Then, when something actually matters, it can hold perfectly still and give away nothing at all. So which one is the real you — the one you decide on, or the one that arrives before you've had time to think?`
+            `Your body does not always show what you want it to show. You might go red when you feel embarrassed, laugh at the wrong moment, or hide your feelings when something really matters. Which shows the real you more clearly: the reactions you cannot control, or the behaviour you choose?`
         ]
     },
     paths: {
