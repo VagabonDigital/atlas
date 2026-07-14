@@ -10,7 +10,7 @@
   we all turned out to have completely wrong.
   The Compass subject where the learner states a judgement, produces the
   evidence, and has to defend it.
-  Compass v3 rebuild. Rough editorial pass.
+  Compass active subject · contentVersion 3.0.1
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 const MODULE = {
     id: 'personality-character-traits',
     schemaVersion: 2,
-    contentVersion: '3.0.0',
+    contentVersion: '3.0.1',
     title: 'Personality & Character Traits',
     titleHtml: 'Personality & <em>Character Traits</em>',
     navTitle: 'Personality',
@@ -40,7 +40,7 @@ const subjectCopy = {
     },
     paths: {
         culturalLensDescription: `Handwriting that decided your career, blood types that decide your marriage, and a file with your friends' names in it.`,
-        discussionDescription: `Snap verdicts, private tests, the person everybody loves except you, and the one you had completely wrong.`,
+        discussionDescription: `Snap judgements, private tests, the person everybody loves except you, and the one you had completely wrong.`,
         reflectionTitle: `Reflection`,
         reflectionDescription: `A place to bring together ideas from different parts of the subject.`
     },
@@ -53,7 +53,7 @@ const subjectCopy = {
     },
     reflection: {
         title: `Second Thoughts`,
-        summary: `Look back at the verdicts, tests, and stories that came up. Notice which judgements still feel convincing, which now seem less certain, and what kind of evidence would genuinely change your mind.`,
+        summary: `Look back at the judgements, tests, and stories that came up. Notice which ones still feel convincing, which now seem less certain, and what kind of evidence would genuinely change your mind.`,
         questions: [
             `Whose verdict on people do you trust more than your own?`,
             `What would you actually have to see to change your mind about someone?`
@@ -175,7 +175,7 @@ const discussionSets = [
                 question: `Two candidates. One has the perfect record and left you cold. The other you liked immediately and isn't quite qualified. Who gets it — and what are you actually hiring?`,
                 upgrade: {
                     term: `go with your gut`,
-                    type: `informal phrase`,
+                    type: `idiom`,
                     definition: `To decide on instinct rather than on evidence or analysis.`,
                     ordinary: `“In the end I ignored what the paperwork said and simply decided based on my instinct about him.”`,
                     upgraded: `“In the end I went with my gut.”`,
@@ -300,7 +300,7 @@ const discussionSets = [
                 question: `There's one person you'd trust with anything — money, a secret, your children. Don't tell me what they're like. Tell me what they did.`,
                 upgrade: {
                     term: `have someone's back`,
-                    type: `informal phrase`,
+                    type: `idiom`,
                     definition: `To be ready to support and defend someone, especially when they are not there.`,
                     ordinary: `“I know that he will always support me and defend me, particularly when I'm not in the room.”`,
                     upgraded: `“I know he's got my back.”`,
@@ -322,7 +322,7 @@ const clCards = [
         contextLine: `Italy · 1876`,
         title: `The Face of a Criminal`,
         teaser: `He measured their skulls and said he could spot a criminal on sight.`,
-        context: `Cesare Lombroso measured the skulls, jaws and ears of prisoners and announced that criminals were born rather than made — and that you could pick one out by looking. The theory was demolished long ago. But people still reach a verdict on a stranger's trustworthiness in under a second, and studies of mock juries keep finding that a defendant's face moves the verdict.`,
+        context: `Cesare Lombroso measured the skulls, jaws and ears of prisoners and announced that criminals were born rather than made — and that you could pick one out by looking. The theory was demolished long ago. But people still make fast judgements about a stranger's trustworthiness, and studies of mock juries suggest that a defendant's face can influence the jury's decision.`,
         mainQuestion: `You're on the jury. He looks exactly like a man who did it. Do you trust yourself?`,
         followTheThread: [
             `What would it take for you to overrule your own first impression?`,
@@ -344,7 +344,7 @@ const clCards = [
         title: `Four Fluids and Your Whole Personality`,
         teaser: `The medicine died. The vocabulary refused to go with it.`,
         context: `Blood, phlegm, black bile, yellow bile. For roughly two thousand years, European medicine held that the balance of these four fluids decided your temperament — and doctors bled people to correct it. The theory is long dead. The words survived it: we still call people sanguine, phlegmatic, melancholic, bilious, and in a foul humour.`,
-        mainQuestion: `Four types, and supposedly everyone fits one. Why is that so appealing — and which of the four would people put you in?`,
+        mainQuestion: `Four boxes, and supposedly everyone fits one. Why is that so appealing — and would people put you in the cheerful one, the calm one, the gloomy one, or the angry one?`,
         followTheThread: [
             `Who in your life is unmistakably one of the four?`,
             `Is it useful to have four boxes, even wrong ones — or does it just stop you looking properly?`
