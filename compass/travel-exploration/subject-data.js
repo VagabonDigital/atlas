@@ -40,7 +40,7 @@ const subjectCopy = {
     overview: {
         heading: `Travel Up Close`,
         intro: [
-            `Two people can take the same trip and experience it completely differently. The place may be the same, but the people, choices, timing, and unexpected moments are not. What decides how a trip turns out for you: where you go, who you go with, or what happens once you're there?`
+            `Two people can take the same trip and experience it completely differently. The place may be the same, but the people, choices, timing, and unexpected moments are not. What decides how a trip turns out for you: where you go, who you go with, or what happens once you’re there?`
         ]
     },
 
@@ -80,13 +80,13 @@ const discussionSets = [
         title: `The Honest Bit`,
         stage: `React`,
         icon: 'react',
-        description: `The mess, the wanting, and the small things you only notice once you're away.`,
+        description: `The mess, the wanting, and the small things you only notice once you’re away.`,
 
         moments: [
             {
                 id: 'moment-worst-place-slept',
                 preview: `A bed you still complain about.`,
-                question: `What's the worst place you've ever ended up sleeping away from home — the grim hostel bunk, a night on an airport floor, a sofa that wrecked your back? Set the scene: what made it so bad?`,
+                question: `What’s the worst place you’ve ever ended up sleeping away from home — the grim hostel bunk, a night on an airport floor, a sofa that wrecked your back? Set the scene: what made it so bad?`,
 
                 upgrade: {
                     term: `grotty`,
@@ -101,7 +101,7 @@ const discussionSets = [
             {
                 id: 'moment-ordinary-thing-made-no-sense',
                 preview: `Everyone else understood it.`,
-                question: `What ordinary thing took you longer than expected to work out while you were away — a ticket machine, public transport, a door or shower, ordering food, paying, or following a local rule? What finally made sense?`,
+                question: `What ordinary thing took you longer than expected to understand while you were away — a ticket machine, public transport, a door or shower, ordering food, paying, or following a local rule? What finally made sense?`,
 
                 upgrade: {
                     term: `work something out`,
@@ -140,13 +140,13 @@ const discussionSets = [
                     ordinary: `“That restaurant was known for its spicy noodle soup, and people queued for it.”`,
                     upgraded: `“That restaurant’s speciality was a spicy noodle soup, and people queued for it.”`,
                     priority: 'standard',
-                    atlasPrompt: `Think of a shop, café, or restaurant near you that's known for one particular thing. What's its speciality, and is it actually the best thing on the menu?`
+                    atlasPrompt: `Think of a shop, café, or restaurant near you that’s known for one particular thing. What’s its speciality, and is it actually the best thing on the menu?`
                 }
             },
             {
                 id: 'moment-took-on-too-much',
                 preview: `You said yes too quickly.`,
-                question: `Have you ever said yes to something on a trip — a difficult hike, unfamiliar food, an activity, a long journey, or a night out — and then realised you were out of your depth? What made you agree, or have you seen it happen to someone else?`,
+                question: `Have you ever said yes to something on a trip — a difficult hike, unfamiliar food, an activity, a long journey, or a night out — and then realised it was more than you could handle? What made you agree, or have you seen it happen to someone else?`,
 
                 upgrade: {
                     term: `out of your depth`,
@@ -177,14 +177,14 @@ const discussionSets = [
             {
                 id: 'moment-traveller-or-tourist',
                 preview: `Two labels, one quiet hierarchy.`,
-                question: `Some people call themselves "travellers" rather than "tourists." What, if anything, is the real difference — and why do people care so much about the label?`,
+                question: `Some people call themselves “travellers” rather than “tourists.” What, if anything, is the real difference — and why do people care so much about the label?`,
 
                 upgrade: {
                     term: `look down on`,
                     type: `phrasal verb`,
                     definition: `To believe that you are better than someone else.`,
-                    ordinary: `“He thinks he is better than people who take package holidays, but he's just on a slightly posher version of one.”`,
-                    upgraded: `“He looks down on package holidays, but he's just on a slightly posher version of one.”`,
+                    ordinary: `“He thinks he is better than people who take package holidays, but he’s just on a slightly posher version of one.”`,
+                    upgraded: `“He looks down on package holidays, but he’s just on a slightly posher version of one.”`,
                     priority: 'standard',
                     atlasPrompt: `What hobby, job, or taste do people unfairly look down on?`
                 }
@@ -198,8 +198,8 @@ const discussionSets = [
                     term: `play it by ear`,
                     type: `idiom`,
                     definition: `To decide what to do as events happen rather than planning everything beforehand.`,
-                    ordinary: `“We didn't book anything after the first night. We decided what to do as we went along.”`,
-                    upgraded: `“We didn't book anything after the first night. We just played it by ear.”`,
+                    ordinary: `“We didn’t book anything after the first night. We decided what to do as we went along.”`,
+                    upgraded: `“We didn’t book anything after the first night. We just played it by ear.”`,
                     priority: 'key',
                     atlasPrompt: `When is it better to play something by ear rather than make a detailed plan?`
                 }
@@ -207,7 +207,7 @@ const discussionSets = [
             {
                 id: 'moment-seller-accepted-the-price',
                 preview: `The price was accepted too quickly.`,
-                question: `You're bargaining in a market, and the seller accepts your price immediately. Do you feel pleased, embarrassed, or suspicious that you pushed too far? Where would you draw the line?`,
+                question: `You’re bargaining in a market, and the seller accepts your price immediately. Do you feel pleased, embarrassed, or suspicious that you pushed too far? Where would you draw the line?`,
 
                 upgrade: {
                     term: `haggle`,
@@ -253,7 +253,7 @@ const discussionSets = [
 
         makeItReal: {
             title: `The rule you travel by`,
-            prompt: `What's one travel rule you learned the hard way? What happened?`
+            prompt: `What’s one travel rule you learned the hard way? What happened?`
         }
     },
 
@@ -271,7 +271,7 @@ const discussionSets = [
                 question: `Some people are wonderful to travel with, and others become a quiet nightmare by day three. Who was the best — or the worst — and what did they do?`,
 
                 upgrade: {
-                    term: `get on someone's nerves`,
+                    term: `get on someone’s nerves`,
                     type: `idiom`,
                     definition: `To annoy someone, especially repeatedly or over time.`,
                     ordinary: `“By the end of the trip, every little thing he did was annoying me.”`,
@@ -281,9 +281,9 @@ const discussionSets = [
                 }
             },
             {
-                id: 'moment-stranger-went-out-of-their-way',
+                id: 'moment-unexpected-help',
                 preview: `A stranger who did more than expected.`,
-                question: `Has a stranger ever gone out of their way to help you when you were away from home — or have you done that for someone else? What happened?`,
+                question: `Has a stranger ever made a special effort to help you when you were away from home — or have you done that for someone else? What happened?`,
 
                 upgrade: {
                     term: `go out of your way`,
@@ -312,14 +312,14 @@ const discussionSets = [
             },
             {
                 id: 'moment-miss-and-relieved-to-leave',
-                preview: `What you miss—and what you don't.`,
+                preview: `What you miss—and what you don’t.`,
                 question: `When a trip ends, what do you miss first — and what are you relieved to leave behind?`,
 
                 upgrade: {
                     term: `have had enough of something`,
                     type: `phrase`,
                     definition: `To feel that you no longer want to deal with or experience something.`,
-                    ordinary: `“By the end of the week, I didn't want to deal with the noise and the crowds anymore.”`,
+                    ordinary: `“By the end of the week, I didn’t want to deal with the noise and the crowds anymore.”`,
                     upgraded: `“By the end of the week, I’d had enough of the noise and the crowds.”`,
                     priority: 'standard',
                     atlasPrompt: `What situation have you recently had enough of, and what would need to change?`
@@ -353,10 +353,10 @@ const clCards = [
     {
         id: 'cl-different-clock',
         contextLine: `Slow-clock places`,
-        title: `We'll Get There When We Get There`,
+        title: `We’ll Get There When We Get There`,
         teaser: `The bus leaves when full, and “ten minutes” may mean an hour.`,
 
-        context: `Often, the first real surprise abroad is not the language or food but the pace. You arrive expecting timetables and quick service. Then the bus leaves only when it is full, the shops close for a long afternoon, and "ten minutes" turns out to mean nearer an hour.`,
+        context: `Often, the first real surprise abroad is not the language or food but the pace. You arrive expecting timetables and quick service. Then the bus leaves only when it is full, the shops close for a long afternoon, and “ten minutes” turns out to mean nearer an hour.`,
 
         mainQuestion: `Have you ever arrived somewhere that ran much slower — or much faster — than home? Did it relax you or slowly drive you up the wall?`,
 
@@ -370,7 +370,7 @@ const clCards = [
             type: `adjective`,
             definition: `Relaxed, informal, and not worried about rushing or strict timing.`,
             ordinary: `“Everyone was so relaxed that arriving ten minutes late meant nothing.”`,
-            upgraded: `"Everyone was so laid-back that arriving ten minutes late meant nothing."`,
+            upgraded: `“Everyone was so laid-back that arriving ten minutes late meant nothing.”`,
             priority: 'key',
             atlasPrompt: `Who is the most laid-back person you know, and when does their attitude help—or frustrate—other people?`
         }
@@ -387,7 +387,7 @@ const clCards = [
         mainQuestion: `A visitor where you live keeps getting one of these things wrong. Would you tell them? How?`,
 
         followTheThread: [
-            `Is it the visitor's responsibility to learn local manners, or the host's responsibility to forgive an honest mistake?`,
+            `Is it the visitor’s responsibility to learn local manners, or the host’s responsibility to forgive an honest mistake?`,
             `What piece of politeness where you live do newcomers often misunderstand?`
         ],
 
@@ -448,7 +448,7 @@ const clCards = [
             type: `adjective`,
             definition: `Difficult to please or unusually concerned about small details.`,
             ordinary: `“People thought he was being difficult because he refused to share the room.”`,
-            upgraded: `"People thought he was being fussy because he refused to share the room."`,
+            upgraded: `“People thought he was being fussy because he refused to share the room.”`,
             priority: 'standard',
             atlasPrompt: `What is one thing you are genuinely fussy about, even when other people think it does not matter?`
         }
@@ -512,7 +512,7 @@ const clCards = [
         title: `Put On for the Tourists`,
         teaser: `The welcome dance runs again for every arriving coach.`,
 
-        context: `A welcome dance may run three times a day, once for each arriving coach. A market may sell the same "local" souvenirs as one two countries over. A village may slowly reshape itself around the photograph visitors arrive expecting to take.`,
+        context: `A welcome dance may run three times a day, once for each arriving coach. A market may sell the same “local” souvenirs as one two countries over. A village may slowly reshape itself around the photograph visitors arrive expecting to take.`,
 
         mainQuestion: `Would the welcome dance still feel special if it happened for every arriving coach? Why or why not?`,
 
@@ -526,7 +526,7 @@ const clCards = [
             type: `adjective`,
             definition: `Full of tourists and businesses or experiences designed mainly for them, often in a way that feels artificial.`,
             ordinary: `“The old town was lovely, but the main square felt artificial and designed mainly for visitors, so we did not stay long.”`,
-            upgraded: `"The old town was lovely, but the main square was so touristy that we did not stay long."`,
+            upgraded: `“The old town was lovely, but the main square was so touristy that we did not stay long.”`,
             priority: 'standard',
             atlasPrompt: `Think of a popular area that has become too touristy. What still feels genuine there, if anything?`
         }
@@ -538,7 +538,7 @@ const clCards = [
         title: `Does Going Really Change You?`,
         teaser: `Travel has long been treated as a form of education.`,
 
-        context: `There is an old belief that travel improves people — that going out into the world teaches what cannot be learned at home. Wealthy young Europeans once took long continental tours to acquire culture and polish. Modern versions include gap years, backpacking trips, and the idea that young people ought to "see the world."`,
+        context: `There is an old belief that travel improves people — that going out into the world teaches what cannot be learned at home. Wealthy young Europeans once took long continental tours to acquire culture and polish. Modern versions include gap years, backpacking trips, and the idea that young people ought to “see the world.”`,
 
         mainQuestion: `Do you believe travel changes people for the better — or is that partly a flattering story told by those who can afford to go?`,
 
@@ -552,7 +552,7 @@ const clCards = [
             type: `phrase`,
             definition: `To increase your experience and understanding by encountering unfamiliar people or ideas.`,
             ordinary: `“Travel can increase your experience and understanding, but it does not automatically make you open-minded.”`,
-            upgraded: `"Travel can broaden your horizons, but it does not automatically make you open-minded."`,
+            upgraded: `“Travel can broaden your horizons, but it does not automatically make you open-minded.”`,
             priority: 'standard',
             atlasPrompt: `What experience other than travel has broadened your horizons—a job, friendship, book, class, or major change?`
         }
