@@ -561,6 +561,7 @@ function applySubjectCopy() {
 
     setText('overview-heading', subjectCopy.overview.heading);
     renderOverviewIntro();
+    setText('overview-question', subjectCopy.overview.question);
 
     setText('path-desc-cl', subjectCopy.paths.culturalLensDescription);
     setText('path-desc-disc', subjectCopy.paths.discussionDescription);
