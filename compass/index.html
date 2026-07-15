@@ -2504,24 +2504,26 @@
     }
 
     function resolveStatus(state) {
-      if (!state || state.status === 'not-started') return 'new';
+      if (!state || typeof state !== 'object') {
+        return 'new';
+      }
 
-      const s = (state.status || '').toLowerCase();
+      const status = String(state.status || '').toLowerCase();
+      const progress = state.progress || {};
+      const raw = state.progressRaw || {};
 
-      if (s === 'completed' || s === 'complete' || s === 'explored' || state.lessonCompletedAt) {
+      if (status === 'complete') {
         return 'explored';
       }
 
-      if (
-        s === 'in-progress' ||
-        s === 'in_progress' ||
-        s === 'started' ||
-        (state.progress && Number(state.progress.explored) > 0)
-      ) {
+      const explored = Number(progress.explored) || 0;
+      const exploredIds = Array.isArray(raw.exploredIds)
+        ? raw.exploredIds.length
+        : 0;
+
+      if (explored > 0 || exploredIds > 0) {
         return 'inprogress';
       }
-
-      if (state.lastTouchedAt || state.lastOpenedAt || state.updatedAt) return 'inprogress';
 
       return 'new';
     }
@@ -2666,8 +2668,8 @@
     }
 
     /* ================================================================
-             SETTINGS — Compass atmosphere image
-             ================================================================ */
+    SETTINGS — Compass atmosphere image
+    ================================================================ */
 
     function readCompassAtmosphereMode() {
       try {
