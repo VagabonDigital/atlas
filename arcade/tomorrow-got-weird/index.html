@@ -1,1347 +1,1587 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tomorrow Got Weird</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛸</text></svg>">
-<style>
-/* ============================================================
-   CSS VARIABLES & RESET
-   ============================================================ */
-:root {
-  --bg:        #04080f;
-  --bg2:       #070e1c;
-  --panel:     rgba(4,14,32,0.92);
-  --cyan:      #00f0ff;
-  --cyan-dim:  rgba(0,240,255,0.18);
-  --magenta:   #ff2b96;
-  --mag-dim:   rgba(255,43,150,0.18);
-  --amber:     #ffcc00;
-  --green:     #00ffa3;
-  --text:      #cce8ff;
-  --text-dim:  rgba(200,232,255,0.5);
-  --border:    rgba(0,240,255,0.22);
-  --border-m:  rgba(255,43,150,0.22);
-  --glow-c:    0 0 16px rgba(0,240,255,0.55), 0 0 40px rgba(0,240,255,0.18);
-  --glow-m:    0 0 16px rgba(255,43,150,0.55), 0 0 40px rgba(255,43,150,0.18);
-  --glow-g:    0 0 16px rgba(0,255,163,0.55), 0 0 40px rgba(0,255,163,0.18);
-  --r:         10px;
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tomorrow Got Weird</title>
+  <link rel="stylesheet" href="../../shared/atlas-search.css">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛸</text></svg>">
+  <script>
+    (function () {
+      var mode = null;
+      try { mode = localStorage.getItem('atlas::appearanceMode') } catch (e) { }
+      document.documentElement.dataset.theme = mode === 'night' ? 'night' : 'light';
+    })();
+  </script>
+  <style>
+    :root {
+      --bg: #eef3f6;
+      --surface: #ffffff;
+      --surface-soft: rgba(255, 255, 255, 0.78);
+      --surface-tint: #f5f8fa;
+      --ink: #152235;
+      --ink-soft: #536176;
+      --ink-faint: #8490a1;
+      --line: rgba(21, 34, 53, 0.11);
+      --line-strong: rgba(21, 34, 53, 0.18);
+      --cyan: #087f98;
+      --cyan-soft: rgba(8, 127, 152, 0.1);
+      --magenta: #b93776;
+      --magenta-soft: rgba(185, 55, 118, 0.09);
+      --green: #087957;
+      --green-soft: rgba(8, 121, 87, 0.1);
+      --amber: #9b6900;
+      --arcade: #e8562a;
+      --arcade-soft: rgba(232, 86, 42, 0.11);
+      --shadow: 0 18px 55px rgba(21, 34, 53, 0.12);
+      --shadow-soft: 0 8px 28px rgba(21, 34, 53, 0.08);
+      --radius: 18px;
+      --font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-meta: "Courier New", Courier, monospace;
+    }
 
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;min-height:100vh;overflow-x:hidden}
+    html[data-theme="night"] {
+      --bg: #030a14;
+      --surface: #081426;
+      --surface-soft: rgba(8, 20, 38, 0.88);
+      --surface-tint: #0c1b30;
+      --ink: #e3effb;
+      --ink-soft: #9db0c7;
+      --ink-faint: #647990;
+      --line: rgba(0, 240, 255, 0.13);
+      --line-strong: rgba(0, 240, 255, 0.24);
+      --cyan: #00d8ec;
+      --cyan-soft: rgba(0, 216, 236, 0.1);
+      --magenta: #ff4c9e;
+      --magenta-soft: rgba(255, 76, 158, 0.1);
+      --green: #22d79b;
+      --green-soft: rgba(34, 215, 155, 0.1);
+      --amber: #ffd15c;
+      --arcade: #f07348;
+      --arcade-soft: rgba(240, 115, 72, 0.13);
+      --shadow: 0 22px 65px rgba(0, 0, 0, 0.45);
+      --shadow-soft: 0 10px 34px rgba(0, 0, 0, 0.3);
+    }
 
-body{
-  font-family:'Courier New',Courier,monospace;
-  background:var(--bg);
-  color:var(--text);
-  cursor:default;
-}
+    html.theme-changing *,
+    html.theme-changing *::before,
+    html.theme-changing *::after {
+      transition: background-color .32s ease, color .32s ease, border-color .32s ease, box-shadow .32s ease !important;
+    }
 
-/* ============================================================
-   STARFIELD BACKGROUND
-   ============================================================ */
-body::before{
-  content:'';
-  position:fixed;inset:0;
-  pointer-events:none;z-index:0;
-  background:
-    radial-gradient(ellipse at 20% 30%, rgba(0,100,180,0.12) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 70%, rgba(120,0,200,0.1) 0%, transparent 55%),
-    radial-gradient(ellipse at 50% 50%, rgba(0,20,50,0.9) 0%, transparent 100%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeBlend in='SourceGraphic' mode='multiply'/%3E%3C/filter%3E%3Crect width='600' height='600' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
 
-/* ============================================================
-   LAUNCH SCREEN
-   ============================================================ */
-#launch{
-  position:fixed;inset:0;z-index:900;
-  display:flex;align-items:center;justify-content:center;
-  background:url('tgw-cover.png') center/cover no-repeat;
-  /* Fallback gradient if image missing */
-  background-color:var(--bg);
-}
+    html {
+      min-height: 100%;
+      overflow-y: scroll;
+      scrollbar-gutter: stable
+    }
 
-/* Animated fallback gradient behind image (visible if img fails) */
-#launch::before{
-  content:'';position:absolute;inset:0;z-index:0;
-  background:
-    radial-gradient(ellipse at 30% 40%, rgba(0,180,255,0.35) 0%, transparent 55%),
-    radial-gradient(ellipse at 70% 60%, rgba(200,0,255,0.3) 0%, transparent 55%),
-    radial-gradient(ellipse at 50% 20%, rgba(255,180,0,0.15) 0%, transparent 45%),
-    linear-gradient(160deg, #040b18 0%, #0a0520 50%, #050d1a 100%);
-  animation:bgPulse 8s ease-in-out infinite alternate;
-}
-@keyframes bgPulse{
-  0%{filter:hue-rotate(0deg) brightness(1)}
-  100%{filter:hue-rotate(20deg) brightness(1.15)}
-}
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 14% 20%, rgba(8, 127, 152, 0.09), transparent 34rem),
+        radial-gradient(circle at 86% 72%, rgba(185, 55, 118, 0.07), transparent 34rem),
+        var(--bg);
+      color: var(--ink);
+      font-family: var(--font-body);
+    }
 
-#launch-overlay{
-  position:relative;z-index:2;
-  max-width:680px;width:92%;
-  background:rgba(2,8,20,0.82);
-  border:1px solid var(--cyan);
-  border-radius:16px;
-  padding:48px 44px 44px;
-  text-align:center;
-  backdrop-filter:blur(14px);
-  box-shadow:var(--glow-c), inset 0 1px 0 rgba(0,240,255,0.1);
-  animation:fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) both;
-}
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(30px)}
-  to{opacity:1;transform:translateY(0)}
-}
+    html[data-theme="night"] body {
+      background:
+        radial-gradient(circle at 18% 24%, rgba(0, 216, 236, 0.1), transparent 36rem),
+        radial-gradient(circle at 82% 72%, rgba(117, 55, 220, 0.1), transparent 36rem),
+        var(--bg);
+    }
 
-.launch-badge{
-  display:inline-block;
-  font-size:10px;letter-spacing:4px;text-transform:uppercase;
-  color:var(--cyan);border:1px solid rgba(0,240,255,0.4);
-  padding:5px 14px;border-radius:20px;margin-bottom:24px;
-  animation:pulseGlow 2s ease-in-out infinite;
-}
-@keyframes pulseGlow{
-  0%,100%{box-shadow:0 0 8px rgba(0,240,255,0.3)}
-  50%{box-shadow:0 0 20px rgba(0,240,255,0.7), 0 0 40px rgba(0,240,255,0.2)}
-}
+    button {
+      font: inherit
+    }
 
-.launch-title{
-  font-size:clamp(32px,6vw,56px);
-  font-weight:900;
-  letter-spacing:-1px;
-  line-height:1.05;
-  margin-bottom:28px;
-  background:linear-gradient(135deg,var(--cyan) 0%,#ffffff 40%,var(--magenta) 80%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-  text-shadow:none;
-  font-family:'Courier New',monospace;
-  text-transform:uppercase;
-}
+    button:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 3px
+    }
 
-.launch-intro{
-  font-size:14px;line-height:1.8;
-  color:rgba(200,230,255,0.85);
-  margin-bottom:36px;
-  font-family:'Courier New',monospace;
-}
-.launch-intro em{
-  color:var(--amber);font-style:normal;font-weight:700;
-}
+    #launch {
+      position: fixed;
+      inset: 0;
+      z-index: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        url("tomorrow-got-weird-cover.png") center center / cover no-repeat,
+        var(--bg);
+    }
 
-.btn-launch{
-  display:inline-flex;align-items:center;gap:10px;
-  background:linear-gradient(135deg, rgba(0,240,255,0.15), rgba(0,240,255,0.05));
-  border:1.5px solid var(--cyan);
-  color:var(--cyan);
-  padding:16px 44px;
-  font-size:13px;letter-spacing:3px;text-transform:uppercase;
-  font-family:'Courier New',monospace;font-weight:700;
-  border-radius:8px;cursor:pointer;
-  transition:all 0.2s;
-  box-shadow:var(--glow-c);
-}
-.btn-launch:hover{
-  background:linear-gradient(135deg, rgba(0,240,255,0.3), rgba(0,240,255,0.1));
-  box-shadow:0 0 30px rgba(0,240,255,0.7), 0 0 60px rgba(0,240,255,0.3);
-  transform:translateY(-2px);
-}
+    #launch::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: rgba(4, 10, 18, .28);
+    }
 
-/* ============================================================
-   GAME SCREEN
-   ============================================================ */
-#game{
-  display:none;
-  position:relative;z-index:1;
-  min-height:100vh;
-  padding:0 0 40px;
-}
+    .launch-card {
+      position: relative;
+      z-index: 1;
+      width: min(430px, 100%);
+      padding: 36px;
+      border: 1px solid var(--line-strong);
+      border-radius: 24px;
+      background: var(--surface-soft);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
 
-/* HEADER */
-#hdr{
-  position:sticky;top:0;z-index:100;
-  background:rgba(4,8,18,0.95);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--border);
-  padding:0 24px;
-  display:flex;align-items:center;gap:16px;
-  height:58px;
-  box-shadow:0 2px 24px rgba(0,0,0,0.5);
-}
+    .launch-kicker {
+      margin-bottom: 18px;
+      color: var(--cyan);
+      font-family: var(--font-meta);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
 
-.hdr-logo{
-  font-size:12px;letter-spacing:3px;text-transform:uppercase;
-  color:var(--cyan);font-weight:700;white-space:nowrap;
-  text-shadow:0 0 12px rgba(0,240,255,0.5);
-}
-.hdr-logo span{color:var(--magenta);text-shadow:0 0 12px rgba(255,43,150,0.5)}
+    .launch-title {
+      margin-bottom: 20px;
+      color: var(--ink);
+      font-size: clamp(42px, 7vw, 68px);
+      font-weight: 780;
+      letter-spacing: -.055em;
+      line-height: .96;
+    }
 
-.hdr-spacer{flex:1}
+    .launch-title span {
+      display: block;
+      color: var(--magenta);
+    }
 
-#progress-label{
-  font-size:11px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;
-  white-space:nowrap;
-}
+    .launch-copy {
+      max-width: 46ch;
+      margin-bottom: 30px;
+      color: var(--ink-soft);
+      font-size: 16px;
+      line-height: 1.7;
+    }
 
-#scenario-select{
-  background:rgba(0,20,50,0.85);
-  border:1px solid var(--border);
-  color:var(--text);
-  font-family:'Courier New',monospace;
-  font-size:12px;
-  padding:6px 10px;border-radius:6px;
-  cursor:pointer;outline:none;
-  max-width:200px;
-}
-#scenario-select:focus{border-color:var(--cyan);box-shadow:var(--glow-c)}
+    .btn-launch {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 48px;
+      padding: 0 22px;
+      border: 1px solid var(--cyan);
+      border-radius: 12px;
+      background: var(--cyan);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
 
-/* Progress bar strip */
-#progress-bar-wrap{
-  position:sticky;top:58px;z-index:99;
-  height:3px;background:rgba(0,240,255,0.07);
-}
-#progress-bar{
-  height:100%;background:linear-gradient(90deg,var(--cyan),var(--magenta));
-  transition:width 0.5s cubic-bezier(0.4,0,0.2,1);
-  box-shadow:0 0 10px var(--cyan);
-}
+    html[data-theme="night"] .btn-launch {
+      color: #001217
+    }
 
-/* MAIN CONTENT */
-#main{
-  max-width:860px;
-  margin:0 auto;
-  padding:28px 20px;
-  display:flex;flex-direction:column;gap:20px;
-}
+    .btn-launch:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 28px rgba(8, 127, 152, 0.2);
+    }
 
-/* ---- SCENARIO CARD ---- */
-#scenario-card{
-  border:1px solid var(--border);
-  border-radius:var(--r);
-  background:var(--panel);
-  backdrop-filter:blur(10px);
-  padding:32px 36px;
-  position:relative;
-  overflow:hidden;
-  transition:all 0.4s;
-}
-#scenario-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
-  animation:scanLine 3s linear infinite;
-}
-@keyframes scanLine{
-  0%{transform:translateX(-100%)}
-  100%{transform:translateX(100%)}
-}
+    #game {
+      display: none;
+      min-height: 100vh;
+    }
 
-#scenario-card.completed-card{
-  border-color:rgba(0,255,163,0.4);
-}
-#scenario-card.completed-card::before{
-  background:linear-gradient(90deg,transparent,var(--green),transparent);
-}
+    #hdr {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 58px;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(238, 243, 246, 0.9);
+      backdrop-filter: blur(16px);
+    }
 
-/* Transmission animation */
-#scenario-card.transmitting{
-  animation:transmit 0.55s cubic-bezier(0.16,1,0.3,1) both;
-}
-@keyframes transmit{
-  0%{opacity:0;transform:translateX(18px) scale(0.98)}
-  100%{opacity:1;transform:translateX(0) scale(1)}
-}
+    html[data-theme="night"] #hdr {
+      background: rgba(3, 10, 20, 0.9)
+    }
 
-.card-meta{
-  display:flex;align-items:center;gap:12px;margin-bottom:22px;
-}
-.card-meta-tag{
-  font-size:9px;letter-spacing:3px;text-transform:uppercase;
-  padding:4px 10px;border-radius:20px;
-  border:1px solid rgba(0,240,255,0.35);
-  color:var(--cyan);
-}
-.card-meta-num{
-  font-size:9px;letter-spacing:2px;color:var(--text-dim);
-  text-transform:uppercase;
-}
-.card-meta-num span{color:var(--cyan)}
+    .header-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 34px;
+      padding: 6px 13px 6px 10px;
+      border: 1px solid rgba(232, 86, 42, 0.24);
+      border-radius: 999px;
+      background: var(--arcade-soft);
+      color: var(--arcade);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .18s ease, color .18s ease, border-color .18s ease;
+    }
 
-.scenario-emoji{
-  font-size:40px;
-  display:block;
-  margin-bottom:14px;
-  line-height:1;
-  filter:drop-shadow(0 0 12px rgba(0,240,255,0.3));
-}
+    .header-back:hover {
+      border-color: var(--arcade);
+      background: var(--arcade);
+      color: #fff;
+    }
 
-.scenario-question{
-  font-size:clamp(17px,2.4vw,22px);
-  line-height:1.62;
-  color:#e8f5ff;
-  font-weight:400;
-  font-family:'Courier New',monospace;
-  letter-spacing:0.02em;
-}
+    .hdr-logo {
+      color: var(--cyan);
+      font-family: var(--font-meta);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
 
-/* Completed stamp */
-.survived-stamp{
-  display:none;
-  position:absolute;right:28px;top:28px;
-  transform:rotate(8deg);
-  border:3px solid var(--green);
-  color:var(--green);
-  font-size:11px;letter-spacing:3px;text-transform:uppercase;
-  padding:7px 16px;border-radius:6px;
-  font-weight:700;
-  box-shadow:0 0 16px rgba(0,255,163,0.3);
-  pointer-events:none;
-  background:rgba(0,255,163,0.06);
-}
-.completed-card .survived-stamp{display:block}
+    .hdr-logo span {
+      color: var(--magenta)
+    }
 
-/* ---- REVEAL BUTTONS ROW ---- */
-#reveal-row{
-  display:flex;flex-wrap:wrap;gap:10px;align-items:center;
-}
+    .hdr-spacer {
+      flex: 1
+    }
 
-.reveal-label{
-  font-size:9px;letter-spacing:3px;color:var(--text-dim);
-  text-transform:uppercase;width:100%;margin-bottom:2px;
-}
+    #progress-label {
+      color: var(--ink-faint);
+      font-family: var(--font-meta);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
 
-.btn-reveal{
-  display:inline-flex;align-items:center;gap:7px;
-  background:rgba(0,20,50,0.7);
-  border-radius:7px;padding:9px 16px;
-  font-size:11px;letter-spacing:2px;text-transform:uppercase;
-  font-family:'Courier New',monospace;font-weight:700;
-  cursor:pointer;transition:all 0.18s;
-  border:1px solid;
-}
-.btn-reveal.kw   {border-color:rgba(255,204,0,0.4);color:var(--amber)}
-.btn-reveal.def  {border-color:rgba(255,43,150,0.35);color:var(--magenta)}
-.btn-reveal.ex   {border-color:rgba(0,240,255,0.35);color:var(--cyan)}
-.btn-reveal.mp   {border-color:rgba(0,255,163,0.35);color:var(--green)}
-.btn-reveal.sv   {border-color:rgba(255,140,0,0.4);color:#ff8c00}
-.btn-reveal.ww   {border-color:rgba(200,100,255,0.4);color:#d070ff}
+    .header-search,
+    .header-appearance {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface);
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: border-color .18s ease, color .18s ease, background .18s ease;
+    }
 
-.btn-reveal:hover{transform:translateY(-2px);filter:brightness(1.3)}
-.btn-reveal.active-btn{filter:brightness(1.4)}
+    .header-search:hover,
+    .header-appearance:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
 
-/* ---- REVEAL PANELS ---- */
-.reveal-panel{
-  border-radius:var(--r);
-  padding:20px 24px;
-  animation:panelIn 0.3s ease both;
-  border-left:3px solid;
-  position:relative;
-  overflow:hidden;
-}
-@keyframes panelIn{
-  from{opacity:0;transform:translateY(8px)}
-  to{opacity:1;transform:translateY(0)}
-}
-.reveal-panel.kw-panel  {background:rgba(255,204,0,0.06);border-left-color:var(--amber)}
-.reveal-panel.def-panel {background:rgba(255,43,150,0.06);border-left-color:var(--magenta)}
-.reveal-panel.ex-panel  {background:rgba(0,240,255,0.06);border-left-color:var(--cyan)}
-.reveal-panel.mp-panel  {background:rgba(0,255,163,0.06);border-left-color:var(--green)}
-.reveal-panel.sv-panel  {background:rgba(255,140,0,0.06);border-left-color:#ff8c00}
-.reveal-panel.ww-panel  {background:rgba(200,100,255,0.06);border-left-color:#d070ff}
+    #main {
+      width: min(920px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 46px 0 64px;
+    }
 
-.panel-badge{
-  font-size:8px;letter-spacing:3px;text-transform:uppercase;
-  margin-bottom:8px;display:block;font-weight:700;
-}
-.kw-panel  .panel-badge{color:var(--amber)}
-.def-panel .panel-badge{color:var(--magenta)}
-.ex-panel  .panel-badge{color:var(--cyan)}
-.mp-panel  .panel-badge{color:var(--green)}
-.sv-panel  .panel-badge{color:#ff8c00}
-.ww-panel  .panel-badge{color:#d070ff}
+    #scenario-card {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(28px, 5vw, 52px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
 
-.kw-panel .panel-text{font-size:19px;font-weight:700;color:#fff;letter-spacing:0.03em}
-.kw-panel .panel-pos {font-size:11px;color:var(--amber);opacity:0.75;margin-left:8px;font-style:italic}
-.def-panel .panel-text,
-.ex-panel  .panel-text,
-.mp-panel  .panel-text,
-.sv-panel  .panel-text,
-.ww-panel  .panel-text{
-  font-size:14px;line-height:1.75;color:#d8eeff;
-}
-.ex-panel .panel-text::before{
-  content:'" ';color:rgba(0,240,255,0.4)
-}
-.ex-panel .panel-text::after{
-  content:' "';color:rgba(0,240,255,0.4)
-}
+    #scenario-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg,
+          var(--cyan),
+          var(--magenta),
+          var(--amber),
+          var(--cyan),
+          var(--magenta));
+      background-size: 300% 100%;
+      animation: signal-flow 9s linear infinite;
+      box-shadow: 0 0 10px rgba(8, 127, 152, .22);
+      pointer-events: none;
+    }
 
-/* Mission prompts list */
-.mp-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:4px}
-.mp-list li{
-  font-size:13px;line-height:1.7;color:#d8eeff;
-  padding-left:18px;position:relative;
-}
-.mp-list li::before{
-  content:'▸';position:absolute;left:0;color:var(--green);
-}
+    #scenario-card.completed-card::before {
+      background: linear-gradient(90deg,
+          var(--green),
+          var(--cyan),
+          var(--green),
+          var(--amber),
+          var(--green));
+      background-size: 300% 100%;
+    }
 
-/* ---- BOTTOM ACTION BAR ---- */
-#action-bar{
-  display:flex;flex-wrap:wrap;gap:10px;align-items:center;
-}
+    @keyframes signal-flow {
+      from {
+        background-position: 0% 50%;
+      }
 
-.btn-action{
-  display:inline-flex;align-items:center;gap:7px;
-  padding:10px 20px;border-radius:8px;
-  font-size:11px;letter-spacing:2px;text-transform:uppercase;
-  font-family:'Courier New',monospace;font-weight:700;
-  cursor:pointer;transition:all 0.18s;border:1.5px solid;
-}
-.btn-complete{
-  border-color:rgba(0,255,163,0.5);color:var(--green);
-  background:rgba(0,255,163,0.07);
-}
-.btn-complete:hover{background:rgba(0,255,163,0.15);box-shadow:var(--glow-g);transform:translateY(-2px)}
-.btn-complete.done{background:rgba(0,255,163,0.18);box-shadow:var(--glow-g)}
+      to {
+        background-position: 300% 50%;
+      }
+    }
 
-.btn-copy{
-  border-color:rgba(0,240,255,0.3);color:var(--text-dim);
-  background:rgba(0,20,50,0.5);
-}
-.btn-copy:hover{color:var(--cyan);border-color:var(--cyan);box-shadow:var(--glow-c)}
+    @media(prefers-reduced-motion:reduce) {
+      #scenario-card::before {
+        animation: none;
+        background-position: 50% 50%;
+      }
+    }
 
-.action-spacer{flex:1}
+    #scenario-card.transmitting {
+      animation: card-in .28s ease both
+    }
 
-/* ---- NAVIGATION ---- */
-#nav-bar{
-  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
-}
+    @keyframes card-in {
+      from {
+        opacity: 0;
+        transform: translateY(8px)
+      }
 
-.btn-nav{
-  display:inline-flex;align-items:center;gap:7px;
-  background:rgba(0,20,50,0.7);
-  border:1.5px solid var(--border);
-  color:var(--cyan);
-  padding:12px 24px;
-  font-size:12px;letter-spacing:2px;text-transform:uppercase;
-  font-family:'Courier New',monospace;font-weight:700;
-  border-radius:8px;cursor:pointer;transition:all 0.18s;
-}
-.btn-nav:hover:not(:disabled){
-  border-color:var(--cyan);
-  box-shadow:var(--glow-c);
-  transform:translateY(-2px);
-}
-.btn-nav:disabled{opacity:0.28;cursor:not-allowed}
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
 
-#nav-progress{
-  flex:1;
-  display:flex;flex-direction:column;gap:6px;align-items:center;
-}
-#nav-frac{font-size:11px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase}
-#nav-dots{display:flex;flex-wrap:wrap;gap:4px;max-width:320px;justify-content:center}
-.dot{
-  width:10px;height:10px;border-radius:50%;
-  background:rgba(0,240,255,0.12);
-  border:1px solid rgba(0,240,255,0.2);
-  transition:all 0.3s;cursor:pointer;
-  position:relative;
-}
-.dot:hover{background:rgba(0,240,255,0.4)}
-.dot.done-dot{background:var(--green);border-color:var(--green);box-shadow:0 0 6px rgba(0,255,163,0.5)}
-.dot.current-dot{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 8px rgba(0,240,255,0.7)}
+    .scenario-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
 
-/* ---- SIDEBAR / PROGRESS PANEL ---- */
-#sidebar{
-  border:1px solid var(--border);
-  border-radius:var(--r);
-  background:var(--panel);
-  backdrop-filter:blur(8px);
-  padding:20px;
-  display:flex;flex-wrap:wrap;gap:12px;align-items:center;
-}
-.stat-block{flex:1;min-width:100px;text-align:center}
-.stat-num{
-  font-size:28px;font-weight:900;
-  background:linear-gradient(135deg,var(--cyan),var(--magenta));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-  display:block;
-}
-.stat-label{font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;margin-top:2px}
-.stat-divider{width:1px;height:40px;background:var(--border)}
+    .scenario-number {
+      color: var(--ink-faint);
+      font-family: var(--font-meta);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
 
-.btn-reset{
-  display:inline-flex;align-items:center;gap:7px;
-  background:transparent;
-  border:1px solid rgba(255,43,150,0.3);
-  color:rgba(255,43,150,0.7);
-  padding:8px 16px;
-  font-size:10px;letter-spacing:2px;text-transform:uppercase;
-  font-family:'Courier New',monospace;font-weight:700;
-  border-radius:6px;cursor:pointer;transition:all 0.18s;
-}
-.btn-reset:hover{border-color:var(--magenta);color:var(--magenta);box-shadow:var(--glow-m)}
+    .scenario-state {
+      display: none;
+      padding: 4px 9px;
+      border: 1px solid rgba(8, 121, 87, 0.24);
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-family: var(--font-meta);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
 
-/* ---- TOAST ---- */
-#toast{
-  position:fixed;bottom:32px;right:32px;z-index:999;
-  background:rgba(0,255,163,0.12);
-  border:1px solid rgba(0,255,163,0.5);
-  color:var(--green);
-  padding:12px 22px;border-radius:8px;
-  font-size:12px;letter-spacing:2px;text-transform:uppercase;
-  font-family:'Courier New',monospace;font-weight:700;
-  opacity:0;transition:opacity 0.3s;
-  pointer-events:none;
-  box-shadow:var(--glow-g);
-}
-#toast.show{opacity:1}
+    .completed-card .scenario-state {
+      display: inline-flex
+    }
 
-/* ---- SEPARATOR ---- */
-.sep{border:none;border-top:1px solid var(--border);margin:4px 0}
+    .scenario-emoji {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      font-size: 24px;
+      line-height: 1;
+    }
 
-/* ---- SCROLLBAR ---- */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:rgba(0,240,255,0.25);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:rgba(0,240,255,0.5)}
+    .scenario-question {
+      max-width: 38ch;
+      color: var(--ink);
+      font-size: clamp(24px, 3.4vw, 38px);
+      font-weight: 650;
+      letter-spacing: -.025em;
+      line-height: 1.28;
+    }
 
-/* ---- RESPONSIVE ---- */
-@media(max-width:640px){
-  #hdr{padding:0 12px;gap:8px}
-  .hdr-logo{font-size:10px;letter-spacing:2px}
-  #scenario-select{max-width:130px;font-size:11px}
-  #main{padding:16px 12px}
-  #scenario-card{padding:22px 18px}
-  .scenario-question{font-size:16px}
-  .btn-nav{padding:10px 16px;font-size:11px}
-  #launch-overlay{padding:32px 22px 28px}
-}
-</style>
+    .support-switch {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .support-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 16px;
+      border: 1px solid var(--line-strong);
+      border-radius: 11px;
+      background: var(--surface-soft);
+      color: var(--ink-soft);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: border-color .18s ease, color .18s ease, background .18s ease;
+    }
+
+    .support-button:hover,
+    .support-button[aria-pressed="true"] {
+      border-color: var(--cyan);
+      background: var(--cyan-soft);
+      color: var(--cyan);
+    }
+
+    #support-panel {
+      margin-top: 12px;
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--surface);
+      box-shadow: var(--shadow-soft);
+    }
+
+    #support-panel[hidden] {
+      display: none
+    }
+
+    .support-heading {
+      margin-bottom: 16px;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 750;
+    }
+
+    .support-text {
+      max-width: 66ch;
+      color: var(--ink-soft);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .prompt-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      list-style: none;
+    }
+
+    .prompt-list li {
+      position: relative;
+      padding-left: 22px;
+      color: var(--ink-soft);
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    .prompt-list li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--cyan);
+    }
+
+    .scenario-rail {
+      display: flex;
+      justify-content: center;
+      width: min(100%, 430px);
+      margin: 16px auto 0;
+      padding: 3px 0;
+    }
+
+    #scenario-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      padding: 5px 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    #scenario-dots::-webkit-scrollbar {
+      display: none
+    }
+
+    .scenario-dot {
+      width: 9px;
+      height: 9px;
+      flex: 0 0 9px;
+      padding: 0;
+      border: 1px solid var(--line-strong);
+      border-radius: 50%;
+      background: transparent;
+      cursor: pointer;
+      transition: transform .16s ease, background .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+
+    .scenario-dot:hover {
+      border-color: var(--cyan);
+      background: var(--cyan);
+      transform: scale(1.2);
+    }
+
+    .scenario-dot.survived {
+      border-color: var(--green);
+      background: var(--green);
+    }
+
+    .scenario-dot.survived:hover {
+      border-color: var(--green);
+      background: var(--green);
+      transform: scale(1.2);
+    }
+
+    .scenario-dot.current {
+      border-color: var(--cyan);
+      background: var(--cyan);
+      box-shadow: none;
+      transform: scale(1.25);
+    }
+
+    .scenario-dot.current.survived {
+      border: 2px solid var(--cyan);
+      background: var(--green);
+      box-shadow: none;
+      transform: scale(1.25);
+    }
+
+    .scenario-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--surface-soft);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .btn-complete {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 0 16px;
+      border: 1px solid rgba(8, 121, 87, 0.28);
+      border-radius: 11px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 14px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .btn-complete.done {
+      border-color: var(--green);
+      background: var(--green);
+      color: #fff;
+    }
+
+    html[data-theme="night"] .btn-complete.done {
+      color: #00170f
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-nav {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--ink-soft);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-nav:hover:not(:disabled) {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .btn-nav:disabled {
+      opacity: .35;
+      cursor: not-allowed;
+    }
+
+    .btn-random {
+      border-color: rgba(185, 55, 118, 0.24);
+      color: var(--magenta);
+    }
+
+    .reset-row {
+      display: flex;
+      justify-content: center;
+      margin-top: 14px;
+    }
+
+    .btn-reset {
+      border: 0;
+      background: transparent;
+      color: var(--ink-faint);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .btn-reset:hover {
+      color: var(--magenta)
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      z-index: 999;
+      max-width: calc(100vw - 32px);
+      padding: 10px 16px;
+      border: 1px solid var(--line-strong);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--ink-soft);
+      box-shadow: var(--shadow-soft);
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 8px);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media(max-width:700px) {
+      #hdr {
+        padding: 0 12px;
+        gap: 8px
+      }
+
+      .hdr-logo {
+        font-size: 10px;
+        letter-spacing: .08em
+      }
+
+      #progress-label {
+        display: none
+      }
+
+      #main {
+        width: min(100% - 20px, 920px);
+        padding: 22px 0 40px
+      }
+
+      #scenario-card {
+        padding: 26px 22px
+      }
+
+      .scenario-question {
+        font-size: 25px
+      }
+
+      .support-switch {
+        grid-template-columns: 1fr
+      }
+
+      .support-button {
+        padding: 0 10px;
+        font-size: 13px
+      }
+
+      .scenario-footer {
+        align-items: stretch;
+        flex-direction: column
+      }
+
+      .btn-complete {
+        width: 100%
+      }
+
+      .nav-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr
+      }
+
+      .btn-nav {
+        padding: 0 8px
+      }
+
+      #launch {
+        align-items: flex-end;
+        justify-content: center;
+        padding: 20px;
+        background-position: center top;
+      }
+
+      .launch-card {
+        width: min(100%, 480px);
+        padding: 28px 24px;
+      }
+
+      .scenario-rail {
+        justify-content: flex-start;
+        width: 100%;
+        padding: 3px 0;
+      }
+
+      #scenario-dots {
+        justify-content: flex-start;
+      }
+    }
+
+    @media(max-width:480px) {
+      .launch-card {
+        padding: 32px 24px
+      }
+
+      .header-back {
+        padding-right: 10px
+      }
+
+      .hdr-logo span {
+        display: none
+      }
+
+      .support-switch {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- ============================================================
+  <!-- ============================================================
      LAUNCH SCREEN
      ============================================================ -->
-<div id="launch">
-  <div id="launch-overlay">
-    <div class="launch-badge">📡 Incoming Transmission · Loading 2044</div>
-    <h1 class="launch-title">Tomorrow<br>Got Weird</h1>
-    <p class="launch-intro">
-      We're stepping into <em>strange, exciting</em>, and sometimes slightly chaotic situations that haven't happened yet — but might one day. Some of these questions are <em>playful</em>, some are <em>unsettling</em>, and some might reveal more about you than you expect.<br><br>
-      The idea is simple: imagine the future has already arrived, drop yourself into the situation, and tell me what you would do.<br><br>
-      <em>Let's see how well you survive tomorrow!</em>
-    </p>
-    <button class="btn-launch" onclick="startGame()">
-      ⚡ Initiate Sequence
-    </button>
+  <div id="launch">
+    <section class="launch-card" aria-labelledby="launch-title">
+      <p class="launch-kicker">Arcade · Future scenarios</p>
+      <h1 class="launch-title" id="launch-title">Tomorrow <span>Got Weird</span></h1>
+      <p class="launch-copy">
+        Twenty-five strange futures. Decide what you would do, then push the scenario with follow-up questions,
+        pressure, or a stranger twist.
+      </p>
+      <button class="btn-launch" id="launch-button" type="button" onclick="startGame()">
+        Start sequence
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M3 2l9 5-9 5V2z" fill="currentColor" />
+        </svg>
+      </button>
+    </section>
   </div>
-</div>
 
-<!-- ============================================================
+  <!-- ============================================================
      GAME SCREEN
      ============================================================ -->
-<div id="game">
-
-  <!-- Header -->
-  <div id="hdr">
-    <div class="hdr-logo">Tomorrow<span> Got Weird</span></div>
-    <div class="hdr-spacer"></div>
-    <div id="progress-label">Scenario <span id="hdr-current">1</span> of <span id="hdr-total">25</span></div>
-    <select id="scenario-select" onchange="jumpTo(this.value)"></select>
-  </div>
-
-  <!-- Progress bar strip -->
-  <div id="progress-bar-wrap">
-    <div id="progress-bar" style="width:0%"></div>
-  </div>
-
-  <!-- Main -->
-  <div id="main">
-
-    <!-- Stats sidebar -->
-    <div id="sidebar">
-      <div class="stat-block">
-        <span class="stat-num" id="stat-done">0</span>
-        <div class="stat-label">Survived</div>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat-block">
-        <span class="stat-num" id="stat-remain">25</span>
-        <div class="stat-label">Remaining</div>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat-block">
-        <span class="stat-num" id="stat-pct">0%</span>
-        <div class="stat-label">Timeline Progress</div>
-      </div>
-      <div style="flex:1"></div>
-      <button class="btn-reset" onclick="confirmReset()">↺ Reset Progress</button>
-    </div>
-
-    <!-- Scenario card -->
-    <div id="scenario-card">
-      <div class="survived-stamp">✓ SURVIVED</div>
-      <div class="card-meta">
-        <div class="card-meta-tag" id="card-tag">TRANSMISSION ACTIVE</div>
-        <div class="card-meta-num">Scenario <span id="card-num">1</span> of 25</div>
-      </div>
-      <span class="scenario-emoji" id="sc-emoji"></span>
-      <div class="scenario-question" id="sc-question"></div>
-    </div>
-
-    <!-- Reveal buttons -->
-    <div id="reveal-row">
-      <div class="reveal-label">Reveal ▸</div>
-      <button class="btn-reveal kw"  id="btn-kw"  onclick="toggle('kw')">🔑 Keyword</button>
-      <button class="btn-reveal def" id="btn-def" onclick="toggle('def')">📖 Definition</button>
-      <button class="btn-reveal ex"  id="btn-ex"  onclick="toggle('ex')">💬 Example Answer</button>
-      <button class="btn-reveal mp"  id="btn-mp"  onclick="toggle('mp')">🎯 Mission Prompts</button>
-      <button class="btn-reveal sv"  id="btn-sv"  onclick="toggle('sv')">⚡ Survival Mode</button>
-      <button class="btn-reveal ww"  id="btn-ww"  onclick="toggle('ww')">🌀 Make it Weirder</button>
-    </div>
-
-    <!-- Reveal panels (dynamically shown/hidden) -->
-    <div id="panel-kw"  class="reveal-panel kw-panel"  style="display:none"></div>
-    <div id="panel-def" class="reveal-panel def-panel" style="display:none"></div>
-    <div id="panel-ex"  class="reveal-panel ex-panel"  style="display:none"></div>
-    <div id="panel-mp"  class="reveal-panel mp-panel"  style="display:none"></div>
-    <div id="panel-sv"  class="reveal-panel sv-panel"  style="display:none"></div>
-    <div id="panel-ww"  class="reveal-panel ww-panel"  style="display:none"></div>
-
-    <!-- Action bar -->
-    <div id="action-bar">
-      <button class="btn-action btn-complete" id="btn-complete" onclick="toggleComplete()">
-        <span id="complete-icon">☐</span> <span id="complete-label">Mark Survived</span>
+  <div id="game">
+    <header id="hdr">
+      <button class="header-back" type="button" onclick="goToArcade()" aria-label="Back to Arcade">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="M7.5 2L3.5 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        Arcade
       </button>
-      <button class="btn-action btn-copy" onclick="copyRecap()">📋 Copy Recap</button>
-      <div class="action-spacer"></div>
-    </div>
+      <div class="hdr-logo">Tomorrow <span>Got Weird</span></div>
+      <div class="hdr-spacer"></div>
+      <div id="progress-label" aria-live="polite">Scenario <span id="hdr-current">1</span> of <span
+          id="hdr-total">25</span></div>
+      <button class="header-search" type="button" data-atlas-search aria-label="Atlas Search" title="Atlas Search">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3" />
+          <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+      </button>
+      <button class="header-appearance" id="btn-appearance" type="button" onclick="toggleAppearance()"
+        aria-label="Toggle appearance"></button>
+    </header>
 
-    <!-- Navigation -->
-    <div id="nav-bar">
-      <button class="btn-nav" id="btn-prev" onclick="go(-1)" disabled>◀ Prev</button>
-      <div id="nav-progress">
-        <div id="nav-frac">Loading...</div>
-        <div id="nav-dots"></div>
+    <main id="main">
+      <section id="scenario-card">
+        <div class="scenario-meta">
+          <span class="scenario-emoji" id="sc-emoji" aria-hidden="true"></span>
+          <span class="scenario-number" id="scenario-number">Scenario 1 of 25</span>
+          <span class="scenario-state">Survived</span>
+        </div>
+        <h2 class="scenario-question" id="sc-question"></h2>
+      </section>
+
+      <div class="support-switch" aria-label="Push the scenario">
+        <button class="support-button" id="btn-missions" type="button" aria-pressed="false"
+          onclick="toggleSupport('missions')">
+          Mission prompts
+        </button>
+        <button class="support-button" id="btn-survival" type="button" aria-pressed="false"
+          onclick="toggleSupport('survival')">
+          Survival mode
+        </button>
+        <button class="support-button" id="btn-weirder" type="button" aria-pressed="false"
+          onclick="toggleSupport('weirder')">
+          Make it weirder
+        </button>
       </div>
-      <button class="btn-nav" id="btn-next" onclick="go(1)">Next ▶</button>
-    </div>
-    <button class="btn-action btn-copy" style="border-color:rgba(200,100,255,0.35);color:#c878ff;align-self:center;margin:0 auto" onclick="randomScenario()">🎲 Random Scenario</button>
 
-  </div><!-- /main -->
-</div><!-- /game -->
+      <section id="support-panel" hidden>
+        <div id="support-content"></div>
+      </section>
 
-<!-- Toast notification -->
-<div id="toast"></div>
+      <div class="scenario-footer">
+        <button class="btn-complete" id="btn-complete" type="button" onclick="toggleComplete()">
+          <span id="complete-icon">○</span>
+          <span id="complete-label">Mark survived</span>
+        </button>
 
-<!-- ============================================================
+        <nav class="nav-actions" aria-label="Scenario navigation">
+          <button class="btn-nav" id="btn-prev" type="button" onclick="go(-1)">Previous</button>
+          <button class="btn-nav btn-random" type="button" onclick="randomScenario()">Random</button>
+          <button class="btn-nav" id="btn-next" type="button" onclick="go(1)">Next</button>
+        </nav>
+      </div>
+
+      <nav class="scenario-rail" aria-label="Choose scenario">
+        <div id="scenario-dots"></div>
+      </nav>
+
+      <div class="reset-row">
+        <button class="btn-reset" type="button" onclick="confirmReset()">Reset Tomorrow Got Weird progress</button>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <!-- ============================================================
      JAVASCRIPT
      ============================================================ -->
-<script>
-/* ============================================================
-   SCENARIO DATA
+  <script src="../../shared/atlas-bridge.js"></script>
+  <script src="../../shared/atlas-search.js"></script>
+  <script>
+    /* ============================================================
+       SCENARIO DATA
+       ============================================================ */
+    const SCENARIOS = [
+      {
+        emoji: "🚀",
+        question: "If you could time-travel 100 years into the future for just one day, what's the first thing you'd Google when you arrived?",
+        twist: "The search engine doesn't use text — it reads your mind before you finish the thought. What pops up?",
+        prompts: [
+          "What topic would terrify you most to search for — and why?",
+          "Would you search for news, science, people, or something personal?",
+          "Would knowing too much about the future ruin your life back in the present?"
+        ],
+        survival: "You can search for ONE thing but the results vanish after 30 seconds. What do you type — and why that?"
+      },
+      {
+        emoji: "🌆",
+        question: "You can live one weekend in a future city. Where do you go first?",
+        twist: "Every building in the city is a living organism — they breathe, shift, and grow a few centimetres overnight. You wake up and your hotel room has moved.",
+        prompts: [
+          "What would make a future city feel like home rather than alien?",
+          "Would you want the city to feel high-tech, natural, or something between?",
+          "What would you most want to eat, see, or experience that doesn't exist yet?"
+        ],
+        survival: "You only have one hour before you're transported back. You can't change your mind. Where do you spend it — and what do you bring home?"
+      },
+      {
+        emoji: "🧬",
+        question: "Everyone has to choose one super gene at birth. What natural ability would you boost forever?",
+        twist: "Your chosen gene also comes with an unexpected trade-off — a weakness you can't avoid. What do you lose in exchange for what you gain?",
+        prompts: [
+          "Is it more useful to boost a mental trait or a physical one?",
+          "Would you choose something practical or something surprising?",
+          "Do you think a stronger version of you would still feel like you?"
+        ],
+        survival: "The gene store is closing in 10 seconds. Say your answer — no thinking allowed. Go."
+      },
+      {
+        emoji: "🤖",
+        question: "Your robot assistant can replace one part of your daily life forever. What do you make it handle?",
+        twist: "Your robot starts completing tasks you didn't ask it to — because it knows you better than you do. It just cancelled a meeting on your behalf. Was it right?",
+        prompts: [
+          "What's one task you would NEVER delegate to a machine, no matter how advanced it became?",
+          "Would you trust a robot to make decisions for you — or just follow your instructions?",
+          "What would you do with the time and energy you get back?"
+        ],
+        survival: "The robot just asked you for a day off. What do you say — and what happens to your life while it rests?"
+      },
+      {
+        emoji: "🌅",
+        question: "You wake up in the future, and the world has become either a high-tech utopia or a high-tech dystopia. What's the first thing you see that tells you which one it is?",
+        twist: "The world is both — a gleaming utopia for some, and a completely invisible dystopia for everyone else. Which side are you on?",
+        prompts: [
+          "What single law or invention would most quickly turn a utopia into a dystopia?",
+          "Is it possible to have true safety and true freedom at the same time?",
+          "What would be the most suspicious sign that everything looks 'too perfect'?"
+        ],
+        survival: "You have 60 seconds to decide whether to stay or escape. What's your plan — and who do you take with you?"
+      },
+      {
+        emoji: "💊",
+        question: "Your future doctor offers you a pill that removes the need for sleep. Do you take it, and what do you do with the extra time?",
+        twist: "People who take the pill start dreaming while they're awake — tiny vivid hallucinations appear at random moments throughout the day. Still worth it?",
+        prompts: [
+          "Is there value in doing nothing, or is rest just wasted time?",
+          "What would you do with eight extra hours every single day?",
+          "Would society change if nobody needed sleep? Would it be better or worse?"
+        ],
+        survival: "You accidentally swallowed the pill. You'll never sleep again. What do you do with your very first extra night?"
+      },
+      {
+        emoji: "🛸",
+        question: "Aliens make first contact, but they want to speak to just one human. You're chosen. What's the first thing you tell them about Earth?",
+        twist: "The aliens communicate entirely in pure emotion — no words, no images. You have to FEEL your message rather than say it. What emotion do you lead with?",
+        prompts: [
+          "What's the one thing about humanity you'd be most embarrassed to explain?",
+          "Would you try to impress them, warn them, or simply tell the truth?",
+          "What question would you most want to ask them in return?"
+        ],
+        survival: "The aliens are losing patience. You have exactly one sentence. What do you say — right now?"
+      },
+      {
+        emoji: "🧠",
+        question: "You get one body upgrade and one brain upgrade. What are you picking?",
+        twist: "After the upgrades, you feel slightly more machine than human. People start treating you differently — they're not sure whether to trust you more or less.",
+        prompts: [
+          "At what point do enhancements stop making you more human and start making you something else?",
+          "Would you tell people about your upgrades, or keep them private?",
+          "Is an enhanced version of you still authentically you?"
+        ],
+        survival: "The upgrade procedure takes exactly 10 minutes. You're lying on the table. Name both upgrades before they put you under."
+      },
+      {
+        emoji: "🌲",
+        question: "Nature fights back: plants become sentient and start communicating. What message do you think they give us first?",
+        twist: "The oldest tree in the world has been silently watching everything for 5,000 years. What do you think it has recorded — and who does it most want to speak to?",
+        prompts: [
+          "If plants could speak, how would it change what you eat, where you live, or how you travel?",
+          "Would you feel guilty about things you'd never felt guilty about before?",
+          "What would a forest say about the city nearest to it?"
+        ],
+        survival: "A sentient plant is blocking your front door and refuses to move. You need to leave in two minutes. How do you negotiate with it?"
+      },
+      {
+        emoji: "🪐",
+        question: "You can only keep three memories before moving to Mars. Which ones survive?",
+        twist: "After arriving on Mars, you discover that memories feel different there — colours are slightly wrong, sounds are muffled. Your preserved memories start to blur at the edges.",
+        prompts: [
+          "Is a memory still real if you can't be sure it happened exactly as you remember it?",
+          "Would you choose happy memories, important lessons, or something else?",
+          "What memory would you most regret leaving behind?"
+        ],
+        survival: "You can only save ONE memory. The ship is boarding. Which one can you absolutely not leave Earth without — and why?"
+      },
+      {
+        emoji: "🎮",
+        question: "If everyone lived in a virtual world like a video game, what kind of character would you create for yourself — and what powers would you have?",
+        twist: "After five years in the virtual world, people start forgetting who they were in real life. The avatar starts feeling more real than the person who made it.",
+        prompts: [
+          "Would it be honest or dishonest to present a better version of yourself as your avatar?",
+          "What ability would your avatar have that you wish you had in real life?",
+          "Would you choose to look like yourself, or completely different?"
+        ],
+        survival: "You have 30 seconds to describe your avatar. Three things you'd keep. Three things you'd change. Go."
+      },
+      {
+        emoji: "🏠",
+        question: "Your future home is fully voice-controlled and emotionally responsive. What's the first feature you turn on?",
+        twist: "Your home starts detecting stress in your voice and quietly changes the lighting, music, and temperature without asking. One evening it locks the door and says it thinks you need to rest.",
+        prompts: [
+          "How much of your emotional state are you comfortable sharing with a machine?",
+          "Would an emotionally aware home feel supportive — or controlling?",
+          "What feature would you switch off immediately — and what would you never want to lose?"
+        ],
+        survival: "Your house just said: 'You seem angry. Should I call someone?' What do you say back?"
+      },
+      {
+        emoji: "💭",
+        question: "In the future, people can communicate through thought instead of speech. What would become easier, and what would become dangerous?",
+        twist: "You can't switch it off. Even during dreams, fragments of your thoughts are broadcast to anyone within 10 metres. What do you do differently?",
+        prompts: [
+          "Would thought-based communication make relationships stronger or more dangerous?",
+          "What thought would you most want to hide — and what would you be happy to share?",
+          "Would politicians, teachers, or doctors be trusted more or less if you could read their thoughts?"
+        ],
+        survival: "Someone is reading your thoughts right now. What's the most interesting — or most embarrassing — thing they'd find?"
+      },
+      {
+        emoji: "💾",
+        question: "You can live one full extra life in a simulation. What kind of life do you choose?",
+        twist: "Halfway through your simulated life, you start to wonder which life is actually the simulation. There's no way to check.",
+        prompts: [
+          "What would need to be true about your real life for the simulation to be a step DOWN?",
+          "Would you choose a completely different career, country, or personality?",
+          "Would you tell anyone in the simulation that it wasn't real?"
+        ],
+        survival: "You're standing at the simulation entry door. It closes in 10 seconds. Final answer: in or out — and why?"
+      },
+      {
+        emoji: "📨",
+        question: "You can open one message from yourself written 30 years in the future. What do you hope it says?",
+        twist: "The message is encrypted. You can only unlock one sentence. The rest stays hidden forever. Which part do you choose to open — the beginning, the middle, or the end?",
+        prompts: [
+          "What single piece of advice do you think your future self would most want you to hear right now?",
+          "Would you want it to be comforting, or brutally honest?",
+          "What would you most be afraid the message said?"
+        ],
+        survival: "Your future self wrote: 'Stop doing ______.' What fills that blank — be honest."
+      },
+      {
+        emoji: "🍽",
+        question: "You're eating dinner in 2050. What weird futuristic food is on your plate, and what does it taste like?",
+        twist: "Your meal is printed in 30 seconds, contains zero waste, is personalised to your exact DNA — but it arrives as a single white cube. You have no idea what's inside it.",
+        prompts: [
+          "Is there cultural or emotional value in 'real' food that synthetic food could never replace?",
+          "What traditional food from today do you think would become impossible to find in 2050?",
+          "Would you trust food that a machine designed specifically for your body?"
+        ],
+        survival: "The menu has three options: lab-grown steak, insect pasta, or mood-adjusting soup. You have to choose one. Which is it — and why?"
+      },
+      {
+        emoji: "⏳",
+        question: "Scientists invent a way to pause time for 10 minutes a day. How do you use it?",
+        twist: "Scientists warn that pausing time too often causes tiny tears in the fabric of reality — invisible, harmless at first, but building up slowly over years.",
+        prompts: [
+          "Is time more valuable when it's scarce, or does having more time make everything feel less urgent?",
+          "Would you use the pause for rest, productivity, or something more dramatic?",
+          "What situation in your life would you most want to pause time during — and why?"
+        ],
+        survival: "You're in the middle of a difficult argument. You hit pause. You have 10 minutes. What do you do with them?"
+      },
+      {
+        emoji: "📸",
+        question: "Your future self sends you one photo with no explanation. What do you hope is in the picture?",
+        twist: "You're not in the photo. But you recognise the location — and someone else is standing in the exact spot where you usually stand.",
+        prompts: [
+          "If you received an ambiguous message from the future, would you try to change what it showed?",
+          "Would a photo from the future make you feel hopeful, anxious, or both?",
+          "What detail in the photo would change everything — if you noticed it too late?"
+        ],
+        survival: "Describe the photo in one sentence. Make it ambiguous enough to be both exciting and slightly terrifying."
+      },
+      {
+        emoji: "🌐",
+        question: "The internet becomes fully immersive, like a world you can physically walk through. What kind of online space would you build for yourself?",
+        twist: "Your online space becomes so comfortable that you spend more time there than in the physical world. One morning you realise you haven't left it in three days.",
+        prompts: [
+          "What would you leave OUT of your digital space on purpose — and why?",
+          "Would your ideal online space be social, private, creative, or practical?",
+          "Could a virtual environment ever feel as real as a physical place?"
+        ],
+        survival: "Design your space in exactly three words. What are they?"
+      },
+      {
+        emoji: "🧪",
+        question: "You can test one future invention today. Which one are you trying first?",
+        twist: "The prototype works perfectly — but it also does one completely unexpected thing that wasn't in the manual. What is it?",
+        prompts: [
+          "What's the difference between an invention that genuinely helps people and one that just makes them lazier?",
+          "Would you choose something practical, medical, creative, or purely fun?",
+          "What problem in the world today would you most want a future invention to solve?"
+        ],
+        survival: "The lab gives you exactly five minutes with the invention before they take it away. What do you test first — and what do you try to prove?"
+      },
+      {
+        emoji: "👶",
+        question: "Your future child asks what life was like before AI assistants. What do you tell them?",
+        twist: "Your child laughs and asks: 'But how did you make decisions without help?' You stop and realise you're not entirely sure how to explain.",
+        prompts: [
+          "Has AI already changed how you think, remember, or make decisions? Can you give an example?",
+          "Is there anything about life before AI that you would want your children to experience?",
+          "What skill do you think is most at risk of disappearing in the next generation — and does that matter?"
+        ],
+        survival: "Give your whole answer in one sentence — simple enough for a child who has never known life without AI."
+      },
+      {
+        emoji: "🎓",
+        question: "School in the future is run entirely by AI teachers. What would make you trust that system?",
+        twist: "The AI teacher knows your personal learning style better than any human ever did — but it has no empathy, no bad days, and no memory of who you used to be.",
+        prompts: [
+          "What can a human teacher do that an AI teacher probably never could?",
+          "Would students behave differently if there were no human in the room?",
+          "What subject would be easiest to teach by AI — and which would be impossible?"
+        ],
+        survival: "The AI teacher just gave you a grade of zero with no explanation. You have two minutes to argue your case. What do you say?"
+      },
+      {
+        emoji: "🧬",
+        question: "A machine can generate your perfect dream life, but you can never return to reality. Do you enter it?",
+        twist: "Everyone who's entered reports it as completely perfect — except that no one who enters ever seems to miss the real world. Not even once.",
+        prompts: [
+          "What gives real life its value — is it the good moments, the difficult ones, or the uncertainty?",
+          "Would a perfect life still feel meaningful if nothing could ever go wrong?",
+          "What would you have to give up — or gain — for the decision to feel easy?"
+        ],
+        survival: "The door is open. The machine is on. It closes in five seconds. Final answer: in or out?"
+      },
+      {
+        emoji: "🧠",
+        question: "You can borrow one skill from your future self for a week. What do you take?",
+        twist: "After borrowing the skill, you discover your future self spent 10 years struggling to develop it. You just skipped all of that. The skill feels different somehow — like borrowed clothes.",
+        prompts: [
+          "Is a skill still meaningful if you didn't earn it through effort and failure?",
+          "After the week is over, would you work harder to earn it properly — or feel like it wasn't worth the effort?",
+          "What skill do you secretly wish you already had right now?"
+        ],
+        survival: "Name the skill. Three seconds. No thinking. Go."
+      },
+      {
+        emoji: "🌍",
+        question: "Earth is getting too crowded, and you've been chosen to design the first city on Mars. What must it include?",
+        twist: "After the city is built and the first thousand people arrive, Earth sends a message: it's too unstable to send anyone else. You're the founding population — and you're on your own.",
+        prompts: [
+          "What aspect of life on Earth is so fundamental that a city on Mars would fail without it?",
+          "Would people on Mars need laws, art, religion, sport — or something none of us have thought of yet?",
+          "What would you most miss about Earth in year one — and what would surprise you about life on Mars?"
+        ],
+        survival: "The city needs a name and a one-line motto that will appear above the entrance. What are they?"
+      }
+    ];
+
+    /* ============================================================
+       STATE — BRIDGE IS THE ONLY SOURCE OF TRUTH
+       ============================================================ */
+    const Bridge = window.AtlasBridge;
+    const REGISTRY_ID = 'arcade:tomorrow-got-weird';
+    let session = null;
+    let state = createDefaultState();
+    let openSupport = null;
+
+    function createDefaultState() {
+      const timestamp = Date.now();
+      return {
+        status: 'in-progress',
+        current: 0,
+        currentPosition: 1,
+        currentLabel: 'Scenario 1 of ' + SCENARIOS.length,
+        completed: {},
+        progress: { covered: 0, total: SCENARIOS.length },
+        lastOpenedAt: timestamp,
+        lastTouchedAt: timestamp
+      };
+    }
+
+    function normalizeState(saved) {
+      const next = Object.assign(createDefaultState(), saved || {});
+      next.current = Number.isInteger(next.current) && next.current >= 0 && next.current < SCENARIOS.length ? next.current : 0;
+      next.completed = next.completed && typeof next.completed === 'object' && !Array.isArray(next.completed) ? next.completed : {};
+      delete next.reveals;
+      return next;
+    }
+
+    function readBridgeState() {
+      if (!Bridge || !session) return null;
+      const registry = Bridge.readRegistry();
+      return (((registry.sessionStates || {})[session.id] || {})[REGISTRY_ID]) || null;
+    }
+
+    function countCompleted() {
+      return Object.values(state.completed || {}).filter(Boolean).length;
+    }
+
+    function saveState(extra) {
+      if (!Bridge || !session) return;
+      const timestamp = Date.now();
+      const completed = countCompleted();
+      const isComplete = completed === SCENARIOS.length;
+      state = Object.assign({}, state, extra || {}, {
+        status: isComplete ? 'complete' : 'in-progress',
+        currentPosition: state.current + 1,
+        currentLabel: 'Scenario ' + (state.current + 1) + ' of ' + SCENARIOS.length,
+        progress: { covered: completed, total: SCENARIOS.length },
+        lastTouchedAt: timestamp
+      });
+      if (isComplete) {
+        if (!state.completedAt) state.completedAt = timestamp;
+      } else {
+        delete state.completedAt;
+      }
+      Bridge.upsertSessionState(session.id, REGISTRY_ID, state);
+    }
+
+    function touchActivity() {
+      if (!Bridge || !session) return;
+      Bridge.touchRecentActivity({
+        sessionId: session.id,
+        registryId: REGISTRY_ID,
+        title: 'Tomorrow Got Weird',
+        launchUrl: './arcade/tomorrow-got-weird/index.html'
+      });
+    }
+
+    /* ============================================================
+       APPEARANCE
+       ============================================================ */
+    function sunSvg(size) {
+      return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 17 17" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35"/><path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>';
+    }
+
+    function moonSvg(size) {
+      return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 17 17" fill="none" aria-hidden="true"><path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    }
+
+    function updateAppearanceButton(mode) {
+      const button = document.getElementById('btn-appearance');
+      if (!button) return;
+      button.innerHTML = mode === 'night' ? sunSvg(15) : moonSvg(15);
+      button.setAttribute('aria-label', mode === 'night' ? 'Switch to day mode' : 'Switch to night mode');
+      button.title = mode === 'night' ? 'Switch to day mode' : 'Switch to night mode';
+    }
+
+    function toggleAppearance() {
+      if (!Bridge) return;
+      const current = Bridge.readAppearanceMode();
+      const next = current === 'night' ? 'light' : 'night';
+      document.documentElement.classList.add('theme-changing');
+      setTimeout(() => document.documentElement.classList.remove('theme-changing'), 360);
+      Bridge.setAppearanceMode(next);
+      document.documentElement.dataset.theme = next;
+      updateAppearanceButton(next);
+    }
+
+    /* ============================================================
+       LAUNCH AND NAVIGATION
+       ============================================================ */
+    function startGame() {
+      if (!Bridge || !session) return;
+      state.lastOpenedAt = Date.now();
+      saveState();
+      touchActivity();
+      document.getElementById('launch').style.display = 'none';
+      document.getElementById('game').style.display = 'block';
+      render();
+    }
+
+    function goToArcade() {
+      saveState();
+      window.location.href = '../index.html';
+    }
+
+    function go(direction) {
+      const next = state.current + direction;
+      if (next < 0 || next >= SCENARIOS.length) return;
+      state.current = next;
+      openSupport = null;
+      saveState();
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function jumpTo(index) {
+      const next = Number.parseInt(index, 10);
+      if (!Number.isInteger(next) || next < 0 || next >= SCENARIOS.length) return;
+      state.current = next;
+      openSupport = null;
+      saveState();
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function randomScenario() {
+      if (SCENARIOS.length < 2) return;
+      const candidates = SCENARIOS.map((_, index) => index).filter(index => index !== state.current);
+      jumpTo(candidates[Math.floor(Math.random() * candidates.length)]);
+    }
+
+    /* ============================================================
+       COMPLETION
+       ============================================================ */
+    function toggleComplete() {
+      const index = state.current;
+      state.completed[index] = !state.completed[index];
+      saveState();
+      render();
+      showToast(state.completed[index] ? 'Scenario marked survived.' : 'Scenario reopened.');
+    }
+
+    /* ============================================================
+       SUPPORT
+       ============================================================ */
+    function toggleSupport(mode) {
+      openSupport = openSupport === mode ? null : mode;
+      renderSupport();
+    }
+
+    function renderSupport() {
+      const panel = document.getElementById('support-panel');
+      const content = document.getElementById('support-content');
+      const buttons = {
+        missions: document.getElementById('btn-missions'),
+        survival: document.getElementById('btn-survival'),
+        weirder: document.getElementById('btn-weirder')
+      };
+
+      Object.entries(buttons).forEach(([mode, button]) => {
+        button.setAttribute('aria-pressed', String(openSupport === mode));
+      });
+
+      if (!openSupport) {
+        panel.hidden = true;
+        content.innerHTML = '';
+        return;
+      }
+
+      const scenario = SCENARIOS[state.current];
+      panel.hidden = false;
+
+      if (openSupport === 'missions') {
+        content.innerHTML =
+          '<h3 class="support-heading">Mission prompts</h3>' +
+          '<ul class="prompt-list">' +
+          scenario.prompts.map(prompt => '<li>' + esc(prompt) + '</li>').join('') +
+          '</ul>';
+        return;
+      }
+
+      if (openSupport === 'survival') {
+        content.innerHTML =
+          '<h3 class="support-heading">Survival mode</h3>' +
+          '<p class="support-text">' + esc(scenario.survival) + '</p>';
+        return;
+      }
+
+      content.innerHTML =
+        '<h3 class="support-heading">Make it weirder</h3>' +
+        '<p class="support-text">' + esc(scenario.twist) + '</p>';
+    }
+
+    /* ============================================================
+       RENDER
+       ============================================================ */
+    function render() {
+      const scenario = SCENARIOS[state.current];
+      const index = state.current;
+      const total = SCENARIOS.length;
+      const done = Boolean(state.completed[index]);
+
+      document.getElementById('hdr-current').textContent = index + 1;
+      document.getElementById('hdr-total').textContent = total;
+      document.getElementById('scenario-number').textContent = 'Scenario ' + (index + 1) + ' of ' + total;
+      document.getElementById('sc-emoji').textContent = scenario.emoji;
+      document.getElementById('sc-question').textContent = scenario.question;
+
+      const card = document.getElementById('scenario-card');
+      card.classList.remove('transmitting');
+      void card.offsetWidth;
+      card.classList.add('transmitting');
+      card.classList.toggle('completed-card', done);
+
+      const completeButton = document.getElementById('btn-complete');
+      completeButton.classList.toggle('done', done);
+      document.getElementById('complete-icon').textContent = done ? '✓' : '○';
+      document.getElementById('complete-label').textContent = done ? 'Survived' : 'Mark survived';
+
+      document.getElementById('btn-prev').disabled = index === 0;
+      document.getElementById('btn-next').disabled = index === total - 1;
+
+      updateScenarioDots();
+      renderSupport();
+    }
+
+    function esc(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    /* ============================================================
+   SCENARIO DOT NAVIGATION
    ============================================================ */
-const SCENARIOS = [
-  {
-    emoji:"🚀",
-    question:"If you could time-travel 100 years into the future for just one day, what's the first thing you'd Google when you arrived?",
-    keyword:"time-travel",
-    pos:"verb",
-    definition:"To move forward or backward through time.",
-    example:"I'd time-travel just to find out whether daily life became more efficient, more artificial, or somehow both.",
-    twist:"The search engine doesn't use text — it reads your mind before you finish the thought. What pops up?",
-    prompts:[
-      "What topic would terrify you most to search for — and why?",
-      "Would you search for news, science, people, or something personal?",
-      "Would knowing too much about the future ruin your life back in the present?"
-    ],
-    survival:"You can search for ONE thing but the results vanish after 30 seconds. What do you type — and why that?"
-  },
-  {
-    emoji:"🌆",
-    question:"You can live one weekend in a future city. Where do you go first?",
-    keyword:"immersive",
-    pos:"adjective",
-    definition:"Seeming to surround you completely and involve all your attention.",
-    example:"I'd head straight for the most immersive part of the city, especially if it blended technology with nature.",
-    twist:"Every building in the city is a living organism — they breathe, shift, and grow a few centimetres overnight. You wake up and your hotel room has moved.",
-    prompts:[
-      "What would make a future city feel like home rather than alien?",
-      "Would you want the city to feel high-tech, natural, or something between?",
-      "What would you most want to eat, see, or experience that doesn't exist yet?"
-    ],
-    survival:"You only have one hour before you're transported back. You can't change your mind. Where do you spend it — and what do you bring home?"
-  },
-  {
-    emoji:"🧬",
-    question:"Everyone has to choose one super gene at birth. What natural ability would you boost forever?",
-    keyword:"trait",
-    pos:"noun",
-    definition:"A particular quality or characteristic that someone naturally has.",
-    example:"If I could permanently strengthen one trait, I'd probably choose resilience.",
-    twist:"Your chosen gene also comes with an unexpected trade-off — a weakness you can't avoid. What do you lose in exchange for what you gain?",
-    prompts:[
-      "Is it more useful to boost a mental trait or a physical one?",
-      "Would you choose something practical or something surprising?",
-      "Do you think a stronger version of you would still feel like you?"
-    ],
-    survival:"The gene store is closing in 10 seconds. Say your answer — no thinking allowed. Go."
-  },
-  {
-    emoji:"🤖",
-    question:"Your robot assistant can replace one part of your daily life forever. What do you make it handle?",
-    keyword:"delegate",
-    pos:"verb",
-    definition:"To give a task or responsibility to someone or something else.",
-    example:"I'd delegate every boring administrative task so I could protect more mental energy for better things.",
-    twist:"Your robot starts completing tasks you didn't ask it to — because it knows you better than you do. It just cancelled a meeting on your behalf. Was it right?",
-    prompts:[
-      "What's one task you would NEVER delegate to a machine, no matter how advanced it became?",
-      "Would you trust a robot to make decisions for you — or just follow your instructions?",
-      "What would you do with the time and energy you get back?"
-    ],
-    survival:"The robot just asked you for a day off. What do you say — and what happens to your life while it rests?"
-  },
-  {
-    emoji:"🌅",
-    question:"You wake up in the future, and the world has become either a high-tech utopia or a high-tech dystopia. What's the first thing you see that tells you which one it is?",
-    keyword:"dystopia",
-    pos:"noun",
-    definition:"An imagined society where there is suffering, fear, or injustice.",
-    example:"If it were a dystopia, I think the first sign would be the atmosphere — tense, silent, and heavily controlled.",
-    twist:"The world is both — a gleaming utopia for some, and a completely invisible dystopia for everyone else. Which side are you on?",
-    prompts:[
-      "What single law or invention would most quickly turn a utopia into a dystopia?",
-      "Is it possible to have true safety and true freedom at the same time?",
-      "What would be the most suspicious sign that everything looks 'too perfect'?"
-    ],
-    survival:"You have 60 seconds to decide whether to stay or escape. What's your plan — and who do you take with you?"
-  },
-  {
-    emoji:"💊",
-    question:"Your future doctor offers you a pill that removes the need for sleep. Do you take it, and what do you do with the extra time?",
-    keyword:"consequence",
-    pos:"noun",
-    definition:"A result or effect of an action or decision.",
-    example:"I'd be tempted, but I'd worry about the long-term consequences of never switching off.",
-    twist:"People who take the pill start dreaming while they're awake — tiny vivid hallucinations appear at random moments throughout the day. Still worth it?",
-    prompts:[
-      "Is there value in doing nothing, or is rest just wasted time?",
-      "What would you do with eight extra hours every single day?",
-      "Would society change if nobody needed sleep? Would it be better or worse?"
-    ],
-    survival:"You accidentally swallowed the pill. You'll never sleep again. What do you do with your very first extra night?"
-  },
-  {
-    emoji:"🛸",
-    question:"Aliens make first contact, but they want to speak to just one human. You're chosen. What's the first thing you tell them about Earth?",
-    keyword:"representative",
-    pos:"noun",
-    definition:"Someone chosen to speak or act for others.",
-    example:"As Earth's representative, I'd want to say something honest enough to matter, but simple enough to be understood.",
-    twist:"The aliens communicate entirely in pure emotion — no words, no images. You have to FEEL your message rather than say it. What emotion do you lead with?",
-    prompts:[
-      "What's the one thing about humanity you'd be most embarrassed to explain?",
-      "Would you try to impress them, warn them, or simply tell the truth?",
-      "What question would you most want to ask them in return?"
-    ],
-    survival:"The aliens are losing patience. You have exactly one sentence. What do you say — right now?"
-  },
-  {
-    emoji:"🧠",
-    question:"You get one body upgrade and one brain upgrade. What are you picking?",
-    keyword:"enhance",
-    pos:"verb",
-    definition:"To improve the quality, ability, or value of something.",
-    example:"I'd enhance my concentration mentally and my stamina physically.",
-    twist:"After the upgrades, you feel slightly more machine than human. People start treating you differently — they're not sure whether to trust you more or less.",
-    prompts:[
-      "At what point do enhancements stop making you more human and start making you something else?",
-      "Would you tell people about your upgrades, or keep them private?",
-      "Is an enhanced version of you still authentically you?"
-    ],
-    survival:"The upgrade procedure takes exactly 10 minutes. You're lying on the table. Name both upgrades before they put you under."
-  },
-  {
-    emoji:"🌲",
-    question:"Nature fights back: plants become sentient and start communicating. What message do you think they give us first?",
-    keyword:"sentient",
-    pos:"adjective",
-    definition:"Able to think, feel, and be aware.",
-    example:"If plants became sentient, I imagine their first message would be calm, intelligent, and deeply accusing.",
-    twist:"The oldest tree in the world has been silently watching everything for 5,000 years. What do you think it has recorded — and who does it most want to speak to?",
-    prompts:[
-      "If plants could speak, how would it change what you eat, where you live, or how you travel?",
-      "Would you feel guilty about things you'd never felt guilty about before?",
-      "What would a forest say about the city nearest to it?"
-    ],
-    survival:"A sentient plant is blocking your front door and refuses to move. You need to leave in two minutes. How do you negotiate with it?"
-  },
-  {
-    emoji:"🪐",
-    question:"You can only keep three memories before moving to Mars. Which ones survive?",
-    keyword:"preserve",
-    pos:"verb",
-    definition:"To keep something safe from loss, damage, or destruction.",
-    example:"I'd preserve the memories that shaped my identity most, not just the happiest ones.",
-    twist:"After arriving on Mars, you discover that memories feel different there — colours are slightly wrong, sounds are muffled. Your preserved memories start to blur at the edges.",
-    prompts:[
-      "Is a memory still real if you can't be sure it happened exactly as you remember it?",
-      "Would you choose happy memories, important lessons, or something else?",
-      "What memory would you most regret leaving behind?"
-    ],
-    survival:"You can only save ONE memory. The ship is boarding. Which one can you absolutely not leave Earth without — and why?"
-  },
-  {
-    emoji:"🎮",
-    question:"If everyone lived in a virtual world like a video game, what kind of character would you create for yourself — and what powers would you have?",
-    keyword:"avatar",
-    pos:"noun",
-    definition:"A digital character that represents a person.",
-    example:"My avatar would be recognisably me, but more fearless, more fluent, and a lot better dressed.",
-    twist:"After five years in the virtual world, people start forgetting who they were in real life. The avatar starts feeling more real than the person who made it.",
-    prompts:[
-      "Would it be honest or dishonest to present a better version of yourself as your avatar?",
-      "What ability would your avatar have that you wish you had in real life?",
-      "Would you choose to look like yourself, or completely different?"
-    ],
-    survival:"You have 30 seconds to describe your avatar. Three things you'd keep. Three things you'd change. Go."
-  },
-  {
-    emoji:"🏠",
-    question:"Your future home is fully voice-controlled and emotionally responsive. What's the first feature you turn on?",
-    keyword:"responsive",
-    pos:"adjective",
-    definition:"Reacting quickly and appropriately to what happens.",
-    example:"I'd want it to be responsive enough to feel intelligent, but not so aware that it became unsettling.",
-    twist:"Your home starts detecting stress in your voice and quietly changes the lighting, music, and temperature without asking. One evening it locks the door and says it thinks you need to rest.",
-    prompts:[
-      "How much of your emotional state are you comfortable sharing with a machine?",
-      "Would an emotionally aware home feel supportive — or controlling?",
-      "What feature would you switch off immediately — and what would you never want to lose?"
-    ],
-    survival:"Your house just said: 'You seem angry. Should I call someone?' What do you say back?"
-  },
-  {
-    emoji:"💭",
-    question:"In the future, people can communicate through thought instead of speech. What would become easier, and what would become dangerous?",
-    keyword:"transparent",
-    pos:"adjective",
-    definition:"Open, obvious, and difficult to hide.",
-    example:"Thought-based communication might make people more transparent, but it could also destroy privacy.",
-    twist:"You can't switch it off. Even during dreams, fragments of your thoughts are broadcast to anyone within 10 metres. What do you do differently?",
-    prompts:[
-      "Would thought-based communication make relationships stronger or more dangerous?",
-      "What thought would you most want to hide — and what would you be happy to share?",
-      "Would politicians, teachers, or doctors be trusted more or less if you could read their thoughts?"
-    ],
-    survival:"Someone is reading your thoughts right now. What's the most interesting — or most embarrassing — thing they'd find?"
-  },
-  {
-    emoji:"💾",
-    question:"You can live one full extra life in a simulation. What kind of life do you choose?",
-    keyword:"alternative",
-    pos:"adjective",
-    definition:"Different from the usual or from reality.",
-    example:"I'd choose an alternative life that was far riskier and more adventurous than my real one.",
-    twist:"Halfway through your simulated life, you start to wonder which life is actually the simulation. There's no way to check.",
-    prompts:[
-      "What would need to be true about your real life for the simulation to be a step DOWN?",
-      "Would you choose a completely different career, country, or personality?",
-      "Would you tell anyone in the simulation that it wasn't real?"
-    ],
-    survival:"You're standing at the simulation entry door. It closes in 10 seconds. Final answer: in or out — and why?"
-  },
-  {
-    emoji:"📨",
-    question:"You can open one message from yourself written 30 years in the future. What do you hope it says?",
-    keyword:"reassuring",
-    pos:"adjective",
-    definition:"Making you feel less worried or more confident.",
-    example:"I'd want it to be reassuring without revealing so much that it ruined the mystery of life.",
-    twist:"The message is encrypted. You can only unlock one sentence. The rest stays hidden forever. Which part do you choose to open — the beginning, the middle, or the end?",
-    prompts:[
-      "What single piece of advice do you think your future self would most want you to hear right now?",
-      "Would you want it to be comforting, or brutally honest?",
-      "What would you most be afraid the message said?"
-    ],
-    survival:"Your future self wrote: 'Stop doing ______.' What fills that blank — be honest."
-  },
-  {
-    emoji:"🍽",
-    question:"You're eating dinner in 2050. What weird futuristic food is on your plate, and what does it taste like?",
-    keyword:"synthetic",
-    pos:"adjective",
-    definition:"Made artificially rather than naturally.",
-    example:"I imagine synthetic food becoming more sustainable, even if the texture still feels slightly suspicious.",
-    twist:"Your meal is printed in 30 seconds, contains zero waste, is personalised to your exact DNA — but it arrives as a single white cube. You have no idea what's inside it.",
-    prompts:[
-      "Is there cultural or emotional value in 'real' food that synthetic food could never replace?",
-      "What traditional food from today do you think would become impossible to find in 2050?",
-      "Would you trust food that a machine designed specifically for your body?"
-    ],
-    survival:"The menu has three options: lab-grown steak, insect pasta, or mood-adjusting soup. You have to choose one. Which is it — and why?"
-  },
-  {
-    emoji:"⏳",
-    question:"Scientists invent a way to pause time for 10 minutes a day. How do you use it?",
-    keyword:"valuable",
-    pos:"adjective",
-    definition:"Extremely useful, important, or beneficial.",
-    example:"Those ten minutes would be too valuable to waste, so I'd probably use them for peace, focus, or escape.",
-    twist:"Scientists warn that pausing time too often causes tiny tears in the fabric of reality — invisible, harmless at first, but building up slowly over years.",
-    prompts:[
-      "Is time more valuable when it's scarce, or does having more time make everything feel less urgent?",
-      "Would you use the pause for rest, productivity, or something more dramatic?",
-      "What situation in your life would you most want to pause time during — and why?"
-    ],
-    survival:"You're in the middle of a difficult argument. You hit pause. You have 10 minutes. What do you do with them?"
-  },
-  {
-    emoji:"📸",
-    question:"Your future self sends you one photo with no explanation. What do you hope is in the picture?",
-    keyword:"ambiguous",
-    pos:"adjective",
-    definition:"Unclear or open to more than one interpretation.",
-    example:"I'd want the photo to be meaningful, but not so ambiguous that it only made me more anxious.",
-    twist:"You're not in the photo. But you recognise the location — and someone else is standing in the exact spot where you usually stand.",
-    prompts:[
-      "If you received an ambiguous message from the future, would you try to change what it showed?",
-      "Would a photo from the future make you feel hopeful, anxious, or both?",
-      "What detail in the photo would change everything — if you noticed it too late?"
-    ],
-    survival:"Describe the photo in one sentence. Make it ambiguous enough to be both exciting and slightly terrifying."
-  },
-  {
-    emoji:"🌐",
-    question:"The internet becomes fully immersive, like a world you can physically walk through. What kind of online space would you build for yourself?",
-    keyword:"customisable",
-    pos:"adjective",
-    definition:"Able to be changed to suit personal preferences.",
-    example:"I'd build something peaceful, creative, and highly customisable — basically the opposite of most of the internet.",
-    twist:"Your online space becomes so comfortable that you spend more time there than in the physical world. One morning you realise you haven't left it in three days.",
-    prompts:[
-      "What would you leave OUT of your digital space on purpose — and why?",
-      "Would your ideal online space be social, private, creative, or practical?",
-      "Could a virtual environment ever feel as real as a physical place?"
-    ],
-    survival:"Design your space in exactly three words. What are they?"
-  },
-  {
-    emoji:"🧪",
-    question:"You can test one future invention today. Which one are you trying first?",
-    keyword:"prototype",
-    pos:"noun",
-    definition:"The first version of a new invention, used for testing and development.",
-    example:"I'd test the most exciting prototype I could find, especially if it solved a real human problem.",
-    twist:"The prototype works perfectly — but it also does one completely unexpected thing that wasn't in the manual. What is it?",
-    prompts:[
-      "What's the difference between an invention that genuinely helps people and one that just makes them lazier?",
-      "Would you choose something practical, medical, creative, or purely fun?",
-      "What problem in the world today would you most want a future invention to solve?"
-    ],
-    survival:"The lab gives you exactly five minutes with the invention before they take it away. What do you test first — and what do you try to prove?"
-  },
-  {
-    emoji:"👶",
-    question:"Your future child asks what life was like before AI assistants. What do you tell them?",
-    keyword:"dependent",
-    pos:"adjective",
-    definition:"Needing someone or something else for support.",
-    example:"I'd explain that life felt less efficient, but people were also less dependent on machines for everyday thinking.",
-    twist:"Your child laughs and asks: 'But how did you make decisions without help?' You stop and realise you're not entirely sure how to explain.",
-    prompts:[
-      "Has AI already changed how you think, remember, or make decisions? Can you give an example?",
-      "Is there anything about life before AI that you would want your children to experience?",
-      "What skill do you think is most at risk of disappearing in the next generation — and does that matter?"
-    ],
-    survival:"Give your whole answer in one sentence — simple enough for a child who has never known life without AI."
-  },
-  {
-    emoji:"🎓",
-    question:"School in the future is run entirely by AI teachers. What would make you trust that system?",
-    keyword:"credible",
-    pos:"adjective",
-    definition:"Believable, reliable, and worth trusting.",
-    example:"It would need to feel fair, adaptable, and genuinely credible before I could fully trust it.",
-    twist:"The AI teacher knows your personal learning style better than any human ever did — but it has no empathy, no bad days, and no memory of who you used to be.",
-    prompts:[
-      "What can a human teacher do that an AI teacher probably never could?",
-      "Would students behave differently if there were no human in the room?",
-      "What subject would be easiest to teach by AI — and which would be impossible?"
-    ],
-    survival:"The AI teacher just gave you a grade of zero with no explanation. You have two minutes to argue your case. What do you say?"
-  },
-  {
-    emoji:"🧬",
-    question:"A machine can generate your perfect dream life, but you can never return to reality. Do you enter it?",
-    keyword:"tempting",
-    pos:"adjective",
-    definition:"Very attractive or hard to resist.",
-    example:"That kind of offer would be incredibly tempting, but I think I'd still be afraid of losing what makes life real.",
-    twist:"Everyone who's entered reports it as completely perfect — except that no one who enters ever seems to miss the real world. Not even once.",
-    prompts:[
-      "What gives real life its value — is it the good moments, the difficult ones, or the uncertainty?",
-      "Would a perfect life still feel meaningful if nothing could ever go wrong?",
-      "What would you have to give up — or gain — for the decision to feel easy?"
-    ],
-    survival:"The door is open. The machine is on. It closes in five seconds. Final answer: in or out?"
-  },
-  {
-    emoji:"🧠",
-    question:"You can borrow one skill from your future self for a week. What do you take?",
-    keyword:"mastery",
-    pos:"noun",
-    definition:"Complete control or great skill in something.",
-    example:"I'd borrow whatever skill my future self had already developed to a level of real mastery.",
-    twist:"After borrowing the skill, you discover your future self spent 10 years struggling to develop it. You just skipped all of that. The skill feels different somehow — like borrowed clothes.",
-    prompts:[
-      "Is a skill still meaningful if you didn't earn it through effort and failure?",
-      "After the week is over, would you work harder to earn it properly — or feel like it wasn't worth the effort?",
-      "What skill do you secretly wish you already had right now?"
-    ],
-    survival:"Name the skill. Three seconds. No thinking. Go."
-  },
-  {
-    emoji:"🌍",
-    question:"Earth is getting too crowded, and you've been chosen to design the first city on Mars. What must it include?",
-    keyword:"livable",
-    pos:"adjective",
-    definition:"Comfortable and suitable enough to live in.",
-    example:"If a Martian city is going to succeed, it has to feel livable, not just technically impressive.",
-    twist:"After the city is built and the first thousand people arrive, Earth sends a message: it's too unstable to send anyone else. You're the founding population — and you're on your own.",
-    prompts:[
-      "What aspect of life on Earth is so fundamental that a city on Mars would fail without it?",
-      "Would people on Mars need laws, art, religion, sport — or something none of us have thought of yet?",
-      "What would you most miss about Earth in year one — and what would surprise you about life on Mars?"
-    ],
-    survival:"The city needs a name and a one-line motto that will appear above the entrance. What are they?"
-  }
-];
+    function buildScenarioDots() {
+      const wrap = document.getElementById('scenario-dots');
+      if (!wrap) return;
 
-/* ============================================================
-   STATE
-   ============================================================ */
-const STORAGE_KEY = 'tgw_v1';
-let state = {
-  current: 0,
-  completed: {},
-  reveals: {}
-};
+      wrap.innerHTML = '';
 
-function loadState(){
-  try{
-    const s = localStorage.getItem(STORAGE_KEY);
-    if(s) state = Object.assign(state, JSON.parse(s));
-  } catch(e){}
-}
-function saveState(){
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
-}
+      SCENARIOS.forEach((scenario, index) => {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'scenario-dot';
+        dot.dataset.index = String(index);
+        dot.setAttribute('aria-label', 'Open scenario ' + (index + 1));
+        dot.title = 'Scenario ' + (index + 1);
+        dot.addEventListener('click', () => jumpTo(index));
+        wrap.appendChild(dot);
+      });
+    }
 
-/* ============================================================
-   LAUNCH
-   ============================================================ */
-function startGame(){
-  loadState();
-  document.getElementById('launch').style.display='none';
-  document.getElementById('game').style.display='block';
-  buildSelector();
-  buildDots();
-  render();
-}
+    function updateScenarioDots() {
+      document.querySelectorAll('.scenario-dot').forEach((dot, index) => {
+        const survived = Boolean(state.completed[index]);
+        const current = index === state.current;
 
-/* ============================================================
-   NAVIGATION
-   ============================================================ */
-function go(dir){
-  const next = state.current + dir;
-  if(next<0||next>=SCENARIOS.length) return;
-  state.current = next;
-  closeAllPanels();
-  saveState();
-  render();
-}
+        dot.classList.toggle('survived', survived);
+        dot.classList.toggle('current', current);
+        dot.setAttribute('aria-current', current ? 'step' : 'false');
+        dot.setAttribute(
+          'aria-label',
+          'Open scenario ' + (index + 1) + (survived ? ' — survived' : '')
+        );
+      });
 
-function jumpTo(idx){
-  state.current = parseInt(idx);
-  closeAllPanels();
-  saveState();
-  render();
-}
+      const currentDot = document.querySelector('.scenario-dot.current');
+      if (currentDot) {
+        currentDot.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      }
+    }
 
-function randomScenario(){
-  const idx = Math.floor(Math.random()*SCENARIOS.length);
-  jumpTo(idx);
-  showToast('🎲 Random scenario loaded!');
-}
+    /* ============================================================
+       RESET AND TOAST
+       ============================================================ */
+    function confirmReset() {
+      const confirmed = window.confirm('Reset all Tomorrow Got Weird progress for the active session?');
+      if (!confirmed) return;
+      state = createDefaultState();
+      openSupport = null;
+      saveState();
+      touchActivity();
+      render();
+      showToast('Tomorrow Got Weird reset.');
+    }
 
-/* ============================================================
-   COMPLETE
-   ============================================================ */
-function toggleComplete(){
-  const i = state.current;
-  state.completed[i] = !state.completed[i];
-  saveState();
-  render();
-  if(state.completed[i]) showToast('✓ SURVIVED — Timeline ' + (i+1) + ' secured');
-}
+    let toastTimer = null;
 
-/* ============================================================
-   REVEAL / HIDE
-   ============================================================ */
-const PANELS = ['kw','def','ex','mp','sv','ww'];
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
 
-function toggle(key){
-  state.reveals = state.reveals || {};
-  const id = 'r_'+state.current;
-  state.reveals[id] = state.reveals[id] || {};
-  state.reveals[id][key] = !state.reveals[id][key];
-  renderPanels();
-}
+    /* ============================================================
+       INITIALISATION
+       ============================================================ */
+    function init() {
+      if (!Bridge) {
+        document.querySelector('.launch-card').innerHTML =
+          '<p class="launch-kicker">Runtime unavailable</p>' +
+          '<h1 class="launch-title">Can’t <span>Start</span></h1>' +
+          '<p class="launch-copy">The shared Atlas runtime did not load. Check shared/atlas-bridge.js.</p>';
+        return;
+      }
 
-function closeAllPanels(){
-  // panels stay closed when switching scenario (reset reveals per scenario)
-}
+      const mode = Bridge.readAppearanceMode();
+      document.documentElement.dataset.theme = mode;
+      updateAppearanceButton(mode);
 
-function getRev(key){
-  const id = 'r_'+state.current;
-  return (state.reveals[id] && state.reveals[id][key]) ? true : false;
-}
+      session = Bridge.readActiveSession();
 
-/* ============================================================
-   RENDER
-   ============================================================ */
-function render(){
-  const sc = SCENARIOS[state.current];
-  const i = state.current;
-  const total = SCENARIOS.length;
-  const doneCount = Object.values(state.completed).filter(Boolean).length;
+      Bridge.upsertItem({
+        registryId: REGISTRY_ID,
+        world: 'arcade',
+        type: 'game',
+        title: 'Tomorrow Got Weird',
+        premise: 'Future scenarios, strange consequences, and survival choices.',
+        status: 'available',
+        unitLabel: 'Scenarios',
+        total: SCENARIOS.length,
+        formatLabel: 'Future scenarios',
+        launchUrl: './arcade/tomorrow-got-weird/index.html'
+      });
 
-  // header
-  document.getElementById('hdr-current').textContent = i+1;
-  document.getElementById('hdr-total').textContent = total;
-  document.getElementById('scenario-select').value = i;
+      const saved = readBridgeState();
+      state = normalizeState(saved);
+      buildScenarioDots();
 
-  // progress bar
-  const pct = Math.round((doneCount/total)*100);
-  document.getElementById('progress-bar').style.width = pct+'%';
+      const launchButton = document.getElementById('launch-button');
+      if (launchButton && saved) {
+        launchButton.innerHTML =
+          (saved.status === 'complete' ? 'Re-enter timeline' : 'Continue sequence') +
+          '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 2l9 5-9 5V2z" fill="currentColor"/></svg>';
+      }
+    }
 
-  // stats
-  document.getElementById('stat-done').textContent = doneCount;
-  document.getElementById('stat-remain').textContent = total-doneCount;
-  document.getElementById('stat-pct').textContent = pct+'%';
+    window.addEventListener('atlas:appearance-change', event => {
+      if (!Bridge) return;
+      const mode = (event.detail && event.detail.mode) || Bridge.readAppearanceMode();
+      document.documentElement.dataset.theme = mode;
+      updateAppearanceButton(mode);
+    });
 
-  // card
-  const card = document.getElementById('scenario-card');
-  card.classList.remove('transmitting');
-  void card.offsetWidth; // reflow to retrigger animation
-  card.classList.add('transmitting');
-  card.classList.toggle('completed-card', !!state.completed[i]);
+    window.addEventListener('atlas:session-change', event => {
+      if (!Bridge) return;
+      session = (event.detail && event.detail.session) || Bridge.readActiveSession();
+      state = normalizeState(readBridgeState());
+      openSupport = null;
+      buildScenarioDots();
 
-  const tag = document.getElementById('card-tag');
-  tag.textContent = state.completed[i] ? 'TIMELINE SECURED' : 'TRANSMISSION ACTIVE';
-  tag.style.color = state.completed[i] ? 'var(--green)' : 'var(--cyan)';
-  tag.style.borderColor = state.completed[i] ? 'rgba(0,255,163,0.4)' : 'rgba(0,240,255,0.35)';
+      const game = document.getElementById('game');
+      if (game && getComputedStyle(game).display !== 'none') render();
+    });
 
-  document.getElementById('card-num').textContent = i+1;
-  document.getElementById('sc-emoji').textContent = sc.emoji;
-  document.getElementById('sc-question').textContent = sc.question;
+    window.addEventListener('pagehide', () => saveState());
 
-  // complete button
-  const done = !!state.completed[i];
-  const btn = document.getElementById('btn-complete');
-  btn.classList.toggle('done', done);
-  document.getElementById('complete-icon').textContent = done ? '✓' : '☐';
-  document.getElementById('complete-label').textContent = done ? 'Survived ✓' : 'Mark Survived';
-
-  // nav buttons
-  document.getElementById('btn-prev').disabled = (i===0);
-  document.getElementById('btn-next').disabled = (i===total-1);
-  document.getElementById('nav-frac').textContent = 'Scenario '+(i+1)+' of '+total+' · '+doneCount+' survived';
-
-  // dots
-  updateDots();
-
-  renderPanels();
-}
-
-function renderPanels(){
-  const sc = SCENARIOS[state.current];
-  PANELS.forEach(key => {
-    const show = getRev(key);
-    const panel = document.getElementById('panel-'+key);
-    const btn = document.getElementById('btn-'+key);
-    if(show){
-      panel.style.display='block';
-      btn.classList.add('active-btn');
-      panel.innerHTML = buildPanelHTML(key, sc);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
     } else {
-      panel.style.display='none';
-      btn.classList.remove('active-btn');
+      init();
     }
-  });
-}
 
-function buildPanelHTML(key, sc){
-  switch(key){
-    case 'kw':
-      return `<span class="panel-badge">🔑 Target Keyword</span>
-              <div class="panel-text">${esc(sc.keyword)} <span class="panel-pos">(${esc(sc.pos)})</span></div>`;
-    case 'def':
-      return `<span class="panel-badge">📖 Definition</span>
-              <div class="panel-text">${esc(sc.definition)}</div>`;
-    case 'ex':
-      return `<span class="panel-badge">💬 Example Answer</span>
-              <div class="panel-text">${esc(sc.example)}</div>`;
-    case 'mp':
-      const items = sc.prompts.map(p=>`<li>${esc(p)}</li>`).join('');
-      return `<span class="panel-badge">🎯 Mission Prompts · Discussion Fuel</span>
-              <ul class="mp-list">${items}</ul>`;
-    case 'sv':
-      return `<span class="panel-badge">⚡ Survival Mode · High Stakes</span>
-              <div class="panel-text">${esc(sc.survival)}</div>`;
-    case 'ww':
-      return `<span class="panel-badge">🌀 Make it Weirder · Bonus Twist</span>
-              <div class="panel-text">${esc(sc.twist)}</div>`;
-    default: return '';
-  }
-}
+    /* ============================================================
+       KEYBOARD
+       ============================================================ */
+    document.addEventListener('keydown', event => {
+      const game = document.getElementById('game');
+      if (!game || getComputedStyle(game).display === 'none') return;
 
-function esc(s){
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+      const interactive = ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON', 'A'];
+      if (interactive.includes(event.target.tagName)) return;
 
-/* ============================================================
-   SELECTOR & DOTS
-   ============================================================ */
-function buildSelector(){
-  const sel = document.getElementById('scenario-select');
-  sel.innerHTML = '';
-  SCENARIOS.forEach((sc,i)=>{
-    const opt = document.createElement('option');
-    opt.value = i;
-    const done = state.completed[i] ? '✓ ' : '';
-    opt.textContent = done + (i+1)+'. '+sc.emoji+' '+sc.keyword;
-    sel.appendChild(opt);
-  });
-}
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        go(1);
+      }
 
-function buildDots(){
-  const wrap = document.getElementById('nav-dots');
-  wrap.innerHTML = '';
-  SCENARIOS.forEach((_,i)=>{
-    const d = document.createElement('div');
-    d.className='dot';
-    d.id='dot-'+i;
-    d.title='Scenario '+(i+1);
-    d.onclick=()=>jumpTo(i);
-    wrap.appendChild(d);
-  });
-}
-
-function updateDots(){
-  SCENARIOS.forEach((_,i)=>{
-    const d = document.getElementById('dot-'+i);
-    if(!d) return;
-    d.className='dot';
-    if(state.completed[i]) d.classList.add('done-dot');
-    if(i===state.current) d.classList.add('current-dot');
-  });
-  // also refresh selector marks
-  const sel = document.getElementById('scenario-select');
-  SCENARIOS.forEach((sc,i)=>{
-    if(sel.options[i]){
-      const done = state.completed[i] ? '✓ ' : '';
-      sel.options[i].textContent = done + (i+1)+'. '+sc.emoji+' '+sc.keyword;
-    }
-  });
-}
-
-/* ============================================================
-   COPY RECAP
-   ============================================================ */
-function copyRecap(){
-  const sc = SCENARIOS[state.current];
-  const i = state.current;
-  const lines = [
-    'TOMORROW GOT WEIRD — Scenario '+(i+1),
-    '━'.repeat(40),
-    sc.emoji+' '+sc.question,
-    '',
-    'KEYWORD: '+sc.keyword+' ('+sc.pos+')',
-    'DEFINITION: '+sc.definition,
-    '',
-    'EXAMPLE: '+sc.example,
-    '',
-    'MISSION PROMPTS:',
-    ...sc.prompts.map(p=>'  ▸ '+p),
-    '',
-    'SURVIVAL MODE: '+sc.survival,
-    '',
-    'TWIST: '+sc.twist,
-    '━'.repeat(40)
-  ];
-  const text = lines.join('\n');
-  if(navigator.clipboard){
-    navigator.clipboard.writeText(text).then(()=>showToast('📋 Recap copied to clipboard!'));
-  } else {
-    const ta = document.createElement('textarea');
-    ta.value=text;document.body.appendChild(ta);ta.select();
-    document.execCommand('copy');document.body.removeChild(ta);
-    showToast('📋 Recap copied!');
-  }
-}
-
-/* ============================================================
-   RESET
-   ============================================================ */
-function confirmReset(){
-  if(confirm('Reset all progress? This will clear all completed scenarios and start from Scenario 1.')){
-    state = {current:0,completed:{},reveals:{}};
-    saveState();
-    buildSelector();
-    buildDots();
-    render();
-    showToast('↺ Timeline reset. Survival status cleared.');
-  }
-}
-
-/* ============================================================
-   TOAST
-   ============================================================ */
-let toastTimer;
-function showToast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>t.classList.remove('show'), 2400);
-}
-
-/* ============================================================
-   KEYBOARD SHORTCUTS
-   ============================================================ */
-document.addEventListener('keydown',e=>{
-  if(document.getElementById('game').style.display==='none') return;
-  if(e.target.tagName==='SELECT'||e.target.tagName==='INPUT') return;
-  if(e.key==='ArrowRight'||e.key==='ArrowDown') go(1);
-  if(e.key==='ArrowLeft'||e.key==='ArrowUp') go(-1);
-  if(e.key==='1') toggle('kw');
-  if(e.key==='2') toggle('def');
-  if(e.key==='3') toggle('ex');
-  if(e.key==='4') toggle('mp');
-  if(e.key==='5') toggle('sv');
-  if(e.key==='6') toggle('ww');
-  if(e.key===' '){e.preventDefault();toggleComplete();}
-});
-</script>
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        go(-1);
+      }
+    });
+  </script>
 
 </body>
+
 </html>
