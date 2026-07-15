@@ -2326,6 +2326,18 @@
       return 'In progress';
     }
 
+    function hasMeaningfulArcadeProgress(state) {
+      if (!state || typeof state !== 'object') {
+        return false;
+      }
+
+      const status = String(state.status || '').toLowerCase();
+      const progress = state.progress || {};
+      const covered = Number(progress.covered) || 0;
+
+      return status === 'in-progress' && covered > 0;
+    }
+
     function getContinueGames(reg, sessionId) {
       const states = (reg.sessionStates || {})[sessionId] || {};
       const results = [];
@@ -2336,7 +2348,8 @@
         const item = (reg.items || {})[registryId];
         if (!item || item.world !== 'arcade' || item.type !== 'game') return;
         // Only in-progress (not complete, not absent)
-        if ((state.status || '').toLowerCase() !== 'in-progress') return;
+if (!hasMeaningfulArcadeProgress(state)) return;
+
         const catalogueGame = GAME_CATALOGUE.find(g => g.registryId === registryId);
         if (!catalogueGame || !catalogueGame.launchUrl) return;
 
@@ -2661,7 +2674,7 @@
       html += '<div class="game-grid" id="game-grid-available">';
       availableGames.forEach(game => {
         const bridgeState = sessionStates[game.registryId];
-        const inProgress = bridgeState && (bridgeState.status || '').toLowerCase() === 'in-progress';
+        const inProgress = hasMeaningfulArcadeProgress(bridgeState);
         html += renderGameCard(game, inProgress);
       });
       html += '</div>';
