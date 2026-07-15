@@ -35,8 +35,9 @@ const subjectCopy = {
     overview: {
         heading: `Four Seconds`,
         intro: [
-            `Sometimes we form an opinion of someone almost immediately — from how they speak, how they treat other people, or the way they enter a room. We often trust these first impressions, but they can be completely wrong. So what tells you more about a person: the first few seconds, or what you learn over time?`
-        ]
+            `Sometimes we form an opinion of someone almost immediately — from how they speak, how they treat other people, or the way they enter a room. We often trust these first impressions, but they can be completely wrong.`
+        ],
+        question: `So what tells you more about a person: the first few seconds, or what you learn over time?`
     },
     paths: {
         culturalLensDescription: `Handwriting that decided your career, blood types that decide your marriage, and a file with your friends' names in it.`,
