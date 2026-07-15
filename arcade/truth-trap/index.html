@@ -1886,6 +1886,7 @@
       }
       return {
         status: 'in-progress',
+        completedAt: null,
         currentIndex: 0,
         currentPosition: 1,
         currentLabel: 'Case 1 of ' + TOTAL_CASES,
@@ -1898,30 +1899,40 @@
 
     function saveState(extra) {
       if (!session || !ST) return;
-      const ts = Date.now();
-      const ci = ST.currentIndex;
+
+      const timestamp = Date.now();
+      const currentIndex = ST.currentIndex;
       const solvedCount = countSolved();
-      const allSolved = (solvedCount === TOTAL_CASES);
+      const isComplete = solvedCount === TOTAL_CASES;
 
-      const stateToSave = Object.assign({}, ST, {
-        currentIndex: ci,
-        currentPosition: ci + 1,
-        currentLabel: 'Case ' + (ci + 1) + ' of ' + TOTAL_CASES,
-        progress: { covered: solvedCount, total: TOTAL_CASES },
-        lastTouchedAt: ts
-      }, extra || {});
+      ST = Object.assign({}, ST, extra || {}, {
+        status: isComplete ? 'complete' : 'in-progress',
 
-      if (allSolved) {
-        stateToSave.status = 'complete';
-        stateToSave.progress.covered = TOTAL_CASES;
-        if (!stateToSave.completedAt) stateToSave.completedAt = ts;
-      } else {
-        stateToSave.status = 'in-progress';
-        delete stateToSave.completedAt;
-      }
+        completedAt: isComplete
+          ? (ST.completedAt || timestamp)
+          : null,
 
-      ST = stateToSave;
-      Bridge.upsertSessionState(session.id, REGISTRY_ID, stateToSave);
+        currentIndex,
+        currentPosition: currentIndex + 1,
+        currentLabel:
+          'Case ' +
+          (currentIndex + 1) +
+          ' of ' +
+          TOTAL_CASES,
+
+        progress: {
+          covered: solvedCount,
+          total: TOTAL_CASES
+        },
+
+        lastTouchedAt: timestamp
+      });
+
+      Bridge.upsertSessionState(
+        session.id,
+        REGISTRY_ID,
+        ST
+      );
     }
 
     function touchActivity() {
@@ -1929,7 +1940,7 @@
         sessionId: session.id,
         registryId: REGISTRY_ID,
         title: 'Truth Trap',
-        launchUrl: './arcade/truth-trap/index.html'
+        launchUrl: new URL('./index.html', window.location.href).href
       });
     }
 
@@ -2041,12 +2052,17 @@
 
     function markSolved() {
       ensureCaseEntry(ST.currentIndex);
+
       ST.cases[String(ST.currentIndex)].solved = true;
+
       saveState();
       renderCaseCard();
       updateDots();
       updateProgressStrip();
-      checkCompletion();
+
+      if (countSolved() === TOTAL_CASES) {
+        showAirlock();
+      }
     }
 
     function reopenCase() {
@@ -2075,22 +2091,8 @@
 
     function confirmReset() {
       if (!confirm('Reset Truth Trap? This will clear all progress for the active session.')) return;
-      const ts = Date.now();
-      const casesObj = {};
-      for (let i = 0; i < TOTAL_CASES; i++) {
-        casesObj[String(i)] = { playerAnswer: null, revealed: false, solved: false, correct: null };
-      }
-      ST = {
-        status: 'in-progress',
-        currentIndex: 0,
-        currentPosition: 1,
-        currentLabel: 'Case 1 of ' + TOTAL_CASES,
-        progress: { covered: 0, total: TOTAL_CASES },
-        cases: casesObj,
-        lastOpenedAt: ts,
-        lastTouchedAt: ts
-      };
-      Bridge.upsertSessionState(session.id, REGISTRY_ID, ST);
+      ST = getDefaultState();
+      saveState();
       touchActivity();
       render();
       showToast('Game reset.');
@@ -2119,38 +2121,25 @@
     /* ================================================================
        COMPLETION CHECK
        ================================================================ */
-    function checkCompletion() {
-      if (countSolved() === TOTAL_CASES) {
-        saveState({ status: 'complete', completedAt: Date.now() });
-        showAirlock();
-      }
-    }
-
     function showAirlock() {
       document.getElementById('game').classList.remove('visible');
       document.getElementById('airlock').classList.add('visible');
     }
 
     function playAgain() {
-      const ts = Date.now();
-      const casesObj = {};
-      for (let i = 0; i < TOTAL_CASES; i++) {
-        casesObj[String(i)] = { playerAnswer: null, revealed: false, solved: false, correct: null };
-      }
-      ST = {
-        status: 'in-progress',
-        currentIndex: 0,
-        currentPosition: 1,
-        currentLabel: 'Case 1 of ' + TOTAL_CASES,
-        progress: { covered: 0, total: TOTAL_CASES },
-        cases: casesObj,
-        lastOpenedAt: ts,
-        lastTouchedAt: ts
-      };
-      Bridge.upsertSessionState(session.id, REGISTRY_ID, ST);
+      ST = getDefaultState();
+
+      saveState();
       touchActivity();
-      document.getElementById('airlock').classList.remove('visible');
-      document.getElementById('game').classList.add('visible');
+
+      document
+        .getElementById('airlock')
+        .classList.remove('visible');
+
+      document
+        .getElementById('game')
+        .classList.add('visible');
+
       render();
     }
 
@@ -2418,12 +2407,15 @@
           world: 'arcade',
           type: 'game',
           title: 'Truth Trap',
-          premise: 'Two truths, one lie. Study the evidence and spot the fake.',
+          premise: 'Two facts are true. One is a lie. Spot the fake and explain your reasoning.',
           status: 'available',
           unitLabel: 'Cases',
           total: TOTAL_CASES,
-          formatLabel: 'Reasoning',
-          launchUrl: './arcade/truth-trap/index.html'
+          formatLabel: 'Trivia',
+          mark: '🕵️',
+          accent: '#b45309',
+          accentLight: '#fef3c7',
+          launchUrl: new URL('./index.html', window.location.href).href
         });
       } catch (e) { }
 
@@ -2470,8 +2462,7 @@
     window.startGame = function () {
       // First-time save to Bridge
       ST.lastOpenedAt = Date.now();
-      ST.lastTouchedAt = Date.now();
-      Bridge.upsertSessionState(session.id, REGISTRY_ID, ST);
+      saveState();
       touchActivity();
       // Build game UI before showing
       render();
