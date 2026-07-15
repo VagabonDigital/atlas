@@ -1,4 +1,15 @@
 <!DOCTYPE html>
+<!--
+  ==========================================================================
+  TOMORROW GOT WEIRD · Future Scenarios
+  SmartStudy™ · Arcade World
+  --------------------------------------------------------------------------
+  Imaginative conversation deck. Explore strange futures. Decide what happens next.
+  Bridge-connected. Session-aware. No gamification metrics.
+  --------------------------------------------------------------------------
+  ARCADE:TOMORROW-GOT-WEIRD · registryId fixed
+  ==========================================================================
+-->
 <html lang="en">
 
 <head>
@@ -1186,6 +1197,7 @@
       const timestamp = Date.now();
       return {
         status: 'in-progress',
+        completedAt: null,
         current: 0,
         currentPosition: 1,
         currentLabel: 'Scenario 1 of ' + SCENARIOS.length,
@@ -1216,22 +1228,38 @@
 
     function saveState(extra) {
       if (!Bridge || !session) return;
+
       const timestamp = Date.now();
       const completed = countCompleted();
       const isComplete = completed === SCENARIOS.length;
+
       state = Object.assign({}, state, extra || {}, {
         status: isComplete ? 'complete' : 'in-progress',
+
+        completedAt: isComplete
+          ? (state.completedAt || timestamp)
+          : null,
+
         currentPosition: state.current + 1,
-        currentLabel: 'Scenario ' + (state.current + 1) + ' of ' + SCENARIOS.length,
-        progress: { covered: completed, total: SCENARIOS.length },
+        currentLabel:
+          'Scenario ' +
+          (state.current + 1) +
+          ' of ' +
+          SCENARIOS.length,
+
+        progress: {
+          covered: completed,
+          total: SCENARIOS.length
+        },
+
         lastTouchedAt: timestamp
       });
-      if (isComplete) {
-        if (!state.completedAt) state.completedAt = timestamp;
-      } else {
-        delete state.completedAt;
-      }
-      Bridge.upsertSessionState(session.id, REGISTRY_ID, state);
+
+      Bridge.upsertSessionState(
+        session.id,
+        REGISTRY_ID,
+        state
+      );
     }
 
     function touchActivity() {
@@ -1240,7 +1268,7 @@
         sessionId: session.id,
         registryId: REGISTRY_ID,
         title: 'Tomorrow Got Weird',
-        launchUrl: './arcade/tomorrow-got-weird/index.html'
+        launchUrl: new URL('./index.html', window.location.href).href
       });
     }
 
@@ -1514,12 +1542,15 @@
         world: 'arcade',
         type: 'game',
         title: 'Tomorrow Got Weird',
-        premise: 'Future scenarios, strange consequences, and survival choices.',
+        premise: 'Step into strange future scenarios and decide what you would do next.',
         status: 'available',
         unitLabel: 'Scenarios',
         total: SCENARIOS.length,
-        formatLabel: 'Future scenarios',
-        launchUrl: './arcade/tomorrow-got-weird/index.html'
+        formatLabel: 'Imagination',
+        mark: '🛸',
+        accent: '#7c3aed',
+        accentLight: '#ede9fe',
+        launchUrl: new URL('./index.html', window.location.href).href
       });
 
       const saved = readBridgeState();
