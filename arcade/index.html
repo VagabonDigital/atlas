@@ -17,10 +17,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arcade</title>
-  
+
   <link rel="icon" type="image/svg+xml"
     href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 4L96 50L50 96L4 50Z' fill='%23F07348' stroke='%23C94A24' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M50 18L82 50L50 82L18 50Z' fill='%23FFF5EE' stroke='%23FFFFFF' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 34L66 50L50 66L34 50Z' fill='%23E8562A' stroke='%23C94A24' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 18L50 34M82 50L66 50M50 82L50 66M18 50L34 50' stroke='%23FFB08D' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -1989,11 +1989,11 @@
        Bridge retrofit status is separate from availability.
        ================================================================ */
     const GAME_CATALOGUE = [
-      // ── AVAILABLE NOW (legacy games, unretrofitted) ───────────────
+      // ── AVAILABLE NOW ────────────────────────────────────────────────
       {
         registryId: 'arcade:tomorrow-got-weird',
         title: 'Tomorrow Got Weird',
-        premise: 'Drop yourself into strange future scenarios and decide what you\'d do next.',
+        premise: 'Step into strange future scenarios and decide what you would do next.',
         unitLabel: 'Scenarios',
         total: 25,
         formatLabel: 'Imagination',
@@ -2007,10 +2007,10 @@
       {
         registryId: 'arcade:truth-trap',
         title: 'Truth Trap',
-        premise: 'Two truths, one lie. Study the evidence and spot the fake.',
-        unitLabel: 'Cases',
+        premise: 'Two facts are true. One is a lie. Spot the fake and explain your reasoning.',
+        unitLabel: 'Rounds',
         total: 20,
-        formatLabel: 'Reasoning',
+        formatLabel: 'Trivia',
         mark: '🕵️',
         accent: '#b45309',
         accentLight: '#fef3c7',
@@ -2021,7 +2021,7 @@
       {
         registryId: 'arcade:would-you-rather',
         title: 'Would You Rather',
-        premise: 'Impossible choices, instant reactions. No wrong answers.',
+        premise: 'Choose between impossible options and explain what made you decide.',
         unitLabel: 'Questions',
         total: 50,
         formatLabel: 'Choices',
@@ -2032,14 +2032,15 @@
         status: 'available',
         launchUrl: './would-you-rather/index.html'
       },
-      // ── COMING SOON (planned, not yet built) ──────────────────────
+
+      // ── COMING SOON ──────────────────────────────────────────────────
       {
         registryId: 'arcade:bad-advice-only',
         title: 'Bad Advice Only',
-        premise: 'Give the worst possible advice to any situation. The wronger, the better.',
-        unitLabel: 'Dilemmas',
-        total: null,
-        formatLabel: 'Debate',
+        premise: 'Give the worst advice possible and deliver it with ridiculous confidence.',
+        unitLabel: 'Prompts',
+        total: 20,
+        formatLabel: 'Comedy',
         mark: '💀',
         accent: '#be123c',
         accentLight: '#ffe4e6',
@@ -2050,10 +2051,10 @@
       {
         registryId: 'arcade:butterfly-effect',
         title: 'Butterfly Effect',
-        premise: 'One tiny change in history. Follow the chaos that follows.',
+        premise: 'Start with one small moment, follow the consequences, and keep the story moving.',
         unitLabel: 'Scenarios',
-        total: null,
-        formatLabel: 'Imagination',
+        total: 20,
+        formatLabel: 'Storytelling',
         mark: '🦋',
         accent: '#059669',
         accentLight: '#d1fae5',
@@ -2064,11 +2065,11 @@
       {
         registryId: 'arcade:couch-potato',
         title: 'Couch Potato',
-        premise: 'Discuss TV, films, and streaming — and the guilty pleasures you can\'t stop watching.',
-        unitLabel: 'Topics',
-        total: null,
-        formatLabel: 'Culture',
-        mark: '📺',
+        premise: 'Match colourful English idioms to real people and explain why they fit.',
+        unitLabel: 'Matches',
+        total: 25,
+        formatLabel: 'Idioms',
+        mark: '🛋️',
         accent: '#7c3aed',
         accentLight: '#ede9fe',
         order: 6,
@@ -2078,9 +2079,9 @@
       {
         registryId: 'arcade:devils-advocate',
         title: 'Devil\'s Advocate',
-        premise: 'Argue the opposite of whatever you actually believe.',
-        unitLabel: 'Rounds',
-        total: null,
+        premise: 'Defend a position you would normally reject and make it sound convincing.',
+        unitLabel: 'Statements',
+        total: 20,
         formatLabel: 'Debate',
         mark: '😈',
         accent: '#dc2626',
@@ -2092,11 +2093,11 @@
       {
         registryId: 'arcade:explain-like-5',
         title: 'Explain Like I\'m 5',
-        premise: 'Take any complex topic and explain it simply enough for a child.',
+        premise: 'Take a big idea and explain it so clearly that a child could understand.',
         unitLabel: 'Topics',
-        total: null,
-        formatLabel: 'Quickfire',
-        mark: '🧒',
+        total: 20,
+        formatLabel: 'Explaining',
+        mark: '🧠',
         accent: '#d97706',
         accentLight: '#fef3c7',
         order: 8,
@@ -2106,10 +2107,10 @@
       {
         registryId: 'arcade:guilty-or-innocent',
         title: 'Guilty or Innocent',
-        premise: 'Read the situation. Decide in 30 seconds. Defend your verdict.',
+        premise: 'Judge awkward everyday habits, choose guilty or innocent, and defend your verdict.',
         unitLabel: 'Cases',
-        total: null,
-        formatLabel: 'Reasoning',
+        total: 19,
+        formatLabel: 'Defence',
         mark: '⚖️',
         accent: '#1e40af',
         accentLight: '#dbeafe',
@@ -2120,11 +2121,11 @@
       {
         registryId: 'arcade:hidden-truth',
         title: 'Hidden Truth',
-        premise: 'Every answer contains a secret. Can you find what\'s really being said?',
-        unitLabel: 'Rounds',
-        total: null,
-        formatLabel: 'Reasoning',
-        mark: '🔍',
+        premise: 'Read between the lines and work out what someone might really mean or feel.',
+        unitLabel: 'Moments',
+        total: 20,
+        formatLabel: 'Clues',
+        mark: '👀',
         accent: '#0f766e',
         accentLight: '#ccfbf1',
         order: 10,
@@ -2134,10 +2135,10 @@
       {
         registryId: 'arcade:hot-takes',
         title: 'Hot Takes',
-        premise: 'Controversial opinions on everyday things. Defend yours or steal theirs.',
-        unitLabel: 'Takes',
-        total: null,
-        formatLabel: 'Debate',
+        premise: 'Take a position, react honestly, and defend your opinion without overthinking.',
+        unitLabel: 'Statements',
+        total: 20,
+        formatLabel: 'Opinions',
         mark: '🔥',
         accent: '#ea580c',
         accentLight: '#ffedd5',
@@ -2148,9 +2149,9 @@
       {
         registryId: 'arcade:instant-decision',
         title: 'Instant Decision',
-        premise: 'Five seconds. One choice. No going back. React first, explain second.',
-        unitLabel: 'Decisions',
-        total: null,
+        premise: 'Make a fast choice, give your reason, and keep moving.',
+        unitLabel: 'Dilemmas',
+        total: 20,
         formatLabel: 'Quickfire',
         mark: '⚡',
         accent: '#ca8a04',
@@ -2162,10 +2163,10 @@
       {
         registryId: 'arcade:life-trade',
         title: 'Life Trade',
-        premise: 'Swap one thing about your life for something else. Then live with it.',
-        unitLabel: 'Trades',
-        total: null,
-        formatLabel: 'Choices',
+        premise: 'Swap lives with someone else for a week and imagine what you would do.',
+        unitLabel: 'Swaps',
+        total: 20,
+        formatLabel: 'Imagination',
         mark: '🔄',
         accent: '#7c3aed',
         accentLight: '#ede9fe',
@@ -2176,10 +2177,10 @@
       {
         registryId: 'arcade:personal-lore',
         title: 'Personal Lore',
-        premise: 'Your most embarrassing, strange, or surprising real-life stories.',
-        unitLabel: 'Stories',
-        total: null,
-        formatLabel: 'Culture',
+        premise: 'Share the habits, quirks, and tiny stories that make you unmistakably you.',
+        unitLabel: 'Prompts',
+        total: 21,
+        formatLabel: 'Stories',
         mark: '📖',
         accent: '#be185d',
         accentLight: '#fce7f3',
@@ -2190,10 +2191,10 @@
       {
         registryId: 'arcade:cats-pyjamas',
         title: 'The Cat\'s Pyjamas',
-        premise: 'Weird British idioms, colourful slang, and the expressions nobody can explain.',
-        unitLabel: 'Phrases',
-        total: null,
-        formatLabel: 'Language',
+        premise: 'Two idioms are real. One is fake. Trust your instincts and catch the invented one.',
+        unitLabel: 'Rounds',
+        total: 20,
+        formatLabel: 'Idioms',
         mark: '🐱',
         accent: '#0f766e',
         accentLight: '#ccfbf1',
@@ -2240,7 +2241,7 @@
           world: 'arcade',
           type: 'world',
           title: 'Arcade',
-          description: 'Quickfire conversation games for spontaneous English practice.',
+          description: 'Playful conversation games for spontaneous, expressive English practice.',
           status: 'available',
           launchUrl: new URL('./index.html', window.location.href).href
         });
@@ -2258,12 +2259,15 @@
             unitLabel: game.unitLabel,
             total: game.total,
             formatLabel: game.formatLabel,
+            mark: game.mark,
             accent: game.accent,
-            order: game.order
+            accentLight: game.accentLight,
+            order: game.order,
+            launchUrl: game.status === 'available' && game.launchUrl
+              ? new URL(game.launchUrl, window.location.href).href
+              : null
           };
-          if (game.status === 'available' && game.launchUrl) {
-            item.launchUrl = new URL(game.launchUrl, window.location.href).href;
-          }
+
           Bridge.upsertItem(item);
         } catch (e) { }
       });
@@ -2620,8 +2624,8 @@
       html += '<div class="hub-intro">' +
         '<div class="hub-intro-text">' +
         '<div class="hub-eyebrow">' + escHtml(eyebrow) + '</div>' +
-        '<h1 class="hub-title">Quickfire conversation games.</h1>' +
-        '<p class="hub-desc">No scripts. No wrong answers. Pick a game and go.</p>' +
+        '<h1 class="hub-title">Conversation games that get you talking.</h1>' +
+        '<p class="hub-desc">Think fast, speak freely, and see where the game takes you.</p>' +
         '</div>' +
         '<div class="hub-meta">' +
         '<div class="hub-meta-chip">' + availableGames.length + ' playable game' + (availableGames.length !== 1 ? 's' : '') + '</div>' +
@@ -2753,8 +2757,12 @@
       return '<div class="' + cardClass + '" ' + clickHandler +
         ' role="' + (isAvailable ? 'button' : 'article') + '"' +
         ' aria-label="' + escAttr(game.title) + (isSoon ? ' — coming soon' : '') + '"' +
-        ' data-title="' + escAttr(game.title.toLowerCase()) + '"' +
-        ' data-format="' + escAttr((game.formatLabel || '').toLowerCase()) + '">' +
+        ' data-search="' + escAttr([
+          game.title,
+          game.premise,
+          game.formatLabel,
+          game.unitLabel
+        ].filter(Boolean).join(' ').toLowerCase()) + '">' +
         '<span style="position:absolute;top:0;left:0;right:0;height:3px;' + (isAvailable ? 'background:' + game.accent : 'background:var(--border)') + ';opacity:' + (isAvailable ? '0' : '1') + '" class="card-accent-bar" aria-hidden="true"></span>' +
         '<span class="game-card-mark" aria-hidden="true">' + game.mark + '</span>' +
         '<div class="game-card-title">' + escHtml(game.title) + '</div>' +
@@ -2798,9 +2806,8 @@
       const cards = document.querySelectorAll('.game-card');
       let visible = 0;
       cards.forEach(card => {
-        const title = card.dataset.title || '';
-        const format = card.dataset.format || '';
-        const match = !q || title.includes(q) || format.includes(q);
+        const haystack = card.dataset.search || '';
+        const match = !q || haystack.includes(q);
         card.style.display = match ? '' : 'none';
         if (match) visible++;
       });
