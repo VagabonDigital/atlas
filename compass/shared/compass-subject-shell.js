@@ -73,6 +73,7 @@ function mountCompassSubjectShell() {
                     <p class="section-eyebrow" id="orient-eyebrow"></p>
                     <h1 id="overview-heading"></h1>
                     <div id="overview-intro" class="overview-intro"></div>
+                    <p id="overview-question" class="overview-question"></p>
                 </div>
 
                 <div class="main-paths">
