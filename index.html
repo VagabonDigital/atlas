@@ -2260,48 +2260,75 @@
 
       if (!states || typeof states !== 'object') return null;
 
-      const entries = Object.values(states).filter(state => {
-        if (!state || typeof state !== 'object') return false;
+      const candidates = Object.values(states)
+        .map(state => {
+          if (!state || typeof state !== 'object' || !state.registryId) {
+            return null;
+          }
 
-        const status = String(state.status || '').toLowerCase();
-        const action = String(state.action || '').toLowerCase();
-        const progress = state.progress || {};
-        const raw = state.progressRaw || {};
+          const item = (reg.items || {})[state.registryId] || {};
 
-        const explored = Number(progress.explored) || 0;
-        const exploredIds = Array.isArray(raw.exploredIds) ? raw.exploredIds.length : 0;
+          const world =
+            state.world ||
+            item.world ||
+            String(state.registryId).split(':')[0];
 
-        const wrappedUp =
-          status === 'complete' ||
-          status === 'completed' ||
-          status === 'explored' ||
-          state.complete === true ||
-          !!state.lessonCompletedAt ||
-          !!raw.lessonCompletedAt;
+          const status = String(state.status || '').toLowerCase();
+          const progress = state.progress || {};
+          const raw = state.progressRaw || {};
 
-        if (wrappedUp) return false;
-        if (status === 'not-started') return false;
-        if (action === 'opened' && explored <= 0 && exploredIds <= 0) return false;
+          if (status === 'complete' || status === 'not-started') {
+            return null;
+          }
 
-        return explored > 0 || exploredIds > 0;
-      });
+          let hasMeaningfulProgress = false;
 
-      if (!entries.length) return null;
+          if (world === COMPASS_ID) {
+            const explored = Number(progress.explored) || 0;
+            const exploredIds = Array.isArray(raw.exploredIds)
+              ? raw.exploredIds.length
+              : 0;
 
-      entries.sort((a, b) =>
-        (b.lastTouchedAt || b.updatedAt || 0) - (a.lastTouchedAt || a.updatedAt || 0)
-      );
+            hasMeaningfulProgress =
+              explored > 0 ||
+              exploredIds > 0;
+          }
 
-      const best = entries[0];
+          if (world === ARCADE_ID) {
+            const covered = Number(progress.covered) || 0;
 
-      if (!best || !best.registryId) return null;
+            hasMeaningfulProgress = covered > 0;
+          }
 
-      const item = (reg.items || {})[best.registryId] || {};
-      
-    // Merge identity (item) with session-scoped state (best).
-      return Object.assign({}, item, best);
+          if (!hasMeaningfulProgress) {
+            return null;
+          }
+
+          const launchUrl =
+            state.launchUrl ||
+            item.launchUrl ||
+            '';
+
+          if (!launchUrl) {
+            return null;
+          }
+
+          return Object.assign({}, item, state, {
+            world,
+            launchUrl,
+            lastTouchedAt:
+              state.lastTouchedAt ||
+              state.updatedAt ||
+              0
+          });
+        })
+        .filter(Boolean)
+        .sort((a, b) =>
+          b.lastTouchedAt - a.lastTouchedAt
+        );
+
+      return candidates[0] || null;
     }
-
     // Qualitative label only — never detailed progress counts.
     function continueLabel(item) {
       return 'In progress';
@@ -2311,30 +2338,49 @@
     // Unlabeled by design: it conveys shape, not counts.
     // A wrapped-up lesson reads full.
     function continueCoverage(item) {
-      const s = (item.status || '').toLowerCase();
-      const wrappedUp = s === 'complete' || s === 'completed' || item.complete === true || item.lessonCompletedAt;
-      if (wrappedUp) return 100;
+      const status = String(item.status || '').toLowerCase();
 
-      const p = item.progress;
-      if (!p || typeof p !== 'object') return null;
+      if (status === 'complete') return 100;
 
-      const total = Number(p.total) || 0;
-      const explored = Number(p.explored) || 0;
+      const progress = item.progress;
+
+      if (!progress || typeof progress !== 'object') {
+        return null;
+      }
+
+      const total =
+        Number(progress.total) ||
+        Number(item.total) ||
+        0;
 
       if (total <= 0) return null;
 
-      const pct = Math.round((explored / total) * 100);
+      let amount = 0;
+
+      if (item.world === COMPASS_ID) {
+        amount = Number(progress.explored) || 0;
+      }
+
+      if (item.world === ARCADE_ID) {
+        amount = Number(progress.covered) || 0;
+      }
+
+      if (amount <= 0) return null;
+
+      const pct = Math.round((amount / total) * 100);
 
       return Math.max(0, Math.min(100, pct));
     }
+
     function itemTitle(item) {
       return item.navTitle || item.title || item.name || 'Untitled';
     }
+
     function itemWorldLabel(item) {
-      const w = item.world;
-      if (w === COMPASS_ID) return WORLDS.compass.name;
-      if (w === ARCADE_ID) return WORLDS.arcade.name;
-      return w || '';
+      if (item.world === COMPASS_ID) return WORLDS.compass.name;
+      if (item.world === ARCADE_ID) return WORLDS.arcade.name;
+
+      return item.world || '';
     }
 
     // ================================================================
