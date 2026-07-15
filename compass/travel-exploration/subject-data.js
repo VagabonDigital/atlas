@@ -34,8 +34,9 @@ const subjectCopy = {
     overview: {
         heading: `Travel Up Close`,
         intro: [
-            `Two people can take the same trip and experience it completely differently. The place may be the same, but the people, choices, timing, and unexpected moments are not. What decides how a trip turns out for you: where you go, who you go with, or what happens once you’re there?`
-        ]
+            `Two people can take the same trip and experience it completely differently. The place may be the same, but the people, choices, timing, and unexpected moments are not.`
+        ],
+        question: `What decides how a trip turns out for you: where you go, who you go with, or what happens once you’re there?`
     },
 
     paths: {
