@@ -154,11 +154,11 @@
     }
 
     .hub-atmosphere-layer.visible {
-      opacity: 0.08;
+      opacity: 0.035;
     }
 
     html[data-theme="night"] .hub-atmosphere-layer.visible {
-      opacity: 0.06;
+      opacity: 0.025;
     }
 
     /* ============================================================ SPINE (desktop) */
@@ -877,6 +877,7 @@
       transition: var(--t);
     }
 
+    .btn-launch:hover,
     .btn-launch-sm:hover {
       background: var(--accent);
       color: #fff;
@@ -927,6 +928,36 @@
       font-size: 0.9rem;
       color: var(--ink-light);
       margin-bottom: 0.25rem;
+    }
+
+    /* ============================================================ AVAILABLE NOW */
+    .available-zone {
+      margin-bottom: 2.25rem;
+    }
+
+    .available-zone-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .browse-heading {
+      margin-bottom: 0.9rem;
+    }
+
+    .browse-heading-title {
+      font-family: var(--font-display);
+      font-size: 1.08rem;
+      font-weight: 400;
+      color: var(--ink-dark);
+      margin-bottom: 0.18rem;
+    }
+
+    .browse-heading-copy {
+      font-size: 0.78rem;
+      color: var(--stone-dark);
     }
 
     /* ============================================================ SEARCH */
@@ -1151,47 +1182,6 @@
       gap: 0.5rem;
       flex-wrap: wrap;
       min-width: 0;
-    }
-
-    .category-chip {
-      --chip-rgb: 74, 124, 120;
-      display: inline-flex;
-      align-items: center;
-      padding: 0.18rem 0.5rem;
-      border-radius: 999px;
-      border: 1px solid rgba(var(--chip-rgb), 0.24);
-      background: rgba(var(--chip-rgb), 0.11);
-      color: rgb(var(--chip-rgb));
-      font-size: 0.68rem;
-      font-weight: 600;
-      line-height: 1.2;
-    }
-
-
-    .category-chip.cat-you-your-mind {
-      --chip-rgb: 126, 82, 174;
-    }
-
-    .category-chip.cat-people-relationships {
-      --chip-rgb: 166, 78, 88;
-    }
-
-    .category-chip.cat-society-the-world {
-      --chip-rgb: 78, 138, 72;
-    }
-
-    .category-chip.cat-work-time {
-      --chip-rgb: 178, 118, 42;
-    }
-
-    .category-chip.cat-culture-life {
-      --chip-rgb: 34, 138, 132;
-    }
-
-
-    html[data-theme="night"] .category-chip {
-      background: rgba(var(--chip-rgb), 0.20);
-      border-color: rgba(var(--chip-rgb), 0.36);
     }
 
     .timestamp-chip {
@@ -2491,16 +2481,23 @@
 
     function formatRelativeTime(ts) {
       if (!ts) return '';
+
       const now = Date.now();
       const diff = now - ts;
       const days = Math.floor(diff / 86400000);
-      if (days === 0) return 'opened today';
-      if (days === 1) return 'opened yesterday';
-      if (days < 7) return 'opened ' + days + ' days ago';
-      if (days < 14) return 'opened last week';
+
+      if (days === 0) return 'used today';
+      if (days === 1) return 'used yesterday';
+      if (days < 7) return 'used ' + days + ' days ago';
+      if (days < 14) return 'used last week';
+
       const weeks = Math.floor(days / 7);
-      if (weeks < 5) return 'opened ' + weeks + ' weeks ago';
-      return 'opened a while ago';
+
+      if (weeks < 5) {
+        return 'used ' + weeks + ' weeks ago';
+      }
+
+      return 'used a while ago';
     }
 
     function resolveStatus(state) {
@@ -2633,6 +2630,29 @@
         .filter(s => s.status === 'inprogress')
         .sort((a, b) => b.ts - a.ts)
         .slice(0, 3);
+    }
+
+    function getAvailableSubjects(merged) {
+      const preferredOrder = new Map(
+        COMPASS_AVAILABLE_SUBJECT_SLUGS.map((slug, index) => [
+          slug,
+          index
+        ])
+      );
+
+      return merged
+        .filter(subject => subject.available)
+        .sort((a, b) => {
+          const aOrder = preferredOrder.get(
+            compassSubjectSlug(a)
+          );
+
+          const bOrder = preferredOrder.get(
+            compassSubjectSlug(b)
+          );
+
+          return (aOrder ?? 999) - (bOrder ?? 999);
+        });
     }
 
     /* ================================================================
@@ -3011,6 +3031,17 @@
     function applySearchFilter() {
       const q = currentQuery;
       const groups = document.querySelectorAll('.category-group');
+      const inProgressZone = document.getElementById('inprogress-zone');
+      const availableZone = document.getElementById('available-zone');
+
+      if (inProgressZone) {
+        inProgressZone.style.display = q ? 'none' : '';
+      }
+
+      if (availableZone) {
+        availableZone.style.display = q ? 'none' : '';
+      }
+
       let totalVisible = 0;
 
       groups.forEach(group => {
@@ -3044,13 +3075,15 @@
 
     function handleSearchKeydown(e) {
       if (e.key === 'Enter') {
-        // Launch first visible registered result
-        const first = document.querySelector('.subject-card:not(.is-hidden)');
-        if (first && first.dataset.url) navigateTo(first.dataset.url);
-      }
-      if (e.key === 'Escape') {
-        clearSearch();
-        document.getElementById('search-field').blur();
+        const first = Array.from(
+          document.querySelectorAll(
+            '.category-group .subject-card:not(.is-hidden)'
+          )
+        ).find(card => card.dataset.url);
+
+        if (first) {
+          navigateTo(first.dataset.url);
+        }
       }
     }
 
@@ -3067,6 +3100,7 @@
       const session = getActiveSession();
       const merged = getMergedSubjects();
       const inProgress = getInProgressSubjects(merged);
+      const availableNow = getAvailableSubjects(merged);
 
       applyCompassAtmosphereImage();
 
@@ -3082,13 +3116,16 @@
       }
 
       main.innerHTML =
-        renderIntro(session, merged.filter(s => s.available).length) +
-        renderInProgressZone(inProgress, session) +
+        renderIntro(session, availableNow.length) +
+        renderInProgressZone(inProgress) +
+        renderAvailableNowZone(availableNow) +
+        renderBrowseHeading() +
         renderSearchZone() +
         renderNoResultsBanner() +
         renderCategoryGroups(merged);
 
       bindSearch();
+      applySearchFilter();
     }
 
     function renderIntro(session, count) {
@@ -3112,50 +3149,107 @@
       );
     }
 
-    function renderInProgressZone(inProgress, session) {
-      let inner = '';
-      if (inProgress.length === 0) {
-        inner =
-          '<div class="inprogress-empty">' +
-          '<strong>Nothing in progress yet.</strong>' +
-          'Start with a Compass subject below. Browse by category or search for a topic.' +
-          '</div>';
-      } else {
-        const cards = inProgress.map(s => {
-          const ts = s.ts ? formatRelativeTime(s.ts) : '';
-          const meta = getCategoryTitle(s.categoryId) + (ts ? ' · ' + ts : '');
-          const pct = subjectProgressPercent(s);
-          const rail = pct !== null
-            ? '<div class="progress-rail' + (pct >= 100 ? ' is-complete' : '') + '" aria-hidden="true">' +
-            '<div class="progress-rail-fill" style="width:' + pct + '%"></div>' +
-            '</div>'
-            : '';
-
-          return (
-            '<div class="progress-card" role="button" tabindex="0" ' +
-            'onclick="navigateTo(\'' + escHtml(s.launchUrl) + '\')" ' +
-            'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navigateTo(\'' + escHtml(s.launchUrl) + '\')}" ' +
-            'aria-label="Continue ' + escHtml(s.title) + '">' +
-            '<div class="progress-card-title">' + escHtml(s.title) + '</div>' +
-            (s.hook ? '<p class="progress-card-hook">' + escHtml(s.hook) + '</p>' : '') +
-            '<div class="progress-card-footer">' +
-            '<div class="progress-card-meta">' + escHtml(meta) + '</div>' +
-            '<button class="btn-launch-sm" onclick="event.stopPropagation();navigateTo(\'' + escHtml(s.launchUrl) + '\')" aria-label="Continue ' + escHtml(s.title) + '">' +
-            'Continue' +
-            '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5h7M6 2.5l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-            '</button>' +
-            '</div>' +
-            rail +
-            '</div>'
-          );
-        }).join('');
-        inner = '<div class="inprogress-grid">' + cards + '</div>';
+    function renderInProgressZone(inProgress) {
+      if (!inProgress.length) {
+        return '';
       }
 
+      const cards = inProgress.map(subject => {
+        const timestamp = subject.ts
+          ? formatRelativeTime(subject.ts)
+          : '';
+
+        const meta = getCategoryTitle(subject.categoryId) +
+          (timestamp ? ' · ' + timestamp : '');
+
+        const percent = subjectProgressPercent(subject);
+
+        const rail = percent !== null
+          ? '<div class="progress-rail" aria-hidden="true">' +
+          '<div class="progress-rail-fill" style="width:' + percent + '%"></div>' +
+          '</div>'
+          : '';
+
+        return (
+          '<div class="progress-card" role="button" tabindex="0" ' +
+          'onclick="navigateTo(\'' + escHtml(subject.launchUrl) + '\')" ' +
+          'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navigateTo(\'' + escHtml(subject.launchUrl) + '\')}" ' +
+          'aria-label="Continue ' + escHtml(subject.title) + '">' +
+
+          '<div class="progress-card-title">' +
+          escHtml(subject.title) +
+          '</div>' +
+
+          (subject.hook
+            ? '<p class="progress-card-hook">' +
+            escHtml(subject.hook) +
+            '</p>'
+            : '') +
+
+          '<div class="progress-card-footer">' +
+          '<div class="progress-card-meta">' +
+          escHtml(meta) +
+          '</div>' +
+
+          '<button class="btn-launch-sm" ' +
+          'onclick="event.stopPropagation();navigateTo(\'' +
+          escHtml(subject.launchUrl) +
+          '\')" ' +
+          'aria-label="Continue ' +
+          escHtml(subject.title) +
+          '">' +
+
+          'Continue' +
+
+          '<svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">' +
+          '<path d="M2 5.5h7M6 2.5l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>' +
+          '</svg>' +
+
+          '</button>' +
+          '</div>' +
+          rail +
+          '</div>'
+        );
+      }).join('');
+
       return (
-        '<div class="inprogress-zone">' +
-        '<div class="zone-label">In Progress</div>' +
-        inner +
+        '<section class="inprogress-zone" id="inprogress-zone">' +
+        '<div class="zone-label">In progress</div>' +
+        '<div class="inprogress-grid">' +
+        cards +
+        '</div>' +
+        '</section>'
+      );
+    }
+
+    function renderAvailableNowZone(subjects) {
+      if (!subjects.length) {
+        return '';
+      }
+
+      const cards = subjects
+        .map(subject => renderSubjectCard(subject))
+        .join('');
+
+      return (
+        '<section class="available-zone" id="available-zone">' +
+        '<div class="available-zone-header">' +
+        '<div class="zone-label" style="margin-bottom:0">Available now</div>' +
+        '</div>' +
+        '<div class="category-grid">' +
+        cards +
+        '</div>' +
+        '</section>'
+      );
+    }
+
+    function renderBrowseHeading() {
+      return (
+        '<div class="browse-heading" id="browse-heading">' +
+        '<h2 class="browse-heading-title">Browse all subjects</h2>' +
+        '<p class="browse-heading-copy">' +
+        'Explore the full Compass library by category.' +
+        '</p>' +
         '</div>'
       );
     }
@@ -3167,7 +3261,11 @@
         '<span class="search-icon" aria-hidden="true">' +
         '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>' +
         '</span>' +
-        '<input class="search-field" id="search-field" type="text" placeholder="Search subjects by title, category, or topic…" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Search subjects">' +
+        '<input class="search-field" id="search-field" type="text" ' +
+        'value="' + escHtml(currentQuery) + '" ' +
+        'placeholder="Search subjects by title, category, or topic…" ' +
+        'autocomplete="off" autocorrect="off" spellcheck="false" ' +
+        'aria-label="Search subjects">' +
         '<button class="search-clear" id="search-clear" onclick="clearSearch()" aria-label="Clear search">' +
         '<svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1 1l7 7M8 1L1 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>' +
         '</button>' +
@@ -3242,13 +3340,22 @@
     }
 
     function renderSubjectCard(s) {
-      const ts = s.ts ? formatRelativeTime(s.ts) : '';
+      const ts =
+        s.status !== 'new' && s.ts
+          ? formatRelativeTime(s.ts)
+          : '';
       const isExplored = s.status === 'explored';
       const isAvailable = !!s.available;
 
       // data attributes for search filtering
       const catEntry = COMPASS_CATALOG[s.registryId];
-      const catTitle = catEntry ? (COMPASS_CATEGORIES.find(c => c.id === catEntry.categoryId) || {}).title || '' : '';
+      const catTitle = catEntry
+        ? (
+          COMPASS_CATEGORIES.find(
+            category => category.id === catEntry.categoryId
+          ) || {}
+        ).title || ''
+        : '';
 
       const cardClass = 'subject-card' + (isExplored ? ' is-explored' : '');
 
@@ -3281,7 +3388,13 @@
         (s.hook ? '<p class="subject-card-hook">' + escHtml(s.hook) + '</p>' : '') +
         '<div class="subject-card-footer">' +
         '<div class="subject-card-meta">' +
-        (ts ? '<span class="timestamp-chip">' + escHtml(ts) + '</span>' : '') +
+
+        (ts
+          ? '<span class="timestamp-chip">' +
+          escHtml(ts) +
+          '</span>'
+          : '') +
+
         '</div>' +
         buttonHtml +
         '</div>' +
@@ -3564,7 +3677,10 @@
         return;
       }
 
-      if (k === COMPASS_ATMOSPHERE_KEY) {
+      if (
+        k === COMPASS_ATMOSPHERE_KEY ||
+        k === COMPASS_ATMOSPHERE_MODE_KEY
+      ) {
         applyCompassAtmosphereImage();
         return;
       }
