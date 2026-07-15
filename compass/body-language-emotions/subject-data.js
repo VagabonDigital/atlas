@@ -34,8 +34,9 @@ const subjectCopy = {
     overview: {
         heading: `Whose Side Is It On?`,
         intro: [
-            `Your body does not always show what you want it to show. You might go red when you feel embarrassed, laugh at the wrong moment, or hide your feelings when something really matters. Which shows the real you more clearly: the reactions you cannot control, or the behaviour you choose?`
-        ]
+            `Your body does not always show what you want it to show. You might go red when you feel embarrassed, laugh at the wrong moment, or hide your feelings when something really matters.`
+        ],
+        question: `Which shows the real you more clearly: the reactions you cannot control, or the behaviour you choose?`
     },
     paths: {
         culturalLensDescription: `Reversed nods, hired mourners, a district that couldn't stop laughing, and the face you didn't choose.`,
