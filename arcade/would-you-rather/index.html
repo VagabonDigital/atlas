@@ -1,4 +1,15 @@
 <!DOCTYPE html>
+<!--
+  ==========================================================================
+  WOULD YOU RATHER · Impossible Choices
+  SmartStudy™ · Arcade World
+  --------------------------------------------------------------------------
+  Playful conversation deck. Choose quickly. Explain the decision.
+  Bridge-connected. Session-aware. No gamification metrics.
+  --------------------------------------------------------------------------
+  ARCADE:WOULD-YOU-RATHER · registryId fixed
+  ==========================================================================
+-->
 <html lang="en">
 
 <head>
@@ -830,7 +841,7 @@
 
   <!-- ══════════════════════════════
      SCRIPTS
-══════════════════════════════ -->
+   ══════════════════════════════ -->
   <script src="../../shared/atlas-bridge.js"></script>
   <script src="../../shared/atlas-search.js"></script>
   <script>
@@ -927,6 +938,7 @@
     let currentIndex = -1;   // index into questions[]
     let used = {};     // { "3": true, "12": true, … }
     let hasStarted = false;  // true after first question is shown
+    let completedAt = null;
 
     function unusedPool() {
       return questions.map((_, i) => i).filter(i => !used[String(i)]);
@@ -947,24 +959,40 @@
       } catch (e) { return null; }
     }
 
-    function saveState() {
-      if (!session) return;
-      const ts = Date.now();
-      const pool = unusedPool();
-      const done = usedCount();
+function saveState() {
+  if (!session) return;
 
-      Bridge.upsertSessionState(session.id, REGISTRY_ID, {
-        status: pool.length === 0 ? 'complete' : 'in-progress',
-        currentIndex: currentIndex,
-        currentLabel: 'last question',
-        used: used,
-        progress: {
-          covered: done,
-          total: TOTAL_Q
-        },
-        lastTouchedAt: ts
-      });
+  const timestamp = Date.now();
+  const completedCount = usedCount();
+  const isComplete = completedCount === TOTAL_Q;
+
+  completedAt = isComplete
+    ? (completedAt || timestamp)
+    : null;
+
+  Bridge.upsertSessionState(
+    session.id,
+    REGISTRY_ID,
+    {
+      status: isComplete
+        ? 'complete'
+        : 'in-progress',
+
+      completedAt,
+
+      currentIndex,
+      currentLabel: 'last question',
+      used,
+
+      progress: {
+        covered: completedCount,
+        total: TOTAL_Q
+      },
+
+      lastTouchedAt: timestamp
     }
+  );
+}
 
     function touchActivity() {
       try {
@@ -972,7 +1000,7 @@
           sessionId: session.id,
           registryId: REGISTRY_ID,
           title: 'Would You Rather',
-          launchUrl: './arcade/would-you-rather/index.html'
+          launchUrl: new URL('./index.html', window.location.href).href
         });
       } catch (e) { }
     }
@@ -1050,8 +1078,9 @@
     }
 
     function resetDeck() {
-      used = {};
-      currentIndex = -1;
+used = {};
+currentIndex = -1;
+completedAt = null;
       updateRemaining();
       showToast('Deck reset');
       saveState();
@@ -1171,18 +1200,21 @@
 
       // Register with Bridge
       try {
-        Bridge.upsertItem({
-          registryId: REGISTRY_ID,
-          world: 'arcade',
-          type: 'game',
-          title: 'Would You Rather',
-          premise: 'Impossible choices, instant reactions. No wrong answers.',
-          status: 'available',
-          unitLabel: 'Questions',
-          total: TOTAL_Q,
-          formatLabel: 'Choices',
-          launchUrl: './arcade/would-you-rather/index.html'
-        });
+Bridge.upsertItem({
+  registryId: REGISTRY_ID,
+  world: 'arcade',
+  type: 'game',
+  title: 'Would You Rather',
+  premise: 'Choose between impossible options and explain what made you decide.',
+  status: 'available',
+  unitLabel: 'Questions',
+  total: TOTAL_Q,
+  formatLabel: 'Choices',
+  mark: '🤔',
+  accent: '#0369a1',
+  accentLight: '#e0f2fe',
+  launchUrl: new URL('./index.html', window.location.href).href
+});
       } catch (e) { }
 
       // Restore Bridge state if exists, but always show the landing first.
@@ -1190,6 +1222,7 @@
       if (saved) {
         used = (saved.used && typeof saved.used === 'object') ? saved.used : {};
         currentIndex = (typeof saved.currentIndex === 'number') ? saved.currentIndex : -1;
+        completedAt = saved.completedAt || null;
 
         updateRemaining();
 
@@ -1202,9 +1235,10 @@
       }
 
       // Fresh start — show intro
-      used = {};
-      currentIndex = -1;
-      updateRemaining();
+used = {};
+currentIndex = -1;
+completedAt = null;
+updateRemaining();
     }
 
     /* ================================================================
