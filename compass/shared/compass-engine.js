@@ -336,7 +336,7 @@ function publishAtlasCompassItem(action = 'updated') {
 
         const status = progress.lessonCompletedAt
             ? 'complete'
-            : exploredCount > 0 || savedLanguageCount > 0
+            : exploredCount > 0
                 ? 'in-progress'
                 : 'not-started';
 
@@ -374,12 +374,19 @@ function publishAtlasCompassItem(action = 'updated') {
             id: MODULE.id,
             title: MODULE.title,
             navTitle: MODULE.navTitle || MODULE.title,
-            status,
-            action,
-            launchUrl: getAtlasLaunchUrl(),
+status,
+action,
+launchUrl: getAtlasLaunchUrl(),
+
+completedAt: status === 'complete'
+    ? progress.lessonCompletedAt
+    : null,
 
             progress: {
                 explored: exploredCount,
+                total: clCards.length + discussionSets
+                    .flatMap(set => set.moments)
+                    .length,
                 culturalLensExplored,
                 momentsExplored,
                 savedLanguageCount,
@@ -398,7 +405,7 @@ function publishAtlasCompassItem(action = 'updated') {
 
             progressRaw: {
                 exploredIds: [...progress.explored],
-                lessonCompletedAt: progress.lessonCompletedAt
+                lessonCompletedAt: progress.lessonCompletedAt || null
             },
 
             lastTouchedAt: timestamp
@@ -1539,6 +1546,7 @@ function unmarkExplored(id) {
     updateCoverActionUI();
     updateCLProgress();
     updateDiscussionProgress();
+    updateReflectionProgressSummary();
 }
 
 function getItemState(id) {
@@ -1701,9 +1709,9 @@ function updateCLProgress() {
 
     if (!count) return;
 
-if (status) {
-    status.hidden = explored === 0;
-}
+    if (status) {
+        status.hidden = explored === 0;
+    }
 
     count.style.display = explored > 0
         ? 'inline-flex'
