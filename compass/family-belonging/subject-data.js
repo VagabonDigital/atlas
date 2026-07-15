@@ -34,8 +34,9 @@ const subjectCopy = {
     overview: {
         heading: `Nobody Wrote It Down`,
         intro: [
-            `Every family runs on rules nobody wrote down. There is a chair you don't sit in, a subject you don't raise, a story that gets slightly better every year, and a word for something that isn't a real word. You can see all of this instantly in somebody else's family and almost none of it in your own. So which of your family's rules would a stranger find genuinely strange — and which ones would you defend anyway?`
-        ]
+            `Every family runs on rules nobody wrote down. There is a chair you don't sit in, a subject you don't raise, a story that gets slightly better every year, and a word for something that isn't a real word. You can see all of this instantly in somebody else's family and almost none of it in your own.`
+        ],
+        question: `So which of your family's rules would a stranger find genuinely strange — and which ones would you defend anyway?`
     },
     paths: {
         culturalLensDescription: `Baby names vetoed by a committee, sons adopted at thirty, and one farm with four children.`,
