@@ -24,6 +24,7 @@
     const KEYS = {
         sessions: 'atlas::sessions',
         activeSessionId: 'atlas::activeSessionId',
+        handoffs: 'atlas::handoffs',
         registry: 'atlas::registry',
         ledger: 'learning::ledger',
         appearance: 'atlas::appearanceMode',
@@ -315,6 +316,138 @@
         }
 
         return true;
+    }
+
+    // ============================================================
+    // HANDOFFS
+    // Latest lightweight handoff per session + subject.
+    // ============================================================
+
+    function getHandoffStorageId(sessionId, subjectId) {
+        return `${encodeURIComponent(sessionId)}::${encodeURIComponent(subjectId)}`;
+    }
+
+    function readHandoffStore() {
+        const stored = readJson(KEYS.handoffs, null);
+
+        return stored && typeof stored === 'object' && !Array.isArray(stored)
+            ? stored
+            : {};
+    }
+
+    function normalizeHandoff(record) {
+        if (!record || typeof record !== 'object' || Array.isArray(record)) {
+            return null;
+        }
+
+        const sessionId = typeof record.sessionId === 'string'
+            ? record.sessionId.trim()
+            : '';
+
+        const subjectId = typeof record.subjectId === 'string'
+            ? record.subjectId.trim()
+            : '';
+
+        if (!sessionId || !subjectId) return null;
+
+        const exploredItems = Array.isArray(record.exploredItems)
+            ? record.exploredItems
+                .map(item => {
+                    if (!item || typeof item !== 'object') return null;
+
+                    const id = typeof item.id === 'string'
+                        ? item.id.trim()
+                        : '';
+
+                    const title = typeof item.title === 'string'
+                        ? item.title.trim()
+                        : '';
+
+                    return id && title ? { id, title } : null;
+                })
+                .filter(Boolean)
+            : [];
+
+        const savedLanguageCount = Math.max(
+            0,
+            Math.floor(Number(record.savedLanguageCount) || 0)
+        );
+
+        const pickupLabel = typeof record.pickupLabel === 'string' && record.pickupLabel.trim()
+            ? record.pickupLabel.trim()
+            : null;
+
+        const pickupRef = typeof record.pickupRef === 'string' && record.pickupRef.trim()
+            ? record.pickupRef.trim()
+            : null;
+
+        return {
+            v: 1,
+            id: typeof record.id === 'string' && record.id.trim()
+                ? record.id.trim()
+                : createId('handoff'),
+            sessionId,
+            subjectId,
+            subjectTitle: typeof record.subjectTitle === 'string'
+                ? record.subjectTitle.trim()
+                : '',
+            world: typeof record.world === 'string'
+                ? record.world.trim()
+                : '',
+            exploredItems,
+            savedLanguageCount,
+            pickupLabel,
+            pickupRef,
+            completedAt: Number(record.completedAt) || now()
+        };
+    }
+
+    function writeHandoff(record) {
+        const handoff = normalizeHandoff(record);
+
+        if (!handoff) return null;
+
+        const handoffs = readHandoffStore();
+        const storageId = getHandoffStorageId(
+            handoff.sessionId,
+            handoff.subjectId
+        );
+
+        handoffs[storageId] = handoff;
+        const written = writeJson(KEYS.handoffs, handoffs);
+
+        return written ? handoff : null;
+    }
+
+    function readHandoff(sessionId, subjectId) {
+        const cleanSessionId = typeof sessionId === 'string'
+            ? sessionId.trim()
+            : '';
+
+        const cleanSubjectId = typeof subjectId === 'string'
+            ? subjectId.trim()
+            : '';
+
+        if (!cleanSessionId || !cleanSubjectId) return null;
+
+        const handoff = readHandoffStore()[
+            getHandoffStorageId(cleanSessionId, cleanSubjectId)
+        ];
+
+        return normalizeHandoff(handoff);
+    }
+
+    function readLatestHandoff(sessionId) {
+        const cleanSessionId = typeof sessionId === 'string'
+            ? sessionId.trim()
+            : '';
+
+        if (!cleanSessionId) return null;
+
+        return Object.values(readHandoffStore())
+            .map(normalizeHandoff)
+            .filter(handoff => handoff?.sessionId === cleanSessionId)
+            .sort((a, b) => b.completedAt - a.completedAt)[0] || null;
     }
 
     // ============================================================
@@ -658,6 +791,10 @@
         createSession,
         renameSession,
         deleteSession,
+
+        writeHandoff,
+        readHandoff,
+        readLatestHandoff,
 
         readRegistry,
         writeRegistry,
