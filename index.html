@@ -60,33 +60,33 @@
    ============================================================ */
     :root {
       /* Neutrals — cool paper, stepping off the warm-cream default */
-      --bg: #eef0f1;
-      --bg-raised: #fbfbfc;
-      --bg-subtle: #e4e7e9;
-      --border: rgba(28, 34, 42, 0.10);
-      --border-mid: rgba(28, 34, 42, 0.16);
+      --bg: #f3f0e9;
+      --bg-raised: #fffdf9;
+      --bg-subtle: #ebe7de;
+      --border: rgba(49, 45, 38, 0.10);
+      --border-mid: rgba(49, 45, 38, 0.16);
       /* Ink — cool, slightly blue-grey rather than warm brown */
-      --ink: #181c22;
-      --ink-mid: #424954;
-      --ink-quiet: #717982;
-      --ink-faint: #a7adb5;
+      --ink: #211f1b;
+      --ink-mid: #504b43;
+      --ink-quiet: #7b7469;
+      --ink-faint: #aaa297;
       /* Accent — neutral slate-ink. Not Compass teal, not Arcade purple.
      Connective tissue: recedes behind the worlds' saturated colours. */
-      --accent: #5a6675;
-      --accent-soft: #79838f;
-      --accent-pale: #e4e8ed;
-      --accent-rgb: 90, 102, 117;
+      --accent: #526c67;
+      --accent-soft: #718b85;
+      --accent-pale: #e2e9e5;
+      --accent-rgb: 82, 108, 103;
       /* Semantic */
-      --continue-bg: #e8ebef;
-      --continue-border: rgba(90, 102, 117, 0.30);
-      --door-hover: rgba(28, 34, 42, 0.025);
+      --continue-bg: rgba(255, 253, 248, 0.84);
+      --continue-border: rgba(82, 108, 103, 0.20);
+      --door-hover: rgba(255, 253, 249, 0.92);
       --danger: #b23a2e;
       --danger-bg: #fbf1f0;
       --danger-border: rgba(178, 58, 46, 0.3);
       /* Shadows — halved against Compass; Atlas sits flat */
-      --shadow-sm: 0 1px 2px rgba(20, 26, 34, 0.05);
-      --shadow-md: 0 2px 8px rgba(20, 26, 34, 0.06);
-      --shadow-lg: 0 6px 24px rgba(20, 26, 34, 0.10);
+      --shadow-sm: 0 2px 8px rgba(42, 37, 29, 0.045);
+      --shadow-md: 0 10px 30px rgba(42, 37, 29, 0.075);
+      --shadow-lg: 0 20px 56px rgba(42, 37, 29, 0.11);
       /* Radii — slightly tighter, more architectural than the worlds */
       --r-sm: 5px;
       --r-md: 10px;
@@ -102,21 +102,21 @@
     /* Night mode — cool charcoal-slate, not the worlds' warm brown night.
    Atlas stays the neutral threshold in the dark too. */
     html[data-theme="night"] {
-      --bg: #181b1f;
-      --bg-raised: #23272d;
-      --bg-subtle: #1f2329;
+      --bg: #1b1d1c;
+      --bg-raised: #252826;
+      --bg-subtle: #212421;
       --border: rgba(255, 255, 255, 0.08);
       --border-mid: rgba(255, 255, 255, 0.14);
-      --ink: #e8eaed;
-      --ink-mid: #b3b9c1;
-      --ink-quiet: #7e848d;
-      --ink-faint: #4a4f57;
-      --accent: #8a96a6;
-      --accent-soft: #a3adba;
-      --accent-pale: #262c34;
-      --accent-rgb: 138, 150, 166;
-      --continue-bg: #232932;
-      --continue-border: rgba(138, 150, 166, 0.32);
+      --ink: #ebe9e4;
+      --ink-mid: #bdb8ae;
+      --ink-quiet: #89847b;
+      --ink-faint: #55534e;
+      --accent: #8eaaa3;
+      --accent-soft: #a4bdb7;
+      --accent-pale: #2a3330;
+      --accent-rgb: 142, 170, 163;
+      --continue-bg: rgba(39, 45, 42, 0.88);
+      --continue-border: rgba(142, 170, 163, 0.25);
       --door-hover: rgba(255, 255, 255, 0.04);
       --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.22);
       --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.30);
@@ -150,7 +150,11 @@
 
     body {
       font-family: var(--font-body);
-      background: var(--bg);
+      background:
+        radial-gradient(circle at 12% -8%, rgba(var(--accent-rgb), 0.12), transparent 34rem),
+        radial-gradient(circle at 100% 18%, rgba(122, 110, 154, 0.055), transparent 34rem),
+        var(--bg);
+      background-attachment: fixed;
       color: var(--ink);
       font-size: 15px;
       line-height: 1.6;
@@ -165,16 +169,33 @@
       pointer-events: none;
       background-size: cover;
       background-position: center;
+      filter: blur(7px) saturate(0.72) contrast(0.94);
+      transform: scale(1.025);
       opacity: 0;
-      transition: opacity var(--t);
+      transition: opacity 0.35s ease;
+    }
+
+    .atmosphere-layer::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(243, 240, 233, 0.22), rgba(243, 240, 233, 0.68)),
+        radial-gradient(circle at 50% 18%, transparent 0, rgba(243, 240, 233, 0.36) 68%);
     }
 
     .atmosphere-layer.visible {
-      opacity: 0.10;
+      opacity: 0.16;
     }
 
     html[data-theme="night"] .atmosphere-layer.visible {
-      opacity: 0.08;
+      opacity: 0.12;
+    }
+
+    html[data-theme="night"] .atmosphere-layer::after {
+      background:
+        linear-gradient(180deg, rgba(27, 29, 28, 0.18), rgba(27, 29, 28, 0.66)),
+        radial-gradient(circle at 50% 18%, transparent 0, rgba(27, 29, 28, 0.38) 68%);
     }
 
     /* ============================================================ SPINE (desktop header) */
@@ -182,8 +203,8 @@
       position: sticky;
       top: 0;
       z-index: 200;
-      background: rgba(238, 240, 241, 0.90);
-      backdrop-filter: blur(14px);
+      background: rgba(243, 240, 233, 0.84);
+      backdrop-filter: blur(22px) saturate(1.08);
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
@@ -193,7 +214,7 @@
     }
 
     html[data-theme="night"] .spine {
-      background: rgba(24, 27, 31, 0.90);
+      background: rgba(27, 29, 28, 0.86);
     }
 
     .spine-mark {
@@ -350,7 +371,7 @@
       position: sticky;
       top: 0;
       z-index: 200;
-      background: rgba(238, 240, 241, 0.93);
+      background: rgba(243, 240, 233, 0.88);
       backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border);
       height: 56px;
@@ -360,7 +381,7 @@
     }
 
     html[data-theme="night"] .mobile-header {
-      background: rgba(24, 27, 31, 0.93);
+      background: rgba(27, 29, 28, 0.90);
     }
 
     .mobile-header-mark {
@@ -630,15 +651,15 @@
     .atlas-main {
       position: relative;
       z-index: 1;
-      max-width: 820px;
+      max-width: 880px;
       margin: 0 auto;
-      padding: 3rem 1.5rem 4rem;
+      padding: clamp(3.4rem, 7vw, 5rem) 1.5rem 5rem;
     }
 
     /* ============================================================ CONTEXT ANCHOR */
     .context-anchor {
-      margin-bottom: 2rem;
-      padding-bottom: 1.75rem;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.65rem;
       position: relative;
     }
 
@@ -649,10 +670,10 @@
       content: '';
       position: absolute;
       left: 0;
-      right: 0;
+      width: 88px;
       bottom: 0;
       height: 1px;
-      background: var(--border);
+      background: linear-gradient(90deg, var(--accent), rgba(var(--accent-rgb), 0));
     }
 
     .today-label {
@@ -661,16 +682,17 @@
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--accent);
-      margin-bottom: 0.7rem;
+      margin-bottom: 0.8rem;
     }
 
     .welcome-line {
       font-family: var(--font-display);
-      font-size: clamp(1.6rem, 4vw, 2.1rem);
+      font-size: clamp(2rem, 5vw, 2.7rem);
       color: var(--ink);
-      line-height: 1.2;
-      margin-bottom: 0.45rem;
+      line-height: 1.12;
+      margin-bottom: 0.6rem;
       font-weight: 400;
+      letter-spacing: -0.015em;
     }
 
     .welcome-sub {
@@ -681,35 +703,202 @@
 
     /* ============================================================ CONTINUE CARD */
     .continue-card {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
       background: var(--continue-bg);
-      border: 1.5px solid var(--continue-border);
-      border-radius: var(--r-lg);
-      padding: 1.15rem 1.3rem;
-      margin-bottom: 1.75rem;
-      cursor: pointer;
+      border: 1px solid var(--continue-border);
+      border-radius: 22px;
+      margin-bottom: 1.35rem;
       transition: var(--t);
-      text-decoration: none;
       position: relative;
       overflow: hidden;
+      box-shadow:
+        0 22px 56px rgba(55, 47, 35, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.76);
+      backdrop-filter: blur(22px) saturate(1.08);
+      -webkit-backdrop-filter: blur(22px) saturate(1.08);
     }
 
-    /* Extra bottom room so the rail doesn't crowd the text */
+    html[data-theme="night"] .continue-card {
+      box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.26),
+        inset 0 1px 0 rgba(255, 255, 255, 0.055);
+    }
+
+    .continue-summary {
+      display: flex;
+      align-items: center;
+      gap: 1.15rem;
+      padding: 1.45rem 1.5rem 1.2rem;
+    }
+
+    /* Extra bottom room so the rail doesn't crowd the actions */
     .continue-card.has-rail {
-      padding-bottom: 1.3rem;
+      padding-bottom: 1px;
     }
 
-    .continue-card:hover {
+    .continue-pickup {
+      margin-top: 0.62rem;
+      color: var(--ink-mid);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .continue-pickup-label {
+      color: var(--accent);
+      font-weight: 650;
+    }
+
+    .continue-actions {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
+
+    .continue-summary>.continue-actions {
+      flex-wrap: nowrap;
+      margin-left: auto;
+    }
+
+    .continue-card>.continue-actions {
+      padding: 0 1.5rem 1.3rem;
+    }
+
+    .continue-action {
+      min-height: 40px;
+      border-radius: 999px;
+      padding: 0.55rem 1rem;
+      border: 1px solid rgba(var(--accent-rgb), 0.2);
+      background: rgba(255, 255, 255, 0.34);
+      color: var(--ink-mid);
+      font: inherit;
+      font-size: 0.79rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--t);
+    }
+
+    .continue-action:hover {
+      border-color: rgba(var(--accent-rgb), 0.38);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--ink);
+    }
+
+    .continue-action:focus-visible {
+      outline: 3px solid rgba(var(--accent-rgb), 0.52);
+      outline-offset: 3px;
+    }
+
+    .continue-action.is-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
       border-color: var(--accent);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-1px);
+      background: var(--accent);
+      color: white;
     }
 
-    .continue-card:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
+    .continue-action.is-primary:hover {
+      background: #445e59;
+      border-color: #445e59;
+      color: white;
+    }
+
+    html[data-theme="night"] .continue-action {
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    html[data-theme="night"] .continue-action:hover {
+      background: rgba(255, 255, 255, 0.085);
+    }
+
+    html[data-theme="night"] .continue-action.is-primary,
+    html[data-theme="night"] .continue-action.is-primary:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #17201e;
+    }
+
+    .continue-recap {
+      margin: 0 1.5rem 1.15rem;
+      padding: 1.25rem 1.3rem;
+      border: 1px solid rgba(var(--accent-rgb), 0.15);
+      border-radius: 16px;
+      background: rgba(244, 241, 234, 0.68);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
+    }
+
+    html[data-theme="night"] .continue-recap {
+      background: rgba(17, 21, 19, 0.22);
+      border-color: rgba(var(--accent-rgb), 0.16);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+    }
+
+    .continue-recap[hidden] {
+      display: none;
+    }
+
+    .continue-recap-kicker {
+      color: var(--accent);
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      line-height: 1.45;
+      text-transform: uppercase;
+    }
+
+    .continue-recap-section {
+      margin-top: 1rem;
+    }
+
+    .continue-recap-heading {
+      margin: 0 0 0.38rem;
+      color: var(--ink);
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .continue-recap-list {
+      margin: 0;
+      padding-left: 1.15rem;
+      color: var(--ink-mid);
+      font-size: 0.84rem;
+      line-height: 1.6;
+    }
+
+    .continue-recap-copy {
+      margin: 0;
+      color: var(--ink-mid);
+      font-size: 0.84rem;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 620px) {
+      .continue-summary {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      .continue-summary>.continue-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .continue-card>.continue-actions {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      .continue-recap {
+        margin-left: 1rem;
+        margin-right: 1rem;
+      }
+
+      .continue-action {
+        min-height: 42px;
+      }
     }
 
     /* Unlabeled coverage rail — pinned to the card's bottom edge. Reads as
@@ -720,20 +909,20 @@
       left: 0;
       right: 0;
       bottom: 0;
-      height: 3px;
-      background: rgba(var(--accent-rgb), 0.14);
+      height: 1px;
+      background: rgba(var(--accent-rgb), 0.06);
       overflow: hidden;
     }
 
     .continue-rail-fill {
       height: 100%;
-      background: var(--accent-soft);
+      background: rgba(var(--accent-rgb), 0.28);
       border-radius: 0 2px 2px 0;
       transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .continue-rail.is-complete .continue-rail-fill {
-      background: var(--accent);
+      background: rgba(var(--accent-rgb), 0.38);
       border-radius: 0;
     }
 
@@ -744,11 +933,12 @@
     }
 
     .continue-icon {
-      width: 40px;
-      height: 40px;
+      width: 46px;
+      height: 46px;
       flex-shrink: 0;
-      border-radius: var(--r-sm);
-      background: rgba(var(--accent-rgb), 0.15);
+      border-radius: 14px;
+      border: 1px solid rgba(var(--accent-rgb), 0.14);
+      background: rgba(var(--accent-rgb), 0.10);
       color: var(--accent);
       display: flex;
       align-items: center;
@@ -761,31 +951,34 @@
     }
 
     .continue-kicker {
-      font-size: 0.66rem;
-      font-weight: 600;
-      letter-spacing: 0.14em;
+      font-size: 0.64rem;
+      font-weight: 650;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--accent);
-      margin-bottom: 0.2rem;
+      margin-bottom: 0.3rem;
     }
 
     .continue-title {
-      font-size: 0.98rem;
-      font-weight: 500;
+      font-family: var(--font-display);
+      font-size: clamp(1.15rem, 2.4vw, 1.38rem);
+      font-weight: 400;
       color: var(--ink);
+      line-height: 1.2;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
     .continue-meta {
-      font-size: 0.76rem;
+      font-size: 0.77rem;
       color: var(--ink-quiet);
-      margin-top: 0.12rem;
+      margin-top: 0.22rem;
     }
 
     .continue-arrow {
-      color: var(--accent);
+      display: inline-flex;
+      color: currentColor;
       flex-shrink: 0;
     }
 
@@ -794,33 +987,42 @@
       display: flex;
       align-items: center;
       gap: 0.9rem;
-      background: var(--bg-raised);
+      background: rgba(255, 253, 249, 0.62);
       border: 1px solid var(--border);
-      border-radius: var(--r-md);
-      padding: 0.85rem 1.1rem;
-      margin-bottom: 1.75rem;
+      border-radius: 14px;
+      padding: 0.9rem 1.05rem;
+      margin-bottom: 2rem;
       cursor: pointer;
       transition: var(--t);
       width: 100%;
       text-align: left;
       font-family: var(--font-body);
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
     }
 
     .review-row:hover {
-      border-color: var(--border-mid);
-      box-shadow: var(--shadow-sm);
+      border-color: rgba(var(--accent-rgb), 0.22);
+      background: rgba(255, 253, 249, 0.84);
+      box-shadow: 0 7px 20px rgba(42, 37, 29, 0.065);
     }
 
     .review-row:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
+      outline: 3px solid rgba(var(--accent-rgb), 0.5);
+      outline-offset: 3px;
+    }
+
+    html[data-theme="night"] .review-row,
+    html[data-theme="night"] .review-row:hover {
+      background: rgba(37, 40, 38, 0.72);
     }
 
     .review-row-icon {
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       flex-shrink: 0;
-      border-radius: var(--r-sm);
+      border-radius: 11px;
       background: var(--accent-pale);
       color: var(--accent);
       display: flex;
@@ -862,33 +1064,52 @@
       font-weight: 600;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--ink-faint);
-      margin-bottom: 0.85rem;
+      color: var(--ink-quiet);
+      margin-bottom: 1rem;
     }
 
     .doors-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1rem;
+      gap: 1.15rem;
       margin-bottom: 1.5rem;
     }
 
     .door {
       display: flex;
       flex-direction: column;
-      background: var(--bg-raised);
-      border: 1.5px solid var(--border);
-      border-radius: var(--r-lg);
-      padding: 1.5rem 1.4rem 1.3rem;
+      background: rgba(255, 253, 249, 0.74);
+      border: 1px solid rgba(49, 45, 38, 0.11);
+      border-radius: 20px;
+      padding: 1.65rem 1.5rem 1.4rem;
       cursor: pointer;
       transition: var(--t);
       text-decoration: none;
       position: relative;
       overflow: hidden;
-      min-height: 150px;
+      min-height: 164px;
       width: 100%;
       text-align: left;
       font-family: var(--font-body);
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .door-compass {
+      background: linear-gradient(145deg, rgba(255, 253, 249, 0.9), rgba(92, 122, 110, 0.075));
+    }
+
+    .door-arcade {
+      background: linear-gradient(145deg, rgba(255, 253, 249, 0.9), rgba(122, 110, 154, 0.07));
+    }
+
+    html[data-theme="night"] .door-compass {
+      background: linear-gradient(145deg, rgba(37, 40, 38, 0.9), rgba(127, 168, 150, 0.085));
+    }
+
+    html[data-theme="night"] .door-arcade {
+      background: linear-gradient(145deg, rgba(37, 40, 38, 0.9), rgba(160, 148, 190, 0.075));
     }
 
     .door::before {
@@ -897,8 +1118,8 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 3px;
-      opacity: 0;
+      height: 2px;
+      opacity: 0.34;
       transition: opacity var(--t);
     }
 
@@ -912,22 +1133,31 @@
 
     .door:hover {
       box-shadow: var(--shadow-md);
-      transform: translateY(-1px);
-      border-color: var(--border-mid);
+      transform: translateY(-2px);
+      border-color: rgba(var(--accent-rgb), 0.22);
     }
 
     .door:hover::before {
-      opacity: 1;
+      opacity: 0.9;
+    }
+
+    .door:active {
+      transform: translateY(0);
+      box-shadow: var(--shadow-sm);
     }
 
     .door:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
+      outline: 3px solid rgba(var(--accent-rgb), 0.5);
+      outline-offset: 3px;
     }
 
     .door-unavailable {
       opacity: 0.6;
       cursor: default;
+    }
+
+    .door-unavailable::before {
+      opacity: 0;
     }
 
     .door-unavailable:hover {
@@ -941,13 +1171,13 @@
     }
 
     .door-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: var(--r-sm);
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 1rem;
+      margin-bottom: 1.1rem;
       flex-shrink: 0;
     }
 
@@ -997,9 +1227,9 @@
 
     .door-title {
       font-family: var(--font-display);
-      font-size: 1.2rem;
+      font-size: 1.28rem;
       color: var(--ink);
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.48rem;
       line-height: 1.2;
     }
 
@@ -1204,31 +1434,53 @@
       padding-top: 1.5rem;
       border-top: 1px solid var(--border);
       animation: fadeIn 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 1.35rem;
+    }
+
+    .recall-answer-section {
+      min-width: 0;
     }
 
     .recall-answer-label {
-      font-size: 0.64rem;
+      font-size: 0.68rem;
       font-weight: 600;
       letter-spacing: 0.13em;
       text-transform: uppercase;
-      color: var(--ink-faint);
-      margin-bottom: 0.4rem;
+      color: var(--ink-quiet);
+      margin-bottom: 0.55rem;
     }
 
     .recall-def {
-      font-size: 0.98rem;
+      font-size: 1rem;
       color: var(--ink);
-      line-height: 1.6;
-      margin-bottom: 1.1rem;
+      line-height: 1.7;
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .recall-answer-section.example {
+      padding: 1rem 1.1rem 1.05rem 1.2rem;
+      border: 1px solid rgba(var(--accent-rgb), 0.14);
+      border-left: 3px solid var(--accent-soft);
+      border-radius: 0 var(--r-md) var(--r-md) 0;
+      background: rgba(var(--accent-rgb), 0.055);
+    }
+
+    .recall-answer-section.example .recall-answer-label {
+      color: var(--accent);
+      margin-bottom: 0.6rem;
     }
 
     .recall-inaction {
-      font-size: 0.9rem;
-      color: var(--ink-quiet);
-      font-style: italic;
-      line-height: 1.6;
-      padding-left: 0.9rem;
-      border-left: 2px solid var(--accent-pale);
+      font-size: 0.94rem;
+      color: var(--ink-mid);
+      font-style: normal;
+      line-height: 1.72;
+      padding: 0;
+      border: 0;
+      overflow-wrap: anywhere;
     }
 
     /* Review nav controls */
@@ -1885,7 +2137,19 @@
       }
 
       .atlas-main {
-        padding: 2rem 1rem 3rem;
+        padding: 2.75rem 1rem 3.5rem;
+      }
+
+      .context-anchor {
+        margin-bottom: 2rem;
+      }
+
+      .welcome-line {
+        font-size: clamp(1.9rem, 9vw, 2.35rem);
+      }
+
+      .door {
+        min-height: 150px;
       }
 
       .review-view {
@@ -1894,6 +2158,18 @@
 
       .recall-card {
         padding: 1.6rem 1.4rem;
+      }
+
+      .recall-answer {
+        gap: 1.15rem;
+      }
+
+      .recall-answer-section.example {
+        padding: 0.9rem 0.95rem 0.95rem 1rem;
+      }
+
+      .recall-inaction {
+        font-size: 0.92rem;
       }
 
       .empty-form {
@@ -2220,6 +2496,15 @@
       try { return Bridge.readLedger(); }
       catch (e) { return { entries: {} }; }
     }
+    function getLatestHandoff(sessionId) {
+      try {
+        return typeof Bridge.readLatestHandoff === 'function'
+          ? Bridge.readLatestHandoff(sessionId)
+          : null;
+      } catch (e) {
+        return null;
+      }
+    }
     function isDefaultSession(session) {
       return session && session.id === (Bridge.defaultSessionId || 'default');
     }
@@ -2382,6 +2667,24 @@
 
       return item.world || '';
     }
+
+    function getMatchingCompassHandoff(item, handoff) {
+      if (!item || !handoff) return null;
+      if (item.world !== COMPASS_ID || handoff.world !== COMPASS_ID) return null;
+
+      const subjectId = typeof handoff.subjectId === 'string'
+        ? handoff.subjectId.trim()
+        : '';
+
+      if (!subjectId) return null;
+
+      const matchesSubjectId = item.id === subjectId;
+      const matchesRegistryId = item.registryId === COMPASS_ID + ':' + subjectId;
+
+      return matchesSubjectId || matchesRegistryId ? handoff : null;
+    }
+
+    let expandedContinueHandoffId = null;
 
     // ================================================================
     // LANGUAGE REVIEW — saved language entries for the active session
@@ -2850,17 +3153,30 @@
       const atLast = st.idx === total - 1;
       const contextName = isDefaultSession(session) ? 'this session' : escHtml(session.name);
 
+      const savedText = value => typeof value === 'string' ? value.trim() : '';
+      const promptText = savedText(entry.atlasPrompt) || savedText(entry.reviewPrompt);
+      const meaningText = savedText(entry.definition) || savedText(entry.def);
+      const beforeText = savedText(entry.ordinary);
+      const upgradeText = savedText(entry.upgraded) || savedText(entry.inAction);
+
       const type = entry.type ? '<div class="recall-type">' + escHtml(entry.type) + '</div>' : '';
-      const prompt = entry.reviewPrompt
-        ? '<div class="recall-prompt"><span class="recall-prompt-label">Try this</span>' + escHtml(entry.reviewPrompt) + '</div>'
+      const prompt = promptText
+        ? '<div class="recall-prompt"><span class="recall-prompt-label">Prompt</span>' + escHtml(promptText) + '</div>'
         : '';
 
       let answer = '';
       if (st.revealed) {
-        const def = entry.def ? '<div class="recall-answer-label">Meaning</div><div class="recall-def">' + escHtml(entry.def) + '</div>' : '';
-        const inAction = entry.inAction ? '<div class="recall-answer-label">In action</div><div class="recall-inaction">' + escHtml(entry.inAction) + '</div>' : '';
-        answer = '<div class="recall-answer">' + def + inAction +
-          (!def && !inAction ? '<div class="recall-def" style="color:var(--ink-quiet)">No further detail was saved for this item.</div>' : '') +
+        const meaning = meaningText
+          ? '<div class="recall-answer-section"><div class="recall-answer-label">Meaning</div><div class="recall-def">' + escHtml(meaningText) + '</div></div>'
+          : '';
+        const before = beforeText
+          ? '<div class="recall-answer-section example"><div class="recall-answer-label">Before</div><div class="recall-inaction">' + escHtml(beforeText) + '</div></div>'
+          : '';
+        const upgrade = upgradeText
+          ? '<div class="recall-answer-section example"><div class="recall-answer-label">Upgrade</div><div class="recall-inaction">' + escHtml(upgradeText) + '</div></div>'
+          : '';
+        answer = '<div class="recall-answer">' + meaning + before + upgrade +
+          (!meaning && !before && !upgrade ? '<div class="recall-def" style="color:var(--ink-quiet)">No further detail was saved for this item.</div>' : '') +
           '</div>';
       }
 
@@ -2929,11 +3245,17 @@
 
       const isDefault = isDefaultSession(session);
       const continueItem = getContinueItem(reg, session.id);
+      const latestHandoff = continueItem ? getLatestHandoff(session.id) : null;
+      const continueHandoff = getMatchingCompassHandoff(continueItem, latestHandoff);
       const reviewSet = getReviewSet(ledger, session.id);
       const hasContinue = !!continueItem;
       const hasReview = reviewSet.length > 0;
       const sessionStates = (reg.sessionStates || {})[session.id];
       const hasHistory = !!(sessionStates && Object.keys(sessionStates).length);
+
+      if (!continueHandoff || continueHandoff.id !== expandedContinueHandoffId) {
+        expandedContinueHandoffId = null;
+      }
 
       // True-empty state: default session, no saved language, no history.
       if (isDefault && !defaultSetupDismissed && !hasContinue && !hasReview && !hasHistory) {
@@ -2941,7 +3263,15 @@
         return;
       }
 
-      main.innerHTML = renderGateway(session, isDefault, continueItem, hasContinue, reviewSet, hasReview);
+      main.innerHTML = renderGateway(
+        session,
+        isDefault,
+        continueItem,
+        continueHandoff,
+        hasContinue,
+        reviewSet,
+        hasReview
+      );
     }
 
     function renderEmptyState() {
@@ -2978,12 +3308,12 @@
       renderHome();
     }
 
-    function renderGateway(session, isDefault, continueItem, hasContinue, reviewSet, hasReview) {
+    function renderGateway(session, isDefault, continueItem, continueHandoff, hasContinue, reviewSet, hasReview) {
       // Greeting copy — warm, plain, no system language.
       let welcomeMain, welcomeSub;
       if (hasContinue) {
         welcomeMain = isDefault ? 'Ready to continue.' : 'Welcome back, ' + escHtml(session.name) + '.';
-        welcomeSub = 'Last time: ' + escHtml(itemTitle(continueItem)) + '.';
+        welcomeSub = '';
       } else {
         welcomeMain = isDefault ? 'Ready when you are.' : 'Welcome, ' + escHtml(session.name) + '.';
         welcomeSub = 'Choose a direction for today\u2019s lesson.';
@@ -2993,20 +3323,72 @@
         '<div class="context-anchor">' +
         '<div class="today-label">Today</div>' +
         '<h1 class="welcome-line">' + welcomeMain + '</h1>' +
-        '<p class="welcome-sub">' + welcomeSub + '</p>' +
+        (welcomeSub ? '<p class="welcome-sub">' + welcomeSub + '</p>' : '') +
         '</div>' +
-        (hasContinue ? renderContinueCard(continueItem) : '') +
+        (hasContinue ? renderContinueCard(continueItem, continueHandoff) : '') +
         (hasReview ? renderReviewRow(reviewSet.length) : '') +
         '<p class="doors-label">Choose a world</p>' +
         renderDoors();
     }
 
-    function renderContinueCard(item) {
+    function renderContinueCard(item, handoff) {
       const url = item.launchUrl || '';
       const meta = continueLabel(item);
       const world = itemWorldLabel(item);
       const metaLine = world ? meta + ' \u00b7 ' + world : meta;
       const pct = continueCoverage(item);
+      const exploredItems = handoff && Array.isArray(handoff.exploredItems)
+        ? handoff.exploredItems.filter(explored =>
+          explored && typeof explored.title === 'string' && explored.title.trim()
+        )
+        : [];
+      const savedLanguageCount = handoff
+        ? Math.max(0, Math.floor(Number(handoff.savedLanguageCount) || 0))
+        : 0;
+      const pickupLabel = handoff && typeof handoff.pickupLabel === 'string'
+        ? handoff.pickupLabel.trim()
+        : '';
+      const pickupRef = handoff && typeof handoff.pickupRef === 'string'
+        ? handoff.pickupRef.trim()
+        : '';
+      const finalExploredItem = exploredItems[exploredItems.length - 1] || null;
+      const anchorLabel = pickupLabel || (finalExploredItem
+        ? finalExploredItem.title.trim()
+        : '');
+      let anchorIndex = -1;
+
+      if (anchorLabel && exploredItems.length) {
+        if (pickupRef) {
+          anchorIndex = exploredItems.map(explored => explored.id).lastIndexOf(pickupRef);
+        }
+
+        if (anchorIndex < 0 && pickupLabel) {
+          anchorIndex = exploredItems.map(explored => explored.title.trim()).lastIndexOf(pickupLabel);
+        }
+
+        if (anchorIndex < 0 && !pickupLabel) {
+          anchorIndex = exploredItems.length - 1;
+        }
+      }
+
+      const recapExploredItems = !anchorLabel || exploredItems.length === 0
+        ? exploredItems
+        : exploredItems.length === 1
+          ? []
+          : anchorIndex >= 0
+            ? exploredItems.slice(0, anchorIndex)
+            : exploredItems;
+      const hasRecapEvidence = exploredItems.length > 0 || savedLanguageCount > 0;
+      const handoffId = handoff && typeof handoff.id === 'string'
+        ? handoff.id
+        : '';
+      const recapExpanded = Boolean(
+        hasRecapEvidence && handoffId && expandedContinueHandoffId === handoffId
+      );
+      const recapId = 'continue-recap-region';
+      const subjectTitle = handoff && typeof handoff.subjectTitle === 'string' && handoff.subjectTitle.trim()
+        ? handoff.subjectTitle.trim()
+        : itemTitle(item);
 
       const rail = (pct !== null)
         ? '<div class="continue-rail' + (pct >= 100 ? ' is-complete' : '') + '" aria-hidden="true">' +
@@ -3014,10 +3396,64 @@
         '</div>'
         : '';
 
+      const pickup = anchorLabel
+        ? '<div class="continue-pickup"><span class="continue-pickup-label">Pick up from</span> \u2014 ' + escHtml(anchorLabel) + '</div>'
+        : '';
+
+      const exploredSection = recapExploredItems.length
+        ? '<div class="continue-recap-section">' +
+        '<h3 class="continue-recap-heading">You explored</h3>' +
+        '<ul class="continue-recap-list">' + recapExploredItems.map(explored =>
+          '<li>' + escHtml(explored.title.trim()) + '</li>'
+        ).join('') + '</ul>' +
+        '</div>'
+        : '';
+
+      const savedLanguageSection = savedLanguageCount > 0
+        ? '<div class="continue-recap-section">' +
+        '<h3 class="continue-recap-heading">Saved language</h3>' +
+        '<p class="continue-recap-copy">' + savedLanguageCount + ' item' + (savedLanguageCount === 1 ? '' : 's') + ' saved</p>' +
+        '</div>'
+        : '';
+
+      const endedOnSection = anchorLabel
+        ? '<div class="continue-recap-section">' +
+        '<h3 class="continue-recap-heading">We ended on</h3>' +
+        '<p class="continue-recap-copy">' + escHtml(anchorLabel) + '</p>' +
+        '</div>'
+        : '';
+
+      const recap = hasRecapEvidence
+        ? '<section class="continue-recap" id="' + recapId + '" role="region" aria-label="Last lesson recap for ' + escAttr(subjectTitle) + '"' + (recapExpanded ? '' : ' hidden') + '>' +
+        '<div class="continue-recap-kicker">Last lesson \u00b7 ' + escHtml(subjectTitle) + '</div>' +
+        exploredSection +
+        savedLanguageSection +
+        endedOnSection +
+        '</section>'
+        : '';
+
+      const recapToggle = hasRecapEvidence
+        ? '<button type="button" class="continue-action" id="continue-recap-toggle" ' +
+        'data-handoff-id="' + escAttr(handoffId) + '" ' +
+        'aria-expanded="' + String(recapExpanded) + '" aria-controls="' + recapId + '" ' +
+        'onclick="toggleContinueRecapFromButton(this)">' +
+        (recapExpanded ? 'Close recap' : 'Open recap') +
+        '</button>'
+        : '';
+
+      const continueButton = '<button type="button" class="continue-action is-primary" ' +
+        'data-launch-url="' + escAttr(url) + '" onclick="navigateFromContinueButton(this)" ' +
+        'aria-label="Continue ' + escAttr(itemTitle(item)) + '">' +
+        '<span>Continue</span>' +
+        '<span class="continue-arrow" aria-hidden="true">' +
+        '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8h8M9 5l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '</span>' +
+        '</button>';
+      const continueActions = '<div class="continue-actions">' + recapToggle + continueButton + '</div>';
+
       return '' +
-        '<div class="continue-card' + (rail ? ' has-rail' : '') + '" role="button" tabindex="0" ' +
-        'onclick="navigateTo(\'' + escAttr(url) + '\')" ' +
-        'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navigateTo(\'' + escAttr(url) + '\')}">' +
+        '<div class="continue-card' + (rail ? ' has-rail' : '') + (recapExpanded ? ' is-expanded' : '') + '">' +
+        '<div class="continue-summary">' +
         '<div class="continue-icon">' +
         '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
         '</div>' +
@@ -3025,12 +3461,37 @@
         '<div class="continue-kicker">Continue</div>' +
         '<div class="continue-title">' + escHtml(itemTitle(item)) + '</div>' +
         '<div class="continue-meta">' + escHtml(metaLine) + '</div>' +
+        pickup +
         '</div>' +
-        '<div class="continue-arrow">' +
-        '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8h8M9 5l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        (recapExpanded ? '' : continueActions) +
         '</div>' +
+        recap +
+        (recapExpanded ? continueActions : '') +
         rail +
         '</div>';
+    }
+
+    function toggleContinueRecapFromButton(button) {
+      const handoffId = button && button.dataset
+        ? button.dataset.handoffId || ''
+        : '';
+
+      if (!handoffId) return;
+
+      expandedContinueHandoffId = expandedContinueHandoffId === handoffId
+        ? null
+        : handoffId;
+
+      renderHome();
+
+      window.requestAnimationFrame(() => {
+        const toggle = document.getElementById('continue-recap-toggle');
+        if (toggle) toggle.focus({ preventScroll: true });
+      });
+    }
+
+    function navigateFromContinueButton(button) {
+      navigateTo(button && button.dataset ? button.dataset.launchUrl || '' : '');
     }
 
     function renderReviewRow(count) {
@@ -3363,6 +3824,7 @@
       }
 
       if (k === 'atlas::sessions' || k === 'atlas::activeSessionId' ||
+        k === 'atlas::handoffs' ||
         k === 'atlas::registry' || k === 'learning::ledger') {
         refreshFromBridge();
       }
