@@ -288,6 +288,47 @@ function mountCompassSubjectShell() {
     </div>
 
     <!-- ============================================================
+     COMPASS WRAP-UP CANVAS
+     Moves into the active view so that view's existing shell remains.
+     ============================================================ -->
+
+    <section class="compass-wrap-up-canvas" id="compass-wrap-up-canvas"
+        aria-labelledby="compass-wrap-up-kicker" hidden>
+        <div class="compass-wrap-up-stage">
+            <p class="compass-wrap-up-kicker" id="compass-wrap-up-kicker" tabindex="-1">Today</p>
+
+            <div class="compass-wrap-up-section" id="compass-wrap-up-explored">
+                <h2>You explored</h2>
+                <ul class="compass-wrap-up-list" id="compass-wrap-up-list"></ul>
+                <p class="compass-wrap-up-more" id="compass-wrap-up-more" hidden>plus more from today</p>
+            </div>
+
+            <div class="compass-wrap-up-section" id="compass-wrap-up-saved-section">
+                <h2>Saved language</h2>
+                <p class="compass-wrap-up-saved" id="compass-wrap-up-saved">0 items saved</p>
+            </div>
+
+            <div class="compass-wrap-up-section" id="compass-wrap-up-empty" hidden>
+                <p class="compass-wrap-up-saved">Nothing was added to today’s recap.</p>
+            </div>
+
+            <div class="compass-wrap-up-pickup" id="compass-wrap-up-pickup" hidden>
+                <p class="compass-wrap-up-pickup-label">We ended on</p>
+                <p class="compass-wrap-up-pickup-value" id="compass-wrap-up-pickup-value"></p>
+            </div>
+
+            <div class="compass-wrap-up-actions">
+                <button class="btn-primary" type="button" onclick="finishCompassWrapUp()">
+                    Finish and return to Atlas
+                </button>
+                <button class="btn-ghost" type="button" onclick="keepTeachingFromWrapUp()">
+                    Keep teaching
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
      MOBILE NAVIGATION DRAWER
      ============================================================ -->
 
@@ -480,56 +521,7 @@ function mountCompassSubjectShell() {
         </div>
     </dialog>
 
-    <!-- ============================================================
-     SESSION MODAL
-     Deferred until the Session Handoff implementation.
-     ============================================================ -->
-
-    <div class="session-modal-overlay" id="session-modal-overlay"
-        onclick="handleSessionOverlayClick(event)">
-
-        <div class="session-modal-panel">
-            <div class="session-modal-header">
-                <h3>Session &amp; Progress</h3>
-
-                <button class="vb-close-btn" onclick="closeSessionModal()"
-                    aria-label="Close session settings">
-
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M2 2l10 10M12 2L2 12" stroke="currentColor"
-                            stroke-width="1.5" stroke-linecap="round" />
-                    </svg>
-                </button>
-            </div>
-
-            <div class="session-modal-body">
-                <p id="session-helper-text"
-                    style="font-size:0.82rem;color:var(--ink-light);margin-bottom:1rem;">
-                </p>
-
-                <p style="font-size:0.75rem;color:var(--stone-dark);font-weight:600;
-                    letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.6rem;">
-                    Saved Sessions
-                </p>
-
-                <div class="session-list" id="session-list"></div>
-
-                <p style="font-size:0.78rem;color:var(--stone-dark);
-                    margin-bottom:0.6rem;margin-top:1rem;">
-                    New session
-                </p>
-
-                <div class="session-new-form">
-                    <input class="session-input" id="session-name-input" type="text"
-                        placeholder="Name this session" maxlength="40"
-                        onkeydown="if(event.key==='Enter')addSession()">
-
-                    <button class="btn-add-session" onclick="addSession()">
-                        Add
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Shared safe-first session panel mounts here. -->
+    <div id="atlas-session-panel-root"></div>
     `;
 }

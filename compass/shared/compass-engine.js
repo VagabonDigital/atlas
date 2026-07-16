@@ -214,12 +214,18 @@ const COMPASS_LABELS = {
 
 let currentSession = 'Default';
 let currentSessionId = 'default';
-let sessions = ['Default'];
 
 let progress = {
     explored: new Set(),
     lessonCompletedAt: null
 };
+
+const wrapUpEvidenceBySessionSubject = new Map();
+let wrapUpOriginView = null;
+let wrapUpPreviousBodyOverflow = '';
+let wrapUpPreviousRootOverflow = '';
+let wrapUpPreviousScrollX = 0;
+let wrapUpPreviousScrollY = 0;
 
 let currentModalIndex = 0;
 let activeSetId = null;
@@ -256,10 +262,8 @@ function getCurrentBridgeSession() {
 
 function syncSessionsFromBridge() {
     const Bridge = requireAtlasBridge();
-    const bridgeSessions = Bridge.readSessions();
     const activeSession = Bridge.readActiveSession();
 
-    sessions = bridgeSessions.map(session => session.name);
     currentSessionId = activeSession.id;
     currentSession = activeSession.name || 'Default';
 }
@@ -313,6 +317,88 @@ function getSubjectExplorationCounts() {
         exploredTotal: culturesExplored + momentsExplored,
         itemTotal: clCards.length + moments.length
     };
+}
+
+function getWrapUpEvidenceKey(sessionId) {
+    return `${sessionId}::${MODULE.id}`;
+}
+
+function getWrapUpEvidence(sessionId = currentSessionId, create = true) {
+    const key = getWrapUpEvidenceKey(sessionId);
+
+    if (!wrapUpEvidenceBySessionSubject.has(key) && create) {
+        wrapUpEvidenceBySessionSubject.set(key, {
+            exploredItems: [],
+            savedLanguageEntryIds: new Set()
+        });
+    }
+
+    return wrapUpEvidenceBySessionSubject.get(key) || null;
+}
+
+function clearWrapUpEvidence(sessionId) {
+    wrapUpEvidenceBySessionSubject.delete(
+        getWrapUpEvidenceKey(sessionId)
+    );
+}
+
+function getExploredItemSummary(id) {
+    const culturalLensCard = clCards.find(card => card.id === id);
+
+    if (culturalLensCard?.title) {
+        return {
+            id: culturalLensCard.id,
+            title: culturalLensCard.title
+        };
+    }
+
+    for (const set of discussionSets) {
+        const moment = set.moments.find(item => item.id === id);
+        const title = moment?.handoffTitle || moment?.title || moment?.preview;
+
+        if (moment && title) {
+            return {
+                id: moment.id,
+                title
+            };
+        }
+    }
+
+    return null;
+}
+
+function recordExploredForWrapUp(id) {
+    const item = getExploredItemSummary(id);
+
+    if (!item) return;
+
+    const evidence = getWrapUpEvidence();
+
+    evidence.exploredItems = evidence.exploredItems.filter(
+        existing => existing.id !== item.id
+    );
+    evidence.exploredItems.push(item);
+}
+
+function removeExploredFromWrapUp(id) {
+    const evidence = getWrapUpEvidence(currentSessionId, false);
+
+    if (!evidence) return;
+
+    evidence.exploredItems = evidence.exploredItems.filter(
+        item => item.id !== id
+    );
+}
+
+function recordSavedLanguageForWrapUp(sessionId, entryId) {
+    if (!sessionId || !entryId) return;
+
+    getWrapUpEvidence(sessionId).savedLanguageEntryIds.add(entryId);
+}
+
+function removeSavedLanguageFromWrapUp(sessionId, entryId) {
+    getWrapUpEvidence(sessionId, false)
+        ?.savedLanguageEntryIds.delete(entryId);
 }
 
 function publishAtlasCompassItem(action = 'updated') {
@@ -920,6 +1006,8 @@ function beginModule() {
 }
 
 function goToView(viewId) {
+    closeCompassWrapUp({ restoreScroll: false });
+
     document.querySelectorAll('.view').forEach(view => {
         view.classList.remove('active');
     });
@@ -954,6 +1042,191 @@ function goToView(viewId) {
         renderReflectionQuestions();
         updateReflectionCompleteState();
     }
+}
+
+
+// ============================================================
+// COMPASS WRAP-UP
+// Loaded-page evidence only; never inferred from stored progress.
+// ============================================================
+
+function isCompassWrapUpOpen() {
+    const canvas = document.getElementById('compass-wrap-up-canvas');
+
+    return Boolean(canvas && !canvas.hidden);
+}
+
+function getAtlasHomeUrl() {
+    return new URL('../../index.html', window.location.href).href;
+}
+
+function renderCompassWrapUp() {
+    const activeSession = getCurrentBridgeSession();
+    const evidence = getWrapUpEvidence(activeSession.id, false) || {
+        exploredItems: [],
+        savedLanguageEntryIds: new Set()
+    };
+    const recap = getCompassWrapUpRecap(evidence.exploredItems);
+
+    const exploredSection = document.getElementById('compass-wrap-up-explored');
+    const list = document.getElementById('compass-wrap-up-list');
+    const more = document.getElementById('compass-wrap-up-more');
+    const savedSection = document.getElementById(
+        'compass-wrap-up-saved-section'
+    );
+    const saved = document.getElementById('compass-wrap-up-saved');
+    const empty = document.getElementById('compass-wrap-up-empty');
+    const pickup = document.getElementById('compass-wrap-up-pickup');
+    const pickupValue = document.getElementById(
+        'compass-wrap-up-pickup-value'
+    );
+
+    if (exploredSection) {
+        exploredSection.hidden = recap.displayedItems.length === 0;
+    }
+
+    if (list) {
+        list.innerHTML = recap.displayedItems
+            .map(item => `<li>${escHtml(item.title)}</li>`)
+            .join('');
+    }
+
+    if (more) {
+        more.hidden = !recap.showMore;
+    }
+
+    const savedLanguageCount = evidence.savedLanguageEntryIds.size;
+
+    if (savedSection) {
+        savedSection.hidden = savedLanguageCount === 0;
+    }
+
+    if (saved) {
+        saved.textContent = `${savedLanguageCount} ${savedLanguageCount === 1
+            ? 'item'
+            : 'items'} saved`;
+    }
+
+    if (empty) {
+        empty.hidden = !(
+            evidence.exploredItems.length === 0 &&
+            savedLanguageCount === 0
+        );
+    }
+
+    if (pickup && pickupValue) {
+        pickup.hidden = !recap.anchor;
+        pickupValue.textContent = recap.anchor?.title || '';
+    }
+}
+
+function getCompassWrapUpRecap(exploredItems) {
+    const fullList = Array.isArray(exploredItems) ? exploredItems : [];
+    const anchor = fullList[fullList.length - 1] || null;
+    const priorItems = anchor ? fullList.slice(0, -1) : [];
+
+    return {
+        anchor,
+        displayedItems: fullList.length >= 6
+            ? priorItems.slice(0, 4)
+            : priorItems,
+        showMore: fullList.length >= 6
+    };
+}
+
+function openCompassWrapUp() {
+    const canvas = document.getElementById('compass-wrap-up-canvas');
+    const activeView = document.querySelector('.view.active');
+
+    if (!canvas || !activeView) return;
+
+    wrapUpOriginView = activeView;
+    wrapUpPreviousBodyOverflow = document.body.style.overflow;
+    wrapUpPreviousRootOverflow = document.documentElement.style.overflow;
+    wrapUpPreviousScrollX = window.scrollX;
+    wrapUpPreviousScrollY = window.scrollY;
+    activeView.appendChild(canvas);
+    renderCompassWrapUp();
+
+    canvas.hidden = false;
+    canvas.scrollTop = 0;
+    document.documentElement.classList.add('compass-wrap-up-active');
+    document.body.classList.add('compass-wrap-up-active');
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+
+    window.requestAnimationFrame(() => {
+        document
+            .getElementById('compass-wrap-up-kicker')
+            ?.focus({ preventScroll: true });
+    });
+}
+
+function closeCompassWrapUp({
+    restoreFocus = false,
+    restoreScroll = true
+} = {}) {
+    const canvas = document.getElementById('compass-wrap-up-canvas');
+
+    if (!canvas || canvas.hidden) return;
+
+    canvas.hidden = true;
+    document.documentElement.classList.remove('compass-wrap-up-active');
+    document.body.classList.remove('compass-wrap-up-active');
+    document.documentElement.style.overflow = wrapUpPreviousRootOverflow;
+    document.body.style.overflow = wrapUpPreviousBodyOverflow;
+
+    const focusTarget = restoreFocus && wrapUpOriginView
+        ? wrapUpOriginView.querySelector(
+            '.nav-session-indicator, .cover-session-btn, h1, h2'
+        )
+        : null;
+
+    if (restoreScroll || focusTarget) {
+        window.requestAnimationFrame(() => {
+            if (restoreScroll) {
+                window.scrollTo(
+                    wrapUpPreviousScrollX,
+                    wrapUpPreviousScrollY
+                );
+            }
+
+            focusTarget?.focus?.({ preventScroll: true });
+        });
+    }
+}
+
+function keepTeachingFromWrapUp() {
+    closeCompassWrapUp({ restoreFocus: true });
+}
+
+function finishCompassWrapUp() {
+    const Bridge = requireAtlasBridge();
+    const activeSession = getCurrentBridgeSession();
+    const evidence = getWrapUpEvidence(activeSession.id, false) || {
+        exploredItems: [],
+        savedLanguageEntryIds: new Set()
+    };
+    const pickupItem = getCompassWrapUpRecap(evidence.exploredItems).anchor;
+    const handoff = Bridge.writeHandoff({
+        v: 1,
+        sessionId: activeSession.id,
+        subjectId: MODULE.id,
+        subjectTitle: MODULE.title,
+        world: COMPASS_WORLD_ID,
+        exploredItems: evidence.exploredItems,
+        savedLanguageCount: evidence.savedLanguageEntryIds.size,
+        pickupLabel: pickupItem?.title || null,
+        pickupRef: pickupItem?.id || null,
+        completedAt: Date.now()
+    });
+
+    if (!handoff) {
+        console.warn('[Compass] Handoff write failed.');
+        return;
+    }
+
+    window.location.assign(getAtlasHomeUrl());
 }
 
 
@@ -1324,6 +1597,7 @@ function saveLanguageFromUpgrade(contextId) {
     if (!entry) return;
 
     requireAtlasBridge().upsertLedgerEntry(entry);
+    recordSavedLanguageForWrapUp(entry.sessionId, entry.id);
 
     updateUpgradeSaveButton(contextId);
     publishAtlasCompassItem('language-saved');
@@ -1331,6 +1605,7 @@ function saveLanguageFromUpgrade(contextId) {
 
 function unsaveLanguageFromUpgrade(contextId) {
     const Bridge = requireAtlasBridge();
+    const activeSession = getCurrentBridgeSession();
     const entryId = getSavedLanguageEntryId(contextId);
 
     if (!entryId) return;
@@ -1341,6 +1616,8 @@ function unsaveLanguageFromUpgrade(contextId) {
         delete ledger.entries[entryId];
         Bridge.writeLedger(ledger);
     }
+
+    removeSavedLanguageFromWrapUp(activeSession.id, entryId);
 
     updateUpgradeSaveButton(contextId);
     publishAtlasCompassItem('language-unsaved');
@@ -1532,7 +1809,14 @@ function saveProgress() {
 }
 
 function markExplored(id) {
+    const newlyExplored = !progress.explored.has(id);
+
     progress.explored.add(id);
+
+    if (newlyExplored) {
+        recordExploredForWrapUp(id);
+    }
+
     saveProgress();
     updateCoverActionUI();
     updateCLProgress();
@@ -1542,6 +1826,7 @@ function markExplored(id) {
 
 function unmarkExplored(id) {
     progress.explored.delete(id);
+    removeExploredFromWrapUp(id);
     saveProgress();
     updateCoverActionUI();
     updateCLProgress();
@@ -2962,6 +3247,26 @@ function loadSessions() {
     syncSessionsFromBridge();
 }
 
+function mountSessionPanel() {
+    if (!window.AtlasSessionPanel) {
+        throw new Error(
+            'AtlasSessionPanel is missing. atlas-session-panel.js must load before compass-engine.js.'
+        );
+    }
+
+    window.AtlasSessionPanel.mount({
+        root: '#atlas-session-panel-root',
+        contextTitle: MODULE.title,
+        contextDescription: session =>
+            `This subject is saving explored items and language for ${session.name}.`,
+        primaryActionLabel: 'Wrap up this lesson',
+        onPrimaryAction: openCompassWrapUp,
+        onRenameSession: session => renameSession(session.name),
+        onResetSession: session => resetSession(session.name),
+        onDeleteSession: session => deleteSession(session.name)
+    });
+}
+
 function updateSessionUI() {
     const label = currentSession === 'Default'
         ? 'Current Session'
@@ -2996,52 +3301,10 @@ function updateSessionUI() {
     }
 
     updateCoverActionUI();
-    updateSessionHelperText();
 }
 
-function updateSessionHelperText() {
-    const helper = document.getElementById(
-        'session-helper-text'
-    );
-
-    if (!helper) return;
-
-    helper.textContent = currentSession === 'Default'
-        ? 'Add a learner or group name to keep explored items and saved language together.'
-        : `This subject is saving explored items and language for ${currentSession}.`;
-}
-
-function openSessionModal() {
-    renderSessionList();
-
-    document
-        .getElementById('session-modal-overlay')
-        ?.classList.add('open');
-
-    document.body.style.overflow = 'hidden';
-
-    activateFocusTrap(
-        document.querySelector('.session-modal-panel')
-    );
-}
-
-function closeSessionModal() {
-    document
-        .getElementById('session-modal-overlay')
-        ?.classList.remove('open');
-
-    document.body.style.overflow = '';
-
-    releaseFocusTrap();
-}
-
-function handleSessionOverlayClick(event) {
-    if (
-        event.target ===
-        document.getElementById('session-modal-overlay')
-    ) {
-        closeSessionModal();
-    }
+function openSessionModal(trigger = document.activeElement) {
+    window.AtlasSessionPanel?.open(trigger);
 }
 
 function showSessionDialog({
@@ -3311,107 +3574,6 @@ function showPromptDialog(options = {}) {
     });
 }
 
-function renderSessionList() {
-    const list = document.getElementById('session-list');
-
-    if (!list) return;
-
-    list.innerHTML = '';
-
-    sessions.forEach(name => {
-        const item = document.createElement('div');
-
-        item.className =
-            `session-item${name === currentSession ? ' active-session' : ''}`;
-
-        item.innerHTML = `
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <circle cx="7" cy="5" r="2.5"
-                    stroke="currentColor"
-                    stroke-width="1.3"/>
-                <path d="M2 12c0-2.485 2.239-4.5 5-4.5s5 2.015 5 4.5"
-                    stroke="currentColor"
-                    stroke-width="1.3"
-                    stroke-linecap="round"/>
-            </svg>
-
-            <span class="session-item-name">
-                ${escHtml(name)}
-            </span>
-
-            ${name === currentSession
-                ? '<span class="session-item-active-badge">Active</span>'
-                : ''
-            }
-
-            <div class="session-item-actions">
-                ${name !== currentSession ? `
-                    <button
-                        class="session-item-btn"
-                        title="Switch"
-                        onclick="switchSession(${jsArg(name)})">
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <path d="M2 6h8M7 3l3 3-3 3"
-                                stroke="currentColor"
-                                stroke-width="1.3"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                ` : ''}
-
-                ${name !== 'Default' ? `
-                    <button
-                        class="session-item-btn"
-                        title="Rename session"
-                        onclick="renameSession(${jsArg(name)})">
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <path d="M8.2 2.2l1.6 1.6M2.5 9.5l.5-2.2 5.2-5.2a1.1 1.1 0 011.6 0l.1.1a1.1 1.1 0 010 1.6L4.7 9l-2.2.5Z"
-                                stroke="currentColor"
-                                stroke-width="1.25"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"/>
-                        </svg>
-                    </button>
-                ` : ''}
-
-                <button
-                    class="session-item-btn danger"
-                    title="Clear subject activity"
-                    onclick="resetSession(${jsArg(name)})">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                        <path d="M2 6a4 4 0 118 0"
-                            stroke="currentColor"
-                            stroke-width="1.3"
-                            stroke-linecap="round"/>
-                        <path d="M10 2v4H6"
-                            stroke="currentColor"
-                            stroke-width="1.3"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"/>
-                    </svg>
-                </button>
-
-                ${name !== 'Default' ? `
-                    <button
-                        class="session-item-btn danger"
-                        title="Delete session"
-                        onclick="deleteSession(${jsArg(name)})">
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <path d="M2 2l8 8M10 2L2 10"
-                                stroke="currentColor"
-                                stroke-width="1.3"
-                                stroke-linecap="round"/>
-                        </svg>
-                    </button>
-                ` : ''}
-            </div>
-        `;
-
-        list.appendChild(item);
-    });
-}
-
 function refreshSessionUI() {
     renderCLGrid();
     renderDiscussionSets();
@@ -3428,15 +3590,10 @@ function refreshSessionUI() {
 
     renderUpgradeVisibilityControls();
     updateSessionUI();
-}
 
-function switchSession(name) {
-    const session = getBridgeSessionByName(name);
-
-    if (!session) return;
-
-    requireAtlasBridge().setActiveSession(session.id);
-    renderSessionList();
+    if (isCompassWrapUpOpen()) {
+        renderCompassWrapUp();
+    }
 }
 
 async function resetSession(name) {
@@ -3496,12 +3653,13 @@ async function resetSession(name) {
     });
 
     Bridge.writeLedger(ledger);
+    clearWrapUpEvidence(session.id);
 
     if (session.id === currentSessionId) {
         loadProgress();
     }
 
-    renderSessionList();
+    window.AtlasSessionPanel?.refresh();
     refreshSessionUI();
 }
 
@@ -3542,11 +3700,12 @@ async function deleteSession(name) {
     });
 
     Bridge.writeLedger(ledger);
+    clearWrapUpEvidence(session.id);
     Bridge.deleteSession(session.id);
 
     syncSessionsFromBridge();
     loadProgress();
-    renderSessionList();
+    window.AtlasSessionPanel?.refresh();
     refreshSessionUI();
 }
 
@@ -3594,32 +3753,8 @@ async function renameSession(oldName) {
 
     syncSessionsFromBridge();
     loadProgress();
-    renderSessionList();
+    window.AtlasSessionPanel?.refresh();
     refreshSessionUI();
-}
-
-function addSession() {
-    const input = document.getElementById(
-        'session-name-input'
-    );
-
-    const name = input?.value.trim();
-
-    if (!input || !name) return;
-
-    const created =
-        requireAtlasBridge().createSession(name);
-
-    if (!created) {
-        window.alert(
-            'A session with that name already exists.'
-        );
-
-        return;
-    }
-
-    input.value = '';
-    renderSessionList();
 }
 
 
@@ -3681,10 +3816,14 @@ function openVocabBankFromDrawer() {
 }
 
 function openSessionModalFromDrawer() {
+    const returnTrigger = document.querySelector(
+        '.view.active .mobile-menu-btn:not(.mobile-search-btn)'
+    );
+
     closeMobileDrawer();
 
     window.setTimeout(() => {
-        openSessionModal();
+        openSessionModal(returnTrigger);
     }, 80);
 }
 
@@ -3957,14 +4096,6 @@ document.addEventListener('keydown', event => {
 
         if (
             document
-                .getElementById('session-modal-overlay')
-                ?.classList.contains('open')
-        ) {
-            closeSessionModal();
-        }
-
-        if (
-            document
                 .getElementById('mobile-drawer')
                 ?.classList.contains('open')
         ) {
@@ -4078,6 +4209,7 @@ function init() {
 
     loadSessions();
     loadProgress();
+    mountSessionPanel();
 
     updateSessionUI();
     renderUpgradeVisibilityControls();
