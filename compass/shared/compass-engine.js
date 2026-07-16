@@ -38,35 +38,35 @@ function getCompassMarkSvg({
     const ariaAttr = ariaHidden ? ' aria-hidden="true"' : '';
 
     return `<svg width="${width}" height="${height}" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"${ariaAttr}>
-        <path d="M10 3.8L16.2 10L10 16.2L3.8 10L10 3.8Z"
-            fill="${color}"
-            fill-opacity="0.18"
-            stroke="${color}"
-            stroke-width="1.65"
-            stroke-linejoin="round"/>
-        <path d="M10 7.35L12.65 10L10 12.65L7.35 10L10 7.35Z"
-            fill="${color}"
-            fill-opacity="0.14"
-            stroke="${color}"
-            stroke-width="1.4"
-            stroke-linejoin="round"
-            opacity="0.86"/>
-        <circle cx="10" cy="10" r="1.15" fill="${color}"/>
-    </svg>`;
+            <path d="M10 3.8L16.2 10L10 16.2L3.8 10L10 3.8Z"
+                fill="${color}"
+                fill-opacity="0.18"
+                stroke="${color}"
+                stroke-width="1.65"
+                stroke-linejoin="round"/>
+            <path d="M10 7.35L12.65 10L10 12.65L7.35 10L10 7.35Z"
+                fill="${color}"
+                fill-opacity="0.14"
+                stroke="${color}"
+                stroke-width="1.4"
+                stroke-linejoin="round"
+                opacity="0.86"/>
+            <circle cx="10" cy="10" r="1.15" fill="${color}"/>
+        </svg>`;
 }
 
 const COMPASS_BRAND_ICON_SVG = getCompassMarkSvg();
 
 const UPGRADE_ICON_SVG = `<svg class="upgrade-chip-icon" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M6.5 1.5 L7.1 4.9 L10.5 5.5 L7.1 6.1 L6.5 9.5 L5.9 6.1 L2.5 5.5 L5.9 4.9 Z"
-        stroke="currentColor"
-        stroke-width="1.1"
-        stroke-linejoin="round"/>
-    <path d="M10.5 1.5 L10.9 2.8 L12.2 3.2 L10.9 3.6 L10.5 4.9 L10.1 3.6 L8.8 3.2 L10.1 2.8 Z"
-        stroke="currentColor"
-        stroke-width="0.9"
-        stroke-linejoin="round"/>
-</svg>`;
+        <path d="M6.5 1.5 L7.1 4.9 L10.5 5.5 L7.1 6.1 L6.5 9.5 L5.9 6.1 L2.5 5.5 L5.9 4.9 Z"
+            stroke="currentColor"
+            stroke-width="1.1"
+            stroke-linejoin="round"/>
+        <path d="M10.5 1.5 L10.9 2.8 L12.2 3.2 L10.9 3.6 L10.5 4.9 L10.1 3.6 L8.8 3.2 L10.1 2.8 Z"
+            stroke="currentColor"
+            stroke-width="0.9"
+            stroke-linejoin="round"/>
+    </svg>`;
 
 
 // ============================================================
@@ -79,122 +79,122 @@ const NAV_ITEMS = [
         label: 'Overview',
         viewId: 'view-orientation',
         desktopSvg: `<svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <rect x="1" y="1" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.2" />
-            <rect x="7.5" y="1" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.2" />
-            <rect x="1" y="7.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.2" />
-            <rect x="7.5" y="7.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.2" />
-        </svg>`,
+                <rect x="1" y="1" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.2" />
+                <rect x="7.5" y="1" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.2" />
+                <rect x="1" y="7.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.2" />
+                <rect x="7.5" y="7.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.2" />
+            </svg>`,
         mobileSvg: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="1" y="1" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.3" />
-            <rect x="9" y="1" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.3" />
-            <rect x="1" y="9" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.3" />
-            <rect x="9" y="9" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.3" />
-        </svg>`
+                <rect x="1" y="1" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.3" />
+                <rect x="9" y="1" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.3" />
+                <rect x="1" y="9" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.3" />
+                <rect x="9" y="9" width="6" height="6" rx="1.2" stroke="currentColor" stroke-width="1.3" />
+            </svg>`
     },
     {
         id: 'discussion',
         label: 'Discussion',
         viewId: 'view-discussion',
         desktopSvg: `<svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path d="M2 3a1 1 0 011-1h7a1 1 0 011 1v5a1 1 0 01-1 1H7L4.5 11V9H3a1 1 0 01-1-1V3z"
-                stroke="currentColor"
-                stroke-width="1.2"
-                stroke-linejoin="round"/>
-        </svg>`,
+                <path d="M2 3a1 1 0 011-1h7a1 1 0 011 1v5a1 1 0 01-1 1H7L4.5 11V9H3a1 1 0 01-1-1V3z"
+                    stroke="currentColor"
+                    stroke-width="1.2"
+                    stroke-linejoin="round"/>
+            </svg>`,
         mobileSvg: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M3 4a1.5 1.5 0 011.5-1.5h7A1.5 1.5 0 0113 4v6a1.5 1.5 0 01-1.5 1.5H8.5L6 14V11.5H4.5A1.5 1.5 0 013 10V4z"
-                stroke="currentColor"
-                stroke-width="1.3"
-                stroke-linejoin="round"/>
-        </svg>`
+                <path d="M3 4a1.5 1.5 0 011.5-1.5h7A1.5 1.5 0 0113 4v6a1.5 1.5 0 01-1.5 1.5H8.5L6 14V11.5H4.5A1.5 1.5 0 013 10V4z"
+                    stroke="currentColor"
+                    stroke-width="1.3"
+                    stroke-linejoin="round"/>
+            </svg>`
     },
     {
         id: 'cultural-lens',
         label: 'Cultural Lens',
         viewId: 'view-cultural-lens',
         desktopSvg: `<svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-            <circle cx="7.5" cy="7.5" r="5.2" stroke="currentColor" stroke-width="1.35"/>
-            <path d="M2.3 7.5h10.4M7.5 2.3c1.35 1.45 2.05 3.2 2.05 5.2s-.7 3.75-2.05 5.2M7.5 2.3C6.15 3.75 5.45 5.5 5.45 7.5s.7 3.75 2.05 5.2"
-                stroke="currentColor"
-                stroke-width="1.05"
-                stroke-linecap="round"/>
-        </svg>`,
+                <circle cx="7.5" cy="7.5" r="5.2" stroke="currentColor" stroke-width="1.35"/>
+                <path d="M2.3 7.5h10.4M7.5 2.3c1.35 1.45 2.05 3.2 2.05 5.2s-.7 3.75-2.05 5.2M7.5 2.3C6.15 3.75 5.45 5.5 5.45 7.5s.7 3.75 2.05 5.2"
+                    stroke="currentColor"
+                    stroke-width="1.05"
+                    stroke-linecap="round"/>
+            </svg>`,
         mobileSvg: `<svg width="17" height="17" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-            <circle cx="7.5" cy="7.5" r="5.2" stroke="currentColor" stroke-width="1.35"/>
-            <path d="M2.3 7.5h10.4M7.5 2.3c1.35 1.45 2.05 3.2 2.05 5.2s-.7 3.75-2.05 5.2M7.5 2.3C6.15 3.75 5.45 5.5 5.45 7.5s.7 3.75 2.05 5.2"
-                stroke="currentColor"
-                stroke-width="1.05"
-                stroke-linecap="round"/>
-        </svg>`
+                <circle cx="7.5" cy="7.5" r="5.2" stroke="currentColor" stroke-width="1.35"/>
+                <path d="M2.3 7.5h10.4M7.5 2.3c1.35 1.45 2.05 3.2 2.05 5.2s-.7 3.75-2.05 5.2M7.5 2.3C6.15 3.75 5.45 5.5 5.45 7.5s.7 3.75 2.05 5.2"
+                    stroke="currentColor"
+                    stroke-width="1.05"
+                    stroke-linecap="round"/>
+            </svg>`
     },
     {
         id: 'reflection',
         label: 'Reflection',
         viewId: 'view-reflection',
         desktopSvg: `<svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path d="M6.5 1v10M3 9l3.5 2.5L10 9"
-                stroke="currentColor"
-                stroke-width="1.3"
-                stroke-linecap="round"
-                stroke-linejoin="round"/>
-            <circle cx="6.5" cy="4.5" r="2" stroke="currentColor" stroke-width="1.2"/>
-        </svg>`,
+                <path d="M6.5 1v10M3 9l3.5 2.5L10 9"
+                    stroke="currentColor"
+                    stroke-width="1.3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+                <circle cx="6.5" cy="4.5" r="2" stroke="currentColor" stroke-width="1.2"/>
+            </svg>`,
         mobileSvg: `<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 2v12M4 12l4 2.5L12 12"
-                stroke="currentColor"
-                stroke-width="1.3"
-                stroke-linecap="round"
-                stroke-linejoin="round"/>
-            <circle cx="8" cy="6" r="2.5" stroke="currentColor" stroke-width="1.3"/>
-        </svg>`
+                <path d="M8 2v12M4 12l4 2.5L12 12"
+                    stroke="currentColor"
+                    stroke-width="1.3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+                <circle cx="8" cy="6" r="2.5" stroke="currentColor" stroke-width="1.3"/>
+            </svg>`
     }
 ];
 
 const NAV_SVG = {
     session: `<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-        <circle cx="6" cy="4" r="2.2" stroke="currentColor" stroke-width="1.2"/>
-        <path d="M1.5 11c0-2.485 2.015-4 4.5-4s4.5 1.515 4.5 4"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linecap="round"/>
-    </svg>`,
+            <circle cx="6" cy="4" r="2.2" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M1.5 11c0-2.485 2.015-4 4.5-4s4.5 1.515 4.5 4"
+                stroke="currentColor"
+                stroke-width="1.2"
+                stroke-linecap="round"/>
+        </svg>`,
 
     keylang: `<svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <path d="M4.2 3.2h4.1c.9 0 1.7.35 2.2.95.5-.6 1.3-.95 2.2-.95h1.1c.7 0 1.2.5 1.2 1.2v9.2c0 .7-.5 1.2-1.2 1.2h-1.1c-.9 0-1.7.35-2.2.95-.5-.6-1.3-.95-2.2-.95H4.2c-.7 0-1.2-.5-1.2-1.2V4.4c0-.7.5-1.2 1.2-1.2Z"
-            stroke="currentColor"
-            stroke-width="1.35"
-            stroke-linejoin="round"/>
-        <path d="M10.5 4.15v11.1"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linecap="round"/>
-        <path d="M5.3 6.2h2.3M5.3 8.4h2.3M12.2 6.2h1.1M12.2 8.4h1.1"
-            stroke="currentColor"
-            stroke-width="1.15"
-            stroke-linecap="round"/>
-    </svg>`,
+            <path d="M4.2 3.2h4.1c.9 0 1.7.35 2.2.95.5-.6 1.3-.95 2.2-.95h1.1c.7 0 1.2.5 1.2 1.2v9.2c0 .7-.5 1.2-1.2 1.2h-1.1c-.9 0-1.7.35-2.2.95-.5-.6-1.3-.95-2.2-.95H4.2c-.7 0-1.2-.5-1.2-1.2V4.4c0-.7.5-1.2 1.2-1.2Z"
+                stroke="currentColor"
+                stroke-width="1.35"
+                stroke-linejoin="round"/>
+            <path d="M10.5 4.15v11.1"
+                stroke="currentColor"
+                stroke-width="1.2"
+                stroke-linecap="round"/>
+            <path d="M5.3 6.2h2.3M5.3 8.4h2.3M12.2 6.2h1.1M12.2 8.4h1.1"
+                stroke="currentColor"
+                stroke-width="1.15"
+                stroke-linecap="round"/>
+        </svg>`,
 
     hamburger: `<svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-        <path d="M2 4h13M2 8.5h13M2 13h13"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"/>
-    </svg>`,
+            <path d="M2 4h13M2 8.5h13M2 13h13"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"/>
+        </svg>`,
 
     keylangMobile: `<svg width="16" height="16" viewBox="0 0 18 18" fill="none">
-        <path d="M4.2 3.2h4.1c.9 0 1.7.35 2.2.95.5-.6 1.3-.95 2.2-.95h1.1c.7 0 1.2.5 1.2 1.2v9.2c0 .7-.5 1.2-1.2 1.2h-1.1c-.9 0-1.7.35-2.2.95-.5-.6-1.3-.95-2.2-.95H4.2c-.7 0-1.2-.5-1.2-1.2V4.4c0-.7.5-1.2 1.2-1.2Z"
-            stroke="currentColor"
-            stroke-width="1.35"
-            stroke-linejoin="round"/>
-        <path d="M10.5 4.15v11.1"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linecap="round"/>
-        <path d="M5.3 6.2h2.3M5.3 8.4h2.3M12.2 6.2h1.1M12.2 8.4h1.1"
-            stroke="currentColor"
-            stroke-width="1.15"
-            stroke-linecap="round"/>
-    </svg>`
+            <path d="M4.2 3.2h4.1c.9 0 1.7.35 2.2.95.5-.6 1.3-.95 2.2-.95h1.1c.7 0 1.2.5 1.2 1.2v9.2c0 .7-.5 1.2-1.2 1.2h-1.1c-.9 0-1.7.35-2.2.95-.5-.6-1.3-.95-2.2-.95H4.2c-.7 0-1.2-.5-1.2-1.2V4.4c0-.7.5-1.2 1.2-1.2Z"
+                stroke="currentColor"
+                stroke-width="1.35"
+                stroke-linejoin="round"/>
+            <path d="M10.5 4.15v11.1"
+                stroke="currentColor"
+                stroke-width="1.2"
+                stroke-linecap="round"/>
+            <path d="M5.3 6.2h2.3M5.3 8.4h2.3M12.2 6.2h1.1M12.2 8.4h1.1"
+                stroke="currentColor"
+                stroke-width="1.15"
+                stroke-linecap="round"/>
+        </svg>`
 };
 
 
@@ -221,6 +221,10 @@ let progress = {
 };
 
 const wrapUpEvidenceBySessionSubject = new Map();
+const COMPASS_WRAP_UP_DRAFT_PREFIX = 'atlas::compassWrapUpDraft::';
+const COMPASS_ACTIVE_WRAP_UP_DRAFT_PREFIX = 'atlas::activeCompassWrapUpDraft::';
+const COMPASS_WRAP_UP_DRAFT_MAX_AGE = 8 * 60 * 60 * 1000;
+
 let wrapUpOriginView = null;
 let wrapUpPreviousBodyOverflow = '';
 let wrapUpPreviousRootOverflow = '';
@@ -323,14 +327,175 @@ function getWrapUpEvidenceKey(sessionId) {
     return `${sessionId}::${MODULE.id}`;
 }
 
+function getWrapUpDraftStorageKey(sessionId) {
+    return [
+        COMPASS_WRAP_UP_DRAFT_PREFIX,
+        encodeURIComponent(String(sessionId || '')),
+        '::',
+        encodeURIComponent(String(MODULE.id || ''))
+    ].join('');
+}
+
+function getActiveWrapUpDraftStorageKey(sessionId) {
+    return [
+        COMPASS_ACTIVE_WRAP_UP_DRAFT_PREFIX,
+        encodeURIComponent(String(sessionId || ''))
+    ].join('');
+}
+
+function readActiveWrapUpDraftSubjectId(sessionId) {
+    try {
+        return sessionStorage.getItem(
+            getActiveWrapUpDraftStorageKey(sessionId)
+        ) || '';
+    } catch {
+        return '';
+    }
+}
+
+function writeActiveWrapUpDraftSubjectId(sessionId, subjectId) {
+    try {
+        sessionStorage.setItem(
+            getActiveWrapUpDraftStorageKey(sessionId),
+            subjectId
+        );
+    } catch { }
+}
+
+function clearActiveWrapUpDraftSubjectId(sessionId) {
+    try {
+        sessionStorage.removeItem(
+            getActiveWrapUpDraftStorageKey(sessionId)
+        );
+    } catch { }
+}
+
+function createEmptyWrapUpEvidence() {
+    return {
+        exploredItems: [],
+        savedLanguageEntryIds: new Set()
+    };
+}
+
+function normalizeWrapUpEvidenceDraft(raw) {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+        return null;
+    }
+
+    if (raw.subjectId !== MODULE.id) {
+        return null;
+    }
+
+    const updatedAt = Number(raw.updatedAt) || 0;
+    const stale = updatedAt > 0 &&
+        Date.now() - updatedAt > COMPASS_WRAP_UP_DRAFT_MAX_AGE;
+
+    if (stale) return null;
+
+    const exploredItems = Array.isArray(raw.exploredItems)
+        ? raw.exploredItems
+            .map(item => {
+                if (!item || typeof item !== 'object') return null;
+
+                const id = typeof item.id === 'string'
+                    ? item.id.trim()
+                    : '';
+
+                const title = typeof item.title === 'string'
+                    ? item.title.trim()
+                    : '';
+
+                return id && title ? { id, title } : null;
+            })
+            .filter(Boolean)
+        : [];
+
+    const savedLanguageEntryIds = new Set(
+        Array.isArray(raw.savedLanguageEntryIds)
+            ? raw.savedLanguageEntryIds
+                .filter(id => typeof id === 'string' && id.trim())
+                .map(id => id.trim())
+            : []
+    );
+
+    if (!exploredItems.length && savedLanguageEntryIds.size === 0) {
+        return null;
+    }
+
+    return {
+        exploredItems,
+        savedLanguageEntryIds
+    };
+}
+
+function readWrapUpEvidenceDraft(sessionId) {
+    try {
+        const raw = sessionStorage.getItem(
+            getWrapUpDraftStorageKey(sessionId)
+        );
+
+        return raw
+            ? normalizeWrapUpEvidenceDraft(JSON.parse(raw))
+            : null;
+    } catch {
+        return null;
+    }
+}
+
+function persistWrapUpEvidence(sessionId = currentSessionId) {
+    const evidence = getWrapUpEvidence(sessionId, false);
+    const storageKey = getWrapUpDraftStorageKey(sessionId);
+
+    if (
+        !evidence ||
+        (
+            evidence.exploredItems.length === 0 &&
+            evidence.savedLanguageEntryIds.size === 0
+        )
+    ) {
+        try {
+            sessionStorage.removeItem(storageKey);
+        } catch { }
+
+        return false;
+    }
+
+    try {
+        sessionStorage.setItem(
+            storageKey,
+            JSON.stringify({
+                v: 1,
+                sessionId,
+                subjectId: MODULE.id,
+                updatedAt: Date.now(),
+                exploredItems: evidence.exploredItems,
+                savedLanguageEntryIds: [
+                    ...evidence.savedLanguageEntryIds
+                ]
+            })
+        );
+
+        writeActiveWrapUpDraftSubjectId(sessionId, MODULE.id);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 function getWrapUpEvidence(sessionId = currentSessionId, create = true) {
     const key = getWrapUpEvidenceKey(sessionId);
 
-    if (!wrapUpEvidenceBySessionSubject.has(key) && create) {
-        wrapUpEvidenceBySessionSubject.set(key, {
-            exploredItems: [],
-            savedLanguageEntryIds: new Set()
-        });
+    if (!wrapUpEvidenceBySessionSubject.has(key)) {
+        const restored = readWrapUpEvidenceDraft(sessionId);
+
+        if (restored) {
+            wrapUpEvidenceBySessionSubject.set(key, restored);
+        } else if (create) {
+            wrapUpEvidenceBySessionSubject.set(
+                key,
+                createEmptyWrapUpEvidence()
+            );
+        }
     }
 
     return wrapUpEvidenceBySessionSubject.get(key) || null;
@@ -340,6 +505,45 @@ function clearWrapUpEvidence(sessionId) {
     wrapUpEvidenceBySessionSubject.delete(
         getWrapUpEvidenceKey(sessionId)
     );
+
+    try {
+        sessionStorage.removeItem(
+            getWrapUpDraftStorageKey(sessionId)
+        );
+    } catch { }
+
+    if (readActiveWrapUpDraftSubjectId(sessionId) === MODULE.id) {
+        clearActiveWrapUpDraftSubjectId(sessionId);
+    }
+}
+
+function clearOtherCompassWrapUpDraftForSession(sessionId) {
+    const activeSubjectId = readActiveWrapUpDraftSubjectId(sessionId);
+
+    if (!activeSubjectId || activeSubjectId === MODULE.id) {
+        return;
+    }
+
+    const previousKey = [
+        COMPASS_WRAP_UP_DRAFT_PREFIX,
+        encodeURIComponent(String(sessionId || '')),
+        '::',
+        encodeURIComponent(String(activeSubjectId))
+    ].join('');
+
+    try {
+        sessionStorage.removeItem(previousKey);
+    } catch { }
+
+    wrapUpEvidenceBySessionSubject.delete(
+        `${sessionId}::${activeSubjectId}`
+    );
+
+    clearActiveWrapUpDraftSubjectId(sessionId);
+}
+
+function prepareCurrentCompassWrapUpDraft(sessionId = currentSessionId) {
+    clearOtherCompassWrapUpDraftForSession(sessionId);
 }
 
 function getExploredItemSummary(id) {
@@ -368,6 +572,8 @@ function getExploredItemSummary(id) {
 }
 
 function recordExploredForWrapUp(id) {
+    prepareCurrentCompassWrapUpDraft();
+
     const item = getExploredItemSummary(id);
 
     if (!item) return;
@@ -377,7 +583,9 @@ function recordExploredForWrapUp(id) {
     evidence.exploredItems = evidence.exploredItems.filter(
         existing => existing.id !== item.id
     );
+
     evidence.exploredItems.push(item);
+    persistWrapUpEvidence(currentSessionId);
 }
 
 function removeExploredFromWrapUp(id) {
@@ -388,17 +596,26 @@ function removeExploredFromWrapUp(id) {
     evidence.exploredItems = evidence.exploredItems.filter(
         item => item.id !== id
     );
+
+    persistWrapUpEvidence(currentSessionId);
 }
 
 function recordSavedLanguageForWrapUp(sessionId, entryId) {
     if (!sessionId || !entryId) return;
 
+    prepareCurrentCompassWrapUpDraft(sessionId);
+
     getWrapUpEvidence(sessionId).savedLanguageEntryIds.add(entryId);
+    persistWrapUpEvidence(sessionId);
 }
 
 function removeSavedLanguageFromWrapUp(sessionId, entryId) {
-    getWrapUpEvidence(sessionId, false)
-        ?.savedLanguageEntryIds.delete(entryId);
+    const evidence = getWrapUpEvidence(sessionId, false);
+
+    if (!evidence) return;
+
+    evidence.savedLanguageEntryIds.delete(entryId);
+    persistWrapUpEvidence(sessionId);
 }
 
 function publishAtlasCompassItem(action = 'updated') {
@@ -460,13 +677,13 @@ function publishAtlasCompassItem(action = 'updated') {
             id: MODULE.id,
             title: MODULE.title,
             navTitle: MODULE.navTitle || MODULE.title,
-status,
-action,
-launchUrl: getAtlasLaunchUrl(),
+            status,
+            action,
+            launchUrl: getAtlasLaunchUrl(),
 
-completedAt: status === 'complete'
-    ? progress.lessonCompletedAt
-    : null,
+            completedAt: status === 'complete'
+                ? progress.lessonCompletedAt
+                : null,
 
             progress: {
                 explored: exploredCount,
@@ -567,26 +784,26 @@ function countLabel(number) {
 
 function applyCompassFavicon() {
     const faviconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-        <path d="M50 4L96 50L50 96L4 50Z"
-            fill="#7FA898"
-            stroke="#5C7A6E"
-            stroke-width="5"
-            stroke-linejoin="round"/>
-        <path d="M50 18L82 50L50 82L18 50Z"
-            fill="#EFFFF9"
-            stroke="#FFFFFF"
-            stroke-width="3"
-            stroke-linejoin="round"/>
-        <path d="M50 34L66 50L50 66L34 50Z"
-            fill="#5C7A6E"
-            stroke="#3F6B5C"
-            stroke-width="3"
-            stroke-linejoin="round"/>
-        <path d="M50 18L50 34M82 50L66 50M50 82L50 66M18 50L34 50"
-            stroke="#7FA898"
-            stroke-width="3"
-            stroke-linecap="round"/>
-    </svg>`;
+            <path d="M50 4L96 50L50 96L4 50Z"
+                fill="#7FA898"
+                stroke="#5C7A6E"
+                stroke-width="5"
+                stroke-linejoin="round"/>
+            <path d="M50 18L82 50L50 82L18 50Z"
+                fill="#EFFFF9"
+                stroke="#FFFFFF"
+                stroke-width="3"
+                stroke-linejoin="round"/>
+            <path d="M50 34L66 50L50 66L34 50Z"
+                fill="#5C7A6E"
+                stroke="#3F6B5C"
+                stroke-width="3"
+                stroke-linejoin="round"/>
+            <path d="M50 18L50 34M82 50L66 50M50 82L50 66M18 50L34 50"
+                stroke="#7FA898"
+                stroke-width="3"
+                stroke-linecap="round"/>
+        </svg>`;
 
     let icon = document.querySelector('link[rel~="icon"]');
 
@@ -642,10 +859,10 @@ function renderReflectionQuestions() {
     container.innerHTML = questions
         .filter(question => typeof question === 'string' && question.trim())
         .map(question => `
-        <div class="reflection-q">
-            <p class="reflection-q-text">${escHtml(question)}</p>
-        </div>
-    `)
+            <div class="reflection-q">
+                <p class="reflection-q-text">${escHtml(question)}</p>
+            </div>
+        `)
         .join('');
 }
 
@@ -740,25 +957,25 @@ function updateReflectionCompleteState(animate = false) {
     button.setAttribute('aria-pressed', String(complete));
     button.innerHTML = complete
         ? `
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8.2l3.1 3.1L13 4.5"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"/>
-            </svg>
-            Undo wrap up
-        `
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 8.2l3.1 3.1L13 4.5"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+                Undo wrap up
+            `
         : `
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8.2l3.1 3.1L13 4.5"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"/>
-            </svg>
-            Wrap up
-        `;
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 8.2l3.1 3.1L13 4.5"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+                Wrap up
+            `;
 
     if (complete && animate) {
         view.classList.remove('reflection-complete-animate');
@@ -810,12 +1027,12 @@ function applyDerivedLabels() {
 
 function getAtlasSearchIcon() {
     return window.AtlasSearch?.icon || `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3"/>
-        <path d="M10.5 10.5l3 3"
-            stroke="currentColor"
-            stroke-width="1.4"
-            stroke-linecap="round"/>
-    </svg>`;
+            <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M10.5 10.5l3 3"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"/>
+        </svg>`;
 }
 
 function openAtlasSearch() {
@@ -846,14 +1063,14 @@ function renderCompassBrandLockup({
     const compassUrl = escHtml(getCompassWorldLaunchUrl());
 
     return `
-        <a class="${iconClass}" href="${compassUrl}" aria-label="Back to Compass Library">
-            ${COMPASS_BRAND_ICON_SVG}
-        </a>
-        <span class="${textClass}">
-            <span class="${systemClass}">${escHtml(brand.system)}</span>
-            <span class="${subjectClass}">${escHtml(brand.subject)}</span>
-        </span>
-    `;
+            <a class="${iconClass}" href="${compassUrl}" aria-label="Back to Compass Library">
+                ${COMPASS_BRAND_ICON_SVG}
+            </a>
+            <span class="${textClass}">
+                <span class="${systemClass}">${escHtml(brand.system)}</span>
+                <span class="${subjectClass}">${escHtml(brand.subject)}</span>
+            </span>
+        `;
 }
 
 function renderNav(containerId, activeViewId) {
@@ -870,63 +1087,63 @@ function renderNav(containerId, activeViewId) {
             : `onclick="goToView('${item.viewId}')"`;
 
         return `<button
-            class="nav-link${active ? ' active' : ''}"
-            title="${escHtml(item.label)}"
-            aria-label="${escHtml(item.label)}"
-            ${click}>
-            ${item.desktopSvg}
-            ${escHtml(item.label)}
-        </button>`;
+                class="nav-link${active ? ' active' : ''}"
+                title="${escHtml(item.label)}"
+                aria-label="${escHtml(item.label)}"
+                ${click}>
+                ${item.desktopSvg}
+                ${escHtml(item.label)}
+            </button>`;
     }).join('');
 
     container.innerHTML = `<nav class="top-nav">
-        <div class="nav-brand">
-            ${renderCompassBrandLockup({
+            <div class="nav-brand">
+                ${renderCompassBrandLockup({
         textClass: 'nav-brand-copy',
         systemClass: 'nav-brand-system',
         subjectClass: 'nav-brand-subject'
     })}
-        </div>
+            </div>
 
-        <div class="nav-links">${links}</div>
+            <div class="nav-links">${links}</div>
 
-        <div class="nav-actions">
-            <button
-                class="nav-session-indicator"
-                onclick="openSessionModal()"
-                title="Session settings">
-                ${NAV_SVG.session}
-                <span id="${sessionSpanId}">Current Session</span>
-            </button>
+            <div class="nav-actions">
+                <button
+                    class="nav-session-indicator"
+                    onclick="openSessionModal()"
+                    title="Session settings">
+                    ${NAV_SVG.session}
+                    <span id="${sessionSpanId}">Current Session</span>
+                </button>
 
-            <button
-                class="nav-keylang-btn nav-search-btn"
-                onclick="openAtlasSearch()"
-                title="Search"
-                aria-label="Search">
-                ${getAtlasSearchIcon()}
-            </button>
+                <button
+                    class="nav-keylang-btn nav-search-btn"
+                    onclick="openAtlasSearch()"
+                    title="Search"
+                    aria-label="Search">
+                    ${getAtlasSearchIcon()}
+                </button>
 
-            <button
-                class="nav-keylang-btn"
-                onclick="openVocabBank()"
-                title="Language Bank"
-                aria-label="Open Language Bank">
-                ${NAV_SVG.keylang}
-            </button>
+                <button
+                    class="nav-keylang-btn"
+                    onclick="openVocabBank()"
+                    title="Language Bank"
+                    aria-label="Open Language Bank">
+                    ${NAV_SVG.keylang}
+                </button>
 
-            <button
-                class="appearance-toggle nav-appearance-toggle"
-                onclick="toggleAppearanceMode()"
-                title="Switch to night mode"
-                aria-label="Switch to night mode">
-            </button>
-        </div>
+                <button
+                    class="appearance-toggle nav-appearance-toggle"
+                    onclick="toggleAppearanceMode()"
+                    title="Switch to night mode"
+                    aria-label="Switch to night mode">
+                </button>
+            </div>
 
-        <div class="global-progress-rail" aria-hidden="true">
-            <div class="global-progress-fill"></div>
-        </div>
-    </nav>`;
+            <div class="global-progress-rail" aria-hidden="true">
+                <div class="global-progress-fill"></div>
+            </div>
+        </nav>`;
 }
 
 function renderMobileHeader(containerId, viewKey) {
@@ -935,32 +1152,32 @@ function renderMobileHeader(containerId, viewKey) {
     if (!container) return;
 
     container.innerHTML = `<header class="mobile-header">
-        <div class="mobile-header-brand">
-            ${renderCompassBrandLockup({
+            <div class="mobile-header-brand">
+                ${renderCompassBrandLockup({
         textClass: 'mobile-header-title-block',
         systemClass: 'mobile-header-system',
         subjectClass: 'mobile-header-context'
     })}
-        </div>
+            </div>
 
-        <div class="mobile-header-actions">
-            <button
-                class="mobile-menu-btn mobile-search-btn"
-                onclick="openAtlasSearch()"
-                title="Search"
-                aria-label="Search">
-                ${getAtlasSearchIcon()}
-            </button>
+            <div class="mobile-header-actions">
+                <button
+                    class="mobile-menu-btn mobile-search-btn"
+                    onclick="openAtlasSearch()"
+                    title="Search"
+                    aria-label="Search">
+                    ${getAtlasSearchIcon()}
+                </button>
 
-            <button
-                class="mobile-menu-btn"
-                onclick="openMobileDrawer('${viewKey}')"
-                title="Menu"
-                aria-label="Open menu">
-                ${NAV_SVG.hamburger}
-            </button>
-        </div>
-    </header>`;
+                <button
+                    class="mobile-menu-btn"
+                    onclick="openMobileDrawer('${viewKey}')"
+                    title="Menu"
+                    aria-label="Open menu">
+                    ${NAV_SVG.hamburger}
+                </button>
+            </div>
+        </header>`;
 }
 
 function renderMobileDrawerNav() {
@@ -971,28 +1188,28 @@ function renderMobileDrawerNav() {
     setText('mobile-drawer-subject-title', MODULE.title);
 
     const items = NAV_ITEMS.map(item => `
-        <button
-            class="mobile-nav-item"
-            id="mob-nav-${item.id}"
-            onclick="mobileNavTo('${item.viewId}')">
-            ${item.mobileSvg}
-            ${escHtml(item.label)}
-        </button>
-    `).join('');
+            <button
+                class="mobile-nav-item"
+                id="mob-nav-${item.id}"
+                onclick="mobileNavTo('${item.viewId}')">
+                ${item.mobileSvg}
+                ${escHtml(item.label)}
+            </button>
+        `).join('');
 
     container.innerHTML = `${items}
-        <div class="mobile-drawer-divider"></div>
+            <div class="mobile-drawer-divider"></div>
 
-        <button class="mobile-nav-item" onclick="openAtlasSearchFromDrawer()">
-            ${getAtlasSearchIcon()}
-            Search
-        </button>
+            <button class="mobile-nav-item" onclick="openAtlasSearchFromDrawer()">
+                ${getAtlasSearchIcon()}
+                Search
+            </button>
 
-        <button class="mobile-nav-item" onclick="openVocabBankFromDrawer()">
-            ${NAV_SVG.keylangMobile}
-            Language Bank
-        </button>
-    `;
+            <button class="mobile-nav-item" onclick="openVocabBankFromDrawer()">
+                ${NAV_SVG.keylangMobile}
+                Language Bank
+            </button>
+        `;
 }
 
 
@@ -1226,6 +1443,7 @@ function finishCompassWrapUp() {
         return;
     }
 
+    clearWrapUpEvidence(activeSession.id);
     window.location.assign(getAtlasHomeUrl());
 }
 
@@ -1286,51 +1504,51 @@ function buildUpgradeVisibilityControl(scope) {
     ];
 
     return `
-        <div class="upgrade-visibility-control" data-upgrade-control="${scope}">
-            <button
-                class="upgrade-visibility-trigger"
-                id="${triggerId}"
-                type="button"
-                aria-haspopup="menu"
-                aria-expanded="false"
-                aria-controls="${menuId}"
-                onclick="toggleUpgradeVisibilityMenu('${scope}', event)">
+            <div class="upgrade-visibility-control" data-upgrade-control="${scope}">
+                <button
+                    class="upgrade-visibility-trigger"
+                    id="${triggerId}"
+                    type="button"
+                    aria-haspopup="menu"
+                    aria-expanded="false"
+                    aria-controls="${menuId}"
+                    onclick="toggleUpgradeVisibilityMenu('${scope}', event)">
 
-                ${UPGRADE_ICON_SVG}
+                    ${UPGRADE_ICON_SVG}
 
-                <span>Language upgrades</span>
+                    <span>Language upgrades</span>
 
-                <strong>
-                    ${getUpgradeVisibilityLabel(mode)}
-                </strong>
-            </button>
+                    <strong>
+                        ${getUpgradeVisibilityLabel(mode)}
+                    </strong>
+                </button>
 
-            <div
-                class="upgrade-visibility-menu"
-                id="${menuId}"
-                role="menu"
-                hidden>
+                <div
+                    class="upgrade-visibility-menu"
+                    id="${menuId}"
+                    role="menu"
+                    hidden>
 
-                ${options.map(option => `
-                    <button
-                        class="upgrade-visibility-option${mode === option.value ? ' is-selected' : ''}"
-                        type="button"
-                        role="menuitemradio"
-                        aria-checked="${String(mode === option.value)}"
-                        onclick="setUpgradeVisibilityPreference('${option.value}', event)">
+                    ${options.map(option => `
+                        <button
+                            class="upgrade-visibility-option${mode === option.value ? ' is-selected' : ''}"
+                            type="button"
+                            role="menuitemradio"
+                            aria-checked="${String(mode === option.value)}"
+                            onclick="setUpgradeVisibilityPreference('${option.value}', event)">
 
-                        <span class="upgrade-visibility-option-label">
-                            ${escHtml(option.label)}
-                        </span>
+                            <span class="upgrade-visibility-option-label">
+                                ${escHtml(option.label)}
+                            </span>
 
-                        <span class="upgrade-visibility-option-copy">
-                            ${escHtml(option.copy)}
-                        </span>
-                    </button>
-                `).join('')}
+                            <span class="upgrade-visibility-option-copy">
+                                ${escHtml(option.copy)}
+                            </span>
+                        </button>
+                    `).join('')}
+                </div>
             </div>
-        </div>
-    `;
+        `;
 }
 
 function renderUpgradeVisibilityControls() {
@@ -1648,39 +1866,48 @@ function buildUpgradeChip(upgrade, contextId) {
     const saved = isUpgradeSaved(contextId);
 
     return `
-        <button
-            class="upgrade-chip"
-            id="uc-${escHtml(contextId)}"
-            onclick="toggleUpgrade(${jsArg(contextId)}, event)"
-            aria-expanded="false">
-            ${UPGRADE_ICON_SVG}
-            Upgrade: ${escHtml(upgrade.term)}
-        </button>
+            <button
+                class="upgrade-chip"
+                id="uc-${escHtml(contextId)}"
+                onclick="toggleUpgrade(${jsArg(contextId)}, event)"
+                aria-expanded="false">
+                ${UPGRADE_ICON_SVG}
+                Upgrade: ${escHtml(upgrade.term)}
+            </button>
 
-        <div class="upgrade-panel" id="up-${escHtml(contextId)}">
-            <div class="upgrade-panel-heading">
-                <p class="upgrade-panel-term">
-                    ${escHtml(upgrade.term)}
+            <div class="upgrade-panel" id="up-${escHtml(contextId)}">
+                <div class="upgrade-panel-heading">
+                    <p class="upgrade-panel-term">
+                        ${escHtml(upgrade.term)}
+                    </p>
+                    <p class="upgrade-panel-type">
+                        ${escHtml(upgrade.type)}
+                    </p>
+                </div>
+
+                <p class="upgrade-panel-definition">
+                    ${escHtml(upgrade.definition)}
                 </p>
-                <p class="upgrade-panel-type">
-                    ${escHtml(upgrade.type)}
-                </p>
-            </div>
 
-            <p class="upgrade-panel-definition">
-                ${escHtml(upgrade.definition)}
-            </p>
+                ${upgrade.ordinary ? `
+                    <div class="upgrade-transformation">
+                        <div class="upgrade-example-row">
+                            <span class="upgrade-example-label">Instead of</span>
 
-            ${upgrade.ordinary ? `
-                <div class="upgrade-transformation">
-                    <div class="upgrade-example-row">
-                        <span class="upgrade-example-label">Instead of</span>
+                            <p class="upgrade-example upgrade-example-ordinary">
+                                ${escHtml(upgrade.ordinary)}
+                            </p>
+                        </div>
 
-                        <p class="upgrade-example upgrade-example-ordinary">
-                            ${escHtml(upgrade.ordinary)}
-                        </p>
+                        <div class="upgrade-example-row upgrade-example-row-primary">
+                            <span class="upgrade-example-label">Try</span>
+
+                            <p class="upgrade-example upgrade-example-upgraded">
+                                ${escHtml(upgrade.upgraded)}
+                            </p>
+                        </div>
                     </div>
-
+                ` : `
                     <div class="upgrade-example-row upgrade-example-row-primary">
                         <span class="upgrade-example-label">Try</span>
 
@@ -1688,32 +1915,23 @@ function buildUpgradeChip(upgrade, contextId) {
                             ${escHtml(upgrade.upgraded)}
                         </p>
                     </div>
-                </div>
-            ` : `
-                <div class="upgrade-example-row upgrade-example-row-primary">
-                    <span class="upgrade-example-label">Try</span>
+                `}
 
-                    <p class="upgrade-example upgrade-example-upgraded">
-                        ${escHtml(upgrade.upgraded)}
-                    </p>
-                </div>
-            `}
-
-            <div class="upgrade-panel-actions">
-                <button
-                    class="upgrade-save-btn${saved ? ' is-saved' : ''}"
-                    id="us-${escHtml(contextId)}"
-                    type="button"
-                    onclick="toggleSavedLanguage(${jsArg(contextId)}, event)"
-                    aria-pressed="${String(saved)}"
-                    title="${saved
+                <div class="upgrade-panel-actions">
+                    <button
+                        class="upgrade-save-btn${saved ? ' is-saved' : ''}"
+                        id="us-${escHtml(contextId)}"
+                        type="button"
+                        onclick="toggleSavedLanguage(${jsArg(contextId)}, event)"
+                        aria-pressed="${String(saved)}"
+                        title="${saved
             ? 'Remove from Language Bank'
             : 'Save to Language Bank'}">
-                    ${saved ? 'Saved' : 'Save'}
-                </button>
+                        ${saved ? 'Saved' : 'Save'}
+                    </button>
+                </div>
             </div>
-        </div>
-    `;
+        `;
 }
 
 function gentlyRevealUpgradePanel(panel) {
@@ -1842,13 +2060,13 @@ function getItemState(id) {
 
 function getExploredButtonContent(explored) {
     return `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-        <path d="M2 6l3 3 5-5"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"/>
-    </svg>
-    ${explored ? 'Explored' : 'Mark explored'}`;
+            <path d="M2 6l3 3 5-5"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"/>
+        </svg>
+        ${explored ? 'Explored' : 'Mark explored'}`;
 }
 
 function updateGlobalProgress() {
@@ -1887,15 +2105,15 @@ function updateCoverActionUI() {
                 : 'Begin lesson';
 
         button.innerHTML = `
-            ${label}
-            <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                <path d="M3 7.5h9M8.5 4l3.5 3.5-3.5 3.5"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"/>
-            </svg>
-        `;
+                ${label}
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                    <path d="M3 7.5h9M8.5 4l3.5 3.5-3.5 3.5"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+            `;
     }
 
     updateGlobalProgress();
@@ -1948,35 +2166,35 @@ function renderCLGrid() {
         };
 
         element.innerHTML = `
-            <div class="cl-card-state-badge" aria-hidden="true">
-                ${state === 'explored'
+                <div class="cl-card-state-badge" aria-hidden="true">
+                    ${state === 'explored'
                 ? `<svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-                        <path d="M2 5.5l2.5 2.5L9 2.5"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"/>
-                    </svg>`
+                            <path d="M2 5.5l2.5 2.5L9 2.5"
+                                stroke="currentColor"
+                                stroke-width="1.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"/>
+                        </svg>`
                 : `<svg width="9" height="9" viewBox="0 0 9 9" fill="none">
-                        <circle cx="4.5" cy="4.5" r="3.5"
-                            stroke="currentColor"
-                            stroke-width="1.2"/>
-                    </svg>`
+                            <circle cx="4.5" cy="4.5" r="3.5"
+                                stroke="currentColor"
+                                stroke-width="1.2"/>
+                        </svg>`
             }
-            </div>
+                </div>
 
-            <h3 class="cl-card-title">
-                ${escHtml(card.title)}
-            </h3>
+                <h3 class="cl-card-title">
+                    ${escHtml(card.title)}
+                </h3>
 
-            <p class="cl-card-teaser">
-                ${escHtml(card.teaser)}
-            </p>
+                <p class="cl-card-teaser">
+                    ${escHtml(card.teaser)}
+                </p>
 
-            <p class="cl-card-location">
-                ${escHtml(card.contextLine)}
-            </p>
-        `;
+                <p class="cl-card-location">
+                    ${escHtml(card.contextLine)}
+                </p>
+            `;
 
         grid.appendChild(element);
     });
@@ -2037,10 +2255,10 @@ function renderFollowTheThread(card) {
     block.hidden = questions.length === 0;
 
     container.innerHTML = questions.map(question => `
-        <p class="follow-thread-question">
-            ${escHtml(question)}
-        </p>
-    `).join('');
+            <p class="follow-thread-question">
+                ${escHtml(question)}
+            </p>
+        `).join('');
 }
 
 function openCLModal(index) {
@@ -2184,47 +2402,47 @@ function getSetIconSvg(type, active) {
 
     if (type === 'react') {
         return `<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M3.4 5A2.4 2.4 0 015.8 2.6h8.4A2.4 2.4 0 0116.6 5v5.8a2.4 2.4 0 01-2.4 2.4h-3.4L7.2 16v-2.8H5.8a2.4 2.4 0 01-2.4-2.4V5Z"
-                stroke="${color}"
-                stroke-width="1.45"
-                stroke-linejoin="round"/>
-            <path d="M6.5 8.2h2.1l1.1-1.8l1.3 3.7l1.1-1.9h1.5"
-                stroke="${color}"
-                stroke-width="1.35"
-                stroke-linecap="round"
-                stroke-linejoin="round"/>
-        </svg>`;
+                <path d="M3.4 5A2.4 2.4 0 015.8 2.6h8.4A2.4 2.4 0 0116.6 5v5.8a2.4 2.4 0 01-2.4 2.4h-3.4L7.2 16v-2.8H5.8a2.4 2.4 0 01-2.4-2.4V5Z"
+                    stroke="${color}"
+                    stroke-width="1.45"
+                    stroke-linejoin="round"/>
+                <path d="M6.5 8.2h2.1l1.1-1.8l1.3 3.7l1.1-1.9h1.5"
+                    stroke="${color}"
+                    stroke-width="1.35"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+            </svg>`;
     }
 
     if (type === 'explain') {
         return `<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M10 3a5 5 0 014 8 3 3 0 01-4 2.83A3 3 0 016 11a5 5 0 014-8z"
-                stroke="${color}"
-                stroke-width="1.4"/>
-            <path d="M8 17h4M9 14.5v2.5M11 14.5v2.5"
-                stroke="${color}"
-                stroke-width="1.3"
-                stroke-linecap="round"/>
-        </svg>`;
+                <path d="M10 3a5 5 0 014 8 3 3 0 01-4 2.83A3 3 0 016 11a5 5 0 014-8z"
+                    stroke="${color}"
+                    stroke-width="1.4"/>
+                <path d="M8 17h4M9 14.5v2.5M11 14.5v2.5"
+                    stroke="${color}"
+                    stroke-width="1.3"
+                    stroke-linecap="round"/>
+            </svg>`;
     }
 
     if (type === 'reflect') {
         return `<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M10 3.2L16 6.6L10 10L4 6.6L10 3.2Z"
-                stroke="${color}"
-                stroke-width="1.35"
-                stroke-linejoin="round"/>
-            <path d="M4.4 10L10 13.2L15.6 10"
-                stroke="${color}"
-                stroke-width="1.35"
-                stroke-linecap="round"
-                stroke-linejoin="round"/>
-            <path d="M4.4 13.2L10 16.4L15.6 13.2"
-                stroke="${color}"
-                stroke-width="1.35"
-                stroke-linecap="round"
-                stroke-linejoin="round"/>
-        </svg>`;
+                <path d="M10 3.2L16 6.6L10 10L4 6.6L10 3.2Z"
+                    stroke="${color}"
+                    stroke-width="1.35"
+                    stroke-linejoin="round"/>
+                <path d="M4.4 10L10 13.2L15.6 10"
+                    stroke="${color}"
+                    stroke-width="1.35"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+                <path d="M4.4 13.2L10 16.4L15.6 13.2"
+                    stroke="${color}"
+                    stroke-width="1.35"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+            </svg>`;
     }
 
     return '';
@@ -2257,22 +2475,22 @@ function renderDiscussionSets() {
         };
 
         element.innerHTML = `
-            <div class="set-icon">
-                ${getSetIconSvg(set.icon, active)}
-            </div>
+                <div class="set-icon">
+                    ${getSetIconSvg(set.icon, active)}
+                </div>
 
-            <p class="set-stage">
-                ${escHtml(set.stage)}
-            </p>
+                <p class="set-stage">
+                    ${escHtml(set.stage)}
+                </p>
 
-            <h3 class="set-title">
-                ${escHtml(set.title)}
-            </h3>
+                <h3 class="set-title">
+                    ${escHtml(set.title)}
+                </h3>
 
-            <p class="set-desc">
-                ${escHtml(set.description)}
-            </p>
-        `;
+                <p class="set-desc">
+                    ${escHtml(set.description)}
+                </p>
+            `;
 
         container.appendChild(element);
     });
@@ -2373,58 +2591,58 @@ function renderMoments(set) {
         );
 
         card.innerHTML = `
-            <div
-                class="moment-card-header"
-                role="button"
-                tabindex="0"
-                onclick="toggleMoment('${moment.id}')"
-                onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); toggleMoment('${moment.id}'); }">
+                <div
+                    class="moment-card-header"
+                    role="button"
+                    tabindex="0"
+                    onclick="toggleMoment('${moment.id}')"
+                    onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); toggleMoment('${moment.id}'); }">
 
-                <div class="moment-state-dot"></div>
+                    <div class="moment-state-dot"></div>
 
-                <span class="moment-num">
-                    ${String(index + 1).padStart(2, '0')}
-                </span>
+                    <span class="moment-num">
+                        ${String(index + 1).padStart(2, '0')}
+                    </span>
 
-                <span class="moment-preview">
-                    ${escHtml(moment.preview)}
-                </span>
+                    <span class="moment-preview">
+                        ${escHtml(moment.preview)}
+                    </span>
 
-                <svg class="moment-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M3 5l4 4 4-4"
-                        stroke="currentColor"
-                        stroke-width="1.4"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"/>
-                </svg>
-            </div>
+                    <svg class="moment-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M3 5l4 4 4-4"
+                            stroke="currentColor"
+                            stroke-width="1.4"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                    </svg>
+                </div>
 
-            <div class="moment-body">
-                <p class="moment-text">
-                    ${escHtml(moment.question)}
-                </p>
+                <div class="moment-body">
+                    <p class="moment-text">
+                        ${escHtml(moment.question)}
+                    </p>
 
-                <div class="moment-upgrade-wrap">
-                    <div class="moment-action-row">
-                        <div class="moment-upgrade-slot">
-                            ${upgrade}
-                        </div>
+                    <div class="moment-upgrade-wrap">
+                        <div class="moment-action-row">
+                            <div class="moment-upgrade-slot">
+                                ${upgrade}
+                            </div>
 
-                        <button
-                            class="btn-mark-explored${explored ? ' is-explored' : ''}"
-                            id="moment-btn-${moment.id}"
-                            onclick="toggleMomentExplored('${moment.id}')"
-                            aria-pressed="${String(explored)}"
-                            aria-label="${explored ? 'Mark as not explored' : 'Mark explored'}"
-                            title="${explored
+                            <button
+                                class="btn-mark-explored${explored ? ' is-explored' : ''}"
+                                id="moment-btn-${moment.id}"
+                                onclick="toggleMomentExplored('${moment.id}')"
+                                aria-pressed="${String(explored)}"
+                                aria-label="${explored ? 'Mark as not explored' : 'Mark explored'}"
+                                title="${explored
                 ? 'Mark this moment as not explored'
                 : 'Mark this moment as explored'}">
-                            ${getExploredButtonContent(explored)}
-                        </button>
+                                ${getExploredButtonContent(explored)}
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
 
         list.appendChild(card);
     });
@@ -2435,28 +2653,28 @@ function renderMoments(set) {
         card.className = 'make-it-real-card';
 
         card.innerHTML = `
-            <div class="make-it-real-header">
-                <span class="make-it-real-badge">
-                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
-                        <path d="M5.5 1L6.3 4.1 9.5 4.5 6.3 4.9 5.5 8 4.7 4.9 1.5 4.5 4.7 4.1Z"
-                            stroke="currentColor"
-                            stroke-width="1"
-                            stroke-linejoin="round"/>
-                    </svg>
-                    Make It Real
-                </span>
+                <div class="make-it-real-header">
+                    <span class="make-it-real-badge">
+                        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
+                            <path d="M5.5 1L6.3 4.1 9.5 4.5 6.3 4.9 5.5 8 4.7 4.9 1.5 4.5 4.7 4.1Z"
+                                stroke="currentColor"
+                                stroke-width="1"
+                                stroke-linejoin="round"/>
+                        </svg>
+                        Make It Real
+                    </span>
 
-                <span class="make-it-real-title">
-                    ${escHtml(set.makeItReal.title)}
-                </span>
-            </div>
+                    <span class="make-it-real-title">
+                        ${escHtml(set.makeItReal.title)}
+                    </span>
+                </div>
 
-            <div class="make-it-real-body">
-                <p class="make-it-real-prompt">
-                    ${escHtml(set.makeItReal.prompt)}
-                </p>
-            </div>
-        `;
+                <div class="make-it-real-body">
+                    <p class="make-it-real-prompt">
+                        ${escHtml(set.makeItReal.prompt)}
+                    </p>
+                </div>
+            `;
 
         list.appendChild(card);
     }
@@ -2470,14 +2688,14 @@ function renderMoments(set) {
     closeButton.onclick = closeSet;
 
     closeButton.innerHTML = `
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <path d="M2 2l8 8M10 2l-8 8"
-                stroke="currentColor"
-                stroke-width="1.4"
-                stroke-linecap="round"/>
-        </svg>
-        Close set
-    `;
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d="M2 2l8 8M10 2l-8 8"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                    stroke-linecap="round"/>
+            </svg>
+            Close set
+        `;
 
     list.appendChild(closeButton);
 }
@@ -2761,55 +2979,55 @@ function renderVocabEntry({
     ].filter(Boolean).join(' ');
 
     return `
-        <div class="vb-entry">
-            <div class="vb-entry-head">
-                <div class="vb-entry-title-wrap">
-                    <p class="vb-entry-word">
-                        ${escHtml(term)}
-                    </p>
+            <div class="vb-entry">
+                <div class="vb-entry-head">
+                    <div class="vb-entry-title-wrap">
+                        <p class="vb-entry-word">
+                            ${escHtml(term)}
+                        </p>
 
-                    <p class="vb-entry-type">
-                        ${escHtml(type)}
-                    </p>
-                </div>
-
-                ${canSave ? `
-                    <button
-                        class="${buttonClass}"
-                        type="button"
-                        onclick="toggleSavedLanguage(${jsArg(contextId)}, event)"
-                        aria-pressed="${String(saved)}"
-                        title="${escHtml(buttonTitle)}">
-                        ${escHtml(buttonLabel)}
-                    </button>
-                ` : ''}
-            </div>
-
-            <p class="vb-entry-def">
-                ${escHtml(definition)}
-            </p>
-
-            ${ordinary ? `
-                <div class="vb-entry-transformation">
-                    <p class="vb-entry-example vb-entry-example-ordinary">
-                        ${escHtml(ordinary)}
-                    </p>
-
-                    <div class="vb-entry-arrow" aria-hidden="true">
-                        ↓
+                        <p class="vb-entry-type">
+                            ${escHtml(type)}
+                        </p>
                     </div>
 
+                    ${canSave ? `
+                        <button
+                            class="${buttonClass}"
+                            type="button"
+                            onclick="toggleSavedLanguage(${jsArg(contextId)}, event)"
+                            aria-pressed="${String(saved)}"
+                            title="${escHtml(buttonTitle)}">
+                            ${escHtml(buttonLabel)}
+                        </button>
+                    ` : ''}
+                </div>
+
+                <p class="vb-entry-def">
+                    ${escHtml(definition)}
+                </p>
+
+                ${ordinary ? `
+                    <div class="vb-entry-transformation">
+                        <p class="vb-entry-example vb-entry-example-ordinary">
+                            ${escHtml(ordinary)}
+                        </p>
+
+                        <div class="vb-entry-arrow" aria-hidden="true">
+                            ↓
+                        </div>
+
+                        <p class="vb-entry-example vb-entry-example-upgraded">
+                            ${escHtml(upgraded)}
+                        </p>
+                    </div>
+                ` : `
                     <p class="vb-entry-example vb-entry-example-upgraded">
                         ${escHtml(upgraded)}
                     </p>
-                </div>
-            ` : `
-                <p class="vb-entry-example vb-entry-example-upgraded">
-                    ${escHtml(upgraded)}
-                </p>
-            `}
-        </div>
-    `;
+                `}
+            </div>
+        `;
 }
 
 function renderSavedLanguageTab() {
@@ -2818,46 +3036,46 @@ function renderSavedLanguageTab() {
 
     if (!entries.length) {
         return `
-            <div class="vb-empty-state">
-                <p class="vb-empty-title">
-                    No saved language yet.
-                </p>
+                <div class="vb-empty-state">
+                    <p class="vb-empty-title">
+                        No saved language yet.
+                    </p>
 
-                <p class="vb-empty-text">
-                    Save language from this subject when it becomes useful.
-                </p>
+                    <p class="vb-empty-text">
+                        Save language from this subject when it becomes useful.
+                    </p>
 
-                <button
-                    class="vb-empty-action"
-                    type="button"
-                    onclick="setVocabBankTab('all')">
-                    Browse all language
-                </button>
-            </div>
-        `;
+                    <button
+                        class="vb-empty-action"
+                        type="button"
+                        onclick="setVocabBankTab('all')">
+                        Browse all language
+                    </button>
+                </div>
+            `;
     }
 
     return `
-        <div class="vb-intro">
-            <div class="vb-intro-top">
-                <p class="vb-intro-count">
-                    ${entries.length} saved
-                </p>
+            <div class="vb-intro">
+                <div class="vb-intro-top">
+                    <p class="vb-intro-count">
+                        ${entries.length} saved
+                    </p>
 
-                <button
-                    class="vb-edit-btn"
-                    type="button"
-                    onclick="toggleVocabBankEditMode()">
-                    ${vocabBankEditMode ? 'Done' : 'Edit'}
-                </button>
+                    <button
+                        class="vb-edit-btn"
+                        type="button"
+                        onclick="toggleVocabBankEditMode()">
+                        ${vocabBankEditMode ? 'Done' : 'Edit'}
+                    </button>
+                </div>
+
+                <p class="vb-intro-copy">
+                    Your saved language for this subject
+                </p>
             </div>
 
-            <p class="vb-intro-copy">
-                Your saved language for this subject
-            </p>
-        </div>
-
-        ${entries.map(entry => renderVocabEntry({
+            ${entries.map(entry => renderVocabEntry({
         term: entry.term,
         type: entry.type,
         definition: entry.definition,
@@ -2871,22 +3089,22 @@ function renderSavedLanguageTab() {
         saveControlMode: 'remove'
     })).join('')}
 
-        <div class="vb-print-area">
-            <button
-                class="vb-print-btn vb-print-btn-bottom"
-                type="button"
-                onclick="copySavedLanguage(this)">
-                Copy saved language
-            </button>
+            <div class="vb-print-area">
+                <button
+                    class="vb-print-btn vb-print-btn-bottom"
+                    type="button"
+                    onclick="copySavedLanguage(this)">
+                    Copy saved language
+                </button>
 
-            <button
-                class="vb-print-btn vb-print-btn-bottom vb-print-btn-pdf"
-                type="button"
-                onclick="printSavedLanguage()">
-                Print / Save PDF
-            </button>
-        </div>
-    `;
+                <button
+                    class="vb-print-btn vb-print-btn-bottom vb-print-btn-pdf"
+                    type="button"
+                    onclick="printSavedLanguage()">
+                    Print / Save PDF
+                </button>
+            </div>
+        `;
 }
 
 function renderAllLanguageTab() {
@@ -2902,22 +3120,22 @@ function renderAllLanguageTab() {
         'Language from this subject.';
 
     return `
-        <div class="vb-intro">
-            <p class="vb-intro-count">
-                ${totalCount} entries
-            </p>
+            <div class="vb-intro">
+                <p class="vb-intro-count">
+                    ${totalCount} entries
+                </p>
 
-            <p class="vb-intro-copy">
-                ${escHtml(intro)}
-            </p>
-        </div>
+                <p class="vb-intro-copy">
+                    ${escHtml(intro)}
+                </p>
+            </div>
 
-        ${groups.map(group => `
-            <p class="vb-section-label">
-                ${escHtml(group.title)}
-            </p>
+            ${groups.map(group => `
+                <p class="vb-section-label">
+                    ${escHtml(group.title)}
+                </p>
 
-            ${group.entries.map(upgrade => renderVocabEntry({
+                ${group.entries.map(upgrade => renderVocabEntry({
         term: upgrade.term,
         type: upgrade.type,
         definition: upgrade.definition,
@@ -2926,24 +3144,24 @@ function renderAllLanguageTab() {
         contextId: upgrade.contextId,
         showSaveControl: true
     })).join('')}
-        `).join('')}
+            `).join('')}
 
-        <div class="vb-print-area">
-            <button
-                class="vb-print-btn vb-print-btn-bottom"
-                type="button"
-                onclick="copyAllLanguage(this)">
-                Copy all language
-            </button>
+            <div class="vb-print-area">
+                <button
+                    class="vb-print-btn vb-print-btn-bottom"
+                    type="button"
+                    onclick="copyAllLanguage(this)">
+                    Copy all language
+                </button>
 
-            <button
-                class="vb-print-btn vb-print-btn-bottom vb-print-btn-pdf"
-                type="button"
-                onclick="printAllLanguage()">
-                Print / Save PDF
-            </button>
-        </div>
-    `;
+                <button
+                    class="vb-print-btn vb-print-btn-bottom vb-print-btn-pdf"
+                    type="button"
+                    onclick="printAllLanguage()">
+                    Print / Save PDF
+                </button>
+            </div>
+        `;
 }
 
 function renderVocabBank() {
@@ -3094,29 +3312,29 @@ function copySavedLanguage(button) {
 
 function renderPrintLanguageEntry(entry = {}) {
     return `
-        <div class="print-entry">
-            <p class="print-entry-term">
-                ${escHtml(entry.term)}
-                <span class="print-entry-type">
-                    ${escHtml(entry.type)}
-                </span>
-            </p>
-
-            <p class="print-entry-def">
-                ${escHtml(entry.definition)}
-            </p>
-
-            ${entry.ordinary ? `
-                <p class="print-entry-example print-entry-example-ordinary">
-                    ${escHtml(entry.ordinary)}
+            <div class="print-entry">
+                <p class="print-entry-term">
+                    ${escHtml(entry.term)}
+                    <span class="print-entry-type">
+                        ${escHtml(entry.type)}
+                    </span>
                 </p>
-            ` : ''}
 
-            <p class="print-entry-example print-entry-example-upgraded">
-                ${escHtml(entry.upgraded)}
-            </p>
-        </div>
-    `;
+                <p class="print-entry-def">
+                    ${escHtml(entry.definition)}
+                </p>
+
+                ${entry.ordinary ? `
+                    <p class="print-entry-example print-entry-example-ordinary">
+                        ${escHtml(entry.ordinary)}
+                    </p>
+                ` : ''}
+
+                <p class="print-entry-example print-entry-example-upgraded">
+                    ${escHtml(entry.upgraded)}
+                </p>
+            </div>
+        `;
 }
 
 function printLanguageDocument({
@@ -3133,42 +3351,42 @@ function printLanguageDocument({
     if (!printArea) return;
 
     printArea.innerHTML = `
-        <div class="print-doc">
-            <p class="print-doc-kicker">
-                ${escHtml(kicker)}
-            </p>
-
-            <h1 class="print-doc-title">
-                ${escHtml(MODULE.title)}
-            </h1>
-
-            ${intro ? `
-                <p class="print-doc-intro">
-                    ${escHtml(intro)}
+            <div class="print-doc">
+                <p class="print-doc-kicker">
+                    ${escHtml(kicker)}
                 </p>
-            ` : ''}
 
-            ${meta ? `
-                <p class="print-doc-meta">
-                    ${escHtml(meta)}
-                </p>
-            ` : ''}
+                <h1 class="print-doc-title">
+                    ${escHtml(MODULE.title)}
+                </h1>
 
-            ${sections.map(section => `
-                <section>
-                    ${section.title ? `
-                        <h2 class="print-group-title">
-                            ${escHtml(section.title)}
-                        </h2>
-                    ` : ''}
+                ${intro ? `
+                    <p class="print-doc-intro">
+                        ${escHtml(intro)}
+                    </p>
+                ` : ''}
 
-                    ${section.entries
+                ${meta ? `
+                    <p class="print-doc-meta">
+                        ${escHtml(meta)}
+                    </p>
+                ` : ''}
+
+                ${sections.map(section => `
+                    <section>
+                        ${section.title ? `
+                            <h2 class="print-group-title">
+                                ${escHtml(section.title)}
+                            </h2>
+                        ` : ''}
+
+                        ${section.entries
             .map(renderPrintLanguageEntry)
             .join('')}
-                </section>
-            `).join('')}
-        </div>
-    `;
+                    </section>
+                `).join('')}
+            </div>
+        `;
 
     const originalTitle = document.title;
 
@@ -3836,13 +4054,13 @@ function getFocusableElements(root) {
     if (!root) return [];
 
     return Array.from(root.querySelectorAll(`
-        a[href],
-        button:not([disabled]),
-        input:not([disabled]),
-        textarea:not([disabled]),
-        select:not([disabled]),
-        [tabindex]:not([tabindex="-1"])
-    `)).filter(element =>
+            a[href],
+            button:not([disabled]),
+            input:not([disabled]),
+            textarea:not([disabled]),
+            select:not([disabled]),
+            [tabindex]:not([tabindex="-1"])
+        `)).filter(element =>
         element.getClientRects().length > 0
     );
 }
@@ -3935,40 +4153,40 @@ function handleFocusTrap(event) {
 
 const APPEARANCE_SVG = {
     moon: `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
-        <path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z"
-            stroke="currentColor"
-            stroke-width="1.35"
-            stroke-linecap="round"
-            stroke-linejoin="round"/>
-    </svg>`,
+            <path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z"
+                stroke="currentColor"
+                stroke-width="1.35"
+                stroke-linecap="round"
+                stroke-linejoin="round"/>
+        </svg>`,
 
     sun: `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 17 17" fill="none" aria-hidden="true">
-        <circle cx="8.5" cy="8.5" r="3"
-            stroke="currentColor"
-            stroke-width="1.35"/>
-        <path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4"
-            stroke="currentColor"
-            stroke-width="1.35"
-            stroke-linecap="round"/>
-    </svg>`,
+            <circle cx="8.5" cy="8.5" r="3"
+                stroke="currentColor"
+                stroke-width="1.35"/>
+            <path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4"
+                stroke="currentColor"
+                stroke-width="1.35"
+                stroke-linecap="round"/>
+        </svg>`,
 
     moonSm: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-        <path d="M12 8.5A5.5 5.5 0 0 1 5.5 2a5.5 5.5 0 1 0 6.5 6.5Z"
-            stroke="currentColor"
-            stroke-width="1.3"
-            stroke-linecap="round"
-            stroke-linejoin="round"/>
-    </svg>`,
+            <path d="M12 8.5A5.5 5.5 0 0 1 5.5 2a5.5 5.5 0 1 0 6.5 6.5Z"
+                stroke="currentColor"
+                stroke-width="1.3"
+                stroke-linecap="round"
+                stroke-linejoin="round"/>
+        </svg>`,
 
     sunSm: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-        <circle cx="7" cy="7" r="2.5"
-            stroke="currentColor"
-            stroke-width="1.3"/>
-        <path d="M7 1.5v1.5M7 11v1.5M1.5 7H3M11 7h1.5M3.2 3.2l1 1M9.8 9.8l1 1M9.8 4.2l1-1M3.2 10.8l1-1"
-            stroke="currentColor"
-            stroke-width="1.3"
-            stroke-linecap="round"/>
-    </svg>`
+            <circle cx="7" cy="7" r="2.5"
+                stroke="currentColor"
+                stroke-width="1.3"/>
+            <path d="M7 1.5v1.5M7 11v1.5M1.5 7H3M11 7h1.5M3.2 3.2l1 1M9.8 9.8l1 1M9.8 4.2l1-1M3.2 10.8l1-1"
+                stroke="currentColor"
+                stroke-width="1.3"
+                stroke-linecap="round"/>
+        </svg>`
 };
 
 function getAppearanceMode() {
