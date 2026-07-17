@@ -28,6 +28,7 @@
         registry: 'atlas::registry',
         ledger: 'learning::ledger',
         appearance: 'atlas::appearanceMode',
+        appearanceBySession: 'atlas::appearanceBySession',
         preferences: 'atlas::preferences'
     };
 
@@ -237,6 +238,7 @@
 
         if (exists) return null;
 
+        const inheritedAppearanceMode = readAppearanceMode();
         const timestamp = now();
 
         const session = {
@@ -249,6 +251,7 @@
 
         writeSessions([...sessions, session]);
         storageSet(KEYS.activeSessionId, session.id);
+        writeSessionAppearanceMode(session.id, inheritedAppearanceMode);
 
         window.dispatchEvent(new CustomEvent('atlas:session-change', {
             detail: { session }
@@ -304,6 +307,7 @@
         if (nextSessions.length === sessions.length) return false;
 
         writeSessions(nextSessions);
+        removeSessionAppearanceMode(sessionId);
 
         const activeSessionId = readActiveSessionId();
 
@@ -720,9 +724,56 @@
     // APPEARANCE
     // ============================================================
 
-    function readAppearanceMode() {
-        const mode = storageGet(KEYS.appearance);
+    function normalizeAppearanceMode(mode) {
         return mode === 'night' ? 'night' : 'light';
+    }
+
+    function readSessionAppearanceModes() {
+        const stored = readJson(KEYS.appearanceBySession, {});
+
+        if (!stored || typeof stored !== 'object' || Array.isArray(stored)) {
+            return {};
+        }
+
+        return Object.entries(stored).reduce((modes, [sessionId, mode]) => {
+            if (mode === 'light' || mode === 'night') {
+                modes[sessionId] = mode;
+            }
+
+            return modes;
+        }, {});
+    }
+
+    function writeSessionAppearanceMode(sessionId, mode) {
+        if (!sessionId) return normalizeAppearanceMode(mode);
+
+        const normalized = normalizeAppearanceMode(mode);
+        const modes = readSessionAppearanceModes();
+
+        modes[sessionId] = normalized;
+        writeJson(KEYS.appearanceBySession, modes);
+
+        return normalized;
+    }
+
+    function removeSessionAppearanceMode(sessionId) {
+        const modes = readSessionAppearanceModes();
+
+        if (!Object.prototype.hasOwnProperty.call(modes, sessionId)) return;
+
+        delete modes[sessionId];
+        writeJson(KEYS.appearanceBySession, modes);
+    }
+
+    function readAppearanceMode() {
+        const sessionId = readActiveSessionId();
+        const sessionModes = readSessionAppearanceModes();
+
+        if (sessionModes[sessionId] === 'light' || sessionModes[sessionId] === 'night') {
+            return sessionModes[sessionId];
+        }
+
+        return normalizeAppearanceMode(storageGet(KEYS.appearance));
     }
 
     function applyAppearanceMode(mode = readAppearanceMode()) {
@@ -736,13 +787,13 @@
     }
 
     function setAppearanceMode(mode) {
-        const normalized = mode === 'night' ? 'night' : 'light';
+        const sessionId = readActiveSessionId();
+        const normalized = writeSessionAppearanceMode(sessionId, mode);
 
-        storageSet(KEYS.appearance, normalized);
         applyAppearanceMode(normalized);
 
         window.dispatchEvent(new CustomEvent('atlas:appearance-change', {
-            detail: { mode: normalized }
+            detail: { mode: normalized, sessionId }
         }));
 
         return normalized;
