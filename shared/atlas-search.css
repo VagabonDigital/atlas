@@ -242,6 +242,118 @@ html[data-theme="night"] .atlas-search-hint kbd {
     border-color: rgba(255, 255, 255, 0.13);
 }
 
+/* Hub night utility surface — darker system overlay for hub search only */
+body[data-atlas-surface="hub"] {
+    --atlas-utility-overlay-bg: rgba(7, 10, 9, 0.66);
+    --atlas-utility-panel-bg: #1f2421;
+    --atlas-utility-panel-raised: #262c28;
+    --atlas-utility-panel-low: #1a1f1c;
+    --atlas-utility-border: rgba(255, 255, 255, 0.11);
+    --atlas-utility-border-strong: rgba(255, 255, 255, 0.17);
+    --atlas-utility-text: #edf2ee;
+    --atlas-utility-muted: #aab4ad;
+    --atlas-utility-faint: #7d887f;
+    --atlas-utility-accent: #8bc9c1;
+    --atlas-utility-accent-bg: rgba(70, 125, 116, 0.26);
+    --atlas-utility-game: #f0a58b;
+    --atlas-utility-game-bg: rgba(176, 88, 61, 0.22);
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-overlay {
+    background: var(--atlas-utility-overlay-bg);
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-panel {
+    background: var(--atlas-utility-panel-bg);
+    border-color: var(--atlas-utility-border);
+    color: var(--atlas-utility-text);
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-input-row,
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-hint {
+    border-color: var(--atlas-utility-border);
+    background: var(--atlas-utility-panel-low);
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-input-row svg {
+    color: var(--atlas-utility-muted);
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-input {
+    color: var(--atlas-utility-text);
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-input::placeholder {
+    color: var(--atlas-utility-muted);
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-group-label,
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result-sub,
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-empty,
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-hint {
+    color: var(--atlas-utility-muted);
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result-title {
+    color: var(--atlas-utility-text);
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result:hover,
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result.focused {
+    background: var(--atlas-utility-accent-bg);
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result-icon {
+    background: var(--atlas-utility-panel-raised);
+    color: var(--atlas-utility-muted);
+    border-color: var(--atlas-utility-border);
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result-icon-home,
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result-icon-subject {
+    background: var(--atlas-utility-accent-bg);
+    color: var(--atlas-utility-accent);
+    border-color: rgba(139, 201, 193, 0.30);
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result-icon-game {
+    background: var(--atlas-utility-game-bg);
+    color: var(--atlas-utility-game);
+    border-color: rgba(240, 165, 139, 0.26);
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-hint kbd {
+    background: var(--atlas-utility-panel-raised);
+    border-color: var(--atlas-utility-border);
+    color: var(--atlas-utility-muted);
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-results {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(170, 180, 173, 0.42) transparent;
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-results::-webkit-scrollbar {
+    width: 10px;
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-results::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-results::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background: rgba(170, 180, 173, 0.32);
+    background-clip: padding-box;
+}
+
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-results::-webkit-scrollbar-thumb:hover {
+    background: rgba(170, 180, 173, 0.50);
+    background-clip: padding-box;
+}
+
 /* Mobile */
 @media (max-width: 680px) {
     .atlas-search-overlay {
