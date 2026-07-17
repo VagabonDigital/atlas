@@ -34,7 +34,7 @@ const subjectCopy = {
     overview: {
         heading: `Everyone's an Expert`,
         intro: [
-            `You've been studying this your whole life. You know exactly who sends the four-minute voice note, who never replies, and who tells the same story at every dinner. What's harder to see is your own version — the you who appears in another language, who goes quiet when angry, who says "it's fine" when it isn't.`
+            `You've been studying this your whole life. You know exactly who sends the four-minute voice note, who never replies, and who tells the same story at every dinner. What's harder to see is your own version — the you who appears in another language, who gets funnier with some people, quieter with others, and harder to read than you realise.`
         ],
         question: `So, are you a good communicator? Would the people who know you best agree?`
     },
