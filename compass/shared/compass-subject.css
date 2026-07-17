@@ -44,6 +44,8 @@ Edit only in this file.
     --font-display: 'Playfair Display', Georgia, serif;
     --font-body: 'DM Sans', system-ui, sans-serif;
     --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    --theme-surface-transition: 0.2s ease;
+    --atlas-theme-motion: 280ms ease;
 }
 
 *,
@@ -168,6 +170,10 @@ VIEW 1: COVER / LANDING
 
 html[data-theme="night"] .cover-bg {
     background-position: center 0%;
+}
+
+html.theme-changing .cover-bg {
+    transition: background-position var(--atlas-theme-motion);
 }
 
 .cover-overlay {
@@ -398,11 +404,16 @@ GLOBAL NAV BAR
     cursor: pointer;
     box-shadow: 0 1px 3px rgba(30, 27, 22, 0.045);
     transition:
-        background-color 0.2s ease,
-        border-color 0.2s ease,
-        color 0.2s ease,
-        box-shadow 0.2s ease,
+        background-color var(--theme-surface-transition),
+        border-color var(--theme-surface-transition),
+        color var(--theme-surface-transition),
+        box-shadow var(--theme-surface-transition),
         transform 0.2s ease;
+}
+
+.nav-brand-mark svg,
+.nav-brand-mark svg * {
+    transition: none;
 }
 
 .nav-brand-mark:hover,
@@ -732,77 +743,44 @@ Prevents nav labels from truncating at zoomed or mid-width layouts.
 APPEARANCE MODE — TARGETED SMOOTH TRANSITIONS
 ============================================================ */
 
-body::before,
-body::after,
-.cover-bg {
+html.theme-changing body,
+html.theme-changing .top-nav,
+html.theme-changing .mobile-header,
+html.theme-changing .nav-brand-mark,
+html.theme-changing .nav-brand-icon,
+html.theme-changing .nav-link,
+html.theme-changing .nav-session-indicator,
+html.theme-changing .nav-keylang-btn,
+html.theme-changing .appearance-toggle,
+html.theme-changing .cover-appearance-toggle,
+html.theme-changing .mobile-appearance-toggle,
+html.theme-changing .mobile-menu-btn,
+html.theme-changing .mobile-session-btn,
+html.theme-changing .mobile-drawer,
+html.theme-changing .mobile-nav-item,
+html.theme-changing .section-stage,
+html.theme-changing .main-path-card,
+html.theme-changing .reflection-path-card,
+html.theme-changing .set-card,
+html.theme-changing .cl-card,
+html.theme-changing .moment-card,
+html.theme-changing .reflection-q,
+html.theme-changing .modal-panel,
+html.theme-changing .vb-drawer,
+html.theme-changing .btn-primary,
+html.theme-changing .btn-ghost,
+html.theme-changing .btn-mark-explored,
+html.theme-changing .btn-close-set,
+html.theme-changing .upgrade-chip,
+html.theme-changing .compass-wrap-up-stage,
+html.theme-changing .compass-wrap-up-pickup,
+html.theme-changing .session-dialog {
     transition:
-        background-position 0.46s cubic-bezier(0.22, 1, 0.36, 1),
-        transform 0.46s cubic-bezier(0.22, 1, 0.36, 1),
-        filter 0.28s ease,
-        opacity 0.28s ease;
-}
-
-/* Large frosted/layout surfaces stay stable.
-   This avoids gradient/banding artefacts during theme changes. */
-.top-nav,
-.mobile-header,
-.section-stage,
-.main-path-card,
-.reflection-path-card,
-.set-card,
-.cl-card,
-.moment-card,
-.reflection-q,
-.modal-panel,
-.vb-drawer,
-.mobile-drawer {
-    transition:
-        border-color 0.18s ease,
-        box-shadow 0.18s ease,
-        color 0.18s ease;
-}
-
-/* Small UI pieces can soften without causing full-surface artefacts */
-.nav-link,
-.nav-session-indicator,
-.nav-keylang-btn,
-.appearance-toggle,
-.cover-appearance-toggle,
-.mobile-appearance-toggle,
-.mobile-menu-btn,
-.mobile-session-btn,
-.mobile-nav-item,
-.btn-primary,
-.btn-ghost,
-.btn-mark-explored,
-.btn-mark-explored,
-.btn-close-set,
-.upgrade-chip {
-    transition:
-        background-color 0.2s ease,
-        border-color 0.2s ease,
-        color 0.2s ease,
-        box-shadow 0.2s ease,
-        opacity 0.2s ease;
-}
-
-.nav-brand-icon,
-.nav-brand-system,
-.nav-brand-subject,
-.mobile-header .nav-brand-icon,
-.mobile-header-system,
-.mobile-header-context,
-.subject-intro-block h1,
-.section-header h2,
-.path-title,
-.set-title,
-.cl-card-title,
-.moment-text,
-.reflection-wrap h2,
-.reflection-summary {
-    transition:
-        background-color 0.22s ease,
-        color 0.2s ease;
+        background-color var(--atlas-theme-motion),
+        color var(--atlas-theme-motion),
+        border-color var(--atlas-theme-motion),
+        box-shadow var(--atlas-theme-motion),
+        opacity var(--atlas-theme-motion);
 }
 
 /* ============================================================
@@ -2184,7 +2162,7 @@ VIEW 4: DISCUSSION
     gap: 0.8rem;
     padding: 1rem 1.3rem;
     cursor: pointer;
-    transition: background var(--transition);
+    transition: background-color var(--transition);
     user-select: none;
 }
 
@@ -2320,12 +2298,15 @@ KEY LANGUAGE DRAWER
     display: flex;
     flex-direction: column;
     box-shadow: -4px 0 32px rgba(20, 17, 12, 0.15);
-    transform: translateX(100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translate3d(100%, 0, 0);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 .vb-drawer.open {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
 }
 
 .vb-header {
@@ -4474,12 +4455,6 @@ html[data-theme="night"] .mobile-drawer-nav::-webkit-scrollbar-thumb {
         scroll-behavior: auto !important;
     }
 
-    html.theme-changing *,
-    html.theme-changing *::before,
-    html.theme-changing *::after {
-        transition: none !important;
-    }
-
     *,
     *::before,
     *::after {
@@ -4770,11 +4745,6 @@ RESPONSIVE
         inset: -14% -8%;
         transform: translateY(2.8%) scale(1.08);
         transform-origin: center center;
-        will-change: transform;
-    }
-
-    html[data-theme="night"] .cover-bg {
-        transform: translateY(-2.8%) scale(1.08);
     }
 
     .cover-card {
