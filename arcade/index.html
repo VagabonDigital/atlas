@@ -28,12 +28,17 @@
     rel="stylesheet">
 
   <link rel="stylesheet" href="../shared/atlas-search.css">
+  <link rel="stylesheet" href="../shared/atlas-session-panel.css">
 
-  <!-- Anti-flash: read appearance before first paint -->
+  <!-- Anti-flash: apply the active session theme before first paint -->
   <script>
     (function () {
       var m = null;
-      try { m = localStorage.getItem('atlas::appearanceMode'); } catch (e) { }
+      try {
+        var sessionId = localStorage.getItem('atlas::activeSessionId') || 'default';
+        var sessionModes = JSON.parse(localStorage.getItem('atlas::appearanceBySession') || '{}');
+        m = sessionModes[sessionId] || localStorage.getItem('atlas::appearanceMode');
+      } catch (e) { }
       document.documentElement.dataset.theme = (m === 'night') ? 'night' : 'light';
     })();
   </script>
@@ -47,75 +52,61 @@
        Distinct from Compass (editorial cream/teal) and Atlas (cool slate).
        ============================================================ */
     :root {
-      /* Base surfaces — warm studio ivory, not Compass's book cream */
       --bg: #f8f1e8;
       --bg-raised: #fffdf9;
       --bg-subtle: #f0e7de;
       --bg-card: #fffdf9;
-
-      /* Arcade identity — coral-orange, warm and energetic, adult not candy */
       --arcade: #df572f;
       --arcade-soft: #ef7652;
       --arcade-pale: #f9ded3;
       --arcade-dim: #fdf0eb;
       --arcade-rgb: 223, 87, 47;
-
-      /* Ink — aubergine/deep navy, grounds the energy */
+      --page-bg:
+        radial-gradient(circle at 84% 4%, rgba(var(--arcade-rgb), 0.13), transparent 30rem),
+        radial-gradient(circle at 8% 22%, rgba(107, 76, 130, 0.075), transparent 34rem),
+        linear-gradient(145deg, #fbf5ee 0%, var(--bg) 48%, #f2e7dc 100%);
       --ink: #2d1f3d;
       --ink-mid: #5a4a6e;
       --ink-quiet: #8a7a9a;
       --ink-faint: #c4bad0;
-
-      /* Borders */
       --border: rgba(58, 36, 63, 0.095);
       --border-mid: rgba(58, 36, 63, 0.16);
-
-      /* Semantic */
       --danger: #c0392b;
       --danger-bg: #fdf2f1;
       --danger-border: rgba(192, 57, 43, 0.28);
-
-      /* Shadows — warm-toned, not cold */
       --shadow-xs: 0 1px 2px rgba(45, 31, 61, 0.05);
       --shadow-sm: 0 7px 20px rgba(58, 36, 63, 0.07);
       --shadow-md: 0 16px 40px rgba(58, 36, 63, 0.11);
       --shadow-lg: 0 26px 68px rgba(58, 36, 63, 0.15);
-
-      /* Radii — rounded but not bubbly */
       --r-sm: 6px;
       --r-md: 16px;
       --r-lg: 20px;
       --r-xl: 26px;
-
-      /* Type */
       --font-display: 'DM Serif Display', Georgia, serif;
       --font-body: 'DM Sans', system-ui, sans-serif;
-
-      /* Motion */
       --t: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     html[data-theme="night"] {
-      /* After-hours studio — same room, lights dimmed, neon sign on */
       --bg: #1e1720;
       --bg-raised: #2a2130;
       --bg-subtle: #251d2c;
       --bg-card: #2a2130;
-
       --arcade: #f06840;
       --arcade-soft: #f57f5a;
       --arcade-pale: rgba(240, 104, 64, 0.18);
       --arcade-dim: rgba(240, 104, 64, 0.10);
       --arcade-rgb: 240, 104, 64;
-
+      --page-bg:
+        radial-gradient(circle at 84% 4%, rgba(var(--arcade-rgb), 0.16), transparent 30rem),
+        radial-gradient(circle at 8% 22%, rgba(154, 117, 181, 0.08), transparent 34rem),
+        linear-gradient(145deg, #19121c 0%, var(--bg) 52%, #261b2b 100%);
       --ink: #f0e8f8;
       --ink-mid: #c8b8d8;
       --ink-quiet: #8878a0;
       --ink-faint: #4a3d58;
-
       --border: rgba(255, 255, 255, 0.08);
       --border-mid: rgba(255, 255, 255, 0.14);
-
       --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.22);
       --shadow-sm: 0 1px 6px rgba(0, 0, 0, 0.28);
       --shadow-md: 0 4px 18px rgba(0, 0, 0, 0.36);
@@ -151,10 +142,7 @@
 
     body {
       font-family: var(--font-body);
-      background:
-        radial-gradient(circle at 84% 4%, rgba(var(--arcade-rgb), 0.13), transparent 30rem),
-        radial-gradient(circle at 8% 22%, rgba(107, 76, 130, 0.075), transparent 34rem),
-        linear-gradient(145deg, #fbf5ee 0%, var(--bg) 48%, #f2e7dc 100%);
+      background: var(--page-bg);
       background-attachment: fixed;
       color: var(--ink);
       font-size: 15px;
@@ -222,6 +210,7 @@
 
     html[data-theme="night"] .spine {
       background: rgba(30, 23, 32, 0.95);
+      border-bottom-color: rgba(255, 255, 255, 0.08);
     }
 
     .spine-mark {
@@ -252,6 +241,13 @@
       background: rgba(240, 231, 222, 0.68);
       border: 1px solid rgba(93, 57, 86, 0.11);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+
+    /* Night world switcher — prevent day-mode ivory capsule/highlight from leaking into Arcade night mode */
+    html[data-theme="night"] .spine-worlds {
+      background: rgba(42, 33, 48, 0.76);
+      border-color: rgba(255, 255, 255, 0.13);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055);
     }
 
     .spine-world-btn {
@@ -287,12 +283,28 @@
       box-shadow: 0 5px 14px rgba(58, 36, 63, 0.045);
     }
 
+    html[data-theme="night"] .spine-world-btn:hover {
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.055);
+      border-color: rgba(255, 255, 255, 0.10);
+      box-shadow: none;
+    }
+
     .spine-world-btn.is-active {
       color: var(--arcade);
       background: var(--arcade-dim);
       border-color: rgba(var(--arcade-rgb), 0.24);
       box-shadow: var(--shadow-xs);
       cursor: default;
+    }
+
+    html[data-theme="night"] .spine-world-btn.is-active {
+      color: var(--arcade-soft);
+      background: rgba(var(--arcade-rgb), 0.18);
+      border-color: rgba(var(--arcade-rgb), 0.36);
+      box-shadow:
+        0 0 0 1px rgba(var(--arcade-rgb), 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.045);
     }
 
     .spine-world-btn.is-active svg {
@@ -345,6 +357,20 @@
       color: var(--ink);
     }
 
+    /* Night session pill — keep active learner readable without a pale day-mode capsule */
+    html[data-theme="night"] .spine-session-pill {
+      background: rgba(42, 33, 48, 0.78);
+      border-color: rgba(255, 255, 255, 0.12);
+      color: var(--ink-mid);
+      box-shadow: none;
+    }
+
+    html[data-theme="night"] .spine-session-pill:hover {
+      border-color: rgba(var(--arcade-rgb), 0.38);
+      color: var(--ink);
+      background: rgba(48, 38, 56, 0.92);
+    }
+
     .spine-session-pill .pill-name {
       overflow: hidden;
       text-overflow: ellipsis;
@@ -391,6 +417,7 @@
 
     html[data-theme="night"] .mobile-header {
       background: rgba(30, 23, 32, 0.96);
+      border-bottom-color: rgba(255, 255, 255, 0.08);
     }
 
     .mobile-header-mark {
@@ -454,6 +481,12 @@
     .mobile-session-pill span {
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+
+    html[data-theme="night"] .mobile-session-pill {
+      background: rgba(42, 33, 48, 0.86);
+      border-color: rgba(255, 255, 255, 0.12);
+      color: var(--ink-mid);
     }
 
     /* ============================================================ MOBILE DRAWER */
@@ -652,6 +685,13 @@
       flex-shrink: 0;
     }
 
+    html[data-theme="night"] .drawer-session-btn,
+    html[data-theme="night"] .drawer-appearance-btn {
+      background: rgba(255, 255, 255, 0.045);
+      border-color: rgba(255, 255, 255, 0.10);
+      color: var(--ink-mid);
+    }
+
     /* ============================================================ MAIN LAYOUT */
     .arcade-main {
       position: relative;
@@ -664,7 +704,7 @@
     /* ============================================================ HUB INTRO */
     .hub-intro {
       padding: 0 0 2.35rem;
-      border-bottom: 1px solid rgba(93, 57, 86, 0.13);
+      border-bottom: 1px solid var(--border-mid);
       margin-bottom: 0;
       display: flex;
       align-items: flex-end;
@@ -1324,7 +1364,7 @@
       content: '';
       flex: 1;
       height: 1px;
-      background: rgba(58, 36, 63, 0.085);
+      background: var(--border);
     }
 
     .library-divider-label {
@@ -1371,7 +1411,7 @@
       line-height: 1.6;
     }
 
-    /* ============================================================ SESSION MODAL */
+    /* ============================================================ SETTINGS MODAL */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -1457,84 +1497,6 @@
       margin: 0.9rem 0 0.45rem;
     }
 
-    .session-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-      margin-bottom: 0.7rem;
-    }
-
-    .session-item {
-      display: flex;
-      align-items: center;
-      gap: 0.55rem;
-      padding: 0.6rem 0.8rem;
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      background: var(--bg-subtle);
-      transition: var(--t);
-    }
-
-    .session-item.active {
-      border-color: var(--arcade);
-      background: var(--arcade-pale);
-    }
-
-    .session-item-name {
-      flex: 1;
-      font-size: 0.86rem;
-      font-weight: 500;
-      color: var(--ink);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .session-item-badge {
-      font-size: 0.64rem;
-      font-weight: 600;
-      background: var(--arcade);
-      color: #fff;
-      border-radius: 20px;
-      padding: 0.12rem 0.45rem;
-    }
-
-    .session-item-actions {
-      display: flex;
-      gap: 0.3rem;
-      flex-shrink: 0;
-    }
-
-    .session-action-btn {
-      width: 28px;
-      height: 28px;
-      border-radius: var(--r-sm);
-      border: 1px solid var(--border);
-      background: var(--bg-raised);
-      color: var(--ink-quiet);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--t);
-    }
-
-    .session-action-btn:hover {
-      color: var(--ink);
-      border-color: var(--border-mid);
-    }
-
-    .session-action-btn.danger:hover {
-      color: var(--danger);
-      border-color: var(--danger-border);
-      background: var(--danger-bg);
-    }
-
-    .session-new-form {
-      display: flex;
-      gap: 0.45rem;
-    }
-
     .session-input {
       flex: 1;
       padding: 0.58rem 0.8rem;
@@ -1564,19 +1526,6 @@
 
     html[data-theme="night"] select.session-input {
       background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 5.25L7 8.75L10.5 5.25' stroke='%23c8b8d8' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    }
-
-    .session-error {
-      font-size: 0.76rem;
-      color: var(--danger);
-      margin-top: 0.45rem;
-      min-height: 1rem;
-      opacity: 0;
-      transition: opacity var(--t);
-    }
-
-    .session-error.visible {
-      opacity: 1;
     }
 
     .btn-primary {
@@ -1657,6 +1606,29 @@
       color: var(--ink-quiet);
       line-height: 1.55;
       margin-bottom: 1.1rem;
+    }
+
+    .confirm-input {
+      display: none;
+      width: 100%;
+      min-height: 42px;
+      margin-bottom: 0.75rem;
+      padding: 0.58rem 0.8rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-sm);
+      background: var(--bg-raised);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 0.86rem;
+      outline: none;
+    }
+
+    .confirm-input.visible {
+      display: block;
+    }
+
+    .confirm-input:focus {
+      border-color: var(--arcade);
     }
 
     .confirm-actions {
@@ -1858,13 +1830,14 @@
     <div class="spine-mark">Arcade<span>.</span></div>
     <div class="spine-worlds" id="spine-hub-nav" role="group" aria-label="Hub navigation"></div>
     <div class="spine-actions">
-      <button class="spine-session-pill" onclick="openSessionModal()" aria-label="Switch session">
+      <button class="spine-session-pill" onclick="openSessionPanel(this)"
+        aria-label="Open session panel. Working with Shared">
         <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
           <circle cx="5.5" cy="3.5" r="2" stroke="currentColor" stroke-width="1.2" />
           <path d="M1 9.5c0-2 2-3.5 4.5-3.5s4.5 1.5 4.5 3.5" stroke="currentColor" stroke-width="1.2"
             stroke-linecap="round" />
         </svg>
-        <span class="pill-name" id="spine-session-name">—</span>
+        <span class="pill-name" id="spine-session-name">Shared</span>
       </button>
       <button class="spine-btn" type="button" data-atlas-search title="Search" aria-label="Search">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -1889,13 +1862,14 @@
   <header class="mobile-header" role="banner">
     <span class="mobile-header-mark">Arcade<span>.</span></span>
     <div class="mobile-header-actions">
-      <button class="mobile-session-pill" onclick="openSessionModal()" aria-label="Sessions">
+      <button class="mobile-session-pill" onclick="openSessionPanel(this)"
+        aria-label="Open session panel. Working with Shared">
         <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
           <circle cx="5.5" cy="3.5" r="2" stroke="currentColor" stroke-width="1.2" />
           <path d="M1 9.5c0-2 2-3.5 4.5-3.5s4.5 1.5 4.5 3.5" stroke="currentColor" stroke-width="1.2"
             stroke-linecap="round" />
         </svg>
-        <span id="mobile-session-name">—</span>
+        <span id="mobile-session-name">Shared</span>
       </button>
       <button class="mobile-header-btn" type="button" data-atlas-search aria-label="Search">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -1945,13 +1919,14 @@
     </div>
     <div class="drawer-footer">
       <div class="drawer-footer-row">
-        <button class="drawer-session-btn" onclick="closeDrawer(); openSessionModal()">
+        <button class="drawer-session-btn" aria-label="Open session panel. Working with Shared"
+          onclick="closeDrawer(); openSessionPanel(document.querySelector('.mobile-session-pill'))">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
             <circle cx="6.5" cy="4.5" r="2.2" stroke="currentColor" stroke-width="1.2" />
             <path d="M1.5 11.5c0-2.4 2.2-4.2 5-4.2s5 1.8 5 4.2" stroke="currentColor" stroke-width="1.2"
               stroke-linecap="round" />
           </svg>
-          <span id="drawer-session-name">—</span>
+          <span id="drawer-session-name">Shared</span>
         </button>
         <button class="drawer-appearance-btn" id="drawer-appearance-btn" onclick="toggleAppearance()"
           aria-label="Toggle appearance"></button>
@@ -1964,38 +1939,7 @@
     <!-- Rendered by JS -->
   </main>
 
-  <!-- ============================================================ SESSION MODAL -->
-  <div class="modal-overlay" id="session-modal" onclick="handleSessionModalClick(event)" role="dialog"
-    aria-label="Sessions" aria-modal="true">
-    <div class="modal-panel">
-      <div class="modal-header">
-        <span class="modal-title">Sessions</span>
-        <button class="modal-close" onclick="closeSessionModal()" aria-label="Close">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p class="modal-helper" id="session-modal-helper"></p>
-
-        <div class="session-list" id="session-list"></div>
-
-        <p class="modal-section-label">New session</p>
-        <div class="session-new-form">
-          <input class="session-input" id="new-session-input" type="text" placeholder="Learner name" maxlength="40"
-            autocomplete="off">
-          <button class="btn-primary" onclick="handleCreateSession()">Add</button>
-        </div>
-
-        <div class="session-error" id="session-create-error"></div>
-
-        <p class="modal-helper" style="font-size:0.72rem; margin-top:0.7rem; margin-bottom:0">
-          Progress is saved on this device only.
-        </p>
-      </div>
-    </div>
-  </div>
+  <div id="atlas-session-panel-root"></div>
 
   <!-- ============================================================ SETTINGS MODAL -->
   <div class="modal-overlay" id="settings-modal" onclick="handleSettingsModalClick(event)" role="dialog"
@@ -2038,6 +1982,7 @@
     <div class="confirm-panel">
       <div class="confirm-title" id="confirm-title"></div>
       <div class="confirm-message" id="confirm-message"></div>
+      <input class="confirm-input" id="confirm-input" type="text" maxlength="40" autocomplete="off">
       <div class="confirm-actions">
         <button class="btn-ghost" onclick="resolveConfirm(false)">Cancel</button>
         <button class="btn-danger" id="confirm-ok-btn" onclick="resolveConfirm(true)">Delete</button>
@@ -2047,6 +1992,7 @@
 
   <!-- ============================================================ SCRIPTS -->
   <script src="../shared/atlas-bridge.js"></script>
+  <script src="../shared/atlas-session-panel.js"></script>
   <script src="../shared/atlas-search.js"></script>
   <script>
     'use strict';
@@ -2465,7 +2411,7 @@
         const item = (reg.items || {})[registryId];
         if (!item || item.world !== 'arcade' || item.type !== 'game') return;
         // Only in-progress (not complete, not absent)
-if (!hasMeaningfulArcadeProgress(state)) return;
+        if (!hasMeaningfulArcadeProgress(state)) return;
 
         const catalogueGame = GAME_CATALOGUE.find(g => g.registryId === registryId);
         if (!catalogueGame || !catalogueGame.launchUrl) return;
@@ -2680,10 +2626,14 @@ if (!hasMeaningfulArcadeProgress(state)) return;
        ================================================================ */
     function setSessionLabels() {
       const s = getActiveSession();
-      const name = (isDefaultSession(s) || !s.name) ? 'Session' : s.name;
+      const name = AtlasSessionPanel.getSessionDisplayName(s);
       ['spine-session-name', 'mobile-session-name', 'drawer-session-name'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.textContent = name;
+        if (el) {
+          el.textContent = name;
+          const trigger = el.closest('button');
+          if (trigger) trigger.setAttribute('aria-label', 'Open session panel. Working with ' + name);
+        }
       });
     }
 
@@ -2957,75 +2907,34 @@ if (!hasMeaningfulArcadeProgress(state)) return;
     /* ================================================================
        SESSION MODAL
        ================================================================ */
-    function openSessionModal() {
-      renderSessionList();
-      clearSessionError();
-      document.getElementById('session-modal').classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-    function closeSessionModal() {
-      document.getElementById('session-modal').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-    function handleSessionModalClick(e) {
-      if (e.target === document.getElementById('session-modal')) closeSessionModal();
-    }
-    function clearSessionError() {
-      const el = document.getElementById('session-create-error');
-      el.textContent = ''; el.className = 'session-error';
-    }
-    function showSessionError(msg) {
-      const el = document.getElementById('session-create-error');
-      el.textContent = msg; el.className = 'session-error visible';
+    function openSessionPanel(trigger = document.activeElement) {
+      if (window.AtlasSessionPanel) AtlasSessionPanel.open(trigger);
     }
 
-    function renderSessionList() {
-      const sessions = getSessions();
-      const active = getActiveSession();
-      const defId = Bridge.defaultSessionId || 'default';
-      const helper = document.getElementById('session-modal-helper');
-      helper.textContent = isDefaultSession(active)
-        ? 'Add a learner name to keep each student\'s progress separate.'
-        : 'Active session: ' + active.name + '. Switch to change the active learner.';
-      document.getElementById('session-list').innerHTML = sessions.map(s => {
-        const isActive = s.id === active.id;
-        const isDefault = s.id === defId;
-        return '<div class="session-item ' + (isActive ? 'active' : '') + '">' +
-          '<span class="session-item-name">' + escHtml(s.name) + '</span>' +
-          (isActive ? '<span class="session-item-badge">Active</span>' : '') +
-          '<div class="session-item-actions">' +
-          (!isActive ? '<button class="session-action-btn" title="Switch to ' + escAttr(s.name) + '" onclick="handleSwitchSession(\'' + escAttr(s.id) + '\')" aria-label="Switch to ' + escAttr(s.name) + '">' +
-            '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5h7M6 2.5l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' : '') +
-          (!isDefault ? '<button class="session-action-btn danger" title="Delete" onclick="handleDeleteSession(\'' + escAttr(s.id) + '\')" aria-label="Delete ' + escAttr(s.name) + '">' +
-            '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1 1l9 9M10 1L1 10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>' : '') +
-          '</div></div>';
-      }).join('');
-    }
+    async function handleRenameSession(session) {
+      const current = getSessions().find(item => item.id === session.id);
+      if (!current) return;
 
-    function handleCreateSession() {
-      const input = document.getElementById('new-session-input');
-      const name = input.value.trim();
-      clearSessionError();
-      if (!name) { showSessionError('Enter a name to create a session.'); return; }
-      const created = Bridge.createSession(name);
-      if (!created) {
-        showSessionError('That name is already in use.');
-        input.style.borderColor = 'var(--danger)';
-        setTimeout(() => { input.style.borderColor = ''; }, 1200);
+      const newName = await showConfirm({
+        title: 'Rename session',
+        message: 'Choose a new name for ' + current.name + '.',
+        okLabel: 'Rename',
+        okClass: 'btn-primary',
+        inputMode: true,
+        inputValue: current.name
+      });
+
+      if (!newName || newName === current.name) return;
+      if (!Bridge.renameSession(current.id, newName)) {
+        showToast('That name is already in use.');
         return;
       }
-      input.value = '';
-      renderSessionList();
+
       renderHub();
     }
 
-    function handleSwitchSession(id) {
-      const result = Bridge.setActiveSession(id);
-      if (!result) { showSessionError('Couldn\'t switch to that session.'); return; }
-      closeSessionModal();
-    }
-
-    async function handleDeleteSession(id) {
+    async function handleDeleteSession(session) {
+      const id = session.id;
       const sessions = getSessions();
       const s = sessions.find(x => x.id === id);
       if (!s) return;
@@ -3036,7 +2945,6 @@ if (!hasMeaningfulArcadeProgress(state)) return;
       });
       if (!ok) return;
       Bridge.deleteSession(id);
-      renderSessionList();
       renderHub();
     }
 
@@ -3052,13 +2960,30 @@ if (!hasMeaningfulArcadeProgress(state)) return;
         document.getElementById('confirm-message').textContent = opts.message || '';
         const okBtn = document.getElementById('confirm-ok-btn');
         okBtn.textContent = opts.okLabel || 'Confirm';
+        okBtn.className = opts.okClass || 'btn-danger';
+        const input = document.getElementById('confirm-input');
+        input.className = 'confirm-input' + (opts.inputMode ? ' visible' : '');
+        input.value = opts.inputValue || '';
         document.getElementById('confirm-dialog').classList.add('open');
+        if (opts.inputMode) setTimeout(() => { input.focus(); input.select(); }, 50);
       });
     }
     function resolveConfirm(ok) {
+      const input = document.getElementById('confirm-input');
+      const isInput = input.classList.contains('visible');
       document.getElementById('confirm-dialog').classList.remove('open');
-      if (confirmResolver) { confirmResolver(ok); confirmResolver = null; }
+      if (confirmResolver) {
+        confirmResolver(ok ? (isInput ? input.value.trim() : true) : (isInput ? null : false));
+        confirmResolver = null;
+      }
     }
+    document.getElementById('confirm-input').addEventListener('keydown', event => {
+      if (event.key === 'Enter') resolveConfirm(true);
+      if (event.key === 'Escape') {
+        event.stopPropagation();
+        resolveConfirm(false);
+      }
+    });
 
     /* ================================================================
        MOBILE DRAWER
@@ -3103,8 +3028,12 @@ if (!hasMeaningfulArcadeProgress(state)) return;
        ================================================================ */
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
-        if (document.getElementById('confirm-dialog').classList.contains('open')) { resolveConfirm(false); return; }
-        if (document.getElementById('session-modal').classList.contains('open')) { closeSessionModal(); return; }
+        if (document.getElementById('confirm-dialog').classList.contains('open')) {
+          e.stopImmediatePropagation();
+          resolveConfirm(false);
+          return;
+        }
+        if (window.AtlasSessionPanel && AtlasSessionPanel.isOpen()) return;
         if (document.getElementById('settings-modal').classList.contains('open')) { closeSettingsModal(); return; }
         if (document.getElementById('drawer').classList.contains('open')) { closeDrawer(); return; }
       }
@@ -3115,6 +3044,9 @@ if (!hasMeaningfulArcadeProgress(state)) return;
        ================================================================ */
     function refresh() {
       if (!Bridge) return;
+      const mode = Bridge.readAppearanceMode();
+      document.documentElement.dataset.theme = mode;
+      updateAppearanceButtons(mode);
       renderHub();
     }
 
@@ -3130,7 +3062,7 @@ if (!hasMeaningfulArcadeProgress(state)) return;
     window.addEventListener('storage', e => {
       if (!e || !e.key) return;
       const k = e.key;
-      if (k === 'atlas::appearanceMode') {
+      if (k === Bridge.keys.appearance || k === Bridge.keys.appearanceBySession) {
         const mode = Bridge.readAppearanceMode();
         document.documentElement.dataset.theme = mode;
         updateAppearanceButtons(mode);
@@ -3173,6 +3105,13 @@ if (!hasMeaningfulArcadeProgress(state)) return;
         atlasUrl: '../index.html',
         compassUrl: '../compass/index.html',
         arcadeUrl: './index.html'
+      });
+
+      AtlasSessionPanel.mount({
+        root: '#atlas-session-panel-root',
+        initialView: 'manage',
+        onRenameSession: handleRenameSession,
+        onDeleteSession: handleDeleteSession
       });
 
       renderHub();
