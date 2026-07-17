@@ -45,7 +45,7 @@ Edit only in this file.
     --font-body: 'DM Sans', system-ui, sans-serif;
     --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     --theme-surface-transition: 0.2s ease;
-    --atlas-theme-motion: 280ms ease;
+    --hub-theme-motion: 280ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 *,
@@ -86,12 +86,10 @@ body::before {
     height: 100lvh;
     z-index: -1;
     pointer-events: none;
-    background-image:
-        linear-gradient(rgba(248, 242, 232, 0.76), rgba(248, 242, 232, 0.82)),
-        var(--module-bg-image, none);
+    background-image: var(--module-bg-image, none);
+    box-shadow: inset 0 0 0 100vmax rgba(248, 242, 232, 0.79);
     background-size: cover;
     background-position: center 15%;
-    /* Starts lower so it can pan down for night */
     background-repeat: no-repeat;
 }
 
@@ -173,7 +171,7 @@ html[data-theme="night"] .cover-bg {
 }
 
 html.theme-changing .cover-bg {
-    transition: background-position var(--atlas-theme-motion);
+    transition: background-position var(--hub-theme-motion);
 }
 
 .cover-overlay {
@@ -741,46 +739,142 @@ Prevents nav labels from truncating at zoomed or mid-width layouts.
 
 /* ============================================================
 APPEARANCE MODE — TARGETED SMOOTH TRANSITIONS
+Bridge owns theme state. Compass subject shell owns interpolation.
+No gradient flattening.
 ============================================================ */
 
+html.theme-changing,
 html.theme-changing body,
+html.theme-changing .cover-overlay,
+html.theme-changing .cover-pattern,
+html.theme-changing .cover-card,
+html.theme-changing .cover-session-btn,
+html.theme-changing .cover-appearance-toggle,
+html.theme-changing .btn-begin,
 html.theme-changing .top-nav,
 html.theme-changing .mobile-header,
 html.theme-changing .nav-brand-mark,
-html.theme-changing .nav-brand-icon,
+html.theme-changing .nav-brand-system,
+html.theme-changing .nav-brand-subject,
+html.theme-changing .mobile-header-system,
+html.theme-changing .mobile-header-context,
 html.theme-changing .nav-link,
+html.theme-changing .nav-icon-btn,
 html.theme-changing .nav-session-indicator,
 html.theme-changing .nav-keylang-btn,
 html.theme-changing .appearance-toggle,
-html.theme-changing .cover-appearance-toggle,
 html.theme-changing .mobile-appearance-toggle,
 html.theme-changing .mobile-menu-btn,
 html.theme-changing .mobile-session-btn,
-html.theme-changing .mobile-drawer,
+html.theme-changing .mobile-drawer-header,
+html.theme-changing .mobile-drawer-footer,
+html.theme-changing .mobile-drawer-title,
+html.theme-changing .mobile-drawer-close,
 html.theme-changing .mobile-nav-item,
+html.theme-changing .global-progress-rail,
+html.theme-changing .global-progress-fill,
+html.theme-changing .progress-pill,
+html.theme-changing .subject-intro-block,
+html.theme-changing .section-header,
 html.theme-changing .section-stage,
 html.theme-changing .main-path-card,
+html.theme-changing .main-path-card::before,
 html.theme-changing .reflection-path-card,
 html.theme-changing .set-card,
 html.theme-changing .cl-card,
+html.theme-changing .cl-card::after,
+html.theme-changing .cl-card-state-badge,
 html.theme-changing .moment-card,
+html.theme-changing .moment-card-header,
+html.theme-changing .moment-state-dot,
 html.theme-changing .reflection-q,
 html.theme-changing .modal-panel,
-html.theme-changing .vb-drawer,
+html.theme-changing .modal-header,
+html.theme-changing .modal-footer,
+html.theme-changing .modal-question-block,
+html.theme-changing .make-it-real-card,
+html.theme-changing .upgrade-chip,
+html.theme-changing .upgrade-panel,
+html.theme-changing .upgrade-visibility-trigger,
+html.theme-changing .upgrade-visibility-menu,
+html.theme-changing .upgrade-visibility-option,
+html.theme-changing .vb-header,
+html.theme-changing .vb-tabs,
+html.theme-changing .vb-tab-btn,
+html.theme-changing .vb-section-label,
+html.theme-changing .vb-entry,
+html.theme-changing .vb-entry-save-btn,
 html.theme-changing .btn-primary,
 html.theme-changing .btn-ghost,
 html.theme-changing .btn-mark-explored,
 html.theme-changing .btn-close-set,
-html.theme-changing .upgrade-chip,
+html.theme-changing .btn-close-set-bottom,
+html.theme-changing .session-input,
+html.theme-changing .session-dialog,
+html.theme-changing .btn-danger-confirm,
+html.theme-changing .compass-wrap-up-canvas,
 html.theme-changing .compass-wrap-up-stage,
-html.theme-changing .compass-wrap-up-pickup,
-html.theme-changing .session-dialog {
+html.theme-changing .compass-wrap-up-pickup {
     transition:
-        background-color var(--atlas-theme-motion),
-        color var(--atlas-theme-motion),
-        border-color var(--atlas-theme-motion),
-        box-shadow var(--atlas-theme-motion),
-        opacity var(--atlas-theme-motion);
+        background-color var(--hub-theme-motion),
+        color var(--hub-theme-motion),
+        border-color var(--hub-theme-motion),
+        box-shadow var(--hub-theme-motion),
+        opacity var(--hub-theme-motion),
+        fill var(--hub-theme-motion),
+        stroke var(--hub-theme-motion);
+}
+
+html.theme-changing body::before,
+html.theme-changing body::after,
+html.theme-changing body.module-active::before,
+html.theme-changing body.module-active::after,
+html.theme-changing .cover-bg {
+    transition:
+        background-position var(--hub-theme-motion),
+        opacity var(--hub-theme-motion),
+        filter var(--hub-theme-motion),
+        box-shadow var(--hub-theme-motion);
+}
+
+html.theme-changing :where(.cover-card *,
+    .top-nav *,
+    .mobile-header *,
+    .mobile-drawer *,
+    .section-stage *,
+    .modal-panel *,
+    .vb-drawer *,
+    .session-dialog *,
+    .compass-wrap-up-stage *) {
+    transition:
+        background-color var(--hub-theme-motion),
+        background var(--hub-theme-motion),
+        color var(--hub-theme-motion),
+        border-color var(--hub-theme-motion),
+        box-shadow var(--hub-theme-motion),
+        opacity var(--hub-theme-motion),
+        fill var(--hub-theme-motion),
+        stroke var(--hub-theme-motion);
+}
+
+html.theme-changing .mobile-drawer {
+    transition:
+        transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+        background-color var(--hub-theme-motion),
+        color var(--hub-theme-motion),
+        border-color var(--hub-theme-motion),
+        box-shadow var(--hub-theme-motion),
+        opacity var(--hub-theme-motion);
+}
+
+html.theme-changing .vb-drawer {
+    transition:
+        transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+        background-color var(--hub-theme-motion),
+        color var(--hub-theme-motion),
+        border-color var(--hub-theme-motion),
+        box-shadow var(--hub-theme-motion),
+        opacity var(--hub-theme-motion);
 }
 
 /* ============================================================
@@ -821,7 +915,7 @@ VIEW 2: ORIENTATION
     line-height: 1.72;
 }
 
-.overview-intro p + p {
+.overview-intro p+p {
     margin-top: 0.8rem;
 }
 
@@ -1239,7 +1333,7 @@ VIEW 3: CULTURAL LENS
     left: 0;
     height: 3px;
     border-radius: var(--radius-md) var(--radius-md) 0 0;
-    background: var(--accent);
+    background-color: var(--accent);
     opacity: 0;
     transition: opacity var(--transition);
 }
@@ -1261,8 +1355,8 @@ VIEW 3: CULTURAL LENS
 }
 
 .cl-card.state-explored::after {
-    opacity: 0.32;
-    background: var(--accent);
+    opacity: 0.34;
+    background-color: var(--accent);
 }
 
 .cl-card-state-badge {
@@ -2182,7 +2276,7 @@ VIEW 4: DISCUSSION
 .moment-card.state-explored .moment-state-dot {
     background: var(--accent);
     opacity: 0.9;
-}   
+}
 
 .moment-num {
     font-size: 0.72rem;
@@ -2976,7 +3070,7 @@ html[data-theme="night"] #view-reflection.reflection-complete .reflection-progre
     background: transparent;
 }
 
-.reflection-q + .reflection-q {
+.reflection-q+.reflection-q {
     border-top: 1px solid rgba(200, 191, 176, 0.38);
 }
 
@@ -3079,12 +3173,11 @@ body.compass-wrap-up-active .view.active {
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
     padding: clamp(2.25rem, 6vw, 5rem) 1.25rem 3rem;
-    background:
-        radial-gradient(circle at 15% 8%, rgba(var(--accent-rgb), 0.08), transparent 34%),
-        linear-gradient(160deg, var(--cream) 0%, var(--cream-warm) 100%);
+    background-color: var(--cream);
+    background-image: radial-gradient(circle at 15% 8%, rgba(var(--accent-rgb), 0.08), transparent 34%);
 }
 
-#view-cover > .compass-wrap-up-canvas {
+#view-cover>.compass-wrap-up-canvas {
     inset: 0;
     z-index: 2;
     padding-top: clamp(5.5rem, 12vw, 7.5rem);
@@ -3120,7 +3213,7 @@ body.compass-wrap-up-active .view.active .global-progress-rail {
     margin-top: 1.7rem;
 }
 
-.compass-wrap-up-section + .compass-wrap-up-section {
+.compass-wrap-up-section+.compass-wrap-up-section {
     padding-top: 1.45rem;
     border-top: 1px solid var(--stone-light);
 }
@@ -3197,9 +3290,8 @@ body.compass-wrap-up-active .view.active .global-progress-rail {
 }
 
 html[data-theme="night"] .compass-wrap-up-canvas {
-    background:
-        radial-gradient(circle at 15% 8%, rgba(159, 206, 201, 0.08), transparent 34%),
-        linear-gradient(160deg, #2f2923 0%, #3a322a 100%);
+    background-color: #352e27;
+    background-image: radial-gradient(circle at 15% 8%, rgba(159, 206, 201, 0.08), transparent 34%);
 }
 
 html[data-theme="night"] .compass-wrap-up-stage {
@@ -3208,7 +3300,7 @@ html[data-theme="night"] .compass-wrap-up-stage {
     box-shadow: 0 18px 54px rgba(0, 0, 0, 0.22);
 }
 
-html[data-theme="night"] .compass-wrap-up-section + .compass-wrap-up-section {
+html[data-theme="night"] .compass-wrap-up-section+.compass-wrap-up-section {
     border-top-color: rgba(255, 255, 255, 0.13);
 }
 
@@ -3222,7 +3314,7 @@ html[data-theme="night"] .compass-wrap-up-pickup {
         padding: 1rem 0.85rem 2rem;
     }
 
-    #view-cover > .compass-wrap-up-canvas {
+    #view-cover>.compass-wrap-up-canvas {
         padding-top: 5rem;
     }
 
@@ -3438,22 +3530,20 @@ body.module-active::before {
     background-size: cover;
     filter: blur(18px) saturate(0.85) brightness(1.02);
     transform: scale(1.06);
-    opacity: 0.55;
+    opacity: 0.70;
     z-index: 0;
     pointer-events: none;
+    box-shadow: inset 0 0 0 100vmax rgba(248, 242, 232, 0);
 }
 
 body.module-active::after {
     content: '';
     position: fixed;
     inset: 0;
-    background:
+    background-color: rgba(244, 239, 232, 0.24);
+    background-image:
         radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.28), transparent 34%),
-        radial-gradient(circle at 82% 12%, rgba(255, 244, 220, 0.18), transparent 32%),
-        linear-gradient(160deg,
-            rgba(247, 244, 239, 0.20) 0%,
-            rgba(240, 235, 226, 0.28) 50%,
-            rgba(244, 241, 236, 0.24) 100%);
+        radial-gradient(circle at 82% 12%, rgba(255, 244, 220, 0.18), transparent 32%);
     z-index: 0;
     pointer-events: none;
 }
@@ -3462,11 +3552,7 @@ body.module-active::after {
 FROSTED SECTION STAGE
 ============================================================ */
 .section-stage {
-    background:
-        linear-gradient(145deg,
-            rgba(255, 255, 255, 0.58) 0%,
-            rgba(255, 255, 255, 0.42) 48%,
-            rgba(255, 255, 255, 0.34) 100%);
+    background-color: rgba(255, 255, 255, 0.48);
     border: 1px solid rgba(255, 255, 255, 0.62);
     border-radius: var(--radius-lg);
     backdrop-filter: blur(20px) saturate(1.35);
@@ -3549,12 +3635,9 @@ FROSTED SECTION STAGE
 }
 
 .cl-card.state-explored {
-    background-color: var(--white) !important;
-    background-image: linear-gradient(
-        rgba(var(--accent-pale-rgb), 0.28),
-        rgba(var(--accent-pale-rgb), 0.28)
-    ) !important;
-    border-color: rgba(var(--accent-rgb), 0.28) !important;
+    background-color: rgba(244, 249, 248, 0.86) !important;
+    background-image: none !important;
+    border-color: rgba(var(--accent-rgb), 0.30) !important;
 }
 
 .moment-card {
@@ -3565,10 +3648,8 @@ FROSTED SECTION STAGE
 
 .moment-card.state-explored {
     background-color: var(--white) !important;
-    background-image: linear-gradient(
-        rgba(var(--accent-pale-rgb), 0.34),
-        rgba(var(--accent-pale-rgb), 0.34)
-    ) !important;
+    background-image: linear-gradient(rgba(var(--accent-pale-rgb), 0.34),
+            rgba(var(--accent-pale-rgb), 0.34)) !important;
     border-color: rgba(var(--accent-rgb), 0.40) !important;
 }
 
@@ -3975,26 +4056,21 @@ html[data-theme="night"] {
 }
 
 html[data-theme="night"] body::before {
-    background-image:
-        linear-gradient(rgba(58, 51, 43, 0.38), rgba(58, 51, 43, 0.52)),
-        var(--module-bg-image, none);
+    box-shadow: inset 0 0 0 100vmax rgba(58, 51, 43, 0.45);
     background-position: center 0%;
-    /* Moves down, simulating looking up to the sky */
 }
 
 html[data-theme="night"] body.module-active::before {
     filter: blur(20px) saturate(0.82) brightness(0.90);
-    opacity: 0.78;
+    opacity: 0.70;
+    box-shadow: inset 0 0 0 100vmax rgba(58, 51, 43, 0);
 }
 
 html[data-theme="night"] body.module-active::after {
-    background:
+    background-color: rgba(61, 54, 46, 0.22);
+    background-image:
         radial-gradient(circle at 20% 15%, rgba(255, 226, 190, 0.13), transparent 34%),
-        radial-gradient(circle at 82% 12%, rgba(131, 185, 179, 0.12), transparent 32%),
-        linear-gradient(160deg,
-            rgba(58, 51, 43, 0.18) 0%,
-            rgba(70, 61, 51, 0.26) 50%,
-            rgba(58, 51, 43, 0.22) 100%);
+        radial-gradient(circle at 82% 12%, rgba(131, 185, 179, 0.12), transparent 32%);
 }
 
 html[data-theme="night"] .top-nav,
@@ -4013,11 +4089,7 @@ html[data-theme="night"] .reflection-icon-large {
 }
 
 html[data-theme="night"] .section-stage {
-    background:
-        linear-gradient(145deg,
-            rgba(84, 73, 61, 0.70) 0%,
-            rgba(76, 66, 55, 0.64) 48%,
-            rgba(66, 57, 48, 0.58) 100%);
+    background-color: rgba(76, 66, 55, 0.64);
     border-color: rgba(255, 255, 255, 0.17);
     box-shadow:
         0 18px 54px rgba(0, 0, 0, 0.22),
@@ -4347,24 +4419,33 @@ html[data-theme="night"] .vb-entry-save-btn.is-saved {
 
 /* Night mode: soften progress/card states */
 html[data-theme="night"] .progress-pill.explored {
-    background: rgba(61, 98, 94, 0.52);
-    color: var(--accent-soft);
+    background: rgba(61, 98, 94, 0.64);
+    color: #b8e3de;
+    box-shadow:
+        0 0 0 1px rgba(168, 214, 209, 0.12) inset,
+        0 0 18px rgba(131, 185, 179, 0.10);
 }
 
 html[data-theme="night"] .cl-card.state-explored {
-    background: rgba(88, 76, 64, 0.7) !important;
-    border-color: rgba(168, 214, 209, 0.26) !important;
+    background-color: rgba(88, 76, 64, 0.72) !important;
+    background-image: none !important;
+    border-color: rgba(168, 214, 209, 0.40) !important;
+    box-shadow: none;
 }
 
 html[data-theme="night"] .cl-card.state-explored::after {
-    opacity: 0.28;
-    background: var(--accent-soft);
+    opacity: 0.74;
+    background-color: rgba(159, 206, 201, 0.92);
+    box-shadow: none;
 }
 
 html[data-theme="night"] .cl-card.state-explored .cl-card-state-badge {
-    background: rgba(168, 214, 209, 0.14);
-    color: var(--accent-soft);
-    opacity: 0.82;
+    background: rgba(168, 214, 209, 0.20);
+    color: #b8e3de;
+    opacity: 0.92;
+    box-shadow:
+        0 0 0 1px rgba(168, 214, 209, 0.10) inset,
+        0 0 14px rgba(159, 206, 201, 0.12);
 }
 
 /* Night mode: soften primary action buttons */
