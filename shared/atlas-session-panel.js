@@ -1,6 +1,6 @@
 /* ============================================================
    ATLAS SESSION PANEL
-   Small reusable session UI for Atlas surfaces.
+   Small reusable session UI for Atlas surfaces. 
 
    AtlasBridge owns session state. Integrating surfaces may add
    optional context, a primary action, and existing destructive
