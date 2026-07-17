@@ -34,9 +34,9 @@ const subjectCopy = {
     overview: {
         heading: `Everyone's an Expert`,
         intro: [
-            `You have been studying this your whole life. You know exactly who sends the four-minute voice note, who never replies, and who tells the same story at every dinner. What's harder to see is your own version — the you who appears in another language, who goes quiet when angry, who says yes and means no.`
+            `You've been studying this your whole life. You know exactly who sends the four-minute voice note, who never replies, and who tells the same story at every dinner. What's harder to see is your own version — the you who appears in another language, who goes quiet when angry, who says "it's fine" when it isn't.`
         ],
-        question: `So: are you a good communicator, and would the people who know you best agree?`
+        question: `So, are you a good communicator? Would the people who know you best agree?`
     },
     paths: {
         culturalLensDescription: `Whistled conversations, invented languages, ritual insults, and social codes that catch outsiders out.`,
