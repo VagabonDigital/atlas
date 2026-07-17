@@ -13,6 +13,7 @@
     let root = null;
     let options = {};
     let panelView = 'safe';
+    let manageHasSafeHistory = false;
     let expandedSessionId = null;
     let lastTrigger = null;
     let previousBodyOverflow = '';
@@ -66,21 +67,51 @@
         return getElements().overlay?.classList.contains('is-open') || false;
     }
 
+    function getInitialView() {
+        return options.initialView === 'manage' ? 'manage' : 'safe';
+    }
+
+    function getSessionDisplayName(session) {
+        if (!session || session.id === getBridge().defaultSessionId) {
+            return 'Shared';
+        }
+
+        return session.name || 'Shared';
+    }
+
+    function getDisplaySession(session) {
+        return {
+            ...session,
+            name: getSessionDisplayName(session)
+        };
+    }
+
+    function getAvailableSessionActions(session) {
+        const isFallback = session.id === getBridge().defaultSessionId;
+
+        return {
+            rename: !isFallback && typeof options.onRenameSession === 'function',
+            reset: typeof options.onResetSession === 'function',
+            delete: !isFallback && typeof options.onDeleteSession === 'function'
+        };
+    }
+
     function updateSafeView() {
         const activeSession = getBridge().readActiveSession();
+        const displaySession = getDisplaySession(activeSession);
         const elements = getElements();
-        const contextTitle = resolveOption(options.contextTitle, activeSession);
+        const contextTitle = resolveOption(options.contextTitle, displaySession);
         const contextDescription = resolveOption(
             options.contextDescription,
-            activeSession
+            displaySession
         );
         const primaryActionLabel = resolveOption(
             options.primaryActionLabel,
-            activeSession
+            displaySession
         );
 
         if (elements.activeName) {
-            elements.activeName.textContent = activeSession.name || 'Default';
+            elements.activeName.textContent = displaySession.name;
         }
 
         if (elements.contextTitle) {
@@ -106,7 +137,7 @@
         const query = getElements().searchInput?.value.trim().toLowerCase() || '';
 
         return getBridge().readSessions().filter(session =>
-            !query || session.name.toLowerCase().includes(query)
+            !query || getSessionDisplayName(session).toLowerCase().includes(query)
         );
     }
 
@@ -150,9 +181,15 @@
         ) || []).find(button => button.dataset.sessionId === sessionId) || null;
     }
 
-    function focusSessionActionsToggle(sessionId) {
+    function focusSessionActionsToggle(sessionId, { fallbackToSearch = false } = {}) {
         window.requestAnimationFrame(() => {
-            getSessionActionsToggle(sessionId)?.focus({ preventScroll: true });
+            const toggle = getSessionActionsToggle(sessionId);
+
+            if (toggle) {
+                toggle.focus({ preventScroll: true });
+            } else if (fallbackToSearch) {
+                getElements().searchInput?.focus({ preventScroll: true });
+            }
         });
     }
 
@@ -177,11 +214,20 @@
         elements.sessionList.innerHTML = '';
         elements.searchEmpty.hidden = sessions.length > 0;
 
-        if (
-            expandedSessionId &&
-            !Bridge.readSessions().some(session => session.id === expandedSessionId)
-        ) {
-            expandedSessionId = null;
+        if (expandedSessionId) {
+            const expandedSession = Bridge.readSessions().find(
+                session => session.id === expandedSessionId
+            );
+            const availableActions = expandedSession
+                ? getAvailableSessionActions(expandedSession)
+                : null;
+
+            if (
+                !availableActions ||
+                !Object.values(availableActions).some(Boolean)
+            ) {
+                expandedSessionId = null;
+            }
         }
 
         sessions.forEach((session, index) => {
@@ -192,8 +238,11 @@
             const controls = document.createElement('div');
             const moreButton = document.createElement('button');
             const secondaryActions = document.createElement('div');
+            const availableActions = getAvailableSessionActions(session);
+            const hasSecondaryActions = Object.values(availableActions).some(Boolean);
+            const displayName = getSessionDisplayName(session);
             const active = session.id === activeSession.id;
-            const expanded = session.id === expandedSessionId;
+            const expanded = hasSecondaryActions && session.id === expandedSessionId;
             const secondaryActionsId = `atlas-session-secondary-actions-${index}`;
 
             row.className = [
@@ -205,7 +254,7 @@
             main.className = 'atlas-session-row-main';
             identity.className = 'atlas-session-row-identity';
             name.className = 'atlas-session-row-name';
-            name.textContent = session.name;
+            name.textContent = displayName;
             identity.appendChild(name);
 
             if (active) {
@@ -220,13 +269,14 @@
             if (!active) {
                 controls.appendChild(createActionButton({
                     label: 'Switch',
-                    ariaLabel: `Switch to ${session.name}`,
+                    ariaLabel: `Switch to ${displayName}`,
                     className: 'is-switch',
                     action: 'switch',
                     sessionId: session.id
                 }));
             }
 
+            if (hasSecondaryActions) {
             moreButton.type = 'button';
             moreButton.className = 'atlas-session-row-more';
             moreButton.textContent = '⋯';
@@ -234,7 +284,7 @@
             moreButton.dataset.sessionId = session.id;
             moreButton.setAttribute(
                 'aria-label',
-                `${expanded ? 'Hide' : 'Show'} actions for ${session.name}`
+                `${expanded ? 'Hide' : 'Show'} actions for ${displayName}`
             );
             moreButton.setAttribute('aria-expanded', String(expanded));
             moreButton.setAttribute('aria-controls', secondaryActionsId);
@@ -244,48 +294,45 @@
             secondaryActions.id = secondaryActionsId;
             secondaryActions.hidden = !expanded;
             secondaryActions.setAttribute('role', 'group');
-            secondaryActions.setAttribute('aria-label', `Actions for ${session.name}`);
+            secondaryActions.setAttribute('aria-label', `Actions for ${displayName}`);
 
-            if (
-                session.id !== Bridge.defaultSessionId &&
-                typeof options.onRenameSession === 'function'
-            ) {
+            if (availableActions.rename) {
                 secondaryActions.appendChild(createActionButton({
                     label: 'Rename',
-                    ariaLabel: `Rename ${session.name}`,
+                    ariaLabel: `Rename ${displayName}`,
                     action: 'rename',
                     sessionId: session.id
                 }));
             }
 
-            if (typeof options.onResetSession === 'function') {
+            if (availableActions.reset) {
                 secondaryActions.appendChild(createActionButton({
                     label: 'Clear',
-                    ariaLabel: `Clear subject activity for ${session.name}`,
+                    ariaLabel: `Clear subject activity for ${displayName}`,
                     className: 'is-danger',
                     action: 'reset',
                     sessionId: session.id
                 }));
             }
 
-            if (
-                session.id !== Bridge.defaultSessionId &&
-                typeof options.onDeleteSession === 'function'
-            ) {
+            if (availableActions.delete) {
                 secondaryActions.appendChild(createActionButton({
                     label: 'Delete',
-                    ariaLabel: `Delete ${session.name}`,
+                    ariaLabel: `Delete ${displayName}`,
                     className: 'is-danger',
                     action: 'delete',
                     sessionId: session.id
                 }));
+            }
             }
 
             main.appendChild(createSessionIcon());
             main.appendChild(identity);
             main.appendChild(controls);
             row.appendChild(main);
-            row.appendChild(secondaryActions);
+            if (hasSecondaryActions) {
+                row.appendChild(secondaryActions);
+            }
             elements.sessionList.appendChild(row);
         });
     }
@@ -294,9 +341,11 @@
         const elements = getElements();
 
         panelView = 'safe';
+        manageHasSafeHistory = false;
         expandedSessionId = null;
         elements.safeView.hidden = false;
         elements.manageView.hidden = true;
+        elements.dialog?.setAttribute('aria-labelledby', 'atlas-session-active-name');
         updateSafeView();
 
         if (focus) {
@@ -306,13 +355,16 @@
         }
     }
 
-    function showManageView({ focus = true } = {}) {
+    function showManageView({ focus = true, fromSafe = false } = {}) {
         const elements = getElements();
 
         panelView = 'manage';
+        manageHasSafeHistory = Boolean(fromSafe);
         expandedSessionId = null;
         elements.safeView.hidden = true;
         elements.manageView.hidden = false;
+        elements.backButton.hidden = !manageHasSafeHistory;
+        elements.dialog?.setAttribute('aria-labelledby', 'atlas-session-manage-title');
 
         if (elements.searchInput) {
             elements.searchInput.value = '';
@@ -362,18 +414,27 @@
 
     function open(trigger = document.activeElement) {
         const elements = getElements();
+        const initialView = getInitialView();
 
         if (!elements.overlay) return;
 
         lastTrigger = trigger instanceof HTMLElement ? trigger : null;
         previousBodyOverflow = document.body.style.overflow;
-        showSafeView();
+        if (initialView === 'manage') {
+            showManageView({ focus: false, fromSafe: false });
+        } else {
+            showSafeView();
+        }
         elements.overlay.classList.add('is-open');
         elements.overlay.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
 
         window.requestAnimationFrame(() => {
-            elements.activeName?.focus({ preventScroll: true });
+            if (initialView === 'manage') {
+                elements.searchInput?.focus({ preventScroll: true });
+            } else {
+                elements.activeName?.focus({ preventScroll: true });
+            }
         });
     }
 
@@ -397,7 +458,7 @@
         renderManageView();
 
         if (Bridge.readSessions().some(item => item.id === session.id)) {
-            focusSessionActionsToggle(session.id);
+            focusSessionActionsToggle(session.id, { fallbackToSearch: true });
         } else {
             window.requestAnimationFrame(() => {
                 getElements().searchInput?.focus({ preventScroll: true });
@@ -438,12 +499,14 @@
         }
 
         if (event.target.closest('#atlas-session-open-manage')) {
-            showManageView();
+            showManageView({ fromSafe: true });
             return;
         }
 
         if (event.target.closest('#atlas-session-manage-back')) {
-            showSafeView({ focus: true });
+            if (manageHasSafeHistory) {
+                showSafeView({ focus: true });
+            }
             return;
         }
 
@@ -501,7 +564,11 @@
             }
 
             if (panelView === 'manage') {
-                showSafeView({ focus: true });
+                if (manageHasSafeHistory) {
+                    showSafeView({ focus: true });
+                } else {
+                    close();
+                }
             } else {
                 close();
             }
@@ -577,7 +644,7 @@
                         <button class="atlas-session-back" id="atlas-session-manage-back" type="button">
                             ← Back to current session
                         </button>
-                        <h2>Switch or manage sessions</h2>
+                        <h2 id="atlas-session-manage-title">Switch or manage sessions</h2>
                         <label class="atlas-session-search-label" for="atlas-session-search">Search sessions</label>
                         <input class="atlas-session-search" id="atlas-session-search" type="search"
                             placeholder="Search sessions" autocomplete="off">
@@ -617,7 +684,11 @@
         });
 
         mounted = true;
-        showSafeView();
+        if (getInitialView() === 'manage') {
+            showManageView({ focus: false, fromSafe: false });
+        } else {
+            showSafeView();
+        }
 
         return window.AtlasSessionPanel;
     }
@@ -629,6 +700,7 @@
         refresh,
         showSafeView,
         showManageView,
+        getSessionDisplayName,
         isOpen
     };
 })();
