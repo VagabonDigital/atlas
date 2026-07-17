@@ -1111,9 +1111,10 @@ function renderNav(containerId, activeViewId) {
                 <button
                     class="nav-session-indicator"
                     onclick="openSessionModal()"
-                    title="Session settings">
+                    title="Session settings"
+                    aria-label="Open session panel. Working with Shared">
                     ${NAV_SVG.session}
-                    <span id="${sessionSpanId}">Current Session</span>
+                    <span id="${sessionSpanId}">Shared</span>
                 </button>
 
                 <button
@@ -3486,17 +3487,26 @@ function mountSessionPanel() {
 }
 
 function updateSessionUI() {
-    const label = currentSession === 'Default'
-        ? 'Current Session'
-        : currentSession;
+    const activeSession = requireAtlasBridge().readActiveSession();
+    const label = window.AtlasSessionPanel
+        ? AtlasSessionPanel.getSessionDisplayName(activeSession)
+        : (activeSession.name || 'Shared');
+    const ariaLabel = `Open session panel. Working with ${label}`;
 
-    setText('cover-session-label', label);
-    setText('mobile-session-label', label);
+    ['cover-session-label', 'mobile-session-label'].forEach(id => {
+        const element = document.getElementById(id);
+
+        if (element) {
+            element.textContent = label;
+            element.closest('button')?.setAttribute('aria-label', ariaLabel);
+        }
+    });
 
     document
         .querySelectorAll('[id^="nav-session-"]')
         .forEach(element => {
             element.textContent = label;
+            element.closest('button')?.setAttribute('aria-label', ariaLabel);
         });
 
     const returning = document.getElementById(
@@ -3815,10 +3825,14 @@ function refreshSessionUI() {
 }
 
 async function resetSession(name) {
+    const sessionForDisplay = getBridgeSessionByName(name);
+    const displayLabel = sessionForDisplay && window.AtlasSessionPanel
+        ? AtlasSessionPanel.getSessionDisplayName(sessionForDisplay)
+        : (name === 'Default' ? 'Shared' : name);
     const confirmed = await showConfirmDialog({
-        kicker: 'Clear subject activity',
-        title: 'Clear this subject activity?',
-        message: `This removes explored items and saved language for "${name}" in this subject.`,
+        kicker: 'CLEAR SUBJECT ACTIVITY',
+        title: 'Clear this subject?',
+        message: `This removes explored items and saved language for ${displayLabel} in this subject.`,
         confirmLabel: 'Clear activity'
     });
 
@@ -4441,6 +4455,8 @@ function init() {
         () => {
             syncSessionsFromBridge();
             loadProgress();
+            applyAppearanceMode(getAppearanceMode());
+            updateAppearanceToggleUI();
             refreshSessionUI();
             publishAtlasCompassItem('opened');
         }
@@ -4473,6 +4489,8 @@ function init() {
         ) {
             syncSessionsFromBridge();
             loadProgress();
+            applyAppearanceMode(getAppearanceMode());
+            updateAppearanceToggleUI();
             refreshSessionUI();
         }
 
@@ -4480,7 +4498,10 @@ function init() {
             applyUpgradeVisibilityPreference();
         }
 
-        if (event.key === 'atlas::appearanceMode') {
+        if (
+            event.key === requireAtlasBridge().keys.appearance ||
+            event.key === requireAtlasBridge().keys.appearanceBySession
+        ) {
             applyAppearanceMode(getAppearanceMode());
             updateAppearanceToggleUI();
         }

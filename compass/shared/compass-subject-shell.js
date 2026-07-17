@@ -26,13 +26,14 @@ function mountCompassSubjectShell() {
                 title="Switch to night mode" aria-label="Switch to night mode">
             </button>
 
-            <button class="cover-session-btn" onclick="openSessionModal()">
+            <button class="cover-session-btn" onclick="openSessionModal()"
+                aria-label="Open session panel. Working with Shared">
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <circle cx="6" cy="4" r="2.2" stroke="currentColor" stroke-width="1.2" />
                     <path d="M1.5 11c0-2.485 2.015-4 4.5-4s4.5 1.515 4.5 4" stroke="currentColor"
                         stroke-width="1.2" stroke-linecap="round" />
                 </svg>
-                <span id="cover-session-label">Current Session</span>
+                <span id="cover-session-label">Shared</span>
             </button>
         </div>
 
@@ -350,13 +351,14 @@ function mountCompassSubjectShell() {
 
         <div class="mobile-drawer-footer">
             <div class="mobile-footer-actions">
-                <button class="mobile-session-btn" onclick="openSessionModalFromDrawer()">
+                <button class="mobile-session-btn" onclick="openSessionModalFromDrawer()"
+                    aria-label="Open session panel. Working with Shared">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                         <circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3" />
                         <path d="M2 12c0-2.485 2.239-4.5 5-4.5s5 2.015 5 4.5" stroke="currentColor"
                             stroke-width="1.3" stroke-linecap="round" />
                     </svg>
-                    <span id="mobile-session-label">Current Session</span>
+                    <span id="mobile-session-label">Shared</span>
                 </button>
 
                 <button class="mobile-appearance-toggle" id="mobile-appearance-toggle"
