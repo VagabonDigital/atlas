@@ -4204,22 +4204,11 @@ const APPEARANCE_SVG = {
 };
 
 function getAppearanceMode() {
-    const Bridge = requireAtlasBridge();
-
-    if (typeof Bridge.readAppearanceMode === 'function') {
-        return Bridge.readAppearanceMode();
-    }
-
-    return document.documentElement.dataset.theme === 'night'
-        ? 'night'
-        : 'light';
+    return requireAtlasBridge().readAppearanceMode();
 }
 
 function applyAppearanceMode(mode) {
-    document.documentElement.dataset.theme =
-        mode === 'night'
-            ? 'night'
-            : 'light';
+    return requireAtlasBridge().applyAppearanceMode(mode);
 }
 
 function setAppearanceMode(mode) {
@@ -4229,11 +4218,7 @@ function setAppearanceMode(mode) {
 
     const Bridge = requireAtlasBridge();
 
-    if (typeof Bridge.setAppearanceMode === 'function') {
-        Bridge.setAppearanceMode(normalized);
-    } else {
-        applyAppearanceMode(normalized);
-    }
+    Bridge.setAppearanceMode(normalized);
 
     updateAppearanceToggleUI();
 }
@@ -4471,11 +4456,7 @@ function init() {
 
     window.addEventListener(
         'atlas:appearance-change',
-        event => {
-            applyAppearanceMode(
-                event.detail?.mode || getAppearanceMode()
-            );
-
+        () => {
             updateAppearanceToggleUI();
         }
     );
