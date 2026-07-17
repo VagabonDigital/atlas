@@ -33,6 +33,8 @@
     };
 
     const DEFAULT_SESSION_ID = 'default';
+    const APPEARANCE_TRANSITION_MS = 280;
+    let appearanceTransitionTimer = null;
 
     // ============================================================
     // STORAGE HELPERS
@@ -204,6 +206,7 @@
 
         if (!session) return null;
 
+        const previousAppearanceMode = readAppearanceMode();
         const timestamp = now();
 
         const nextSession = {
@@ -218,6 +221,13 @@
 
         writeSessions(nextSessions);
         storageSet(KEYS.activeSessionId, sessionId);
+
+        const nextAppearanceMode = readAppearanceMode();
+
+        if (nextAppearanceMode !== previousAppearanceMode) {
+            beginAppearanceTransition();
+            applyAppearanceMode(nextAppearanceMode);
+        }
 
         window.dispatchEvent(new CustomEvent('atlas:session-change', {
             detail: { session: nextSession }
@@ -301,6 +311,7 @@
     function deleteSession(sessionId) {
         if (sessionId === DEFAULT_SESSION_ID) return false;
 
+        const previousAppearanceMode = readAppearanceMode();
         const sessions = readSessions();
         const nextSessions = sessions.filter(session => session.id !== sessionId);
 
@@ -313,6 +324,13 @@
 
         if (activeSessionId === sessionId) {
             storageSet(KEYS.activeSessionId, DEFAULT_SESSION_ID);
+
+            const nextAppearanceMode = readAppearanceMode();
+
+            if (nextAppearanceMode !== previousAppearanceMode) {
+                beginAppearanceTransition();
+                applyAppearanceMode(nextAppearanceMode);
+            }
 
             window.dispatchEvent(new CustomEvent('atlas:session-change', {
                 detail: { session: readActiveSession() }
@@ -724,6 +742,25 @@
     // APPEARANCE
     // ============================================================
 
+    function beginAppearanceTransition() {
+        if (typeof document === 'undefined' || !document.documentElement) return;
+
+        const root = document.documentElement;
+
+        root.classList.remove('theme-changing');
+        void root.offsetWidth;
+        root.classList.add('theme-changing');
+
+        if (appearanceTransitionTimer !== null) {
+            clearTimeout(appearanceTransitionTimer);
+        }
+
+        appearanceTransitionTimer = setTimeout(() => {
+            root.classList.remove('theme-changing');
+            appearanceTransitionTimer = null;
+        }, APPEARANCE_TRANSITION_MS);
+    }
+
     function normalizeAppearanceMode(mode) {
         return mode === 'night' ? 'night' : 'light';
     }
@@ -788,7 +825,12 @@
 
     function setAppearanceMode(mode) {
         const sessionId = readActiveSessionId();
+        const previousMode = readAppearanceMode();
         const normalized = writeSessionAppearanceMode(sessionId, mode);
+
+        if (normalized !== previousMode) {
+            beginAppearanceTransition();
+        }
 
         applyAppearanceMode(normalized);
 
