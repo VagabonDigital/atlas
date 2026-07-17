@@ -27,7 +27,7 @@
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
     rel="stylesheet">
 
-  <link rel="stylesheet" href="../shared/atlas-search.css">
+  <link rel="stylesheet" href="../shared/atlas-search.css?v=20260717-theme-architecture">
   <link rel="stylesheet" href="../shared/atlas-session-panel.css">
 
   <!-- Anti-flash: apply the active session theme before first paint -->
@@ -113,17 +113,6 @@
       --shadow-lg: 0 8px 36px rgba(0, 0, 0, 0.48);
     }
 
-    html.theme-changing *,
-    html.theme-changing *::before,
-    html.theme-changing *::after {
-      transition:
-        background-color 0.35s ease,
-        background 0.35s ease,
-        color 0.35s ease,
-        border-color 0.35s ease,
-        box-shadow 0.35s ease !important;
-    }
-
     /* ============================================================ RESET */
     *,
     *::before,
@@ -135,6 +124,8 @@
 
     html {
       min-height: 100%;
+      background: var(--page-bg);
+      background-color: var(--bg);
       scroll-behavior: smooth;
       overflow-y: scroll;
       scrollbar-gutter: stable;
@@ -143,7 +134,6 @@
     body {
       font-family: var(--font-body);
       background: var(--page-bg);
-      background-attachment: fixed;
       color: var(--ink);
       font-size: 15px;
       line-height: 1.6;
@@ -163,7 +153,7 @@
       opacity: 0;
       filter: blur(2px) saturate(0.9) contrast(0.9);
       transform: scale(1.012);
-      transition: opacity var(--t), filter var(--t);
+      transition: opacity 0.2s ease;
     }
 
     .arcade-atmosphere-layer::after {
@@ -181,8 +171,7 @@
     }
 
     html[data-theme="night"] .arcade-atmosphere-layer.visible {
-      opacity: 0.12;
-      filter: blur(2px) saturate(0.82) brightness(0.6) contrast(0.94);
+      opacity: 0.075;
     }
 
     html[data-theme="night"] .arcade-atmosphere-layer::after {
@@ -1819,6 +1808,46 @@
         display: none !important;
       }
     }
+    :root {
+      --atlas-theme-motion: 280ms ease;
+    }
+
+    html.theme-changing body,
+    html.theme-changing .arcade-atmosphere-layer,
+    html.theme-changing .arcade-atmosphere-layer::after,
+    html.theme-changing .spine,
+    html.theme-changing .mobile-header,
+    html.theme-changing .spine-worlds,
+    html.theme-changing .spine-world-btn,
+    html.theme-changing .spine-session-pill,
+    html.theme-changing .spine-btn,
+    html.theme-changing .mobile-session-pill,
+    html.theme-changing .mobile-header-btn,
+    html.theme-changing .drawer,
+    html.theme-changing .drawer-header,
+    html.theme-changing .drawer-footer,
+    html.theme-changing .drawer-session-btn,
+    html.theme-changing .drawer-appearance-btn,
+    html.theme-changing .hub-meta-chip,
+    html.theme-changing .continue-card,
+    html.theme-changing .continue-icon,
+    html.theme-changing .continue-resume,
+    html.theme-changing .library-zone,
+    html.theme-changing .library-search,
+    html.theme-changing .game-card,
+    html.theme-changing .game-card-mark,
+    html.theme-changing .game-card-status,
+    html.theme-changing .game-card-action,
+    html.theme-changing .modal-panel,
+    html.theme-changing .modal-header,
+    html.theme-changing .confirm-panel {
+      transition:
+        background-color var(--atlas-theme-motion),
+        color var(--atlas-theme-motion),
+        border-color var(--atlas-theme-motion),
+        box-shadow var(--atlas-theme-motion),
+        opacity var(--atlas-theme-motion);
+    }
   </style>
 </head>
 
@@ -2451,11 +2480,7 @@
     function toggleAppearance() {
       const cur = Bridge.readAppearanceMode();
       const next = cur === 'night' ? 'light' : 'night';
-      document.documentElement.classList.add('theme-changing');
-      setTimeout(() => document.documentElement.classList.remove('theme-changing'), 400);
       Bridge.setAppearanceMode(next);
-      document.documentElement.dataset.theme = next;
-      updateAppearanceButtons(next);
     }
 
     /* ================================================================
@@ -3044,8 +3069,7 @@
        ================================================================ */
     function refresh() {
       if (!Bridge) return;
-      const mode = Bridge.readAppearanceMode();
-      document.documentElement.dataset.theme = mode;
+      const mode = Bridge.applyAppearanceMode(Bridge.readAppearanceMode());
       updateAppearanceButtons(mode);
       renderHub();
     }
@@ -3053,7 +3077,6 @@
     window.addEventListener('atlas:session-change', refresh);
     window.addEventListener('atlas:appearance-change', e => {
       const mode = (e.detail && e.detail.mode) || Bridge.readAppearanceMode();
-      document.documentElement.dataset.theme = mode;
       updateAppearanceButtons(mode);
     });
     window.addEventListener('focus', refresh);
@@ -3063,8 +3086,7 @@
       if (!e || !e.key) return;
       const k = e.key;
       if (k === Bridge.keys.appearance || k === Bridge.keys.appearanceBySession) {
-        const mode = Bridge.readAppearanceMode();
-        document.documentElement.dataset.theme = mode;
+        const mode = Bridge.applyAppearanceMode(Bridge.readAppearanceMode());
         updateAppearanceButtons(mode);
         return;
       }
@@ -3095,7 +3117,7 @@
     function init() {
       if (!Bridge) return;
       const mode = Bridge.readAppearanceMode();
-      document.documentElement.dataset.theme = mode;
+      Bridge.applyAppearanceMode(mode);
       updateAppearanceButtons(mode);
       applyArcadeAtmosphereImage();
       registerWithBridge();
