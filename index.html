@@ -59,6 +59,14 @@
    Threshold surface: cooler, quieter, and more architectural than the worlds.
    Matte paper, slate accent, calm resume-first hierarchy.
    ============================================================ */
+
+    @property --stage-1 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+    @property --stage-2 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+    @property --stage-3 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+    @property --wrap-rad { syntax: '<color>'; inherits: true; initial-value: transparent; }
+    @property --wrap-l1 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+    @property --wrap-l2 { syntax: '<color>'; inherits: true; initial-value: transparent; }
+
     :root {
       --bg: #f3f0e9;
       --bg-raised: #fffdf9;
@@ -188,10 +196,13 @@
     html.theme-changing .atlas-toast {
       transition:
         background-color var(--hub-theme-motion),
+        background var(--hub-theme-motion),
         color var(--hub-theme-motion),
         border-color var(--hub-theme-motion),
         box-shadow var(--hub-theme-motion),
-        opacity var(--hub-theme-motion);
+        opacity var(--hub-theme-motion),
+        fill var(--hub-theme-motion),
+        stroke var(--hub-theme-motion);
     }
 
     html.theme-changing .atmosphere-layer {
@@ -209,6 +220,28 @@
         border-color var(--hub-theme-motion),
         box-shadow var(--hub-theme-motion),
         opacity var(--hub-theme-motion);
+    }
+
+    html.theme-changing .atmosphere-layer::after {
+      transition:
+        --atmos-1 var(--hub-theme-motion),
+        --atmos-2 var(--hub-theme-motion),
+        --atmos-3 var(--hub-theme-motion);
+    }
+
+    html.theme-changing .door {
+      transition:
+        --door-c1 var(--hub-theme-motion),
+        --door-c2 var(--hub-theme-motion),
+        background-color var(--hub-theme-motion),
+        border-color var(--hub-theme-motion),
+        box-shadow var(--hub-theme-motion);
+    }
+    
+    html.theme-changing .context-anchor::after {
+      transition: 
+        --rail-1 var(--hub-theme-motion),
+        --rail-2 var(--hub-theme-motion);
     }
 
     /* ============================================================ RESET */
@@ -288,13 +321,16 @@
       transition: opacity 0.2s ease;
     }
 
-    .atmosphere-layer::after {
+.atmosphere-layer::after {
+      --atmos-1: rgba(243, 240, 233, 0.22);
+      --atmos-2: rgba(243, 240, 233, 0.68);
+      --atmos-3: rgba(243, 240, 233, 0.36);
       content: '';
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(180deg, rgba(243, 240, 233, 0.22), rgba(243, 240, 233, 0.68)),
-        radial-gradient(circle at 50% 18%, transparent 0, rgba(243, 240, 233, 0.36) 68%);
+        linear-gradient(180deg, var(--atmos-1), var(--atmos-2)),
+        radial-gradient(circle at 50% 18%, transparent 0, var(--atmos-3) 68%);
     }
 
     .atmosphere-layer.visible {
@@ -306,10 +342,10 @@
       filter: blur(4px) saturate(0.8) brightness(0.68) contrast(0.98);
     }
 
-    html[data-theme="night"] .atmosphere-layer::after {
-      background:
-        linear-gradient(180deg, rgba(27, 29, 28, 0.18), rgba(27, 29, 28, 0.66)),
-        radial-gradient(circle at 50% 18%, transparent 0, rgba(27, 29, 28, 0.38) 68%);
+html[data-theme="night"] .atmosphere-layer::after {
+      --atmos-1: rgba(27, 29, 28, 0.18);
+      --atmos-2: rgba(27, 29, 28, 0.66);
+      --atmos-3: rgba(27, 29, 28, 0.38);
     }
 
     /* ============================================================ SPINE (desktop header) */
@@ -778,14 +814,16 @@
     }
 
     /* Threshold rail */
-    .context-anchor::after {
+.context-anchor::after {
+      --rail-1: var(--accent);
+      --rail-2: rgba(var(--accent-rgb), 0);
       content: '';
       position: absolute;
       left: 0;
       width: 88px;
       bottom: 0;
       height: 1px;
-      background: linear-gradient(90deg, var(--accent), rgba(var(--accent-rgb), 0));
+      background: linear-gradient(90deg, var(--rail-1), var(--rail-2));
     }
 
     .today-label {
@@ -815,7 +853,7 @@
 
     /* ============================================================ CONTINUE CARD */
     .continue-card {
-      background: var(--continue-bg);
+      background-color: var(--continue-bg);
       border: 1px solid var(--continue-border);
       border-radius: 22px;
       margin-bottom: 1.35rem;
@@ -880,7 +918,7 @@
       border-radius: 999px;
       padding: 0.55rem 1rem;
       border: 1px solid rgba(var(--accent-rgb), 0.2);
-      background: rgba(255, 255, 255, 0.34);
+      background-color: rgba(255, 255, 255, 0.34);
       color: var(--ink-mid);
       font: inherit;
       font-size: 0.79rem;
@@ -935,7 +973,7 @@
       padding: 1.25rem 1.3rem;
       border: 1px solid rgba(var(--accent-rgb), 0.15);
       border-radius: 16px;
-      background: rgba(244, 241, 234, 0.68);
+      background-color: rgba(244, 241, 234, 0.68);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
     }
 
@@ -1205,20 +1243,26 @@
       -webkit-backdrop-filter: blur(16px);
     }
 
-    .door-compass {
-      background: linear-gradient(145deg, rgba(255, 253, 249, 0.9), rgba(92, 122, 110, 0.075));
+.door-compass {
+      --door-c1: rgba(255, 253, 249, 0.9);
+      --door-c2: rgba(92, 122, 110, 0.075);
+      background: linear-gradient(145deg, var(--door-c1), var(--door-c2));
     }
 
     .door-arcade {
-      background: linear-gradient(145deg, rgba(255, 253, 249, 0.9), rgba(122, 110, 154, 0.07));
+      --door-c1: rgba(255, 253, 249, 0.9);
+      --door-c2: rgba(122, 110, 154, 0.07);
+      background: linear-gradient(145deg, var(--door-c1), var(--door-c2));
     }
 
     html[data-theme="night"] .door-compass {
-      background: linear-gradient(145deg, rgba(37, 40, 38, 0.9), rgba(127, 168, 150, 0.085));
+      --door-c1: rgba(37, 40, 38, 0.9);
+      --door-c2: rgba(127, 168, 150, 0.085);
     }
 
     html[data-theme="night"] .door-arcade {
-      background: linear-gradient(145deg, rgba(37, 40, 38, 0.9), rgba(160, 148, 190, 0.075));
+      --door-c1: rgba(37, 40, 38, 0.9);
+      --door-c2: rgba(160, 148, 190, 0.075);
     }
 
     .door::before {
