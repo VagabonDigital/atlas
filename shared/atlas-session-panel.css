@@ -382,6 +382,26 @@
     color: var(--danger-text, #9b3030);
 }
 
+/* Host pages may apply generic button motion; session-row feedback stays immediate. */
+.atlas-session-row,
+.atlas-session-row::before,
+.atlas-session-row::after,
+.atlas-session-row-main,
+.atlas-session-row-icon,
+.atlas-session-row-icon svg,
+.atlas-session-row-name,
+.atlas-session-active-badge,
+.atlas-session-row-controls,
+.atlas-session-row-action,
+.atlas-session-row-action::before,
+.atlas-session-row-action::after,
+.atlas-session-row-more,
+.atlas-session-row-more::before,
+.atlas-session-row-more::after,
+.atlas-session-row-secondary {
+    transition: none;
+}
+
 .atlas-session-search-empty {
     margin: 1rem 0 0;
     color: var(--stone-dark, #746b60);
