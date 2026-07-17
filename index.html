@@ -38,7 +38,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="./shared/atlas-search.css">
+  <link rel="stylesheet" href="./shared/atlas-search.css?v=20260717-theme-architecture">
   <link rel="stylesheet" href="./shared/atlas-session-panel.css">
 
   <!-- Anti-flash: apply the active session theme before first paint. -->
@@ -128,14 +128,6 @@
       --shadow-lg: 0 6px 26px rgba(0, 0, 0, 0.40);
     }
 
-    /* Smooth theme transitions */
-    html.theme-transitioning *,
-    html.theme-transitioning *::before,
-    html.theme-transitioning *::after {
-      transition: background-color 0.35s ease, color 0.35s ease,
-        border-color 0.35s ease, box-shadow 0.35s ease !important;
-    }
-
     /* ============================================================ RESET */
     *,
     *::before,
@@ -147,6 +139,7 @@
 
     html {
       min-height: 100%;
+      background: var(--bg);
       scroll-behavior: smooth;
       overflow-y: scroll;
       overflow-x: clip;
@@ -159,7 +152,6 @@
         radial-gradient(circle at 12% -8%, rgba(var(--accent-rgb), 0.12), transparent 34rem),
         radial-gradient(circle at 100% 18%, rgba(122, 110, 154, 0.055), transparent 34rem),
         var(--bg);
-      background-attachment: fixed;
       color: var(--ink);
       font-size: 15px;
       line-height: 1.6;
@@ -177,7 +169,7 @@
       filter: blur(4px) saturate(0.86) contrast(1);
       transform: scale(1.018);
       opacity: 0;
-      transition: opacity 0.35s ease, filter 0.35s ease;
+      transition: opacity 0.2s ease;
     }
 
     .atmosphere-layer::after {
@@ -2114,6 +2106,44 @@
         display: none !important;
       }
     }
+    :root {
+      --atlas-theme-motion: 280ms ease;
+    }
+
+    html.theme-changing body,
+    html.theme-changing .atmosphere-layer,
+    html.theme-changing .atmosphere-layer::after,
+    html.theme-changing .spine,
+    html.theme-changing .mobile-header,
+    html.theme-changing .spine-worlds,
+    html.theme-changing .spine-world-btn,
+    html.theme-changing .spine-session-pill,
+    html.theme-changing .spine-btn,
+    html.theme-changing .mobile-header-session,
+    html.theme-changing .mobile-header-btn,
+    html.theme-changing .drawer,
+    html.theme-changing .drawer-header,
+    html.theme-changing .drawer-footer,
+    html.theme-changing .drawer-session-btn,
+    html.theme-changing .drawer-appearance-btn,
+    html.theme-changing .continue-card,
+    html.theme-changing .continue-action,
+    html.theme-changing .continue-recap,
+    html.theme-changing .review-row,
+    html.theme-changing .door,
+    html.theme-changing .recall-card,
+    html.theme-changing .review-back,
+    html.theme-changing .review-nav-btn,
+    html.theme-changing .modal-panel,
+    html.theme-changing .modal-header,
+    html.theme-changing .confirm-panel {
+      transition:
+        background-color var(--atlas-theme-motion),
+        color var(--atlas-theme-motion),
+        border-color var(--atlas-theme-motion),
+        box-shadow var(--atlas-theme-motion),
+        opacity var(--atlas-theme-motion);
+    }
   </style>
 </head>
 
@@ -2600,19 +2630,10 @@
     // ================================================================
     // APPEARANCE — bridge only
     // ================================================================
-    function applyAppearance(mode, animate) {
-      if (animate) {
-        document.documentElement.classList.add('theme-transitioning');
-        setTimeout(() => document.documentElement.classList.remove('theme-transitioning'), 400);
-      }
-      document.documentElement.dataset.theme = mode;
-      updateAppearanceButtons(mode);
-    }
     function toggleAppearance() {
       const cur = Bridge.readAppearanceMode();
       const next = cur === 'night' ? 'light' : 'night';
-      Bridge.setAppearanceMode(next); // dispatches atlas:appearance-change
-      applyAppearance(next, true);
+      Bridge.setAppearanceMode(next);
     }
     function moonSvg(size) {
       size = size || 17;
@@ -3588,7 +3609,8 @@
     // the saved language set) instead of bouncing the user back home.
     // ================================================================
     function refreshFromBridge() {
-      applyAppearance(Bridge.readAppearanceMode(), false);
+      const mode = Bridge.applyAppearanceMode(Bridge.readAppearanceMode());
+      updateAppearanceButtons(mode);
 
       if (reviewState) {
         const session = getActiveSession();
@@ -3611,7 +3633,7 @@
     });
     window.addEventListener('atlas:appearance-change', e => {
       const mode = (e.detail && e.detail.mode) || Bridge.readAppearanceMode();
-      applyAppearance(mode, false);
+      updateAppearanceButtons(mode);
     });
     window.addEventListener('focus', refreshFromBridge);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshFromBridge(); });
@@ -3621,7 +3643,8 @@
       if (!e || !e.key) return;
       const k = e.key;
       if (k === Bridge.keys.appearance || k === Bridge.keys.appearanceBySession) {
-        applyAppearance(Bridge.readAppearanceMode(), false);
+        const mode = Bridge.applyAppearanceMode(Bridge.readAppearanceMode());
+        updateAppearanceButtons(mode);
         return;
       }
       if (k === SESSION_ATMOSPHERE_KEY || k === ATMOSPHERE_FAVORITES_KEY) {
@@ -3658,7 +3681,7 @@
       if (!window.AtlasBridge) return; // guard already rendered a message
 
       const mode = Bridge.readAppearanceMode();
-      document.documentElement.dataset.theme = mode;
+      Bridge.applyAppearanceMode(mode);
       updateAppearanceButtons(mode);
       applyEffectiveAtmosphereImage();
 
