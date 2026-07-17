@@ -64,10 +64,15 @@
       --accent-dim: #eaf3f1;
       --accent-rgb: 79, 119, 114;
       --accent-soft-rgb: 120, 161, 156;
-      --page-bg:
+      --page-bg-day:
         radial-gradient(circle at 12% 3%, rgba(255, 255, 255, 0.76), transparent 34rem),
-        radial-gradient(circle at 88% 22%, rgba(var(--accent-rgb), 0.075), transparent 40rem),
-        linear-gradient(145deg, #f7f3ec 0%, var(--cream) 52%, #f0ebe2 100%);
+        radial-gradient(circle at 88% 22%, rgba(79, 119, 114, 0.075), transparent 40rem),
+        linear-gradient(145deg, #f7f3ec 0%, #f5f1e9 52%, #f0ebe2 100%);
+      --page-bg-night:
+        radial-gradient(circle at 12% 3%, rgba(159, 206, 201, 0.055), transparent 34rem),
+        radial-gradient(circle at 88% 22%, rgba(131, 185, 179, 0.095), transparent 40rem),
+        linear-gradient(145deg, #2f2923 0%, #3a332b 52%, #40372f 100%);
+      --page-bg: var(--page-bg-day);
       --white: #ffffff;
       --viewed-bg: #f0f7f6;
       --covered-bg: #d6eae8;
@@ -85,8 +90,10 @@
       --font-display: 'DM Serif Display', Georgia, serif;
       --font-body: 'DM Sans', system-ui, sans-serif;
       --t: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      --hub-theme-motion: 280ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    /* ============================================================ NIGHT TOKENS */
     html[data-theme="night"] {
       --cream: #3a332b;
       --cream-warm: #463d33;
@@ -104,10 +111,7 @@
       --accent-dim: #344f4b;
       --accent-rgb: 131, 185, 179;
       --accent-soft-rgb: 159, 206, 201;
-      --page-bg:
-        radial-gradient(circle at 12% 3%, rgba(var(--accent-soft-rgb), 0.055), transparent 34rem),
-        radial-gradient(circle at 88% 22%, rgba(var(--accent-rgb), 0.095), transparent 40rem),
-        linear-gradient(145deg, #2f2923 0%, var(--cream) 52%, #40372f 100%);
+      --page-bg: var(--page-bg-night);
       --viewed-bg: #374f4b;
       --covered-bg: #416a64;
       --covered-acc: #a8d6d1;
@@ -115,6 +119,132 @@
       --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.16);
       --shadow-md: 0 4px 18px rgba(0, 0, 0, 0.22);
       --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.30);
+    }
+
+    /* ============================================================
+   THEME MOTION
+   Bridge owns theme state. Compass owns how Compass surfaces interpolate.
+   Source pattern matched to Atlas hub motion.
+   ============================================================ */
+
+    html.theme-changing,
+    html.theme-changing body,
+    html.theme-changing .hub-atmosphere-layer::after,
+    html.theme-changing .spine,
+    html.theme-changing .spine-mark,
+    html.theme-changing .spine-mark span,
+    html.theme-changing .spine-worlds,
+    html.theme-changing .spine-world-btn,
+    html.theme-changing .spine-world-icon,
+    html.theme-changing .spine-session-pill,
+    html.theme-changing .spine-session-pill .pill-name,
+    html.theme-changing .spine-btn,
+    html.theme-changing .mobile-header,
+    html.theme-changing .mobile-header-brand,
+    html.theme-changing .mobile-header-mark,
+    html.theme-changing .mobile-header-mark span,
+    html.theme-changing .mobile-header-actions,
+    html.theme-changing .mobile-header-btn,
+    html.theme-changing .mobile-session-pill,
+    html.theme-changing .mobile-session-pill span,
+    html.theme-changing .drawer-header,
+    html.theme-changing .drawer-footer,
+    html.theme-changing .drawer-title,
+    html.theme-changing .drawer-title span,
+    html.theme-changing .drawer-close,
+    html.theme-changing .drawer-nav-label,
+    html.theme-changing .drawer-nav-item,
+    html.theme-changing .drawer-nav-item .nav-soon,
+    html.theme-changing .drawer-session-btn,
+    html.theme-changing .drawer-session-btn span,
+    html.theme-changing .drawer-appearance-btn,
+    html.theme-changing .hub-intro,
+    html.theme-changing .hub-eyebrow,
+    html.theme-changing .hub-title,
+    html.theme-changing .hub-desc,
+    html.theme-changing .hub-meta-chip,
+    html.theme-changing .zone-label,
+    html.theme-changing .inprogress-empty,
+    html.theme-changing .inprogress-empty strong,
+    html.theme-changing .progress-card,
+    html.theme-changing .progress-card-title,
+    html.theme-changing .progress-card-hook,
+    html.theme-changing .progress-card-meta,
+    html.theme-changing .progress-rail,
+    html.theme-changing .progress-rail-fill,
+    html.theme-changing .status-badge,
+    html.theme-changing .available-zone-header,
+    html.theme-changing .browse-heading,
+    html.theme-changing .browse-heading-title,
+    html.theme-changing .browse-heading-copy,
+    html.theme-changing .search-field,
+    html.theme-changing .search-icon,
+    html.theme-changing .search-clear,
+    html.theme-changing .search-hint,
+    html.theme-changing .search-results-label,
+    html.theme-changing .category-header,
+    html.theme-changing .category-title,
+    html.theme-changing .category-count,
+    html.theme-changing .subject-card,
+    html.theme-changing .subject-card::after,
+    html.theme-changing .subject-card-title,
+    html.theme-changing .subject-card-hook,
+    html.theme-changing .subject-card-meta,
+    html.theme-changing .timestamp-chip,
+    html.theme-changing .btn-launch,
+    html.theme-changing .btn-launch-sm,
+    html.theme-changing .no-results-banner,
+    html.theme-changing .no-results-title,
+    html.theme-changing .no-results-banner p,
+    html.theme-changing .empty-library,
+    html.theme-changing .empty-library-icon,
+    html.theme-changing .empty-library h2,
+    html.theme-changing .empty-library p,
+    html.theme-changing .bridge-error,
+    html.theme-changing .bridge-error h2,
+    html.theme-changing .bridge-error p,
+    html.theme-changing .modal-panel,
+    html.theme-changing .modal-header,
+    html.theme-changing .modal-title,
+    html.theme-changing .modal-close,
+    html.theme-changing .modal-helper,
+    html.theme-changing .modal-section-label,
+    html.theme-changing .session-input,
+    html.theme-changing .btn-primary,
+    html.theme-changing .btn-ghost,
+    html.theme-changing .confirm-panel,
+    html.theme-changing .confirm-title,
+    html.theme-changing .confirm-message,
+    html.theme-changing .confirm-input,
+    html.theme-changing .confirm-error,
+    html.theme-changing .btn-danger,
+    html.theme-changing .hub-toast {
+      transition:
+        background-color var(--hub-theme-motion),
+        background var(--hub-theme-motion),
+        color var(--hub-theme-motion),
+        border-color var(--hub-theme-motion),
+        box-shadow var(--hub-theme-motion),
+        opacity var(--hub-theme-motion),
+        fill var(--hub-theme-motion),
+        stroke var(--hub-theme-motion);
+    }
+
+    html.theme-changing .hub-atmosphere-layer {
+      transition:
+        opacity var(--hub-theme-motion),
+        filter var(--hub-theme-motion);
+    }
+
+    html.theme-changing .drawer {
+      transition:
+        transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+        background-color var(--hub-theme-motion),
+        background var(--hub-theme-motion),
+        color var(--hub-theme-motion),
+        border-color var(--hub-theme-motion),
+        box-shadow var(--hub-theme-motion),
+        opacity var(--hub-theme-motion);
     }
 
     /* ============================================================ RESET */
@@ -128,22 +258,57 @@
 
     html {
       min-height: 100%;
-      background: var(--page-bg);
-      background-color: var(--cream);
+      background: var(--cream);
       scroll-behavior: smooth;
       overflow-y: scroll;
       scrollbar-gutter: stable;
     }
 
     body {
+      position: relative;
+      isolation: isolate;
       font-family: var(--font-body);
-      background: var(--page-bg);
+      background: transparent;
       color: var(--ink);
       font-size: 15px;
       line-height: 1.65;
       min-height: 100svh;
       overflow-x: hidden;
       padding-top: 56px;
+    }
+
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-size: cover;
+      background-position: center;
+    }
+
+    body::before {
+      background: var(--page-bg-day);
+      opacity: 1;
+    }
+
+    body::after {
+      background: var(--page-bg-night);
+      opacity: 0;
+    }
+
+    html[data-theme="night"] body::before {
+      opacity: 0;
+    }
+
+    html[data-theme="night"] body::after {
+      opacity: 1;
+    }
+
+    html.theme-changing body::before,
+    html.theme-changing body::after {
+      transition: opacity var(--hub-theme-motion);
     }
 
     .hub-atmosphere-layer {
@@ -223,7 +388,7 @@
       color: #18b98f;
     }
 
-    /* Centered hub shortcut group */
+    /* Hub shortcuts */
     .spine-worlds {
       display: flex;
       align-items: center;
@@ -319,7 +484,7 @@
       color: var(--accent-soft);
     }
 
-    /* Right actions */
+    /* Header actions */
     .spine-actions {
       display: flex;
       align-items: center;
@@ -1310,7 +1475,7 @@
       box-shadow: none;
     }
 
-    /* Night mode card overrides */
+    /* Night card states */
     html[data-theme="night"] .subject-card,
     html[data-theme="night"] .progress-card {
       background: rgba(76, 66, 55, 0.76);
@@ -1397,7 +1562,7 @@
       margin-bottom: 0.4rem;
     }
 
-    /* ============================================================ EMPTY STATE (no registered subjects) */
+    /* ============================================================ EMPTY STATE */
     .empty-library {
       text-align: center;
       padding: 4rem 1rem;
@@ -1847,44 +2012,6 @@
       .drawer {
         display: none !important;
       }
-    }
-    :root {
-      --atlas-theme-motion: 280ms ease;
-    }
-
-    html.theme-changing body,
-    html.theme-changing .hub-atmosphere-layer,
-    html.theme-changing .hub-atmosphere-layer::after,
-    html.theme-changing .spine,
-    html.theme-changing .mobile-header,
-    html.theme-changing .spine-worlds,
-    html.theme-changing .spine-world-btn,
-    html.theme-changing .spine-session-pill,
-    html.theme-changing .spine-btn,
-    html.theme-changing .mobile-session-pill,
-    html.theme-changing .mobile-header-btn,
-    html.theme-changing .drawer,
-    html.theme-changing .drawer-header,
-    html.theme-changing .drawer-footer,
-    html.theme-changing .drawer-session-btn,
-    html.theme-changing .drawer-appearance-btn,
-    html.theme-changing .hub-meta-chip,
-    html.theme-changing .progress-card,
-    html.theme-changing .subject-card,
-    html.theme-changing .btn-launch,
-    html.theme-changing .btn-launch-sm,
-    html.theme-changing .status-badge,
-    html.theme-changing .search-field,
-    html.theme-changing .search-clear,
-    html.theme-changing .modal-panel,
-    html.theme-changing .modal-header,
-    html.theme-changing .confirm-panel {
-      transition:
-        background-color var(--atlas-theme-motion),
-        color var(--atlas-theme-motion),
-        border-color var(--atlas-theme-motion),
-        box-shadow var(--atlas-theme-motion),
-        opacity var(--atlas-theme-motion);
     }
   </style>
 </head>
