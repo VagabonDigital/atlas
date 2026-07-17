@@ -82,7 +82,17 @@
     gap: 0.75rem;
     padding: 0.72rem 1.1rem;
     cursor: pointer;
-    transition: var(--transition, 0.22s cubic-bezier(0.4, 0, 0.2, 1));
+    transition: none;
+}
+
+/* Utility-list feedback should be immediate, independent of page theme motion. */
+.atlas-search-result::before,
+.atlas-search-result::after,
+.atlas-search-result-icon,
+.atlas-search-result-icon svg,
+.atlas-search-result-title,
+.atlas-search-result-sub {
+    transition: none;
 }
 
 .atlas-search-result:hover,
@@ -385,7 +395,6 @@ html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-results::-
 }
 
 @media (prefers-reduced-motion: reduce) {
-
     .atlas-search-overlay.open,
     .atlas-search-panel {
         animation: none !important;
