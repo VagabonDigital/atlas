@@ -61,10 +61,15 @@
       --arcade-pale: #f9ded3;
       --arcade-dim: #fdf0eb;
       --arcade-rgb: 223, 87, 47;
-      --page-bg:
-        radial-gradient(circle at 84% 4%, rgba(var(--arcade-rgb), 0.13), transparent 30rem),
+      --page-bg-day:
+        radial-gradient(circle at 84% 4%, rgba(223, 87, 47, 0.13), transparent 30rem),
         radial-gradient(circle at 8% 22%, rgba(107, 76, 130, 0.075), transparent 34rem),
-        linear-gradient(145deg, #fbf5ee 0%, var(--bg) 48%, #f2e7dc 100%);
+        linear-gradient(145deg, #fbf5ee 0%, #f8f1e8 48%, #f2e7dc 100%);
+      --page-bg-night:
+        radial-gradient(circle at 84% 4%, rgba(240, 104, 64, 0.16), transparent 30rem),
+        radial-gradient(circle at 8% 22%, rgba(154, 117, 181, 0.08), transparent 34rem),
+        linear-gradient(145deg, #19121c 0%, #1e1720 52%, #261b2b 100%);
+      --page-bg: var(--page-bg-day);
       --ink: #2d1f3d;
       --ink-mid: #5a4a6e;
       --ink-quiet: #8a7a9a;
@@ -85,6 +90,7 @@
       --font-display: 'DM Serif Display', Georgia, serif;
       --font-body: 'DM Sans', system-ui, sans-serif;
       --t: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      --hub-theme-motion: 280ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     html[data-theme="night"] {
@@ -97,10 +103,7 @@
       --arcade-pale: rgba(240, 104, 64, 0.18);
       --arcade-dim: rgba(240, 104, 64, 0.10);
       --arcade-rgb: 240, 104, 64;
-      --page-bg:
-        radial-gradient(circle at 84% 4%, rgba(var(--arcade-rgb), 0.16), transparent 30rem),
-        radial-gradient(circle at 8% 22%, rgba(154, 117, 181, 0.08), transparent 34rem),
-        linear-gradient(145deg, #19121c 0%, var(--bg) 52%, #261b2b 100%);
+      --page-bg: var(--page-bg-night);
       --ink: #f0e8f8;
       --ink-mid: #c8b8d8;
       --ink-quiet: #8878a0;
@@ -111,6 +114,132 @@
       --shadow-sm: 0 1px 6px rgba(0, 0, 0, 0.28);
       --shadow-md: 0 4px 18px rgba(0, 0, 0, 0.36);
       --shadow-lg: 0 8px 36px rgba(0, 0, 0, 0.48);
+    }
+
+    /* ============================================================
+       THEME MOTION
+       Bridge owns theme state. Arcade owns how Arcade surfaces interpolate.
+       Pattern matched to Atlas and Compass hub motion.
+       ============================================================ */
+
+    html.theme-changing,
+    html.theme-changing body,
+    html.theme-changing .arcade-atmosphere-layer::after,
+    html.theme-changing .spine,
+    html.theme-changing .spine-mark,
+    html.theme-changing .spine-mark span,
+    html.theme-changing .spine-worlds,
+    html.theme-changing .spine-world-btn,
+    html.theme-changing .spine-world-btn svg,
+    html.theme-changing .spine-session-pill,
+    html.theme-changing .spine-session-pill .pill-name,
+    html.theme-changing .spine-btn,
+    html.theme-changing .mobile-header,
+    html.theme-changing .mobile-header-mark,
+    html.theme-changing .mobile-header-mark span,
+    html.theme-changing .mobile-header-actions,
+    html.theme-changing .mobile-header-btn,
+    html.theme-changing .mobile-session-pill,
+    html.theme-changing .mobile-session-pill span,
+    html.theme-changing .drawer-header,
+    html.theme-changing .drawer-footer,
+    html.theme-changing .drawer-title,
+    html.theme-changing .drawer-title span,
+    html.theme-changing .drawer-close,
+    html.theme-changing .drawer-nav-label,
+    html.theme-changing .drawer-nav-item,
+    html.theme-changing .drawer-nav-item .nav-soon,
+    html.theme-changing .drawer-session-btn,
+    html.theme-changing .drawer-session-btn span,
+    html.theme-changing .drawer-appearance-btn,
+    html.theme-changing .hub-intro,
+    html.theme-changing .hub-intro-text,
+    html.theme-changing .hub-eyebrow,
+    html.theme-changing .hub-title,
+    html.theme-changing .hub-desc,
+    html.theme-changing .hub-meta,
+    html.theme-changing .hub-meta-chip,
+    html.theme-changing .section-label,
+    html.theme-changing .continue-zone,
+    html.theme-changing .continue-card,
+    html.theme-changing .continue-card::before,
+    html.theme-changing .continue-icon,
+    html.theme-changing .continue-title,
+    html.theme-changing .continue-progress,
+    html.theme-changing .continue-resume,
+    html.theme-changing .library-zone,
+    html.theme-changing .library-header,
+    html.theme-changing .library-title,
+    html.theme-changing .library-title-group,
+    html.theme-changing .library-search,
+    html.theme-changing .library-search-icon,
+    html.theme-changing .library-search-clear,
+    html.theme-changing .game-card,
+    html.theme-changing .game-card::before,
+    html.theme-changing .game-card-mark,
+    html.theme-changing .game-card-title,
+    html.theme-changing .game-card-premise,
+    html.theme-changing .game-card-unit,
+    html.theme-changing .game-card-format,
+    html.theme-changing .game-card-status,
+    html.theme-changing .game-card-status::before,
+    html.theme-changing .game-card-action,
+    html.theme-changing .library-divider::before,
+    html.theme-changing .library-divider::after,
+    html.theme-changing .library-divider-label,
+    html.theme-changing .no-results,
+    html.theme-changing .no-results p,
+    html.theme-changing .modal-panel,
+    html.theme-changing .modal-header,
+    html.theme-changing .modal-title,
+    html.theme-changing .modal-close,
+    html.theme-changing .modal-helper,
+    html.theme-changing .modal-section-label,
+    html.theme-changing .session-input,
+    html.theme-changing .btn-primary,
+    html.theme-changing .btn-ghost,
+    html.theme-changing .confirm-panel,
+    html.theme-changing .confirm-title,
+    html.theme-changing .confirm-message,
+    html.theme-changing .confirm-input,
+    html.theme-changing .btn-danger,
+    html.theme-changing .arcade-toast,
+    html.theme-changing .bridge-error,
+    html.theme-changing .bridge-error h2,
+    html.theme-changing .bridge-error p {
+      transition:
+        background-color var(--hub-theme-motion),
+        color var(--hub-theme-motion),
+        border-color var(--hub-theme-motion),
+        box-shadow var(--hub-theme-motion),
+        opacity var(--hub-theme-motion),
+        fill var(--hub-theme-motion),
+        stroke var(--hub-theme-motion);
+    }
+
+    html.theme-changing :where(.continue-card *, .library-zone *, .game-card *) {
+      transition:
+        color var(--hub-theme-motion),
+        border-color var(--hub-theme-motion),
+        opacity var(--hub-theme-motion),
+        fill var(--hub-theme-motion),
+        stroke var(--hub-theme-motion);
+    }
+
+    html.theme-changing .arcade-atmosphere-layer {
+      transition:
+        opacity var(--hub-theme-motion),
+        filter var(--hub-theme-motion);
+    }
+
+    html.theme-changing .drawer {
+      transition:
+        transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+        background-color var(--hub-theme-motion),
+        color var(--hub-theme-motion),
+        border-color var(--hub-theme-motion),
+        box-shadow var(--hub-theme-motion),
+        opacity var(--hub-theme-motion);
     }
 
     /* ============================================================ RESET */
@@ -124,22 +253,57 @@
 
     html {
       min-height: 100%;
-      background: var(--page-bg);
-      background-color: var(--bg);
+      background: var(--bg);
       scroll-behavior: smooth;
       overflow-y: scroll;
       scrollbar-gutter: stable;
     }
 
     body {
+      position: relative;
+      isolation: isolate;
       font-family: var(--font-body);
-      background: var(--page-bg);
+      background: transparent;
       color: var(--ink);
       font-size: 15px;
       line-height: 1.6;
       min-height: 100svh;
       overflow-x: hidden;
       padding-top: 56px;
+    }
+
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-size: cover;
+      background-position: center;
+    }
+
+    body::before {
+      background: var(--page-bg-day);
+      opacity: 1;
+    }
+
+    body::after {
+      background: var(--page-bg-night);
+      opacity: 0;
+    }
+
+    html[data-theme="night"] body::before {
+      opacity: 0;
+    }
+
+    html[data-theme="night"] body::after {
+      opacity: 1;
+    }
+
+    html.theme-changing body::before,
+    html.theme-changing body::after {
+      transition: opacity var(--hub-theme-motion);
     }
 
     .arcade-atmosphere-layer {
@@ -792,9 +956,7 @@
       grid-template-columns: auto minmax(0, 1fr) auto;
       align-items: center;
       gap: 1.2rem;
-      background:
-        linear-gradient(118deg, rgba(255, 253, 249, 0.97), rgba(255, 246, 239, 0.93)),
-        rgba(255, 253, 249, 0.94);
+      background-color: rgba(255, 251, 244, 0.96);
       border: 1px solid rgba(var(--arcade-rgb), 0.22);
       border-radius: var(--r-xl);
       padding: 1.45rem 1.55rem;
@@ -812,7 +974,7 @@
     }
 
     html[data-theme="night"] .continue-card {
-      background: rgba(42, 33, 48, 0.965);
+      background-color: rgba(42, 33, 48, 0.965);
       border-color: var(--border-mid);
       box-shadow:
         0 1px 0 rgba(255, 255, 255, 0.05) inset,
@@ -948,15 +1110,13 @@
       padding: 1.75rem;
       border: 1px solid rgba(93, 57, 86, 0.105);
       border-radius: 30px;
-      background:
-        linear-gradient(150deg, rgba(255, 253, 249, 0.82), rgba(248, 241, 232, 0.88)),
-        rgba(250, 246, 240, 0.84);
+      background-color: rgba(252, 248, 242, 0.86);
       box-shadow: 0 20px 58px rgba(58, 36, 63, 0.075), inset 0 1px 0 rgba(255, 255, 255, 0.64);
       backdrop-filter: blur(18px) saturate(0.94);
     }
 
     html[data-theme="night"] .library-zone {
-      background: linear-gradient(150deg, rgba(42, 33, 48, 0.9), rgba(30, 23, 32, 0.92));
+      background-color: rgba(36, 28, 40, 0.91);
       border-color: rgba(255, 255, 255, 0.085);
       box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.035);
     }
@@ -1080,7 +1240,7 @@
     .game-card {
       display: flex;
       flex-direction: column;
-      background: rgba(255, 253, 249, 0.91);
+      background-color: rgba(255, 253, 249, 0.91);
       border: 1px solid rgba(58, 36, 63, 0.135);
       border-radius: 22px;
       padding: 1.45rem 1.45rem 1.3rem;
@@ -1095,11 +1255,11 @@
     }
 
     html[data-theme="night"] .game-card {
-      background: rgba(42, 33, 48, 0.955);
+      background-color: rgba(42, 33, 48, 0.955);
       border-color: rgba(255, 255, 255, 0.14);
       box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.045) inset,
-        0 10px 34px rgba(0, 0, 0, 0.22);
+        0 10px 34px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.045);
     }
 
     /* Thin top accent edge — colour comes from JS per game */
@@ -1144,7 +1304,7 @@
     .game-card.is-soon {
       cursor: default;
       opacity: 1;
-      background: rgba(247, 241, 234, 0.68);
+      background-color: rgba(247, 241, 234, 0.68);
       border-color: rgba(58, 36, 63, 0.085);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.52);
     }
@@ -1157,7 +1317,7 @@
 
     html[data-theme="night"] .game-card.is-soon,
     html[data-theme="night"] .game-card.is-soon:hover {
-      background: rgba(37, 29, 44, 0.72);
+      background-color: rgba(37, 29, 44, 0.72);
       border-color: rgba(255, 255, 255, 0.075);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
     }
@@ -1807,46 +1967,6 @@
       .drawer {
         display: none !important;
       }
-    }
-    :root {
-      --atlas-theme-motion: 280ms ease;
-    }
-
-    html.theme-changing body,
-    html.theme-changing .arcade-atmosphere-layer,
-    html.theme-changing .arcade-atmosphere-layer::after,
-    html.theme-changing .spine,
-    html.theme-changing .mobile-header,
-    html.theme-changing .spine-worlds,
-    html.theme-changing .spine-world-btn,
-    html.theme-changing .spine-session-pill,
-    html.theme-changing .spine-btn,
-    html.theme-changing .mobile-session-pill,
-    html.theme-changing .mobile-header-btn,
-    html.theme-changing .drawer,
-    html.theme-changing .drawer-header,
-    html.theme-changing .drawer-footer,
-    html.theme-changing .drawer-session-btn,
-    html.theme-changing .drawer-appearance-btn,
-    html.theme-changing .hub-meta-chip,
-    html.theme-changing .continue-card,
-    html.theme-changing .continue-icon,
-    html.theme-changing .continue-resume,
-    html.theme-changing .library-zone,
-    html.theme-changing .library-search,
-    html.theme-changing .game-card,
-    html.theme-changing .game-card-mark,
-    html.theme-changing .game-card-status,
-    html.theme-changing .game-card-action,
-    html.theme-changing .modal-panel,
-    html.theme-changing .modal-header,
-    html.theme-changing .confirm-panel {
-      transition:
-        background-color var(--atlas-theme-motion),
-        color var(--atlas-theme-motion),
-        border-color var(--atlas-theme-motion),
-        box-shadow var(--atlas-theme-motion),
-        opacity var(--atlas-theme-motion);
     }
   </style>
 </head>
