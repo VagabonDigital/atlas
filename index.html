@@ -39,12 +39,17 @@
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="./shared/atlas-search.css">
+  <link rel="stylesheet" href="./shared/atlas-session-panel.css">
 
-  <!-- Anti-flash: apply saved theme before first paint. Reads only the canonical key. -->
+  <!-- Anti-flash: apply the active session theme before first paint. -->
   <script>
     (function () {
       var m = null;
-      try { m = localStorage.getItem('atlas::appearanceMode'); } catch (e) { m = null; }
+      try {
+        var sessionId = localStorage.getItem('atlas::activeSessionId') || 'default';
+        var sessionModes = JSON.parse(localStorage.getItem('atlas::appearanceBySession') || '{}');
+        m = sessionModes[sessionId] || localStorage.getItem('atlas::appearanceMode');
+      } catch (e) { m = null; }
       document.documentElement.dataset.theme = (m === 'night') ? 'night' : 'light';
     })();
   </script>
@@ -1612,79 +1617,6 @@
       line-height: 1.5;
     }
 
-    .session-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-      margin-bottom: 0.8rem;
-    }
-
-    .session-item {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      padding: 0.65rem 0.85rem;
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      background: var(--bg-subtle);
-      transition: var(--t);
-    }
-
-    .session-item.active {
-      border-color: var(--accent);
-      background: var(--accent-pale);
-    }
-
-    .session-item-name {
-      flex: 1;
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: var(--ink);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .session-item-badge {
-      font-size: 0.65rem;
-      font-weight: 600;
-      background: var(--accent);
-      color: #fff;
-      border-radius: 20px;
-      padding: 0.15rem 0.5rem;
-    }
-
-    .session-item-actions {
-      display: flex;
-      gap: 0.3rem;
-      flex-shrink: 0;
-    }
-
-    .session-action-btn {
-      width: 30px;
-      height: 30px;
-      border-radius: var(--r-sm);
-      border: 1px solid var(--border);
-      background: var(--bg-raised);
-      color: var(--ink-quiet);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--t);
-    }
-
-    .session-action-btn:hover {
-      color: var(--ink);
-      border-color: var(--border-mid);
-    }
-
-    .session-action-btn.danger:hover {
-      color: var(--danger);
-      border-color: var(--danger-border);
-      background: var(--danger-bg);
-    }
-
     .modal-section-label {
       font-size: 0.68rem;
       font-weight: 600;
@@ -1692,11 +1624,6 @@
       text-transform: uppercase;
       color: var(--ink-faint);
       margin: 1rem 0 0.5rem;
-    }
-
-    .session-new-form {
-      display: flex;
-      gap: 0.5rem;
     }
 
     .session-input {
@@ -1720,19 +1647,6 @@
     select.session-input {
       padding-right: 2.7rem;
       background-position: right 0.85rem center;
-    }
-
-    .session-error {
-      font-size: 0.78rem;
-      color: var(--danger);
-      margin-top: 0.5rem;
-      min-height: 1rem;
-      opacity: 0;
-      transition: opacity var(--t);
-    }
-
-    .session-error.visible {
-      opacity: 1;
     }
 
     .btn-primary {
@@ -2209,13 +2123,14 @@
     <div class="spine-mark">Atlas<span>.</span></div>
     <div class="spine-worlds" id="spine-worlds" role="group" aria-label="World navigation"></div>
     <div class="spine-actions">
-      <button class="spine-session-pill" onclick="openSessionModal()" aria-label="Sessions">
+      <button class="spine-session-pill" onclick="openSessionPanel(this)"
+        aria-label="Open session panel. Working with Shared">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
           <circle cx="6" cy="4" r="2.2" stroke="currentColor" stroke-width="1.2" />
           <path d="M1.5 10.5c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4" stroke="currentColor" stroke-width="1.2"
             stroke-linecap="round" />
         </svg>
-        <span class="pill-name" id="spine-session-name">—</span>
+        <span class="pill-name" id="spine-session-name">Shared</span>
       </button>
 
       <button class="spine-btn" data-atlas-search title="Search (⌘K)" aria-label="Search">
@@ -2243,13 +2158,14 @@
     <div class="mobile-header-mark">Atlas<span>.</span></div>
 
     <div class="mobile-header-actions">
-      <button class="mobile-header-session" onclick="openSessionModal()" aria-label="Sessions">
+      <button class="mobile-header-session" onclick="openSessionPanel(this)"
+        aria-label="Open session panel. Working with Shared">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
           <circle cx="6" cy="4" r="2.2" stroke="currentColor" stroke-width="1.2" />
           <path d="M1.5 10.5c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4" stroke="currentColor" stroke-width="1.2"
             stroke-linecap="round" />
         </svg>
-        <span id="mobile-session-name">—</span>
+        <span id="mobile-session-name">Shared</span>
       </button>
 
       <button class="mobile-header-btn" data-atlas-search aria-label="Search">
@@ -2300,13 +2216,14 @@
     </div>
     <div class="drawer-footer">
       <div class="drawer-footer-row">
-        <button class="drawer-session-btn" onclick="closeDrawer();openSessionModal()">
+        <button class="drawer-session-btn" aria-label="Open session panel. Working with Shared"
+          onclick="closeDrawer();openSessionPanel(document.querySelector('.mobile-header-session'))">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2" />
             <path d="M2 12c0-2.5 2.2-4.5 5-4.5s5 2 5 4.5" stroke="currentColor" stroke-width="1.2"
               stroke-linecap="round" />
           </svg>
-          <span id="drawer-session-name">—</span>
+          <span id="drawer-session-name">Shared</span>
         </button>
         <button class="drawer-appearance-btn" onclick="toggleAppearance()" aria-label="Toggle appearance"></button>
       </div>
@@ -2316,38 +2233,7 @@
   <main class="atlas-main" id="atlas-main" role="main">
     <!-- Rendered by JS based on bridge state -->
   </main>
-  <!-- ============================================================ SESSION MODAL -->
-  <div class="modal-overlay" id="session-modal" onclick="handleSessionModalClick(event)" role="dialog"
-    aria-label="Sessions" aria-modal="true">
-    <div class="modal-panel">
-      <div class="modal-header">
-        <span class="modal-title">Sessions</span>
-        <button class="modal-close" onclick="closeSessionModal()" aria-label="Close">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p class="modal-helper" id="session-modal-helper"></p>
-
-        <div class="session-list" id="session-list"></div>
-
-        <p class="modal-section-label">New session</p>
-        <div class="session-new-form">
-          <input class="session-input" id="new-session-input" type="text" placeholder="Learner name" maxlength="40"
-            autocomplete="off">
-          <button class="btn-primary" onclick="handleCreateSession()">Add</button>
-        </div>
-
-        <div class="session-error" id="session-create-error"></div>
-
-        <p class="modal-helper" style="font-size:0.72rem; margin-top:0.7rem; margin-bottom:0">
-          Progress is saved on this device only.
-        </p>
-      </div>
-    </div>
-  </div>
+  <div id="atlas-session-panel-root"></div>
 
   <!-- ============================================================ SETTINGS MODAL -->
   <div class="modal-overlay" id="settings-modal" onclick="handleSettingsModalClick(event)" role="dialog"
@@ -2401,6 +2287,7 @@
   </div>
   <!-- ============================================================ SCRIPTS -->
   <script src="./shared/atlas-bridge.js"></script>
+  <script src="./shared/atlas-session-panel.js"></script>
   <script src="./shared/atlas-search.js"></script>
   <script>
     'use strict';
@@ -2825,88 +2712,20 @@
     }
     document.getElementById('confirm-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') resolveConfirm(true);
-      if (e.key === 'Escape') resolveConfirm(false);
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        resolveConfirm(false);
+      }
     });
 
     // ================================================================
     // SESSION MODAL — bridge methods only
     // ================================================================
-    function openSessionModal() {
-      renderSessionList();
-      clearSessionError();
-      document.getElementById('session-modal').classList.add('open');
-      document.body.style.overflow = 'hidden';
+    function openSessionPanel(trigger = document.activeElement) {
+      if (window.AtlasSessionPanel) AtlasSessionPanel.open(trigger);
     }
-    function closeSessionModal() {
-      document.getElementById('session-modal').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-    function handleSessionModalClick(e) {
-      if (e.target === document.getElementById('session-modal')) closeSessionModal();
-    }
-    function clearSessionError() {
-      const el = document.getElementById('session-create-error');
-      el.textContent = '';
-      el.className = 'session-error';
-    }
-    function showSessionError(msg) {
-      const el = document.getElementById('session-create-error');
-      el.textContent = msg;
-      el.className = 'session-error visible';
-    }
-    function renderSessionList() {
-      const sessions = getSessions();
-      const active = getActiveSession();
-      const defId = Bridge.defaultSessionId || 'default';
-      const helper = document.getElementById('session-modal-helper');
-      if (isDefaultSession(active)) {
-        helper.textContent = 'Add a learner name to keep each student\u2019s progress and review separate.';
-      } else {
-        helper.textContent = 'Active session: ' + active.name + '. Switch to change the active learner.';
-      }
-      const list = document.getElementById('session-list');
-      list.innerHTML = sessions.map(s => {
-        const isActive = s.id === active.id;
-        const isDefault = s.id === defId;
-        return '<div class="session-item ' + (isActive ? 'active' : '') + '">' +
-          '<span class="session-item-name">' + escHtml(s.name) + '</span>' +
-          (isActive ? '<span class="session-item-badge">Active</span>' : '') +
-          '<div class="session-item-actions">' +
-          (!isActive ? '<button class="session-action-btn" title="Switch to ' + escAttr(s.name) + '" onclick="handleSwitchSession(\'' + escAttr(s.id) + '\')" aria-label="Switch to ' + escAttr(s.name) + '">' +
-            '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' : '') +
-          (!isDefault ? '<button class="session-action-btn" title="Rename" onclick="handleRenameSession(\'' + escAttr(s.id) + '\')" aria-label="Rename ' + escAttr(s.name) + '">' +
-            '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2l2 2M2 10l.5-2 5-5L9.5 4.5l-5 5L2 10Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' : '') +
-          '<button class="session-action-btn danger" title="Reset progress" onclick="handleResetSession(\'' + escAttr(s.id) + '\')" aria-label="Reset progress for ' + escAttr(s.name) + '">' +
-          '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6a4 4 0 1 1 .7 2.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M2 9V6h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
-          (!isDefault ? '<button class="session-action-btn danger" title="Delete session" onclick="handleDeleteSession(\'' + escAttr(s.id) + '\')" aria-label="Delete ' + escAttr(s.name) + '">' +
-            '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>' : '') +
-          '</div>' +
-          '</div>';
-      }).join('');
-    }
-    function handleCreateSession() {
-      const input = document.getElementById('new-session-input');
-      const name = input.value.trim();
-      clearSessionError();
-      if (!name) { showSessionError('Enter a name to create a session.'); return; }
-      const created = Bridge.createSession(name); // auto-activates + dispatches event
-      if (!created) {
-        showSessionError('That name is already in use. Try a different one.');
-        input.style.borderColor = 'var(--danger)';
-        setTimeout(() => { input.style.borderColor = ''; }, 1200);
-        return;
-      }
-      input.value = '';
-      // Event listener will re-render home + labels; refresh modal list now.
-      renderSessionList();
-    }
-    function handleSwitchSession(id) {
-      const result = Bridge.setActiveSession(id); // dispatches event
-      if (!result) { showSessionError('Couldn\u2019t switch to that session.'); return; }
-      closeSessionModal();
-      // Event listener re-renders home.
-    }
-    async function handleRenameSession(id) {
+    async function handleRenameSession(session) {
+      const id = session.id;
       const sessions = getSessions();
       const s = sessions.find(x => x.id === id);
       if (!s) return;
@@ -2928,28 +2747,10 @@
         });
         return;
       }
-      renderSessionList();
       renderHome();
     }
-    async function handleResetSession(id) {
-      const sessions = getSessions();
-      const s = sessions.find(x => x.id === id);
-      if (!s) return;
-      const ok = await showConfirm({
-        title: 'Reset progress?',
-        message: 'This permanently removes ' + s.name + ', their progress, and their saved language from this device.',
-        okLabel: 'Reset progress'
-      });
-      if (!ok) return;
-      // Narrowly scoped read-mutate-write through public bridge methods.
-      const reg = getRegistry();
-      if (reg.sessionStates) delete reg.sessionStates[id];
-      reg.recentActivity = (reg.recentActivity || []).filter(a => a && a.sessionId !== id);
-      Bridge.writeRegistry(reg);
-      renderSessionList();
-      renderHome();
-    }
-    async function handleDeleteSession(id) {
+    async function handleDeleteSession(session) {
+      const id = session.id;
       const defId = Bridge.defaultSessionId || 'default';
       if (id === defId) return; // default can't be deleted
       const sessions = getSessions();
@@ -2989,7 +2790,6 @@
       // 4) Remove the session record itself (bridge owns active reassignment).
       Bridge.deleteSession(id); // dispatches event if it was active
 
-      renderSessionList();
       renderHome();
     }
 
@@ -3222,10 +3022,14 @@
     // ================================================================
     function setSessionLabels() {
       const session = getActiveSession();
-      const display = isDefaultSession(session) || !session.name ? 'Session' : session.name;
+      const display = AtlasSessionPanel.getSessionDisplayName(session);
       ['spine-session-name', 'mobile-session-name', 'drawer-session-name'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.textContent = display;
+        if (el) {
+          el.textContent = display;
+          const trigger = el.closest('button');
+          if (trigger) trigger.setAttribute('aria-label', 'Open session panel. Working with ' + display);
+        }
       });
     }
 
@@ -3764,8 +3568,12 @@
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
         if (window.AtlasSearch && AtlasSearch.isOpen && AtlasSearch.isOpen()) return;
-        if (document.getElementById('confirm-dialog').classList.contains('open')) { resolveConfirm(false); return; }
-        if (document.getElementById('session-modal').classList.contains('open')) { closeSessionModal(); return; }
+        if (document.getElementById('confirm-dialog').classList.contains('open')) {
+          e.stopImmediatePropagation();
+          resolveConfirm(false);
+          return;
+        }
+        if (window.AtlasSessionPanel && AtlasSessionPanel.isOpen()) return;
         if (document.getElementById('settings-modal').classList.contains('open')) { closeSettingsModal(); return; }
         if (document.getElementById('drawer').classList.contains('open')) { closeDrawer(); return; }
         if (reviewState) { closeLanguageReview(); return; }
@@ -3779,6 +3587,8 @@
     // the saved language set) instead of bouncing the user back home.
     // ================================================================
     function refreshFromBridge() {
+      applyAppearance(Bridge.readAppearanceMode(), false);
+
       if (reviewState) {
         const session = getActiveSession();
         const ledger = getLedger();
@@ -3796,7 +3606,7 @@
     window.addEventListener('atlas:session-change', () => {
       // Switching learners must reset any in-progress review.
       reviewState = null;
-      renderHome();
+      refreshFromBridge();
     });
     window.addEventListener('atlas:appearance-change', e => {
       const mode = (e.detail && e.detail.mode) || Bridge.readAppearanceMode();
@@ -3809,7 +3619,7 @@
       // React only to keys the bridge owns.
       if (!e || !e.key) return;
       const k = e.key;
-      if (k === 'atlas::appearanceMode') {
+      if (k === Bridge.keys.appearance || k === Bridge.keys.appearanceBySession) {
         applyAppearance(Bridge.readAppearanceMode(), false);
         return;
       }
@@ -3856,6 +3666,13 @@
         atlasUrl: './index.html',
         compassUrl: './compass/index.html',
         arcadeUrl: './arcade/index.html'
+      });
+
+      AtlasSessionPanel.mount({
+        root: '#atlas-session-panel-root',
+        initialView: 'manage',
+        onRenameSession: handleRenameSession,
+        onDeleteSession: handleDeleteSession
       });
 
       renderHome();
