@@ -2203,7 +2203,7 @@
 
     /* ================================================================
        COMPASS HUB V1
-       Reads state only through AtlasBridge. All catalog data is local.
+       Reads state through AtlasBridge. Catalog metadata comes from CompassCatalogData.
        ================================================================ */
 
     // ---- Bridge guard -----------------------------------------------
@@ -2252,330 +2252,22 @@
 
     /* ================================================================
        COMPASS CATALOG
-       Edit COMPASS_CATEGORIES and COMPASS_CATALOG here.
-       Registry ids follow the pattern: 'compass:' + slug
+       Shared catalog metadata comes from shared/compass-catalog-data.js.
        ================================================================ */
 
-    const COMPASS_CATEGORIES = [
-      { id: 'you-your-mind', title: 'You & Your Mind', order: 10 },
-      { id: 'people-relationships', title: 'People & Relationships', order: 20 },
-      { id: 'society-the-world', title: 'Society & the World', order: 30 },
-      { id: 'work-time', title: 'Work & Time', order: 40 },
-      { id: 'culture-life', title: 'Culture & Life', order: 50 },
-    ];
+    const COMPASS_CATALOG_DATA = window.CompassCatalogData;
 
-    const COMPASS_CATALOG = {
-      /* ================ YOU & YOUR MIND (8) ================ */
-      'compass:personality-character-traits': {
-        registryId: 'compass:personality-character-traits',
-        title: 'Personality & Character Traits',
-        categoryId: 'you-your-mind',
-        order: 10,
-        durationLabel: '45–60 min',
-        hook: 'Talk about temperament, charm, stubbornness, reliability, and the stable traits that make someone “who they are.”'
-      },
-      'compass:identity-self-image': {
-        registryId: 'compass:identity-self-image',
-        title: 'Identity & Self-Image',
-        categoryId: 'you-your-mind',
-        order: 20,
-        durationLabel: '45–60 min',
-        hook: 'Talk about how people present themselves, how they want to be seen, and the gap between the real you and the shown you.'
-      },
-      'compass:thinking-reasoning': {
-        registryId: 'compass:thinking-reasoning',
-        title: 'Thinking & Reasoning',
-        categoryId: 'you-your-mind',
-        order: 30,
-        durationLabel: '45–60 min',
-        hook: 'Look at logic, judgment, intuition, bias, doubt, and how people convince themselves they are being reasonable.'
-      },
-      'compass:mindset-motivation': {
-        registryId: 'compass:mindset-motivation',
-        title: 'Mindset & Motivation',
-        categoryId: 'you-your-mind',
-        order: 40,
-        durationLabel: '45–60 min',
-        hook: 'Talk about drive, discipline, procrastination, effort, and what makes people start, persist, or stall.'
-      },
-      'compass:dreams-ambitions': {
-        registryId: 'compass:dreams-ambitions',
-        title: 'Dreams & Ambitions',
-        categoryId: 'you-your-mind',
-        order: 50,
-        durationLabel: '45–60 min',
-        hook: 'Talk about goals, the imagined future self, ambition vs. contentment, and the dreams people chase, change, or abandon.'
-      },
-      'compass:personal-growth-reflection': {
-        registryId: 'compass:personal-growth-reflection',
-        title: 'Personal Growth & Reflection',
-        categoryId: 'you-your-mind',
-        order: 60,
-        durationLabel: '45–60 min',
-        hook: 'Explore how people change over time — the turning points, the things people grow out of, and the gap between who they were and who they became.'
-      },
-      'compass:creativity-imagination': {
-        registryId: 'compass:creativity-imagination',
-        title: 'Creativity & Imagination',
-        categoryId: 'you-your-mind',
-        order: 70,
-        durationLabel: '45–60 min',
-        hook: 'Explore ideas, originality, taste, inspiration, creative courage and block, and how imagination becomes something real.'
-      },
-      'compass:health-wellbeing': {
-        registryId: 'compass:health-wellbeing',
-        title: 'Health & Wellbeing',
-        categoryId: 'you-your-mind',
-        order: 80,
-        durationLabel: '45–60 min',
-        hook: 'Explore how societies decide what “being healthy” means — the fads, the quack cures, and the advice that was confident and wrong.'
-      },
-      /* ============= PEOPLE & RELATIONSHIPS (10) ============= */
-      'compass:communication-expression': {
-        registryId: 'compass:communication-expression',
-        title: 'Communication & Expression',
-        categoryId: 'people-relationships',
-        order: 10,
-        durationLabel: '45–60 min',
-        hook: 'Explore how people explain themselves, choose words, handle misunderstanding, and shape the feeling of a conversation.'
-      },
-      'compass:body-language-emotions': {
-        registryId: 'compass:body-language-emotions',
-        title: 'Body Language & Emotions',
-        categoryId: 'people-relationships',
-        order: 20,
-        durationLabel: '45–60 min',
-        hook: 'Read the small signals people send through posture, expression, eye contact, distance, and emotional tone.'
-      },
-      'compass:relationships-connection': {
-        registryId: 'compass:relationships-connection',
-        title: 'Relationships & Connection',
-        categoryId: 'people-relationships',
-        order: 30,
-        durationLabel: '45–60 min',
-        hook: 'Talk about closeness, friendship, drifting apart, one-sided effort, and what keeps a bond alive over time.'
-      },
-      'compass:love-romance': {
-        registryId: 'compass:love-romance',
-        title: 'Love & Romance',
-        categoryId: 'people-relationships',
-        order: 40,
-        durationLabel: '45–60 min',
-        hook: 'Talk about attraction, chemistry, falling in and out of love, longing, heartbreak, and how courtship differs by culture and era.'
-      },
-      'compass:trust-loyalty': {
-        registryId: 'compass:trust-loyalty',
-        title: 'Trust & Loyalty',
-        categoryId: 'people-relationships',
-        order: 50,
-        durationLabel: '45–60 min',
-        hook: 'Look at how trust is earned, signalled, and read — who we rely on, and why it is so slow to rebuild once broken.'
-      },
-      'compass:conflict-resolution': {
-        registryId: 'compass:conflict-resolution',
-        title: 'Conflict & Resolution',
-        categoryId: 'people-relationships',
-        order: 60,
-        durationLabel: '45–60 min',
-        hook: 'Look at how people clash and what happens after — escalation, avoidance, who apologises first, and the rift that never closed.'
-      },
-      'compass:cultural-etiquette-social-norms': {
-        registryId: 'compass:cultural-etiquette-social-norms',
-        title: 'Cultural Etiquette & Social Norms',
-        categoryId: 'people-relationships',
-        order: 70,
-        durationLabel: '45–60 min',
-        hook: 'Compare the written and unwritten rules people follow — manners, greetings, gifts — and what happens when codes collide.'
-      },
-      'compass:conformity-rebellion': {
-        registryId: 'compass:conformity-rebellion',
-        title: 'Conformity & Rebellion',
-        categoryId: 'people-relationships',
-        order: 80,
-        durationLabel: '45–60 min',
-        hook: 'Talk about fitting in, pushing back, social pressure, and the moments when people decide not to follow the script.'
-      },
-      'compass:humour-wit': {
-        registryId: 'compass:humour-wit',
-        title: 'Humour & Wit',
-        categoryId: 'people-relationships',
-        order: 90,
-        durationLabel: '45–60 min',
-        hook: 'Explore why people find different things funny, how humour bonds or wounds, and why the line between a joke and an insult moves.'
-      },
-      'compass:family-belonging': {
-        registryId: 'compass:family-belonging',
-        title: 'Family & Belonging',
-        categoryId: 'people-relationships',
-        order: 100,
-        durationLabel: '45–60 min',
-        hook: 'Talk about kin, inherited obligation, family roles and scripts, what gets passed down, and the belonging you didn’t choose.'
-      },
-      /* ============== SOCIETY & THE WORLD (9) ============== */
-      'compass:justice-ethics': {
-        registryId: 'compass:justice-ethics',
-        title: 'Justice & Ethics',
-        categoryId: 'society-the-world',
-        order: 10,
-        durationLabel: '45–60 min',
-        hook: 'Discuss fairness, responsibility, punishment and mercy, and what people do when the right answer is not simple.'
-      },
-      'compass:society-values': {
-        registryId: 'compass:society-values',
-        title: 'Society & Values',
-        categoryId: 'society-the-world',
-        order: 20,
-        durationLabel: '45–60 min',
-        hook: 'Explore status, class, reputation, respect, success, and the values a society rewards or quietly punishes.'
-      },
-      'compass:media-influence': {
-        registryId: 'compass:media-influence',
-        title: 'Media & Influence',
-        categoryId: 'society-the-world',
-        order: 30,
-        durationLabel: '45–60 min',
-        hook: 'Explore persuasion, advertising, the feed, outrage, trust, and how repetition shapes what people believe and want.'
-      },
-      'compass:history-human-experience': {
-        registryId: 'compass:history-human-experience',
-        title: 'History & Human Experience',
-        categoryId: 'society-the-world',
-        order: 40,
-        durationLabel: '45–60 min',
-        hook: 'Use the past to discuss memory, change, and what societies remember, bury, and repeat across generations.'
-      },
-      'compass:environment-sustainability': {
-        registryId: 'compass:environment-sustainability',
-        title: 'Environment & Sustainability',
-        categoryId: 'society-the-world',
-        order: 50,
-        durationLabel: '45–60 min',
-        hook: 'Discuss how people relate to the natural world — reverence vs. exploitation, the throwaway vs. repair instinct, and the question of limits.'
-      },
-      'compass:technology-innovation': {
-        registryId: 'compass:technology-innovation',
-        title: 'Technology & Innovation',
-        categoryId: 'society-the-world',
-        order: 60,
-        durationLabel: '45–60 min',
-        hook: 'Discuss how invention reshapes life — convenience vs. dependence, the device in your hand, and what each leap gives and takes.'
-      },
-      'compass:education-learning': {
-        registryId: 'compass:education-learning',
-        title: 'Education & Learning',
-        categoryId: 'society-the-world',
-        order: 70,
-        durationLabel: '45–60 min',
-        hook: 'Explore what school is really for, how learning should happen, the teacher who mattered, and what school got wrong.'
-      },
-      'compass:travel-exploration': {
-        registryId: 'compass:travel-exploration',
-        title: 'Travel & Exploration',
-        categoryId: 'society-the-world',
-        order: 80,
-        durationLabel: '45–60 min',
-        hook: 'Explore the pull of elsewhere — discovery, escape, culture shock, tourist vs. traveller, and what a journey reveals.'
-      },
-      'compass:home-place': {
-        registryId: 'compass:home-place',
-        title: 'Home & Place',
-        categoryId: 'society-the-world',
-        order: 90,
-        durationLabel: '45–60 min',
-        hook: 'Talk about what makes somewhere home — neighbourhoods, roots and restlessness, the place you’d never leave and the one you’d never return to.'
-      },
-      /* =================== WORK & TIME (4) =================== */
-      'compass:work-purpose': {
-        registryId: 'compass:work-purpose',
-        title: 'Work & Purpose',
-        categoryId: 'work-time',
-        order: 10,
-        durationLabel: '45–60 min',
-        hook: 'Talk about what work means to people — vocation, duty, pride, or just a wage — and why the same job feels different to different people.'
-      },
-      'compass:workplace-dynamics-professionalism': {
-        registryId: 'compass:workplace-dynamics-professionalism',
-        title: 'Workplace Dynamics & Professionalism',
-        categoryId: 'work-time',
-        order: 20,
-        durationLabel: '45–60 min',
-        hook: 'Discuss hierarchy, office politics, what “professional” means, and the unwritten rules between colleagues.'
-      },
-      'compass:time-priorities': {
-        registryId: 'compass:time-priorities',
-        title: 'Time & Priorities',
-        categoryId: 'work-time',
-        order: 30,
-        durationLabel: '45–60 min',
-        hook: 'Talk about how time feels, waiting and lateness, busyness as status, and what people make time for — and what they don’t.'
-      },
-      'compass:habits-daily-routines': {
-        registryId: 'compass:habits-daily-routines',
-        title: 'Habits & Daily Routines',
-        categoryId: 'work-time',
-        order: 40,
-        durationLabel: '45–60 min',
-        hook: 'Talk about the texture of an ordinary day — the rituals you’d defend, the routine you didn’t know you had, how days differ across people and eras.'
-      },
-      /* ================= CULTURE & LIFE (6) ================= */
-      'compass:money-what-it-means': {
-        registryId: 'compass:money-what-it-means',
-        title: 'Money & What It Means',
-        categoryId: 'culture-life',
-        order: 10,
-        durationLabel: '45–60 min',
-        hook: 'Explore the social charge of money — why it’s taboo, splitting the bill, generosity vs. stinginess, and the windfall daydream.'
-      },
-      'compass:food-table': {
-        registryId: 'compass:food-table',
-        title: 'Food & The Table',
-        categoryId: 'culture-life',
-        order: 20,
-        durationLabel: '45–60 min',
-        hook: 'Explore food as memory and belonging — the dish that means home, hospitality, the awkward dinner, and the politics of who cooks and who’s fed.'
-      },
-      'compass:music-what-it-means': {
-        registryId: 'compass:music-what-it-means',
-        title: 'Music & What It Means',
-        categoryId: 'culture-life',
-        order: 30,
-        durationLabel: '45–60 min',
-        hook: 'Explore how music moves us and marks our lives — the song that takes you back, taste tribes, and the track you played to death.'
-      },
-      'compass:stories-screen': {
-        registryId: 'compass:stories-screen',
-        title: 'Stories & Screen',
-        categoryId: 'culture-life',
-        order: 40,
-        durationLabel: '45–60 min',
-        hook: 'Explore why story grips us — the characters we can’t forget, why endings matter, and the world you didn’t want to leave.'
-      },
-      'compass:sport-play-competition': {
-        registryId: 'compass:sport-play-competition',
-        title: 'Sport, Play & Competition',
-        categoryId: 'culture-life',
-        order: 50,
-        durationLabel: '45–60 min',
-        hook: 'Explore why humans play and compete — fandom and tribe, rivalry, winning and losing, and what being a good (or terrible) loser says.'
-      },
-      'compass:mortality-the-unknown': {
-        registryId: 'compass:mortality-the-unknown',
-        title: 'Mortality & The Unknown',
-        categoryId: 'culture-life',
-        order: 60,
-        durationLabel: '45–60 min',
-        hook: 'Explore how people face what they can’t know — attitudes to death across cultures, superstition and ritual, and the appeal of the unexplained.'
-      }
-    };
+    const COMPASS_CATEGORIES = COMPASS_CATALOG_DATA
+      ? COMPASS_CATALOG_DATA.getCompassCategories()
+      : [];
 
-    const COMPASS_AVAILABLE_SUBJECT_SLUGS = [
-      'communication-expression',
-      'body-language-emotions',
-      'personality-character-traits',
-      'family-belonging',
-      'travel-exploration',
-      'food-table'
-    ];
+    const COMPASS_CATALOG = COMPASS_CATALOG_DATA
+      ? COMPASS_CATALOG_DATA.getCompassCatalogMap()
+      : {};
+
+    const COMPASS_AVAILABLE_SUBJECT_SLUGS = COMPASS_CATALOG_DATA
+      ? COMPASS_CATALOG_DATA.getBuiltCompassSubjectSlugs()
+      : [];
 
     /* ================================================================
        REGISTRATION
@@ -2594,45 +2286,9 @@
     }
 
     function registerWithBridge() {
-      if (!Bridge) return;
-
-      try {
-        Bridge.upsertWorld({
-          registryId: 'compass',
-          world: 'compass',
-          type: 'world',
-          title: 'Compass',
-          description: 'Deep conversation subjects for thoughtful English, cultural reflection, and human communication.',
-          status: 'available',
-          launchUrl: new URL('./index.html', window.location.href).href
-        });
-      } catch (e) { }
-
-      Object.values(COMPASS_CATALOG).forEach(subject => {
-        try {
-          const slug = compassSubjectSlug(subject);
-          const isAvailable = COMPASS_AVAILABLE_SUBJECT_SLUGS.includes(slug);
-          const relativeLaunchUrl = isAvailable ? getCompassSubjectLaunchUrl(subject) : '';
-          const launchUrl = relativeLaunchUrl
-            ? new URL(relativeLaunchUrl, window.location.href).href
-            : '';
-
-          Bridge.upsertItem({
-            registryId: subject.registryId,
-            world: 'compass',
-            type: 'subject',
-            title: subject.title,
-            description: subject.hook || '',
-            hook: subject.hook || '',
-            categoryId: subject.categoryId || '',
-            categoryTitle: getCategoryTitle(subject.categoryId),
-            durationLabel: subject.durationLabel || '45–60 min',
-            order: subject.order || 0,
-            status: isAvailable ? 'available' : 'soon',
-            launchUrl: launchUrl
-          });
-        } catch (e) { }
-      });
+      if (window.AtlasContentRegistry && typeof AtlasContentRegistry.registerCompass === 'function') {
+        AtlasContentRegistry.registerCompass();
+      }
     }
 
     /* ================================================================
