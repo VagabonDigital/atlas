@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   ==========================================================================
-  COMPASS HUB V1 · SUBJECT LIBRARY
+  COMPASS HUB V1 · SUBJECT LIBRARY --- TEST
   SmartStudy™ Methodology
   --------------------------------------------------------------------------
   The reading room for the Compass world.
@@ -1983,10 +1983,23 @@
     /* ============================================================ RESPONSIVE */
     @media (max-width: 680px) {
 
+      html,
+      body {
+        background: var(--page-bg);
+      }
+
       body::before,
-      body::after,
+      body::after {
+        display: none;
+      }
+
       .hub-atmosphere-layer {
+        position: fixed;
         inset: -18vh -10vw;
+        transform: translate3d(0, 0, 0) scale(1.02);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        will-change: opacity, filter;
       }
 
       .spine {
