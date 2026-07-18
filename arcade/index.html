@@ -3227,7 +3227,9 @@
       const mode = (e.detail && e.detail.mode) || Bridge.readAppearanceMode();
       updateAppearanceButtons(mode);
     });
+    window.addEventListener('focus', refresh);
     window.addEventListener('resize', applyArcadeAtmosphereImage);
+
     window.addEventListener('pageshow', refresh);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
     window.addEventListener('storage', e => {
