@@ -16,7 +16,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tomorrow Got Weird</title>
-  <link rel="stylesheet" href="../../shared/atlas-search.css">
+  <link rel="stylesheet" href="../../shared/atlas-search.css?v=20260717-motion">
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛸</text></svg>">
   <script>
@@ -74,12 +74,6 @@
       --arcade-soft: rgba(240, 115, 72, 0.13);
       --shadow: 0 22px 65px rgba(0, 0, 0, 0.45);
       --shadow-soft: 0 10px 34px rgba(0, 0, 0, 0.3);
-    }
-
-    html.theme-changing *,
-    html.theme-changing *::before,
-    html.theme-changing *::after {
-      transition: background-color .32s ease, color .32s ease, border-color .32s ease, box-shadow .32s ease !important;
     }
 
     * {
@@ -247,7 +241,7 @@
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
-      transition: background .18s ease, color .18s ease, border-color .18s ease;
+      transition: background-color .18s ease, color .18s ease, border-color .18s ease;
     }
 
     .header-back:hover {
@@ -901,6 +895,8 @@
      JAVASCRIPT
      ============================================================ -->
   <script src="../../shared/atlas-bridge.js"></script>
+  <script src="../../shared/compass-catalog-data.js"></script>
+  <script src="../../shared/atlas-content-registry.js"></script>
   <script src="../../shared/atlas-search.js"></script>
   <script>
     /* ============================================================
@@ -1295,8 +1291,6 @@
       if (!Bridge) return;
       const current = Bridge.readAppearanceMode();
       const next = current === 'night' ? 'light' : 'night';
-      document.documentElement.classList.add('theme-changing');
-      setTimeout(() => document.documentElement.classList.remove('theme-changing'), 360);
       Bridge.setAppearanceMode(next);
       document.documentElement.dataset.theme = next;
       updateAppearanceButton(next);
