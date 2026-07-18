@@ -3,7 +3,11 @@
    Shared global search launcher for Atlas OS.
    Used by Atlas, Compass, Arcade, subjects, and games.
    ============================================================ */
-
+/* Shared overlay width — Search adopts this so it stays visually consistent
+   with the Atlas Session panel. Both overlays should read this same token
+   once the session panel opts in; --atlas-overlay-width falls back to 32rem
+   here on its own until that happens. */
+   
 .atlas-search-overlay {
     display: none;
     position: fixed;
@@ -16,23 +20,20 @@
     justify-content: center;
     padding: 4rem 1rem 2rem;
 }
-
 .atlas-search-overlay.open {
     display: flex;
     animation: atlasSearchFadeIn 0.15s ease;
 }
-
 .atlas-search-panel {
     background: var(--white, #ffffff);
     border: 1px solid var(--stone-light, #e8e2d9);
     border-radius: var(--radius-lg, 18px);
     width: 100%;
-    max-width: 560px;
+    max-width: var(--atlas-overlay-width, 32rem);
     box-shadow: var(--shadow-lg, 0 8px 32px rgba(30, 27, 22, 0.13));
     overflow: hidden;
     animation: atlasSearchSlideUp 0.2s cubic-bezier(0.34, 1.25, 0.64, 1);
 }
-
 .atlas-search-input-row {
     display: flex;
     align-items: center;
@@ -40,12 +41,10 @@
     padding: 0.9rem 1.1rem;
     border-bottom: 1px solid var(--stone-light, #e8e2d9);
 }
-
 .atlas-search-input-row svg {
     color: var(--stone-dark, #9a9083);
     flex-shrink: 0;
 }
-
 .atlas-search-input {
     flex: 1;
     border: none;
@@ -56,35 +55,34 @@
     color: var(--ink, #3d3830);
     min-width: 0;
 }
-
 .atlas-search-input::placeholder {
     color: var(--stone-dark, #9a9083);
 }
-
+/* Natural content height: the panel itself has no fixed height, it hugs its content.
+   This cap only bounds the results scroll region for long typed-result lists — the
+   resting state (Recent ≤3 + 3 "Go to" rows) sits well under it and never scrolls
+   on a normal desktop viewport. */
 .atlas-search-results {
-    max-height: 340px;
+    max-height: 420px;
     overflow-y: auto;
-    padding: 0.3rem 0;
+    padding: 0.3rem 0 0.4rem;
 }
-
 .atlas-search-group-label {
     font-size: 0.62rem;
     font-weight: 700;
     letter-spacing: 0.13em;
     text-transform: uppercase;
     color: var(--stone-dark, #9a9083);
-    padding: 0.65rem 1.1rem 0.3rem;
+    padding: 0.55rem 1.1rem 0.28rem;
 }
-
 .atlas-search-result {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.72rem 1.1rem;
+    padding: 0.64rem 1.1rem;
     cursor: pointer;
     transition: none;
 }
-
 /* Utility-list feedback should be immediate, independent of page theme motion. */
 .atlas-search-result::before,
 .atlas-search-result::after,
@@ -94,22 +92,30 @@
 .atlas-search-result-sub {
     transition: none;
 }
-
-.atlas-search-result:hover,
-.atlas-search-result.focused {
+/* Hover = passive pointer tint. Focus = keyboard-armed row, marked by an inset accent
+   rail that hover never gets, so "this fires on Enter" reads at a glance. */
+.atlas-search-result:hover {
     background: var(--accent-dim, #e8f4f3);
 }
-
+.atlas-search-result.focused {
+    background: var(--accent-dim, #e8f4f3);
+    box-shadow: inset 3px 0 0 0 var(--accent, #4a7c78);
+}
 .atlas-search-result.is-disabled {
     cursor: default;
     opacity: 0.62;
 }
-
 .atlas-search-result.is-disabled:hover,
 .atlas-search-result.is-disabled.focused {
     background: transparent;
+    box-shadow: none;
 }
-
+/* Planned/unbuilt Compass subjects: muted but still a real, clickable result — it
+   routes to the Compass hub rather than opening nothing. Kept distinct from
+   is-disabled, which is inert. */
+.atlas-search-result.is-planned {
+    opacity: 0.72;
+}
 .atlas-search-result-icon {
     width: 32px;
     height: 32px;
@@ -122,40 +128,32 @@
     align-items: center;
     justify-content: center;
 }
-
 .atlas-search-result-icon svg {
     width: 16px;
     height: 16px;
 }
-
-.atlas-search-result-icon-home {
-    background: rgba(var(--accent-pale-rgb, 214, 234, 232), 0.48);
-    color: var(--accent, #4a7c78);
-    border-color: rgba(var(--accent-rgb, 74, 124, 120), 0.22);
-}
-
+/* Destinations (Atlas / Compass / Arcade) share a quiet neutral icon so they read as a
+   set and stay subordinate to content. Colour is reserved for subjects and games. */
+.atlas-search-result-icon-home,
 .atlas-search-result-icon-world {
-    background: rgba(240, 235, 226, 0.82);
+    background: var(--cream-warm, #f0ebe2);
     color: var(--ink-light, #7a7268);
+    border-color: rgba(200, 191, 176, 0.48);
 }
-
 .atlas-search-result-icon-subject {
     background: rgba(var(--accent-pale-rgb, 214, 234, 232), 0.42);
     color: var(--accent, #4a7c78);
     border-color: rgba(var(--accent-rgb, 74, 124, 120), 0.24);
 }
-
 .atlas-search-result-icon-game {
     background: rgba(255, 236, 222, 0.72);
     color: #b85f45;
     border-color: rgba(184, 95, 69, 0.20);
 }
-
 .atlas-search-result-body {
     flex: 1;
     min-width: 0;
 }
-
 .atlas-search-result-title {
     font-size: 0.88rem;
     font-weight: 500;
@@ -164,7 +162,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
 .atlas-search-result-sub {
     font-size: 0.75rem;
     color: var(--stone-dark, #9a9083);
@@ -172,7 +169,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
 .atlas-search-empty {
     padding: 1.5rem 1.1rem;
     text-align: center;
@@ -180,78 +176,46 @@
     color: var(--ink-light, #7a7268);
     line-height: 1.6;
 }
-
-.atlas-search-hint {
-    padding: 0.55rem 1.1rem;
-    font-size: 0.72rem;
-    color: var(--stone-dark, #9a9083);
-    border-top: 1px solid var(--stone-light, #e8e2d9);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-}
-
-.atlas-search-hint kbd {
-    font-family: var(--font-body, system-ui, sans-serif);
-    font-size: 0.68rem;
-    color: var(--stone-dark, #9a9083);
-    background: var(--cream-warm, #f0ebe2);
-    border: 1px solid var(--stone-light, #e8e2d9);
-    border-radius: 4px;
-    padding: 0.1rem 0.4rem;
-}
-
 .nav-search-btn svg,
 .mobile-search-btn svg {
     pointer-events: none;
 }
-
 /* Night mode */
 html[data-theme="night"] .atlas-search-panel {
     background: #4c4237;
     border-color: rgba(255, 255, 255, 0.13);
 }
-
-html[data-theme="night"] .atlas-search-input-row,
-html[data-theme="night"] .atlas-search-hint {
+html[data-theme="night"] .atlas-search-input-row {
     border-color: rgba(255, 255, 255, 0.13);
 }
-
 html[data-theme="night"] .atlas-search-result-icon {
     background: rgba(70, 61, 51, 0.74);
     color: var(--accent-soft, #9fcec9);
     border-color: rgba(255, 255, 255, 0.13);
 }
-
 html[data-theme="night"] .atlas-search-result-icon-home,
+html[data-theme="night"] .atlas-search-result-icon-world {
+    background: rgba(70, 61, 51, 0.74);
+    color: var(--ink-light, #d6cabc);
+    border-color: rgba(255, 255, 255, 0.13);
+}
 html[data-theme="night"] .atlas-search-result-icon-subject {
     background: rgba(61, 98, 94, 0.58);
     color: var(--accent-soft, #9fcec9);
     border-color: rgba(131, 185, 179, 0.28);
 }
-
-html[data-theme="night"] .atlas-search-result-icon-world {
-    background: rgba(70, 61, 51, 0.74);
-    color: var(--ink-light, #d6cabc);
-}
-
 html[data-theme="night"] .atlas-search-result-icon-game {
     background: rgba(100, 63, 50, 0.58);
     color: #f0aa91;
     border-color: rgba(240, 170, 145, 0.22);
 }
-
-html[data-theme="night"] .atlas-search-result:hover,
-html[data-theme="night"] .atlas-search-result.focused {
+html[data-theme="night"] .atlas-search-result:hover {
     background: rgba(52, 79, 75, 0.72);
 }
-
-html[data-theme="night"] .atlas-search-hint kbd {
-    background: rgba(70, 61, 51, 0.74);
-    border-color: rgba(255, 255, 255, 0.13);
+html[data-theme="night"] .atlas-search-result.focused {
+    background: rgba(52, 79, 75, 0.72);
+    box-shadow: inset 3px 0 0 0 var(--accent-soft, #9fcec9);
 }
-
 /* Hub night utility surface — darker system overlay for hub search only */
 body[data-atlas-surface="hub"] {
     --atlas-utility-overlay-bg: rgba(7, 10, 9, 0.66);
@@ -268,144 +232,119 @@ body[data-atlas-surface="hub"] {
     --atlas-utility-game: #f0a58b;
     --atlas-utility-game-bg: rgba(176, 88, 61, 0.22);
 }
-
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-overlay {
     background: var(--atlas-utility-overlay-bg);
 }
-
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-panel {
     background: var(--atlas-utility-panel-bg);
     border-color: var(--atlas-utility-border);
     color: var(--atlas-utility-text);
     box-shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
 }
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-input-row,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-hint {
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-input-row {
     border-color: var(--atlas-utility-border);
     background: var(--atlas-utility-panel-low);
 }
-
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-input-row svg {
     color: var(--atlas-utility-muted);
 }
-
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-input {
     color: var(--atlas-utility-text);
 }
-
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-input::placeholder {
     color: var(--atlas-utility-muted);
 }
-
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-group-label,
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result-sub,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-empty,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-hint {
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-empty {
     color: var(--atlas-utility-muted);
 }
-
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result-title {
     color: var(--atlas-utility-text);
 }
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result:hover,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result.focused {
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result:hover {
     background: var(--atlas-utility-accent-bg);
 }
-
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result.focused {
+    background: var(--atlas-utility-accent-bg);
+    box-shadow: inset 3px 0 0 0 var(--atlas-utility-accent, #8bc9c1);
+}
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result-icon {
     background: var(--atlas-utility-panel-raised);
     color: var(--atlas-utility-muted);
     border-color: var(--atlas-utility-border);
 }
-
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result-icon-home,
+html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result-icon-world {
+    background: var(--atlas-utility-panel-raised);
+    color: var(--atlas-utility-muted);
+    border-color: var(--atlas-utility-border);
+}
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result-icon-subject {
     background: var(--atlas-utility-accent-bg);
     color: var(--atlas-utility-accent);
     border-color: rgba(139, 201, 193, 0.30);
 }
-
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-result-icon-game {
     background: var(--atlas-utility-game-bg);
     color: var(--atlas-utility-game);
     border-color: rgba(240, 165, 139, 0.26);
 }
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-hint kbd {
-    background: var(--atlas-utility-panel-raised);
-    border-color: var(--atlas-utility-border);
-    color: var(--atlas-utility-muted);
-}
-
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-results {
     scrollbar-width: thin;
     scrollbar-color: rgba(170, 180, 173, 0.42) transparent;
 }
-
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-results::-webkit-scrollbar {
     width: 10px;
 }
-
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-results::-webkit-scrollbar-track {
     background: transparent;
 }
-
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-results::-webkit-scrollbar-thumb {
     border: 3px solid transparent;
     border-radius: 999px;
     background: rgba(170, 180, 173, 0.32);
     background-clip: padding-box;
 }
-
 html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-results::-webkit-scrollbar-thumb:hover {
     background: rgba(170, 180, 173, 0.50);
     background-clip: padding-box;
 }
-
 /* Mobile */
 @media (max-width: 680px) {
     .atlas-search-overlay {
         padding: 2rem 0.75rem 1rem;
     }
 }
-
 /* Motion */
 @keyframes atlasSearchFadeIn {
     from {
         opacity: 0;
     }
-
     to {
         opacity: 1;
     }
 }
-
 @keyframes atlasSearchSlideUp {
     from {
         opacity: 0;
         transform: translateY(14px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
-
 @media (prefers-reduced-motion: reduce) {
     .atlas-search-overlay.open,
     .atlas-search-panel {
         animation: none !important;
     }
 }
-
 /* ============================================================
    SHARED MODAL / DRAWER SCROLL CONTAINMENT
    Stops scroll chaining from modal/drawer content into the page behind.
    ============================================================ */
-
 .atlas-search-overlay,
 .modal-overlay,
 .session-modal-overlay,
@@ -414,7 +353,6 @@ html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-search-results::-
 .vb-overlay {
     overscroll-behavior: contain;
 }
-
 .atlas-search-panel,
 .atlas-search-results,
 .modal-panel,
