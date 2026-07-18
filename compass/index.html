@@ -313,7 +313,7 @@
 
     .hub-atmosphere-layer {
       position: fixed;
-      inset: -12vh -8vw;
+      inset: 0;
       z-index: 0;
       pointer-events: none;
       background-size: cover;
@@ -1982,32 +1982,17 @@
 
     /* ============================================================ RESPONSIVE */
     @media (max-width: 680px) {
-
-      html,
-      body {
-        background: var(--page-bg);
-      }
-
-      body::before,
-      body::after {
-        display: none;
-      }
-
-      .hub-atmosphere-layer {
-        position: fixed;
-        inset: -18vh -10vw;
-        transform: translate3d(0, 0, 0) scale(1.02);
-        backface-visibility: hidden;
-        -webkit-backface-visibility: hidden;
-        will-change: opacity, filter;
-      }
-
       .spine {
         display: none !important;
       }
 
       .mobile-header {
         display: flex !important;
+      }
+
+      .hub-atmosphere-layer,
+      .drawer-settings-item {
+        display: none !important;
       }
 
       .hub-main {
@@ -2593,9 +2578,19 @@
       return 'url("' + String(url || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '")';
     }
 
+    function isMobileHubViewport() {
+      return window.matchMedia && window.matchMedia('(max-width: 680px)').matches;
+    }
+
     function applyCompassAtmosphereImage() {
       const layer = document.getElementById('hub-atmosphere-layer');
       if (!layer) return;
+
+      if (isMobileHubViewport()) {
+        layer.style.backgroundImage = '';
+        layer.classList.remove('visible');
+        return;
+      }
 
       const image = getCompassAtmosphereImage();
 
@@ -2619,6 +2614,8 @@
     }
 
     function openSettingsModal() {
+      if (isMobileHubViewport()) return;
+
       const mode = document.getElementById('compass-atmosphere-mode');
       const input = document.getElementById('compass-atmosphere-input');
 
@@ -3468,6 +3465,7 @@
       updateAppearanceButtons(mode);
     });
     window.addEventListener('focus', refresh);
+    window.addEventListener('resize', applyCompassAtmosphereImage);
     window.addEventListener('pageshow', refresh);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
     window.addEventListener('storage', e => {
