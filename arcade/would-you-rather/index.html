@@ -23,7 +23,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="../../shared/atlas-search.css">
+  <link rel="stylesheet" href="../../shared/atlas-search.css?v=20260717-motion">
   <!-- Anti-flash: read appearance before first paint -->
   <script>
     (function () {
@@ -73,13 +73,6 @@
       --hdr-bg: rgba(245, 243, 255, 0.94);
       --intro-bg: rgba(255, 255, 255, 0.88);
       --intro-border: rgba(45, 30, 90, 0.16);
-    }
-
-    html.theme-changing *,
-    html.theme-changing *::before,
-    html.theme-changing *::after {
-      transition: background-color 0.32s ease, color 0.32s ease,
-        border-color 0.32s ease, box-shadow 0.32s ease !important;
     }
 
     /* ════ RESET ════ */
@@ -150,7 +143,7 @@
       font-size: 0.76rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.18s;
+      transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
       white-space: nowrap;
       min-height: 34px;
       flex-shrink: 0;
@@ -221,7 +214,7 @@
       background: var(--surface);
       color: var(--muted);
       cursor: pointer;
-      transition: all 0.18s;
+      transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
       flex-shrink: 0;
     }
 
@@ -528,7 +521,13 @@
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.18s;
+      transition:
+        background-color 0.18s ease,
+        color 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.18s ease,
+        opacity 0.18s ease;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -656,7 +655,7 @@
       border: none;
       border-radius: var(--radius);
       cursor: pointer;
-      transition: all 0.18s;
+      transition: box-shadow 0.18s ease, transform 0.18s ease;
       box-shadow: 0 4px 20px rgba(255, 214, 0, 0.3);
     }
 
@@ -679,7 +678,7 @@
       padding: 12px 24px;
       border-radius: 100px;
       opacity: 0;
-      transition: all 0.3s;
+      transition: opacity 0.3s ease, transform 0.3s ease;
       z-index: 999;
       white-space: nowrap;
       pointer-events: none;
@@ -843,6 +842,8 @@
      SCRIPTS
    ══════════════════════════════ -->
   <script src="../../shared/atlas-bridge.js"></script>
+  <script src="../../shared/compass-catalog-data.js"></script>
+  <script src="../../shared/atlas-content-registry.js"></script>
   <script src="../../shared/atlas-search.js"></script>
   <script>
     'use strict';
@@ -959,40 +960,40 @@
       } catch (e) { return null; }
     }
 
-function saveState() {
-  if (!session) return;
+    function saveState() {
+      if (!session) return;
 
-  const timestamp = Date.now();
-  const completedCount = usedCount();
-  const isComplete = completedCount === TOTAL_Q;
+      const timestamp = Date.now();
+      const completedCount = usedCount();
+      const isComplete = completedCount === TOTAL_Q;
 
-  completedAt = isComplete
-    ? (completedAt || timestamp)
-    : null;
+      completedAt = isComplete
+        ? (completedAt || timestamp)
+        : null;
 
-  Bridge.upsertSessionState(
-    session.id,
-    REGISTRY_ID,
-    {
-      status: isComplete
-        ? 'complete'
-        : 'in-progress',
+      Bridge.upsertSessionState(
+        session.id,
+        REGISTRY_ID,
+        {
+          status: isComplete
+            ? 'complete'
+            : 'in-progress',
 
-      completedAt,
+          completedAt,
 
-      currentIndex,
-      currentLabel: 'last question',
-      used,
+          currentIndex,
+          currentLabel: 'last question',
+          used,
 
-      progress: {
-        covered: completedCount,
-        total: TOTAL_Q
-      },
+          progress: {
+            covered: completedCount,
+            total: TOTAL_Q
+          },
 
-      lastTouchedAt: timestamp
+          lastTouchedAt: timestamp
+        }
+      );
     }
-  );
-}
 
     function touchActivity() {
       try {
@@ -1023,8 +1024,6 @@ function saveState() {
     function toggleAppearance() {
       const cur = Bridge.readAppearanceMode();
       const next = cur === 'night' ? 'light' : 'night';
-      document.documentElement.classList.add('theme-changing');
-      setTimeout(() => document.documentElement.classList.remove('theme-changing'), 360);
       Bridge.setAppearanceMode(next);
       document.documentElement.dataset.theme = next;
       updateAppearanceBtn(next);
@@ -1078,9 +1077,9 @@ function saveState() {
     }
 
     function resetDeck() {
-used = {};
-currentIndex = -1;
-completedAt = null;
+      used = {};
+      currentIndex = -1;
+      completedAt = null;
       updateRemaining();
       showToast('Deck reset');
       saveState();
@@ -1200,21 +1199,21 @@ completedAt = null;
 
       // Register with Bridge
       try {
-Bridge.upsertItem({
-  registryId: REGISTRY_ID,
-  world: 'arcade',
-  type: 'game',
-  title: 'Would You Rather',
-  premise: 'Choose between impossible options and explain what made you decide.',
-  status: 'available',
-  unitLabel: 'Questions',
-  total: TOTAL_Q,
-  formatLabel: 'Choices',
-  mark: '🤔',
-  accent: '#0369a1',
-  accentLight: '#e0f2fe',
-  launchUrl: new URL('./index.html', window.location.href).href
-});
+        Bridge.upsertItem({
+          registryId: REGISTRY_ID,
+          world: 'arcade',
+          type: 'game',
+          title: 'Would You Rather',
+          premise: 'Choose between impossible options and explain what made you decide.',
+          status: 'available',
+          unitLabel: 'Questions',
+          total: TOTAL_Q,
+          formatLabel: 'Choices',
+          mark: '🤔',
+          accent: '#0369a1',
+          accentLight: '#e0f2fe',
+          launchUrl: new URL('./index.html', window.location.href).href
+        });
       } catch (e) { }
 
       // Restore Bridge state if exists, but always show the landing first.
@@ -1235,10 +1234,10 @@ Bridge.upsertItem({
       }
 
       // Fresh start — show intro
-used = {};
-currentIndex = -1;
-completedAt = null;
-updateRemaining();
+      used = {};
+      currentIndex = -1;
+      completedAt = null;
+      updateRemaining();
     }
 
     /* ================================================================
