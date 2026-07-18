@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   ==========================================================================
-  ARCADE HUB V1 · GAME LIBRARY -- TEST
+  ARCADE HUB V1 · GAME LIBRARY
   SmartStudy™ Methodology
   --------------------------------------------------------------------------
   The improv studio floor. Fast, spontaneous, low-friction.
@@ -1906,6 +1906,57 @@
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
         will-change: opacity, filter;
+      }
+
+      .library-zone,
+      .continue-card,
+      .game-card {
+        contain: layout paint;
+      }
+
+      .library-zone {
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.64) inset,
+          0 10px 28px rgba(58, 36, 63, 0.055);
+      }
+
+      .game-card,
+      .continue-card {
+        transform: none !important;
+        will-change: auto;
+      }
+
+      .game-card:hover,
+      .continue-card:hover {
+        transform: none !important;
+      }
+
+      .game-card {
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.62) inset,
+          0 6px 18px rgba(58, 36, 63, 0.045);
+      }
+
+      .game-card.is-soon,
+      .game-card.is-soon:hover {
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.48);
+      }
+
+      html[data-theme="night"] .library-zone {
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.035) inset,
+          0 10px 30px rgba(0, 0, 0, 0.22);
+      }
+
+      html[data-theme="night"] .game-card {
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.04) inset,
+          0 7px 20px rgba(0, 0, 0, 0.20);
+      }
+
+      html[data-theme="night"] .game-card.is-soon,
+      html[data-theme="night"] .game-card.is-soon:hover {
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
       }
 
       .spine {
