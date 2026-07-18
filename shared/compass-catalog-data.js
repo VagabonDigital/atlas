@@ -148,6 +148,7 @@
             title: 'Humour & Wit',
             categoryId: 'people-relationships',
             order: 90,
+            available: true,
             hook: 'Explore why people find different things funny, how humour bonds or wounds, and why the line between a joke and an insult moves.'
         },
         {
@@ -229,6 +230,7 @@
             title: 'Work & Purpose',
             categoryId: 'work-time',
             order: 10,
+            available: true,
             hook: 'Talk about what work means to people — vocation, duty, pride, or just a wage — and why the same job feels different to different people.'
         },
         {
