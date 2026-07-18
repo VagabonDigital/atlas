@@ -1321,11 +1321,11 @@
     .subject-card {
       display: flex;
       flex-direction: column;
-      background: rgba(255, 253, 249, 0.78);
-      border: 1px solid rgba(173, 160, 143, 0.3);
+      background: rgba(255, 253, 249, 0.90);
+      border: 1px solid rgba(173, 160, 143, 0.34);
       border-radius: 20px;
       padding: 1.4rem 1.45rem 1.3rem;
-      box-shadow: 0 10px 28px rgba(49, 42, 32, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.64);
+      box-shadow: 0 12px 32px rgba(49, 42, 32, 0.065), inset 0 1px 0 rgba(255, 255, 255, 0.70);
       backdrop-filter: blur(12px) saturate(1.06);
       cursor: pointer;
       transition: var(--t);
@@ -1345,6 +1345,14 @@
       background: linear-gradient(90deg, var(--accent), var(--accent-soft));
       opacity: 0;
       transition: opacity var(--t);
+    }
+
+    .subject-card[role="button"] {
+      border-color: rgba(var(--accent-rgb), 0.24);
+    }
+
+    .subject-card[role="button"]::after {
+      opacity: 0.32;
     }
 
     .subject-card:hover {
@@ -1390,6 +1398,20 @@
 
     .subject-card:not([role="button"]):hover::after {
       opacity: 0;
+    }
+
+    .subject-card:not([role="button"]) .subject-card-title {
+      color: var(--ink);
+      opacity: 0.76;
+    }
+
+    .subject-card:not([role="button"]) .subject-card-hook {
+      color: var(--stone-dark);
+      opacity: 0.82;
+    }
+
+    .subject-card:not([role="button"]) .btn-launch.is-soon {
+      opacity: 0.72;
     }
 
     .subject-card-header {
