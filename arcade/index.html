@@ -2439,7 +2439,14 @@
     function resolveWorldLaunchUrl(reg, worldId) {
       const worlds = reg.worlds || {};
       const w = worlds[worldId] || Object.values(worlds).find(x => x && (x.registryId === worldId || x.world === worldId));
-      return (w && w.launchUrl) ? w.launchUrl : null;
+
+      if (!w || !w.launchUrl) return null;
+
+      if (window.AtlasSearch && typeof AtlasSearch.resolveAtlasUrl === 'function') {
+        return AtlasSearch.resolveAtlasUrl(w.launchUrl);
+      }
+
+      return w.launchUrl;
     }
 
     /* ================================================================
