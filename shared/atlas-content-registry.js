@@ -2,13 +2,15 @@
 // ATLAS CONTENT REGISTRY
 // Seeds searchable/catalog metadata into AtlasBridge.
 //
+// Reads:
+// - window.CompassCatalogData
+//
 // Owns:
-// - world catalog metadata
-// - subject/game registry seeding
+// - world/item registry seeding
 // - stale Compass subject cleanup
 //
 // Does NOT own:
-// - UI rendering
+// - Compass hub rendering
 // - sessions/progress
 // - lesson content
 // - search modal behavior
@@ -32,69 +34,79 @@
         launchUrl: 'compass/index.html'
     };
 
-    const COMPASS_CATEGORIES = {
-        'you-your-mind': 'You & Your Mind',
-        'people-relationships': 'People & Relationships',
-        'society-the-world': 'Society & the World',
-        'work-time': 'Work & Time',
-        'culture-life': 'Culture & Life'
-    };
-
-    const BUILT_COMPASS_SUBJECTS = new Set([
-        'communication-expression',
-        'body-language-emotions',
-        'personality-character-traits',
-        'family-belonging',
-        'travel-exploration',
-        'food-table'
-    ]);
-
-    const COMPASS_SUBJECTS = [
-        ['personality-character-traits', 'Personality & Character Traits', 'you-your-mind', 10],
-        ['identity-self-image', 'Identity & Self-Image', 'you-your-mind', 20],
-        ['thinking-reasoning', 'Thinking & Reasoning', 'you-your-mind', 30],
-        ['mindset-motivation', 'Mindset & Motivation', 'you-your-mind', 40],
-        ['dreams-ambitions', 'Dreams & Ambitions', 'you-your-mind', 50],
-        ['personal-growth-reflection', 'Personal Growth & Reflection', 'you-your-mind', 60],
-        ['creativity-imagination', 'Creativity & Imagination', 'you-your-mind', 70],
-        ['health-wellbeing', 'Health & Wellbeing', 'you-your-mind', 80],
-
-        ['communication-expression', 'Communication & Expression', 'people-relationships', 10],
-        ['body-language-emotions', 'Body Language & Emotions', 'people-relationships', 20],
-        ['relationships-connection', 'Relationships & Connection', 'people-relationships', 30],
-        ['love-romance', 'Love & Romance', 'people-relationships', 40],
-        ['trust-loyalty', 'Trust & Loyalty', 'people-relationships', 50],
-        ['conflict-resolution', 'Conflict & Resolution', 'people-relationships', 60],
-        ['cultural-etiquette-social-norms', 'Cultural Etiquette & Social Norms', 'people-relationships', 70],
-        ['conformity-rebellion', 'Conformity & Rebellion', 'people-relationships', 80],
-        ['humour-wit', 'Humour & Wit', 'people-relationships', 90],
-        ['family-belonging', 'Family & Belonging', 'people-relationships', 100],
-
-        ['justice-ethics', 'Justice & Ethics', 'society-the-world', 10],
-        ['society-values', 'Society & Values', 'society-the-world', 20],
-        ['media-influence', 'Media & Influence', 'society-the-world', 30],
-        ['history-human-experience', 'History & Human Experience', 'society-the-world', 40],
-        ['environment-sustainability', 'Environment & Sustainability', 'society-the-world', 50],
-        ['technology-innovation', 'Technology & Innovation', 'society-the-world', 60],
-        ['education-learning', 'Education & Learning', 'society-the-world', 70],
-        ['travel-exploration', 'Travel & Exploration', 'society-the-world', 80],
-        ['home-place', 'Home & Place', 'society-the-world', 90],
-
-        ['work-purpose', 'Work & Purpose', 'work-time', 10],
-        ['workplace-dynamics-professionalism', 'Workplace Dynamics & Professionalism', 'work-time', 20],
-        ['time-priorities', 'Time & Priorities', 'work-time', 30],
-        ['habits-daily-routines', 'Habits & Daily Routines', 'work-time', 40],
-
-        ['money-what-it-means', 'Money & What It Means', 'culture-life', 10],
-        ['food-table', 'Food & The Table', 'culture-life', 20],
-        ['music-what-it-means', 'Music & What It Means', 'culture-life', 30],
-        ['stories-screen', 'Stories & Screen', 'culture-life', 40],
-        ['sport-play-competition', 'Sport, Play & Competition', 'culture-life', 50],
-        ['mortality-the-unknown', 'Mortality & The Unknown', 'culture-life', 60]
-    ];
-
     function getBridge() {
         return window.AtlasBridge || null;
+    }
+
+    function getCompassCatalogData() {
+        const Catalog = window.CompassCatalogData;
+
+        if (!Catalog || typeof Catalog.getCompassSubjects !== 'function') {
+            return {
+                categories: [],
+                subjects: []
+            };
+        }
+
+        return {
+            categories: typeof Catalog.getCompassCategories === 'function'
+                ? Catalog.getCompassCategories()
+                : [],
+            subjects: Catalog.getCompassSubjects()
+        };
+    }
+
+    function getCategoryTitleMap(categories) {
+        return (Array.isArray(categories) ? categories : []).reduce((map, category) => {
+            if (category && category.id) {
+                map[category.id] = category.title || 'Compass';
+            }
+
+            return map;
+        }, {});
+    }
+
+    function normalizeSubjectForRegistry(subject, categoryTitles) {
+        if (!subject || typeof subject !== 'object') return null;
+
+        const id = String(
+            subject.id ||
+            String(subject.registryId || '').replace(/^compass:/, '')
+        ).trim();
+
+        if (!id) return null;
+
+        const registryId = subject.registryId || `compass:${id}`;
+        const title = subject.title || subject.navTitle || id;
+        const status = subject.status === 'available' ? 'available' : 'soon';
+        const categoryId = subject.categoryId || '';
+        const categoryTitle = subject.categoryTitle || categoryTitles[categoryId] || 'Compass';
+
+        const launchUrl = status === 'available'
+            ? (subject.launchUrl || `compass/${id}/index.html`)
+            : '';
+
+        const keywords = Array.isArray(subject.keywords)
+            ? subject.keywords
+            : [
+                title,
+                categoryTitle,
+                status === 'available' ? 'available' : 'coming soon'
+            ];
+
+        return {
+            registryId,
+            world: 'compass',
+            type: 'subject',
+            id,
+            title,
+            navTitle: subject.navTitle || title,
+            status,
+            launchUrl,
+            categoryId,
+            categoryTitle,
+            keywords
+        };
     }
 
     function pruneStaleCompassSubjects(Bridge, validIds) {
@@ -155,32 +167,22 @@
 
         Bridge.upsertWorld(COMPASS_WORLD);
 
+        const { categories, subjects } = getCompassCatalogData();
+
+        if (!Array.isArray(subjects) || !subjects.length) {
+            return false;
+        }
+
+        const categoryTitles = getCategoryTitleMap(categories);
         const validIds = new Set();
 
-        COMPASS_SUBJECTS.forEach(([id, title, categoryId, order]) => {
-            const registryId = `compass:${id}`;
-            const built = BUILT_COMPASS_SUBJECTS.has(id);
-            const categoryTitle = COMPASS_CATEGORIES[categoryId] || 'Compass';
+        subjects.forEach(subject => {
+            const item = normalizeSubjectForRegistry(subject, categoryTitles);
 
-            validIds.add(registryId);
+            if (!item) return;
 
-            Bridge.upsertItem({
-                registryId,
-                world: 'compass',
-                type: 'subject',
-                id,
-                title,
-                status: built ? 'available' : 'soon',
-                launchUrl: built ? `compass/${id}/index.html` : '',
-                categoryId,
-                categoryTitle,
-                order,
-                keywords: [
-                    title,
-                    categoryTitle,
-                    built ? 'available' : 'coming soon'
-                ]
-            });
+            validIds.add(item.registryId);
+            Bridge.upsertItem(item);
         });
 
         pruneStaleCompassSubjects(Bridge, validIds);
