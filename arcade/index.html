@@ -316,7 +316,9 @@
       background-repeat: no-repeat;
       opacity: 0;
       filter: blur(2px) saturate(0.9) contrast(0.9);
-      transform: scale(1.012);
+      transform: translate3d(0, 0, 0) scale(1.012);
+      backface-visibility: hidden;
+      will-change: opacity, transform;
       transition: opacity 0.2s ease;
     }
 
@@ -915,7 +917,6 @@
       font-weight: 500;
       color: var(--ink-mid);
       box-shadow: 0 7px 18px rgba(58, 36, 63, 0.05);
-      backdrop-filter: blur(10px);
     }
 
     html[data-theme="night"] .hub-meta-chip {
@@ -970,7 +971,6 @@
         0 1px 0 rgba(255, 255, 255, 0.76) inset,
         0 18px 46px rgba(74, 42, 63, 0.105),
         0 6px 18px rgba(var(--arcade-rgb), 0.045);
-      backdrop-filter: blur(14px) saturate(1.08);
     }
 
     html[data-theme="night"] .continue-card {
@@ -1112,7 +1112,6 @@
       border-radius: 30px;
       background-color: rgba(252, 248, 242, 0.86);
       box-shadow: 0 20px 58px rgba(58, 36, 63, 0.075), inset 0 1px 0 rgba(255, 255, 255, 0.64);
-      backdrop-filter: blur(18px) saturate(0.94);
     }
 
     html[data-theme="night"] .library-zone {
