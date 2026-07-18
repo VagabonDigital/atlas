@@ -454,13 +454,13 @@ const clCards = [
             `Where do you draw the line between what feels shared and what feels private — at a meal, or anywhere?`
         ],
         upgrade: {
-            term: `muck in`,
+            term: `dig in`,
             type: `phrasal verb`,
-            definition: `To join in and share a task or situation without fuss or special treatment.`,
-            ordinary: `“There were no separate portions — you just joined in with everyone else and helped yourself.”`,
-            upgraded: `“There were no separate portions — you just mucked in with everyone else.”`,
+            definition: `To start eating, especially with energy or without waiting too formally.`,
+            ordinary: `“There were no separate portions — everyone just started eating from the middle.”`,
+            upgraded: `“There were no separate portions — everyone just dug in.”`,
             priority: 'standard',
-            atlasPrompt: `When did you have to muck in with a group and get stuck into something together?`
+            atlasPrompt: `When do you feel comfortable just digging in, and when do you wait for someone else to start?`
         }
     }
 ];
