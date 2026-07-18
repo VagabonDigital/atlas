@@ -8,7 +8,7 @@
   and refusal, who cooks and who is fed, feeding as love and power, scarcity
   and plenty, and the meals that stay with us. Built for tutor-led
   conversation, shared-screen teaching, real disagreement, and sharper speech.
-  Compass active subject · contentVersion 3.0.1
+  Compass active subject · contentVersion 1.0.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
