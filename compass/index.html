@@ -1982,6 +1982,22 @@
 
     /* ============================================================ RESPONSIVE */
     @media (max-width: 680px) {
+      html,
+      body {
+        background: var(--page-bg);
+      }
+
+      body::before,
+      body::after {
+        display: none !important;
+        content: none !important;
+      }
+
+      .hub-atmosphere-layer,
+      .drawer-settings-item {
+        display: none !important;
+      }
+
       .spine {
         display: none !important;
       }
