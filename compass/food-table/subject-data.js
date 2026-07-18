@@ -17,7 +17,7 @@
 */
 
 const MODULE = {
-    id: 'food-and-the-table',
+    id: 'food-table',
     schemaVersion: 2,
     contentVersion: '1.0.0',
     title: 'Food & The Table',
