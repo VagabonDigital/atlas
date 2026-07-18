@@ -385,7 +385,7 @@ const clCards = [
         title: `Breaking Bread`,
         teaser: `You don't harm someone you've just eaten with.`,
         context: `Across many cultures, sharing a meal has been a way to seal an agreement or build a bond. Deals, agreements, and peace between enemies have long been marked by eating together, and some traditions treated harming someone you had shared food with as a serious wrong. The meal did work that words alone could not.`,
-        mainQuestion: `Does sitting down to eat with someone actually change how you feel about them — or is that just a comforting story? Would you share a meal with someone you'd fallen out with?`,
+        mainQuestion: `Can sharing a meal actually change how you feel about someone — or is that just a comforting story? Would you sit down to eat with someone you'd fallen out with?`,
         followTheThread: [
             `Has a shared meal ever changed one of your own relationships, for better or worse?`,
             `Why might eating together do something that talking alone cannot?`
@@ -461,6 +461,48 @@ const clCards = [
             upgraded: `“There were no separate portions — everyone just dug in.”`,
             priority: 'standard',
             atlasPrompt: `When do you feel comfortable just digging in, and when do you wait for someone else to start?`
+        }
+    },
+    {
+        id: 'cl-carried-across-borders',
+        contextLine: `Food and migration`,
+        title: `What You Take With You`,
+        teaser: `Leave everything behind — but not this dish.`,
+        context: `For people who have left the place they grew up in, food is often the strongest thread back. A recipe carried across a border, an ingredient hunted down in a foreign city, a smell that fills a small kitchen and suddenly means home — these can hold on to a connection with a place, and with people, long after much else has changed or faded.`,
+        mainQuestion: `Imagine you had moved far from where you grew up and could keep the cooking of only one dish. Which would you choose — and what exactly would you be afraid of losing if you couldn't get it right?`,
+        followTheThread: [
+            `Can a recipe really carry a place with it, or does something always get left at the border?`,
+            `Do you know someone who keeps a taste of somewhere else alive by cooking it — or a dish that reminds you of a person more than a place?`
+        ],
+        upgrade: {
+            term: `a taste of home`,
+            type: `phrase`,
+            definition: `Something, often a food, that strongly reminds you of where you come from.`,
+            ordinary: `“That little dish reminded me so much of where I grew up.”`,
+            upgraded: `“That little dish was a real taste of home.”`,
+            priority: 'standard',
+            atlasPrompt: `When have you found a taste of home somewhere unexpected — a shop, a song, or a person?`
+        }
+    },
+    {
+        id: 'cl-a-separate-table',
+        contextLine: `Who eats together`,
+        title: `A Separate Table`,
+        teaser: `Some people belong at this table. Some are sat elsewhere.`,
+        context: `In many societies, who is allowed to share a table has marked who belongs and who does not. Servants often ate apart from the families they served, children were sat at their own table, and in some places strict rules decided who could eat together at all. To share a table was to treat someone as an equal — and to seat them elsewhere was a quiet way of drawing a line.`,
+        mainQuestion: `Somewhere you're a guest, you notice certain people are quietly kept at a separate table. Do you sit where you're placed and say nothing, or make a point of crossing the line?`,
+        followTheThread: [
+            `When is a separate table simply practical — children, staff, a huge group — and when is it a way of saying who counts?`,
+            `Have you seen a table used to pull someone in who didn't expect it, or to leave someone out — at a meal, or anywhere else?`
+        ],
+        upgrade: {
+            term: `make room for someone`,
+            type: `phrase`,
+            definition: `To create space for someone so they can join or be included.`,
+            ordinary: `“When I turned up unexpectedly, they found me a space and included me straight away.”`,
+            upgraded: `“When I turned up unexpectedly, they made room for me straight away.”`,
+            priority: 'key',
+            atlasPrompt: `When has a group made room for you — at work, in a friendship, or somewhere you didn't expect to fit in?`
         }
     }
 ];
