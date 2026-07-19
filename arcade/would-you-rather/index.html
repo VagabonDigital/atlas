@@ -1151,6 +1151,7 @@
       const timestamp = Date.now();
       const completedCount = usedCount();
       const isComplete = completedCount === TOTAL_Q;
+      const hasProgress = completedCount > 0;
 
       completedAt = isComplete
         ? (completedAt || timestamp)
@@ -1162,12 +1163,14 @@
         {
           status: isComplete
             ? 'complete'
-            : 'in-progress',
+            : hasProgress
+              ? 'in-progress'
+              : 'available',
 
           completedAt,
 
           currentIndex,
-          currentLabel: 'last question',
+          currentLabel: hasProgress ? 'last question' : null,
           used,
 
           progress: {
@@ -1448,9 +1451,14 @@
 
         updateRemaining();
 
+        const savedProgress = saved.progress || {};
+        const covered = Number(savedProgress.covered) || 0;
         const btn = document.getElementById('btn-start');
-        if (btn && saved.status === 'in-progress') {
-          btn.textContent = '⚡ Resume Game';
+
+        if (btn) {
+          btn.textContent = covered > 0
+            ? '⚡ Resume Game'
+            : '⚡ Start Game';
         }
 
         return;
