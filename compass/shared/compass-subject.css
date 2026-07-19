@@ -616,41 +616,37 @@
     .nav-session-indicator {
         display: flex;
         align-items: center;
-        gap: 0.42rem;
+        gap: 0.4rem;
         min-width: 0;
-        max-width: clamp(7.4rem, 12vw, 9.5rem);
-        font-size: 0.74rem;
-        font-weight: 500;
-        color: var(--ink-light);
-        padding: 0.42rem 0.78rem;
-        border-radius: 999px;
+        max-width: 170px;
+        padding: 0.48rem 0.9rem;
+        overflow: hidden;
         border: 1px solid rgba(200, 191, 176, 0.42);
+        border-radius: 999px;
         background: rgba(255, 255, 255, 0.58);
+        color: var(--ink-light);
+        font-family: var(--font-body);
+        font-size: 0.78rem;
+        font-weight: 500;
+        white-space: nowrap;
         cursor: pointer;
         transition: var(--transition);
-        white-space: nowrap;
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(30, 27, 22, 0.045);
     }
 
     .nav-session-indicator:hover {
-        background: rgba(255, 255, 255, 0.86);
-        border-color: rgba(var(--accent-rgb), 0.28);
-        color: var(--accent);
-        box-shadow: 0 3px 10px rgba(30, 27, 22, 0.07);
+        border-color: var(--accent);
+        color: var(--ink);
+        box-shadow: var(--shadow-sm);
     }
 
     .nav-session-indicator svg {
         flex-shrink: 0;
-        opacity: 0.72;
     }
 
     .nav-session-indicator span {
         min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
-        white-space: nowrap;
-        display: block;
     }
 
     /* ============================================================
