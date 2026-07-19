@@ -492,7 +492,12 @@ html[data-theme="night"] .atlas-session-row.is-active {
     background: rgba(52, 79, 75, 0.52);
 }
 
-/* Hub night utility surface — darker system overlay for hub session management only */
+/* ============================================================
+   NIGHT UTILITY SURFACES (HUB & ARCADE)
+   Darker system overlays for session management.
+   ============================================================ */
+
+/* Hub Theme Tokens */
 body[data-atlas-surface="hub"] {
     --atlas-utility-overlay-bg: rgba(7, 10, 9, 0.66);
     --atlas-utility-panel-bg: #1f2421;
@@ -505,158 +510,186 @@ body[data-atlas-surface="hub"] {
     --atlas-utility-faint: #7d887f;
     --atlas-utility-accent: #8bc9c1;
     --atlas-utility-accent-bg: rgba(70, 125, 116, 0.26);
+    --atlas-utility-active-border: rgba(139, 201, 193, 0.45);
+    --atlas-utility-icon-bg: rgba(70, 125, 116, 0.22);
+    --atlas-utility-icon-border: rgba(139, 201, 193, 0.30);
+    --atlas-utility-badge-bg: rgba(139, 201, 193, 0.92);
+    --atlas-utility-badge-text: #14201d;
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-overlay {
+/* Arcade Theme Tokens (Cyan/Noir) */
+body[data-atlas-surface="arcade"] {
+    --accent: #0090b8;
+    --accent-rgb: 0, 144, 184;
+    --atlas-utility-overlay-bg: rgba(6, 11, 17, 0.7);
+    --atlas-utility-panel-bg: #131c28;
+    --atlas-utility-panel-raised: #1a2436;
+    --atlas-utility-panel-low: #090e15;
+    --atlas-utility-border: rgba(255, 255, 255, 0.14);
+    --atlas-utility-border-strong: rgba(0, 222, 255, 0.35);
+    --atlas-utility-text: #ffffff;
+    --atlas-utility-muted: #8aa0b8;
+    --atlas-utility-faint: #5a7090;
+    --atlas-utility-accent: #00deff;
+    --atlas-utility-accent-bg: rgba(0, 222, 255, 0.07);
+    --atlas-utility-active-border: rgba(0, 222, 255, 0.45);
+    --atlas-utility-icon-bg: rgba(0, 200, 240, 0.15);
+    --atlas-utility-icon-border: rgba(0, 222, 255, 0.30);
+    --atlas-utility-badge-bg: rgba(0, 222, 255, 0.92);
+    --atlas-utility-badge-text: #060b11;
+}
+
+/* Apply Utility Tokens to Both Surfaces in Night Mode */
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-overlay {
     background: var(--atlas-utility-overlay-bg);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-panel {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-panel {
     background: var(--atlas-utility-panel-bg);
     border-color: var(--atlas-utility-border);
     color: var(--atlas-utility-text);
     box-shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-header {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-header {
     background: var(--atlas-utility-panel-low);
     border-color: var(--atlas-utility-border);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-header-label,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-search-label,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-create label,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-search-empty {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-header-label,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-search-label,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-create label,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-search-empty {
     color: var(--atlas-utility-muted);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage h2,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-active-name,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-context-title,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-name {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-manage h2,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-active-name,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-context-title,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-row-name {
     color: var(--atlas-utility-text);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-context-description {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-context-description {
     color: var(--atlas-utility-muted);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-close {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-close {
     color: var(--atlas-utility-muted);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-close:hover,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-close:focus-visible {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-close:hover,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-close:focus-visible {
     background: var(--atlas-utility-panel-raised);
     border-color: var(--atlas-utility-border-strong);
     color: var(--atlas-utility-text);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-search,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-create input {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-search,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-create input {
     background: var(--atlas-utility-panel-low);
     border-color: var(--atlas-utility-border-strong);
     color: var(--atlas-utility-text);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-search::placeholder,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-create input::placeholder {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-search::placeholder,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-create input::placeholder {
     color: var(--atlas-utility-faint);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-row {
     background: var(--atlas-utility-panel-raised);
     border-color: var(--atlas-utility-border);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row.is-active {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-row.is-active {
     background: var(--atlas-utility-accent-bg);
-    border-color: rgba(139, 201, 193, 0.45);
+    border-color: var(--atlas-utility-active-border);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-icon {
-    background: rgba(70, 125, 116, 0.22);
-    border-color: rgba(139, 201, 193, 0.30);
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-row-icon {
+    background: var(--atlas-utility-icon-bg);
+    border-color: var(--atlas-utility-icon-border);
     color: var(--atlas-utility-accent);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-active-badge {
-    background: rgba(139, 201, 193, 0.92);
-    color: #14201d;
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-active-badge {
+    background: var(--atlas-utility-badge-bg);
+    color: var(--atlas-utility-badge-text);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-action,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-more[aria-expanded="true"] {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-row-action,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-row-more[aria-expanded="true"] {
     background: var(--atlas-utility-panel-low);
     border-color: var(--atlas-utility-border);
     color: var(--atlas-utility-muted);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-action.is-switch,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage-link,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-back {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-row-action.is-switch,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-manage-link,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-back {
     color: var(--atlas-utility-accent);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-more {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-row-more {
     color: var(--atlas-utility-faint);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-more:hover,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-more:focus-visible {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-row-more:hover,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-row-more:focus-visible {
     background: var(--atlas-utility-panel-low);
     border-color: var(--atlas-utility-border-strong);
     color: var(--atlas-utility-accent);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-secondary {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-row-secondary {
     background: rgba(255, 255, 255, 0.025);
     border-top-color: var(--atlas-utility-border);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-secondary .atlas-session-row-action {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-row-secondary .atlas-session-row-action {
     background: rgba(255, 255, 255, 0.045);
     border-color: var(--atlas-utility-border);
     color: var(--atlas-utility-muted);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-create {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-create {
     border-top-color: var(--atlas-utility-border);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-create button,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-primary {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-create button,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-primary {
     background: var(--atlas-utility-accent);
     border-color: var(--atlas-utility-accent);
-    color: #14201d;
+    color: var(--atlas-utility-badge-text);
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-safe,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-safe,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-manage {
     scrollbar-width: thin;
     scrollbar-color: rgba(170, 180, 173, 0.42) transparent;
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-safe::-webkit-scrollbar,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage::-webkit-scrollbar {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-safe::-webkit-scrollbar,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-manage::-webkit-scrollbar {
     width: 10px;
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-safe::-webkit-scrollbar-track,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage::-webkit-scrollbar-track {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-safe::-webkit-scrollbar-track,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-manage::-webkit-scrollbar-track {
     background: transparent;
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-safe::-webkit-scrollbar-thumb,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage::-webkit-scrollbar-thumb {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-safe::-webkit-scrollbar-thumb,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-manage::-webkit-scrollbar-thumb {
     border: 3px solid transparent;
     border-radius: 999px;
     background: rgba(170, 180, 173, 0.32);
     background-clip: padding-box;
 }
 
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-safe::-webkit-scrollbar-thumb:hover,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage::-webkit-scrollbar-thumb:hover {
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-safe::-webkit-scrollbar-thumb:hover,
+html[data-theme="night"] :is(body[data-atlas-surface="hub"], body[data-atlas-surface="arcade"]) .atlas-session-manage::-webkit-scrollbar-thumb:hover {
     background: rgba(170, 180, 173, 0.50);
     background-clip: padding-box;
 }
