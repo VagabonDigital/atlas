@@ -17,6 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tomorrow Got Weird</title>
   <link rel="stylesheet" href="../../shared/atlas-search.css?v=20260717-motion">
+  <link rel="stylesheet" href="../../shared/atlas-session-panel.css">
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛸</text></svg>">
   <script>
@@ -123,22 +124,48 @@
       align-items: center;
       justify-content: center;
       padding: 24px;
-      background:
-        url("tomorrow-got-weird-cover.png") center center / cover no-repeat,
-        var(--bg);
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .launch-video {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+    }
+
+    html[data-theme="light"] .launch-video {
+      filter: brightness(1.14) saturate(0.82);
+    }
+
+    html[data-theme="night"] .launch-video {
+      filter: brightness(0.78) saturate(1.14) contrast(1.08);
     }
 
     #launch::before {
       content: "";
       position: absolute;
       inset: 0;
+      z-index: 1;
       pointer-events: none;
-      background: rgba(4, 10, 18, .28);
+      background: rgba(4, 10, 18, 0.24);
+    }
+
+    html[data-theme="light"] #launch::before {
+      background: rgba(238, 243, 246, 0.18);
+    }
+
+    html[data-theme="night"] #launch::before {
+      background: rgba(3, 10, 20, 0.38);
     }
 
     .launch-card {
       position: relative;
-      z-index: 1;
+      z-index: 2;
       width: min(430px, 100%);
       padding: 36px;
       border: 1px solid var(--line-strong);
@@ -216,56 +243,79 @@
       z-index: 100;
       display: flex;
       align-items: center;
-      gap: 12px;
-      height: 58px;
+      justify-content: space-between;
+      height: 56px;
       padding: 0 20px;
       border-bottom: 1px solid var(--line);
-      background: rgba(238, 243, 246, 0.9);
+      background: rgba(238, 243, 246, 0.94);
       backdrop-filter: blur(16px);
     }
 
     html[data-theme="night"] #hdr {
-      background: rgba(3, 10, 20, 0.9)
+      background: rgba(3, 10, 20, 0.94);
+    }
+
+    .header-left,
+    .header-center,
+    .header-right {
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+
+    .header-left {
+      gap: 12px;
+    }
+
+    .header-center {
+      justify-content: center;
+    }
+
+    .header-right {
+      justify-content: flex-end;
+      gap: 8px;
     }
 
     .header-back {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
+      gap: 0.4rem;
       min-height: 34px;
-      padding: 6px 13px 6px 10px;
-      border: 1px solid rgba(232, 86, 42, 0.24);
-      border-radius: 999px;
-      background: var(--arcade-soft);
-      color: var(--arcade);
-      font-size: 13px;
-      font-weight: 700;
+      padding: 0.4rem 0.6rem 0.4rem 0.2rem;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--ink-faint);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
       cursor: pointer;
-      transition: background-color .18s ease, color .18s ease, border-color .18s ease;
+      transition: background-color .18s ease, color .18s ease;
     }
 
     .header-back:hover {
-      border-color: var(--arcade);
-      background: var(--arcade);
-      color: #fff;
+      background: var(--surface-tint);
+      color: var(--ink);
+    }
+
+    html[data-theme="night"] .header-back:hover {
+      background: var(--surface);
     }
 
     .hdr-logo {
       color: var(--cyan);
       font-family: var(--font-meta);
-      font-size: 12px;
+      font-size: 1.15rem;
       font-weight: 700;
       letter-spacing: .12em;
+      line-height: 1;
       text-transform: uppercase;
       white-space: nowrap;
     }
 
     .hdr-logo span {
-      color: var(--magenta)
-    }
-
-    .hdr-spacer {
-      flex: 1
+      color: var(--magenta);
     }
 
     #progress-label {
@@ -278,8 +328,37 @@
       white-space: nowrap;
     }
 
-    .header-search,
-    .header-appearance {
+    .header-session-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      max-width: 170px;
+      padding: 0.48rem 0.9rem;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--ink-soft);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: border-color .18s ease, color .18s ease, box-shadow .18s ease;
+    }
+
+    .header-session-btn:hover {
+      border-color: var(--line-strong);
+      color: var(--ink);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .header-session-btn .pill-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-icon-btn {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -291,13 +370,13 @@
       background: var(--surface);
       color: var(--ink-soft);
       cursor: pointer;
-      transition: border-color .18s ease, color .18s ease, background .18s ease;
+      transition: border-color .18s ease, color .18s ease, box-shadow .18s ease;
     }
 
-    .header-search:hover,
-    .header-appearance:hover {
-      border-color: var(--cyan);
-      color: var(--cyan);
+    .header-icon-btn:hover {
+      border-color: var(--line-strong);
+      color: var(--ink);
+      box-shadow: var(--shadow-soft);
     }
 
     #main {
@@ -453,16 +532,51 @@
       transition: border-color .18s ease, color .18s ease, background .18s ease;
     }
 
-    .support-button:hover,
-    .support-button[aria-pressed="true"] {
+    #btn-missions:hover,
+    #btn-missions[aria-pressed="true"] {
+      border-color: var(--cyan);
+      background: var(--surface);
+      color: var(--cyan);
+      box-shadow: inset 0 0 0 1px rgba(8, 127, 152, 0.08);
+    }
+
+    #btn-survival:hover,
+    #btn-survival[aria-pressed="true"] {
+      border-color: var(--amber);
+      background: var(--surface);
+      color: var(--amber);
+      box-shadow: inset 0 0 0 1px rgba(155, 105, 0, 0.08);
+    }
+
+    #btn-weirder:hover,
+    #btn-weirder[aria-pressed="true"] {
+      border-color: var(--magenta);
+      background: var(--surface);
+      color: var(--magenta);
+      box-shadow: inset 0 0 0 1px rgba(185, 55, 118, 0.08);
+    }
+
+    html[data-theme="night"] #btn-missions:hover,
+    html[data-theme="night"] #btn-missions[aria-pressed="true"] {
       border-color: var(--cyan);
       background: var(--cyan-soft);
-      color: var(--cyan);
+    }
+
+    html[data-theme="night"] #btn-survival:hover,
+    html[data-theme="night"] #btn-survival[aria-pressed="true"] {
+      border-color: var(--amber);
+      background: rgba(255, 209, 92, 0.1);
+    }
+
+    html[data-theme="night"] #btn-weirder:hover,
+    html[data-theme="night"] #btn-weirder[aria-pressed="true"] {
+      border-color: var(--magenta);
+      background: var(--magenta-soft);
     }
 
     #support-panel {
       margin-top: 12px;
-      padding: 26px;
+      padding: 22px 26px;
       border: 1px solid var(--line);
       border-radius: 15px;
       background: var(--surface);
@@ -471,13 +585,6 @@
 
     #support-panel[hidden] {
       display: none
-    }
-
-    .support-heading {
-      margin-bottom: 16px;
-      color: var(--ink);
-      font-size: 18px;
-      font-weight: 750;
     }
 
     .support-text {
@@ -511,10 +618,10 @@
 
     .scenario-rail {
       display: flex;
+      align-items: center;
       justify-content: center;
-      width: min(100%, 430px);
-      margin: 16px auto 0;
-      padding: 3px 0;
+      min-width: 0;
+      width: 100%;
     }
 
     #scenario-dots {
@@ -522,8 +629,8 @@
       align-items: center;
       justify-content: center;
       gap: 7px;
-      width: 100%;
-      padding: 5px 0;
+      max-width: 100%;
+      padding: 3px 0;
       overflow-x: auto;
       scrollbar-width: none;
     }
@@ -576,12 +683,12 @@
     }
 
     .scenario-footer {
-      display: flex;
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr) auto;
       align-items: center;
-      justify-content: space-between;
-      gap: 16px;
+      gap: 18px;
       margin-top: 18px;
-      padding: 16px;
+      padding: 16px 22px;
       border: 1px solid var(--line);
       border-radius: 15px;
       background: var(--surface-soft);
@@ -593,25 +700,50 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
+      width: 150px;
       min-height: 42px;
       padding: 0 16px;
-      border: 1px solid rgba(8, 121, 87, 0.28);
+      border: 1px solid rgba(8, 121, 87, 0.32);
       border-radius: 11px;
       background: var(--green-soft);
       color: var(--green);
       font-size: 14px;
       font-weight: 750;
+      white-space: nowrap;
       cursor: pointer;
+      box-shadow: 0 2px 8px rgba(8, 121, 87, 0.06);
+      transition:
+        transform .18s ease,
+        border-color .18s ease,
+        background-color .18s ease,
+        color .18s ease,
+        box-shadow .18s ease;
+    }
+
+    .btn-complete:hover {
+      border-color: var(--green);
+      background: rgba(8, 121, 87, 0.16);
+      transform: translateY(-1px);
+      box-shadow: 0 7px 18px rgba(8, 121, 87, 0.16);
     }
 
     .btn-complete.done {
       border-color: var(--green);
       background: var(--green);
       color: #fff;
+      box-shadow: 0 6px 18px rgba(8, 121, 87, 0.18);
     }
 
-    html[data-theme="night"] .btn-complete.done {
-      color: #00170f
+    .btn-complete.done:hover {
+      background: var(--green);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 22px rgba(8, 121, 87, 0.24);
+    }
+
+    html[data-theme="night"] .btn-complete.done,
+    html[data-theme="night"] .btn-complete.done:hover {
+      color: #00170f;
     }
 
     .nav-actions {
@@ -657,15 +789,155 @@
     }
 
     .btn-reset {
-      border: 0;
-      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 36px;
+      padding: 0 14px;
+      border: 1px solid rgba(185, 55, 118, 0.18);
+      border-radius: 999px;
+      background: var(--surface-soft);
       color: var(--ink-faint);
       font-size: 12px;
+      font-weight: 600;
       cursor: pointer;
+      transition:
+        border-color 0.18s ease,
+        background-color 0.18s ease,
+        color 0.18s ease,
+        box-shadow 0.18s ease;
     }
 
     .btn-reset:hover {
-      color: var(--magenta)
+      border-color: rgba(185, 55, 118, 0.38);
+      background: var(--magenta-soft);
+      color: var(--magenta);
+      box-shadow: var(--shadow-soft);
+    }
+
+    /* ============================================================ CUSTOM RESET MODAL */
+    .tgw-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(21, 34, 53, 0.42);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    html[data-theme="night"] .tgw-modal {
+      background: rgba(3, 10, 20, 0.76);
+    }
+
+    .tgw-modal.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .tgw-modal-card {
+      width: min(400px, 100%);
+      padding: 30px;
+      border: 1px solid var(--line-strong);
+      border-radius: 18px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      text-align: center;
+      transform: translateY(18px) scale(0.96);
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .tgw-modal.visible .tgw-modal-card {
+      transform: translateY(0) scale(1);
+    }
+
+    html[data-theme="night"] .tgw-modal-card {
+      border-color: rgba(255, 76, 158, 0.28);
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.48),
+        0 0 28px rgba(255, 76, 158, 0.08);
+    }
+
+    .tgw-modal-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 16px;
+      border: 1px solid rgba(185, 55, 118, 0.26);
+      border-radius: 50%;
+      background: var(--magenta-soft);
+      color: var(--magenta);
+    }
+
+    .tgw-modal-title {
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 22px;
+      font-weight: 750;
+      letter-spacing: -0.02em;
+    }
+
+    .tgw-modal-body {
+      margin-bottom: 24px;
+      color: var(--ink-soft);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .tgw-modal-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-modal-cancel,
+    .btn-modal-confirm {
+      flex: 1;
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition:
+        border-color 0.18s ease,
+        background-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+    }
+
+    .btn-modal-cancel {
+      border: 1px solid var(--line-strong);
+      background: transparent;
+      color: var(--ink-soft);
+    }
+
+    .btn-modal-cancel:hover {
+      border-color: var(--cyan);
+      background: var(--cyan-soft);
+      color: var(--cyan);
+    }
+
+    .btn-modal-confirm {
+      border: 1px solid var(--magenta);
+      background: var(--magenta);
+      color: #fff;
+    }
+
+    html[data-theme="night"] .btn-modal-confirm {
+      color: #18000c;
+    }
+
+    .btn-modal-confirm:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 22px rgba(185, 55, 118, 0.22);
     }
 
     #toast {
@@ -699,8 +971,8 @@
       }
 
       .hdr-logo {
-        font-size: 10px;
-        letter-spacing: .08em
+        font-size: 0.9rem;
+        letter-spacing: .08em;
       }
 
       #progress-label {
@@ -730,12 +1002,12 @@
       }
 
       .scenario-footer {
-        align-items: stretch;
-        flex-direction: column
+        grid-template-columns: 1fr;
+        gap: 14px;
       }
 
       .btn-complete {
-        width: 100%
+        width: 100%;
       }
 
       .nav-actions {
@@ -748,21 +1020,15 @@
       }
 
       #launch {
-        align-items: flex-end;
+        align-items: center;
         justify-content: center;
         padding: 20px;
-        background-position: center top;
+        background-position: center center;
       }
 
       .launch-card {
         width: min(100%, 480px);
         padding: 28px 24px;
-      }
-
-      .scenario-rail {
-        justify-content: flex-start;
-        width: 100%;
-        padding: 3px 0;
       }
 
       #scenario-dots {
@@ -790,18 +1056,22 @@
   </style>
 </head>
 
-<body>
+<body data-atlas-surface="hub">
 
   <!-- ============================================================
      LAUNCH SCREEN
      ============================================================ -->
   <div id="launch">
+    <video class="launch-video" autoplay muted loop playsinline aria-hidden="true">
+      <source src="portal.mp4" type="video/mp4">
+    </video>
+
     <section class="launch-card" aria-labelledby="launch-title">
-      <p class="launch-kicker">Arcade · Future scenarios</p>
+      <p class="launch-kicker">Arcade · 25 Future scenarios</p>
       <h1 class="launch-title" id="launch-title">Tomorrow <span>Got Weird</span></h1>
       <p class="launch-copy">
-        Twenty-five strange futures. Decide what you would do, then push the scenario with follow-up questions,
-        pressure, or a stranger twist.
+        Step into futures that went completely off script. Make your call, face the consequences, and see who you
+        become.
       </p>
       <button class="btn-launch" id="launch-button" type="button" onclick="startGame()">
         Start sequence
@@ -817,32 +1087,52 @@
      ============================================================ -->
   <div id="game">
     <header id="hdr">
-      <button class="header-back" type="button" onclick="goToArcade()" aria-label="Back to Arcade">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-          <path d="M7.5 2L3.5 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-            stroke-linejoin="round" />
-        </svg>
-        Arcade
-      </button>
-      <div class="hdr-logo">Tomorrow <span>Got Weird</span></div>
-      <div class="hdr-spacer"></div>
-      <div id="progress-label" aria-live="polite">Scenario <span id="hdr-current">1</span> of <span
-          id="hdr-total">25</span></div>
-      <button class="header-search" type="button" data-atlas-search aria-label="Atlas Search" title="Atlas Search">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3" />
-          <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-        </svg>
-      </button>
-      <button class="header-appearance" id="btn-appearance" type="button" onclick="toggleAppearance()"
-        aria-label="Toggle appearance"></button>
+      <div class="header-left">
+        <button class="header-back" type="button" onclick="goToArcade()" aria-label="Back to Arcade">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M7.5 2L3.5 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          Arcade
+        </button>
+
+        <div class="hdr-logo">Tomorrow <span>Got Weird</span></div>
+      </div>
+
+      <div class="header-center">
+        <div id="progress-label" aria-live="polite">
+          Scenario <span id="hdr-current">1</span> of <span id="hdr-total">25</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button class="header-session-btn" type="button" onclick="openSessionPanel(this)"
+          aria-label="Open session panel">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <circle cx="6" cy="4" r="2.2" stroke="currentColor" stroke-width="1.2" />
+            <path d="M1.5 10.5c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4" stroke="currentColor" stroke-width="1.2"
+              stroke-linecap="round" />
+          </svg>
+          <span class="pill-name" id="hdr-session-name">Shared</span>
+        </button>
+
+        <button class="header-icon-btn" type="button" data-atlas-search aria-label="Atlas Search" title="Atlas Search">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3" />
+            <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+          </svg>
+        </button>
+
+        <button class="header-icon-btn" id="btn-appearance" type="button" onclick="toggleAppearance()"
+          aria-label="Toggle appearance"></button>
+      </div>
     </header>
 
     <main id="main">
       <section id="scenario-card">
         <div class="scenario-meta">
           <span class="scenario-emoji" id="sc-emoji" aria-hidden="true"></span>
-          <span class="scenario-number" id="scenario-number">Scenario 1 of 25</span>
+          <span class="scenario-number" id="scenario-number">Scenario 1</span>
           <span class="scenario-state">Survived</span>
         </div>
         <h2 class="scenario-question" id="sc-question"></h2>
@@ -873,6 +1163,10 @@
           <span id="complete-label">Mark survived</span>
         </button>
 
+        <nav class="scenario-rail" aria-label="Choose scenario">
+          <div id="scenario-dots"></div>
+        </nav>
+
         <nav class="nav-actions" aria-label="Scenario navigation">
           <button class="btn-nav" id="btn-prev" type="button" onclick="go(-1)">Previous</button>
           <button class="btn-nav btn-random" type="button" onclick="randomScenario()">Random</button>
@@ -880,21 +1174,61 @@
         </nav>
       </div>
 
-      <nav class="scenario-rail" aria-label="Choose scenario">
-        <div id="scenario-dots"></div>
-      </nav>
-
       <div class="reset-row">
-        <button class="btn-reset" type="button" onclick="confirmReset()">Reset Tomorrow Got Weird progress</button>
+        <button class="btn-reset" type="button" onclick="confirmReset()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 6h18"></path>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          Reset game
+        </button>
       </div>
     </main>
   </div>
 
+  <!-- Custom Reset Modal -->
+  <div id="reset-modal" class="tgw-modal" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title"
+    onclick="if(event.target === this) closeResetModal()">
+
+    <div class="tgw-modal-card">
+      <div class="tgw-modal-icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18"></path>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+      </div>
+
+      <h2 class="tgw-modal-title" id="reset-modal-title">Reset the timeline?</h2>
+
+      <p class="tgw-modal-body">
+        This will erase every survived scenario and completely reset Tomorrow Got Weird
+        for the active session. This cannot be undone.
+      </p>
+
+      <div class="tgw-modal-actions">
+        <button class="btn-modal-cancel" type="button" onclick="closeResetModal()">
+          Cancel
+        </button>
+
+        <button class="btn-modal-confirm" type="button" onclick="executeReset()">
+          Reset sequence
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" role="status" aria-live="polite"></div>
+  <div id="atlas-session-panel-root"></div>
+
   <!-- ============================================================
      JAVASCRIPT
      ============================================================ -->
   <script src="../../shared/atlas-bridge.js"></script>
+  <script src="../../shared/atlas-session-panel.js"></script>
   <script src="../../shared/compass-catalog-data.js"></script>
   <script src="../../shared/atlas-content-registry.js"></script>
   <script src="../../shared/atlas-search.js"></script>
@@ -1188,6 +1522,7 @@
     let session = null;
     let state = createDefaultState();
     let openSupport = null;
+    let completeAdvanceTimer = null;
 
     function createDefaultState() {
       const timestamp = Date.now();
@@ -1314,6 +1649,32 @@
       window.location.href = '../index.html';
     }
 
+    function updateSessionDisplay() {
+      if (!window.AtlasSessionPanel) return;
+
+      const currentSession = Bridge.readActiveSession();
+      const display = AtlasSessionPanel.getSessionDisplayName(currentSession);
+      const name = document.getElementById('hdr-session-name');
+
+      if (!name) return;
+
+      name.textContent = display;
+
+      const button = name.closest('button');
+      if (button) {
+        button.setAttribute(
+          'aria-label',
+          'Open session panel. Working with ' + display
+        );
+      }
+    }
+
+    function openSessionPanel(trigger) {
+      if (window.AtlasSessionPanel) {
+        AtlasSessionPanel.open(trigger);
+      }
+    }
+
     function go(direction) {
       const next = state.current + direction;
       if (next < 0 || next >= SCENARIOS.length) return;
@@ -1345,10 +1706,35 @@
        ============================================================ */
     function toggleComplete() {
       const index = state.current;
-      state.completed[index] = !state.completed[index];
+      const isNowComplete = !state.completed[index];
+
+      if (completeAdvanceTimer) {
+        clearTimeout(completeAdvanceTimer);
+        completeAdvanceTimer = null;
+      }
+
+      state.completed[index] = isNowComplete;
       saveState();
       render();
-      showToast(state.completed[index] ? 'Scenario marked survived.' : 'Scenario reopened.');
+
+      showToast(
+        isNowComplete
+          ? 'Scenario survived.'
+          : 'Scenario reopened.'
+      );
+
+      if (isNowComplete && index < SCENARIOS.length - 1) {
+        completeAdvanceTimer = setTimeout(() => {
+          completeAdvanceTimer = null;
+
+          if (
+            state.current === index &&
+            state.completed[index]
+          ) {
+            go(1);
+          }
+        }, 1000);
+      }
     }
 
     /* ============================================================
@@ -1383,7 +1769,6 @@
 
       if (openSupport === 'missions') {
         content.innerHTML =
-          '<h3 class="support-heading">Mission prompts</h3>' +
           '<ul class="prompt-list">' +
           scenario.prompts.map(prompt => '<li>' + esc(prompt) + '</li>').join('') +
           '</ul>';
@@ -1392,13 +1777,11 @@
 
       if (openSupport === 'survival') {
         content.innerHTML =
-          '<h3 class="support-heading">Survival mode</h3>' +
           '<p class="support-text">' + esc(scenario.survival) + '</p>';
         return;
       }
 
       content.innerHTML =
-        '<h3 class="support-heading">Make it weirder</h3>' +
         '<p class="support-text">' + esc(scenario.twist) + '</p>';
     }
 
@@ -1413,7 +1796,7 @@
 
       document.getElementById('hdr-current').textContent = index + 1;
       document.getElementById('hdr-total').textContent = total;
-      document.getElementById('scenario-number').textContent = 'Scenario ' + (index + 1) + ' of ' + total;
+      document.getElementById('scenario-number').textContent = 'Scenario ' + (index + 1);
       document.getElementById('sc-emoji').textContent = scenario.emoji;
       document.getElementById('sc-question').textContent = scenario.question;
 
@@ -1493,14 +1876,23 @@
        RESET AND TOAST
        ============================================================ */
     function confirmReset() {
-      const confirmed = window.confirm('Reset all Tomorrow Got Weird progress for the active session?');
-      if (!confirmed) return;
+      const modal = document.getElementById('reset-modal');
+      if (modal) modal.classList.add('visible');
+    }
+
+    function closeResetModal() {
+      const modal = document.getElementById('reset-modal');
+      if (modal) modal.classList.remove('visible');
+    }
+
+    function executeReset() {
+      closeResetModal();
       state = createDefaultState();
       openSupport = null;
       saveState();
       touchActivity();
       render();
-      showToast('Tomorrow Got Weird reset.');
+      showToast('Timeline reset.');
     }
 
     let toastTimer = null;
@@ -1529,7 +1921,17 @@
       document.documentElement.dataset.theme = mode;
       updateAppearanceButton(mode);
 
+      if (window.AtlasSessionPanel) {
+        AtlasSessionPanel.mount({
+          root: '#atlas-session-panel-root',
+          initialView: 'manage',
+          onRenameSession: updateSessionDisplay,
+          onDeleteSession: updateSessionDisplay
+        });
+      }
+
       session = Bridge.readActiveSession();
+      updateSessionDisplay();
 
       Bridge.upsertItem({
         registryId: REGISTRY_ID,
@@ -1569,6 +1971,7 @@
     window.addEventListener('atlas:session-change', event => {
       if (!Bridge) return;
       session = (event.detail && event.detail.session) || Bridge.readActiveSession();
+      updateSessionDisplay();
       state = normalizeState(readBridgeState());
       openSupport = null;
       buildScenarioDots();
@@ -1589,6 +1992,17 @@
        KEYBOARD
        ============================================================ */
     document.addEventListener('keydown', event => {
+      const resetModal = document.getElementById('reset-modal');
+
+      if (
+        event.key === 'Escape' &&
+        resetModal &&
+        resetModal.classList.contains('visible')
+      ) {
+        closeResetModal();
+        return;
+      }
+
       const game = document.getElementById('game');
       if (!game || getComputedStyle(game).display === 'none') return;
 
