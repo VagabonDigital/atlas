@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   ==========================================================================
-  TRUTH TRAP · Two Truths, One Lie
+  TRUTH TRAP v2 · Two Truths, One Lie
   SmartStudy™ · Arcade World
   --------------------------------------------------------------------------
   Premium noir case deck. Spot the lie. Evidence-based.
@@ -24,6 +24,7 @@
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="../../shared/atlas-search.css?v=20260717-motion">
+  <link rel="stylesheet" href="../../shared/atlas-session-panel.css">
 
   <!-- Anti-flash: read appearance before first paint -->
   <script>
@@ -170,8 +171,7 @@
       min-height: 100svh;
       overflow-x: hidden;
     }
-
-    /* ============================================================ OPENING SCREEN */
+/* ============================================================ OPENING SCREEN (DAY MODE) */
     #opening {
       position: fixed;
       inset: 0;
@@ -179,26 +179,43 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background:
-        linear-gradient(rgba(240, 242, 245, 0.72), rgba(240, 242, 245, 0.84)),
-        url('truth-trap-cover.png') center/cover no-repeat,
-        var(--bg-deep);
+      background: #e8ebf0; /* Cool grey base */
       padding: 1.5rem;
       transition: opacity 0.4s ease;
+      overflow: hidden; 
     }
 
-    html[data-theme="night"] #opening {
-      background:
-        linear-gradient(rgba(6, 11, 17, 0.62), rgba(6, 11, 17, 0.82)),
-        url('truth-trap-cover.png') center/cover no-repeat,
-        #060b11;
+    /* 1. The Blurred Base Image (Everywhere) */
+    #opening::before {
+      content: '';
+      position: absolute;
+      inset: -20px; /* Oversized slightly so the blur doesn't leave white edges */
+      z-index: -2;
+      background: url('truth-trap-cover.png') center/cover no-repeat;
+      filter: blur(12px); /* Heavy blur for the background */
+      opacity: 0.35; /* Kept faint so it doesn't distract from the card */
     }
 
-    html[data-theme="night"] #opening {
-      background:
-        linear-gradient(rgba(6, 11, 17, 0.68), rgba(6, 11, 17, 0.82)),
-        url('truth-trap-cover.png') center/cover no-repeat,
-        #060b11;
+    /* 2. The Sharp Magnifying Glass (Moving Spotlight) */
+    #opening::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1; 
+      background: url('truth-trap-cover.png') center/cover no-repeat;
+      opacity: 0.9; /* Sharp, punchy, and in focus */
+      
+      /* The mask creates the soft circular magnifying glass */
+      -webkit-mask-image: radial-gradient(circle, black 15%, transparent 55%);
+      mask-image: radial-gradient(circle, black 15%, transparent 55%);
+      
+      -webkit-mask-size: 70vmax 70vmax;
+      mask-size: 70vmax 70vmax;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      
+      /* The weaving animation */
+      animation: spotlightWeave 25s ease-in-out infinite;
     }
 
     #opening.fade-out {
@@ -206,25 +223,23 @@
       pointer-events: none;
     }
 
+    /* Premium Light Mode Card */
     .opening-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-mid);
+      background: #ffffff;
+      border: 1px solid rgba(15, 25, 35, 0.08); 
       border-radius: var(--r-xl);
-      padding: clamp(2rem, 5vw, 3.5rem) clamp(1.75rem, 5vw, 3.5rem);
+      padding: clamp(2.5rem, 5vw, 3.5rem) clamp(2rem, 5vw, 3rem);
       max-width: 520px;
       width: 100%;
-      box-shadow: var(--shadow-lg);
+      box-shadow: 0 20px 40px rgba(15, 25, 35, 0.06), 0 1px 3px rgba(15, 25, 35, 0.04);
       text-align: center;
       animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    html[data-theme="night"] .opening-card {
-      border-color: rgba(var(--cyan-rgb), 0.22);
-      box-shadow: var(--shadow-lg), 0 0 60px rgba(var(--cyan-rgb), 0.06);
+      position: relative;
+      overflow: hidden;
     }
 
     .opening-eyebrow {
-      font-size: 0.68rem;
+      font-size: 0.75rem;
       font-weight: 700;
       letter-spacing: 0.2em;
       text-transform: uppercase;
@@ -233,69 +248,159 @@
     }
 
     .opening-title {
-      font-family: var(--font-display);
-      font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 400;
+      font-family: var(--font-body);
+      font-size: clamp(3rem, 7vw, 4rem);
+      font-weight: 900;
+      text-transform: uppercase;
       color: var(--ink);
-      line-height: 1.1;
-      margin-bottom: 0.35rem;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .opening-title span {
+      color: var(--cyan);
     }
 
     .opening-subtitle {
-      font-size: 0.88rem;
+      font-size: 1rem;
+      font-weight: 600;
       color: var(--ink-quiet);
-      margin-bottom: 1.75rem;
-      letter-spacing: 0.04em;
-    }
-
-    .opening-divider {
-      width: 40px;
-      height: 2px;
-      background: var(--cyan);
-      margin: 0 auto 1.75rem;
-      border-radius: 2px;
+      margin-bottom: 2rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
     }
 
     .opening-body {
-      font-size: 0.92rem;
-      line-height: 1.7;
+      font-size: 0.95rem;
+      line-height: 1.6;
       color: var(--ink-mid);
-      margin-bottom: 2rem;
-      font-weight: 300;
-      text-align: left;
+      margin-bottom: 2.5rem;
+      font-weight: 500;
+      text-align: center;
     }
 
     .opening-body p+p {
-      margin-top: 0.75rem;
+      margin-top: 1rem;
     }
 
+    /* Resized Premium Button */
     .btn-start {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 0.5rem;
-      padding: 0.85rem 2.25rem;
+      padding: 0.9rem 2.25rem;
       border-radius: var(--r-md);
       border: none;
-      background: var(--cyan);
-      color: #fff;
+      background: linear-gradient(135deg, var(--cyan) 0%, #007a99 100%);
+      color: #ffffff;
       font-family: var(--font-body);
-      font-size: 0.9rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
       cursor: pointer;
-      transition: var(--t);
-      box-shadow: var(--shadow-sm);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 14px rgba(0, 144, 184, 0.25);
     }
 
     .btn-start:hover {
-      background: var(--cyan-soft);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 144, 184, 0.4);
     }
 
     .btn-start:focus-visible {
       outline: 2px solid var(--cyan);
       outline-offset: 3px;
+    }
+
+    /* ============================================================ NIGHT MODE OVERRIDES */
+    html[data-theme="night"] #opening {
+      background: #060b11; 
+    }
+
+    /* Hide the scanner image overlay entirely in Night Mode */
+    html[data-theme="night"] #opening::before {
+      display: none;
+    }
+
+    html[data-theme="night"] .opening-card {
+      background: rgba(9, 14, 21, 0.88); 
+      backdrop-filter: blur(24px); 
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(0, 222, 255, 0.35);
+      border-radius: var(--r-lg);
+      /* Removed the pulseGlow animation so the card stays solid and anchored */
+      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    /* Glowing cyan top laser line */
+    html[data-theme="night"] .opening-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: #00deff;
+      box-shadow: 0 0 15px #00deff;
+    }
+
+    html[data-theme="night"] .opening-eyebrow { color: #00deff; }
+    html[data-theme="night"] .opening-title { color: #ffffff; }
+    html[data-theme="night"] .opening-title span { color: #00deff; }
+    html[data-theme="night"] .opening-subtitle { color: #8aa0b8; }
+    html[data-theme="night"] .opening-body { color: #d8e8f8; }
+
+    /* Cyber Button */
+    html[data-theme="night"] .btn-start {
+      background: #00deff;
+      color: #000000;
+      box-shadow: 0 0 20px rgba(0, 222, 255, 0.4);
+    }
+
+    html[data-theme="night"] .btn-start:hover {
+      background: #4de4ff; 
+      box-shadow: 0 0 35px rgba(0, 222, 255, 0.7);
+    }
+
+/* ============================================================ ANIMATIONS */
+    /* 1. The Pulse Keyframes for Night Mode */
+    @keyframes pulseGlow {
+      0% {
+        box-shadow: 0 0 30px rgba(0, 222, 255, 0.1), inset 0 0 10px rgba(0, 222, 255, 0.05);
+      }
+      100% {
+        box-shadow: 0 0 80px rgba(0, 222, 255, 0.45), inset 0 0 35px rgba(0, 222, 255, 0.2);
+      }
+    }
+
+/* The Spotlight/Torch Animation (Perfected Sweep) */
+    @keyframes spotlightWeave {
+      /* Pulled inward so the center of the torch stays ~10% inside the screen */
+      0%   { 
+        -webkit-mask-position: calc(10vw - 35vmax) calc(10vh - 35vmax); 
+        mask-position: calc(10vw - 35vmax) calc(10vh - 35vmax); 
+      }   /* Top Left */
+      20%  { 
+        -webkit-mask-position: calc(90vw - 35vmax) calc(20vh - 35vmax);  
+        mask-position: calc(90vw - 35vmax) calc(20vh - 35vmax);  
+      }   /* Top Right */
+      40%  { 
+        -webkit-mask-position: calc(85vw - 35vmax) calc(90vh - 35vmax); 
+        mask-position: calc(85vw - 35vmax) calc(90vh - 35vmax); 
+      }   /* Bottom Right */
+      60%  { 
+        -webkit-mask-position: calc(10vw - 35vmax) calc(85vh - 35vmax);  
+        mask-position: calc(10vw - 35vmax) calc(85vh - 35vmax);  
+      }   /* Bottom Left */
+      80%  { 
+        -webkit-mask-position: calc(50vw - 35vmax) calc(45vh - 35vmax);  
+        mask-position: calc(50vw - 35vmax) calc(45vh - 35vmax);  
+      }   /* Middle Cross */
+      100% { 
+        -webkit-mask-position: calc(10vw - 35vmax) calc(10vh - 35vmax); 
+        mask-position: calc(10vw - 35vmax) calc(10vh - 35vmax); 
+      }
     }
 
     /* ============================================================ COMPLETION AIRLOCK */
@@ -409,24 +514,18 @@
       display: none;
       flex-direction: column;
       min-height: 100svh;
-      background:
-        linear-gradient(rgba(240, 242, 245, 0.84), rgba(240, 242, 245, 0.92)),
-        url('truth-trap-cover.png') center/cover fixed no-repeat,
-        var(--bg);
+      background: var(--bg); /* Clean, calm, distraction-free */
     }
 
     html[data-theme="night"] #game {
-      background:
-        linear-gradient(rgba(6, 11, 17, 0.72), rgba(6, 11, 17, 0.88)),
-        url('truth-trap-cover.png') center/cover fixed no-repeat,
-        #060b11;
+      background: #060b11; /* Pure dark workspace */
     }
 
     #game.visible {
       display: flex;
     }
 
-    /* ---- REDUCED GAME HEADER ---- */
+    /* ---- REDUCED GAME HEADER (3-COLUMN) ---- */
     .game-header {
       position: sticky;
       top: 0;
@@ -437,8 +536,8 @@
       height: 56px;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       padding: 0 1.25rem;
-      gap: 0.75rem;
       flex-shrink: 0;
     }
 
@@ -446,17 +545,40 @@
       background: rgba(9, 14, 21, 0.94);
     }
 
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex: 1;
+    }
+
+    .header-center {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.5rem; /* Consistent spacing between session, search, and theme buttons */
+      flex: 1;
+    }
+
+    /* Premium Native-Style Back Button */
     .header-back {
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      padding: 0.4rem 0.75rem 0.4rem 0.55rem;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--arcade-pale);
-      color: var(--arcade);
+      padding: 0.4rem 0.6rem 0.4rem 0.2rem;
+      border-radius: var(--r-sm);
+      border: none;
+      background: transparent;
+      color: var(--ink-quiet);
       font-family: var(--font-body);
-      font-size: 0.76rem;
+      font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
       transition: var(--t);
@@ -467,9 +589,13 @@
     }
 
     .header-back:hover {
-      background: var(--arcade);
+      background: var(--bg-subtle);
+      color: var(--ink);
+    }
+
+    html[data-theme="night"] .header-back:hover {
+      background: var(--bg-deep);
       color: #fff;
-      border-color: var(--arcade);
     }
 
     .header-back:focus-visible {
@@ -478,48 +604,72 @@
     }
 
     .header-title {
-      font-family: var(--font-display);
-      font-size: 1rem;
-      font-weight: 400;
+      font-family: var(--font-body);
+      font-size: 1.15rem;
+      font-weight: 900;
+      text-transform: uppercase;
       color: var(--ink);
-      letter-spacing: -0.01em;
+      letter-spacing: -0.02em;
       white-space: nowrap;
       line-height: 1;
+    }
+
+    html[data-theme="night"] .header-title {
+      color: #ffffff;
     }
 
     .header-title span {
       color: var(--cyan);
     }
 
-    .header-spacer {
-      flex: 1;
-    }
-
     .header-position {
-      font-size: 0.76rem;
-      font-weight: 500;
+      font-size: 0.8rem;
+      font-weight: 600;
       color: var(--ink-quiet);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       white-space: nowrap;
-      letter-spacing: 0.02em;
     }
 
-    .header-session {
-      font-size: 0.72rem;
-      color: var(--ink-faint);
+    /* Session Pill */
+    .header-session-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-raised);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--ink-quiet);
+      cursor: pointer;
+      transition: var(--t);
+      max-width: 150px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-session-btn:hover {
+      border-color: var(--border-mid);
+      color: var(--ink);
+      box-shadow: var(--shadow-md);
+    }
+
+    .header-session-btn .pill-name {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 110px;
     }
 
-    .header-search,
-    .header-appearance {
+    /* Header Square Icons (Search/Theme) */
+    .header-icon-btn {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
       border: 1px solid var(--border);
       background: var(--bg-raised);
       color: var(--ink-quiet);
@@ -528,14 +678,13 @@
       flex-shrink: 0;
     }
 
-    .header-search:hover,
-    .header-appearance:hover {
+    .header-icon-btn:hover {
       color: var(--ink);
       border-color: var(--border-mid);
+      box-shadow: var(--shadow-sm);
     }
 
-    .header-search:focus-visible,
-    .header-appearance:focus-visible {
+    .header-icon-btn:focus-visible {
       outline: 2px solid var(--cyan);
       outline-offset: 2px;
     }
@@ -587,12 +736,14 @@
       animation: cardIn 0.28s cubic-bezier(0.4, 0, 0.2, 1) both;
     }
 
-    html[data-theme="night"] .case-card {
+html[data-theme="night"] .case-card {
       background: rgba(19, 28, 40, 0.88);
       border-color: rgba(var(--cyan-rgb), 0.22);
       box-shadow: var(--shadow-lg), 0 0 40px rgba(var(--cyan-rgb), 0.05);
+      animation: cardIn 0.28s cubic-bezier(0.4, 0, 0.2, 1) both;
     }
 
+    /* Slow, Calm Scanning Laser (Shared Base) */
     .case-card::before {
       content: '';
       position: absolute;
@@ -600,8 +751,21 @@
       left: 0;
       right: 0;
       height: 3px;
-      background: linear-gradient(90deg, var(--cyan), transparent 72%);
+      background: linear-gradient(90deg, transparent 0%, var(--cyan) 50%, transparent 100%);
+      background-size: 200% 100%;
+      animation: cardScan 8s linear infinite;
       z-index: 2;
+    }
+
+    /* Night Mode: Neon Glowing Scanner */
+    html[data-theme="night"] .case-card::before {
+      background-image: linear-gradient(90deg, transparent 0%, #00deff 50%, transparent 100%);
+      box-shadow: 0 0 12px rgba(0, 222, 255, 0.6); 
+    }
+
+    @keyframes cardScan {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
     }
 
     .case-card.is-complete {
@@ -609,15 +773,8 @@
     }
 
     @keyframes cardIn {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .case-header {
@@ -1106,7 +1263,11 @@
       border-color: var(--border-mid);
     }
 
-    .btn-mark-solved {
+.btn-mark-solved {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
       padding: 0.6rem 1rem;
       border-radius: var(--r-sm);
       border: 1px solid rgba(var(--truth-rgb), 0.35);
@@ -1116,12 +1277,26 @@
       font-size: 0.78rem;
       font-weight: 600;
       cursor: pointer;
-      transition: var(--t);
+      transition: background-color var(--t), border-color var(--t), color var(--t);
       min-height: 38px;
     }
 
     .btn-mark-solved:hover {
       background: rgba(var(--truth-rgb), 0.15);
+      border-color: rgba(var(--truth-rgb), 0.5);
+    }
+
+    /* Just a subtle bump in presence for night mode */
+    html[data-theme="night"] .btn-mark-solved {
+      border: 1px solid rgba(var(--truth-rgb), 0.5);
+      background: rgba(var(--truth-rgb), 0.15);
+      color: var(--truth);
+    }
+
+    html[data-theme="night"] .btn-mark-solved:hover {
+      background: rgba(var(--truth-rgb), 0.25);
+      border-color: var(--truth);
+      color: #fff;
     }
 
     /* Discussion panel */
@@ -1189,16 +1364,39 @@
       border-color: var(--border-mid);
     }
 
-    /* ---- NAVIGATION BAR ---- */
+/* ---- UNIFIED CONTROL PANEL ---- */
+    .control-panel {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(15, 25, 35, 0.12);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    html[data-theme="night"] .control-panel {
+      background: rgba(19, 28, 40, 0.88);
+      border-color: rgba(var(--cyan-rgb), 0.22);
+      box-shadow: var(--shadow-lg), 0 0 40px rgba(var(--cyan-rgb), 0.05);
+    }
+
+    /* Single Navigation Row */
     .nav-bar {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      padding: 0.75rem 1rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--r-lg);
-      box-shadow: var(--shadow-xs);
+      padding: 0.85rem 1rem;
+    }
+
+    .nav-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn-nav {
@@ -1238,61 +1436,20 @@
       outline-offset: 2px;
     }
 
-    .nav-center {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      justify-content: center;
-    }
-
-    .case-select {
-      flex: 1;
-      max-width: 295px;
-      padding: 0.55rem 2.35rem 0.55rem 0.85rem;
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      background-color: var(--bg-raised);
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none'%3E%3Cpath d='M3.5 5.25L7 8.75L10.5 5.25' stroke='%23647890' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 0.85rem center;
-      appearance: none;
-      -webkit-appearance: none;
-      font-family: var(--font-body);
-      font-size: 0.78rem;
-      color: var(--ink);
-      outline: none;
-      transition: border-color var(--t), box-shadow var(--t);
-      cursor: pointer;
-    }
-
-    html[data-theme="night"] .case-select {
-      background-color: var(--bg-subtle);
-    }
-
-    .case-select:focus {
-      border-color: var(--cyan);
-    }
-
+    /* Random Button (Icon Only Style) */
     .btn-random {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 0.35rem;
-      width: auto;
-      height: 36px;
-      padding: 0 0.75rem;
+      width: 38px;
+      height: 38px;
       border-radius: var(--r-sm);
       border: 1px solid var(--border);
       background: var(--bg-raised);
       color: var(--ink-quiet);
-      font-family: var(--font-body);
-      font-size: 0.78rem;
-      font-weight: 600;
       cursor: pointer;
       transition: var(--t);
       flex-shrink: 0;
-      white-space: nowrap;
     }
 
     html[data-theme="night"] .btn-random {
@@ -1304,51 +1461,13 @@
       color: var(--cyan);
     }
 
-    /* Dot progress */
-    .dot-row {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      padding: 0.5rem 0;
-    }
-
-    /* Dot progress */
-    .dot-row {
-      display: flex;
-      align-items: center;
-      gap: 0.85rem;
-      flex-wrap: wrap;
-      padding: 0.72rem 0.9rem;
-      background: rgba(255, 255, 255, 0.78);
-      border: 1px solid rgba(var(--cyan-rgb), 0.16);
-      border-radius: var(--r-md);
-      box-shadow: var(--shadow-xs);
-      backdrop-filter: blur(14px);
-    }
-
-    html[data-theme="night"] .dot-row {
-      background: rgba(17, 24, 34, 0.78);
-      border-color: rgba(var(--cyan-rgb), 0.20);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .dot-label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: var(--ink-mid);
-      white-space: nowrap;
-    }
-
-    html[data-theme="night"] .dot-label {
-      color: var(--ink-mid);
-    }
-
+    /* Dots inside Nav */
     .dots {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
       align-items: center;
+      justify-content: center;
     }
 
     .dot {
@@ -1387,6 +1506,19 @@
     .dot:focus-visible {
       outline: 2px solid var(--cyan);
       outline-offset: 3px;
+    }
+
+    /* Make the dots POP in Night Mode */
+    html[data-theme="night"] .dot.is-solved {
+      background: #48c87a; /* Strong truth green */
+      border-color: #48c87a;
+      box-shadow: 0 0 8px rgba(72, 200, 122, 0.6); /* Neon green glow */
+    }
+
+    html[data-theme="night"] .dot.is-current {
+      background: #00deff; /* Forensic cyan */
+      border-color: #00deff;
+      box-shadow: 0 0 8px rgba(0, 222, 255, 0.6); /* Cyan glow */
     }
 
     /* Footer util row */
@@ -1449,6 +1581,123 @@
     .tt-toast.visible {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
+    }
+
+/* ============================================================ CUSTOM MODAL */
+    .tt-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: rgba(15, 25, 35, 0.4);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    html[data-theme="night"] .tt-modal {
+      background: rgba(6, 11, 17, 0.7);
+    }
+
+    .tt-modal.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .tt-modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--r-xl);
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(20px) scale(0.95);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .tt-modal.visible .tt-modal-card {
+      transform: translateY(0) scale(1);
+    }
+
+    html[data-theme="night"] .tt-modal-card {
+      border-color: rgba(var(--lie-rgb), 0.3);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 20px rgba(var(--lie-rgb), 0.1);
+    }
+
+    .modal-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 1rem;
+      border-radius: 50%;
+      background: var(--lie-bg);
+      color: var(--lie);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--lie-border);
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+
+    .modal-body {
+      font-size: 0.9rem;
+      color: var(--ink-quiet);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn-modal-cancel {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border-radius: var(--r-md);
+      border: 1px solid var(--border-mid);
+      background: transparent;
+      color: var(--ink-mid);
+      font-family: var(--font-body);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--t);
+    }
+
+    .btn-modal-cancel:hover {
+      background: var(--bg-subtle);
+      color: var(--ink);
+    }
+
+    .btn-modal-confirm {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border-radius: var(--r-md);
+      border: none;
+      background: var(--lie);
+      color: #fff;
+      font-family: var(--font-body);
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--t);
+    }
+
+    .btn-modal-confirm:hover {
+      background: #a93226; /* Slightly darker red */
+      transform: translateY(-1px);
     }
 
     /* ============================================================ UTILITIES */
@@ -1537,29 +1786,88 @@
         gap: 0.5rem;
       }
     }
+
+/* ============================================================ STAMP ANIMATION */
+    .stamp-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      pointer-events: none;
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      border-radius: var(--r-lg);
+      animation: stampBgIn 0.2s ease-out forwards;
+    }
+
+    html[data-theme="night"] .stamp-overlay {
+      background: rgba(9, 14, 21, 0.4);
+    }
+
+    .stamp-text {
+      font-family: var(--font-body);
+      font-size: clamp(3rem, 8vw, 4.5rem);
+      font-weight: 900;
+      color: var(--truth);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      border: 6px solid var(--truth);
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      /* The neon glow for Night Mode is built into the shadow */
+      box-shadow: 0 0 20px rgba(var(--truth-rgb), 0.2), inset 0 0 20px rgba(var(--truth-rgb), 0.2);
+      opacity: 0;
+      /* The custom bounce curve gives it weight when it hits */
+      animation: stampSlam 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    html[data-theme="night"] .stamp-text {
+      box-shadow: 0 0 30px rgba(var(--truth-rgb), 0.6), inset 0 0 30px rgba(var(--truth-rgb), 0.6);
+      text-shadow: 0 0 10px rgba(var(--truth-rgb), 0.8);
+    }
+
+    @keyframes stampBgIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes stampSlam {
+      0% {
+        opacity: 0;
+        transform: rotate(-25deg) scale(3.5);
+      }
+      50% {
+        opacity: 1;
+        transform: rotate(-10deg) scale(0.9); /* Over-compresses slightly on impact */
+      }
+      100% {
+        opacity: 1;
+        transform: rotate(-15deg) scale(1); /* Rests at a jaunty angle */
+      }
+    }
   </style>
 </head>
 
-<body>
+<body data-atlas-surface="hub">
 
-  <!-- ============================================================ OPENING SCREEN -->
+<!-- ============================================================ OPENING SCREEN -->
   <div id="opening" role="main" aria-label="Truth Trap introduction">
     <div class="opening-card">
-      <div class="opening-eyebrow">Arcade · Case Deck</div>
-      <h1 class="opening-title">Truth Trap</h1>
-      <div class="opening-subtitle">Two truths. One lie. Spot the fake.</div>
-      <div class="opening-divider"></div>
+      <div class="opening-eyebrow">[ SYSTEM ALARM ] · 20 CASES</div>
+      <h1 class="opening-title">TRUTH <span>TRAP</span></h1>
+      <div class="opening-subtitle">Two true facts. One brilliant lie.</div>
       <div class="opening-body">
-        <p>Each case gives you three statements. Two of them are completely true. One is a lie — carefully chosen to
-          sound just as believable as the others.</p>
-        <p>Study the evidence, trust your reasoning, and name the statement you think is the lie. Then reveal the truth
-          and discuss why the fake was so convincing.</p>
+        <p>We give you three wild statements. Two of them are completely true, but one is a clever trap.</p>
+        <p>Spot the fake, uncover the shocking evidence, and defend your choice. Are you ready to prove you cannot be fooled?</p>
       </div>
       <button class="btn-start" id="btn-start" onclick="startGame()">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path d="M3 2l9 5-9 5V2z" fill="currentColor" />
+        ENTER THE TRAP
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M2.5 8h11M9.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Start investigation
       </button>
     </div>
   </div>
@@ -1584,29 +1892,43 @@
 
   <!-- ============================================================ GAME SCREEN -->
   <div id="game" role="main">
-    <!-- Reduced header -->
+    <!-- Reduced header with 3-column layout -->
     <header class="game-header">
-      <button class="header-back" onclick="goToArcade()" aria-label="Back to Arcade">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M7.5 2L3.5 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-            stroke-linejoin="round" />
-        </svg>
-        Arcade
-      </button>
-      <span class="header-title">Truth<span> Trap</span></span>
-      <span class="header-spacer"></span>
-      <span class="header-position" id="hdr-position" aria-live="polite">Case 1 of 20</span>
-      <span class="header-session" id="hdr-session" aria-label="Active session"></span>
+      <div class="header-left">
+        <button class="header-back" onclick="goToArcade()" aria-label="Back to Arcade">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M7.5 2L3.5 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          Arcade
+        </button>
+        <span class="header-title">Truth<span> Trap</span></span>
+      </div>
 
-      <button class="header-search" data-atlas-search aria-label="Atlas Search" title="Atlas Search">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3" />
-          <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-        </svg>
-      </button>
+      <div class="header-center">
+        <span class="header-position" id="hdr-position" aria-live="polite">Case 1 of 20</span>
+      </div>
 
-      <button class="header-appearance" id="btn-appearance" onclick="toggleAppearance()"
-        aria-label="Toggle appearance"></button>
+      <div class="header-right">
+        <button class="header-session-btn" onclick="openSessionPanel(this)" aria-label="Open session panel">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <circle cx="6" cy="4" r="2.2" stroke="currentColor" stroke-width="1.2" />
+            <path d="M1.5 10.5c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4" stroke="currentColor" stroke-width="1.2"
+              stroke-linecap="round" />
+          </svg>
+          <span class="pill-name" id="hdr-session-name">Shared</span>
+        </button>
+
+        <button class="header-icon-btn" data-atlas-search aria-label="Atlas Search" title="Atlas Search">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3" />
+            <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+          </svg>
+        </button>
+
+        <button class="header-icon-btn" id="btn-appearance" onclick="toggleAppearance()"
+          aria-label="Toggle appearance"></button>
+      </div>
     </header>
 
     <!-- Progress strip -->
@@ -1621,39 +1943,40 @@
         <!-- Case card (rendered by JS) -->
         <div id="case-card"></div>
 
-        <!-- Navigation -->
-        <nav class="nav-bar" aria-label="Case navigation">
-          <button class="btn-nav" id="btn-prev" onclick="navigate(-1)" aria-label="Previous case">
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-              <path d="M8 2.5L4 6.5l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
-                stroke-linejoin="round" />
-            </svg>
-            Prev
-          </button>
-          <div class="nav-center">
-            <select class="case-select" id="case-select" onchange="jumpTo(parseInt(this.value))"
-              aria-label="Jump to case"></select>
-            <button class="btn-random" onclick="goRandom()" aria-label="Random case" title="Random case">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M2 2h3.5M2 12h3.5M12 4l-2-2h-1.5l2 2M12 10l-2 2h-1.5l2-2M8 5.5h2.5l1.5 1-1.5 1H8M2 6.5h4"
-                  stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+<!-- Unified Control Panel (Single Row) -->
+        <div class="control-panel">
+          <nav class="nav-bar" aria-label="Case navigation">
+            <button class="btn-nav" id="btn-prev" onclick="navigate(-1)" aria-label="Previous case">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                <path d="M8 2.5L4 6.5l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
-              Random
+              Prev
             </button>
-          </div>
-          <button class="btn-nav" id="btn-next" onclick="navigate(1)" aria-label="Next case">
-            Next
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-              <path d="M5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
-                stroke-linejoin="round" />
-            </svg>
-          </button>
-        </nav>
+            
+            <!-- Dots take the center stage -->
+            <div class="nav-center">
+              <div class="dots" id="dot-row" role="list" aria-label="All cases"></div>
+            </div>
 
-        <!-- Dot progress + reset -->
-        <div class="dot-row">
-          <span class="dot-label" id="dot-label">0 of 20 solved</span>
-          <div class="dots" id="dot-row" role="list" aria-label="All cases"></div>
+            <!-- Action buttons grouped on the right -->
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <button class="btn-random" onclick="goRandom()" aria-label="Random case" title="Random case">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <circle cx="15.5" cy="15.5" r="1.5"></circle>
+                  <circle cx="15.5" cy="8.5" r="1.5"></circle>
+                  <circle cx="8.5" cy="15.5" r="1.5"></circle>
+                </svg>
+              </button>
+              <button class="btn-nav" id="btn-next" onclick="navigate(1)" aria-label="Next case">
+                Next
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                  <path d="M5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+            </div>
+          </nav>
         </div>
 
         <div class="game-footer">
@@ -1664,11 +1987,36 @@
     </div>
   </div>
 
+<!-- Custom Reset Modal -->
+  <div id="reset-modal" class="tt-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" onclick="if(event.target===this)closeResetModal()">
+    <div class="tt-modal-card">
+      <div class="modal-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+      </div>
+      <h2 id="modal-title" class="modal-title">Reset Investigation?</h2>
+      <p class="modal-body">This will wipe all solved cases and completely reset your progress for the current session. This cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" onclick="closeResetModal()">Cancel</button>
+        <button class="btn-modal-confirm" onclick="executeReset()">Reset Game</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div class="tt-toast" id="tt-toast" role="status" aria-live="polite"></div>
 
+  <!-- Session Panel Root -->
+  <div id="atlas-session-panel-root"></div>
+
+  <!-- Session Panel Root -->
+  <div id="atlas-session-panel-root"></div>
+
   <!-- ============================================================ SCRIPTS -->
   <script src="../../shared/atlas-bridge.js"></script>
+  <script src="../../shared/atlas-session-panel.js"></script>
+  <script src="../../shared/atlas-session-panel.js"></script>
   <script src="../../shared/compass-catalog-data.js"></script>
   <script src="../../shared/atlas-content-registry.js"></script>
   <script src="../../shared/atlas-search.js"></script>
@@ -2043,18 +2391,32 @@
       renderCaseCard();
     }
 
-    function markSolved() {
+function markSolved() {
       ensureCaseEntry(ST.currentIndex);
-
       ST.cases[String(ST.currentIndex)].solved = true;
 
       saveState();
-      renderCaseCard();
       updateDots();
       updateProgressStrip();
 
+      // 1. Inject the heavy stamp overlay directly into the current card
+      const card = document.getElementById('case-card');
+      if (card) {
+        const stamp = document.createElement('div');
+        stamp.className = 'stamp-overlay';
+        stamp.innerHTML = '<div class="stamp-text">SOLVED</div>';
+        card.appendChild(stamp);
+      }
+
+      // 2. Give the user 1 second to feel the impact, then move on
       if (countSolved() === TOTAL_CASES) {
-        showAirlock();
+        setTimeout(() => showAirlock(), 1200);
+      } else {
+        setTimeout(() => {
+          if (ST.currentIndex < TOTAL_CASES - 1) {
+            navigate(1);
+          }
+        }, 1000); 
       }
     }
 
@@ -2083,7 +2445,17 @@
     }
 
     function confirmReset() {
-      if (!confirm('Reset Truth Trap? This will clear all progress for the active session.')) return;
+      const modal = document.getElementById('reset-modal');
+      if (modal) modal.classList.add('visible');
+    }
+
+    function closeResetModal() {
+      const modal = document.getElementById('reset-modal');
+      if (modal) modal.classList.remove('visible');
+    }
+
+    function executeReset() {
+      closeResetModal();
       ST = getDefaultState();
       saveState();
       touchActivity();
@@ -2152,17 +2524,28 @@
       const hdrPos = document.getElementById('hdr-position');
       if (hdrPos) hdrPos.textContent = pos;
 
-      const hdrSess = document.getElementById('hdr-session');
-      if (hdrSess) {
-        const name = (session && !isDefault(session)) ? session.name : '';
-        hdrSess.textContent = name;
-        hdrSess.setAttribute('aria-label', name ? 'Session: ' + name : '');
-      }
-
       const btnPrev = document.getElementById('btn-prev');
       const btnNext = document.getElementById('btn-next');
       if (btnPrev) btnPrev.disabled = (ST.currentIndex === 0);
       if (btnNext) btnNext.disabled = (ST.currentIndex === TOTAL_CASES - 1);
+    }
+
+    function updateSessionDisplay() {
+      if (!window.AtlasSessionPanel) return;
+      const currentSession = Bridge.readActiveSession();
+      const display = AtlasSessionPanel.getSessionDisplayName(currentSession);
+      const el = document.getElementById('hdr-session-name');
+      if (el) {
+        el.textContent = display;
+        const btn = el.closest('button');
+        if (btn) btn.setAttribute('aria-label', 'Open session panel. Working with ' + display);
+      }
+    }
+
+    function openSessionPanel(trigger) {
+      if (window.AtlasSessionPanel) {
+        AtlasSessionPanel.open(trigger);
+      }
     }
 
     function updateProgressStrip() {
@@ -2220,7 +2603,8 @@
 
       // Card header
       html += '<div class="case-header">';
-      html += '<span class="case-number">Case ' + String(idx + 1).padStart(2, '0') + ' of ' + TOTAL_CASES + '</span>';
+      /* Removed "of X" to stop redundancy with global header */
+      html += '<span class="case-number">CASE ' + String(idx + 1).padStart(2, '0') + '</span>';
       html += '<span class="case-title">' + escHtml(c.title) + '</span>';
       if (cs.solved) html += '<span class="solved-badge">✓ Solved</span>';
       html += '</div>';
@@ -2322,7 +2706,10 @@
         html += '<div class="' + summaryClass + '">' + summaryText + '</div>';
         html += '<div class="reveal-actions">';
         html += '<button class="btn-discussion" onclick="toggleDiscussion()">Follow-up question</button>';
-        html += '<button class="btn-mark-solved" onclick="markSolved()">Mark case solved</button>';
+        html += '<button class="btn-mark-solved" onclick="markSolved()">' +
+                'Mark Solved & Continue' +
+                '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 8h11M9.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+                '</button>';
         html += '<button class="btn-copy-recap" onclick="copyRecap()">Copy case notes</button>';
         html += '</div>';
         html += '<div class="discussion-panel" id="disc-panel">';
@@ -2390,8 +2777,19 @@
       document.documentElement.dataset.theme = mode;
       updateAppearanceBtn(mode);
 
+      // Mount the Session Panel
+      if (window.AtlasSessionPanel) {
+        AtlasSessionPanel.mount({
+          root: '#atlas-session-panel-root',
+          initialView: 'manage',
+          onRenameSession: updateSessionDisplay,
+          onDeleteSession: updateSessionDisplay
+        });
+      }
+
       // Read session
       session = Bridge.readActiveSession();
+      updateSessionDisplay();
 
       // Register with Bridge
       try {
@@ -2495,12 +2893,39 @@
     }
 
     /* ================================================================
-       BRIDGE APPEARANCE LISTENER
+       BRIDGE EVENT LISTENERS
        ================================================================ */
     window.addEventListener('atlas:appearance-change', e => {
       const mode = (e.detail && e.detail.mode) || Bridge.readAppearanceMode();
       document.documentElement.dataset.theme = mode;
       updateAppearanceBtn(mode);
+    });
+
+    window.addEventListener('atlas:session-change', () => {
+      // Re-read session and update display
+      session = Bridge.readActiveSession();
+      updateSessionDisplay();
+      
+      // Pull state for the newly selected student
+      const saved = readBridgeState();
+      if (saved) {
+        ST = saved;
+        if (ST.status === 'complete') {
+          document.getElementById('opening').style.display = 'none';
+          document.getElementById('game').classList.remove('visible');
+          document.getElementById('airlock').classList.add('visible');
+          return;
+        }
+      } else {
+        ST = getDefaultState();
+      }
+      
+      // Ensure gameplay view is active if they switch from a completed student to a new one
+      document.getElementById('airlock').classList.remove('visible');
+      document.getElementById('opening').style.display = 'none';
+      document.getElementById('game').classList.add('visible');
+      
+      render();
     });
 
     /* ================================================================
