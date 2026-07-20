@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   ==========================================================================
-  ARCADE HUB V1 · GAME LIBRARY
+  ARCADE HUB V2 · GAME LIBRARY
   SmartStudy™ Methodology
   --------------------------------------------------------------------------
   The improv studio floor. Fast, spontaneous, low-friction.
@@ -303,7 +303,7 @@
       align-items: center;
       height: 56px;
       padding: 0 1.5rem;
-      gap: 0.6rem;
+      gap: 0.5rem;
     }
 
     html[data-theme="night"] .spine {
@@ -390,7 +390,7 @@
 
     .spine-world-btn.is-active {
       color: var(--arcade);
-      background: var(--arcade-dim);
+      background: rgba(255, 255, 255, 0.86);
       border-color: rgba(var(--arcade-rgb), 0.24);
       box-shadow: var(--shadow-xs);
       cursor: default;
@@ -434,41 +434,37 @@
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      padding: 0.46rem 0.88rem;
+      padding: 0.48rem 0.9rem;
       border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255, 253, 249, 0.68);
+      border: 1px solid rgba(49, 45, 38, 0.10);
+      background: #fffdf9;
       font-family: var(--font-body);
       font-size: 0.78rem;
       font-weight: 500;
-      color: var(--ink-mid);
+      color: #504b43;
       cursor: pointer;
-      transition: var(--t);
+      transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
       max-width: 170px;
       white-space: nowrap;
       overflow: hidden;
-      box-shadow: 0 5px 14px rgba(58, 36, 63, 0.045);
     }
 
     .spine-session-pill:hover {
-      border-color: var(--border-mid);
-      color: var(--ink);
-      box-shadow: var(--shadow-sm);
+      border-color: rgba(49, 45, 38, 0.16);
+      color: #211f1b;
+      box-shadow: 0 10px 30px rgba(42, 37, 29, 0.075);
     }
 
-    /* Night session pill — keep active learner readable without a pale day-mode capsule */
     html[data-theme="night"] .spine-session-pill {
-      background: rgba(42, 33, 48, 0.78);
-      border-color: rgba(255, 255, 255, 0.12);
-      color: var(--ink-mid);
-      box-shadow: none;
+      background: #252826;
+      border-color: rgba(255, 255, 255, 0.08);
+      color: #bdb8ae;
     }
 
     html[data-theme="night"] .spine-session-pill:hover {
-      border-color: var(--border-mid);
-      color: var(--ink);
-      background: rgba(255, 255, 255, 0.055);
-      box-shadow: var(--shadow-sm);
+      border-color: rgba(255, 255, 255, 0.14);
+      color: #ebe9e4;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.30);
     }
 
     .spine-session-pill .pill-name {
@@ -483,19 +479,32 @@
       width: 38px;
       height: 38px;
       border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--bg-raised);
-      color: var(--ink-quiet);
+      border: 1px solid rgba(49, 45, 38, 0.10);
+      background: #fffdf9;
+      color: #7b7469;
       cursor: pointer;
-      transition: var(--t);
-      box-shadow: var(--shadow-xs);
+      transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(42, 37, 29, 0.045);
       flex-shrink: 0;
     }
 
     .spine-btn:hover {
-      color: var(--ink);
-      border-color: var(--border-mid);
-      box-shadow: var(--shadow-sm);
+      color: #211f1b;
+      border-color: rgba(49, 45, 38, 0.16);
+      box-shadow: 0 10px 30px rgba(42, 37, 29, 0.075);
+    }
+
+    html[data-theme="night"] .spine-btn {
+      background: #252826;
+      border-color: rgba(255, 255, 255, 0.08);
+      color: #89847b;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
+    }
+
+    html[data-theme="night"] .spine-btn:hover {
+      border-color: rgba(255, 255, 255, 0.14);
+      color: #ebe9e4;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.30);
     }
 
     .appearance-icon {
@@ -1340,6 +1349,7 @@
 
     /* ============================================================ RESPONSIVE */
     @media (max-width: 680px) {
+
       html,
       body {
         background: var(--page-bg);
@@ -1414,7 +1424,37 @@
   <!-- ============================================================ DESKTOP SPINE -->
   <header class="spine" role="banner">
     <div class="spine-mark">Arcade<span>.</span></div>
-    <div class="spine-worlds" id="spine-hub-nav" role="group" aria-label="Hub navigation"></div>
+    <div class="spine-worlds" id="spine-hub-nav" role="group" aria-label="World navigation">
+      <button class="spine-world-btn" data-hub-id="atlas" onclick="openHub('atlas')" title="Open Atlas">
+        <svg class="spine-world-icon" width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+          <path d="M6.5 1.4L11.6 6.5L6.5 11.6L1.4 6.5Z" stroke="currentColor" stroke-width="1.25"
+            stroke-linejoin="round" />
+          <path d="M6.5 3.6L9.4 6.5L6.5 9.4L3.6 6.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"
+            opacity="0.75" />
+        </svg>
+        Atlas
+      </button>
+
+      <button class="spine-world-btn" data-hub-id="compass" onclick="openHub('compass')" title="Open Compass">
+        <svg class="spine-world-icon" width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <circle cx="7" cy="7" r="5.2" stroke="currentColor" stroke-width="1.25" />
+          <circle cx="7" cy="7" r="1.6" stroke="currentColor" stroke-width="1.15" />
+          <path d="M7 1.8v1.6M7 10.6v1.6M1.8 7h1.6M10.6 7h1.6" stroke="currentColor" stroke-width="1.15"
+            stroke-linecap="round" />
+        </svg>
+        Compass
+      </button>
+
+      <button class="spine-world-btn is-active" data-hub-id="arcade" aria-current="page" title="Arcade">
+        <svg class="spine-world-icon" width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+          <rect x="1.5" y="3" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2" />
+          <path d="M4.5 6.5h2M5.5 5.5v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+          <circle cx="8.5" cy="6.5" r="0.6" fill="currentColor" />
+          <circle cx="10" cy="5.5" r="0.6" fill="currentColor" />
+        </svg>
+        Arcade
+      </button>
+    </div>
     <div class="spine-actions">
       <button class="spine-session-pill" onclick="openSessionPanel(this)"
         aria-label="Open session panel. Working with Shared">
@@ -1433,19 +1473,17 @@
       </button>
       <button class="spine-btn" id="spine-appearance-btn" onclick="toggleAppearance()"
         aria-label="Switch to night mode">
-        <svg class="appearance-icon appearance-icon--moon"
-          width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true">
-          <path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z"
-            stroke="currentColor" stroke-width="1.35"
+        <svg class="appearance-icon appearance-icon--moon" width="16" height="16" viewBox="0 0 17 17" fill="none"
+          aria-hidden="true">
+          <path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35"
             stroke-linecap="round" stroke-linejoin="round" />
         </svg>
-        <svg class="appearance-icon appearance-icon--sun"
-          width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true">
-          <circle cx="8.5" cy="8.5" r="3"
-            stroke="currentColor" stroke-width="1.35" />
-          <path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4"
-            stroke="currentColor" stroke-width="1.35"
-            stroke-linecap="round" />
+        <svg class="appearance-icon appearance-icon--sun" width="16" height="16" viewBox="0 0 17 17" fill="none"
+          aria-hidden="true">
+          <circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35" />
+          <path
+            d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4"
+            stroke="currentColor" stroke-width="1.35" stroke-linecap="round" />
         </svg>
       </button>
     </div>
@@ -1514,19 +1552,17 @@
         </button>
         <button class="drawer-appearance-btn" id="drawer-appearance-btn" onclick="toggleAppearance()"
           aria-label="Switch to night mode">
-          <svg class="appearance-icon appearance-icon--moon"
-            width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true">
-            <path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z"
-              stroke="currentColor" stroke-width="1.35"
+          <svg class="appearance-icon appearance-icon--moon" width="16" height="16" viewBox="0 0 17 17" fill="none"
+            aria-hidden="true">
+            <path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35"
               stroke-linecap="round" stroke-linejoin="round" />
           </svg>
-          <svg class="appearance-icon appearance-icon--sun"
-            width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true">
-            <circle cx="8.5" cy="8.5" r="3"
-              stroke="currentColor" stroke-width="1.35" />
-            <path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4"
-              stroke="currentColor" stroke-width="1.35"
-              stroke-linecap="round" />
+          <svg class="appearance-icon appearance-icon--sun" width="16" height="16" viewBox="0 0 17 17" fill="none"
+            aria-hidden="true">
+            <circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35" />
+            <path
+              d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4"
+              stroke="currentColor" stroke-width="1.35" stroke-linecap="round" />
           </svg>
         </button>
       </div>
@@ -1804,7 +1840,7 @@
         }
       });
     }
-    
+
     function toggleAppearance() {
       const cur = Bridge.readAppearanceMode();
       const next = cur === 'night' ? 'light' : 'night';
@@ -1946,8 +1982,8 @@
 
       const progressHtml = hasProgressBar
         ? '<span class="game-card-progress-track" aria-hidden="true">' +
-          '<span class="game-card-progress-fill"></span>' +
-          '</span>'
+        '<span class="game-card-progress-fill"></span>' +
+        '</span>'
         : '';
 
       return '<a class="game-card game-card--' + escAttr(deck.mode) + '"' +
