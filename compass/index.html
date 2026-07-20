@@ -351,10 +351,10 @@
     }
 
     .spine-world-btn:hover {
-      color: var(--accent);
-      background: rgba(255, 255, 255, 0.72);
-      border-color: rgba(var(--accent-rgb), 0.20);
-      box-shadow: var(--shadow-xs);
+      color: var(--ink);
+      background: rgba(255, 253, 249, 0.72);
+      border-color: rgba(173, 160, 143, 0.34);
+      box-shadow: 0 5px 14px rgba(49, 42, 32, 0.045);
     }
 
     .spine-world-btn:hover .spine-world-icon {
@@ -392,9 +392,10 @@
     }
 
     html[data-theme="night"] .spine-world-btn:hover {
-      background: rgba(88, 76, 64, 0.88);
-      border-color: rgba(var(--accent-rgb), 0.34);
-      color: var(--accent-soft);
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.055);
+      border-color: rgba(255, 255, 255, 0.10);
+      box-shadow: none;
     }
 
     html[data-theme="night"] .spine-world-btn.is-active {
@@ -1451,37 +1452,30 @@
     <div class="spine-mark">Compass<span>.</span></div>
 
     <div class="spine-worlds" id="spine-hub-nav" role="group" aria-label="World navigation">
-      <button class="spine-world-btn" data-hub-id="atlas"
-        onclick="openHub('atlas')" title="Open Atlas">
-        <svg class="spine-world-icon" width="13" height="13" viewBox="0 0 13 13" fill="none"
-          aria-hidden="true">
+      <button class="spine-world-btn" data-hub-id="atlas" onclick="openHub('atlas')" title="Open Atlas">
+        <svg class="spine-world-icon" width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
           <path d="M6.5 1.4L11.6 6.5L6.5 11.6L1.4 6.5Z" stroke="currentColor" stroke-width="1.25"
             stroke-linejoin="round" />
-          <path d="M6.5 3.6L9.4 6.5L6.5 9.4L3.6 6.5Z" stroke="currentColor" stroke-width="1.15"
-            stroke-linejoin="round" opacity="0.75" />
+          <path d="M6.5 3.6L9.4 6.5L6.5 9.4L3.6 6.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"
+            opacity="0.75" />
         </svg>
         Atlas
       </button>
 
-      <button class="spine-world-btn is-active" data-hub-id="compass"
-        aria-current="page" title="Compass">
-        <svg class="spine-world-icon" width="13" height="13" viewBox="0 0 14 14" fill="none"
-          aria-hidden="true">
+      <button class="spine-world-btn is-active" data-hub-id="compass" aria-current="page" title="Compass">
+        <svg class="spine-world-icon" width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
           <circle cx="7" cy="7" r="5.2" stroke="currentColor" stroke-width="1.25" />
           <circle cx="7" cy="7" r="1.6" stroke="currentColor" stroke-width="1.15" />
-          <path d="M7 1.8v1.6M7 10.6v1.6M1.8 7h1.6M10.6 7h1.6" stroke="currentColor"
-            stroke-width="1.15" stroke-linecap="round" />
+          <path d="M7 1.8v1.6M7 10.6v1.6M1.8 7h1.6M10.6 7h1.6" stroke="currentColor" stroke-width="1.15"
+            stroke-linecap="round" />
         </svg>
         Compass
       </button>
 
-      <button class="spine-world-btn" data-hub-id="arcade"
-        onclick="openHub('arcade')" title="Open Arcade">
-        <svg class="spine-world-icon" width="13" height="13" viewBox="0 0 13 13" fill="none"
-          aria-hidden="true">
+      <button class="spine-world-btn" data-hub-id="arcade" onclick="openHub('arcade')" title="Open Arcade">
+        <svg class="spine-world-icon" width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
           <rect x="1.5" y="3" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2" />
-          <path d="M4.5 6.5h2M5.5 5.5v2" stroke="currentColor" stroke-width="1.2"
-            stroke-linecap="round" />
+          <path d="M4.5 6.5h2M5.5 5.5v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
           <circle cx="8.5" cy="6.5" r="0.6" fill="currentColor" />
           <circle cx="10" cy="5.5" r="0.6" fill="currentColor" />
         </svg>
