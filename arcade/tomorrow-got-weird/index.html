@@ -1075,10 +1075,10 @@
         become.
       </p>
       <button class="btn-launch" id="launch-button" type="button" onclick="startGame()">
-        Start sequence
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
           <path d="M3 2l9 5-9 5V2z" fill="currentColor" />
         </svg>
+        Start sequence
       </button>
     </section>
   </div>
@@ -1527,14 +1527,18 @@
 
     function createDefaultState() {
       const timestamp = Date.now();
+
       return {
-        status: 'in-progress',
+        status: 'available',
         completedAt: null,
         current: 0,
         currentPosition: 1,
-        currentLabel: 'Scenario 1 of ' + SCENARIOS.length,
+        currentLabel: null,
         completed: {},
-        progress: { covered: 0, total: SCENARIOS.length },
+        progress: {
+          covered: 0,
+          total: SCENARIOS.length
+        },
         lastOpenedAt: timestamp,
         lastTouchedAt: timestamp
       };
@@ -1564,20 +1568,27 @@
       const timestamp = Date.now();
       const completed = countCompleted();
       const isComplete = completed === SCENARIOS.length;
+      const hasProgress = completed > 0;
 
       state = Object.assign({}, state, extra || {}, {
-        status: isComplete ? 'complete' : 'in-progress',
+        status: isComplete
+          ? 'complete'
+          : hasProgress
+            ? 'in-progress'
+            : 'available',
 
         completedAt: isComplete
           ? (state.completedAt || timestamp)
           : null,
 
         currentPosition: state.current + 1,
-        currentLabel:
-          'Scenario ' +
-          (state.current + 1) +
-          ' of ' +
-          SCENARIOS.length,
+
+        currentLabel: hasProgress
+          ? 'Scenario ' +
+            (state.current + 1) +
+            ' of ' +
+            SCENARIOS.length
+          : null,
 
         progress: {
           covered: completed,
@@ -1955,10 +1966,38 @@
       buildScenarioDots();
 
       const launchButton = document.getElementById('launch-button');
-      if (launchButton && saved) {
+
+      if (launchButton) {
+        const completedCount = Object.values(
+          state.completed || {}
+        ).filter(Boolean).length;
+
+        const savedCovered = Number(
+          saved && saved.progress && saved.progress.covered
+        );
+
+        const covered = Number.isFinite(savedCovered)
+          ? Math.max(savedCovered, completedCount)
+          : completedCount;
+
+        const isComplete =
+          covered >= SCENARIOS.length ||
+          (saved && (
+            saved.status === 'complete' ||
+            saved.status === 'completed'
+          ));
+
+        const buttonLabel = isComplete
+          ? 'Re-enter timeline'
+          : covered > 0
+            ? 'Continue sequence'
+            : 'Start sequence';
+
         launchButton.innerHTML =
-          (saved.status === 'complete' ? 'Re-enter timeline' : 'Continue sequence') +
-          '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 2l9 5-9 5V2z" fill="currentColor"/></svg>';
+          '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+          '<path d="M3 2l9 5-9 5V2z" fill="currentColor"/>' +
+          '</svg>' +
+          buttonLabel;
       }
     }
 
