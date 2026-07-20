@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   ==========================================================================
-  COMPASS HUB V1 · SUBJECT LIBRARY
+  COMPASS HUB V2 · SUBJECT LIBRARY
   SmartStudy™ Methodology
   --------------------------------------------------------------------------
   The reading room for the Compass world.
@@ -22,13 +22,13 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="../shared/atlas-search.css?v=20260717-theme-architecture">
   <link rel="stylesheet" href="../shared/atlas-session-panel.css">
+
+  <script src="../shared/atlas-bridge.js"></script>
 
   <!-- Anti-flash: apply the active session theme before first paint -->
   <script>
@@ -129,7 +129,6 @@
 
     html.theme-changing,
     html.theme-changing body,
-    html.theme-changing .hub-atmosphere-layer::after,
     html.theme-changing .spine,
     html.theme-changing .spine-mark,
     html.theme-changing .spine-mark span,
@@ -162,40 +161,15 @@
     html.theme-changing .hub-eyebrow,
     html.theme-changing .hub-title,
     html.theme-changing .hub-desc,
-    html.theme-changing .hub-meta-chip,
-    html.theme-changing .zone-label,
-    html.theme-changing .inprogress-empty,
-    html.theme-changing .inprogress-empty strong,
-    html.theme-changing .progress-card,
-    html.theme-changing .progress-card-title,
-    html.theme-changing .progress-card-hook,
-    html.theme-changing .progress-card-meta,
-    html.theme-changing .progress-rail,
-    html.theme-changing .progress-rail-fill,
-    html.theme-changing .status-badge,
-    html.theme-changing .available-zone-header,
-    html.theme-changing .browse-heading,
-    html.theme-changing .browse-heading-title,
-    html.theme-changing .browse-heading-copy,
-    html.theme-changing .search-field,
-    html.theme-changing .search-icon,
-    html.theme-changing .search-clear,
-    html.theme-changing .search-hint,
-    html.theme-changing .search-results-label,
-    html.theme-changing .category-header,
-    html.theme-changing .category-title,
-    html.theme-changing .category-count,
+    html.theme-changing .subject-library,
+    html.theme-changing .subject-library-title,
     html.theme-changing .subject-card,
-    html.theme-changing .subject-card::after,
     html.theme-changing .subject-card-title,
     html.theme-changing .subject-card-hook,
-    html.theme-changing .subject-card-meta,
-    html.theme-changing .timestamp-chip,
+    html.theme-changing .subject-card-progress-label,
+    html.theme-changing .subject-card-progress-track,
+    html.theme-changing .subject-card-progress-fill,
     html.theme-changing .btn-launch,
-    html.theme-changing .btn-launch-sm,
-    html.theme-changing .no-results-banner,
-    html.theme-changing .no-results-title,
-    html.theme-changing .no-results-banner p,
     html.theme-changing .empty-library,
     html.theme-changing .empty-library-icon,
     html.theme-changing .empty-library h2,
@@ -203,13 +177,6 @@
     html.theme-changing .bridge-error,
     html.theme-changing .bridge-error h2,
     html.theme-changing .bridge-error p,
-    html.theme-changing .modal-panel,
-    html.theme-changing .modal-header,
-    html.theme-changing .modal-title,
-    html.theme-changing .modal-close,
-    html.theme-changing .modal-helper,
-    html.theme-changing .modal-section-label,
-    html.theme-changing .session-input,
     html.theme-changing .btn-primary,
     html.theme-changing .btn-ghost,
     html.theme-changing .confirm-panel,
@@ -228,12 +195,6 @@
         opacity var(--hub-theme-motion),
         fill var(--hub-theme-motion),
         stroke var(--hub-theme-motion);
-    }
-
-    html.theme-changing .hub-atmosphere-layer {
-      transition:
-        opacity var(--hub-theme-motion),
-        filter var(--hub-theme-motion);
     }
 
     html.theme-changing .drawer {
@@ -309,46 +270,6 @@
     html.theme-changing body::before,
     html.theme-changing body::after {
       transition: opacity var(--hub-theme-motion);
-    }
-
-    .hub-atmosphere-layer {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      filter: blur(5px) saturate(0.76) contrast(0.94);
-      transform: translate3d(0, 0, 0) scale(1.02);
-      backface-visibility: hidden;
-      will-change: opacity, transform;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    }
-
-    .hub-atmosphere-layer::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(180deg, rgba(247, 244, 238, 0.42), rgba(245, 241, 233, 0.72)),
-        radial-gradient(circle at 22% 12%, transparent 0, rgba(245, 241, 233, 0.28) 58%);
-    }
-
-    .hub-atmosphere-layer.visible {
-      opacity: 0.18;
-    }
-
-    html[data-theme="night"] .hub-atmosphere-layer.visible {
-      opacity: 0.12;
-      filter: blur(5px) saturate(0.72) brightness(0.72) contrast(0.94);
-    }
-
-    html[data-theme="night"] .hub-atmosphere-layer::after {
-      background:
-        linear-gradient(180deg, rgba(48, 42, 35, 0.48), rgba(58, 51, 43, 0.74)),
-        radial-gradient(circle at 22% 12%, transparent 0, rgba(58, 51, 43, 0.24) 58%);
     }
 
     /* ============================================================ SPINE (desktop) */
@@ -501,8 +422,8 @@
       gap: 0.4rem;
       padding: 0.48rem 0.9rem;
       border-radius: 999px;
-      border: 1px solid var(--stone-light);
-      background: var(--white);
+      border: 1px solid rgba(173, 160, 143, 0.32);
+      background: rgba(255, 253, 249, 0.58);
       font-family: var(--font-body);
       font-size: 0.78rem;
       font-weight: 500;
@@ -516,9 +437,9 @@
     }
 
     .spine-session-pill:hover {
-      border-color: var(--accent-soft);
-      color: var(--ink);
-      background: var(--accent-dim);
+      background: rgba(255, 255, 255, 0.86);
+      border-color: rgba(var(--accent-rgb), 0.28);
+      color: var(--accent);
     }
 
     html[data-theme="night"] .spine-session-pill {
@@ -530,7 +451,7 @@
 
     html[data-theme="night"] .spine-session-pill:hover {
       background: rgba(88, 76, 64, 0.90);
-      border-color: rgba(var(--accent-rgb), 0.38);
+      border-color: rgba(131, 185, 179, 0.38);
       color: var(--accent-soft);
     }
 
@@ -562,11 +483,27 @@
     }
 
     .spine-btn:hover {
-      background: rgba(255, 255, 255, 0.86);
-      border-color: rgba(var(--accent-rgb), 0.28);
-      color: var(--accent);
+      color: var(--ink);
+      border-color: var(--border-mid);
+      box-shadow: var(--shadow-sm);
     }
 
+    .appearance-icon {
+      display: block;
+      flex-shrink: 0;
+    }
+
+    .appearance-icon--sun {
+      display: none;
+    }
+
+    html[data-theme="night"] .appearance-icon--moon {
+      display: none;
+    }
+
+    html[data-theme="night"] .appearance-icon--sun {
+      display: block;
+    }
     html[data-theme="night"] .spine-btn {
       background: rgba(76, 66, 55, 0.78);
       border-color: rgba(255, 255, 255, 0.15);
@@ -900,18 +837,13 @@
 
     /* ============================================================ HUB INTRO */
     .hub-intro {
-      margin-bottom: 2.65rem;
-      padding-bottom: 2.25rem;
-      border-bottom: 1px solid rgba(var(--accent-rgb), 0.19);
+      margin-bottom: 1.45rem;
+      padding-bottom: 0;
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
       gap: 1rem;
       flex-wrap: wrap;
-    }
-
-    html[data-theme="night"] .hub-intro {
-      border-bottom-color: rgba(var(--accent-rgb), 0.28);
     }
 
     .hub-eyebrow {
@@ -942,426 +874,72 @@
       max-width: 58ch;
     }
 
-    .hub-meta {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-      flex-shrink: 0;
-    }
+    /* ============================================================
+       SUBJECT LIBRARY
+       One curated operational collection.
+       Progress lives directly on the standard subject cards.
+       ============================================================ */
 
-    .hub-meta-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.32rem 0.75rem;
-      border-radius: 999px;
+    .subject-library {
+      padding: 1.7rem 1.75rem 1.85rem;
       border: 1px solid rgba(173, 160, 143, 0.28);
-      background: rgba(255, 253, 249, 0.68);
-      backdrop-filter: blur(10px);
-      font-size: 0.76rem;
-      font-weight: 500;
-      color: var(--ink-light);
-    }
-
-    .hub-meta-chip.session {
-      color: var(--accent);
-      border-color: rgba(var(--accent-rgb), 0.25);
-      background: var(--accent-dim);
-    }
-
-    .hub-meta-chip.count {
-      color: var(--stone-dark);
-    }
-
-    /* ============================================================ IN PROGRESS ZONE */
-    .zone-label {
-      font-size: 0.68rem;
-      font-weight: 700;
-      letter-spacing: 0.17em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 1rem;
-    }
-
-    .inprogress-zone {
-      margin-bottom: 2.8rem;
-    }
-
-    .inprogress-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1rem;
-    }
-
-    .progress-card {
-      display: flex;
-      flex-direction: column;
-      background: rgba(255, 253, 249, 0.86);
-      border: 1px solid rgba(173, 160, 143, 0.32);
       border-radius: var(--radius-lg);
-      padding: 1.45rem 1.5rem 1.55rem;
-      box-shadow: 0 14px 40px rgba(49, 42, 32, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.72);
-      transition: var(--t);
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
+      background: rgba(238, 232, 222, 0.46);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.58),
+        0 18px 50px rgba(49, 42, 32, 0.055);
     }
 
-    .progress-rail {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 2px;
-      background: rgba(var(--accent-rgb), 0.08);
-      overflow: hidden;
-    }
-
-    .progress-rail-fill {
-      height: 100%;
-      background: rgba(var(--accent-rgb), 0.5);
-      border-radius: 0 2px 2px 0;
-      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .progress-rail.is-complete .progress-rail-fill {
-      background: var(--accent);
-      border-radius: 0;
-    }
-
-    .progress-card:hover {
-      border-color: rgba(var(--accent-rgb), 0.46);
-      box-shadow: 0 18px 46px rgba(49, 42, 32, 0.11), inset 0 1px 0 rgba(255, 255, 255, 0.78);
-      transform: translateY(-2px);
-    }
-
-    .progress-card:focus-visible {
-      outline: 3px solid rgba(var(--accent-rgb), 0.34);
-      outline-offset: 3px;
-    }
-
-    .progress-card-hook {
-      font-size: 0.84rem;
-      color: var(--ink-light);
-      line-height: 1.5;
-      margin-bottom: 1rem;
-      display: -webkit-box;
-      line-clamp: 1;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .progress-card-title {
-      font-family: var(--font-display);
-      font-size: 1.18rem;
-      color: var(--ink-dark);
-      line-height: 1.3;
-      margin-bottom: 0.62rem;
-    }
-
-    .progress-card-meta {
-      font-size: 0.74rem;
-      color: var(--stone-dark);
-      line-height: 1.4;
-      min-width: 0;
-    }
-
-    .progress-card-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.75rem;
-      margin-top: auto;
-    }
-
-    .btn-launch-sm {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.3rem;
-      min-width: 108px;
-      min-height: 40px;
-      padding: 0.48rem 1rem;
-      border-radius: 999px;
-      border: 1px solid var(--accent);
-      background: var(--accent);
-      color: #fff;
-      font-family: var(--font-body);
-      font-size: 0.78rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--t);
-    }
-
-    .btn-launch:hover,
-    .btn-launch-sm:hover {
-      background: #3f6763;
-      color: #fff;
-      border-color: #3f6763;
-      box-shadow: 0 7px 18px rgba(var(--accent-rgb), 0.18);
-    }
-
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      font-size: 0.7rem;
-      font-weight: 500;
-      padding: 0.2rem 0.55rem;
-      border-radius: 20px;
-    }
-
-    .status-badge.new {
-      background: var(--cream-warm);
-      color: var(--stone-dark);
-    }
-
-    .status-badge.inprogress {
-      background: var(--accent-dim);
-      color: var(--accent);
-    }
-
-    .status-badge.explored {
-      background: var(--covered-bg);
-      color: var(--covered-acc);
-    }
-
-    html[data-theme="night"] .status-badge.explored {
-      color: var(--accent-soft);
-    }
-
-    .inprogress-empty {
-      background: var(--cream-warm);
-      border: 1px dashed var(--stone);
-      border-radius: var(--radius-md);
-      padding: 1.5rem 1.75rem;
-      font-size: 0.88rem;
-      color: var(--stone-dark);
-      line-height: 1.6;
-    }
-
-    .inprogress-empty strong {
-      display: block;
-      font-size: 0.9rem;
-      color: var(--ink-light);
-      margin-bottom: 0.25rem;
-    }
-
-    /* ============================================================ AVAILABLE NOW */
-    .available-zone {
-      margin-bottom: 3.25rem;
-    }
-
-    .available-zone-header {
+    .subject-library-header {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
       gap: 1rem;
-      margin-bottom: 0.85rem;
-    }
-
-    .browse-heading {
-      margin-bottom: 1.2rem;
-    }
-
-    .browse-heading-title {
-      font-family: var(--font-display);
-      font-size: 1.28rem;
-      font-weight: 400;
-      color: var(--ink-dark);
-      margin-bottom: 0.18rem;
-    }
-
-    .browse-heading-copy {
-      font-size: 0.78rem;
-      color: var(--stone-dark);
-    }
-
-    /* ============================================================ SEARCH */
-    .search-zone {
-      margin-bottom: 2.8rem;
-    }
-
-    .search-field-wrap {
-      position: relative;
-      max-width: 620px;
-    }
-
-    html[data-theme="night"] .search-field {
-      background: rgba(76, 66, 55, 0.78);
-      border-color: rgba(255, 255, 255, 0.15);
-      color: var(--ink);
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.045) inset,
-        0 10px 28px rgba(0, 0, 0, 0.18);
-    }
-
-    html[data-theme="night"] .search-field:focus {
-      border-color: rgba(var(--accent-rgb), 0.52);
-      box-shadow:
-        0 0 0 4px rgba(var(--accent-rgb), 0.14),
-        0 12px 30px rgba(0, 0, 0, 0.22);
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 0.9rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--stone-dark);
-      pointer-events: none;
-    }
-
-    .search-field {
-      width: 100%;
-      min-height: 48px;
-      padding: 0.78rem 2.7rem 0.78rem 2.7rem;
-      border: 1px solid rgba(173, 160, 143, 0.34);
-      border-radius: 18px;
-      font-family: var(--font-body);
-      font-size: 0.92rem;
-      color: var(--ink);
-      background: rgba(255, 253, 249, 0.76);
-      outline: none;
-      transition: border-color var(--t), box-shadow var(--t);
-      box-shadow: 0 10px 28px rgba(49, 42, 32, 0.055), inset 0 1px 0 rgba(255, 255, 255, 0.7);
-    }
-
-    .search-field::placeholder {
-      color: var(--stone-dark);
-    }
-
-    .search-field:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.12), 0 12px 30px rgba(49, 42, 32, 0.07);
-    }
-
-    .search-clear {
-      position: absolute;
-      right: 0.75rem;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: none;
-      background: var(--stone-light);
-      color: var(--ink-light);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: var(--t);
-    }
-
-    .search-clear.visible {
-      display: flex;
-    }
-
-    .search-clear:hover {
-      background: var(--stone);
-      color: var(--ink);
-    }
-
-    .search-hint {
-      margin-top: 0.55rem;
-      font-size: 0.74rem;
-      color: var(--stone-dark);
-    }
-
-    .search-results-label {
-      display: none;
-      margin-top: 0.75rem;
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--ink-light);
-    }
-
-    .search-results-label.visible {
-      display: block;
-    }
-
-    /* ============================================================ CATEGORY GROUPS */
-    .category-group {
-      margin-bottom: 3.4rem;
-    }
-
-    .category-header {
-      display: flex;
-      align-items: baseline;
-      gap: 0.6rem;
       margin-bottom: 1.15rem;
-      padding-bottom: 0.72rem;
-      border-bottom: 1px solid rgba(173, 160, 143, 0.28);
     }
 
-    .category-title {
+    .subject-library-title {
       font-family: var(--font-display);
-      font-size: 1.18rem;
-      color: var(--ink-dark);
+      font-size: 1.24rem;
+      line-height: 1.25;
       font-weight: 400;
+      color: var(--ink-dark);
     }
 
-    .category-count {
-      font-size: 0.72rem;
-      font-weight: 500;
-      color: var(--stone-dark);
-      letter-spacing: 0.04em;
-    }
-
-    .category-grid {
+    .subject-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 1rem;
     }
 
     /* ============================================================ SUBJECT CARDS */
+
     .subject-card {
+      position: relative;
       display: flex;
       flex-direction: column;
-      background: rgba(255, 253, 249, 0.90);
+      min-width: 0;
+      min-height: 224px;
+      padding: 1.4rem 1.4rem 1.35rem;
+      overflow: hidden;
       border: 1px solid rgba(173, 160, 143, 0.34);
       border-radius: 20px;
-      padding: 1.4rem 1.45rem 1.3rem;
-      box-shadow: 0 12px 32px rgba(49, 42, 32, 0.065), inset 0 1px 0 rgba(255, 255, 255, 0.70);
-      cursor: pointer;
-      transition: var(--t);
-      position: relative;
-      overflow: hidden;
+      background: rgba(255, 253, 249, 0.91);
+      color: var(--ink);
       text-align: left;
-      font-family: var(--font-body);
-    }
-
-    .subject-card::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-soft));
-      opacity: 0;
-      transition: opacity var(--t);
-    }
-
-    .subject-card[role="button"] {
-      border-color: rgba(var(--accent-rgb), 0.24);
-    }
-
-    .subject-card[role="button"]::after {
-      opacity: 0.32;
+      text-decoration: none;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.74),
+        0 11px 30px rgba(49, 42, 32, 0.06);
+      transition: var(--t);
     }
 
     .subject-card:hover {
-      border-color: rgba(var(--accent-rgb), 0.44);
-      box-shadow: 0 18px 42px rgba(49, 42, 32, 0.095), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+      border-color: rgba(var(--accent-rgb), 0.46);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.78),
+        0 18px 42px rgba(49, 42, 32, 0.10);
       transform: translateY(-2px);
-    }
-
-    .subject-card:hover::after {
-      opacity: 1;
     }
 
     .subject-card:focus-visible {
@@ -1369,101 +947,55 @@
       outline-offset: 3px;
     }
 
-    .subject-card.is-explored {
-      opacity: 1;
-      background: rgba(239, 247, 245, 0.78);
-      border-color: rgba(var(--accent-rgb), 0.32);
-    }
-
-    .subject-card.is-explored::after {
-      opacity: 0.6;
-    }
-
-    .subject-card.is-hidden {
-      display: none;
-    }
-
-    .subject-card:not([role="button"]) {
-      cursor: default;
-      background: rgba(250, 247, 241, 0.58);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
-    }
-
-    .subject-card:not([role="button"]):hover {
-      border-color: rgba(173, 160, 143, 0.3);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
-      transform: none;
-    }
-
-    .subject-card:not([role="button"]):hover::after {
-      opacity: 0;
-    }
-
-    .subject-card:not([role="button"]) .subject-card-title {
-      color: var(--ink);
-      opacity: 0.76;
-    }
-
-    .subject-card:not([role="button"]) .subject-card-hook {
-      color: var(--stone-dark);
-      opacity: 0.82;
-    }
-
-    .subject-card:not([role="button"]) .btn-launch.is-soon {
-      opacity: 0.72;
-    }
-
     .subject-card-header {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 0.5rem;
-      margin-bottom: 0.7rem;
+      gap: 0.6rem;
+      margin-bottom: 0.72rem;
     }
 
     .subject-card-title {
       font-family: var(--font-display);
-      font-size: 1.08rem;
-      color: var(--ink-dark);
-      line-height: 1.3;
+      font-size: 1.16rem;
+      line-height: 1.28;
       font-weight: 400;
-      flex: 1;
+      color: var(--ink-dark);
     }
 
     .subject-card-hook {
-      font-size: 0.83rem;
+      margin-bottom: 0.85rem;
       color: var(--ink-light);
-      line-height: 1.55;
-      flex: 1;
-      margin-bottom: 1.15rem;
-      min-height: calc(0.81rem * 1.55 * 3);
+      font-size: 0.82rem;
+      line-height: 1.58;
       display: -webkit-box;
-      line-clamp: 3;
-      -webkit-line-clamp: 3;
+      line-clamp: 4;
+      -webkit-line-clamp: 4;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
 
     .subject-card-footer {
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: space-between;
-      gap: 0.5rem;
+      gap: 0.8rem;
       margin-top: auto;
     }
 
     .subject-card-meta {
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      flex-wrap: wrap;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.14rem;
       min-width: 0;
     }
 
-    .timestamp-chip {
-      font-size: 0.7rem;
-      color: var(--stone-dark);
-      font-style: italic;
+    .subject-card-progress-label {
+      color: var(--accent);
+      font-size: 0.69rem;
+      font-weight: 500;
+      line-height: 1.4;
     }
 
     .btn-launch {
@@ -1471,116 +1003,113 @@
       align-items: center;
       justify-content: center;
       gap: 0.3rem;
-      min-width: 104px;
+      min-width: 100px;
       min-height: 38px;
-      padding: 0.44rem 0.95rem;
+      padding: 0.44rem 0.9rem;
+      flex-shrink: 0;
+      margin-left: auto;
+      border: 1px solid rgba(var(--accent-rgb), 0.27);
       border-radius: 999px;
-      border: 1px solid rgba(var(--accent-rgb), 0.26);
-      background: rgba(217, 233, 230, 0.72);
+      background: rgba(217, 233, 230, 0.76);
       color: var(--accent);
       font-family: var(--font-body);
-      font-size: 0.76rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--t);
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1;
       white-space: nowrap;
-      flex-shrink: 0;
+      transition: var(--t);
     }
 
-    .btn-launch.is-soon,
-    .btn-launch.is-soon:hover {
-      background: rgba(238, 232, 222, 0.64);
-      border-color: rgba(173, 160, 143, 0.26);
-      color: var(--stone-dark);
-      cursor: default;
-      box-shadow: none;
-    }
-
-    /* Night card states */
-    html[data-theme="night"] .subject-card,
-    html[data-theme="night"] .progress-card {
-      background: rgba(76, 66, 55, 0.76);
-      border-color: rgba(255, 255, 255, 0.12);
-      box-shadow: 0 16px 42px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    }
-
-    html[data-theme="night"] .subject-card:hover,
-    html[data-theme="night"] .progress-card:hover {
-      background: rgba(91, 78, 65, 0.82);
-      border-color: rgba(var(--accent-rgb), 0.48);
-    }
-
-    html[data-theme="night"] .subject-card:not([role="button"]),
-    html[data-theme="night"] .subject-card:not([role="button"]):hover {
-      background: rgba(70, 61, 51, 0.58);
-      border-color: rgba(255, 255, 255, 0.09);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
-    }
-
-    html[data-theme="night"] .btn-launch,
-    html[data-theme="night"] .btn-launch-sm {
-      background: rgba(var(--accent-rgb), 0.22);
-      border-color: rgba(var(--accent-rgb), 0.38);
-      color: var(--accent-soft);
-    }
-
-    html[data-theme="night"] .btn-launch:hover,
-    html[data-theme="night"] .btn-launch-sm:hover {
-      background: rgba(var(--accent-rgb), 0.55);
-      color: #fff;
-    }
-
-    html[data-theme="night"] .btn-launch-sm {
-      background: var(--accent);
+    .subject-card:hover .btn-launch {
       border-color: var(--accent);
-      color: #1f2d2b;
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 7px 17px rgba(var(--accent-rgb), 0.17);
+      transform: translateY(-1px);
     }
 
-    .spine-world-btn:focus-visible,
-    .spine-session-pill:focus-visible,
-    .spine-btn:focus-visible,
-    .mobile-header-btn:focus-visible,
-    .mobile-session-pill:focus-visible,
-    .search-clear:focus-visible,
-    .btn-launch:focus-visible,
-    .btn-launch-sm:focus-visible {
-      outline: 3px solid rgba(var(--accent-rgb), 0.36);
-      outline-offset: 3px;
+    /* ============================================================ PROGRESS STATES */
+
+    .subject-card-progress-track {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      overflow: hidden;
+      background: rgba(var(--accent-rgb), 0.09);
     }
 
-    html[data-theme="night"] .hub-meta-chip {
-      background: rgba(76, 66, 55, 0.78);
-      border-color: rgba(255, 255, 255, 0.13);
-    }
-
-    html[data-theme="night"] .hub-meta-chip.session {
-      background: rgba(var(--accent-rgb), 0.18);
-      border-color: rgba(var(--accent-rgb), 0.28);
-      color: var(--accent-soft);
-    }
-
-    /* ============================================================ NO RESULTS */
-    .no-results-banner {
-      display: none;
-      text-align: center;
-      padding: 3rem 1rem;
-      color: var(--stone-dark);
-    }
-
-    .no-results-banner.visible {
+    .subject-card-progress-fill {
       display: block;
+      width: var(--subject-progress);
+      height: 100%;
+      background: var(--accent);
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .no-results-banner p {
-      font-size: 0.9rem;
-      line-height: 1.6;
+    .subject-card--inprogress {
+      border-color: rgba(var(--accent-rgb), 0.35);
     }
 
-    .no-results-title {
-      font-family: var(--font-display);
-      font-size: 1.1rem;
-      color: var(--ink-light);
-      margin-bottom: 0.4rem;
+    .subject-card--explored {
+      background: rgba(239, 247, 245, 0.82);
+      border-color: rgba(var(--accent-rgb), 0.34);
+    }
+
+    /* ============================================================ NIGHT LIBRARY */
+
+    html[data-theme="night"] .subject-library {
+      border-width: 1.5px;
+      border-color: rgba(255, 255, 255, 0.10);
+      background: rgba(70, 61, 51, 0.44);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.035),
+        0 18px 48px rgba(0, 0, 0, 0.14);
+    }
+
+    html[data-theme="night"] .subject-card {
+      border-width: 1.5px;
+      border-color: rgba(255, 255, 255, 0.12);
+      background: rgba(76, 66, 55, 0.78);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 14px 38px rgba(0, 0, 0, 0.17);
+    }
+
+    html[data-theme="night"] .subject-card:hover {
+      border-color: rgba(var(--accent-rgb), 0.48);
+      background: rgba(91, 78, 65, 0.84);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.065),
+        0 19px 44px rgba(0, 0, 0, 0.23);
+    }
+
+    html[data-theme="night"] .subject-card--inprogress {
+      border-color: rgba(var(--accent-rgb), 0.37);
+    }
+
+    html[data-theme="night"] .subject-card--explored {
+      border-color: rgba(var(--accent-rgb), 0.40);
+      background: rgba(60, 84, 78, 0.72);
+    }
+
+    html[data-theme="night"] .btn-launch {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #1f2d2b;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 4px 11px rgba(var(--accent-rgb), 0.13);
+    }
+
+    html[data-theme="night"] .subject-card:hover .btn-launch {
+      border-color: var(--accent-soft);
+      background: var(--accent-soft);
+      color: #1f2d2b;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.16),
+        0 7px 18px rgba(var(--accent-rgb), 0.20);
     }
 
     /* ============================================================ EMPTY STATE */
@@ -1637,138 +1166,6 @@
       font-size: 0.88rem;
       color: var(--ink-light);
       line-height: 1.65;
-    }
-
-    /* ============================================================ SETTINGS MODAL */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(20, 17, 12, 0.52);
-      backdrop-filter: blur(6px);
-      z-index: 600;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-    }
-
-    .modal-overlay.open {
-      display: flex;
-      animation: fadeIn 0.18s ease;
-    }
-
-    .modal-panel {
-      background: var(--white);
-      border-radius: var(--radius-lg);
-      max-width: 420px;
-      width: 100%;
-      box-shadow: var(--shadow-lg);
-      animation: slideUp 0.22s cubic-bezier(0.34, 1.25, 0.64, 1);
-      max-height: 90svh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    html[data-theme="night"] .modal-panel {
-      background: #4c4237;
-      border: 1px solid rgba(255, 255, 255, 0.13);
-    }
-
-    .modal-header {
-      padding: 1.3rem 1.5rem 1rem;
-      border-bottom: 1px solid var(--stone-light);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-    }
-
-    html[data-theme="night"] .modal-header {
-      background: #463d33;
-      border-bottom-color: rgba(255, 255, 255, 0.13);
-    }
-
-    .modal-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--ink-dark);
-    }
-
-    .modal-close {
-      width: 30px;
-      height: 30px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--stone-light);
-      background: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: var(--ink-light);
-    }
-
-    .modal-close:hover {
-      background: var(--cream-warm);
-    }
-
-    .modal-body {
-      padding: 1.2rem 1.5rem 1.5rem;
-      overflow-y: auto;
-      flex: 1;
-    }
-
-    .modal-helper {
-      font-size: 0.78rem;
-      color: var(--stone-dark);
-      margin-bottom: 0.9rem;
-      line-height: 1.5;
-    }
-
-    .modal-section-label {
-      font-size: 0.65rem;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
-      margin: 0.9rem 0 0.45rem;
-    }
-
-    .session-input {
-      flex: 1;
-      padding: 0.58rem 0.8rem;
-      border: 1.5px solid var(--stone-light);
-      border-radius: var(--radius-sm);
-      font-family: var(--font-body);
-      font-size: 0.86rem;
-      color: var(--ink);
-      background-color: var(--white);
-      outline: none;
-      transition: border-color var(--t);
-      min-height: 42px;
-    }
-
-    .session-input:focus {
-      border-color: var(--accent);
-    }
-
-    html[data-theme="night"] .session-input {
-      background-color: rgba(58, 51, 43, 0.82);
-      border-color: rgba(255, 255, 255, 0.16);
-      color: var(--ink);
-    }
-
-    select.session-input {
-      appearance: none;
-      padding-right: 2.35rem;
-      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 5.25L7 8.75L10.5 5.25' stroke='%237a7268' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-size: 14px 14px;
-      background-position: right 0.7rem center;
-    }
-
-    html[data-theme="night"] select.session-input {
-      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 5.25L7 8.75L10.5 5.25' stroke='%23d6cabc' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     }
 
     .btn-primary {
@@ -1981,6 +1378,12 @@
     }
 
     /* ============================================================ RESPONSIVE */
+    @media (min-width: 681px) and (max-width: 920px) {
+      .subject-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
     @media (max-width: 680px) {
       html,
       body {
@@ -1993,22 +1396,12 @@
         content: none !important;
       }
 
-      .hub-atmosphere-layer,
-      .drawer-settings-item {
-        display: none !important;
-      }
-
       .spine {
         display: none !important;
       }
 
       .mobile-header {
         display: flex !important;
-      }
-
-      .hub-atmosphere-layer,
-      .drawer-settings-item {
-        display: none !important;
       }
 
       .hub-main {
@@ -2019,29 +1412,25 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
-        margin-bottom: 2.25rem;
-        padding-bottom: 1.8rem;
+        margin-bottom: 1.35rem;
+        padding-bottom: 0;
       }
 
       .hub-title {
         font-size: clamp(2rem, 10vw, 2.45rem);
       }
 
-      .progress-card,
+      .subject-library {
+        padding: 1.15rem;
+      }
+
+      .subject-grid {
+        grid-template-columns: 1fr;
+      }
+
       .subject-card {
-        padding: 1.3rem 1.25rem;
-      }
-
-      .category-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .inprogress-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .hub-meta {
-        flex-direction: row;
+        min-height: 0;
+        padding: 1.3rem 1.25rem 1.35rem;
       }
     }
 
@@ -2059,7 +1448,6 @@
 </head>
 
 <body data-atlas-surface="hub">
-  <div class="hub-atmosphere-layer" id="hub-atmosphere-layer" aria-hidden="true"></div>
   <!-- ============================================================ DESKTOP SPINE -->
   <header class="spine" role="banner">
     <div class="spine-mark">Compass<span>.</span></div>
@@ -2074,7 +1462,7 @@
           <path d="M1 9.5c0-2 2-3.5 4.5-3.5s4.5 1.5 4.5 3.5" stroke="currentColor" stroke-width="1.2"
             stroke-linecap="round" />
         </svg>
-        <span class="pill-name" id="spine-session-name">Shared</span>
+        <span class="pill-name" id="spine-session-name"></span>
       </button>
 
       <button class="spine-btn" data-atlas-search title="Search" aria-label="Search">
@@ -2084,17 +1472,23 @@
         </svg>
       </button>
 
-      <button class="spine-btn" onclick="openSettingsModal()" title="Settings" aria-label="Settings">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
-          <circle cx="6" cy="4" r="1.2" fill="var(--white)" stroke="currentColor" stroke-width="1.2" />
-          <circle cx="10" cy="8" r="1.2" fill="var(--white)" stroke="currentColor" stroke-width="1.2" />
-          <circle cx="7.5" cy="12" r="1.2" fill="var(--white)" stroke="currentColor" stroke-width="1.2" />
+      <button class="spine-btn" id="spine-appearance-btn" onclick="toggleAppearance()"
+        aria-label="Switch to night mode">
+        <svg class="appearance-icon appearance-icon--moon"
+          width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+          <path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z"
+            stroke="currentColor" stroke-width="1.35"
+            stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <svg class="appearance-icon appearance-icon--sun"
+          width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+          <circle cx="8.5" cy="8.5" r="3"
+            stroke="currentColor" stroke-width="1.35" />
+          <path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4"
+            stroke="currentColor" stroke-width="1.35"
+            stroke-linecap="round" />
         </svg>
       </button>
-
-      <button class="spine-btn" id="spine-appearance-btn" onclick="toggleAppearance()"
-        aria-label="Toggle appearance"></button>
     </div>
   </header>
 
@@ -2111,7 +1505,7 @@
           <path d="M1 9.5c0-2 2-3.5 4.5-3.5s4.5 1.5 4.5 3.5" stroke="currentColor" stroke-width="1.2"
             stroke-linecap="round" />
         </svg>
-        <span id="mobile-session-name">Shared</span>
+        <span id="mobile-session-name"></span>
       </button>
 
       <button class="mobile-header-btn" data-atlas-search aria-label="Search">
@@ -2153,15 +1547,7 @@
         </svg>
         Search
       </button>
-      <button class="drawer-nav-item" onclick="closeDrawer(); openSettingsModal()">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-          <path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
-          <circle cx="6" cy="4" r="1.2" fill="var(--white)" stroke="currentColor" stroke-width="1.2" />
-          <circle cx="10" cy="8" r="1.2" fill="var(--white)" stroke="currentColor" stroke-width="1.2" />
-          <circle cx="7.5" cy="12" r="1.2" fill="var(--white)" stroke="currentColor" stroke-width="1.2" />
-        </svg>
-        Settings
-      </button>
+
     </div>
     <div class="drawer-footer">
       <div class="drawer-footer-row">
@@ -2172,53 +1558,36 @@
             <path d="M1.5 11.5c0-2.4 2.2-4.2 5-4.2s5 1.8 5 4.2" stroke="currentColor" stroke-width="1.2"
               stroke-linecap="round" />
           </svg>
-          <span id="drawer-session-name">Shared</span>
+          <span id="drawer-session-name"></span>
         </button>
         <button class="drawer-appearance-btn" id="drawer-appearance-btn" onclick="toggleAppearance()"
-          aria-label="Toggle appearance"></button>
+          aria-label="Switch to night mode">
+          <svg class="appearance-icon appearance-icon--moon"
+            width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+            <path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z"
+              stroke="currentColor" stroke-width="1.35"
+              stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <svg class="appearance-icon appearance-icon--sun"
+            width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+            <circle cx="8.5" cy="8.5" r="3"
+              stroke="currentColor" stroke-width="1.35" />
+            <path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4"
+              stroke="currentColor" stroke-width="1.35"
+              stroke-linecap="round" />
+          </svg>
+        </button>
       </div>
     </div>
   </nav>
 
+  <script>
+    AtlasBridge.hydrateSessionChrome();
+  </script>
+
   <!-- ============================================================ MAIN -->
   <main class="hub-main" id="hub-main" role="main"></main>
   <div id="atlas-session-panel-root"></div>
-
-  <!-- ============================================================ SETTINGS MODAL -->
-  <div class="modal-overlay" id="settings-modal" onclick="handleSettingsModalClick(event)" role="dialog"
-    aria-label="Settings" aria-modal="true">
-    <div class="modal-panel">
-      <div class="modal-header">
-        <span class="modal-title">Settings</span>
-        <button class="modal-close" onclick="closeSettingsModal()" aria-label="Close">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p class="modal-helper">Choose the Compass atmosphere for this device.</p>
-
-        <p class="modal-section-label">Atmosphere</p>
-        <select class="session-input" id="compass-atmosphere-mode" onchange="handleCompassAtmosphereModeChange()">
-          <option value="default">Default Compass atmosphere</option>
-          <option value="custom">Custom image URL</option>
-          <option value="none">No atmosphere image</option>
-        </select>
-
-        <div id="compass-custom-atmosphere-row" style="margin-top:0.9rem;">
-          <p class="modal-section-label">Custom image URL</p>
-          <input class="session-input" id="compass-atmosphere-input" type="url" placeholder="https://..."
-            autocomplete="off">
-        </div>
-
-        <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
-          <button class="btn-primary" onclick="handleSaveSettings()">Save</button>
-          <button class="btn-ghost" onclick="handleRevertAtmosphere()">Revert to default</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- ============================================================ CONFIRM DIALOG -->
   <div class="confirm-dialog" id="confirm-dialog" role="alertdialog" aria-modal="true">
@@ -2235,7 +1604,6 @@
   </div>
 
   <!-- ============================================================ SCRIPTS -->
-  <script src="../shared/atlas-bridge.js"></script>
   <script src="../shared/compass-catalog-data.js"></script>
   <script src="../shared/atlas-content-registry.js"></script>
   <script src="../shared/atlas-session-panel.js"></script>
@@ -2262,9 +1630,6 @@
     const COMPASS_ID = 'compass';
     const ARCADE_ID = 'arcade';
     const ACTIVE_HUB_ID = COMPASS_ID;
-    const COMPASS_ATMOSPHERE_KEY = 'compass::atmosphereImage';
-    const COMPASS_ATMOSPHERE_MODE_KEY = 'compass::atmosphereMode';
-    const COMPASS_DEFAULT_ATMOSPHERE = './compass-hub-atmosphere.jpg';
 
     const HUB_NAV = {
       atlas: {
@@ -2298,10 +1663,6 @@
        ================================================================ */
 
     const COMPASS_CATALOG_DATA = window.CompassCatalogData;
-
-    const COMPASS_CATEGORIES = COMPASS_CATALOG_DATA
-      ? COMPASS_CATALOG_DATA.getCompassCategories()
-      : [];
 
     const COMPASS_CATALOG = COMPASS_CATALOG_DATA
       ? COMPASS_CATALOG_DATA.getCompassCatalogMap()
@@ -2343,27 +1704,6 @@
         .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    function formatRelativeTime(ts) {
-      if (!ts) return '';
-
-      const now = Date.now();
-      const diff = now - ts;
-      const days = Math.floor(diff / 86400000);
-
-      if (days === 0) return 'used today';
-      if (days === 1) return 'used yesterday';
-      if (days < 7) return 'used ' + days + ' days ago';
-      if (days < 14) return 'used last week';
-
-      const weeks = Math.floor(days / 7);
-
-      if (weeks < 5) {
-        return 'used ' + weeks + ' weeks ago';
-      }
-
-      return 'used a while ago';
-    }
-
     function resolveStatus(state) {
       if (!state || typeof state !== 'object') {
         return 'new';
@@ -2389,37 +1729,46 @@
       return 'new';
     }
 
-    function getCategoryTitle(categoryId) {
-      const cat = COMPASS_CATEGORIES.find(c => c.id === categoryId);
-      return cat ? cat.title : 'Compass';
-    }
+    function getSubjectCardState(subject) {
+      const progress = subject.state && subject.state.progress
+        ? subject.state.progress
+        : {};
 
-    function statusBadgeHtml(status) {
-      const labels = { new: 'New', inprogress: 'In progress', explored: 'Explored' };
-      return '<span class="status-badge ' + status + '">' + (labels[status] || status) + '</span>';
-    }
+      const total = Math.max(0, Number(progress.total) || 0);
+      const explored = Math.max(
+        0,
+        Math.min(Number(progress.explored) || 0, total || Infinity)
+      );
 
-    function subjectButtonLabel(status, available) {
-      if (!available) return 'Soon';
+      if (subject.status === 'explored') {
+        return {
+          mode: 'explored',
+          actionLabel: 'Revisit',
+          progressLabel: explored > 0
+            ? explored + ' path' + (explored === 1 ? '' : 's') + ' explored'
+            : 'Explored',
+          progressPercent: 100
+        };
+      }
 
-      const labels = { new: 'Explore', inprogress: 'Continue', explored: 'Revisit' };
-      return labels[status] || 'Explore';
-    }
+      if (subject.status === 'inprogress' && explored > 0) {
+        return {
+          mode: 'inprogress',
+          actionLabel: 'Continue',
+          progressLabel:
+            explored + ' path' + (explored === 1 ? '' : 's') + ' explored',
+          progressPercent: total > 0
+            ? Math.round((explored / total) * 100)
+            : 0
+        };
+      }
 
-    function subjectProgressPercent(s) {
-      if (!s) return null;
-      if (s.status === 'explored') return 100;
-
-      const p = s.state && s.state.progress ? s.state.progress : null;
-      if (!p || typeof p !== 'object') return null;
-
-      const total = Number(p.total) || 0;
-      const explored = Number(p.explored) || 0;
-
-      if (total <= 0 || explored <= 0) return null;
-
-      const pct = Math.round((explored / total) * 100);
-      return Math.max(0, Math.min(100, pct));
+      return {
+        mode: 'new',
+        actionLabel: 'Explore',
+        progressLabel: '',
+        progressPercent: 0
+      };
     }
 
     /* ================================================================
@@ -2449,96 +1798,58 @@
        type=subject, status=available are included.
        ================================================================ */
 
-    function getMergedSubjects() {
+    function getOperationalSubjects() {
       const reg = getRegistry();
       const session = getActiveSession();
       const sessionStates = ((reg.sessionStates || {})[session.id]) || {};
-      const merged = [];
 
-      Object.values(COMPASS_CATALOG).forEach(cat => {
-        const slug = compassSubjectSlug(cat);
-        const locallyAvailable = COMPASS_AVAILABLE_SUBJECT_SLUGS.includes(slug);
-        const relativeLaunchUrl = locallyAvailable ? getCompassSubjectLaunchUrl(cat) : '';
-        const launchUrl = relativeLaunchUrl
-          ? new URL(relativeLaunchUrl, window.location.href).href
-          : '';
-
-        const item = (reg.items || {})[cat.registryId] || null;
-        const state = sessionStates[cat.registryId] || null;
-
-        const isAvailable = locallyAvailable && !!launchUrl;
-        const status = isAvailable ? resolveStatus(state) : 'new';
-        const ts = state ? (state.lastTouchedAt || state.lastOpenedAt || state.updatedAt || 0) : 0;
-
-        merged.push({
-          registryId: cat.registryId,
-          title: cat.title,
-          launchUrl: isAvailable ? launchUrl : '',
-          categoryId: cat.categoryId,
-          order: cat.order,
-          durationLabel: cat.durationLabel || '45–60 min',
-          hook: cat.hook || '',
-          status: status,
-          ts: ts,
-          state: state,
-          available: !!isAvailable,
-          contentVersion: item ? item.contentVersion || null : null
-        });
-      });
-
-      return merged;
-    }
-
-    function getInProgressSubjects(merged) {
-      return merged
-        .filter(s => s.status === 'inprogress')
-        .sort((a, b) => b.ts - a.ts)
-        .slice(0, 3);
-    }
-
-    function getAvailableSubjects(merged) {
-      const preferredOrder = new Map(
-        COMPASS_AVAILABLE_SUBJECT_SLUGS.map((slug, index) => [
-          slug,
-          index
-        ])
-      );
-
-      return merged
-        .filter(subject => subject.available)
-        .sort((a, b) => {
-          const aOrder = preferredOrder.get(
-            compassSubjectSlug(a)
+      return COMPASS_AVAILABLE_SUBJECT_SLUGS
+        .map(slug => {
+          const subject = Object.values(COMPASS_CATALOG).find(item =>
+            compassSubjectSlug(item) === slug
           );
 
-          const bOrder = preferredOrder.get(
-            compassSubjectSlug(b)
-          );
+          if (!subject) return null;
 
-          return (aOrder ?? 999) - (bOrder ?? 999);
-        });
+          const relativeLaunchUrl = getCompassSubjectLaunchUrl(subject);
+          const launchUrl = relativeLaunchUrl
+            ? new URL(relativeLaunchUrl, window.location.href).href
+            : '';
+
+          if (!launchUrl) return null;
+
+          const item = (reg.items || {})[subject.registryId] || null;
+          const state = sessionStates[subject.registryId] || null;
+
+          return {
+            registryId: subject.registryId,
+            title: subject.title,
+            launchUrl,
+            hook: subject.hook || '',
+            status: resolveStatus(state),
+            state,
+            contentVersion: item ? item.contentVersion || null : null
+          };
+        })
+        .filter(Boolean);
     }
 
     /* ================================================================
        APPEARANCE
        ================================================================ */
 
-    function sunSvg(size) {
-      return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 17 17" fill="none"><circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35"/><path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>';
-    }
-    function moonSvg(size) {
-      return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 17 17" fill="none"><path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    }
-
     function updateAppearanceButtons(mode) {
-      const icon = mode === 'night' ? sunSvg(16) : moonSvg(16);
-      const label = mode === 'night' ? 'Switch to day mode' : 'Switch to night mode';
-      ['spine-appearance-btn', 'mobile-appearance-btn'].forEach(id => {
+      const label = mode === 'night'
+        ? 'Switch to day mode'
+        : 'Switch to night mode';
+
+      ['spine-appearance-btn', 'drawer-appearance-btn'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) { el.innerHTML = icon; el.setAttribute('aria-label', label); }
+
+        if (el) {
+          el.setAttribute('aria-label', label);
+        }
       });
-      const da = document.getElementById('drawer-appearance-btn');
-      if (da) da.innerHTML = mode === 'night' ? sunSvg(16) : moonSvg(16);
     }
 
     function toggleAppearance() {
@@ -2546,153 +1857,6 @@
       const next = cur === 'night' ? 'light' : 'night';
       Bridge.setAppearanceMode(next);
     }
-
-    /* ================================================================
-    SETTINGS — Compass atmosphere image
-    ================================================================ */
-
-    function readCompassAtmosphereMode() {
-      try {
-        const mode = localStorage.getItem(COMPASS_ATMOSPHERE_MODE_KEY);
-        if (mode === 'custom' || mode === 'none' || mode === 'default') return mode;
-
-        return localStorage.getItem(COMPASS_ATMOSPHERE_KEY) ? 'custom' : 'default';
-      } catch (e) {
-        return 'default';
-      }
-    }
-
-    function readCompassCustomAtmosphereImage() {
-      try { return localStorage.getItem(COMPASS_ATMOSPHERE_KEY) || ''; }
-      catch (e) { return ''; }
-    }
-
-    function getCompassAtmosphereImage() {
-      const mode = readCompassAtmosphereMode();
-
-      if (mode === 'none') return '';
-      if (mode === 'custom') return readCompassCustomAtmosphereImage();
-
-      return COMPASS_DEFAULT_ATMOSPHERE;
-    }
-
-    function writeCompassAtmosphereSettings(mode, url) {
-      const cleanMode = (mode === 'custom' || mode === 'none' || mode === 'default') ? mode : 'default';
-      const cleanUrl = (url || '').trim();
-
-      try {
-        localStorage.setItem(COMPASS_ATMOSPHERE_MODE_KEY, cleanMode);
-
-        if (cleanUrl) localStorage.setItem(COMPASS_ATMOSPHERE_KEY, cleanUrl);
-        else localStorage.removeItem(COMPASS_ATMOSPHERE_KEY);
-      } catch (e) { }
-
-      applyCompassAtmosphereImage();
-    }
-
-    function cssImageUrl(url) {
-      return 'url("' + String(url || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '")';
-    }
-
-    function isMobileHubViewport() {
-      return window.matchMedia && window.matchMedia('(max-width: 680px)').matches;
-    }
-
-    function applyCompassAtmosphereImage() {
-      const layer = document.getElementById('hub-atmosphere-layer');
-      if (!layer) return;
-
-      if (isMobileHubViewport()) {
-        layer.style.backgroundImage = '';
-        layer.classList.remove('visible');
-        return;
-      }
-
-      const image = getCompassAtmosphereImage();
-
-      if (!image) {
-        layer.style.backgroundImage = '';
-        layer.classList.remove('visible');
-        return;
-      }
-
-      layer.style.backgroundImage = cssImageUrl(image);
-      layer.classList.add('visible');
-    }
-
-    function handleCompassAtmosphereModeChange() {
-      const mode = document.getElementById('compass-atmosphere-mode');
-      const row = document.getElementById('compass-custom-atmosphere-row');
-
-      if (!mode || !row) return;
-
-      row.style.display = mode.value === 'custom' ? '' : 'none';
-    }
-
-    function openSettingsModal() {
-      if (isMobileHubViewport()) return;
-
-      const mode = document.getElementById('compass-atmosphere-mode');
-      const input = document.getElementById('compass-atmosphere-input');
-
-      if (mode) mode.value = readCompassAtmosphereMode();
-      if (input) input.value = readCompassCustomAtmosphereImage();
-
-      handleCompassAtmosphereModeChange();
-
-      document.getElementById('settings-modal').classList.add('open');
-      document.body.style.overflow = 'hidden';
-
-      setTimeout(() => {
-        const currentMode = readCompassAtmosphereMode();
-        const el = currentMode === 'custom'
-          ? document.getElementById('compass-atmosphere-input')
-          : document.getElementById('compass-atmosphere-mode');
-
-        if (el) el.focus();
-      }, 50);
-    }
-
-    function closeSettingsModal() {
-      document.getElementById('settings-modal').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    function handleSettingsModalClick(e) {
-      if (e.target === document.getElementById('settings-modal')) closeSettingsModal();
-    }
-
-    function handleSaveSettings() {
-      const modeEl = document.getElementById('compass-atmosphere-mode');
-      const input = document.getElementById('compass-atmosphere-input');
-
-      const mode = modeEl ? modeEl.value : 'default';
-      const customUrl = input ? input.value.trim() : '';
-
-      if (mode === 'custom' && !customUrl) {
-        showToast('Add a custom image URL, or choose Default or No atmosphere.');
-        if (input) input.focus();
-        return;
-      }
-
-      writeCompassAtmosphereSettings(mode, customUrl);
-      closeSettingsModal();
-
-      const labels = {
-        default: 'Compass atmosphere reset to default.',
-        custom: 'Compass custom atmosphere saved.',
-        none: 'Compass atmosphere removed.'
-      };
-
-      showToast(labels[mode] || 'Compass atmosphere saved.');
-    }
-
-    function handleRevertAtmosphere() {
-      writeCompassAtmosphereSettings('default', '');
-      closeSettingsModal();
-      showToast('Compass atmosphere reset to default.');
-    }
-
 
     /* ================================================================
        SESSION LABELS
@@ -2880,91 +2044,9 @@
     }
 
     /* ================================================================
-       SEARCH
-       ================================================================ */
-
-    let currentQuery = '';
-
-    function focusSearch() {
-      const field = document.getElementById('search-field');
-      if (field) { field.focus(); field.select(); }
-    }
-
-    function handleSearchInput(val) {
-      currentQuery = (val || '').trim().toLowerCase();
-      const clearBtn = document.getElementById('search-clear');
-      if (clearBtn) clearBtn.classList.toggle('visible', currentQuery.length > 0);
-      applySearchFilter();
-    }
-
-    function clearSearch() {
-      const field = document.getElementById('search-field');
-      if (field) field.value = '';
-      handleSearchInput('');
-      field && field.focus();
-    }
-
-    function applySearchFilter() {
-      const q = currentQuery;
-      const groups = document.querySelectorAll('.category-group');
-      const inProgressZone = document.getElementById('inprogress-zone');
-      const availableZone = document.getElementById('available-zone');
-
-      if (inProgressZone) {
-        inProgressZone.style.display = q ? 'none' : '';
-      }
-
-      if (availableZone) {
-        availableZone.style.display = q ? 'none' : '';
-      }
-
-      let totalVisible = 0;
-
-      groups.forEach(group => {
-        const cards = group.querySelectorAll('.subject-card');
-        let groupVisible = 0;
-        cards.forEach(card => {
-          const title = (card.dataset.title || '').toLowerCase();
-          const hook = (card.dataset.hook || '').toLowerCase();
-          const cat = (card.dataset.cat || '').toLowerCase();
-          const matches = !q || title.includes(q) || hook.includes(q) || cat.includes(q);
-          card.classList.toggle('is-hidden', !matches);
-          if (matches) groupVisible++;
-        });
-        group.style.display = groupVisible > 0 ? '' : 'none';
-        totalVisible += groupVisible;
-      });
-
-      const noBanner = document.getElementById('no-results-banner');
-      if (noBanner) noBanner.classList.toggle('visible', q.length > 0 && totalVisible === 0);
-
-      const resultsLabel = document.getElementById('search-results-label');
-      if (resultsLabel) {
-        if (q) {
-          resultsLabel.textContent = totalVisible + ' subject' + (totalVisible !== 1 ? 's' : '') + ' match' + (totalVisible === 1 ? 'es' : '') + ' \u201c' + q + '\u201d';
-          resultsLabel.classList.add('visible');
-        } else {
-          resultsLabel.classList.remove('visible');
-        }
-      }
-    }
-
-    function handleSearchKeydown(e) {
-      if (e.key === 'Enter') {
-        const first = Array.from(
-          document.querySelectorAll(
-            '.category-group .subject-card:not(.is-hidden)'
-          )
-        ).find(card => card.dataset.url);
-
-        if (first) {
-          navigateTo(first.dataset.url);
-        }
-      }
-    }
-
-    /* ================================================================
        RENDER
+       One curated operational collection containing only playable subjects.
+       Progress and continuation state live directly on the standard cards.
        ================================================================ */
 
     function renderHub() {
@@ -2974,307 +2056,105 @@
 
       const main = document.getElementById('hub-main');
       const session = getActiveSession();
-      const merged = getMergedSubjects();
-      const inProgress = getInProgressSubjects(merged);
-      const availableNow = getAvailableSubjects(merged);
-
-      applyCompassAtmosphereImage();
+      const subjects = getOperationalSubjects();
 
       setSessionLabels();
       renderSpineHubNav();
       renderDrawerHubNav();
 
-      // No registered subjects yet
-      if (merged.length === 0) {
-        main.innerHTML = renderIntro(session, 0) + renderEmptyLibrary();
-        bindSearch();
+      if (!subjects.length) {
+        main.innerHTML = renderIntro(session) + renderEmptyLibrary();
         return;
       }
 
       main.innerHTML =
-        renderIntro(session, availableNow.length) +
-        renderInProgressZone(inProgress) +
-        renderAvailableNowZone(availableNow) +
-        renderBrowseHeading() +
-        renderSearchZone() +
-        renderNoResultsBanner() +
-        renderCategoryGroups(merged);
-
-      bindSearch();
-      applySearchFilter();
+        renderIntro(session) +
+        renderSubjectCollection(subjects);
     }
 
-    function renderIntro(session, count) {
-      const isDefault = isDefaultSession(session);
-      const eyebrow = isDefault ? 'Compass' : 'Welcome, ' + escHtml(session.name);
-      const countText = count > 0
-        ? count + ' available path' + (count !== 1 ? 's' : '')
-        : 'No subjects registered yet';
+    function renderIntro(session) {
+      const eyebrow = isDefaultSession(session)
+        ? 'Compass'
+        : 'Welcome, ' + escHtml(session.name);
 
       return (
         '<div class="hub-intro">' +
         '<div class="hub-intro-text">' +
         '<div class="hub-eyebrow">' + eyebrow + '</div>' +
-        '<h1 class="hub-title">Choose a subject</h1>' +
-        '<p class="hub-desc">Open a conversation path, continue something already started, or search for the direction that fits today’s lesson.</p>' +
-        '</div>' +
-        '<div class="hub-meta">' +
-        '<div class="hub-meta-chip count">' + escHtml(countText) + '</div>' +
+        '<h1 class="hub-title">Explore the subjects that shape our lives.</h1>' +
+        '<p class="hub-desc">Choose a topic, share your ideas, and see where the conversation goes.</p>' +
         '</div>' +
         '</div>'
       );
     }
 
-    function renderInProgressZone(inProgress) {
-      if (!inProgress.length) {
-        return '';
-      }
-
-      const cards = inProgress.map(subject => {
-        const timestamp = subject.ts
-          ? formatRelativeTime(subject.ts)
-          : '';
-
-        const meta = getCategoryTitle(subject.categoryId) +
-          (timestamp ? ' · ' + timestamp : '');
-
-        const percent = subjectProgressPercent(subject);
-
-        const rail = percent !== null
-          ? '<div class="progress-rail" aria-hidden="true">' +
-          '<div class="progress-rail-fill" style="width:' + percent + '%"></div>' +
-          '</div>'
-          : '';
-
-        return (
-          '<div class="progress-card" role="button" tabindex="0" ' +
-          'onclick="navigateTo(\'' + escHtml(subject.launchUrl) + '\')" ' +
-          'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navigateTo(\'' + escHtml(subject.launchUrl) + '\')}" ' +
-          'aria-label="Continue ' + escHtml(subject.title) + '">' +
-
-          '<div class="progress-card-title">' +
-          escHtml(subject.title) +
-          '</div>' +
-
-          (subject.hook
-            ? '<p class="progress-card-hook">' +
-            escHtml(subject.hook) +
-            '</p>'
-            : '') +
-
-          '<div class="progress-card-footer">' +
-          '<div class="progress-card-meta">' +
-          escHtml(meta) +
-          '</div>' +
-
-          '<button class="btn-launch-sm" ' +
-          'onclick="event.stopPropagation();navigateTo(\'' +
-          escHtml(subject.launchUrl) +
-          '\')" ' +
-          'aria-label="Continue ' +
-          escHtml(subject.title) +
-          '">' +
-
-          'Continue' +
-
-          '<svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">' +
-          '<path d="M2 5.5h7M6 2.5l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>' +
-          '</svg>' +
-
-          '</button>' +
-          '</div>' +
-          rail +
-          '</div>'
-        );
-      }).join('');
-
-      return (
-        '<section class="inprogress-zone" id="inprogress-zone">' +
-        '<div class="zone-label">In progress</div>' +
-        '<div class="inprogress-grid">' +
-        cards +
-        '</div>' +
-        '</section>'
-      );
-    }
-
-    function renderAvailableNowZone(subjects) {
-      if (!subjects.length) {
-        return '';
-      }
-
+    function renderSubjectCollection(subjects) {
       const cards = subjects
         .map(subject => renderSubjectCard(subject))
         .join('');
 
       return (
-        '<section class="available-zone" id="available-zone">' +
-        '<div class="available-zone-header">' +
-        '<div class="zone-label" style="margin-bottom:0">Available now</div>' +
+        '<section class="subject-library">' +
+        '<div class="subject-library-header">' +
+        '<h2 class="subject-library-title">Choose a subject</h2>' +
         '</div>' +
-        '<div class="category-grid">' +
+        '<div class="subject-grid">' +
         cards +
         '</div>' +
         '</section>'
       );
     }
 
-    function renderBrowseHeading() {
-      return (
-        '<div class="browse-heading" id="browse-heading">' +
-        '<h2 class="browse-heading-title">Browse all subjects</h2>' +
-        '<p class="browse-heading-copy">' +
-        'Explore the full Compass library by category.' +
-        '</p>' +
-        '</div>'
-      );
-    }
+    function renderSubjectCard(subject) {
+      const cardState = getSubjectCardState(subject);
 
-    function renderSearchZone() {
-      return (
-        '<div class="search-zone">' +
-        '<div class="search-field-wrap">' +
-        '<span class="search-icon" aria-hidden="true">' +
-        '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>' +
-        '</span>' +
-        '<input class="search-field" id="search-field" type="text" ' +
-        'value="' + escHtml(currentQuery) + '" ' +
-        'placeholder="Search subjects by title, category, or topic…" ' +
-        'autocomplete="off" autocorrect="off" spellcheck="false" ' +
-        'aria-label="Search subjects">' +
-        '<button class="search-clear" id="search-clear" onclick="clearSearch()" aria-label="Clear search">' +
-        '<svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1 1l7 7M8 1L1 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>' +
-        '</button>' +
-        '</div>' +
-        '<div class="search-results-label" id="search-results-label"></div>' +
-        '</div>'
-      );
-    }
-
-    function renderNoResultsBanner() {
-      return (
-        '<div class="no-results-banner" id="no-results-banner">' +
-        '<p class="no-results-title">No subjects match that search.</p>' +
-        '<p>Try a different word, or browse the categories below.</p>' +
-        '</div>'
-      );
-    }
-
-    function renderCategoryGroups(merged) {
-      // Build category map
-      const catMap = {};
-      COMPASS_CATEGORIES.forEach(c => { catMap[c.id] = c; });
-
-      // Group merged subjects by categoryId
-      const groups = {}; // categoryId -> subjects[]
-      const uncategorized = [];
-
-      merged.forEach(s => {
-        if (s.categoryId === '__uncategorized__' || !catMap[s.categoryId]) {
-          uncategorized.push(s);
-        } else {
-          if (!groups[s.categoryId]) groups[s.categoryId] = [];
-          groups[s.categoryId].push(s);
-        }
-      });
-
-      // Sort subjects within each group
-      Object.values(groups).forEach(arr => arr.sort((a, b) => a.order - b.order));
-      if (uncategorized.length) uncategorized.sort((a, b) => a.title.localeCompare(b.title));
-
-      // Render in category order
-      let html = '<div class="categories-zone">';
-
-      COMPASS_CATEGORIES
-        .slice()
-        .sort((a, b) => a.order - b.order)
-        .forEach(cat => {
-          const subjects = groups[cat.id];
-          if (!subjects || subjects.length === 0) return;
-          html += renderCategoryGroup(cat.title, subjects);
-        });
-
-      if (uncategorized.length) {
-        html += renderCategoryGroup('Uncategorized', uncategorized);
-      }
-
-      html += '</div>';
-      return html;
-    }
-
-    function renderCategoryGroup(title, subjects) {
-      const cards = subjects.map(s => renderSubjectCard(s)).join('');
-      return (
-        '<div class="category-group">' +
-        '<div class="category-header">' +
-        '<h2 class="category-title">' + escHtml(title) + '</h2>' +
-        '<span class="category-count">' + subjects.length + ' subject' + (subjects.length !== 1 ? 's' : '') + '</span>' +
-        '</div>' +
-        '<div class="category-grid">' + cards + '</div>' +
-        '</div>'
-      );
-    }
-
-    function renderSubjectCard(s) {
-      const ts =
-        s.status !== 'new' && s.ts
-          ? formatRelativeTime(s.ts)
-          : '';
-      const isExplored = s.status === 'explored';
-      const isAvailable = !!s.available;
-
-      // data attributes for search filtering
-      const catEntry = COMPASS_CATALOG[s.registryId];
-      const catTitle = catEntry
-        ? (
-          COMPASS_CATEGORIES.find(
-            category => category.id === catEntry.categoryId
-          ) || {}
-        ).title || ''
-        : '';
-
-      const cardClass = 'subject-card' + (isExplored ? ' is-explored' : '');
-
-      const cardActionAttrs = isAvailable
-        ? 'role="button" tabindex="0" ' +
-        'onclick="navigateTo(\'' + escHtml(s.launchUrl) + '\')" ' +
-        'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navigateTo(\'' + escHtml(s.launchUrl) + '\')}"'
-        : '';
-
-      const buttonHtml = isAvailable
-        ? '<button class="btn-launch" onclick="event.stopPropagation();navigateTo(\'' + escHtml(s.launchUrl) + '\')" ' +
-        'aria-label="Launch ' + escHtml(s.title) + '">' +
-        escHtml(subjectButtonLabel(s.status, isAvailable)) +
-        '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5h7M6 2.5l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-        '</button>'
-        : '<button class="btn-launch is-soon" disabled aria-label="' + escHtml(s.title) + ' is coming soon">Soon</button>';
-
-      return (
-        '<div class="' + cardClass + '" ' +
-        cardActionAttrs + ' ' +
-        'data-title="' + escHtml(s.title.toLowerCase()) + '" ' +
-        'data-hook="' + escHtml((s.hook || '').toLowerCase()) + '" ' +
-        'data-cat="' + escHtml(catTitle.toLowerCase()) + '" ' +
-        'data-url="' + escHtml(isAvailable ? s.launchUrl : '') + '" ' +
-        'aria-label="' + escHtml(s.title) + (isAvailable ? (isExplored ? ' — Explored' : '') : ' — Coming soon') + '">' +
-        '<div class="subject-card-header">' +
-        '<h3 class="subject-card-title">' + escHtml(s.title) + '</h3>' +
-        (s.status !== 'new' ? statusBadgeHtml(s.status) : '') +
-        '</div>' +
-        (s.hook ? '<p class="subject-card-hook">' + escHtml(s.hook) + '</p>' : '') +
-        '<div class="subject-card-footer">' +
-        '<div class="subject-card-meta">' +
-
-        (ts
-          ? '<span class="timestamp-chip">' +
-          escHtml(ts) +
+      const progressHtml = cardState.mode !== 'new'
+        ? '<span class="subject-card-progress-track" aria-hidden="true">' +
+          '<span class="subject-card-progress-fill"></span>' +
           '</span>'
+        : '';
+
+      const progressMeta = cardState.progressLabel
+        ? '<span class="subject-card-progress-label">' +
+          escHtml(cardState.progressLabel) +
+          '</span>'
+        : '';
+
+      return (
+        '<a class="subject-card subject-card--' + escHtml(cardState.mode) + '" ' +
+        'href="' + escHtml(subject.launchUrl) + '" ' +
+        'style="--subject-progress:' + cardState.progressPercent + '%" ' +
+        'aria-label="' + escHtml(cardState.actionLabel + ' ' + subject.title) + '">' +
+
+        '<div class="subject-card-header">' +
+        '<h3 class="subject-card-title">' +
+        escHtml(subject.title) +
+        '</h3>' +
+        '</div>' +
+
+        (subject.hook
+          ? '<p class="subject-card-hook">' +
+            escHtml(subject.hook) +
+            '</p>'
           : '') +
 
+        '<div class="subject-card-footer">' +
+        (progressMeta
+          ? '<div class="subject-card-meta">' +
+            progressMeta +
+            '</div>'
+          : '') +
+
+        '<span class="btn-launch">' +
+        escHtml(cardState.actionLabel) +
+        '<svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">' +
+        '<path d="M2 5.5h7M6 2.5l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+        '</span>' +
         '</div>' +
-        buttonHtml +
-        '</div>' +
-        '</div>'
+
+        progressHtml +
+        '</a>'
       );
     }
 
@@ -3284,17 +2164,10 @@
         '<div class="empty-library-icon">' +
         '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M12 4v3M12 17v3M4 12h3M17 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' +
         '</div>' +
-        '<h2>No subjects registered yet</h2>' +
-        '<p>Compass subjects will appear here once they\'re registered with the bridge. Open a subject module to register it.</p>' +
+        '<h2>No subjects available</h2>' +
+        '<p>Compass could not find any playable subjects on this device.</p>' +
         '</div>'
       );
-    }
-
-    function bindSearch() {
-      const field = document.getElementById('search-field');
-      if (!field) return;
-      field.addEventListener('input', e => handleSearchInput(e.target.value));
-      field.addEventListener('keydown', handleSearchKeydown);
     }
 
     /* ================================================================
@@ -3442,15 +2315,6 @@
     document.addEventListener('keydown', e => {
       if (e.defaultPrevented) return;
 
-      const active = document.activeElement;
-      const inInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
-
-      if (e.key === '/' && !inInput) {
-        e.preventDefault();
-        focusSearch();
-        return;
-      }
-
       if (e.key === 'Escape') {
         if (document.getElementById('confirm-dialog').classList.contains('open')) {
           e.stopImmediatePropagation();
@@ -3458,9 +2322,7 @@
           return;
         }
         if (window.AtlasSessionPanel && AtlasSessionPanel.isOpen()) return;
-        if (document.getElementById('settings-modal').classList.contains('open')) { closeSettingsModal(); return; }
         if (document.getElementById('drawer').classList.contains('open')) { closeDrawer(); return; }
-        if (currentQuery) { clearSearch(); return; }
       }
     });
 
@@ -3481,7 +2343,6 @@
       updateAppearanceButtons(mode);
     });
     window.addEventListener('focus', refresh);
-    window.addEventListener('resize', applyCompassAtmosphereImage);
     window.addEventListener('pageshow', refresh);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
     window.addEventListener('storage', e => {
@@ -3490,14 +2351,6 @@
       if (k === Bridge.keys.appearance || k === Bridge.keys.appearanceBySession) {
         const mode = Bridge.applyAppearanceMode(Bridge.readAppearanceMode());
         updateAppearanceButtons(mode);
-        return;
-      }
-
-      if (
-        k === COMPASS_ATMOSPHERE_KEY ||
-        k === COMPASS_ATMOSPHERE_MODE_KEY
-      ) {
-        applyCompassAtmosphereImage();
         return;
       }
 
@@ -3516,8 +2369,6 @@
       const mode = Bridge.readAppearanceMode();
       Bridge.applyAppearanceMode(mode);
       updateAppearanceButtons(mode);
-      applyCompassAtmosphereImage();
-
       setSessionLabels();
       renderSpineHubNav();
       renderDrawerHubNav();
