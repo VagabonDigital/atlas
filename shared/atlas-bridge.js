@@ -341,6 +341,49 @@
     }
 
     // ============================================================
+    // SESSION CHROME
+    // Hydrates persistent session labels before first paint and keeps
+    // them synchronized with the active Atlas session.
+    // ============================================================
+
+    function getSessionDisplayName(session = readActiveSession()) {
+        if (!session || session.id === DEFAULT_SESSION_ID) {
+            return 'Shared';
+        }
+
+        return session.name || 'Shared';
+    }
+
+    function hydrateSessionChrome() {
+        if (typeof document === 'undefined') return;
+
+        const displayName = getSessionDisplayName();
+
+        [
+            'spine-session-name',
+            'mobile-session-name',
+            'drawer-session-name'
+        ].forEach(id => {
+            const label = document.getElementById(id);
+
+            if (!label) return;
+
+            if (label.textContent !== displayName) {
+                label.textContent = displayName;
+            }
+
+            const trigger = label.closest('button');
+
+            if (trigger) {
+                trigger.setAttribute(
+                    'aria-label',
+                    `Open session panel. Working with ${displayName}`
+                );
+            }
+        });
+    }
+
+    // ============================================================
     // HANDOFFS
     // Latest lightweight handoff per session + subject.
     // ============================================================
@@ -880,6 +923,8 @@
         writeSessions,
         readActiveSessionId,
         readActiveSession,
+        getSessionDisplayName,
+        hydrateSessionChrome,
         setActiveSession,
         createSession,
         renameSession,
