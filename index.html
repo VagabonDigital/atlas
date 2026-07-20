@@ -41,6 +41,8 @@
   <link rel="stylesheet" href="./shared/atlas-search.css?v=20260717-theme-architecture">
   <link rel="stylesheet" href="./shared/atlas-session-panel.css">
 
+  <script src="./shared/atlas-bridge.js"></script>
+
   <!-- Anti-flash: apply the active session theme before first paint. -->
   <script>
     (function () {
@@ -59,13 +61,6 @@
    Threshold surface: cooler, quieter, and more architectural than the worlds.
    Matte paper, slate accent, calm resume-first hierarchy.
    ============================================================ */
-
-    @property --stage-1 { syntax: '<color>'; inherits: true; initial-value: transparent; }
-    @property --stage-2 { syntax: '<color>'; inherits: true; initial-value: transparent; }
-    @property --stage-3 { syntax: '<color>'; inherits: true; initial-value: transparent; }
-    @property --wrap-rad { syntax: '<color>'; inherits: true; initial-value: transparent; }
-    @property --wrap-l1 { syntax: '<color>'; inherits: true; initial-value: transparent; }
-    @property --wrap-l2 { syntax: '<color>'; inherits: true; initial-value: transparent; }
 
     :root {
       --bg: #f3f0e9;
@@ -484,9 +479,9 @@ html[data-theme="night"] .atmosphere-layer::after {
     }
 
     .spine-session-pill:hover {
-      border-color: var(--accent);
+      border-color: var(--border-mid);
       color: var(--ink);
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow-md);
     }
 
     .spine-session-pill .pill-name {
@@ -507,12 +502,30 @@ html[data-theme="night"] .atmosphere-layer::after {
       cursor: pointer;
       transition: var(--t);
       box-shadow: var(--shadow-sm);
+      flex-shrink: 0;
     }
 
     .spine-btn:hover {
       color: var(--ink);
       border-color: var(--border-mid);
       box-shadow: var(--shadow-md);
+    }
+
+    .appearance-icon {
+      display: block;
+      flex-shrink: 0;
+    }
+
+    .appearance-icon--sun {
+      display: none;
+    }
+
+    html[data-theme="night"] .appearance-icon--moon {
+      display: none;
+    }
+
+    html[data-theme="night"] .appearance-icon--sun {
+      display: block;
     }
 
     /* ============================================================ MOBILE HEADER */
@@ -2278,7 +2291,7 @@ html[data-theme="night"] .atmosphere-layer::after {
           <path d="M1.5 10.5c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4" stroke="currentColor" stroke-width="1.2"
             stroke-linecap="round" />
         </svg>
-        <span class="pill-name" id="spine-session-name">Shared</span>
+        <span class="pill-name" id="spine-session-name"></span>
       </button>
 
       <button class="spine-btn" data-atlas-search title="Search (⌘K)" aria-label="Search">
@@ -2298,7 +2311,22 @@ html[data-theme="night"] .atmosphere-layer::after {
       </button>
 
       <button class="spine-btn" id="spine-appearance-btn" onclick="toggleAppearance()"
-        aria-label="Toggle day/night"></button>
+        aria-label="Switch to night mode">
+        <svg class="appearance-icon appearance-icon--moon"
+          width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+          <path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z"
+            stroke="currentColor" stroke-width="1.35"
+            stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <svg class="appearance-icon appearance-icon--sun"
+          width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+          <circle cx="8.5" cy="8.5" r="3"
+            stroke="currentColor" stroke-width="1.35" />
+          <path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4"
+            stroke="currentColor" stroke-width="1.35"
+            stroke-linecap="round" />
+        </svg>
+      </button>
     </div>
   </header>
   <!-- ============================================================ MOBILE HEADER -->
@@ -2313,7 +2341,7 @@ html[data-theme="night"] .atmosphere-layer::after {
           <path d="M1.5 10.5c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4" stroke="currentColor" stroke-width="1.2"
             stroke-linecap="round" />
         </svg>
-        <span id="mobile-session-name">Shared</span>
+        <span id="mobile-session-name"></span>
       </button>
 
       <button class="mobile-header-btn" data-atlas-search aria-label="Search">
@@ -2371,12 +2399,33 @@ html[data-theme="night"] .atmosphere-layer::after {
             <path d="M2 12c0-2.5 2.2-4.5 5-4.5s5 2 5 4.5" stroke="currentColor" stroke-width="1.2"
               stroke-linecap="round" />
           </svg>
-          <span id="drawer-session-name">Shared</span>
+          <span id="drawer-session-name"></span>
         </button>
-        <button class="drawer-appearance-btn" onclick="toggleAppearance()" aria-label="Toggle appearance"></button>
+        <button class="drawer-appearance-btn" id="drawer-appearance-btn"
+          onclick="toggleAppearance()" aria-label="Switch to night mode">
+          <svg class="appearance-icon appearance-icon--moon"
+            width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+            <path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z"
+              stroke="currentColor" stroke-width="1.35"
+              stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <svg class="appearance-icon appearance-icon--sun"
+            width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+            <circle cx="8.5" cy="8.5" r="3"
+              stroke="currentColor" stroke-width="1.35" />
+            <path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4"
+              stroke="currentColor" stroke-width="1.35"
+              stroke-linecap="round" />
+          </svg>
+        </button>
       </div>
     </div>
   </nav>
+
+  <script>
+    AtlasBridge.hydrateSessionChrome();
+  </script>
+
   <!-- ============================================================ MAIN CONTENT -->
   <main class="atlas-main" id="atlas-main" role="main">
     <!-- Rendered by JS based on bridge state -->
@@ -2434,7 +2483,6 @@ html[data-theme="night"] .atmosphere-layer::after {
     </div>
   </div>
   <!-- ============================================================ SCRIPTS -->
-  <script src="./shared/atlas-bridge.js"></script>
   <script src="./shared/compass-catalog-data.js"></script>
   <script src="./shared/atlas-content-registry.js"></script>
   <script src="./shared/atlas-session-panel.js"></script>
@@ -2754,23 +2802,19 @@ html[data-theme="night"] .atmosphere-layer::after {
       const next = cur === 'night' ? 'light' : 'night';
       Bridge.setAppearanceMode(next);
     }
-    function moonSvg(size) {
-      size = size || 17;
-      return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 17 17" fill="none"><path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    }
-    function sunSvg(size) {
-      size = size || 17;
-      return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 17 17" fill="none"><circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35"/><path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>';
-    }
+
     function updateAppearanceButtons(mode) {
-      const icon = mode === 'night' ? sunSvg(17) : moonSvg(17);
-      const label = mode === 'night' ? 'Switch to day mode' : 'Switch to night mode';
-      ['spine-appearance-btn', 'mobile-appearance-btn'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) { el.innerHTML = icon; el.setAttribute('aria-label', label); }
+      const label = mode === 'night'
+        ? 'Switch to day mode'
+        : 'Switch to night mode';
+
+      ['spine-appearance-btn', 'drawer-appearance-btn'].forEach(id => {
+        const button = document.getElementById(id);
+
+        if (button) {
+          button.setAttribute('aria-label', label);
+        }
       });
-      const da = document.querySelector('.drawer-appearance-btn');
-      if (da) da.innerHTML = mode === 'night' ? sunSvg(16) : moonSvg(16);
     }
 
     // ================================================================
