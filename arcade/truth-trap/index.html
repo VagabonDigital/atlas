@@ -1864,10 +1864,10 @@ html[data-theme="night"] .case-card {
         <p>Spot the fake, uncover the shocking evidence, and defend your choice. Are you ready to prove you cannot be fooled?</p>
       </div>
       <button class="btn-start" id="btn-start" onclick="startGame()">
-        ENTER THE TRAP
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M2.5 8h11M9.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M3 2l9 5-9 5V2z" fill="currentColor"/>
         </svg>
+        ENTER THE TRAP
       </button>
     </div>
   </div>
@@ -2224,16 +2224,26 @@ html[data-theme="night"] .case-card {
     function getDefaultState() {
       const ts = Date.now();
       const casesObj = {};
+
       for (let i = 0; i < TOTAL_CASES; i++) {
-        casesObj[String(i)] = { playerAnswer: null, revealed: false, solved: false, correct: null };
+        casesObj[String(i)] = {
+          playerAnswer: null,
+          revealed: false,
+          solved: false,
+          correct: null
+        };
       }
+
       return {
-        status: 'in-progress',
+        status: 'available',
         completedAt: null,
         currentIndex: 0,
         currentPosition: 1,
-        currentLabel: 'Case 1 of ' + TOTAL_CASES,
-        progress: { covered: 0, total: TOTAL_CASES },
+        currentLabel: null,
+        progress: {
+          covered: 0,
+          total: TOTAL_CASES
+        },
         cases: casesObj,
         lastOpenedAt: ts,
         lastTouchedAt: ts
@@ -2247,9 +2257,14 @@ html[data-theme="night"] .case-card {
       const currentIndex = ST.currentIndex;
       const solvedCount = countSolved();
       const isComplete = solvedCount === TOTAL_CASES;
+      const hasProgress = solvedCount > 0;
 
       ST = Object.assign({}, ST, extra || {}, {
-        status: isComplete ? 'complete' : 'in-progress',
+        status: isComplete
+          ? 'complete'
+          : hasProgress
+            ? 'in-progress'
+            : 'available',
 
         completedAt: isComplete
           ? (ST.completedAt || timestamp)
@@ -2257,11 +2272,13 @@ html[data-theme="night"] .case-card {
 
         currentIndex,
         currentPosition: currentIndex + 1,
-        currentLabel:
-          'Case ' +
-          (currentIndex + 1) +
-          ' of ' +
-          TOTAL_CASES,
+
+        currentLabel: hasProgress
+          ? 'Case ' +
+            (currentIndex + 1) +
+            ' of ' +
+            TOTAL_CASES
+          : null,
 
         progress: {
           covered: solvedCount,
@@ -2813,28 +2830,55 @@ function markSolved() {
       // Read Bridge state or create fresh
       const saved = readBridgeState();
 
-      if (saved && saved.status === 'complete') {
-        // Completed — show airlock, not opening or game
+      if (saved) {
         ST = saved;
-        document.getElementById('opening').style.display = 'none';
-        document.getElementById('airlock').classList.add('visible');
-        return;
-      }
 
-      if (saved && saved.status === 'in-progress') {
-        ST = saved;
+        if (!ST.cases || typeof ST.cases !== 'object') {
+          ST.cases = {};
+        }
 
         for (let i = 0; i < TOTAL_CASES; i++) {
           if (!ST.cases[String(i)]) {
-            ST.cases[String(i)] = { playerAnswer: null, revealed: false, solved: false, correct: null };
+            ST.cases[String(i)] = {
+              playerAnswer: null,
+              revealed: false,
+              solved: false,
+              correct: null
+            };
           }
         }
 
+        const solvedCount = Object.values(ST.cases).filter(
+          caseState => caseState && caseState.solved
+        ).length;
+
+        const savedCovered = Number(
+          ST.progress && ST.progress.covered
+        );
+
+        const covered = Number.isFinite(savedCovered)
+          ? Math.max(savedCovered, solvedCount)
+          : solvedCount;
+
+        const isComplete =
+          covered >= TOTAL_CASES ||
+          ST.status === 'complete' ||
+          ST.status === 'completed';
+
+        if (isComplete) {
+          document.getElementById('opening').style.display = 'none';
+          document.getElementById('airlock').classList.add('visible');
+          return;
+        }
+
         const startBtn = document.getElementById('btn-start');
-        if (startBtn) {
+
+        if (startBtn && covered > 0) {
           startBtn.innerHTML =
-            '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 2l9 5-9 5V2z" fill="currentColor"/></svg>' +
-            'Continue investigation';
+            '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+            '<path d="M3 2l9 5-9 5V2z" fill="currentColor"/>' +
+            '</svg>' +
+            'CONTINUE INVESTIGATION';
         }
 
         return;
@@ -2842,10 +2886,9 @@ function markSolved() {
 
       // Fresh start — show opening screen
       ST = getDefaultState();
-      // Pre-save so the hub can see it immediately if user never clicks Start
-      // (don't save yet — save on actual start to avoid ghost sessions)
 
-      // Opening screen is already visible; bridge state write happens on first action
+      // Do not save yet. Bridge state is written only after
+      // the learner actually enters or interacts with the game.
     }
 
     // Override startGame to also save to Bridge
