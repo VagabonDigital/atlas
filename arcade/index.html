@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   ==========================================================================
-  ARCADE HUB V1 · GAME LIBRARY
+  ARCADE HUB V2 · GAME LIBRARY
   SmartStudy™ Methodology
   --------------------------------------------------------------------------
   The improv studio floor. Fast, spontaneous, low-friction.
@@ -19,7 +19,7 @@
   <title>Arcade</title>
 
   <link rel="icon" type="image/svg+xml"
-    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 4L96 50L50 96L4 50Z' fill='%23F07348' stroke='%23C94A24' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M50 18L82 50L50 82L18 50Z' fill='%23FFF5EE' stroke='%23FFFFFF' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 34L66 50L50 66L34 50Z' fill='%23E8562A' stroke='%23C94A24' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 18L50 34M82 50L66 50M50 82L50 66M18 50L34 50' stroke='%23FFB08D' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 4L96 50L50 96L4 50Z' fill='%239C3FE4' stroke='%236D28B8' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M50 18L82 50L50 82L18 50Z' fill='%23FBF5FF' stroke='%23FFFFFF' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 34L66 50L50 66L34 50Z' fill='%23C026D3' stroke='%237E22CE' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 18L50 34M82 50L66 50M50 82L50 66M18 50L34 50' stroke='%23E9B8FF' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,64 +52,80 @@
        Distinct from Compass (editorial cream/teal) and Atlas (cool slate).
        ============================================================ */
     :root {
-      --bg: #f8f1e8;
-      --bg-raised: #fffdf9;
-      --bg-subtle: #f0e7de;
-      --bg-card: #fffdf9;
-      --arcade: #df572f;
-      --arcade-soft: #ef7652;
-      --arcade-pale: #f9ded3;
-      --arcade-dim: #fdf0eb;
-      --arcade-rgb: 223, 87, 47;
+      --bg: #f7f1f8;
+      --bg-raised: #fffdfd;
+      --bg-subtle: #efe7f1;
+      --bg-card: #fffdfd;
+
+      --arcade: #8a2fbd;
+      --arcade-soft: #a84bd5;
+      --arcade-pale: #ecdaf5;
+      --arcade-dim: #f7edf9;
+      --arcade-rgb: 138, 47, 189;
+
       --page-bg-day:
-        radial-gradient(circle at 84% 4%, rgba(223, 87, 47, 0.13), transparent 30rem),
-        radial-gradient(circle at 8% 22%, rgba(107, 76, 130, 0.075), transparent 34rem),
-        linear-gradient(145deg, #fbf5ee 0%, #f8f1e8 48%, #f2e7dc 100%);
+        radial-gradient(circle at 84% 4%, rgba(168, 75, 213, 0.13), transparent 30rem),
+        radial-gradient(circle at 8% 22%, rgba(107, 76, 130, 0.085), transparent 34rem),
+        linear-gradient(145deg, #fcf8fb 0%, #f7f1f8 48%, #f0e8f2 100%);
+
       --page-bg-night:
-        radial-gradient(circle at 84% 4%, rgba(240, 104, 64, 0.16), transparent 30rem),
-        radial-gradient(circle at 8% 22%, rgba(154, 117, 181, 0.08), transparent 34rem),
-        linear-gradient(145deg, #19121c 0%, #1e1720 52%, #261b2b 100%);
+        radial-gradient(circle at 84% 4%, rgba(192, 38, 211, 0.19), transparent 31rem),
+        radial-gradient(circle at 8% 22%, rgba(124, 58, 237, 0.12), transparent 35rem),
+        linear-gradient(145deg, #17121d 0%, #1d1625 52%, #26172f 100%);
+
       --page-bg: var(--page-bg-day);
+
       --ink: #2d1f3d;
       --ink-mid: #5a4a6e;
       --ink-quiet: #8a7a9a;
       --ink-faint: #c4bad0;
+
       --border: rgba(58, 36, 63, 0.095);
       --border-mid: rgba(58, 36, 63, 0.16);
+
       --danger: #c0392b;
       --danger-bg: #fdf2f1;
       --danger-border: rgba(192, 57, 43, 0.28);
+
       --shadow-xs: 0 1px 2px rgba(45, 31, 61, 0.05);
       --shadow-sm: 0 7px 20px rgba(58, 36, 63, 0.07);
       --shadow-md: 0 16px 40px rgba(58, 36, 63, 0.11);
       --shadow-lg: 0 26px 68px rgba(58, 36, 63, 0.15);
+
       --r-sm: 6px;
       --r-md: 16px;
       --r-lg: 20px;
       --r-xl: 26px;
+
       --font-display: 'DM Serif Display', Georgia, serif;
       --font-body: 'DM Sans', system-ui, sans-serif;
+
       --t: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
       --hub-theme-motion: 280ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     html[data-theme="night"] {
-      --bg: #1e1720;
-      --bg-raised: #2a2130;
-      --bg-subtle: #251d2c;
-      --bg-card: #2a2130;
-      --arcade: #f06840;
-      --arcade-soft: #f57f5a;
-      --arcade-pale: rgba(240, 104, 64, 0.18);
-      --arcade-dim: rgba(240, 104, 64, 0.10);
-      --arcade-rgb: 240, 104, 64;
+      --bg: #1d1625;
+      --bg-raised: #292033;
+      --bg-subtle: #241b2d;
+      --bg-card: #292033;
+
+      --arcade: #d36af0;
+      --arcade-soft: #e18af5;
+      --arcade-pale: rgba(211, 106, 240, 0.18);
+      --arcade-dim: rgba(211, 106, 240, 0.11);
+      --arcade-rgb: 211, 106, 240;
+
       --page-bg: var(--page-bg-night);
-      --ink: #f0e8f8;
-      --ink-mid: #c8b8d8;
-      --ink-quiet: #8878a0;
-      --ink-faint: #4a3d58;
-      --border: rgba(255, 255, 255, 0.08);
-      --border-mid: rgba(255, 255, 255, 0.14);
+
+      --ink: #f2eafa;
+      --ink-mid: #cdbdde;
+      --ink-quiet: #9b89ad;
+      --ink-faint: #51425f;
+
+      --border: rgba(255, 255, 255, 0.085);
+      --border-mid: rgba(255, 255, 255, 0.15);
+
       --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.22);
       --shadow-sm: 0 1px 6px rgba(0, 0, 0, 0.28);
       --shadow-md: 0 4px 18px rgba(0, 0, 0, 0.36);
@@ -124,7 +140,6 @@
 
     html.theme-changing,
     html.theme-changing body,
-    html.theme-changing .arcade-atmosphere-layer::after,
     html.theme-changing .spine,
     html.theme-changing .spine-mark,
     html.theme-changing .spine-mark span,
@@ -157,45 +172,17 @@
     html.theme-changing .hub-eyebrow,
     html.theme-changing .hub-title,
     html.theme-changing .hub-desc,
-    html.theme-changing .hub-meta,
-    html.theme-changing .hub-meta-chip,
-    html.theme-changing .section-label,
-    html.theme-changing .continue-zone,
-    html.theme-changing .continue-card,
-    html.theme-changing .continue-card::before,
-    html.theme-changing .continue-icon,
-    html.theme-changing .continue-title,
-    html.theme-changing .continue-progress,
-    html.theme-changing .continue-resume,
     html.theme-changing .library-zone,
     html.theme-changing .library-header,
     html.theme-changing .library-title,
-    html.theme-changing .library-title-group,
-    html.theme-changing .library-search,
-    html.theme-changing .library-search-icon,
-    html.theme-changing .library-search-clear,
     html.theme-changing .game-card,
-    html.theme-changing .game-card::before,
     html.theme-changing .game-card-mark,
     html.theme-changing .game-card-title,
     html.theme-changing .game-card-premise,
     html.theme-changing .game-card-unit,
-    html.theme-changing .game-card-format,
-    html.theme-changing .game-card-status,
-    html.theme-changing .game-card-status::before,
     html.theme-changing .game-card-action,
-    html.theme-changing .library-divider::before,
-    html.theme-changing .library-divider::after,
-    html.theme-changing .library-divider-label,
-    html.theme-changing .no-results,
-    html.theme-changing .no-results p,
-    html.theme-changing .modal-panel,
-    html.theme-changing .modal-header,
-    html.theme-changing .modal-title,
-    html.theme-changing .modal-close,
-    html.theme-changing .modal-helper,
-    html.theme-changing .modal-section-label,
-    html.theme-changing .session-input,
+    html.theme-changing .game-card-progress-track,
+    html.theme-changing .game-card-progress-fill,
     html.theme-changing .btn-primary,
     html.theme-changing .btn-ghost,
     html.theme-changing .confirm-panel,
@@ -217,19 +204,13 @@
         stroke var(--hub-theme-motion);
     }
 
-    html.theme-changing :where(.continue-card *, .library-zone *, .game-card *) {
+    html.theme-changing :where(.library-zone *, .game-card *) {
       transition:
         color var(--hub-theme-motion),
         border-color var(--hub-theme-motion),
         opacity var(--hub-theme-motion),
         fill var(--hub-theme-motion),
         stroke var(--hub-theme-motion);
-    }
-
-    html.theme-changing .arcade-atmosphere-layer {
-      transition:
-        opacity var(--hub-theme-motion),
-        filter var(--hub-theme-motion);
     }
 
     html.theme-changing .drawer {
@@ -306,46 +287,6 @@
       transition: opacity var(--hub-theme-motion);
     }
 
-    .arcade-atmosphere-layer {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      opacity: 0;
-      filter: blur(2px) saturate(0.9) contrast(0.9);
-      transform: translate3d(0, 0, 0) scale(1.012);
-      backface-visibility: hidden;
-      will-change: opacity, transform;
-      transition: opacity 0.2s ease;
-    }
-
-    .arcade-atmosphere-layer::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(180deg, rgba(250, 244, 237, 0.18) 0%, rgba(248, 241, 232, 0.48) 48%, rgba(248, 241, 232, 0.78) 100%),
-        radial-gradient(circle at 45% 0%, transparent 0, rgba(248, 241, 232, 0.32) 68%);
-    }
-
-    .arcade-atmosphere-layer.visible {
-      opacity: 0.16;
-      filter: blur(2px) saturate(0.9) contrast(0.92);
-    }
-
-    html[data-theme="night"] .arcade-atmosphere-layer.visible {
-      opacity: 0.075;
-    }
-
-    html[data-theme="night"] .arcade-atmosphere-layer::after {
-      background:
-        linear-gradient(180deg, rgba(30, 23, 32, 0.2) 0%, rgba(30, 23, 32, 0.54) 48%, rgba(30, 23, 32, 0.82) 100%),
-        radial-gradient(circle at 45% 0%, transparent 0, rgba(30, 23, 32, 0.34) 68%);
-    }
-
     /* ============================================================ SPINE (desktop) */
     .spine {
       position: fixed;
@@ -353,9 +294,9 @@
       left: 0;
       right: 0;
       z-index: 200;
-      background: rgba(251, 246, 240, 0.86);
+      background: rgba(249, 244, 250, 0.88);
       backdrop-filter: blur(22px) saturate(1.12);
-      border-bottom: 1px solid rgba(93, 57, 86, 0.12);
+      border-bottom: 1px solid rgba(138, 47, 189, 0.12);
       display: flex;
       align-items: center;
       height: 56px;
@@ -364,8 +305,8 @@
     }
 
     html[data-theme="night"] .spine {
-      background: rgba(30, 23, 32, 0.95);
-      border-bottom-color: rgba(255, 255, 255, 0.08);
+      background: rgba(28, 21, 35, 0.95);
+      border-bottom-color: rgba(211, 106, 240, 0.12);
     }
 
     .spine-mark {
@@ -561,9 +502,9 @@
       left: 0;
       right: 0;
       z-index: 200;
-      background: rgba(251, 246, 240, 0.88);
+      background: rgba(249, 244, 250, 0.90);
       backdrop-filter: blur(20px) saturate(1.1);
-      border-bottom: 1px solid rgba(93, 57, 86, 0.12);
+      border-bottom: 1px solid rgba(138, 47, 189, 0.12);
       height: 56px;
       padding: 0 1rem;
       align-items: center;
@@ -571,8 +512,8 @@
     }
 
     html[data-theme="night"] .mobile-header {
-      background: rgba(30, 23, 32, 0.96);
-      border-bottom-color: rgba(255, 255, 255, 0.08);
+      background: rgba(28, 21, 35, 0.96);
+      border-bottom-color: rgba(211, 106, 240, 0.12);
     }
 
     .mobile-header-mark {
@@ -925,199 +866,25 @@
       color: var(--ink-mid);
     }
 
-    /* ============================================================ SECTION LABELS */
-    .section-label {
-      font-size: 0.66rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--arcade);
-      opacity: 0.88;
-      margin-bottom: 1rem;
-    }
-
-    html[data-theme="night"] .section-label {
-      color: var(--arcade-soft);
-      opacity: 0.92;
-    }
-
-    /* ============================================================ CONTINUE PLAYING */
-    .continue-zone {
-      padding: 2rem 0 0;
-    }
-
-    .continue-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1rem;
-    }
-
-    .continue-card {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      align-items: center;
-      gap: 1.2rem;
-      background-color: rgba(255, 251, 244, 0.96);
-      border: 1px solid rgba(var(--arcade-rgb), 0.22);
-      border-radius: var(--r-xl);
-      padding: 1.45rem 1.55rem;
-      cursor: pointer;
-      transition: var(--t);
-      text-decoration: none;
-      position: relative;
-      overflow: hidden;
-      min-height: 112px;
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.76) inset,
-        0 18px 46px rgba(74, 42, 63, 0.105),
-        0 6px 18px rgba(var(--arcade-rgb), 0.045);
-    }
-
-    html[data-theme="night"] .continue-card {
-      background-color: rgba(42, 33, 48, 0.965);
-      border-color: var(--border-mid);
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.05) inset,
-        0 18px 48px rgba(0, 0, 0, 0.26),
-        0 0 26px rgba(var(--arcade-rgb), 0.07);
-    }
-
-    .continue-card:hover {
-      border-color: rgba(var(--arcade-rgb), 0.52);
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.8) inset,
-        0 22px 54px rgba(74, 42, 63, 0.14),
-        0 8px 22px rgba(var(--arcade-rgb), 0.08);
-      transform: translateY(-2px);
-    }
-
-    html[data-theme="night"] .continue-card:hover {
-      border-color: var(--arcade-soft);
-      box-shadow:
-        0 0 0 1px rgba(var(--arcade-rgb), 0.30),
-        0 1px 0 rgba(255, 255, 255, 0.06) inset,
-        0 20px 54px rgba(0, 0, 0, 0.34),
-        0 0 34px rgba(var(--arcade-rgb), 0.14);
-    }
-
-    .continue-card:focus-visible {
-      outline: 3px solid rgba(var(--arcade-rgb), 0.35);
-      outline-offset: 3px;
-    }
-
-    .continue-card::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: linear-gradient(180deg, var(--arcade-soft), var(--arcade));
-      border-radius: var(--r-xl) 0 0 var(--r-xl);
-    }
-
-    .continue-icon {
-      width: 52px;
-      height: 52px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.65rem;
-      line-height: 1;
-      border-radius: 16px;
-      background: rgba(var(--arcade-rgb), 0.095);
-      border: 1px solid rgba(var(--arcade-rgb), 0.13);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
-    }
-
-    .continue-body {
-      min-width: 0;
-    }
-
-    .continue-title {
-      font-family: var(--font-display);
-      font-size: 1.24rem;
-      font-weight: 650;
-      color: var(--ink);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 0.16rem;
-      line-height: 1.25;
-    }
-
-    .continue-progress {
-      font-size: 0.82rem;
-      color: var(--ink-mid);
-      opacity: 0.86;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      line-height: 1.45;
-    }
-
-    html[data-theme="night"] .continue-progress {
-      color: #baa6cf;
-      opacity: 0.96;
-    }
-
-    .continue-resume {
-      flex-shrink: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.32rem;
-      min-width: 104px;
-      min-height: 42px;
-      padding: 0.5rem 1rem;
-      border-radius: 999px;
-      background: var(--arcade);
-      color: #fff;
-      font-family: var(--font-body);
-      font-size: 0.78rem;
-      font-weight: 650;
-      border: 1px solid var(--arcade);
-      cursor: pointer;
-      transition: var(--t);
-      white-space: nowrap;
-      text-decoration: none;
-    }
-
-    .continue-resume:hover {
-      background: #c94624;
-      color: #fff;
-      border-color: #c94624;
-      box-shadow: 0 9px 22px rgba(var(--arcade-rgb), 0.23);
-    }
-
-    html[data-theme="night"] .continue-resume {
-      background: rgba(var(--arcade-rgb), 0.18);
-      border-color: rgba(var(--arcade-rgb), 0.32);
-      color: var(--arcade-soft);
-    }
-
-    html[data-theme="night"] .continue-resume:hover {
-      background: rgba(var(--arcade-rgb), 0.48);
-      color: #fff;
-      border-color: rgba(var(--arcade-rgb), 0.58);
-    }
-
     /* ============================================================ GAME LIBRARY */
     .library-zone {
       position: relative;
       margin-top: 2.8rem;
       padding: 1.75rem;
-      border: 1px solid rgba(93, 57, 86, 0.105);
+      border: 1px solid rgba(var(--arcade-rgb), 0.10);
       border-radius: 30px;
-      background-color: rgba(252, 248, 242, 0.86);
-      box-shadow: 0 20px 58px rgba(58, 36, 63, 0.075), inset 0 1px 0 rgba(255, 255, 255, 0.64);
+      background-color: rgba(251, 248, 252, 0.90);
+      box-shadow:
+        0 20px 58px rgba(58, 36, 63, 0.075),
+        inset 0 1px 0 rgba(255, 255, 255, 0.72);
     }
 
     html[data-theme="night"] .library-zone {
-      background-color: rgba(36, 28, 40, 0.91);
-      border-color: rgba(255, 255, 255, 0.085);
-      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.035);
+      background-color: rgba(32, 24, 40, 0.92);
+      border-color: rgba(var(--arcade-rgb), 0.11);
+      box-shadow:
+        0 22px 60px rgba(0, 0, 0, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.035);
     }
 
     .library-header {
@@ -1143,91 +910,6 @@
       min-width: 0;
     }
 
-    /* Search field */
-    .library-search-wrap {
-      position: relative;
-    }
-
-    .library-search {
-      width: 280px;
-      min-height: 46px;
-      padding: 0.68rem 2.45rem 0.68rem 2.45rem;
-      border: 1px solid rgba(58, 36, 63, 0.15);
-      border-radius: 16px;
-      background: rgba(255, 253, 249, 0.86);
-      font-family: var(--font-body);
-      font-size: 0.86rem;
-      color: var(--ink);
-      outline: none;
-      transition: var(--t);
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.72) inset,
-        0 9px 24px rgba(58, 36, 63, 0.055);
-    }
-
-    html[data-theme="night"] .library-search {
-      background: rgba(42, 33, 48, 0.98);
-      border-color: rgba(255, 255, 255, 0.18);
-      color: var(--ink);
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.05) inset,
-        0 12px 30px rgba(0, 0, 0, 0.22);
-    }
-
-    .library-search::placeholder {
-      color: #9b8cab;
-    }
-
-    html[data-theme="night"] .library-search::placeholder {
-      color: #8d7aa3;
-    }
-
-    .library-search:focus {
-      border-color: var(--arcade);
-      box-shadow: 0 0 0 4px rgba(var(--arcade-rgb), 0.11), 0 11px 28px rgba(58, 36, 63, 0.07);
-    }
-
-    .library-search-icon {
-      position: absolute;
-      left: 0.7rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #9b8cab;
-      pointer-events: none;
-    }
-
-    html[data-theme="night"] .library-search-icon {
-      color: #8d7aa3;
-    }
-
-    .library-search-clear {
-      position: absolute;
-      right: 0.6rem;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      border: none;
-      background: var(--bg-subtle);
-      color: var(--ink-quiet);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 10px;
-      transition: var(--t);
-    }
-
-    .library-search-clear.visible {
-      display: flex;
-    }
-
-    .library-search-clear:hover {
-      background: var(--border-mid);
-      color: var(--ink);
-    }
-
     /* Game grid */
     .game-grid {
       display: grid;
@@ -1242,7 +924,7 @@
       background-color: rgba(255, 253, 249, 0.91);
       border: 1px solid rgba(58, 36, 63, 0.135);
       border-radius: 22px;
-      padding: 1.45rem 1.45rem 1.3rem;
+      padding: 1.45rem 1.45rem 1.42rem;
       transition: var(--t);
       position: relative;
       overflow: hidden;
@@ -1259,18 +941,6 @@
       box-shadow:
         0 10px 34px rgba(0, 0, 0, 0.22),
         inset 0 1px 0 rgba(255, 255, 255, 0.045);
-    }
-
-    /* Thin top accent edge — colour comes from JS per game */
-    .game-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      opacity: 0;
-      transition: opacity var(--t);
     }
 
     .game-card:hover {
@@ -1290,44 +960,32 @@
         0 14px 40px rgba(0, 0, 0, 0.30);
     }
 
-    .game-card:hover::before {
-      opacity: 1;
+    .game-card-progress-track {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      overflow: hidden;
+      background: rgba(58, 36, 63, 0.10);
+      pointer-events: none;
+    }
+
+    html[data-theme="night"] .game-card-progress-track {
+      background: rgba(255, 255, 255, 0.10);
+    }
+
+    .game-card-progress-fill {
+      display: block;
+      width: var(--game-progress);
+      height: 100%;
+      background: var(--game-accent);
+      transition: width var(--t);
     }
 
     .game-card:focus-visible {
       outline: 3px solid rgba(var(--arcade-rgb), 0.34);
       outline-offset: 3px;
-    }
-
-    /* Cards that are coming-soon — no hover lift */
-    .game-card.is-soon {
-      cursor: default;
-      opacity: 1;
-      background-color: rgba(247, 241, 234, 0.68);
-      border-color: rgba(58, 36, 63, 0.085);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.52);
-    }
-
-    .game-card.is-soon:hover {
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.52);
-      transform: none;
-      border-color: var(--border);
-    }
-
-    html[data-theme="night"] .game-card.is-soon,
-    html[data-theme="night"] .game-card.is-soon:hover {
-      background-color: rgba(37, 29, 44, 0.72);
-      border-color: rgba(255, 255, 255, 0.075);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
-    }
-
-    .game-card.is-soon::before {
-      display: none;
-    }
-
-    /* In-progress state dot on the card */
-    .game-card.is-inprogress .game-card-status::before {
-      background: var(--arcade);
     }
 
     .game-card-mark {
@@ -1343,12 +1001,6 @@
       background: rgba(var(--arcade-rgb), 0.085);
       border: 1px solid rgba(var(--arcade-rgb), 0.105);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    }
-
-    .game-card.is-soon .game-card-mark {
-      background: rgba(90, 74, 110, 0.055);
-      border-color: rgba(90, 74, 110, 0.075);
-      filter: saturate(0.62);
     }
 
     .game-card-title {
@@ -1382,76 +1034,17 @@
       margin-top: auto;
     }
 
-    .game-card-meta {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
     .game-card-unit {
-      font-size: 0.72rem;
+      min-width: 0;
+      font-size: 0.76rem;
       color: var(--ink-quiet);
       font-weight: 500;
+      line-height: 1.4;
     }
 
     html[data-theme="night"] .game-card-unit {
       color: #9886ad;
       opacity: 0.96;
-    }
-
-    .game-card-format {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.15rem 0.52rem;
-      border-radius: 999px;
-      border: 1px solid var(--border-mid);
-      background: rgba(240, 231, 222, 0.72);
-      font-size: 0.66rem;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      color: var(--ink-mid);
-      text-transform: uppercase;
-    }
-
-    html[data-theme="night"] .game-card-format {
-      background: rgba(255, 255, 255, 0.045);
-      border-color: rgba(255, 255, 255, 0.13);
-      color: #ad9ac1;
-    }
-
-    .game-card-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      font-size: 0.72rem;
-      font-weight: 500;
-      padding: 0.18rem 0.55rem;
-      border-radius: 999px;
-    }
-
-    .game-card-status.status-available {
-      background: var(--bg-subtle);
-      color: var(--ink-quiet);
-    }
-
-    .game-card-status.status-inprogress {
-      background: var(--arcade-pale);
-      color: var(--arcade);
-    }
-
-    .game-card-status.status-inprogress::before {
-      content: '';
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--arcade);
-      flex-shrink: 0;
-    }
-
-    .game-card-status.status-soon {
-      background: var(--bg-subtle);
-      color: var(--ink-faint);
     }
 
     .game-card-action {
@@ -1461,219 +1054,46 @@
       min-height: 38px;
       padding: 0.44rem 0.92rem;
       border-radius: 999px;
-      background: rgba(249, 222, 211, 0.8);
+      background: rgba(246, 236, 250, 0.96);
       color: var(--arcade);
       font-family: var(--font-body);
       font-size: 0.76rem;
       font-weight: 600;
-      border: 1px solid rgba(var(--arcade-rgb), 0.25);
+      border: 1px solid rgba(var(--arcade-rgb), 0.22);
       cursor: pointer;
       transition: var(--t);
       white-space: nowrap;
       text-decoration: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
     }
 
-    .game-card-action:hover {
+    .game-card:hover .game-card-action {
       background: var(--arcade);
       color: #fff;
       border-color: var(--arcade);
       box-shadow: 0 7px 18px rgba(var(--arcade-rgb), 0.17);
     }
 
-    .game-card-action.disabled {
-      background: var(--bg-subtle);
-      color: var(--ink-faint);
-      border-color: var(--border);
-      cursor: default;
-      pointer-events: none;
-    }
-
     html[data-theme="night"] .game-card-action {
       background: rgba(var(--arcade-rgb), 0.18);
       border-color: rgba(var(--arcade-rgb), 0.32);
       color: var(--arcade);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
     }
 
-    html[data-theme="night"] .game-card-action:hover {
+    html[data-theme="night"] .game-card:hover .game-card-action {
       background: rgba(var(--arcade-rgb), 0.45);
       color: #fff;
-    }
-
-    /* Divider between available and coming-soon sections */
-    .library-divider {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin: 2.5rem 0 1.65rem;
-    }
-
-    .library-divider::before,
-    .library-divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    .library-divider-label {
-      font-size: 0.66rem;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--ink-quiet);
-      opacity: 0.72;
-      white-space: nowrap;
+      border-color: rgba(var(--arcade-rgb), 0.58);
     }
 
     .spine-world-btn:focus-visible,
     .spine-session-pill:focus-visible,
     .spine-btn:focus-visible,
     .mobile-header-btn:focus-visible,
-    .mobile-session-pill:focus-visible,
-    .library-search-clear:focus-visible,
-    .continue-resume:focus-visible,
-    .game-card-action:focus-visible {
+    .mobile-session-pill:focus-visible {
       outline: 3px solid rgba(var(--arcade-rgb), 0.36);
       outline-offset: 3px;
-    }
-
-    html[data-theme="night"] .library-divider-label {
-      color: #a894bd;
-      opacity: 0.9;
-    }
-
-    /* No-results state */
-    .no-results {
-      display: none;
-      text-align: center;
-      padding: 3rem 1rem;
-      color: var(--ink-quiet);
-    }
-
-    .no-results.visible {
-      display: block;
-    }
-
-    .no-results p {
-      font-size: 0.9rem;
-      line-height: 1.6;
-    }
-
-    /* ============================================================ SETTINGS MODAL */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.48);
-      backdrop-filter: blur(6px);
-      z-index: 600;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-    }
-
-    .modal-overlay.open {
-      display: flex;
-      animation: fadeIn 0.18s ease;
-    }
-
-    .modal-panel {
-      background: var(--bg-raised);
-      border-radius: var(--r-xl);
-      max-width: 420px;
-      width: 100%;
-      box-shadow: var(--shadow-lg);
-      animation: slideUp 0.22s cubic-bezier(0.34, 1.25, 0.64, 1);
-      max-height: 90svh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .modal-header {
-      padding: 1.3rem 1.5rem 1rem;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-    }
-
-    .modal-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--ink);
-    }
-
-    .modal-close {
-      width: 30px;
-      height: 30px;
-      border-radius: var(--r-sm);
-      border: 1px solid var(--border);
-      background: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: var(--ink-quiet);
-    }
-
-    .modal-close:hover {
-      background: var(--bg-subtle);
-      color: var(--ink);
-    }
-
-    .modal-body {
-      padding: 1.2rem 1.5rem 1.5rem;
-      overflow-y: auto;
-      flex: 1;
-    }
-
-    .modal-helper {
-      font-size: 0.78rem;
-      color: var(--ink-quiet);
-      margin-bottom: 0.9rem;
-      line-height: 1.5;
-    }
-
-    .modal-section-label {
-      font-size: 0.64rem;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
-      margin: 0.9rem 0 0.45rem;
-    }
-
-    .session-input {
-      flex: 1;
-      padding: 0.58rem 0.8rem;
-      border: 1.5px solid var(--border);
-      border-radius: var(--r-sm);
-      font-family: var(--font-body);
-      font-size: 0.86rem;
-      color: var(--ink);
-      background: var(--bg-raised);
-      outline: none;
-      transition: border-color var(--t);
-      min-height: 42px;
-    }
-
-    .session-input:focus {
-      border-color: var(--arcade);
-    }
-
-    select.session-input {
-      appearance: none;
-      padding-right: 2.35rem;
-      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 5.25L7 8.75L10.5 5.25' stroke='%235a4a6e' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-size: 14px 14px;
-      background-position: right 0.7rem center;
-    }
-
-    html[data-theme="night"] select.session-input {
-      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 5.25L7 8.75L10.5 5.25' stroke='%23c8b8d8' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     }
 
     .btn-primary {
@@ -1899,25 +1319,12 @@
         content: none !important;
       }
 
-      .arcade-atmosphere-layer,
-      .drawer-settings-item {
-        display: none !important;
-      }
-
       .spine {
         display: none !important;
       }
 
       .mobile-header {
         display: flex !important;
-      }
-
-      .arcade-atmosphere-layer {
-        display: none !important;
-      }
-
-      .drawer-settings-item {
-        display: none !important;
       }
 
       .arcade-main {
@@ -1937,22 +1344,6 @@
         grid-template-columns: 1fr;
       }
 
-      .continue-list {
-        grid-template-columns: 1fr;
-      }
-
-      .continue-card {
-        grid-template-columns: auto minmax(0, 1fr);
-        padding: 1.3rem 1.25rem;
-      }
-
-      .continue-resume {
-        grid-column: 1 / -1;
-        width: 100%;
-        justify-content: center;
-        margin-top: 0.5rem;
-      }
-
       .library-zone {
         margin-top: 2.35rem;
         padding: 1.25rem 1rem 1.35rem;
@@ -1964,16 +1355,8 @@
         flex-wrap: wrap;
       }
 
-      .library-search-wrap {
-        width: 100%;
-      }
-
-      .library-search {
-        width: 100%;
-      }
-
       .game-card {
-        padding: 1.35rem 1.25rem 1.25rem;
+        padding: 1.35rem 1.25rem 1.38rem;
       }
 
       .jumpto-overlay {
@@ -1995,7 +1378,6 @@
 </head>
 
 <body data-atlas-surface="hub">
-  <div class="arcade-atmosphere-layer" id="arcade-atmosphere-layer" aria-hidden="true"></div>
 
   <!-- ============================================================ DESKTOP SPINE -->
   <header class="spine" role="banner">
@@ -2015,14 +1397,6 @@
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
           <circle cx="6.5" cy="6.5" r="4.2" stroke="currentColor" stroke-width="1.3" />
           <path d="M9.8 9.8l2.8 2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-        </svg>
-      </button>
-      <button class="spine-btn" onclick="openSettingsModal()" title="Settings" aria-label="Settings">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
-          <circle cx="6" cy="4" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
-          <circle cx="10" cy="8" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
-          <circle cx="7.5" cy="12" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
         </svg>
       </button>
       <button class="spine-btn" id="spine-appearance-btn" onclick="toggleAppearance()"
@@ -2079,15 +1453,6 @@
         </svg>
         Search
       </button>
-      <button class="drawer-nav-item drawer-settings-item" onclick="closeDrawer(); openSettingsModal()">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-          <path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
-          <circle cx="6" cy="4" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
-          <circle cx="10" cy="8" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
-          <circle cx="7.5" cy="12" r="1.2" fill="var(--bg-raised)" stroke="currentColor" stroke-width="1.2" />
-        </svg>
-        Settings
-      </button>
     </div>
     <div class="drawer-footer">
       <div class="drawer-footer-row">
@@ -2112,42 +1477,6 @@
   </main>
 
   <div id="atlas-session-panel-root"></div>
-
-  <!-- ============================================================ SETTINGS MODAL -->
-  <div class="modal-overlay" id="settings-modal" onclick="handleSettingsModalClick(event)" role="dialog"
-    aria-label="Settings" aria-modal="true">
-    <div class="modal-panel">
-      <div class="modal-header">
-        <span class="modal-title">Settings</span>
-        <button class="modal-close" onclick="closeSettingsModal()" aria-label="Close">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p class="modal-helper">Choose the Arcade atmosphere for this device.</p>
-
-        <p class="modal-section-label">Atmosphere</p>
-        <select class="session-input" id="arcade-atmosphere-mode" onchange="handleArcadeAtmosphereModeChange()">
-          <option value="default">Default Arcade atmosphere</option>
-          <option value="custom">Custom image URL</option>
-          <option value="none">No atmosphere image</option>
-        </select>
-
-        <div id="arcade-custom-atmosphere-row" style="margin-top:0.9rem;">
-          <p class="modal-section-label">Custom image URL</p>
-          <input class="session-input" id="arcade-atmosphere-input" type="url" placeholder="https://..."
-            autocomplete="off">
-        </div>
-
-        <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
-          <button class="btn-primary" onclick="handleSaveSettings()">Save</button>
-          <button class="btn-ghost" onclick="handleRevertAtmosphere()">Revert to default</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- ============================================================ CONFIRM DIALOG -->
   <div class="confirm-dialog" id="confirm-dialog" role="alertdialog" aria-modal="true">
@@ -2219,26 +1548,20 @@
     };
 
     /* ================================================================
-       GAME CATALOGUE
-       Three games exist as files. Remaining 12 are planned/coming soon.
-       Status 'available' = file exists and is launchable.
-       Status 'soon' = planned but not built yet.
-       Bridge retrofit status is separate from availability.
+       PLAYABLE GAME CATALOGUE
+       Every item listed here is complete and launchable.
+       Future Arcade concepts live outside the operational hub.
        ================================================================ */
     const GAME_CATALOGUE = [
-      // ── AVAILABLE NOW ────────────────────────────────────────────────
       {
         registryId: 'arcade:tomorrow-got-weird',
         title: 'Tomorrow Got Weird',
         premise: 'Step into strange future scenarios and decide what you would do next.',
         unitLabel: 'Scenarios',
         total: 25,
-        formatLabel: 'Imagination',
         mark: '🛸',
-        accent: '#7c3aed',
-        accentLight: '#ede9fe',
+        accent: '#8b5cf6',
         order: 1,
-        status: 'available',
         launchUrl: './tomorrow-got-weird/index.html'
       },
       {
@@ -2247,12 +1570,9 @@
         premise: 'Two facts are true. One is a lie. Spot the fake and explain your reasoning.',
         unitLabel: 'Rounds',
         total: 20,
-        formatLabel: 'Trivia',
         mark: '🕵️',
-        accent: '#b45309',
-        accentLight: '#fef3c7',
+        accent: '#c026d3',
         order: 2,
-        status: 'available',
         launchUrl: './truth-trap/index.html'
       },
       {
@@ -2261,183 +1581,10 @@
         premise: 'Choose between impossible options and explain what made you decide.',
         unitLabel: 'Questions',
         total: 50,
-        formatLabel: 'Choices',
         mark: '🤔',
-        accent: '#0369a1',
-        accentLight: '#e0f2fe',
+        accent: '#6366f1',
         order: 3,
-        status: 'available',
         launchUrl: './would-you-rather/index.html'
-      },
-
-      // ── COMING SOON ──────────────────────────────────────────────────
-      {
-        registryId: 'arcade:bad-advice-only',
-        title: 'Bad Advice Only',
-        premise: 'Give the worst advice possible and deliver it with ridiculous confidence.',
-        unitLabel: 'Prompts',
-        total: 20,
-        formatLabel: 'Comedy',
-        mark: '💀',
-        accent: '#be123c',
-        accentLight: '#ffe4e6',
-        order: 4,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:butterfly-effect',
-        title: 'Butterfly Effect',
-        premise: 'Start with one small moment, follow the consequences, and keep the story moving.',
-        unitLabel: 'Scenarios',
-        total: 20,
-        formatLabel: 'Storytelling',
-        mark: '🦋',
-        accent: '#059669',
-        accentLight: '#d1fae5',
-        order: 5,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:couch-potato',
-        title: 'Couch Potato',
-        premise: 'Match colourful English idioms to real people and explain why they fit.',
-        unitLabel: 'Matches',
-        total: 25,
-        formatLabel: 'Idioms',
-        mark: '🛋️',
-        accent: '#7c3aed',
-        accentLight: '#ede9fe',
-        order: 6,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:devils-advocate',
-        title: 'Devil\'s Advocate',
-        premise: 'Defend a position you would normally reject and make it sound convincing.',
-        unitLabel: 'Statements',
-        total: 20,
-        formatLabel: 'Debate',
-        mark: '😈',
-        accent: '#dc2626',
-        accentLight: '#fee2e2',
-        order: 7,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:explain-like-5',
-        title: 'Explain Like I\'m 5',
-        premise: 'Take a big idea and explain it so clearly that a child could understand.',
-        unitLabel: 'Topics',
-        total: 20,
-        formatLabel: 'Explaining',
-        mark: '🧠',
-        accent: '#d97706',
-        accentLight: '#fef3c7',
-        order: 8,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:guilty-or-innocent',
-        title: 'Guilty or Innocent',
-        premise: 'Judge awkward everyday habits, choose guilty or innocent, and defend your verdict.',
-        unitLabel: 'Cases',
-        total: 19,
-        formatLabel: 'On Trial',
-        mark: '⚖️',
-        accent: '#1e40af',
-        accentLight: '#dbeafe',
-        order: 9,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:hidden-truth',
-        title: 'Hidden Truth',
-        premise: 'Read between the lines and work out what someone might really mean or feel.',
-        unitLabel: 'Moments',
-        total: 20,
-        formatLabel: 'Clues',
-        mark: '👀',
-        accent: '#0f766e',
-        accentLight: '#ccfbf1',
-        order: 10,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:hot-takes',
-        title: 'Hot Takes',
-        premise: 'Take a position, react honestly, and defend your opinion without overthinking.',
-        unitLabel: 'Statements',
-        total: 20,
-        formatLabel: 'Opinions',
-        mark: '🔥',
-        accent: '#ea580c',
-        accentLight: '#ffedd5',
-        order: 11,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:instant-decision',
-        title: 'Instant Decision',
-        premise: 'Make a fast choice, give your reason, and keep moving.',
-        unitLabel: 'Dilemmas',
-        total: 20,
-        formatLabel: 'Quickfire',
-        mark: '⚡',
-        accent: '#ca8a04',
-        accentLight: '#fef9c3',
-        order: 12,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:life-trade',
-        title: 'Life Trade',
-        premise: 'Swap lives with someone else for a week and imagine what you would do.',
-        unitLabel: 'Swaps',
-        total: 20,
-        formatLabel: 'Imagination',
-        mark: '🔄',
-        accent: '#7c3aed',
-        accentLight: '#ede9fe',
-        order: 13,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:personal-lore',
-        title: 'Personal Lore',
-        premise: 'Share the habits, quirks, and tiny stories that make you unmistakably you.',
-        unitLabel: 'Prompts',
-        total: 21,
-        formatLabel: 'Stories',
-        mark: '📖',
-        accent: '#be185d',
-        accentLight: '#fce7f3',
-        order: 14,
-        status: 'soon',
-        launchUrl: null
-      },
-      {
-        registryId: 'arcade:cats-pyjamas',
-        title: 'The Cat\'s Pyjamas',
-        premise: 'Two idioms are real. One is fake. Trust your instincts and catch the invented one.',
-        unitLabel: 'Rounds',
-        total: 20,
-        formatLabel: 'Idioms',
-        mark: '🐱',
-        accent: '#0f766e',
-        accentLight: '#ccfbf1',
-        order: 15,
-        status: 'soon',
-        launchUrl: null
       }
     ];
 
@@ -2474,11 +1621,11 @@
 
     /* ================================================================
        REGISTRATION
-       Arcade world and game items are registered idempotently on load.
-       Only available games get a launchUrl in the registry.
+       Arcade and its playable games are registered idempotently on load.
        ================================================================ */
     function registerWithBridge() {
       if (!Bridge) return;
+
       try {
         Bridge.upsertWorld({
           registryId: 'arcade',
@@ -2493,123 +1640,90 @@
 
       GAME_CATALOGUE.forEach(game => {
         try {
-          const item = {
+          Bridge.upsertItem({
             registryId: game.registryId,
             world: 'arcade',
             type: 'game',
             title: game.title,
             premise: game.premise,
-            status: game.status,
+            status: 'available',
             unitLabel: game.unitLabel,
             total: game.total,
-            formatLabel: game.formatLabel,
             mark: game.mark,
             accent: game.accent,
-            accentLight: game.accentLight,
             order: game.order,
-            launchUrl: game.status === 'available' && game.launchUrl
-              ? new URL(game.launchUrl, window.location.href).href
-              : null
-          };
-
-          Bridge.upsertItem(item);
+            launchUrl: new URL(game.launchUrl, window.location.href).href
+          });
         } catch (e) { }
       });
     }
 
     /* ================================================================
-       CONTINUE PLAYING
-       Reads active session's state for Arcade games.
-       Only shows games with status 'in-progress' (not 'complete', not absent).
-       Only Tomorrow Got Weird can write Bridge state currently —
-       Truth Trap and Would You Rather are not retrofitted, so they
-       will never appear here unless retrofitted in a future pass.
+       GAME DECK STATE
+       Progress represents position in the current deck run.
+       Reaching the end offers a fresh run; it does not permanently
+       complete or retire the game.
        ================================================================ */
-    function singularUnitLabel(label) {
-      const clean = String(label || 'Round').trim();
-      return clean.endsWith('s') ? clean.slice(0, -1) : clean;
-    }
+    function getGameDeckState(game, state) {
+      const progress = state && typeof state === 'object'
+        ? state.progress || {}
+        : {};
 
-    function formatArcadeRelativeTime(ts) {
-      if (!ts) return '';
+      const status = String(
+        state && state.status ? state.status : ''
+      ).toLowerCase();
 
-      const now = Date.now();
-      const diff = now - ts;
-      const days = Math.floor(diff / 86400000);
+      const total = Math.max(
+        0,
+        Number(progress.total) || Number(game.total) || 0
+      );
 
-      if (days === 0) return 'played today';
-      if (days === 1) return 'played yesterday';
-      if (days < 7) return 'played ' + days + ' days ago';
-      if (days < 14) return 'played last week';
+      const rawCovered = Math.max(
+        0,
+        Number(progress.covered) || 0
+      );
 
-      const weeks = Math.floor(days / 7);
-      if (weeks < 5) return 'played ' + weeks + ' weeks ago';
+      const exhausted = total > 0 && (
+        rawCovered >= total ||
+        status === 'complete' ||
+        status === 'completed'
+      );
 
-      return 'played a while ago';
-    }
+      const covered = exhausted
+        ? total
+        : Math.min(rawCovered, total);
 
-    function formatResumePointLabel(item, state) {
-      if (item.registryId === 'arcade:would-you-rather') {
-        const p = state.progress || {};
-        const total = Number(p.total) || Number(item.total) || 50;
-        const covered = Number(p.covered) || 0;
-        const left = Math.max(0, total - covered);
+      const started = covered > 0;
+      const unit = String(game.unitLabel || 'items').toLowerCase();
 
-        return left === 1 ? '1 question left' : left + ' questions left';
+      if (exhausted) {
+        return {
+          mode: 'exhausted',
+          actionLabel: 'Play again',
+          positionLabel: total + ' of ' + total + ' ' + unit,
+          progressPercent: 100
+        };
       }
 
-      const pos = Number(state.currentPosition) || null;
-      const unit = singularUnitLabel(item.unitLabel || 'Round');
-
-      if (pos) return 'Resume from ' + unit + ' ' + pos;
-
-      if (state.currentLabel) {
-        return 'Resume from ' + String(state.currentLabel).replace(/\s+of\s+\d+$/i, '');
+      if (started) {
+        return {
+          mode: 'in-progress',
+          actionLabel: 'Resume',
+          positionLabel: covered + ' of ' + total + ' ' + unit,
+          progressPercent: total > 0
+            ? Math.round((covered / total) * 100)
+            : 0
+        };
       }
 
-      return 'In progress';
-    }
-
-    function hasMeaningfulArcadeProgress(state) {
-      if (!state || typeof state !== 'object') {
-        return false;
-      }
-
-      const status = String(state.status || '').toLowerCase();
-      const progress = state.progress || {};
-      const covered = Number(progress.covered) || 0;
-
-      return status === 'in-progress' && covered > 0;
-    }
-
-    function getContinueGames(reg, sessionId) {
-      const states = (reg.sessionStates || {})[sessionId] || {};
-      const results = [];
-
-      Object.entries(states).forEach(([registryId, state]) => {
-        if (!state) return;
-        // Only Arcade games
-        const item = (reg.items || {})[registryId];
-        if (!item || item.world !== 'arcade' || item.type !== 'game') return;
-        // Only in-progress (not complete, not absent)
-        if (!hasMeaningfulArcadeProgress(state)) return;
-
-        const catalogueGame = GAME_CATALOGUE.find(g => g.registryId === registryId);
-        if (!catalogueGame || !catalogueGame.launchUrl) return;
-
-        results.push({
-          registryId,
-          title: catalogueGame.title,
-          currentLabel: formatResumePointLabel(item, state),
-          launchUrl: catalogueGame.launchUrl,
-          mark: catalogueGame.mark,
-          formatLabel: catalogueGame.formatLabel,
-          lastTouchedAt: state.lastTouchedAt || state.updatedAt || 0
-        });
-      });
-
-      // Newest first, cap at 3
-      return results.sort((a, b) => b.lastTouchedAt - a.lastTouchedAt).slice(0, 3);
+      return {
+        mode: 'unstarted',
+        actionLabel: 'Play',
+        positionLabel: total
+          ? total + ' ' + unit
+          : 'Open-ended',
+        progressPercent: 0
+      };
     }
 
     /* ================================================================
@@ -2662,152 +1776,6 @@
       if (hub.alwaysAvailable) return true;
       if (hub.worldId) return !!resolveWorldLaunchUrl(reg, hub.worldId);
       return false;
-    }
-
-    /* ================================================================
-           SETTINGS — Arcade atmosphere image
-           ================================================================ */
-    function readArcadeAtmosphereMode() {
-      try {
-        const mode = localStorage.getItem(ARCADE_ATMOSPHERE_MODE_KEY);
-        if (mode === 'custom' || mode === 'none' || mode === 'default') return mode;
-
-        // Preserve old Arcade behaviour for anyone who already saved a custom image.
-        return localStorage.getItem(ARCADE_ATMOSPHERE_KEY) ? 'custom' : 'default';
-      } catch (e) {
-        return 'default';
-      }
-    }
-
-    function readArcadeCustomAtmosphereImage() {
-      try { return localStorage.getItem(ARCADE_ATMOSPHERE_KEY) || ''; }
-      catch (e) { return ''; }
-    }
-
-    function getArcadeAtmosphereImage() {
-      const mode = readArcadeAtmosphereMode();
-
-      if (mode === 'none') return '';
-      if (mode === 'custom') return readArcadeCustomAtmosphereImage();
-
-      return ARCADE_DEFAULT_ATMOSPHERE;
-    }
-
-    function writeArcadeAtmosphereSettings(mode, url) {
-      const cleanMode = (mode === 'custom' || mode === 'none' || mode === 'default') ? mode : 'default';
-      const cleanUrl = (url || '').trim();
-
-      try {
-        localStorage.setItem(ARCADE_ATMOSPHERE_MODE_KEY, cleanMode);
-
-        if (cleanUrl) localStorage.setItem(ARCADE_ATMOSPHERE_KEY, cleanUrl);
-        else localStorage.removeItem(ARCADE_ATMOSPHERE_KEY);
-      } catch (e) { }
-
-      applyArcadeAtmosphereImage();
-    }
-
-    function cssImageUrl(url) {
-      return 'url("' + String(url || '').replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '")';
-    }
-
-    function isMobileHubViewport() {
-      return window.matchMedia && window.matchMedia('(max-width: 680px)').matches;
-    }
-
-    function applyArcadeAtmosphereImage() {
-      const layer = document.getElementById('arcade-atmosphere-layer');
-      if (!layer) return;
-
-      if (isMobileHubViewport()) {
-        layer.style.backgroundImage = '';
-        layer.classList.remove('visible');
-        return;
-      }
-
-      const image = getArcadeAtmosphereImage();
-
-      if (!image) {
-        layer.style.backgroundImage = '';
-        layer.classList.remove('visible');
-        return;
-      }
-
-      layer.style.backgroundImage = cssImageUrl(image);
-      layer.classList.add('visible');
-    }
-
-    function handleArcadeAtmosphereModeChange() {
-      const mode = document.getElementById('arcade-atmosphere-mode');
-      const row = document.getElementById('arcade-custom-atmosphere-row');
-
-      if (!mode || !row) return;
-
-      row.style.display = mode.value === 'custom' ? '' : 'none';
-    }
-
-    function openSettingsModal() {
-      if (isMobileHubViewport()) return;
-
-      const mode = document.getElementById('arcade-atmosphere-mode');
-      const input = document.getElementById('arcade-atmosphere-input');
-
-      if (mode) mode.value = readArcadeAtmosphereMode();
-      if (input) input.value = readArcadeCustomAtmosphereImage();
-
-      handleArcadeAtmosphereModeChange();
-
-      document.getElementById('settings-modal').classList.add('open');
-      document.body.style.overflow = 'hidden';
-
-      setTimeout(() => {
-        const currentMode = readArcadeAtmosphereMode();
-        const el = currentMode === 'custom'
-          ? document.getElementById('arcade-atmosphere-input')
-          : document.getElementById('arcade-atmosphere-mode');
-
-        if (el) el.focus();
-      }, 50);
-    }
-
-    function closeSettingsModal() {
-      document.getElementById('settings-modal').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    function handleSettingsModalClick(e) {
-      if (e.target === document.getElementById('settings-modal')) closeSettingsModal();
-    }
-
-    function handleSaveSettings() {
-      const modeEl = document.getElementById('arcade-atmosphere-mode');
-      const input = document.getElementById('arcade-atmosphere-input');
-
-      const mode = modeEl ? modeEl.value : 'default';
-      const customUrl = input ? input.value.trim() : '';
-
-      if (mode === 'custom' && !customUrl) {
-        showToast('Add a custom image URL, or choose Default or No atmosphere.');
-        if (input) input.focus();
-        return;
-      }
-
-      writeArcadeAtmosphereSettings(mode, customUrl);
-      closeSettingsModal();
-
-      const labels = {
-        default: 'Arcade atmosphere reset to default.',
-        custom: 'Arcade custom atmosphere saved.',
-        none: 'Arcade atmosphere removed.'
-      };
-
-      showToast(labels[mode] || 'Arcade atmosphere saved.');
-    }
-
-    function handleRevertAtmosphere() {
-      writeArcadeAtmosphereSettings('default', '');
-      closeSettingsModal();
-      showToast('Arcade atmosphere reset to default.');
     }
 
     /* ================================================================
@@ -2871,24 +1839,20 @@
        ================================================================ */
     function renderHub() {
       if (!Bridge) return;
+
       const session = getActiveSession();
       const reg = getRegistry();
+      const sessionStates = (reg.sessionStates || {})[session.id] || {};
 
       setSessionLabels();
       renderSpineHubNav();
       renderDrawerHubNav();
 
-      const continueGames = getContinueGames(reg, session.id);
-      const availableGames = GAME_CATALOGUE.filter(g => g.status === 'available');
-      const soonGames = GAME_CATALOGUE.filter(g => g.status === 'soon');
-
-      // Build in-progress lookup from Bridge for status badges on library cards
-      const sessionStates = (reg.sessionStates || {})[session.id] || {};
+      const eyebrow = isDefaultSession(session)
+        ? 'Arcade'
+        : 'Welcome, ' + session.name;
 
       let html = '';
-
-      // ── Identity strip ──
-      const eyebrow = isDefaultSession(session) ? 'Arcade' : 'Welcome, ' + session.name;
 
       html += '<div class="hub-intro">' +
         '<div class="hub-intro-text">' +
@@ -2896,201 +1860,52 @@
         '<h1 class="hub-title">Conversation games that get you talking.</h1>' +
         '<p class="hub-desc">Think fast, speak freely, and see where the game takes you.</p>' +
         '</div>' +
-        '<div class="hub-meta">' +
-        '<div class="hub-meta-chip">' + availableGames.length + ' playable game' + (availableGames.length !== 1 ? 's' : '') + '</div>' +
+        '</div>';
+
+      html += '<div class="library-zone">' +
+        '<div class="library-header">' +
+        '<h2 class="library-title">Choose a game</h2>' +
         '</div>' +
-        '</div>';
+        '<div class="game-grid">';
 
-      // ── Continue Playing (conditional) ──
-      if (continueGames.length > 0) {
-        html += '<div class="continue-zone">';
-        html += '<div class="section-label">Continue Playing</div>';
-        html += '<div class="continue-list">';
-        continueGames.forEach(game => {
-          html += renderContinueCard(game);
-        });
-        html += '</div>';
-        html += '</div>';
-      }
-
-      // ── Game Library ──
-      html += '<div class="library-zone">';
-      html += '<div class="library-header">';
-      html += '<h2 class="library-title">Game Library</h2>';
-      html += '<div class="library-search-wrap">' +
-        '<span class="library-search-icon" aria-hidden="true">' +
-        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="3.8" stroke="currentColor" stroke-width="1.2"/><path d="M9 9l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>' +
-        '</span>' +
-        '<input class="library-search" id="library-search" type="text" placeholder="Search games…" autocomplete="off" aria-label="Search games">' +
-        '<button class="library-search-clear" id="library-search-clear" onclick="clearLibrarySearch()" aria-label="Clear search">✕</button>' +
-        '</div>';
-      html += '</div>'; // library-header
-
-      // Available games grid
-      html += '<div class="game-grid" id="game-grid-available">';
-      availableGames.forEach(game => {
-        const bridgeState = sessionStates[game.registryId];
-        const inProgress = hasMeaningfulArcadeProgress(bridgeState);
-        html += renderGameCard(game, inProgress);
+      GAME_CATALOGUE.forEach(game => {
+        html += renderGameCard(game, sessionStates[game.registryId]);
       });
-      html += '</div>';
 
-      // Coming soon divider + grid
-      if (soonGames.length > 0) {
-        html += '<div class="library-divider"><span class="library-divider-label">Coming next</span></div>';
-        html += '<div class="game-grid" id="game-grid-soon">';
-        soonGames.forEach(game => {
-          html += renderGameCard(game, false);
-        });
-        html += '</div>';
-      }
-
-      html += '<div class="no-results" id="no-results"><p>No games match that search.</p></div>';
-      html += '</div>'; // library-zone
+      html += '</div>' +
+        '</div>';
 
       document.getElementById('arcade-main').innerHTML = html;
-
-      // Bind search after render
-      bindLibrarySearch();
     }
 
-    function renderContinueCard(game) {
-      const playedLabel = formatArcadeRelativeTime(game.lastTouchedAt);
+    function renderGameCard(game, state) {
+      const deck = getGameDeckState(game, state);
+      const hasProgressBar = deck.mode !== 'unstarted';
 
-      const meta = [
-        game.currentLabel,
-        playedLabel
-      ].filter(Boolean).join(' · ');
-
-      return '<div class="continue-card" role="button" tabindex="0" ' +
-        'onclick="navigateTo(\'' + escAttr(game.launchUrl) + '\')" ' +
-        'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navigateTo(\'' + escAttr(game.launchUrl) + '\')}">' +
-        '<div class="continue-icon" aria-hidden="true">' +
-        escHtml(game.mark) +
-        '</div>' +
-        '<div class="continue-body">' +
-        '<div class="continue-title">' + escHtml(game.title) + '</div>' +
-        (meta ? '<div class="continue-progress">' + escHtml(meta) + '</div>' : '') +
-        '</div>' +
-        '<a class="continue-resume" href="' + escAttr(game.launchUrl) + '" onclick="event.stopPropagation()">Resume' +
-        '<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-        '</a>' +
-        '</div>';
-    }
-
-    function renderGameCard(game, inProgress) {
-      const isAvailable = game.status === 'available';
-      const isSoon = game.status === 'soon';
-
-      // Card class
-      let cardClass = 'game-card';
-      if (isSoon) cardClass += ' is-soon';
-      if (inProgress) cardClass += ' is-inprogress';
-
-      // Accent top stripe colour
-      const accentStyle = isAvailable
-        ? 'style="background:' + game.accent + '"'
+      const progressHtml = hasProgressBar
+        ? '<span class="game-card-progress-track" aria-hidden="true">' +
+          '<span class="game-card-progress-fill"></span>' +
+          '</span>'
         : '';
 
-      // Status badge
-      let statusHtml = '';
-      if (inProgress) {
-        statusHtml = '<span class="game-card-status status-inprogress" aria-label="In progress">In progress</span>';
-      } else if (isSoon) {
-        statusHtml = '<span class="game-card-status status-soon">Coming soon</span>';
-      } else {
-        statusHtml = '<span class="game-card-status status-available">Available</span>';
-      }
-
-      // Action button
-      let actionHtml = '';
-      if (isAvailable) {
-        const label = inProgress ? 'Resume' : 'Play';
-        actionHtml = '<a class="game-card-action" href="' + escAttr(game.launchUrl) + '" aria-label="' + label + ' ' + escAttr(game.title) + '">' +
-          label +
-          '<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-          '</a>';
-      } else {
-        actionHtml = '<span class="game-card-action disabled" aria-label="Coming soon">Soon</span>';
-      }
-
-      // Unit info
-      const unitText = game.total
-        ? game.total + ' ' + (game.unitLabel || 'rounds').toLowerCase()
-        : 'Open-ended';
-
-      const clickHandler = isAvailable
-        ? 'onclick="navigateTo(\'' + escAttr(game.launchUrl) + '\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();navigateTo(\'' + escAttr(game.launchUrl) + '\')}" tabindex="0"'
-        : 'aria-disabled="true" tabindex="0"';
-
-      return '<div class="' + cardClass + '" ' + clickHandler +
-        ' role="' + (isAvailable ? 'button' : 'article') + '"' +
-        ' aria-label="' + escAttr(game.title) + (isSoon ? ' — coming soon' : '') + '"' +
-        ' data-search="' + escAttr([
-          game.title,
-          game.premise,
-          game.formatLabel,
-          game.unitLabel
-        ].filter(Boolean).join(' ').toLowerCase()) + '">' +
-        '<span style="position:absolute;top:0;left:0;right:0;height:3px;' + (isAvailable ? 'background:' + game.accent : 'background:var(--border)') + ';opacity:' + (isAvailable ? '0' : '1') + '" class="card-accent-bar" aria-hidden="true"></span>' +
-        '<span class="game-card-mark" aria-hidden="true">' + game.mark + '</span>' +
+      return '<a class="game-card game-card--' + escAttr(deck.mode) + '"' +
+        ' href="' + escAttr(game.launchUrl) + '"' +
+        ' style="--game-accent:' + escAttr(game.accent) + ';--game-progress:' + deck.progressPercent + '%"' +
+        ' aria-label="' + escAttr(deck.actionLabel + ' ' + game.title) + '">' +
+        '<span class="game-card-mark" aria-hidden="true">' + escHtml(game.mark) + '</span>' +
         '<div class="game-card-title">' + escHtml(game.title) + '</div>' +
         '<p class="game-card-premise">' + escHtml(game.premise) + '</p>' +
         '<div class="game-card-footer">' +
-        '<div class="game-card-meta">' +
-        '<span class="game-card-unit">' + escHtml(unitText) + '</span>' +
-        '<span class="game-card-format">' + escHtml(game.formatLabel || '') + '</span>' +
+        '<span class="game-card-unit">' + escHtml(deck.positionLabel) + '</span>' +
+        '<span class="game-card-action">' +
+        escHtml(deck.actionLabel) +
+        '<svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">' +
+        '<path d="M2 5h6M5 2l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+        '</span>' +
         '</div>' +
-        actionHtml +
-        '</div>' +
-        '</div>';
-    }
-
-    /* ================================================================
-       LIBRARY SEARCH
-       ================================================================ */
-    function bindLibrarySearch() {
-      const field = document.getElementById('library-search');
-      const clearBtn = document.getElementById('library-search-clear');
-      if (!field) return;
-      field.addEventListener('input', e => {
-        const q = (e.target.value || '').trim().toLowerCase();
-        clearBtn && clearBtn.classList.toggle('visible', q.length > 0);
-        filterLibrary(q);
-      });
-      field.addEventListener('keydown', e => {
-        if (e.key === 'Escape') { clearLibrarySearch(); field.blur(); }
-      });
-    }
-
-    function clearLibrarySearch() {
-      const field = document.getElementById('library-search');
-      const clearBtn = document.getElementById('library-search-clear');
-      if (field) field.value = '';
-      if (clearBtn) clearBtn.classList.remove('visible');
-      filterLibrary('');
-    }
-
-    function filterLibrary(q) {
-      const cards = document.querySelectorAll('.game-card');
-      let visible = 0;
-      cards.forEach(card => {
-        const haystack = card.dataset.search || '';
-        const match = !q || haystack.includes(q);
-        card.style.display = match ? '' : 'none';
-        if (match) visible++;
-      });
-      // Show/hide divider if no soon games visible
-      const divider = document.querySelector('.library-divider');
-      if (divider) {
-        const soonGrid = document.getElementById('game-grid-soon');
-        if (soonGrid) {
-          const soonVisible = Array.from(soonGrid.querySelectorAll('.game-card')).some(c => c.style.display !== 'none');
-          divider.style.display = soonVisible ? '' : 'none';
-        }
-      }
-      const noResults = document.getElementById('no-results');
-      if (noResults) noResults.classList.toggle('visible', q.length > 0 && visible === 0);
+        progressHtml +
+        '</a>';
     }
 
     /* ================================================================
@@ -3222,9 +2037,9 @@
           resolveConfirm(false);
           return;
         }
+
         if (window.AtlasSessionPanel && AtlasSessionPanel.isOpen()) return;
-        if (document.getElementById('settings-modal').classList.contains('open')) { closeSettingsModal(); return; }
-        if (document.getElementById('drawer').classList.contains('open')) { closeDrawer(); return; }
+        if (document.getElementById('drawer').classList.contains('open')) closeDrawer();
       }
     });
 
@@ -3244,21 +2059,16 @@
       updateAppearanceButtons(mode);
     });
     window.addEventListener('focus', refresh);
-    window.addEventListener('resize', applyArcadeAtmosphereImage);
-
     window.addEventListener('pageshow', refresh);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
     window.addEventListener('storage', e => {
       if (!e || !e.key) return;
+
       const k = e.key;
+
       if (k === Bridge.keys.appearance || k === Bridge.keys.appearanceBySession) {
         const mode = Bridge.applyAppearanceMode(Bridge.readAppearanceMode());
         updateAppearanceButtons(mode);
-        return;
-      }
-
-      if (k === ARCADE_ATMOSPHERE_KEY || k === ARCADE_ATMOSPHERE_MODE_KEY) {
-        applyArcadeAtmosphereImage();
         return;
       }
 
@@ -3282,10 +2092,10 @@
        ================================================================ */
     function init() {
       if (!Bridge) return;
+
       const mode = Bridge.readAppearanceMode();
       Bridge.applyAppearanceMode(mode);
       updateAppearanceButtons(mode);
-      applyArcadeAtmosphereImage();
       registerWithBridge();
 
       AtlasSearch.init({
