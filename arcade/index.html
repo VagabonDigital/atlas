@@ -45,7 +45,20 @@
     })();
   </script>
 
-  <style>
+<style>
+    @keyframes hubPageFadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .arcade-main {
+      animation: hubPageFadeIn 0.45s ease both;
+    }
+
     /* ============================================================
        ARCADE HUB — DESIGN TOKENS
        Premium prompt-deck table inside a fast improv studio.
