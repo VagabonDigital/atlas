@@ -45,39 +45,37 @@
     })();
   </script>
 
-<style>
-    @keyframes hubPageFadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-
-    .arcade-main {
-      animation: hubPageFadeIn 0.45s ease both;
-    }
-
+  <style>
     /* ============================================================
-       ARCADE HUB — DESIGN TOKENS
-       Premium prompt-deck table inside a fast improv studio.
-       Day: warm studio ivory, coral-orange accent, aubergine ink.
-       Night: warm charcoal/plum, coral-orange glow.
-       Distinct from Compass (editorial cream/teal) and Atlas (cool slate).
+       THEME TOKENS
        ============================================================ */
     :root {
-      --bg: #f8f1e8;
-      --bg-raised: #fffdf9;
-      --bg-subtle: #f0e7de;
-      --bg-card: #fffdf9;
+      /* Canvas and surfaces */
+      --surface-canvas: #f8f1e8;
+      --surface-muted: #f0e7de;
+      --surface-panel: #fffdf9;
+      --surface-raised: #fffdf9;
+      --surface-raised-hover: #fffdf9;
+      --surface-drawer-scrim: rgba(0, 0, 0, 0.40);
+      --surface-dialog-scrim: rgba(0, 0, 0, 0.50);
 
-      --arcade: #df572f;
-      --arcade-soft: #ef7652;
-      --arcade-pale: #f9ded3;
-      --arcade-dim: #fdf0eb;
-      --arcade-rgb: 223, 87, 47;
+      /* Borders and text */
+      --border-faint: rgba(58, 36, 63, 0.095);
+      --border-subtle: rgba(58, 36, 63, 0.16);
+      --text-subtle: #c4bad0;
+      --text-muted: #8a7a9a;
+      --text-body: #5a4a6e;
+      --text-heading: #2d1f3d;
 
+      /* Arcade accent */
+      --accent: #df572f;
+      --accent-soft: #ef7652;
+      --accent-pale: #f9ded3;
+      --accent-dim: #fdf0eb;
+      --accent-rgb: 223, 87, 47;
+      --accent-ink: #ffffff;
+
+      /* Page atmosphere */
       --page-bg-day:
         radial-gradient(circle at 84% 4%, rgba(223, 87, 47, 0.085), transparent 34rem),
         radial-gradient(circle at 8% 22%, rgba(107, 76, 130, 0.055), transparent 36rem),
@@ -87,60 +85,197 @@
         radial-gradient(circle at 82% 8%, rgba(98, 82, 118, 0.075), transparent 31rem),
         radial-gradient(circle at 8% 24%, rgba(72, 86, 104, 0.055), transparent 35rem),
         linear-gradient(145deg, #171419 0%, #1d191f 52%, #241e26 100%);
-
       --page-bg: var(--page-bg-day);
 
-      --ink: #2d1f3d;
-      --ink-mid: #5a4a6e;
-      --ink-quiet: #8a7a9a;
-      --ink-faint: #c4bad0;
+      /* Hub chrome and navigation */
+      --chrome-surface: rgba(251, 246, 240, 0.88);
+      --chrome-surface-mobile: rgba(251, 246, 240, 0.90);
+      --chrome-border: rgba(var(--accent-rgb), 0.12);
+      --world-nav-surface: rgba(240, 231, 222, 0.68);
+      --world-nav-border: rgba(93, 57, 86, 0.11);
+      --world-nav-hover: rgba(255, 253, 249, 0.72);
+      --world-nav-active: rgba(255, 255, 255, 0.86);
+      --world-nav-active-border: rgba(var(--accent-rgb), 0.24);
+      --world-nav-active-text: var(--accent);
+      --world-nav-inset-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.50);
+      --world-nav-hover-shadow: 0 5px 14px rgba(58, 36, 63, 0.045);
+      --world-nav-active-shadow: var(--shadow-xs);
 
-      --border: rgba(58, 36, 63, 0.095);
-      --border-mid: rgba(58, 36, 63, 0.16);
+      /* Hub-owned controls and drawer */
+      --control-surface: var(--surface-raised);
+      --control-border: var(--border-faint);
+      --control-border-hover: var(--border-subtle);
+      --control-text: var(--text-body);
+      --control-icon: var(--text-muted);
+      --control-text-hover: var(--text-heading);
+      --control-shadow: 0 2px 8px rgba(58, 36, 63, 0.045);
+      --control-hover-shadow: 0 10px 30px rgba(58, 36, 63, 0.075);
+      --mobile-control-surface: var(--surface-raised);
+      --mobile-control-border: var(--border-faint);
+      --drawer-button-surface: var(--surface-muted);
+      --drawer-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+      --navigation-hover: var(--surface-muted);
+      --meta-surface: rgba(255, 253, 249, 0.68);
+      --meta-border: rgba(93, 57, 86, 0.12);
+      --meta-shadow: 0 7px 18px rgba(58, 36, 63, 0.05);
 
-      --danger: #c0392b;
+      /* Game library and cards */
+      --library-surface: rgba(252, 248, 242, 0.88);
+      --library-border: rgba(93, 57, 86, 0.105);
+      --library-shadow:
+        0 20px 58px rgba(58, 36, 63, 0.075),
+        inset 0 1px 0 rgba(255, 255, 255, 0.68);
+      --card-surface: rgba(255, 253, 249, 0.91);
+      --card-surface-hover: rgba(255, 253, 249, 0.91);
+      --card-border: rgba(58, 36, 63, 0.135);
+      --card-border-width: 1px;
+      --card-emphasis-ring-width: 1px;
+      --card-hover-border: rgba(var(--accent-rgb), 0.54);
+      --card-inprogress-border: rgba(var(--accent-rgb), 0.42);
+      --card-exhausted-border: rgba(var(--accent-rgb), 0.24);
+      --card-shadow:
+        0 10px 30px rgba(58, 36, 63, 0.055),
+        inset 0 1px 0 rgba(255, 255, 255, 0.68);
+      --card-hover-shadow:
+        0 18px 44px rgba(58, 36, 63, 0.11),
+        0 7px 18px rgba(var(--accent-rgb), 0.045),
+        inset 0 1px 0 rgba(255, 255, 255, 0.74);
+      --card-progress-track: rgba(58, 36, 63, 0.10);
+      --card-mark-surface: rgba(var(--accent-rgb), 0.085);
+      --card-mark-border: rgba(var(--accent-rgb), 0.105);
+      --card-mark-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.60);
+      --card-premise-text: var(--text-body);
+      --card-unit-text: var(--text-muted);
+      --card-action-surface: rgba(249, 222, 211, 0.82);
+      --card-action-border: rgba(var(--accent-rgb), 0.25);
+      --card-action-text: var(--accent);
+      --card-action-ink: #ffffff;
+      --card-action-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.72),
+        0 3px 9px rgba(var(--accent-rgb), 0.08);
+      --card-action-hover-surface: var(--accent);
+      --card-action-hover-border: var(--accent);
+      --card-action-hover-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 7px 18px rgba(var(--accent-rgb), 0.20);
+      --primary-button-text: #ffffff;
+
+      /* Feedback states */
+      --danger-text: #c0392b;
       --danger-bg: #fdf2f1;
       --danger-border: rgba(192, 57, 43, 0.28);
+      --dialog-border: 0 solid transparent;
 
+      /* Elevation, geometry, typography, and motion */
       --shadow-xs: 0 1px 2px rgba(45, 31, 61, 0.05);
       --shadow-sm: 0 7px 20px rgba(58, 36, 63, 0.07);
       --shadow-md: 0 16px 40px rgba(58, 36, 63, 0.11);
       --shadow-lg: 0 26px 68px rgba(58, 36, 63, 0.15);
-
-      --r-sm: 6px;
-      --r-md: 16px;
-      --r-lg: 20px;
-      --r-xl: 26px;
-
+      --radius-sm: 6px;
+      --radius-md: 16px;
+      --radius-lg: 20px;
+      --radius-xl: 26px;
       --font-display: 'DM Serif Display', Georgia, serif;
       --font-body: 'DM Sans', system-ui, sans-serif;
-
-      --t: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      --motion-standard: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
       --hub-theme-motion: 280ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     html[data-theme="night"] {
-      --bg: #1d191f;
-      --bg-raised: #29242c;
-      --bg-subtle: #242026;
-      --bg-card: #29242c;
+      /* Canvas and surfaces */
+      --surface-canvas: #1d191f;
+      --surface-muted: #242026;
+      --surface-panel: #29242c;
+      --surface-raised: #29242c;
+      --surface-raised-hover: #302638;
 
-      --arcade: #ff815d;
-      --arcade-soft: #ff9a7a;
-      --arcade-pale: rgba(255, 129, 93, 0.17);
-      --arcade-dim: rgba(255, 129, 93, 0.10);
-      --arcade-rgb: 255, 129, 93;
+      /* Borders and text */
+      --border-faint: rgba(255, 255, 255, 0.085);
+      --border-subtle: rgba(255, 255, 255, 0.15);
+      --text-subtle: #514852;
+      --text-muted: #9b8d9f;
+      --text-body: #cfc1d1;
+      --text-heading: #f4edf5;
+
+      /* Arcade accent */
+      --accent: #ff815d;
+      --accent-soft: #ff9a7a;
+      --accent-pale: rgba(255, 129, 93, 0.17);
+      --accent-dim: rgba(255, 129, 93, 0.10);
+      --accent-rgb: 255, 129, 93;
+      --accent-ink: #211418;
+
+      /* Hub chrome and navigation */
+      --chrome-surface: rgba(26, 22, 28, 0.96);
+      --chrome-surface-mobile: rgba(26, 22, 28, 0.97);
+      --chrome-border: rgba(var(--accent-rgb), 0.13);
+      --world-nav-surface: rgba(42, 33, 48, 0.76);
+      --world-nav-border: rgba(255, 255, 255, 0.13);
+      --world-nav-hover: rgba(255, 255, 255, 0.055);
+      --world-nav-active: rgba(var(--accent-rgb), 0.18);
+      --world-nav-active-border: rgba(var(--accent-rgb), 0.36);
+      --world-nav-active-text: var(--accent-soft);
+      --world-nav-inset-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055);
+      --world-nav-hover-shadow: none;
+      --world-nav-active-shadow:
+        0 0 0 1px rgba(var(--accent-rgb), 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.045);
+
+      /* Hub-owned controls and drawer */
+      --control-surface: var(--surface-raised);
+      --control-border: var(--border-faint);
+      --control-border-hover: rgba(255, 255, 255, 0.14);
+      --control-text: var(--text-body);
+      --control-icon: var(--text-muted);
+      --control-text-hover: var(--text-heading);
+      --control-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
+      --control-hover-shadow: 0 2px 10px rgba(0, 0, 0, 0.30);
+      --mobile-control-surface: rgba(42, 33, 48, 0.86);
+      --mobile-control-border: rgba(255, 255, 255, 0.12);
+      --drawer-button-surface: rgba(255, 255, 255, 0.045);
+      --navigation-hover: var(--surface-muted);
+      --meta-surface: rgba(42, 33, 48, 0.88);
+      --meta-border: rgba(255, 255, 255, 0.12);
+
+      /* Game library and cards */
+      --library-surface: rgba(31, 27, 33, 0.94);
+      --library-border: rgba(255, 255, 255, 0.085);
+      --library-shadow:
+        0 22px 60px rgba(0, 0, 0, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.035);
+      --card-surface: rgba(42, 33, 48, 0.955);
+      --card-surface-hover: rgba(48, 38, 56, 0.98);
+      --card-border: rgba(255, 255, 255, 0.14);
+      --card-border-width: 1px;
+      --card-emphasis-ring-width: 0.5px;
+      --card-hover-border: var(--accent-soft);
+      --card-inprogress-border: rgba(var(--accent-rgb), 0.72);
+      --card-exhausted-border: rgba(var(--accent-rgb), 0.45);
+      --card-shadow:
+        0 10px 34px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.045);
+      --card-hover-shadow:
+        0 0 0 1px rgba(var(--accent-rgb), 0.24),
+        0 14px 40px rgba(0, 0, 0, 0.30);
+      --card-progress-track: rgba(255, 255, 255, 0.10);
+      --card-premise-text: #ad9ac1;
+      --card-unit-text: #9886ad;
+      --card-action-surface: #ec7652;
+      --card-action-border: #ec7652;
+      --card-action-text: var(--accent-ink);
+      --card-action-ink: var(--accent-ink);
+      --card-action-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.13),
+        0 4px 11px rgba(var(--accent-rgb), 0.14);
+      --card-action-hover-surface: var(--accent-soft);
+      --card-action-hover-border: var(--accent-soft);
+      --card-action-hover-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 7px 18px rgba(var(--accent-rgb), 0.22);
 
       --page-bg: var(--page-bg-night);
 
-      --ink: #f4edf5;
-      --ink-mid: #cfc1d1;
-      --ink-quiet: #9b8d9f;
-      --ink-faint: #514852;
-
-      --border: rgba(255, 255, 255, 0.085);
-      --border-mid: rgba(255, 255, 255, 0.15);
-
+      /* Elevation */
       --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.22);
       --shadow-sm: 0 1px 6px rgba(0, 0, 0, 0.28);
       --shadow-md: 0 4px 18px rgba(0, 0, 0, 0.36);
@@ -148,11 +283,74 @@
     }
 
     /* ============================================================
-       THEME MOTION
-       Bridge owns theme state. Arcade owns how Arcade surfaces interpolate.
-       Pattern matched to Atlas and Compass hub motion.
+       RESET AND PAGE CANVAS
        ============================================================ */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
+    html {
+      min-height: 100%;
+      background: var(--surface-canvas);
+      scroll-behavior: smooth;
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
+    }
+
+    body {
+      position: relative;
+      isolation: isolate;
+      font-family: var(--font-body);
+      background: transparent;
+      color: var(--text-heading);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100svh;
+      overflow-x: hidden;
+      padding-top: 56px;
+    }
+
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-size: cover;
+      background-position: center;
+    }
+
+    body::before {
+      background: var(--page-bg-day);
+      opacity: 1;
+    }
+
+    body::after {
+      background: var(--page-bg-night);
+      opacity: 0;
+    }
+
+    html[data-theme="night"] body::before {
+      opacity: 0;
+    }
+
+    html[data-theme="night"] body::after {
+      opacity: 1;
+    }
+
+    html.theme-changing body::before,
+    html.theme-changing body::after {
+      transition: opacity var(--hub-theme-motion);
+    }
+
+    /* ============================================================
+       THEME MOTION
+       ============================================================ */
     html.theme-changing,
     html.theme-changing body,
     html.theme-changing .spine,
@@ -238,80 +436,18 @@
         opacity var(--hub-theme-motion);
     }
 
-    /* ============================================================ RESET */
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      min-height: 100%;
-      background: var(--bg);
-      scroll-behavior: smooth;
-      overflow-y: scroll;
-      scrollbar-gutter: stable;
-    }
-
-    body {
-      position: relative;
-      isolation: isolate;
-      font-family: var(--font-body);
-      background: transparent;
-      color: var(--ink);
-      font-size: 15px;
-      line-height: 1.6;
-      min-height: 100svh;
-      overflow-x: hidden;
-      padding-top: 56px;
-    }
-
-    body::before,
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      pointer-events: none;
-      background-size: cover;
-      background-position: center;
-    }
-
-    body::before {
-      background: var(--page-bg-day);
-      opacity: 1;
-    }
-
-    body::after {
-      background: var(--page-bg-night);
-      opacity: 0;
-    }
-
-    html[data-theme="night"] body::before {
-      opacity: 0;
-    }
-
-    html[data-theme="night"] body::after {
-      opacity: 1;
-    }
-
-    html.theme-changing body::before,
-    html.theme-changing body::after {
-      transition: opacity var(--hub-theme-motion);
-    }
-
-    /* ============================================================ SPINE (desktop) */
+    /* ============================================================
+       DESKTOP SPINE AND WORLD NAVIGATION
+       ============================================================ */
     .spine {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       z-index: 200;
-      background: rgba(251, 246, 240, 0.88);
+      background: var(--chrome-surface);
       backdrop-filter: blur(22px) saturate(1.12);
-      border-bottom: 1px solid rgba(223, 87, 47, 0.12);
+      border-bottom: 1px solid var(--chrome-border);
       display: flex;
       align-items: center;
       height: 56px;
@@ -319,16 +455,11 @@
       gap: 0.5rem;
     }
 
-    html[data-theme="night"] .spine {
-      background: rgba(26, 22, 28, 0.96);
-      border-bottom-color: rgba(var(--arcade-rgb), 0.13);
-    }
-
     .spine-mark {
       font-family: var(--font-display);
       font-size: 1.22rem;
       font-weight: 400;
-      color: var(--ink);
+      color: var(--text-heading);
       letter-spacing: -0.01em;
       flex: 1 1 0;
       cursor: default;
@@ -338,10 +469,9 @@
     }
 
     .spine-mark span {
-      color: var(--arcade);
+      color: var(--accent);
     }
 
-    /* Centred world switcher pill group */
     .spine-worlds {
       display: flex;
       align-items: center;
@@ -349,16 +479,9 @@
       flex: 0 0 auto;
       padding: 0.2rem;
       border-radius: 999px;
-      background: rgba(240, 231, 222, 0.68);
-      border: 1px solid rgba(93, 57, 86, 0.11);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
-    }
-
-    /* Night world switcher — prevent day-mode ivory capsule/highlight from leaking into Arcade night mode */
-    html[data-theme="night"] .spine-worlds {
-      background: rgba(42, 33, 48, 0.76);
-      border-color: rgba(255, 255, 255, 0.13);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055);
+      background: var(--world-nav-surface);
+      border: 1px solid var(--world-nav-border);
+      box-shadow: var(--world-nav-inset-shadow);
     }
 
     .spine-world-btn {
@@ -374,9 +497,9 @@
       font-family: var(--font-body);
       font-size: 0.78rem;
       font-weight: 500;
-      color: var(--ink-quiet);
+      color: var(--text-muted);
       cursor: pointer;
-      transition: var(--t);
+      transition: var(--motion-standard);
       white-space: nowrap;
     }
 
@@ -388,34 +511,18 @@
     }
 
     .spine-world-btn:hover {
-      color: var(--ink);
-      background: rgba(255, 253, 249, 0.72);
-      border-color: var(--border);
-      box-shadow: 0 5px 14px rgba(58, 36, 63, 0.045);
-    }
-
-    html[data-theme="night"] .spine-world-btn:hover {
-      color: var(--ink);
-      background: rgba(255, 255, 255, 0.055);
-      border-color: rgba(255, 255, 255, 0.10);
-      box-shadow: none;
+      color: var(--text-heading);
+      background: var(--world-nav-hover);
+      border-color: var(--border-faint);
+      box-shadow: var(--world-nav-hover-shadow);
     }
 
     .spine-world-btn.is-active {
-      color: var(--arcade);
-      background: rgba(255, 255, 255, 0.86);
-      border-color: rgba(var(--arcade-rgb), 0.24);
-      box-shadow: var(--shadow-xs);
+      color: var(--world-nav-active-text);
+      background: var(--world-nav-active);
+      border-color: var(--world-nav-active-border);
+      box-shadow: var(--world-nav-active-shadow);
       cursor: default;
-    }
-
-    html[data-theme="night"] .spine-world-btn.is-active {
-      color: var(--arcade-soft);
-      background: rgba(var(--arcade-rgb), 0.18);
-      border-color: rgba(var(--arcade-rgb), 0.36);
-      box-shadow:
-        0 0 0 1px rgba(var(--arcade-rgb), 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.045);
     }
 
     .spine-world-btn.is-active svg {
@@ -428,7 +535,7 @@
     }
 
     .spine-world-btn[aria-disabled="true"]:hover {
-      color: var(--ink-quiet);
+      color: var(--text-muted);
       background: transparent;
       border-color: transparent;
       box-shadow: none;
@@ -449,35 +556,23 @@
       gap: 0.4rem;
       padding: 0.48rem 0.9rem;
       border-radius: 999px;
-      border: 1px solid rgba(49, 45, 38, 0.10);
-      background: #fffdf9;
+      border: 1px solid var(--control-border);
+      background: var(--control-surface);
       font-family: var(--font-body);
       font-size: 0.78rem;
       font-weight: 500;
-      color: #504b43;
+      color: var(--control-text);
       cursor: pointer;
-      transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: var(--motion-standard);
       max-width: 170px;
       white-space: nowrap;
       overflow: hidden;
     }
 
     .spine-session-pill:hover {
-      border-color: rgba(49, 45, 38, 0.16);
-      color: #211f1b;
-      box-shadow: 0 10px 30px rgba(42, 37, 29, 0.075);
-    }
-
-    html[data-theme="night"] .spine-session-pill {
-      background: #252826;
-      border-color: rgba(255, 255, 255, 0.08);
-      color: #bdb8ae;
-    }
-
-    html[data-theme="night"] .spine-session-pill:hover {
-      border-color: rgba(255, 255, 255, 0.14);
-      color: #ebe9e4;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.30);
+      border-color: var(--control-border-hover);
+      color: var(--control-text-hover);
+      box-shadow: var(--control-hover-shadow);
     }
 
     .spine-session-pill .pill-name {
@@ -492,32 +587,19 @@
       width: 38px;
       height: 38px;
       border-radius: 12px;
-      border: 1px solid rgba(49, 45, 38, 0.10);
-      background: #fffdf9;
-      color: #7b7469;
+      border: 1px solid var(--control-border);
+      background: var(--control-surface);
+      color: var(--control-icon);
       cursor: pointer;
-      transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 2px 8px rgba(42, 37, 29, 0.045);
+      transition: var(--motion-standard);
+      box-shadow: var(--control-shadow);
       flex-shrink: 0;
     }
 
     .spine-btn:hover {
-      color: #211f1b;
-      border-color: rgba(49, 45, 38, 0.16);
-      box-shadow: 0 10px 30px rgba(42, 37, 29, 0.075);
-    }
-
-    html[data-theme="night"] .spine-btn {
-      background: #252826;
-      border-color: rgba(255, 255, 255, 0.08);
-      color: #89847b;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
-    }
-
-    html[data-theme="night"] .spine-btn:hover {
-      border-color: rgba(255, 255, 255, 0.14);
-      color: #ebe9e4;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.30);
+      color: var(--control-text-hover);
+      border-color: var(--control-border-hover);
+      box-shadow: var(--control-hover-shadow);
     }
 
     .appearance-icon {
@@ -537,7 +619,9 @@
       display: block;
     }
 
-    /* ============================================================ MOBILE HEADER */
+    /* ============================================================
+       MOBILE HEADER AND DRAWER
+       ============================================================ */
     .mobile-header {
       display: none;
       position: fixed;
@@ -545,31 +629,26 @@
       left: 0;
       right: 0;
       z-index: 200;
-      background: rgba(251, 246, 240, 0.90);
+      background: var(--chrome-surface-mobile);
       backdrop-filter: blur(20px) saturate(1.1);
-      border-bottom: 1px solid rgba(223, 87, 47, 0.12);
+      border-bottom: 1px solid var(--chrome-border);
       height: 56px;
       padding: 0 1rem;
       align-items: center;
       gap: 0.5rem;
     }
 
-    html[data-theme="night"] .mobile-header {
-      background: rgba(26, 22, 28, 0.97);
-      border-bottom-color: rgba(var(--arcade-rgb), 0.13);
-    }
-
     .mobile-header-mark {
       font-family: var(--font-display);
       font-size: 1.05rem;
-      color: var(--ink);
+      color: var(--text-heading);
       letter-spacing: -0.01em;
       flex: 1;
       line-height: 1;
     }
 
     .mobile-header-mark span {
-      color: var(--arcade);
+      color: var(--accent);
     }
 
     .mobile-header-actions {
@@ -586,16 +665,16 @@
       width: 38px;
       height: 38px;
       border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--bg-raised);
-      color: var(--ink-quiet);
+      border: 1px solid var(--mobile-control-border);
+      background: var(--mobile-control-surface);
+      color: var(--text-muted);
       cursor: pointer;
-      transition: var(--t);
+      transition: var(--motion-standard);
       flex-shrink: 0;
     }
 
     .mobile-header-btn:hover {
-      color: var(--ink);
+      color: var(--text-heading);
     }
 
     .mobile-session-pill {
@@ -604,11 +683,11 @@
       gap: 0.35rem;
       padding: 0.25rem 0.7rem;
       border-radius: 20px;
-      border: 1px solid var(--border);
-      background: var(--bg-raised);
+      border: 1px solid var(--mobile-control-border);
+      background: var(--mobile-control-surface);
       font-size: 0.76rem;
       font-weight: 500;
-      color: var(--ink-mid);
+      color: var(--text-body);
       cursor: pointer;
       max-width: 130px;
       height: 40px;
@@ -622,17 +701,10 @@
       text-overflow: ellipsis;
     }
 
-    html[data-theme="night"] .mobile-session-pill {
-      background: rgba(42, 33, 48, 0.86);
-      border-color: rgba(255, 255, 255, 0.12);
-      color: var(--ink-mid);
-    }
-
-    /* ============================================================ MOBILE DRAWER */
     .drawer-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.4);
+      background: var(--surface-drawer-scrim);
       z-index: 400;
       backdrop-filter: blur(4px);
       opacity: 0;
@@ -658,11 +730,11 @@
       left: 0;
       bottom: 0;
       width: min(300px, 85vw);
-      background: var(--bg-raised);
+      background: var(--surface-raised);
       z-index: 500;
       display: flex;
       flex-direction: column;
-      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--drawer-shadow);
       transform: translate3d(-100%, 0, 0);
       transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
       will-change: transform;
@@ -675,7 +747,7 @@
 
     .drawer-header {
       padding: 1.2rem 1.2rem 1rem;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border-faint);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -684,29 +756,29 @@
     .drawer-title {
       font-family: var(--font-display);
       font-size: 1rem;
-      color: var(--ink);
+      color: var(--text-heading);
     }
 
     .drawer-title span {
-      color: var(--arcade);
+      color: var(--accent);
     }
 
     .drawer-close {
       width: 30px;
       height: 30px;
-      border-radius: var(--r-sm);
-      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-faint);
       background: none;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      color: var(--ink-quiet);
+      color: var(--text-muted);
     }
 
     .drawer-close:hover {
-      background: var(--bg-subtle);
-      color: var(--ink);
+      background: var(--navigation-hover);
+      color: var(--text-heading);
     }
 
     .drawer-nav {
@@ -720,7 +792,7 @@
       font-weight: 600;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--ink-faint);
+      color: var(--text-subtle);
       padding: 0.6rem 0.75rem 0.35rem;
     }
 
@@ -729,12 +801,12 @@
       align-items: center;
       gap: 0.7rem;
       padding: 0.75rem 0.9rem;
-      border-radius: var(--r-md);
+      border-radius: var(--radius-md);
       font-size: 0.88rem;
       font-weight: 500;
-      color: var(--ink-mid);
+      color: var(--text-body);
       cursor: pointer;
-      transition: var(--t);
+      transition: var(--motion-standard);
       border: none;
       background: none;
       width: 100%;
@@ -743,8 +815,8 @@
     }
 
     .drawer-nav-item:hover {
-      background: var(--bg-subtle);
-      color: var(--ink);
+      background: var(--navigation-hover);
+      color: var(--text-heading);
     }
 
     .drawer-nav-item[aria-disabled="true"] {
@@ -754,7 +826,7 @@
 
     .drawer-nav-item[aria-disabled="true"]:hover {
       background: none;
-      color: var(--ink-mid);
+      color: var(--text-body);
     }
 
     .drawer-nav-item .nav-soon {
@@ -763,23 +835,23 @@
       font-weight: 700;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: var(--ink-faint);
+      color: var(--text-subtle);
     }
 
     .drawer-nav-item.is-active {
-      background: var(--arcade-dim);
-      color: var(--arcade);
+      background: var(--accent-dim);
+      color: var(--accent);
       cursor: default;
     }
 
     .drawer-nav-item.is-active:hover {
-      background: var(--arcade-dim);
-      color: var(--arcade);
+      background: var(--accent-dim);
+      color: var(--accent);
     }
 
     .drawer-footer {
       padding: 0.8rem;
-      border-top: 1px solid var(--border);
+      border-top: 1px solid var(--border-faint);
     }
 
     .drawer-footer-row {
@@ -793,12 +865,12 @@
       align-items: center;
       gap: 0.5rem;
       padding: 0.7rem 0.9rem;
-      border-radius: var(--r-md);
-      border: 1px solid var(--border);
-      background: var(--bg-subtle);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-faint);
+      background: var(--drawer-button-surface);
       font-size: 0.84rem;
       font-weight: 500;
-      color: var(--ink-mid);
+      color: var(--text-body);
       cursor: pointer;
       min-height: 44px;
       overflow: hidden;
@@ -813,10 +885,10 @@
     .drawer-appearance-btn {
       width: 44px;
       height: 44px;
-      border-radius: var(--r-md);
-      border: 1px solid var(--border);
-      background: var(--bg-subtle);
-      color: var(--ink-quiet);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-faint);
+      background: var(--drawer-button-surface);
+      color: var(--text-muted);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -824,23 +896,18 @@
       flex-shrink: 0;
     }
 
-    html[data-theme="night"] .drawer-session-btn,
-    html[data-theme="night"] .drawer-appearance-btn {
-      background: rgba(255, 255, 255, 0.045);
-      border-color: rgba(255, 255, 255, 0.10);
-      color: var(--ink-mid);
-    }
-
-    /* ============================================================ MAIN LAYOUT */
+    /* ============================================================
+       MAIN HUB LAYOUT AND INTRODUCTION
+       ============================================================ */
     .arcade-main {
       position: relative;
       z-index: 1;
-      max-width: 1040px;
+      max-width: 1020px;
       margin: 0 auto;
       padding: 3.35rem 1.75rem 6rem;
+      animation: hubPageFadeIn 0.45s ease both;
     }
 
-    /* ============================================================ HUB INTRO */
     .hub-intro {
       padding: 0 0 1.25rem;
       border-bottom: none;
@@ -861,7 +928,7 @@
       font-weight: 650;
       letter-spacing: 0.09em;
       text-transform: none;
-      color: var(--arcade);
+      color: var(--accent);
       margin-bottom: 0.72rem;
     }
 
@@ -869,7 +936,7 @@
       font-family: var(--font-display);
       font-size: clamp(2.05rem, 4.5vw, 2.85rem);
       font-weight: 400;
-      color: var(--ink);
+      color: var(--text-heading);
       line-height: 1.08;
       letter-spacing: -0.022em;
       margin-bottom: 0.72rem;
@@ -877,7 +944,7 @@
 
     .hub-desc {
       font-size: 0.95rem;
-      color: var(--ink-mid);
+      color: var(--text-body);
       font-weight: 400;
       line-height: 1.68;
       max-width: 56ch;
@@ -895,39 +962,25 @@
       align-items: center;
       padding: 0.32rem 0.75rem;
       border-radius: 999px;
-      border: 1px solid rgba(93, 57, 86, 0.12);
-      background: rgba(255, 253, 249, 0.68);
+      border: 1px solid var(--meta-border);
+      background: var(--meta-surface);
       font-size: 0.76rem;
       font-weight: 500;
-      color: var(--ink-mid);
-      box-shadow: 0 7px 18px rgba(58, 36, 63, 0.05);
+      color: var(--text-body);
+      box-shadow: var(--meta-shadow);
     }
 
-    html[data-theme="night"] .hub-meta-chip {
-      background: rgba(42, 33, 48, 0.88);
-      border-color: rgba(255, 255, 255, 0.12);
-      color: var(--ink-mid);
-    }
-
-    /* ============================================================ GAME LIBRARY */
+    /* ============================================================
+       GAME LIBRARY
+       ============================================================ */
     .library-zone {
       position: relative;
       margin-top: 1.45rem;
       padding: 1.6rem 1.75rem 1.75rem;
-      border: 1px solid rgba(93, 57, 86, 0.105);
+      border: 1px solid var(--library-border);
       border-radius: 30px;
-      background-color: rgba(252, 248, 242, 0.88);
-      box-shadow:
-        0 20px 58px rgba(58, 36, 63, 0.075),
-        inset 0 1px 0 rgba(255, 255, 255, 0.68);
-    }
-
-    html[data-theme="night"] .library-zone {
-      background-color: rgba(31, 27, 33, 0.94);
-      border-color: rgba(255, 255, 255, 0.085);
-      box-shadow:
-        0 22px 60px rgba(0, 0, 0, 0.30),
-        inset 0 1px 0 rgba(255, 255, 255, 0.035);
+      background-color: var(--library-surface);
+      box-shadow: var(--library-shadow);
     }
 
     .library-header {
@@ -942,7 +995,7 @@
       font-family: var(--font-display);
       font-size: 1.3rem;
       font-weight: 400;
-      color: var(--ink);
+      color: var(--text-heading);
       line-height: 1.25;
     }
 
@@ -953,54 +1006,50 @@
       min-width: 0;
     }
 
-    /* Game grid */
     .game-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1.05rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
     }
 
-    /* ---- GAME CARD ---- */
+    /* ============================================================
+       GAME CARDS AND DECK PROGRESS STATES
+       ============================================================ */
     .game-card {
       display: flex;
       flex-direction: column;
-      background-color: rgba(255, 253, 249, 0.91);
-      border: 1px solid rgba(58, 36, 63, 0.135);
+      background-color: var(--card-surface);
+      border: var(--card-border-width) solid var(--card-border);
       border-radius: 22px;
       padding: 1.45rem 1.45rem 1.42rem;
-      transition: var(--t);
+      transition: var(--motion-standard);
       position: relative;
       overflow: hidden;
       text-decoration: none;
       cursor: pointer;
       text-align: left;
       font-family: var(--font-body);
-      box-shadow: 0 10px 30px rgba(58, 36, 63, 0.055), inset 0 1px 0 rgba(255, 255, 255, 0.68);
-    }
-
-    html[data-theme="night"] .game-card {
-      background-color: rgba(42, 33, 48, 0.955);
-      border-color: rgba(255, 255, 255, 0.14);
-      box-shadow:
-        0 10px 34px rgba(0, 0, 0, 0.22),
-        inset 0 1px 0 rgba(255, 255, 255, 0.045);
+      box-shadow: var(--card-shadow);
     }
 
     .game-card:hover {
+      background: var(--card-surface-hover);
+      border-color: var(--card-hover-border);
       box-shadow:
-        0 18px 44px rgba(58, 36, 63, 0.11),
-        0 7px 18px rgba(var(--arcade-rgb), 0.045),
-        inset 0 1px 0 rgba(255, 255, 255, 0.74);
+        0 0 0 var(--card-emphasis-ring-width) var(--card-hover-border),
+        var(--card-hover-shadow);
       transform: translateY(-2px);
-      border-color: rgba(var(--arcade-rgb), 0.42);
     }
 
-    html[data-theme="night"] .game-card:hover {
-      background: rgba(48, 38, 56, 0.98);
-      border-color: var(--arcade-soft);
+    .game-card--in-progress {
+      border-color: var(--card-inprogress-border);
       box-shadow:
-        0 0 0 1px rgba(var(--arcade-rgb), 0.24),
-        0 14px 40px rgba(0, 0, 0, 0.30);
+        0 0 0 var(--card-emphasis-ring-width) var(--card-inprogress-border),
+        var(--card-shadow);
+    }
+
+    .game-card--exhausted {
+      border-color: var(--card-exhausted-border);
     }
 
     .game-card-progress-track {
@@ -1010,12 +1059,8 @@
       bottom: 0;
       height: 3px;
       overflow: hidden;
-      background: rgba(58, 36, 63, 0.10);
+      background: var(--card-progress-track);
       pointer-events: none;
-    }
-
-    html[data-theme="night"] .game-card-progress-track {
-      background: rgba(255, 255, 255, 0.10);
     }
 
     .game-card-progress-fill {
@@ -1023,11 +1068,11 @@
       width: var(--game-progress);
       height: 100%;
       background: var(--game-accent);
-      transition: width var(--t);
+      transition: width var(--motion-standard);
     }
 
     .game-card:focus-visible {
-      outline: 3px solid rgba(var(--arcade-rgb), 0.34);
+      outline: 3px solid rgba(var(--accent-rgb), 0.34);
       outline-offset: 3px;
     }
 
@@ -1041,23 +1086,23 @@
       justify-content: center;
       line-height: 1;
       border-radius: 14px;
-      background: rgba(var(--arcade-rgb), 0.085);
-      border: 1px solid rgba(var(--arcade-rgb), 0.105);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      background: var(--card-mark-surface);
+      border: 1px solid var(--card-mark-border);
+      box-shadow: var(--card-mark-shadow);
     }
 
     .game-card-title {
       font-family: var(--font-display);
       font-size: 1.12rem;
       font-weight: 400;
-      color: var(--ink);
+      color: var(--text-heading);
       line-height: 1.25;
       margin-bottom: 0.55rem;
     }
 
     .game-card-premise {
       font-size: 0.84rem;
-      color: var(--ink-mid);
+      color: var(--card-premise-text);
       opacity: 0.82;
       line-height: 1.6;
       flex: 1;
@@ -1065,7 +1110,6 @@
     }
 
     html[data-theme="night"] .game-card-premise {
-      color: #ad9ac1;
       opacity: 0.95;
     }
 
@@ -1080,13 +1124,12 @@
     .game-card-unit {
       min-width: 0;
       font-size: 0.76rem;
-      color: var(--ink-quiet);
+      color: var(--card-unit-text);
       font-weight: 500;
       line-height: 1.4;
     }
 
     html[data-theme="night"] .game-card-unit {
-      color: #9886ad;
       opacity: 0.96;
     }
 
@@ -1097,98 +1140,92 @@
       min-height: 38px;
       padding: 0.44rem 0.92rem;
       border-radius: 999px;
-      background: rgba(249, 222, 211, 0.82);
-      color: var(--arcade);
+      background: var(--card-action-surface);
+      color: var(--card-action-text);
       font-family: var(--font-body);
       font-size: 0.76rem;
       font-weight: 650;
-      border: 1px solid rgba(var(--arcade-rgb), 0.25);
+      border: 1px solid var(--card-action-border);
       cursor: pointer;
-      transition: var(--t);
+      transition: var(--motion-standard);
       white-space: nowrap;
       text-decoration: none;
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.72),
-        0 3px 9px rgba(var(--arcade-rgb), 0.08);
+      box-shadow: var(--card-action-shadow);
+    }
+
+    html:not([data-theme="night"]) .game-card--in-progress .game-card-action {
+      background: var(--accent);
+      color: var(--accent-ink);
+      border-color: var(--accent);
+      box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.18);
     }
 
     .game-card:hover .game-card-action {
-      background: var(--arcade);
-      color: #fff;
-      border-color: var(--arcade);
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.18),
-        0 7px 18px rgba(var(--arcade-rgb), 0.20);
+      background: var(--card-action-hover-surface);
+      color: var(--card-action-ink);
+      border-color: var(--card-action-hover-border);
+      box-shadow: var(--card-action-hover-shadow);
       transform: translateY(-1px);
     }
 
-    html[data-theme="night"] .game-card-action {
-      background: #ec7652;
-      color: #211418;
-      border-color: #ec7652;
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.13),
-        0 4px 11px rgba(var(--arcade-rgb), 0.14);
+    .game-card--in-progress:hover .game-card-action {
+      background: var(--accent-soft);
+      border-color: var(--accent-soft);
     }
 
-    html[data-theme="night"] .game-card:hover .game-card-action {
-      background: var(--arcade-soft);
-      color: #211418;
-      border-color: var(--arcade-soft);
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.18),
-        0 7px 18px rgba(var(--arcade-rgb), 0.22);
-      transform: translateY(-1px);
-    }
-
+    /* ============================================================
+       HUB-OWNED BUTTONS AND ACTION STATES
+       ============================================================ */
     .spine-world-btn:focus-visible,
     .spine-session-pill:focus-visible,
     .spine-btn:focus-visible,
     .mobile-header-btn:focus-visible,
     .mobile-session-pill:focus-visible {
-      outline: 3px solid rgba(var(--arcade-rgb), 0.36);
+      outline: 3px solid rgba(var(--accent-rgb), 0.36);
       outline-offset: 3px;
     }
 
     .btn-primary {
       padding: 0.58rem 1.05rem;
-      border-radius: var(--r-sm);
+      border-radius: var(--radius-sm);
       border: none;
-      background: var(--arcade);
-      color: #fff;
+      background: var(--accent);
+      color: var(--primary-button-text);
       font-family: var(--font-body);
       font-size: 0.84rem;
       font-weight: 500;
       cursor: pointer;
-      transition: var(--t);
+      transition: var(--motion-standard);
       white-space: nowrap;
       min-height: 42px;
     }
 
     .btn-primary:hover {
-      background: var(--arcade-soft);
+      background: var(--accent-soft);
     }
 
     .btn-ghost {
       padding: 0.58rem 0.95rem;
-      border-radius: var(--r-sm);
-      border: 1px solid var(--border);
-      background: var(--bg-subtle);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-faint);
+      background: var(--surface-muted);
       font-family: var(--font-body);
       font-size: 0.84rem;
       font-weight: 500;
-      color: var(--ink-mid);
+      color: var(--text-body);
       cursor: pointer;
-      transition: var(--t);
+      transition: var(--motion-standard);
       min-height: 42px;
     }
 
     .btn-ghost:hover {
-      border-color: var(--border-mid);
-      color: var(--ink);
+      border-color: var(--border-subtle);
+      color: var(--text-heading);
     }
 
-    /* ============================================================ CONFIRM DIALOG */
+    /* ============================================================
+       CONFIRMATION DIALOG, TOAST, AND ERROR STATE
+       ============================================================ */
     .confirm-dialog {
       position: fixed;
       inset: 0;
@@ -1197,7 +1234,7 @@
       align-items: center;
       justify-content: center;
       padding: 1rem;
-      background: rgba(0, 0, 0, 0.5);
+      background: var(--surface-dialog-scrim);
       backdrop-filter: blur(6px);
     }
 
@@ -1207,8 +1244,9 @@
     }
 
     .confirm-panel {
-      background: var(--bg-raised);
-      border-radius: var(--r-lg);
+      background: var(--surface-raised);
+      border: var(--dialog-border);
+      border-radius: var(--radius-lg);
       max-width: 360px;
       width: 100%;
       padding: 1.4rem;
@@ -1219,13 +1257,13 @@
     .confirm-title {
       font-size: 0.94rem;
       font-weight: 600;
-      color: var(--ink);
+      color: var(--text-heading);
       margin-bottom: 0.45rem;
     }
 
     .confirm-message {
       font-size: 0.83rem;
-      color: var(--ink-quiet);
+      color: var(--text-muted);
       line-height: 1.55;
       margin-bottom: 1.1rem;
     }
@@ -1236,10 +1274,10 @@
       min-height: 42px;
       margin-bottom: 0.75rem;
       padding: 0.58rem 0.8rem;
-      border: 1.5px solid var(--border);
-      border-radius: var(--r-sm);
-      background: var(--bg-raised);
-      color: var(--ink);
+      border: 1.5px solid var(--border-faint);
+      border-radius: var(--radius-sm);
+      background: var(--surface-raised);
+      color: var(--text-heading);
       font-family: var(--font-body);
       font-size: 0.86rem;
       outline: none;
@@ -1250,7 +1288,7 @@
     }
 
     .confirm-input:focus {
-      border-color: var(--arcade);
+      border-color: var(--accent);
     }
 
     .confirm-actions {
@@ -1261,30 +1299,29 @@
 
     .btn-danger {
       padding: 0.55rem 0.95rem;
-      border-radius: var(--r-sm);
+      border-radius: var(--radius-sm);
       border: 1px solid var(--danger-border);
       background: var(--danger-bg);
-      color: var(--danger);
+      color: var(--danger-text);
       font-family: var(--font-body);
       font-size: 0.83rem;
       font-weight: 500;
       cursor: pointer;
-      transition: var(--t);
+      transition: var(--motion-standard);
       min-height: 40px;
     }
 
-    /* ============================================================ TOAST */
     .arcade-toast {
       position: fixed;
       bottom: 1.5rem;
       left: 50%;
       transform: translateX(-50%) translateY(8px);
-      background: var(--bg-raised);
-      border: 1px solid var(--border-mid);
-      border-radius: var(--r-md);
+      background: var(--surface-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
       padding: 0.65rem 1.15rem;
       font-size: 0.84rem;
-      color: var(--ink-mid);
+      color: var(--text-body);
       z-index: 900;
       box-shadow: var(--shadow-md);
       opacity: 0;
@@ -1297,7 +1334,6 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* ============================================================ BRIDGE ERROR */
     .bridge-error {
       max-width: 480px;
       margin: 4rem auto;
@@ -1308,24 +1344,36 @@
     .bridge-error h2 {
       font-family: var(--font-display);
       font-size: 1.3rem;
-      color: var(--ink);
+      color: var(--text-heading);
       font-weight: 400;
       margin-bottom: 0.5rem;
     }
 
     .bridge-error p {
       font-size: 0.88rem;
-      color: var(--ink-quiet);
+      color: var(--text-muted);
       line-height: 1.65;
     }
 
-    /* ============================================================ UTILITIES */
+    /* ============================================================
+       UTILITIES AND KEYFRAMES
+       ============================================================ */
     .sr-only {
       position: absolute;
       width: 1px;
       height: 1px;
       overflow: hidden;
       clip: rect(0, 0, 0, 0);
+    }
+
+    @keyframes hubPageFadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     @keyframes fadeIn {
@@ -1350,6 +1398,9 @@
       }
     }
 
+    /* ============================================================
+       MOTION PREFERENCES
+       ============================================================ */
     @media (prefers-reduced-motion: reduce) {
 
       *,
@@ -1360,7 +1411,15 @@
       }
     }
 
-    /* ============================================================ RESPONSIVE */
+    /* ============================================================
+       RESPONSIVE LAYOUT
+       ============================================================ */
+    @media (min-width: 681px) and (max-width: 920px) {
+      .game-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
     @media (max-width: 680px) {
 
       html,
@@ -1432,7 +1491,7 @@
   </style>
 </head>
 
-<body data-atlas-surface="hub">
+<body data-atlas-world="arcade" data-atlas-surface="hub">
 
   <!-- ============================================================ DESKTOP SPINE -->
   <header class="spine" role="banner">
