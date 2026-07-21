@@ -36,8 +36,9 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="./shared/atlas-search.css?v=20260717-theme-architecture">
-  <link rel="stylesheet" href="./shared/atlas-session-panel.css">
+  <link rel="stylesheet" href="./shared/atlas-modal-theme.css?v=20260721-world-modals">
+  <link rel="stylesheet" href="./shared/atlas-search.css?v=20260721-world-modals">
+  <link rel="stylesheet" href="./shared/atlas-session-panel.css?v=20260721-world-modals">
 
   <script src="./shared/atlas-bridge.js"></script>
 
@@ -53,7 +54,7 @@
       document.documentElement.dataset.theme = (m === 'night') ? 'night' : 'light';
     })();
   </script>
-<style>
+  <style>
     /* ============================================================
        THEME TOKENS
        ============================================================ */
@@ -132,6 +133,8 @@
       --continue-recap-surface: rgba(244, 241, 234, 0.68);
       --continue-recap-border: rgba(var(--accent-rgb), 0.15);
       --continue-recap-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
+      --continue-rail-fill-alpha: 0.28;
+      --continue-rail-complete-alpha: 0.38;
       --review-row-surface: rgba(255, 253, 249, 0.62);
       --review-row-hover: rgba(255, 253, 249, 0.84);
       --review-row-shadow: var(--shadow-sm);
@@ -146,12 +149,12 @@
       --compass-mark-end: #7fa898;
       --compass-icon-surface: rgba(92, 122, 110, 0.12);
       --compass-text: #5c7a6e;
-      --arcade-card-start: rgba(255, 253, 249, 0.90);
-      --arcade-card-end: rgba(122, 110, 154, 0.07);
-      --arcade-mark-start: #7a6e9a;
-      --arcade-mark-end: #9a8eb8;
-      --arcade-icon-surface: rgba(122, 110, 154, 0.12);
-      --arcade-text: #7a6e9a;
+      --arcade-card-start: rgba(255, 253, 249, 0.92);
+      --arcade-card-end: rgba(223, 87, 47, 0.035);
+      --arcade-mark-start: #df572f;
+      --arcade-mark-end: #ef7652;
+      --arcade-icon-surface: rgba(223, 87, 47, 0.09);
+      --arcade-text: #df572f;
 
       /* Feedback states */
       --danger-text: #b23a2e;
@@ -229,6 +232,8 @@
       --continue-recap-surface: rgba(17, 21, 19, 0.22);
       --continue-recap-border: rgba(var(--accent-rgb), 0.16);
       --continue-recap-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+      --continue-rail-fill-alpha: 0.58;
+      --continue-rail-complete-alpha: 0.72;
       --review-row-surface: rgba(37, 40, 38, 0.72);
       --review-row-hover: rgba(37, 40, 38, 0.72);
 
@@ -236,12 +241,14 @@
       --world-card-border: var(--border-faint);
       --compass-card-start: rgba(37, 40, 38, 0.90);
       --compass-card-end: rgba(127, 168, 150, 0.085);
-      --compass-icon-surface: rgba(127, 168, 150, 0.15);
-      --compass-text: #7fa896;
-      --arcade-card-start: rgba(37, 40, 38, 0.90);
-      --arcade-card-end: rgba(160, 148, 190, 0.075);
-      --arcade-icon-surface: rgba(160, 148, 190, 0.15);
-      --arcade-text: #a094be;
+      --compass-icon-surface: rgba(141, 183, 167, 0.17);
+      --compass-text: #8db7a7;
+      --arcade-card-start: rgba(37, 40, 38, 0.92);
+      --arcade-card-end: rgba(255, 129, 93, 0.045);
+      --arcade-mark-start: #ff815d;
+      --arcade-mark-end: #ff9a7a;
+      --arcade-icon-surface: rgba(255, 129, 93, 0.11);
+      --arcade-text: #ff815d;
 
       /* Elevation */
       --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.22);
@@ -923,6 +930,7 @@
       padding: 3.35rem 1.5rem 5rem;
       animation: hubPageFadeIn 0.45s ease both;
     }
+
     .context-anchor {
       margin-bottom: 2rem;
     }
@@ -976,6 +984,42 @@
         var(--continue-shadow),
         0 10px 30px rgba(var(--accent-rgb), 0.08);
       transform: translateY(-1px);
+    }
+
+    .continue-card--compass {
+      --accent: #5c7a6e;
+      --accent-soft: #718f83;
+      --accent-rgb: 92, 122, 110;
+      --continue-primary-surface: var(--accent);
+      --continue-primary-hover: #4f6c61;
+      --continue-primary-ink: #ffffff;
+    }
+
+    .continue-card--arcade {
+      --accent: #df572f;
+      --accent-soft: #ef7652;
+      --accent-rgb: 223, 87, 47;
+      --continue-primary-surface: var(--accent);
+      --continue-primary-hover: #c94a24;
+      --continue-primary-ink: #ffffff;
+    }
+
+    html[data-theme="night"] .continue-card--compass {
+      --accent: #8eaaa3;
+      --accent-soft: #a4bdb7;
+      --accent-rgb: 142, 170, 163;
+      --continue-primary-surface: var(--accent);
+      --continue-primary-hover: var(--accent-soft);
+      --continue-primary-ink: #17201e;
+    }
+
+    html[data-theme="night"] .continue-card--arcade {
+      --accent: #ec7652;
+      --accent-soft: #ff9a7a;
+      --accent-rgb: 236, 118, 82;
+      --continue-primary-surface: var(--accent);
+      --continue-primary-hover: var(--accent-soft);
+      --continue-primary-ink: #211418;
     }
 
     .continue-summary {
@@ -1130,20 +1174,20 @@
       left: 0;
       right: 0;
       bottom: 0;
-      height: 1px;
+      height: 2px;
       background: rgba(var(--accent-rgb), 0.06);
       overflow: hidden;
     }
 
     .continue-rail-fill {
       height: 100%;
-      background: rgba(var(--accent-rgb), 0.28);
+      background: rgba(var(--accent-rgb), var(--continue-rail-fill-alpha));
       border-radius: 0 2px 2px 0;
       transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .continue-rail.is-complete .continue-rail-fill {
-      background: rgba(var(--accent-rgb), 0.38);
+      background: rgba(var(--accent-rgb), var(--continue-rail-complete-alpha));
       border-radius: 0;
     }
 
@@ -1195,6 +1239,15 @@
       display: inline-flex;
       color: currentColor;
       flex-shrink: 0;
+      transition: transform var(--motion-standard);
+    }
+
+    .continue-action.is-primary:hover .continue-arrow {
+      transform: translateX(2px);
+    }
+
+    .continue-action.is-primary:active .continue-arrow {
+      transform: translateX(0);
     }
 
     /* Saved-language continuation */
@@ -1346,10 +1399,12 @@
 
     .door-compass::before {
       background: linear-gradient(90deg, var(--compass-mark-start), var(--compass-mark-end));
+      opacity: 0.34;
     }
 
     .door-arcade::before {
       background: linear-gradient(90deg, var(--arcade-mark-start), var(--arcade-mark-end));
+      opacity: 0.24;
     }
 
     .door:hover {
@@ -1358,8 +1413,12 @@
       border-color: rgba(var(--accent-rgb), 0.22);
     }
 
-    .door:hover::before {
-      opacity: 0.9;
+    .door-compass:hover::before {
+      opacity: 0.92;
+    }
+
+    .door-arcade:hover::before {
+      opacity: 0.62;
     }
 
     .door:active {
@@ -3555,6 +3614,11 @@
       const url = item.launchUrl || '';
       const meta = continueLabel(item);
       const world = itemWorldLabel(item);
+      const worldClass = item.world === COMPASS_ID
+        ? ' continue-card--compass'
+        : item.world === ARCADE_ID
+          ? ' continue-card--arcade'
+          : '';
       const metaLine = world ? meta + ' \u00b7 ' + world : meta;
       const pct = continueCoverage(item);
       const exploredItems = handoff && Array.isArray(handoff.exploredItems)
@@ -3672,7 +3736,7 @@
       const continueActions = '<div class="continue-actions">' + recapToggle + continueButton + '</div>';
 
       return '' +
-        '<div class="continue-card' + (rail ? ' has-rail' : '') + (recapExpanded ? ' is-expanded' : '') + '">' +
+        '<div class="continue-card' + worldClass + (rail ? ' has-rail' : '') + (recapExpanded ? ' is-expanded' : '') + '">' +
         '<div class="continue-summary">' +
         '<div class="continue-icon">' +
         '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
