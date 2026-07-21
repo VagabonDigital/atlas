@@ -21,6 +21,15 @@ function mountCompassSubjectShell() {
         <div class="cover-overlay"></div>
         <div class="cover-pattern"></div>
 
+        <button class="cover-back-link" id="cover-back-link" type="button" onclick="returnToLaunchOrigin()">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M8.5 3L4.5 7l4 4M5 7h5"
+                    stroke="currentColor" stroke-width="1.35"
+                    stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span id="cover-back-label">Back to Compass</span>
+        </button>
+
         <div class="cover-utility-row">
             <button class="cover-appearance-toggle" id="cover-appearance-toggle" onclick="toggleAppearanceMode()"
                 title="Switch to night mode" aria-label="Switch to night mode">

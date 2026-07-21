@@ -434,6 +434,44 @@ html.theme-changing .cover-bg {
         radial-gradient(ellipse at 85% 25%, rgba(var(--accent-rgb), 0.10) 0%, transparent 45%);
 }
 
+.cover-back-link {
+    position: absolute;
+    top: 1.15rem;
+    left: 1.15rem;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+    min-height: 32px;
+    padding: 0.4rem 0.62rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.035);
+    color: rgba(255, 255, 255, 0.56);
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 500;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: var(--transition);
+}
+
+.cover-back-link:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.cover-back-link svg {
+    flex-shrink: 0;
+    transition: transform var(--transition);
+}
+
+.cover-back-link:hover svg {
+    transform: translateX(-2px);
+}
+
 .cover-card {
     position: relative;
     z-index: 2;
@@ -1362,6 +1400,7 @@ html.theme-changing body,
 html.theme-changing .cover-overlay,
 html.theme-changing .cover-pattern,
 html.theme-changing .cover-card,
+html.theme-changing .cover-back-link,
 html.theme-changing .cover-session-btn,
 html.theme-changing .cover-appearance-toggle,
 html.theme-changing .btn-begin,
@@ -4392,6 +4431,7 @@ TOUCH INPUT
     .mobile-menu-btn,
     .mobile-appearance-toggle,
     .cover-appearance-toggle,
+    .cover-back-link,
     .nav-keylang-btn,
     .nav-icon-btn {
         -webkit-tap-highlight-color: transparent;
@@ -4679,6 +4719,18 @@ RESPONSIVE LAYOUT
         box-sizing: border-box;
     }
 
+    .cover-back-link {
+        top: 1rem;
+        left: 1rem;
+        max-width: calc(100vw - 9rem);
+    }
+
+    .cover-back-link span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     .cover-bg {
         inset: -14% -8%;
         transform: translateY(2.8%) scale(1.08);
@@ -4688,5 +4740,17 @@ RESPONSIVE LAYOUT
     .cover-card {
         width: calc(100% - 2rem);
         padding: 2rem 1.45rem 2.1rem;
+    }
+}
+
+@media (max-width: 460px) {
+    .cover-back-link {
+        width: 32px;
+        padding: 0;
+        justify-content: center;
+    }
+
+    .cover-back-link span {
+        display: none;
     }
 }

@@ -302,6 +302,68 @@ function getCompassWorldLaunchUrl() {
     }
 }
 
+function getLaunchOriginId() {
+    try {
+        const origin = new URL(
+            window.location.href
+        ).searchParams.get('from');
+
+        return ['atlas', 'compass', 'arcade'].includes(origin)
+            ? origin
+            : 'compass';
+    } catch {
+        return 'compass';
+    }
+}
+
+function getLaunchOriginModel() {
+    const origin = getLaunchOriginId();
+
+    const origins = {
+        atlas: {
+            label: 'Atlas',
+            url: '../../index.html'
+        },
+        compass: {
+            label: 'Compass',
+            url: '../index.html'
+        },
+        arcade: {
+            label: 'Arcade',
+            url: '../../arcade/index.html'
+        }
+    };
+
+    return origins[origin] || origins.compass;
+}
+
+function applyLaunchOriginUI() {
+    const origin = getLaunchOriginModel();
+    const button = document.getElementById('cover-back-link');
+
+    setText('cover-back-label', `Back to ${origin.label}`);
+
+    if (button) {
+        button.title = `Back to ${origin.label}`;
+        button.setAttribute(
+            'aria-label',
+            `Back to ${origin.label}`
+        );
+    }
+}
+
+function returnToLaunchOrigin() {
+    const origin = getLaunchOriginModel();
+
+    try {
+        window.location.assign(
+            new URL(origin.url, window.location.href).href
+        );
+    } catch {
+        window.location.assign(origin.url);
+    }
+}
+
 function getSubjectExplorationCounts() {
     const moments = discussionSets.flatMap(set => set.moments);
 
@@ -4381,6 +4443,7 @@ function init() {
     applyCoverConfig();
     applyDerivedLabels();
     applySubjectCopy();
+    applyLaunchOriginUI();
 
     renderNav(
         'nav-orientation',
