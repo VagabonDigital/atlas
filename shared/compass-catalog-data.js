@@ -282,6 +282,7 @@
             title: 'Stories & Screen',
             categoryId: 'culture-life',
             order: 40,
+            available: true,
             hook: 'Explore why story grips us — the characters we can’t forget, why endings matter, and the world you didn’t want to leave.'
         },
         {
