@@ -33,6 +33,9 @@
     let focusIdx = -1;
     let flatRows = [];
     let previousBodyOverflow = '';
+    let config = {
+        activeHubId: ''
+    };
     const SEARCH_ICON = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
         <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3" />
         <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
@@ -82,8 +85,59 @@
             return url;
         }
     }
+    function getActiveLaunchOrigin() {
+        try {
+            const urlOrigin = new URL(
+                window.location.href
+            ).searchParams.get('from');
+
+            if (['atlas', 'compass', 'arcade'].includes(urlOrigin)) {
+                return urlOrigin;
+            }
+        } catch { }
+
+        if (
+            ['atlas', 'compass', 'arcade']
+                .includes(config.activeHubId)
+        ) {
+            return config.activeHubId;
+        }
+
+        const bodyOrigin = document.body?.dataset.atlasWorld || '';
+
+        return ['atlas', 'compass', 'arcade'].includes(bodyOrigin)
+            ? bodyOrigin
+            : 'compass';
+    }
+
+    function withLaunchOrigin(url, world) {
+        const resolved = resolveAtlasUrl(url);
+
+        if (!resolved || world !== 'compass') {
+            return resolved;
+        }
+
+        try {
+            const destination = new URL(resolved);
+            destination.searchParams.set(
+                'from',
+                getActiveLaunchOrigin()
+            );
+
+            return destination.href;
+        } catch {
+            return resolved;
+        }
+    }
+
     function navigateTo(url) {
         const resolved = resolveAtlasUrl(url);
+        if (!resolved) return;
+        window.location.href = resolved;
+    }
+
+    function navigateToItem(url, world) {
+        const resolved = withLaunchOrigin(url, world);
         if (!resolved) return;
         window.location.href = resolved;
     }
@@ -190,7 +244,10 @@
                     ].join(' '),
                     action: item.isPlanned
                         ? () => navigateTo('compass/index.html')
-                        : () => navigateTo(item.launchUrl)
+                        : () => navigateToItem(
+                            item.launchUrl,
+                            item.world
+                        )
                 });
             });
         return rows.slice(0, RECENT_LIMIT);
@@ -261,7 +318,10 @@
                 ].join(' '),
                 action: item.isPlanned
                     ? () => navigateTo('compass/index.html')
-                    : () => navigateTo(item.launchUrl)
+                    : () => navigateToItem(
+                        item.launchUrl,
+                        item.world
+                    )
             }));
     }
     // Match ranking: title starts-with (0) beats title-includes (1) beats metadata/keywords (2).
@@ -510,7 +570,12 @@
             open();
         });
     }
-    function init() {
+    function init(options = {}) {
+        config = {
+            ...config,
+            ...options
+        };
+
         ensureModal();
     }
     window.AtlasSearch = {
