@@ -23,8 +23,9 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="../../shared/atlas-search.css?v=20260717-motion">
-  <link rel="stylesheet" href="../../shared/atlas-session-panel.css">
+  <link rel="stylesheet" href="../../shared/atlas-modal-theme.css?v=20260721-world-modals">
+  <link rel="stylesheet" href="../../shared/atlas-search.css?v=20260721-world-modals">
+  <link rel="stylesheet" href="../../shared/atlas-session-panel.css?v=20260721-world-modals">
 
   <!-- Anti-flash: read appearance before first paint -->
   <script>
@@ -1851,7 +1852,7 @@ html[data-theme="night"] .case-card {
   </style>
 </head>
 
-<body data-atlas-surface="hub">
+<body data-atlas-world="arcade" data-atlas-surface="content">
 
 <!-- ============================================================ OPENING SCREEN -->
   <div id="opening" role="main" aria-label="Truth Trap introduction">
@@ -2010,12 +2011,8 @@ html[data-theme="night"] .case-card {
   <!-- Session Panel Root -->
   <div id="atlas-session-panel-root"></div>
 
-  <!-- Session Panel Root -->
-  <div id="atlas-session-panel-root"></div>
-
   <!-- ============================================================ SCRIPTS -->
   <script src="../../shared/atlas-bridge.js"></script>
-  <script src="../../shared/atlas-session-panel.js"></script>
   <script src="../../shared/atlas-session-panel.js"></script>
   <script src="../../shared/compass-catalog-data.js"></script>
   <script src="../../shared/atlas-content-registry.js"></script>
