@@ -1,7 +1,15 @@
 /* ============================================================
    ATLAS SESSION PANEL
    Shared safe-first session UI.
+
+   Structure and interaction live here.
+   World and appearance values come from atlas-modal-theme.css.
    ============================================================ */
+
+.atlas-session-overlay,
+.atlas-session-overlay * {
+    box-sizing: border-box;
+}
 
 .atlas-session-overlay {
     position: fixed;
@@ -11,10 +19,11 @@
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
-    background: rgba(20, 17, 12, 0.55);
+    overflow: hidden;
+    overscroll-behavior: contain;
+    background: var(--atlas-modal-overlay-bg);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    overscroll-behavior: contain;
 }
 
 .atlas-session-overlay.is-open {
@@ -24,29 +33,37 @@
 
 .atlas-session-panel {
     display: flex;
-    width: min(100%, 31rem);
-    max-height: min(90vh, 46rem);
+    width: 100%;
+    max-width: var(--atlas-overlay-width);
+    max-height: min(90svh, 46rem);
     flex-direction: column;
     overflow: hidden;
-    border: 1px solid var(--stone-light, #ded8cf);
-    border-radius: var(--radius-lg, 18px);
-    background: var(--white, #fff);
-    color: var(--ink, #302b25);
-    box-shadow: var(--shadow-lg, 0 24px 70px rgba(20, 17, 12, 0.24));
+    overscroll-behavior: contain;
+    border: 1px solid var(--atlas-modal-border);
+    border-radius: var(--atlas-modal-radius-lg);
+    background: var(--atlas-modal-surface);
+    color: var(--atlas-modal-text);
+    box-shadow: var(--atlas-modal-shadow);
+    font-family: var(--atlas-modal-font-body);
     animation: atlasSessionSlideIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+/* ============================================================
+   HEADER
+   ============================================================ */
 
 .atlas-session-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 1.15rem 1.4rem;
-    border-bottom: 1px solid var(--stone-light, #ded8cf);
+    border-bottom: 1px solid var(--atlas-modal-border);
+    background: var(--atlas-modal-surface-low);
 }
 
 .atlas-session-header-label {
     margin: 0;
-    color: var(--stone-dark, #746b60);
+    color: var(--atlas-modal-muted);
     font-size: 0.74rem;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -62,7 +79,7 @@
     border: 1px solid transparent;
     border-radius: 999px;
     background: transparent;
-    color: var(--stone-dark, #746b60);
+    color: var(--atlas-modal-muted);
     cursor: pointer;
     font: inherit;
     font-size: 1.35rem;
@@ -71,16 +88,51 @@
 
 .atlas-session-close:hover,
 .atlas-session-close:focus-visible {
-    border-color: var(--stone-light, #ded8cf);
-    background: var(--cream, #f7f4ef);
-    color: var(--ink-dark, #211d18);
+    border-color: var(--atlas-modal-border-strong);
+    background: var(--atlas-modal-control-hover);
+    color: var(--atlas-modal-heading);
 }
+
+.atlas-session-close:focus-visible {
+    outline: 2px solid var(--atlas-modal-accent);
+    outline-offset: 2px;
+}
+
+/* ============================================================
+   PANEL VIEWS
+   ============================================================ */
 
 .atlas-session-safe,
 .atlas-session-manage {
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 1.65rem 1.7rem 1.8rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--atlas-modal-scrollbar) transparent;
+}
+
+.atlas-session-safe::-webkit-scrollbar,
+.atlas-session-manage::-webkit-scrollbar {
+    width: 10px;
+}
+
+.atlas-session-safe::-webkit-scrollbar-track,
+.atlas-session-manage::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.atlas-session-safe::-webkit-scrollbar-thumb,
+.atlas-session-manage::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background: var(--atlas-modal-scrollbar);
+    background-clip: padding-box;
+}
+
+.atlas-session-safe::-webkit-scrollbar-thumb:hover,
+.atlas-session-manage::-webkit-scrollbar-thumb:hover {
+    background: var(--atlas-modal-scrollbar-hover);
+    background-clip: padding-box;
 }
 
 .atlas-session-safe[hidden],
@@ -90,50 +142,62 @@
 
 .atlas-session-active-name {
     margin: 0;
-    color: var(--ink-dark, #211d18);
-    font-family: var(--font-display, Georgia, serif);
+    color: var(--atlas-modal-heading);
+    font-family: var(--atlas-modal-font-display);
     font-size: clamp(1.65rem, 4vw, 2.15rem);
+    font-weight: 400;
     line-height: 1.12;
 }
 
 .atlas-session-context-title {
     margin: 1.25rem 0 0.35rem;
-    color: var(--ink-dark, #211d18);
+    color: var(--atlas-modal-heading);
     font-size: 1rem;
     font-weight: 650;
 }
 
 .atlas-session-context-description {
     margin: 0;
-    color: var(--ink-light, #5f574f);
+    color: var(--atlas-modal-muted);
     font-size: 0.92rem;
     line-height: 1.65;
 }
+
+/* ============================================================
+   PRIMARY AND NAVIGATION ACTIONS
+   ============================================================ */
 
 .atlas-session-primary {
     width: 100%;
     margin-top: 1.55rem;
     padding: 0.82rem 1rem;
-    border: 1px solid var(--accent, #355f5b);
-    border-radius: var(--radius-sm, 10px);
-    background: var(--accent, #355f5b);
-    color: #fff;
+    border: 1px solid var(--atlas-modal-accent);
+    border-radius: var(--atlas-modal-radius-sm);
+    background: var(--atlas-modal-accent);
+    color: var(--atlas-modal-accent-ink);
     cursor: pointer;
     font: inherit;
     font-weight: 650;
 }
 
-.atlas-session-primary:hover,
+.atlas-session-primary:hover {
+    border-color: var(--atlas-modal-accent-hover);
+    background: var(--atlas-modal-accent-hover);
+    box-shadow: 0 8px 22px rgba(var(--atlas-modal-accent-rgb), 0.18);
+}
+
 .atlas-session-primary:focus-visible {
-    filter: brightness(1.06);
-    box-shadow: 0 8px 22px rgba(var(--accent-rgb, 53, 95, 91), 0.18);
+    outline: 3px solid rgba(var(--atlas-modal-accent-rgb), 0.32);
+    outline-offset: 3px;
+    border-color: var(--atlas-modal-accent-hover);
+    background: var(--atlas-modal-accent-hover);
 }
 
 .atlas-session-manage-link,
 .atlas-session-back {
     border: 0;
     background: transparent;
-    color: var(--accent, #355f5b);
+    color: var(--atlas-modal-accent);
     cursor: pointer;
     font: inherit;
     font-size: 0.86rem;
@@ -148,28 +212,40 @@
     margin: 1.2rem auto 0;
 }
 
-.atlas-session-manage-link:hover,
-.atlas-session-manage-link:focus-visible,
-.atlas-session-back:hover,
-.atlas-session-back:focus-visible {
-    text-decoration-color: currentColor;
-}
-
 .atlas-session-back {
     padding: 0;
 }
 
+.atlas-session-manage-link:hover,
+.atlas-session-manage-link:focus-visible,
+.atlas-session-back:hover,
+.atlas-session-back:focus-visible {
+    color: var(--atlas-modal-accent-hover);
+    text-decoration-color: currentColor;
+}
+
+.atlas-session-manage-link:focus-visible,
+.atlas-session-back:focus-visible {
+    outline: 2px solid var(--atlas-modal-accent);
+    outline-offset: 3px;
+    border-radius: 3px;
+}
+
 .atlas-session-manage h2 {
     margin: 1.15rem 0 1.1rem;
-    color: var(--ink-dark, #211d18);
+    color: var(--atlas-modal-heading);
     font-size: 1.2rem;
 }
+
+/* ============================================================
+   SEARCH AND CREATE INPUTS
+   ============================================================ */
 
 .atlas-session-search-label,
 .atlas-session-create label {
     display: block;
     margin-bottom: 0.45rem;
-    color: var(--stone-dark, #746b60);
+    color: var(--atlas-modal-muted);
     font-size: 0.74rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -181,19 +257,30 @@
     width: 100%;
     min-width: 0;
     padding: 0.7rem 0.85rem;
-    border: 1.5px solid var(--stone-light, #ded8cf);
-    border-radius: var(--radius-sm, 10px);
+    border: 1.5px solid var(--atlas-modal-border-strong);
+    border-radius: var(--atlas-modal-radius-sm);
     outline: none;
-    background: var(--white, #fff);
-    color: var(--ink, #302b25);
+    background: var(--atlas-modal-control-surface);
+    color: var(--atlas-modal-heading);
+    caret-color: var(--atlas-modal-accent);
     font: inherit;
     font-size: 0.88rem;
 }
 
+.atlas-session-search::placeholder,
+.atlas-session-create input::placeholder {
+    color: var(--atlas-modal-faint);
+}
+
 .atlas-session-search:focus,
 .atlas-session-create input:focus {
-    border-color: var(--accent, #355f5b);
+    border-color: var(--atlas-modal-accent);
+    box-shadow: 0 0 0 3px rgba(var(--atlas-modal-accent-rgb), 0.10);
 }
+
+/* ============================================================
+   SESSION LIST
+   ============================================================ */
 
 .atlas-session-list {
     display: flex;
@@ -206,14 +293,14 @@
     display: grid;
     gap: 0;
     overflow: hidden;
-    border: 1px solid var(--stone-light, #ded8cf);
-    border-radius: var(--radius-sm, 10px);
-    background: var(--cream, #f7f4ef);
+    border: 1px solid var(--atlas-modal-border);
+    border-radius: var(--atlas-modal-radius-sm);
+    background: var(--atlas-modal-row-surface);
 }
 
 .atlas-session-row.is-active {
-    border-color: var(--accent, #355f5b);
-    background: var(--accent-pale, #e8f1ef);
+    border-color: var(--atlas-modal-accent);
+    background: var(--atlas-modal-row-active);
 }
 
 .atlas-session-row-main {
@@ -231,10 +318,10 @@
     flex: 0 0 auto;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(var(--accent-rgb, 53, 95, 91), 0.16);
+    border: 1px solid rgba(var(--atlas-modal-accent-rgb), 0.24);
     border-radius: 999px;
-    background: rgba(var(--accent-pale-rgb, 232, 241, 239), 0.7);
-    color: var(--accent, #355f5b);
+    background: var(--atlas-modal-accent-bg);
+    color: var(--atlas-modal-accent);
 }
 
 .atlas-session-row-icon svg {
@@ -258,7 +345,7 @@
     flex: 1 1 auto;
     min-width: 0;
     overflow: hidden;
-    color: var(--ink, #302b25);
+    color: var(--atlas-modal-heading);
     font-size: 0.9rem;
     font-weight: 600;
     text-overflow: ellipsis;
@@ -269,8 +356,8 @@
     flex: 0 0 auto;
     padding: 0.14rem 0.48rem;
     border-radius: 999px;
-    background: var(--accent, #355f5b);
-    color: #fff;
+    background: var(--atlas-modal-accent);
+    color: var(--atlas-modal-accent-ink);
     font-size: 0.66rem;
     font-weight: 700;
 }
@@ -281,13 +368,17 @@
     gap: 0.4rem;
 }
 
+/* ============================================================
+   ROW ACTIONS
+   ============================================================ */
+
 .atlas-session-row-action {
     width: auto;
     padding: 0.38rem 0.58rem;
-    border: 1px solid var(--stone-light, #ded8cf);
+    border: 1px solid var(--atlas-modal-border);
     border-radius: 8px;
-    background: var(--white, #fff);
-    color: var(--ink-light, #5f574f);
+    background: var(--atlas-modal-control-surface);
+    color: var(--atlas-modal-muted);
     cursor: pointer;
     font: inherit;
     font-size: 0.72rem;
@@ -295,8 +386,27 @@
 }
 
 .atlas-session-row-action.is-switch {
-    border-color: rgba(var(--accent-rgb, 53, 95, 91), 0.26);
-    color: var(--accent, #355f5b);
+    border-color: rgba(var(--atlas-modal-accent-rgb), 0.28);
+    color: var(--atlas-modal-accent);
+}
+
+.atlas-session-row-action:hover,
+.atlas-session-row-action:focus-visible {
+    border-color: var(--atlas-modal-accent-soft);
+    background: var(--atlas-modal-control-hover);
+    color: var(--atlas-modal-accent);
+}
+
+.atlas-session-row-action:focus-visible {
+    outline: 2px solid rgba(var(--atlas-modal-accent-rgb), 0.24);
+    outline-offset: 2px;
+}
+
+.atlas-session-row-action.is-danger:hover,
+.atlas-session-row-action.is-danger:focus-visible {
+    border-color: var(--atlas-modal-danger-border);
+    background: var(--atlas-modal-danger-bg);
+    color: var(--atlas-modal-danger-text);
 }
 
 .atlas-session-row-more {
@@ -309,7 +419,7 @@
     border: 1px solid transparent;
     border-radius: 8px;
     background: transparent;
-    color: var(--stone-dark, #746b60);
+    color: var(--atlas-modal-faint);
     cursor: pointer;
     font: inherit;
     font-size: 1.25rem;
@@ -320,18 +430,27 @@
 .atlas-session-row-more:hover,
 .atlas-session-row-more:focus-visible,
 .atlas-session-row-more[aria-expanded="true"] {
-    border-color: var(--stone-light, #ded8cf);
-    background: var(--white, #fff);
-    color: var(--accent, #355f5b);
+    border-color: var(--atlas-modal-border-strong);
+    background: var(--atlas-modal-control-surface);
+    color: var(--atlas-modal-accent);
 }
+
+.atlas-session-row-more:focus-visible {
+    outline: 2px solid rgba(var(--atlas-modal-accent-rgb), 0.24);
+    outline-offset: 2px;
+}
+
+/* ============================================================
+   SECONDARY ROW ACTIONS
+   ============================================================ */
 
 .atlas-session-row-secondary {
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
     padding: 0.48rem 0.78rem 0.55rem 3.33rem;
-    border-top: 1px solid rgba(var(--accent-rgb, 53, 95, 91), 0.12);
-    background: rgba(255, 255, 255, 0.24);
+    border-top: 1px solid var(--atlas-modal-border);
+    background: var(--atlas-modal-row-secondary);
 }
 
 .atlas-session-row-secondary[hidden] {
@@ -341,48 +460,29 @@
 .atlas-session-row-secondary .atlas-session-row-action {
     min-height: 1.75rem;
     padding: 0.25rem 0.62rem;
-    border-color: rgba(116, 107, 96, 0.22);
+    border-color: var(--atlas-modal-border);
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.68);
-    color: var(--ink-light, #5f574f);
+    background: var(--atlas-modal-control-surface);
+    color: var(--atlas-modal-muted);
     line-height: 1.2;
 }
 
-.atlas-session-row-action:hover,
-.atlas-session-row-action:focus-visible {
-    border-color: var(--accent-soft, #7ca9a4);
-    color: var(--accent, #355f5b);
-}
-
-.atlas-session-row-action.is-danger:hover,
-.atlas-session-row-action.is-danger:focus-visible {
-    border-color: var(--danger-border, #e4b9b9);
-    background: var(--danger-bg, #fff0f0);
-    color: var(--danger-text, #9b3030);
-}
-
-.atlas-session-row-secondary .atlas-session-row-action:hover {
-    border-color: var(--accent-soft, #7ca9a4);
-    background: var(--white, #fff);
-    color: var(--accent, #355f5b);
-}
-
+.atlas-session-row-secondary .atlas-session-row-action:hover,
 .atlas-session-row-secondary .atlas-session-row-action:focus-visible {
-    border-color: var(--accent, #355f5b);
-    outline: 2px solid rgba(var(--accent-rgb, 53, 95, 91), 0.18);
-    outline-offset: 1px;
-    background: var(--white, #fff);
-    color: var(--accent, #355f5b);
+    border-color: var(--atlas-modal-accent-soft);
+    background: var(--atlas-modal-control-hover);
+    color: var(--atlas-modal-accent);
 }
 
 .atlas-session-row-secondary .atlas-session-row-action.is-danger:hover,
 .atlas-session-row-secondary .atlas-session-row-action.is-danger:focus-visible {
-    border-color: var(--danger-border, #e4b9b9);
-    background: var(--danger-bg, #fff0f0);
-    color: var(--danger-text, #9b3030);
+    border-color: var(--atlas-modal-danger-border);
+    background: var(--atlas-modal-danger-bg);
+    color: var(--atlas-modal-danger-text);
 }
 
-/* Host pages may apply generic button motion; session-row feedback stays immediate. */
+/* Host pages may apply generic transition systems. Session-row
+   feedback remains immediate and predictable. */
 .atlas-session-row,
 .atlas-session-row::before,
 .atlas-session-row::after,
@@ -402,16 +502,20 @@
     transition: none;
 }
 
+/* ============================================================
+   EMPTY AND CREATE STATES
+   ============================================================ */
+
 .atlas-session-search-empty {
     margin: 1rem 0 0;
-    color: var(--stone-dark, #746b60);
+    color: var(--atlas-modal-muted);
     font-size: 0.84rem;
 }
 
 .atlas-session-create {
     margin-top: 1.35rem;
     padding-top: 1.2rem;
-    border-top: 1px solid var(--stone-light, #ded8cf);
+    border-top: 1px solid var(--atlas-modal-border);
 }
 
 .atlas-session-create-row {
@@ -422,244 +526,35 @@
 
 .atlas-session-create button {
     padding: 0.65rem 0.95rem;
-    border: 0;
-    border-radius: var(--radius-sm, 10px);
-    background: var(--accent, #355f5b);
-    color: #fff;
+    border: 1px solid var(--atlas-modal-accent);
+    border-radius: var(--atlas-modal-radius-sm);
+    background: var(--atlas-modal-accent);
+    color: var(--atlas-modal-accent-ink);
     cursor: pointer;
     font: inherit;
     font-weight: 650;
 }
 
+.atlas-session-create button:hover {
+    border-color: var(--atlas-modal-accent-hover);
+    background: var(--atlas-modal-accent-hover);
+}
+
+.atlas-session-create button:focus-visible {
+    outline: 3px solid rgba(var(--atlas-modal-accent-rgb), 0.32);
+    outline-offset: 3px;
+}
+
 .atlas-session-create-error {
     min-height: 1.1rem;
     margin: 0.45rem 0 0;
-    color: var(--danger-text, #9b3030);
+    color: var(--atlas-modal-danger-text);
     font-size: 0.76rem;
 }
 
-html[data-theme="night"] .atlas-session-panel {
-    border-color: rgba(255, 255, 255, 0.15);
-    background: #4c4237;
-}
-
-html[data-theme="night"] .atlas-session-header {
-    border-color: rgba(255, 255, 255, 0.13);
-    background: #463d33;
-}
-
-html[data-theme="night"] .atlas-session-row,
-html[data-theme="night"] .atlas-session-search,
-html[data-theme="night"] .atlas-session-create input,
-html[data-theme="night"] .atlas-session-row-action,
-html[data-theme="night"] .atlas-session-row-more[aria-expanded="true"] {
-    border-color: rgba(255, 255, 255, 0.15);
-    background: rgba(76, 66, 55, 0.78);
-}
-
-html[data-theme="night"] .atlas-session-row-icon {
-    border-color: rgba(131, 185, 179, 0.3);
-    background: rgba(52, 79, 75, 0.68);
-}
-
-html[data-theme="night"] .atlas-session-row-secondary {
-    border-top-color: rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.025);
-}
-
-html[data-theme="night"] .atlas-session-row-secondary .atlas-session-row-action {
-    border-color: rgba(255, 255, 255, 0.16);
-    background: rgba(255, 255, 255, 0.045);
-    color: rgba(255, 255, 255, 0.78);
-}
-
-html[data-theme="night"] .atlas-session-row-secondary .atlas-session-row-action:hover,
-html[data-theme="night"] .atlas-session-row-secondary .atlas-session-row-action:focus-visible {
-    border-color: rgba(131, 185, 179, 0.66);
-    background: rgba(52, 79, 75, 0.72);
-    color: #f2f8f7;
-}
-
-html[data-theme="night"] .atlas-session-row-secondary .atlas-session-row-action.is-danger:hover,
-html[data-theme="night"] .atlas-session-row-secondary .atlas-session-row-action.is-danger:focus-visible {
-    border-color: rgba(228, 185, 185, 0.58);
-    background: rgba(125, 49, 49, 0.34);
-    color: #ffdede;
-}
-
-html[data-theme="night"] .atlas-session-row.is-active {
-    border-color: rgba(131, 185, 179, 0.52);
-    background: rgba(52, 79, 75, 0.52);
-}
-
-/* Hub night utility surface — darker system overlay for hub session management only */
-body[data-atlas-surface="hub"] {
-    --atlas-utility-overlay-bg: rgba(7, 10, 9, 0.66);
-    --atlas-utility-panel-bg: #1f2421;
-    --atlas-utility-panel-raised: #262c28;
-    --atlas-utility-panel-low: #1a1f1c;
-    --atlas-utility-border: rgba(255, 255, 255, 0.11);
-    --atlas-utility-border-strong: rgba(255, 255, 255, 0.17);
-    --atlas-utility-text: #edf2ee;
-    --atlas-utility-muted: #aab4ad;
-    --atlas-utility-faint: #7d887f;
-    --atlas-utility-accent: #8bc9c1;
-    --atlas-utility-accent-bg: rgba(70, 125, 116, 0.26);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-overlay {
-    background: var(--atlas-utility-overlay-bg);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-panel {
-    background: var(--atlas-utility-panel-bg);
-    border-color: var(--atlas-utility-border);
-    color: var(--atlas-utility-text);
-    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-header {
-    background: var(--atlas-utility-panel-low);
-    border-color: var(--atlas-utility-border);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-header-label,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-search-label,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-create label,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-search-empty {
-    color: var(--atlas-utility-muted);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage h2,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-active-name,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-context-title,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-name {
-    color: var(--atlas-utility-text);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-context-description {
-    color: var(--atlas-utility-muted);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-close {
-    color: var(--atlas-utility-muted);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-close:hover,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-close:focus-visible {
-    background: var(--atlas-utility-panel-raised);
-    border-color: var(--atlas-utility-border-strong);
-    color: var(--atlas-utility-text);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-search,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-create input {
-    background: var(--atlas-utility-panel-low);
-    border-color: var(--atlas-utility-border-strong);
-    color: var(--atlas-utility-text);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-search::placeholder,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-create input::placeholder {
-    color: var(--atlas-utility-faint);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row {
-    background: var(--atlas-utility-panel-raised);
-    border-color: var(--atlas-utility-border);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row.is-active {
-    background: var(--atlas-utility-accent-bg);
-    border-color: rgba(139, 201, 193, 0.45);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-icon {
-    background: rgba(70, 125, 116, 0.22);
-    border-color: rgba(139, 201, 193, 0.30);
-    color: var(--atlas-utility-accent);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-active-badge {
-    background: rgba(139, 201, 193, 0.92);
-    color: #14201d;
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-action,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-more[aria-expanded="true"] {
-    background: var(--atlas-utility-panel-low);
-    border-color: var(--atlas-utility-border);
-    color: var(--atlas-utility-muted);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-action.is-switch,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage-link,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-back {
-    color: var(--atlas-utility-accent);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-more {
-    color: var(--atlas-utility-faint);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-more:hover,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-more:focus-visible {
-    background: var(--atlas-utility-panel-low);
-    border-color: var(--atlas-utility-border-strong);
-    color: var(--atlas-utility-accent);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-secondary {
-    background: rgba(255, 255, 255, 0.025);
-    border-top-color: var(--atlas-utility-border);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-row-secondary .atlas-session-row-action {
-    background: rgba(255, 255, 255, 0.045);
-    border-color: var(--atlas-utility-border);
-    color: var(--atlas-utility-muted);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-create {
-    border-top-color: var(--atlas-utility-border);
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-create button,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-primary {
-    background: var(--atlas-utility-accent);
-    border-color: var(--atlas-utility-accent);
-    color: #14201d;
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-safe,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(170, 180, 173, 0.42) transparent;
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-safe::-webkit-scrollbar,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage::-webkit-scrollbar {
-    width: 10px;
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-safe::-webkit-scrollbar-track,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-safe::-webkit-scrollbar-thumb,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage::-webkit-scrollbar-thumb {
-    border: 3px solid transparent;
-    border-radius: 999px;
-    background: rgba(170, 180, 173, 0.32);
-    background-clip: padding-box;
-}
-
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-safe::-webkit-scrollbar-thumb:hover,
-html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage::-webkit-scrollbar-thumb:hover {
-    background: rgba(170, 180, 173, 0.50);
-    background-clip: padding-box;
-}
+/* ============================================================
+   RESPONSIVE LAYOUT
+   ============================================================ */
 
 @media (max-width: 680px) {
     .atlas-session-overlay {
@@ -669,11 +564,16 @@ html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage::-
 
     .atlas-session-panel {
         width: 100%;
-        max-height: 92vh;
+        max-width: none;
+        max-height: 92svh;
         border-right: 0;
         border-bottom: 0;
         border-left: 0;
-        border-radius: 18px 18px 0 0;
+        border-radius:
+            var(--atlas-modal-radius-lg)
+            var(--atlas-modal-radius-lg)
+            0
+            0;
     }
 
     .atlas-session-safe,
@@ -687,6 +587,10 @@ html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage::-
     }
 }
 
+/* ============================================================
+   MOTION
+   ============================================================ */
+
 @media (prefers-reduced-motion: reduce) {
     .atlas-session-overlay.is-open,
     .atlas-session-panel {
@@ -695,8 +599,13 @@ html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage::-
 }
 
 @keyframes atlasSessionFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes atlasSessionSlideIn {
@@ -704,6 +613,7 @@ html[data-theme="night"] body[data-atlas-surface="hub"] .atlas-session-manage::-
         opacity: 0;
         transform: translateY(0.7rem) scale(0.985);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
