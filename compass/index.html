@@ -1784,6 +1784,18 @@
       return slug ? './' + slug + '/index.html' : '';
     }
 
+    function withLaunchOrigin(url, origin) {
+      if (!url) return '';
+
+      try {
+        const destination = new URL(url, window.location.href);
+        destination.searchParams.set('from', origin);
+        return destination.href;
+      } catch {
+        return url;
+      }
+    }
+
     function registerWithBridge() {
       if (window.AtlasContentRegistry && typeof AtlasContentRegistry.registerCompass === 'function') {
         AtlasContentRegistry.registerCompass();
@@ -1909,7 +1921,10 @@
 
           const relativeLaunchUrl = getCompassSubjectLaunchUrl(subject);
           const launchUrl = relativeLaunchUrl
-            ? new URL(relativeLaunchUrl, window.location.href).href
+            ? withLaunchOrigin(
+              new URL(relativeLaunchUrl, window.location.href).href,
+              'compass'
+            )
             : '';
 
           if (!launchUrl) return null;
