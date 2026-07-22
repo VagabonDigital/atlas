@@ -13,18 +13,13 @@
    Does not own game layout, content, progress, state, or headers.
    ============================================================ */
 
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,600&display=swap");
+
 :root {
   --game-chrome-motion: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   --game-chrome-theme-motion: 280ms cubic-bezier(0.4, 0, 0.2, 1);
-}
 
-.arcade-game-chrome {
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  pointer-events: none;
-  font-family: var(
-    --font-body,
+  --game-chrome-font:
     "DM Sans",
     Inter,
     ui-sans-serif,
@@ -32,8 +27,39 @@
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
-    sans-serif
-  );
+    sans-serif;
+
+  --game-chrome-control-surface: #ffffff;
+  --game-chrome-control-border: rgba(15, 25, 35, 0.1);
+  --game-chrome-control-border-hover: rgba(15, 25, 35, 0.18);
+  --game-chrome-control-text: #536176;
+  --game-chrome-control-muted: #647890;
+  --game-chrome-control-strong: #152235;
+  --game-chrome-control-focus: #087f98;
+  --game-chrome-control-shadow: 0 2px 8px rgba(15, 25, 35, 0.08);
+  --game-chrome-control-shadow-hover: 0 8px 28px rgba(15, 25, 35, 0.12);
+  --game-chrome-return-hover-surface: rgba(15, 25, 35, 0.055);
+}
+
+html[data-theme="night"] {
+  --game-chrome-control-surface: #111822;
+  --game-chrome-control-border: rgba(255, 255, 255, 0.1);
+  --game-chrome-control-border-hover: rgba(255, 255, 255, 0.18);
+  --game-chrome-control-text: #9db0c7;
+  --game-chrome-control-muted: #7d91a8;
+  --game-chrome-control-strong: #e3effb;
+  --game-chrome-control-focus: #00c8f0;
+  --game-chrome-control-shadow: 0 2px 8px rgba(0, 0, 0, 0.32);
+  --game-chrome-control-shadow-hover: 0 8px 28px rgba(0, 0, 0, 0.44);
+  --game-chrome-return-hover-surface: rgba(255, 255, 255, 0.06);
+}
+
+.arcade-game-chrome {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  font-family: var(--game-chrome-font);
 }
 
 /* ============================================================
@@ -100,6 +126,12 @@
    IN-GAME HEADER CONTROLS
    ============================================================ */
 
+.arcade-game-chrome-game-return,
+.arcade-game-chrome-game-session,
+.arcade-game-chrome-game-icon-btn {
+  font-family: var(--game-chrome-font);
+}
+
 .arcade-game-chrome-game-return {
   display: inline-flex;
   align-items: center;
@@ -109,18 +141,7 @@
   border: 1px solid transparent;
   border-radius: 10px;
   background: transparent;
-  color: var(
-    --ink-faint,
-    var(--text-muted, rgba(255, 255, 255, 0.52))
-  );
-  font-family: var(
-    --font-body,
-    "DM Sans",
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    sans-serif
-  );
+  color: var(--game-chrome-control-muted);
   font-size: 0.8rem;
   font-weight: 600;
   line-height: 1;
@@ -134,25 +155,16 @@
 }
 
 .arcade-game-chrome-game-return:hover {
-  background: var(
-    --surface-tint,
-    rgba(255, 255, 255, 0.055)
-  );
-  border-color: var(
-    --line,
-    rgba(255, 255, 255, 0.08)
-  );
-  color: var(
-    --ink,
-    var(--text, rgba(255, 255, 255, 0.9))
-  );
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  border-color: var(--game-chrome-control-border);
+  background: var(--game-chrome-return-hover-surface);
+  color: var(--game-chrome-control-strong);
+  box-shadow: var(--game-chrome-control-shadow);
 }
 
 .arcade-game-chrome-game-return:focus-visible,
 .arcade-game-chrome-game-session:focus-visible,
 .arcade-game-chrome-game-icon-btn:focus-visible {
-  outline: 2px solid var(--cyan, currentColor);
+  outline: 2px solid var(--game-chrome-control-focus);
   outline-offset: 2px;
 }
 
@@ -181,32 +193,16 @@
   min-height: 38px;
   padding: 0.48rem 0.9rem;
   overflow: hidden;
-  border: 1px solid var(
-    --line,
-    var(--border-faint, rgba(15, 23, 42, 0.1))
-  );
+  border: 1px solid var(--game-chrome-control-border);
   border-radius: 999px;
-  background: var(
-    --surface,
-    var(--surface-raised, rgba(255, 255, 255, 0.72))
-  );
-  color: var(
-    --ink-soft,
-    var(--text-body, rgba(15, 23, 42, 0.72))
-  );
-  font-family: var(
-    --font-body,
-    "DM Sans",
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    sans-serif
-  );
+  background: var(--game-chrome-control-surface);
+  color: var(--game-chrome-control-text);
   font-size: 0.78rem;
   font-weight: 500;
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
+  box-shadow: var(--game-chrome-control-shadow);
   transition:
     border-color var(--game-chrome-motion),
     color var(--game-chrome-motion),
@@ -214,18 +210,9 @@
 }
 
 .arcade-game-chrome-game-session:hover {
-  border-color: var(
-    --line-strong,
-    var(--border-subtle, rgba(15, 23, 42, 0.18))
-  );
-  color: var(
-    --ink,
-    var(--text-heading, rgba(15, 23, 42, 0.96))
-  );
-  box-shadow: var(
-    --shadow-soft,
-    0 10px 30px rgba(42, 37, 29, 0.075)
-  );
+  border-color: var(--game-chrome-control-border-hover);
+  color: var(--game-chrome-control-strong);
+  box-shadow: var(--game-chrome-control-shadow-hover);
 }
 
 .arcade-game-chrome-game-session svg {
@@ -247,21 +234,12 @@
   height: 38px;
   flex: 0 0 38px;
   padding: 0;
-  border: 1px solid var(
-    --line,
-    var(--border-faint, rgba(15, 23, 42, 0.1))
-  );
+  border: 1px solid var(--game-chrome-control-border);
   border-radius: 12px;
-  background: var(
-    --surface,
-    var(--surface-raised, rgba(255, 255, 255, 0.72))
-  );
-  color: var(
-    --ink-soft,
-    var(--text-muted, rgba(15, 23, 42, 0.58))
-  );
+  background: var(--game-chrome-control-surface);
+  color: var(--game-chrome-control-muted);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(42, 37, 29, 0.045);
+  box-shadow: var(--game-chrome-control-shadow);
   transition:
     border-color var(--game-chrome-motion),
     color var(--game-chrome-motion),
@@ -269,18 +247,9 @@
 }
 
 .arcade-game-chrome-game-icon-btn:hover {
-  border-color: var(
-    --line-strong,
-    var(--border-subtle, rgba(15, 23, 42, 0.18))
-  );
-  color: var(
-    --ink,
-    var(--text-heading, rgba(15, 23, 42, 0.96))
-  );
-  box-shadow: var(
-    --shadow-soft,
-    0 10px 30px rgba(42, 37, 29, 0.075)
-  );
+  border-color: var(--game-chrome-control-border-hover);
+  color: var(--game-chrome-control-strong);
+  box-shadow: var(--game-chrome-control-shadow-hover);
 }
 
 .arcade-game-chrome-game-icon-btn svg {
@@ -431,7 +400,10 @@ html[data-theme="night"] .arcade-game-chrome-appearance-icon--sun {
 
 html.theme-changing .arcade-game-chrome-back,
 html.theme-changing .arcade-game-chrome-session,
-html.theme-changing .arcade-game-chrome-icon-btn {
+html.theme-changing .arcade-game-chrome-icon-btn,
+html.theme-changing .arcade-game-chrome-game-return,
+html.theme-changing .arcade-game-chrome-game-session,
+html.theme-changing .arcade-game-chrome-game-icon-btn {
   transition:
     background-color var(--game-chrome-theme-motion),
     color var(--game-chrome-theme-motion),
@@ -448,6 +420,8 @@ html.theme-changing .arcade-game-chrome-icon-btn {
 
 @media (hover: none) and (pointer: coarse) {
   .arcade-game-chrome-game-return,
+  .arcade-game-chrome-game-session,
+  .arcade-game-chrome-game-icon-btn,
   .arcade-game-chrome-back,
   .arcade-game-chrome-session,
   .arcade-game-chrome-icon-btn {
