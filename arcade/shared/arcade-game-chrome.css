@@ -1,0 +1,306 @@
+/* ============================================================
+   ARCADE GAME CHROME
+   Shared landing-screen navigation and utility controls for
+   standalone Arcade games.
+
+   Owns:
+   - contextual return control
+   - session control
+   - appearance control
+   - responsive behaviour
+
+   Does not own game layout, content, state, or internal headers.
+   ============================================================ */
+
+:root {
+  --game-chrome-motion: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  --game-chrome-theme-motion: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.arcade-game-chrome {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  font-family: var(
+    --font-body,
+    "DM Sans",
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif
+  );
+}
+
+/* ============================================================
+   RETURN CONTROL
+   ============================================================ */
+
+.arcade-game-chrome-back {
+  position: absolute;
+  top: 1.15rem;
+  left: 1.15rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  min-height: 32px;
+  max-width: calc(100vw - 12rem);
+  padding: 0.4rem 0.62rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(255, 255, 255, 0.56);
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: auto;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition:
+    background-color var(--game-chrome-motion),
+    color var(--game-chrome-motion),
+    border-color var(--game-chrome-motion),
+    transform var(--game-chrome-motion);
+}
+
+.arcade-game-chrome-back:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.arcade-game-chrome-back:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.78);
+  outline-offset: 3px;
+}
+
+.arcade-game-chrome-back svg {
+  flex-shrink: 0;
+  transition: transform var(--game-chrome-motion);
+}
+
+.arcade-game-chrome-back:hover svg {
+  transform: translateX(-2px);
+}
+
+.arcade-game-chrome-back-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   RIGHT UTILITY ROW
+   ============================================================ */
+
+.arcade-game-chrome-actions {
+  position: absolute;
+  top: 1.15rem;
+  right: 1.15rem;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: calc(100% - 2.3rem);
+  pointer-events: none;
+}
+
+/* ============================================================
+   APPEARANCE CONTROL
+   ============================================================ */
+
+.arcade-game-chrome-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.62);
+  cursor: pointer;
+  pointer-events: auto;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    background-color var(--game-chrome-motion),
+    color var(--game-chrome-motion),
+    border-color var(--game-chrome-motion);
+}
+
+.arcade-game-chrome-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.arcade-game-chrome-icon-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.78);
+  outline-offset: 3px;
+}
+
+.arcade-game-chrome-icon-btn svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  display: block;
+}
+
+/* ============================================================
+   SESSION CONTROL
+   ============================================================ */
+
+.arcade-game-chrome-session {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  max-width: min(19rem, calc(100vw - 6rem));
+  min-width: 0;
+  min-height: 32px;
+  padding: 0.48rem 0.72rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: auto;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    background-color var(--game-chrome-motion),
+    color var(--game-chrome-motion),
+    border-color var(--game-chrome-motion);
+}
+
+.arcade-game-chrome-session:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.arcade-game-chrome-session:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.78);
+  outline-offset: 3px;
+}
+
+.arcade-game-chrome-session svg {
+  flex-shrink: 0;
+}
+
+.arcade-game-chrome-session-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   APPEARANCE ICONS
+   ============================================================ */
+
+.arcade-game-chrome-icon-btn .arcade-game-chrome-appearance-icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+.arcade-game-chrome-icon-btn .arcade-game-chrome-appearance-icon--sun {
+  display: none;
+}
+
+html[data-theme="night"] .arcade-game-chrome-icon-btn .arcade-game-chrome-appearance-icon--moon {
+  display: none;
+}
+
+html[data-theme="night"] .arcade-game-chrome-icon-btn .arcade-game-chrome-appearance-icon--sun {
+  display: block;
+}
+
+/* ============================================================
+   THEME MOTION
+   ============================================================ */
+
+html.theme-changing .arcade-game-chrome-back,
+html.theme-changing .arcade-game-chrome-session,
+html.theme-changing .arcade-game-chrome-icon-btn {
+  transition:
+    background-color var(--game-chrome-theme-motion),
+    color var(--game-chrome-theme-motion),
+    border-color var(--game-chrome-theme-motion),
+    box-shadow var(--game-chrome-theme-motion),
+    opacity var(--game-chrome-theme-motion),
+    fill var(--game-chrome-theme-motion),
+    stroke var(--game-chrome-theme-motion);
+}
+
+/* ============================================================
+   TOUCH INPUT
+   ============================================================ */
+
+@media (hover: none) and (pointer: coarse) {
+  .arcade-game-chrome-back,
+  .arcade-game-chrome-session,
+  .arcade-game-chrome-icon-btn {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 680px) {
+  .arcade-game-chrome-back {
+    top: 1rem;
+    left: 1rem;
+    max-width: calc(100vw - 9rem);
+  }
+
+  .arcade-game-chrome-actions {
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .arcade-game-chrome-session {
+    max-width: min(12rem, calc(100vw - 6rem));
+  }
+}
+
+@media (max-width: 460px) {
+  .arcade-game-chrome-back {
+    width: 32px;
+    min-width: 32px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .arcade-game-chrome-back-label {
+    display: none;
+  }
+
+  .arcade-game-chrome-session {
+    max-width: calc(100vw - 7rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arcade-game-chrome-back,
+  .arcade-game-chrome-session,
+  .arcade-game-chrome-icon-btn,
+  .arcade-game-chrome-back svg {
+    transition-duration: 0.01ms !important;
+  }
+}
