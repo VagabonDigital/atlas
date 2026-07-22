@@ -1,6 +1,6 @@
 /* ============================================================
    ATLAS SESSION PANEL
-   Small reusable session UI for Atlas surfaces. 
+   Small reusable session UI for Atlas surfaces.
 
    AtlasBridge owns session state. Integrating surfaces may add
    optional context, a primary action, and existing destructive
@@ -58,9 +58,40 @@
             sessionList: root?.querySelector('#atlas-session-list'),
             searchEmpty: root?.querySelector('#atlas-session-search-empty'),
             createForm: root?.querySelector('#atlas-session-create-form'),
+            createToggle: root?.querySelector('#atlas-session-create-toggle'),
+            createFields: root?.querySelector('#atlas-session-create-fields'),
             createInput: root?.querySelector('#atlas-session-create-name'),
             createError: root?.querySelector('#atlas-session-create-error')
         };
+    }
+
+    function setCreateExpanded(
+        expanded,
+        { focus = false, reset = false } = {}
+    ) {
+        const elements = getElements();
+
+        if (!elements.createToggle || !elements.createFields) return;
+
+        elements.createToggle.style.display = expanded ? 'none' : '';
+        elements.createToggle.setAttribute('aria-expanded', String(expanded));
+        elements.createFields.hidden = !expanded;
+
+        if (!expanded && reset) {
+            if (elements.createInput) {
+                elements.createInput.value = '';
+            }
+
+            if (elements.createError) {
+                elements.createError.textContent = '';
+            }
+        }
+
+        if (expanded && focus) {
+            window.requestAnimationFrame(() => {
+                elements.createInput?.focus({ preventScroll: true });
+            });
+        }
     }
 
     function isOpen() {
@@ -370,10 +401,7 @@
             elements.searchInput.value = '';
         }
 
-        if (elements.createError) {
-            elements.createError.textContent = '';
-        }
-
+        setCreateExpanded(false, { reset: true });
         renderManageView();
 
         if (focus) {
@@ -474,6 +502,17 @@
             return;
         }
 
+        const createArea = event.target.closest('#atlas-session-create-form');
+
+        if (!createArea && elements.createFields?.hidden === false) {
+            setCreateExpanded(false, { reset: true });
+        }
+
+        if (event.target.closest('#atlas-session-create-toggle')) {
+            setCreateExpanded(true, { focus: true });
+            return;
+        }
+
         const actionsToggle = event.target.closest(
             '[data-session-actions-toggle][data-session-id]'
         );
@@ -535,8 +574,7 @@
             return;
         }
 
-        elements.createInput.value = '';
-        elements.createError.textContent = '';
+        setCreateExpanded(false, { reset: true });
         updateSafeView();
         renderManageView();
     }
@@ -641,26 +679,44 @@
                     </div>
 
                     <div class="atlas-session-manage" id="atlas-session-manage-view" hidden>
-                        <button class="atlas-session-back" id="atlas-session-manage-back" type="button">
-                            ← Back to current session
-                        </button>
-                        <h2 id="atlas-session-manage-title">Switch or manage sessions</h2>
-                        <label class="atlas-session-search-label" for="atlas-session-search">Search sessions</label>
-                        <input class="atlas-session-search" id="atlas-session-search" type="search"
-                            placeholder="Search sessions" autocomplete="off">
-                        <div class="atlas-session-list" id="atlas-session-list"></div>
-                        <p class="atlas-session-search-empty" id="atlas-session-search-empty" hidden>
-                            No sessions match that search.
-                        </p>
+                        <div class="atlas-session-manage-top">
+                            <button class="atlas-session-back" id="atlas-session-manage-back" type="button">
+                                ← Back to current session
+                            </button>
+                            <h2 id="atlas-session-manage-title">Switch or manage sessions</h2>
+                            <label class="atlas-session-search-label" for="atlas-session-search">
+                                Search sessions
+                            </label>
+                            <input class="atlas-session-search" id="atlas-session-search" type="search"
+                                placeholder="Search sessions" autocomplete="off">
+                        </div>
+
+                        <div class="atlas-session-list-scroll">
+                            <div class="atlas-session-list" id="atlas-session-list"></div>
+                            <p class="atlas-session-search-empty" id="atlas-session-search-empty" hidden>
+                                No sessions match that search.
+                            </p>
+                        </div>
 
                         <form class="atlas-session-create" id="atlas-session-create-form">
-                            <label for="atlas-session-create-name">New session</label>
-                            <div class="atlas-session-create-row">
-                                <input id="atlas-session-create-name" type="text" maxlength="40"
-                                    placeholder="Name this session" autocomplete="off">
-                                <button type="submit">Add</button>
+                            <button class="atlas-session-create-toggle"
+                                id="atlas-session-create-toggle" type="button"
+                                aria-expanded="false"
+                                aria-controls="atlas-session-create-fields">
+                                + New session
+                            </button>
+
+                            <div class="atlas-session-create-fields"
+                                id="atlas-session-create-fields" hidden>
+                                <label for="atlas-session-create-name">New session</label>
+                                <div class="atlas-session-create-row">
+                                    <input id="atlas-session-create-name" type="text" maxlength="40"
+                                        placeholder="Name this session" autocomplete="off">
+                                    <button type="submit">Add</button>
+                                </div>
+                                <p class="atlas-session-create-error"
+                                    id="atlas-session-create-error" role="alert"></p>
                             </div>
-                            <p class="atlas-session-create-error" id="atlas-session-create-error" role="alert"></p>
                         </form>
                     </div>
                 </section>

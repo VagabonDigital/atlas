@@ -104,25 +104,52 @@
 
 .atlas-session-safe,
 .atlas-session-manage {
+    min-height: 0;
+    padding: 1.65rem 1.7rem 1.8rem;
+}
+
+.atlas-session-safe {
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 1.65rem 1.7rem 1.8rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--atlas-modal-scrollbar) transparent;
+}
+
+.atlas-session-manage {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.atlas-session-manage-top {
+    flex: 0 0 auto;
+}
+
+.atlas-session-list-scroll {
+    min-height: 0;
+    flex: 1 1 auto;
+    margin-top: 0.85rem;
+    padding-right: 0.2rem;
+    padding-bottom: 0.15rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: var(--atlas-modal-scrollbar) transparent;
 }
 
 .atlas-session-safe::-webkit-scrollbar,
-.atlas-session-manage::-webkit-scrollbar {
+.atlas-session-list-scroll::-webkit-scrollbar {
     width: 10px;
 }
 
 .atlas-session-safe::-webkit-scrollbar-track,
-.atlas-session-manage::-webkit-scrollbar-track {
+.atlas-session-list-scroll::-webkit-scrollbar-track {
     background: transparent;
 }
 
 .atlas-session-safe::-webkit-scrollbar-thumb,
-.atlas-session-manage::-webkit-scrollbar-thumb {
+.atlas-session-list-scroll::-webkit-scrollbar-thumb {
     border: 3px solid transparent;
     border-radius: 999px;
     background: var(--atlas-modal-scrollbar);
@@ -130,7 +157,7 @@
 }
 
 .atlas-session-safe::-webkit-scrollbar-thumb:hover,
-.atlas-session-manage::-webkit-scrollbar-thumb:hover {
+.atlas-session-list-scroll::-webkit-scrollbar-thumb:hover {
     background: var(--atlas-modal-scrollbar-hover);
     background-clip: padding-box;
 }
@@ -275,7 +302,6 @@
 .atlas-session-search:focus,
 .atlas-session-create input:focus {
     border-color: var(--atlas-modal-accent);
-    box-shadow: 0 0 0 3px rgba(var(--atlas-modal-accent-rgb), 0.10);
 }
 
 /* ============================================================
@@ -286,7 +312,6 @@
     display: flex;
     flex-direction: column;
     gap: 0.55rem;
-    margin-top: 0.85rem;
 }
 
 .atlas-session-row {
@@ -513,9 +538,44 @@
 }
 
 .atlas-session-create {
-    margin-top: 1.35rem;
-    padding-top: 1.2rem;
+    flex: 0 0 auto;
+    margin-top: 0.8rem;
+    padding-top: 0.75rem;
     border-top: 1px solid var(--atlas-modal-border);
+}
+
+.atlas-session-create-toggle {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0;
+    border: 0;
+    background: transparent;
+    color: var(--atlas-modal-accent);
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.atlas-session-create-toggle:hover,
+.atlas-session-create-toggle:focus-visible {
+    color: var(--atlas-modal-accent-hover);
+}
+
+.atlas-session-create-toggle:focus-visible {
+    outline: 2px solid var(--atlas-modal-accent);
+    outline-offset: 3px;
+    border-radius: 3px;
+}
+
+.atlas-session-create-fields {
+    margin-top: 0.75rem;
+}
+
+.atlas-session-create-fields[hidden] {
+    display: none;
 }
 
 .atlas-session-create-row {
@@ -524,7 +584,7 @@
     gap: 0.55rem;
 }
 
-.atlas-session-create button {
+.atlas-session-create button[type="submit"] {
     padding: 0.65rem 0.95rem;
     border: 1px solid var(--atlas-modal-accent);
     border-radius: var(--atlas-modal-radius-sm);
@@ -535,21 +595,24 @@
     font-weight: 650;
 }
 
-.atlas-session-create button:hover {
+.atlas-session-create button[type="submit"]:hover {
     border-color: var(--atlas-modal-accent-hover);
     background: var(--atlas-modal-accent-hover);
 }
 
-.atlas-session-create button:focus-visible {
+.atlas-session-create button[type="submit"]:focus-visible {
     outline: 3px solid rgba(var(--atlas-modal-accent-rgb), 0.32);
     outline-offset: 3px;
 }
 
 .atlas-session-create-error {
-    min-height: 1.1rem;
-    margin: 0.45rem 0 0;
+    margin: 0;
     color: var(--atlas-modal-danger-text);
     font-size: 0.76rem;
+}
+
+.atlas-session-create-error:not(:empty) {
+    margin-top: 0.45rem;
 }
 
 /* ============================================================
