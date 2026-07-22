@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="../../shared/atlas-modal-theme.css?v=20260721-world-modals">
   <link rel="stylesheet" href="../../shared/atlas-search.css?v=20260721-world-modals">
   <link rel="stylesheet" href="../../shared/atlas-session-panel.css?v=20260721-world-modals">
+  <link rel="stylesheet" href="../shared/arcade-game-chrome.css?v=20260721">
 
   <!-- Anti-flash: read appearance before first paint -->
   <script>
@@ -38,13 +39,10 @@
 
   <style>
     /* ============================================================
-       TRUTH TRAP — DESIGN TOKENS
-       Premium noir case deck. Deep ink surfaces. Forensic cyan accent.
-       Light mode: cool off-white reading room, not dark-pretending-light.
-       Night mode: deep ink noir, the natural home.
-       ============================================================ */
+     DESIGN TOKENS
+     ============================================================ */
+
     :root {
-      /* Light mode — cool investigation room, papers on a desk */
       --bg: #f0f2f5;
       --bg-raised: #ffffff;
       --bg-card: #ffffff;
@@ -56,17 +54,15 @@
       --ink-quiet: #647890;
       --ink-faint: #a8b8c8;
 
-      --border: rgba(15, 25, 35, 0.10);
+      --border: rgba(15, 25, 35, 0.1);
       --border-mid: rgba(15, 25, 35, 0.18);
 
-      /* Forensic cyan — the Truth Trap identity */
       --cyan: #0090b8;
       --cyan-soft: #00a8d4;
       --cyan-pale: #e0f4f8;
       --cyan-dim: #f0fafc;
       --cyan-rgb: 0, 144, 184;
 
-      /* Verdict colours */
       --lie: #c0392b;
       --lie-bg: #fdf2f1;
       --lie-border: rgba(192, 57, 43, 0.25);
@@ -80,11 +76,8 @@
       --wildcard: #6d28d9;
       --wildcard-bg: #f5f0ff;
       --wildcard-border: rgba(109, 40, 217, 0.25);
-      --wildcard-rgb: 109, 40, 217;
 
-      /* Arcade coral — back-to-hub only */
-      --arcade: #E8562A;
-      --arcade-pale: #fde8e0;
+      --arcade: #e8562a;
 
       --shadow-xs: 0 1px 2px rgba(15, 25, 35, 0.06);
       --shadow-sm: 0 2px 8px rgba(15, 25, 35, 0.08);
@@ -96,13 +89,13 @@
       --r-lg: 16px;
       --r-xl: 22px;
 
-      --font-body: 'DM Sans', system-ui, sans-serif;
-      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body: "DM Sans", system-ui, sans-serif;
+      --font-display: "DM Serif Display", Georgia, serif;
+
       --t: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     html[data-theme="night"] {
-      /* Noir — deep ink, the natural home of Truth Trap */
       --bg: #090e15;
       --bg-raised: #111822;
       --bg-card: #131c28;
@@ -124,7 +117,7 @@
       --cyan-rgb: 0, 200, 240;
 
       --lie: #f06060;
-      --lie-bg: rgba(240, 96, 96, 0.10);
+      --lie-bg: rgba(240, 96, 96, 0.1);
       --lie-border: rgba(240, 96, 96, 0.28);
       --lie-rgb: 240, 96, 96;
 
@@ -134,12 +127,10 @@
       --truth-rgb: 72, 200, 122;
 
       --wildcard: #a78bfa;
-      --wildcard-bg: rgba(167, 139, 250, 0.10);
+      --wildcard-bg: rgba(167, 139, 250, 0.1);
       --wildcard-border: rgba(167, 139, 250, 0.28);
-      --wildcard-rgb: 167, 139, 250;
 
       --arcade: #f07348;
-      --arcade-pale: rgba(240, 115, 72, 0.16);
 
       --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
       --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.36);
@@ -147,7 +138,10 @@
       --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.56);
     }
 
-    /* ============================================================ RESET */
+    /* ============================================================
+     RESET AND DOCUMENT
+     ============================================================ */
+
     *,
     *::before,
     *::after {
@@ -158,21 +152,25 @@
 
     html {
       min-height: 100%;
-      scroll-behavior: smooth;
       overflow-y: scroll;
+      scroll-behavior: smooth;
       scrollbar-gutter: stable;
     }
 
     body {
-      font-family: var(--font-body);
-      background: var(--bg);
-      color: var(--ink);
-      font-size: 15px;
-      line-height: 1.6;
       min-height: 100svh;
       overflow-x: hidden;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.6;
     }
-/* ============================================================ OPENING SCREEN (DAY MODE) */
+
+    /* ============================================================
+     OPENING SCREEN
+     ============================================================ */
+
     #opening {
       position: fixed;
       inset: 0;
@@ -180,43 +178,38 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #e8ebf0; /* Cool grey base */
       padding: 1.5rem;
+      overflow: hidden;
+      background: #e8ebf0;
       transition: opacity 0.4s ease;
-      overflow: hidden; 
     }
 
-    /* 1. The Blurred Base Image (Everywhere) */
     #opening::before {
-      content: '';
+      content: "";
       position: absolute;
-      inset: -20px; /* Oversized slightly so the blur doesn't leave white edges */
+      inset: -20px;
       z-index: -2;
-      background: url('truth-trap-cover.png') center/cover no-repeat;
-      filter: blur(12px); /* Heavy blur for the background */
-      opacity: 0.35; /* Kept faint so it doesn't distract from the card */
+      background: url("truth-trap-cover.png") center / cover no-repeat;
+      filter: blur(12px);
+      opacity: 0.35;
     }
 
-    /* 2. The Sharp Magnifying Glass (Moving Spotlight) */
     #opening::after {
-      content: '';
+      content: "";
       position: absolute;
       inset: 0;
-      z-index: -1; 
-      background: url('truth-trap-cover.png') center/cover no-repeat;
-      opacity: 0.9; /* Sharp, punchy, and in focus */
-      
-      /* The mask creates the soft circular magnifying glass */
-      -webkit-mask-image: radial-gradient(circle, black 15%, transparent 55%);
-      mask-image: radial-gradient(circle, black 15%, transparent 55%);
-      
+      z-index: -1;
+      background: url("truth-trap-cover.png") center / cover no-repeat;
+      opacity: 0.9;
+      -webkit-mask-image:
+        radial-gradient(circle, black 15%, transparent 55%);
+      mask-image:
+        radial-gradient(circle, black 15%, transparent 55%);
       -webkit-mask-size: 70vmax 70vmax;
       mask-size: 70vmax 70vmax;
       -webkit-mask-repeat: no-repeat;
       mask-repeat: no-repeat;
-      
-      /* The weaving animation */
-      animation: spotlightWeave 25s ease-in-out infinite;
+      animation: spotlight-weave 25s ease-in-out infinite;
     }
 
     #opening.fade-out {
@@ -224,39 +217,73 @@
       pointer-events: none;
     }
 
-    /* Premium Light Mode Card */
+    html[data-theme="night"] #opening {
+      background: #060b11;
+    }
+
+    html[data-theme="night"] #opening::before {
+      display: none;
+    }
+
+    /* ============================================================
+     OPENING CARD
+     ============================================================ */
+
     .opening-card {
-      background: #ffffff;
-      border: 1px solid rgba(15, 25, 35, 0.08); 
-      border-radius: var(--r-xl);
-      padding: clamp(2.5rem, 5vw, 3.5rem) clamp(2rem, 5vw, 3rem);
-      max-width: 520px;
-      width: 100%;
-      box-shadow: 0 20px 40px rgba(15, 25, 35, 0.06), 0 1px 3px rgba(15, 25, 35, 0.04);
-      text-align: center;
-      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
       position: relative;
+      width: 100%;
+      max-width: 520px;
+      padding:
+        clamp(2.5rem, 5vw, 3.5rem) clamp(2rem, 5vw, 3rem);
       overflow: hidden;
+      border: 1px solid rgba(15, 25, 35, 0.08);
+      border-radius: var(--r-xl);
+      background: #ffffff;
+      box-shadow:
+        0 20px 40px rgba(15, 25, 35, 0.06),
+        0 1px 3px rgba(15, 25, 35, 0.04);
+      text-align: center;
+      animation:
+        slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    html[data-theme="night"] .opening-card {
+      border-color: rgba(0, 222, 255, 0.35);
+      border-radius: var(--r-lg);
+      background: rgba(9, 14, 21, 0.88);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+
+    html[data-theme="night"] .opening-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      height: 4px;
+      background: #00deff;
+      box-shadow: 0 0 15px #00deff;
     }
 
     .opening-eyebrow {
+      margin-bottom: 1rem;
+      color: var(--cyan);
       font-size: 0.75rem;
       font-weight: 700;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--cyan);
-      margin-bottom: 1rem;
     }
 
     .opening-title {
+      margin-bottom: 0.5rem;
+      color: var(--ink);
       font-family: var(--font-body);
       font-size: clamp(3rem, 7vw, 4rem);
       font-weight: 900;
-      text-transform: uppercase;
-      color: var(--ink);
-      line-height: 1;
-      margin-bottom: 0.5rem;
       letter-spacing: -0.02em;
+      line-height: 1;
+      text-transform: uppercase;
     }
 
     .opening-title span {
@@ -264,20 +291,20 @@
     }
 
     .opening-subtitle {
+      margin-bottom: 2rem;
+      color: var(--ink-quiet);
       font-size: 1rem;
       font-weight: 600;
-      color: var(--ink-quiet);
-      margin-bottom: 2rem;
       letter-spacing: 0.05em;
       text-transform: uppercase;
     }
 
     .opening-body {
-      font-size: 0.95rem;
-      line-height: 1.6;
-      color: var(--ink-mid);
       margin-bottom: 2.5rem;
+      color: var(--ink-mid);
+      font-size: 0.95rem;
       font-weight: 500;
+      line-height: 1.6;
       text-align: center;
     }
 
@@ -285,30 +312,56 @@
       margin-top: 1rem;
     }
 
-    /* Resized Premium Button */
+    html[data-theme="night"] .opening-eyebrow,
+    html[data-theme="night"] .opening-title span {
+      color: #00deff;
+    }
+
+    html[data-theme="night"] .opening-title {
+      color: #ffffff;
+    }
+
+    html[data-theme="night"] .opening-subtitle {
+      color: #8aa0b8;
+    }
+
+    html[data-theme="night"] .opening-body {
+      color: #d8e8f8;
+    }
+
+    /* ============================================================
+     OPENING ACTION
+     ============================================================ */
+
     .btn-start {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
       padding: 0.9rem 2.25rem;
+      border: 0;
       border-radius: var(--r-md);
-      border: none;
-      background: linear-gradient(135deg, var(--cyan) 0%, #007a99 100%);
+      background:
+        linear-gradient(135deg,
+          var(--cyan) 0%,
+          #007a99 100%);
       color: #ffffff;
       font-family: var(--font-body);
       font-size: 0.95rem;
       font-weight: 700;
-      text-transform: uppercase;
       letter-spacing: 0.08em;
+      text-transform: uppercase;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       box-shadow: 0 4px 14px rgba(0, 144, 184, 0.25);
+      transition:
+        transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+        background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .btn-start:hover {
-      transform: translateY(-2px);
       box-shadow: 0 8px 24px rgba(0, 144, 184, 0.4);
+      transform: translateY(-2px);
     }
 
     .btn-start:focus-visible {
@@ -316,43 +369,6 @@
       outline-offset: 3px;
     }
 
-    /* ============================================================ NIGHT MODE OVERRIDES */
-    html[data-theme="night"] #opening {
-      background: #060b11; 
-    }
-
-    /* Hide the scanner image overlay entirely in Night Mode */
-    html[data-theme="night"] #opening::before {
-      display: none;
-    }
-
-    html[data-theme="night"] .opening-card {
-      background: rgba(9, 14, 21, 0.88); 
-      backdrop-filter: blur(24px); 
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(0, 222, 255, 0.35);
-      border-radius: var(--r-lg);
-      /* Removed the pulseGlow animation so the card stays solid and anchored */
-      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    /* Glowing cyan top laser line */
-    html[data-theme="night"] .opening-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 4px;
-      background: #00deff;
-      box-shadow: 0 0 15px #00deff;
-    }
-
-    html[data-theme="night"] .opening-eyebrow { color: #00deff; }
-    html[data-theme="night"] .opening-title { color: #ffffff; }
-    html[data-theme="night"] .opening-title span { color: #00deff; }
-    html[data-theme="night"] .opening-subtitle { color: #8aa0b8; }
-    html[data-theme="night"] .opening-body { color: #d8e8f8; }
-
-    /* Cyber Button */
     html[data-theme="night"] .btn-start {
       background: #00deff;
       color: #000000;
@@ -360,81 +376,46 @@
     }
 
     html[data-theme="night"] .btn-start:hover {
-      background: #4de4ff; 
+      background: #4de4ff;
       box-shadow: 0 0 35px rgba(0, 222, 255, 0.7);
     }
 
-/* ============================================================ ANIMATIONS */
-    /* 1. The Pulse Keyframes for Night Mode */
-    @keyframes pulseGlow {
-      0% {
-        box-shadow: 0 0 30px rgba(0, 222, 255, 0.1), inset 0 0 10px rgba(0, 222, 255, 0.05);
-      }
-      100% {
-        box-shadow: 0 0 80px rgba(0, 222, 255, 0.45), inset 0 0 35px rgba(0, 222, 255, 0.2);
-      }
-    }
+    /* ============================================================
+     COMPLETION AIRLOCK
+     ============================================================ */
 
-/* The Spotlight/Torch Animation (Perfected Sweep) */
-    @keyframes spotlightWeave {
-      /* Pulled inward so the center of the torch stays ~10% inside the screen */
-      0%   { 
-        -webkit-mask-position: calc(10vw - 35vmax) calc(10vh - 35vmax); 
-        mask-position: calc(10vw - 35vmax) calc(10vh - 35vmax); 
-      }   /* Top Left */
-      20%  { 
-        -webkit-mask-position: calc(90vw - 35vmax) calc(20vh - 35vmax);  
-        mask-position: calc(90vw - 35vmax) calc(20vh - 35vmax);  
-      }   /* Top Right */
-      40%  { 
-        -webkit-mask-position: calc(85vw - 35vmax) calc(90vh - 35vmax); 
-        mask-position: calc(85vw - 35vmax) calc(90vh - 35vmax); 
-      }   /* Bottom Right */
-      60%  { 
-        -webkit-mask-position: calc(10vw - 35vmax) calc(85vh - 35vmax);  
-        mask-position: calc(10vw - 35vmax) calc(85vh - 35vmax);  
-      }   /* Bottom Left */
-      80%  { 
-        -webkit-mask-position: calc(50vw - 35vmax) calc(45vh - 35vmax);  
-        mask-position: calc(50vw - 35vmax) calc(45vh - 35vmax);  
-      }   /* Middle Cross */
-      100% { 
-        -webkit-mask-position: calc(10vw - 35vmax) calc(10vh - 35vmax); 
-        mask-position: calc(10vw - 35vmax) calc(10vh - 35vmax); 
-      }
-    }
-
-    /* ============================================================ COMPLETION AIRLOCK */
     #airlock {
-      display: none;
       position: fixed;
       inset: 0;
       z-index: 500;
+      display: none;
       align-items: center;
       justify-content: center;
-      background: var(--bg-deep);
       padding: 1.5rem;
+      background: var(--bg-deep);
+    }
+
+    #airlock.visible {
+      display: flex;
+      animation: fade-in 0.4s ease both;
     }
 
     html[data-theme="night"] #airlock {
       background: #060b11;
     }
 
-    #airlock.visible {
-      display: flex;
-      animation: fadeIn 0.4s ease both;
-    }
-
     .airlock-card {
-      background: var(--bg-card);
+      width: 100%;
+      max-width: 440px;
+      padding:
+        clamp(2rem, 5vw, 3rem) clamp(1.75rem, 5vw, 3rem);
       border: 1px solid var(--border-mid);
       border-radius: var(--r-xl);
-      padding: clamp(2rem, 5vw, 3rem) clamp(1.75rem, 5vw, 3rem);
-      max-width: 440px;
-      width: 100%;
+      background: var(--bg-card);
       box-shadow: var(--shadow-lg);
       text-align: center;
-      animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation:
+        slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
     html[data-theme="night"] .airlock-card {
@@ -442,29 +423,29 @@
     }
 
     .airlock-mark {
+      display: flex;
       width: 52px;
       height: 52px;
-      border-radius: 50%;
-      background: var(--truth-bg);
-      border: 1.5px solid var(--truth-border);
-      color: var(--truth);
-      display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 1.25rem;
+      border: 1.5px solid var(--truth-border);
+      border-radius: 50%;
+      background: var(--truth-bg);
+      color: var(--truth);
     }
 
     .airlock-title {
+      margin-bottom: 0.5rem;
+      color: var(--ink);
       font-family: var(--font-display);
       font-size: 1.75rem;
-      color: var(--ink);
-      margin-bottom: 0.5rem;
     }
 
     .airlock-body {
-      font-size: 0.9rem;
-      color: var(--ink-quiet);
       margin-bottom: 2rem;
+      color: var(--ink-quiet);
+      font-size: 0.9rem;
       line-height: 1.6;
     }
 
@@ -474,17 +455,25 @@
       gap: 0.6rem;
     }
 
-    .btn-play-again {
+    .btn-play-again,
+    .btn-back-arcade {
       padding: 0.78rem 1.5rem;
       border-radius: var(--r-md);
-      border: none;
-      background: var(--cyan);
-      color: #fff;
       font-family: var(--font-body);
       font-size: 0.88rem;
-      font-weight: 600;
       cursor: pointer;
-      transition: var(--t);
+      transition:
+        background-color var(--t),
+        border-color var(--t),
+        color var(--t),
+        transform var(--t);
+    }
+
+    .btn-play-again {
+      border: 0;
+      background: var(--cyan);
+      color: #ffffff;
+      font-weight: 600;
     }
 
     .btn-play-again:hover {
@@ -493,16 +482,10 @@
     }
 
     .btn-back-arcade {
-      padding: 0.78rem 1.5rem;
-      border-radius: var(--r-md);
       border: 1px solid var(--border-mid);
       background: transparent;
       color: var(--ink-mid);
-      font-family: var(--font-body);
-      font-size: 0.88rem;
       font-weight: 500;
-      cursor: pointer;
-      transition: var(--t);
     }
 
     .btn-back-arcade:hover {
@@ -510,285 +493,210 @@
       color: var(--arcade);
     }
 
-    /* ============================================================ GAME SCREEN */
+    /* ============================================================
+     GAME SHELL
+     ============================================================ */
+
     #game {
       display: none;
-      flex-direction: column;
       min-height: 100svh;
-      background: var(--bg); /* Clean, calm, distraction-free */
-    }
-
-    html[data-theme="night"] #game {
-      background: #060b11; /* Pure dark workspace */
+      flex-direction: column;
+      background: var(--bg);
     }
 
     #game.visible {
       display: flex;
     }
 
-    /* ---- REDUCED GAME HEADER (3-COLUMN) ---- */
+    html[data-theme="night"] #game {
+      background: #060b11;
+    }
+
+    /* ============================================================
+     GAME HEADER
+     ============================================================ */
+
     .game-header {
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(240, 242, 245, 0.94);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
-      height: 56px;
       display: flex;
+      height: 56px;
+      flex-shrink: 0;
       align-items: center;
       justify-content: space-between;
       padding: 0 1.25rem;
-      flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+      background: rgba(240, 242, 245, 0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
     }
 
     html[data-theme="night"] .game-header {
       background: rgba(9, 14, 21, 0.94);
     }
 
-    .header-left {
+    .header-left,
+    .header-center,
+    .header-right {
       display: flex;
-      align-items: center;
-      gap: 0.75rem;
       flex: 1;
+      align-items: center;
+    }
+
+    .header-left {
+      gap: 0.75rem;
     }
 
     .header-center {
-      display: flex;
       justify-content: center;
-      align-items: center;
-      flex: 1;
     }
 
     .header-right {
-      display: flex;
-      align-items: center;
       justify-content: flex-end;
-      gap: 0.5rem; /* Consistent spacing between session, search, and theme buttons */
-      flex: 1;
-    }
-
-    /* Premium Native-Style Back Button */
-    .header-back {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.4rem 0.6rem 0.4rem 0.2rem;
-      border-radius: var(--r-sm);
-      border: none;
-      background: transparent;
-      color: var(--ink-quiet);
-      font-family: var(--font-body);
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--t);
-      white-space: nowrap;
-      text-decoration: none;
-      min-height: 34px;
-      flex-shrink: 0;
-    }
-
-    .header-back:hover {
-      background: var(--bg-subtle);
-      color: var(--ink);
-    }
-
-    html[data-theme="night"] .header-back:hover {
-      background: var(--bg-deep);
-      color: #fff;
-    }
-
-    .header-back:focus-visible {
-      outline: 2px solid var(--arcade);
-      outline-offset: 2px;
     }
 
     .header-title {
+      color: var(--ink);
       font-family: var(--font-body);
       font-size: 1.15rem;
       font-weight: 900;
-      text-transform: uppercase;
-      color: var(--ink);
       letter-spacing: -0.02em;
-      white-space: nowrap;
       line-height: 1;
-    }
-
-    html[data-theme="night"] .header-title {
-      color: #ffffff;
+      text-transform: uppercase;
+      white-space: nowrap;
     }
 
     .header-title span {
       color: var(--cyan);
     }
 
+    html[data-theme="night"] .header-title {
+      color: #ffffff;
+    }
+
     .header-position {
+      color: var(--ink-quiet);
       font-size: 0.8rem;
       font-weight: 600;
-      color: var(--ink-quiet);
       letter-spacing: 0.04em;
       text-transform: uppercase;
       white-space: nowrap;
     }
 
-    /* Session Pill */
-    .header-session-btn {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      max-width: 170px;
-      padding: 0.48rem 0.9rem;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: var(--bg-raised);
-      color: var(--ink-mid);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 0.78rem;
-      font-weight: 500;
-      white-space: nowrap;
-      cursor: pointer;
-      transition: border-color .18s ease, color .18s ease, box-shadow .18s ease;
-    }
+    /* ============================================================
+     PROGRESS STRIP
+     ============================================================ */
 
-    .header-session-btn:hover {
-      color: var(--ink);
-      border-color: var(--border-mid);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .header-session-btn .pill-name {
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* Header Square Icons (Search/Theme) */
-    .header-icon-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--bg-raised);
-      color: var(--ink-quiet);
-      cursor: pointer;
-      transition: var(--t);
-      flex-shrink: 0;
-    }
-
-    .header-icon-btn:hover {
-      color: var(--ink);
-      border-color: var(--border-mid);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .header-icon-btn:focus-visible {
-      outline: 2px solid var(--cyan);
-      outline-offset: 2px;
-    }
-
-    /* Thin progress strip under header */
     .progress-strip {
       position: sticky;
       top: 56px;
       z-index: 99;
       height: 2px;
-      background: var(--bg-subtle);
       flex-shrink: 0;
+      background: var(--bg-subtle);
     }
 
     .progress-strip-fill {
       height: 100%;
       background: var(--cyan);
-      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      transition:
+        width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* ---- MAIN CONTENT ---- */
+    /* ============================================================
+     GAME CONTENT
+     ============================================================ */
+
     .game-main {
-      flex: 1;
-      padding: 1.5rem 1.25rem 2.5rem;
       display: flex;
+      flex: 1;
       flex-direction: column;
       align-items: center;
       gap: 1rem;
+      padding: 1.5rem 1.25rem 2.5rem;
     }
 
     .game-inner {
+      display: flex;
       width: 100%;
       max-width: 820px;
-      display: flex;
       flex-direction: column;
       gap: 1rem;
     }
 
-    /* ---- CASE CARD ---- */
+    /* ============================================================
+     CASE CARD
+     ============================================================ */
+
     .case-card {
       position: relative;
-      background: rgba(255, 255, 255, 0.88);
+      overflow: hidden;
       border: 1px solid rgba(var(--cyan-rgb), 0.16);
       border-radius: var(--r-lg);
-      overflow: hidden;
+      background: rgba(255, 255, 255, 0.88);
       box-shadow: var(--shadow-md);
       backdrop-filter: blur(18px);
-      transition: box-shadow var(--t), border-color var(--t);
-      animation: cardIn 0.28s cubic-bezier(0.4, 0, 0.2, 1) both;
+      -webkit-backdrop-filter: blur(18px);
+      animation:
+        card-in 0.28s cubic-bezier(0.4, 0, 0.2, 1) both;
+      transition:
+        box-shadow var(--t),
+        border-color var(--t);
     }
 
-html[data-theme="night"] .case-card {
-      background: rgba(19, 28, 40, 0.88);
+    html[data-theme="night"] .case-card {
       border-color: rgba(var(--cyan-rgb), 0.22);
-      box-shadow: var(--shadow-lg), 0 0 40px rgba(var(--cyan-rgb), 0.05);
-      animation: cardIn 0.28s cubic-bezier(0.4, 0, 0.2, 1) both;
+      background: rgba(19, 28, 40, 0.88);
+      box-shadow:
+        var(--shadow-lg),
+        0 0 40px rgba(var(--cyan-rgb), 0.05);
     }
 
-    /* Slow, Calm Scanning Laser (Shared Base) */
     .case-card::before {
-      content: '';
+      content: "";
       position: absolute;
       top: 0;
-      left: 0;
       right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, transparent 0%, var(--cyan) 50%, transparent 100%);
-      background-size: 200% 100%;
-      animation: cardScan 8s linear infinite;
+      left: 0;
       z-index: 2;
+      height: 3px;
+      background:
+        linear-gradient(90deg,
+          transparent 0%,
+          var(--cyan) 50%,
+          transparent 100%);
+      background-size: 200% 100%;
+      animation: card-scan 8s linear infinite;
     }
 
-    /* Night Mode: Neon Glowing Scanner */
     html[data-theme="night"] .case-card::before {
-      background-image: linear-gradient(90deg, transparent 0%, #00deff 50%, transparent 100%);
-      box-shadow: 0 0 12px rgba(0, 222, 255, 0.6); 
-    }
-
-    @keyframes cardScan {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
+      background-image:
+        linear-gradient(90deg,
+          transparent 0%,
+          #00deff 50%,
+          transparent 100%);
+      box-shadow: 0 0 12px rgba(0, 222, 255, 0.6);
     }
 
     .case-card.is-complete {
-      border-color: rgba(var(--truth-rgb), 0.30);
+      border-color: rgba(var(--truth-rgb), 0.3);
     }
 
-    @keyframes cardIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    /* ============================================================
+     CASE HEADER
+     ============================================================ */
 
     .case-header {
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      background: linear-gradient(90deg, rgba(var(--cyan-rgb), 0.10), rgba(var(--cyan-rgb), 0.02));
-    }
-
-    html[data-theme="night"] .case-header {
-      background: linear-gradient(90deg, rgba(var(--cyan-rgb), 0.12), rgba(var(--cyan-rgb), 0.03));
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background:
+        linear-gradient(90deg,
+          rgba(var(--cyan-rgb), 0.1),
+          rgba(var(--cyan-rgb), 0.02));
     }
 
     html[data-theme="night"] .case-header {
@@ -796,75 +704,79 @@ html[data-theme="night"] .case-card {
     }
 
     .case-number {
+      flex-shrink: 0;
+      color: var(--cyan);
       font-size: 0.66rem;
       font-weight: 700;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--cyan);
-      flex-shrink: 0;
     }
 
     .case-title {
+      flex: 1;
+      color: var(--ink);
       font-size: 0.88rem;
       font-weight: 600;
-      color: var(--ink);
-      flex: 1;
     }
 
     .solved-badge {
       display: inline-flex;
       align-items: center;
       gap: 0.3rem;
+      padding: 0.2rem 0.6rem;
+      border: 1px solid var(--truth-border);
+      border-radius: 999px;
+      background: var(--truth-bg);
+      color: var(--truth);
       font-size: 0.66rem;
       font-weight: 700;
-      letter-spacing: 0.10em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--truth);
-      background: var(--truth-bg);
-      border: 1px solid var(--truth-border);
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
     }
 
-    /* Wildcard banner */
     .wildcard-banner {
       padding: 0.6rem 1.25rem;
-      background: var(--wildcard-bg);
       border-bottom: 1px solid var(--wildcard-border);
+      background: var(--wildcard-bg);
+      color: var(--wildcard);
       font-size: 0.72rem;
       font-weight: 700;
       letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--wildcard);
       text-align: center;
+      text-transform: uppercase;
     }
 
-    /* Instruction line */
     .case-instruction {
       padding: 0.55rem 1.25rem;
       border-bottom: 1px solid var(--border);
+      color: var(--ink-quiet);
       font-size: 0.72rem;
       font-weight: 500;
       letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--ink-quiet);
       text-align: center;
+      text-transform: uppercase;
     }
 
-    /* Statement list */
+    /* ============================================================
+     STATEMENTS
+     ============================================================ */
+
     .statements {
-      padding: 1rem 1.1rem;
       display: flex;
       flex-direction: column;
       gap: 0.65rem;
+      padding: 1rem 1.1rem;
     }
 
     .stmt {
+      overflow: hidden;
       border: 1.5px solid var(--border);
       border-radius: var(--r-md);
-      overflow: hidden;
-      transition: border-color var(--t), background var(--t), box-shadow var(--t);
       background: var(--bg-raised);
+      transition:
+        border-color var(--t),
+        background-color var(--t),
+        box-shadow var(--t);
     }
 
     html[data-theme="night"] .stmt {
@@ -872,7 +784,7 @@ html[data-theme="night"] .case-card {
     }
 
     .stmt.is-hoverable:hover {
-      border-color: rgba(var(--cyan-rgb), 0.40);
+      border-color: rgba(var(--cyan-rgb), 0.4);
       box-shadow: 0 0 0 3px rgba(var(--cyan-rgb), 0.06);
       cursor: pointer;
     }
@@ -899,25 +811,27 @@ html[data-theme="night"] .case-card {
     }
 
     .stmt-inner {
-      padding: 0.9rem 1rem;
       display: flex;
       align-items: flex-start;
       gap: 0.85rem;
+      padding: 0.9rem 1rem;
     }
 
     .stmt-label {
-      flex-shrink: 0;
+      display: flex;
       width: 28px;
       height: 28px;
-      border-radius: var(--r-sm);
-      background: var(--bg-subtle);
-      display: flex;
+      flex-shrink: 0;
       align-items: center;
       justify-content: center;
+      border-radius: var(--r-sm);
+      background: var(--bg-subtle);
+      color: var(--ink-quiet);
       font-size: 0.78rem;
       font-weight: 700;
-      color: var(--ink-quiet);
-      transition: background-color var(--t), color var(--t);
+      transition:
+        background-color var(--t),
+        color var(--t);
     }
 
     html[data-theme="night"] .stmt-label {
@@ -926,22 +840,22 @@ html[data-theme="night"] .case-card {
 
     .stmt.is-selected .stmt-label {
       background: var(--cyan);
-      color: #fff;
+      color: #ffffff;
     }
 
     .stmt.is-lie .stmt-label {
       background: var(--lie);
-      color: #fff;
+      color: #ffffff;
     }
 
     .stmt.is-truth .stmt-label {
       background: var(--truth);
-      color: #fff;
+      color: #ffffff;
     }
 
     .stmt.is-wildcard .stmt-label {
       background: var(--wildcard);
-      color: #fff;
+      color: #ffffff;
     }
 
     .stmt-body {
@@ -949,92 +863,91 @@ html[data-theme="night"] .case-card {
     }
 
     .stmt-text {
-      font-size: 0.95rem;
-      line-height: 1.6;
       color: var(--ink);
+      font-size: 0.95rem;
       font-weight: 400;
+      line-height: 1.6;
     }
 
     .stmt-footer {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       gap: 0.5rem;
-      flex-wrap: wrap;
       margin-top: 0.65rem;
     }
+
+    /* ============================================================
+     VERDICTS
+     ============================================================ */
 
     .verdict-pill {
       display: inline-flex;
       align-items: center;
       gap: 0.3rem;
+      padding: 0.22rem 0.65rem;
+      border: 1px solid;
+      border-radius: 999px;
       font-size: 0.66rem;
       font-weight: 700;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      padding: 0.22rem 0.65rem;
-      border-radius: 999px;
-      border: 1px solid;
-      animation: pillPop 0.35s cubic-bezier(0.34, 1.4, 0.64, 1) both;
-    }
-
-    @keyframes pillPop {
-      from {
-        opacity: 0;
-        transform: scale(0.7);
-      }
-
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
+      animation:
+        pill-pop 0.35s cubic-bezier(0.34, 1.4, 0.64, 1) both;
     }
 
     .verdict-lie {
-      color: var(--lie);
-      background: var(--lie-bg);
       border-color: var(--lie-border);
+      background: var(--lie-bg);
+      color: var(--lie);
     }
 
     .verdict-truth {
-      color: var(--truth);
-      background: var(--truth-bg);
       border-color: var(--truth-border);
+      background: var(--truth-bg);
+      color: var(--truth);
     }
 
     .verdict-wildcard {
-      color: var(--wildcard);
-      background: var(--wildcard-bg);
       border-color: var(--wildcard-border);
+      background: var(--wildcard-bg);
+      color: var(--wildcard);
     }
 
     .player-pick-label {
+      color: var(--ink-faint);
       font-size: 0.66rem;
       font-weight: 600;
-      color: var(--ink-faint);
       letter-spacing: 0.06em;
     }
 
-    /* Evidence toggle */
+    /* ============================================================
+     EVIDENCE
+     ============================================================ */
+
     .btn-evidence {
+      margin-left: auto;
+      padding: 0.22rem 0.65rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--bg-subtle);
+      color: var(--ink-quiet);
       font-size: 0.7rem;
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--ink-quiet);
-      background: var(--bg-subtle);
-      border: 1px solid var(--border);
-      padding: 0.22rem 0.65rem;
-      border-radius: 999px;
       cursor: pointer;
-      transition: var(--t);
-      margin-left: auto;
+      transition:
+        background-color var(--t),
+        border-color var(--t),
+        color var(--t);
     }
 
     .btn-evidence:hover,
     .btn-evidence.open {
-      color: var(--cyan);
       border-color: rgba(var(--cyan-rgb), 0.4);
       background: var(--cyan-dim);
+      color: var(--cyan);
     }
 
     .btn-evidence:focus-visible {
@@ -1042,14 +955,15 @@ html[data-theme="night"] .case-card {
       outline-offset: 2px;
     }
 
-    /* Evidence panel */
     .evidence-panel {
       max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease, padding 0.3s ease;
-      border-top: 0 solid transparent;
       padding: 0 1rem 0 3.2rem;
+      overflow: hidden;
+      border-top: 0 solid transparent;
       background: rgba(var(--cyan-rgb), 0.03);
+      transition:
+        max-height 0.3s ease,
+        padding 0.3s ease;
     }
 
     .evidence-panel.open {
@@ -1059,55 +973,60 @@ html[data-theme="night"] .case-card {
     }
 
     .evidence-panel p {
+      color: var(--ink-mid);
       font-size: 0.84rem;
       line-height: 1.7;
-      color: var(--ink-mid);
     }
 
     .evidence-panel p strong {
       color: var(--cyan);
-      font-weight: 600;
       font-style: normal;
+      font-weight: 600;
     }
 
-    /* ---- ACTION AREA ---- */
+    /* ============================================================
+     CASE ACTION AREA
+     ============================================================ */
+
     .action-area {
       padding: 1rem 1.1rem 1.15rem;
       border-top: 1px solid var(--border);
     }
 
-    /* Idle: choose state */
     .choose-prompt {
+      margin-bottom: 0.85rem;
+      color: var(--ink-quiet);
       font-size: 0.72rem;
       font-weight: 600;
-      letter-spacing: 0.10em;
-      text-transform: uppercase;
-      color: var(--ink-quiet);
+      letter-spacing: 0.1em;
       text-align: center;
-      margin-bottom: 0.85rem;
+      text-transform: uppercase;
     }
 
     .choose-btns {
       display: flex;
-      gap: 0.6rem;
-      justify-content: center;
       flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.6rem;
     }
 
     .btn-choose {
-      flex: 1;
+      min-height: 44px;
       max-width: 160px;
+      flex: 1;
       padding: 0.72rem 1rem;
-      border-radius: var(--r-md);
       border: 1.5px solid var(--border-mid);
+      border-radius: var(--r-md);
       background: var(--bg-raised);
       color: var(--ink-mid);
       font-family: var(--font-body);
       font-size: 0.84rem;
       font-weight: 600;
       cursor: pointer;
-      transition: var(--t);
-      min-height: 44px;
+      transition:
+        background-color var(--t),
+        border-color var(--t),
+        color var(--t);
     }
 
     html[data-theme="night"] .btn-choose {
@@ -1116,8 +1035,8 @@ html[data-theme="night"] .case-card {
 
     .btn-choose:hover {
       border-color: var(--cyan);
-      color: var(--cyan);
       background: var(--cyan-dim);
+      color: var(--cyan);
     }
 
     .btn-choose:focus-visible {
@@ -1125,37 +1044,46 @@ html[data-theme="night"] .case-card {
       outline-offset: 2px;
     }
 
-    /* Selected state */
+    /* ============================================================
+     SELECTED STATE
+     ============================================================ */
+
     .selected-row {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       gap: 0.75rem;
-      flex-wrap: wrap;
     }
 
     .selected-label {
+      flex: 1;
+      color: var(--ink-mid);
       font-size: 0.82rem;
       font-weight: 500;
-      color: var(--ink-mid);
-      flex: 1;
     }
 
     .selected-label strong {
       color: var(--cyan);
     }
 
+    .btn-change,
+    .btn-reveal {
+      min-height: 38px;
+      font-family: var(--font-body);
+      cursor: pointer;
+    }
+
     .btn-change {
       padding: 0.58rem 1rem;
-      border-radius: var(--r-sm);
       border: 1px solid var(--border);
+      border-radius: var(--r-sm);
       background: transparent;
       color: var(--ink-quiet);
-      font-family: var(--font-body);
       font-size: 0.78rem;
       font-weight: 500;
-      cursor: pointer;
-      transition: var(--t);
-      min-height: 38px;
+      transition:
+        border-color var(--t),
+        color var(--t);
     }
 
     .btn-change:hover {
@@ -1165,17 +1093,17 @@ html[data-theme="night"] .case-card {
 
     .btn-reveal {
       padding: 0.62rem 1.4rem;
+      border: 0;
       border-radius: var(--r-sm);
-      border: none;
       background: var(--cyan);
-      color: #fff;
-      font-family: var(--font-body);
+      color: #ffffff;
       font-size: 0.84rem;
       font-weight: 600;
-      cursor: pointer;
-      transition: var(--t);
       box-shadow: var(--shadow-xs);
-      min-height: 38px;
+      transition:
+        background-color var(--t),
+        box-shadow var(--t),
+        transform var(--t);
     }
 
     .btn-reveal:hover {
@@ -1189,126 +1117,130 @@ html[data-theme="night"] .case-card {
       outline-offset: 2px;
     }
 
-    /* Revealed state */
+    /* ============================================================
+     REVEALED STATE
+     ============================================================ */
+
     .reveal-summary {
+      margin-bottom: 0.85rem;
+      padding: 0.65rem 1rem;
+      border: 1px solid;
+      border-radius: var(--r-sm);
       font-size: 0.82rem;
       font-weight: 500;
-      padding: 0.65rem 1rem;
-      border-radius: var(--r-sm);
-      border: 1px solid;
-      margin-bottom: 0.85rem;
       line-height: 1.5;
     }
 
     .summary-correct {
-      color: var(--truth);
-      background: var(--truth-bg);
       border-color: var(--truth-border);
+      background: var(--truth-bg);
+      color: var(--truth);
     }
 
     .summary-wrong {
-      color: var(--lie);
-      background: var(--lie-bg);
       border-color: var(--lie-border);
+      background: var(--lie-bg);
+      color: var(--lie);
     }
 
     .summary-wildcard {
-      color: var(--wildcard);
-      background: var(--wildcard-bg);
       border-color: var(--wildcard-border);
+      background: var(--wildcard-bg);
+      color: var(--wildcard);
     }
 
     .reveal-actions {
       display: flex;
-      gap: 0.6rem;
       flex-wrap: wrap;
       align-items: center;
+      gap: 0.6rem;
+    }
+
+    .btn-discussion,
+    .btn-copy-recap,
+    .btn-mark-solved {
+      min-height: 38px;
+      padding: 0.6rem 1rem;
+      border-radius: var(--r-sm);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      cursor: pointer;
     }
 
     .btn-discussion {
       flex: 1;
-      padding: 0.6rem 1rem;
-      border-radius: var(--r-sm);
       border: 1px solid rgba(var(--cyan-rgb), 0.35);
       background: var(--cyan-dim);
       color: var(--cyan);
-      font-family: var(--font-body);
-      font-size: 0.78rem;
       font-weight: 600;
-      cursor: pointer;
-      transition: var(--t);
-      min-height: 38px;
+      transition:
+        background-color var(--t),
+        border-color var(--t);
     }
 
     .btn-discussion:hover {
-      background: var(--cyan-pale);
       border-color: var(--cyan);
+      background: var(--cyan-pale);
     }
 
     .btn-copy-recap {
-      padding: 0.6rem 1rem;
-      border-radius: var(--r-sm);
       border: 1px solid var(--border);
       background: transparent;
       color: var(--ink-quiet);
-      font-family: var(--font-body);
-      font-size: 0.78rem;
       font-weight: 500;
-      cursor: pointer;
-      transition: var(--t);
-      min-height: 38px;
+      transition:
+        border-color var(--t),
+        color var(--t);
     }
 
     .btn-copy-recap:hover {
-      color: var(--ink);
       border-color: var(--border-mid);
+      color: var(--ink);
     }
 
-.btn-mark-solved {
+    .btn-mark-solved {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 0.4rem;
-      padding: 0.6rem 1rem;
-      border-radius: var(--r-sm);
       border: 1px solid rgba(var(--truth-rgb), 0.35);
       background: var(--truth-bg);
       color: var(--truth);
-      font-family: var(--font-body);
-      font-size: 0.78rem;
       font-weight: 600;
-      cursor: pointer;
-      transition: background-color var(--t), border-color var(--t), color var(--t);
-      min-height: 38px;
+      transition:
+        background-color var(--t),
+        border-color var(--t),
+        color var(--t);
     }
 
     .btn-mark-solved:hover {
-      background: rgba(var(--truth-rgb), 0.15);
       border-color: rgba(var(--truth-rgb), 0.5);
+      background: rgba(var(--truth-rgb), 0.15);
     }
 
-    /* Just a subtle bump in presence for night mode */
     html[data-theme="night"] .btn-mark-solved {
-      border: 1px solid rgba(var(--truth-rgb), 0.5);
+      border-color: rgba(var(--truth-rgb), 0.5);
       background: rgba(var(--truth-rgb), 0.15);
-      color: var(--truth);
     }
 
     html[data-theme="night"] .btn-mark-solved:hover {
-      background: rgba(var(--truth-rgb), 0.25);
       border-color: var(--truth);
-      color: #fff;
+      background: rgba(var(--truth-rgb), 0.25);
+      color: #ffffff;
     }
 
-    /* Discussion panel */
+    /* ============================================================
+     DISCUSSION
+     ============================================================ */
+
     .discussion-panel {
       display: none;
       margin-top: 0.85rem;
       padding: 0.9rem 1rem;
+      border: 1px solid rgba(var(--cyan-rgb), 0.2);
       border-radius: var(--r-sm);
-      border: 1px solid rgba(var(--cyan-rgb), 0.20);
       background: var(--cyan-dim);
-      animation: fadeIn 0.2s ease both;
+      animation: fade-in 0.2s ease both;
     }
 
     .discussion-panel.visible {
@@ -1316,76 +1248,85 @@ html[data-theme="night"] .case-card {
     }
 
     .discussion-label {
+      margin-bottom: 0.5rem;
+      color: var(--cyan);
       font-size: 0.64rem;
       font-weight: 700;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--cyan);
-      margin-bottom: 0.5rem;
     }
 
     .discussion-text {
-      font-size: 0.88rem;
-      line-height: 1.65;
       color: var(--ink-mid);
+      font-size: 0.88rem;
       font-style: italic;
+      line-height: 1.65;
     }
 
-    /* Solved state */
+    /* ============================================================
+     SOLVED STATE
+     ============================================================ */
+
     .solved-row {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       gap: 0.75rem;
-      flex-wrap: wrap;
     }
 
     .solved-label {
+      color: var(--truth);
       font-size: 0.76rem;
       font-weight: 600;
-      letter-spacing: 0.10em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--truth);
     }
 
     .btn-reopen {
       padding: 0.48rem 0.85rem;
-      border-radius: var(--r-sm);
       border: 1px solid var(--border);
+      border-radius: var(--r-sm);
       background: transparent;
       color: var(--ink-quiet);
       font-family: var(--font-body);
       font-size: 0.74rem;
       font-weight: 500;
       cursor: pointer;
-      transition: var(--t);
+      transition:
+        border-color var(--t),
+        color var(--t);
     }
 
     .btn-reopen:hover {
-      color: var(--ink);
       border-color: var(--border-mid);
+      color: var(--ink);
     }
 
-/* ---- UNIFIED CONTROL PANEL ---- */
+    /* ============================================================
+     NAVIGATION PANEL
+     ============================================================ */
+
     .control-panel {
+      display: flex;
       width: 100%;
-      background: rgba(255, 255, 255, 0.88);
+      flex-direction: column;
+      overflow: hidden;
       border: 1px solid rgba(15, 25, 35, 0.12);
       border-radius: var(--r-lg);
+      background: rgba(255, 255, 255, 0.88);
       box-shadow: var(--shadow-sm);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
     }
 
     html[data-theme="night"] .control-panel {
-      background: rgba(19, 28, 40, 0.88);
       border-color: rgba(var(--cyan-rgb), 0.22);
-      box-shadow: var(--shadow-lg), 0 0 40px rgba(var(--cyan-rgb), 0.05);
+      background: rgba(19, 28, 40, 0.88);
+      box-shadow:
+        var(--shadow-lg),
+        0 0 40px rgba(var(--cyan-rgb), 0.05);
     }
 
-    /* Single Navigation Row */
     .nav-bar {
       display: flex;
       align-items: center;
@@ -1393,29 +1334,37 @@ html[data-theme="night"] .case-card {
       padding: 0.85rem 1rem;
     }
 
-    .nav-center {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+  .nav-center {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+  }
 
-    .btn-nav {
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-nav {
       display: inline-flex;
+      min-height: 38px;
       align-items: center;
       gap: 0.35rem;
       padding: 0.58rem 1.1rem;
-      border-radius: var(--r-sm);
       border: 1px solid var(--border);
+      border-radius: var(--r-sm);
       background: var(--bg-raised);
       color: var(--ink-mid);
       font-family: var(--font-body);
       font-size: 0.8rem;
       font-weight: 600;
-      cursor: pointer;
-      transition: var(--t);
-      min-height: 38px;
       white-space: nowrap;
+      cursor: pointer;
+      transition:
+        border-color var(--t),
+        color var(--t);
     }
 
     html[data-theme="night"] .btn-nav {
@@ -1437,20 +1386,21 @@ html[data-theme="night"] .case-card {
       outline-offset: 2px;
     }
 
-    /* Random Button (Icon Only Style) */
     .btn-random {
       display: inline-flex;
-      align-items: center;
-      justify-content: center;
       width: 38px;
       height: 38px;
-      border-radius: var(--r-sm);
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
       border: 1px solid var(--border);
+      border-radius: var(--r-sm);
       background: var(--bg-raised);
       color: var(--ink-quiet);
       cursor: pointer;
-      transition: var(--t);
-      flex-shrink: 0;
+      transition:
+        border-color var(--t),
+        color var(--t);
     }
 
     html[data-theme="night"] .btn-random {
@@ -1462,45 +1412,52 @@ html[data-theme="night"] .case-card {
       color: var(--cyan);
     }
 
-    /* Dots inside Nav */
+    /* ============================================================
+     CASE DOTS
+     ============================================================ */
+
     .dots {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
       align-items: center;
       justify-content: center;
+      gap: 6px;
     }
 
     .dot {
       width: 10px;
       height: 10px;
-      border-radius: 50%;
-      background: rgba(var(--cyan-rgb), 0.10);
       border: 1px solid rgba(var(--cyan-rgb), 0.28);
+      border-radius: 50%;
+      background: rgba(var(--cyan-rgb), 0.1);
       cursor: pointer;
-      transition: background-color var(--t), border-color var(--t), box-shadow var(--t), transform var(--t);
+      transition:
+        background-color var(--t),
+        border-color var(--t),
+        box-shadow var(--t),
+        transform var(--t);
     }
 
     html[data-theme="night"] .dot {
-      background: rgba(255, 255, 255, 0.08);
       border-color: rgba(var(--cyan-rgb), 0.24);
+      background: rgba(255, 255, 255, 0.08);
     }
 
     .dot:hover {
+      border-color: rgba(var(--cyan-rgb), 0.6);
       background: rgba(var(--cyan-rgb), 0.35);
-      border-color: rgba(var(--cyan-rgb), 0.60);
       transform: scale(1.12);
     }
 
     .dot.is-solved {
-      background: var(--truth);
       border-color: var(--truth);
+      background: var(--truth);
       box-shadow: 0 0 0 2px rgba(var(--truth-rgb), 0.14);
     }
 
     .dot.is-current {
-      background: var(--cyan);
       border-color: var(--cyan);
+      background: var(--cyan);
       box-shadow: 0 0 0 3px rgba(var(--cyan-rgb), 0.24);
     }
 
@@ -1509,20 +1466,22 @@ html[data-theme="night"] .case-card {
       outline-offset: 3px;
     }
 
-    /* Make the dots POP in Night Mode */
     html[data-theme="night"] .dot.is-solved {
-      background: #48c87a; /* Strong truth green */
       border-color: #48c87a;
-      box-shadow: 0 0 8px rgba(72, 200, 122, 0.6); /* Neon green glow */
+      background: #48c87a;
+      box-shadow: 0 0 8px rgba(72, 200, 122, 0.6);
     }
 
     html[data-theme="night"] .dot.is-current {
-      background: #00deff; /* Forensic cyan */
       border-color: #00deff;
-      box-shadow: 0 0 8px rgba(0, 222, 255, 0.6); /* Cyan glow */
+      background: #00deff;
+      box-shadow: 0 0 8px rgba(0, 222, 255, 0.6);
     }
 
-    /* Footer util row */
+    /* ============================================================
+     RESET CONTROL
+     ============================================================ */
+
     .game-footer {
       display: flex;
       justify-content: center;
@@ -1531,52 +1490,56 @@ html[data-theme="night"] .case-card {
 
     .btn-reset-game {
       padding: 0.48rem 1rem;
-      border-radius: 999px;
       border: 1px solid rgba(var(--cyan-rgb), 0.16);
+      border-radius: 999px;
       background: rgba(255, 255, 255, 0.44);
       color: var(--ink-quiet);
       font-family: var(--font-body);
       font-size: 0.74rem;
       font-weight: 500;
       cursor: pointer;
-      transition: var(--t);
       backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition:
+        background-color var(--t),
+        border-color var(--t),
+        color var(--t);
     }
 
     html[data-theme="night"] .btn-reset-game {
-      background: rgba(17, 24, 34, 0.48);
       border-color: rgba(var(--cyan-rgb), 0.16);
+      background: rgba(17, 24, 34, 0.48);
     }
 
     .btn-reset-game:hover {
       border-color: var(--lie-border);
-      color: var(--lie);
       background: var(--lie-bg);
-    }
-
-    .btn-reset-game:hover {
-      border-color: var(--lie-border);
       color: var(--lie);
     }
 
-    /* ============================================================ TOAST */
+    /* ============================================================
+     TOAST
+     ============================================================ */
+
     .tt-toast {
       position: fixed;
       bottom: 1.5rem;
       left: 50%;
-      transform: translateX(-50%) translateY(8px);
-      background: var(--bg-raised);
+      z-index: 900;
+      max-width: calc(100vw - 2rem);
+      padding: 0.6rem 1.1rem;
       border: 1px solid var(--border-mid);
       border-radius: var(--r-md);
-      padding: 0.6rem 1.1rem;
-      font-size: 0.82rem;
+      background: var(--bg-raised);
       color: var(--ink-mid);
-      z-index: 900;
-      box-shadow: var(--shadow-md);
+      font-size: 0.82rem;
       opacity: 0;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      max-width: calc(100vw - 2rem);
       pointer-events: none;
+      box-shadow: var(--shadow-md);
+      transform: translateX(-50%) translateY(8px);
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
     }
 
     .tt-toast.visible {
@@ -1584,7 +1547,10 @@ html[data-theme="night"] .case-card {
       transform: translateX(-50%) translateY(0);
     }
 
-/* ============================================================ CUSTOM MODAL */
+    /* ============================================================
+     RESET MODAL
+     ============================================================ */
+
     .tt-modal {
       position: fixed;
       inset: 0;
@@ -1594,10 +1560,10 @@ html[data-theme="night"] .case-card {
       justify-content: center;
       padding: 1.5rem;
       background: rgba(15, 25, 35, 0.4);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
       opacity: 0;
       pointer-events: none;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       transition: opacity 0.3s ease;
     }
 
@@ -1611,16 +1577,17 @@ html[data-theme="night"] .case-card {
     }
 
     .tt-modal-card {
-      background: var(--bg-card);
+      width: 100%;
+      max-width: 400px;
+      padding: 2rem;
       border: 1px solid var(--border-mid);
       border-radius: var(--r-xl);
-      padding: 2rem;
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
+      background: var(--bg-card);
       box-shadow: var(--shadow-lg);
+      text-align: center;
       transform: translateY(20px) scale(0.95);
-      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition:
+        transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     .tt-modal.visible .tt-modal-card {
@@ -1629,34 +1596,36 @@ html[data-theme="night"] .case-card {
 
     html[data-theme="night"] .tt-modal-card {
       border-color: rgba(var(--lie-rgb), 0.3);
-      box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 20px rgba(var(--lie-rgb), 0.1);
+      box-shadow:
+        0 10px 40px rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(var(--lie-rgb), 0.1);
     }
 
     .modal-icon {
+      display: flex;
       width: 48px;
       height: 48px;
+      align-items: center;
+      justify-content: center;
       margin: 0 auto 1rem;
+      border: 1px solid var(--lie-border);
       border-radius: 50%;
       background: var(--lie-bg);
       color: var(--lie);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid var(--lie-border);
     }
 
     .modal-title {
+      margin-bottom: 0.5rem;
+      color: var(--ink);
       font-family: var(--font-display);
       font-size: 1.5rem;
-      color: var(--ink);
-      margin-bottom: 0.5rem;
       line-height: 1.2;
     }
 
     .modal-body {
-      font-size: 0.9rem;
-      color: var(--ink-quiet);
       margin-bottom: 1.5rem;
+      color: var(--ink-quiet);
+      font-size: 0.9rem;
       line-height: 1.5;
     }
 
@@ -1665,17 +1634,25 @@ html[data-theme="night"] .case-card {
       gap: 0.75rem;
     }
 
-    .btn-modal-cancel {
+    .btn-modal-cancel,
+    .btn-modal-confirm {
       flex: 1;
       padding: 0.75rem 1rem;
       border-radius: var(--r-md);
-      border: 1px solid var(--border-mid);
-      background: transparent;
-      color: var(--ink-mid);
       font-family: var(--font-body);
       font-weight: 600;
       cursor: pointer;
-      transition: var(--t);
+      transition:
+        background-color var(--t),
+        border-color var(--t),
+        color var(--t),
+        transform var(--t);
+    }
+
+    .btn-modal-cancel {
+      border: 1px solid var(--border-mid);
+      background: transparent;
+      color: var(--ink-mid);
     }
 
     .btn-modal-cancel:hover {
@@ -1684,73 +1661,203 @@ html[data-theme="night"] .case-card {
     }
 
     .btn-modal-confirm {
-      flex: 1;
-      padding: 0.75rem 1rem;
-      border-radius: var(--r-md);
-      border: none;
+      border: 0;
       background: var(--lie);
-      color: #fff;
-      font-family: var(--font-body);
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--t);
+      color: #ffffff;
     }
 
     .btn-modal-confirm:hover {
-      background: #a93226; /* Slightly darker red */
+      background: #a93226;
       transform: translateY(-1px);
     }
 
-    /* ============================================================ UTILITIES */
-    .sr-only {
+    /* ============================================================
+     SOLVED STAMP
+     ============================================================ */
+
+    .stamp-overlay {
       position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--r-lg);
+      background: rgba(255, 255, 255, 0.4);
+      pointer-events: none;
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      animation: stamp-background-in 0.2s ease-out forwards;
     }
 
-    @keyframes fadeIn {
+    html[data-theme="night"] .stamp-overlay {
+      background: rgba(9, 14, 21, 0.4);
+    }
+
+    .stamp-text {
+      padding: 1rem 2rem;
+      border: 6px solid var(--truth);
+      border-radius: 12px;
+      color: var(--truth);
+      font-family: var(--font-body);
+      font-size: clamp(3rem, 8vw, 4.5rem);
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      opacity: 0;
+      box-shadow:
+        0 0 20px rgba(var(--truth-rgb), 0.2),
+        inset 0 0 20px rgba(var(--truth-rgb), 0.2);
+      text-transform: uppercase;
+      animation:
+        stamp-slam 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    html[data-theme="night"] .stamp-text {
+      box-shadow:
+        0 0 30px rgba(var(--truth-rgb), 0.6),
+        inset 0 0 30px rgba(var(--truth-rgb), 0.6);
+      text-shadow: 0 0 10px rgba(var(--truth-rgb), 0.8);
+    }
+
+    /* ============================================================
+     MOTION
+     ============================================================ */
+
+    @keyframes spotlight-weave {
+      0% {
+        -webkit-mask-position:
+          calc(10vw - 35vmax) calc(10vh - 35vmax);
+        mask-position:
+          calc(10vw - 35vmax) calc(10vh - 35vmax);
+      }
+
+      20% {
+        -webkit-mask-position:
+          calc(90vw - 35vmax) calc(20vh - 35vmax);
+        mask-position:
+          calc(90vw - 35vmax) calc(20vh - 35vmax);
+      }
+
+      40% {
+        -webkit-mask-position:
+          calc(85vw - 35vmax) calc(90vh - 35vmax);
+        mask-position:
+          calc(85vw - 35vmax) calc(90vh - 35vmax);
+      }
+
+      60% {
+        -webkit-mask-position:
+          calc(10vw - 35vmax) calc(85vh - 35vmax);
+        mask-position:
+          calc(10vw - 35vmax) calc(85vh - 35vmax);
+      }
+
+      80% {
+        -webkit-mask-position:
+          calc(50vw - 35vmax) calc(45vh - 35vmax);
+        mask-position:
+          calc(50vw - 35vmax) calc(45vh - 35vmax);
+      }
+
+      100% {
+        -webkit-mask-position:
+          calc(10vw - 35vmax) calc(10vh - 35vmax);
+        mask-position:
+          calc(10vw - 35vmax) calc(10vh - 35vmax);
+      }
+    }
+
+    @keyframes card-scan {
       from {
-        opacity: 0
+        background-position: -200% 0;
       }
 
       to {
-        opacity: 1
+        background-position: 200% 0;
       }
     }
 
-    @keyframes slideUp {
+    @keyframes card-in {
       from {
         opacity: 0;
-        transform: translateY(16px)
+        transform: translateY(8px);
       }
 
       to {
         opacity: 1;
-        transform: translateY(0)
+        transform: translateY(0);
       }
     }
 
-    @media (prefers-reduced-motion: reduce) {
+    @keyframes pill-pop {
+      from {
+        opacity: 0;
+        transform: scale(0.7);
+      }
 
-      *,
-      *::before,
-      *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
+      to {
+        opacity: 1;
+        transform: scale(1);
       }
     }
 
-    /* ============================================================ RESPONSIVE */
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slide-up {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes stamp-background-in {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes stamp-slam {
+      0% {
+        opacity: 0;
+        transform: rotate(-25deg) scale(3.5);
+      }
+
+      50% {
+        opacity: 1;
+        transform: rotate(-10deg) scale(0.9);
+      }
+
+      100% {
+        opacity: 1;
+        transform: rotate(-15deg) scale(1);
+      }
+    }
+
+    /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+
     @media (max-width: 600px) {
       .game-header {
-        padding: 0 0.85rem;
         gap: 0.5rem;
-      }
-
-      .header-session {
-        display: none;
+        padding: 0 0.85rem;
       }
 
       .header-title {
@@ -1783,70 +1890,22 @@ html[data-theme="night"] .case-card {
       }
 
       .nav-bar {
-        padding: 0.6rem 0.75rem;
         gap: 0.5rem;
+        padding: 0.6rem 0.75rem;
       }
     }
 
-/* ============================================================ STAMP ANIMATION */
-    .stamp-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      pointer-events: none;
-      background: rgba(255, 255, 255, 0.4);
-      backdrop-filter: blur(3px);
-      -webkit-backdrop-filter: blur(3px);
-      border-radius: var(--r-lg);
-      animation: stampBgIn 0.2s ease-out forwards;
-    }
+    /* ============================================================
+     REDUCED MOTION
+     ============================================================ */
 
-    html[data-theme="night"] .stamp-overlay {
-      background: rgba(9, 14, 21, 0.4);
-    }
+    @media (prefers-reduced-motion: reduce) {
 
-    .stamp-text {
-      font-family: var(--font-body);
-      font-size: clamp(3rem, 8vw, 4.5rem);
-      font-weight: 900;
-      color: var(--truth);
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      border: 6px solid var(--truth);
-      padding: 1rem 2rem;
-      border-radius: 12px;
-      /* The neon glow for Night Mode is built into the shadow */
-      box-shadow: 0 0 20px rgba(var(--truth-rgb), 0.2), inset 0 0 20px rgba(var(--truth-rgb), 0.2);
-      opacity: 0;
-      /* The custom bounce curve gives it weight when it hits */
-      animation: stampSlam 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
-
-    html[data-theme="night"] .stamp-text {
-      box-shadow: 0 0 30px rgba(var(--truth-rgb), 0.6), inset 0 0 30px rgba(var(--truth-rgb), 0.6);
-      text-shadow: 0 0 10px rgba(var(--truth-rgb), 0.8);
-    }
-
-    @keyframes stampBgIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes stampSlam {
-      0% {
-        opacity: 0;
-        transform: rotate(-25deg) scale(3.5);
-      }
-      50% {
-        opacity: 1;
-        transform: rotate(-10deg) scale(0.9); /* Over-compresses slightly on impact */
-      }
-      100% {
-        opacity: 1;
-        transform: rotate(-15deg) scale(1); /* Rests at a jaunty angle */
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
       }
     }
   </style>
@@ -1854,7 +1913,7 @@ html[data-theme="night"] .case-card {
 
 <body data-atlas-world="arcade" data-atlas-surface="content">
 
-<!-- ============================================================ OPENING SCREEN -->
+  <!-- ============================================================ OPENING SCREEN -->
   <div id="opening" role="main" aria-label="Truth Trap introduction">
     <div class="opening-card">
       <div class="opening-eyebrow">[ SYSTEM ALARM ] · 20 CASES</div>
@@ -1862,11 +1921,12 @@ html[data-theme="night"] .case-card {
       <div class="opening-subtitle">Two true facts. One brilliant lie.</div>
       <div class="opening-body">
         <p>We give you three wild statements. Two of them are completely true, but one is a clever trap.</p>
-        <p>Spot the fake, uncover the shocking evidence, and defend your choice. Are you ready to prove you cannot be fooled?</p>
+        <p>Spot the fake, uncover the shocking evidence, and defend your choice. Are you ready to prove you cannot be
+          fooled?</p>
       </div>
       <button class="btn-start" id="btn-start" onclick="startGame()">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path d="M3 2l9 5-9 5V2z" fill="currentColor"/>
+          <path d="M3 2l9 5-9 5V2z" fill="currentColor" />
         </svg>
         ENTER THE TRAP
       </button>
@@ -1893,16 +1953,9 @@ html[data-theme="night"] .case-card {
 
   <!-- ============================================================ GAME SCREEN -->
   <div id="game" role="main">
-    <!-- Reduced header with 3-column layout -->
     <header class="game-header">
       <div class="header-left">
-        <button class="header-back" onclick="goToArcade()" aria-label="Back to Arcade">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M7.5 2L3.5 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-              stroke-linejoin="round" />
-          </svg>
-          Arcade
-        </button>
+        <div id="arcade-game-return-root"></div>
         <span class="header-title">Truth<span> Trap</span></span>
       </div>
 
@@ -1910,26 +1963,7 @@ html[data-theme="night"] .case-card {
         <span class="header-position" id="hdr-position" aria-live="polite">Case 1 of 20</span>
       </div>
 
-      <div class="header-right">
-        <button class="header-session-btn" onclick="openSessionPanel(this)" aria-label="Open session panel">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <circle cx="6" cy="4" r="2.2" stroke="currentColor" stroke-width="1.2" />
-            <path d="M1.5 10.5c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4" stroke="currentColor" stroke-width="1.2"
-              stroke-linecap="round" />
-          </svg>
-          <span class="pill-name" id="hdr-session-name">Shared</span>
-        </button>
-
-        <button class="header-icon-btn" data-atlas-search aria-label="Atlas Search" title="Atlas Search">
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.3" />
-            <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-          </svg>
-        </button>
-
-        <button class="header-icon-btn" id="btn-appearance" onclick="toggleAppearance()"
-          aria-label="Toggle appearance"></button>
-      </div>
+      <div class="header-right" id="arcade-game-actions-root"></div>
     </header>
 
     <!-- Progress strip -->
@@ -1944,25 +1978,27 @@ html[data-theme="night"] .case-card {
         <!-- Case card (rendered by JS) -->
         <div id="case-card"></div>
 
-<!-- Unified Control Panel (Single Row) -->
+        <!-- Unified Control Panel (Single Row) -->
         <div class="control-panel">
           <nav class="nav-bar" aria-label="Case navigation">
             <button class="btn-nav" id="btn-prev" onclick="navigate(-1)" aria-label="Previous case">
               <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                <path d="M8 2.5L4 6.5l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M8 2.5L4 6.5l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+                  stroke-linejoin="round" />
               </svg>
               Prev
             </button>
-            
+
             <!-- Dots take the center stage -->
             <div class="nav-center">
               <div class="dots" id="dot-row" role="list" aria-label="All cases"></div>
             </div>
 
             <!-- Action buttons grouped on the right -->
-            <div style="display:flex; gap:0.5rem; align-items:center;">
+            <div class="nav-actions">
               <button class="btn-random" onclick="goRandom()" aria-label="Random case" title="Random case">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                   <circle cx="8.5" cy="8.5" r="1.5"></circle>
                   <circle cx="15.5" cy="15.5" r="1.5"></circle>
@@ -1973,7 +2009,8 @@ html[data-theme="night"] .case-card {
               <button class="btn-nav" id="btn-next" onclick="navigate(1)" aria-label="Next case">
                 Next
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                  <path d="M5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M5 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+                    stroke-linejoin="round" />
                 </svg>
               </button>
             </div>
@@ -1988,16 +2025,19 @@ html[data-theme="night"] .case-card {
     </div>
   </div>
 
-<!-- Custom Reset Modal -->
-  <div id="reset-modal" class="tt-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" onclick="if(event.target===this)closeResetModal()">
+  <!-- Custom Reset Modal -->
+  <div id="reset-modal" class="tt-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"
+    onclick="if(event.target===this)closeResetModal()">
     <div class="tt-modal-card">
       <div class="modal-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
         </svg>
       </div>
       <h2 id="modal-title" class="modal-title">Reset Investigation?</h2>
-      <p class="modal-body">This will wipe all solved cases and completely reset your progress for the current session. This cannot be undone.</p>
+      <p class="modal-body">This will wipe all solved cases and completely reset your progress for the current session.
+        This cannot be undone.</p>
       <div class="modal-actions">
         <button class="btn-modal-cancel" onclick="closeResetModal()">Cancel</button>
         <button class="btn-modal-confirm" onclick="executeReset()">Reset Game</button>
@@ -2017,12 +2057,11 @@ html[data-theme="night"] .case-card {
   <script src="../../shared/compass-catalog-data.js"></script>
   <script src="../../shared/atlas-content-registry.js"></script>
   <script src="../../shared/atlas-search.js"></script>
+  <script src="../shared/arcade-game-chrome.js?v=20260721"></script>
   <script>
     'use strict';
     /* ================================================================
-       TRUTH TRAP — BRIDGE RETROFIT
-       Source of truth: Bridge registry.sessionStates
-       No parallel localStorage. No ledger writes. No gamification metrics.
+       GAME RUNTIME
        ================================================================ */
 
     const REGISTRY_ID = 'arcade:truth-trap';
@@ -2044,7 +2083,7 @@ html[data-theme="night"] .case-card {
        ================================================================ */
     const CASES = [
       {
-        emoji: '🌕', title: 'Venus Makes No Sense',
+        title: 'Venus Makes No Sense',
         A: { text: 'The Moon is slowly getting closer to Earth.', info: '<strong>False — The Lie.</strong> The Moon is actually drifting <em>away</em> from Earth at about 3.8 cm per year, pushed by tidal forces.' },
         B: { text: 'There is a planet so hot it can melt metal.', info: '<strong>True.</strong> Venus reaches average surface temperatures of around 465 °C — easily hot enough to melt lead, tin, and zinc.' },
         C: { text: 'A day on Venus is longer than a year on Venus.', info: '<strong>True.</strong> Venus rotates so slowly that one full rotation takes 243 Earth days, but it orbits the Sun in just 225 Earth days.' },
@@ -2052,7 +2091,7 @@ html[data-theme="night"] .case-card {
         discussion: 'If you lived on Venus, one single "day" would outlast an entire orbit around the Sun. How would that change the way you think about time and daily life?'
       },
       {
-        emoji: '👑', title: 'History Is Bad at Timing',
+        title: 'History Is Bad at Timing',
         A: { text: 'Cleopatra lived closer in time to the Moon landing than to the building of the pyramids.', info: '<strong>True.</strong> The Great Pyramid was built around 2560 BC. Cleopatra died in 30 BC — about 2,530 years after the pyramids. The Moon landing was 1969 AD — only about 2,000 years after Cleopatra.' },
         B: { text: 'Napoleon was unusually short for his time.', info: '<strong>False — The Lie.</strong> Napoleon stood around 5 ft 7 in (170 cm), which was average to slightly above average for a French man of his era. The myth came partly from British propaganda.' },
         C: { text: 'Oxford University is older than the Aztec Empire.', info: '<strong>True.</strong> Teaching began at Oxford around 1096–1167 AD. The Aztec Empire was not founded until around 1428 AD — making Oxford more than 250 years older.' },
@@ -2060,7 +2099,7 @@ html[data-theme="night"] .case-card {
         discussion: 'What other historical "facts" do you believe that might actually be myths or exaggerations? How do false stories about famous people spread?'
       },
       {
-        emoji: '🧠', title: 'Your Body Has Secrets',
+        title: 'Your Body Has Secrets',
         A: { text: 'Your stomach lining replaces itself very quickly.', info: '<strong>True.</strong> The stomach lining regenerates approximately every 3–5 days — essential because the stomach produces acids strong enough to dissolve metal.' },
         B: { text: 'Your fingerprints slowly change as you get older.', info: '<strong>False — The Lie.</strong> Fingerprints form before birth and stay stable throughout your life. They do not drift or change with age.' },
         C: { text: 'You are usually a little taller in the morning.', info: '<strong>True.</strong> Gravity compresses the cartilage between spinal discs during the day. While you sleep horizontally, it rehydrates. Most people are 1–2 cm taller in the morning.' },
@@ -2068,7 +2107,7 @@ html[data-theme="night"] .case-card {
         discussion: 'Which of these facts about your own body do you find most surprising or unsettling? Is there anything about the human body that still genuinely shocks you?'
       },
       {
-        emoji: '🌍', title: 'Reality Needs Better Writing',
+        title: 'Reality Needs Better Writing',
         A: { text: 'Bananas are naturally a little radioactive.', info: '<strong>True.</strong> Bananas contain potassium-40, a naturally radioactive isotope. The amount is vanishingly small and harmless.' },
         B: { text: 'Sloths can hold their breath longer than dolphins.', info: '<strong>True.</strong> Sloths can dramatically slow their metabolism and heart rate, holding their breath for up to 40 minutes. Dolphins typically manage 8–15 minutes.' },
         C: { text: 'Lightning never strikes the same place twice.', info: '<strong>False — The Lie.</strong> Lightning absolutely can and does strike the same place multiple times. The Empire State Building is struck around 20–25 times per year.' },
@@ -2076,7 +2115,7 @@ html[data-theme="night"] .case-card {
         discussion: 'Which of the true statements here would you most struggle to convince your friends is real? How would you go about proving it?'
       },
       {
-        emoji: '🌊', title: 'The Ocean Is Not Okay',
+        title: 'The Ocean Is Not Okay',
         A: { text: 'Sea stars have no eyes.', info: '<strong>False — The Lie.</strong> Sea stars have a simple light-sensitive eye at the tip of each arm. They use light to navigate and locate coral reef habitats.' },
         B: { text: 'Some jellyfish can return to an earlier stage of life instead of dying.', info: '<strong>True.</strong> The <em>Turritopsis dohrnii</em> can reverse its ageing process under stress, reverting from adult back to an immature polyp — potentially indefinitely.' },
         C: { text: 'The deepest part of the ocean is deeper than Mount Everest is tall.', info: '<strong>True.</strong> The Mariana Trench reaches approximately 11 km. Mount Everest stands 8.85 km tall. Drop Everest in and over 2 km of water would cover it.' },
@@ -2084,7 +2123,7 @@ html[data-theme="night"] .case-card {
         discussion: 'Would you rather explore the deepest ocean or the deepest reaches of space? What do you think we would find in either place?'
       },
       {
-        emoji: '🧠', title: 'Your Brain Is Bluffing',
+        title: 'Your Brain Is Bluffing',
         A: { text: 'Your brain can sometimes fill in missing visual information without you noticing.', info: '<strong>True.</strong> You have a blind spot in each eye where the optic nerve connects, yet you never see a hole in your vision — your brain invents what should be there.' },
         B: { text: 'Your brain itself cannot feel pain.', info: '<strong>True.</strong> The brain has no nociceptors. This is why some brain surgeries can be performed on awake patients. Headaches are caused by pain in surrounding membranes and blood vessels.' },
         C: { text: 'Humans use exactly 10% of their brains.', info: '<strong>False — The Lie.</strong> Brain scans show that virtually all areas of the brain are active at various points throughout the day. No significant dormant portion has ever been found.' },
@@ -2092,7 +2131,7 @@ html[data-theme="night"] .case-card {
         discussion: 'Does knowing your brain invents parts of what you see make you trust your own memories and perceptions less? Can you ever fully trust your senses?'
       },
       {
-        emoji: '🦈', title: 'Nature Is Hiding Things',
+        title: 'Nature Is Hiding Things',
         A: { text: 'Polar bears have transparent fur.', info: '<strong>True — Wildcard.</strong> Polar bear fur appears white but each hair shaft is colourless and transparent. The white appearance comes from scattering and reflection of visible light.' },
         B: { text: 'Sharks existed before trees.', info: '<strong>True — Wildcard.</strong> Sharks have been in Earth\'s oceans for approximately 450 million years. The oldest tree fossils date to around 385 million years ago.' },
         C: { text: 'Octopuses have three hearts and blue blood.', info: '<strong>True — Wildcard.</strong> Octopuses have three hearts. Their blood is blue because it contains haemocyanin, a copper-based molecule, instead of iron-based haemoglobin.' },
@@ -2100,7 +2139,7 @@ html[data-theme="night"] .case-card {
         discussion: 'All three facts are completely true. Which one was the hardest for you to accept? What does it tell us about how strange the natural world really is?'
       },
       {
-        emoji: '🧊', title: 'Earth Plays Dirty',
+        title: 'Earth Plays Dirty',
         A: { text: 'Antarctica is the largest desert on Earth.', info: '<strong>True.</strong> A desert is defined by its precipitation, not its temperature. Antarctica receives less than 200 mm per year, making it the world\'s largest cold desert at about 14.2 million km².' },
         B: { text: 'Every volcano is part of a tectonic plate boundary.', info: '<strong>False — The Lie.</strong> "Hotspot" volcanoes — like those forming the Hawaiian Islands — sit in the middle of tectonic plates, thousands of kilometres from any plate boundary.' },
         C: { text: 'More fresh water is trapped in ice than flows in all rivers and lakes combined.', info: '<strong>True.</strong> About 68.7% of Earth\'s total fresh water is locked in glaciers and ice caps. Rivers and lakes together hold less than 1% of all fresh water on Earth.' },
@@ -2108,7 +2147,7 @@ html[data-theme="night"] .case-card {
         discussion: 'How does it change your understanding of a word when you discover its scientific definition is completely different from its everyday meaning?'
       },
       {
-        emoji: '🦴', title: 'Humans Are Improvised',
+        title: 'Humans Are Improvised',
         A: { text: 'Your heart is on the left side of your chest.', info: '<strong>False — The Lie.</strong> The heart sits in the centre of the chest, slightly angled with its lower tip pointing left. The organ itself is mostly in the middle, behind the sternum.' },
         B: { text: 'Babies have more bones than adults.', info: '<strong>True.</strong> Babies are born with approximately 270–300 bones, compared to the 206 in adult skeletons. Many smaller bones gradually fuse together over childhood.' },
         C: { text: 'Your bones are constantly being broken down and rebuilt.', info: '<strong>True.</strong> Osteoclasts continuously break down old bone tissue while osteoblasts build new bone. Your entire skeleton is almost completely replaced approximately every 10 years.' },
@@ -2116,7 +2155,7 @@ html[data-theme="night"] .case-card {
         discussion: 'Which of these body facts would surprise your friends most? How would you go about explaining it to someone who didn\'t believe you?'
       },
       {
-        emoji: '🌌', title: 'The Universe Is Showing Off',
+        title: 'The Universe Is Showing Off',
         A: { text: 'There are clouds in space made partly of alcohol.', info: '<strong>True.</strong> Vast molecular clouds in interstellar space contain organic compounds including ethyl alcohol. The Sagittarius B2 cloud alone contains an enormous quantity of ethanol.' },
         B: { text: 'The Sun is yellow in space.', info: '<strong>False — The Lie.</strong> The Sun is actually white in space. It looks yellow or orange from Earth because our atmosphere scatters shorter blue wavelengths — the same process that makes the sky blue.' },
         C: { text: 'Neutron stars can spin hundreds of times every second.', info: '<strong>True.</strong> The fastest known pulsar rotates 716 times per second. These objects pack roughly the mass of the Sun into a sphere only about 20 km across.' },
@@ -2124,7 +2163,7 @@ html[data-theme="night"] .case-card {
         discussion: 'Does knowing the Sun is actually white change how you picture it? What other things in the universe might look completely different from how we imagine them?'
       },
       {
-        emoji: '🐘', title: 'Animals Did Not Read the Rules',
+        title: 'Animals Did Not Read the Rules',
         A: { text: 'Elephants can recognise themselves in mirrors.', info: '<strong>True.</strong> Elephants pass the mirror self-recognition test. They investigate markings on their own bodies that they can only see in the mirror, demonstrating self-awareness.' },
         B: { text: 'Some birds can sleep while half their brain stays awake.', info: '<strong>True.</strong> Many birds use unihemispheric slow-wave sleep — one hemisphere sleeps while the other stays alert. Swifts can sleep while flying continuously for months.' },
         C: { text: 'Goldfish have a memory of only a few seconds.', info: '<strong>False — The Lie.</strong> Goldfish have a memory span of at least several months. They can be trained to navigate mazes and associate specific places with food rewards.' },
@@ -2132,7 +2171,7 @@ html[data-theme="night"] .case-card {
         discussion: 'If animals are smarter and more self-aware than we traditionally assumed, does that change how we should treat them? Where should we draw the line?'
       },
       {
-        emoji: '📜', title: 'The Past Was Unhinged',
+        title: 'The Past Was Unhinged',
         A: { text: 'The Great Wall of China can be seen clearly from the Moon.', info: '<strong>False — The Lie.</strong> The Wall is only about 5–9 metres wide — far too narrow to see from the Moon with the naked eye. The myth has been officially debunked.' },
         B: { text: 'Woolly mammoths were still alive when the Great Pyramid already existed.', info: '<strong>True.</strong> A small isolated population survived on Wrangel Island until about 1650 BC — over 900 years after the pyramids were completed around 2560 BC.' },
         C: { text: 'Ketchup was once sold as medicine.', info: '<strong>True.</strong> In the early 1800s, tomatoes were believed to have medicinal properties. Tomato ketchup was sold in pill form as a patent medicine from the 1830s onward.' },
@@ -2140,7 +2179,7 @@ html[data-theme="night"] .case-card {
         discussion: 'What other things from "ancient history" might have overlapped with events we think of as modern? Can you think of other surprising timeline coincidences?'
       },
       {
-        emoji: '⚡', title: 'Science Sounds Made Up',
+        title: 'Science Sounds Made Up',
         A: { text: 'Sound travels faster in air than in water.', info: '<strong>False — The Lie.</strong> Sound travels much faster in water (around 1,480 m/s) than in air (around 343 m/s). In solid steel, it travels at around 5,000 m/s.' },
         B: { text: 'Metal can become liquid at room temperature.', info: '<strong>True.</strong> Mercury is a metal that is liquid at room temperature — it melts at −39 °C. Gallium melts at just 29.8 °C, meaning it liquifies in your hand.' },
         C: { text: 'Hot water can freeze faster than cold water in some situations.', info: '<strong>True.</strong> This is called the Mpemba effect. The precise mechanism is still debated by physicists, but the effect has been reliably observed and documented.' },
@@ -2148,7 +2187,7 @@ html[data-theme="night"] .case-card {
         discussion: 'What piece of everyday "common sense" science do you now feel less certain about? Can you think of another fact that sounds like it must be wrong?'
       },
       {
-        emoji: '🌿', title: 'Plants Are Not Innocent',
+        title: 'Plants Are Not Innocent',
         A: { text: 'Trees can share nutrients through underground fungal networks.', info: '<strong>True.</strong> Mycorrhizal fungi connect the roots of many trees, forming a vast underground network. Through this, established trees can transfer carbon, water, and nutrients to younger trees.' },
         B: { text: 'Some plants can count.', info: '<strong>True.</strong> The Venus flytrap counts stimulations. The trap will not snap shut until at least two hairs are triggered within approximately 20 seconds — preventing wasted energy snapping at raindrops.' },
         C: { text: 'Bamboo flowers every spring.', info: '<strong>False — The Lie.</strong> Bamboo flowers very rarely — different species have cycles of 15–120 years. When a species flowers, virtually all plants of that species worldwide flower simultaneously, then die.' },
@@ -2156,7 +2195,7 @@ html[data-theme="night"] .case-card {
         discussion: 'Does the idea of trees communicating and sharing resources through fungi underground change how you think about a forest? Is a forest more like a community than separate trees?'
       },
       {
-        emoji: '🐧', title: 'Nature Refuses to Behave',
+        title: 'Nature Refuses to Behave',
         A: { text: 'Some frogs can freeze solid and then survive.', info: '<strong>True.</strong> Wood frogs can survive being almost completely frozen solid in winter — up to 70% of their body water turns to ice. In spring, they thaw and hop away unharmed.' },
         B: { text: 'Penguins have no knees.', info: '<strong>False — The Lie.</strong> Penguins have perfectly normal knees — a femur, kneecap, tibia, and fibula — but they are hidden inside the body, tucked under feathers and fat.' },
         C: { text: 'Octopuses can taste with their arms.', info: '<strong>True.</strong> The suckers on an octopus\'s arms contain chemoreceptors, allowing them to simultaneously taste and smell whatever they touch.' },
@@ -2164,7 +2203,7 @@ html[data-theme="night"] .case-card {
         discussion: 'If you could safely have one unusual animal ability — freezing and surviving, tasting with your hands, or something else entirely — what would you choose and why?'
       },
       {
-        emoji: '🧊', title: 'Cold Changes the Rules',
+        title: 'Cold Changes the Rules',
         A: { text: 'Some metals can stick together permanently just by touching in space.', info: '<strong>True.</strong> In the vacuum of space, metals can undergo "cold welding" — bonding permanently simply by being pressed into contact. This is a real engineering challenge in spacecraft design.' },
         B: { text: 'Glass is not a true solid.', info: '<strong>True.</strong> Glass is classified as an amorphous solid — it lacks the regular crystalline structure of a true solid. The non-crystalline nature of glass is real and scientifically established.' },
         C: { text: 'Ice always sinks in water.', info: '<strong>False — The Lie.</strong> Ice floats. Water is one of the very few substances less dense in solid form than in liquid form. This is why lakes freeze from the surface downwards.' },
@@ -2172,7 +2211,7 @@ html[data-theme="night"] .case-card {
         discussion: 'Can you think of another example from everyday life where something that seems obvious turns out to be wrong when you examine it carefully?'
       },
       {
-        emoji: '🦴', title: 'Ancient Earth Was Chaos',
+        title: 'Ancient Earth Was Chaos',
         A: { text: 'Humans lived at the same time as Tyrannosaurus rex.', info: '<strong>False — The Lie.</strong> T. rex went extinct approximately 66 million years ago. Modern humans appeared around 300,000 years ago. The gap is about 65.7 million years.' },
         B: { text: 'Some dinosaurs had feathers.', info: '<strong>True.</strong> Fossil evidence clearly shows that many theropod dinosaurs had feathers or feather-like structures. Modern birds are classified as a surviving lineage of theropod dinosaurs.' },
         C: { text: 'Giant dragonflies once existed with wingspans wider than a seagull\'s.', info: '<strong>True.</strong> Meganeura, from the Carboniferous period around 300 million years ago, had wingspans of up to 65–70 cm — comparable to a small seagull.' },
@@ -2180,7 +2219,7 @@ html[data-theme="night"] .case-card {
         discussion: 'If you could safely observe any extinct creature in its natural habitat, which would you choose? What do you think would be most surprising about seeing it in real life?'
       },
       {
-        emoji: '🌋', title: 'The Planet Has Problems',
+        title: 'The Planet Has Problems',
         A: { text: 'There is a place on Earth where the ground has been burning for decades.', info: '<strong>True.</strong> The Centralia underground coal mine fire in Pennsylvania has been burning continuously since 1962 — over 60 years. The town was largely abandoned.' },
         B: { text: 'Diamonds are made when coal is squeezed for long enough.', info: '<strong>False — The Lie.</strong> Diamonds form from pure carbon under extreme heat and pressure about 150–200 km deep in the mantle — far deeper than coal ever reaches. Most natural diamonds predate coal entirely.' },
         C: { text: 'Rocks can move across the desert without anyone pushing them.', info: '<strong>True.</strong> The "sailing stones" of Death Valley genuinely do this. Scientists confirmed in 2014 that thin sheets of ice form overnight and allow wind to slowly push the rocks.' },
@@ -2188,7 +2227,7 @@ html[data-theme="night"] .case-card {
         discussion: 'If you discovered a rock that had mysteriously moved 200 metres by itself, what would you think? Would you trust the scientific explanation or form your own theory first?'
       },
       {
-        emoji: '👀', title: 'Your Senses Edit Reality',
+        title: 'Your Senses Edit Reality',
         A: { text: 'Your eyes always send perfect information to your brain.', info: '<strong>False — The Lie.</strong> Your visual system is full of gaps and inventions. Each eye has a blind spot, peripheral vision is far less detailed than you perceive, and your brain processes predictions rather than raw data.' },
         B: { text: 'A sound can seem louder just because you expect it to be.', info: '<strong>True.</strong> Expectations dramatically affect sensory perception. Studies show people consistently rate the same sound as louder when told to expect something loud.' },
         C: { text: 'You can smell something before you are fully aware that you are smelling it.', info: '<strong>True.</strong> The olfactory system has a more direct pathway to the limbic system than any other sense. You can have an emotional reaction to a smell before conscious recognition reaches awareness.' },
@@ -2196,7 +2235,7 @@ html[data-theme="night"] .case-card {
         discussion: 'If your senses are constantly editing and predicting reality rather than faithfully recording it, what does that mean for how much you can trust your own experience?'
       },
       {
-        emoji: '🐦', title: 'Animals Are Doing Too Much',
+        title: 'Animals Are Doing Too Much',
         A: { text: 'Crows can recognise individual human faces.', info: '<strong>True.</strong> Research has demonstrated that crows can distinguish individual human faces, remember them long-term, and communicate this information to other crows.' },
         B: { text: 'Owls can rotate their heads all the way around.', info: '<strong>False — The Lie.</strong> Owls can rotate their heads approximately 270 degrees — impressive, but not a full 360. They have 14 neck vertebrae and special blood vessel adaptations.' },
         C: { text: 'Some snakes can sense heat.', info: '<strong>True.</strong> Pit vipers, pythons, and boas have specialised pit organs that detect infrared radiation, giving them the ability to "see" the heat signature of warm-blooded prey in complete darkness.' },
@@ -2209,7 +2248,7 @@ html[data-theme="night"] .case-card {
        STATE — READ/WRITE THROUGH BRIDGE ONLY
        ================================================================ */
     let session = null;
-    let ST = null; // game state cached from Bridge
+    let ST = null;
 
     function readBridgeState() {
       const reg = Bridge.readRegistry();
@@ -2272,9 +2311,9 @@ html[data-theme="night"] .case-card {
 
         currentLabel: hasProgress
           ? 'Case ' +
-            (currentIndex + 1) +
-            ' of ' +
-            TOTAL_CASES
+          (currentIndex + 1) +
+          ' of ' +
+          TOTAL_CASES
           : null,
 
         progress: {
@@ -2319,29 +2358,6 @@ html[data-theme="night"] .case-card {
       if (!ST.cases[String(idx)]) {
         ST.cases[String(idx)] = { playerAnswer: null, revealed: false, solved: false, correct: null };
       }
-    }
-
-    /* ================================================================
-       APPEARANCE
-       ================================================================ */
-    function sunSvg(s) {
-      return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 17 17" fill="none"><circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35"/><path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>';
-    }
-    function moonSvg(s) {
-      return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 17 17" fill="none"><path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    }
-    function updateAppearanceBtn(mode) {
-      const btn = document.getElementById('btn-appearance');
-      if (!btn) return;
-      btn.innerHTML = mode === 'night' ? sunSvg(15) : moonSvg(15);
-      btn.setAttribute('aria-label', mode === 'night' ? 'Switch to day mode' : 'Switch to night mode');
-    }
-    function toggleAppearance() {
-      const cur = Bridge.readAppearanceMode();
-      const next = cur === 'night' ? 'light' : 'night';
-      Bridge.setAppearanceMode(next);
-      document.documentElement.dataset.theme = next;
-      updateAppearanceBtn(next);
     }
 
     /* ================================================================
@@ -2405,7 +2421,7 @@ html[data-theme="night"] .case-card {
       renderCaseCard();
     }
 
-function markSolved() {
+    function markSolved() {
       ensureCaseEntry(ST.currentIndex);
       ST.cases[String(ST.currentIndex)].solved = true;
 
@@ -2413,7 +2429,6 @@ function markSolved() {
       updateDots();
       updateProgressStrip();
 
-      // 1. Inject the heavy stamp overlay directly into the current card
       const card = document.getElementById('case-card');
       if (card) {
         const stamp = document.createElement('div');
@@ -2422,7 +2437,6 @@ function markSolved() {
         card.appendChild(stamp);
       }
 
-      // 2. Give the user 1 second to feel the impact, then move on
       if (countSolved() === TOTAL_CASES) {
         setTimeout(() => showAirlock(), 1200);
       } else {
@@ -2430,7 +2444,7 @@ function markSolved() {
           if (ST.currentIndex < TOTAL_CASES - 1) {
             navigate(1);
           }
-        }, 1000); 
+        }, 1000);
       }
     }
 
@@ -2528,7 +2542,6 @@ function markSolved() {
     function render() {
       updateHeader();
       renderCaseCard();
-      buildCaseSelect();
       updateDots();
       updateProgressStrip();
     }
@@ -2544,24 +2557,6 @@ function markSolved() {
       if (btnNext) btnNext.disabled = (ST.currentIndex === TOTAL_CASES - 1);
     }
 
-    function updateSessionDisplay() {
-      if (!window.AtlasSessionPanel) return;
-      const currentSession = Bridge.readActiveSession();
-      const display = AtlasSessionPanel.getSessionDisplayName(currentSession);
-      const el = document.getElementById('hdr-session-name');
-      if (el) {
-        el.textContent = display;
-        const btn = el.closest('button');
-        if (btn) btn.setAttribute('aria-label', 'Open session panel. Working with ' + display);
-      }
-    }
-
-    function openSessionPanel(trigger) {
-      if (window.AtlasSessionPanel) {
-        AtlasSessionPanel.open(trigger);
-      }
-    }
-
     function updateProgressStrip() {
       const fill = document.getElementById('progress-fill');
       if (!fill) return;
@@ -2569,21 +2564,6 @@ function markSolved() {
       fill.style.width = pct + '%';
       const strip = fill.parentElement;
       if (strip) strip.setAttribute('aria-valuenow', countSolved());
-    }
-
-    function buildCaseSelect() {
-      const sel = document.getElementById('case-select');
-      if (!sel) return;
-      const prev = sel.value;
-      sel.innerHTML = '';
-      CASES.forEach((c, i) => {
-        const cs = ST.cases[String(i)] || {};
-        const opt = document.createElement('option');
-        opt.value = i;
-        opt.textContent = (cs.solved ? '✓ ' : '  ') + 'Case ' + (i + 1) + ' — ' + c.title;
-        sel.appendChild(opt);
-      });
-      sel.value = ST.currentIndex;
     }
 
     function updateDots() {
@@ -2721,9 +2701,9 @@ function markSolved() {
         html += '<div class="reveal-actions">';
         html += '<button class="btn-discussion" onclick="toggleDiscussion()">Follow-up question</button>';
         html += '<button class="btn-mark-solved" onclick="markSolved()">' +
-                'Mark Solved & Continue' +
-                '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 8h11M9.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-                '</button>';
+          'Mark Solved & Continue' +
+          '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 8h11M9.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+          '</button>';
         html += '<button class="btn-copy-recap" onclick="copyRecap()">Copy case notes</button>';
         html += '</div>';
         html += '<div class="discussion-panel" id="disc-panel">';
@@ -2770,13 +2750,17 @@ function markSolved() {
     /* ================================================================
        OPENING / INIT FLOW
        ================================================================ */
-    function isDefault(s) {
-      return s && s.id === (Bridge.defaultSessionId || 'default');
-    }
-
     function startGame() {
+      if (!Bridge || !session || !ST) return;
+
+      ST.lastOpenedAt = Date.now();
+      saveState();
+      touchActivity();
+      render();
+
       const opening = document.getElementById('opening');
       opening.classList.add('fade-out');
+
       setTimeout(() => {
         opening.style.display = 'none';
         document.getElementById('game').classList.add('visible');
@@ -2786,24 +2770,31 @@ function markSolved() {
     function init() {
       if (!Bridge) return;
 
-      // Set appearance
       const mode = Bridge.readAppearanceMode();
       document.documentElement.dataset.theme = mode;
-      updateAppearanceBtn(mode);
 
-      // Mount the Session Panel
       if (window.AtlasSessionPanel) {
         AtlasSessionPanel.mount({
           root: '#atlas-session-panel-root',
-          initialView: 'manage',
-          onRenameSession: updateSessionDisplay,
-          onDeleteSession: updateSessionDisplay
+          initialView: 'manage'
         });
       }
 
-      // Read session
       session = Bridge.readActiveSession();
-      updateSessionDisplay();
+
+      if (window.ArcadeGameChrome) {
+        ArcadeGameChrome.mountLanding({
+          root: '#opening',
+          onBeforeReturn: saveState
+        });
+
+        ArcadeGameChrome.mountGame({
+          root: '.game-header',
+          returnRoot: '#arcade-game-return-root',
+          actionsRoot: '#arcade-game-actions-root',
+          onBeforeReturn: saveState
+        });
+      }
 
       // Register with Bridge
       try {
@@ -2888,18 +2879,6 @@ function markSolved() {
       // the learner actually enters or interacts with the game.
     }
 
-    // Override startGame to also save to Bridge
-    const _originalStartGame = startGame;
-    window.startGame = function () {
-      // First-time save to Bridge
-      ST.lastOpenedAt = Date.now();
-      saveState();
-      touchActivity();
-      // Build game UI before showing
-      render();
-      _originalStartGame();
-    };
-
     /* ================================================================
        TOAST
        ================================================================ */
@@ -2936,16 +2915,16 @@ function markSolved() {
        BRIDGE EVENT LISTENERS
        ================================================================ */
     window.addEventListener('atlas:appearance-change', e => {
-      const mode = (e.detail && e.detail.mode) || Bridge.readAppearanceMode();
+      const mode =
+        (e.detail && e.detail.mode) ||
+        Bridge.readAppearanceMode();
+
       document.documentElement.dataset.theme = mode;
-      updateAppearanceBtn(mode);
     });
 
     window.addEventListener('atlas:session-change', () => {
-      // Re-read session and update display
       session = Bridge.readActiveSession();
-      updateSessionDisplay();
-      
+
       // Pull state for the newly selected student
       const saved = readBridgeState();
       if (saved) {
@@ -2959,12 +2938,12 @@ function markSolved() {
       } else {
         ST = getDefaultState();
       }
-      
+
       // Ensure gameplay view is active if they switch from a completed student to a new one
       document.getElementById('airlock').classList.remove('visible');
       document.getElementById('opening').style.display = 'none';
       document.getElementById('game').classList.add('visible');
-      
+
       render();
     });
 
