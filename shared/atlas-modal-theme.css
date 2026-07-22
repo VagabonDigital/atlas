@@ -22,40 +22,42 @@
     --atlas-modal-font-body: 'DM Sans', system-ui, sans-serif;
     --atlas-modal-font-display: 'DM Serif Display', Georgia, serif;
 
-    /* Atlas · day fallback */
-    --atlas-modal-overlay-bg: rgba(20, 17, 12, 0.46);
-    --atlas-modal-surface: #fffdf9;
-    --atlas-modal-surface-low: #f3f0e9;
-    --atlas-modal-surface-raised: #fffdf9;
-    --atlas-modal-row-surface: #f7f4ef;
-    --atlas-modal-row-active: rgba(82, 108, 103, 0.11);
-    --atlas-modal-row-secondary: rgba(255, 255, 255, 0.46);
-    --atlas-modal-control-surface: #fffdf9;
-    --atlas-modal-control-hover: #ebe7de;
+    /* Atlas · day fallback
+       Cool porcelain and slate distinguish the neutral system world
+       from Compass's warm editorial identity. */
+    --atlas-modal-overlay-bg: rgba(17, 18, 24, 0.52);
+    --atlas-modal-surface: #f7f8fa;
+    --atlas-modal-surface-low: #eceff3;
+    --atlas-modal-surface-raised: #ffffff;
+    --atlas-modal-row-surface: #f1f3f6;
+    --atlas-modal-row-active: rgba(89, 97, 125, 0.11);
+    --atlas-modal-row-secondary: rgba(255, 255, 255, 0.56);
+    --atlas-modal-control-surface: #ffffff;
+    --atlas-modal-control-hover: #e7eaf0;
 
-    --atlas-modal-border: rgba(49, 45, 38, 0.12);
-    --atlas-modal-border-strong: rgba(49, 45, 38, 0.18);
+    --atlas-modal-border: rgba(34, 39, 54, 0.12);
+    --atlas-modal-border-strong: rgba(34, 39, 54, 0.20);
 
-    --atlas-modal-heading: #211f1b;
-    --atlas-modal-text: #504b43;
-    --atlas-modal-muted: #7b7469;
-    --atlas-modal-faint: #aaa297;
+    --atlas-modal-heading: #20232d;
+    --atlas-modal-text: #4b5160;
+    --atlas-modal-muted: #747b89;
+    --atlas-modal-faint: #9ca2ad;
 
-    --atlas-modal-accent: #526c67;
-    --atlas-modal-accent-hover: #445e59;
-    --atlas-modal-accent-soft: #718b85;
-    --atlas-modal-accent-rgb: 82, 108, 103;
+    --atlas-modal-accent: #59617d;
+    --atlas-modal-accent-hover: #49516b;
+    --atlas-modal-accent-soft: #7a829d;
+    --atlas-modal-accent-rgb: 89, 97, 125;
     --atlas-modal-accent-ink: #ffffff;
-    --atlas-modal-accent-bg: rgba(82, 108, 103, 0.09);
-    --atlas-modal-accent-bg-strong: rgba(82, 108, 103, 0.16);
+    --atlas-modal-accent-bg: rgba(89, 97, 125, 0.09);
+    --atlas-modal-accent-bg-strong: rgba(89, 97, 125, 0.16);
 
-    --atlas-modal-neutral-icon-bg: #ebe7de;
-    --atlas-modal-neutral-icon-text: #7b7469;
-    --atlas-modal-neutral-icon-border: rgba(49, 45, 38, 0.12);
+    --atlas-modal-neutral-icon-bg: #e8ebef;
+    --atlas-modal-neutral-icon-text: #697180;
+    --atlas-modal-neutral-icon-border: rgba(34, 39, 54, 0.12);
 
-    --atlas-modal-shadow: 0 24px 70px rgba(20, 17, 12, 0.20);
-    --atlas-modal-scrollbar: rgba(123, 116, 105, 0.34);
-    --atlas-modal-scrollbar-hover: rgba(123, 116, 105, 0.52);
+    --atlas-modal-shadow: 0 24px 70px rgba(22, 25, 34, 0.18);
+    --atlas-modal-scrollbar: rgba(105, 113, 128, 0.34);
+    --atlas-modal-scrollbar-hover: rgba(105, 113, 128, 0.52);
 
     --atlas-modal-danger-text: #b23a2e;
     --atlas-modal-danger-bg: #fbf1f0;
@@ -114,42 +116,43 @@ body[data-atlas-world="compass"] {
 
 /* ============================================================
    ARCADE · DAY
+   Orange identity over warm neutral structure.
    ============================================================ */
 
 body[data-atlas-world="arcade"] {
-    --atlas-modal-overlay-bg: rgba(28, 18, 31, 0.50);
+    --atlas-modal-overlay-bg: rgba(24, 19, 24, 0.50);
     --atlas-modal-surface: #fffdf9;
-    --atlas-modal-surface-low: #f0e7de;
-    --atlas-modal-surface-raised: #fffdf9;
-    --atlas-modal-row-surface: #fffdf9;
-    --atlas-modal-row-active: #fdf0eb;
+    --atlas-modal-surface-low: #f3eee9;
+    --atlas-modal-surface-raised: #ffffff;
+    --atlas-modal-row-surface: #faf8f5;
+    --atlas-modal-row-active: rgba(111, 83, 111, 0.075);
     --atlas-modal-row-secondary: rgba(255, 255, 255, 0.52);
     --atlas-modal-control-surface: #fffdf9;
-    --atlas-modal-control-hover: #f0e7de;
+    --atlas-modal-control-hover: #f0ebe6;
 
-    --atlas-modal-border: rgba(58, 36, 63, 0.12);
-    --atlas-modal-border-strong: rgba(58, 36, 63, 0.18);
+    --atlas-modal-border: rgba(76, 57, 72, 0.13);
+    --atlas-modal-border-strong: rgba(76, 57, 72, 0.21);
 
-    --atlas-modal-heading: #2d1f3d;
-    --atlas-modal-text: #5a4a6e;
-    --atlas-modal-muted: #8a7a9a;
-    --atlas-modal-faint: #a99db5;
+    --atlas-modal-heading: #302730;
+    --atlas-modal-text: #5d515b;
+    --atlas-modal-muted: #887b85;
+    --atlas-modal-faint: #a89da6;
 
-    --atlas-modal-accent: #df572f;
-    --atlas-modal-accent-hover: #c94a24;
-    --atlas-modal-accent-soft: #ef7652;
-    --atlas-modal-accent-rgb: 223, 87, 47;
+    --atlas-modal-accent: #6f536f;
+    --atlas-modal-accent-hover: #5d435e;
+    --atlas-modal-accent-soft: #917792;
+    --atlas-modal-accent-rgb: 111, 83, 111;
     --atlas-modal-accent-ink: #ffffff;
-    --atlas-modal-accent-bg: rgba(223, 87, 47, 0.085);
-    --atlas-modal-accent-bg-strong: rgba(223, 87, 47, 0.15);
+    --atlas-modal-accent-bg: rgba(111, 83, 111, 0.075);
+    --atlas-modal-accent-bg-strong: rgba(111, 83, 111, 0.14);
 
-    --atlas-modal-neutral-icon-bg: #f0e7de;
-    --atlas-modal-neutral-icon-text: #8a7a9a;
-    --atlas-modal-neutral-icon-border: rgba(58, 36, 63, 0.12);
+    --atlas-modal-neutral-icon-bg: #eee9e4;
+    --atlas-modal-neutral-icon-text: #746a72;
+    --atlas-modal-neutral-icon-border: rgba(76, 57, 72, 0.13);
 
-    --atlas-modal-shadow: 0 26px 68px rgba(58, 36, 63, 0.18);
-    --atlas-modal-scrollbar: rgba(138, 122, 154, 0.34);
-    --atlas-modal-scrollbar-hover: rgba(138, 122, 154, 0.52);
+    --atlas-modal-shadow: 0 26px 68px rgba(47, 37, 47, 0.18);
+    --atlas-modal-scrollbar: rgba(116, 106, 114, 0.34);
+    --atlas-modal-scrollbar-hover: rgba(116, 106, 114, 0.52);
 }
 
 /* ============================================================
@@ -157,39 +160,39 @@ body[data-atlas-world="arcade"] {
    ============================================================ */
 
 html[data-theme="night"] {
-    --atlas-modal-overlay-bg: rgba(7, 10, 9, 0.66);
-    --atlas-modal-surface: #1f2421;
-    --atlas-modal-surface-low: #1a1f1c;
-    --atlas-modal-surface-raised: #262c28;
-    --atlas-modal-row-surface: #262c28;
-    --atlas-modal-row-active: rgba(70, 125, 116, 0.26);
+    --atlas-modal-overlay-bg: rgba(5, 6, 10, 0.74);
+    --atlas-modal-surface: #22242b;
+    --atlas-modal-surface-low: #191b21;
+    --atlas-modal-surface-raised: #2c2f38;
+    --atlas-modal-row-surface: #2a2d35;
+    --atlas-modal-row-active: rgba(168, 176, 207, 0.18);
     --atlas-modal-row-secondary: rgba(255, 255, 255, 0.025);
-    --atlas-modal-control-surface: #1a1f1c;
-    --atlas-modal-control-hover: #262c28;
+    --atlas-modal-control-surface: #191b21;
+    --atlas-modal-control-hover: #30333d;
 
-    --atlas-modal-border: rgba(255, 255, 255, 0.11);
+    --atlas-modal-border: rgba(255, 255, 255, 0.10);
     --atlas-modal-border-strong: rgba(255, 255, 255, 0.17);
 
-    --atlas-modal-heading: #edf2ee;
-    --atlas-modal-text: #d5ddd7;
-    --atlas-modal-muted: #aab4ad;
-    --atlas-modal-faint: #7d887f;
+    --atlas-modal-heading: #f1f2f5;
+    --atlas-modal-text: #d7d9e0;
+    --atlas-modal-muted: #a8acb7;
+    --atlas-modal-faint: #7c818d;
 
-    --atlas-modal-accent: #8bc9c1;
-    --atlas-modal-accent-hover: #a1d8d1;
-    --atlas-modal-accent-soft: #a1d8d1;
-    --atlas-modal-accent-rgb: 139, 201, 193;
-    --atlas-modal-accent-ink: #14201d;
-    --atlas-modal-accent-bg: rgba(70, 125, 116, 0.22);
-    --atlas-modal-accent-bg-strong: rgba(70, 125, 116, 0.30);
+    --atlas-modal-accent: #a8b0cf;
+    --atlas-modal-accent-hover: #c0c6df;
+    --atlas-modal-accent-soft: #c0c6df;
+    --atlas-modal-accent-rgb: 168, 176, 207;
+    --atlas-modal-accent-ink: #1b1d24;
+    --atlas-modal-accent-bg: rgba(168, 176, 207, 0.15);
+    --atlas-modal-accent-bg-strong: rgba(168, 176, 207, 0.24);
 
-    --atlas-modal-neutral-icon-bg: #262c28;
-    --atlas-modal-neutral-icon-text: #aab4ad;
-    --atlas-modal-neutral-icon-border: rgba(255, 255, 255, 0.11);
+    --atlas-modal-neutral-icon-bg: #2c2f38;
+    --atlas-modal-neutral-icon-text: #a8acb7;
+    --atlas-modal-neutral-icon-border: rgba(255, 255, 255, 0.10);
 
-    --atlas-modal-shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
-    --atlas-modal-scrollbar: rgba(170, 180, 173, 0.32);
-    --atlas-modal-scrollbar-hover: rgba(170, 180, 173, 0.50);
+    --atlas-modal-shadow: 0 28px 80px rgba(0, 0, 0, 0.46);
+    --atlas-modal-scrollbar: rgba(168, 172, 183, 0.32);
+    --atlas-modal-scrollbar-hover: rgba(168, 172, 183, 0.50);
 
     --atlas-modal-danger-text: #ffdede;
     --atlas-modal-danger-bg: rgba(125, 49, 49, 0.28);
@@ -247,40 +250,41 @@ html[data-theme="night"] body[data-atlas-world="compass"] {
 
 /* ============================================================
    ARCADE · NIGHT
+   Coral highlights over warm charcoal structure.
    ============================================================ */
 
 html[data-theme="night"] body[data-atlas-world="arcade"] {
-    --atlas-modal-overlay-bg: rgba(10, 8, 12, 0.72);
-    --atlas-modal-surface: #29242c;
-    --atlas-modal-surface-low: #242026;
-    --atlas-modal-surface-raised: #302638;
-    --atlas-modal-row-surface: #302638;
-    --atlas-modal-row-active: rgba(255, 129, 93, 0.12);
+    --atlas-modal-overlay-bg: rgba(7, 6, 8, 0.76);
+    --atlas-modal-surface: #2a2629;
+    --atlas-modal-surface-low: #211e21;
+    --atlas-modal-surface-raised: #343034;
+    --atlas-modal-row-surface: #343034;
+    --atlas-modal-row-active: rgba(199, 165, 202, 0.10);
     --atlas-modal-row-secondary: rgba(255, 255, 255, 0.025);
-    --atlas-modal-control-surface: #242026;
-    --atlas-modal-control-hover: #302638;
+    --atlas-modal-control-surface: #211e21;
+    --atlas-modal-control-hover: #393239;
 
     --atlas-modal-border: rgba(255, 255, 255, 0.10);
-    --atlas-modal-border-strong: rgba(255, 255, 255, 0.16);
+    --atlas-modal-border-strong: rgba(255, 255, 255, 0.17);
 
-    --atlas-modal-heading: #f4edf5;
-    --atlas-modal-text: #cfc1d1;
-    --atlas-modal-muted: #9b8d9f;
-    --atlas-modal-faint: #746879;
+    --atlas-modal-heading: #f4eef4;
+    --atlas-modal-text: #d9cfd8;
+    --atlas-modal-muted: #aa9eaa;
+    --atlas-modal-faint: #7d727c;
 
-    --atlas-modal-accent: #ff815d;
-    --atlas-modal-accent-hover: #ff9a7a;
-    --atlas-modal-accent-soft: #ff9a7a;
-    --atlas-modal-accent-rgb: 255, 129, 93;
-    --atlas-modal-accent-ink: #211418;
-    --atlas-modal-accent-bg: rgba(255, 129, 93, 0.10);
-    --atlas-modal-accent-bg-strong: rgba(255, 129, 93, 0.18);
+    --atlas-modal-accent: #c7a5ca;
+    --atlas-modal-accent-hover: #d9badc;
+    --atlas-modal-accent-soft: #d9badc;
+    --atlas-modal-accent-rgb: 199, 165, 202;
+    --atlas-modal-accent-ink: #251b25;
+    --atlas-modal-accent-bg: rgba(199, 165, 202, 0.10);
+    --atlas-modal-accent-bg-strong: rgba(199, 165, 202, 0.18);
 
-    --atlas-modal-neutral-icon-bg: #302638;
-    --atlas-modal-neutral-icon-text: #9b8d9f;
+    --atlas-modal-neutral-icon-bg: #393439;
+    --atlas-modal-neutral-icon-text: #b0a4af;
     --atlas-modal-neutral-icon-border: rgba(255, 255, 255, 0.11);
 
-    --atlas-modal-shadow: 0 28px 80px rgba(0, 0, 0, 0.48);
-    --atlas-modal-scrollbar: rgba(155, 141, 159, 0.32);
-    --atlas-modal-scrollbar-hover: rgba(155, 141, 159, 0.50);
+    --atlas-modal-shadow: 0 28px 80px rgba(0, 0, 0, 0.50);
+    --atlas-modal-scrollbar: rgba(176, 164, 175, 0.32);
+    --atlas-modal-scrollbar-hover: rgba(176, 164, 175, 0.50);
 }
