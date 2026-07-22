@@ -3594,7 +3594,18 @@ function updateSessionUI() {
 }
 
 function openSessionModal(trigger = document.activeElement) {
-    window.AtlasSessionPanel?.open(trigger);
+    const openedFromCover =
+        trigger instanceof Element &&
+        Boolean(trigger.closest('.cover-session-btn'));
+
+    window.AtlasSessionPanel?.open(
+        trigger,
+        {
+            initialView: openedFromCover
+                ? 'manage'
+                : 'safe'
+        }
+    );
 }
 
 function showSessionDialog({
