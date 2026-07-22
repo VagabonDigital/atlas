@@ -23,7 +23,7 @@ const MODULE = {
     title: 'Technology & Innovation',
     titleHtml: 'Technology &amp; <em>Innovation</em>',
     navTitle: 'Technology',
-    bgImage: 'IMAGE_URL_HERE'
+    bgImage: 'https://photos.smugmug.com/Atlas/i-HRxxfKm/0/LxfwrSftsBGtshL2rMnbjKdDnxpzS6kRwnZFvCXF5/O/2d9b20d4-fb4f-4a9d-b2de-80dd6a13a04a.png'
 };
 const subjectCopy = {
     cover: {
