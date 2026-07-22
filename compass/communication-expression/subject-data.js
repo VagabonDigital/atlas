@@ -24,7 +24,7 @@ const MODULE = {
     title: 'Communication & Expression',
     titleHtml: 'Communication & <em>Expression</em>',
     navTitle: 'Communication',
-    bgImage: 'https://photos.smugmug.com/Atlas/i-cHZb4gw/0/L73LLPGzT9x2kXrpTKTSd2r4WW4N4NXcLFrT5xpd7/O/19380e93-8ce4-4fd0-b91a-8c52bfaf698b.png'
+    bgImage: 'https://photos.smugmug.com/Atlas/i-wbzDCxG/0/KzjqbP37tfjbrH7Nt9rmW6C8j9CFVzZWCmVtjCKfw/O/1ec6f2b7-d3ef-45b5-83ff-67eaa5c9d36c.png'
 };
 
 const subjectCopy = {
