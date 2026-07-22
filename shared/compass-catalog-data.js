@@ -200,6 +200,7 @@
             title: 'Technology & Innovation',
             categoryId: 'society-the-world',
             order: 60,
+            available: true,
             hook: 'Discuss how invention reshapes life — convenience vs. dependence, the device in your hand, and what each leap gives and takes.'
         },
         {
