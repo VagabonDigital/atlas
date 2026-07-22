@@ -86,16 +86,6 @@
         }
     }
     function getActiveLaunchOrigin() {
-        try {
-            const urlOrigin = new URL(
-                window.location.href
-            ).searchParams.get('from');
-
-            if (['atlas', 'compass', 'arcade'].includes(urlOrigin)) {
-                return urlOrigin;
-            }
-        } catch { }
-
         if (
             ['atlas', 'compass', 'arcade']
                 .includes(config.activeHubId)
@@ -103,17 +93,39 @@
             return config.activeHubId;
         }
 
-        const bodyOrigin = document.body?.dataset.atlasWorld || '';
+        const bodyOrigin =
+            document.body?.dataset.atlasWorld || '';
 
-        return ['atlas', 'compass', 'arcade'].includes(bodyOrigin)
-            ? bodyOrigin
-            : 'compass';
+        if (
+            ['atlas', 'compass', 'arcade']
+                .includes(bodyOrigin)
+        ) {
+            return bodyOrigin;
+        }
+
+        try {
+            const urlOrigin = new URL(
+                window.location.href
+            ).searchParams.get('from');
+
+            if (
+                ['atlas', 'compass', 'arcade']
+                    .includes(urlOrigin)
+            ) {
+                return urlOrigin;
+            }
+        } catch { }
+
+        return 'compass';
     }
 
     function withLaunchOrigin(url, world) {
         const resolved = resolveAtlasUrl(url);
 
-        if (!resolved || world !== 'compass') {
+        if (
+            !resolved ||
+            !['compass', 'arcade'].includes(world)
+        ) {
             return resolved;
         }
 
