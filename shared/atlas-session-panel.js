@@ -308,53 +308,53 @@
             }
 
             if (hasSecondaryActions) {
-            moreButton.type = 'button';
-            moreButton.className = 'atlas-session-row-more';
-            moreButton.textContent = '⋯';
-            moreButton.dataset.sessionActionsToggle = '';
-            moreButton.dataset.sessionId = session.id;
-            moreButton.setAttribute(
-                'aria-label',
-                `${expanded ? 'Hide' : 'Show'} actions for ${displayName}`
-            );
-            moreButton.setAttribute('aria-expanded', String(expanded));
-            moreButton.setAttribute('aria-controls', secondaryActionsId);
-            controls.appendChild(moreButton);
+                moreButton.type = 'button';
+                moreButton.className = 'atlas-session-row-more';
+                moreButton.textContent = '⋯';
+                moreButton.dataset.sessionActionsToggle = '';
+                moreButton.dataset.sessionId = session.id;
+                moreButton.setAttribute(
+                    'aria-label',
+                    `${expanded ? 'Hide' : 'Show'} actions for ${displayName}`
+                );
+                moreButton.setAttribute('aria-expanded', String(expanded));
+                moreButton.setAttribute('aria-controls', secondaryActionsId);
+                controls.appendChild(moreButton);
 
-            secondaryActions.className = 'atlas-session-row-secondary';
-            secondaryActions.id = secondaryActionsId;
-            secondaryActions.hidden = !expanded;
-            secondaryActions.setAttribute('role', 'group');
-            secondaryActions.setAttribute('aria-label', `Actions for ${displayName}`);
+                secondaryActions.className = 'atlas-session-row-secondary';
+                secondaryActions.id = secondaryActionsId;
+                secondaryActions.hidden = !expanded;
+                secondaryActions.setAttribute('role', 'group');
+                secondaryActions.setAttribute('aria-label', `Actions for ${displayName}`);
 
-            if (availableActions.rename) {
-                secondaryActions.appendChild(createActionButton({
-                    label: 'Rename',
-                    ariaLabel: `Rename ${displayName}`,
-                    action: 'rename',
-                    sessionId: session.id
-                }));
-            }
+                if (availableActions.rename) {
+                    secondaryActions.appendChild(createActionButton({
+                        label: 'Rename',
+                        ariaLabel: `Rename ${displayName}`,
+                        action: 'rename',
+                        sessionId: session.id
+                    }));
+                }
 
-            if (availableActions.reset) {
-                secondaryActions.appendChild(createActionButton({
-                    label: 'Clear',
-                    ariaLabel: `Clear subject activity for ${displayName}`,
-                    className: 'is-danger',
-                    action: 'reset',
-                    sessionId: session.id
-                }));
-            }
+                if (availableActions.reset) {
+                    secondaryActions.appendChild(createActionButton({
+                        label: 'Clear',
+                        ariaLabel: `Clear subject activity for ${displayName}`,
+                        className: 'is-danger',
+                        action: 'reset',
+                        sessionId: session.id
+                    }));
+                }
 
-            if (availableActions.delete) {
-                secondaryActions.appendChild(createActionButton({
-                    label: 'Delete',
-                    ariaLabel: `Delete ${displayName}`,
-                    className: 'is-danger',
-                    action: 'delete',
-                    sessionId: session.id
-                }));
-            }
+                if (availableActions.delete) {
+                    secondaryActions.appendChild(createActionButton({
+                        label: 'Delete',
+                        ariaLabel: `Delete ${displayName}`,
+                        className: 'is-danger',
+                        action: 'delete',
+                        sessionId: session.id
+                    }));
+                }
             }
 
             main.appendChild(createSessionIcon());
@@ -440,28 +440,54 @@
         }
     }
 
-    function open(trigger = document.activeElement) {
+    function open(
+        trigger = document.activeElement,
+        openOptions = {}
+    ) {
         const elements = getElements();
-        const initialView = getInitialView();
+
+        const initialView =
+            openOptions.initialView === 'manage'
+                ? 'manage'
+                : openOptions.initialView === 'safe'
+                    ? 'safe'
+                    : getInitialView();
 
         if (!elements.overlay) return;
 
-        lastTrigger = trigger instanceof HTMLElement ? trigger : null;
-        previousBodyOverflow = document.body.style.overflow;
+        lastTrigger = trigger instanceof HTMLElement
+            ? trigger
+            : null;
+
+        previousBodyOverflow =
+            document.body.style.overflow;
+
         if (initialView === 'manage') {
-            showManageView({ focus: false, fromSafe: false });
+            showManageView({
+                focus: false,
+                fromSafe: false
+            });
         } else {
             showSafeView();
         }
+
         elements.overlay.classList.add('is-open');
-        elements.overlay.setAttribute('aria-hidden', 'false');
+        elements.overlay.setAttribute(
+            'aria-hidden',
+            'false'
+        );
+
         document.body.style.overflow = 'hidden';
 
         window.requestAnimationFrame(() => {
             if (initialView === 'manage') {
-                elements.searchInput?.focus({ preventScroll: true });
+                elements.searchInput?.focus({
+                    preventScroll: true
+                });
             } else {
-                elements.activeName?.focus({ preventScroll: true });
+                elements.activeName?.focus({
+                    preventScroll: true
+                });
             }
         });
     }
