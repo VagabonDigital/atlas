@@ -23,7 +23,7 @@ const MODULE = {
     title: 'Humour & Wit',
     titleHtml: 'Humour &amp; <em>Wit</em>',
     navTitle: 'Humour',
-    bgImage: 'https://media.istockphoto.com/id/1207065646/photo/happy-audience-applauding-in-the-theater.jpg?s=612x612&w=0&k=20&c=jan59CA1SD4JMTww7ixt7xbyp4TOmp15JtqSb839kO4='
+    bgImage: 'https://photos.smugmug.com/Atlas/i-J7Nwffw/0/MM58x4vnzmfh8WS9JRjGwbxLms377c2GmFfLtWj7d/O/63cb2ddf-077c-45bc-8e5f-2a3e54ef071a.png'
 };
 
 const subjectCopy = {
