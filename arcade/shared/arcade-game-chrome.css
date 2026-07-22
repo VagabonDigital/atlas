@@ -405,21 +405,24 @@
    APPEARANCE ICONS
    ============================================================ */
 
-.arcade-game-chrome-icon-btn .arcade-game-chrome-appearance-icon {
-  display: block;
+.arcade-game-chrome-appearance-icon {
   flex-shrink: 0;
 }
 
-.arcade-game-chrome-icon-btn .arcade-game-chrome-appearance-icon--sun {
-  display: none;
+.arcade-game-chrome-appearance-icon--moon {
+  display: block !important;
 }
 
-html[data-theme="night"] .arcade-game-chrome-icon-btn .arcade-game-chrome-appearance-icon--moon {
-  display: none;
+.arcade-game-chrome-appearance-icon--sun {
+  display: none !important;
 }
 
-html[data-theme="night"] .arcade-game-chrome-icon-btn .arcade-game-chrome-appearance-icon--sun {
-  display: block;
+html[data-theme="night"] .arcade-game-chrome-appearance-icon--moon {
+  display: none !important;
+}
+
+html[data-theme="night"] .arcade-game-chrome-appearance-icon--sun {
+  display: block !important;
 }
 
 /* ============================================================
