@@ -1720,6 +1720,67 @@
     }
 
     /* ============================================================
+     THEME TRANSITIONS
+     ============================================================ */
+
+    html.theme-changing,
+    html.theme-changing body,
+    html.theme-changing #opening,
+    html.theme-changing #opening::before,
+    html.theme-changing #opening::after,
+    html.theme-changing .opening-card,
+    html.theme-changing .opening-card *,
+    html.theme-changing #airlock,
+    html.theme-changing .airlock-card,
+    html.theme-changing .airlock-card *,
+    html.theme-changing #game,
+    html.theme-changing .game-header,
+    html.theme-changing .header-title,
+    html.theme-changing .header-position,
+    html.theme-changing .progress-strip,
+    html.theme-changing .case-card,
+    html.theme-changing .case-header,
+    html.theme-changing .case-title,
+    html.theme-changing .case-instruction,
+    html.theme-changing .stmt,
+    html.theme-changing .stmt-label,
+    html.theme-changing .stmt-text,
+    html.theme-changing .btn-evidence,
+    html.theme-changing .evidence-panel,
+    html.theme-changing .action-area,
+    html.theme-changing .btn-choose,
+    html.theme-changing .btn-change,
+    html.theme-changing .btn-reveal,
+    html.theme-changing .reveal-summary,
+    html.theme-changing .btn-discussion,
+    html.theme-changing .btn-copy-recap,
+    html.theme-changing .btn-mark-solved,
+    html.theme-changing .discussion-panel,
+    html.theme-changing .discussion-text,
+    html.theme-changing .btn-reopen,
+    html.theme-changing .control-panel,
+    html.theme-changing .btn-nav,
+    html.theme-changing .btn-random,
+    html.theme-changing .dot,
+    html.theme-changing .btn-reset-game,
+    html.theme-changing .tt-toast,
+    html.theme-changing .tt-modal,
+    html.theme-changing .tt-modal-card,
+    html.theme-changing .modal-icon,
+    html.theme-changing .modal-title,
+    html.theme-changing .modal-body,
+    html.theme-changing .btn-modal-cancel,
+    html.theme-changing .btn-modal-confirm {
+      transition:
+        background-color 280ms cubic-bezier(0.4, 0, 0.2, 1),
+        color 280ms cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 280ms cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 280ms cubic-bezier(0.4, 0, 0.2, 1),
+        filter 280ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ============================================================
      MOTION
      ============================================================ */
 
