@@ -14,6 +14,9 @@ Shared semantic palette, states, geometry, typography, and motion.
     --surface-canvas: #f7f4ef;
     --surface-muted: #f0ebe2;
     --surface-panel: #ffffff;
+    --surface-raised: #fffdf9;
+    --surface-raised-hover: #ffffff;
+    --surface-scrim: rgba(20, 17, 12, 0.55);
 
     /* Borders and secondary UI */
     --border-subtle: #e8e2d9;
@@ -33,6 +36,7 @@ Shared semantic palette, states, geometry, typography, and motion.
     --accent-dim: #e8f4f3;
     --accent-rgb: 74, 124, 120;
     --accent-pale-rgb: 214, 234, 232;
+    --accent-ink: #ffffff;
     --explored-bg: #d6eae8;
     --explored-text: #4a7c78;
     --danger-bg: #fef2f2;
@@ -284,30 +288,35 @@ html[data-theme="night"] body::before {
     box-shadow: inset 0 0 0 100vmax rgba(18, 16, 14, 0.72);
     background-position: center 0%;
 }
+
 html[data-theme="night"] body.module-active::before {
     filter: blur(26px) saturate(0.62) brightness(0.78);
     opacity: 0.55;
     box-shadow: inset 0 0 0 100vmax rgba(18, 16, 14, 0.50);
 }
+
 html[data-theme="night"] body::after {
     background-color: rgba(12, 11, 9, 0.42);
     background-image:
         radial-gradient(circle at 20% 12%, rgba(var(--accent-rgb), 0.055), transparent 42%),
         radial-gradient(circle at 84% 8%, rgba(240, 214, 170, 0.04), transparent 38%);
 }
+
 html[data-theme="night"] .section-stage {
     background-color: var(--surface-panel);
     border-color: var(--border-subtle);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    backdrop-filter: blur(0px) saturate(1);
+    -webkit-backdrop-filter: blur(0px) saturate(1);
     box-shadow:
         0 24px 64px rgba(0, 0, 0, 0.55),
         0 1px 0 rgba(255, 255, 255, 0.055) inset;
 }
+
 html[data-theme="night"] .section-stage .subject-intro-block,
 html[data-theme="night"] .section-stage .section-header {
     text-shadow: none;
 }
+
 html[data-theme="night"] .route-hint {
     background: var(--surface-muted);
     color: var(--text-muted);
@@ -326,10 +335,12 @@ html[data-theme="night"] .reflection-icon-large {
     border-color: rgba(var(--accent-rgb), 0.34);
     color: var(--accent-soft);
 }
+
 html[data-theme="night"] .subject-intro-block,
 html[data-theme="night"] .moments-panel-header {
     border-bottom-color: var(--border-faint);
 }
+
 html[data-theme="night"] .modal-panel,
 html[data-theme="night"] .vb-drawer,
 html[data-theme="night"] .mobile-drawer,
@@ -337,10 +348,12 @@ html[data-theme="night"] .session-dialog {
     background: var(--surface-panel) !important;
     border-color: var(--border-subtle) !important;
 }
+
 html[data-theme="night"] .moment-card {
     background: var(--surface-raised) !important;
     border-color: var(--border-subtle) !important;
 }
+
 html[data-theme="night"] .modal-header,
 html[data-theme="night"] .modal-footer,
 html[data-theme="night"] .vb-header,
@@ -349,11 +362,13 @@ html[data-theme="night"] .mobile-drawer-footer {
     background: var(--surface-muted);
     border-color: var(--border-faint);
 }
+
 html[data-theme="night"] .mobile-drawer-overlay,
 html[data-theme="night"] .vb-overlay,
 html[data-theme="night"] .modal-overlay {
     background: var(--surface-scrim);
 }
+
 html[data-theme="night"] .btn-ghost,
 html[data-theme="night"] .btn-close-set,
 html[data-theme="night"] .btn-close-set-bottom,
@@ -370,6 +385,7 @@ html[data-theme="night"] .modal-close-x {
     border-color: var(--border-subtle);
     color: var(--text-muted);
 }
+
 html[data-theme="night"] .btn-ghost:hover,
 html[data-theme="night"] .btn-close-set:hover,
 html[data-theme="night"] .btn-close-set-bottom:hover,
@@ -607,6 +623,7 @@ html[data-theme="night"] .btn-begin {
     border-color: rgba(var(--accent-soft-rgb), 0.34);
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
 }
+
 html[data-theme="night"] .btn-begin:hover {
     background: var(--accent-soft);
     color: var(--accent-ink);
@@ -1257,25 +1274,30 @@ html[data-theme="night"] .mobile-appearance-toggle {
     border-color: var(--border-subtle) !important;
     color: var(--text-muted);
 }
+
 html[data-theme="night"] .appearance-toggle:hover,
 html[data-theme="night"] .mobile-appearance-toggle:hover {
     background: var(--surface-raised-hover) !important;
     border-color: var(--accent) !important;
     color: var(--accent-soft);
 }
+
 html[data-theme="night"] .top-nav,
 html[data-theme="night"] .mobile-header {
     background: rgba(45, 41, 36, 0.94) !important;
     border-bottom-color: var(--border-faint) !important;
 }
+
 html[data-theme="night"] .mobile-drawer {
     background: var(--surface-panel);
 }
+
 html[data-theme="night"] .nav-link:hover {
     background: rgba(var(--accent-rgb), 0.09);
     border-color: rgba(var(--accent-rgb), 0.26);
     color: var(--accent);
 }
+
 html[data-theme="night"] .nav-link.active,
 html[data-theme="night"] .mobile-nav-item.active {
     background: rgba(var(--accent-rgb), 0.16);
@@ -1419,6 +1441,7 @@ html.theme-changing .appearance-toggle,
 html.theme-changing .mobile-appearance-toggle,
 html.theme-changing .mobile-menu-btn,
 html.theme-changing .mobile-session-btn,
+html.theme-changing .mobile-drawer-overlay,
 html.theme-changing .mobile-drawer-header,
 html.theme-changing .mobile-drawer-footer,
 html.theme-changing .mobile-drawer-title,
@@ -1430,6 +1453,7 @@ html.theme-changing .progress-pill,
 html.theme-changing .subject-intro-block,
 html.theme-changing .section-header,
 html.theme-changing .section-stage,
+html.theme-changing .route-hint,
 html.theme-changing .main-path-card,
 html.theme-changing .main-path-card::before,
 html.theme-changing .reflection-path-card,
@@ -1441,6 +1465,7 @@ html.theme-changing .moment-card,
 html.theme-changing .moment-card-header,
 html.theme-changing .moment-state-dot,
 html.theme-changing .reflection-q,
+html.theme-changing .modal-overlay,
 html.theme-changing .modal-panel,
 html.theme-changing .modal-header,
 html.theme-changing .modal-footer,
@@ -1448,9 +1473,11 @@ html.theme-changing .modal-question-block,
 html.theme-changing .make-it-real-card,
 html.theme-changing .upgrade-chip,
 html.theme-changing .upgrade-panel,
+html.theme-changing .upgrade-example-row,
 html.theme-changing .upgrade-visibility-trigger,
 html.theme-changing .upgrade-visibility-menu,
 html.theme-changing .upgrade-visibility-option,
+html.theme-changing .vb-overlay,
 html.theme-changing .vb-header,
 html.theme-changing .vb-tabs,
 html.theme-changing .vb-tab-btn,
@@ -1470,10 +1497,14 @@ html.theme-changing .compass-wrap-up-stage,
 html.theme-changing .compass-wrap-up-pickup {
     transition:
         background-color var(--hub-theme-motion),
+        background var(--hub-theme-motion),
         color var(--hub-theme-motion),
         border-color var(--hub-theme-motion),
         box-shadow var(--hub-theme-motion),
         opacity var(--hub-theme-motion),
+        filter var(--hub-theme-motion),
+        backdrop-filter var(--hub-theme-motion),
+        -webkit-backdrop-filter var(--hub-theme-motion),
         fill var(--hub-theme-motion),
         stroke var(--hub-theme-motion);
 }
@@ -1481,13 +1512,20 @@ html.theme-changing .compass-wrap-up-pickup {
 html.theme-changing body::before,
 html.theme-changing body::after,
 html.theme-changing body.module-active::before,
-html.theme-changing body.module-active::after,
-html.theme-changing .cover-bg {
+html.theme-changing body.module-active::after {
     transition:
+        background-color var(--hub-theme-motion),
+        background-image var(--hub-theme-motion),
         background-position var(--hub-theme-motion),
         opacity var(--hub-theme-motion),
         filter var(--hub-theme-motion),
         box-shadow var(--hub-theme-motion);
+}
+
+html.theme-changing .session-dialog::backdrop {
+    transition:
+        background-color var(--hub-theme-motion),
+        opacity var(--hub-theme-motion);
 }
 
 html.theme-changing :where(.cover-card *,
@@ -1506,6 +1544,9 @@ html.theme-changing :where(.cover-card *,
         border-color var(--hub-theme-motion),
         box-shadow var(--hub-theme-motion),
         opacity var(--hub-theme-motion),
+        filter var(--hub-theme-motion),
+        backdrop-filter var(--hub-theme-motion),
+        -webkit-backdrop-filter var(--hub-theme-motion),
         fill var(--hub-theme-motion),
         stroke var(--hub-theme-motion);
 }
@@ -1736,9 +1777,11 @@ ORIENTATION
 html[data-theme="night"] .main-path-card::before {
     background: var(--accent-dim);
 }
+
 html[data-theme="night"] .main-path-card:hover::before {
     opacity: 0.55;
 }
+
 html[data-theme="night"] .main-path-card:hover {
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
 }
@@ -2085,6 +2128,7 @@ html[data-theme="night"] .cl-card {
     border-color: var(--border-subtle) !important;
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset;
 }
+
 html[data-theme="night"] .main-path-card:hover,
 html[data-theme="night"] .reflection-path-card:hover,
 html[data-theme="night"] .set-card:hover,
@@ -2093,28 +2137,33 @@ html[data-theme="night"] .cl-card:hover {
     border-color: var(--accent) !important;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
 }
+
 html[data-theme="night"] .progress-pill.explored {
     background: var(--explored-bg);
     color: var(--explored-text);
     box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.34);
 }
+
 html[data-theme="night"] .cl-card.state-explored {
     background-color: var(--surface-raised) !important;
     background-image: none !important;
     border-color: var(--accent) !important;
     box-shadow: none;
 }
+
 html[data-theme="night"] .cl-card.state-explored::after {
     opacity: 1;
     background-color: var(--accent);
     box-shadow: none;
 }
+
 html[data-theme="night"] .cl-card.state-explored .cl-card-state-badge {
     background: var(--accent);
     color: var(--accent-ink);
     opacity: 1;
     box-shadow: none;
 }
+
 html[data-theme="night"] .cl-card-location {
     color: var(--accent);
     opacity: 0.95;
@@ -2787,10 +2836,12 @@ html[data-theme="night"] .make-it-real-card {
     background: var(--accent-dim);
     border-color: rgba(var(--accent-rgb), 0.38);
 }
+
 html[data-theme="night"] .make-it-real-body,
 html[data-theme="night"] .explore-deeper-content {
     border-top-color: rgba(var(--accent-rgb), 0.24);
 }
+
 html[data-theme="night"] .upgrade-chip,
 html[data-theme="night"] .upgrade-chip:hover,
 html[data-theme="night"] .upgrade-chip.open {
@@ -2798,56 +2849,69 @@ html[data-theme="night"] .upgrade-chip.open {
     border: none;
     color: var(--accent-soft);
 }
+
 html[data-theme="night"] .upgrade-panel {
     background: var(--surface-raised-hover);
     border-color: var(--border-subtle);
 }
+
 html[data-theme="night"] .upgrade-example-row {
     background: var(--surface-panel);
 }
+
 html[data-theme="night"] .upgrade-example-row-primary {
     background: var(--accent-pale);
 }
+
 html[data-theme="night"] .upgrade-panel-in-action {
     background: var(--surface-panel);
     border-color: var(--border-faint);
     border-left-color: var(--accent);
 }
+
 html[data-theme="night"] .upgrade-panel-actions {
     border-top-color: var(--border-faint);
 }
+
 html[data-theme="night"] .upgrade-save-btn {
     background: var(--accent-pale);
     border-color: rgba(var(--accent-rgb), 0.42);
     color: var(--accent-soft);
 }
+
 html[data-theme="night"] .upgrade-save-btn:hover {
     background: var(--accent-dim);
     border-color: var(--accent);
 }
+
 html[data-theme="night"] .upgrade-save-btn.is-saved {
     background: var(--accent);
     border-color: var(--accent-soft);
     color: var(--accent-ink);
 }
+
 html[data-theme="night"] .upgrade-visibility-trigger {
     background: var(--surface-raised);
     border-color: var(--border-subtle);
     color: var(--text-muted);
 }
+
 html[data-theme="night"] .upgrade-visibility-trigger[aria-expanded="true"] {
     background: var(--accent-pale);
     border-color: var(--accent);
     color: var(--accent-soft);
 }
+
 html[data-theme="night"] .upgrade-visibility-menu {
     background: var(--surface-panel);
     border-color: var(--border-subtle);
     box-shadow: var(--shadow-lg);
 }
+
 html[data-theme="night"] .upgrade-visibility-option:hover {
     background: var(--surface-raised);
 }
+
 html[data-theme="night"] .upgrade-visibility-option.is-selected {
     background: var(--accent-dim);
 }
@@ -2892,11 +2956,13 @@ html[data-theme="night"] .btn-primary {
     color: var(--accent-ink);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.40);
 }
+
 html[data-theme="night"] .btn-primary:hover {
     background: var(--accent-soft);
     border-color: var(--accent-soft);
     color: var(--accent-ink);
 }
+
 html[data-theme="night"] .btn-primary.btn-complete-done,
 html[data-theme="night"] .btn-primary:disabled:hover {
     background: var(--accent-pale);
@@ -2904,25 +2970,30 @@ html[data-theme="night"] .btn-primary:disabled:hover {
     color: var(--accent-soft);
     box-shadow: none;
 }
+
 html[data-theme="night"] .btn-primary.btn-complete-done:hover {
     background: var(--accent-dim);
     border-color: var(--accent);
     color: var(--accent-soft);
 }
+
 html[data-theme="night"] .btn-primary:disabled {
     opacity: 0.72;
 }
+
 html[data-theme="night"] .btn-mark-explored {
     background: var(--accent-pale);
     border-color: var(--accent);
     color: var(--accent-soft);
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
+
 html[data-theme="night"] .btn-mark-explored:hover {
     background: var(--accent-dim);
     border-color: var(--accent-soft);
     color: var(--accent-soft);
 }
+
 html[data-theme="night"] .btn-mark-explored.is-explored {
     background: transparent;
     border-color: rgba(var(--accent-rgb), 0.45);
@@ -3199,16 +3270,20 @@ html[data-theme="night"] .set-card.active-set {
     background: var(--accent-dim) !important;
     border-color: var(--accent) !important;
 }
+
 html[data-theme="night"] .set-card.active-set .set-icon {
     background: var(--accent);
     color: var(--accent-ink);
 }
+
 html[data-theme="night"] .moment-card-header:hover {
     background: var(--surface-raised-hover);
 }
+
 html[data-theme="night"] .moment-body {
     border-top-color: var(--border-faint);
 }
+
 html[data-theme="night"] .moment-card.state-explored {
     background: var(--accent-dim) !important;
     border-color: rgba(var(--accent-rgb), 0.45) !important;
@@ -3718,46 +3793,55 @@ html[data-theme="night"] .vb-section-label,
 html[data-theme="night"] .vb-intro {
     border-color: var(--border-faint);
 }
+
 html[data-theme="night"] .vb-tabs {
     background: var(--surface-muted);
     border-bottom-color: var(--border-faint);
 }
+
 html[data-theme="night"] .vb-tab-btn {
     color: var(--text-muted);
 }
+
 html[data-theme="night"] .vb-tab-btn:hover {
     background: rgba(var(--accent-rgb), 0.10);
     color: var(--accent-soft);
 }
+
 html[data-theme="night"] .vb-tab-btn.active {
     background: var(--surface-raised);
     border-color: var(--accent);
     color: var(--accent-soft);
     box-shadow: var(--shadow-sm);
 }
+
 html[data-theme="night"] .vb-empty-action,
 html[data-theme="night"] .vb-entry-save-btn {
     background: var(--accent-pale);
     border-color: rgba(var(--accent-rgb), 0.42);
     color: var(--accent-soft);
 }
+
 html[data-theme="night"] .vb-empty-action:hover,
 html[data-theme="night"] .vb-entry-save-btn:hover {
     background: var(--accent-dim);
     border-color: var(--accent);
 }
+
 html[data-theme="night"] .vb-edit-btn,
 html[data-theme="night"] .vb-entry-save-btn.is-remove {
     background: transparent;
     border-color: var(--border-subtle);
     color: var(--text-subtle);
 }
+
 html[data-theme="night"] .vb-edit-btn:hover,
 html[data-theme="night"] .vb-entry-save-btn.is-remove:hover {
     background: var(--surface-raised-hover);
     border-color: var(--accent);
     color: var(--accent-soft);
 }
+
 html[data-theme="night"] .vb-entry-save-btn.is-saved {
     background: var(--accent);
     border-color: var(--accent-soft);
@@ -4194,16 +4278,19 @@ html[data-theme="night"] .compass-wrap-up-canvas {
     background-color: var(--surface-canvas);
     background-image: none;
 }
+
 html[data-theme="night"] .compass-wrap-up-stage {
     border-color: var(--border-subtle);
     background: var(--surface-panel);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    backdrop-filter: blur(0px) saturate(1);
+    -webkit-backdrop-filter: blur(0px) saturate(1);
     box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
 }
+
 html[data-theme="night"] .compass-wrap-up-section+.compass-wrap-up-section {
     border-top-color: var(--border-faint);
 }
+
 html[data-theme="night"] .compass-wrap-up-pickup {
     border-color: var(--accent);
     background: var(--accent-dim);
@@ -4333,19 +4420,23 @@ html[data-theme="night"] .session-dialog {
     background: var(--surface-panel);
     border-color: var(--border-subtle);
 }
+
 html[data-theme="night"] .session-dialog::backdrop {
     background: var(--surface-scrim);
 }
+
 html[data-theme="night"] .btn-danger-confirm {
     background: var(--danger-bg);
     border-color: var(--danger-border);
     color: var(--danger-text);
 }
+
 html[data-theme="night"] .btn-danger-confirm:hover {
     background: #4a2b27;
     border-color: #9a5b54;
     color: #fecaca;
 }
+
 html[data-theme="night"] .session-input {
     background: var(--surface-muted);
     border-color: var(--border-subtle);
@@ -4387,11 +4478,13 @@ html[data-theme="night"] .vb-list,
 html[data-theme="night"] .mobile-drawer-nav {
     scrollbar-color: var(--border-strong) var(--surface-muted);
 }
+
 html[data-theme="night"] .modal-body::-webkit-scrollbar-track,
 html[data-theme="night"] .vb-list::-webkit-scrollbar-track,
 html[data-theme="night"] .mobile-drawer-nav::-webkit-scrollbar-track {
     background: var(--surface-muted);
 }
+
 html[data-theme="night"] .modal-body::-webkit-scrollbar-thumb,
 html[data-theme="night"] .vb-list::-webkit-scrollbar-thumb,
 html[data-theme="night"] .mobile-drawer-nav::-webkit-scrollbar-thumb {
