@@ -37,24 +37,24 @@ const subjectCopy = {
         question: `What piece of technology would be hardest for you to live without — and why?`
     },
     paths: {
-        culturalLensDescription: `How earlier tools reshaped daily life — the manners they forced, the skills they retired, and the futures people guessed wrong.`,
+        culturalLensDescription: `See how earlier tools changed everyday manners, replaced familiar skills, and inspired confident predictions that turned out to be wrong.`,
         discussionDescription: `The tools you rely on, resist, and can’t understand in other people — from small daily habits to the lines you won’t cross.`,
         reflectionTitle: `Reflection`,
-        reflectionDescription: `A place to connect ideas from across the subject.`
+        reflectionDescription: `A final look at what technology has given you, what it has cost, and which changes you would refuse next time.`
     },
     culturalLens: {
         heading: `The Tools Before These`,
-        intro: `Every technology in your pocket was once brand new, strange, and a little suspicious. Step back to earlier tools and the moments they changed — how people behaved, what they knew, and what they gave up — often without noticing until it was done.`
+        intro: `Every technology in your pocket was once new, strange, and a little suspicious. Step back to earlier tools and see how they changed behaviour, knowledge, and daily routines — often before people understood what they were gaining or losing.`
     },
     discussion: {
         heading: `The Tools We Live By`
     },
     reflection: {
         title: `Was It Worth It?`,
-        summary: `Step back from the particular gadgets and think about the trades underneath them. Notice which ones you’d defend, which you’d undo, and where you and other people simply weigh things differently.`,
+        summary: `Step back from the gadgets themselves. Notice what technology has made easier, what it has cost, and which changes you would undo.`,
         questions: [
-            `Looking back over everything you’ve talked about, which single trade you’ve made with technology would you actually reverse tomorrow — if any?`,
-            `Next time something new arrives, what’s the warning sign that would make you keep it at arm’s length — before you’re already hooked?`
+            `Which technology has made your life easier but cost you something you now miss? Would you reverse that change tomorrow?`,
+            `When a new technology appears, what would make you decide not to adopt it — the data it collects, the time it demands, the cost, or something else?`
         ]
     },
     keyLanguage: {
@@ -80,15 +80,15 @@ const discussionSets = [
                     type: `phrase`,
                     definition: `To be unable to understand or solve something.`,
                     ordinary: `“I stared at the ticket machine for five minutes and had no idea what to press.”`,
-                    upgraded: `“The ticket machine completely stumped me, and eventually a stranger had to help.”`,
+                    upgraded: `“I was completely stumped by the ticket machine, and eventually a stranger had to help.”`,
                     priority: 'key',
-                    atlasPrompt: `What question, problem, or instruction has completely stumped you recently?`
+                    atlasPrompt: `What question, problem, or instruction has left you completely stumped recently?`
                 }
             },
             {
                 id: 'moment-it-saved-the-day',
                 preview: `It worked when you really needed it.`,
-                question: `When has a piece of technology genuinely saved the day — by finding the route, recovering a file, translating something, or reaching the right person? What would have happened without it?`,
+                question: `When has a piece of technology made the difference exactly when you needed it — by finding the route, recovering a file, translating something, or reaching the right person? What would have happened without it?`,
 
                 upgrade: {
                     term: `save the day`,
@@ -164,7 +164,7 @@ const discussionSets = [
             {
                 id: 'moment-first-or-wait',
                 preview: `First in line—or safely behind everyone else.`,
-                question: `When a new device or app appears, do you try it early or wait until other people have found the problems? What habit in the opposite type makes no sense to you?`,
+                question: `When a new device or app appears, do you try it early or wait until other people have found the problems? What behaviour from early adopters or cautious users makes no sense to you?`,
 
                 upgrade: {
                     term: `hold off`,
@@ -179,7 +179,7 @@ const discussionSets = [
             {
                 id: 'moment-old-basic-still-works',
                 preview: `Old, basic, and still doing the job.`,
-                question: `What piece of technology do people unfairly judge others for using — an old phone, a basic car, cheap headphones, or a paper diary? What might the owner understand that the critic does not?`,
+                question: `A colleague says someone should replace their old phone, basic car, cheap headphones, or paper diary. Would you agree, defend the owner, or ask what they actually need it for before deciding? What would shape your response?`,
 
                 upgrade: {
                     term: `do the job`,
@@ -209,16 +209,16 @@ const discussionSets = [
             {
                 id: 'moment-convenience-for-privacy',
                 preview: `Convenience in exchange for privacy.`,
-                question: `An app offers to make life easier if it can track where you go and what you do. What would you agree to — and what would be a step too far?`,
+                question: `An app offers to make life easier if it can track where you go and what you do. What would you agree to, and what would you refuse?`,
 
                 upgrade: {
-                    term: `a step too far`,
+                    term: `at the expense of something`,
                     type: `phrase`,
-                    definition: `Something that goes beyond what is acceptable.`,
-                    ordinary: `“Using my location while I travel is fine, but recording it permanently is unacceptable.”`,
-                    upgraded: `“Using my location while I travel is fine, but recording it permanently is a step too far.”`,
+                    definition: `If one benefit comes at the expense of another, it is gained by harming or losing the other.`,
+                    ordinary: `“The convenience is useful, but I would not accept it if I had to give up too much privacy.”`,
+                    upgraded: `“The convenience is useful, but I would not accept it at the expense of my privacy.”`,
                     priority: 'key',
-                    atlasPrompt: `When has a rule, request, or joke gone a step too far?`
+                    atlasPrompt: `When have you chosen a slower or less convenient option because the easier one came at the expense of privacy, quality, or control?`
                 }
             },
             {
@@ -240,7 +240,7 @@ const discussionSets = [
 
         makeItReal: {
             title: `The rule you learned the hard way`,
-            prompt: `What technology rule do you follow because of something that once went wrong? Tell the story.`
+            prompt: `State one technology rule you follow because something once went wrong. Tell the story, then let your tutor challenge the rule with one situation where breaking it might be reasonable. Decide whether the rule survives or needs an exception.`
         }
     },
 
@@ -270,7 +270,7 @@ const discussionSets = [
             {
                 id: 'moment-device-changed-room',
                 preview: `The device that changed the room.`,
-                question: `What piece of technology changed how people spent time together in a home you knew — the television, the family computer, or the first smartphone? What changed first?`,
+                question: `Think of a home that changed after one device arrived — a television, a family computer, or the first smartphone. What did people do together before it, and what changed afterwards?`,
 
                 upgrade: {
                     term: `take over`,
@@ -341,20 +341,20 @@ const clCards = [
         contextLine: `Across the centuries`,
         title: `Every New Thing Was Going to Ruin Us`,
         teaser: `Each new invention was once accused of harming memory, morals, or the young.`,
-        context: `Long before screens, the same alarm met almost every new tool. Writing, people warned, would ruin the memory. Printed books would spread dangerous ideas. Newspapers would coarsen the mind, and radio and television would rot the concentration of the young — each blamed, in its turn, for the harms now laid at the door of the phone.`,
+        context: `Long before screens, people feared that new tools would damage society. Some said writing would weaken memory, while printed books would spread dangerous ideas. Later, newspapers were accused of lowering standards, and radio and television of damaging young people’s concentration. Many of the same fears are now directed at phones.`,
         mainQuestion: `You’ve just heard an older relative say a new device is “rotting children’s brains.” Do you take the worry seriously, brush it off as the thing every generation says — or find yourself secretly agreeing?`,
         followTheThread: [
             `Is there a modern worry about technology that you think will look silly in fifty years?`,
             `Which fear about a new technology do you think turned out to be justified?`
         ],
         upgrade: {
-            term: `come to nothing`,
+            term: `there may be something in it`,
             type: `phrase`,
-            definition: `To fail to produce any result or effect.`,
-            ordinary: `“People predicted disaster, but in the end all the worry produced nothing at all.”`,
-            upgraded: `“People predicted disaster, but in the end the panic came to nothing.”`,
+            definition: `Used to say that an idea or criticism may be partly true or worth considering.`,
+            ordinary: `“The warning sounds exaggerated, but part of it may still be true.”`,
+            upgraded: `“The warning sounds exaggerated, but there may be something in it.”`,
             priority: 'standard',
-            atlasPrompt: `What worry in your own life turned out to come to nothing?`
+            atlasPrompt: `When have you changed from dismissing a warning to thinking there might be something in it?`
         }
     },
     {
@@ -396,16 +396,16 @@ const clCards = [
             ordinary: `“I used to be able to give you three routes there from memory, without looking anything up.”`,
             upgraded: `“I used to be able to give you three routes there off the top of my head.”`,
             priority: 'key',
-            atlasPrompt: `What could you once rattle off off the top of your head that you’d now have to look up?`
+            atlasPrompt: `What information could you once give off the top of your head that you’d now have to look up?`
         }
     },
     {
         id: 'cl-skipping-a-step',
-        contextLine: `Leapfrogging`,
+        contextLine: `Kenya · Mobile money`,
         title: `Skipping a Step`,
-        teaser: `Some places skipped a technology entirely and jumped straight to the next one.`,
-        context: `Technology does not arrive everywhere in the same order. Some places never strung up landline wires at all, and went straight from having no phones to a mobile in every pocket. In parts of the world, paying for a coffee by phone became ordinary while wealthier countries were still counting out cash and tapping cards.`,
-        mainQuestion: `You arrive somewhere that is years ahead of home in one everyday technology and years behind in another. Which gap unsettles you more — the thing that’s suddenly missing, or the thing you don’t yet know how to use?`,
+        teaser: `A country moved into mobile payments without waiting for every older system.`,
+        context: `In Kenya, M-PESA launched in 2007 and allowed people to send and withdraw money using ordinary mobile phones. It gave many people access to financial services through a phone, even where traditional banking was harder to reach. This is an example of “leapfrogging”: adopting a newer system without first building every older stage.`,
+        mainQuestion: `You arrive somewhere where one everyday technology is far more advanced than at home, while another is missing or old-fashioned. Which is harder: losing something you normally rely on, or learning a system you don’t understand?`,
         followTheThread: [
             `Is there a technology that feels essential to you but that plenty of people manage happily without?`,
             `Would you rather visit somewhere far ahead of home or far behind it, technologically?`
@@ -425,7 +425,7 @@ const clCards = [
         contextLine: `Built around the car`,
         title: `You Have to Have One`,
         teaser: `Some conveniences quietly become things you cannot manage without.`,
-        context: `A convenience can harden into a requirement without anyone choosing it. In towns built around the car, life grew hard without one — shops, school and work sat too far apart to walk. The smartphone is going the same way: to book a table, pay to park or prove who you are, it now assumes one in your hand.`,
+        context: `A convenience can become a requirement without anyone choosing it. In towns built around cars, shops, schools, and workplaces may be too far apart to reach easily without one. Smartphones are becoming similar. Many services now assume you have one to book a table, pay for parking, or prove your identity.`,
         mainQuestion: `A service you rely on announces it will now only work through an app or a device you’d rather not use. Do you give in and get it, find a way round it, or refuse on principle and accept the hassle?`,
         followTheThread: [
             `Is it fair for a service to assume everyone owns a particular device?`,
@@ -443,10 +443,10 @@ const clCards = [
     },
     {
         id: 'cl-day-off',
-        contextLine: `Switching off`,
+        contextLine: `Jewish communities · Shabbat`,
         title: `The Day Off From Everything`,
-        teaser: `Some people deliberately switch it all off, one day a week.`,
-        context: `As devices have crept into every waking hour, a quiet countermovement has grown. Some people keep one day a week entirely free of screens. Some leave the phone charging in another room overnight. Some communities have marked off a screen-free day for generations, for reasons that have nothing to do with technology at all.`,
+        teaser: `A regular day without technology existed long before the smartphone.`,
+        context: `Jewish tradition marks Shabbat from Friday evening to Saturday evening. Many observant Jews avoid phones, computers, and other forms of technology during that time, alongside other restrictions on work. Modern screen-free days may be presented as a response to digital overload, but this regular period of disconnection has existed for generations for religious reasons.`,
         mainQuestion: `Someone suggests you go one full day a week with no screens at all. Does part of you feel relief at the idea — or does the thought of being unreachable and bored make you genuinely anxious?`,
         followTheThread: [
             `What would be the hardest part of a full day with no screens — the boredom, being unreachable, or missing out?`,
@@ -467,20 +467,20 @@ const clCards = [
         contextLine: `Electric light`,
         title: `The End of the Dark`,
         teaser: `Cheap light quietly rewrote when people slept, worked, and gathered.`,
-        context: `Before cheap, steady lighting, the sun set the shape of the day. Evenings were short and dark, spent close to a single lamp or the fire. Then electric light spread through homes, and people began staying up late, working and socialising well past nightfall, drifting into rooms that had always been too dark to bother with.`,
-        mainQuestion: `Picture your evenings if light were once again scarce and precious — everyone gathered close, the day ending when the sun did. Does that sound like a loss you’re glad to have escaped, or something quietly worth missing?`,
+        context: `Before cheap, steady lighting, daylight controlled the rhythm of the day. Evenings were short and dark, with people gathered near one lamp or the fire. When electric light spread through homes, people stayed up later, worked longer, socialised after dark, and used rooms that had previously been impractical at night.`,
+        mainQuestion: `Imagine having very little artificial light in the evening. Would you mostly miss the freedom to stay active after dark, or value the slower end to the day?`,
         followTheThread: [
             `What might people have gained from evenings that ended when it got dark?`,
             `Is there a modern technology that has reshaped your day without you ever really choosing it?`
         ],
         upgrade: {
-            term: `round the clock`,
-            type: `phrase`,
-            definition: `All day and all night, without stopping.`,
-            ordinary: `“Once we had good lighting, people could work and socialise at any hour of the day or night.”`,
-            upgraded: `“Once we had good lighting, life could carry on round the clock.”`,
+            term: `wind down`,
+            type: `phrasal verb`,
+            definition: `To gradually relax and become less active at the end of the day.`,
+            ordinary: `“Without bright light, people had to slow down and finish their day earlier.”`,
+            upgraded: `“Without bright light, people had to wind down and finish their day earlier.”`,
             priority: 'key',
-            atlasPrompt: `What in your work or town runs round the clock now that once had to stop at night?`
+            atlasPrompt: `What helps you wind down at the end of a long day?`
         }
     },
     {
