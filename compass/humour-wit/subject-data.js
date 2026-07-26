@@ -1,25 +1,24 @@
 /*
-  ==========================================================================
+  ===========================================================================
   ATLAS · COMPASS SUBJECT MODULE
   SmartStudy™ Methodology
   Humour & Wit
-  --------------------------------------------------------------------------
-  A premium interactive speaking subject for exploring what humour does
-  between people: who is allowed to make the joke, who it lands on, who is
-  watching, and what it costs when it goes wrong. Built for tutor-led
-  conversation, shared-screen teaching, real disagreement, and sharper
+  ---------------------------------------------------------------------------
+  A premium interactive speaking subject for exploring what makes humour
+  work between people: taste, timing, trust, power, performance, and the
+  changing mood of the room. Built for tutor-led conversation, shared-screen
+  teaching, thoughtful disagreement, playful experimentation, and sharper
   spoken English.
-  Compass active subject · contentVersion 1.0.0
-  The subject may evolve.
-  The compass remains.
-  --------------------------------------------------------------------------
+  Compass active subject · contentVersion 2.0.0
+  ---------------------------------------------------------------------------
   VERBA PONTES FACIUNT · SENSUS VIAM APERIT · DISCIPLINA VIVA EST
-  ==========================================================================
+  ===========================================================================
 */
+
 const MODULE = {
     id: 'humour-wit',
     schemaVersion: 2,
-    contentVersion: '1.0.0',
+    contentVersion: '2.0.0',
     title: 'Humour & Wit',
     titleHtml: 'Humour &amp; <em>Wit</em>',
     navTitle: 'Humour',
@@ -28,460 +27,528 @@ const MODULE = {
 
 const subjectCopy = {
     cover: {
-        hook: `Somebody in the room is not laughing.`
+        hook: `The laugh is only part of it.`
     },
+
     overview: {
-        heading: `Who the Joke Is For`,
+        heading: `What Makes It Land?`,
         intro: [
-            `A joke is never only a joke. There is the person who makes it, the person it lands on, and everybody else deciding whether to laugh. Change any one of those three and the same words become a kindness, a weapon, or a mistake.`
+            `The same joke can feel brilliant, awkward, kind, cruel, or completely pointless depending on who says it and who is listening. Humour lives in timing, trust, taste, and the mood of the room.`
         ],
-        question: `Think of the last time you laughed properly. Who were you with — and would it still have been funny with different people in the room?`
+        question: `What usually makes you laugh hardest: the joke itself, the person telling it, or the fact that you probably should not be laughing?`
     },
+
     paths: {
-        culturalLensDescription: `Where joking has been a paid job, a family duty, a crime, and a tradition with rules.`,
-        discussionDescription: `Your own taste, the jokes you would unsay, and the people you laugh at without meaning it.`,
+        culturalLensDescription: `Meet performers, traditions, rules, and rituals that show how different communities organise laughter.`,
+        discussionDescription: `Your taste, your timing, the people who make you laugh, and the moments when the room suddenly changes.`,
         reflectionTitle: `Reflection`,
-        reflectionDescription: `Two questions that step back from the individual jokes.`
+        reflectionDescription: `A final pause on what humour reveals about trust, timing, and connection.`
     },
+
     culturalLens: {
-        heading: `Who Was Allowed to Say It`,
-        intro: `Every society decides who may joke, about whom, and when. Some have written it into law, some into ritual, and some into rules nobody ever wrote down at all.`
+        heading: `Different Rooms, Different Rules`,
+        intro: `A royal court, a family gathering, a theatre office, a television studio: every room has its own rules about who may be funny and what laughter is for. Step into situations where humour entertains, protects, embarrasses, connects, or quietly changes the balance of power.`
     },
+
     discussion: {
-        heading: `Who Laughed, Who Didn’t`
+        heading: `What Makes the Room Laugh`
     },
+
     reflection: {
-        title: `Who You Laugh With`,
-        summary: `Before you leave the subject, two questions that are less about jokes than about the people they happen between.`,
+        title: `After the Laugh`,
+        summary: `Step back from the individual stories. Notice what humour reveals about the people involved and the atmosphere they create together.`,
         questions: [
-            `Whose laugh do you actually work for?`,
-            `Whose humour could you never join in with — and is that about the jokes, or about the people?`
+            `When does humour make people feel closer?`,
+            `What kind of humour would you like more of in your own life?`
         ]
     },
+
     keyLanguage: {
-        intro: `Language for the joke, the target, the audience, and the moment somebody has to explain themselves.`
+        intro: `Expressions for describing what makes people laugh, reading the room, and reacting when a joke changes the mood.`
     }
 };
 
 const discussionSets = [
     {
-        id: 'set-funny-to-me',
-        title: `It Was Funny to Me`,
+        id: 'set-what-makes-you-laugh',
+        title: `What Gets You`,
         stage: `React`,
         icon: 'react',
-        description: `The things you laugh at alone, the ones you laugh at to be polite, and the story your friends will not stop telling.`,
+        description: `The silly things that always work, the laugh you hide, and the stories that improve every year.`,
+
         moments: [
             {
-                id: 'moment-funny-to-you-alone',
-                preview: `The thing only you laugh at.`,
-                question: `What makes you laugh that the people closest to you do not find funny at all — a kind of joke, a video you have watched far too many times, a word, somebody’s voice? What happens when you try to show them?`,
+                id: 'moment-humour-that-always-works',
+                preview: `You know it is silly. It still works.`,
+                question: `What kind of humour gets you every time — terrible puns, impressions, dry comments, absurd videos, or something else? Give us one example that would probably work on you today.`,
+
                 upgrade: {
-                    term: `have a soft spot for something`,
-                    type: `phrase`,
-                    definition: `To like something more than you can fully explain, often something other people think is poor.`,
-                    ordinary: `“I like terrible puns more than I should, and I have no defence for it.”`,
-                    upgraded: `“I’ve got a soft spot for terrible puns, and I have no defence for it.”`,
+                    term: `crack someone up`,
+                    type: `phrasal verb`,
+                    definition: `To make someone laugh a lot.`,
+                    ordinary: `“That ridiculous video makes me laugh every time, even though I know exactly what is coming.”`,
+                    upgraded: `“That ridiculous video cracks me up every time, even though I know exactly what is coming.”`,
                     priority: 'key',
-                    atlasPrompt: `What do you have a soft spot for that surprises people — a food, a song, a shop, a place you keep going back to?`
+                    atlasPrompt: `Who can crack you up even when they are not trying to be funny?`
                 }
             },
             {
-                id: 'moment-worst-time-to-laugh',
-                preview: `The worst possible moment.`,
-                question: `Where were you the last time you completely lost control of your laughing at exactly the wrong moment — a funeral, a meeting, an exam, a serious conversation? What started it — or have you sat and watched somebody else fail to stop?`,
+                id: 'moment-laugh-at-the-wrong-time',
+                preview: `Do not look at the other person.`,
+                question: `When have you had to fight a laugh at exactly the wrong moment — during a meeting, ceremony, class, or serious conversation? What made it so difficult not to laugh?`,
+
                 upgrade: {
-                    term: `have the giggles`,
+                    term: `keep a straight face`,
                     type: `phrase`,
-                    definition: `To be unable to stop laughing, usually at a bad moment.`,
-                    ordinary: `“Once we started laughing we could not stop, and the more serious it became the worse we got.”`,
-                    upgraded: `“Once we had the giggles, the more serious it became the worse we got.”`,
-                    priority: 'standard',
-                    atlasPrompt: `Who do you get the giggles with most easily, and what is it about that person?`
-                }
-            },
-            {
-                id: 'moment-the-story-they-retell',
-                preview: `The story that keeps improving.`,
-                question: `Most groups have one story they will not stop telling about one person. Which one does your family, your workplace, or your circle of friends keep going back to — who tells it best, and how much better has it got since it actually happened?`,
-                upgrade: {
-                    term: `dine out on something`,
-                    type: `idiom`,
-                    definition: `To keep getting attention or social value from telling the same story.`,
-                    ordinary: `“He has been telling that story at every party for ten years and people still buy him drinks for it.”`,
-                    upgraded: `“He has been dining out on that story for ten years.”`,
-                    priority: 'standard',
-                    atlasPrompt: `What has somebody you know been dining out on for years — a job they once had, a person they once met, a piece of extraordinary luck?`
-                }
-            },
-            {
-                id: 'moment-the-private-phrase',
-                preview: `Four words, and nobody outside understands.`,
-                question: `What phrase does your family, your team, or your group of friends say that would mean nothing at all to anyone outside it? Where did it come from — and what happens when somebody new hears it for the first time?`,
-                upgrade: {
-                    term: `you had to be there`,
-                    type: `spoken phrase`,
-                    definition: `Said when something cannot be made funny to somebody who was not present.`,
-                    ordinary: `“I could explain the joke, but it would only be funny to somebody who was there at the time.”`,
-                    upgraded: `“I could explain the joke, but you had to be there.”`,
+                    definition: `To stop yourself from smiling or laughing.`,
+                    ordinary: `“I tried not to smile, but the moment I looked at my sister I completely lost control.”`,
+                    upgraded: `“I tried to keep a straight face, but the moment I looked at my sister I completely lost control.”`,
                     priority: 'key',
-                    atlasPrompt: `When have you given up describing something — a night out, a place, an argument at work — because you had to be there?`
+                    atlasPrompt: `When is it hardest for you to keep a straight face — during a joke, a surprise, or somebody’s very serious speech?`
                 }
             },
             {
-                id: 'moment-laughing-to-be-polite',
-                preview: `The laugh you do not mean.`,
-                question: `Whose jokes do you laugh at without ever really finding them funny — a boss, a relative, a customer, a friend who is trying hard? And is anybody doing it for you?`,
+                id: 'moment-story-improves-every-year',
+                preview: `The facts stay still. The story grows.`,
+                question: `What story does your family, team, or group keep retelling because it always gets a laugh? Tell us what really happened first — then the version people tell now.`,
+
                 upgrade: {
-                    term: `humour someone`,
+                    term: `embellish`,
                     type: `verb`,
-                    definition: `To go along with somebody so as not to upset or annoy them.`,
-                    ordinary: `“I let him tell the same story again because it was easier than saying anything.”`,
-                    upgraded: `“I humoured him and let him tell the same story again.”`,
+                    definition: `To make a story more interesting by adding or exaggerating details.`,
+                    ordinary: `“The dog was tiny, but he makes it sound enormous whenever he tells the story.”`,
+                    upgraded: `“The dog was tiny, but he embellishes the story whenever he tells it.”`,
                     priority: 'standard',
-                    atlasPrompt: `When do you humour somebody rather than argue — a relative, a customer, a small child, somebody at work?`
+                    atlasPrompt: `What kinds of stories do people tend to embellish when they tell them again?`
+                }
+            },
+            {
+                id: 'moment-ordinary-line-funny',
+                preview: `The words are ordinary. The delivery is not.`,
+                question: `Who can make you laugh by saying something completely ordinary in exactly the right way? Give us one line they might say, and try to deliver it like them.`,
+
+                upgrade: {
+                    term: `deadpan`,
+                    type: `adjective`,
+                    definition: `Funny because it is delivered with a completely serious expression or voice.`,
+                    ordinary: `“His completely serious delivery made the ordinary comment much funnier.”`,
+                    upgraded: `“His deadpan delivery made the ordinary comment much funnier.”`,
+                    priority: 'standard',
+                    atlasPrompt: `Who has a deadpan way of speaking, and when does it work best?`
+                }
+            },
+            {
+                id: 'moment-room-helps-the-joke',
+                preview: `The joke ends. The room helps.`,
+                question: `Someone tells a weak joke and looks around hopefully. Do you laugh, smile, tease them about it, or let the silence sit there? What would decide your reaction?`,
+
+                upgrade: {
+                    term: `laugh along`,
+                    type: `phrasal verb`,
+                    definition: `To join other people in laughing, sometimes mainly to be friendly or polite.`,
+                    ordinary: `“I did not find it funny, but everyone else laughed, so I joined them.”`,
+                    upgraded: `“I did not find it funny, but everyone else laughed, so I laughed along.”`,
+                    priority: 'standard',
+                    atlasPrompt: `When do people laugh along even though they have not fully understood the joke?`
                 }
             }
         ],
+
         makeItReal: {
-            title: `The thing that does not travel`,
-            prompt: `Take one thing that is funny inside your language, your family, or your workplace — a phrase, a running joke, a way of saying something. Explain it to somebody with none of the context, until they understand why it works. The aim is to be understood, not to get a laugh.`
+            title: `Same Facts, Funnier Telling`,
+            prompt: `Choose a small inconvenience and tell it once as a plain factual report. Then retell it to make your tutor laugh without inventing anything. Change only the timing, emphasis, order, and details you choose to notice.`
         }
     },
+
     {
-        id: 'set-what-a-joke-does',
-        title: `What a Joke Actually Does`,
+        id: 'set-who-gets-to-joke',
+        title: `Who Gets to Say It`,
         stage: `Explain`,
         icon: 'explain',
-        description: `Who is allowed, who it is aimed at, who is watching — and what it costs when it goes wrong.`,
+        description: `Permission, timing, repair, and what happens when the same joke lands differently between people.`,
+
         moments: [
             {
-                id: 'moment-who-is-allowed',
-                preview: `One person can say anything.`,
-                question: `In most groups there is somebody who can say things that would start an argument if anyone else said them. Who is that where you work or in your family — and how did they earn the right, or has nobody ever questioned it?`,
+                id: 'moment-risky-joke-still-works',
+                preview: `From them, it somehow works.`,
+                question: `Think of someone who can make a rude or risky joke and still keep everyone on their side. What do they have that another person would not — trust, warmth, timing, status, or something else?`,
+
                 upgrade: {
                     term: `get away with something`,
                     type: `phrasal verb`,
-                    definition: `To do something you should not be able to do without being punished or challenged.`,
-                    ordinary: `“If anybody else said that there would be an argument, but somehow nobody ever challenges him.”`,
-                    upgraded: `“If anybody else said that there would be an argument, but somehow he gets away with it.”`,
+                    definition: `To do or say something questionable without being challenged or punished.`,
+                    ordinary: `“If anybody else made that comment, people would be offended, but nobody challenges her.”`,
+                    upgraded: `“If anybody else made that comment, people would be offended, but she always gets away with it.”`,
                     priority: 'key',
-                    atlasPrompt: `What do you get away with at home or at work that other people would never be allowed?`
+                    atlasPrompt: `What can somebody you know get away with because people trust or like them?`
                 }
             },
             {
-                id: 'moment-only-joking',
-                preview: `“I’m only joking.”`,
-                question: `Somebody says something that stings and then adds “I’m only joking.” When is that a real repair, and when is it a way of saying the thing and keeping it? What would make you believe them?`,
+                id: 'moment-repair-after-bad-joke',
+                preview: `“I was only joking” is not enough.`,
+                question: `Someone makes a joke that hurts, then says, “I’m only joking.” What could they say or do next to show they understand what went wrong?`,
+
                 upgrade: {
-                    term: `pass something off as something`,
+                    term: `own up to something`,
                     type: `phrasal verb`,
-                    definition: `To present something as though it were something else, usually to avoid trouble.`,
-                    ordinary: `“He said something cruel and then pretended he had meant it as a joke.”`,
-                    upgraded: `“He said something cruel and then passed it off as a joke.”`,
-                    priority: 'standard',
-                    atlasPrompt: `When have you watched somebody pass off a mistake as something they meant to do?`
+                    definition: `To admit that you did something wrong or were responsible for a mistake.`,
+                    ordinary: `“He admitted that the joke was hurtful instead of continuing to make excuses.”`,
+                    upgraded: `“He owned up to the fact that the joke was hurtful instead of continuing to make excuses.”`,
+                    priority: 'key',
+                    atlasPrompt: `When is it difficult for people to own up to a mistake, even when everyone knows what happened?`
                 }
             },
             {
-                id: 'moment-joke-to-escape',
-                preview: `A joke instead of an apology.`,
-                question: `Have you ever watched somebody make a joke to get themselves out of trouble? Did it work, or did it make everything considerably worse? What was the situation?`,
+                id: 'moment-always-the-target',
+                preview: `Everybody laughs. Always at one person.`,
+                question: `The same person is always the target of the group’s jokes. They laugh too, but less each time. When would you step in — and what would you actually say?`,
+
+                upgrade: {
+                    term: `pick on someone`,
+                    type: `phrasal verb`,
+                    definition: `To repeatedly treat one person unfairly through teasing, criticism, or unkind behaviour.`,
+                    ordinary: `“They always chose the newest employee as the target of their jokes.”`,
+                    upgraded: `“They always picked on the newest employee.”`,
+                    priority: 'key',
+                    atlasPrompt: `Why do some groups repeatedly pick on one person, and what usually makes it stop?`
+                }
+            },
+            {
+                id: 'moment-one-line-saves-room',
+                preview: `One line, and the room breathes again.`,
+                question: `A tense meeting has stalled after a small mistake. Would you use humour? Give one line that might help without embarrassing anyone — or explain why you would stay serious.`,
+
                 upgrade: {
                     term: `defuse`,
                     type: `verb`,
-                    definition: `To make a tense or dangerous situation calmer.`,
-                    ordinary: `“He made one joke and the tension in the room disappeared.”`,
-                    upgraded: `“He made one joke and defused the whole thing.”`,
-                    priority: 'standard',
-                    atlasPrompt: `Who do you know who is good at defusing an argument — what do they actually do?`
+                    definition: `To make a tense or difficult situation calmer.`,
+                    ordinary: `“She made a light comment that reduced the tension immediately.”`,
+                    upgraded: `“She made a light comment that defused the tension immediately.”`,
+                    priority: 'key',
+                    atlasPrompt: `Who is good at defusing tension, and what do they do besides making jokes?`
                 }
             },
             {
-                id: 'moment-funny-with-or-at',
-                preview: `Funny with you, or funny at you.`,
-                question: `Some people are funny with you; some are funny at whoever is nearest. Which do you actually enjoy being around — and is the second kind ever worth it?`,
-                upgrade: {
-                    term: `at someone’s expense`,
-                    type: `phrase`,
-                    definition: `In a way where one person gains and another is made to look bad or loses something.`,
-                    ordinary: `“Most of his jokes work because somebody else is being made to look stupid.”`,
-                    upgraded: `“Most of his jokes are at somebody else’s expense.”`,
-                    priority: 'standard',
-                    atlasPrompt: `Where else does one person gain at somebody else’s expense — at work, in a family, in a company you have dealt with?`
-                }
-            },
-            {
-                id: 'moment-joke-in-translation',
-                preview: `Hilarious at home. Nothing here.`,
-                question: `What is funny in your own language that collapses completely in English, or the other way round? What actually disappears in the move — the sound of the words, the thing everybody already knows, the person being imitated?`,
+                id: 'moment-adapt-joke-for-new-room',
+                preview: `Hilarious at home. Silence here.`,
+                question: `Think of a joke, phrase, or type of humour that works where you come from but might fail somewhere else. What would you change so another audience had a chance of enjoying it?`,
+
                 upgrade: {
                     term: `get the reference`,
                     type: `phrase`,
-                    definition: `To understand what somebody is pointing at when they mention something indirectly.`,
-                    ordinary: `“I made the joke and nobody in the room understood what I was pointing at.”`,
-                    upgraded: `“I made the joke and nobody got the reference.”`,
+                    definition: `To understand the person, event, film, song, or idea that a comment indirectly mentions.`,
+                    ordinary: `“Nobody laughed because they did not understand which television programme I was referring to.”`,
+                    upgraded: `“Nobody laughed because they did not get the reference.”`,
                     priority: 'standard',
-                    atlasPrompt: `When has somebody made a reference — to a film, a song, a piece of news — that you completely missed?`
+                    atlasPrompt: `When have you missed a reference that everybody else seemed to understand?`
                 }
             }
         ],
+
         makeItReal: {
-            title: `Change one thing`,
-            prompt: `Think of a joke you have watched go badly wrong — yours or somebody else’s. Now change one single thing about the situation: who said it, who it was about, or who else was in the room. Would it have worked? Then say which of those three was doing the real damage.`
+            title: `Same Line, Different Room`,
+            prompt: `Say “Well, that went perfectly” after your own small mistake, after a close friend’s mistake, and after a colleague’s mistake in a tense meeting. Change your tone and add one sentence each time. Which version feels safest?`
         }
     },
+
     {
-        id: 'set-cost-and-saved',
-        title: `What It Cost, What It Saved`,
+        id: 'set-what-laughter-leaves',
+        title: `What Laughter Leaves`,
         stage: `Reflect and Relate`,
         icon: 'reflect',
-        description: `The joke that helped, the one you would unsay, and the humour you picked up from somebody else without noticing.`,
+        description: `The people who make hard days lighter, the humour you inherit, and what changes with time.`,
+
         moments: [
             {
-                id: 'moment-humour-that-helped',
-                preview: `The right joke at the worst time.`,
-                question: `Who has made you laugh when things were genuinely bad — for you, or for somebody you were standing next to? A long delay, a disaster at work, a room where nobody knew what to say. What did they say, and why did it help instead of offend?`,
+                id: 'moment-person-lightens-bad-day',
+                preview: `They knew how to help without pretending.`,
+                question: `Who has made a bad day feel lighter without pretending the problem was small? What did they say or do that helped rather than annoyed you?`,
+
                 upgrade: {
-                    term: `see the funny side`,
+                    term: `lift the mood`,
                     type: `phrase`,
-                    definition: `To find something amusing in a situation that is difficult or annoying.`,
-                    ordinary: `“Even while everything was going wrong, she could still find something amusing in it.”`,
-                    upgraded: `“Even while everything was going wrong, she could still see the funny side.”`,
-                    priority: 'standard',
-                    atlasPrompt: `When have you managed to see the funny side at the time rather than years later — a journey, a job, a piece of bad luck?`
-                }
-            },
-            {
-                id: 'moment-the-joke-you-regret',
-                preview: `The one you would unsay.`,
-                question: `Is there a joke you wish you had never made — or one you watched somebody else make and instantly regret? What made it the wrong one: the person, the room, or the moment it was said?`,
-                upgrade: {
-                    term: `kick yourself`,
-                    type: `idiom`,
-                    definition: `To be annoyed with yourself about something you did or said.`,
-                    ordinary: `“I still feel annoyed with myself about what I said that evening.”`,
-                    upgraded: `“I still kick myself about what I said that evening.”`,
+                    definition: `To make people feel more cheerful, relaxed, or hopeful.`,
+                    ordinary: `“Her comment made everyone feel a little better without ignoring the problem.”`,
+                    upgraded: `“Her comment lifted the mood without ignoring the problem.”`,
                     priority: 'key',
-                    atlasPrompt: `What decision do you still kick yourself about — a job, a purchase, something you did not say at the time?`
+                    atlasPrompt: `What small thing can lift the mood in a difficult meeting or a tired household?`
                 }
             },
             {
-                id: 'moment-stopped-being-funny',
-                preview: `It was funny then.`,
-                question: `What did people around you laugh at years ago that would land very differently now — at home, at work, on television? Did the joke change, or did the people?`,
+                id: 'moment-humour-you-left-behind',
+                preview: `You used to laugh. Now you do not.`,
+                question: `What kind of humour did you love when you were younger but no longer enjoy? What changed — the jokes, the world around you, or your own taste?`,
+
                 upgrade: {
-                    term: `not age well`,
-                    type: `phrase`,
-                    definition: `To seem much worse now than it did at the time.`,
-                    ordinary: `“Those jokes were completely normal at the time, but watching them now is uncomfortable.”`,
-                    upgraded: `“Those jokes have not aged well.”`,
-                    priority: 'key',
-                    atlasPrompt: `What else from twenty years ago has not aged well — an advert, a film, a piece of technology, a rule at work?`
-                }
-            },
-            {
-                id: 'moment-whose-humour-you-use',
-                preview: `Whose jokes are you making?`,
-                question: `Whose sense of humour did you inherit — a parent, an older sibling, a teacher, an old colleague — or whose can you hear coming out of somebody else you know? What of theirs is still being said?`,
-                upgrade: {
-                    term: `take after someone`,
+                    term: `grow out of something`,
                     type: `phrasal verb`,
-                    definition: `To be similar to an older relative or somebody you grew up around.`,
-                    ordinary: `“My sense of humour is very like my father’s, which I did not notice until recently.”`,
-                    upgraded: `“I take after my father more than I realised.”`,
+                    definition: `To stop enjoying or doing something as you become older or change.`,
+                    ordinary: `“I loved that kind of comedy when I was younger, but it no longer appeals to me.”`,
+                    upgraded: `“I loved that kind of comedy when I was younger, but I grew out of it.”`,
                     priority: 'key',
-                    atlasPrompt: `Who do you take after in something that has nothing to do with jokes — the way you work, cook, argue, or spend money?`
+                    atlasPrompt: `What taste, habit, or opinion have you grown out of in recent years?`
                 }
             },
             {
-                id: 'moment-worse-to-be-around',
-                preview: `Pick the one you can bear.`,
-                question: `Which is worse to be around: the person who goes cold the second anybody teases them, or the person who will not stop making jokes? Make the case — and does your answer change depending on whether it is a friend, a colleague, or a relative?`,
+                id: 'moment-person-shaped-your-humour',
+                preview: `You sound more like them every year.`,
+                question: `Who has influenced the way you joke — a parent, sibling, friend, teacher, or colleague? What do you now say or do because of them?`,
+
                 upgrade: {
-                    term: `take a joke`,
+                    term: `rub off on someone`,
+                    type: `phrasal verb`,
+                    definition: `When a person’s habits, attitudes, or style gradually influence somebody else.`,
+                    ordinary: `“After working with her for years, I started using the same dry comments.”`,
+                    upgraded: `“After working with her for years, her dry sense of humour rubbed off on me.”`,
+                    priority: 'key',
+                    atlasPrompt: `What positive habit has rubbed off on you from somebody else?`
+                }
+            },
+            {
+                id: 'moment-weekend-with-two-extremes',
+                preview: `Funny at nine. Exhausting by lunch.`,
+                question: `Would you rather spend a weekend with someone who jokes about everything, or someone who takes every sentence seriously? Which person would start annoying you first — and when?`,
+
+                upgrade: {
+                    term: `wear thin`,
                     type: `phrase`,
-                    definition: `To accept being laughed at without becoming upset.`,
-                    ordinary: `“He gets offended the moment anybody teases him, even gently.”`,
-                    upgraded: `“He can’t take a joke, even a gentle one.”`,
+                    definition: `To become less enjoyable or acceptable because something continues for too long.`,
+                    ordinary: `“His constant jokes were funny at first, but they became annoying by the end of the day.”`,
+                    upgraded: `“His constant jokes were funny at first, but they wore thin by the end of the day.”`,
                     priority: 'standard',
-                    atlasPrompt: `Where is it hardest to take a joke — at work, in front of your family, from somebody you have only just met?`
+                    atlasPrompt: `What small habit can wear thin very quickly when you spend a lot of time with someone?`
+                }
+            },
+            {
+                id: 'moment-month-without-jokes',
+                preview: `Take the laughter out and see what changes.`,
+                question: `Imagine nobody in one group you know could joke for a month — your family, workplace, class, or friends. Which group would change most, and what would become harder first?`,
+
+                upgrade: {
+                    term: `take the edge off`,
+                    type: `phrase`,
+                    definition: `To make an unpleasant or difficult situation feel less intense.`,
+                    ordinary: `“A little humour made the long meeting feel less tense and difficult.”`,
+                    upgraded: `“A little humour took the edge off the long meeting.”`,
+                    priority: 'standard',
+                    atlasPrompt: `What helps take the edge off a stressful day when the problem itself cannot be solved immediately?`
                 }
             }
         ],
+
         makeItReal: {
-            title: `From the other side`,
-            prompt: `Choose a joke that was aimed at you, or at somebody you know well. Tell it again as the person who made it — what they thought they were doing, and what they expected to happen. You are not defending them. You are speaking as them.`
+            title: `Two Sides of the Same Joke`,
+            prompt: `Choose a harmless moment of teasing, real or invented. Tell it first as the person making the joke, then as the person receiving it. Keep the facts the same and let the meaning change.`
         }
     }
 ];
 
 const clCards = [
     {
-        id: 'cl-the-only-one-allowed',
-        contextLine: `Royal and noble households · Many eras`,
-        title: `The Only Person Allowed`,
-        teaser: `One man in the hall could mock the king and keep his job.`,
-        context: `Fools and jesters were kept in royal and noble households across Europe and beyond. A common feature of the role, in many accounts, was licence: the fool could say things to powerful people that would have been dangerous coming from anybody else. How far that protection really went is unclear and almost certainly varied — some were dismissed, and some were punished. But the figure keeps returning: one person in the room permitted to say the unsayable.`,
-        mainQuestion: `Would you take the job? Paid to say what everybody else is thinking, to somebody who can dismiss you at any moment.`,
+        id: 'cl-joke-beside-throne',
+        contextLine: `Royal courts · Europe and beyond`,
+        title: `The Joke Beside the Throne`,
+        teaser: `The entertainer stands close enough to mock the powerful.`,
+
+        context: `Royal and noble households in Europe and elsewhere sometimes employed fools or jesters to entertain the court. A few became known for saying things other courtiers would not risk saying. Comedy and playful behaviour gave them some freedom, but not complete safety: a joke that pleased a ruler one day could still cost them their position the next.`,
+
+        mainQuestion: `Would you take a job where you were expected to say what others feared to say, knowing your safety depended on making the ruler laugh?`,
+
         followTheThread: [
-            `Does saying something as a joke make it safer to say, or just easier to ignore?`,
-            `Who is the closest thing to that role now — and are they protected, or only tolerated?`
+            `Does humour make criticism easier to hear, or easier to dismiss?`,
+            `Who plays a similar role now — a comedian, a friend, a colleague, or somebody else?`
         ],
+
         upgrade: {
-            term: `soften the blow`,
+            term: `speak your mind`,
             type: `phrase`,
-            definition: `To make bad or unwelcome news easier for somebody to receive.`,
-            ordinary: `“He told them the decision, but he made a joke first so that it was easier to hear.”`,
-            upgraded: `“He made a joke first to soften the blow.”`,
+            definition: `To say honestly what you think, even when other people may not like it.`,
+            ordinary: `“Everybody else stayed quiet, but the entertainer said exactly what he thought.”`,
+            upgraded: `“Everybody else stayed quiet, but the entertainer spoke his mind.”`,
             priority: 'key',
-            atlasPrompt: `How do you soften the blow when you have to give somebody news they will not want?`
+            atlasPrompt: `When is it easy for you to speak your mind, and when do you become more careful?`
         }
     },
+
     {
-        id: 'cl-obliged-to-mock',
-        contextLine: `Many societies`,
-        title: `Required to Insult Him`,
-        teaser: `With certain relatives, teasing is not a choice. It is the relationship.`,
-        context: `Anthropologists have described a pattern reported in many societies across Africa, South Asia, the Pacific and elsewhere: some family relationships carry an obligation to joke, tease or insult, while others require strict politeness. A person might be expected to mock one particular cousin or in-law freely, and to speak to another relative with great care. The forms differ widely, and in some traditions the joking is expected precisely at the hardest moments — weddings, and funerals.`,
-        mainQuestion: `If teasing somebody were a duty rather than a choice, would that make it easier to take — or would you still hear an insult?`,
+        id: 'cl-insults-keep-peace',
+        contextLine: `Niger · Joking relationships`,
+        title: `Insults That Keep the Peace`,
+        teaser: `Certain groups are expected to tease — and to stay friends.`,
+
+        context: `In Niger, some families, communities, and ethnic groups are linked by recognised “joking relationships.” They may trade playful insults in markets, workplaces, weddings, or funerals. The relationship can also require mutual help and encourage people to settle disputes peacefully, so the teasing rests on shared rules and history rather than simple rudeness.`,
+
+        mainQuestion: `Would knowing the teasing followed a shared rule make it easier to accept, or would you still wonder whether the insult was real?`,
+
         followTheThread: [
-            `Which relationships in your own life already work like this, with no rule written anywhere?`,
-            `Is there anybody you are careful with — somebody you would never joke with, and could not fully explain why?`
+            `Which relationships in your own life already allow a surprising amount of teasing?`,
+            `Can a joke help people tell an uncomfortable truth without starting a fight?`
         ],
+
         upgrade: {
-            term: `fair game`,
+            term: `take something in good humour`,
             type: `phrase`,
-            definition: `Somebody or something that everyone accepts can be criticised or joked about.`,
-            ordinary: `“In that family, everybody accepts that the new husband can be joked about as much as anyone likes.”`,
-            upgraded: `“In that family, the new husband is fair game.”`,
+            definition: `To react calmly and positively to teasing, criticism, or a small inconvenience.`,
+            ordinary: `“He accepted the teasing without becoming offended because he understood the relationship.”`,
+            upgraded: `“He took the teasing in good humour because he understood the relationship.”`,
             priority: 'standard',
-            atlasPrompt: `What is fair game for criticism where you work, and who or what is never touched?`
+            atlasPrompt: `What kind of teasing can you take in good humour, and what kind immediately annoys you?`
         }
     },
+
     {
-        id: 'cl-read-before-it-was-said',
-        contextLine: `Britain · Until the late 1960s`,
-        title: `Somebody Read It First`,
-        teaser: `Every line of every play was approved by a government office before an audience heard it.`,
-        context: `For centuries in Britain, plays had to be sent to a government office before they could be performed. The office could cut lines, demand changes, or refuse a play altogether. Writers learned to guess what would be cut, and to bury meanings the office might miss. The power was finally removed in the late 1960s. Arrangements of this kind have existed in many countries, and in some places still do.`,
-        mainQuestion: `If you had to send one of your own jokes to that office, what would you cut before it ever left your hands?`,
+        id: 'cl-send-joke-to-office',
+        contextLine: `Britain · 1737–1968`,
+        title: `Send the Joke to the Office`,
+        teaser: `The audience cannot hear the line until an official approves it.`,
+
+        context: `From 1737 until 1968, new stage plays in Britain had to be licensed by the Lord Chamberlain before public performance. The office could require cuts or refuse permission. Writers and producers therefore learned to defend lines, rewrite them, or make difficult meanings less obvious before the audience ever entered the theatre.`,
+
+        mainQuestion: `If every joke in a show needed official approval, would comedy become safer, duller, or more inventive?`,
+
         followTheThread: [
-            `Where do you already edit yourself before you speak — at work, online, in front of certain relatives?`,
-            `Does knowing something is forbidden make a joke funnier, or only more expensive?`
+            `Where do people already edit themselves before speaking — at work, online, or around certain relatives?`,
+            `Can a forbidden joke become funnier simply because people know it is forbidden?`
         ],
+
         upgrade: {
             term: `tone something down`,
             type: `phrasal verb`,
-            definition: `To make something less strong, less extreme, or less likely to offend.`,
-            ordinary: `“He rewrote the message and made it much less forceful before he sent it.”`,
-            upgraded: `“He toned the message down before he sent it.”`,
+            definition: `To make something less strong, extreme, or likely to offend.`,
+            ordinary: `“She rewrote the scene so the criticism was less direct.”`,
+            upgraded: `“She toned the scene down so the criticism was less direct.”`,
             priority: 'key',
-            atlasPrompt: `When did you last tone something down before sending it — an email, a message, a piece of feedback?`
+            atlasPrompt: `When did you last tone down a message, joke, or piece of feedback before sharing it?`
         }
     },
+
     {
-        id: 'cl-insults-with-rules',
-        contextLine: `Old Norse and Scots verse`,
-        title: `Insults With Rules`,
-        teaser: `Two people trading elaborate abuse in verse, with an audience keeping score.`,
-        context: `Old Norse and older Scots literature record contests of formal insult, sometimes in verse, in which two people traded elaborate abuse in front of an audience. The exchanges could be extremely rude and very personal, and they were also performances with rules — the admiration was for how the insult was built, not only for the offence in it. Formal insult contests have been recorded in a number of other cultures too.`,
-        mainQuestion: `Is there anywhere near you where insults work like this — a sport, a workplace, a family, a group of friends? Who would win, and what makes them good at it?`,
+        id: 'cl-rakugo-cushion',
+        contextLine: `Japan · Rakugo`,
+        title: `A Whole Cast on One Cushion`,
+        teaser: `One seated performer becomes every person in the story.`,
+
+        context: `Rakugo is a traditional Japanese form of comic storytelling. A performer sits alone and tells a story, shifting voice, expression, and gaze to play different characters. A folding fan and a small cloth may stand in for different objects, while the audience follows an entire scene created mostly through language, timing, and imagination.`,
+
+        mainQuestion: `Would you rather watch comedy with a huge stage and fast visuals, or one person creating everything from a cushion? What would hold your attention?`,
+
         followTheThread: [
-            `Does an audience make an insult safer, or does it just stop anybody backing down?`,
-            `Would you rather be beaten by somebody genuinely sharper than you, or spared by somebody being kind?`
+            `What can a live storyteller do that a filmed comedy cannot?`,
+            `Which matters more in a funny story: the words, the voice, or the pauses?`
         ],
+
         upgrade: {
-            term: `give as good as you get`,
-            type: `idiom`,
-            definition: `To answer attacks or criticism with equal force rather than accepting them.`,
-            ordinary: `“They criticised her constantly, but she always answered with something just as sharp.”`,
-            upgraded: `“They criticised her constantly, but she always gave as good as she got.”`,
-            priority: 'standard',
-            atlasPrompt: `Who do you know who gives as good as they get — in an argument, a negotiation, or a family disagreement?`
+            term: `bring something to life`,
+            type: `phrase`,
+            definition: `To make a story, idea, or character feel vivid and real.`,
+            ordinary: `“With only her voice and face, she made every character feel real.”`,
+            upgraded: `“With only her voice and face, she brought every character to life.”`,
+            priority: 'key',
+            atlasPrompt: `Who is good at bringing a story to life, and what do they do when they tell it?`
         }
     },
+
     {
-        id: 'cl-a-tool-that-does-not-exist',
-        contextLine: `Workshops and kitchens · Many countries`,
-        title: `The Tool That Does Not Exist`,
-        teaser: `The new arrival is sent to fetch something nobody has ever owned.`,
-        context: `In workshops, kitchens, building sites and army units, a new arrival is sent to fetch something that does not exist: striped paint, a left-handed screwdriver, a bucket of steam, a long weight. Versions are reported in many countries and many trades. Everybody else already knows, and the newcomer is sent from one department to the next while the story travels ahead of them.`,
-        mainQuestion: `Everybody in the building knows except one person. Is the joke on the newcomer — or is the newcomer just the excuse for everybody else to enjoy themselves?`,
+        id: 'cl-striped-paint',
+        contextLine: `Workshops and job sites · Many countries`,
+        title: `Go and Find the Striped Paint`,
+        teaser: `The new person is sent for a tool that does not exist.`,
+
+        context: `A long-running workplace prank sends a newcomer to fetch an impossible item: striped paint, a left-handed screwdriver, a bucket of steam, or a “long weight.” The next person may continue the joke and send them somewhere else. For the experienced workers, the fun is shared knowledge. For the newcomer, it may feel like a welcome, a test, or a public waste of time.`,
+
+        mainQuestion: `At what point does this become a friendly initiation — and at what point is it simply picking on the new person?`,
+
         followTheThread: [
-            `How long should it run before somebody tells them?`,
-            `Afterwards, is the group easier to join — or have you simply been shown where you stand?`
+            `How quickly should somebody reveal the joke?`,
+            `Would you rather be fooled for five minutes or be the only person who was not included?`
         ],
+
         upgrade: {
             term: `be in on something`,
             type: `phrase`,
-            definition: `To be one of the people who know about a secret or a plan.`,
-            ordinary: `“Everybody in the office knew what was going to happen except me.”`,
-            upgraded: `“Everybody in the office was in on it except me.”`,
+            definition: `To know about a secret, joke, or plan that other people do not know about.`,
+            ordinary: `“Everybody in the workshop knew about the trick except the new employee.”`,
+            upgraded: `“Everybody in the workshop was in on the trick except the new employee.”`,
             priority: 'key',
-            atlasPrompt: `When were you the last to be let in on something at work or in your family — and how did you find out?`
+            atlasPrompt: `When were you the last person to be let in on a plan or an inside joke?`
         }
     },
+
     {
-        id: 'cl-a-day-for-lying',
-        contextLine: `Many countries · One day a year`,
-        title: `A Day When Lying Is Allowed`,
-        teaser: `For a few hours the rules are suspended. Then they come back.`,
-        context: `In many countries one day a year is set aside for tricks. In much of Europe and the English-speaking world it falls on 1 April; in Spain and much of Latin America a comparable tradition falls on 28 December. Newspapers and broadcasters have often joined in with invented stories. The origins are disputed and the customs differ, but a common feature is a limit: in some traditions the joking is supposed to stop by midday, and the trickster is expected to reveal themselves.`,
-        mainQuestion: `Somebody tricks you at eleven in the morning and confesses at noon. Are you more forgiving — or more annoyed that it was planned?`,
+        id: 'cl-inocentes',
+        contextLine: `Spain · 28 December`,
+        title: `The News May Be Lying Today`,
+        teaser: `For one day, friends and broadcasters are allowed to trick you.`,
+
+        context: `In Spain, 28 December is the Día de los Santos Inocentes. Friends play inocentadas — practical jokes — and newspapers, broadcasters, or brands may publish invented stories. Some towns add flour fights, comic officials, dances, or other local celebrations. The date creates a temporary rule: be ready to doubt what you hear, even when it arrives in a serious voice.`,
+
+        mainQuestion: `When everyone knows it is a day for tricks, would you forgive them more easily — or distrust everything you heard?`,
+
         followTheThread: [
-            `Is there anybody you would never play a trick on, and what makes them different?`,
-            `Does it change anything if the trick is played on a whole country rather than on one person?`
+            `Should news organisations ever join a day built around false stories?`,
+            `What makes a trick satisfying for the person who falls for it too?`
         ],
+
         upgrade: {
             term: `fall for something`,
             type: `phrasal verb`,
-            definition: `To believe something that is not true, especially a trick or a lie.`,
-            ordinary: `“I believed the whole story completely until my sister started laughing.”`,
-            upgraded: `“I fell for the whole story until my sister started laughing.”`,
+            definition: `To believe a trick, lie, or false story.`,
+            ordinary: `“I believed the announcement completely until everybody started smiling.”`,
+            upgraded: `“I fell for the announcement completely until everybody started smiling.”`,
             priority: 'key',
-            atlasPrompt: `What have you fallen for that you now think you should have questioned — an advert, an excuse, a price that was far too low?`
+            atlasPrompt: `What false claim, excuse, or advert have you fallen for because it sounded believable?`
         }
     },
+
     {
-        id: 'cl-not-meant-to-be-heard',
-        contextLine: `Hospitals, emergency services and armed forces`,
-        title: `The Joke You Were Not Meant to Hear`,
-        teaser: `People who deal with the worst things often talk about them in the least respectful way.`,
-        context: `People whose work brings them into daily contact with injury, death or danger — medical staff, emergency crews, soldiers, undertakers — are widely reported to use a very dark humour among themselves. It is usually kept strictly inside the group. Overheard by anybody else it can sound shocking, and the people who use it will often say they would rather not have to explain it.`,
-        mainQuestion: `You overhear it in a corridor. Do you judge them — and does your answer change depending on whether you are a stranger, a patient, or the relative waiting outside?`,
+        id: 'cl-audience-in-box',
+        contextLine: `United States · Early television`,
+        title: `The Audience in a Box`,
+        teaser: `A machine decides how loudly the room should laugh.`,
+
+        context: `When television comedy moved away from live audiences, producers began adding recorded laughter after filming. Sound engineer Charles Douglass developed a machine that could supply different reactions: a small chuckle, a bigger laugh, or a smoother response where the original sound was weak. Viewers heard an audience that had partly been created in the edit.`,
+
+        mainQuestion: `Does recorded laughter help you enjoy a comedy, or does it feel like somebody telling you when to laugh?`,
+
         followTheThread: [
-            `Is there humour in your own work that you would never use in front of a customer or a client?`,
-            `Does it become a different thing the moment somebody outside hears it?`
+            `Have you ever watched a comedy without its laugh track? What changed?`,
+            `Why does hearing other people laugh make a joke feel safer or funnier?`
         ],
+
         upgrade: {
-            term: `gallows humour`,
-            type: `noun`,
-            definition: `Humour about very serious or frightening things, used by the people who are inside the situation.`,
-            ordinary: `“The jokes they made about the accident were extremely dark, but it was how they got through the shift.”`,
-            upgraded: `“It was gallows humour, but it was how they got through the shift.”`,
+            term: `cue someone`,
+            type: `verb`,
+            definition: `To give someone a signal that it is time to do something.`,
+            ordinary: `“The recorded laughter signals to the viewer that this is the moment to laugh.”`,
+            upgraded: `“The recorded laughter cues the viewer to laugh.”`,
             priority: 'standard',
-            atlasPrompt: `Where else have you heard gallows humour — a delayed flight, an exam corridor, a difficult week at work?`
+            atlasPrompt: `What signals cue people to speak, stop, clap, or leave in everyday situations?`
         }
     },
+
     {
-        id: 'cl-a-joke-meant-to-be-bad',
-        contextLine: `Britain · Christmas`,
-        title: `The Joke Is Supposed to Be Terrible`,
-        teaser: `A paper hat, a plastic toy, and a joke everybody groans at on purpose.`,
-        context: `At Christmas in Britain and some other countries, people pull paper crackers at the table. Inside each one there is a paper hat, a small plastic toy, and a printed joke. The jokes are famously bad — old, obvious, groaned at rather than laughed at — and reading them aloud around the table is part of the ritual. Nobody expects to laugh. Everybody would notice if they were not there.`,
-        mainQuestion: `Every group has something like this — a joke, a song, a routine everybody says is terrible. If you were the one who could quietly drop it this year, would you?`,
+        id: 'cl-cracker-joke',
+        contextLine: `Britain and other countries · Christmas`,
+        title: `The Joke Everyone Knows Will Be Bad`,
+        teaser: `Paper crown on. Tiny toy out. Groan on cue.`,
+
+        context: `At many British Christmas tables, two people pull a paper cracker until it snaps. Inside are usually a paper crown, a tiny gift, and a printed joke. The jokes are famous for being obvious, old-fashioned, or painfully simple. Someone reads one aloud, the table groans, and then another cracker is pulled.`,
+
+        mainQuestion: `Would you keep a tradition whose jokes are meant to be bad, or replace them with jokes people might genuinely laugh at?`,
+
         followTheThread: [
-            `Why is a bad joke easier to share than a good one?`,
-            `What else survives only because stopping it would feel worse than keeping it?`
+            `Why can a bad joke be easier to share than a clever one?`,
+            `What family routine survives because removing it would feel worse than repeating it?`
         ],
+
         upgrade: {
             term: `corny`,
             type: `adjective`,
-            definition: `Too obvious, too sentimental, or too old to be clever — and often enjoyed anyway.`,
-            ordinary: `“He tells the same old obvious jokes at every family dinner and everybody groans.”`,
-            upgraded: `“He tells the same corny jokes at every family dinner and everybody groans.”`,
+            definition: `Too obvious, old-fashioned, or sentimental to feel clever, but sometimes enjoyable anyway.`,
+            ordinary: `“The jokes are old and obvious, but everybody still reads them aloud.”`,
+            upgraded: `“The jokes are corny, but everybody still reads them aloud.”`,
             priority: 'key',
-            atlasPrompt: `What do you find corny that other people love — a film ending, a song, a wedding speech, a greetings card?`
+            atlasPrompt: `What do you find corny but secretly enjoyable — a song, a film ending, a speech, or a greeting card?`
         }
     }
 ];
