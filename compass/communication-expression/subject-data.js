@@ -9,7 +9,7 @@
   the handful of sentences that turn out to have done something.
   Built for tutor-led conversation, shared-screen teaching, recognition,
   confession, playful disagreement, and sharper spoken English.
-  Compass active subject · contentVersion 3.0.1
+  Compass active subject · contentVersion 3.1.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 const MODULE = {
     id: 'communication-expression',
     schemaVersion: 2,
-    contentVersion: '3.0.1',
+    contentVersion: '3.1.0',
     title: 'Communication & Expression',
     titleHtml: 'Communication & <em>Expression</em>',
     navTitle: 'Communication',
@@ -29,38 +29,44 @@ const MODULE = {
 
 const subjectCopy = {
     cover: {
-        hook: `Everyone knows a bad communicator. Nobody thinks it's them.`
+        hook: `You know what you meant. Other people heard something else.`
     },
+
     overview: {
-        heading: `Everyone's an Expert`,
+        heading: `What People Hear`,
         intro: [
-            `You've been studying this your whole life. You know exactly who sends the four-minute voice note, who never replies, and who tells the same story at every dinner. What's harder to see is your own version — the you who appears in another language, who gets funnier with some people, quieter with others, and isn't always as easy to read as you think.`
+            `Communication is more than choosing the right words. Tone, timing, silence, habit, culture, and the person listening can all change what a message means.`
         ],
-        question: `So, are you a good communicator? Would the people who know you best agree?`
+        question: `What do people usually understand correctly about the way you communicate — and what do they often get wrong?`
     },
+
     paths: {
-        culturalLensDescription: `Whistled conversations, invented languages, ritual insults, and social codes that catch outsiders out.`,
-        discussionDescription: `Habits, verdicts, confessions, and stories — from the voice note you ignored to the sentence that changed something.`,
+        culturalLensDescription: `Explore languages, customs, and social codes that change how a message is expressed or understood.`,
+        discussionDescription: `Messages that go wrong, habits that reveal you, and words that change what happens next.`,
         reflectionTitle: `Reflection`,
-        reflectionDescription: `A place to bring together ideas from different parts of the subject.`
+        reflectionDescription: `A place to reconsider what you express, what other people receive, and what can be repaired.`
     },
+
     culturalLens: {
-        heading: `Stranger Ways to Say It`,
-        intro: `People have found strange ways to make themselves understood, and strict rules about how. Some of what follows will look absurd from the outside — and some of it, you already do.`
+        heading: `Different Rules for Saying It`,
+        intro: `Words, gestures, punctuation, and politeness do not carry the same meaning everywhere. Step into situations where a message is clear to insiders and completely different to everyone else.`
     },
+
     discussion: {
-        heading: `The Way We Really Talk`
+        heading: `How We Actually Communicate`
     },
+
     reflection: {
-        title: `The Last Word`,
-        summary: `Look back at what came up — the habits you defended, the people you recognised, and the moments that changed direction. Notice which ideas you argued with, and which ones you would repeat to someone else.`,
+        title: `What Reached the Other Person?`,
+        summary: `Look back at the habits, misunderstandings, performances, and important sentences that shaped the conversation.`,
         questions: [
-            `Whose communication habits did you recognise most — someone else's, or your own?`,
-            `Do people usually take you the way you meant, and does that change in English?`
+            `Which of your own communication habits would another person describe differently from you?`,
+            `What would you now change when a message really needs to be understood as you intended?`
         ]
     },
+
     keyLanguage: {
-        intro: `Expressions for describing people, admitting things, and saying how something landed.`
+        intro: `Expressions for describing communication habits, making meaning clear, repairing misunderstandings, and responding when words have consequences.`
     }
 };
 
@@ -70,82 +76,82 @@ const discussionSets = [
         title: `You Know Someone Like This`,
         stage: `React`,
         icon: 'react',
-        description: `The four-minute voice note, the message that just says “can we talk,” and the friend who tells the story better than it happened.`,
+        description: `Messages that create panic, embarrassment, irritation, and stories people keep retelling.`,
         moments: [
             {
                 id: 'moment-four-minute-voice-note',
-                preview: `Four minutes of audio. Two lines of content.`,
-                question: `Someone sends a four-minute voice note to say they'll be ten minutes late. Do you listen at double speed, put it off for three days, or are you secretly one of these people? Who's the worst offender you know?`,
+                preview: `Four minutes of audio. One useful sentence.`,
+                question: `A friend sends a four-minute voice note just to say they will be ten minutes late. What do you do with it, and what reply would you actually send?`,
                 upgrade: {
                     term: `long-winded`,
                     type: `adjective`,
-                    definition: `Taking far more words than necessary to say something.`,
-                    ordinary: `“He takes about ten minutes to tell you something that would fit in one sentence.”`,
-                    upgraded: `“He's incredibly long-winded.”`,
+                    definition: `Using far more words than necessary to say something.`,
+                    ordinary: `“He takes ten minutes to explain something that could fit into one sentence.”`,
+                    upgraded: `“He is incredibly long-winded.”`,
                     priority: 'key',
-                    atlasPrompt: `Who is the most long-winded person in your workplace, and what happens when they get the floor?`
+                    atlasPrompt: `Who becomes long-winded when they get the chance to speak — at work, at home, or in a group chat?`
                 }
             },
             {
                 id: 'moment-can-we-talk-later',
-                preview: `“Can we talk later?” Nothing else. No context.`,
-                question: `“Can we talk later?” “Call me when you get this.” No context, no clue, no follow-up message. What goes through your head in the next ten minutes — and who does this to you?`,
+                preview: `“Can we talk later?” Nothing else.`,
+                question: `You receive “Can we talk later?” with no context. What is the first explanation your mind invents?`,
                 upgrade: {
                     term: `fear the worst`,
                     type: `phrase`,
-                    definition: `To immediately assume the worst possible outcome.`,
-                    ordinary: `“The moment I read it, I assumed something absolutely terrible had happened.”`,
-                    upgraded: `“The moment I read it, I feared the worst.”`,
+                    definition: `To immediately assume that something very bad has happened or will happen.`,
+                    ordinary: `“As soon as I read the message, I assumed that something terrible had happened.”`,
+                    upgraded: `“As soon as I read the message, I feared the worst.”`,
                     priority: 'standard',
-                    atlasPrompt: `When did you last fear the worst and then find out it was nothing at all?`
+                    atlasPrompt: `When did you last fear the worst and then discover that nothing serious had happened?`
                 }
             },
             {
                 id: 'moment-wrong-recipient',
-                preview: `The message that went to exactly the wrong person.`,
-                question: `The complaint about your boss, sent to your boss. The screenshot forwarded to the person in it. The reply-all nobody survives. What's the worst one you've sent — or the best one you've watched land on somebody else?`,
+                preview: `The message reached exactly the wrong person.`,
+                question: `Think of a message that reached the wrong person — yours, someone else’s, or an imagined example. What did the sender mean, and how did the receiver understand it?`,
                 upgrade: {
                     term: `cringe`,
                     type: `verb`,
-                    definition: `To feel a sharp, physical embarrassment, usually about something you did.`,
-                    ordinary: `“I still feel horribly embarrassed and want to disappear whenever I remember it.”`,
-                    upgraded: `“I still cringe every time I think about it.”`,
+                    definition: `To feel sharp embarrassment about something you or another person did.`,
+                    ordinary: `“I still feel horribly embarrassed whenever I remember sending it.”`,
+                    upgraded: `“I still cringe whenever I remember sending it.”`,
                     priority: 'key',
-                    atlasPrompt: `What do you cringe at now that you thought was completely fine ten years ago?`
+                    atlasPrompt: `What do you cringe at now that seemed completely normal to you ten years ago?`
                 }
             },
             {
                 id: 'moment-small-talk-trap',
-                preview: `Twenty floors. One stranger. Nothing to say.`,
-                question: `You're stuck — in a lift, at a wedding, beside someone at a work dinner — and there is nothing to say. Is this a small pleasure or your personal hell? And what's your emergency topic?`,
+                preview: `Twenty floors. One stranger. Your opening line.`,
+                question: `Imagine you and your tutor are strangers sharing a lift for twenty floors. Start with one line you would genuinely use. What reply would make you regret starting the conversation?`,
                 upgrade: {
                     term: `strike up a conversation`,
                     type: `phrase`,
-                    definition: `To start talking to someone, often a stranger.`,
-                    ordinary: `“I started talking to the man next to me and we ended up chatting for an hour.”`,
-                    upgraded: `“I struck up a conversation with the man next to me and we ended up chatting for an hour.”`,
+                    definition: `To begin talking with someone, often a stranger.`,
+                    ordinary: `“I started talking to the woman beside me, and we continued chatting for an hour.”`,
+                    upgraded: `“I struck up a conversation with the woman beside me, and we continued chatting for an hour.”`,
                     priority: 'standard',
-                    atlasPrompt: `Where is it normal to strike up a conversation with a stranger where you live — and where would it be deeply strange?`
+                    atlasPrompt: `Where is it normal to strike up a conversation with a stranger where you live — and where would it feel strange?`
                 }
             },
             {
                 id: 'moment-the-exaggerator',
-                preview: `Great story. Definitely not what happened.`,
-                question: `Everyone knows someone whose stories are excellent and about thirty per cent true — the queue got longer, the fish got bigger, the boss said something even better than he actually said. Who is yours, and does it really matter?`,
+                preview: `Same event. A much better story.`,
+                question: `Tell one ordinary thing that happened this week. Now make the story slightly more entertaining without changing its basic truth. At what point did it stop being completely accurate?`,
                 upgrade: {
                     term: `stretch the truth`,
                     type: `idiom`,
-                    definition: `To exaggerate, without quite lying.`,
-                    ordinary: `“He wasn't exactly lying, but he was definitely making it sound better than it really was.”`,
-                    upgraded: `“He wasn't lying exactly — he was just stretching the truth.”`,
+                    definition: `To exaggerate something without inventing it completely.`,
+                    ordinary: `“He did not exactly lie, but he made the story sound much more dramatic than it was.”`,
+                    upgraded: `“He did not exactly lie, but he stretched the truth.”`,
                     priority: 'standard',
-                    atlasPrompt: `Where is stretching the truth completely acceptable — a story, a CV, a first date, a job interview?`
+                    atlasPrompt: `Where do people commonly stretch the truth — in stories, job applications, first dates, or sales conversations?`
                 }
             }
         ],
         makeItReal: {
-            title: `The one nobody let you forget`,
-            prompt: `Tell a communication disaster you can laugh about now — something said, sent, or overheard — or one you watched happen to somebody else. Where were you, what went wrong, and how did the room react?`
+            title: `The One Nobody Let You Forget`,
+            prompt: `Reconstruct a communication disaster that is funny now — something said, sent, or overheard. Give the exact words if you remember them, then explain the intention, the interpretation, and the moment the mistake became clear.`
         }
     },
     {
@@ -153,82 +159,82 @@ const discussionSets = [
         title: `And What Are You Like?`,
         stage: `Explain`,
         icon: 'explain',
-        description: `The habits you'd defend, the person who turns up when you're angry, and the version of you that only exists in English.`,
+        description: `How you refuse, sound when annoyed, express yourself in English, and become recognisably you.`,
         moments: [
             {
                 id: 'moment-how-you-say-no',
-                preview: `A clean no, or a beautiful excuse?`,
-                question: `An invitation you don't want, a favour you can't face, extra work you never asked for. Do you say no cleanly, invent something, or go quiet and hope it disappears? And is a good excuse actually kinder than the truth?`,
+                preview: `The invitation is real. So is your lack of interest.`,
+                question: `A colleague invites you to a birthday dinner on Friday night, and you genuinely do not want to go. Give the answer you would really send. Does it say no clearly, or does it only help you escape?`,
                 upgrade: {
                     term: `wriggle out of something`,
                     type: `phrasal verb`,
-                    definition: `To avoid something you agreed to or are expected to do, usually by finding an excuse.`,
-                    ordinary: `“I found a way to avoid the dinner without ever actually saying I didn't want to go.”`,
-                    upgraded: `“I wriggled out of the dinner.”`,
+                    definition: `To avoid something you are expected to do, usually by finding an excuse.`,
+                    ordinary: `“I found a way to avoid the dinner without admitting that I did not want to go.”`,
+                    upgraded: `“I wriggled out of the dinner without admitting that I did not want to go.”`,
                     priority: 'standard',
-                    atlasPrompt: `What do you most often try to wriggle out of — meetings, family events, exercise, your turn to pay?`
+                    atlasPrompt: `What do people most often try to wriggle out of — meetings, family events, exercise, or difficult conversations?`
                 }
             },
             {
                 id: 'moment-when-youre-angry',
-                preview: `Loud, silent, or terrifyingly polite.`,
-                question: `Some people get loud. Some go completely silent. Some become so calm and formal that everyone in the room starts to worry. What happens to your voice and your words when you're properly annoyed — and does anybody ever notice?`,
+                preview: `The words are polite. The voice is not.`,
+                question: `Say “That’s fine” as if you are actually annoyed. What changes in your voice — the speed, volume, stress, or something else?`,
                 upgrade: {
-                    term: `snap at someone`,
-                    type: `phrasal verb`,
-                    definition: `To speak to someone sharply and angrily, usually briefly.`,
-                    ordinary: `“I spoke to her far more sharply than I meant to, because I was tired.”`,
-                    upgraded: `“I snapped at her because I was tired.”`,
+                    term: `be short with someone`,
+                    type: `phrase`,
+                    definition: `To speak to someone briefly and impatiently, often because you are annoyed or stressed.`,
+                    ordinary: `“I answered her in a brief, impatient way because I was tired.”`,
+                    upgraded: `“I was short with her because I was tired.”`,
                     priority: 'key',
-                    atlasPrompt: `Who do you snap at most — and who would you never dare snap at?`
+                    atlasPrompt: `When are people most likely to be short with someone — when they are tired, rushed, hungry, or worried?`
                 }
             },
             {
                 id: 'moment-you-in-another-language',
-                preview: `A slightly different person, in another language.`,
-                question: `People often say they become someone slightly different in another language — blunter in one, funnier in another, oddly shy in a third. Who turns up when you speak English — and do you like them?`,
+                preview: `The meaning stays the same. The person sounds different.`,
+                question: `Choose one short phrase you can say in another language and in English — for example, “Really?”, “No way”, or “I missed you”. Say both versions. What changes in your voice or personality?`,
                 upgrade: {
                     term: `get something across`,
                     type: `phrasal verb`,
-                    definition: `To succeed in making other people understand what you mean.`,
-                    ordinary: `“In English, people don't really get a sense of what I'm like as a person.”`,
-                    upgraded: `“In English, it's hard to get my personality across.”`,
+                    definition: `To succeed in making another person understand an idea, feeling, or impression.`,
+                    ordinary: `“In English, I find it difficult to show people what my personality is really like.”`,
+                    upgraded: `“In English, I find it difficult to get my personality across.”`,
                     priority: 'key',
-                    atlasPrompt: `What idea do you find hardest to get across at work — and what usually goes wrong?`
-                }
-            },
-            {
-                id: 'moment-what-you-cant-say-yet',
-                preview: `Three sentences to say one small thing.`,
-                question: `There's always something you can't say in English yet, so you go the long way round — three sentences to land something that takes four words at home. What do you keep having to talk around?`,
-                upgrade: {
-                    term: `put something into words`,
-                    type: `phrase`,
-                    definition: `To express something clearly in language, especially when it is difficult.`,
-                    ordinary: `“I know exactly what I mean, but I can't find the right English to actually say it.”`,
-                    upgraded: `“I know exactly what I mean — I just can't put it into words.”`,
-                    priority: 'standard',
-                    atlasPrompt: `What feeling is hard to put into words in any language you speak?`
+                    atlasPrompt: `What idea do you find hardest to get across at work or in an important conversation?`
                 }
             },
             {
                 id: 'moment-doing-the-impression',
-                preview: `You can do them. You know you can.`,
-                question: `Some people can do a devastating impression of a colleague, a relative, a politician — the voice, the pauses, the little cough before bad news. Can you? And when does imitating someone stop being affectionate?`,
+                preview: `The pause. The phrase. The little cough.`,
+                question: `Imitate one harmless communication habit of someone you know — a repeated phrase, a pause, a laugh, or the way they begin bad news. What impression does it create, and is that impression fair?`,
                 upgrade: {
                     term: `spot on`,
                     type: `phrase`,
-                    definition: `Exactly right; completely accurate.`,
-                    ordinary: `“Her imitation of the manager was exactly right, all the way down to the throat-clearing.”`,
-                    upgraded: `“Her impression of the manager was spot on, right down to the throat-clearing.”`,
+                    definition: `Completely accurate or exactly right.`,
+                    ordinary: `“Her impression of the manager was completely accurate, including the throat-clearing.”`,
+                    upgraded: `“Her impression of the manager was spot on, including the throat-clearing.”`,
                     priority: 'standard',
-                    atlasPrompt: `Whose impression of somebody you know is spot on — and does the victim know about it?`
+                    atlasPrompt: `Who does a spot-on impression of someone you know — and does the person being imitated know about it?`
+                }
+            },
+            {
+                id: 'moment-what-you-cant-say-yet',
+                preview: `You know the meaning. You do not yet have the English.`,
+                question: `Think of one idea you can express easily in another language but not in English. Explain the meaning without translating the key word. What English expression comes closest?`,
+                upgrade: {
+                    term: `put something into words`,
+                    type: `phrase`,
+                    definition: `To express an idea or feeling clearly through language.`,
+                    ordinary: `“I know exactly what I mean, but I cannot explain the feeling clearly.”`,
+                    upgraded: `“I know exactly what I mean, but I cannot put the feeling into words.”`,
+                    priority: 'standard',
+                    atlasPrompt: `What experience or feeling is difficult to put into words in any language?`
                 }
             }
         ],
         makeItReal: {
-            title: `Your operating manual`,
-            prompt: `Give someone the three-line guide to communicating with you: how to give you bad news, how to get you to say yes, and the one thing that will make you go completely quiet. Which of the three do the people close to you already know?`
+            title: `Your Operating Manual`,
+            prompt: `Give your tutor a short operating manual for communicating with you: how to give you bad news, how to disagree with you, and how to recognise when you need time. Then decide together which instruction would be hardest to follow in real life.`
         }
     },
     {
@@ -236,82 +242,82 @@ const discussionSets = [
         title: `Words That Did Something`,
         stage: `Reflect and Relate`,
         icon: 'reflect',
-        description: `The sentence that changed everything, the line somebody never forgot, and the speech you'd rather not remember.`,
+        description: `The sentences that changed a situation, stayed in memory, repaired damage, or reached the right person.`,
         moments: [
             {
                 id: 'moment-words-that-do-things',
-                preview: `Some sentences don't describe. They do.`,
-                question: `“You're hired.” “It's over.” “Not guilty.” “I do.” Nothing physical happens, and yet nothing is the same afterwards. Which sentence like that have you said, heard, or watched land on somebody else?`,
+                preview: `Before the sentence. After the sentence.`,
+                question: `Choose a sentence that changed a situation immediately — “You’re hired”, “It’s over”, “Not guilty”, “I do”, or one from your own life. What was true before it was said, and what became true afterwards?`,
                 upgrade: {
-                    term: `take something back`,
-                    type: `phrase`,
-                    definition: `To withdraw something you have said, or wish you could.`,
-                    ordinary: `“I said it, and immediately wished I could undo it — but of course you can't.”`,
-                    upgraded: `“I said it, and immediately wanted to take it back — but you can't.”`,
+                    term: `turning point`,
+                    type: `noun`,
+                    definition: `A moment when an important situation begins to change in a new direction.`,
+                    ordinary: `“That conversation was the moment when everything began to change.”`,
+                    upgraded: `“That conversation was a turning point.”`,
                     priority: 'key',
-                    atlasPrompt: `What's one thing you'd take back if you could — a message, a comment, an agreement, a yes?`
+                    atlasPrompt: `What marked a turning point in a project, relationship, career, or period of your life?`
                 }
             },
             {
                 id: 'moment-line-you-remember',
-                preview: `Fifteen years later, word for word.`,
-                question: `Most of what people say to us is gone by the evening. But one line — a kind one, a cruel one, a teacher's throwaway remark — can survive for decades. Which one is still with you, or which one does somebody in your family still quote?`,
+                preview: `Years later, the exact words remain.`,
+                question: `What line can you still remember years later — something kind, cruel, funny, or completely ordinary? Say it if you can, then explain why those words survived when so many others disappeared.`,
                 upgrade: {
                     term: `stick with someone`,
                     type: `phrase`,
-                    definition: `(Of words or an experience) to stay in someone's memory for a long time.`,
-                    ordinary: `“Someone said it to me fifteen years ago and I have never once forgotten it.”`,
-                    upgraded: `“Someone said it to me fifteen years ago and it has stuck with me ever since.”`,
+                    definition: `To remain in someone’s memory or continue affecting them for a long time.`,
+                    ordinary: `“Someone said it to me fifteen years ago, and I have never forgotten it.”`,
+                    upgraded: `“Someone said it to me fifteen years ago, and it has stuck with me ever since.”`,
                     priority: 'standard',
-                    atlasPrompt: `What line from a film, a book, or a song has stuck with you — and why that one?`
+                    atlasPrompt: `What line from a film, book, song, or conversation has stuck with you?`
                 }
             },
             {
                 id: 'moment-apology-that-works',
-                preview: `“Sorry you feel that way.”`,
-                question: `Some apologies make it worse: the one that blames you for being upset, the one delivered so fast it's clearly just admin. And then there's the rare one that actually fixes something. What does the good one do that the others don't?`,
+                preview: `“I’m sorry you feel that way.” Repair it.`,
+                question: `Take the apology “I’m sorry you feel that way.” Change it into something that might genuinely repair the situation. What must the speaker admit before the apology can work?`,
                 upgrade: {
                     term: `own up to something`,
                     type: `phrasal verb`,
-                    definition: `To admit that you did something wrong.`,
-                    ordinary: `“He admitted straight away that it was his fault, instead of trying to explain it away.”`,
-                    upgraded: `“He owned up to it straight away, instead of trying to explain it away.”`,
+                    definition: `To admit that you did something wrong or were responsible for a problem.`,
+                    ordinary: `“He admitted immediately that the mistake was his fault.”`,
+                    upgraded: `“He owned up to the mistake immediately.”`,
                     priority: 'key',
-                    atlasPrompt: `Is it easier to own up at work or at home — and who taught you which?`
+                    atlasPrompt: `Is it easier to own up to a mistake at work or at home? What makes the difference?`
                 }
             },
             {
-                id: 'moment-thirty-seconds-at-the-microphone',
-                preview: `The toast, the speech, the awful silence.`,
-                question: `The wedding speech that ran for twenty minutes. The leaving toast that made everyone cry. The best man who should have sat down much earlier. What's the best — or the most excruciating — speech you have ever sat through?`,
+                id: 'moment-one-sentence-calms-it-down',
+                preview: `The disagreement is getting worse. Choose one sentence.`,
+                question: `A colleague has changed part of a shared project without asking, and the discussion is getting heated. What one sentence could reduce the tension without pretending that you agree?`,
                 upgrade: {
-                    term: `dry up`,
-                    type: `phrasal verb`,
-                    definition: `To suddenly stop speaking because you cannot think of anything to say.`,
-                    ordinary: `“I stood up to speak and suddenly I couldn't remember a single word of it.”`,
-                    upgraded: `“I stood up to speak and completely dried up.”`,
-                    priority: 'standard',
-                    atlasPrompt: `When have you dried up — an interview, a presentation, an argument, a first date?`
+                    term: `defuse`,
+                    type: `verb`,
+                    definition: `To make a tense or dangerous situation calmer before it becomes worse.`,
+                    ordinary: `“Her calm question stopped the disagreement from becoming more serious.”`,
+                    upgraded: `“Her calm question defused the disagreement.”`,
+                    priority: 'key',
+                    atlasPrompt: `What can defuse a tense situation quickly — a question, an apology, humour, or giving people time?`
                 }
             },
             {
                 id: 'moment-who-you-tell-first',
-                preview: `Something happens. Who gets the call?`,
-                question: `Something big happens — good or bad. Who is the first person you tell, and why them rather than somebody else? And is there anyone you would deliberately not tell?`,
+                preview: `Something happens. One person gets the first call.`,
+                question: `Something important happens, good or bad. Who gets the first message — a real person, a fictional person, or simply the kind of person you would need? What could you tell them that you would not tell everyone else?`,
                 upgrade: {
                     term: `confide in someone`,
-                    type: `verb`,
-                    definition: `To tell someone private things because you trust them.`,
-                    ordinary: `“She's the one person I tell things to when something is really wrong.”`,
-                    upgraded: `“She's the one person I confide in.”`,
+                    type: `phrase`,
+                    definition: `To tell someone private thoughts or information because you trust them.`,
+                    ordinary: `“She is the person I trust enough to tell when something is seriously wrong.”`,
+                    upgraded: `“She is the person I confide in when something is seriously wrong.”`,
                     priority: 'standard',
-                    atlasPrompt: `Is it easier to confide in an old friend or in a complete stranger — and why?`
+                    atlasPrompt: `Is it easier to confide in an old friend, a family member, or someone who is outside the situation?`
                 }
             }
         ],
         makeItReal: {
-            title: `Thirty seconds and a microphone`,
-            prompt: `Someone hands you a microphone at a leaving party — for a colleague, a friend, or a relative — and you have thirty seconds. What do you actually say about them, and what would you very carefully leave out?`
+            title: `Thirty Seconds and a Microphone`,
+            prompt: `Your tutor hands you a microphone at a leaving party. Give the thirty-second speech you would actually make for a colleague, friend, or relative. Make it sound like you rather than a formal template, and decide what should remain private.`
         }
     }
 ];
@@ -322,188 +328,232 @@ const clCards = [
         contextLine: `La Gomera · Canary Islands`,
         title: `The Language You Whistle`,
         teaser: `A full conversation, whistled across a valley — and everyone can hear it.`,
-        context: `On the island of La Gomera, people whistle Spanish. Silbo is a whistled form of the language, developed to cross deep ravines where a shout would die halfway. It travels far further than a voice, it is taught in the island's schools — and anyone within range may hear exactly what you said.`,
-        mainQuestion: `Everything you whistle is public. What would you happily send across a valley — and what could you never say that way?`,
+
+        context: `On the island of La Gomera, people use Silbo, a whistled form of Spanish, to communicate across deep ravines where an ordinary voice may not carry. The whistles can travel for several kilometres, and children learn the system at school. Anyone close enough may also hear the message.`,
+
+        mainQuestion: `Everything you whistle can be heard by other people. What would you happily send across a valley — and what would you only ever say in private?`,
+
         followTheThread: [
-            `Would a place where nothing can be said quietly be friendlier, or unbearable?`,
-            `Which conversations in your life only work because they happen at low volume?`
+            `Would communication become friendlier if people could not whisper behind closed doors, or would life become unbearable?`,
+            `Which conversations in your life only work because nobody else can hear them?`
         ],
+
         upgrade: {
             term: `within earshot`,
             type: `phrase`,
             definition: `Close enough to hear what is being said.`,
-            ordinary: `“I said it quietly, but I hadn't realised she was close enough to hear every word.”`,
-            upgraded: `“I said it quietly, but I hadn't realised she was within earshot.”`,
+            ordinary: `“I said it quietly, but I had not realised she was close enough to hear every word.”`,
+            upgraded: `“I said it quietly, but I had not realised she was within earshot.”`,
             priority: 'standard',
-            atlasPrompt: `Where do people forget who's within earshot — an office, a lift, a train, a family kitchen?`
+            atlasPrompt: `Where do people forget who is within earshot — an office, a lift, a train, or a family kitchen?`
         }
     },
+
     {
         id: 'cl-how-are-you',
         contextLine: `English small talk`,
         title: `The Question That Might Not Be a Question`,
         teaser: `Sometimes “How are you?” means “hello.” An honest answer changes the plan.`,
-        context: `In much of the English-speaking world, “How are you?” works as a greeting rather than an enquiry. The expected reply is “Fine, you?” — even from somebody having a catastrophic week. Newcomers who answer honestly, with detail, often watch the other person's face do something complicated.`,
-        mainQuestion: `Have you ever been caught out by one of these — answering honestly, or getting an honest answer when you weren't expecting one? What happened?`,
+
+        context: `In many English-speaking situations, “How are you?” works more like a greeting than a request for information. The expected answer is often brief, even when the person is having a terrible week. A newcomer who answers fully may discover that the other person was not prepared for the real story.`,
+
+        mainQuestion: `Have you ever answered “How are you?” honestly when the other person expected only “Fine” — or asked it and unexpectedly received the whole story? What happened?`,
+
         followTheThread: [
-            `Is a question nobody wants answered friendly, or hollow?`,
-            `What's the equivalent where you live — the phrase everyone says and nobody means literally?`
+            `Is a question friendly when nobody really wants an honest answer?`,
+            `What phrase where you live sounds like a real question but usually follows a social script?`
         ],
+
         upgrade: {
             term: `pleasantries`,
             type: `noun`,
-            definition: `Polite, unimportant things people say to each other before the real conversation starts.`,
-            ordinary: `“We spent five minutes saying polite, meaningless things to each other before anyone mentioned the money.”`,
+            definition: `Polite, unimportant things people say before the main conversation begins.`,
+            ordinary: `“We spent five minutes exchanging polite comments before anyone mentioned the money.”`,
             upgraded: `“We spent five minutes on pleasantries before anyone mentioned the money.”`,
             priority: 'standard',
-            atlasPrompt: `How long do pleasantries last before business where you're from — thirty seconds, or half an hour?`
+            atlasPrompt: `How long do pleasantries usually last before business where you are from — thirty seconds or half an hour?`
         }
     },
+
     {
         id: 'cl-taarof',
-        contextLine: `Iran · ta'arof`,
+        contextLine: `Iran · ta’arof`,
         title: `The “No” Before Yes`,
-        teaser: `Refusing politely can be the first step of accepting.`,
-        context: `In many Iranian settings, a custom often called ta'arof shapes offers and refusals. A host offers food again and again; the guest declines once, twice, and accepts only after being urged. A taxi driver may wave away the fare, expecting the passenger to insist. The first no is often not a no.`,
-        mainQuestion: `Someone offers you something you would genuinely love. Do you take it immediately, or say “no, no, I couldn't” first — and where did that habit come from?`,
+        teaser: `Refusing politely can be the first step towards accepting.`,
+
+        context: `In some Iranian social situations, a custom often called ta’arof shapes offers and refusals. A host may offer food several times while the guest refuses before accepting. A taxi driver may initially wave away the fare while expecting the passenger to insist on paying. The first no may not be final.`,
+
+        mainQuestion: `Someone offers you something you genuinely want. Would you accept immediately or refuse politely first? Where did you learn that habit?`,
+
         followTheThread: [
-            `How many times should you offer before you believe the refusal?`,
-            `Have you ever lost out because somebody took your polite no seriously?`
+            `How many times should someone offer before accepting that the answer is really no?`,
+            `Have you ever missed an opportunity because somebody believed your polite refusal?`
         ],
+
         upgrade: {
             term: `take no for an answer`,
             type: `idiom`,
-            definition: `To accept someone's refusal instead of continuing to push.`,
-            ordinary: `“I said no three times and she still kept offering — she simply would not accept my refusal.”`,
-            upgraded: `“I said no three times and she still would not take no for an answer.”`,
+            definition: `To accept someone’s refusal instead of continuing to push.`,
+            ordinary: `“I refused three times, but she continued offering and would not accept my answer.”`,
+            upgraded: `“I refused three times, but she would not take no for an answer.”`,
             priority: 'key',
-            atlasPrompt: `Who in your life won't take no for an answer — and is that admirable or exhausting?`
+            atlasPrompt: `Who in your life will not take no for an answer — and is that admirable or exhausting?`
         }
     },
+
     {
         id: 'cl-digital-tone',
         contextLine: `Digital tone`,
         title: `The Full Stop That Sounds Angry`,
-        teaser: `“OK.” and “OK” are not the same message.`,
-        context: `Researchers have found that a text message ending in a full stop can read as less sincere than the same message without one, particularly to younger readers, who treat the punctuation as tone. Elsewhere the drift is sharper: among many younger users in China, the standard smiling emoji has come to read as dismissal.`,
-        mainQuestion: `Does a full stop change the tone of a message for you — and has anyone ever read something into your punctuation that simply was not there?`,
+        teaser: `“OK.” and “OK” may not feel like the same message.`,
+
+        context: `In studies with younger English-speaking readers, a full stop at the end of a short text has sometimes made the message seem less sincere. Digital symbols can change meaning elsewhere too. Among some younger users in China, the standard smiling emoji may suggest distance or irritation rather than warmth.`,
+
+        mainQuestion: `Compare these two replies on screen: “Fine” / “Fine.” Which one feels colder to you, if either? What feeling might you add that the sender never intended?`,
+
         followTheThread: [
-            `Which is easiest to misread: a message, a voice note, or a face?`,
-            `Who do you write to differently — and what changes, exactly?`
+            `Which is easiest to misread: a written message, a voice note, or someone’s face?`,
+            `Whose messages do you write most carefully, and what do you change?`
         ],
+
         upgrade: {
             term: `passive-aggressive`,
             type: `adjective`,
-            definition: `Showing annoyance or hostility indirectly rather than saying it openly.`,
-            ordinary: `“She never said she was annoyed, but the way she wrote it was clearly designed to let me know.”`,
+            definition: `Showing annoyance indirectly instead of stating it openly.`,
+            ordinary: `“She never said she was annoyed, but the reply was clearly written to make me feel it.”`,
             upgraded: `“She never said she was annoyed, but the reply was completely passive-aggressive.”`,
             priority: 'key',
-            atlasPrompt: `What's the most passive-aggressive thing you've seen written down — a note, an email, a sign in a shared kitchen?`
+            atlasPrompt: `What is the most passive-aggressive thing you have seen written in an email, note, sign, or group chat?`
         }
     },
+
     {
         id: 'cl-invented-sign-language',
         contextLine: `Nicaragua · 1980s`,
         title: `The Language the Children Built`,
-        teaser: `The adults taught one thing. The children invented another in the playground.`,
-        context: `When deaf children in Nicaragua were brought together in schools for the first time, they were taught to lip-read Spanish, with limited success. In the playground and on the buses they built something else together: a shared sign language that became richer as new groups of children joined. Each new intake of younger children made it richer than the group before.`,
-        mainQuestion: `What language exists between you and one other person that nobody else can follow — a nickname, a look, half a phrase? Who would be completely lost listening to the two of you?`,
+        teaser: `The adults taught one system. The children created another together.`,
+
+        context: `In Nicaragua, deaf children were brought together in schools and taught to lip-read Spanish, with limited success. Outside class, they began sharing gestures and signs with one another. As new groups of younger children joined, they developed the system further until a rich shared sign language had formed.`,
+
+        mainQuestion: `Imagine joining the school after the other children have already created many signs. How would you begin understanding them without anyone translating?`,
+
         followTheThread: [
-            `Does a private language bring two people closer, or quietly shut everyone else out?`,
-            `Have you been the outsider, watching two people share something you couldn't follow?`
+            `Which parts of a language can people learn simply by watching others use it?`,
+            `What helps a new person feel included when a group already shares its own way of communicating?`
         ],
+
         upgrade: {
-            term: `lost on someone`,
-            type: `phrase`,
-            definition: `Not understood or appreciated by the person it was meant for.`,
-            ordinary: `“I made the joke, but he had no idea what I was talking about and it didn't work at all.”`,
-            upgraded: `“I made the joke, but it was completely lost on him.”`,
-            priority: 'standard',
-            atlasPrompt: `What kind of humour is completely lost on people from outside your country?`
+            term: `pick something up`,
+            type: `phrasal verb`,
+            definition: `To learn something informally through observation, practice, or experience.`,
+            ordinary: `“She learned the signs quickly by watching the other children and using them every day.”`,
+            upgraded: `“She picked up the signs quickly by watching the other children and using them every day.”`,
+            priority: 'key',
+            atlasPrompt: `What skill, expression, or habit did you pick up simply by watching other people?`
         }
     },
+
     {
         id: 'cl-flyting',
         contextLine: `Scotland · Flyting`,
         title: `Insults as a Spectator Sport`,
         teaser: `Two poets, a crowd, and a competition to insult each other beautifully.`,
-        context: `Flyting was a contest of insults in verse, performed in front of an audience. In the Scottish court around 1500, poets traded elaborate, filthy, inventive abuse — and the abuse was the entertainment. Losing badly was humiliating. Winning meant you had insulted your opponent more beautifully than he had insulted you.`,
-        mainQuestion: `Where you live, is insulting your friends a sign of affection or a sign of a problem? And where exactly is the line?`,
+
+        context: `Flyting was a public contest in which poets exchanged insults in verse. At the Scottish court around 1500, performers used elaborate, inventive and often filthy language while an audience watched. The insults were the entertainment, and victory went to the poet who attacked their opponent most skilfully.`,
+
+        mainQuestion: `Where you live, when does insulting a friend show affection — and what tells you that the line has been crossed?`,
+
         followTheThread: [
-            `Who is allowed to insult you, and who absolutely is not?`,
-            `Is “I was only joking” a real defence, or the last move of somebody who has gone too far?`
+            `Who is allowed to insult you playfully, and who absolutely is not?`,
+            `Is “I was only joking” a fair defence, or usually what people say after going too far?`
         ],
+
         upgrade: {
             term: `wind someone up`,
             type: `phrasal verb`,
-            definition: `To tease or provoke someone, often for your own amusement.`,
-            ordinary: `“Don't take him seriously — he says things like that just to get a reaction out of you.”`,
-            upgraded: `“Don't take him seriously — he's just winding you up.”`,
+            definition: `To tease or provoke someone, often for amusement.`,
+            ordinary: `“Do not take him seriously. He says things like that only because he wants a reaction.”`,
+            upgraded: `“Do not take him seriously. He is only winding you up.”`,
             priority: 'key',
-            atlasPrompt: `Who is easiest to wind up in your family, and what always works?`
+            atlasPrompt: `Who is easiest to wind up in your family or workplace, and what always gets a reaction?`
         }
     },
+
     {
         id: 'cl-formal-you',
         contextLine: `Formal and informal “you”`,
         title: `When “You” Gets Closer`,
-        teaser: `In many languages, becoming close to someone is a moment you can hear.`,
-        context: `English has one “you” for a stranger, a boss, a child, and a lover. Many languages have two — one for distance, one for closeness. Moving from one to the other is an actual event, and in some places it is offered out loud, traditionally by the older or more senior person.`,
-        mainQuestion: `If closeness had to be formally offered out loud, who should get to offer it — and could you say no?`,
+        teaser: `In many languages, becoming closer is a change you can hear.`,
+
+        context: `Many languages use one form of “you” with strangers, older people, or senior colleagues and another with close friends. Changing to the informal form can mark a new stage in the relationship. In some places, the older or more senior person traditionally suggests making that change.`,
+
+        mainQuestion: `A senior colleague invites you to use the informal form of “you”. Would that make you feel closer, relieved, or uncomfortable? Who should be allowed to suggest the change?`,
+
         followTheThread: [
-            `Has anyone ever been far too familiar with you, far too quickly? What did they get wrong?`,
-            `Would you rather closeness were announced, or allowed to happen quietly?`
+            `Has anyone ever spoken to you too familiarly for how well you knew each other?`,
+            `Would you rather know the exact moment a relationship becomes informal, or let it happen gradually?`
         ],
+
         upgrade: {
             term: `on first-name terms`,
             type: `phrase`,
-            definition: `Informal enough with someone to use their first name rather than a title.`,
-            ordinary: `“Within a week we had stopped using titles and were just using each other's first names.”`,
-            upgraded: `“Within a week we were on first-name terms.”`,
+            definition: `Informal enough with someone to use their first name instead of a title.`,
+            ordinary: `“Within a week, we had stopped using titles and were using each other’s first names.”`,
+            upgraded: `“Within a week, we were on first-name terms.”`,
             priority: 'standard',
-            atlasPrompt: `Who are you on first-name terms with at work, and who still gets a title? What decides it?`
+            atlasPrompt: `Who are you on first-name terms with at work, and who still receives a title? What decides it?`
         }
     },
+
     {
         id: 'cl-taboo-words',
         contextLine: `Swearing across languages`,
         title: `The Word That Stops a Room`,
-        teaser: `The worst word in one language is almost nothing in another.`,
-        context: `Every language keeps a few words in reserve, but they are not the same words. Some cultures save the real shock for religion, some for the body, some for your mother. Dutch swearing famously reaches for serious illness. And most learners notice something odd: swearing in a second language comes out far more easily.`,
-        mainQuestion: `Does swearing in English feel lighter to you than swearing in your own language? And what kind of word would genuinely stop a room where you're from?`,
+        teaser: `The worst word in one language may sound almost harmless in another.`,
+
+        context: `Languages do not agree about which words are most offensive. Some taboos centre on religion, others on sex, the body, or someone’s family. Dutch insults have also used the names of serious illnesses. Many learners find that swearing in a second language feels less emotionally powerful than swearing in their first.`,
+
+        mainQuestion: `Does swearing in English feel lighter than swearing in your first language? What kind of word could make everyone in a room suddenly go quiet where you are from?`,
+
         followTheThread: [
-            `Have you watched somebody cause real offence with a word they had no idea was serious?`,
-            `Is a word offensive because of what it means, or only because everyone agrees it is?`
+            `Have you seen someone cause real offence with a word they did not realise was serious?`,
+            `Is a word offensive because of its literal meaning, or because a community has decided that it is?`
         ],
+
         upgrade: {
             term: `have no filter`,
             type: `phrase`,
-            definition: `To say whatever you are thinking without stopping to consider whether you should.`,
-            ordinary: `“He just says whatever comes into his head, with no thought at all about who's listening.”`,
-            upgraded: `“He's got absolutely no filter.”`,
+            definition: `To say whatever you think without considering whether it is appropriate.`,
+            ordinary: `“He says whatever enters his head without thinking about who is listening.”`,
+            upgraded: `“He has absolutely no filter.”`,
             priority: 'standard',
-            atlasPrompt: `Who in your life has no filter — and is it refreshing, or a permanent problem?`
+            atlasPrompt: `Who in your life has no filter — and is that refreshing or a permanent problem?`
         }
     },
+
     {
         id: 'cl-imperial-china',
         contextLine: `Imperial China`,
         title: `Saying It Without Saying It`,
-        teaser: `A poem about a dead emperor that everyone knew was about the living one.`,
-        context: `Officials who could not safely criticise a ruler sometimes did it sideways — a poem, a historical parallel, a story about an emperor four hundred years dead that everyone in the room understood perfectly. The surface stayed innocent. If challenged, the speaker had somewhere to retreat to: I was only telling a story.`,
-        mainQuestion: `Is saying it sideways a skill or a cowardice? And have you ever done it — the joke, the story, the “hypothetically speaking”?`,
+        teaser: `A story about a dead emperor could criticise the living one.`,
+
+        context: `Direct criticism of a ruler could be dangerous. An official might instead recite a poem about an earlier emperor or tell a historical story whose message was clear to everyone at court. If accused of attacking the current ruler, the speaker could claim that they were only discussing the past.`,
+
+        mainQuestion: `When direct criticism could cost you something, would you use a story or joke to make the point without naming the person? What would that protect you from?`,
+
         followTheThread: [
-            `Is indirect criticism kinder than direct criticism, or just much harder to argue with?`,
-            `Have you ever received a “general observation” you were certain was aimed at you? What did you do about it?`
+            `Is indirect criticism kinder than direct criticism, or simply harder to challenge?`,
+            `Have you ever received a “general observation” that was clearly aimed at you? How did you respond?`
         ],
+
         upgrade: {
             term: `have a dig at someone`,
             type: `phrase`,
             definition: `To make an indirect critical or mocking remark about someone.`,
-            ordinary: `“That comment about people who always arrive late was aimed at me, wasn't it?”`,
-            upgraded: `“That was a dig at me, wasn't it?”`,
+            ordinary: `“That comment about people who are always late was aimed at me, was it not?”`,
+            upgraded: `“That was a dig at me, was it not?”`,
             priority: 'key',
-            atlasPrompt: `When did somebody last have a dig at you and pretend they hadn't? How did you handle it?`
+            atlasPrompt: `When did somebody last have a dig at you and pretend that they had not? How did you handle it?`
         }
     }
 ];
