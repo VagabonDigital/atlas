@@ -117,7 +117,7 @@ const discussionSets = [
                     type: `verb`,
                     definition: `To make a story more interesting by adding or exaggerating details.`,
                     ordinary: `“The dog was tiny, but he makes it sound enormous whenever he tells the story.”`,
-                    upgraded: `“The dog was tiny, but he embellishes the story whenever he tells it.”`,
+                    upgraded: `“The dog was tiny, but he embellishes the story by describing it as enormous.”`,
                     priority: 'standard',
                     atlasPrompt: `What kinds of stories do people tend to embellish when they tell them again?`
                 }
@@ -178,7 +178,7 @@ const discussionSets = [
                     type: `phrasal verb`,
                     definition: `To do or say something questionable without being challenged or punished.`,
                     ordinary: `“If anybody else made that comment, people would be offended, but nobody challenges her.”`,
-                    upgraded: `“If anybody else made that comment, people would be offended, but she always gets away with it.”`,
+                    upgraded: `“If anybody else made that comment, people would be offended, but she gets away with it.”`,
                     priority: 'key',
                     atlasPrompt: `What can somebody you know get away with because people trust or like them?`
                 }
@@ -376,7 +376,7 @@ const clCards = [
         title: `Insults That Keep the Peace`,
         teaser: `Certain groups are expected to tease — and to stay friends.`,
 
-        context: `In Niger, some families, communities, and ethnic groups are linked by recognised “joking relationships.” They may trade playful insults in markets, workplaces, weddings, or funerals. The relationship can also require mutual help and encourage people to settle disputes peacefully, so the teasing rests on shared rules and history rather than simple rudeness.`,
+        context: `In Niger, some families, communities, and ethnic groups are linked by recognised “joking relationships.” They may trade playful insults in markets, workplaces, weddings, or funerals. These relationships can also include duties to help one another and settle disputes peacefully. The teasing follows shared rules and history; it is not simply rudeness.`,
 
         mainQuestion: `Would knowing the teasing followed a shared rule make it easier to accept, or would you still wonder whether the insult was real?`,
 
@@ -386,13 +386,13 @@ const clCards = [
         ],
 
         upgrade: {
-            term: `take something in good humour`,
+            term: `no hard feelings`,
             type: `phrase`,
-            definition: `To react calmly and positively to teasing, criticism, or a small inconvenience.`,
-            ordinary: `“He accepted the teasing without becoming offended because he understood the relationship.”`,
-            upgraded: `“He took the teasing in good humour because he understood the relationship.”`,
+            definition: `Used to say that nobody remains angry or offended after disagreement, criticism, or teasing.`,
+            ordinary: `“They traded insults, but neither group remained angry because both understood the rules.”`,
+            upgraded: `“They traded insults, but there were no hard feelings because both groups understood the rules.”`,
             priority: 'standard',
-            atlasPrompt: `What kind of teasing can you take in good humour, and what kind immediately annoys you?`
+            atlasPrompt: `When can people tease each other with no hard feelings — and what makes that possible?`
         }
     },
 
@@ -402,7 +402,7 @@ const clCards = [
         title: `Send the Joke to the Office`,
         teaser: `The audience cannot hear the line until an official approves it.`,
 
-        context: `From 1737 until 1968, new stage plays in Britain had to be licensed by the Lord Chamberlain before public performance. The office could require cuts or refuse permission. Writers and producers therefore learned to defend lines, rewrite them, or make difficult meanings less obvious before the audience ever entered the theatre.`,
+        context: `From 1737 until 1968, new stage plays in Britain had to be licensed by the Lord Chamberlain before public performance. The office could require cuts or refuse permission. Writers and producers had to explain why a line should remain, rewrite it, or hide a controversial meaning more carefully before the play reached an audience.`,
 
         mainQuestion: `If every joke in a show needed official approval, would comedy become safer, duller, or more inventive?`,
 
@@ -486,7 +486,7 @@ const clCards = [
 
         followTheThread: [
             `Should news organisations ever join a day built around false stories?`,
-            `What makes a trick satisfying for the person who falls for it too?`
+            `What makes a trick enjoyable even for the person who was fooled?`
         ],
 
         upgrade: {
@@ -516,13 +516,13 @@ const clCards = [
         ],
 
         upgrade: {
-            term: `cue someone`,
-            type: `verb`,
-            definition: `To give someone a signal that it is time to do something.`,
-            ordinary: `“The recorded laughter signals to the viewer that this is the moment to laugh.”`,
-            upgraded: `“The recorded laughter cues the viewer to laugh.”`,
+            term: `take your cue from someone or something`,
+            type: `phrase`,
+            definition: `To decide how to act by watching or listening to another person or signal.`,
+            ordinary: `“The viewers heard the recorded laughter and used it as a signal to laugh.”`,
+            upgraded: `“The viewers took their cue from the recorded laughter.”`,
             priority: 'standard',
-            atlasPrompt: `What signals cue people to speak, stop, clap, or leave in everyday situations?`
+            atlasPrompt: `Whose reactions do people take their cue from when they enter an unfamiliar room?`
         }
     },
 
