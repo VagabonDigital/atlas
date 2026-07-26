@@ -10,7 +10,7 @@
   we all turned out to have completely wrong.
   The Compass subject where the learner states a judgement, produces the
   evidence, and has to defend it.
-  Compass active subject · contentVersion 3.0.1
+  Compass active subject · contentVersion 3.1.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 const MODULE = {
     id: 'personality-character-traits',
     schemaVersion: 2,
-    contentVersion: '3.0.1',
+    contentVersion: '3.1.0',
     title: 'Personality & Character Traits',
     titleHtml: 'Personality & <em>Character Traits</em>',
     navTitle: 'Personality',
@@ -98,13 +98,13 @@ const discussionSets = [
                 preview: `Late, charming, interrupting, and already clearing the plates.`,
                 question: `Someone arrives late, remembers everyone’s name, interrupts twice, and helps clear the table. Which detail shapes your impression most?`,
                 upgrade: {
-                    term: `observant`,
-                    type: `adjective`,
-                    definition: `Quick to notice small but important details about people or situations.`,
-                    ordinary: `“She notices small details about people that everyone else misses.”`,
-                    upgraded: `“She is extremely observant.”`,
+                    term: `send mixed signals`,
+                    type: `phrase`,
+                    definition: `To behave in ways that suggest different or conflicting things.`,
+                    ordinary: `“Some of her behaviour made her seem thoughtful, while other behaviour suggested the opposite.”`,
+                    upgraded: `“She sent mixed signals: some behaviour seemed thoughtful, while other behaviour suggested the opposite.”`,
                     priority: 'standard',
-                    atlasPrompt: `When is being observant more useful than being quick to speak?`
+                    atlasPrompt: `When has someone sent mixed signals about their attitude, intentions, or character?`
                 }
             },
             {
@@ -152,7 +152,7 @@ const discussionSets = [
         ],
         makeItReal: {
             title: `The Case`,
-            prompt: `Choose someone you formed a strong first impression of. Reconstruct only what you actually saw and heard, in the order it happened. Then give the verdict you reached and decide whether the evidence truly supported it.`
+            prompt: `Choose someone you formed a strong first impression of. Tell your tutor exactly what you saw and heard, in order. Then state the opinion you formed. Did the evidence really support it?`
         }
     },
     {
@@ -179,7 +179,7 @@ const discussionSets = [
             {
                 id: 'moment-the-answer-that-worries-you',
                 preview: `Confident answer. Slightly worrying reason.`,
-                question: `A candidate says, “I work best alone because other people usually slow me down.” What does that answer make you think about them?`,
+                question: `Read the candidate’s answer once with confidence and once with tired frustration: “I work best alone because other people usually slow me down.” How does the delivery change what you think about them?`,
                 upgrade: {
                     term: `revealing`,
                     type: `adjective`,
@@ -195,13 +195,13 @@ const discussionSets = [
                 preview: `Competent, difficult, and applying somewhere else.`,
                 question: `Someone is competent but difficult to work with. Give one honest sentence that helps their application and one honest sentence that warns the employer.`,
                 upgrade: {
-                    term: `gloss over something`,
-                    type: `phrasal verb`,
-                    definition: `To avoid discussing a problem or make it seem less important than it is.`,
-                    ordinary: `“The reference praised his work but avoided discussing his behaviour.”`,
-                    upgraded: `“The reference praised his work but glossed over his behaviour.”`,
+                    term: `be upfront about something`,
+                    type: `phrase`,
+                    definition: `To speak honestly and directly about something that may be difficult or uncomfortable.`,
+                    ordinary: `“The reference praised his work and spoke honestly about the difficulty of working with him.”`,
+                    upgraded: `“The reference praised his work and was upfront about the difficulty of working with him.”`,
                     priority: 'standard',
-                    atlasPrompt: `What problems are commonly glossed over in applications, reports, or important conversations?`
+                    atlasPrompt: `When is it important to be upfront about a weakness, risk, or difficult truth?`
                 }
             },
             {
@@ -235,7 +235,7 @@ const discussionSets = [
         ],
         makeItReal: {
             title: `One Hour with a Stranger`,
-            prompt: `You have one hour with a stranger and must decide whether to enter a business partnership with them. Choose where you go, what you ask, and what behaviour you watch for. Explain which evidence would matter most.`
+            prompt: `You have one hour with a stranger before deciding whether to enter a business partnership. Plan the meeting: where will you go, what will you ask, and which behaviour will matter most?`
         }
     },
     {
@@ -250,13 +250,13 @@ const discussionSets = [
                 preview: `Same person. A noticeably different character.`,
                 question: `Think of someone who became calmer, braver, harder, or kinder over time. What caused the change?`,
                 upgrade: {
-                    term: `mellow`,
-                    type: `verb`,
-                    definition: `To become calmer, gentler, or less extreme over time.`,
-                    ordinary: `“He became much calmer and less argumentative as he grew older.”`,
-                    upgraded: `“He mellowed considerably as he grew older.”`,
+                    term: `be a changed person`,
+                    type: `phrase`,
+                    definition: `To be noticeably different in behaviour or character from before.`,
+                    ordinary: `“He is much calmer and less argumentative than he was a few years ago.”`,
+                    upgraded: `“He is a changed person now — much calmer and less argumentative than before.”`,
                     priority: 'standard',
-                    atlasPrompt: `Who or what has mellowed over time?`
+                    atlasPrompt: `What kind of experience can leave someone a changed person — responsibility, success, failure, grief, or something else?`
                 }
             },
             {
@@ -276,7 +276,7 @@ const discussionSets = [
             {
                 id: 'moment-build-a-crisis-team',
                 preview: `Calm. Practical. Honest. Choose your three.`,
-                question: `Build a three-person crisis team using real or fictional people: one calm person, one practical person, and one person who will tell the truth. Who gets each role?`,
+                question: `You and your tutor must build a three-person crisis team using real or fictional people: one calm person, one practical person, and one person who will tell the truth. Take turns proposing candidates until you agree on all three.`,
                 upgrade: {
                     term: `level-headed`,
                     type: `adjective`,
@@ -312,7 +312,7 @@ const discussionSets = [
                     ordinary: `“I know she will support and defend me when I need her.”`,
                     upgraded: `“I know she has my back.”`,
                     priority: 'key',
-                    atlasPrompt: `Who has your back when something becomes difficult, and how have they shown it?`
+                    atlasPrompt: `When should a colleague have your back publicly, even if they disagree with you privately?`
                 }
             }
         ],
@@ -356,9 +356,9 @@ const clCards = [
         title: `Four Fluids and Your Whole Personality`,
         teaser: `Your mood, health, and character were blamed on four fluids.`,
 
-        context: `For centuries, European doctors believed that four fluids inside the body shaped both health and personality. They linked blood with cheerfulness, phlegm with calmness, black bile with gloom, and yellow bile with anger. Doctors even removed blood in an attempt to restore the correct balance.`,
+        context: `For centuries, European doctors believed that four fluids inside the body shaped both health and personality. They connected each fluid with a different character. Blood meant cheerful. Phlegm meant calm. Black bile meant gloomy. Yellow bile meant angry. Doctors even removed blood in an attempt to restore the correct balance.`,
 
-        mainQuestion: `An old doctor watches you through one difficult morning. Which temperament would they diagnose — cheerful, calm, gloomy, or quick-tempered?`,
+        mainQuestion: `After watching you through one difficult morning, would an old doctor call you cheerful, calm, gloomy, or quick-tempered?`,
 
         followTheThread: [
             `Why are a few simple personality types so satisfying, even when people are more complicated?`,
@@ -366,13 +366,13 @@ const clCards = [
         ],
 
         upgrade: {
-            term: `short-tempered`,
-            type: `adjective`,
-            definition: `Becoming angry quickly and easily.`,
-            ordinary: `“He becomes angry very quickly, even about small problems.”`,
-            upgraded: `“He is extremely short-tempered.”`,
+            term: `fit the description`,
+            type: `phrase`,
+            definition: `To match the qualities or details that have been described.`,
+            ordinary: `“The doctor’s description of a calm person matches me surprisingly well.”`,
+            upgraded: `“I fit the doctor’s description of a calm person surprisingly well.”`,
             priority: 'standard',
-            atlasPrompt: `What makes an otherwise calm person become short-tempered?`
+            atlasPrompt: `Who have you met who fitted a description perfectly — or turned out to be nothing like it?`
         }
     },
 
@@ -414,7 +414,7 @@ const clCards = [
 
         followTheThread: [
             `Is a conventional job interview much fairer, or does it simply use different weak evidence?`,
-            `What information should genuinely be allowed to rule someone out of a job?`
+            `What information should genuinely be enough to reject an applicant?`
         ],
 
         upgrade: {
@@ -460,7 +460,7 @@ const clCards = [
         title: `Without a Character`,
         teaser: `Your previous employer controlled the document needed for your next job.`,
 
-        context: `A servant leaving a household often needed an employment reference called a written “character” from the previous employer. It described whether the servant was honest, sober, clean, and reliable. Without a positive reference, another respectable household might refuse to employ them, and the servant had little opportunity to challenge it.`,
+        context: `A servant leaving a household often needed a written employment reference from the previous employer. At the time, this document was called a “character”. It described whether the servant was honest, sober, clean, and reliable. Without a positive reference, another respectable household might refuse to employ them, and the servant had little opportunity to challenge it.`,
 
         mainQuestion: `Your previous employer writes the only document that may decide whether you work again. What should they be allowed to include?`,
 
