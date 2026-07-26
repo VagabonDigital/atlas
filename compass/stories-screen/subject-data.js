@@ -24,305 +24,341 @@ const MODULE = {
     navTitle: 'Stories',
     bgImage: 'https://media.istockphoto.com/id/1207065646/photo/happy-audience-applauding-in-the-theater.jpg?s=612x612&w=0&k=20&c=jan59CA1SD4JMTww7ixt7xbyp4TOmp15JtqSb839kO4='
 };
+
 const subjectCopy = {
     cover: {
         hook: `It never happened, and you are still not over it.`
     },
+
     overview: {
-        heading: `Why It Held You`,
+        heading: `Why It Stays`,
         intro: [
-            `Something invented — told, read, watched, played — can take a stronger hold on you than most of what actually happens. It can keep you up, follow you around for a week, and start an argument with somebody you agree with about everything else.`
+            `A story can pull you in, divide a room, or stay with you long after it ends. Sometimes one character, choice, image, or ending matters more than the whole plot.`
         ],
-        question: `What is the last story that got a real grip on you? And did somebody near you not see it at all?`
+        question: `What story has stayed with you recently — and was it a character, a choice, an ending, or one small moment that made it matter?`
     },
+
     paths: {
-        culturalLensDescription: `How stories have been told, waited for, shouted at, and rewritten by people who had no right to.`,
-        discussionDescription: `What stories do to people: the ones that took hold, the ones that failed, and the arguments they start.`,
+        culturalLensDescription: `Explore how people have told, changed, shared, and waited for stories across different places and times.`,
+        discussionDescription: `Stories that gripped you, endings you would change, and the characters or fragments that stayed.`,
         reflectionTitle: `Reflection`,
-        reflectionDescription: `Step back from the individual stories and look at what they have in common.`
+        reflectionDescription: `A place to connect what pulled you in, what you judged, and what remained afterwards.`
     },
+
     culturalLens: {
         heading: `Before You Could Just Watch It`,
-        intro: `Stories have not always arrived the way they arrive now. Getting hold of one could take a season, a journey, or somebody else’s permission.`
+        intro: `Stories have not always arrived quietly, privately, or all at once. Step into other places and times, where audiences shouted back, endings changed, and people waited weeks for the next part.`
     },
+
     discussion: {
-        heading: `What a Story Does to You`
+        heading: `What Stories Do to Us`
     },
+
     reflection: {
-        title: `Why We Keep Doing This`,
-        summary: `Invented people, things that never happened, and arguments about both. Worth stopping to ask what all of it is actually for.`,
+        title: `After the Ending`,
+        summary: `Look back at the stories, characters, and choices that returned during the conversation — and what made them matter.`,
         questions: [
-            `What makes a story worth arguing about at all — and which of the ones that came up today qualifies?`,
-            `Some people would say all of this is time you do not get back. What would you say to them?`
+            `Which story, scene, or character became most vivid again during the conversation?`,
+            `What makes an invented story matter long after you know it is not real?`
         ]
     },
+
     keyLanguage: {
-        intro: `Language for being gripped, giving a verdict, and arguing about something neither of you can change.`
+        intro: `Expressions for describing what grips you, giving your verdict, and explaining why a story stayed.`
     }
 };
+
 const discussionSets = [
     {
         id: 'set-it-had-you',
         title: `It Had You`,
         stage: `React`,
         icon: 'react',
-        description: `Late nights, abandoned books, and reactions you did not plan on having.`,
+        description: `Late nights, abandoned stories, and reactions you did not expect to have.`,
+
         moments: [
             {
                 id: 'moment-gave-up-on-it',
                 preview: `Everyone else finished it.`,
-                question: `What did you give up on that everyone around you loved — a series, a book, a much-praised film? How far did you get, and what made you stop? And if you finish everything you start, who in your life gives up fastest?`,
+                question: `What story did everybody around you love but you gave up on — a series, film, book, game, or podcast? How far did you get, and what finally made you stop?`,
+
                 upgrade: {
                     term: `get into something`,
                     type: `phrasal verb`,
-                    definition: `To become interested enough in something to keep going with it.`,
-                    ordinary: `“I watched two episodes and I never really started enjoying it, so I stopped.”`,
-                    upgraded: `“I watched two episodes and I just couldn’t get into it, so I stopped.”`,
+                    definition: `To become interested enough in something to keep following or doing it.`,
+                    ordinary: `“I watched two episodes, but I never became interested enough to continue.”`,
+                    upgraded: `“I watched two episodes, but I just could not get into it.”`,
                     priority: 'key',
-                    atlasPrompt: `What have people recommended to you — a hobby, a sport, a kind of music — that you simply could not get into?`
+                    atlasPrompt: `What hobby, sport, or kind of music have other people recommended that you could not get into?`
                 }
             },
             {
                 id: 'moment-later-than-you-meant',
                 preview: `One more, and then one more.`,
-                question: `Which story kept you up far later than you meant to stay up? A book, a series, a game, or somebody telling you something. What was happening at the point you knew you were not going to stop?`,
+                question: `Which story kept you awake much later than you planned — a book, series, game, podcast, or somebody telling you something? What was happening when you realised you were not going to stop?`,
+
                 upgrade: {
                     term: `hooked`,
                     type: `adjective`,
-                    definition: `Unable to stop doing or following something because you enjoy it so much.`,
-                    ordinary: `“By the second episode I was so interested that I could not make myself go to bed.”`,
-                    upgraded: `“By the second episode I was hooked and I could not make myself go to bed.”`,
+                    definition: `So interested in something that you find it difficult to stop.`,
+                    ordinary: `“By the second episode, I was so interested that I could not make myself go to bed.”`,
+                    upgraded: `“By the second episode, I was hooked and could not make myself go to bed.”`,
                     priority: 'key',
-                    atlasPrompt: `What have you got hooked on that you did not expect to — a podcast, a game, a walk you now do every day?`
+                    atlasPrompt: `What have you become hooked on unexpectedly — a podcast, a game, a routine, or an activity?`
                 }
             },
             {
                 id: 'moment-caught-you-off-guard',
-                preview: `You did not expect to mind that much.`,
-                question: `An invented thing gets a much bigger reaction out of somebody than they were expecting: a scene they cannot shake off, a death they take badly, an ending that annoys them by upsetting them. Whose do you remember best — your own, or somebody else’s?`,
+                preview: `You did not expect to care that much.`,
+                question: `What scene, character, or ending affected you much more than you expected? What surprised you most about your reaction — how strong it was, or how long it lasted?`,
+
                 upgrade: {
                     term: `catch someone off guard`,
                     type: `phrase`,
-                    definition: `To surprise someone who was not prepared for it.`,
-                    ordinary: `“I was not expecting a film about a dog to affect me at all, and then it completely surprised me.”`,
-                    upgraded: `“A film about a dog completely caught me off guard.”`,
+                    definition: `To surprise someone when they are not prepared for what happens.`,
+                    ordinary: `“I expected the film to be light, so its final scene completely surprised me.”`,
+                    upgraded: `“I expected the film to be light, so its final scene completely caught me off guard.”`,
                     priority: 'key',
-                    atlasPrompt: `What question at work or in a family conversation has caught you off guard recently?`
+                    atlasPrompt: `What question, comment, or piece of news has caught you off guard recently?`
                 }
             },
             {
                 id: 'moment-not-ready-to-leave',
-                preview: `The world closed and you were still in it.`,
-                question: `Some stories end and you are not ready to be back in your own life. Which world did you not want to leave, and what did you do about it? Started it again, went looking for more, or just sat there? And if no world has done that to you, which one do people keep insisting would?`,
+                preview: `The story ended. You were still inside it.`,
+                question: `Which story world were you not ready to leave when it ended? What did you do afterwards — start it again, search for more, talk about it, or simply sit with it for a while?`,
+
                 upgrade: {
                     term: `lose yourself in something`,
                     type: `phrase`,
-                    definition: `To give something your whole attention so that you forget everything else.`,
-                    ordinary: `“For three days I forgot about everything else and just read.”`,
-                    upgraded: `“For three days I completely lost myself in it.”`,
+                    definition: `To give something your complete attention and temporarily forget everything else.`,
+                    ordinary: `“For three days, I forgot about everything else and simply read.”`,
+                    upgraded: `“For three days, I completely lost myself in the story.”`,
                     priority: 'standard',
-                    atlasPrompt: `What do you lose yourself in when you want an hour to disappear — cooking, a job, music, a walk?`
+                    atlasPrompt: `What do you lose yourself in when you want an hour to disappear?`
                 }
             },
             {
                 id: 'moment-what-ruins-it',
                 preview: `Ruined in four seconds.`,
-                question: `What ruins a story for you fastest: knowing the ending in advance, a character you cannot stand, the wrong person recommending it, or the thing simply being too long? And has one been ruined permanently — for you, or for somebody who still complains about it?`,
+                question: `What ruins a story fastest for you — learning the ending, an unbearable character, too much hype, or something that goes on too long? Which story was genuinely spoiled for you, and how?`,
+
                 upgrade: {
                     term: `let something slip`,
                     type: `phrasal verb`,
-                    definition: `To say something by accident that you were supposed to keep quiet about.`,
-                    ordinary: `“My brother accidentally told me that the main character dies, and he did not even notice he had done it.”`,
-                    upgraded: `“My brother let it slip that the main character dies, and he did not even notice he had done it.”`,
+                    definition: `To reveal information accidentally that was meant to remain secret.`,
+                    ordinary: `“My brother accidentally revealed that the main character died.”`,
+                    upgraded: `“My brother let it slip that the main character died.”`,
                     priority: 'key',
-                    atlasPrompt: `When has somebody let something slip that they were not supposed to — a surprise, a plan, somebody else’s news?`
+                    atlasPrompt: `When has somebody let something slip about a surprise, plan, or piece of private news?`
                 }
             }
         ],
+
         makeItReal: {
-            title: `Find the exact moment`,
-            prompt: `Take the story that gripped you hardest and find the exact point where it took hold. Not the plot — the moment. Then do the same for one that lost you: where did it go, and what were you doing when you stopped caring?`
+            title: `The Thirty-Second Hook`,
+            prompt: `Choose a story you love and make your tutor want to begin it. You have thirty seconds and may describe the opening, the mood, or one character — but not the ending. Your tutor then says what caught their interest.`
         }
     },
+
     {
         id: 'set-the-verdict',
         title: `The Verdict`,
         stage: `Explain`,
         icon: 'explain',
-        description: `Endings, punishments, and the argument you would happily have with a friend.`,
+        description: `Endings you reject, punishments you would change, and tricks that work even when you can see them.`,
+
         moments: [
             {
                 id: 'moment-the-wrong-ending',
-                preview: `It owed you something.`,
-                question: `Endings divide people more than anything else in a story. Which one — book, film, series, or something somebody once told you the end of — do you still think was wrong? Too neat, too cruel, too pleased with itself? What did it owe you that it never paid?`,
+                preview: `It reached the end and got it wrong.`,
+                question: `Which ending still feels wrong to you? What should have happened instead — and what new problem might your version create?`,
+
                 upgrade: {
                     term: `a cop-out`,
                     type: `noun`,
-                    definition: `An easy way of avoiding a difficult decision or a difficult ending.`,
-                    ordinary: `“The ending avoided the one hard question the whole thing had been building towards.”`,
+                    definition: `An easy way of avoiding a difficult decision, question, or ending.`,
+                    ordinary: `“The ending avoided the difficult question the whole story had been building towards.”`,
                     upgraded: `“The ending was a complete cop-out.”`,
                     priority: 'key',
-                    atlasPrompt: `When has an answer at work or from an official body been a complete cop-out?`
+                    atlasPrompt: `When has an answer from a company, manager, or official body felt like a cop-out?`
                 }
             },
             {
                 id: 'moment-punishment-that-fit',
-                preview: `More than they had earned.`,
-                question: `Some characters are punished exactly as much as they should be. Others get far worse than they earned. Which case still bothers you, and would you have been merciful?`,
+                preview: `What did they really deserve?`,
+                question: `Choose a character who received exactly the punishment they deserved — or far worse. What would your own judgement have been, and what might make you change it?`,
+
                 upgrade: {
                     term: `have it coming`,
                     type: `idiom`,
-                    definition: `To deserve the bad thing that happens to you.`,
-                    ordinary: `“After everything he had done to those people, I thought he fully deserved what happened to him.”`,
-                    upgraded: `“After everything he had done to those people, he had it coming.”`,
+                    definition: `To deserve the unpleasant thing that happens to you.`,
+                    ordinary: `“After everything he had done, I thought he fully deserved what happened.”`,
+                    upgraded: `“After everything he had done, I thought he had it coming.”`,
                     priority: 'standard',
-                    atlasPrompt: `Is there anyone in the news or at work you have quietly thought had it coming — and did you say so out loud?`
+                    atlasPrompt: `When do people say somebody had it coming, and when does that judgement feel too harsh?`
                 }
             },
             {
                 id: 'moment-seeing-the-machinery',
-                preview: `You can see it working and it works.`,
-                question: `Sometimes you can see exactly what a story is doing to you: the music swelling, the slow walk to the door, the dog. And it works anyway. When has that happened to somebody you know, or to you? And when did noticing ruin it completely?`,
+                preview: `You can see the trick. It still works.`,
+                question: `When have you seen exactly how a story was trying to make you feel — the swelling music, the slow goodbye, the dog — and still reacted exactly as intended? What made it work?`,
+
                 upgrade: {
                     term: `lay it on thick`,
                     type: `idiom`,
-                    definition: `To exaggerate something, especially emotion, to have a stronger effect on people.`,
-                    ordinary: `“They made that goodbye scene as sad as they possibly could, and I still cried.”`,
-                    upgraded: `“They laid it on thick, and I still cried.”`,
+                    definition: `To exaggerate something, especially emotion, to create a stronger reaction.`,
+                    ordinary: `“They made the goodbye scene as emotional as possible, and I still cried.”`,
+                    upgraded: `“They laid it on thick during the goodbye scene, and I still cried.”`,
                     priority: 'standard',
-                    atlasPrompt: `Who do you know who lays it on thick — about how busy they are, how ill they were, how far they had to travel?`
+                    atlasPrompt: `Who tends to lay it on thick when describing how busy, ill, tired, or inconvenienced they were?`
                 }
             },
             {
                 id: 'moment-where-you-stop',
                 preview: `The thing you will not sit through.`,
-                question: `Some people will not watch anything with a child in danger. Others stop at blood, or will not touch anything sad after a long week. Where does somebody you know stop, or where do you? Is that a limit worth having, or one you would talk somebody out of?`,
+                question: `What kind of story do you avoid — extreme violence, children in danger, illness, cruelty, or something that affects you personally? Is that a permanent limit, or does it depend on your mood?`,
+
                 upgrade: {
                     term: `too close to home`,
                     type: `phrase`,
-                    definition: `Uncomfortably similar to your own life or situation.`,
-                    ordinary: `“He cannot watch anything set in a hospital, because it reminds him far too much of his own family.”`,
-                    upgraded: `“He cannot watch anything set in a hospital. It is too close to home.”`,
+                    definition: `Uncomfortably similar to your own life or personal experience.`,
+                    ordinary: `“He avoids hospital dramas because they remind him too strongly of his own family.”`,
+                    upgraded: `“He avoids hospital dramas because they are too close to home.”`,
                     priority: 'standard',
-                    atlasPrompt: `What subject is too close to home for somebody you know — a joke, a news story, a question at a family meal?`
+                    atlasPrompt: `What topic can feel too close to home in a joke, news story, or personal conversation?`
                 }
             },
             {
                 id: 'moment-recommendation-that-failed',
-                preview: `They came back unimpressed.`,
-                question: `You press something you love on somebody and they hand it back with a shrug. Which recommendation of yours has gone worst? Did you decide the problem was them, the thing, or the way you sold it? Or have you been the unimpressed one?`,
+                preview: `You loved it. They shrugged.`,
+                question: `Which story did you recommend so strongly that the other person came back unimpressed? Did the story fail them, did you oversell it, or were they simply the wrong audience?`,
+
                 upgrade: {
                     term: `rave about something`,
                     type: `phrasal verb`,
-                    definition: `To talk about something with a great deal of enthusiasm.`,
-                    ordinary: `“I talked about that series so enthusiastically for a whole week that my sister finally watched it.”`,
-                    upgraded: `“I raved about that series for a whole week until my sister finally watched it.”`,
+                    definition: `To speak about something with great enthusiasm and praise.`,
+                    ordinary: `“I talked so enthusiastically about the series that my sister finally watched it.”`,
+                    upgraded: `“I raved about the series until my sister finally watched it.”`,
                     priority: 'standard',
-                    atlasPrompt: `What have you raved about to somebody who then was not impressed — a restaurant, a shop, a place you had just been?`
+                    atlasPrompt: `What restaurant, product, place, or experience have you raved about to somebody who was not impressed?`
                 }
             }
         ],
+
         makeItReal: {
-            title: `The ending you would change`,
-            prompt: `Choose an ending you have never accepted. Rewrite it out loud — not better, just different. Then say honestly whether your version would have stayed with you as long as the one you did not want.`
+            title: `Put the Ending on Trial`,
+            prompt: `Choose an ending you have never accepted. Make the case against it while your tutor defends the original. Then propose one change and decide whether it would improve the story or simply make you happier.`
         }
     },
+
     {
         id: 'set-long-after',
         title: `Long After`,
         stage: `Reflect and Relate`,
         icon: 'reflect',
-        description: `Fragments, inherited favourites, and the story you know without ever having read it.`,
+        description: `The fragments that remain, the favourites we inherit, and the invented people who begin to feel real.`,
+
         moments: [
             {
                 id: 'moment-a-line-you-still-hear',
                 preview: `Not the plot. The fragment.`,
-                question: `Forget the plot. What is the piece of a story you can still see or hear years later — a line, an image, a room, a sound? And why that fragment rather than all the rest of it?`,
+                question: `Think of one line, image, room, sound, or expression from a story that has stayed with you. Describe it without naming the story and let your tutor guess what kind of moment it was. Why do you think that fragment remained?`,
+
                 upgrade: {
-                    term: `haunt someone`,
+                    term: `haunt`,
                     type: `verb`,
-                    definition: `To stay in someone’s mind for a long time in a way they cannot control.`,
-                    ordinary: `“I kept thinking about that last scene for weeks afterwards and I could not get rid of it.”`,
-                    upgraded: `“That last scene haunted me for weeks.”`,
+                    definition: `To remain in someone’s mind for a long time in a way they cannot control.`,
+                    ordinary: `“I kept thinking about the final image for weeks afterwards.”`,
+                    upgraded: `“The final image haunted me for weeks.”`,
                     priority: 'standard',
-                    atlasPrompt: `What decision or conversation still haunts somebody you know, years later?`
+                    atlasPrompt: `What decision, conversation, image, or unanswered question has remained in your mind for a long time?`
                 }
             },
             {
                 id: 'moment-handed-to-you',
                 preview: `Nobody asked whether you liked it.`,
-                question: `Somebody put a story in front of you before you were old enough to choose: a parent’s favourite film, a set book at school, whatever was always on in the house. Which one did you inherit? And did whoever gave it to you ever ask whether you liked it?`,
+                question: `What story was placed in front of you when you were young — a parent’s favourite film, a school book, or something always playing at home? Did it become yours too, or did you reject it?`,
+
                 upgrade: {
                     term: `hand something down`,
                     type: `phrasal verb`,
-                    definition: `To pass something to a younger person, usually within a family or a group.`,
+                    definition: `To pass something to a younger person or later generation.`,
                     ordinary: `“My father made sure all three of us grew up watching his favourite westerns.”`,
                     upgraded: `“My father handed his favourite westerns down to all three of us.”`,
                     priority: 'key',
-                    atlasPrompt: `What has been handed down to you that you did not choose — a recipe, a tool, a name, a way of doing something?`
+                    atlasPrompt: `What recipe, object, skill, name, or habit has been handed down to you?`
                 }
             },
             {
                 id: 'moment-went-back-to-it',
-                preview: `You went back. It did not.`,
-                question: `Something you loved at twelve, read or watched again as an adult. Did it survive? Be specific about what you saw the second time, or about what you now wish you had left alone.`,
+                preview: `You went back. It had changed.`,
+                question: `What story did you love when you were younger and return to as an adult? What still worked — and what suddenly felt old, awkward, or much stranger than you remembered?`,
+
                 upgrade: {
-                    term: `grow out of something`,
-                    type: `phrasal verb`,
-                    definition: `To stop liking or needing something as you get older.`,
-                    ordinary: `“I stopped enjoying those books at some point, and I never really noticed when it happened.”`,
-                    upgraded: `“I had grown out of those books without ever really noticing.”`,
-                    priority: 'key',
-                    atlasPrompt: `What have you grown out of without noticing — a food, a kind of music, a way of spending a Saturday?`
+                    term: `dated`,
+                    type: `adjective`,
+                    definition: `No longer feeling modern or suitable because attitudes, language, or style have changed.`,
+                    ordinary: `“Some parts still worked, but the jokes and attitudes felt very old.”`,
+                    upgraded: `“Some parts still worked, but the jokes and attitudes felt dated.”`,
+                    priority: 'standard',
+                    atlasPrompt: `What product, workplace habit, piece of advice, or social rule now feels dated?`
                 }
             },
             {
                 id: 'moment-never-read-it',
                 preview: `You know the ending anyway.`,
-                question: `What famous story do you know the whole of without ever having read or watched it? The ending, the twist, the line everybody quotes. Where did you actually get it from, and has that ever gone embarrassingly wrong?`,
+                question: `What famous story do you know surprisingly well without ever reading, watching, or playing it? Where did that knowledge come from — references, parodies, conversations, or people explaining it badly?`,
+
                 upgrade: {
                     term: `by reputation`,
                     type: `phrase`,
-                    definition: `Known only through what other people say, not through direct experience.`,
-                    ordinary: `“I have never actually read it, but I know roughly what it is about because everyone talks about it.”`,
-                    upgraded: `“I have never actually read it. I only know it by reputation.”`,
+                    definition: `Known through what other people say rather than through direct experience.`,
+                    ordinary: `“I have never watched it, but I know what people say about it.”`,
+                    upgraded: `“I have never watched it. I only know it by reputation.”`,
                     priority: 'standard',
-                    atlasPrompt: `Who or what do you know only by reputation — a restaurant, a colleague, a neighbourhood you have never been to?`
+                    atlasPrompt: `What person, business, place, or neighbourhood do you know only by reputation?`
                 }
             },
             {
                 id: 'moment-as-if-they-existed',
-                preview: `You argue about what they would do.`,
-                question: `Which invented person gets discussed in your house — or in somebody else’s — as though they actually exist? Arguing about what they would do, whether they would like you. What is it about them that makes that possible?`,
+                preview: `Put them somewhere ordinary.`,
+                question: `Which fictional person feels real enough that you can predict how they would behave? Put them into one ordinary situation from your own life — what would they do, and how would people react?`,
+
                 upgrade: {
                     term: `bring someone to life`,
                     type: `phrase`,
-                    definition: `To describe or perform someone so well that they feel real.`,
-                    ordinary: `“The writing made her feel like a real person you could have actually met.”`,
+                    definition: `To describe, write, or perform someone so convincingly that they feel real.`,
+                    ordinary: `“The writing made her feel like a person you might genuinely meet.”`,
                     upgraded: `“The writing brought her completely to life.”`,
-                    priority: 'standard',
-                    atlasPrompt: `Who can bring a place or a person to life just by describing them?`
+                    priority: 'key',
+                    atlasPrompt: `Who can bring a person or place to life simply by describing it?`
                 }
             }
         ],
+
         makeItReal: {
-            title: `What you would not tell them`,
-            prompt: `Choose one story you would want somebody twenty years younger to encounter. Say what you would tell them about it beforehand — and what you would deliberately keep back, and why.`
+            title: `What You Would Pass On`,
+            prompt: `Choose one story you would pass on to someone younger. Explain why they should experience it, then name one thing you would deliberately not explain beforehand because they need to discover it for themselves.`
         }
     }
 ];
+
 const clCards = [
     {
         id: 'cl-teller-in-the-room',
         contextLine: `Storytelling before print`,
         title: `The Teller Could See Your Face`,
         teaser: `The story changed depending on who was listening.`,
-        context: `For most of human history, stories were heard in company rather than read alone. A teller could see the faces in front of them and work accordingly: stretch a scene that was landing, cut one that was not, change an ending for the room. The same tale could arrive quite differently on two nights.`,
-        mainQuestion: `You are halfway through telling a story and you can see it is not landing. Do you change it as you go, or finish the version you meant to tell?`,
+
+        context: `Before print, most stories were heard in company rather than read alone. The teller could watch the listeners and change the story as they went: stretch a scene that was working, shorten one that was not, or alter the ending for that particular room. The same tale might sound different on two nights.`,
+
+        mainQuestion: `You are halfway through telling a story and can see that people are losing interest. Do you change it as you go, or finish the version you planned?`,
+
         followTheThread: [
-            `Who is the best storyteller you have actually heard, and what do they do that the rest of us do not?`,
-            `Is a story that improves every time it is told still the same story?`
+            `Who is the best storyteller you have actually heard, and what do they do that other people do not?`,
+            `If a story improves every time it is told, is it still the same story?`
         ],
+
         upgrade: {
             term: `hold a room`,
             type: `phrase`,
@@ -330,20 +366,25 @@ const clCards = [
             ordinary: `“She can keep a whole table listening to her without any effort at all.”`,
             upgraded: `“She can hold a room without any effort at all.”`,
             priority: 'key',
-            atlasPrompt: `Who do you know who can hold a room — at work, at a family meal, in a meeting? What do they actually do?`
+            atlasPrompt: `Who do you know who can hold a room — at work, at a family meal, or in a meeting? What do they actually do?`
         }
     },
+
     {
         id: 'cl-audiences-that-talked-back',
         contextLine: `Theatre audiences`,
         title: `They Used to Shout Back`,
         teaser: `Audiences ate, moved about, and told the actors what they thought.`,
-        context: `Audiences have not always been quiet. In many periods people ate, walked around, called out approval or abuse, and expected a favourite passage to be performed again on the spot. Sitting still in the dark and saying nothing is a fairly recent arrangement.`,
-        mainQuestion: `Somebody near you talks all the way through. Do you say something, move seats, or sit there resenting them for two hours?`,
+
+        context: `Audiences have not always sat quietly. In many theatres, people ate, moved around, called out praise or abuse, and sometimes demanded that a favourite passage be performed again. Sitting still in the dark and saying nothing became normal much later.`,
+
+        mainQuestion: `Somebody near you talks all the way through a performance. Do you say something, move seats, or sit there resenting them for two hours?`,
+
         followTheThread: [
-            `What is the silence in a cinema or a theatre actually protecting — the story, or the other people?`,
-            `Is there anything you would happily shout at a screen or a stage if it were allowed?`
+            `What is silence in a cinema or theatre actually protecting — the story or the other people?`,
+            `What would you happily shout at a screen or stage if it were allowed?`
         ],
+
         upgrade: {
             term: `bite your tongue`,
             type: `idiom`,
@@ -351,20 +392,25 @@ const clCards = [
             ordinary: `“I wanted to say something to the man behind me, but I stopped myself.”`,
             upgraded: `“I wanted to say something to the man behind me, but I bit my tongue.”`,
             priority: 'key',
-            atlasPrompt: `When did you last bite your tongue, and how long did it hold?`
+            atlasPrompt: `When did you last bite your tongue, and what stopped you from speaking?`
         }
     },
+
     {
         id: 'cl-endings-to-order',
         contextLine: `Censors and managers`,
         title: `Endings to Order`,
         teaser: `The tragic ending emptied the house, so somebody changed it.`,
-        context: `Endings have often been altered by people who did not write them. Censors have required that wrongdoing be shown as punished. Theatre managers have replaced tragic endings with happy ones because audiences preferred them. Well-known plays have run for long stretches in rewritten versions, and the original has sometimes returned much later.`,
-        mainQuestion: `You run a theatre. The tragic ending empties the house; the happy one fills it. Which do you stage?`,
+
+        context: `People other than the writer have often changed how stories end. Censors sometimes required wrongdoers to be punished. Theatre managers replaced tragic endings with happy ones when audiences preferred them. Some famous plays were performed for years in rewritten versions before the original ending returned.`,
+
+        mainQuestion: `You run a theatre. The tragic ending empties the house, while the happy one fills it. Which do you stage?`,
+
         followTheThread: [
-            `Does a writer still own a story once the public has taken to it?`,
-            `Who should get the last word on how a story ends — whoever wrote it, whoever paid for it, or whoever is watching?`
+            `Once audiences love a story, should the writer still have complete control over what happens to it?`,
+            `Who should get the last word on an ending — the writer, the person paying, or the audience?`
         ],
+
         upgrade: {
             term: `sell out`,
             type: `phrasal verb`,
@@ -372,20 +418,25 @@ const clCards = [
             ordinary: `“They gave it a happy ending because that was what would make the most money.”`,
             upgraded: `“They sold out and gave it a happy ending.”`,
             priority: 'standard',
-            atlasPrompt: `When have you heard somebody accused of selling out — a musician, a shop that changed, a friend who switched sides in an argument?`
+            atlasPrompt: `When have you heard somebody accused of selling out — a musician, a business, or a person who changed sides?`
         }
     },
+
     {
         id: 'cl-the-week-between',
         contextLine: `Serialised fiction`,
         title: `The Week in Between`,
         teaser: `Everyone was waiting, and nobody knew what came next.`,
-        context: `Novels have often reached readers a piece at a time, in magazines, newspapers or cheap parts, with weeks between them. People argued about what would happen next before it existed. Writers could hear the reaction while the story was still being written, and some plots are said to have shifted because of it.`,
-        mainQuestion: `Would you rather wait a week between episodes, with everybody else waiting too — or have the whole thing at once, alone?`,
+
+        context: `Novels have often reached readers one part at a time, through magazines, newspapers, or cheap printed sections. People argued about what would happen next while the writer was still working. Writers could hear those reactions, and some plots may have changed because of them.`,
+
+        mainQuestion: `Would you rather wait a week between episodes, with everybody else waiting too — or have the whole story available at once?`,
+
         followTheThread: [
-            `What is actually lost when nobody has to wait for anything?`,
-            `Have you ever slowed something down on purpose to make it last?`
+            `What is lost when nobody has to wait for anything?`,
+            `Have you ever slowed something down on purpose to make it last longer?`
         ],
+
         upgrade: {
             term: `a cliffhanger`,
             type: `noun`,
@@ -393,88 +444,108 @@ const clCards = [
             ordinary: `“Every episode stopped at the worst possible moment, so you had no choice but to come back.”`,
             upgraded: `“Every episode ended on a cliffhanger, so you had no choice but to come back.”`,
             priority: 'standard',
-            atlasPrompt: `When has real life stopped on a cliffhanger — a result you had to wait for, a conversation that got interrupted?`
+            atlasPrompt: `When has real life stopped on a cliffhanger — a result you had to wait for or a conversation that was interrupted?`
         }
     },
+
     {
         id: 'cl-letters-to-a-character',
         contextLine: `Readers and characters`,
         title: `Letters to Somebody Who Never Existed`,
         teaser: `The actor who played the villain got shouted at in the street.`,
-        context: `Readers and audiences have long treated invented people as though they were real: writing to them, sending them advice, mourning a character’s death in the newspapers, shouting at the performer who played the villain. Writers have received letters addressed to their characters, and requests to spare them.`,
+
+        context: `Readers and audiences have often treated invented people as if they were real. Some wrote letters to characters, sent them advice, or mourned a character’s death in newspapers. Actors playing villains were sometimes shouted at in the street, and writers received requests to spare characters in the next part.`,
+
         mainQuestion: `A stranger stops an actor in the street and blames them for what their character did. Is that a compliment to the performance, or has something gone wrong?`,
+
         followTheThread: [
             `Have you ever disliked a real person because of a part they played?`,
-            `What would it take for you to write to a writer and ask them to spare somebody?`
+            `What would make you write to an author and ask them to spare a character?`
         ],
+
         upgrade: {
             term: `take something personally`,
             type: `phrase`,
             definition: `To treat something as an attack on you when it was not meant that way.`,
-            ordinary: `“He got angry about it as though the whole comment had been aimed directly at him.”`,
-            upgraded: `“He took the whole thing completely personally.”`,
+            ordinary: `“He became angry as though the whole comment had been aimed directly at him.”`,
+            upgraded: `“He took the whole comment personally.”`,
             priority: 'key',
             atlasPrompt: `What kind of comment do people take personally at work even when it was not meant that way?`
         }
     },
+
     {
         id: 'cl-tales-for-children',
         contextLine: `Tales told to children`,
         title: `Do That Again and See What Happens`,
         teaser: `The creature is waiting for children who do not do as they are told.`,
-        context: `Stories told to children have often been built to frighten them into behaving: the child who wanders off, the one who will not stop asking questions, the creature waiting for anyone who disobeys. The same shape turns up in very distant places, and the endings do not match. One version punishes, another forgives, another simply stops.`,
-        mainQuestion: `Two versions reach you. In one, the child who disobeys is punished. In the other, nothing happens to them at all. Which would you pass on, and which would you have preferred to be told?`,
+
+        context: `Stories told to children have often warned them through fear: the child who wanders off, the one who disobeys, or the creature waiting in the dark. Similar story shapes appear in very different places, but their endings vary. One version punishes the child, another forgives them, and another simply stops.`,
+
+        mainQuestion: `In one version, the child who disobeys is punished. In another, nothing happens to them. Which would you pass on — and which would you have preferred to hear as a child?`,
+
         followTheThread: [
-            `What were you warned about as a child through a story rather than a rule?`,
-            `Which story from your own childhood would sound alarming if you told it to a child today?`
+            `What were you warned about through a story rather than a direct rule?`,
+            `Which story from your childhood would sound alarming if you told it to a child today?`
         ],
+
         upgrade: {
             term: `a cautionary tale`,
             type: `phrase`,
-            definition: `A story told as a warning about what could happen to you.`,
-            ordinary: `“It was one of those stories told to children to warn them away from doing something.”`,
+            definition: `A story told as a warning about what could happen.`,
+            ordinary: `“It was a story told to children to warn them against doing something.”`,
             upgraded: `“It was a cautionary tale.”`,
             priority: 'standard',
             atlasPrompt: `Whose career, purchase, or holiday has become a cautionary tale among the people who know them?`
         }
     },
+
     {
         id: 'cl-one-screen-in-town',
         contextLine: `Getting hold of a story`,
         title: `One Screen, One Town`,
         teaser: `The players arrived, performed, and left again.`,
-        context: `For most of history a story had to be travelled to, borrowed, or waited for. A company of players arrived in a town and moved on. A book was passed around a household and read aloud to people who could not read it themselves. A single screen could serve a whole district. What you encountered depended a great deal on where you were standing.`,
-        mainQuestion: `Everything you might want to watch or read is now available immediately. Has anything actually been lost, or is that just nostalgia for queuing?`,
+
+        context: `For most of history, people had to travel to a story, borrow it, or wait for it. A group of actors arrived in town and then moved on. One book might pass through a whole household and be read aloud. A single cinema screen could serve an entire district. What people encountered depended heavily on where they lived.`,
+
+        mainQuestion: `When stories were harder to find, people had fewer choices but often shared the same ones. Did that make stories feel more valuable — or simply less convenient?`,
+
         followTheThread: [
-            `What was the last thing you had to make a real effort to get hold of, and did the effort change how you felt about it?`,
-            `Is there anything you deliberately ration so that it does not run out?`
+            `What was the last thing you made a real effort to find, and did the effort change how you felt about it?`,
+            `Is there anything you deliberately limit so that it does not disappear too quickly?`
         ],
+
         upgrade: {
             term: `spoilt for choice`,
             type: `phrase`,
             definition: `Having so many options that choosing becomes difficult.`,
-            ordinary: `“There is so much available that I spend twenty minutes choosing and then watch nothing at all.”`,
-            upgraded: `“I am so spoilt for choice that I spend twenty minutes choosing and then watch nothing at all.”`,
+            ordinary: `“There is so much available that I spend twenty minutes choosing and then watch nothing.”`,
+            upgraded: `“I am so spoilt for choice that I spend twenty minutes choosing and then watch nothing.”`,
             priority: 'standard',
-            atlasPrompt: `Where are you so spoilt for choice that deciding has actually got harder — food, clothes, places to go?`
+            atlasPrompt: `Where are you so spoilt for choice that deciding has become harder — food, clothes, entertainment, or places to go?`
         }
     },
+
     {
         id: 'cl-the-ones-that-vanished',
         contextLine: `Lost works`,
         title: `The Ones That Did Not Survive`,
         teaser: `Known only by its title, and by what somebody else said about it.`,
-        context: `A great deal of storytelling has not survived. Some plays are known only by their title, or by what another writer said about them. Many films from the earliest decades exist as fragments or not at all. Writers have died leaving a story unfinished. Occasionally a copy turns up somewhere nobody thought to look.`,
+
+        context: `A great deal of storytelling has disappeared. Some plays are known only by their title or by comments from another writer. Many early films survive only in fragments, and some writers died before finishing their stories. Occasionally, a forgotten copy is found somewhere unexpected.`,
+
         mainQuestion: `A series you loved will never be finished. Would you want somebody else to complete it, or is an unfinished story better left alone?`,
+
         followTheThread: [
-            `Does knowing how something ends matter more than the ending being any good?`,
+            `Does knowing how something ends matter more than the ending being good?`,
             `Would you read a summary of an ending you will never see, or would you rather not know?`
         ],
+
         upgrade: {
             term: `tie up loose ends`,
             type: `phrase`,
-            definition: `To deal with the small remaining details that have not been settled.`,
-            ordinary: `“The series finished without ever explaining several things it had set up.”`,
+            definition: `To deal with remaining details that have not been settled.`,
+            ordinary: `“The series finished without explaining several things it had introduced.”`,
             upgraded: `“The series finished without tying up any of the loose ends.”`,
             priority: 'key',
             atlasPrompt: `What loose ends have you been putting off tying up — at work, at home, or with somebody you have been meaning to contact?`
