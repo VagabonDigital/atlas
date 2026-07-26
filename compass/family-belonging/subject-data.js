@@ -29,38 +29,44 @@ const MODULE = {
 
 const subjectCopy = {
     cover: {
-        hook: `Every family thinks it's the normal one.`
+        hook: `Every family thinks it’s the normal one.`
     },
+
     overview: {
         heading: `Nobody Wrote It Down`,
         intro: [
-            `Every family runs on rules nobody wrote down. There is a chair you don't sit in, a subject you don't raise, a story that gets slightly better every year, and a word for something that isn't a real word. You can see all of this instantly in somebody else's family and almost none of it in your own.`
+            `Families are built from more than relatives. They run on private words, invisible jobs, inherited habits, old disagreements, and people who slowly stop being guests.`
         ],
-        question: `So which of your family's rules would a stranger find genuinely strange — and which ones would you defend anyway?`
+        question: `What is one small sign that tells you somebody truly belongs in a family?`
     },
+
     paths: {
-        culturalLensDescription: `Baby names vetoed by a committee, sons adopted at thirty, and one farm with four children.`,
-        discussionDescription: `The favourite, the loan that was never repaid, the family argument nobody can end, and the aunt who means well.`,
+        culturalLensDescription: `Explore naming rules, inherited roles, chosen relatives, family duty, and different ways of deciding who belongs.`,
+        discussionDescription: `Private rules, uneven responsibilities, difficult questions, inherited habits, and the things worth passing on.`,
         reflectionTitle: `Reflection`,
-        reflectionDescription: `A place to bring together ideas from different parts of the subject.`
+        reflectionDescription: `A place to reconsider what makes a family, what it asks of people, and what continues through them.`
     },
+
     culturalLens: {
-        heading: `Other People's Families`,
-        intro: `Everybody assumes their own family is the normal one and everybody else's is slightly odd. Here are some arrangements that will make yours look extremely conventional — and one or two that might not.`
+        heading: `Who Counts as Family?`,
+        intro: `A stranger can become a legal son. Children raised apart can still become siblings. A dead relative may continue receiving family news. Explore arrangements that change who is recognised as family, who inherits, and who is expected to help.`
     },
+
     discussion: {
         heading: `The House You Come From`
     },
+
     reflection: {
-        title: `Your Version`,
-        summary: `Look back at what came up — the rules, responsibilities, stories, and arrangements people inherit or create. Notice which ideas felt familiar, which felt strange, and which changed how you would describe belonging.`,
+        title: `What Will Continue?`,
+        summary: `Look back at the rules, responsibilities, relationships, and practices that people inherit, reject, or create for themselves.`,
         questions: [
-            `Which of the arrangements you heard about would you actually want in your family?`,
-            `Whose version of your family would you most like to hear — and what would they get wrong about you?`
+            `Which family practice would you deliberately pass on — and which pattern would you stop?`,
+            `Who, real or fictional, feels like family because of what they did rather than how they were related?`
         ]
     },
+
     keyLanguage: {
-        intro: `Expressions for describing relatives, arguing about fairness, and admitting what you've inherited.`
+        intro: `Expressions for describing family roles, setting boundaries, sharing responsibility, and explaining what continues across generations.`
     }
 };
 
@@ -70,248 +76,248 @@ const discussionSets = [
         title: `Nobody Sits There`,
         stage: `React`,
         icon: 'react',
-        description: `The word only your family uses, the newcomer who needs a warning, and the story that gets bigger every year.`,
+        description: `Private words, house rules, family stories, familiar rooms, and the warning every newcomer needs.`,
         moments: [
             {
                 id: 'moment-the-family-word',
-                preview: `A word that isn't a real word.`,
-                question: `Most families have a word that no dictionary contains — a name for the remote control, a dish nobody else calls that, a toddler's mispronunciation that stuck for thirty years. What's yours, and who invented it?`,
+                preview: `Only this family knows what the word means.`,
+                question: `Does your family use a word or phrase that other people would not understand — a nickname, a name for an object, or an inside joke? What does it mean?`,
                 upgrade: {
                     term: `catch on`,
                     type: `phrasal verb`,
                     definition: `To become popular or widely used by a group.`,
-                    ordinary: `“My little brother couldn't pronounce it properly, and somehow the whole family started using his version and never stopped.”`,
-                    upgraded: `“My brother couldn't pronounce it, and his version caught on.”`,
+                    ordinary: `“My brother invented the word, and soon everyone in the family was using it.”`,
+                    upgraded: `“My brother invented the word, and it quickly caught on.”`,
                     priority: 'standard',
-                    atlasPrompt: `What word, nickname, or habit caught on at your work — and does anyone remember who started it?`
+                    atlasPrompt: `What expression, nickname, or habit caught on inside a group you belong to?`
                 }
             },
             {
                 id: 'moment-nobody-sits-there',
-                preview: `Nobody wrote it down. Everybody obeys it.`,
-                question: `The chair. Who carves. Who is never trusted with the music. What you do not mention in front of your grandmother. What is the rule in your family that nobody ever wrote down — and what happens to the person who breaks it?`,
+                preview: `Nobody explains the rule. Everybody follows it.`,
+                question: `Choose one unwritten rule from a family you know — a seat, a topic, a job, or a routine. How would a newcomer discover it, and what happens if they ignore it?`,
                 upgrade: {
-                    term: `there'll be hell to pay`,
+                    term: `there’ll be hell to pay`,
                     type: `idiom`,
-                    definition: `There will be serious trouble and somebody will be very angry.`,
-                    ordinary: `“If anyone sat in my father's chair, he would be extremely angry and the whole house would hear about it.”`,
-                    upgraded: `“If anyone sat in Dad's chair, there'd be hell to pay.”`,
+                    definition: `There will be serious trouble because somebody will be extremely angry.`,
+                    ordinary: `“If anyone sits in my father’s chair, he becomes furious.”`,
+                    upgraded: `“If anyone sits in Dad’s chair, there’ll be hell to pay.”`,
                     priority: 'key',
-                    atlasPrompt: `What would there be hell to pay for at your work — being late, going over someone's head, touching the wrong mug?`
+                    atlasPrompt: `What minor rule could cause serious trouble if somebody ignored it?`
                 }
             },
             {
                 id: 'moment-the-story-that-grew',
-                preview: `Every year, the fish gets bigger.`,
-                question: `Every family has the story that comes out at every gathering, and it has grown. Which one is yours, who tells it, and how much of it is still true? Tell it the way they tell it.`,
+                preview: `The same story returns. One detail gets bigger.`,
+                question: `Tell one family story in the style of the person who usually tells it. Which detail becomes larger, funnier, or more dramatic each time?`,
                 upgrade: {
                     term: `trot something out`,
                     type: `phrasal verb`,
-                    definition: `To repeat the same story, excuse, or argument you have used many times before.`,
-                    ordinary: `“He tells exactly the same story at every single dinner, and everybody has heard it a hundred times.”`,
-                    upgraded: `“He trots out the same story at every dinner.”`,
+                    definition: `To repeat the same familiar story, excuse, or argument many times.`,
+                    ordinary: `“He tells the same story at every family dinner.”`,
+                    upgraded: `“He trots out the same story at every family dinner.”`,
                     priority: 'standard',
-                    atlasPrompt: `Who trots out the same excuse, the same argument, or the same anecdote every time — and does anyone stop them?`
+                    atlasPrompt: `Who regularly trots out the same story, excuse, or opinion?`
                 }
             },
             {
-                id: 'moment-the-permanent-record',
-                preview: `You were fourteen. They have not forgotten.`,
-                question: `The haircut. The boyfriend. The thing someone said at the wedding. What do families keep bringing up years later — and at what point does affectionate teasing quietly become a grudge?`,
+                id: 'moment-the-house-gives-it-away',
+                preview: `You know whose home it is before anyone speaks.`,
+                question: `Picture a family home you know well. What tells you immediately whose home it is — a smell, a sound, an object, a mess, or something else?`,
                 upgrade: {
-                    term: `hold something against someone`,
-                    type: `phrase`,
-                    definition: `To continue to blame someone for something they did in the past.`,
-                    ordinary: `“I forgot her birthday once, six years ago, and she still blames me for it every time we argue.”`,
-                    upgraded: `“I forgot her birthday once and she still holds it against me.”`,
-                    priority: 'key',
-                    atlasPrompt: `What do people find hardest to let go of — being forgotten, being embarrassed, being left out, or being proved wrong?`
+                    term: `distinctive`,
+                    type: `adjective`,
+                    definition: `Easy to recognise because it has a particular and unusual character.`,
+                    ordinary: `“The house has a smell and atmosphere that you would recognise immediately.”`,
+                    upgraded: `“The house has a very distinctive smell and atmosphere.”`,
+                    priority: 'standard',
+                    atlasPrompt: `What makes a person, place, product, or organisation immediately distinctive?`
                 }
             },
             {
                 id: 'moment-meeting-them-for-the-first-time',
-                preview: `Their first Christmas with your lot.`,
-                question: `Somebody new arrives — a partner, a friend, an in-law. What do they get wrong first, and who is the relative they will not survive?`,
+                preview: `One warning. One piece of advice.`,
+                question: `A partner or friend will meet the family for the first time. You may give them one warning and one piece of advice. What are they?`,
                 upgrade: {
                     term: `a baptism of fire`,
-                    type: `noun`,
+                    type: `idiom`,
                     definition: `An extremely difficult first experience of a new situation.`,
-                    ordinary: `“Her first Christmas with my family was an extremely difficult introduction — all forty of us, plus the arguing.”`,
-                    upgraded: `“Her first Christmas with my family was a real baptism of fire.”`,
+                    ordinary: `“Her first Christmas with the whole family was an extremely difficult introduction.”`,
+                    upgraded: `“Her first Christmas with the whole family was a baptism of fire.”`,
                     priority: 'standard',
-                    atlasPrompt: `When has a first day, a first week, or a first meeting been a real baptism of fire?`
+                    atlasPrompt: `Which first day, meeting, journey, or responsibility was a baptism of fire for you?`
                 }
             }
         ],
         makeItReal: {
-            title: `The briefing`,
-            prompt: `Someone is meeting your family for the first time next week. Brief them properly: where to sit, what not to mention, who to charm first, and who will corner them by the sink.`
+            title: `The Briefing`,
+            prompt: `Someone is meeting a family you know for the first time next week. Brief them properly: where to sit, what not to mention, who to charm first, and who may corner them in the kitchen.`
         }
     },
     {
         id: 'set-keeping-score',
-        title: `Somebody's Keeping Score`,
+        title: `Somebody’s Keeping Score`,
         stage: `Explain`,
         icon: 'explain',
-        description: `The favourite, the one who does everything, the money that was never repaid, and the aunt who means well.`,
+        description: `Favouritism, invisible work, money, intrusive questions, and the first move after a long silence.`,
         moments: [
             {
                 id: 'moment-the-favourite',
                 preview: `There is one. Everybody denies it.`,
-                question: `People often suspect there is a favourite, even when nobody admits it. In a family you know — real or fictional — how can people tell, and what does the favourite get away with?`,
+                question: `Think of a real or fictional family accused of having a favourite. What evidence would convince you? What could look like favouritism but have another explanation?`,
                 upgrade: {
-                    term: `get away with murder`,
-                    type: `idiom`,
-                    definition: `To be allowed to do things that other people would be punished for.`,
-                    ordinary: `“My younger brother was allowed to do absolutely anything and was never once punished for any of it.”`,
-                    upgraded: `“My younger brother got away with murder.”`,
+                    term: `favouritism`,
+                    type: `noun`,
+                    definition: `Unfairly treating one person better than others.`,
+                    ordinary: `“The parents clearly treat their youngest child better than the others.”`,
+                    upgraded: `“The parents show obvious favouritism towards their youngest child.”`,
                     priority: 'key',
-                    atlasPrompt: `Who gets away with murder at your work — and why does nobody say anything?`
+                    atlasPrompt: `Where is favouritism most damaging — in a family, workplace, classroom, or team?`
                 }
             },
             {
                 id: 'moment-the-one-who-does-everything',
-                preview: `One person books the flights. Every time.`,
-                question: `Somebody remembers the birthdays, drives to the hospital, hosts the whole thing. It is almost never shared out evenly. In your family, or a family you know well, who carries it — and did they take the job, or did everyone else quietly hand it to them?`,
+                preview: `The birthdays, the hospital, the food, the bookings.`,
+                question: `Name the jobs one person quietly does to keep a family running. Which task should somebody else take over first?`,
                 upgrade: {
-                    term: `a thankless task`,
-                    type: `noun`,
-                    definition: `A necessary job that nobody ever thanks you for doing.`,
-                    ordinary: `“Organising every single birthday is a job that has to be done, and nobody has ever once said thank you for it.”`,
-                    upgraded: `“Organising every birthday is a thankless task.”`,
-                    priority: 'standard',
-                    atlasPrompt: `What is the most thankless task in your workplace — and who ended up with it?`
+                    term: `take someone for granted`,
+                    type: `phrase`,
+                    definition: `To fail to appreciate someone because you assume they will always help.`,
+                    ordinary: `“Everyone expects her to organise everything and rarely thanks her.”`,
+                    upgraded: `“Everyone takes her for granted.”`,
+                    priority: 'key',
+                    atlasPrompt: `Who is most likely to be taken for granted inside a team, household, or community?`
                 }
             },
             {
                 id: 'moment-lending-money',
-                preview: `A relative asks. It is not a small amount.`,
-                question: `Do you lend it, give it, or say no? And if you lend it and it never comes back, what have you actually lost — the money, or something more expensive?`,
+                preview: `A relative asks for the equivalent of one month’s rent.`,
+                question: `Would you lend the full amount, give a smaller amount, or refuse? What agreement would protect the relationship afterwards?`,
                 upgrade: {
-                    term: `write something off`,
-                    type: `phrasal verb`,
-                    definition: `To accept that money, time, or effort is lost and stop expecting it back.`,
-                    ordinary: `“I lent it to him, but honestly I accepted I would never see it again on the day I handed it over.”`,
-                    upgraded: `“I lent it to him, but honestly I wrote it off the day I handed it over.”`,
+                    term: `repayment`,
+                    type: `noun`,
+                    definition: `Money returned to someone after it was borrowed.`,
+                    ordinary: `“We agreed how much he would pay back each month.”`,
+                    upgraded: `“We agreed on a monthly repayment plan.”`,
                     priority: 'standard',
-                    atlasPrompt: `What have you written off — money, time, an apology you are never going to get?`
-                }
-            },
-            {
-                id: 'moment-not-speaking',
-                preview: `Two of them haven't spoken in nine years.`,
-                question: `Some families contain a disagreement that has lasted so long nobody clearly remembers the beginning. Why do these arguments survive — and what would make either side finally move?`,
-                upgrade: {
-                    term: `fall out over something`,
-                    type: `phrasal verb`,
-                    definition: `To have a serious argument and stop being friendly with someone.`,
-                    ordinary: `“They had a serious argument about their mother's house and they have not spoken to each other since.”`,
-                    upgraded: `“They fell out over the house and haven't spoken since.”`,
-                    priority: 'standard',
-                    atlasPrompt: `What do neighbours, friends, or colleagues most often fall out over?`
+                    atlasPrompt: `When should repayment terms be agreed clearly rather than left to trust?`
                 }
             },
             {
                 id: 'moment-the-question-nobody-asked-for',
                 preview: `“And when are you going to settle down?”`,
-                question: `Families sometimes ask questions that no colleague or casual friend would dare to ask. Which questions cross the line — and when does concern become interference?`,
+                question: `A relative asks, “When are you going to settle down?” Give the answer you would actually use. What would make the same question feel caring rather than intrusive?`,
                 upgrade: {
-                    term: `mean well`,
-                    type: `phrase`,
-                    definition: `To have good intentions, even when the effect is unwelcome or exhausting.`,
-                    ordinary: `“She has good intentions, I know she does, but she is completely exhausting to be around.”`,
-                    upgraded: `“She means well, but she's exhausting.”`,
+                    term: `overstep`,
+                    type: `verb`,
+                    definition: `To go beyond an acceptable social or personal boundary.`,
+                    ordinary: `“She meant to help, but the question was too personal.”`,
+                    upgraded: `“She meant to help, but she overstepped.”`,
                     priority: 'key',
-                    atlasPrompt: `Who means well and is still exhausting — a colleague, a neighbour, a friend?`
+                    atlasPrompt: `When can advice, curiosity, humour, or concern begin to overstep?`
+                }
+            },
+            {
+                id: 'moment-the-first-message',
+                preview: `They have not spoken in years. A wedding is coming.`,
+                question: `Two relatives who have not spoken for years will attend the same wedding. Write the first sentence of a message that might make the day easier. What must it avoid saying?`,
+                upgrade: {
+                    term: `reach out`,
+                    type: `phrasal verb`,
+                    definition: `To contact someone, especially after distance, silence, or difficulty.`,
+                    ordinary: `“After several years of silence, she contacted her brother.”`,
+                    upgraded: `“After several years of silence, she reached out to her brother.”`,
+                    priority: 'standard',
+                    atlasPrompt: `When is it worth reaching out first, even when you believe the other person should do it?`
                 }
             }
         ],
         makeItReal: {
-            title: `Argue the other side`,
-            prompt: `Pick a disagreement in a family you know well — money, a wedding, who does more, who was favoured. Now argue the side you don't agree with, as well as you possibly can. Then tell me which parts of it are actually true.`
+            title: `Argue the Other Side`,
+            prompt: `Choose a family disagreement — real, fictional, or invented — about money, responsibility, a wedding, or favouritism. Argue the side you disagree with as convincingly as possible, then identify one part of that position you understand better.`
         }
     },
     {
         id: 'set-the-bits-you-kept',
-        title: `The Bits You Kept`,
+        title: `What Stays, What Changes`,
         stage: `Reflect and Relate`,
         icon: 'reflect',
-        description: `The habit you swore you'd never have, the rule you refused, and the grandmother who is still winning arguments.`,
+        description: `Habits that reappear, people who become family, patterns that end, traditions that continue, and influence that remains.`,
         moments: [
             {
                 id: 'moment-you-have-become-them',
-                preview: `That is your mother's exact sigh.`,
-                question: `The phrase. The sigh. The way someone checks the locks or folds a towel. Which family habit have you found in yourself — or watched somebody else inherit — and did they fight it?`,
+                preview: `That is your mother’s exact sigh.`,
+                question: `Show or describe one small habit you recognise from an older relative — a phrase, sigh, routine, or gesture. When did you first notice it in yourself or somebody else?`,
                 upgrade: {
                     term: `catch yourself doing something`,
                     type: `phrase`,
-                    definition: `To suddenly notice you are doing something without having decided to.`,
-                    ordinary: `“I suddenly noticed I was saying exactly the same thing my mother always used to say.”`,
-                    upgraded: `“I caught myself saying exactly what my mother says.”`,
+                    definition: `To suddenly notice that you are doing something without consciously deciding to.`,
+                    ordinary: `“I suddenly noticed that I was using exactly the same phrase as my mother.”`,
+                    upgraded: `“I caught myself using exactly the same phrase as my mother.”`,
                     priority: 'key',
-                    atlasPrompt: `What do you catch yourself doing at work that you swore you would never do?`
-                }
-            },
-            {
-                id: 'moment-the-thing-you-refused',
-                preview: `That one stops with you.`,
-                question: `Every generation quietly drops something — a rule, a routine, a way of arguing, a job everyone was supposed to take. What did you decide not to carry, and did anyone notice you had put it down?`,
-                upgrade: {
-                    term: `draw the line at something`,
-                    type: `idiom`,
-                    definition: `To refuse to do or accept something, setting a firm limit.`,
-                    ordinary: `“I am happy to keep most of the traditions, but I absolutely refuse to do the shouting.”`,
-                    upgraded: `“I'll keep most of it, but I draw the line at the shouting.”`,
-                    priority: 'key',
-                    atlasPrompt: `Where do you draw the line at work — the thing you simply will not do?`
-                }
-            },
-            {
-                id: 'moment-still-winning-arguments',
-                preview: `She's been dead nine years and she is still right.`,
-                question: `The recipe that is still the standard. The holiday ritual nobody is allowed to change. The opinion everybody still quotes to end an argument. In your family, or one you know well, who is gone and still running the place?`,
-                upgrade: {
-                    term: `turn in your grave`,
-                    type: `idiom`,
-                    definition: `Used to say that a dead person would be horrified by something happening now.`,
-                    ordinary: `“My grandmother would be absolutely horrified if she could see what they have done to that kitchen.”`,
-                    upgraded: `“My grandmother would turn in her grave.”`,
-                    priority: 'standard',
-                    atlasPrompt: `Who would turn in their grave if they saw how things are done now?`
-                }
-            },
-            {
-                id: 'moment-what-you-would-keep',
-                preview: `One thing survives you. Choose.`,
-                question: `You get to make exactly one thing in your family survive you — a habit, a dish, a rule, a way of welcoming people. What is it? And what would you be quietly relieved to see them drop?`,
-                upgrade: {
-                    term: `keep something going`,
-                    type: `phrasal verb`,
-                    definition: `To make sure something continues, especially when it depends on you.`,
-                    ordinary: `“Somebody in the family has to continue doing it, otherwise it will simply stop when she is gone.”`,
-                    upgraded: `“Somebody has to keep it going, or it dies with her.”`,
-                    priority: 'standard',
-                    atlasPrompt: `What tradition, group, or friendship are you the one keeping going — and what happens if you stop?`
+                    atlasPrompt: `What habit have you caught yourself developing without intending to?`
                 }
             },
             {
                 id: 'moment-who-you-took-in',
-                preview: `He came for a fortnight. He stayed three years.`,
-                question: `Families absorb people — the friend who never left, the neighbour who became an aunt, the one who turned up with a bag. Who did yours take in, and at what point did they simply stop being a guest?`,
+                preview: `They arrived as a guest. Then nobody asked when they were leaving.`,
+                question: `Think of someone who came to stay with a family and gradually became part of it — someone real, fictional, or imagined. What changed when they stopped feeling like a guest?`,
                 upgrade: {
                     term: `take someone in`,
                     type: `phrasal verb`,
-                    definition: `To let someone live in your home, especially when they have nowhere else to go.`,
-                    ordinary: `“When he had nowhere at all to live, my parents let him come and stay with us for two years.”`,
-                    upgraded: `“When he had nowhere to go, my parents took him in.”`,
+                    definition: `To let someone stay in your home, especially when they need help.`,
+                    ordinary: `“When he had nowhere to live, my parents allowed him to stay with us.”`,
+                    upgraded: `“When he had nowhere to live, my parents took him in.”`,
                     priority: 'standard',
-                    atlasPrompt: `Who would you take in if they turned up with a bag — and who would you absolutely not?`
+                    atlasPrompt: `Who would you take in temporarily if they suddenly needed somewhere to stay?`
+                }
+            },
+            {
+                id: 'moment-the-thing-you-refused',
+                preview: `That pattern ends here.`,
+                question: `Choose one family rule, routine, or way of arguing that you would not continue. What would you replace it with?`,
+                upgrade: {
+                    term: `draw the line at something`,
+                    type: `idiom`,
+                    definition: `To refuse to accept or continue something beyond a firm limit.`,
+                    ordinary: `“I will keep many family traditions, but I refuse to continue the shouting.”`,
+                    upgraded: `“I will keep many family traditions, but I draw the line at the shouting.”`,
+                    priority: 'key',
+                    atlasPrompt: `What behaviour or demand do you draw the line at in an important relationship?`
+                }
+            },
+            {
+                id: 'moment-what-you-would-keep',
+                preview: `One practice reaches the next generation.`,
+                question: `Choose one family practice worth passing on — a dish, greeting, celebration, or way of helping. How would you persuade a younger person that it is worth keeping?`,
+                upgrade: {
+                    term: `pass something down`,
+                    type: `phrasal verb`,
+                    definition: `To give knowledge, property, or a tradition to a younger generation.`,
+                    ordinary: `“The recipe has moved from one generation of the family to the next.”`,
+                    upgraded: `“The recipe has been passed down through the family.”`,
+                    priority: 'standard',
+                    atlasPrompt: `What skill, story, object, or principle is worth passing down?`
+                }
+            },
+            {
+                id: 'moment-still-winning-arguments',
+                preview: `They are gone. Their influence is not.`,
+                question: `Think of someone who is no longer alive but still influences a family you know — real or fictional. What do people still say or do because of them?`,
+                upgrade: {
+                    term: `live on`,
+                    type: `phrasal verb`,
+                    definition: `To continue existing or influencing people after someone has died or something has ended.`,
+                    ordinary: `“Her habits and traditions still continue throughout the family.”`,
+                    upgraded: `“Her habits and traditions live on throughout the family.”`,
+                    priority: 'standard',
+                    atlasPrompt: `Whose ideas, habits, standards, or creations continue to live on?`
                 }
             }
         ],
         makeItReal: {
-            title: `In fifty years`,
-            prompt: `Choose one thing your family actually does — not a value, a thing people do. Describe it precisely enough that someone in fifty years could still do it: where, when, who's there, who complains, and what happens if it rains.`
+            title: `In Fifty Years`,
+            prompt: `Choose one real family practice you know well. Explain it precisely enough that somebody fifty years from now could repeat it: where it happens, when it begins, who is there, what each person does, and what usually goes wrong.`
         }
     }
 ];
@@ -320,190 +326,234 @@ const clCards = [
     {
         id: 'cl-iceland-names',
         contextLine: `Iceland`,
-        title: `The Committee That Vetoes Your Baby's Name`,
-        teaser: `You have chosen the name. Now the state has to approve it.`,
-        context: `Iceland keeps an official list of approved first names, and new names may be checked under the country's naming rules. Most people use a last name based on a parent's first name rather than one shared family surname, so parents and children may have different last names.`,
-        mainQuestion: `Your child's name has just been refused by a committee. Do you fight it, or pick another one?`,
+        title: `The Committee That Vetoes Your Baby’s Name`,
+        teaser: `You chose the name. The state may still refuse it.`,
+
+        context: `In Iceland, parents cannot always register any first name they choose. A new name may be checked against national naming rules before it is accepted. Family names also work differently: many children receive a surname based on a parent’s first name, so parents and children may not share one surname.`,
+
+        mainQuestion: `A naming authority refuses the name you chose for your baby. Would you change it, appeal, or continue using it unofficially?`,
+
         followTheThread: [
-            `If the family name doesn't survive at all, what does?`,
-            `Who gets an opinion about a baby's name where you're from — and does anybody listen to them?`
+            `Should a country be allowed to protect its language through naming rules?`,
+            `Who should have the final decision about a baby’s name when relatives strongly disagree?`
         ],
+
         upgrade: {
             term: `have the final say`,
             type: `phrase`,
-            definition: `To be the person who makes the final decision, whatever anyone else thinks.`,
-            ordinary: `“In our family my grandmother makes the final decision about absolutely everything, and nobody argues with her.”`,
-            upgraded: `“My grandmother has the final say, and nobody argues.”`,
+            definition: `To make the final decision after other people have given their opinions.`,
+            ordinary: `“Everyone suggested names, but the parents made the final decision.”`,
+            upgraded: `“Everyone suggested names, but the parents had the final say.”`,
             priority: 'standard',
-            atlasPrompt: `Who has the final say at your work — and is it the person whose name is on the door?`
+            atlasPrompt: `Who has the final say in an important decision at your work or in a group you belong to?`
         }
     },
+
     {
         id: 'cl-milk-kinship',
-        contextLine: `Islamic law · milk kinship`,
+        contextLine: `Islamic law · Milk kinship`,
         title: `The Sibling You Never Grew Up With`,
-        teaser: `The same woman breastfed you both. Under Islamic law, that can create a family bond.`,
-        context: `In Islamic tradition, breastfeeding can create a recognised family bond between children who are not biologically related. Under certain conditions, they become milk-siblings and cannot marry each other. The exact rules differ between traditions, but the bond can carry lasting family and religious importance.`,
-        mainQuestion: `You discover that somebody you have never met is considered your milk-sibling. Would you want to meet them — and would the relationship feel real to you?`,
+        teaser: `You lived in different homes, but the same woman breastfed you both.`,
+
+        context: `Two children may grow up in different homes but still become family under Islamic law if the same woman breastfed them. Under specific conditions, they are treated as milk-siblings and cannot marry. The exact rules differ, but the bond can remain important long after childhood.`,
+
+        mainQuestion: `You learn that someone you have never met is your milk-sibling. Would you want a relationship with them, or would the connection feel only official?`,
+
         followTheThread: [
-            `Who is family to you who isn't related to you at all?`,
-            `Is it really the blood doing the work — or the years in the same house?`
+            `What makes a sibling relationship feel real when two people did not grow up together?`,
+            `Who feels like family to you despite having no biological or legal connection?`
         ],
+
         upgrade: {
             term: `in name only`,
             type: `phrase`,
-            definition: `Officially something, but not in any real or meaningful way.`,
-            ordinary: `“He is officially my brother-in-law, but there is no real relationship there of any kind.”`,
-            upgraded: `“He's my brother-in-law in name only.”`,
+            definition: `Officially described as something, but without the relationship or qualities usually expected.`,
+            ordinary: `“He is officially my brother-in-law, but we have no real relationship.”`,
+            upgraded: `“He is my brother-in-law in name only.”`,
             priority: 'standard',
-            atlasPrompt: `What is yours in name only — a title, a job, a membership, a qualification?`
+            atlasPrompt: `What title, role, membership, or responsibility exists in name only?`
         }
     },
+
     {
         id: 'cl-primogeniture',
-        contextLine: `Europe · primogeniture`,
+        contextLine: `Europe · Primogeniture`,
         title: `One Farm, Four Children`,
-        teaser: `Split the farm four ways and it feeds nobody. So it all went to one of them.`,
-        context: `In many wealthy landowning families, most or all of the property passed to one heir, often the eldest son. The logic was practical as well as unfair: divide a working farm again and again, and eventually it may support nobody. The system protected the land, but left the other children to find another future.`,
-        mainQuestion: `It's your farm and you have four children. Split it and it feeds none of them. What do you actually do?`,
+        teaser: `Divide the farm four ways and none of the pieces may support a family.`,
+
+        context: `A family owns one working farm. If it is divided among four children, each piece may become too small to support a household. Under primogeniture, most or all of the land passed to one heir, often the eldest son. The other children had to build a future elsewhere.`,
+
+        mainQuestion: `It is your farm and you have four children. Dividing it equally could destroy the business. What do you do?`,
+
         followTheThread: [
-            `Should the child who stayed and did the work get more than the one who left?`,
-            `Where you're from, is anyone still expected to take over?`
+            `Should the child who stayed and worked on the farm receive more than the child who left?`,
+            `What would the other children deserve if one person inherited almost everything?`
         ],
+
         upgrade: {
             term: `cut someone out`,
             type: `phrasal verb`,
-            definition: `To deliberately exclude someone, especially from a will or a decision.`,
-            ordinary: `“He deliberately excluded his eldest daughter from the will and left absolutely everything to his son.”`,
-            upgraded: `“He cut his eldest daughter out of the will completely.”`,
+            definition: `To deliberately exclude someone from a decision, arrangement, or inheritance.`,
+            ordinary: `“He excluded his eldest daughter from the will and left everything to his son.”`,
+            upgraded: `“He cut his eldest daughter out of the will and left everything to his son.”`,
             priority: 'key',
-            atlasPrompt: `Who has been quietly cut out of something at your work — a decision, a project, an email chain?`
+            atlasPrompt: `Who might be quietly cut out of a decision, project, conversation, or opportunity?`
         }
     },
+
     {
         id: 'cl-mukoyoshi',
         contextLine: `Japan`,
         title: `Adopting a Grown Man`,
-        teaser: `No suitable son. So the family finds one and adopts him at thirty.`,
-        context: `A Japanese family business without a suitable heir has a solution: adopt one. The daughter's husband — or sometimes a promising employee — is legally adopted as a son, takes the family name, and inherits the company. The overwhelming majority of adoptions in Japan are of adult men rather than children.`,
-        mainQuestion: `They want you to take their name, become their son, and run the company. Do you do it?`,
+        teaser: `The family needs a successor, so it adopts one.`,
+
+        context: `In some Japanese family businesses, a family without a suitable successor has adopted an adult man, often a daughter’s husband or a trusted employee. He takes the family name, becomes a legal son, and may inherit the company. The business continues, but his position inside the family changes too.`,
+
+        mainQuestion: `A family offers to adopt you as an adult, give you its name, and place you in charge of its company. Would you accept?`,
+
         followTheThread: [
-            `What exactly would you be giving up?`,
-            `Is a family that recruits stronger than one that just hopes for the best?`
+            `Which would be hardest to change: your name, your family position, or your future career?`,
+            `Should a family business pass to a relative, or to whoever is most capable of running it?`
         ],
+
         upgrade: {
             term: `marry into something`,
             type: `phrasal verb`,
-            definition: `To become part of a family, a business, or a social position through marriage.`,
-            ordinary: `“He became part of an extremely wealthy family by marrying their daughter, and everybody knows it.”`,
-            upgraded: `“He married into money, and everybody knows it.”`,
+            definition: `To enter a family, social position, or set of circumstances through marriage.`,
+            ordinary: `“He became part of a wealthy business family by marrying their daughter.”`,
+            upgraded: `“He married into a wealthy business family.”`,
             priority: 'standard',
-            atlasPrompt: `What would you happily marry into — a business, a country, a name, a very large house?`
+            atlasPrompt: `What kind of family, business, place, or way of life might someone be happy to marry into?`
         }
     },
+
     {
         id: 'cl-rent-a-partner',
         contextLine: `China · Lunar New Year`,
         title: `Rent a Boyfriend, Save Your New Year`,
-        teaser: `Everyone is going to ask when you're getting married. So you hire somebody.`,
-        context: `Every Lunar New Year, unmarried adults travel home to a fortnight of the same questions: when are you marrying, why aren't you, what is wrong with you. Services have been widely reported that will rent you a convincing partner for the visit. The rate, the rules, and the backstory are all agreed in advance.`,
-        mainQuestion: `The questions are coming. Would you hire somebody to make them stop — or is that funnier as an idea than as a plan?`,
+        teaser: `The family questions are coming, so you arrive with a hired answer.`,
+
+        context: `Before Lunar New Year, some unmarried adults in China return home expecting repeated questions about marriage. Commercial services have offered hired partners for family visits. Before arriving together, the pair agrees on a name, personal history, behaviour, price, and the story they will tell the relatives.`,
+
+        mainQuestion: `Would you hire someone to pretend to be your partner for one family visit, or would maintaining the lie be worse than answering the questions?`,
+
         followTheThread: [
-            `What do your relatives ask you that nobody else would dare to ask?`,
-            `Do they actually want the answer, or do they just want to ask?`
+            `What do relatives ask that a colleague or casual friend would never dare to ask?`,
+            `Would the hired partner make the visit easier, or simply create a much larger problem later?`
         ],
+
         upgrade: {
             term: `keep someone off your back`,
             type: `phrase`,
-            definition: `To stop someone from pestering, nagging, or criticising you.`,
-            ordinary: `“I told them I had a girlfriend purely so that they would stop constantly asking me about it.”`,
-            upgraded: `“I told them I had a girlfriend just to keep them off my back.”`,
+            definition: `To stop someone from repeatedly questioning, criticising, or pressuring you.`,
+            ordinary: `“I said I was seeing someone so that my relatives would stop asking about marriage.”`,
+            upgraded: `“I said I was seeing someone to keep my relatives off my back.”`,
             priority: 'key',
-            atlasPrompt: `What do you do purely to keep someone off your back — a boss, a landlord, a relative?`
+            atlasPrompt: `What do people sometimes do purely to keep a boss, neighbour, landlord, or relative off their back?`
         }
     },
+
     {
         id: 'cl-akan-matrilineal',
         contextLine: `Ghana · Akan`,
         title: `Your Uncle, Not Your Father`,
-        teaser: `A man's heirs are his sister's children, not his own.`,
-        context: `In some Akan traditions in Ghana, family descent and inheritance follow the mother's side. A man's sister's children may therefore have a stronger traditional claim than his own children, and a maternal uncle can play a major role in family life. Modern law makes the reality more varied, but the family logic remains very different from father-to-child inheritance.`,
-        mainQuestion: `Which side of your family — your mother's or your father's — actually feels like the real one? And be honest.`,
+        teaser: `A man dies. His sister’s children may inherit before his own children.`,
+
+        context: `Kojo and Ama are brother and sister. Ama has two children. In some Akan traditions in Ghana, family descent follows the mother’s side, so Ama’s children may have a stronger traditional claim to Kojo’s family property than Kojo’s own children. A mother’s brother may also have important duties towards her children.`,
+
+        mainQuestion: `Kojo’s property goes to Ama’s children rather than to his own children. What would feel fair to you?`,
+
         followTheThread: [
-            `Who is the uncle or the aunt who genuinely mattered?`,
-            `Would you feel cheated if your father's money went to your cousins?`
+            `Should inheritance follow the family line, the parent-child relationship, or the person who did the most caring?`,
+            `Who can hold major family responsibility without being somebody’s parent?`
         ],
+
         upgrade: {
-            term: `take sides`,
-            type: `phrase`,
-            definition: `To support one person or group in a disagreement rather than staying neutral.`,
-            ordinary: `“When my parents argued, all the relatives immediately decided which one of them they were going to support.”`,
-            upgraded: `“When my parents argued, everybody took sides immediately.”`,
+            term: `next of kin`,
+            type: `noun`,
+            definition: `A person’s closest living relative or relatives, especially for legal or emergency purposes.`,
+            ordinary: `“The hospital needed the name of his closest relative.”`,
+            upgraded: `“The hospital needed the name of his next of kin.”`,
             priority: 'standard',
-            atlasPrompt: `When did you last have to take sides — at work, between friends, in an argument you had no part in?`
+            atlasPrompt: `Who would you list as your next of kin on an emergency form, and what makes that person the right choice?`
         }
     },
+
     {
         id: 'cl-sworn-virgins',
         contextLine: `Northern Albania`,
         title: `The Family Needed a Man`,
-        teaser: `She swore never to marry, and the household got its head.`,
-        context: `Under the old code of the northern highlands, a household without a man had no head, no voice, and little protection. A woman could take a lifelong oath of celibacy and step into the role — running the house, inheriting the property, carrying a weapon, sitting and drinking with the men, and being addressed as one of them. Very few are left.`,
-        mainQuestion: `She got the property, the voice, and the freedom of the house. She gave up marriage and children for good. Was that a good deal?`,
+        teaser: `She promised never to marry and took the household’s male role.`,
+
+        context: `Under customary law in parts of northern Albania, some women took a lifelong vow not to marry and lived publicly in a male social role. They could lead the household, inherit property, carry weapons, and sit with men. The vow changed their place in the community and lasted for life.`,
+
+        mainQuestion: `She can inherit property and speak for the household, but she can never marry. Which part of that life would be hardest to accept?`,
+
         followTheThread: [
-            `What has somebody in your family given up for everybody else?`,
-            `Is a sacrifice still a sacrifice if the person chose it?`
+            `How much freedom is a person really gaining when it depends on giving up another possible life?`,
+            `What responsibility has fallen to someone in your family because nobody else could or would take it?`
         ],
+
         upgrade: {
             term: `fall to someone`,
             type: `phrasal verb`,
-            definition: `(Of a duty or a job) to become someone's responsibility, often because nobody else will do it.`,
-            ordinary: `“Nobody else was prepared to do it, so looking after my grandmother became my aunt's responsibility.”`,
-            upgraded: `“It fell to my aunt to look after my grandmother.”`,
+            definition: `To become someone’s responsibility, often because nobody else is available to do it.`,
+            ordinary: `“Nobody else was willing to do it, so caring for my grandmother became my aunt’s responsibility.”`,
+            upgraded: `“Nobody else was willing, so it fell to my aunt to care for my grandmother.”`,
             priority: 'key',
-            atlasPrompt: `What has fallen to you that nobody else wanted — at work, at home, in a group you belong to?`
+            atlasPrompt: `What responsibility has fallen to you at work, at home, or inside a group because nobody else took it?`
         }
     },
+
     {
         id: 'cl-ancestor-altar',
         contextLine: `China and Vietnam`,
         title: `Telling the Dead Your News`,
-        teaser: `The exam results, the promotion, the engagement. Somebody has to tell your grandmother.`,
-        context: `In many Chinese and Vietnamese homes the ancestors have a place in the house — a shelf or an altar with photographs, incense, and a little food. They are not only remembered; they are kept informed. A marriage, a birth, a new job, an exam passed: somebody stands there and says it out loud.`,
-        mainQuestion: `You get the promotion. Would you go and tell your dead grandmother — and would that be for her, or for you?`,
+        teaser: `The promotion arrives. Somebody still has to tell your grandmother.`,
+
+        context: `In many Chinese and Vietnamese homes, photographs, incense, and small food offerings are placed on an ancestor altar. When a marriage, birth, promotion, or exam result arrives, a family member may stand in front of the altar and tell the dead person the news aloud.`,
+
+        mainQuestion: `You receive important good news. Would you tell a relative who had died — and would speaking aloud change the moment for you?`,
+
         followTheThread: [
-            `Who in your family is dead and still consulted?`,
-            `Where do people go to talk to somebody who isn't there?`
+            `Which news would you still want an absent family member to hear?`,
+            `Where do people go when they want to speak to someone who is no longer there?`
         ],
+
         upgrade: {
             term: `keep someone in the loop`,
             type: `phrase`,
             definition: `To keep someone informed about what is happening.`,
-            ordinary: `“Somebody always makes sure to tell her everything that happens in this family, even now.”`,
-            upgraded: `“Somebody always keeps her in the loop, even now.”`,
+            ordinary: `“The family still tells her about every important event.”`,
+            upgraded: `“The family still keeps her in the loop about every important event.”`,
             priority: 'standard',
-            atlasPrompt: `Who forgets to keep you in the loop — and what have you found out far too late?`
+            atlasPrompt: `Who regularly forgets to keep you in the loop, and what have you discovered far too late?`
         }
     },
+
     {
         id: 'cl-grandmother-effect',
-        contextLine: `Grandmothers`,
-        title: `Why Grandmothers Exist`,
-        teaser: `Almost no other animal lives for decades after it stops reproducing. We do.`,
-        context: `Human women live for decades after they can no longer have children, which is rare in the animal world and takes some explaining. One well-supported answer is grandmothers. In old Finnish and Canadian parish records, children with a living maternal grandmother nearby were measurably more likely to survive. She wasn't spare. She was load-bearing.`,
-        mainQuestion: `Who is the load-bearing person in your family — and does anybody actually thank them?`,
+        contextLine: `Finland and Canada · Historical records`,
+        title: `Why Grandmothers Matter`,
+        teaser: `Children were more likely to survive when a grandmother lived nearby.`,
+
+        context: `Researchers studying old family records in Finland and Canada found that children were more likely to survive when a living maternal grandmother lived nearby. The records show the pattern, but not the exact daily actions inside each household that made the difference.`,
+
+        mainQuestion: `What do you imagine the grandmother changed in the family’s daily life?`,
+
         followTheThread: [
-            `What would collapse tomorrow if they stopped?`,
-            `Do they enjoy it, or would they hand it over in a second if anyone offered?`
+            `Which kind of help matters most when parents are exhausted or resources are limited?`,
+            `Can a relative who lives far away provide the same kind of support?`
         ],
+
         upgrade: {
             term: `do the heavy lifting`,
             type: `phrase`,
-            definition: `To do the hardest and most demanding part of the work.`,
-            ordinary: `“My aunt does all the hardest and most demanding work in this family, and nobody ever notices.”`,
-            upgraded: `“My aunt does all the heavy lifting, and nobody notices.”`,
+            definition: `To do the hardest or most demanding part of the work.`,
+            ordinary: `“My aunt handles the most difficult work in the family, but nobody notices.”`,
+            upgraded: `“My aunt does the heavy lifting in the family, but nobody notices.”`,
             priority: 'key',
-            atlasPrompt: `Who does the heavy lifting on your team — and does the credit go to them?`
+            atlasPrompt: `Who does the heavy lifting in a team, household, or community without receiving enough credit?`
         }
     }
 ];
