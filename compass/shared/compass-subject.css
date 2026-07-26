@@ -1659,9 +1659,9 @@ ORIENTATION
 }
 
 .main-path-card:hover {
-    background: rgba(255, 255, 255, 0.92) !important;
-    border-color: var(--accent-soft) !important;
-    box-shadow: var(--shadow-md);
+    background: rgba(255, 255, 255, 0.96) !important;
+    border-color: #ffffff !important;
+    box-shadow: var(--shadow-md), 0 12px 32px rgba(var(--accent-rgb), 0.08);
     transform: translateY(-2px);
 }
 
@@ -1746,9 +1746,9 @@ ORIENTATION
 }
 
 .reflection-path-card:hover {
-    background: rgba(255, 255, 255, 0.90) !important;
-    border-color: var(--accent-soft) !important;
-    box-shadow: var(--shadow-sm);
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-color: #ffffff !important;
+    box-shadow: var(--shadow-md), 0 8px 24px rgba(var(--accent-rgb), 0.06);
 }
 
 .reflection-icon-small {
@@ -2026,27 +2026,10 @@ CULTURAL LENS
     transition: var(--transition);
 }
 
-.cl-card::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
-    height: 3px;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    background-color: var(--accent);
-    opacity: 0;
-    transition: opacity var(--transition);
-}
-
-.cl-card:hover::after {
-    opacity: 1;
-}
-
 .cl-card:hover {
-    background: rgba(255, 255, 255, 0.94) !important;
-    border-color: var(--accent-soft) !important;
-    box-shadow: var(--shadow-md);
+    background: rgba(255, 255, 255, 0.96) !important;
+    border-color: #ffffff !important;
+    box-shadow: var(--shadow-md), 0 12px 32px rgba(var(--accent-rgb), 0.08);
     transform: translateY(-2px);
 }
 
@@ -2055,11 +2038,6 @@ CULTURAL LENS
     background-color: rgba(244, 249, 248, 0.86) !important;
     background-image: none !important;
     opacity: 1;
-}
-
-.cl-card.state-explored::after {
-    opacity: 0.34;
-    background-color: var(--accent);
 }
 
 .cl-card-state-badge {
@@ -3026,11 +3004,11 @@ DISCUSSION SETS AND MOMENTS
 }
 
 .set-card:hover {
-    background: rgba(255, 255, 255, 0.94) !important;
-    border-color: var(--accent-soft) !important;
-    box-shadow: var(--shadow-md);
+    background: rgba(255, 255, 255, 0.96) !important;
+    border-color: #ffffff !important;
+    box-shadow: var(--shadow-md), 0 12px 32px rgba(var(--accent-rgb), 0.08);
     transform: translateY(-2px);
-}
+}y
 
 .set-card.active-set {
     border-color: var(--accent) !important;
