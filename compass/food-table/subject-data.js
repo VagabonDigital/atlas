@@ -8,7 +8,7 @@
   and refusal, who cooks and who is fed, feeding as love and power, scarcity
   and plenty, and the meals that stay with us. Built for tutor-led
   conversation, shared-screen teaching, real disagreement, and sharper speech.
-  Compass active subject · contentVersion 1.0.0
+  Compass active subject · contentVersion 1.1.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -19,7 +19,7 @@
 const MODULE = {
     id: 'food-table',
     schemaVersion: 2,
-    contentVersion: '1.0.0',
+    contentVersion: '1.1.0',
     title: 'Food & The Table',
     titleHtml: 'Food &amp; <em>The Table</em>',
     navTitle: 'Food',
@@ -59,7 +59,7 @@ const subjectCopy = {
         title: `After the Plates Are Cleared`,
         summary: `Pause on what the conversation brought back, changed, or made you notice about the way people eat together.`,
         questions: [
-            `What food memory or table habit from the conversation would you most like to return to?`,
+            `Which food memory would you most like to relive — or which table habit would you like to bring back?`,
             `What makes a meal feel like care rather than simply food?`
         ]
     },
@@ -96,7 +96,7 @@ const discussionSets = [
             {
                 id: 'moment-combination-that-works',
                 preview: `It sounds wrong. It works.`,
-                question: `What food combination do you love that other people find completely wrong — something sweet with something salty, an unusual sauce, or a family habit nobody else understands? How did you discover it?`,
+                question: `What food combination do you love that other people find completely wrong — something sweet with something salty, an unusual sauce, or a family habit nobody else understands? What makes you keep going back for more?`,
 
                 upgrade: {
                     term: `moreish`,
@@ -105,7 +105,7 @@ const discussionSets = [
                     ordinary: `“It sounds like a strange combination, but once I start eating it, I always want more.”`,
                     upgraded: `“It sounds like a strange combination, but it is surprisingly moreish.”`,
                     priority: 'standard',
-                    atlasPrompt: `What snack or small treat do you find dangerously moreish once you start?`
+                    atlasPrompt: `What food do you find dangerously moreish — and why is it so difficult to stop once you start?`
                 }
             },
             {
@@ -129,13 +129,13 @@ const discussionSets = [
                 question: `What meal looked awful but tasted far better than expected — something homemade, street food, leftovers, or a dish you could barely identify? What made you take the first bite?`,
 
                 upgrade: {
-                    term: `unappetising`,
-                    type: `adjective`,
-                    definition: `Not looking or smelling pleasant enough to eat.`,
-                    ordinary: `“It looked so unpleasant that I nearly refused it, but it tasted wonderful.”`,
-                    upgraded: `“It looked so unappetising that I nearly refused it, but it tasted wonderful.”`,
+                    term: `appearances can be deceiving`,
+                    type: `phrase`,
+                    definition: `Used when something or someone is different from the first impression they create.`,
+                    ordinary: `“It looked terrible, but the first impression was completely wrong.”`,
+                    upgraded: `“It looked terrible, but appearances can be deceiving.”`,
                     priority: 'standard',
-                    atlasPrompt: `What food looks unappetising to you even when other people insist it tastes excellent?`
+                    atlasPrompt: `When have appearances been deceiving — with food, a place, a person, or a product?`
                 }
             },
             {
@@ -172,16 +172,17 @@ const discussionSets = [
             {
                 id: 'moment-host-keeps-serving',
                 preview: `You said you were full.`,
-                question: `You say you are full, but the host is already putting another spoonful on your plate. Do you accept it, stop them, or find a polite escape? What kind of host makes this hardest?`,
+
+                question: `You say you are full, but the host is already putting another spoonful on your plate. Your tutor will play the host and offer one more time. Refuse politely, but make sure your answer is clear.`,
 
                 upgrade: {
-                    term: `relent`,
-                    type: `verb`,
-                    definition: `To finally agree after refusing or resisting.`,
-                    ordinary: `“I kept saying no, but eventually I gave in and accepted another serving.”`,
-                    upgraded: `“I kept saying no, but eventually I relented and accepted another serving.”`,
+                    term: `stand your ground`,
+                    type: `phrase`,
+                    definition: `To refuse to change your position despite pressure from someone else.`,
+                    ordinary: `“I stayed polite, but I kept refusing even when she offered again.”`,
+                    upgraded: `“I stayed polite, but I stood my ground when she offered again.”`,
                     priority: 'standard',
-                    atlasPrompt: `When did you eventually relent after someone kept asking or trying to persuade you?`
+                    atlasPrompt: `When is it important to stand your ground even when the other person means well?`
                 }
             },
             {
@@ -217,7 +218,7 @@ const discussionSets = [
             {
                 id: 'moment-work-after-the-meal',
                 preview: `Somebody cooked. Somebody disappeared.`,
-                question: `At a big meal, who usually shops, cooks, serves, and clears up — and who somehow disappears when the work begins? Is that habit changing where you live, or not really?`,
+                question: `At a big meal, who usually shops, cooks, serves, and clears up — and who somehow disappears when the work begins? Is the division of work changing where you live, or not really?`,
 
                 upgrade: {
                     term: `chip in`,
@@ -248,7 +249,7 @@ const discussionSets = [
 
         makeItReal: {
             title: `The Rules of Your Table`,
-            prompt: `Create three rules for a shared meal — about phones, sharing, helping, refusing food, or anything else that matters. For each rule, your tutor will describe a guest or situation that makes it difficult to follow. Decide whether to keep, change, or drop the rule.`
+            prompt: `Create three rules for a shared meal — about phones, sharing, helping, refusing food, or anything else that matters. Your tutor will challenge each rule with one difficult guest or situation. Decide whether the rule survives, changes, or disappears.`
         }
     },
 
@@ -311,13 +312,13 @@ const discussionSets = [
                 question: `What food did you dislike when you were younger but now enjoy — or the other way round? What changed first: the food, your habits, or your idea of it?`,
 
                 upgrade: {
-                    term: `grow on someone`,
+                    term: `come round to something`,
                     type: `phrasal verb`,
-                    definition: `To become more enjoyable or appealing to someone over time.`,
+                    definition: `To gradually change your opinion and begin to accept or like something.`,
                     ordinary: `“I did not like olives at first, but gradually I began to enjoy them.”`,
-                    upgraded: `“I did not like olives at first, but they gradually grew on me.”`,
+                    upgraded: `“I did not like olives at first, but I gradually came round to them.”`,
                     priority: 'key',
-                    atlasPrompt: `What person, place, activity, or idea took time to grow on you?`
+                    atlasPrompt: `What have you gradually come round to — a food, place, routine, or idea?`
                 }
             },
             {
@@ -351,7 +352,7 @@ const clCards = [
         title: `The No That Isn't`,
         teaser: `Here, “no thank you” is only the opening move.`,
 
-        context: `In some hospitality customs, a guest refuses food or drink the first time it is offered. The host offers again, the guest refuses again, and only after several rounds do they accept. Because both people know the pattern, a guest who truly means “no” may struggle to make it clear.`,
+        context: `In some hospitality customs, a guest refuses food or drink the first time it is offered. The host offers again, and the guest refuses again. Only after several rounds does the guest accept. Because both people know the pattern, a guest who truly means “no” may struggle to make it clear.`,
 
         mainQuestion: `You really do not want any more food, but the host keeps offering. How would you refuse without sounding rude — and make sure they believe you?`,
 
@@ -364,8 +365,8 @@ const clCards = [
             term: `insistent`,
             type: `adjective`,
             definition: `Continuing to press for something despite another person’s hesitation or refusal.`,
-            ordinary: `“The host kept offering more food even after I said I was full.”`,
-            upgraded: `“The host was so insistent that I eventually accepted more food even though I was full.”`,
+            ordinary: `“The host kept offering more food until I finally accepted, even though I was full.”`,
+            upgraded: `“The host was so insistent that I finally accepted more food, even though I was full.”`,
             priority: 'key',
             atlasPrompt: `Who becomes insistent when they think they know what is best for you?`
         }
@@ -461,7 +462,7 @@ const clCards = [
 
         followTheThread: [
             `Can people learn to enjoy almost any food, or are some reactions too strong?`,
-            `What food did you dislike at first but later begin to enjoy?`
+            `Which food from where you live might a visitor need time to learn to enjoy?`
         ],
 
         upgrade: {
@@ -471,7 +472,7 @@ const clCards = [
             ordinary: `“I hated it at first, but after a few tries I started to enjoy it.”`,
             upgraded: `“It was an acquired taste, but after a few tries I started to enjoy it.”`,
             priority: 'key',
-            atlasPrompt: `What has been an acquired taste for you — a food, a kind of music, a place, or an activity?`
+            atlasPrompt: `Apart from food, what has been an acquired taste for you — a kind of music, a place, or an activity?`
         }
     },
 
