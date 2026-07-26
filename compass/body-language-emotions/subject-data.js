@@ -9,7 +9,7 @@
   perform, and the handful of things it turns out to know first.
   Built for tutor-led conversation, shared-screen teaching, confession,
   playful disagreement, cultural curiosity, and sharper spoken English.
-  Compass active subject · contentVersion 3.0.1
+  Compass active subject · contentVersion 3.1.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 const MODULE = {
     id: 'body-language-emotions',
     schemaVersion: 2,
-    contentVersion: '3.0.1',
+    contentVersion: '3.1.0',
     title: 'Body Language & Emotions',
     titleHtml: 'Body Language <br>& <em>Emotions</em>',
     navTitle: 'Body Language',
@@ -29,38 +29,44 @@ const MODULE = {
 
 const subjectCopy = {
     cover: {
-        hook: `Your face has been telling people things all day. You weren't consulted.`
+        hook: `Your face has been telling people things all day. You weren’t consulted.`
     },
+
     overview: {
-        heading: `Whose Side Is It On?`,
+        heading: `Before You Say Anything`,
         intro: [
-            `Your body does not always show what you want it to show. You might go red when you feel embarrassed, laugh at the wrong moment, or hide your feelings when something really matters.`
+            `Bodies reveal, perform, and sometimes misread emotion before words arrive. A face, posture, laugh, or silence can expose something real, create an impression, or mean something completely different to another person.`
         ],
-        question: `Which shows the real you more clearly: the reactions you cannot control, or the behaviour you choose?`
+        question: `What do you notice first in someone’s body language — and how much do you trust that first reading?`
     },
+
     paths: {
-        culturalLensDescription: `Reversed nods, hired mourners, a district that couldn't stop laughing, and the face you didn't choose.`,
-        discussionDescription: `Going red, the laugh you couldn't hold in, the face you put on for the present, and the moment your body knew first.`,
+        culturalLensDescription: `Explore gestures, expressions, and physical reactions whose meanings change across cultures, situations, and bodies.`,
+        discussionDescription: `The reactions you cannot hide, the expressions you perform, and the moments when the body seems to know first.`,
         reflectionTitle: `Reflection`,
-        reflectionDescription: `A place to pull together what came up along the way.`
+        reflectionDescription: `A place to reconsider what bodies reveal, what people perform, and what may be misread.`
     },
+
     culturalLens: {
-        heading: `Things Bodies Do`,
-        intro: `A nod that means no. A smile the eyes refuse to join. A district that couldn't stop laughing. Some of this was learned, some of it arrived with the body — and some of it you do already, without noticing.`
+        heading: `What Bodies Have Meant`,
+        intro: `The same nod, gaze, smile, or silence can be understood very differently. Step into situations where bodies follow unfamiliar rules, spread emotion through a room, or react in ways nobody appears to have taught them.`
     },
+
     discussion: {
-        heading: `The One You're In`
+        heading: `The One You’re In`
     },
+
     reflection: {
-        title: `Now You'll Notice`,
-        summary: `Look back at what came up — the reactions you recognised, the habits you questioned, and the moments where the body seemed to know first. Notice what you would now read differently.`,
+        title: `What Will You Notice Now?`,
+        summary: `Look back at the reactions, performances, and physical signals that became more visible during the conversation.`,
         questions: [
-            `Which of your own habits did you end up defending?`,
-            `Is the body worth trusting — or would you rather it kept quiet?`
+            `Which habit or reaction from the conversation would you now notice differently in yourself or someone else?`,
+            `When should you trust what a body seems to say — and when should you ask before deciding?`
         ]
     },
+
     keyLanguage: {
-        intro: `Expressions for describing faces, habits, and the things people can't quite hide.`
+        intro: `Expressions for describing involuntary reactions, performed emotions, social signals, and what people cannot quite hide.`
     }
 };
 
@@ -70,248 +76,286 @@ const discussionSets = [
         title: `The Body Has Its Own Ideas`,
         stage: `React`,
         icon: 'react',
-        description: `Going red when you cannot stop it, laughing at the worst possible moment, and tears at a television advert.`,
+        description: `The reactions that arrive first, the moments you cannot hide, and the sudden awareness of being watched.`,
+
         moments: [
             {
-                id: 'moment-going-red',
-                preview: `You can feel it arriving. You can't stop it.`,
-                question: `Your face goes red, everyone can see it, and worrying about it only makes it worse. Does that happen to you — or is there somebody in your life who goes bright red at nothing? What sets it off?`,
+                id: 'moment-what-gives-you-away',
+                preview: `Your body knew before you were ready.`,
+
+                question: `When you try to hide embarrassment, excitement, or a secret, what gives you away first — your face, voice, hands, or something else? Think of one time somebody noticed before you admitted anything.`,
+
                 upgrade: {
                     term: `give the game away`,
                     type: `idiom`,
                     definition: `To accidentally reveal something you were trying to keep hidden.`,
-                    ordinary: `“I was trying to act completely normal, but my face made it obvious that I knew about the party.”`,
+                    ordinary: `“I was trying to act normal, but my face made it obvious that I knew about the surprise.”`,
                     upgraded: `“I was trying to act normal, but my face gave the game away.”`,
                     priority: 'key',
-                    atlasPrompt: `What has given the game away — a face, a laugh, a receipt, a message left open on a screen?`
+                    atlasPrompt: `What has given the game away — a laugh, a receipt, a message, or something left open on a screen?`
                 }
             },
             {
                 id: 'moment-worst-possible-laugh',
                 preview: `The one place you absolutely cannot laugh.`,
-                question: `A funeral. An exam hall. Somebody else being told off. The moment laughing is forbidden is the moment it becomes almost impossible to stop. Where has this happened to you — and did you get away with it?`,
+
+                question: `Where have you had to stop yourself laughing because the moment was completely wrong — a funeral, an exam hall, a meeting, or somebody being told off? What happened when you tried to hide it?`,
+
                 upgrade: {
                     term: `keep a straight face`,
                     type: `phrase`,
                     definition: `To keep your expression serious when you want to laugh.`,
-                    ordinary: `“I was desperately trying not to laugh and to keep my expression completely serious, and I failed.”`,
-                    upgraded: `“I couldn't keep a straight face.”`,
+                    ordinary: `“I tried to keep my expression serious, but one look at my friend finished me.”`,
+                    upgraded: `“I tried to keep a straight face, but one look at my friend finished me.”`,
                     priority: 'key',
-                    atlasPrompt: `Who can keep a straight face while telling you something outrageous — and have they ever caught you out?`
+                    atlasPrompt: `Who can never keep a straight face when they are supposed to be serious?`
                 }
             },
             {
                 id: 'moment-crying-at-nothing',
-                preview: `An advert. A dog. A stranger's wedding.`,
-                question: `Some people cry at adverts, at films they don't even like, at other people's good news. Others claim they haven't cried since 1998. Which are you — and what's the most ridiculous thing that has ever made you cry?`,
+                preview: `An advert. A dog. A stranger’s wedding.`,
+
+                question: `What unexpectedly makes you emotional — an advert, a song, an animal, or somebody else’s good news? Which reaction has surprised you most?`,
+
                 upgrade: {
                     term: `well up`,
                     type: `phrasal verb`,
-                    definition: `To start to have tears in your eyes.`,
+                    definition: `To begin to have tears in your eyes.`,
                     ordinary: `“My eyes started filling with tears during an advert about a supermarket.”`,
-                    upgraded: `“I welled up at a supermarket advert.”`,
+                    upgraded: `“I welled up during an advert about a supermarket.”`,
                     priority: 'standard',
-                    atlasPrompt: `What reliably makes people well up — a song, a speech, a reunion, an animal?`
+                    atlasPrompt: `What reliably makes people well up — a reunion, a speech, a song, or an animal?`
                 }
             },
             {
                 id: 'moment-greeting-collision',
                 preview: `Hand, hug, or two cheeks? Decide now.`,
-                question: `You go in for a handshake; they go in for a hug. Two cheeks or three? You end up half-kissing a colleague's ear. What's your worst greeting collision — and does your country make this easy or impossible?`,
+
+                question: `What is your worst greeting collision — a handshake, a hug, the wrong number of cheek kisses, or a high five nobody saw coming? What did each person think was about to happen?`,
+
                 upgrade: {
                     term: `leave someone hanging`,
                     type: `phrase`,
-                    definition: `To fail to respond to someone's gesture or request, leaving them exposed.`,
-                    ordinary: `“I put my hand up for a high five and nobody responded, so it just stayed there in the air.”`,
-                    upgraded: `“I went for a high five and he left me hanging.”`,
+                    definition: `To fail to respond to somebody’s gesture or request, leaving them exposed.`,
+                    ordinary: `“I raised my hand for a high five, but nobody responded.”`,
+                    upgraded: `“I raised my hand for a high five, but he left me hanging.”`,
                     priority: 'standard',
-                    atlasPrompt: `When were you last left hanging — a message ignored, a hand out, an offer nobody took up?`
+                    atlasPrompt: `When have you been left hanging — by an unanswered message, an ignored offer, or a gesture nobody returned?`
                 }
             },
             {
                 id: 'moment-forgetting-how-to-walk',
-                preview: `They're watching you walk. How do arms work?`,
-                question: `Somebody you know spots you from fifty metres away and watches you walk the whole way over. Suddenly you have no idea what your arms are supposed to be doing. When did you last become horribly aware of your own body?`,
+                preview: `They are watching you. How do arms work?`,
+
+                question: `When have you suddenly become painfully aware of your own body because somebody was watching — while walking, dancing, posing for a photograph, or speaking in front of people? What changed the moment you noticed them?`,
+
                 upgrade: {
                     term: `self-conscious`,
                     type: `adjective`,
-                    definition: `Uncomfortably aware of yourself and worried about how you look to others.`,
-                    ordinary: `“I suddenly became very aware of myself and started worrying about how I must look to everyone.”`,
-                    upgraded: `“I suddenly felt incredibly self-conscious.”`,
+                    definition: `Uncomfortably aware of yourself and worried about how you appear to others.`,
+                    ordinary: `“As soon as I noticed everybody watching, I became uncomfortable and started thinking about every movement.”`,
+                    upgraded: `“As soon as I noticed everybody watching, I became incredibly self-conscious.”`,
                     priority: 'standard',
-                    atlasPrompt: `What makes you self-conscious — photographs, your own voice, dancing, speaking English?`
+                    atlasPrompt: `What makes you self-conscious — photographs, dancing, your own voice, or speaking English?`
                 }
             }
         ],
+
         makeItReal: {
-            title: `The five seconds you'd delete`,
-            prompt: `Tell the story of a time your body embarrassed you in public — or the best one you've watched happen to somebody else. Where were you, what did the body do, who saw it, and what did you do for the rest of that day?`
+            title: `The Five Seconds You’d Delete`,
+            prompt: `Reconstruct one public moment when a body betrayed its owner — yours or somebody else’s. Tell it in slow motion: what happened first, what the body did next, who noticed, and how the person tried to recover.`
         }
     },
+
     {
         id: 'set-putting-it-on',
         title: `Putting It On`,
         stage: `Explain`,
         icon: 'explain',
-        description: `The professional smile, the firm handshake, the dance floor, and the face you make when you open the present.`,
+        description: `The expressions people perform, the impressions bodies create, and the rules learned through repetition.`,
+
         moments: [
             {
                 id: 'moment-face-for-work',
-                preview: `The smile that's part of the uniform.`,
-                question: `Nurses, waiters, teachers, flight attendants, funeral directors — some jobs require you to hold a face for eight hours. Whose would be hardest for you? And what does your own face have to do at work?`,
+                preview: `The smile that is part of the uniform.`,
+
+                question: `Which job would require the hardest expression to hold for eight hours — nurse, waiter, teacher, flight attendant, funeral director, or another one? What would that person have to hide?`,
+
                 upgrade: {
                     term: `go through the motions`,
                     type: `phrase`,
-                    definition: `To do something without real feeling, energy, or belief in it.`,
-                    ordinary: `“She said all the right things and smiled at everyone, but there was clearly no real feeling behind any of it.”`,
-                    upgraded: `“She said all the right things, but she was clearly just going through the motions.”`,
+                    definition: `To do something without real feeling, energy, or belief.`,
+                    ordinary: `“She smiled and used the correct words, but there was no real feeling behind them.”`,
+                    upgraded: `“She smiled and used the correct words, but she was only going through the motions.”`,
                     priority: 'key',
-                    atlasPrompt: `Where do you catch yourself going through the motions — a meeting, a gym, a class, a Sunday phone call?`
+                    atlasPrompt: `Where do people sometimes go through the motions — at work, in a class, at the gym, or during a social obligation?`
                 }
             },
             {
-                id: 'moment-firm-handshake',
-                preview: `Firm grip. Steady eyes. Straight back.`,
-                question: `Grip the hand firmly. Hold the eye contact. Sit up. Stand like a superhero in the toilets beforehand. How much of this actually works — and how much is theatre we've all quietly agreed to take seriously?`,
+                id: 'moment-read-the-screen',
+                preview: `You are both already giving an impression.`,
+
+                question: `Look at your tutor’s posture and expression. What impression do they give right now? Check whether you read them correctly, then let them read you.`,
+
                 upgrade: {
-                    term: `overdo it`,
-                    type: `phrase`,
-                    definition: `To do something far more than is necessary or appropriate.`,
-                    ordinary: `“He gripped my hand so hard, and for so much longer than necessary, that it became uncomfortable.”`,
-                    upgraded: `“He completely overdid the handshake.”`,
-                    priority: 'standard',
-                    atlasPrompt: `Who overdoes it — the aftershave, the apologies, the emojis, the confidence?`
+                    term: `come across as`,
+                    type: `phrasal verb`,
+                    definition: `To give other people a particular impression of your character or mood.`,
+                    ordinary: `“Her posture made her seem confident, although she was actually nervous.”`,
+                    upgraded: `“She came across as confident, although she was actually nervous.”`,
+                    priority: 'key',
+                    atlasPrompt: `How do you want to come across when meeting somebody for the first time?`
                 }
             },
             {
                 id: 'moment-dance-floor',
-                preview: `They cannot be stopped. Or you cannot be moved.`,
-                question: `Some people are on the dance floor before the music starts. Others would sooner resign than be pulled onto one. Which are you — and what exactly would it take to get you up?`,
+                preview: `Build the exact conditions.`,
+
+                question: `What exact combination could get you onto a dance floor — the right song, the right people, enough space, or nobody watching? Build the conditions, or explain why nothing would work.`,
+
                 upgrade: {
                     term: `let your hair down`,
                     type: `idiom`,
                     definition: `To relax completely and enjoy yourself without worrying what people think.`,
-                    ordinary: `“She finally stopped worrying about what everybody thought of her and just enjoyed herself.”`,
+                    ordinary: `“She stopped worrying about how she looked and finally began enjoying herself.”`,
                     upgraded: `“She finally let her hair down.”`,
                     priority: 'key',
-                    atlasPrompt: `Where can you actually let your hair down — and who would you never do it in front of?`
+                    atlasPrompt: `Where can you genuinely let your hair down — and who helps you do it?`
                 }
             },
             {
                 id: 'moment-opening-the-present',
-                preview: `You have half a second to look delighted.`,
-                question: `The present is horrible. The food is worse. Somebody is showing you four hundred photographs of a baby. You have half a second to arrange your face. Are you any good at this — and who do you know who absolutely is not?`,
+                preview: `You have five seconds to look delighted.`,
+
+                question: `The present is horrible and the person who gave it to you is watching your face. What do you do in the first five seconds? Try the expression you would use — would your tutor believe it?`,
+
                 upgrade: {
                     term: `pull it off`,
-                    type: `phrase`,
-                    definition: `To succeed at something difficult that you might easily have failed at.`,
-                    ordinary: `“I tried very hard to look delighted, but I don't think anybody actually believed me.”`,
-                    upgraded: `“I tried to look delighted, but I don't think I pulled it off.”`,
+                    type: `phrasal verb`,
+                    definition: `To succeed at something difficult that could easily have failed.`,
+                    ordinary: `“I tried to look delighted, but I do not think anybody believed me.”`,
+                    upgraded: `“I tried to look delighted, but I do not think I pulled it off.”`,
                     priority: 'standard',
-                    atlasPrompt: `What have you only just pulled off — a presentation, a recipe, a lie, an outfit?`
+                    atlasPrompt: `What have you only just pulled off — a presentation, a meal, an excuse, or a difficult piece of clothing?`
                 }
             },
             {
                 id: 'moment-sit-up-straight',
-                preview: `“Sit up straight.” Somebody trained you.`,
-                question: `Sit up. Don't slouch. Elbows off the table. Don't point. Somebody trained your body when you were small, and some of it stuck. Who was it, what did they insist on — and do you still do it?`,
+                preview: `Somebody trained your body.`,
+
+                question: `What body rule was repeated to you as a child — sit up straight, do not point, keep your elbows off the table, or look at people when they speak? Show or describe the habit that survived.`,
+
                 upgrade: {
                     term: `drum something into someone`,
                     type: `phrasal verb`,
-                    definition: `To teach someone something by repeating it until they can never forget it.`,
-                    ordinary: `“My grandmother repeated it so many times, over so many years, that I still do it without thinking.”`,
-                    upgraded: `“My grandmother drummed it into me.”`,
+                    definition: `To teach something through frequent and forceful repetition.`,
+                    ordinary: `“My grandmother repeated that rule so often that I still follow it without thinking.”`,
+                    upgraded: `“My grandmother drummed that rule into me.”`,
                     priority: 'standard',
-                    atlasPrompt: `What was drummed into you as a child that you still do — manners, spelling, road safety, saving money?`
+                    atlasPrompt: `What was drummed into you as a child — manners, spelling, saving money, or road safety?`
                 }
             }
         ],
+
         makeItReal: {
-            title: `The face you had to put on`,
-            prompt: `Choose one time you had to physically perform something you didn't feel — confidence, delight, calm, sympathy, interest. What did you actually do with your face, your hands, your voice? And did anybody see through you?`
+            title: `The Face You Had to Put On`,
+            prompt: `Choose a moment when you had to perform confidence, calm, delight, sympathy, or interest. Show or describe the face, posture, hands, and voice you used, then decide which part was least convincing.`
         }
     },
+
     {
-        id: 'set-what-it-gets-right',
-        title: `What It Gets Right`,
+        id: 'set-what-it-knows-first',
+        title: `What It Knows First`,
         stage: `Reflect and Relate`,
         icon: 'reflect',
-        description: `The feeling you couldn't explain, the person who changes a room, and what twenty years have quietly done to your knees.`,
+        description: `Warnings without reasons, people who alter a room, delayed feelings, physical boundaries, and the marks that life leaves.`,
+
         moments: [
             {
                 id: 'moment-something-was-off',
-                preview: `No reason. Just: no.`,
-                question: `A house, a job, a person — and something in you said no before you had a single reason. Were you right? Or do we only remember the times we were, and quietly forget the rest?`,
+                preview: `No clear reason. Just: no.`,
+
+                question: `When has your body warned you before you had a clear reason — about a person, place, offer, or situation? What happened next, and were you right to trust the feeling?`,
+
                 upgrade: {
-                    term: `something doesn't sit right`,
+                    term: `something doesn’t sit right`,
                     type: `phrase`,
-                    definition: `To feel that something is wrong about a situation without being able to explain why.`,
-                    ordinary: `“I couldn't explain what was wrong with the offer, but something about it made me uneasy.”`,
-                    upgraded: `“I couldn't explain it, but something about the offer didn't sit right with me.”`,
+                    definition: `Used when something feels wrong although you cannot clearly explain why.`,
+                    ordinary: `“I could not explain what was wrong with the offer, but it made me uneasy.”`,
+                    upgraded: `“I could not explain it, but something about the offer did not sit right with me.”`,
                     priority: 'key',
-                    atlasPrompt: `When did something not sit right with you — a deal, an explanation, a story that didn't quite add up?`
+                    atlasPrompt: `When has something not sat right with you — an explanation, a deal, a story, or somebody’s behaviour?`
                 }
             },
             {
                 id: 'moment-changes-a-room',
-                preview: `They walk in. The room adjusts.`,
-                question: `Some people walk into a room and everybody quietly reorganises around them, and they haven't said a word. Who is yours? And could you learn to do it, or do you either have it or you don't?`,
+                preview: `They enter. The room adjusts.`,
+
+                question: `Think of somebody whose presence changes a room before they speak. What do they do with their body — where they stand, how they move, or where they look? Which part could another person learn?`,
+
                 upgrade: {
                     term: `presence`,
                     type: `noun`,
-                    definition: `A quality that makes people notice you and take you seriously.`,
-                    ordinary: `“He hardly says anything, but people go quiet and pay attention the moment he walks in.”`,
-                    upgraded: `“He hardly says anything, but he's got real presence.”`,
+                    definition: `A quality that makes people notice somebody and take them seriously.`,
+                    ordinary: `“He hardly speaks, but people notice him and pay attention as soon as he enters.”`,
+                    upgraded: `“He hardly speaks, but he has real presence.”`,
                     priority: 'standard',
-                    atlasPrompt: `Who has presence where you work — and is it rank, size, calm, or something else entirely?`
+                    atlasPrompt: `Who has real presence in a group you know, and what creates it?`
                 }
             },
             {
                 id: 'moment-who-gets-to-touch-you',
-                preview: `The hugger. The hand on the arm. The one who leans in.`,
-                question: `The colleague who hugs. The relative who holds your face. One friend puts a hand on your arm and it's fine; another does exactly the same thing and you want to leave the country. Who gets allowed closer — in your life, or in a group you know — and how did they earn it?`,
+                preview: `The same gesture. A completely different feeling.`,
+
+                question: `Why can the same touch feel comfortable from one person and wrong from another — a hug, a hand on the arm, or somebody standing very close? What changes the meaning?`,
+
                 upgrade: {
-                    term: `keep someone at arm's length`,
+                    term: `keep someone at arm’s length`,
                     type: `idiom`,
-                    definition: `To deliberately avoid becoming close to someone.`,
-                    ordinary: `“I'm perfectly polite to him, but I make sure we never actually become close.”`,
-                    upgraded: `“I'm polite to him, but I keep him at arm's length.”`,
+                    definition: `To avoid becoming emotionally or socially close to somebody.`,
+                    ordinary: `“I remain polite to him, but I make sure that we never become close.”`,
+                    upgraded: `“I remain polite to him, but I keep him at arm’s length.”`,
                     priority: 'key',
-                    atlasPrompt: `When might someone keep another person at arm's length — politeness, history, caution, or simple lack of trust?`
+                    atlasPrompt: `Why might somebody keep another person at arm’s length — caution, history, mistrust, or lack of interest?`
                 }
             },
             {
                 id: 'moment-good-news-arrives',
-                preview: `The news is good. Nothing happens.`,
-                question: `The call comes and the result is good. Some people scream and run. Others say “oh, right,” go and put the kettle on, and only feel it three hours later in the car. Which one are you, and when did you last find out?`,
+                preview: `The news is good. Nothing happens yet.`,
+
+                question: `When good news arrives, do you react immediately or only feel it later? Think of one moment when your body stayed surprisingly calm — or reacted before you understood what had happened.`,
+
                 upgrade: {
                     term: `sink in`,
                     type: `phrasal verb`,
-                    definition: `(Of news) to become fully understood or believed, often slowly.`,
-                    ordinary: `“I heard the news, but it took a long time before I really understood and believed that it had happened.”`,
-                    upgraded: `“I heard the news, but it took days to sink in.”`,
+                    definition: `To become fully understood or believed, often gradually.`,
+                    ordinary: `“I heard the news immediately, but it took several days before it felt real.”`,
+                    upgraded: `“I heard the news immediately, but it took several days to sink in.”`,
                     priority: 'standard',
-                    atlasPrompt: `What news took the longest to sink in — and what finally made it real?`
+                    atlasPrompt: `What news took a long time to sink in — and what finally made it feel real?`
                 }
             },
             {
-                id: 'moment-what-the-years-did',
-                preview: `The knee. The back. The three-day hangover.`,
-                question: `Bodies change what they can do, and sometimes how people read them. What change have you noticed in yourself or someone around you — and did it change how much room other people gave them?`,
+                id: 'moment-work-left-a-mark',
+                preview: `The job is visible before they tell you.`,
+
+                question: `What kind of work or daily routine leaves a visible mark on the body — in somebody’s hands, posture, voice, sleep, or movement? What might you notice before they told you what they did?`,
+
                 upgrade: {
                     term: `take its toll`,
                     type: `phrase`,
-                    definition: `To cause gradual damage over a long period.`,
-                    ordinary: `“Twenty years of standing on concrete all day has slowly damaged his knees.”`,
-                    upgraded: `“Twenty years on his feet has taken its toll on his knees.”`,
+                    definition: `To cause gradual harm or exhaustion over time.`,
+                    ordinary: `“Years of standing on concrete all day gradually damaged his knees.”`,
+                    upgraded: `“Years of standing on concrete all day took their toll on his knees.”`,
                     priority: 'standard',
-                    atlasPrompt: `What takes its toll on people where you work — the hours, the standing, the travel, the noise?`
+                    atlasPrompt: `What can take its toll over time — long hours, travel, stress, noise, or caring for somebody?`
                 }
             }
         ],
+
         makeItReal: {
-            title: `The one you'd want in the room`,
-            prompt: `Think of somebody you would want physically beside you in a difficult hour — a hospital corridor, a hard meeting, bad news. Not what they'd say. What they'd do with their body. Who is it, and what is it about the way they are in a room?`
+            title: `The One You’d Want in the Room`,
+            prompt: `Choose somebody you would want beside you during a difficult hour. Describe only what they would do with their body — where they would sit, how close they would be, and what their face and hands would do.`
         }
     }
 ];
@@ -322,188 +366,232 @@ const clCards = [
         contextLine: `Bulgaria`,
         title: `The Nod That Means No`,
         teaser: `You ask, they nod, and you have just been turned down.`,
-        context: `In Bulgaria and parts of the surrounding region, the head does the opposite of what most visitors expect. A nod can mean no. A shake can mean yes. Knowing the rule barely helps: the movement arrives faster than the rule does, and your instinct keeps reading the wrong answer off somebody's head while their words say the other thing.`,
-        mainQuestion: `Their words say yes and their head says no. Which one does your gut believe in the moment — and which one would you act on?`,
+
+        context: `In Bulgaria, traditional head gestures can reverse what many visitors expect: a nod may mean no, while a side-to-side movement may mean yes. You ask a question, hear one answer, and see what looks like the opposite. Even when you know the rule, your first instinct may still misread the movement.`,
+
+        mainQuestion: `Their words say yes, but the head movement looks like no to you. Which signal would you trust first — and how would you check?`,
+
         followTheThread: [
-            `What gesture of yours feels so obvious that you'd assume the whole world does it?`,
-            `Where else does your instinct override something you already know to be true?`
+            `What gesture feels so obvious to you that you would expect the whole world to understand it?`,
+            `When else does your first instinct override something you already know?`
         ],
+
         upgrade: {
             term: `throw someone off`,
             type: `phrasal verb`,
             definition: `To confuse or unsettle someone because something is not what they expected.`,
-            ordinary: `“The reversed nod confused me so badly that I couldn't follow the rest of the conversation.”`,
+            ordinary: `“The reversed nod confused me so badly that I could not follow the rest of the conversation.”`,
             upgraded: `“The reversed nod completely threw me off.”`,
             priority: 'standard',
-            atlasPrompt: `What throws you off in a conversation — an accent, a long silence, a question you weren't expecting?`
+            atlasPrompt: `What throws you off in a conversation — an accent, a long silence, or an unexpected question?`
         }
     },
+
     {
         id: 'cl-face-at-rest',
         contextLine: `The face at rest`,
-        title: `The Face That Isn't Doing Anything`,
+        title: `The Face That Isn’t Doing Anything`,
         teaser: `Some faces, doing nothing at all, look absolutely furious.`,
-        context: `Some people have a face that, at rest, reads as angry, unimpressed, or about to say something cutting. They are usually thinking about lunch. They spend their lives being asked what's wrong, being told to cheer up, and being handed apologies for things they were never annoyed about in the first place.`,
-        mainQuestion: `Whose face gets them into trouble — yours, or somebody you know? And is that their problem to fix, or everyone else's problem to read better?`,
+
+        context: `Some people naturally look angry, bored, or unimpressed when their face is relaxed. They may simply be thinking about lunch, yet people keep asking what is wrong, telling them to cheer up, or apologising for offences that never happened.`,
+
+        mainQuestion: `Whose resting face gets them into trouble — yours or someone you know? Should they change it, or should other people learn to read it better?`,
+
         followTheThread: [
-            `Have you ever completely misjudged somebody's mood from their face alone?`,
+            `Have you ever completely misjudged somebody’s mood from their face alone?`,
             `Do you owe the world a pleasant face, or is that a bill nobody should have to pay?`
         ],
+
         upgrade: {
             term: `get off on the wrong foot`,
             type: `idiom`,
-            definition: `To start a relationship badly, often because of a bad first impression.`,
-            ordinary: `“The whole relationship started badly because from the first day he thought I disliked him.”`,
+            definition: `To start a relationship badly, often because of a poor first impression.`,
+            ordinary: `“The relationship started badly because he thought from the first day that I disliked him.”`,
             upgraded: `“We got off on the wrong foot because he thought I disliked him.”`,
             priority: 'standard',
-            atlasPrompt: `Who did you get off on the wrong foot with — and did you ever recover it?`
+            atlasPrompt: `Who did you get off on the wrong foot with — and did the relationship ever recover?`
         }
     },
+
     {
         id: 'cl-smile-that-wouldnt-work',
         contextLine: `Paris · 1862`,
-        title: `The Smile That Wouldn't Work`,
+        title: `The Smile That Wouldn’t Work`,
         teaser: `He made the face smile using electricity. Nobody believed it.`,
-        context: `In the 1860s, French neurologist Guillaume Duchenne used electrical stimulation and photography to map the muscles of facial expression. Lifting the mouth could produce a smile-like shape, but activity around the eyes changed how warm and convincing it appeared. That distinction later became associated with the “Duchenne smile” — although it is not a perfect test of what somebody genuinely feels.`,
-        mainQuestion: `Would you actually want to be able to tell a real smile from a polite one — or is not knowing quietly doing you a favour?`,
+
+        context: `In the 1860s, French neurologist Guillaume Duchenne used small electrical currents to move facial muscles while photographs were taken. Raising the mouth produced a smile-like shape. When the muscles around the eyes moved too, it looked warmer and more convincing. This became known as the “Duchenne smile”, although it cannot prove what someone feels.`,
+
+        mainQuestion: `Would you actually want to recognise the difference between a genuine smile and a polite one — or is not knowing quietly doing you a favour?`,
+
         followTheThread: [
             `Whose polite smiles would you rather not be able to see through?`,
             `Is a polite smile a small lie, or a small kindness?`
         ],
+
         upgrade: {
             term: `see through someone`,
-            type: `phrase`,
-            definition: `To realise that someone is not being honest or sincere.`,
-            ordinary: `“He said all the right things, but I could tell immediately that he wasn't being sincere.”`,
+            type: `phrasal verb`,
+            definition: `To recognise that someone is hiding the truth or not being sincere.`,
+            ordinary: `“He said all the right things, but I could tell immediately that he was not being sincere.”`,
             upgraded: `“He said all the right things, but I saw straight through him.”`,
             priority: 'key',
-            atlasPrompt: `Who can see straight through you — and what is it that gives you away?`
+            atlasPrompt: `Who can see straight through you — and what usually gives you away?`
         }
     },
+
     {
         id: 'cl-lift-rule',
         contextLine: `Lifts everywhere`,
-        title: `Face the Doors. Don't Talk.`,
+        title: `Face the Doors. Don’t Talk.`,
         teaser: `Nobody taught you this. Everybody obeys it.`,
-        context: `Step into a lift and something takes over. You turn and face the doors. You stop talking, or drop to half volume. You find the floor numbers suddenly fascinating. And if somebody steps in and stands facing the back, calmly looking at everyone, the discomfort is almost physical.`,
+
+        context: `Step into a lift and something takes over. You turn and face the doors. You stop talking, or drop to half volume. You find the floor numbers suddenly fascinating. If somebody enters, faces the back, and calmly looks at everyone, the discomfort is almost physical.`,
+
         mainQuestion: `Where else do you follow a rule nobody ever taught you — and what happens to the person who breaks it?`,
+
         followTheThread: [
             `Could you genuinely stand in a lift facing the wrong way for six floors?`,
-            `Which of these rules would you defend, and which are just cowardice?`
+            `Which unwritten rules protect other people’s comfort, and which exist only because nobody wants to stand out?`
         ],
+
         upgrade: {
             term: `an unwritten rule`,
-            type: `noun`,
-            definition: `A rule everyone follows although nobody has ever stated it.`,
-            ordinary: `“Nobody ever said it out loud, but everybody knew you never sat in the chair at the head of the table.”`,
+            type: `phrase`,
+            definition: `A rule everyone follows although nobody has officially stated it.`,
+            ordinary: `“Nobody ever said it aloud, but everybody knew that you never sat in the chair at the head of the table.”`,
             upgraded: `“There was an unwritten rule that you never took the chair at the head of the table.”`,
             priority: 'standard',
-            atlasPrompt: `What's the unwritten rule where you work — the chair, the kitchen, the group chat, the time you're allowed to leave?`
+            atlasPrompt: `What is the unwritten rule where you work — about the kitchen, the group chat, a particular chair, or the time people leave?`
         }
     },
+
     {
         id: 'cl-hired-grief',
         contextLine: `Professional mourners`,
         title: `Somebody Paid to Cry`,
         teaser: `The louder the funeral, the more the dead were loved.`,
-        context: `Families have hired professional mourners for thousands of years, and in parts of the world still do. They arrive, they weep, they wail, they lead the room, and in some places a band comes with them. A quiet funeral can suggest a life that mattered to nobody — and the hired grief is there to make sure nobody thinks that.`,
+
+        context: `At some funerals, professional mourners arrive to weep, wail, or lead the room. Families have paid for this work for thousands of years, and the practice still exists in parts of the world. In some places, a quiet funeral may suggest that the dead person was not deeply loved.`,
+
         mainQuestion: `At your own funeral, would you want everybody holding themselves together — or would you want the noise?`,
+
         followTheThread: [
-            `Is paid grief fake, or is it a service that gives everyone else permission?`,
-            `Where you're from, is somebody who cries openly at a funeral respected, or quietly judged?`
+            `Is paid grief fake, or can it give everyone else permission to show what they feel?`,
+            `Where you are from, is somebody who cries openly at a funeral respected or quietly judged?`
         ],
+
         upgrade: {
             term: `break down`,
             type: `phrasal verb`,
-            definition: `To lose control of your emotions and start crying.`,
-            ordinary: `“She got halfway through the speech and then completely lost control and started crying.”`,
-            upgraded: `“She got halfway through the speech and broke down.”`,
+            definition: `To lose control of your emotions and begin crying.`,
+            ordinary: `“She reached the middle of the speech and then lost control and started crying.”`,
+            upgraded: `“She reached the middle of the speech and broke down.”`,
             priority: 'key',
             atlasPrompt: `Where is it acceptable to break down in public where you live — and where is it definitely not?`
         }
     },
+
     {
         id: 'cl-laughter-epidemic',
         contextLine: `Tanganyika · 1962`,
-        title: `The Village That Couldn't Stop`,
+        title: `The Village That Couldn’t Stop`,
         teaser: `It started with three schoolgirls. It closed the school.`,
-        context: `In 1962, episodes of uncontrollable laughter and other distress symptoms affected pupils at a girls' school in Tanganyika, now Tanzania, and later appeared in nearby communities. Schools closed as the outbreak continued. Researchers have generally discussed it as a form of mass psychogenic illness linked to stress, rather than ordinary contagious amusement.`,
-        mainQuestion: `Have you ever felt a room's mood enter your own body before you had time to decide — laughter, panic, tension, or relief? What happened?`,
+
+        context: `In 1962, episodes of uncontrollable laughter and other distress symptoms began among pupils at a girls’ school in Tanganyika, now Tanzania, and later appeared in nearby communities. Some schools closed. Researchers usually describe the outbreak as a stress-related illness spreading through groups, not as people simply finding one another funny.`,
+
+        mainQuestion: `Have you ever felt a room’s mood enter your own body before you had time to decide — laughter, panic, tension, or relief? What happened?`,
+
         followTheThread: [
-            `Whose mood spreads fastest in a room you know, and do they have any idea they're doing it?`,
-            `Is catching other people's feelings a strength or a weakness?`
+            `Whose mood spreads fastest in a room you know, and do they realise they are doing it?`,
+            `Is catching other people’s feelings a strength, a weakness, or sometimes both?`
         ],
+
         upgrade: {
             term: `set someone off`,
             type: `phrasal verb`,
-            definition: `To cause someone to start doing something, especially laughing or crying, often uncontrollably.`,
-            ordinary: `“One person started laughing, and within a minute it had caused everybody else to start as well.”`,
-            upgraded: `“One person started, and it set everybody else off.”`,
+            definition: `To cause someone to start laughing, crying, or reacting strongly, often uncontrollably.`,
+            ordinary: `“One person started laughing, and within a minute everybody else had started too.”`,
+            upgraded: `“One person started laughing, and it set everybody else off.”`,
             priority: 'key',
             atlasPrompt: `Who sets you off laughing when you absolutely must not — and how do they do it?`
         }
     },
+
     {
         id: 'cl-lowered-eyes',
         contextLine: `The interview room`,
         title: `The Eyes That Cost You the Job`,
         teaser: `Taught at home that looking down is respect. Read in the room as evasion.`,
-        context: `In many homes, meeting the eye of a teacher, an elder, or a boss is bold to the point of rudeness, and lowering your gaze is exactly how respect is shown. That same young person then sits down in an interview, or a courtroom, opposite somebody raised to treat a steady gaze as proof of honesty — and is read as shifty.`,
-        mainQuestion: `Somebody won't meet your eye. What's your first thought — and how much money would you actually bet on it?`,
+
+        context: `In many homes, looking directly at a teacher, elder, or boss can seem rude, while lowering the eyes shows respect. Later, the same young person may enter an interview or courtroom where steady eye contact is treated as evidence of honesty. Their respectful behaviour may now be read as evasive.`,
+
+        mainQuestion: `Someone keeps looking down while you speak. What is your first thought — and how much money would you bet on it?`,
+
         followTheThread: [
             `Have you ever felt judged for looking at someone too much, or not enough?`,
             `Is a steady gaze proof of honesty, or only proof of confidence?`
         ],
+
         upgrade: {
-            term: `meet someone's eye`,
+            term: `meet someone’s eye`,
             type: `phrase`,
-            definition: `To look directly into someone's eyes, often when it is difficult to do so.`,
-            ordinary: `“I felt so guilty that I couldn't look directly at her for the whole of the rest of the evening.”`,
-            upgraded: `“I felt so guilty that I couldn't meet her eye all evening.”`,
+            definition: `To look directly into someone’s eyes, often when it is difficult to do so.`,
+            ordinary: `“I felt so guilty that I could not look directly at her for the rest of the evening.”`,
+            upgraded: `“I felt so guilty that I could not meet her eye all evening.”`,
             priority: 'key',
-            atlasPrompt: `When might someone find it hard to meet another person's eye — guilt, bad news, attraction, or being told off?`
+            atlasPrompt: `When might someone find it difficult to meet another person’s eye — guilt, bad news, attraction, or being told off?`
         }
     },
+
     {
         id: 'cl-pose-nobody-taught',
         contextLine: `The Paralympic Games`,
         title: `The Pose Nobody Taught Them`,
-        teaser: `Arms up, head back, chest out — from athletes who have never seen it done.`,
-        context: `Researchers photographed judo athletes at the moment of victory. The competitors who had been blind from birth threw their arms up, tipped their heads back and pushed their chests out — the same shape as everyone else, though not one of them had ever seen a human being win anything.`,
-        mainQuestion: `So some of the body comes as standard and some of it is taught. Which of your own reactions do you think you'd still have if you'd been raised on the other side of the world?`,
+        teaser: `Arms up, head back, chest out — from athletes who had never seen it done.`,
+
+        context: `Researchers photographed judo athletes at the moment of victory. Competitors who had been blind from birth raised their arms, tipped back their heads, and pushed out their chests — much like the sighted athletes, although they had never watched anyone celebrate a win.`,
+
+        mainQuestion: `When something goes very well, what does your body do before you have time to think — raise your arms, cover your face, go still, or something else? Do you think anyone taught you that reaction?`,
+
         followTheThread: [
-            `Is there anything you can genuinely stop your body doing once it has started?`,
-            `Does it change anything to learn that a reaction was never really yours?`
+            `What other reaction seems to arrive before thought?`,
+            `If the same reaction appears in very different cultures, does that make it more trustworthy?`
         ],
+
         upgrade: {
             term: `instinctive`,
             type: `adjective`,
-            definition: `Happening automatically, without any thought or decision.`,
-            ordinary: `“I didn't decide to do it — my hands were in the air before I had any time to think at all.”`,
+            definition: `Happening automatically, without thought or a deliberate decision.`,
+            ordinary: `“I did not decide to raise my hands; they were already in the air before I had time to think.”`,
             upgraded: `“It was completely instinctive — my hands were up before I could think.”`,
             priority: 'standard',
-            atlasPrompt: `What's your instinctive reaction to bad news — go quiet, get busy, make a joke, call somebody?`
+            atlasPrompt: `What is your instinctive response to bad news — going quiet, getting busy, making a joke, or calling somebody?`
         }
     },
+
     {
         id: 'cl-frozen-face',
         contextLine: `The frozen face`,
         title: `Switch Your Face Off`,
-        teaser: `If your face can't move, can you still read anyone else's?`,
-        context: `People who have their facial muscles paralysed for cosmetic reasons report a strange side effect. Some studies suggest they become slightly worse at reading emotion in other faces, and describe feeling a little less themselves. One theory is that we understand other people partly by copying them — a tiny, invisible flicker of their expression running across our own.`,
-        mainQuestion: `A switch that stops your face from ever showing anything again. Do you take it — and what exactly would you be giving up?`,
+        teaser: `If your face cannot move, can you still read anyone else’s?`,
+
+        context: `Some cosmetic treatments reduce movement in the facial muscles. In some studies, people with less facial movement became slightly less accurate at reading emotion in other faces. One explanation is that we partly understand another person’s expression by making a tiny version of it on our own face.`,
+
+        mainQuestion: `A switch could stop your face from ever showing anything again. Would you use it — and what exactly would you be giving up?`,
+
         followTheThread: [
             `Who would you most like to be completely unreadable in front of?`,
-            `Would people trust a face that never moved, or run from it?`
+            `Would people trust a face that never moved, or feel uncomfortable around it?`
         ],
+
         upgrade: {
             term: `give nothing away`,
             type: `phrase`,
-            definition: `To show no sign at all of what you are thinking or feeling.`,
-            ordinary: `“Whatever he was feeling, his face showed absolutely no sign of it at any point.”`,
+            definition: `To show no sign of what you are thinking or feeling.`,
+            ordinary: `“Whatever he was feeling, his face showed absolutely no sign of it.”`,
             upgraded: `“Whatever he was feeling, his face gave nothing away.”`,
             priority: 'standard',
-            atlasPrompt: `Who do you know who gives nothing away — in a negotiation, a card game, or a family argument?`
+            atlasPrompt: `Who do you know who gives nothing away — during a negotiation, a card game, or a family argument?`
         }
     }
 ];
