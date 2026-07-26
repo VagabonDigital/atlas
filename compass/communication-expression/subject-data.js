@@ -164,15 +164,15 @@ const discussionSets = [
             {
                 id: 'moment-how-you-say-no',
                 preview: `The invitation is real. So is your lack of interest.`,
-                question: `A colleague invites you to a birthday dinner on Friday night, and you genuinely do not want to go. Give the answer you would really send. Does it say no clearly, or does it only help you escape?`,
+                question: `A colleague invites you to a birthday dinner on Friday night, and you genuinely do not want to go. Give the answer you would really send. Does your message refuse clearly, or does it leave the answer uncertain?`,
                 upgrade: {
-                    term: `wriggle out of something`,
+                    term: `turn something down`,
                     type: `phrasal verb`,
-                    definition: `To avoid something you are expected to do, usually by finding an excuse.`,
-                    ordinary: `“I found a way to avoid the dinner without admitting that I did not want to go.”`,
-                    upgraded: `“I wriggled out of the dinner without admitting that I did not want to go.”`,
+                    definition: `To refuse an offer, invitation, or opportunity.`,
+                    ordinary: `“I refused the invitation politely because I did not want to go.”`,
+                    upgraded: `“I turned the invitation down politely because I did not want to go.”`,
                     priority: 'standard',
-                    atlasPrompt: `What do people most often try to wriggle out of — meetings, family events, exercise, or difficult conversations?`
+                    atlasPrompt: `What is hardest to turn down — an invitation, an opportunity, a favour, or food somebody made for you?`
                 }
             },
             {
@@ -180,19 +180,19 @@ const discussionSets = [
                 preview: `The words are polite. The voice is not.`,
                 question: `Say “That’s fine” as if you are actually annoyed. What changes in your voice — the speed, volume, stress, or something else?`,
                 upgrade: {
-                    term: `be short with someone`,
+                    term: `an edge to someone’s voice`,
                     type: `phrase`,
-                    definition: `To speak to someone briefly and impatiently, often because you are annoyed or stressed.`,
-                    ordinary: `“I answered her in a brief, impatient way because I was tired.”`,
-                    upgraded: `“I was short with her because I was tired.”`,
+                    definition: `A slight sharpness or tension in the way someone speaks.`,
+                    ordinary: `“Her words were polite, but her voice sounded slightly sharp.”`,
+                    upgraded: `“Her words were polite, but there was an edge to her voice.”`,
                     priority: 'key',
-                    atlasPrompt: `When are people most likely to be short with someone — when they are tired, rushed, hungry, or worried?`
+                    atlasPrompt: `When does an edge enter someone’s voice — tiredness, pressure, irritation, or trying not to argue?`
                 }
             },
             {
                 id: 'moment-you-in-another-language',
                 preview: `The meaning stays the same. The person sounds different.`,
-                question: `Choose one short phrase you can say in another language and in English — for example, “Really?”, “No way”, or “I missed you”. Say both versions. What changes in your voice or personality?`,
+                question: `Choose one short phrase you can say in another language and in English — for example, “Really?”, “No way”, or “I missed you”. Say it both ways. How does your voice or personality change?`,
                 upgrade: {
                     term: `get something across`,
                     type: `phrasal verb`,
@@ -220,7 +220,7 @@ const discussionSets = [
             {
                 id: 'moment-what-you-cant-say-yet',
                 preview: `You know the meaning. You do not yet have the English.`,
-                question: `Think of one idea you can express easily in another language but not in English. Explain the meaning without translating the key word. What English expression comes closest?`,
+                question: `Think of one idea or feeling that is easy to express in another language but difficult in English. Describe it without using the original word. What English expression comes closest?`,
                 upgrade: {
                     term: `put something into words`,
                     type: `phrase`,
@@ -303,7 +303,7 @@ const discussionSets = [
             {
                 id: 'moment-who-you-tell-first',
                 preview: `Something happens. One person gets the first call.`,
-                question: `Something important happens, good or bad. Who gets the first message — a real person, a fictional person, or simply the kind of person you would need? What could you tell them that you would not tell everyone else?`,
+                question: `You receive news that changes your day — good or bad. Who would you contact first, and why that person? What could you tell them that you would not tell everyone else?`,
                 upgrade: {
                     term: `confide in someone`,
                     type: `phrase`,
@@ -371,7 +371,7 @@ const clCards = [
             ordinary: `“We spent five minutes exchanging polite comments before anyone mentioned the money.”`,
             upgraded: `“We spent five minutes on pleasantries before anyone mentioned the money.”`,
             priority: 'standard',
-            atlasPrompt: `How long do pleasantries usually last before business where you are from — thirty seconds or half an hour?`
+            atlasPrompt: `Where you are from, how long do pleasantries usually last before business begins — thirty seconds or half an hour?`
         }
     },
 
@@ -417,13 +417,13 @@ const clCards = [
         ],
 
         upgrade: {
-            term: `passive-aggressive`,
-            type: `adjective`,
-            definition: `Showing annoyance indirectly instead of stating it openly.`,
-            ordinary: `“She never said she was annoyed, but the reply was clearly written to make me feel it.”`,
-            upgraded: `“She never said she was annoyed, but the reply was completely passive-aggressive.”`,
+            term: `read too much into something`,
+            type: `phrase`,
+            definition: `To find a meaning or feeling in something that may not have been intended.`,
+            ordinary: `“I thought the full stop sounded annoyed, although she may not have meant it that way.”`,
+            upgraded: `“I thought the full stop sounded annoyed, but I may have read too much into it.”`,
             priority: 'key',
-            atlasPrompt: `What is the most passive-aggressive thing you have seen written in an email, note, sign, or group chat?`
+            atlasPrompt: `When have you read too much into a short message, delayed reply, emoji, or punctuation mark?`
         }
     },
 
@@ -435,7 +435,7 @@ const clCards = [
 
         context: `In Nicaragua, deaf children were brought together in schools and taught to lip-read Spanish, with limited success. Outside class, they began sharing gestures and signs with one another. As new groups of younger children joined, they developed the system further until a rich shared sign language had formed.`,
 
-        mainQuestion: `Imagine joining the school after the other children have already created many signs. How would you begin understanding them without anyone translating?`,
+        mainQuestion: `You join the school and understand none of the signs. One child invites you into a game. How could the two of you begin understanding each other without anyone translating?`,
 
         followTheThread: [
             `Which parts of a language can people learn simply by watching others use it?`,
@@ -461,7 +461,7 @@ const clCards = [
 
         context: `Flyting was a public contest in which poets exchanged insults in verse. At the Scottish court around 1500, performers used elaborate, inventive and often filthy language while an audience watched. The insults were the entertainment, and victory went to the poet who attacked their opponent most skilfully.`,
 
-        mainQuestion: `Where you live, when does insulting a friend show affection — and what tells you that the line has been crossed?`,
+        mainQuestion: `Two friends compete to insult each other in front of a crowd. What would make one line feel clever and entertaining rather than cruel — the words, the relationship, the audience, or something else?`,
 
         followTheThread: [
             `Who is allowed to insult you playfully, and who absolutely is not?`,
@@ -495,13 +495,13 @@ const clCards = [
         ],
 
         upgrade: {
-            term: `on first-name terms`,
+            term: `drop the formalities`,
             type: `phrase`,
-            definition: `Informal enough with someone to use their first name instead of a title.`,
-            ordinary: `“Within a week, we had stopped using titles and were using each other’s first names.”`,
-            upgraded: `“Within a week, we were on first-name terms.”`,
+            definition: `To stop using formal ways of speaking or behaving with someone.`,
+            ordinary: `“After a few meetings, she suggested that we stop speaking so formally.”`,
+            upgraded: `“After a few meetings, she suggested that we drop the formalities.”`,
             priority: 'standard',
-            atlasPrompt: `Who are you on first-name terms with at work, and who still receives a title? What decides it?`
+            atlasPrompt: `Who normally decides when people can drop the formalities where you live?`
         }
     },
 
@@ -521,13 +521,13 @@ const clCards = [
         ],
 
         upgrade: {
-            term: `have no filter`,
+            term: `lose its shock value`,
             type: `phrase`,
-            definition: `To say whatever you think without considering whether it is appropriate.`,
-            ordinary: `“He says whatever enters his head without thinking about who is listening.”`,
-            upgraded: `“He has absolutely no filter.”`,
+            definition: `To become less surprising or offensive because something is heard or seen often.`,
+            ordinary: `“Swearing in English felt less powerful after I heard people use it casually every day.”`,
+            upgraded: `“Swearing in English lost some of its shock value after I heard people use it casually every day.”`,
             priority: 'standard',
-            atlasPrompt: `Who in your life has no filter — and is that refreshing or a permanent problem?`
+            atlasPrompt: `Which words have lost their shock value where you live — and which could still stop a room?`
         }
     },
 
@@ -550,8 +550,8 @@ const clCards = [
             term: `have a dig at someone`,
             type: `phrase`,
             definition: `To make an indirect critical or mocking remark about someone.`,
-            ordinary: `“That comment about people who are always late was aimed at me, was it not?”`,
-            upgraded: `“That was a dig at me, was it not?”`,
+            ordinary: `“He made that comment about people who are always late because he wanted to criticise me indirectly.”`,
+            upgraded: `“He had a dig at me with that comment about people who are always late.”`,
             priority: 'key',
             atlasPrompt: `When did somebody last have a dig at you and pretend that they had not? How did you handle it?`
         }
