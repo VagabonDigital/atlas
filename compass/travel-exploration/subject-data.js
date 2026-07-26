@@ -8,7 +8,7 @@
   habits, tensions, surprises, and cultural assumptions that shape travel.
   Built for tutor-led conversation, shared-screen teaching, thoughtful
   disagreement, cultural reflection, and sharper spoken English.
-  Gold Exemplar · contentVersion 3.3.0
+  Gold Exemplar · contentVersion 3.4.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -19,7 +19,7 @@
 const MODULE = {
     id: 'travel-exploration',
     schemaVersion: 2,
-    contentVersion: '3.3.0',
+    contentVersion: '3.4.0',
     title: 'Travel & Exploration',
     titleHtml: 'Travel &amp; <em>Exploration</em>',
     navTitle: 'Travel',
@@ -34,7 +34,7 @@ const subjectCopy = {
     overview: {
         heading: `Travel Up Close`,
         intro: [
-            `Two people can take the same trip and experience it completely differently. The place may be the same, but the people, choices, timing, and unexpected moments are not.`
+            `A journey can be a holiday, a family visit, a work trip, or simply going somewhere unfamiliar. Two people can take the same trip and experience it completely differently. The place may be the same, but the people, choices, timing, and unexpected moments are not.`
         ],
         question: `What decides how a trip turns out for you: where you go, who you go with, or what happens once you’re there?`
     },
@@ -57,10 +57,10 @@ const subjectCopy = {
 
     reflection: {
         title: `What Stays With You?`,
-        summary: `Pause on the conversation before you leave it. Notice what surprised you, shifted your thinking, or connected with your own experience.`,
+        summary: `Look back at the moments that changed how you saw comfort, control, authenticity, kindness, or yourself as a traveller.`,
         questions: [
-            `Which idea from the conversation stayed with you most?`,
-            `What do you think makes a journey feel meaningful?`
+            `Which part of travel do you value differently after this conversation — comfort, control, authenticity, kindness, or the story you bring home?`,
+            `What is one choice you would make differently on your next journey?`
         ]
     },
 
@@ -75,7 +75,7 @@ const discussionSets = [
         title: `The Honest Bit`,
         stage: `React`,
         icon: 'react',
-        description: `The mess, the wanting, and the small things you only notice once you’re away.`,
+        description: `The mess, the excitement, and the small things you only notice once you’re away.`,
 
         moments: [
             {
@@ -120,28 +120,28 @@ const discussionSets = [
                     ordinary: `“She turned one sunset photo into a twenty-minute production and had everyone moving bags and waiting while she tried to take exactly the photo she wanted.”`,
                     upgraded: `“She turned one sunset photo into a twenty-minute production and had everyone moving bags and waiting while she tried to get the shot.”`,
                     priority: 'standard',
-                    atlasPrompt: `Think of a photo that people spent far too long trying to get. What was happening behind the picture?`
+                    atlasPrompt: `At a wedding, sports match, or family event, when should someone stop trying to get the shot and simply stay out of the way?`
                 }
             },
             {
                 id: 'moment-have-it-again',
-                preview: `One taste worth going back for.`,
+                preview: `One taste you still think about.`,
                 question: `What’s something you ate or drank away from home that you would love to have again exactly as it was? What made it so good?`,
 
                 upgrade: {
-                    term: `speciality`,
-                    type: `noun`,
-                    definition: `A food, drink, or product that a particular place is known for.`,
-                    ordinary: `“That restaurant was known for its spicy noodle soup, and people queued for it.”`,
-                    upgraded: `“That restaurant’s speciality was a spicy noodle soup, and people queued for it.”`,
+                    term: `worth going back for`,
+                    type: `phrase`,
+                    definition: `Good or enjoyable enough to make you want to return and experience it again.`,
+                    ordinary: `“The noodles were so good that I would return to the city just to eat them again.”`,
+                    upgraded: `“The noodles alone were worth going back for.”`,
                     priority: 'standard',
-                    atlasPrompt: `Think of a shop, café, or restaurant near you that’s known for one particular thing. What’s its speciality, and is it actually the best thing on the menu?`
+                    atlasPrompt: `What café, shop, place, or experience is worth going back for because of one particular thing?`
                 }
             },
             {
                 id: 'moment-took-on-too-much',
                 preview: `You said yes too quickly.`,
-                question: `Have you ever said yes to something on a trip — a difficult hike, unfamiliar food, an activity, a long journey, or a night out — and then realised it was more than you could handle? What made you agree, or have you seen it happen to someone else?`,
+                question: `Think of a time when you or someone you travelled with took on too much during a trip. What happened, and why did it seem like a good idea at first?`,
 
                 upgrade: {
                     term: `out of your depth`,
@@ -172,14 +172,14 @@ const discussionSets = [
             {
                 id: 'moment-traveller-or-tourist',
                 preview: `Two labels, one quiet hierarchy.`,
-                question: `Some people call themselves “travellers” rather than “tourists.” What, if anything, is the real difference — and why do people care so much about the label?`,
+                question: `Someone says, “I’m a traveller, not a tourist,” because they avoid guided tours and famous sights. Are they simply describing how they like to travel, or suggesting that their way is better? What makes you think that?`,
 
                 upgrade: {
                     term: `look down on`,
                     type: `phrasal verb`,
                     definition: `To believe that you are better than someone else.`,
                     ordinary: `“He thinks he is better than people who take package holidays, but he’s just on a slightly posher version of one.”`,
-                    upgraded: `“He looks down on package holidays, but he’s just on a slightly posher version of one.”`,
+                    upgraded: `“He looks down on people who take package holidays, but he’s just on a slightly posher version of one.”`,
                     priority: 'standard',
                     atlasPrompt: `What hobby, job, or taste do people unfairly look down on?`
                 }
@@ -202,7 +202,7 @@ const discussionSets = [
             {
                 id: 'moment-seller-accepted-the-price',
                 preview: `The price was accepted too quickly.`,
-                question: `You’re bargaining in a market, and the seller accepts your price immediately. Do you feel pleased, embarrassed, or suspicious that you pushed too far? Where would you draw the line?`,
+                question: `You’re bargaining in a market, and the seller accepts your price immediately. Are you pleased with the deal, embarrassed that you pushed too hard, or suspicious that you still paid too much? Where would you draw the line?`,
 
                 upgrade: {
                     term: `haggle`,
@@ -248,13 +248,13 @@ const discussionSets = [
 
         makeItReal: {
             title: `The rule you travel by`,
-            prompt: `What’s one travel rule you learned the hard way? What happened?`
+            prompt: `State one travel rule you learned the hard way and tell the story behind it. Then name one situation where you would break your own rule.`
         }
     },
 
     {
         id: 'set-what-the-going-leaves',
-        title: `What the Going Leaves`,
+        title: `What Travel Leaves Behind`,
         stage: `Reflect and Relate`,
         icon: 'reflect',
         description: `The people you remember, the stories that improve with time, and what feels different when you come home.`,
@@ -282,7 +282,7 @@ const discussionSets = [
 
                 upgrade: {
                     term: `go out of your way`,
-                    type: `phrasal verb`,
+                    type: `idiom`,
                     definition: `To make a special effort beyond what is normally expected.`,
                     ordinary: `“A woman made a special effort to walk us all the way to the station.”`,
                     upgraded: `“A woman went out of her way to walk us all the way to the station.”`,
@@ -297,7 +297,7 @@ const discussionSets = [
 
                 upgrade: {
                     term: `with hindsight`,
-                    type: `spoken phrase`,
+                    type: `phrase`,
                     definition: `Looking back later, with knowledge of how events developed.`,
                     ordinary: `“Looking back, it was a great trip, but at the time I just wanted to go home.”`,
                     upgraded: `“With hindsight, it was a great trip, but at the time I just wanted to go home.”`,
@@ -323,16 +323,16 @@ const discussionSets = [
             {
                 id: 'moment-travel-spoiled-home',
                 preview: `When home stops measuring up.`,
-                question: `Sometimes a trip ruins something back home for you — the coffee, the bread, public transport, beaches, or customer service. What has travel spoiled for you, and do people around you think you’re being a bit of a snob about it?`,
+                question: `Sometimes a trip ruins something back home for you — the coffee, the bread, public transport, beaches, or customer service. What has travel spoiled for you? Do people around you think you have become too critical or that your standards are now too high?`,
 
                 upgrade: {
-                    term: `not live up to something`,
+                    term: `not compare with something`,
                     type: `phrase`,
-                    definition: `To be less good than expected, or less good than something you are comparing it with.`,
+                    definition: `To be noticeably less good than another person, thing, or experience.`,
                     ordinary: `“Coffee at home has never been as good as what we had in Italy.”`,
-                    upgraded: `“Coffee at home has never quite lived up to what we had in Italy.”`,
+                    upgraded: `“Coffee at home just doesn’t compare with what we had in Italy.”`,
                     priority: 'standard',
-                    atlasPrompt: `Think of a product, film, or event that did not live up to expectations. What disappointed you?`
+                    atlasPrompt: `What remake, replacement, or cheaper version simply did not compare with the original?`
                 }
             }
         ],
@@ -347,13 +347,13 @@ const discussionSets = [
 const clCards = [
     {
         id: 'cl-different-clock',
-        contextLine: `Slow-clock places`,
-        title: `We’ll Get There When We Get There`,
-        teaser: `The bus leaves when full, and “ten minutes” may mean an hour.`,
+        contextLine: `Transport and daily rhythms`,
+        title: `The Bus Leaves When It’s Full`,
+        teaser: `The clock is not always what decides when something begins.`,
 
-        context: `Often, the first real surprise abroad is not the language or food but the pace. You arrive expecting timetables and quick service. Then the bus leaves only when it is full, the shops close for a long afternoon, and “ten minutes” turns out to mean nearer an hour.`,
+        context: `Not every journey runs by a fixed timetable. Some shared buses leave only when enough passengers have boarded. Shops may close for a long break in the afternoon, and estimates such as “ten minutes” may be treated more loosely than a visitor expects. For someone used to strict schedules, the difference can feel relaxing, frustrating, or both.`,
 
-        mainQuestion: `Have you ever arrived somewhere that ran much slower — or much faster — than home? Did it relax you or slowly drive you up the wall?`,
+        mainQuestion: `Have you travelled somewhere where time was treated more flexibly — or more strictly — than at home? Did you adapt, or keep fighting the local rhythm?`,
 
         followTheThread: [
             `Could you happily live in a place with a completely different relationship to time?`,
@@ -439,13 +439,13 @@ const clCards = [
         ],
 
         upgrade: {
-            term: `fussy`,
-            type: `adjective`,
-            definition: `Difficult to please or unusually concerned about small details.`,
-            ordinary: `“People thought he was being difficult because he refused to share the room.”`,
-            upgraded: `“People thought he was being fussy because he refused to share the room.”`,
+            term: `out of the question`,
+            type: `phrase`,
+            definition: `Not possible or acceptable under the circumstances.`,
+            ordinary: `“I would never agree to share a bed with a stranger.”`,
+            upgraded: `“Sharing a bed with a stranger would be completely out of the question for me.”`,
             priority: 'standard',
-            atlasPrompt: `What is one thing you are genuinely fussy about, even when other people think it does not matter?`
+            atlasPrompt: `What request, arrangement, or compromise would be completely out of the question for you?`
         }
     },
 
@@ -455,7 +455,7 @@ const clCards = [
         title: `The Speed of Madness`,
         teaser: `Early trains seemed faster than the body could safely bear.`,
 
-        context: `Before passenger railways, most people had never travelled over land much faster than a horse. Early locomotives suddenly carried crowds at unprecedented speeds, producing fascination as well as fear. The noise, vibration, speed, and possibility of catastrophe made the new machine feel thrilling and physically unnatural at the same time.`,
+        context: `Before passenger railways, most people had never travelled over land much faster than a horse. Early trains suddenly carried large groups at speeds people had never experienced before. The noise and shaking made the journey exciting, but many passengers also feared that travelling so fast might be dangerous or even harmful to the body.`,
 
         mainQuestion: `Would you have trusted the first fast trains? Why or why not?`,
 
@@ -487,7 +487,7 @@ const clCards = [
 
         followTheThread: [
             `What makes public embarrassment funny rather than cruel?`,
-            `Why do journeys and closed groups create rituals people would never accept in ordinary life?`
+            `Why do people accept embarrassing rituals when joining a crew or group that they would reject anywhere else?`
         ],
 
         upgrade: {
@@ -507,7 +507,7 @@ const clCards = [
         title: `Put On for the Tourists`,
         teaser: `The welcome dance runs again for every arriving coach.`,
 
-        context: `A welcome dance may run three times a day, once for each arriving coach. A market may sell the same “local” souvenirs as one two countries over. A village may slowly reshape itself around the photograph visitors arrive expecting to take.`,
+        context: `A welcome dance may run three times a day, once for each arriving coach. A market may sell the same “local” souvenirs you could find several countries away. A village may slowly reshape itself around the photograph visitors arrive expecting to take.`,
 
         mainQuestion: `Would the welcome dance still feel special if it happened for every arriving coach? Why or why not?`,
 
@@ -533,9 +533,9 @@ const clCards = [
         title: `Does Going Really Change You?`,
         teaser: `Travel has long been treated as a form of education.`,
 
-        context: `There is an old belief that travel improves people — that going out into the world teaches what cannot be learned at home. Wealthy young Europeans once took long continental tours to acquire culture and polish. Modern versions include gap years, backpacking trips, and the idea that young people ought to “see the world.”`,
+        context: `There is an old belief that travel improves people — that going out into the world teaches what cannot be learned at home. In the past, wealthy young Europeans sometimes took long journeys across the continent to learn about art, manners, and society. Modern versions include gap years, backpacking trips, and the idea that young people ought to “see the world.”`,
 
-        mainQuestion: `Do you believe travel changes people for the better — or is that partly a flattering story told by those who can afford to go?`,
+        mainQuestion: `Do people usually come back from travel wiser and more open-minded? Or is that easier to believe when you are one of the people who can afford to go?`,
 
         followTheThread: [
             `Do you know anyone wise and worldly who has hardly travelled at all?`,
@@ -561,7 +561,7 @@ const clCards = [
 
         context: `In Sweden, people can walk, pick berries and mushrooms, and camp briefly across much of the countryside, including some privately owned land. The freedom depends on restraint: stay away from homes and crops, avoid damage, and leave no disturbance behind. Access is treated as a shared right tied to shared responsibility.`,
 
-        mainQuestion: `Should responsible people be free to cross and camp on privately owned countryside without asking — or should ownership always include the right to keep others out?`,
+        mainQuestion: `Should responsible people be allowed to walk and camp briefly on private countryside without asking, or should landowners always be able to say no?`,
 
         followTheThread: [
             `What would make you trust strangers with that freedom?`,
