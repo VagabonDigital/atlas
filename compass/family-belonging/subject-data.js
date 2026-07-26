@@ -9,7 +9,7 @@
   accounts, and the version of its history that everybody disputes.
   The Compass subject where the learner is both the unreliable narrator
   and the defence lawyer.
-  Compass active subject · contentVersion 3.0.1
+  Compass active subject · contentVersion 3.1.1
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 const MODULE = {
     id: 'family-belonging',
     schemaVersion: 2,
-    contentVersion: '3.0.1',
+    contentVersion: '3.1.0',
     title: 'Family & Belonging',
     titleHtml: 'Family & <em>Belonging</em>',
     navTitle: 'Family',
@@ -111,13 +111,13 @@ const discussionSets = [
                 preview: `The same story returns. One detail gets bigger.`,
                 question: `Tell one family story in the style of the person who usually tells it. Which detail becomes larger, funnier, or more dramatic each time?`,
                 upgrade: {
-                    term: `trot something out`,
-                    type: `phrasal verb`,
-                    definition: `To repeat the same familiar story, excuse, or argument many times.`,
-                    ordinary: `“He tells the same story at every family dinner.”`,
-                    upgraded: `“He trots out the same story at every family dinner.”`,
+                    term: `take on a life of its own`,
+                    type: `phrase`,
+                    definition: `To develop far beyond its original form and become difficult to control.`,
+                    ordinary: `“The original event was small, but the family version has grown far beyond it.”`,
+                    upgraded: `“The story has taken on a life of its own.”`,
                     priority: 'standard',
-                    atlasPrompt: `Who regularly trots out the same story, excuse, or opinion?`
+                    atlasPrompt: `What story, joke, rumour, or family tradition has taken on a life of its own?`
                 }
             },
             {
@@ -125,13 +125,13 @@ const discussionSets = [
                 preview: `You know whose home it is before anyone speaks.`,
                 question: `Picture a family home you know well. What tells you immediately whose home it is — a smell, a sound, an object, a mess, or something else?`,
                 upgrade: {
-                    term: `distinctive`,
-                    type: `adjective`,
-                    definition: `Easy to recognise because it has a particular and unusual character.`,
-                    ordinary: `“The house has a smell and atmosphere that you would recognise immediately.”`,
-                    upgraded: `“The house has a very distinctive smell and atmosphere.”`,
+                    term: `have someone’s stamp all over it`,
+                    type: `phrase`,
+                    definition: `To clearly show a particular person’s style, influence, or personality.`,
+                    ordinary: `“You can tell immediately that it is her home from the colours, objects, and atmosphere.”`,
+                    upgraded: `“The whole house has her stamp all over it.”`,
                     priority: 'standard',
-                    atlasPrompt: `What makes a person, place, product, or organisation immediately distinctive?`
+                    atlasPrompt: `What place, project, or piece of work has someone’s stamp all over it?`
                 }
             },
             {
@@ -139,13 +139,13 @@ const discussionSets = [
                 preview: `One warning. One piece of advice.`,
                 question: `A partner or friend will meet the family for the first time. You may give them one warning and one piece of advice. What are they?`,
                 upgrade: {
-                    term: `a baptism of fire`,
-                    type: `idiom`,
-                    definition: `An extremely difficult first experience of a new situation.`,
-                    ordinary: `“Her first Christmas with the whole family was an extremely difficult introduction.”`,
-                    upgraded: `“Her first Christmas with the whole family was a baptism of fire.”`,
+                    term: `be on your best behaviour`,
+                    type: `phrase`,
+                    definition: `To behave as politely and carefully as possible, especially when you want to make a good impression.`,
+                    ordinary: `“I told him to behave as politely as possible around my grandmother.”`,
+                    upgraded: `“I told him to be on his best behaviour around my grandmother.”`,
                     priority: 'standard',
-                    atlasPrompt: `Which first day, meeting, journey, or responsibility was a baptism of fire for you?`
+                    atlasPrompt: `When do people suddenly become very careful to be on their best behaviour?`
                 }
             }
         ],
@@ -164,7 +164,7 @@ const discussionSets = [
             {
                 id: 'moment-the-favourite',
                 preview: `There is one. Everybody denies it.`,
-                question: `Think of a real or fictional family accused of having a favourite. What evidence would convince you? What could look like favouritism but have another explanation?`,
+                question: `Think of a real or fictional family accused of having a favourite. What evidence would convince you? What could look unfair but have another explanation?`,
                 upgrade: {
                     term: `favouritism`,
                     type: `noun`,
@@ -214,7 +214,7 @@ const discussionSets = [
                     ordinary: `“She meant to help, but the question was too personal.”`,
                     upgraded: `“She meant to help, but she overstepped.”`,
                     priority: 'key',
-                    atlasPrompt: `When can advice, curiosity, humour, or concern begin to overstep?`
+                    atlasPrompt: `When can someone overstep by offering advice, asking questions, making jokes, or showing concern?`
                 }
             },
             {
@@ -263,13 +263,13 @@ const discussionSets = [
                 preview: `They arrived as a guest. Then nobody asked when they were leaving.`,
                 question: `Think of someone who came to stay with a family and gradually became part of it — someone real, fictional, or imagined. What changed when they stopped feeling like a guest?`,
                 upgrade: {
-                    term: `take someone in`,
-                    type: `phrasal verb`,
-                    definition: `To let someone stay in your home, especially when they need help.`,
-                    ordinary: `“When he had nowhere to live, my parents allowed him to stay with us.”`,
-                    upgraded: `“When he had nowhere to live, my parents took him in.”`,
+                    term: `become one of the family`,
+                    type: `phrase`,
+                    definition: `To become accepted and treated as a full member of a family or close group.`,
+                    ordinary: `“After a few months, nobody treated him like a guest anymore.”`,
+                    upgraded: `“After a few months, he had become one of the family.”`,
                     priority: 'standard',
-                    atlasPrompt: `Who would you take in temporarily if they suddenly needed somewhere to stay?`
+                    atlasPrompt: `Who became one of the family even though they were not originally related?`
                 }
             },
             {
@@ -417,13 +417,13 @@ const clCards = [
         ],
 
         upgrade: {
-            term: `marry into something`,
+            term: `take over`,
             type: `phrasal verb`,
-            definition: `To enter a family, social position, or set of circumstances through marriage.`,
-            ordinary: `“He became part of a wealthy business family by marrying their daughter.”`,
-            upgraded: `“He married into a wealthy business family.”`,
+            definition: `To become responsible for or gain control of something, especially a business or role.`,
+            ordinary: `“He became responsible for the family company after the owner retired.”`,
+            upgraded: `“He took over the family company after the owner retired.”`,
             priority: 'standard',
-            atlasPrompt: `What kind of family, business, place, or way of life might someone be happy to marry into?`
+            atlasPrompt: `What would make you willing to take over a family business — and what would make you refuse?`
         }
     },
 
@@ -459,7 +459,7 @@ const clCards = [
         title: `Your Uncle, Not Your Father`,
         teaser: `A man dies. His sister’s children may inherit before his own children.`,
 
-        context: `Kojo and Ama are brother and sister. Ama has two children. In some Akan traditions in Ghana, family descent follows the mother’s side, so Ama’s children may have a stronger traditional claim to Kojo’s family property than Kojo’s own children. A mother’s brother may also have important duties towards her children.`,
+        context: `Kojo and Ama are brother and sister. Ama has two children, and Kojo has children of his own. In some Akan traditions in Ghana, family descent follows the mother’s side. This can give Ama’s children a stronger traditional right to Kojo’s family property than Kojo’s own children. A mother’s brother may also have important duties towards her children.`,
 
         mainQuestion: `Kojo’s property goes to Ama’s children rather than to his own children. What would feel fair to you?`,
 
@@ -469,13 +469,13 @@ const clCards = [
         ],
 
         upgrade: {
-            term: `next of kin`,
-            type: `noun`,
-            definition: `A person’s closest living relative or relatives, especially for legal or emergency purposes.`,
-            ordinary: `“The hospital needed the name of his closest relative.”`,
-            upgraded: `“The hospital needed the name of his next of kin.”`,
+            term: `have a claim to something`,
+            type: `phrase`,
+            definition: `To have a recognised reason or right to receive, own, or use something.`,
+            ordinary: `“Ama’s children may have a stronger traditional right to the property.”`,
+            upgraded: `“Ama’s children may have a stronger traditional claim to the property.”`,
             priority: 'standard',
-            atlasPrompt: `Who would you list as your next of kin on an emergency form, and what makes that person the right choice?`
+            atlasPrompt: `Who should have the strongest claim to family property — the legal heir, the person who cared for it, or the person who needs it most?`
         }
     },
 
@@ -490,7 +490,7 @@ const clCards = [
         mainQuestion: `She can inherit property and speak for the household, but she can never marry. Which part of that life would be hardest to accept?`,
 
         followTheThread: [
-            `How much freedom is a person really gaining when it depends on giving up another possible life?`,
+            `Has she gained freedom, or simply exchanged one restriction for another?`,
             `What responsibility has fallen to someone in your family because nobody else could or would take it?`
         ],
 
@@ -521,13 +521,13 @@ const clCards = [
         ],
 
         upgrade: {
-            term: `keep someone in the loop`,
+            term: `keep someone’s memory alive`,
             type: `phrase`,
-            definition: `To keep someone informed about what is happening.`,
-            ordinary: `“The family still tells her about every important event.”`,
-            upgraded: `“The family still keeps her in the loop about every important event.”`,
+            definition: `To continue remembering and honouring someone after they have died.`,
+            ordinary: `“The family continues to remember her by telling her about every important event.”`,
+            upgraded: `“The family keeps her memory alive by telling her about every important event.”`,
             priority: 'standard',
-            atlasPrompt: `Who regularly forgets to keep you in the loop, and what have you discovered far too late?`
+            atlasPrompt: `What keeps someone’s memory alive — stories, traditions, photographs, a place, or something they taught you?`
         }
     },
 
@@ -537,7 +537,7 @@ const clCards = [
         title: `Why Grandmothers Matter`,
         teaser: `Children were more likely to survive when a grandmother lived nearby.`,
 
-        context: `Researchers studying old family records in Finland and Canada found that children were more likely to survive when a living maternal grandmother lived nearby. The records show the pattern, but not the exact daily actions inside each household that made the difference.`,
+        context: `Researchers examined old family records in Finland and Canada. They found that children were more likely to survive when their mother’s mother was alive and lived nearby. The records show the pattern, but not the exact daily actions inside each household that made the difference.`,
 
         mainQuestion: `What do you imagine the grandmother changed in the family’s daily life?`,
 
