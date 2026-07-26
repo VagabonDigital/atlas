@@ -30,287 +30,316 @@ const subjectCopy = {
     cover: {
         hook: `Nobody is ever just eating.`
     },
+
     overview: {
-        heading: `The Charged Table`,
+        heading: `More Than the Meal`,
         intro: [
-            `A meal is rarely only a meal. The same table can carry welcome and pressure, love and control, comfort and quiet competition — sometimes all in one evening. Who cooked, who is fed first, what you can politely refuse, and what a dish is meant to say can matter as much as the food itself.`
+            `A shared meal can feel warm, awkward, generous, competitive, or deeply familiar. What happens around the table often matters as much as what is served.`
         ],
-        question: `Think of the last meal you shared with other people. Was it really about the food — or about everything else going on around the table?`
+        question: `What usually matters most to you at a shared meal: the food itself, the people around you, or the feeling at the table?`
     },
+
     paths: {
-        culturalLensDescription: `Step into other places and centuries, where feeding a guest could seal a deal, mark your rank, or put a whole household to the test.`,
-        discussionDescription: `Being fed and feeding others — the awkward plate, the insistent host, the meals you still taste years later.`,
+        culturalLensDescription: `Explore the customs, duties, and social rules that have shaped how people feed one another.`,
+        discussionDescription: `Cravings, table habits, care, and memory — from the first bite to what stays after the meal.`,
         reflectionTitle: `Reflection`,
-        reflectionDescription: `A place to draw the threads of the subject together before you leave the table.`
+        reflectionDescription: `A place to connect the tastes, habits, people, and memories that surfaced.`
     },
+
     culturalLens: {
-        heading: `How the World Sets the Table`,
-        intro: `Feeding people has never worked the same way everywhere. Step into other places and centuries, where a shared meal could seal an agreement, show off a family's standing, settle who ate first, or place a heavy duty on whoever opened the door.`
+        heading: `Other Tables, Other Times`,
+        intro: `Meals have always carried more than food. Step into other places and times, where feeding someone could show trust, duty, status, belonging — or decide who was welcome at the table.`
     },
+
     discussion: {
-        heading: `Pull Up a Chair`
+        heading: `Around the Table`
     },
+
     reflection: {
-        title: `When the Plates Are Cleared`,
-        summary: `Before you leave the table, notice what stayed with you — a memory that surfaced, a view you found yourself defending, or something you saw differently.`,
+        title: `After the Plates Are Cleared`,
+        summary: `Pause on what the conversation brought back, changed, or made you notice about the way people eat together.`,
         questions: [
-            `What makes you feel truly welcome at someone's table — and what can a host do that money and effort cannot?`,
-            `Is there a way you feed people, or a table custom you grew up with, that you would never give up — or one you would happily leave behind?`
+            `What food memory or table habit from the conversation would you most like to return to?`,
+            `What makes a meal feel like care rather than simply food?`
         ]
     },
+
     keyLanguage: {
-        intro: `Ways to talk about hosting and being hosted, offering and refusing, and what a shared meal can mean.`
+        intro: `Words and expressions for talking about taste, hosting, sharing, refusing, care, and the rules around a meal.`
     }
 };
 
 const discussionSets = [
     {
-        id: 'set-someone-elses-table',
-        title: `Someone Else's Table`,
+        id: 'set-first-bite',
+        title: `The First Bite`,
         stage: `React`,
         icon: 'react',
-        description: `The dish you dreaded, the host who won't stop, and the tastes you defend against all reason.`,
+        description: `Cravings, odd combinations, near disasters, and the food that arrives at exactly the right moment.`,
+
         moments: [
             {
-                id: 'moment-dreaded-dish',
-                preview: `The plate you were dreading.`,
-                question: `Have you ever sat in front of something a host had cooked specially, knowing you really didn't want to eat it? What was it — and what did you do, or have you watched someone else squirm through a meal they couldn't face?`,
+                id: 'moment-right-food-right-time',
+                preview: `Exactly what you needed.`,
+                question: `When has food arrived at exactly the right moment — after a long day, a late journey, or when you were cold, tired, or starving? What was it, and why did it feel so good?`,
+
                 upgrade: {
-                    term: `force something down`,
-                    type: `phrasal verb`,
-                    definition: `To make yourself eat or swallow something you find difficult or unpleasant.`,
-                    ordinary: `“I didn't want it at all, but I made myself eat it so I wouldn't offend her.”`,
-                    upgraded: `“I didn't want it at all, but I forced it down so I wouldn't offend her.”`,
+                    term: `hit the spot`,
+                    type: `phrase`,
+                    definition: `To be exactly what you wanted or needed at that moment.`,
+                    ordinary: `“After the long journey, that hot bowl of soup was exactly what I needed.”`,
+                    upgraded: `“After the long journey, that hot bowl of soup really hit the spot.”`,
                     priority: 'standard',
-                    atlasPrompt: `When have you had to force something down — food, medicine, or even bad news you didn't want to hear?`
+                    atlasPrompt: `What small comfort really hits the spot after a difficult or exhausting day?`
                 }
             },
             {
-                id: 'moment-plate-never-empty',
-                preview: `The plate that refills itself.`,
-                question: `Some hosts simply will not let your plate stay empty — more rice, more meat, one more slice, you've barely started. Is that warmth, or a kind of pressure? Where's the line for you?`,
+                id: 'moment-combination-that-works',
+                preview: `It sounds wrong. It works.`,
+                question: `What food combination do you love that other people find completely wrong — something sweet with something salty, an unusual sauce, or a family habit nobody else understands? How did you discover it?`,
+
                 upgrade: {
-                    term: `won't hear of it`,
-                    type: `phrase`,
-                    definition: `To refuse to allow or accept something, especially a polite objection.`,
-                    ordinary: `“I said I was completely full, but she insisted and put more on my plate anyway.”`,
-                    upgraded: `“I said I was completely full, but she wouldn't hear of it.”`,
+                    term: `moreish`,
+                    type: `adjective`,
+                    definition: `So pleasant to eat that you want to keep having more.`,
+                    ordinary: `“It sounds like a strange combination, but once I start eating it, I always want more.”`,
+                    upgraded: `“It sounds like a strange combination, but it is surprisingly moreish.”`,
                     priority: 'standard',
-                    atlasPrompt: `When has someone refused to accept your “no” — insisting on paying, helping, or giving you something you didn't need?`
+                    atlasPrompt: `What snack or small treat do you find dangerously moreish once you start?`
                 }
             },
             {
-                id: 'moment-secret-favourite',
-                preview: `The thing you love that others don't get.`,
-                question: `What's a food, or a strange combination, that you genuinely love even though other people pull a face at it? Do you admit it, or keep it to yourself — and do you know anyone with a stranger habit?`,
+                id: 'moment-meal-nearly-ruined',
+                preview: `It nearly went in the bin.`,
+                question: `Have you ever nearly ruined a meal — burned it, added the wrong ingredient, or forgotten something important — and then somehow saved it? What did you do, or who came to the rescue?`,
+
                 upgrade: {
-                    term: `a guilty pleasure`,
-                    type: `phrase`,
-                    definition: `Something you enjoy even though you feel slightly embarrassed about it.`,
-                    ordinary: `“Crisp sandwiches are something I love but feel a bit embarrassed about.”`,
-                    upgraded: `“Crisp sandwiches are my guilty pleasure.”`,
+                    term: `salvage`,
+                    type: `verb`,
+                    definition: `To save something from failure, damage, or ruin.`,
+                    ordinary: `“The sauce had nearly split, but adding a little water saved the meal.”`,
+                    upgraded: `“The sauce had nearly split, but adding a little water salvaged the meal.”`,
+                    priority: 'standard',
+                    atlasPrompt: `When have you managed to salvage a plan, project, or conversation that was going badly?`
+                }
+            },
+            {
+                id: 'moment-looked-awful-tasted-good',
+                preview: `It looked awful.`,
+                question: `What meal looked awful but tasted far better than expected — something homemade, street food, leftovers, or a dish you could barely identify? What made you take the first bite?`,
+
+                upgrade: {
+                    term: `unappetising`,
+                    type: `adjective`,
+                    definition: `Not looking or smelling pleasant enough to eat.`,
+                    ordinary: `“It looked so unpleasant that I nearly refused it, but it tasted wonderful.”`,
+                    upgraded: `“It looked so unappetising that I nearly refused it, but it tasted wonderful.”`,
+                    priority: 'standard',
+                    atlasPrompt: `What food looks unappetising to you even when other people insist it tastes excellent?`
+                }
+            },
+            {
+                id: 'moment-ordinary-food-you-miss',
+                preview: `The ordinary thing you start craving.`,
+                question: `What food do you miss when you are away from home — not necessarily a special dish, but something ordinary you suddenly start craving? What makes the version back home different?`,
+
+                upgrade: {
+                    term: `crave`,
+                    type: `verb`,
+                    definition: `To feel a strong desire for something.`,
+                    ordinary: `“Whenever I am away, I really want the bread we eat at home.”`,
+                    upgraded: `“Whenever I am away, I crave the bread we eat at home.”`,
                     priority: 'key',
-                    atlasPrompt: `What's a guilty pleasure of yours — a show, a song, or a habit you enjoy but wouldn't broadcast?`
-                }
-            },
-            {
-                id: 'moment-said-it-was-lovely',
-                preview: `“It's delicious,” you said.`,
-                question: `Have you ever told someone their cooking was lovely when it really wasn't — or quietly made an excuse to leave half of it? Did they believe you, or have you been the cook watching someone pretend?`,
-                upgrade: {
-                    term: `a white lie`,
-                    type: `phrase`,
-                    definition: `A small, harmless lie told to be polite or to avoid hurting someone.`,
-                    ordinary: `“It was not good at all, but I told her it was lovely so I wouldn't hurt her feelings.”`,
-                    upgraded: `“It was not good at all, but I told her a white lie so I wouldn't hurt her feelings.”`,
-                    priority: 'key',
-                    atlasPrompt: `When is a white lie kinder than the truth — at work, with family, or between friends?`
-                }
-            },
-            {
-                id: 'moment-wont-touch-it',
-                preview: `You will not eat it. That's final.`,
-                question: `Is there a food you flatly refuse to eat, even when there's no real reason — you just won't, and no amount of persuading will change your mind? Where did it come from — or is there someone in your life who's impossible to budge?`,
-                upgrade: {
-                    term: `dig your heels in`,
-                    type: `idiom`,
-                    definition: `To stubbornly refuse to change your mind, even when others are pushing you.`,
-                    ordinary: `“No matter how much they pushed, I refused to try it and would not change my mind.”`,
-                    upgraded: `“No matter how much they pushed, I dug my heels in and would not try it.”`,
-                    priority: 'standard',
-                    atlasPrompt: `When did you dig your heels in over something small, just because someone was pushing you to give in?`
+                    atlasPrompt: `What do you tend to crave when you are tired, stressed, or far from home?`
                 }
             }
         ],
+
         makeItReal: {
-            title: `No, Really, I Couldn't`,
-            prompt: `Your tutor is the host who will not stop feeding you. Keep turning down more food across several rounds — stay warm, stay polite, and don't give in. How many different ways can you say no without causing offence?`
+            title: `Convince Me to Try It`,
+            prompt: `Choose a food you love that sounds, looks, or smells unconvincing. Persuade your tutor to try it without pretending it is normal: describe the first bite, the best part, and the warning they need.`
         }
     },
+
     {
-        id: 'set-who-cooks-who-eats',
-        title: `Who Cooks, Who Eats`,
+        id: 'set-rules-nobody-wrote',
+        title: `Rules Nobody Wrote`,
         stage: `Explain`,
         icon: 'explain',
-        description: `The work nobody sees, the showing off, the refusals, and the quiet order of who gets served first.`,
+        description: `Sharing, refusing, helping, waiting, and the table habits people judge without saying so.`,
+
         moments: [
             {
-                id: 'moment-same-few-people',
-                preview: `The same hands, every time.`,
-                question: `At big meals, it's often the same few people cooking, serving, and clearing while everyone else just sits and eats. Is that fair, or just the way it's always been — and whose job is it to change it?`,
+                id: 'moment-host-keeps-serving',
+                preview: `You said you were full.`,
+                question: `You say you are full, but the host is already putting another spoonful on your plate. Do you accept it, stop them, or find a polite escape? What kind of host makes this hardest?`,
+
                 upgrade: {
-                    term: `not lift a finger`,
-                    type: `idiom`,
-                    definition: `To do nothing at all to help, especially when others are working.`,
-                    ordinary: `“Everyone else did all the work while he sat there and did nothing to help.”`,
-                    upgraded: `“Everyone else did all the work while he didn't lift a finger.”`,
-                    priority: 'key',
-                    atlasPrompt: `Where have you seen the same few people do everything while others don't lift a finger — at work, at home, or in a group?`
-                }
-            },
-            {
-                id: 'moment-impress-or-feed',
-                preview: `Dinner as a performance.`,
-                question: `Some people cook to impress — the ambitious dish, the perfect plating; others just want everyone full and happy. Which do you trust more at a dinner, and when does effort tip into showing off?`,
-                upgrade: {
-                    term: `all for show`,
-                    type: `phrase`,
-                    definition: `Done only to impress people, with little real meaning behind it.`,
-                    ordinary: `“He cared more about how it looked than whether anyone actually enjoyed it.”`,
-                    upgraded: `“It looked wonderful, but it was all for show.”`,
-                    priority: 'key',
-                    atlasPrompt: `Where have you seen something done all for show — a gift, an apology, or a grand gesture with nothing behind it?`
-                }
-            },
-            {
-                id: 'moment-refuse-what-was-cooked',
-                preview: `Can you ever say no to a cooked meal?`,
-                question: `Is it ever okay to refuse food someone has cooked specially for you — for an allergy, a strong dislike, or a principle you hold — or does saying no always land as an insult, however you word it?`,
-                upgrade: {
-                    term: `make an exception`,
-                    type: `phrase`,
-                    definition: `To not apply your usual rule in one particular case.`,
-                    ordinary: `“I don't normally eat meat, but I ate it that once so I wouldn't offend them.”`,
-                    upgraded: `“I don't normally eat meat, but I made an exception so I wouldn't offend them.”`,
-                    priority: 'key',
-                    atlasPrompt: `When have you made an exception to one of your own rules — and were you glad you did?`
-                }
-            },
-            {
-                id: 'moment-food-as-control',
-                preview: `The one who decides what's on the table.`,
-                question: `In some families — one you know, or one from a book or film — food is quietly about power: who cooks what, who is allowed seconds, whose treat gets withheld. Where have you seen a meal used to run the room?`,
-                upgrade: {
-                    term: `call the shots`,
-                    type: `idiom`,
-                    definition: `To be the person who makes the important decisions and holds the control.`,
-                    ordinary: `“In that house, whoever controlled the kitchen controlled everything and made all the decisions.”`,
-                    upgraded: `“In that house, whoever controlled the kitchen called the shots.”`,
+                    term: `relent`,
+                    type: `verb`,
+                    definition: `To finally agree after refusing or resisting.`,
+                    ordinary: `“I kept saying no, but eventually I gave in and accepted another serving.”`,
+                    upgraded: `“I kept saying no, but eventually I relented and accepted another serving.”`,
                     priority: 'standard',
-                    atlasPrompt: `In a group you know, who really calls the shots — and how can you tell it's them?`
+                    atlasPrompt: `When did you eventually relent after someone kept asking or trying to persuade you?`
                 }
             },
             {
-                id: 'moment-who-gets-served-first',
-                preview: `Who gets the first plate.`,
-                question: `Think about who gets served first where you've eaten — guests, elders, men, children, whoever cooked. What does that running order quietly say about what a place values?`,
+                id: 'moment-everyone-wants-some',
+                preview: `You ordered it. Everyone wants some.`,
+                question: `You order the dish you really wanted, and everyone immediately suggests sharing everything. Are you happy to pass it around, or do you secretly want your own plate left alone?`,
+
                 upgrade: {
-                    term: `a pecking order`,
-                    type: `phrase`,
-                    definition: `An order of rank in a group, deciding who comes first and who comes last.`,
-                    ordinary: `“The important guests were served first, then the men, then everyone else — there was a clear order of rank.”`,
-                    upgraded: `“The important guests were served first, then the men, then everyone else — there was a clear pecking order.”`,
+                    term: `territorial`,
+                    type: `adjective`,
+                    definition: `Unwilling to share something because you feel strongly that it belongs to you.`,
+                    ordinary: `“I am happy to share most things, but I get very possessive about my chips.”`,
+                    upgraded: `“I am happy to share most things, but I get territorial about my chips.”`,
                     priority: 'standard',
-                    atlasPrompt: `Where else have you noticed a pecking order — in an office, a family, or a group of friends?`
+                    atlasPrompt: `What space, object, responsibility, or routine do you become surprisingly territorial about?`
+                }
+            },
+            {
+                id: 'moment-photo-before-eating',
+                preview: `Nobody can eat yet.`,
+                question: `Someone stops the whole table to photograph every dish before anyone can eat. Is that harmless fun, good manners for the cook, or deeply annoying? What would make you finally start without them?`,
+
+                upgrade: {
+                    term: `hold someone up`,
+                    type: `phrasal verb`,
+                    definition: `To delay someone or make them wait.`,
+                    ordinary: `“She delayed everyone while she photographed every plate.”`,
+                    upgraded: `“She held everyone up while she photographed every plate.”`,
+                    priority: 'key',
+                    atlasPrompt: `What small habit often holds people up at work, while travelling, or when getting ready to leave?`
+                }
+            },
+            {
+                id: 'moment-work-after-the-meal',
+                preview: `Somebody cooked. Somebody disappeared.`,
+                question: `At a big meal, who usually shops, cooks, serves, and clears up — and who somehow disappears when the work begins? Is that habit changing where you live, or not really?`,
+
+                upgrade: {
+                    term: `chip in`,
+                    type: `phrasal verb`,
+                    definition: `To help with a task or contribute money, effort, or ideas.`,
+                    ordinary: `“Everyone should help with the cooking or clearing instead of leaving it to one person.”`,
+                    upgraded: `“Everyone should chip in with the cooking or clearing instead of leaving it to one person.”`,
+                    priority: 'key',
+                    atlasPrompt: `When everyone is busy, do you naturally chip in or wait until somebody asks you directly?`
+                }
+            },
+            {
+                id: 'moment-food-people-overpraise',
+                preview: `Everyone says it is amazing.`,
+                question: `What expensive, fashionable, or famous food do people praise far more than it deserves? What would you happily eat instead, even if it looked much less impressive?`,
+
+                upgrade: {
+                    term: `overrated`,
+                    type: `adjective`,
+                    definition: `Considered better or more impressive than it really is.`,
+                    ordinary: `“People praise truffle oil far more than I think it deserves.”`,
+                    upgraded: `“I think truffle oil is completely overrated.”`,
+                    priority: 'key',
+                    atlasPrompt: `What film, place, product, or trend do you think is overrated — and what deserves more attention instead?`
                 }
             }
         ],
+
         makeItReal: {
-            title: `The House Rule`,
-            prompt: `Invent one fair rule for cooking, serving, and clearing when a group eats together. Then defend it to the person in the group who would be most annoyed by it. Is “fair” even the right goal here — or is it something else?`
+            title: `The Rules of Your Table`,
+            prompt: `Create three rules for a shared meal — about phones, sharing, helping, refusing food, or anything else that matters. For each rule, your tutor will describe a guest or situation that makes it difficult to follow. Decide whether to keep, change, or drop the rule.`
         }
     },
+
     {
-        id: 'set-what-the-table-keeps',
+        id: 'set-what-table-keeps',
         title: `What the Table Keeps`,
         stage: `Reflect and Relate`,
         icon: 'reflect',
-        description: `The dish you can't get back, the food that arrived when you needed it, and why some meals never leave you.`,
+        description: `Recipes passed down, food offered as care, and tastes that stay with us or change over time.`,
+
         moments: [
             {
-                id: 'moment-dish-thats-gone',
-                preview: `A taste you can't get back.`,
-                question: `Is there a dish you'll never taste quite the same again — because the person who made it is gone, a place closed, or your own attempts just miss something? What do you think is actually missing?`,
+                id: 'moment-taste-you-cannot-recreate',
+                preview: `A taste you cannot get back.`,
+                question: `Is there a dish you can no longer taste exactly as you remember it — because the person who made it is gone, the place closed, or the recipe changed? What do you think is missing?`,
+
                 upgrade: {
-                    term: `can't put your finger on it`,
-                    type: `idiom`,
-                    definition: `To be unable to identify exactly what is wrong or different about something.`,
-                    ordinary: `“I follow the recipe exactly, but something is different and I just can't say what.”`,
-                    upgraded: `“I follow the recipe exactly, but something is different and I can't put my finger on it.”`,
+                    term: `recreate`,
+                    type: `verb`,
+                    definition: `To make something again so that it closely matches the original.`,
+                    ordinary: `“I have tried to make my grandmother’s soup again, but it never tastes exactly the same.”`,
+                    upgraded: `“I have tried to recreate my grandmother’s soup, but it never tastes exactly the same.”`,
                     priority: 'standard',
-                    atlasPrompt: `When have you known something was off or different but couldn't put your finger on what?`
+                    atlasPrompt: `What experience, atmosphere, or moment have you tried to recreate without quite succeeding?`
                 }
             },
             {
-                id: 'moment-fed-when-you-needed',
-                preview: `The meal that was really about you.`,
-                question: `Has someone ever fed you exactly when you needed it — after a loss, an illness, a hard week — where the food mattered far less than the fact they showed up? What did they bring, or did you do this for someone else?`,
+                id: 'moment-food-as-care',
+                preview: `The food was really about care.`,
+                question: `Think of a time food became a way of caring for someone — perhaps during an illness, a loss, or a terrible week. Who brought or cooked it, and what did the gesture say that words could not?`,
+
                 upgrade: {
                     term: `get someone through something`,
                     type: `phrase`,
-                    definition: `To help someone survive or cope with a difficult period.`,
-                    ordinary: `“Those meals she dropped round helped me survive a really hard few weeks.”`,
-                    upgraded: `“Those meals she dropped round got me through a really hard few weeks.”`,
+                    definition: `To help someone cope with or survive a difficult period.`,
+                    ordinary: `“The meals she brought helped me cope with a terrible few weeks.”`,
+                    upgraded: `“The meals she brought got me through a terrible few weeks.”`,
                     priority: 'key',
-                    atlasPrompt: `Who or what got you through a hard stretch — a person, a routine, or a small daily comfort?`
+                    atlasPrompt: `Who or what got you through a difficult period — a person, a routine, or a small daily comfort?`
                 }
             },
             {
-                id: 'moment-little-or-lavish',
-                preview: `A feast that fell flat.`,
-                question: `Think of a huge, expensive spread and a simple plate of something plain. Which has stayed with you more — and does a lavish meal ever leave you strangely unmoved?`,
+                id: 'moment-recipe-changed-hands',
+                preview: `A recipe that changed hands.`,
+                question: `What dish, recipe, or kitchen habit has been passed through a family or group you know? Who changed it along the way — and which version now feels “right”?`,
+
                 upgrade: {
-                    term: `leave someone cold`,
-                    type: `idiom`,
-                    definition: `To fail to interest, impress, or move someone, despite seeming impressive.`,
-                    ordinary: `“Everyone said the tasting menu was amazing, but it did nothing for me.”`,
-                    upgraded: `“Everyone said the tasting menu was amazing, but it left me cold.”`,
-                    priority: 'standard',
-                    atlasPrompt: `What impresses everyone else but leaves you cold — a film, a trend, or a famous place?`
-                }
-            },
-            {
-                id: 'moment-dish-that-gives-you-away',
-                preview: `The dish that says where you're from.`,
-                question: `What dish gives away where you come from — the one you'd defend, cook for a newcomer, or argue about how it's “properly” made? And what do outsiders always get wrong — about yours, or about a dish you know is fiercely defended somewhere?`,
-                upgrade: {
-                    term: `a point of pride`,
-                    type: `phrase`,
-                    definition: `Something you feel proud of and will stand up for.`,
-                    ordinary: `“How we make it at home is something I'm proud of and will always defend.”`,
-                    upgraded: `“How we make it at home is a point of pride for me.”`,
+                    term: `hand something down`,
+                    type: `phrasal verb`,
+                    definition: `To pass a skill, object, story, or tradition to a younger person or later generation.`,
+                    ordinary: `“My grandmother taught the recipe to my aunt, who later taught it to me.”`,
+                    upgraded: `“My grandmother handed the recipe down to my aunt, who later handed it down to me.”`,
                     priority: 'key',
-                    atlasPrompt: `What's a point of pride for you — about where you're from, what you do, or how you do it?`
+                    atlasPrompt: `What skill, object, story, or tradition has been handed down in your family or community?`
                 }
             },
             {
-                id: 'moment-was-it-the-food',
+                id: 'moment-taste-changed-over-time',
+                preview: `You used to hate it.`,
+                question: `What food did you dislike when you were younger but now enjoy — or the other way round? What changed first: the food, your habits, or your idea of it?`,
+
+                upgrade: {
+                    term: `grow on someone`,
+                    type: `phrasal verb`,
+                    definition: `To become more enjoyable or appealing to someone over time.`,
+                    ordinary: `“I did not like olives at first, but gradually I began to enjoy them.”`,
+                    upgraded: `“I did not like olives at first, but they gradually grew on me.”`,
+                    priority: 'key',
+                    atlasPrompt: `What person, place, activity, or idea took time to grow on you?`
+                }
+            },
+            {
+                id: 'moment-food-was-not-the-point',
                 preview: `Was the food ever the point?`,
-                question: `Think of a meal you'll always remember. Was the food itself actually wonderful — or was it the people, the timing, the moment, and the plate in front of you barely registered at all?`,
+                question: `Think of a meal you still remember clearly. Was the food actually exceptional, or did the people, timing, or place make it matter? What part comes back first?`,
+
                 upgrade: {
                     term: `beside the point`,
                     type: `phrase`,
-                    definition: `Not important compared with the real issue; not what really matters.`,
-                    ordinary: `“Honestly, what we ate wasn't the thing that mattered — it was the whole evening.”`,
-                    upgraded: `“Honestly, the food was beside the point — it was the whole evening.”`,
+                    definition: `Not important compared with the real issue or reason something mattered.`,
+                    ordinary: `“The food was not really what mattered; it was the people and the whole evening.”`,
+                    upgraded: `“The food was beside the point; it was the people and the whole evening.”`,
                     priority: 'key',
-                    atlasPrompt: `When has the thing everyone focuses on turned out to be beside the point, and the real value was somewhere else?`
+                    atlasPrompt: `When has the thing everyone focused on been beside the point, while the real value was somewhere else?`
                 }
             }
         ],
+
         makeItReal: {
-            title: `A Meal That Says It`,
-            prompt: `Plan a single meal meant to say something you'd struggle to say out loud — welcome, thank you, I'm sorry, or I've missed you — to one particular person. What goes on the table, and how does it carry the message?`
+            title: `Say It With a Meal`,
+            prompt: `Choose one person and one message you would rather express through a meal than say directly — welcome, thank you, I’m sorry, or I missed you. Build the meal and explain how each choice carries the message.`
         }
     }
 ];
@@ -321,54 +350,68 @@ const clCards = [
         contextLine: `Hospitality customs`,
         title: `The No That Isn't`,
         teaser: `Here, “no thank you” is only the opening move.`,
-        context: `In many cultures, politeness expects a guest to refuse food or drink at first, and expects the host to keep offering. Only after two or three rounds is the offer finally accepted. Everyone knows the steps, which makes a genuine “no” surprisingly hard to land — the whole exchange is built to end the same way.`,
-        mainQuestion: `You honestly don't want any more, but here a “no” is treated as the first step in a dance. How would you refuse and actually be believed?`,
+
+        context: `In some hospitality customs, a guest refuses food or drink the first time it is offered. The host offers again, the guest refuses again, and only after several rounds do they accept. Because both people know the pattern, a guest who truly means “no” may struggle to make it clear.`,
+
+        mainQuestion: `You really do not want any more food, but the host keeps offering. How would you refuse without sounding rude — and make sure they believe you?`,
+
         followTheThread: [
-            `Is a custom like this warm and generous, or a polite trap nobody can escape?`,
-            `Where you live, what offer or apology do people make that they don't fully mean — and everyone understands that?`
+            `Does repeated offering feel generous to you, or does it make a guest’s “no” harder to respect?`,
+            `What polite words or phrases do people sometimes use where you live without meaning them literally?`
         ],
+
         upgrade: {
-            term: `take the hint`,
-            type: `phrase`,
-            definition: `To understand what someone means from an indirect signal, without being told directly.`,
-            ordinary: `“I kept saying I had to leave, but he didn't understand the signal and carried on talking.”`,
-            upgraded: `“I kept saying I had to leave, but he didn't take the hint and carried on talking.”`,
-            priority: 'standard',
-            atlasPrompt: `When has someone failed to take the hint — and what did you have to do in the end?`
+            term: `insistent`,
+            type: `adjective`,
+            definition: `Continuing to press for something despite another person’s hesitation or refusal.`,
+            ordinary: `“The host kept offering more food even after I said I was full.”`,
+            upgraded: `“The host was so insistent that I eventually accepted more food even though I was full.”`,
+            priority: 'key',
+            atlasPrompt: `Who becomes insistent when they think they know what is best for you?`
         }
     },
+
     {
         id: 'cl-a-stranger-at-the-door',
         contextLine: `Traditional hospitality`,
         title: `A Stranger at the Door`,
         teaser: `A stranger arrives hungry. The custom says you must feed them.`,
-        context: `Many traditional societies held strong rules of hospitality: a traveller or stranger who arrived at your door had to be given food, shelter, and safety, sometimes even if they were an enemy. To refuse could bring real shame on the household. The guest, in turn, was expected not to abuse the welcome.`,
-        mainQuestion: `A stranger you don't trust arrives cold and hungry, and the custom says you must let them in and feed them. Would you follow it — and what would make you shut the door instead?`,
+
+        context: `A traveller arrives at a stranger’s home after dark, cold and hungry. In some older hospitality traditions, the household was expected to offer food, shelter, and safety before asking much about them. Refusing could bring shame, while the guest was expected to accept the welcome without taking advantage of it.`,
+
+        mainQuestion: `A stranger you do not trust arrives cold and hungry, and custom says you should feed them. Would you open the door — and what would make you refuse?`,
+
         followTheThread: [
-            `What, if anything, do we owe a stranger in genuine need?`,
-            `Has a stranger ever helped you when they didn't have to — or have you done that for someone?`
+            `What should one person owe a stranger in genuine need?`,
+            `When has someone helped you before they knew whether they could trust you?`
         ],
+
         upgrade: {
             term: `turn someone away`,
             type: `phrasal verb`,
             definition: `To refuse to let someone in, or to refuse to help them.`,
-            ordinary: `“The custom meant you could not refuse a traveller and send them back out into the cold.”`,
+            ordinary: `“The custom meant you could not refuse a traveller and send them back into the cold.”`,
             upgraded: `“The custom meant you could not turn a traveller away.”`,
             priority: 'key',
             atlasPrompt: `When is it fair to turn someone away, and when should you always help — at a door, a business, or a border?`
         }
     },
+
     {
         id: 'cl-the-more-you-feed-them',
         contextLine: `Status and feasting`,
         title: `The More You Feed Them`,
         teaser: `Feeding people generously was how you proved your standing.`,
-        context: `In some societies, hosting a large feast has been a way to earn respect and show your standing. In certain traditions this turned competitive: hosts gave away, or even destroyed, great quantities of food and goods to prove they could afford the loss. Generosity and rivalry sat side by side at the same table.`,
-        mainQuestion: `Imagine your standing in the community depended on throwing feasts you could barely afford. Would you play along — or refuse and let people talk?`,
+
+        context: `A host invites the whole community to a feast. Food is piled high, gifts are handed out, and wealth is spent where everyone can see it. In some traditions, hosts competed to give away more food and goods than their rivals — or even destroyed valuable things to prove they could afford to lose them.`,
+
+        mainQuestion: `Imagine people judged your success by the size of the feasts you gave, even when you could barely afford them. Would you keep competing — or let others think you were ungenerous?`,
+
         followTheThread: [
             `When does being generous stop being about the guests and start being about the host?`,
             `Where have you seen generosity used to win status or admiration rather than simply to help?`
         ],
+
         upgrade: {
             term: `push the boat out`,
             type: `idiom`,
@@ -379,17 +422,22 @@ const clCards = [
             atlasPrompt: `When did someone push the boat out for an occasion — and was it worth it?`
         }
     },
+
     {
         id: 'cl-breaking-bread',
         contextLine: `Meals and trust`,
         title: `Breaking Bread`,
-        teaser: `You don't harm someone you've just eaten with.`,
-        context: `Across many cultures, sharing a meal has been a way to seal an agreement or build a bond. Deals, agreements, and peace between enemies have long been marked by eating together, and some traditions treated harming someone you had shared food with as a serious wrong. The meal did work that words alone could not.`,
-        mainQuestion: `Can sharing a meal actually change how you feel about someone — or is that just a comforting story? Would you sit down to eat with someone you'd fallen out with?`,
+        teaser: `You do not harm someone you have just eaten with.`,
+
+        context: `Two people who distrust each other sit at the same table. They pass food, eat from the same dishes, and stay long enough to talk. In many places, people have shared a meal to confirm an agreement or end a conflict. Harming someone afterwards could then be treated as a serious betrayal.`,
+
+        mainQuestion: `Would you sit down to eat with someone you had fallen out with? What might become easier once the meal began?`,
+
         followTheThread: [
-            `Has a shared meal ever changed one of your own relationships, for better or worse?`,
-            `Why might eating together do something that talking alone cannot?`
+            `Has eating together ever softened a difficult relationship in your life?`,
+            `Why might sharing food change a conversation that was going nowhere?`
         ],
+
         upgrade: {
             term: `common ground`,
             type: `phrase`,
@@ -397,112 +445,137 @@ const clCards = [
             ordinary: `“Once we started eating, we found things we agreed on and got along more easily.”`,
             upgraded: `“Once we started eating, we found some common ground.”`,
             priority: 'key',
-            atlasPrompt: `When did you unexpectedly find common ground with someone you thought you'd disagree with?`
+            atlasPrompt: `When did you unexpectedly find common ground with someone you thought you would disagree with?`
         }
     },
+
     {
         id: 'cl-one-persons-delicacy',
         contextLine: `Taste and disgust`,
         title: `One Person's Delicacy`,
-        teaser: `A prized local treat that turns a visitor's stomach.`,
-        context: `Almost every culture has a food it loves that outsiders find hard to face — strong cheeses, insects, fermented fish, certain organs. Much of what feels like natural disgust is actually learned: as children, we take in what counts as food, and what counts as disgusting, from the people around us. Move the border, and the “disgusting” and the “delicious” swap places.`,
-        mainQuestion: `A host proudly offers you a local delicacy that genuinely turns your stomach. Do you try it out of respect — and can you talk yourself past disgust, or not?`,
+        teaser: `A prized local treat that turns a visitor’s stomach.`,
+
+        context: `A host proudly brings out a local delicacy: strong cheese, fermented fish, insects, or an organ dish. Everyone at the table sees a treat, while the visitor struggles not to react. From childhood, people learn which smells, textures, and animals count as food — and which do not.`,
+
+        mainQuestion: `A host proudly offers you a delicacy that turns your stomach. Would you try it out of respect — and what might help you get past the first reaction?`,
+
         followTheThread: [
-            `Is disgust at a food something you can actually unlearn — or does it always win?`,
-            `What food did you dislike as a child and grow to love, or the other way around?`
+            `Can people learn to enjoy almost any food, or are some reactions too strong?`,
+            `What food did you dislike at first but later begin to enjoy?`
         ],
+
         upgrade: {
             term: `an acquired taste`,
             type: `phrase`,
             definition: `Something you only begin to like after trying it several times.`,
             ordinary: `“I hated it at first, but after a few tries I started to enjoy it.”`,
-            upgraded: `“It's an acquired taste, but after a few tries I loved it.”`,
+            upgraded: `“It was an acquired taste, but after a few tries I started to enjoy it.”`,
             priority: 'key',
-            atlasPrompt: `What's something — a food, a kind of music, a place — that was an acquired taste for you?`
+            atlasPrompt: `What has been an acquired taste for you — a food, a kind of music, a place, or an activity?`
         }
     },
+
     {
         id: 'cl-enough-to-last-the-winter',
         contextLine: `Before refrigeration`,
         title: `Enough to Last the Winter`,
         teaser: `Waste a little now, go hungry later.`,
-        context: `Before reliable refrigeration, keeping food through the winter meant salting, smoking, drying, and pickling whatever you had. A poor harvest or a spoiled store could mean real hunger months later. Throwing food away was not a small thing — every scrap might be needed before spring.`,
-        mainQuestion: `If wasting food could mean going hungry later, would today's easy attitude to scraping plates into the bin look reckless — or would plenty simply become normal to you too?`,
+
+        context: `Before reliable refrigeration, families kept food through winter by salting, smoking, drying, and pickling it. A poor harvest or a spoiled supply of food could mean hunger months later. Throwing away a usable scrap was not a small mistake when spring was still far away.`,
+
+        mainQuestion: `Imagine every jar, scrap, and preserved piece might be needed before spring. What would you save — and what would still feel reasonable to throw away?`,
+
         followTheThread: [
-            `How careful are you with food waste, and what shaped that — how you grew up, cost, or something else?`,
-            `Has anything ever made you suddenly see food, or waste, differently?`
+            `How careful are you with food waste, and what shaped that habit?`,
+            `What experience has changed how you think about food or waste?`
         ],
+
         upgrade: {
             term: `go to waste`,
             type: `phrase`,
             definition: `To be wasted or thrown away instead of being used.`,
-            ordinary: `“They used every part of the animal so that nothing was thrown away or wasted.”`,
+            ordinary: `“They used every part of the animal so that nothing was thrown away.”`,
             upgraded: `“They used every part of the animal so that nothing went to waste.”`,
             priority: 'key',
-            atlasPrompt: `What do you hate to see go to waste — food, money, time, or something else?`
+            atlasPrompt: `What do you hate to see go to waste — food, money, time, talent, or something else?`
         }
     },
+
     {
         id: 'cl-from-one-pot',
         contextLine: `Shared-dish meals`,
         title: `From One Pot`,
-        teaser: `One dish in the middle, and everyone's hands in it.`,
-        context: `In many places, a meal means one large dish in the centre that everyone eats from together, often with the right hand and no separate plates. It can feel warm and equal — no one served more or less than anyone else. It can also feel strange, or too close, to someone used to a plate of their own.`,
-        mainQuestion: `You sit down to a single shared dish, everyone eating from the middle with their hands. Does that feel warm and welcoming to you, or a bit too close for comfort?`,
+        teaser: `One dish in the middle, and everyone’s hands in it.`,
+
+        context: `A large dish is placed in the centre, and everyone eats from it together. There may be no separate plates; people use bread, spoons, or the right hand and take food from the part nearest to them. For someone used to an individual plate, the closeness can feel unfamiliar.`,
+
+        mainQuestion: `You sit down and everyone begins eating from one shared dish. Would that feel warm and welcoming to you, or too close for comfort?`,
+
         followTheThread: [
-            `What does eating from one dish quietly assume about how close, or how equal, the people are?`,
-            `Where do you draw the line between what feels shared and what feels private — at a meal, or anywhere?`
+            `What changes when everyone reaches into the same dish instead of receiving a separate portion?`,
+            `Which parts of a meal feel naturally shared to you, and which feel private?`
         ],
+
         upgrade: {
             term: `dig in`,
             type: `phrasal verb`,
             definition: `To start eating, especially with energy or without waiting too formally.`,
-            ordinary: `“There were no separate portions — everyone just started eating from the middle.”`,
-            upgraded: `“There were no separate portions — everyone just dug in.”`,
+            ordinary: `“There were no separate portions, so everyone simply started eating from the middle.”`,
+            upgraded: `“There were no separate portions, so everyone simply dug in.”`,
             priority: 'standard',
-            atlasPrompt: `When do you feel comfortable just digging in, and when do you wait for someone else to start?`
+            atlasPrompt: `When do you feel comfortable digging in, and when do you wait for someone else to begin?`
         }
     },
+
     {
         id: 'cl-carried-across-borders',
         contextLine: `Food and migration`,
         title: `What You Take With You`,
         teaser: `Leave everything behind — but not this dish.`,
-        context: `For people who have left the place they grew up in, food is often the strongest thread back. A recipe carried across a border, an ingredient hunted down in a foreign city, a smell that fills a small kitchen and suddenly means home — these can hold on to a connection with a place, and with people, long after much else has changed or faded.`,
-        mainQuestion: `Imagine you had moved far from where you grew up and could keep the cooking of only one dish. Which would you choose — and what exactly would you be afraid of losing if you couldn't get it right?`,
+
+        context: `Someone moves far from the place they grew up and searches several shops for one familiar ingredient. They cook a family recipe in a new kitchen, and the smell brings back a person, a street, or a home they no longer see every day.`,
+
+        mainQuestion: `You move far from home and can keep only one dish from the place where you grew up. Which dish do you choose — and who or what does it bring back?`,
+
         followTheThread: [
-            `Can a recipe really carry a place with it, or does something always get left at the border?`,
-            `Do you know someone who keeps a taste of somewhere else alive by cooking it — or a dish that reminds you of a person more than a place?`
+            `Can a recipe keep someone connected to a place, or does the recipe always change when people move?`,
+            `Do you know someone who keeps a person or place close by cooking a particular dish?`
         ],
+
         upgrade: {
             term: `a taste of home`,
             type: `phrase`,
-            definition: `Something, often a food, that strongly reminds you of where you come from.`,
-            ordinary: `“That little dish reminded me so much of where I grew up.”`,
-            upgraded: `“That little dish was a real taste of home.”`,
+            definition: `Something, usually food, that strongly reminds you of where you come from.`,
+            ordinary: `“That dish strongly reminded me of where I grew up.”`,
+            upgraded: `“That dish gave me a real taste of home.”`,
             priority: 'standard',
-            atlasPrompt: `When have you found a taste of home somewhere unexpected — a shop, a song, or a person?`
+            atlasPrompt: `What food, smell, or small routine gives you a taste of home when you are away?`
         }
     },
+
     {
         id: 'cl-a-separate-table',
         contextLine: `Who eats together`,
         title: `A Separate Table`,
-        teaser: `Some people belong at this table. Some are sat elsewhere.`,
-        context: `In many societies, who is allowed to share a table has marked who belongs and who does not. Servants often ate apart from the families they served, children were sat at their own table, and in some places strict rules decided who could eat together at all. To share a table was to treat someone as an equal — and to seat them elsewhere was a quiet way of drawing a line.`,
-        mainQuestion: `Somewhere you're a guest, you notice certain people are quietly kept at a separate table. Do you sit where you're placed and say nothing, or make a point of crossing the line?`,
+        teaser: `Some people belong at this table. Some are seated elsewhere.`,
+
+        context: `At one meal, the family sits at the main table while servants eat elsewhere. At another, children are sent to a smaller table, or guests are seated according to rank. Who eats together — and who is kept apart — can reveal the social order before anyone says a word.`,
+
+        mainQuestion: `You are a guest and notice that some people have been seated separately. Would you stay where you were placed, or move to join them? What might stop you?`,
+
         followTheThread: [
-            `When is a separate table simply practical — children, staff, a huge group — and when is it a way of saying who counts?`,
-            `Have you seen a table used to pull someone in who didn't expect it, or to leave someone out — at a meal, or anywhere else?`
+            `When is a separate table simply practical, and when does it show who is considered important?`,
+            `Have you seen a table used to include someone who felt out of place — or to leave someone out?`
         ],
+
         upgrade: {
             term: `make room for someone`,
             type: `phrase`,
             definition: `To create space for someone so they can join or be included.`,
-            ordinary: `“When I turned up unexpectedly, they found me a space and included me straight away.”`,
-            upgraded: `“When I turned up unexpectedly, they made room for me straight away.”`,
+            ordinary: `“When I arrived unexpectedly, they found me a space and included me straight away.”`,
+            upgraded: `“When I arrived unexpectedly, they made room for me straight away.”`,
             priority: 'key',
-            atlasPrompt: `When has a group made room for you — at work, in a friendship, or somewhere you didn't expect to fit in?`
+            atlasPrompt: `When has a group made room for you — at work, in a friendship, or somewhere you did not expect to fit in?`
         }
     }
 ];
