@@ -8,7 +8,7 @@
   for — the wage, the craft, the duty, the boredom, and the arguments people
   have about who is really working. Built for tutor-led conversation, shared
   screens, practical disagreement, and sharper spoken English.
-  Compass active subject · content Version 2.0.0
+  Compass active subject · contentVersion 2.0.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -231,7 +231,7 @@ const discussionSets = [
             {
                 id: 'moment-just-a-job',
                 preview: `A wage, and a life somewhere else.`,
-                question: `Read this twice: once as someone who is genuinely content, and once as someone who feels stuck but does not want to admit it. “It is just a job. It pays for my life outside it, and that is enough.” What changes in the delivery? What else would you need to know before deciding which version was true?`,
+                question: `Read this twice: once as someone who is genuinely content, and once as someone who feels stuck but does not want to admit it. “It is just a job. It pays for my life outside it, and that is enough.” What changes in the way you say it? What else would you need to know before deciding which version was true?`,
 
                 upgrade: {
                     term: `a means to an end`,
@@ -532,7 +532,7 @@ const clCards = [
         title: `Punishment or Proof`,
         teaser: `One life is judged idle. Another is judged wasted on work.`,
 
-        context: `In one household, a person with enough money spends the day reading, visiting friends, and taking part in public life. In another, someone rises early and sees steady work as proof of discipline and good character. Different traditions have praised each way of living and criticised the other: one as idle, the other as a life wasted on work.`,
+        context: `In one household, a person with enough money spends the day reading, visiting friends, and taking part in public life. In another, someone rises early and sees steady work as proof of discipline and good character. Some traditions have praised life without paid work and criticised constant labour as a waste of life. Others have praised steady work and criticised people without jobs as idle.`,
 
         mainQuestion: `Someone has enough money and chooses not to have a job. They use their time however they like. What would make you respect that choice — or judge it?`,
 
