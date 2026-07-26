@@ -35,7 +35,7 @@ const subjectCopy = {
     overview: {
         heading: `Before You Say Anything`,
         intro: [
-            `Bodies reveal, perform, and sometimes misread emotion before words arrive. A face, posture, laugh, or silence can expose something real, create an impression, or mean something completely different to another person.`
+            `Bodies reveal and perform emotion before words arrive, while people sometimes misread what they see. A face, posture, laugh, or silence can expose something real, create an impression, or mean something completely different to another person.`
         ],
         question: `What do you notice first in someone’s body language — and how much do you trust that first reading?`
     },
@@ -182,13 +182,13 @@ const discussionSets = [
                 question: `Which job would require the hardest expression to hold for eight hours — nurse, waiter, teacher, flight attendant, funeral director, or another one? What would that person have to hide?`,
 
                 upgrade: {
-                    term: `go through the motions`,
+                    term: `put on a front`,
                     type: `phrase`,
-                    definition: `To do something without real feeling, energy, or belief.`,
-                    ordinary: `“She smiled and used the correct words, but there was no real feeling behind them.”`,
-                    upgraded: `“She smiled and used the correct words, but she was only going through the motions.”`,
+                    definition: `To hide how you really feel by behaving as if you are calm, confident, or unaffected.`,
+                    ordinary: `“She looked calm and cheerful with the customers, even though she was exhausted.”`,
+                    upgraded: `“She put on a calm front with the customers, even though she was exhausted.”`,
                     priority: 'key',
-                    atlasPrompt: `Where do people sometimes go through the motions — at work, in a class, at the gym, or during a social obligation?`
+                    atlasPrompt: `When do people put on a front — at work, during an argument, with family, or when meeting somebody new?`
                 }
             },
             {
@@ -291,7 +291,7 @@ const discussionSets = [
                 id: 'moment-changes-a-room',
                 preview: `They enter. The room adjusts.`,
 
-                question: `Think of somebody whose presence changes a room before they speak. What do they do with their body — where they stand, how they move, or where they look? Which part could another person learn?`,
+                question: `Think of somebody whose presence changes a room before they speak. What do they do with their body — where they stand, how they move, or where they look? Which of those behaviours could another person learn?`,
 
                 upgrade: {
                     term: `presence`,
@@ -310,13 +310,13 @@ const discussionSets = [
                 question: `Why can the same touch feel comfortable from one person and wrong from another — a hug, a hand on the arm, or somebody standing very close? What changes the meaning?`,
 
                 upgrade: {
-                    term: `keep someone at arm’s length`,
+                    term: `cross a line`,
                     type: `idiom`,
-                    definition: `To avoid becoming emotionally or socially close to somebody.`,
-                    ordinary: `“I remain polite to him, but I make sure that we never become close.”`,
-                    upgraded: `“I remain polite to him, but I keep him at arm’s length.”`,
+                    definition: `To behave in a way that goes beyond what is acceptable or comfortable.`,
+                    ordinary: `“A hand on the arm felt friendly from one person, but uncomfortable and inappropriate from another.”`,
+                    upgraded: `“A hand on the arm felt friendly from one person, but from another it crossed a line.”`,
                     priority: 'key',
-                    atlasPrompt: `Why might somebody keep another person at arm’s length — caution, history, mistrust, or lack of interest?`
+                    atlasPrompt: `When can a friendly gesture cross a line — because of the person, the place, the timing, or the relationship?`
                 }
             },
             {
@@ -339,7 +339,7 @@ const discussionSets = [
                 id: 'moment-work-left-a-mark',
                 preview: `The job is visible before they tell you.`,
 
-                question: `What kind of work or daily routine leaves a visible mark on the body — in somebody’s hands, posture, voice, sleep, or movement? What might you notice before they told you what they did?`,
+                question: `What kind of work or daily routine leaves a visible mark on the body — in somebody’s hands, posture, voice, sleep, or movement? What clues might you notice before they told you about their work or routine?`,
 
                 upgrade: {
                     term: `take its toll`,
@@ -399,7 +399,7 @@ const clCards = [
 
         followTheThread: [
             `Have you ever completely misjudged somebody’s mood from their face alone?`,
-            `Do you owe the world a pleasant face, or is that a bill nobody should have to pay?`
+            `Do you owe the world a pleasant face, or should people stop expecting one?`
         ],
 
         upgrade: {
@@ -451,7 +451,7 @@ const clCards = [
 
         followTheThread: [
             `Could you genuinely stand in a lift facing the wrong way for six floors?`,
-            `Which unwritten rules protect other people’s comfort, and which exist only because nobody wants to stand out?`
+            `Which social rules protect other people’s comfort, and which exist only because nobody wants to stand out?`
         ],
 
         upgrade: {
@@ -497,7 +497,7 @@ const clCards = [
         title: `The Village That Couldn’t Stop`,
         teaser: `It started with three schoolgirls. It closed the school.`,
 
-        context: `In 1962, episodes of uncontrollable laughter and other distress symptoms began among pupils at a girls’ school in Tanganyika, now Tanzania, and later appeared in nearby communities. Some schools closed. Researchers usually describe the outbreak as a stress-related illness spreading through groups, not as people simply finding one another funny.`,
+        context: `In 1962, episodes of uncontrollable laughter and other distress symptoms began among pupils at a girls’ school in Tanganyika, now Tanzania, and later appeared in nearby communities. Some schools closed. Researchers usually describe it as a stress-related illness that spread through groups. It was not simply a case of people finding one another funny.`,
 
         mainQuestion: `Have you ever felt a room’s mood enter your own body before you had time to decide — laughter, panic, tension, or relief? What happened?`,
 
@@ -575,7 +575,7 @@ const clCards = [
         title: `Switch Your Face Off`,
         teaser: `If your face cannot move, can you still read anyone else’s?`,
 
-        context: `Some cosmetic treatments reduce movement in the facial muscles. In some studies, people with less facial movement became slightly less accurate at reading emotion in other faces. One explanation is that we partly understand another person’s expression by making a tiny version of it on our own face.`,
+        context: `Some cosmetic treatments reduce movement in the facial muscles. In some studies, people with less facial movement became slightly less accurate at reading emotion in other faces. One explanation is that we partly understand another person’s expression by copying a small part of it on our own face without noticing.`,
 
         mainQuestion: `A switch could stop your face from ever showing anything again. Would you use it — and what exactly would you be giving up?`,
 
