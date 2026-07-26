@@ -8,7 +8,7 @@
   for — the wage, the craft, the duty, the boredom, and the arguments people
   have about who is really working. Built for tutor-led conversation, shared
   screens, practical disagreement, and sharper spoken English.
-  Compass active subject · contentVersion 1.0.0
+  Compass active subject · content Version 2.0.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -18,7 +18,7 @@
 const MODULE = {
     id: 'work-purpose',
     schemaVersion: 2,
-    contentVersion: '1.0.0',
+    contentVersion: '2.0.0',
     title: 'Work & Purpose',
     titleHtml: 'Work &amp; <em>Purpose</em>',
     navTitle: 'Work',
@@ -84,7 +84,7 @@ const discussionSets = [
 
                 upgrade: {
                     term: `you couldn’t pay me enough`,
-                    type: `spoken phrase`,
+                    type: `phrase`,
                     definition: `Used to say that nothing would persuade you to do something.`,
                     ordinary: `“I would never go back to night shifts, whatever the salary was.”`,
                     upgraded: `“You couldn’t pay me enough to go back to night shifts.”`,
@@ -125,7 +125,7 @@ const discussionSets = [
             {
                 id: 'moment-end-of-the-day',
                 preview: `The result is not always something you can see.`,
-                question: `Some work leaves a visible result: a repaired door, a clean room, or a finished meal. Other work ends in decisions, messages, or problems that never happened. Which kind gives you more satisfaction — and what invisible result can still make a day feel worthwhile?`,
+                question: `Some work leaves a visible result: a repaired door, a clean room, or a finished meal. Other work prevents a problem, helps someone decide, or keeps something running smoothly. Which kind gives you more satisfaction? What invisible result can still make a day feel worthwhile?`,
 
                 upgrade: {
                     term: `have something to show for it`,
@@ -156,7 +156,7 @@ const discussionSets = [
 
         makeItReal: {
             title: `One Ordinary Hour`,
-            prompt: `Choose a job you know from the inside and walk your tutor through one ordinary hour, including the waiting, interruptions, and dull parts. Let your tutor question anything that seems pointless or suggest an easier way; explain why the work is really done that way.`
+            prompt: `Choose a job you know from the inside. Walk your tutor through one ordinary hour, including the waiting, interruptions, and dull parts. Your tutor will question one step or suggest an easier way. Explain why the work is really done that way.`
         }
     },
 
@@ -231,7 +231,7 @@ const discussionSets = [
             {
                 id: 'moment-just-a-job',
                 preview: `A wage, and a life somewhere else.`,
-                question: `A friend says, “It is just a job. It pays for my life outside it, and that is enough.” What would you notice in the way they talk about work that would make you think they were content — or quietly stuck?`,
+                question: `Read this twice: once as someone who is genuinely content, and once as someone who feels stuck but does not want to admit it. “It is just a job. It pays for my life outside it, and that is enough.” What changes in the delivery? What else would you need to know before deciding which version was true?`,
 
                 upgrade: {
                     term: `a means to an end`,
@@ -247,7 +247,7 @@ const discussionSets = [
 
         makeItReal: {
             title: `The Pay Committee`,
-            prompt: `Together, rank these five jobs by how well they ought to be paid: a nurse, a bin collector, a primary teacher, a professional footballer, and a lorry driver. Agree on the top and bottom positions, then identify the argument that changed either person’s mind most.`
+            prompt: `Together, rank these five jobs by how well they ought to be paid: a nurse, a bin collector, a primary teacher, a professional footballer, and a lorry driver. Agree on the top and bottom positions. Then identify the strongest argument either person made, whether or not it changed the final ranking.`
         }
     },
 
@@ -265,13 +265,13 @@ const discussionSets = [
                 question: `Who taught you how to work — not a school subject, but how to do something properly? What habit, standard, or attitude did you take from them?`,
 
                 upgrade: {
-                    term: `mentor`,
-                    type: `noun`,
-                    definition: `An experienced person who guides, teaches, or advises someone less experienced.`,
+                    term: `show someone the ropes`,
+                    type: `idiom`,
+                    definition: `To teach someone how a job, place, or activity works.`,
                     ordinary: `“My first manager taught me how to handle difficult customers and organise the day.”`,
-                    upgraded: `“My first manager became an important mentor and taught me how to handle difficult customers.”`,
+                    upgraded: `“My first manager showed me the ropes, including how to handle difficult customers and organise the day.”`,
                     priority: 'key',
-                    atlasPrompt: `Who has been a mentor to you, and what did you learn from them?`
+                    atlasPrompt: `Who showed you the ropes when you were new somewhere, and what did they make easier?`
                 }
             },
             {
@@ -280,13 +280,13 @@ const discussionSets = [
                 question: `Imagine you received the same comfortable income whether you worked or not. What would you do with the first three months — and what do you think your weeks would look like a year later?`,
 
                 upgrade: {
-                    term: `a labour of love`,
+                    term: `a sense of purpose`,
                     type: `phrase`,
-                    definition: `Work done because you care deeply about it rather than because it earns money.`,
-                    ordinary: `“He spends every weekend restoring the boat and has never earned anything from it.”`,
-                    upgraded: `“Restoring the boat is a labour of love; he has never earned anything from it.”`,
+                    definition: `A feeling that your life or actions have meaning and a worthwhile direction.`,
+                    ordinary: `“After a few months, I think I would need to feel that my time mattered.”`,
+                    upgraded: `“After a few months, I think I would need a real sense of purpose.”`,
                     priority: 'standard',
-                    atlasPrompt: `What in your life is a labour of love — a garden, collection, project, or responsibility?`
+                    atlasPrompt: `What gives people a sense of purpose outside paid work?`
                 }
             },
             {
@@ -295,13 +295,13 @@ const discussionSets = [
                 question: `Have you seen someone bring their workplace home in the way they speak or behave — checking every detail, organising everything, correcting people, or making the same kind of jokes? Which habit followed them home?`,
 
                 upgrade: {
-                    term: `rub off on someone`,
+                    term: `carry over into something`,
                     type: `phrasal verb`,
-                    definition: `To gradually influence another person’s habits, attitudes, or behaviour.`,
-                    ordinary: `“After years working with lawyers, I started arguing and speaking like them.”`,
-                    upgraded: `“After years working with lawyers, their way of arguing rubbed off on me.”`,
+                    definition: `If a habit or behaviour carries over into another situation, it continues there.`,
+                    ordinary: `“After years in management, he started organising everyone at home as well.”`,
+                    upgraded: `“After years in management, the habit of organising everyone carried over into his home life.”`,
                     priority: 'standard',
-                    atlasPrompt: `Whose habits, expressions, or attitudes have rubbed off on you over time?`
+                    atlasPrompt: `What habit from one part of your life has carried over into another?`
                 }
             },
             {
@@ -412,13 +412,13 @@ const clCards = [
         ],
 
         upgrade: {
-            term: `clock off`,
-            type: `phrasal verb`,
-            definition: `To stop work for the day, or to stop thinking about it.`,
-            ordinary: `“He stops thinking about the job as soon as he leaves the building.”`,
-            upgraded: `“He clocks off as soon as he leaves the building.”`,
+            term: `be on the clock`,
+            type: `phrase`,
+            definition: `To be working during time for which you are being paid.`,
+            ordinary: `“He was paid for the time he was at work, not only for what he produced.”`,
+            upgraded: `“He was paid for every hour he was on the clock, not only for what he produced.”`,
             priority: 'standard',
-            atlasPrompt: `What responsibility do you find difficult to clock off from, even when the day is over?`
+            atlasPrompt: `When can someone be on the clock without doing useful work — and when is that not their fault?`
         }
     },
 
@@ -452,7 +452,7 @@ const clCards = [
         id: 'cl-shape-of-the-week',
         contextLine: `19th century · The working day`,
         title: `Eight Hours for Yourself`,
-        teaser: `The free Saturday was argued for, not handed over.`,
+        teaser: `The working day and the weekend were argued for, not handed over.`,
 
         context: `Working hours and days off were argued over for generations. In the nineteenth century, labour movements campaigned for a day divided into eight hours of work, eight hours of rest, and eight hours for personal life. The weekly break still differs: many countries rest on Saturday and Sunday, others on Friday and Saturday.`,
 
@@ -490,13 +490,13 @@ const clCards = [
         ],
 
         upgrade: {
-            term: `a change of scene`,
+            term: `draw a line between two things`,
             type: `phrase`,
-            definition: `Being somewhere different, especially when it improves how you feel.`,
-            ordinary: `“Even when the work is the same, going somewhere else to do it makes a difference.”`,
-            upgraded: `“Even when the work is the same, a change of scene makes a difference.”`,
+            definition: `To create a clear boundary between two parts of life or two kinds of behaviour.`,
+            ordinary: `“Going somewhere else to work helped create a clear boundary between the job and family life.”`,
+            upgraded: `“Going somewhere else to work helped people draw a clear line between work and home.”`,
             priority: 'key',
-            atlasPrompt: `When has a change of scene improved your mood, concentration, or enjoyment more than expected?`
+            atlasPrompt: `Where do you need to draw a clearer line between work and personal time?`
         }
     },
 
@@ -532,7 +532,7 @@ const clCards = [
         title: `Punishment or Proof`,
         teaser: `One life is judged idle. Another is judged wasted on work.`,
 
-        context: `In one household, a person with enough money spends the day reading, visiting friends, and taking part in public life. In another, someone rises early and sees steady work as proof of discipline and good character. Different traditions have praised both lives — and criticised the other as idle or wasted.`,
+        context: `In one household, a person with enough money spends the day reading, visiting friends, and taking part in public life. In another, someone rises early and sees steady work as proof of discipline and good character. Different traditions have praised each way of living and criticised the other: one as idle, the other as a life wasted on work.`,
 
         mainQuestion: `Someone has enough money and chooses not to have a job. They use their time however they like. What would make you respect that choice — or judge it?`,
 
