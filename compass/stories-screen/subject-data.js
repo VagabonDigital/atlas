@@ -8,7 +8,7 @@ A premium interactive speaking subject for exploring why invented people
 and events take hold of us — the grip, the verdict, the argument, and what
 a story leaves behind once it is finished. Built for tutor-led conversation,
 shared-screen teaching, genuine disagreement, and sharper spoken English.
-Compass active subject · contentVersion 1.0.0
+Compass active subject · contentVersion 1.1.0
 The subject may evolve.
 The compass remains.
 --------------------------------------------------------------------------
@@ -18,7 +18,7 @@ VERBA PONTES FACIUNT · SENSUS VIAM APERIT · DISCIPLINA VIVA EST
 const MODULE = {
     id: 'stories-screen',
     schemaVersion: 2,
-    contentVersion: '1.0.0',
+    contentVersion: '1.1.0',
     title: 'Stories & Screen',
     titleHtml: 'Stories &amp; <em>Screen</em>',
     navTitle: 'Stories',
@@ -143,13 +143,13 @@ const discussionSets = [
                 question: `What ruins a story fastest for you — learning the ending, an unbearable character, too much hype, or something that goes on too long? Which story was genuinely spoiled for you, and how?`,
 
                 upgrade: {
-                    term: `let something slip`,
+                    term: `put someone off`,
                     type: `phrasal verb`,
-                    definition: `To reveal information accidentally that was meant to remain secret.`,
-                    ordinary: `“My brother accidentally revealed that the main character died.”`,
-                    upgraded: `“My brother let it slip that the main character died.”`,
+                    definition: `To make someone lose interest in or enthusiasm for something.`,
+                    ordinary: `“The endless violence made me lose interest in the series.”`,
+                    upgraded: `“The endless violence put me off the series.”`,
                     priority: 'key',
-                    atlasPrompt: `When has somebody let something slip about a surprise, plan, or piece of private news?`
+                    atlasPrompt: `What quickly puts you off a book, restaurant, product, place, or person?`
                 }
             }
         ],
@@ -186,7 +186,7 @@ const discussionSets = [
             {
                 id: 'moment-punishment-that-fit',
                 preview: `What did they really deserve?`,
-                question: `Choose a character who received exactly the punishment they deserved — or far worse. What would your own judgement have been, and what might make you change it?`,
+                question: `Choose a character whose punishment felt fair or excessive. What punishment would you have given them? What detail about them or the situation could make you reconsider?`,
 
                 upgrade: {
                     term: `have it coming`,
@@ -247,7 +247,7 @@ const discussionSets = [
 
         makeItReal: {
             title: `Put the Ending on Trial`,
-            prompt: `Choose an ending you have never accepted. Make the case against it while your tutor defends the original. Then propose one change and decide whether it would improve the story or simply make you happier.`
+            prompt: `Choose an ending you have never accepted. Argue against it while your tutor defends it. Then propose one change. Would it improve the story, or only make you happier?`
         }
     },
 
@@ -262,16 +262,16 @@ const discussionSets = [
             {
                 id: 'moment-a-line-you-still-hear',
                 preview: `Not the plot. The fragment.`,
-                question: `Think of one line, image, room, sound, or expression from a story that has stayed with you. Describe it without naming the story and let your tutor guess what kind of moment it was. Why do you think that fragment remained?`,
+                question: `Think of one line, image, sound, or expression from a story that has stayed with you. Describe it without naming the story. Your tutor will guess what kind of moment it came from. Then explain why it remained with you.`,
 
                 upgrade: {
-                    term: `haunt`,
-                    type: `verb`,
-                    definition: `To remain in someone’s mind for a long time in a way they cannot control.`,
+                    term: `stick with someone`,
+                    type: `phrase`,
+                    definition: `To remain in someone’s memory or continue affecting them for a long time.`,
                     ordinary: `“I kept thinking about the final image for weeks afterwards.”`,
-                    upgraded: `“The final image haunted me for weeks.”`,
+                    upgraded: `“The final image stuck with me for weeks.”`,
                     priority: 'standard',
-                    atlasPrompt: `What decision, conversation, image, or unanswered question has remained in your mind for a long time?`
+                    atlasPrompt: `What piece of advice, comment, image, or experience has stuck with you?`
                 }
             },
             {
@@ -283,8 +283,8 @@ const discussionSets = [
                     term: `hand something down`,
                     type: `phrasal verb`,
                     definition: `To pass something to a younger person or later generation.`,
-                    ordinary: `“My father made sure all three of us grew up watching his favourite westerns.”`,
-                    upgraded: `“My father handed his favourite westerns down to all three of us.”`,
+                    ordinary: `“My father gave us the westerns he had loved when he was young.”`,
+                    upgraded: `“My father handed down the westerns he had loved to us.”`,
                     priority: 'key',
                     atlasPrompt: `What recipe, object, skill, name, or habit has been handed down to you?`
                 }
@@ -325,13 +325,13 @@ const discussionSets = [
                 question: `Which fictional person feels real enough that you can predict how they would behave? Put them into one ordinary situation from your own life — what would they do, and how would people react?`,
 
                 upgrade: {
-                    term: `bring someone to life`,
+                    term: `true to character`,
                     type: `phrase`,
-                    definition: `To describe, write, or perform someone so convincingly that they feel real.`,
-                    ordinary: `“The writing made her feel like a person you might genuinely meet.”`,
-                    upgraded: `“The writing brought her completely to life.”`,
+                    definition: `Behaving in a way that matches someone’s established personality.`,
+                    ordinary: `“She would refuse to wait quietly because that matches the personality we already know.”`,
+                    upgraded: `“She would refuse to wait quietly because that would be completely true to character.”`,
                     priority: 'key',
-                    atlasPrompt: `Who can bring a person or place to life simply by describing it?`
+                    atlasPrompt: `What behaviour would be completely out of character for someone you know?`
                 }
             }
         ],
@@ -415,7 +415,7 @@ const clCards = [
             term: `sell out`,
             type: `phrasal verb`,
             definition: `To give up what you believed in for money or popularity.`,
-            ordinary: `“They gave it a happy ending because that was what would make the most money.”`,
+            ordinary: `“They abandoned the tragic ending they believed in because the happy version would make more money.”`,
             upgraded: `“They sold out and gave it a happy ending.”`,
             priority: 'standard',
             atlasPrompt: `When have you heard somebody accused of selling out — a musician, a business, or a person who changed sides?`
@@ -464,13 +464,13 @@ const clCards = [
         ],
 
         upgrade: {
-            term: `take something personally`,
+            term: `blur the line between two things`,
             type: `phrase`,
-            definition: `To treat something as an attack on you when it was not meant that way.`,
-            ordinary: `“He became angry as though the whole comment had been aimed directly at him.”`,
-            upgraded: `“He took the whole comment personally.”`,
+            definition: `To make the difference between two things less clear.`,
+            ordinary: `“Some viewers treated the actor and the villain he played as though they were the same person.”`,
+            upgraded: `“Some viewers blurred the line between the actor and the villain he played.”`,
             priority: 'key',
-            atlasPrompt: `What kind of comment do people take personally at work even when it was not meant that way?`
+            atlasPrompt: `When can people blur the line between performance and reality — in acting, social media, sport, or public life?`
         }
     },
 
@@ -482,7 +482,7 @@ const clCards = [
 
         context: `Stories told to children have often warned them through fear: the child who wanders off, the one who disobeys, or the creature waiting in the dark. Similar story shapes appear in very different places, but their endings vary. One version punishes the child, another forgives them, and another simply stops.`,
 
-        mainQuestion: `In one version, the child who disobeys is punished. In another, nothing happens to them. Which would you pass on — and which would you have preferred to hear as a child?`,
+        mainQuestion: `In one version, the child who disobeys is punished. In another, nothing happens to them. Which version would you tell a child now? Which one would you have preferred to hear when you were young?`,
 
         followTheThread: [
             `What were you warned about through a story rather than a direct rule?`,
@@ -508,7 +508,7 @@ const clCards = [
 
         context: `For most of history, people had to travel to a story, borrow it, or wait for it. A group of actors arrived in town and then moved on. One book might pass through a whole household and be read aloud. A single cinema screen could serve an entire district. What people encountered depended heavily on where they lived.`,
 
-        mainQuestion: `When stories were harder to find, people had fewer choices but often shared the same ones. Did that make stories feel more valuable — or simply less convenient?`,
+        mainQuestion: `When people had fewer stories to choose from but often shared the same ones, did each story feel more valuable — or were stories simply harder to access?`,
 
         followTheThread: [
             `What was the last thing you made a real effort to find, and did the effort change how you felt about it?`,
@@ -546,7 +546,7 @@ const clCards = [
             type: `phrase`,
             definition: `To deal with remaining details that have not been settled.`,
             ordinary: `“The series finished without explaining several things it had introduced.”`,
-            upgraded: `“The series finished without tying up any of the loose ends.”`,
+            upgraded: `“The series finished without tying up several of its loose ends.”`,
             priority: 'key',
             atlasPrompt: `What loose ends have you been putting off tying up — at work, at home, or with somebody you have been meaning to contact?`
         }
