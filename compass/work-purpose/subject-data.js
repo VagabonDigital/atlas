@@ -15,6 +15,7 @@
   VERBA PONTES FACIUNT · SENSUS VIAM APERIT · DISCIPLINA VIVA EST
   ==========================================================================
 */
+
 const MODULE = {
     id: 'work-purpose',
     schemaVersion: 2,
@@ -72,8 +73,8 @@ const discussionSets = [
     {
         id: 'set-never-mind-the-title',
         title: `Never Mind the Job Title`,
-        stage: `React`,
-        icon: 'react',
+        stage: `First Look`,
+        icon: 'first-look',
         description: `The real tasks, hidden standards, exhausting days, and details job adverts quietly leave out.`,
 
         moments: [
@@ -163,8 +164,8 @@ const discussionSets = [
     {
         id: 'set-earning-it',
         title: `Earning It`,
-        stage: `Explain`,
-        icon: 'explain',
+        stage: `Closer Look`,
+        icon: 'closer-look',
         description: `Fair pay, invisible effort, pointless procedures, and the line between a healthy boundary and not caring.`,
 
         moments: [
@@ -254,8 +255,8 @@ const discussionSets = [
     {
         id: 'set-a-working-life',
         title: `What It Adds Up To`,
-        stage: `Reflect and Relate`,
-        icon: 'reflect',
+        stage: `Wider View`,
+        icon: 'wider-view',
         description: `The people who shape how you work, the work you would choose freely, and what remains worth remembering.`,
 
         moments: [
