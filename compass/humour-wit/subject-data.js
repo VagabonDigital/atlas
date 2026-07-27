@@ -72,8 +72,8 @@ const discussionSets = [
     {
         id: 'set-what-makes-you-laugh',
         title: `What Gets You`,
-        stage: `React`,
-        icon: 'react',
+        stage: `First Look`,
+        icon: 'first-look',
         description: `The silly things that always work, the laugh you hide, and the stories that improve every year.`,
 
         moments: [
@@ -163,8 +163,8 @@ const discussionSets = [
     {
         id: 'set-who-gets-to-joke',
         title: `Who Gets to Say It`,
-        stage: `Explain`,
-        icon: 'explain',
+        stage: `Closer Look`,
+        icon: 'closer-look',
         description: `Permission, timing, repair, and what happens when the same joke lands differently between people.`,
 
         moments: [
@@ -254,8 +254,8 @@ const discussionSets = [
     {
         id: 'set-what-laughter-leaves',
         title: `What Laughter Leaves`,
-        stage: `Reflect and Relate`,
-        icon: 'reflect',
+        stage: `Wider View`,
+        icon: 'wider-view',
         description: `The people who make hard days lighter, the humour you inherit, and what changes with time.`,
 
         moments: [
