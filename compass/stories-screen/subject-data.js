@@ -15,6 +15,7 @@ The compass remains.
 VERBA PONTES FACIUNT · SENSUS VIAM APERIT · DISCIPLINA VIVA EST
 ==========================================================================
 */
+
 const MODULE = {
     id: 'stories-screen',
     schemaVersion: 2,
@@ -72,8 +73,8 @@ const discussionSets = [
     {
         id: 'set-it-had-you',
         title: `It Had You`,
-        stage: `React`,
-        icon: 'react',
+        stage: `First Look`,
+        icon: 'first-look',
         description: `Late nights, abandoned stories, and reactions you did not expect to have.`,
 
         moments: [
@@ -163,8 +164,8 @@ const discussionSets = [
     {
         id: 'set-the-verdict',
         title: `The Verdict`,
-        stage: `Explain`,
-        icon: 'explain',
+        stage: `Closer Look`,
+        icon: 'closer-look',
         description: `Endings you reject, punishments you would change, and tricks that work even when you can see them.`,
 
         moments: [
@@ -254,8 +255,8 @@ const discussionSets = [
     {
         id: 'set-long-after',
         title: `Long After`,
-        stage: `Reflect and Relate`,
-        icon: 'reflect',
+        stage: `Wider View`,
+        icon: 'wider-view',
         description: `The fragments that remain, the favourites we inherit, and the invented people who begin to feel real.`,
 
         moments: [
