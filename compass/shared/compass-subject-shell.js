@@ -174,7 +174,7 @@ function mountCompassSubjectShell() {
         <div id="mob-header-discussion" class="mobile-header-shell"></div>
         <div id="nav-discussion" class="nav-shell"></div>
 
-        <div class="section-wrap">
+        <div class="section-wrap" id="discussion-browse-view">
             <div class="section-stage">
                 <div class="section-header">
                     <p class="section-eyebrow">Discussion</p>
@@ -215,6 +215,111 @@ function mountCompassSubjectShell() {
                 </div>
             </div>
         </div>
+
+        <section class="discussion-focus-view" id="discussion-focus-view"
+            aria-labelledby="discussion-focus-title" hidden>
+
+            <header class="discussion-focus-header">
+                <button class="discussion-focus-back" id="discussion-focus-back-btn"
+                    type="button" onclick="closeDiscussionFocus()"
+                    title="Back to browse"
+                    aria-label="Return to Discussion browse">
+
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                        <path d="M9 3.5L5 7.5l4 4M5.5 7.5H12"
+                            stroke="currentColor"
+                            stroke-width="1.45"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                    </svg>
+
+                    <span>Back to browse</span>
+                </button>
+
+                <div class="discussion-focus-provenance">
+                    <span class="discussion-focus-stage" id="discussion-focus-stage"></span>
+
+                    <span class="discussion-focus-separator" aria-hidden="true">
+                        ·
+                    </span>
+
+                    <span class="discussion-focus-set-title" id="discussion-focus-set-title"></span>
+                </div>
+
+                <p class="discussion-focus-position" id="discussion-focus-position"></p>
+            </header>
+
+            <main class="discussion-focus-main" id="discussion-focus-main">
+                <article class="discussion-focus-content">
+                    <p class="discussion-focus-activity-eyebrow">
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                            <path d="M6.5 1.5L7.2 5.1L10.8 5.8L7.2 6.5L6.5 10.1L5.8 6.5L2.2 5.8L5.8 5.1Z"
+                                stroke="currentColor"
+                                stroke-width="1.1"
+                                stroke-linejoin="round"/>
+                        </svg>
+
+                        Make It Real
+                    </p>
+
+                    <h1 class="discussion-focus-title" id="discussion-focus-title"
+                        tabindex="-1"></h1>
+
+                    <p class="discussion-focus-question" id="discussion-focus-question"></p>
+
+                    <div class="discussion-focus-upgrade focus-view-upgrade"
+                        id="discussion-focus-upgrade"></div>
+                </article>
+            </main>
+
+            <footer class="discussion-focus-footer">
+                <button class="discussion-focus-nav-btn discussion-focus-prev"
+                    id="discussion-focus-prev-btn" type="button"
+                    onclick="navigateDiscussionFocus(-1)">
+
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M8.5 3L4.5 7l4 4"
+                            stroke="currentColor"
+                            stroke-width="1.4"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                    </svg>
+
+                    Previous
+                </button>
+
+                <button class="btn-mark-explored discussion-focus-explored-btn"
+                    id="discussion-focus-explored-btn" type="button"
+                    onclick="toggleDiscussionFocusExplored()"
+                    aria-pressed="false">
+
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                        <path d="M2 6l3 3 5-5"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                    </svg>
+
+                    Mark explored
+                </button>
+
+                <button class="discussion-focus-nav-btn discussion-focus-next"
+                    id="discussion-focus-next-btn" type="button"
+                    onclick="navigateDiscussionFocus(1)">
+
+                    Next
+
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M5.5 3l4 4-4 4"
+                            stroke="currentColor"
+                            stroke-width="1.4"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </footer>
+        </section>
     </div>
 
     <!-- ============================================================
@@ -225,7 +330,7 @@ function mountCompassSubjectShell() {
         <div id="mob-header-cultural-lens" class="mobile-header-shell"></div>
         <div id="nav-cultural-lens" class="nav-shell"></div>
 
-        <div class="section-wrap">
+        <div class="section-wrap" id="cultural-lens-browse-view">
             <div class="section-stage">
                 <div class="section-header">
                     <p class="section-eyebrow">Cultural Lens</p>
@@ -250,6 +355,153 @@ function mountCompassSubjectShell() {
                 <div class="cl-grid" id="cl-grid"></div>
             </div>
         </div>
+
+        <section class="discussion-focus-view cultural-lens-focus-view"
+            id="cultural-lens-focus-view"
+            aria-labelledby="cultural-lens-focus-title" hidden>
+
+            <header class="discussion-focus-header">
+                <button class="discussion-focus-back" id="cultural-lens-focus-back-btn"
+                    type="button" onclick="closeCulturalLensFocus()"
+                    title="Back to browse"
+                    aria-label="Return to Cultural Lens browse">
+
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                        <path d="M9 3.5L5 7.5l4 4M5.5 7.5H12"
+                            stroke="currentColor"
+                            stroke-width="1.45"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                    </svg>
+
+                    <span>Back to browse</span>
+                </button>
+
+                <div class="discussion-focus-provenance">
+                    <span class="discussion-focus-stage" id="cultural-lens-focus-stage"></span>
+
+                    <span class="discussion-focus-separator" aria-hidden="true">
+                        ·
+                    </span>
+
+                    <span class="discussion-focus-set-title"
+                        id="cultural-lens-focus-heading"></span>
+                </div>
+
+                <p class="discussion-focus-position"
+                    id="cultural-lens-focus-position"></p>
+            </header>
+
+            <main class="discussion-focus-main cultural-lens-focus-main"
+                id="cultural-lens-focus-main">
+
+                <article class="discussion-focus-content cultural-lens-focus-content">
+                    <p class="cultural-lens-focus-context-line"
+                        id="cultural-lens-focus-context-line"></p>
+
+                    <h1 class="discussion-focus-title cultural-lens-focus-title"
+                        id="cultural-lens-focus-title" tabindex="-1"></h1>
+
+                    <p class="cultural-lens-focus-context"
+                        id="cultural-lens-focus-context"></p>
+
+                    <div class="cultural-lens-focus-question-block">
+                        <p class="cultural-lens-focus-question-label">
+                            Question
+                        </p>
+
+                        <p class="discussion-focus-question cultural-lens-focus-question"
+                            id="cultural-lens-focus-question"></p>
+                    </div>
+
+                    <div class="cultural-lens-focus-tools">
+                        <button class="cultural-lens-focus-reveal-btn"
+                            id="cultural-lens-focus-thread-btn"
+                            type="button"
+                            aria-expanded="false"
+                            aria-controls="cultural-lens-focus-thread-panel"
+                            onclick="toggleCulturalLensFocusFollowTheThread()">
+
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                                <path d="M3 4.5h8M3 7h6M3 9.5h4"
+                                    stroke="currentColor"
+                                    stroke-width="1.25"
+                                    stroke-linecap="round"/>
+                            </svg>
+
+                            Follow the Thread
+
+                            <svg class="cultural-lens-focus-reveal-chevron"
+                                width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                                <path d="M3.5 5l3 3 3-3"
+                                    stroke="currentColor"
+                                    stroke-width="1.3"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+
+                        <div class="cultural-lens-focus-thread-panel"
+                            id="cultural-lens-focus-thread-panel" hidden>
+
+                            <div class="cultural-lens-focus-thread-questions"
+                                id="cultural-lens-focus-thread-questions"></div>
+                        </div>
+
+                        <div class="discussion-focus-upgrade focus-view-upgrade cultural-lens-focus-upgrade"
+                            id="cultural-lens-focus-upgrade"></div>
+                    </div>
+                </article>
+            </main>
+
+            <footer class="discussion-focus-footer">
+                <button class="discussion-focus-nav-btn discussion-focus-prev"
+                    id="cultural-lens-focus-prev-btn" type="button"
+                    onclick="navigateCulturalLensFocus(-1)">
+
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M8.5 3L4.5 7l4 4"
+                            stroke="currentColor"
+                            stroke-width="1.4"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                    </svg>
+
+                    Previous
+                </button>
+
+                <button class="btn-mark-explored discussion-focus-explored-btn"
+                    id="cultural-lens-focus-explored-btn" type="button"
+                    onclick="toggleCulturalLensFocusExplored()"
+                    aria-pressed="false">
+
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                        <path d="M2 6l3 3 5-5"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                    </svg>
+
+                    Mark explored
+                </button>
+
+                <button class="discussion-focus-nav-btn discussion-focus-next"
+                    id="cultural-lens-focus-next-btn" type="button"
+                    onclick="navigateCulturalLensFocus(1)">
+
+                    Next
+
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M5.5 3l4 4-4 4"
+                            stroke="currentColor"
+                            stroke-width="1.4"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </footer>
+        </section>
     </div>
 
     <!-- ============================================================
@@ -374,84 +626,6 @@ function mountCompassSubjectShell() {
                     onclick="toggleAppearanceMode()" title="Switch to night mode"
                     aria-label="Switch to night mode">
                 </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================================================
-     CULTURAL LENS MODAL
-     ============================================================ -->
-
-    <div class="modal-overlay" id="cl-modal-overlay" onclick="handleModalOverlayClick(event)">
-        <div class="modal-panel" id="cl-modal-panel">
-
-            <div class="modal-header">
-                <div class="modal-heading">
-                    <p class="modal-context-line" id="modal-context-line"></p>
-                    <h2 class="modal-title" id="modal-title"></h2>
-                </div>
-
-                <button class="modal-close-x" onclick="closeModal()" aria-label="Close modal">
-                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                        <path d="M3 3l9 9M12 3l-9 9" stroke="currentColor" stroke-width="1.6"
-                            stroke-linecap="round" />
-                    </svg>
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <p class="modal-context" id="modal-context"></p>
-
-                <div class="modal-question-block">
-                    <p class="modal-question-label">Discussion question</p>
-                    <p class="modal-question" id="modal-main-question"></p>
-                </div>
-
-                <div class="follow-thread-block" id="modal-follow-thread">
-                    <p class="follow-thread-label">Follow the Thread</p>
-                    <div class="follow-thread-questions" id="modal-follow-thread-questions"></div>
-                </div>
-
-                <div class="upgrade-row" id="modal-upgrade-row">
-                    <!-- Injected by JS -->
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <div class="modal-footer-nav">
-                    <button class="btn-ghost" id="modal-prev-btn" onclick="navigateModal(-1)">
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <path d="M7 2L3 6l4 4" stroke="currentColor" stroke-width="1.4"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        Previous
-                    </button>
-
-                    <button class="btn-ghost" id="modal-next-btn" onclick="navigateModal(1)">
-                        Next
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <path d="M5 2l4 4-4 4" stroke="currentColor" stroke-width="1.4"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="modal-footer-actions">
-                    <button class="btn-mark-explored" id="cl-modal-explored-btn"
-                        onclick="toggleCLExploredFromModal()" aria-pressed="false">
-
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.5"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-
-                        Mark explored
-                    </button>
-
-                    <button class="btn-ghost modal-footer-close" onclick="closeModal()">
-                        Close
-                    </button>
-                </div>
             </div>
         </div>
     </div>

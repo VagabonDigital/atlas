@@ -231,8 +231,25 @@ let wrapUpPreviousRootOverflow = '';
 let wrapUpPreviousScrollX = 0;
 let wrapUpPreviousScrollY = 0;
 
-let currentModalIndex = 0;
+let currentCulturalLensIndex = 0;
+let culturalLensFocusScrollX = 0;
+let culturalLensFocusScrollY = 0;
+let culturalLensFocusReturnElement = null;
+let culturalLensFocusReturnCardId = '';
+let culturalLensFocusPreviousBodyOverflow = '';
+let culturalLensFocusPreviousRootOverflow = '';
+
 let activeSetId = null;
+
+const DISCUSSION_FOCUS_MAKE_IT_REAL_ID = 'make-it-real';
+
+let discussionFocusSetId = null;
+let discussionFocusMomentId = null;
+let discussionFocusScrollX = 0;
+let discussionFocusScrollY = 0;
+let discussionFocusReturnElement = null;
+let discussionFocusPreviousBodyOverflow = '';
+let discussionFocusPreviousRootOverflow = '';
 
 let vocabBankActiveTab = 'saved';
 let vocabBankEditMode = false;
@@ -1287,6 +1304,15 @@ function beginModule() {
 
 function goToView(viewId) {
     closeCompassWrapUp({ restoreScroll: false });
+    closeDiscussionFocus({
+        restoreScroll: false,
+        restoreFocus: false
+    });
+
+    closeCulturalLensFocus({
+        restoreScroll: false,
+        restoreFocus: false
+    });
 
     document.querySelectorAll('.view').forEach(view => {
         view.classList.remove('active');
@@ -1715,12 +1741,12 @@ function applyUpgradeVisibilityPreference() {
         }
     }
 
-    const modalOpen = document
-        .getElementById('cl-modal-overlay')
-        ?.classList.contains('open');
+    if (isDiscussionFocusOpen()) {
+        renderDiscussionFocusUpgrade();
+    }
 
-    if (modalOpen) {
-        renderCurrentModalUpgrade();
+    if (isCulturalLensFocusOpen()) {
+        renderCulturalLensFocusUpgrade();
     }
 }
 
@@ -2010,7 +2036,20 @@ function gentlyRevealUpgradePanel(panel) {
 }
 
 function closeAllUpgradePanels() {
+    const focusMainsToReset = new Set();
+
     document.querySelectorAll('.upgrade-panel.open').forEach(panel => {
+        const focusMain = panel
+            .closest('.discussion-focus-view')
+            ?.querySelector('.discussion-focus-main');
+
+        if (
+            panel.closest('.focus-view-upgrade') &&
+            focusMain
+        ) {
+            focusMainsToReset.add(focusMain);
+        }
+
         panel.classList.remove('open');
 
         const contextId = panel.id.replace('up-', '');
@@ -2025,6 +2064,13 @@ function closeAllUpgradePanels() {
             .closest('.moment-upgrade-wrap')
             ?.classList.remove('upgrade-open');
     });
+
+    focusMainsToReset.forEach(main => {
+        main.scrollTo({
+            top: 0,
+            behavior: getScrollBehavior()
+        });
+    });
 }
 
 function toggleUpgrade(contextId, event) {
@@ -2037,6 +2083,15 @@ function toggleUpgrade(contextId, event) {
 
     const opening = !panel.classList.contains('open');
 
+    const focusMain = panel
+        .closest('.discussion-focus-view')
+        ?.querySelector('.discussion-focus-main');
+
+    const inFocusView = Boolean(
+        panel.closest('.focus-view-upgrade') &&
+        focusMain
+    );
+
     closeAllUpgradePanels();
 
     if (!opening) return;
@@ -2048,6 +2103,19 @@ function toggleUpgrade(contextId, event) {
 
     chip.classList.add('open');
     chip.setAttribute('aria-expanded', 'true');
+
+    if (inFocusView) {
+        window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => {
+                focusMain.scrollTo({
+                    top: focusMain.scrollHeight,
+                    behavior: getScrollBehavior()
+                });
+            });
+        });
+
+        return;
+    }
 
     gentlyRevealUpgradePanel(panel);
 }
@@ -2194,6 +2262,14 @@ function refreshExploredUI() {
         }
     }
 
+    if (isDiscussionFocusOpen()) {
+        updateDiscussionFocusExploredButton();
+    }
+
+    if (isCulturalLensFocusOpen()) {
+        updateCulturalLensFocusExploredButton();
+    }
+
     updateCoverActionUI();
 }
 
@@ -2214,17 +2290,27 @@ function renderCLGrid() {
         const element = document.createElement('div');
 
         element.className = `cl-card state-${state}`;
+        element.id = `cl-card-${card.id}`;
         element.dataset.id = card.id;
         element.dataset.index = String(index);
         element.setAttribute('role', 'button');
         element.setAttribute('tabindex', '0');
 
-        element.onclick = () => openCLModal(index);
+        element.onclick = () => {
+            openCulturalLensFocus(
+                index,
+                element
+            );
+        };
 
         element.onkeydown = event => {
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
-                openCLModal(index);
+
+                openCulturalLensFocus(
+                    index,
+                    element
+                );
             }
         };
 
@@ -2290,169 +2376,952 @@ function updateCLProgress() {
     }
 }
 
-function renderCurrentModalUpgrade() {
-    const card = clCards[currentModalIndex];
-    const row = document.getElementById('modal-upgrade-row');
+function isCulturalLensFocusOpen() {
+    const focusView = document.getElementById(
+        'cultural-lens-focus-view'
+    );
 
-    if (!card || !row) return;
-
-    row.innerHTML = buildUpgradeChip(
-        card.upgrade,
-        `cl-${card.id}`
+    return Boolean(
+        focusView &&
+        !focusView.hidden
     );
 }
 
-function renderFollowTheThread(card) {
-    const container = document.getElementById(
-        'modal-follow-thread-questions'
+function getCurrentCulturalLensCard() {
+    return clCards[currentCulturalLensIndex] || null;
+}
+
+function renderCulturalLensFocusUpgrade() {
+    const card = getCurrentCulturalLensCard();
+
+    const mount = document.getElementById(
+        'cultural-lens-focus-upgrade'
     );
 
-    const block = document.getElementById('modal-follow-thread');
+    if (!mount) return;
 
-    if (!container || !block) return;
+    const content = card?.upgrade
+        ? buildUpgradeChip(
+            card.upgrade,
+            `cl-${card.id}`
+        )
+        : '';
+
+    mount.innerHTML = content;
+    mount.hidden = !content;
+}
+
+function renderCulturalLensFocusFollowTheThread() {
+    const card = getCurrentCulturalLensCard();
+
+    const button = document.getElementById(
+        'cultural-lens-focus-thread-btn'
+    );
+
+    const panel = document.getElementById(
+        'cultural-lens-focus-thread-panel'
+    );
+
+    const container = document.getElementById(
+        'cultural-lens-focus-thread-questions'
+    );
+
+    if (
+        !card ||
+        !button ||
+        !panel ||
+        !container
+    ) {
+        return;
+    }
 
     const questions = Array.isArray(card.followTheThread)
         ? card.followTheThread
         : [];
 
-    block.hidden = questions.length === 0;
+    button.hidden = questions.length === 0;
+    button.setAttribute('aria-expanded', 'false');
+
+    panel.hidden = true;
 
     container.innerHTML = questions.map(question => `
-            <p class="follow-thread-question">
+            <p class="cultural-lens-focus-thread-question">
                 ${escHtml(question)}
             </p>
         `).join('');
 }
 
-function openCLModal(index) {
-    const card = clCards[index];
-
-    if (!card) return;
-
-    currentModalIndex = index;
-
-    setText('modal-context-line', card.contextLine);
-    setText('modal-title', card.title);
-    setText('modal-context', card.context);
-    setText('modal-main-question', card.mainQuestion);
-
-    renderFollowTheThread(card);
-    renderCurrentModalUpgrade();
-
-    const previousButton = document.getElementById('modal-prev-btn');
-    const nextButton = document.getElementById('modal-next-btn');
-
-    if (previousButton) {
-        previousButton.disabled = index === 0;
-        previousButton.style.opacity = index === 0
-            ? '0.35'
-            : '1';
-    }
-
-    if (nextButton) {
-        nextButton.disabled = index === clCards.length - 1;
-        nextButton.style.opacity =
-            index === clCards.length - 1
-                ? '0.35'
-                : '1';
-    }
-
-    updateCLModalExploredButton();
-    resetModalScroll();
-
-    document
-        .getElementById('cl-modal-overlay')
-        ?.classList.add('open');
-
-    document.body.style.overflow = 'hidden';
-
-    activateFocusTrap(
-        document.getElementById('cl-modal-panel')
+function toggleCulturalLensFocusFollowTheThread() {
+    const button = document.getElementById(
+        'cultural-lens-focus-thread-btn'
     );
-}
 
-function resetModalScroll() {
-    const overlay = document.getElementById('cl-modal-overlay');
-    const panel = document.getElementById('cl-modal-panel');
-    const body = panel?.querySelector('.modal-body');
+    const panel = document.getElementById(
+        'cultural-lens-focus-thread-panel'
+    );
 
-    [overlay, panel, body].forEach(element => {
-        if (element) {
-            element.scrollTop = 0;
-        }
-    });
+    if (!button || !panel) return;
+
+    const opening = panel.hidden;
+
+    closeAllUpgradePanels();
+
+    panel.hidden = !opening;
+
+    button.setAttribute(
+        'aria-expanded',
+        String(opening)
+    );
+
+    if (!opening) return;
 
     requestAnimationFrame(() => {
-        [overlay, panel, body].forEach(element => {
-            if (element) {
-                element.scrollTop = 0;
-            }
+        panel.scrollIntoView({
+            behavior: getScrollBehavior(),
+            block: 'nearest',
+            inline: 'nearest'
         });
     });
 }
 
-function closeModal() {
-    document
-        .getElementById('cl-modal-overlay')
-        ?.classList.remove('open');
+function updateCulturalLensFocusExploredButton() {
+    const button = document.getElementById(
+        'cultural-lens-focus-explored-btn'
+    );
 
-    document.body.style.overflow = '';
-
-    closeAllUpgradePanels();
-    renderCLGrid();
-    releaseFocusTrap();
-}
-
-function handleModalOverlayClick(event) {
-    if (event.target === document.getElementById('cl-modal-overlay')) {
-        closeModal();
-    }
-}
-
-function navigateModal(direction) {
-    const nextIndex = currentModalIndex + direction;
-
-    if (nextIndex >= 0 && nextIndex < clCards.length) {
-        openCLModal(nextIndex);
-    }
-}
-
-function updateCLModalExploredButton() {
-    const button = document.getElementById('cl-modal-explored-btn');
-    const card = clCards[currentModalIndex];
+    const card = getCurrentCulturalLensCard();
 
     if (!button || !card) return;
 
     const explored = progress.explored.has(card.id);
 
-    button.classList.toggle('is-explored', explored);
-    button.setAttribute('aria-pressed', String(explored));
+    button.classList.toggle(
+        'is-explored',
+        explored
+    );
+
+    button.setAttribute(
+        'aria-pressed',
+        String(explored)
+    );
+
     button.setAttribute(
         'aria-label',
-        explored ? 'Mark as not explored' : 'Mark explored'
+        explored
+            ? 'Mark as not explored'
+            : 'Mark explored'
     );
 
     button.title = explored
         ? 'Mark this card as not explored'
         : 'Mark this card as explored';
 
-    button.innerHTML = getExploredButtonContent(explored);
+    button.innerHTML =
+        getExploredButtonContent(explored);
 }
 
-function toggleCLExploredFromModal() {
-    const card = clCards[currentModalIndex];
+function renderCulturalLensFocus() {
+    const card = getCurrentCulturalLensCard();
+
+    if (!card) return;
+
+    setText(
+        'cultural-lens-focus-stage',
+        'Cultural Lens'
+    );
+
+    setText(
+        'cultural-lens-focus-heading',
+        subjectCopy.culturalLens.heading || 'Cultural Lens'
+    );
+
+    const backButton = document.getElementById(
+        'cultural-lens-focus-back-btn'
+    );
+
+    if (backButton) {
+        backButton.title = 'Back to browse';
+
+        backButton.setAttribute(
+            'aria-label',
+            'Return to Cultural Lens browse'
+        );
+    }
+
+    setText(
+        'cultural-lens-focus-position',
+        `${currentCulturalLensIndex + 1} of ${clCards.length}`
+    );
+
+    setText(
+        'cultural-lens-focus-context-line',
+        card.contextLine
+    );
+
+    setText(
+        'cultural-lens-focus-title',
+        card.title
+    );
+
+    setText(
+        'cultural-lens-focus-context',
+        card.context
+    );
+
+    setText(
+        'cultural-lens-focus-question',
+        card.mainQuestion
+    );
+
+    const previousButton = document.getElementById(
+        'cultural-lens-focus-prev-btn'
+    );
+
+    const nextButton = document.getElementById(
+        'cultural-lens-focus-next-btn'
+    );
+
+    const previousCard = clCards[currentCulturalLensIndex - 1];
+    const nextCard = clCards[currentCulturalLensIndex + 1];
+
+    if (previousButton) {
+        previousButton.disabled = !previousCard;
+
+        previousButton.setAttribute(
+            'aria-label',
+            previousCard
+                ? `Previous culture: ${previousCard.title}`
+                : 'No previous culture'
+        );
+    }
+
+    if (nextButton) {
+        nextButton.disabled = !nextCard;
+
+        nextButton.setAttribute(
+            'aria-label',
+            nextCard
+                ? `Next culture: ${nextCard.title}`
+                : 'No next culture'
+        );
+    }
+
+    renderCulturalLensFocusFollowTheThread();
+    renderCulturalLensFocusUpgrade();
+    updateCulturalLensFocusExploredButton();
+}
+
+function openCulturalLensFocus(
+    index,
+    trigger = document.activeElement
+) {
+    const card = clCards[index];
+
+    const focusView = document.getElementById(
+        'cultural-lens-focus-view'
+    );
+
+    const browseView = document.getElementById(
+        'cultural-lens-browse-view'
+    );
+
+    if (
+        !card ||
+        !focusView ||
+        !browseView
+    ) {
+        return;
+    }
+
+    if (!isCulturalLensFocusOpen()) {
+        culturalLensFocusScrollX = window.scrollX;
+        culturalLensFocusScrollY = window.scrollY;
+
+        culturalLensFocusPreviousBodyOverflow =
+            document.body.style.overflow;
+
+        culturalLensFocusPreviousRootOverflow =
+            document.documentElement.style.overflow;
+
+        culturalLensFocusReturnElement =
+            trigger instanceof HTMLElement
+                ? trigger
+                : null;
+
+        culturalLensFocusReturnCardId = card.id;
+    }
+
+    currentCulturalLensIndex = index;
+
+    closeUpgradeVisibilityMenus();
+    closeAllUpgradePanels();
+
+    renderCulturalLensFocus();
+
+    browseView.setAttribute(
+        'aria-hidden',
+        'true'
+    );
+
+    browseView.setAttribute('inert', '');
+
+    focusView.hidden = false;
+
+    document.documentElement.classList.add(
+        'cultural-lens-focus-active'
+    );
+
+    document.body.classList.add(
+        'cultural-lens-focus-active'
+    );
+
+    document.documentElement.style.overflow =
+        'hidden';
+
+    document.body.style.overflow =
+        'hidden';
+
+    const main = document.getElementById(
+        'cultural-lens-focus-main'
+    );
+
+    if (main) {
+        main.scrollTop = 0;
+    }
+
+    requestAnimationFrame(() => {
+        document
+            .getElementById('cultural-lens-focus-back-btn')
+            ?.focus({ preventScroll: true });
+    });
+}
+
+function closeCulturalLensFocus({
+    restoreScroll = true,
+    restoreFocus = true
+} = {}) {
+    const focusView = document.getElementById(
+        'cultural-lens-focus-view'
+    );
+
+    const browseView = document.getElementById(
+        'cultural-lens-browse-view'
+    );
+
+    if (
+        !focusView ||
+        focusView.hidden
+    ) {
+        return;
+    }
+
+    const returnElement =
+        culturalLensFocusReturnElement;
+
+    const returnCardId =
+        culturalLensFocusReturnCardId;
+
+    closeAllUpgradePanels();
+
+    focusView.hidden = true;
+
+    document.documentElement.classList.remove(
+        'cultural-lens-focus-active'
+    );
+
+    document.body.classList.remove(
+        'cultural-lens-focus-active'
+    );
+
+    document.documentElement.style.overflow =
+        culturalLensFocusPreviousRootOverflow;
+
+    document.body.style.overflow =
+        culturalLensFocusPreviousBodyOverflow;
+
+    browseView?.removeAttribute(
+        'aria-hidden'
+    );
+
+    browseView?.removeAttribute(
+        'inert'
+    );
+
+    culturalLensFocusReturnElement = null;
+    culturalLensFocusReturnCardId = '';
+
+    renderCLGrid();
+
+    if (!restoreScroll && !restoreFocus) {
+        return;
+    }
+
+    requestAnimationFrame(() => {
+        if (restoreScroll) {
+            window.scrollTo(
+                culturalLensFocusScrollX,
+                culturalLensFocusScrollY
+            );
+        }
+
+        if (!restoreFocus) return;
+
+        const originalStillExists =
+            returnElement &&
+            document.contains(returnElement);
+
+        const target = originalStillExists
+            ? returnElement
+            : document.getElementById(
+                `cl-card-${returnCardId}`
+            );
+
+        target?.focus?.({
+            preventScroll: true
+        });
+    });
+}
+
+function navigateCulturalLensFocus(direction) {
+    const nextIndex =
+        currentCulturalLensIndex + direction;
+
+    if (
+        nextIndex < 0 ||
+        nextIndex >= clCards.length
+    ) {
+        return;
+    }
+
+    currentCulturalLensIndex = nextIndex;
+
+    closeAllUpgradePanels();
+    renderCulturalLensFocus();
+
+    const main = document.getElementById(
+        'cultural-lens-focus-main'
+    );
+
+    if (main) {
+        main.scrollTo({
+            top: 0,
+            behavior: getScrollBehavior()
+        });
+    }
+}
+
+function toggleCulturalLensFocusExplored() {
+    const card = getCurrentCulturalLensCard();
 
     if (!card) return;
 
     if (progress.explored.has(card.id)) {
         unmarkExplored(card.id);
-        updateCLModalExploredButton();
-        renderCLGrid();
+    } else {
+        markExplored(card.id);
+    }
+
+    renderCLGrid();
+    updateCulturalLensFocusExploredButton();
+}
+
+
+// ============================================================
+// DISCUSSION FOCUS VIEW
+// Shared teaching surface opened from the Discussion browser.
+// ============================================================
+
+function isDiscussionFocusOpen() {
+    const focusView = document.getElementById(
+        'discussion-focus-view'
+    );
+
+    return Boolean(
+        focusView &&
+        !focusView.hidden
+    );
+}
+
+function getDiscussionFocusSet() {
+    return discussionSets.find(
+        set => set.id === discussionFocusSetId
+    ) || null;
+}
+
+function getDiscussionFocusSequence(
+    set = getDiscussionFocusSet()
+) {
+    if (!set) return [];
+
+    const moments = set.moments.map(moment => ({
+        type: 'moment',
+        id: moment.id,
+        item: moment
+    }));
+
+    if (!set.makeItReal) {
+        return moments;
+    }
+
+    return [
+        ...moments,
+        {
+            type: 'make-it-real',
+            id: DISCUSSION_FOCUS_MAKE_IT_REAL_ID,
+            item: set.makeItReal
+        }
+    ];
+}
+
+function getDiscussionFocusEntry() {
+    return getDiscussionFocusSequence().find(
+        entry => entry.id === discussionFocusMomentId
+    ) || null;
+}
+
+function getDiscussionFocusMoment() {
+    const entry = getDiscussionFocusEntry();
+
+    return entry?.type === 'moment'
+        ? entry.item
+        : null;
+}
+
+function renderDiscussionFocusUpgrade() {
+    const mount = document.getElementById(
+        'discussion-focus-upgrade'
+    );
+
+    const moment = getDiscussionFocusMoment();
+
+    if (!mount) return;
+
+    const content = moment?.upgrade
+        ? buildUpgradeChip(
+            moment.upgrade,
+            `moment-${moment.id}`
+        )
+        : '';
+
+    mount.innerHTML = content;
+    mount.hidden = !content;
+}
+
+function updateDiscussionFocusExploredButton() {
+    const button = document.getElementById(
+        'discussion-focus-explored-btn'
+    );
+
+    const moment = getDiscussionFocusMoment();
+
+    if (!button) return;
+
+    button.hidden = !moment;
+
+    if (!moment) return;
+
+    const explored = progress.explored.has(moment.id);
+
+    button.classList.toggle(
+        'is-explored',
+        explored
+    );
+
+    button.setAttribute(
+        'aria-pressed',
+        String(explored)
+    );
+
+    button.setAttribute(
+        'aria-label',
+        explored
+            ? 'Mark as not explored'
+            : 'Mark explored'
+    );
+
+    button.title = explored
+        ? 'Mark this moment as not explored'
+        : 'Mark this moment as explored';
+
+    button.innerHTML =
+        getExploredButtonContent(explored);
+}
+
+function renderDiscussionFocus() {
+    const set = getDiscussionFocusSet();
+    const entry = getDiscussionFocusEntry();
+
+    if (!set || !entry) return;
+
+    const sequence = getDiscussionFocusSequence(set);
+
+    const index = sequence.findIndex(
+        item => item.id === entry.id
+    );
+
+    const isMakeItReal =
+        entry.type === 'make-it-real';
+
+    const focusView = document.getElementById(
+        'discussion-focus-view'
+    );
+
+    focusView?.classList.toggle(
+        'is-make-it-real',
+        isMakeItReal
+    );
+
+    setText(
+        'discussion-focus-stage',
+        'Discussion'
+    );
+
+    setText(
+        'discussion-focus-set-title',
+        set.title
+    );
+
+    setText(
+        'discussion-focus-title',
+        isMakeItReal
+            ? entry.item.title
+            : entry.item.preview
+    );
+
+    setText(
+        'discussion-focus-question',
+        isMakeItReal
+            ? entry.item.prompt
+            : entry.item.question
+    );
+
+    setText(
+        'discussion-focus-position',
+        isMakeItReal
+            ? 'Activity'
+            : `${index + 1} of ${set.moments.length}`
+    );
+
+    const backButton = document.getElementById(
+        'discussion-focus-back-btn'
+    );
+
+    if (backButton) {
+        backButton.title = 'Back to browse';
+
+        backButton.setAttribute(
+            'aria-label',
+            'Return to Discussion browse'
+        );
+    }
+
+    const previousButton = document.getElementById(
+        'discussion-focus-prev-btn'
+    );
+
+    const nextButton = document.getElementById(
+        'discussion-focus-next-btn'
+    );
+
+    const previousEntry = sequence[index - 1];
+    const nextEntry = sequence[index + 1];
+
+    const getEntryLabel = item => {
+        if (!item) return '';
+
+        return item.type === 'make-it-real'
+            ? `Make It Real: ${item.item.title}`
+            : `moment: ${item.item.preview}`;
+    };
+
+    if (previousButton) {
+        previousButton.disabled = index <= 0;
+
+        previousButton.setAttribute(
+            'aria-label',
+            previousEntry
+                ? `Previous ${getEntryLabel(previousEntry)}`
+                : 'No previous item'
+        );
+    }
+
+    if (nextButton) {
+        const nextLabel =
+            nextEntry?.type === 'make-it-real'
+                ? 'Make It Real'
+                : 'Next';
+
+        nextButton.hidden = !nextEntry;
+        nextButton.disabled = !nextEntry;
+
+        nextButton.setAttribute(
+            'aria-label',
+            nextEntry
+                ? `Next ${getEntryLabel(nextEntry)}`
+                : 'No next item'
+        );
+
+        nextButton.innerHTML = `
+                ${escHtml(nextLabel)}
+
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M5.5 3l4 4-4 4"
+                        stroke="currentColor"
+                        stroke-width="1.4"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+            `;
+    }
+
+    renderDiscussionFocusUpgrade();
+    updateDiscussionFocusExploredButton();
+}
+
+function openDiscussionFocus(
+    setId,
+    momentId,
+    trigger = document.activeElement
+) {
+    const set = discussionSets.find(
+        item => item.id === setId
+    );
+
+    const entry = getDiscussionFocusSequence(set).find(
+        item => item.id === momentId
+    );
+
+    const focusView = document.getElementById(
+        'discussion-focus-view'
+    );
+
+    const browseView = document.getElementById(
+        'discussion-browse-view'
+    );
+
+    if (
+        !set ||
+        !entry ||
+        !focusView ||
+        !browseView
+    ) {
         return;
     }
 
-    markExplored(card.id);
-    closeModal();
+    if (!isDiscussionFocusOpen()) {
+        discussionFocusScrollX = window.scrollX;
+        discussionFocusScrollY = window.scrollY;
+
+        discussionFocusPreviousBodyOverflow =
+            document.body.style.overflow;
+
+        discussionFocusPreviousRootOverflow =
+            document.documentElement.style.overflow;
+
+        discussionFocusReturnElement =
+            trigger instanceof HTMLElement
+                ? trigger
+                : null;
+    }
+
+    activeSetId = set.id;
+    discussionFocusSetId = set.id;
+    discussionFocusMomentId = entry.id;
+
+    closeUpgradeVisibilityMenus();
+    closeAllUpgradePanels();
+
+    renderDiscussionFocus();
+
+    browseView.setAttribute(
+        'aria-hidden',
+        'true'
+    );
+
+    browseView.setAttribute('inert', '');
+
+    focusView.hidden = false;
+
+    document.documentElement.classList.add(
+        'discussion-focus-active'
+    );
+
+    document.body.classList.add(
+        'discussion-focus-active'
+    );
+
+    document.documentElement.style.overflow =
+        'hidden';
+
+    document.body.style.overflow =
+        'hidden';
+
+    const main = document.getElementById(
+        'discussion-focus-main'
+    );
+
+    if (main) {
+        main.scrollTop = 0;
+    }
+
+    requestAnimationFrame(() => {
+        document
+            .getElementById('discussion-focus-back-btn')
+            ?.focus({ preventScroll: true });
+    });
+}
+
+function closeDiscussionFocus({
+    restoreScroll = true,
+    restoreFocus = true
+} = {}) {
+    const focusView = document.getElementById(
+        'discussion-focus-view'
+    );
+
+    const browseView = document.getElementById(
+        'discussion-browse-view'
+    );
+
+    if (
+        !focusView ||
+        focusView.hidden
+    ) {
+        return;
+    }
+
+    const returnSetId =
+        discussionFocusSetId;
+
+    const returnItemId =
+        discussionFocusMomentId;
+
+    const originalReturnElement =
+        discussionFocusReturnElement;
+
+    closeAllUpgradePanels();
+
+    focusView.hidden = true;
+
+    focusView.classList.remove(
+        'is-make-it-real'
+    );
+
+    document.documentElement.classList.remove(
+        'discussion-focus-active'
+    );
+
+    document.body.classList.remove(
+        'discussion-focus-active'
+    );
+
+    document.documentElement.style.overflow =
+        discussionFocusPreviousRootOverflow;
+
+    document.body.style.overflow =
+        discussionFocusPreviousBodyOverflow;
+
+    browseView?.removeAttribute(
+        'aria-hidden'
+    );
+
+    browseView?.removeAttribute(
+        'inert'
+    );
+
+    discussionFocusSetId = null;
+    discussionFocusMomentId = null;
+    discussionFocusReturnElement = null;
+
+    if (!restoreScroll && !restoreFocus) {
+        return;
+    }
+
+    requestAnimationFrame(() => {
+        if (restoreScroll) {
+            window.scrollTo(
+                discussionFocusScrollX,
+                discussionFocusScrollY
+            );
+        }
+
+        if (!restoreFocus) return;
+
+        const originalStillExists =
+            originalReturnElement &&
+            document.contains(originalReturnElement);
+
+        const fallbackId =
+            returnItemId === DISCUSSION_FOCUS_MAKE_IT_REAL_ID
+                ? `make-it-real-card-${returnSetId}`
+                : `moment-card-${returnItemId}`;
+
+        const target = originalStillExists
+            ? originalReturnElement
+            : document.getElementById(fallbackId);
+
+        target?.focus?.({
+            preventScroll: true
+        });
+    });
+}
+
+function navigateDiscussionFocus(direction) {
+    const set = getDiscussionFocusSet();
+    const entry = getDiscussionFocusEntry();
+
+    if (!set || !entry) return;
+
+    const sequence = getDiscussionFocusSequence(set);
+
+    const currentIndex = sequence.findIndex(
+        item => item.id === entry.id
+    );
+
+    if (currentIndex < 0) return;
+
+    const nextIndex = currentIndex + direction;
+
+    if (
+        nextIndex < 0 ||
+        nextIndex >= sequence.length
+    ) {
+        return;
+    }
+
+    discussionFocusMomentId =
+        sequence[nextIndex].id;
+
+    closeAllUpgradePanels();
+    renderDiscussionFocus();
+
+    const main = document.getElementById(
+        'discussion-focus-main'
+    );
+
+    if (main) {
+        main.scrollTo({
+            top: 0,
+            behavior: getScrollBehavior()
+        });
+    }
+}
+
+function toggleDiscussionFocusExplored() {
+    const set = getDiscussionFocusSet();
+    const moment = getDiscussionFocusMoment();
+
+    if (!set || !moment) return;
+
+    if (progress.explored.has(moment.id)) {
+        unmarkExplored(moment.id);
+    } else {
+        markExplored(moment.id);
+    }
+
+    renderDiscussionSets();
+    renderMoments(set);
+    updateDiscussionFocusExploredButton();
 }
 
 
@@ -2646,26 +3515,54 @@ function renderMoments(set) {
 
     set.moments.forEach((moment, index) => {
         const state = getItemState(moment.id);
-        const explored = state === 'explored';
         const card = document.createElement('div');
 
-        card.className = `moment-card state-${state}`;
+        card.className =
+            `moment-card moment-choice-card state-${state}`;
+
         card.id = `moment-card-${moment.id}`;
         card.dataset.momentId = moment.id;
 
-        const upgrade = buildUpgradeChip(
-            moment.upgrade,
-            `moment-${moment.id}`
+        card.setAttribute(
+            'role',
+            'button'
         );
 
-        card.innerHTML = `
-                <div
-                    class="moment-card-header"
-                    role="button"
-                    tabindex="0"
-                    onclick="toggleMoment('${moment.id}')"
-                    onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); toggleMoment('${moment.id}'); }">
+        card.setAttribute(
+            'tabindex',
+            '0'
+        );
 
+        card.setAttribute(
+            'aria-label',
+            `Open moment ${index + 1}: ${moment.preview}`
+        );
+
+        card.onclick = () => {
+            openDiscussionFocus(
+                set.id,
+                moment.id,
+                card
+            );
+        };
+
+        card.onkeydown = event => {
+            if (
+                event.key === 'Enter' ||
+                event.key === ' '
+            ) {
+                event.preventDefault();
+
+                openDiscussionFocus(
+                    set.id,
+                    moment.id,
+                    card
+                );
+            }
+        };
+
+        card.innerHTML = `
+                <div class="moment-card-header">
                     <div class="moment-state-dot"></div>
 
                     <span class="moment-num">
@@ -2676,39 +3573,13 @@ function renderMoments(set) {
                         ${escHtml(moment.preview)}
                     </span>
 
-                    <svg class="moment-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M3 5l4 4 4-4"
+                    <svg class="moment-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M5 3l4 4-4 4"
                             stroke="currentColor"
                             stroke-width="1.4"
                             stroke-linecap="round"
                             stroke-linejoin="round"/>
                     </svg>
-                </div>
-
-                <div class="moment-body">
-                    <p class="moment-text">
-                        ${escHtml(moment.question)}
-                    </p>
-
-                    <div class="moment-upgrade-wrap">
-                        <div class="moment-action-row">
-                            <div class="moment-upgrade-slot">
-                                ${upgrade}
-                            </div>
-
-                            <button
-                                class="btn-mark-explored${explored ? ' is-explored' : ''}"
-                                id="moment-btn-${moment.id}"
-                                onclick="toggleMomentExplored('${moment.id}')"
-                                aria-pressed="${String(explored)}"
-                                aria-label="${explored ? 'Mark as not explored' : 'Mark explored'}"
-                                title="${explored
-                ? 'Mark this moment as not explored'
-                : 'Mark this moment as explored'}">
-                                ${getExploredButtonContent(explored)}
-                            </button>
-                        </div>
-                    </div>
                 </div>
             `;
 
@@ -2718,7 +3589,48 @@ function renderMoments(set) {
     if (set.makeItReal) {
         const card = document.createElement('div');
 
-        card.className = 'make-it-real-card';
+        card.className =
+            'make-it-real-card make-it-real-choice-card';
+
+        card.id = `make-it-real-card-${set.id}`;
+
+        card.setAttribute(
+            'role',
+            'button'
+        );
+
+        card.setAttribute(
+            'tabindex',
+            '0'
+        );
+
+        card.setAttribute(
+            'aria-label',
+            `Open Make It Real: ${set.makeItReal.title}`
+        );
+
+        card.onclick = () => {
+            openDiscussionFocus(
+                set.id,
+                DISCUSSION_FOCUS_MAKE_IT_REAL_ID,
+                card
+            );
+        };
+
+        card.onkeydown = event => {
+            if (
+                event.key === 'Enter' ||
+                event.key === ' '
+            ) {
+                event.preventDefault();
+
+                openDiscussionFocus(
+                    set.id,
+                    DISCUSSION_FOCUS_MAKE_IT_REAL_ID,
+                    card
+                );
+            }
+        };
 
         card.innerHTML = `
                 <div class="make-it-real-header">
@@ -2735,12 +3647,14 @@ function renderMoments(set) {
                     <span class="make-it-real-title">
                         ${escHtml(set.makeItReal.title)}
                     </span>
-                </div>
 
-                <div class="make-it-real-body">
-                    <p class="make-it-real-prompt">
-                        ${escHtml(set.makeItReal.prompt)}
-                    </p>
+                    <svg class="moment-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M5 3l4 4-4 4"
+                            stroke="currentColor"
+                            stroke-width="1.4"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                    </svg>
                 </div>
             `;
 
@@ -3897,6 +4811,14 @@ function refreshSessionUI() {
     renderUpgradeVisibilityControls();
     updateSessionUI();
 
+    if (isDiscussionFocusOpen()) {
+        renderDiscussionFocus();
+    }
+
+    if (isCulturalLensFocusOpen()) {
+        renderCulturalLensFocus();
+    }
+
     if (isCompassWrapUpOpen()) {
         renderCompassWrapUp();
     }
@@ -4366,9 +5288,11 @@ function initAppearanceMode() {
 document.addEventListener('keydown', event => {
     handleFocusTrap(event);
 
-    const culturalLensModalOpen = document
-        .getElementById('cl-modal-overlay')
-        ?.classList.contains('open');
+    const culturalLensFocusOpen =
+        isCulturalLensFocusOpen();
+
+    const discussionFocusOpen =
+        isDiscussionFocusOpen();
 
     if (event.key === 'Escape') {
         const dialog = document.getElementById(
@@ -4377,8 +5301,46 @@ document.addEventListener('keydown', event => {
 
         if (dialog?.open) return;
 
-        if (culturalLensModalOpen) {
-            closeModal();
+        if (discussionFocusOpen) {
+            const upgradeOpen = document.querySelector(
+                '#discussion-focus-upgrade .upgrade-panel.open'
+            );
+
+            if (upgradeOpen) {
+                closeAllUpgradePanels();
+                return;
+            }
+
+            closeDiscussionFocus();
+            return;
+        }
+
+        if (culturalLensFocusOpen) {
+            const upgradeOpen = document.querySelector(
+                '#cultural-lens-focus-upgrade .upgrade-panel.open'
+            );
+
+            if (upgradeOpen) {
+                closeAllUpgradePanels();
+                return;
+            }
+
+            const threadPanel = document.getElementById(
+                'cultural-lens-focus-thread-panel'
+            );
+
+            if (threadPanel && !threadPanel.hidden) {
+                threadPanel.hidden = true;
+
+                document
+                    .getElementById('cultural-lens-focus-thread-btn')
+                    ?.setAttribute('aria-expanded', 'false');
+
+                return;
+            }
+
+            closeCulturalLensFocus();
+            return;
         }
 
         if (
@@ -4402,28 +5364,64 @@ document.addEventListener('keydown', event => {
     }
 
     if (
-        culturalLensModalOpen &&
+        discussionFocusOpen &&
         event.key === 'ArrowRight'
     ) {
-        const nextButton =
-            document.getElementById('modal-next-btn');
+        const nextButton = document.getElementById(
+            'discussion-focus-next-btn'
+        );
 
         if (nextButton && !nextButton.disabled) {
             event.preventDefault();
-            navigateModal(1);
+            navigateDiscussionFocus(1);
         }
     }
 
     if (
-        culturalLensModalOpen &&
+        discussionFocusOpen &&
         event.key === 'ArrowLeft'
     ) {
-        const previousButton =
-            document.getElementById('modal-prev-btn');
+        const previousButton = document.getElementById(
+            'discussion-focus-prev-btn'
+        );
 
-        if (previousButton && !previousButton.disabled) {
+        if (
+            previousButton &&
+            !previousButton.disabled
+        ) {
             event.preventDefault();
-            navigateModal(-1);
+            navigateDiscussionFocus(-1);
+        }
+    }
+
+    if (
+        culturalLensFocusOpen &&
+        event.key === 'ArrowRight'
+    ) {
+        const nextButton = document.getElementById(
+            'cultural-lens-focus-next-btn'
+        );
+
+        if (nextButton && !nextButton.disabled) {
+            event.preventDefault();
+            navigateCulturalLensFocus(1);
+        }
+    }
+
+    if (
+        culturalLensFocusOpen &&
+        event.key === 'ArrowLeft'
+    ) {
+        const previousButton = document.getElementById(
+            'cultural-lens-focus-prev-btn'
+        );
+
+        if (
+            previousButton &&
+            !previousButton.disabled
+        ) {
+            event.preventDefault();
+            navigateCulturalLensFocus(-1);
         }
     }
 });
