@@ -16,6 +16,7 @@
   VERBA PONTES FACIUNT · SENSUS VIAM APERIT · DISCIPLINA VIVA EST
   ==========================================================================
 */
+
 const MODULE = {
     id: 'technology-innovation',
     schemaVersion: 2,
@@ -25,6 +26,7 @@ const MODULE = {
     navTitle: 'Technology',
     bgImage: 'https://photos.smugmug.com/Atlas/i-HRxxfKm/0/LxfwrSftsBGtshL2rMnbjKdDnxpzS6kRwnZFvCXF5/O/2d9b20d4-fb4f-4a9d-b2de-80dd6a13a04a.png'
 };
+
 const subjectCopy = {
     cover: {
         hook: `You made a deal. You just don’t remember signing anything.`
@@ -61,12 +63,13 @@ const subjectCopy = {
         intro: `Natural ways to talk about relying on things, resisting them, and weighing what they’re worth.`
     }
 };
+
 const discussionSets = [
     {
         id: 'set-the-human-bit',
         title: `The Human Bit`,
-        stage: `React`,
-        icon: 'react',
+        stage: `First Look`,
+        icon: 'first-look',
         description: `The small triumphs, ridiculous failures, private attachments, and moments when a machine makes you feel very human.`,
 
         moments: [
@@ -156,8 +159,8 @@ const discussionSets = [
     {
         id: 'set-what-kind-of-user',
         title: `What Kind of User Are You?`,
-        stage: `Explain`,
-        icon: 'explain',
+        stage: `Closer Look`,
+        icon: 'closer-look',
         description: `The habits you defend, the behaviour you judge, and the boundaries people rarely agree on.`,
 
         moments: [
@@ -247,8 +250,8 @@ const discussionSets = [
     {
         id: 'set-what-it-changes',
         title: `What It Changes`,
-        stage: `Reflect and Relate`,
-        icon: 'reflect',
+        stage: `Wider View`,
+        icon: 'wider-view',
         description: `The people it brings closer, the skills it replaces, and the future habits we are creating now.`,
 
         moments: [
@@ -335,6 +338,7 @@ const discussionSets = [
         }
     }
 ];
+
 const clCards = [
     {
         id: 'cl-every-new-thing',
