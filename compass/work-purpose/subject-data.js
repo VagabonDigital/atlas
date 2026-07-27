@@ -81,7 +81,7 @@ const discussionSets = [
             {
                 id: 'moment-never-for-any-wage',
                 preview: `There’s a number, or there isn’t.`,
-                question: `What job would you refuse no matter what it paid — nothing illegal or dangerous, just work you could not stand? What part puts you off, and could any salary change your mind?`,
+                question: `What job could nobody pay you enough to do? What part of it makes you so certain?`,
 
                 upgrade: {
                     term: `you couldn’t pay me enough`,
