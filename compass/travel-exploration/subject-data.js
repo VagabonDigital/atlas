@@ -73,8 +73,8 @@ const discussionSets = [
     {
         id: 'set-honest-bit',
         title: `The Honest Bit`,
-        stage: `React`,
-        icon: 'react',
+        stage: `First Look`,
+        icon: 'first-look',
         description: `The mess, the excitement, and the small things you only notice once you’re away.`,
 
         moments: [
@@ -164,8 +164,8 @@ const discussionSets = [
     {
         id: 'set-what-kind-of-traveller',
         title: `What Kind of Traveller Are You?`,
-        stage: `Explain`,
-        icon: 'explain',
+        stage: `Closer Look`,
+        icon: 'closer-look',
         description: `The types you defend, the habits you would never change, and the choices travellers quietly judge one another for.`,
 
         moments: [
@@ -255,8 +255,8 @@ const discussionSets = [
     {
         id: 'set-what-the-going-leaves',
         title: `What Travel Leaves Behind`,
-        stage: `Reflect and Relate`,
-        icon: 'reflect',
+        stage: `Wider View`,
+        icon: 'wider-view',
         description: `The people you remember, the stories that improve with time, and what feels different when you come home.`,
 
         moments: [
