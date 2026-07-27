@@ -74,8 +74,8 @@ const discussionSets = [
     {
         id: 'set-you-know-someone-like-this',
         title: `You Know Someone Like This`,
-        stage: `React`,
-        icon: 'react',
+        stage: `First Look`,
+        icon: 'first-look',
         description: `Messages that create panic, embarrassment, irritation, and stories people keep retelling.`,
         moments: [
             {
@@ -157,8 +157,8 @@ const discussionSets = [
     {
         id: 'set-and-what-are-you-like',
         title: `And What Are You Like?`,
-        stage: `Explain`,
-        icon: 'explain',
+        stage: `Closer Look`,
+        icon: 'closer-look',
         description: `How you refuse, sound when annoyed, express yourself in English, and become recognisably you.`,
         moments: [
             {
@@ -240,8 +240,8 @@ const discussionSets = [
     {
         id: 'set-words-that-did-something',
         title: `Words That Did Something`,
-        stage: `Reflect and Relate`,
-        icon: 'reflect',
+        stage: `Wider View`,
+        icon: 'wider-view',
         description: `The sentences that changed a situation, stayed in memory, repaired damage, or reached the right person.`,
         moments: [
             {
