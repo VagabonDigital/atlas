@@ -9,7 +9,7 @@
   accounts, and the version of its history that everybody disputes.
   The Compass subject where the learner is both the unreliable narrator
   and the defence lawyer.
-  Compass active subject · contentVersion 3.1.1
+  Compass active subject · contentVersion 3.1.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -74,8 +74,8 @@ const discussionSets = [
     {
         id: 'set-nobody-sits-there',
         title: `Nobody Sits There`,
-        stage: `React`,
-        icon: 'react',
+        stage: `First Look`,
+        icon: 'first-look',
         description: `Private words, house rules, family stories, familiar rooms, and the warning every newcomer needs.`,
         moments: [
             {
@@ -157,8 +157,8 @@ const discussionSets = [
     {
         id: 'set-keeping-score',
         title: `Somebody’s Keeping Score`,
-        stage: `Explain`,
-        icon: 'explain',
+        stage: `Closer Look`,
+        icon: 'closer-look',
         description: `Favouritism, invisible work, money, intrusive questions, and the first move after a long silence.`,
         moments: [
             {
@@ -240,8 +240,8 @@ const discussionSets = [
     {
         id: 'set-the-bits-you-kept',
         title: `What Stays, What Changes`,
-        stage: `Reflect and Relate`,
-        icon: 'reflect',
+        stage: `Wider View`,
+        icon: 'wider-view',
         description: `Habits that reappear, people who become family, patterns that end, traditions that continue, and influence that remains.`,
         moments: [
             {
