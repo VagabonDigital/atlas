@@ -73,8 +73,8 @@ const discussionSets = [
     {
         id: 'set-first-bite',
         title: `The First Bite`,
-        stage: `React`,
-        icon: 'react',
+        stage: `First Look`,
+        icon: 'first-look',
         description: `Cravings, odd combinations, near disasters, and the food that arrives at exactly the right moment.`,
 
         moments: [
@@ -164,8 +164,8 @@ const discussionSets = [
     {
         id: 'set-rules-nobody-wrote',
         title: `Rules Nobody Wrote`,
-        stage: `Explain`,
-        icon: 'explain',
+        stage: `Closer Look`,
+        icon: 'closer-look',
         description: `Sharing, refusing, helping, waiting, and the table habits people judge without saying so.`,
 
         moments: [
@@ -256,8 +256,8 @@ const discussionSets = [
     {
         id: 'set-what-table-keeps',
         title: `What the Table Keeps`,
-        stage: `Reflect and Relate`,
-        icon: 'reflect',
+        stage: `Wider View`,
+        icon: 'wider-view',
         description: `Recipes passed down, food offered as care, and tastes that stay with us or change over time.`,
 
         moments: [
