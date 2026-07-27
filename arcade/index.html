@@ -127,20 +127,20 @@
         0 20px 58px rgba(58, 36, 63, 0.075),
         inset 0 1px 0 rgba(255, 255, 255, 0.68);
       --card-surface: rgba(255, 253, 249, 0.91);
-      --card-surface-hover: rgba(255, 253, 249, 0.91);
+      --card-surface-hover: rgba(255, 255, 255, 0.97);
       --card-border: rgba(58, 36, 63, 0.135);
-      --card-border-width: 1px;
-      --card-emphasis-ring-width: 1px;
-      --card-hover-border: rgba(var(--accent-rgb), 0.54);
-      --card-inprogress-border: rgba(var(--accent-rgb), 0.42);
-      --card-exhausted-border: rgba(var(--accent-rgb), 0.24);
+      --card-border-width: 1.5px;
+      --card-emphasis-ring-width: 0px;
+      --card-hover-border: #ffffff;
+      --card-inprogress-border: var(--card-border);
+      --card-exhausted-border: var(--card-border);
       --card-shadow:
         0 10px 30px rgba(58, 36, 63, 0.055),
         inset 0 1px 0 rgba(255, 255, 255, 0.68);
       --card-hover-shadow:
-        0 18px 44px rgba(58, 36, 63, 0.11),
-        0 7px 18px rgba(var(--accent-rgb), 0.045),
-        inset 0 1px 0 rgba(255, 255, 255, 0.74);
+        0 18px 44px rgba(58, 36, 63, 0.09),
+        0 12px 32px rgba(var(--accent-rgb), 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.88);
       --card-progress-track: rgba(58, 36, 63, 0.10);
       --card-mark-surface: rgba(var(--accent-rgb), 0.085);
       --card-mark-border: rgba(var(--accent-rgb), 0.105);
@@ -247,9 +247,9 @@
       --card-surface: rgba(42, 33, 48, 0.955);
       --card-surface-hover: rgba(48, 38, 56, 0.98);
       --card-border: rgba(255, 255, 255, 0.14);
-      --card-border-width: 1px;
-      --card-emphasis-ring-width: 0.5px;
-      --card-hover-border: var(--accent-soft);
+      --card-border-width: 1.5px;
+      --card-emphasis-ring-width: 0px;
+      --card-hover-border: var(--accent);
       --card-inprogress-border: rgba(var(--accent-rgb), 0.72);
       --card-exhausted-border: rgba(var(--accent-rgb), 0.45);
       --card-shadow:
@@ -978,7 +978,7 @@
       position: relative;
       margin-top: 1.45rem;
       padding: 1.6rem 1.75rem 1.75rem;
-      border: 1px solid var(--library-border);
+      border: 1.5px solid var(--library-border);
       border-radius: 30px;
       background-color: var(--library-surface);
       box-shadow: var(--library-shadow);
@@ -1169,6 +1169,7 @@
       transform: translateY(-1px);
     }
 
+    html:not([data-theme="night"]) .game-card--in-progress:hover .game-card-action,
     .game-card--in-progress:hover .game-card-action {
       background: var(--accent-soft);
       border-color: var(--accent-soft);
