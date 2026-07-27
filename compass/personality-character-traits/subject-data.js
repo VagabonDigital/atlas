@@ -75,8 +75,8 @@ const discussionSets = [
     {
         id: 'set-before-you-know-them',
         title: `Before You Know Them`,
-        stage: `React`,
-        icon: 'react',
+        stage: `First Look`,
+        icon: 'first-look',
         description: `First impressions, missed signals, people who improve with time, and the version of you strangers think they see.`,
         moments: [
             {
@@ -158,8 +158,8 @@ const discussionSets = [
     {
         id: 'set-what-counts-as-evidence',
         title: `What Counts as Evidence?`,
-        stage: `Explain`,
-        icon: 'explain',
+        stage: `Closer Look`,
+        icon: 'closer-look',
         description: `Private tests, interview questions, references, second chances, and personality theories built from almost nothing.`,
         moments: [
             {
@@ -241,8 +241,8 @@ const discussionSets = [
     {
         id: 'set-what-time-reveals',
         title: `What Time Reveals`,
-        stage: `Reflect and Relate`,
-        icon: 'reflect',
+        stage: `Wider View`,
+        icon: 'wider-view',
         description: `People who change, qualities worth borrowing, old labels, crisis teams, and trust proved through action.`,
         moments: [
             {
