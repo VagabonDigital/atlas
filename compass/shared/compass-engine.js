@@ -1184,7 +1184,9 @@ function renderNav(containerId, activeViewId) {
     })}
             </div>
 
-            <div class="nav-links">${links}</div>
+            <div class="nav-links">
+                <div class="nav-links-rail">${links}</div>
+            </div>
 
             <div class="nav-actions">
                 <button
@@ -3478,13 +3480,16 @@ function openSet(setId) {
     renderDiscussionSets();
 
     window.setTimeout(() => {
-        document
-            .getElementById('moments-panel')
-            ?.scrollIntoView({
-                behavior: getScrollBehavior(),
-                block: 'start'
+        const panel = document.getElementById('moments-panel');
+        if (panel) {
+            const panelRect = panel.getBoundingClientRect();
+            const absoluteTop = window.pageYOffset + panelRect.top;
+            window.scrollTo({
+                top: absoluteTop - 30,
+                behavior: getScrollBehavior()
             });
-    }, 100);
+        }
+    }, 150);
 }
 
 function closeSet() {
