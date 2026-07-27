@@ -2463,48 +2463,53 @@ function toggleCLExploredFromModal() {
 function getSetIconSvg(type, active) {
     const color = active ? '#fff' : 'var(--accent)';
 
-    if (type === 'react') {
+    if (type === 'first-look') {
         return `<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M3.4 5A2.4 2.4 0 015.8 2.6h8.4A2.4 2.4 0 0116.6 5v5.8a2.4 2.4 0 01-2.4 2.4h-3.4L7.2 16v-2.8H5.8a2.4 2.4 0 01-2.4-2.4V5Z"
+                <circle cx="10" cy="10" r="3.25"
                     stroke="${color}"
-                    stroke-width="1.45"
-                    stroke-linejoin="round"/>
-                <path d="M6.5 8.2h2.1l1.1-1.8l1.3 3.7l1.1-1.9h1.5"
+                    stroke-width="1.35"/>
+                <circle cx="10" cy="10" r="0.75"
+                    fill="${color}"/>
+                <path d="M10 2.5V5M10 15V17.5M2.5 10H5M15 10H17.5"
                     stroke="${color}"
                     stroke-width="1.35"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"/>
-            </svg>`;
-    }
-
-    if (type === 'explain') {
-        return `<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M10 3a5 5 0 014 8 3 3 0 01-4 2.83A3 3 0 016 11a5 5 0 014-8z"
-                    stroke="${color}"
-                    stroke-width="1.4"/>
-                <path d="M8 17h4M9 14.5v2.5M11 14.5v2.5"
-                    stroke="${color}"
-                    stroke-width="1.3"
                     stroke-linecap="round"/>
             </svg>`;
     }
 
-    if (type === 'reflect') {
+    if (type === 'closer-look') {
         return `<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M10 3.2L16 6.6L10 10L4 6.6L10 3.2Z"
+                <circle cx="8.4" cy="8.4" r="4.15"
+                    stroke="${color}"
+                    stroke-width="1.35"/>
+                <path d="M11.55 11.55L16.15 16.15"
+                    stroke="${color}"
+                    stroke-width="1.45"
+                    stroke-linecap="round"/>
+                <path d="M8.4 6.15V10.65M6.15 8.4H10.65"
+                    stroke="${color}"
+                    stroke-width="1.2"
+                    stroke-linecap="round"/>
+            </svg>`;
+    }
+
+    if (type === 'wider-view') {
+        return `<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <circle cx="14.45" cy="5.45" r="1.45"
+                    stroke="${color}"
+                    stroke-width="1.25"/>
+                <path d="M2.75 14.65C4.9 11.95 7.2 10.6 9.6 10.6C11.8 10.6 13.65 11.65 15.15 13.6"
                     stroke="${color}"
                     stroke-width="1.35"
-                    stroke-linejoin="round"/>
-                <path d="M4.4 10L10 13.2L15.6 10"
+                    stroke-linecap="round"/>
+                <path d="M9.55 15.15C11.45 13.1 13.45 12.05 15.45 12.05C16.25 12.05 16.95 12.25 17.55 12.65"
                     stroke="${color}"
                     stroke-width="1.35"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"/>
-                <path d="M4.4 13.2L10 16.4L15.6 13.2"
+                    stroke-linecap="round"/>
+                <path d="M2.8 15.55H17.2"
                     stroke="${color}"
-                    stroke-width="1.35"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"/>
+                    stroke-width="1.25"
+                    stroke-linecap="round"/>
             </svg>`;
     }
 
