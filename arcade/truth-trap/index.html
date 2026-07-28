@@ -17,7 +17,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Truth Trap — Two Truths, One Lie</title>
   <link rel="icon" type="image/svg+xml"
-    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='%230f1923' stroke='%2300b4d8' stroke-width='5'/%3E%3Cpath d='M34 38h32M34 50h20M34 62h26' stroke='%2300b4d8' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='68' cy='62' r='10' fill='%230f1923' stroke='%2300e5ff' stroke-width='4'/%3E%3Cpath d='M65 62l2 2 5-5' stroke='%2300e5ff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='5' y='5' width='90' height='90' rx='24' fill='%23DF572F'/%3E%3Ccircle cx='50' cy='28' r='9' fill='%23FFF1E9'/%3E%3Cpath d='M50 38V62' stroke='%23FFF1E9' stroke-width='8' stroke-linecap='round'/%3E%3Cpath d='M30 61H70L77 79H23L30 61Z' fill='%23FFF1E9'/%3E%3Ccircle cx='64' cy='69' r='4.2' fill='%23F2C6B5'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -392,7 +392,36 @@
       align-items: center;
       justify-content: center;
       padding: 1.5rem;
-      background: var(--bg-deep);
+      overflow: hidden;
+      background: #e8ebf0;
+    }
+
+    #airlock::before {
+      content: "";
+      position: absolute;
+      inset: -20px;
+      z-index: -2;
+      background: url("truth-trap-cover.png") center / cover no-repeat;
+      filter: blur(12px);
+      opacity: 0.35;
+    }
+
+    #airlock::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: url("truth-trap-cover.png") center / cover no-repeat;
+      opacity: 0.9;
+      -webkit-mask-image:
+        radial-gradient(circle, black 15%, transparent 55%);
+      mask-image:
+        radial-gradient(circle, black 15%, transparent 55%);
+      -webkit-mask-size: 70vmax 70vmax;
+      mask-size: 70vmax 70vmax;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      animation: spotlight-weave 25s ease-in-out infinite;
     }
 
     #airlock.visible {
@@ -404,7 +433,13 @@
       background: #060b11;
     }
 
+    html[data-theme="night"] #airlock::before {
+      display: none;
+    }
+
     .airlock-card {
+      position: relative;
+      z-index: 1;
       width: 100%;
       max-width: 440px;
       padding:
@@ -420,6 +455,9 @@
 
     html[data-theme="night"] .airlock-card {
       border-color: rgba(var(--truth-rgb), 0.28);
+      background: rgba(9, 14, 21, 0.88);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
     }
 
     .airlock-mark {
@@ -2003,8 +2041,8 @@
             stroke-linejoin="round" />
         </svg>
       </div>
-      <h2 class="airlock-title">Complete</h2>
-      <p class="airlock-body">You solved all 20 cases.</p>
+      <h2 class="airlock-title">Case Closed</h2>
+      <p class="airlock-body">Every lie exposed. All 20 cases solved.</p>
       <div class="airlock-actions">
         <button class="btn-play-again" onclick="playAgain()">Play again</button>
         <button class="btn-back-arcade" onclick="goToArcade()">Back to Arcade</button>
