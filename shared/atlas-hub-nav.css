@@ -1,0 +1,37 @@
+/*
+ * Shared hub-navigation geometry.
+ * Atlas, Compass, and Arcade may style the rail differently,
+ * but its dimensions must remain identical.
+ */
+
+:root {
+  --atlas-hub-nav-width: 19rem;
+}
+
+.spine-worlds {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  inline-size: var(--atlas-hub-nav-width);
+  min-inline-size: var(--atlas-hub-nav-width);
+  max-inline-size: var(--atlas-hub-nav-width);
+
+  flex: 0 0 var(--atlas-hub-nav-width);
+}
+
+.spine-world-btn {
+  inline-size: 100%;
+  min-inline-size: 0;
+  padding-inline: 0.55rem;
+
+  /*
+   * Never transition layout geometry.
+   * Only animate visual properties.
+   */
+  transition:
+    color 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
