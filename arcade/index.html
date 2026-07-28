@@ -1491,6 +1491,12 @@
       }
     }
   </style>
+
+  <!-- Shared, fixed geometry for the Atlas / Compass / Arcade rail -->
+  <link
+    rel="stylesheet"
+    href="../shared/atlas-hub-nav.css?v=20260727-nav-stability"
+  >
 </head>
 
 <body data-atlas-world="arcade" data-atlas-surface="hub">
@@ -1972,20 +1978,42 @@
     function renderSpineHubNav() {
       const reg = getRegistry();
       const host = document.getElementById('spine-hub-nav');
+
       if (!host) return;
-      host.innerHTML = Object.values(HUB_NAV).map(hub => {
+
+      host.querySelectorAll('[data-hub-id]').forEach(button => {
+        const hubId = button.dataset.hubId;
+        const hub = HUB_NAV[hubId];
+
+        if (!hub) return;
+
         const active = hub.id === ACTIVE_HUB_ID;
         const available = isHubAvailable(hub, reg);
-        const cls = 'spine-world-btn' + (active ? ' is-active' : '');
-        const disabled = available ? '' : ' aria-disabled="true"';
-        const click = available && !active ? ' onclick="openHub(\'' + hub.id + '\')"' : '';
-        const title = active ? hub.name : (available ? 'Open ' + hub.name : hub.name + ' — coming soon');
-        return '<button class="' + cls + '"' + disabled + click +
-          (active ? ' aria-current="page"' : '') +
-          ' title="' + escHtml(title) + '">' +
-          hub.icon + '<span>' + escHtml(hub.name) + '</span>' +
-          '</button>';
-      }).join('');
+
+        button.classList.toggle('is-active', active);
+
+        if (active) {
+          button.setAttribute('aria-current', 'page');
+          button.removeAttribute('aria-disabled');
+          button.removeAttribute('onclick');
+          button.title = hub.name;
+          return;
+        }
+
+        button.removeAttribute('aria-current');
+
+        button.title = available
+          ? 'Open ' + hub.name
+          : hub.name + ' — coming soon';
+
+        if (available) {
+          button.removeAttribute('aria-disabled');
+          button.setAttribute('onclick', "openHub('" + hub.id + "')");
+        } else {
+          button.setAttribute('aria-disabled', 'true');
+          button.removeAttribute('onclick');
+        }
+      });
     }
 
     function renderDrawerHubNav() {
