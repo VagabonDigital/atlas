@@ -117,10 +117,16 @@ function mountCompassSubjectShell() {
                         onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-cultural-lens'); }">
 
                         <div class="path-icon">
-                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                                <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5" />
-                                <circle cx="11" cy="11" r="3" stroke="currentColor" stroke-width="1.5" />
-                                <path d="M4 11h2M16 11h2M11 4v2M11 16v2" stroke="currentColor" stroke-width="1.5"
+                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                                <circle cx="11" cy="11" r="7.6"
+                                    stroke="currentColor"
+                                    stroke-width="1.5" />
+                                <path
+                                    d="M3.4 11h15.2
+                                    M11 3.4c2 2.1 3 4.7 3 7.6s-1 5.5-3 7.6
+                                    M11 3.4c-2 2.1-3 4.7-3 7.6s1 5.5 3 7.6"
+                                    stroke="currentColor"
+                                    stroke-width="1.15"
                                     stroke-linecap="round" />
                             </svg>
                         </div>
