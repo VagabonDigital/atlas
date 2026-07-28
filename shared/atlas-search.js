@@ -272,6 +272,7 @@
                 title: 'Atlas',
                 sub: 'Home',
                 type: 'home',
+                iconType: 'home',
                 hub: true,
                 planned: false,
                 disabled: false,
@@ -283,6 +284,7 @@
                 title: 'Compass',
                 sub: 'Subjects',
                 type: 'world',
+                iconType: 'compass',
                 hub: true,
                 planned: false,
                 disabled: false,
@@ -294,6 +296,7 @@
                 title: 'Arcade',
                 sub: 'Games',
                 type: 'world',
+                iconType: 'arcade',
                 hub: true,
                 planned: false,
                 disabled: false,
@@ -349,15 +352,19 @@
         if (type === 'home') {
             return '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2.1L13.2 6.8V13.2H9.7V9.5H6.3V13.2H2.8V6.8L8 2.1Z" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/><path d="M6.2 13.2H9.8" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>';
         }
+
+        if (type === 'compass' || type === 'subject') {
+            return '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.9" stroke="currentColor" stroke-width="1.35"/><path d="M10.9 5.1L9 9L5.1 10.9L7 7L10.9 5.1Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M10.9 5.1L9 9L7 7Z" fill="currentColor"/></svg>';
+        }
+
+        if (type === 'arcade' || type === 'game') {
+            return '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="3.2" r="1.65" stroke="currentColor" stroke-width="1.35"/><path d="M8 4.85V9.15" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/><path d="M3.55 9.25H12.45L13.7 13.35H2.3L3.55 9.25Z" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/><circle cx="10.9" cy="11.25" r="0.78" fill="currentColor"/></svg>';
+        }
+
         if (type === 'world') {
             return '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.3" stroke="currentColor" stroke-width="1.35"/><path d="M3.1 8H12.9" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/><path d="M8 2.8C9.45 4.2 10.15 5.95 10.15 8C10.15 10.05 9.45 11.8 8 13.2C6.55 11.8 5.85 10.05 5.85 8C5.85 5.95 6.55 4.2 8 2.8Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/></svg>';
         }
-        if (type === 'subject') {
-            return '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1.8L13.3 8L8 14.2L2.7 8L8 1.8Z" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/><path d="M8 4.7L9.55 8L8 11.3L6.45 8L8 4.7Z" fill="currentColor" opacity="0.72"/><circle cx="8" cy="8" r="0.8" fill="currentColor"/></svg>';
-        }
-        if (type === 'game') {
-            return '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2.3" y="4.1" width="11.4" height="7.8" rx="2.2" stroke="currentColor" stroke-width="1.35"/><path d="M5.1 8H7.2M6.15 6.95V9.05" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/><circle cx="10.15" cy="7.35" r="0.62" fill="currentColor"/><circle cx="11.35" cy="8.65" r="0.62" fill="currentColor"/></svg>';
-        }
+
         return '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 3.4H12M4 8H10.8M4 12.6H11.2" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>';
     }
     function ensureModal() {
@@ -512,7 +519,7 @@
                 + (row.planned ? ' is-planned' : '');
             html += `
                 <div class="${classes}" data-atlas-search-idx="${idx}" role="option">
-                    <div class="atlas-search-result-icon atlas-search-result-icon-${escHtml(row.type)}">${iconFor(row.type)}</div>
+                    <div class="atlas-search-result-icon atlas-search-result-icon-${escHtml(row.type)}">${iconFor(row.iconType || row.type)}</div>
                     <div class="atlas-search-result-body">
                         <div class="atlas-search-result-title">${escHtml(row.title)}</div>
                         ${subHtml}
