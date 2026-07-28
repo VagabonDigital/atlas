@@ -38,20 +38,20 @@ function getCompassMarkSvg({
     const ariaAttr = ariaHidden ? ' aria-hidden="true"' : '';
 
     return `<svg width="${width}" height="${height}" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"${ariaAttr}>
-            <path d="M10 3.8L16.2 10L10 16.2L3.8 10L10 3.8Z"
-                fill="${color}"
-                fill-opacity="0.18"
+            <circle
+                cx="10"
+                cy="10"
+                r="7.45"
                 stroke="${color}"
-                stroke-width="1.65"
+                stroke-width="1.7"/>
+            <path
+                d="M13.65 6.35L11.2 11.2L6.35 13.65L8.8 8.8L13.65 6.35Z"
+                stroke="${color}"
+                stroke-width="1.6"
                 stroke-linejoin="round"/>
-            <path d="M10 7.35L12.65 10L10 12.65L7.35 10L10 7.35Z"
-                fill="${color}"
-                fill-opacity="0.14"
-                stroke="${color}"
-                stroke-width="1.4"
-                stroke-linejoin="round"
-                opacity="0.86"/>
-            <circle cx="10" cy="10" r="1.15" fill="${color}"/>
+            <path
+                d="M13.65 6.35L11.2 11.2L8.8 8.8Z"
+                fill="${color}"/>
         </svg>`;
 }
 
