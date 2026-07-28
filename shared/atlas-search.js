@@ -350,7 +350,7 @@
     }
     function iconFor(type) {
         if (type === 'home') {
-            return '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2.1L13.2 6.8V13.2H9.7V9.5H6.3V13.2H2.8V6.8L8 2.1Z" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/><path d="M6.2 13.2H9.8" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>';
+            return '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.8 13.5V7.3C2.8 4.25 5.05 2 8 2C10.95 2 13.2 4.25 13.2 7.3V13.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M5.5 13.5V7.7C5.5 6.35 6.55 5.3 8 5.3C9.45 5.3 10.5 6.35 10.5 7.7V13.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M2.2 13.5H13.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
         }
 
         if (type === 'compass' || type === 'subject') {
