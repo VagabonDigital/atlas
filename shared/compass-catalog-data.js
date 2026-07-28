@@ -32,8 +32,7 @@
             title: 'Personality & Character Traits',
             categoryId: 'you-your-mind',
             order: 10,
-            available: true,
-            hook: 'Talk about temperament, charm, stubbornness, reliability, and the stable traits that make someone “who they are.”'
+            hook: 'Talk about first impressions, the small signs we use to judge people, and what makes us trust, doubt, or change our opinion of someone.'
         },
         {
             id: 'identity-self-image',
@@ -90,16 +89,14 @@
             title: 'Communication & Expression',
             categoryId: 'people-relationships',
             order: 10,
-            available: true,
-            hook: 'Explore how people explain themselves, choose words, handle misunderstanding, and shape the feeling of a conversation.'
+            hook: 'Explore how words, tone, timing, and silence change a message — how we express ourselves, misunderstand others, and repair what went wrong.'
         },
         {
             id: 'body-language-emotions',
             title: 'Body Language & Emotions',
             categoryId: 'people-relationships',
             order: 20,
-            available: true,
-            hook: 'Read the small signals people send through posture, expression, eye contact, distance, and emotional tone.'
+            hook: 'Explore how faces, voices, and body movements show feelings — what people cannot hide, what they show on purpose, and what others get wrong.'
         },
         {
             id: 'relationships-connection',
@@ -149,15 +146,14 @@
             categoryId: 'people-relationships',
             order: 90,
             available: true,
-            hook: 'Explore why people find different things funny, how humour bonds or wounds, and why the line between a joke and an insult moves.'
+            hook: 'Explore what makes people laugh, why the same joke can feel friendly or hurtful, and how humour changes depending on who tells it and who hears it.'
         },
         {
             id: 'family-belonging',
             title: 'Family & Belonging',
             categoryId: 'people-relationships',
             order: 100,
-            available: true,
-            hook: 'Talk about kin, inherited obligation, family roles and scripts, what gets passed down, and the belonging you didn’t choose.'
+            hook: 'Talk about family rules, roles, traditions, and the small signs that someone belongs — plus what families keep, change, or pass on.'
         },
 
         {
@@ -201,7 +197,7 @@
             categoryId: 'society-the-world',
             order: 60,
             available: true,
-            hook: 'Discuss how invention reshapes life — convenience vs. dependence, the device in your hand, and what each leap gives and takes.'
+            hook: 'Explore the technology people use every day — what it makes easier, what it changes, and what we gain, lose, depend on, or refuse.'
         },
         {
             id: 'education-learning',
@@ -216,7 +212,7 @@
             categoryId: 'society-the-world',
             order: 80,
             available: true,
-            hook: 'Explore the pull of elsewhere — discovery, escape, culture shock, tourist vs. traveller, and what a journey reveals.'
+            hook: 'Explore what travel is really like — the surprises, problems, habits, people, and choices that can change a trip and stay with us afterwards.'
         },
         {
             id: 'home-place',
@@ -232,7 +228,7 @@
             categoryId: 'work-time',
             order: 10,
             available: true,
-            hook: 'Talk about what work means to people — vocation, duty, pride, or just a wage — and why the same job feels different to different people.'
+            hook: 'Talk about the work people really do — hidden skills, fair pay, everyday effort, and what makes a job feel worth doing.'
         },
         {
             id: 'workplace-dynamics-professionalism',
@@ -269,7 +265,7 @@
             categoryId: 'culture-life',
             order: 20,
             available: true,
-            hook: 'Explore food as memory and belonging — the dish that means home, hospitality, the awkward dinner, and the politics of who cooks and who’s fed.'
+            hook: 'Explore food, sharing, table rules, and who does the work — plus how meals can show care and become part of family and memory.'
         },
         {
             id: 'music-what-it-means',
@@ -284,7 +280,7 @@
             categoryId: 'culture-life',
             order: 40,
             available: true,
-            hook: 'Explore why story grips us — the characters we can’t forget, why endings matter, and the world you didn’t want to leave.'
+            hook: 'Explore why stories stay with us — what pulls us in, what makes us stop, the endings we judge, and the characters and moments we remember.'
         },
         {
             id: 'sport-play-competition',
