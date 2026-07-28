@@ -191,24 +191,20 @@
         if (item.world === 'compass') return 'subject';
         return 'item';
     }
-    // Registered items for search. Built items require a launchUrl as before.
-    // Compass subjects that are registered but not yet built (status 'soon', or no
-    // launchUrl) are still included, flagged isPlanned — they're real catalog entries,
-    // just not openable directly yet. Arcade and other worlds keep the stricter
-    // launchUrl-required rule since planned handling wasn't specified for them.
+    // Search only includes items that can be opened immediately.
+    // Planned catalog entries remain available to roadmap and registry systems,
+    // but do not appear as selectable Search results.
     function getRegisteredItems(reg) {
         return Object.entries(reg.items || {})
             .map(([key, item]) => {
                 if (!item) return null;
                 const world = item.world || '';
                 const allowed = world === 'compass' || world === 'arcade';
-                if (!allowed) return null;
-                const isPlanned = world === 'compass' && (item.status === 'soon' || !item.launchUrl);
-                if (!isPlanned && !item.launchUrl) return null;
+                if (!allowed || !item.launchUrl) return null;
+
                 return {
                     ...item,
-                    registryId: item.registryId || key,
-                    isPlanned
+                    registryId: item.registryId || key
                 };
             })
             .filter(Boolean)
@@ -219,8 +215,8 @@
                 return String(a.title || a.navTitle || '').localeCompare(String(b.title || b.navTitle || ''));
             });
     }
-    // Recent items (max RECENT_LIMIT). Subtitle is blank unless the item is a planned/unbuilt
-    // Compass subject (real status, worth surfacing) — no other status logic is invented here.
+    // Recent items from the active session, capped at RECENT_LIMIT.
+    // Only items with working destinations are eligible.
     function buildRecentRows(reg, itemsById) {
         const activeSession = readActiveSessionSafe();
         const seen = new Set();
@@ -228,23 +224,26 @@
         const recent = Array.isArray(reg.recentActivity)
             ? reg.recentActivity.slice()
             : [];
+
         recent
             .sort((a, b) => Number(b.timestamp || 0) - Number(a.timestamp || 0))
             .forEach(activity => {
                 if (!activity || activity.sessionId !== activeSession.id) return;
                 if (!activity.registryId || seen.has(activity.registryId)) return;
+
                 const item = itemsById[activity.registryId];
-                if (!item) return;
-                if (!item.isPlanned && !item.launchUrl) return;
+                if (!item || !item.launchUrl) return;
+
                 seen.add(activity.registryId);
+
                 rows.push({
                     group: 'Recent',
                     registryId: activity.registryId,
                     title: item.title || item.navTitle || 'Untitled',
-                    sub: item.isPlanned ? 'Coming soon' : '',
+                    sub: '',
                     type: itemIconType(item),
                     hub: false,
-                    planned: !!item.isPlanned,
+                    planned: false,
                     disabled: false,
                     searchText: [
                         item.title,
@@ -254,14 +253,13 @@
                         itemTypeWords(item),
                         'recent'
                     ].join(' '),
-                    action: item.isPlanned
-                        ? () => navigateTo('compass/index.html')
-                        : () => navigateToItem(
-                            item.launchUrl,
-                            item.world
-                        )
+                    action: () => navigateToItem(
+                        item.launchUrl,
+                        item.world
+                    )
                 });
             });
+
         return rows.slice(0, RECENT_LIMIT);
     }
     // The three destinations. Restrained, short descriptors, kept visually distinct via icon type.
@@ -305,9 +303,7 @@
             }
         ];
     }
-    // Full catalog rows — only ever built while typing, never in the resting state.
-    // Planned/unbuilt Compass subjects render muted with a "Coming soon" subtitle and
-    // route to the Compass hub instead of a launchUrl, so they never open a blank page.
+    // Full searchable inventory — only built while typing.
     // `excludeIds` drops items already shown under Recent so nothing appears twice.
     function buildItemRows(items, excludeIds) {
         return items
@@ -315,10 +311,10 @@
             .map(item => ({
                 group: itemGroupLabel(item),
                 title: item.title || item.navTitle || 'Untitled',
-                sub: item.isPlanned ? 'Coming soon' : '',
+                sub: '',
                 type: itemIconType(item),
                 hub: false,
-                planned: !!item.isPlanned,
+                planned: false,
                 disabled: false,
                 searchText: [
                     item.title,
@@ -331,12 +327,10 @@
                     itemGroupLabel(item),
                     Array.isArray(item.keywords) ? item.keywords.join(' ') : ''
                 ].join(' '),
-                action: item.isPlanned
-                    ? () => navigateTo('compass/index.html')
-                    : () => navigateToItem(
-                        item.launchUrl,
-                        item.world
-                    )
+                action: () => navigateToItem(
+                    item.launchUrl,
+                    item.world
+                )
             }));
     }
     // Match ranking: title starts-with (0) beats title-includes (1) beats metadata/keywords (2).
@@ -443,8 +437,8 @@
         return !!overlay && overlay.classList.contains('open');
     }
     // Resting state: Recent (if any, capped at RECENT_LIMIT) + the three destinations only.
-    // Typing state: Recent + destinations + full catalog (incl. planned/unbuilt subjects),
-    // filtered and ranked. Planned subjects never appear in the resting state.
+    // Typing state: Recent + destinations + currently available subjects and games,
+    // filtered and ranked.
     function buildOrderedRows(query) {
         const q = String(query || '').trim().toLowerCase();
         window.AtlasContentRegistry?.registerAll?.();
