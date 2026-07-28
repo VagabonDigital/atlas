@@ -1105,9 +1105,15 @@ function applyDerivedLabels() {
 // ============================================================
 
 function getAtlasSearchIcon() {
-    return window.AtlasSearch?.icon || `<svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-            <circle cx="6.5" cy="6.5" r="4.2" stroke="currentColor" stroke-width="1.3"/>
-            <path d="M9.8 9.8l2.8 2.8"
+    return `<svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+            <circle
+                cx="6.5"
+                cy="6.5"
+                r="4.2"
+                stroke="currentColor"
+                stroke-width="1.3"/>
+            <path
+                d="M9.8 9.8l2.8 2.8"
                 stroke="currentColor"
                 stroke-width="1.4"
                 stroke-linecap="round"/>
