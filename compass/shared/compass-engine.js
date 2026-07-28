@@ -863,25 +863,29 @@ function countLabel(number) {
 
 function applyCompassFavicon() {
     const faviconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-            <path d="M50 4L96 50L50 96L4 50Z"
-                fill="#7FA898"
-                stroke="#5C7A6E"
-                stroke-width="5"
-                stroke-linejoin="round"/>
-            <path d="M50 18L82 50L50 82L18 50Z"
-                fill="#EFFFF9"
+            <rect
+                x="5"
+                y="5"
+                width="90"
+                height="90"
+                rx="24"
+                fill="#4F7772"/>
+            <circle
+                cx="50"
+                cy="50"
+                r="28"
+                fill="none"
+                stroke="#DFF4EE"
+                stroke-width="7"/>
+            <path
+                d="M71 29L57 57L29 71L43 43Z"
+                fill="#FFFFFF"
                 stroke="#FFFFFF"
-                stroke-width="3"
+                stroke-width="2"
                 stroke-linejoin="round"/>
-            <path d="M50 34L66 50L50 66L34 50Z"
-                fill="#5C7A6E"
-                stroke="#3F6B5C"
-                stroke-width="3"
-                stroke-linejoin="round"/>
-            <path d="M50 18L50 34M82 50L66 50M50 82L50 66M18 50L34 50"
-                stroke="#7FA898"
-                stroke-width="3"
-                stroke-linecap="round"/>
+            <path
+                d="M71 29L57 57L50 50Z"
+                fill="#A9D9CF"/>
         </svg>`;
 
     let icon = document.querySelector('link[rel~="icon"]');
