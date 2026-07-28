@@ -29,7 +29,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Atlas</title>
   <link rel="icon" type="image/svg+xml"
-    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 4L96 50L50 96L4 50Z' fill='%235EC8F2' stroke='%231E8CB8' stroke-width='5' stroke-linejoin='round'/%3E%3Cpath d='M50 18L82 50L50 82L18 50Z' fill='%23EAFBFF' stroke='%23FFFFFF' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 34L66 50L50 66L34 50Z' fill='%2347BDE8' stroke='%231E8CB8' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M50 18L50 34M82 50L66 50M50 82L50 66M18 50L34 50' stroke='%235EC8F2' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+    href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20x%3D%275%27%20y%3D%275%27%20width%3D%2790%27%20height%3D%2790%27%20rx%3D%2724%27%20fill%3D%27%233F7FA3%27%2F%3E%3Cpath%20d%3D%27M20%2080V48C20%2028%2033%2015%2050%2015S80%2028%2080%2048V80H65V49C65%2039%2059%2033%2050%2033S35%2039%2035%2049V80Z%27%20fill%3D%27%23FFFFFF%27%2F%3E%3Cpath%20d%3D%27M16%2080H84%27%20stroke%3D%27%23DFF4FC%27%20stroke-width%3D%278%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1448,21 +1448,17 @@
     .door-compass {
       --door-c1: var(--compass-card-start);
       --door-c2: var(--compass-card-end);
-      background: linear-gradient(
-        145deg,
-        var(--door-c1),
-        var(--door-c2)
-      );
+      background: linear-gradient(145deg,
+          var(--door-c1),
+          var(--door-c2));
     }
 
     .door-arcade {
       --door-c1: var(--arcade-card-start);
       --door-c2: var(--arcade-card-end);
-      background: linear-gradient(
-        145deg,
-        var(--door-c1),
-        var(--door-c2)
-      );
+      background: linear-gradient(145deg,
+          var(--door-c1),
+          var(--door-c2));
     }
 
     .door::before {
@@ -1479,22 +1475,18 @@
     .door-compass::before {
       --rail-1: var(--compass-mark-start);
       --rail-2: var(--compass-mark-end);
-      background: linear-gradient(
-        90deg,
-        var(--rail-1),
-        var(--rail-2)
-      );
+      background: linear-gradient(90deg,
+          var(--rail-1),
+          var(--rail-2));
       opacity: 0.48;
     }
 
     .door-arcade::before {
       --rail-1: var(--arcade-mark-start);
       --rail-2: var(--arcade-mark-end);
-      background: linear-gradient(
-        90deg,
-        var(--rail-1),
-        var(--rail-2)
-      );
+      background: linear-gradient(90deg,
+          var(--rail-1),
+          var(--rail-2));
       opacity: 0.40;
     }
 
@@ -2614,10 +2606,7 @@
   </style>
 
   <!-- Shared, fixed geometry for the Atlas / Compass / Arcade rail -->
-  <link
-    rel="stylesheet"
-    href="./shared/atlas-hub-nav.css?v=20260727-nav-stability"
-  >
+  <link rel="stylesheet" href="./shared/atlas-hub-nav.css?v=20260727-nav-stability">
 </head>
 
 <body data-atlas-world="atlas" data-atlas-surface="hub">
@@ -2627,11 +2616,12 @@
     <div class="spine-mark">Atlas<span>.</span></div>
     <div class="spine-worlds" id="spine-worlds" role="group" aria-label="World navigation">
       <button class="spine-world-btn is-active" data-hub-id="atlas" aria-current="page" title="Atlas">
-        <svg class="spine-world-icon" width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
-          <path d="M6.5 1.4L11.6 6.5L6.5 11.6L1.4 6.5Z" stroke="currentColor" stroke-width="1.25"
-            stroke-linejoin="round" />
-          <path d="M6.5 3.6L9.4 6.5L6.5 9.4L3.6 6.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"
-            opacity="0.75" />
+        <svg class="spine-world-icon" width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M2.5 12V6.4C2.5 3.7 4.5 1.7 7 1.7C9.5 1.7 11.5 3.7 11.5 6.4V12"
+            stroke="currentColor" stroke-width="1.25" stroke-linecap="round" />
+          <path d="M5 12V6.8C5 5.65 5.9 4.75 7 4.75C8.1 4.75 9 5.65 9 6.8V12"
+            stroke="currentColor" stroke-width="1.15" stroke-linecap="round" />
+          <path d="M2 12H12" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" />
         </svg>
         Atlas
       </button>
@@ -2639,8 +2629,8 @@
       <button class="spine-world-btn" data-hub-id="compass" onclick="openHub('compass')" title="Open Compass">
         <svg class="spine-world-icon" width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
           <circle cx="7" cy="7" r="5.2" stroke="currentColor" stroke-width="1.2" />
-          <path d="M9.55 4.45L7.85 7.85L4.45 9.55L6.15 6.15L9.55 4.45Z"
-            stroke="currentColor" stroke-width="1.15" stroke-linejoin="round" />
+          <path d="M9.55 4.45L7.85 7.85L4.45 9.55L6.15 6.15L9.55 4.45Z" stroke="currentColor" stroke-width="1.15"
+            stroke-linejoin="round" />
           <path d="M9.55 4.45L7.85 7.85L6.15 6.15Z" fill="currentColor" />
         </svg>
         Compass
@@ -2913,7 +2903,7 @@
         desc: 'Gateway',
         alwaysAvailable: true,
         launchUrl: './index.html',
-        smallIcon: '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.4L11.6 6.5L6.5 11.6L1.4 6.5Z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/><path d="M6.5 3.6L9.4 6.5L6.5 9.4L3.6 6.5Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round" opacity="0.75"/></svg>'
+        smallIcon: '<svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2.5 12V6.4C2.5 3.7 4.5 1.7 7 1.7C9.5 1.7 11.5 3.7 11.5 6.4V12" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/><path d="M5 12V6.8C5 5.65 5.9 4.75 7 4.75C8.1 4.75 9 5.65 9 6.8V12" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/><path d="M2 12H12" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>'
       },
       compass: {
         id: COMPASS_ID,
