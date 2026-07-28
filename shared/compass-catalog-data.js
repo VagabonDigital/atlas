@@ -26,6 +26,15 @@
         { id: 'culture-life', title: 'Culture & Life', order: 50 }
     ];
 
+    const COMPASS_PILOT_ORDER = [
+        'travel-exploration',
+        'food-table',
+        'humour-wit',
+        'work-purpose',
+        'technology-innovation',
+        'stories-screen'
+    ];
+
     const RAW_SUBJECTS = [
         {
             id: 'personality-character-traits',
@@ -339,7 +348,25 @@
     }
 
     function getCompassSubjects() {
-        return clone(COMPASS_SUBJECTS);
+        const subjects = clone(COMPASS_SUBJECTS);
+        const subjectsById = new Map(
+            subjects.map(subject => [subject.id, subject])
+        );
+
+        const pilotSubjects = COMPASS_PILOT_ORDER
+            .map(subjectId => subjectsById.get(subjectId))
+            .filter(Boolean);
+
+        const pilotIds = new Set(COMPASS_PILOT_ORDER);
+
+        const remainingSubjects = subjects.filter(
+            subject => !pilotIds.has(subject.id)
+        );
+
+        return [
+            ...pilotSubjects,
+            ...remainingSubjects
+        ];
     }
 
     function getCompassCatalogMap() {
@@ -350,9 +377,15 @@
     }
 
     function getBuiltCompassSubjectSlugs() {
-        return COMPASS_SUBJECTS
-            .filter(subject => subject.status === 'available')
-            .map(subject => subject.id);
+        const availableIds = new Set(
+            COMPASS_SUBJECTS
+                .filter(subject => subject.status === 'available')
+                .map(subject => subject.id)
+        );
+
+        return COMPASS_PILOT_ORDER.filter(
+            subjectId => availableIds.has(subjectId)
+        );
     }
 
     window.CompassCatalogData = {
