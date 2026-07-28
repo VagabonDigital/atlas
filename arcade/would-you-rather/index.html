@@ -16,8 +16,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Would You Rather — Arcade Edition</title>
-  <link rel="icon"
-    href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="82" font-size="82">🤔</text></svg>'>
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='5' y='5' width='90' height='90' rx='24' fill='%23DF572F'/%3E%3Ccircle cx='50' cy='28' r='9' fill='%23FFF1E9'/%3E%3Cpath d='M50 38V62' stroke='%23FFF1E9' stroke-width='8' stroke-linecap='round'/%3E%3Cpath d='M30 61H70L77 79H23L30 61Z' fill='%23FFF1E9'/%3E%3Ccircle cx='64' cy='69' r='4.2' fill='%23F2C6B5'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -623,56 +623,198 @@
     }
 
     /* ============================================================
-     EMPTY STATE
+     COMPLETION SCREEN
      ============================================================ */
 
     .empty-state {
-      padding: 60px 20px;
-      color: var(--muted);
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow: hidden;
+      background:
+        linear-gradient(
+          135deg,
+          #1a3cff 0%,
+          #ff2d55 52%,
+          #ffd600 100%
+        );
+      color: var(--text);
       text-align: center;
     }
 
-    .empty-state .big-emoji {
-      margin-bottom: 16px;
-      font-size: 48px;
+    .empty-state::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background:
+        url("would-you-rather-cover.png")
+        center / cover no-repeat;
+      filter: saturate(1.08);
+      transform: scale(1.03);
     }
 
-    .empty-state h3 {
-      margin-bottom: 8px;
-      color: var(--text);
+    .empty-state::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(13, 13, 26, 0.54),
+          rgba(13, 13, 26, 0.88)
+        ),
+        radial-gradient(
+          circle at center,
+          rgba(13, 13, 26, 0.18),
+          rgba(13, 13, 26, 0.78)
+        );
+    }
+
+    html[data-theme="light"] .empty-state::after {
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(245, 243, 255, 0.12),
+          rgba(245, 243, 255, 0.62)
+        ),
+        radial-gradient(
+          circle at center,
+          rgba(245, 243, 255, 0.08),
+          rgba(245, 243, 255, 0.54)
+        );
+    }
+
+    .finish-card {
+      position: relative;
+      z-index: 2;
+      width: min(560px, 100%);
+      padding:
+        clamp(32px, 5vw, 48px)
+        clamp(26px, 5vw, 46px);
+      border: 1px solid var(--intro-border);
+      border-radius: 26px;
+      background: var(--intro-bg);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      animation:
+        card-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    html[data-theme="light"] .finish-card {
+      box-shadow: 0 24px 80px rgba(45, 30, 90, 0.22);
+    }
+
+    .finish-kicker {
+      margin-bottom: 18px;
+      color: var(--yellow);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    html[data-theme="light"] .finish-kicker {
+      color: #9b6d00;
+    }
+
+    .finish-title {
+      margin-bottom: 20px;
+      background:
+        linear-gradient(
+          135deg,
+          var(--yellow) 0%,
+          #ff9d00 42%,
+          var(--red) 100%
+        );
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
       font-family: "Bebas Neue", cursive;
-      font-size: 28px;
-      letter-spacing: 1px;
+      font-size: clamp(50px, 8vw, 82px);
+      font-weight: 400;
+      letter-spacing: 2px;
+      line-height: 0.94;
+      -webkit-text-fill-color: transparent;
     }
 
-    .empty-state p {
-      margin-bottom: 24px;
-      font-size: 15px;
-      line-height: 1.6;
+    .finish-title span {
+      display: block;
     }
 
-    .btn-reset-empty {
+    .finish-copy {
+      max-width: 44ch;
+      margin: 0 auto 30px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    html[data-theme="light"] .finish-copy {
+      color: rgba(45, 30, 90, 0.72);
+    }
+
+    .finish-actions {
+      display: flex;
+      width: min(100%, 420px);
+      flex-direction: column;
+      gap: 10px;
+      margin: 0 auto;
+    }
+
+    .btn-finish-primary,
+    .btn-finish-secondary {
       display: inline-flex;
+      min-height: 52px;
       align-items: center;
-      gap: 8px;
-      padding: 14px 36px;
-      border: 0;
+      justify-content: center;
+      gap: 10px;
+      padding: 0 22px;
       border-radius: var(--radius);
-      background: var(--yellow);
-      color: #0d0d1a;
-      font-family: "Bebas Neue", cursive;
-      font-size: 18px;
-      letter-spacing: 1.5px;
+      font-family: "DM Sans", sans-serif;
+      font-size: 15px;
+      font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 4px 20px rgba(255, 214, 0, 0.3);
       transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
         box-shadow 0.18s ease,
         transform 0.18s ease;
     }
 
-    .btn-reset-empty:hover {
-      box-shadow: 0 8px 28px rgba(255, 214, 0, 0.45);
+    .btn-finish-primary {
+      border: 1px solid var(--yellow);
+      background: var(--yellow);
+      color: #0d0d1a;
+      box-shadow: 0 6px 28px rgba(255, 214, 0, 0.34);
+    }
+
+    .btn-finish-primary:hover {
+      box-shadow: 0 11px 38px rgba(255, 214, 0, 0.48);
       transform: translateY(-2px);
+    }
+
+    .btn-finish-secondary {
+      border: 1px solid var(--intro-border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--muted);
+    }
+
+    html[data-theme="light"] .btn-finish-secondary {
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .btn-finish-secondary:hover {
+      border-color: var(--yellow);
+      color: var(--text);
+      transform: translateY(-1px);
     }
 
     /* ============================================================
@@ -838,9 +980,6 @@
 
     #no-question {
       display: none;
-      width: 100%;
-      flex-direction: column;
-      align-items: center;
     }
 
     #question-display {
@@ -874,8 +1013,14 @@
     html.theme-changing .btn-skip,
     html.theme-changing .btn-reset-deck,
     html.theme-changing .empty-state,
-    html.theme-changing .empty-state h3,
-    html.theme-changing .empty-state p,
+    html.theme-changing .empty-state::before,
+    html.theme-changing .empty-state::after,
+    html.theme-changing .finish-card,
+    html.theme-changing .finish-kicker,
+    html.theme-changing .finish-title,
+    html.theme-changing .finish-copy,
+    html.theme-changing .btn-finish-primary,
+    html.theme-changing .btn-finish-secondary,
     html.theme-changing .wyr-modal,
     html.theme-changing .wyr-modal-card,
     html.theme-changing .wyr-modal-icon,
@@ -1013,12 +1158,31 @@
 
     <main class="game-main">
 
-      <!-- All done state -->
-      <div id="no-question" class="empty-state">
-        <div class="big-emoji">🎉</div>
-        <h3>All Done!</h3>
-        <p>You've gone through all 50 questions.</p>
-        <button class="btn-reset-empty" onclick="resetDeck()">↺ Reset Deck</button>
+      <!-- Completion screen -->
+      <div id="no-question" class="empty-state" role="main" aria-label="All choices complete">
+        <div class="finish-card">
+          <div class="finish-kicker">[ ALL 50 DECISIONS LOCKED ]</div>
+
+          <h2 class="finish-title">
+            You Chose
+            <span>Everything</span>
+          </h2>
+
+          <p class="finish-copy">
+            Every impossible choice has been faced. No dodging, no loopholes,
+            and no “it depends” left.
+          </p>
+
+          <div class="finish-actions">
+            <button class="btn-finish-primary" type="button" onclick="resetDeck()">
+              ⚡ Start a new round
+            </button>
+
+            <button class="btn-finish-secondary" type="button" onclick="goToArcade()">
+              Back to Arcade
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Question display -->
@@ -1305,7 +1469,18 @@
       randomQuestion();
     }
 
+    function goToArcade() {
+      saveState();
+      window.location.href = '../index.html';
+    }
+
     function renderQuestion(q) {
+      const header = document.querySelector('.game-header');
+
+      if (header) {
+        header.style.display = 'flex';
+      }
+
       document.getElementById('q-emoji').textContent = q.emoji;
       document.getElementById('q-text').textContent = q.question;
 
@@ -1323,10 +1498,34 @@
     }
 
     function showEmpty() {
-      document.getElementById('question-display').style.display = 'none';
-      document.getElementById('no-question').style.display = 'flex';
+      const intro = document.getElementById('intro-screen');
+      const game = document.getElementById('game-screen');
+      const header = document.querySelector('.game-header');
+      const questionDisplay = document.getElementById('question-display');
+      const finishScreen = document.getElementById('no-question');
+
+      if (intro) {
+        intro.classList.remove('fade-out');
+        intro.style.display = 'none';
+      }
+
+      if (game) {
+        game.style.display = 'flex';
+      }
+
+      if (header) {
+        header.style.display = 'none';
+      }
+
+      if (questionDisplay) {
+        questionDisplay.style.display = 'none';
+      }
+
+      if (finishScreen) {
+        finishScreen.style.display = 'flex';
+      }
+
       currentIndex = -1;
-      saveState();
     }
 
     function updateRemaining() {
@@ -1432,17 +1631,40 @@
         });
       } catch (e) { }
 
-      // Restore Bridge state if exists, but always show the landing first.
+      // Restore Bridge state if it exists.
       const saved = readBridgeState();
+
       if (saved) {
-        used = (saved.used && typeof saved.used === 'object') ? saved.used : {};
-        currentIndex = (typeof saved.currentIndex === 'number') ? saved.currentIndex : -1;
+        used = (saved.used && typeof saved.used === 'object')
+          ? saved.used
+          : {};
+
+        currentIndex = typeof saved.currentIndex === 'number'
+          ? saved.currentIndex
+          : -1;
+
         completedAt = saved.completedAt || null;
 
         updateRemaining();
 
+        const completedCount = usedCount();
         const savedProgress = saved.progress || {};
-        const covered = Number(savedProgress.covered) || 0;
+        const savedCovered = Number(savedProgress.covered);
+
+        const covered = Number.isFinite(savedCovered)
+          ? Math.max(savedCovered, completedCount)
+          : completedCount;
+
+        const isComplete =
+          covered >= TOTAL_Q ||
+          saved.status === 'complete' ||
+          saved.status === 'completed';
+
+        if (isComplete) {
+          showEmpty();
+          return;
+        }
+
         const btn = document.getElementById('btn-start');
 
         if (btn) {
@@ -1499,6 +1721,33 @@
       }
 
       updateRemaining();
+
+      const completedCount = usedCount();
+      const savedCovered = Number(
+        saved && saved.progress && saved.progress.covered
+      );
+
+      const covered = Number.isFinite(savedCovered)
+        ? Math.max(savedCovered, completedCount)
+        : completedCount;
+
+      const isComplete =
+        covered >= TOTAL_Q ||
+        (saved && (
+          saved.status === 'complete' ||
+          saved.status === 'completed'
+        ));
+
+      if (isComplete) {
+        showEmpty();
+        return;
+      }
+
+      const finishScreen = document.getElementById('no-question');
+
+      if (finishScreen) {
+        finishScreen.style.display = 'none';
+      }
 
       const game = document.getElementById('game-screen');
 
