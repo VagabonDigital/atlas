@@ -20,8 +20,8 @@
   <link rel="stylesheet" href="../../shared/atlas-search.css?v=20260721-world-modals">
   <link rel="stylesheet" href="../../shared/atlas-session-panel.css?v=20260721-world-modals">
   <link rel="stylesheet" href="../shared/arcade-game-chrome.css?v=20260721">
-  <link rel="icon"
-    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛸</text></svg>">
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='5' y='5' width='90' height='90' rx='24' fill='%23DF572F'/%3E%3Ccircle cx='50' cy='28' r='9' fill='%23FFF1E9'/%3E%3Cpath d='M50 38V62' stroke='%23FFF1E9' stroke-width='8' stroke-linecap='round'/%3E%3Cpath d='M30 61H70L77 79H23L30 61Z' fill='%23FFF1E9'/%3E%3Ccircle cx='64' cy='69' r='4.2' fill='%23F2C6B5'/%3E%3C/svg%3E">
   <script>
     (function () {
       var mode = null;
@@ -276,6 +276,126 @@
     .btn-launch:hover {
       transform: translateY(-1px);
       box-shadow: 0 10px 28px rgba(8, 127, 152, 0.2);
+    }
+
+    /* ============================================================
+     FINISH SCREEN
+     ============================================================ */
+
+    #finish {
+      position: fixed;
+      inset: 0;
+      z-index: 900;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    #finish.visible {
+      display: flex;
+    }
+
+    #finish::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: rgba(4, 10, 18, 0.24);
+    }
+
+    html[data-theme="light"] #finish::before {
+      background: rgba(238, 243, 246, 0.18);
+    }
+
+    html[data-theme="night"] #finish::before {
+      background: rgba(3, 10, 20, 0.38);
+    }
+
+    .finish-card {
+      position: relative;
+      z-index: 2;
+      width: min(430px, 100%);
+      padding: 36px;
+      border: 1px solid var(--line-strong);
+      border-radius: 24px;
+      background: var(--surface-soft);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      animation: card-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .finish-kicker {
+      margin-bottom: 18px;
+      color: var(--cyan);
+      font-family: var(--font-meta);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .finish-title {
+      margin-bottom: 20px;
+      color: var(--ink);
+      font-size: clamp(40px, 7vw, 62px);
+      font-weight: 780;
+      letter-spacing: -0.055em;
+      line-height: 0.96;
+    }
+
+    .finish-title span {
+      display: block;
+      color: var(--magenta);
+    }
+
+    .finish-copy {
+      max-width: 42ch;
+      margin-bottom: 30px;
+      color: var(--ink-soft);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .finish-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .finish-actions .btn-launch {
+      width: 100%;
+    }
+
+    .btn-back-arcade {
+      display: inline-flex;
+      width: 100%;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      padding: 0 22px;
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      background: var(--surface-soft);
+      color: var(--ink-soft);
+      font-weight: 700;
+      cursor: pointer;
+      transition:
+        transform 0.18s ease,
+        border-color 0.18s ease,
+        background-color 0.18s ease,
+        color 0.18s ease;
+    }
+
+    .btn-back-arcade:hover {
+      border-color: var(--magenta);
+      background: var(--magenta-soft);
+      color: var(--magenta);
+      transform: translateY(-1px);
     }
 
     /* ============================================================
@@ -977,6 +1097,10 @@
     html.theme-changing .launch-video,
     html.theme-changing .launch-card,
     html.theme-changing .launch-card *,
+    html.theme-changing #finish,
+    html.theme-changing #finish::before,
+    html.theme-changing .finish-card,
+    html.theme-changing .finish-card *,
     html.theme-changing #game,
     html.theme-changing #hdr,
     html.theme-changing #scenario-card,
@@ -1087,7 +1211,8 @@
         background-position: center;
       }
 
-      .launch-card {
+      .launch-card,
+      .finish-card {
         width: min(100%, 480px);
         padding: 28px 24px;
       }
@@ -1098,7 +1223,8 @@
     }
 
     @media (max-width: 480px) {
-      .launch-card {
+      .launch-card,
+      .finish-card {
         padding: 32px 24px;
       }
 
@@ -1145,6 +1271,42 @@
         </svg>
         Start sequence
       </button>
+    </section>
+  </div>
+
+  <!-- ============================================================
+     FINISH SCREEN
+     ============================================================ -->
+  <div id="finish" role="main" aria-label="Tomorrow Got Weird complete">
+
+    <video class="launch-video" autoplay muted loop playsinline preload="auto" poster="portal-poster.png"
+      aria-hidden="true">
+      <source src="portal.mp4" type="video/mp4">
+    </video>
+
+    <section class="finish-card" aria-labelledby="finish-title">
+      <p class="finish-kicker">[ Sequence complete ] · 25 futures</p>
+
+      <h1 class="finish-title" id="finish-title">
+        You Survived <span>Tomorrow</span>
+      </h1>
+
+      <p class="finish-copy">
+        All 25 futures explored. Tomorrow got weird. You made it back anyway.
+      </p>
+
+      <div class="finish-actions">
+        <button class="btn-launch" type="button" onclick="playAgain()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M3 2l9 5-9 5V2z" fill="currentColor" />
+          </svg>
+          Start a new timeline
+        </button>
+
+        <button class="btn-back-arcade" type="button" onclick="goToArcade()">
+          Back to Arcade
+        </button>
+      </div>
     </section>
   </div>
 
@@ -1658,11 +1820,49 @@
     /* ============================================================
        LAUNCH AND NAVIGATION
        ============================================================ */
+    function getTimelineProgress(saved) {
+      const completedCount = countCompleted();
+
+      const savedCovered = Number(
+        saved && saved.progress && saved.progress.covered
+      );
+
+      const covered = Number.isFinite(savedCovered)
+        ? Math.max(savedCovered, completedCount)
+        : completedCount;
+
+      return {
+        covered,
+        isComplete:
+          covered >= SCENARIOS.length ||
+          Boolean(saved && (
+            saved.status === 'complete' ||
+            saved.status === 'completed'
+          ))
+      };
+    }
+
+    function updateLaunchButton(covered) {
+      const launchButton = document.getElementById('launch-button');
+      if (!launchButton) return;
+
+      const buttonLabel = covered > 0
+        ? 'Continue sequence'
+        : 'Start sequence';
+
+      launchButton.innerHTML =
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+        '<path d="M3 2l9 5-9 5V2z" fill="currentColor"/>' +
+        '</svg>' +
+        buttonLabel;
+    }
+
     function startGame() {
       if (!Bridge || !session) return;
       state.lastOpenedAt = Date.now();
       saveState();
       touchActivity();
+      document.getElementById('finish').classList.remove('visible');
       document.getElementById('launch').style.display = 'none';
       document.getElementById('game').style.display = 'block';
       render();
@@ -1697,6 +1897,37 @@
     /* ============================================================
        COMPLETION
        ============================================================ */
+    function showFinish() {
+      if (completeAdvanceTimer) {
+        clearTimeout(completeAdvanceTimer);
+        completeAdvanceTimer = null;
+      }
+
+      document.getElementById('launch').style.display = 'none';
+      document.getElementById('game').style.display = 'none';
+      document.getElementById('finish').classList.add('visible');
+    }
+
+    function playAgain() {
+      state = createDefaultState();
+      openSupport = null;
+
+      saveState();
+      touchActivity();
+      buildScenarioDots();
+
+      document.getElementById('finish').classList.remove('visible');
+      document.getElementById('launch').style.display = 'none';
+      document.getElementById('game').style.display = 'block';
+
+      render();
+    }
+
+    function goToArcade() {
+      saveState();
+      window.location.href = '../index.html';
+    }
+
     function toggleComplete() {
       const index = state.current;
       const isNowComplete = !state.completed[index];
@@ -1715,6 +1946,18 @@
           ? 'Scenario survived.'
           : 'Scenario reopened.'
       );
+
+      if (
+        isNowComplete &&
+        countCompleted() === SCENARIOS.length
+      ) {
+        completeAdvanceTimer = setTimeout(() => {
+          completeAdvanceTimer = null;
+          showFinish();
+        }, 1000);
+
+        return;
+      }
 
       if (isNowComplete && index < SCENARIOS.length - 1) {
         completeAdvanceTimer = setTimeout(() => {
@@ -1956,40 +2199,14 @@
       state = normalizeState(saved);
       buildScenarioDots();
 
-      const launchButton = document.getElementById('launch-button');
+      const timeline = getTimelineProgress(saved);
 
-      if (launchButton) {
-        const completedCount = Object.values(
-          state.completed || {}
-        ).filter(Boolean).length;
-
-        const savedCovered = Number(
-          saved && saved.progress && saved.progress.covered
-        );
-
-        const covered = Number.isFinite(savedCovered)
-          ? Math.max(savedCovered, completedCount)
-          : completedCount;
-
-        const isComplete =
-          covered >= SCENARIOS.length ||
-          (saved && (
-            saved.status === 'complete' ||
-            saved.status === 'completed'
-          ));
-
-        const buttonLabel = isComplete
-          ? 'Re-enter timeline'
-          : covered > 0
-            ? 'Continue sequence'
-            : 'Start sequence';
-
-        launchButton.innerHTML =
-          '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
-          '<path d="M3 2l9 5-9 5V2z" fill="currentColor"/>' +
-          '</svg>' +
-          buttonLabel;
+      if (timeline.isComplete) {
+        showFinish();
+        return;
       }
+
+      updateLaunchButton(timeline.covered);
     }
 
     window.addEventListener('atlas:appearance-change', event => {
@@ -2004,16 +2221,40 @@
 
     window.addEventListener('atlas:session-change', event => {
       if (!Bridge) return;
+
       session =
         (event.detail && event.detail.session) ||
         Bridge.readActiveSession();
 
-      state = normalizeState(readBridgeState());
+      const saved = readBridgeState();
+
+      state = normalizeState(saved);
       openSupport = null;
       buildScenarioDots();
 
+      const timeline = getTimelineProgress(saved);
+      const finish = document.getElementById('finish');
+      const launch = document.getElementById('launch');
       const game = document.getElementById('game');
-      if (game && getComputedStyle(game).display !== 'none') render();
+
+      if (timeline.isComplete) {
+        showFinish();
+        return;
+      }
+
+      finish.classList.remove('visible');
+
+      if (
+        game &&
+        getComputedStyle(game).display !== 'none'
+      ) {
+        render();
+        return;
+      }
+
+      launch.style.display = 'flex';
+      game.style.display = 'none';
+      updateLaunchButton(timeline.covered);
     });
 
     window.addEventListener('pagehide', () => saveState());
