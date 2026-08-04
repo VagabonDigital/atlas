@@ -1009,7 +1009,7 @@
 
     .game-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 1rem;
     }
 
@@ -1019,13 +1019,15 @@
     .game-card {
       display: flex;
       flex-direction: column;
+      min-height: 184px;
       background-color: var(--card-surface);
       border: var(--card-border-width) solid var(--card-border);
       border-radius: 22px;
-      padding: 1.45rem 1.45rem 1.42rem;
+      padding: 1.18rem 1.45rem 1.12rem;
       transition: var(--motion-standard);
       position: relative;
       overflow: hidden;
+      isolation: isolate;
       text-decoration: none;
       cursor: pointer;
       text-align: left;
@@ -1055,6 +1057,7 @@
 
     .game-card-progress-track {
       position: absolute;
+      z-index: 3;
       left: 0;
       right: 0;
       bottom: 0;
@@ -1077,22 +1080,159 @@
       outline-offset: 3px;
     }
 
-    .game-card-mark {
-      width: 44px;
-      height: 44px;
-      font-size: 1.45rem;
-      margin-bottom: 1rem;
-      display: inline-flex;
+    .game-card-art {
+      position: absolute;
+      z-index: 1;
+      top: 1.15rem;
+      right: 1.15rem;
+      bottom: 3.7rem;
+      width: 32%;
+      max-width: 11rem;
+      display: flex;
       align-items: center;
-      justify-content: center;
-      line-height: 1;
-      border-radius: 14px;
-      background: var(--card-mark-surface);
-      border: 1px solid var(--card-mark-border);
-      box-shadow: var(--card-mark-shadow);
+      justify-content: flex-end;
+      color: var(--game-accent);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate3d(10px, 2px, 0) scale(0.96);
+      transform-origin: center right;
+      transition:
+        opacity 0.34s ease,
+        transform 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .game-card-art svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      max-height: 6.8rem;
+      overflow: visible;
+      transform-origin: center;
+    }
+
+    .game-artwork--tomorrow {
+      transform: translate(3px, 4px) scale(0.94);
+    }
+
+    .game-artwork--truth {
+      transform: translate(4px, 0) scale(0.86);
+    }
+
+    .game-artwork--choice {
+      transform: translate(3px, 1px) scale(0.91);
+    }
+
+    .game-card-art path,
+    .game-card-art circle,
+    .game-card-art rect,
+    .game-card-art line {
+      vector-effect: non-scaling-stroke;
+    }
+
+    .game-card:is(:hover, :focus-visible) .game-card-art {
+      opacity: 0.18;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    html[data-theme="night"] .game-card-art {
+      opacity: 0;
+    }
+
+    html[data-theme="night"] .game-card:is(:hover, :focus-visible) .game-card-art {
+      opacity: 0.24;
+    }
+
+    .tomorrow-dial,
+    .tomorrow-hand,
+    .tomorrow-rift,
+    .tomorrow-spark,
+    .truth-card,
+    .truth-trapdoor,
+    .choice-option,
+    .choice-branch,
+    .choice-pivot {
+      transform-box: fill-box;
+      transform-origin: center;
+      transition:
+        transform 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.3s ease;
+    }
+
+    .truth-trapdoor--left {
+      transform-origin: right center;
+    }
+
+    .truth-trapdoor--right {
+      transform-origin: left center;
+    }
+
+    .game-card:is(:hover, :focus-visible) .tomorrow-dial {
+      transform: rotate(3deg);
+    }
+
+    .game-card:is(:hover, :focus-visible) .tomorrow-hand {
+      transform: rotate(11deg);
+    }
+
+    .game-card:is(:hover, :focus-visible) .tomorrow-rift {
+      transform: translate(-2px, 2px);
+    }
+
+    .game-card:is(:hover, :focus-visible) .tomorrow-spark {
+      transform: scale(1.12);
+    }
+
+    .game-card:is(:hover, :focus-visible) .truth-card--one {
+      transform: translateX(-1px);
+    }
+
+    .game-card:is(:hover, :focus-visible) .truth-card--two {
+      transform: translateX(1px);
+    }
+
+    .game-card:is(:hover, :focus-visible) .truth-card--lie {
+      transform: translate(3px, 6px) rotate(2.5deg);
+    }
+
+    .game-card:is(:hover, :focus-visible) .truth-trapdoor--left {
+      transform: translateX(-2px) rotate(3deg);
+    }
+
+    .game-card:is(:hover, :focus-visible) .truth-trapdoor--right {
+      transform: translateX(2px) rotate(-3deg);
+    }
+
+    .game-card:is(:hover, :focus-visible) .choice-option--left {
+      transform: translateX(-4px) rotate(-1.5deg);
+    }
+
+    .game-card:is(:hover, :focus-visible) .choice-option--right {
+      transform: translateX(4px) rotate(1.5deg);
+    }
+
+    .game-card:is(:hover, :focus-visible) .choice-pivot {
+      transform: scale(1.16);
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      .game-card {
+        min-height: 0;
+      }
+
+      .game-card-title,
+      .game-card-premise {
+        max-width: none;
+      }
+
+      .game-card-art {
+        display: none;
+      }
     }
 
     .game-card-title {
+      position: relative;
+      z-index: 2;
+      max-width: 64%;
       font-family: var(--font-display);
       font-size: 1.12rem;
       font-weight: 400;
@@ -1102,12 +1242,13 @@
     }
 
     .game-card-premise {
+      position: relative;
+      z-index: 2;
+      max-width: 64%;
       font-size: 0.84rem;
       color: var(--card-premise-text);
       opacity: 0.82;
       line-height: 1.6;
-      flex: 1;
-      margin-bottom: 1rem;
     }
 
     html[data-theme="night"] .game-card-premise {
@@ -1115,11 +1256,15 @@
     }
 
     .game-card-footer {
+      position: relative;
+      z-index: 2;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 0.5rem;
+      width: 100%;
       margin-top: auto;
+      padding-top: 0.65rem;
     }
 
     .game-card-unit {
@@ -1475,6 +1620,7 @@
       }
 
       .game-card {
+        min-height: 0;
         padding: 1.35rem 1.25rem 1.38rem;
       }
 
@@ -1735,6 +1881,170 @@
        Every item listed here is complete and launchable.
        Future Arcade concepts live outside the operational hub.
        ================================================================ */
+    const GAME_ART_SVGS = {
+      tomorrow: `
+        <svg class="game-artwork game-artwork--tomorrow"
+          viewBox="0 0 180 150" fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+
+          <path class="tomorrow-orbit"
+            d="M27 104C49 129 87 136 122 120C141 111 153 95 158 77"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"/>
+
+          <g class="tomorrow-dial">
+            <circle cx="112" cy="70" r="39"
+              stroke="currentColor"
+              stroke-width="2.4"/>
+
+            <path
+              d="M112 31V41M112 99V109M73 70H83M141 70H151"
+              stroke="currentColor"
+              stroke-width="2.1"
+              stroke-linecap="round"/>
+
+            <path class="tomorrow-hand"
+              d="M112 70L135 48M112 70L94 82"
+              stroke="currentColor"
+              stroke-width="2.8"
+              stroke-linecap="round"/>
+
+            <circle cx="112" cy="70" r="4"
+              fill="currentColor"/>
+          </g>
+
+          <path class="tomorrow-rift"
+            d="M57 32L70 47L61 59L75 74L65 89"
+            stroke="currentColor"
+            stroke-width="2.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+
+          <path class="tomorrow-spark"
+            d="M145 27L148 36L157 39L148 42L145 51L142 42L133 39L142 36L145 27Z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linejoin="round"/>
+        </svg>
+      `,
+
+      truth: `
+        <svg class="game-artwork game-artwork--truth"
+          viewBox="0 0 180 150" fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+
+          <g class="truth-card truth-card--one">
+            <rect x="38" y="25" width="99" height="29" rx="9"
+              stroke="currentColor"
+              stroke-width="2.3"/>
+
+            <circle cx="54" cy="39.5" r="4"
+              fill="currentColor"/>
+
+            <path d="M67 39.5H119"
+              stroke="currentColor"
+              stroke-width="2.3"
+              stroke-linecap="round"/>
+          </g>
+
+          <g class="truth-card truth-card--two">
+            <rect x="48" y="63" width="99" height="29" rx="9"
+              stroke="currentColor"
+              stroke-width="2.3"/>
+
+            <circle cx="64" cy="77.5" r="4"
+              fill="currentColor"/>
+
+            <path d="M77 77.5H129"
+              stroke="currentColor"
+              stroke-width="2.3"
+              stroke-linecap="round"/>
+          </g>
+
+          <g class="truth-card truth-card--lie">
+            <rect x="59" y="101" width="85" height="28" rx="9"
+              stroke="currentColor"
+              stroke-width="2.3"/>
+
+            <path d="M75 111L84 120M84 111L75 120"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"/>
+
+            <path d="M96 115.5H128"
+              stroke="currentColor"
+              stroke-width="2.3"
+              stroke-linecap="round"/>
+          </g>
+
+          <path class="truth-trapdoor truth-trapdoor--left"
+            d="M54 136H95L85 144H43L54 136Z"
+            stroke="currentColor"
+            stroke-width="2.1"
+            stroke-linejoin="round"/>
+
+          <path class="truth-trapdoor truth-trapdoor--right"
+            d="M100 136H141L151 144H109L100 136Z"
+            stroke="currentColor"
+            stroke-width="2.1"
+            stroke-linejoin="round"/>
+        </svg>
+      `,
+
+      choice: `
+        <svg class="game-artwork game-artwork--choice"
+          viewBox="0 0 180 150" fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+
+          <path class="choice-branch choice-branch--left"
+            d="M90 127V89L61 59"
+            stroke="currentColor"
+            stroke-width="2.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+
+          <path class="choice-branch choice-branch--right"
+            d="M90 89L119 59"
+            stroke="currentColor"
+            stroke-width="2.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+
+          <circle class="choice-pivot"
+            cx="90" cy="89" r="5"
+            fill="currentColor"/>
+
+          <g class="choice-option choice-option--left">
+            <rect x="20" y="24" width="62" height="39" rx="14"
+              stroke="currentColor"
+              stroke-width="2.4"/>
+
+            <circle cx="51" cy="43.5" r="8"
+              stroke="currentColor"
+              stroke-width="2.3"/>
+          </g>
+
+          <g class="choice-option choice-option--right">
+            <rect x="98" y="24" width="62" height="39" rx="14"
+              stroke="currentColor"
+              stroke-width="2.4"/>
+
+            <path d="M129 34L139 43.5L129 53L119 43.5L129 34Z"
+              stroke="currentColor"
+              stroke-width="2.3"
+              stroke-linejoin="round"/>
+          </g>
+
+          <path class="choice-ground"
+            d="M71 133H109"
+            stroke="currentColor"
+            stroke-width="2.3"
+            stroke-linecap="round"/>
+        </svg>
+      `
+    };
+
     const GAME_CATALOGUE = [
       {
         registryId: 'arcade:tomorrow-got-weird',
@@ -1742,7 +2052,7 @@
         premise: 'Step into strange future scenarios and decide what you would do next.',
         unitLabel: 'Scenarios',
         total: 25,
-        mark: '🛸',
+        artId: 'tomorrow',
         accent: '#7c3aed',
         order: 1,
         launchUrl: './tomorrow-got-weird/index.html'
@@ -1753,7 +2063,7 @@
         premise: 'Two facts are true. One is a lie. Spot the fake and explain your reasoning.',
         unitLabel: 'Rounds',
         total: 20,
-        mark: '🕵️',
+        artId: 'truth',
         accent: '#0891b2',
         order: 2,
         launchUrl: './truth-trap/index.html'
@@ -1764,7 +2074,7 @@
         premise: 'Choose between impossible options and explain what made you decide.',
         unitLabel: 'Questions',
         total: 50,
-        mark: '🤔',
+        artId: 'choice',
         accent: '#e85d3f',
         order: 3,
         launchUrl: './would-you-rather/index.html'
@@ -1832,7 +2142,8 @@
             status: 'available',
             unitLabel: game.unitLabel,
             total: game.total,
-            mark: game.mark,
+            mark: null,
+            visualId: game.artId,
             accent: game.accent,
             order: game.order,
             launchUrl: new URL(game.launchUrl, window.location.href).href
@@ -2086,6 +2397,7 @@
     function renderGameCard(game, state) {
       const deck = getGameDeckState(game, state);
       const hasProgressBar = deck.mode !== 'unstarted';
+      const artwork = GAME_ART_SVGS[game.artId] || '';
 
       const progressHtml = hasProgressBar
         ? '<span class="game-card-progress-track" aria-hidden="true">' +
@@ -2097,7 +2409,7 @@
         ' href="' + escAttr(game.launchUrl) + '"' +
         ' style="--game-accent:' + escAttr(game.accent) + ';--game-progress:' + deck.progressPercent + '%"' +
         ' aria-label="' + escAttr(deck.actionLabel + ' ' + game.title) + '">' +
-        '<span class="game-card-mark" aria-hidden="true">' + escHtml(game.mark) + '</span>' +
+        '<span class="game-card-art" aria-hidden="true">' + artwork + '</span>' +
         '<div class="game-card-title">' + escHtml(game.title) + '</div>' +
         '<p class="game-card-premise">' + escHtml(game.premise) + '</p>' +
         '<div class="game-card-footer">' +
