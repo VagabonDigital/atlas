@@ -8,7 +8,7 @@
   for — the wage, the craft, the duty, the boredom, and the arguments people
   have about who is really working. Built for tutor-led conversation, shared
   screens, practical disagreement, and sharper spoken English.
-  Compass active subject · contentVersion 2.0.0
+  Compass active subject · contentVersion 2.1.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -19,7 +19,7 @@
 const MODULE = {
     id: 'work-purpose',
     schemaVersion: 2,
-    contentVersion: '2.0.0',
+    contentVersion: '2.1.0',
     title: 'Work & Purpose',
     titleHtml: 'Work &amp; <em>Purpose</em>',
     navTitle: 'Work',
@@ -83,6 +83,12 @@ const discussionSets = [
                 preview: `There’s a number, or there isn’t.`,
                 question: `What job could nobody pay you enough to do? What part of it makes you so certain?`,
 
+                followUp: {
+                    id: 'change-the-work-not-the-pay',
+                    kind: 'another-angle',
+                    prompt: `What would have to change about the work itself — not the pay — for you to reconsider?`
+                },
+
                 upgrade: {
                     term: `you couldn’t pay me enough`,
                     type: `phrase`,
@@ -97,6 +103,12 @@ const discussionSets = [
                 id: 'moment-thought-it-was-nothing',
                 preview: `Nothing much, until you try it.`,
                 question: `Which job looks easy until you try it — or until you watch someone do it badly? What does a skilled person do that most people never notice?`,
+
+                followUp: {
+                    id: 'mistake-a-beginner-makes',
+                    kind: 'go-deeper',
+                    prompt: `What mistake would a beginner make that an experienced person avoids without thinking?`
+                },
 
                 upgrade: {
                     term: `make something look easy`,
@@ -219,6 +231,12 @@ const discussionSets = [
                 preview: `It helped nobody, and it took all morning.`,
                 question: `What is the most pointless piece of workplace bureaucracy you have encountered — or heard someone complain about? It could be a form, approval, report, meeting, or rule. Why did people keep doing it?`,
 
+                followUp: {
+                    id: 'replace-the-bureaucracy',
+                    kind: 'add-a-twist',
+                    prompt: `You can remove it tomorrow, but the original problem still has to be handled. What would you replace it with?`
+                },
+
                 upgrade: {
                     term: `red tape`,
                     type: `noun`,
@@ -293,7 +311,7 @@ const discussionSets = [
             {
                 id: 'moment-job-changed-them',
                 preview: `The job followed them home.`,
-                question: `Have you seen someone bring their workplace home in the way they speak or behave — checking every detail, organising everything, correcting people, or making the same kind of jokes? Which habit followed them home?`,
+                question: `Have you known someone whose job followed them home — a teacher always correcting everyone, a manager turning family plans into a staff meeting, or a chef taking over somebody else’s kitchen? What work habit could they never quite switch off?`,
 
                 upgrade: {
                     term: `carry over into something`,
