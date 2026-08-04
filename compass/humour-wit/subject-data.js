@@ -9,7 +9,7 @@
   changing mood of the room. Built for tutor-led conversation, shared-screen
   teaching, thoughtful disagreement, playful experimentation, and sharper
   spoken English.
-  Compass active subject · contentVersion 2.0.0
+  Compass active subject · contentVersion 2.1.0
   ---------------------------------------------------------------------------
   VERBA PONTES FACIUNT · SENSUS VIAM APERIT · DISCIPLINA VIVA EST
   ===========================================================================
@@ -18,7 +18,7 @@
 const MODULE = {
     id: 'humour-wit',
     schemaVersion: 2,
-    contentVersion: '2.0.0',
+    contentVersion: '2.1.0',
     title: 'Humour & Wit',
     titleHtml: 'Humour &amp; <em>Wit</em>',
     navTitle: 'Humour',
@@ -81,6 +81,12 @@ const discussionSets = [
                 id: 'moment-humour-that-always-works',
                 preview: `You know it is silly. It still works.`,
                 question: `What kind of humour gets you every time — terrible puns, impressions, dry comments, absurd videos, or something else? Give us one example that would probably work on you today.`,
+
+                followUp: {
+                    id: 'explain-it-without-ruining-it',
+                    kind: 'go-deeper',
+                    prompt: `Can you explain why your example is funny without ruining it?`
+                },
 
                 upgrade: {
                     term: `crack someone up`,
@@ -172,6 +178,12 @@ const discussionSets = [
                 id: 'moment-risky-joke-still-works',
                 preview: `From them, it somehow works.`,
                 question: `Think of someone who can make a rude or risky joke and still keep everyone on their side. What do they have that another person would not — trust, warmth, timing, status, or something else?`,
+
+                followUp: {
+                    id: 'the-joke-or-the-person',
+                    kind: 'go-deeper',
+                    prompt: `How can you tell whether people are laughing at the joke itself or simply because they like the person telling it?`
+                },
 
                 upgrade: {
                     term: `get away with something`,
