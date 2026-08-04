@@ -567,20 +567,46 @@ function mountCompassSubjectShell() {
         <div class="reflection-wrap">
             <div class="section-stage">
                 <div class="reflection-icon-large" aria-hidden="true">
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                        <path d="M14 3V25" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                        <path d="M6 19l8 6 8-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                        <circle cx="14" cy="10" r="4.5" stroke="currentColor" stroke-width="1.8"/>
+                    <svg class="reflection-illustration"
+                        viewBox="0 0 160 88" fill="none">
+                        <path class="reflection-stem"
+                            d="M80 10V66"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round" />
+                        <circle class="reflection-ring"
+                            cx="80" cy="34" r="13"
+                            stroke="currentColor"
+                            stroke-width="2" />
+                        <path class="reflection-chevron"
+                            d="M50 56l30 22 30-22"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round" />
                     </svg>
                 </div>
 
-                <div id="reflection-complete-mark" class="reflection-complete-mark" aria-hidden="true">
-                    <svg width="52" height="52" viewBox="0 0 52 52" fill="none" aria-hidden="true">
-                        <path d="M26 8L44 26L26 44L8 26L26 8Z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
-                        <path d="M26 15L37 26L26 37L15 26L26 15Z" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round" opacity=".78"/>
-                        <circle cx="26" cy="26" r="3" fill="currentColor"/>
+                <button id="reflection-complete-mark" class="reflection-complete-mark"
+                    type="button"
+                    onclick="returnToAtlasFromReflection()"
+                    title="Return to Atlas"
+                    aria-label="Return to Atlas">
+                    <svg width="52" height="52" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M2.5 12V6.4C2.5 3.7 4.5 1.7 7 1.7C9.5 1.7 11.5 3.7 11.5 6.4V12"
+                            stroke="currentColor"
+                            stroke-width="1.25"
+                            stroke-linecap="round"/>
+                        <path d="M5 12V6.8C5 5.65 5.9 4.75 7 4.75C8.1 4.75 9 5.65 9 6.8V12"
+                            stroke="currentColor"
+                            stroke-width="1.15"
+                            stroke-linecap="round"/>
+                        <path d="M2 12H12"
+                            stroke="currentColor"
+                            stroke-width="1.25"
+                            stroke-linecap="round"/>
                     </svg>
-                </div>
+                </button>
 
                 <p id="reflection-complete-kicker" class="reflection-complete-kicker">Wrapped up for now</p>
                 <h2 id="reflection-title" aria-live="polite"></h2>
@@ -592,10 +618,21 @@ function mountCompassSubjectShell() {
 
                 <div class="reflection-actions">
                     <button id="complete-lesson-btn" class="btn-primary" type="button" onclick="completeLesson()">
-                        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-                            <path d="M3 8.2l3.1 3.1L13 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <path d="M8 2.25V12.5"
+                                stroke="currentColor"
+                                stroke-width="1.35"
+                                stroke-linecap="round"/>
+                            <circle cx="8" cy="5.25" r="2.15"
+                                stroke="currentColor"
+                                stroke-width="1.35"/>
+                            <path d="M4.5 10.25L8 13l3.5-2.75"
+                                stroke="currentColor"
+                                stroke-width="1.35"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"/>
                         </svg>
-                        Wrap up
+                        Wrap up this subject
                     </button>
                 </div>
             </div>

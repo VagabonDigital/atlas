@@ -1059,24 +1059,37 @@ function updateReflectionCompleteState(animate = false) {
     button.setAttribute('aria-pressed', String(complete));
     button.innerHTML = complete
         ? `
-                <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-                    <path d="M3 8.2l3.1 3.1L13 4.5"
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none"
+                    aria-hidden="true">
+                    <path d="M5.25 4.25H2.5V1.5"
                         stroke="currentColor"
-                        stroke-width="1.6"
+                        stroke-width="1.35"
                         stroke-linecap="round"
                         stroke-linejoin="round"/>
+                    <path d="M2.75 4.1A5.75 5.75 0 1 1 2.4 10"
+                        stroke="currentColor"
+                        stroke-width="1.35"
+                        stroke-linecap="round"/>
                 </svg>
                 Undo wrap up
             `
         : `
-                <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-                    <path d="M3 8.2l3.1 3.1L13 4.5"
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                    aria-hidden="true">
+                    <path d="M8 2.25V12.5"
                         stroke="currentColor"
-                        stroke-width="1.6"
+                        stroke-width="1.35"
+                        stroke-linecap="round"/>
+                    <circle cx="8" cy="5.25" r="2.15"
+                        stroke="currentColor"
+                        stroke-width="1.35"/>
+                    <path d="M4.5 10.25L8 13l3.5-2.75"
+                        stroke="currentColor"
+                        stroke-width="1.35"
                         stroke-linecap="round"
                         stroke-linejoin="round"/>
                 </svg>
-                Wrap up
+                Wrap up this subject
             `;
 
     if (complete && animate) {
@@ -1397,6 +1410,16 @@ function getAtlasHomeUrl() {
     return new URL('../../index.html', window.location.href).href;
 }
 
+function returnToAtlasFromReflection() {
+    const reflectionView = document.getElementById('view-reflection');
+
+    if (!reflectionView?.classList.contains('reflection-complete')) {
+        return;
+    }
+
+    window.location.assign(getAtlasHomeUrl());
+}
+
 function renderCompassWrapUp() {
     const activeSession = getCurrentBridgeSession();
     const evidence = getWrapUpEvidence(activeSession.id, false) || {
@@ -1636,11 +1659,13 @@ function buildUpgradeVisibilityControl(scope) {
 
                     ${UPGRADE_ICON_SVG}
 
-                    <span>Language upgrades</span>
+                    <span class="upgrade-visibility-copy">
+                        <span>Language upgrades</span>
 
-                    <strong>
-                        ${getUpgradeVisibilityLabel(mode)}
-                    </strong>
+                        <strong>
+                            ${getUpgradeVisibilityLabel(mode)}
+                        </strong>
+                    </span>
                 </button>
 
                 <div
