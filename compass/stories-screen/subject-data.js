@@ -8,7 +8,7 @@ A premium interactive speaking subject for exploring why invented people
 and events take hold of us — the grip, the verdict, the argument, and what
 a story leaves behind once it is finished. Built for tutor-led conversation,
 shared-screen teaching, genuine disagreement, and sharper spoken English.
-Compass active subject · contentVersion 1.1.0
+Compass active subject · contentVersion 1.2.0
 The subject may evolve.
 The compass remains.
 --------------------------------------------------------------------------
@@ -19,7 +19,7 @@ VERBA PONTES FACIUNT · SENSUS VIAM APERIT · DISCIPLINA VIVA EST
 const MODULE = {
     id: 'stories-screen',
     schemaVersion: 2,
-    contentVersion: '1.1.0',
+    contentVersion: '1.2.0',
     title: 'Stories & Screen',
     titleHtml: 'Stories &amp; <em>Screen</em>',
     navTitle: 'Stories',
@@ -142,6 +142,12 @@ const discussionSets = [
                 id: 'moment-what-ruins-it',
                 preview: `Ruined in four seconds.`,
                 question: `What ruins a story fastest for you — learning the ending, an unbearable character, too much hype, or something that goes on too long? Which story was genuinely spoiled for you, and how?`,
+
+                followUp: {
+                    id: 'what-keeps-you-watching',
+                    kind: 'another-angle',
+                    prompt: `What could a story do well enough to win you back after it had already put you off?`
+                },
 
                 upgrade: {
                     term: `put someone off`,
@@ -279,6 +285,12 @@ const discussionSets = [
                 id: 'moment-handed-to-you',
                 preview: `Nobody asked whether you liked it.`,
                 question: `What story was placed in front of you when you were young — a parent’s favourite film, a school book, or something always playing at home? Did it become yours too, or did you reject it?`,
+
+                followUp: {
+                    id: 'discovered-it-later',
+                    kind: 'add-a-twist',
+                    prompt: `Imagine you had discovered the same story by yourself years later. What do you think would have felt different?`
+                },
 
                 upgrade: {
                     term: `hand something down`,
