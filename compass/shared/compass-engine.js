@@ -2624,14 +2624,14 @@ function renderCulturalLensFocusUpgrade() {
                 data-upgrade-term="${escHtml(upgrade.term)}"
                 onclick="setCulturalLensFocusUpgrade(true, 'back')"
                 aria-label="${saved
-                    ? 'Open saved Language Upgrade'
-                    : 'Open Language Upgrade'}: ${escHtml(upgrade.term)}">
+                ? 'Open saved Language Upgrade'
+                : 'Open Language Upgrade'}: ${escHtml(upgrade.term)}">
 
                 <span class="discussion-focus-upgrade-trigger-icon"
                     aria-hidden="true">
                     ${saved
-                        ? SAVED_UPGRADE_ICON_SVG
-                        : UPGRADE_ICON_SVG}
+                ? SAVED_UPGRADE_ICON_SVG
+                : UPGRADE_ICON_SVG}
                 </span>
 
                 <span class="discussion-focus-upgrade-trigger-label">
@@ -2707,8 +2707,8 @@ function renderCulturalLensFocusUpgrade() {
                     onclick="toggleSavedLanguage(${jsArg(contextId)}, event)"
                     aria-pressed="${String(saved)}"
                     title="${saved
-                        ? 'Remove from Language Bank'
-                        : 'Save to Language Bank'}">
+            ? 'Remove from Language Bank'
+            : 'Save to Language Bank'}">
                     ${saved ? 'Saved' : 'Save'}
                 </button>
             </div>
@@ -3441,14 +3441,14 @@ function renderDiscussionFocusUpgrade() {
                 data-upgrade-term="${escHtml(upgrade.term)}"
                 onclick="setDiscussionFocusUpgrade(true, 'back')"
                 aria-label="${saved
-                    ? 'Open saved Language Upgrade'
-                    : 'Open Language Upgrade'}: ${escHtml(upgrade.term)}">
+                ? 'Open saved Language Upgrade'
+                : 'Open Language Upgrade'}: ${escHtml(upgrade.term)}">
 
                 <span class="discussion-focus-upgrade-trigger-icon"
                     aria-hidden="true">
                     ${saved
-                        ? SAVED_UPGRADE_ICON_SVG
-                        : UPGRADE_ICON_SVG}
+                ? SAVED_UPGRADE_ICON_SVG
+                : UPGRADE_ICON_SVG}
                 </span>
 
                 <span class="discussion-focus-upgrade-trigger-label">
@@ -3524,8 +3524,8 @@ function renderDiscussionFocusUpgrade() {
                     onclick="toggleSavedLanguage(${jsArg(contextId)}, event)"
                     aria-pressed="${String(saved)}"
                     title="${saved
-                        ? 'Remove from Language Bank'
-                        : 'Save to Language Bank'}">
+            ? 'Remove from Language Bank'
+            : 'Save to Language Bank'}">
                     ${saved ? 'Saved' : 'Save'}
                 </button>
             </div>
@@ -4107,12 +4107,22 @@ function renderDiscussionSets() {
         element.setAttribute('role', 'button');
         element.setAttribute('tabindex', '0');
 
-        element.onclick = () => openSet(set.id);
+        element.onclick = () => {
+            if (activeSetId === set.id) {
+                closeSet();
+            } else {
+                openSet(set.id);
+            }
+        };
 
         element.onkeydown = event => {
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
-                openSet(set.id);
+                if (activeSetId === set.id) {
+                    closeSet();
+                } else {
+                    openSet(set.id);
+                }
             }
         };
 
@@ -4368,26 +4378,6 @@ function renderMoments(set) {
 
         list.appendChild(card);
     }
-
-    const closeButton = document.createElement('button');
-
-    closeButton.className =
-        'btn-close-set btn-close-set-bottom';
-
-    closeButton.type = 'button';
-    closeButton.onclick = closeSet;
-
-    closeButton.innerHTML = `
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                <path d="M2 2l8 8M10 2l-8 8"
-                    stroke="currentColor"
-                    stroke-width="1.4"
-                    stroke-linecap="round"/>
-            </svg>
-            Close set
-        `;
-
-    list.appendChild(closeButton);
 }
 
 function toggleMoment(momentId) {

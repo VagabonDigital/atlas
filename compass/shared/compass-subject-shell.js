@@ -87,15 +87,29 @@ function mountCompassSubjectShell() {
                 </div>
 
                 <div class="main-paths">
-                    <div class="main-path-card" role="button" tabindex="0"
+                    <div class="main-path-card main-path-card--discussion" role="button" tabindex="0"
                         onclick="goToView('view-discussion')"
                         onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-discussion'); }">
 
-                        <div class="path-icon">
-                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                                <path d="M4 6a2 2 0 012-2h10a2 2 0 012 2v7a2 2 0 01-2 2h-4l-4 3v-3H6a2 2 0 01-2-2V6z"
-                                    stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-                                <path d="M8 9h6M8 12h4" stroke="currentColor" stroke-width="1.3"
+                        <div class="path-icon path-icon--discussion" aria-hidden="true">
+                            <svg class="path-illustration path-illustration--discussion"
+                                viewBox="0 0 160 140" fill="none">
+                                <path class="discussion-bubble"
+                                    d="M38 28h72c15.5 0 28 12.5 28 28v31c0 15.5-12.5 28-28 28H82l-25 17 5-17H38c-15.5 0-28-12.5-28-28V56c0-15.5 12.5-28 28-28Z"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linejoin="round" />
+                                <path class="discussion-line discussion-line--one"
+                                    d="M43 62h57"
+                                    pathLength="1"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round" />
+                                <path class="discussion-line discussion-line--two"
+                                    d="M43 82h39"
+                                    pathLength="1"
+                                    stroke="currentColor"
+                                    stroke-width="2"
                                     stroke-linecap="round" />
                             </svg>
                         </div>
@@ -104,7 +118,7 @@ function mountCompassSubjectShell() {
                         <h2 class="path-title">Discussion</h2>
                         <p class="path-desc" id="path-desc-disc"></p>
 
-                        <div class="path-arrow">
+                        <div class="path-arrow" aria-hidden="true">
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                                 <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.5"
                                     stroke-linecap="round" stroke-linejoin="round" />
@@ -112,22 +126,37 @@ function mountCompassSubjectShell() {
                         </div>
                     </div>
 
-                    <div class="main-path-card" role="button" tabindex="0"
+                    <div class="main-path-card main-path-card--cultural-lens" role="button" tabindex="0"
                         onclick="goToView('view-cultural-lens')"
                         onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-cultural-lens'); }">
 
-                        <div class="path-icon">
-                            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
-                                <circle cx="11" cy="11" r="7.6"
+                        <div class="path-icon path-icon--cultural-lens" aria-hidden="true">
+                            <svg class="path-illustration path-illustration--cultural-lens"
+                                viewBox="0 0 160 140" fill="none">
+                                <g class="cultural-globe">
+                                    <circle cx="80" cy="70" r="40"
+                                        stroke="currentColor"
+                                        stroke-width="2" />
+                                    <path d="M40 70h80"
+                                        stroke="currentColor"
+                                        stroke-width="1.7"
+                                        stroke-linecap="round" />
+                                    <path
+                                        d="M80 30c14 11 21 24.5 21 40s-7 29-21 40
+                                        M80 30c-14 11-21 24.5-21 40s7 29 21 40"
+                                        stroke="currentColor"
+                                        stroke-width="1.7"
+                                        stroke-linecap="round" />
+                                </g>
+                                <path class="cultural-orbit"
+                                    d="M27 91c14 19 42 31 70 25 18-4 32-13 42-26"
+                                    pathLength="1"
                                     stroke="currentColor"
-                                    stroke-width="1.5" />
-                                <path
-                                    d="M3.4 11h15.2
-                                    M11 3.4c2 2.1 3 4.7 3 7.6s-1 5.5-3 7.6
-                                    M11 3.4c-2 2.1-3 4.7-3 7.6s1 5.5 3 7.6"
-                                    stroke="currentColor"
-                                    stroke-width="1.15"
+                                    stroke-width="1.7"
                                     stroke-linecap="round" />
+                                <circle class="cultural-orbit-dot"
+                                    cx="139" cy="90" r="3"
+                                    fill="currentColor" />
                             </svg>
                         </div>
 
@@ -135,7 +164,7 @@ function mountCompassSubjectShell() {
                         <h2 class="path-title">Cultural Lens</h2>
                         <p class="path-desc" id="path-desc-cl"></p>
 
-                        <div class="path-arrow">
+                        <div class="path-arrow" aria-hidden="true">
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                                 <path d="M3 9h12M11 5l4 4-4 4" stroke="currentColor" stroke-width="1.5"
                                     stroke-linecap="round" stroke-linejoin="round" />
@@ -148,11 +177,24 @@ function mountCompassSubjectShell() {
                     onclick="goToView('view-reflection')"
                     onkeydown="if(event.key==='Enter'||event.key===' ') { event.preventDefault(); goToView('view-reflection'); }">
 
-                    <div class="reflection-icon-small">
-                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                            <path d="M9 2L9 16M4 13l5 3 5-3" stroke="currentColor" stroke-width="1.4"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                            <circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="1.4" />
+                    <div class="reflection-icon-small" aria-hidden="true">
+                        <svg class="reflection-illustration"
+                            viewBox="0 0 160 88" fill="none">
+                            <path class="reflection-stem"
+                                d="M80 10V66"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round" />
+                            <circle class="reflection-ring"
+                                cx="80" cy="34" r="13"
+                                stroke="currentColor"
+                                stroke-width="2" />
+                            <path class="reflection-chevron"
+                                d="M50 56l30 22 30-22"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round" />
                         </svg>
                     </div>
 

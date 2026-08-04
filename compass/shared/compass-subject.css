@@ -47,6 +47,11 @@ Shared semantic palette, states, geometry, typography, and motion.
     --shadow-sm: 0 1px 4px rgba(30, 27, 22, 0.07);
     --shadow-md: 0 4px 16px rgba(30, 27, 22, 0.10);
     --shadow-lg: 0 8px 32px rgba(30, 27, 22, 0.13);
+
+    --discussion-foreground-shadow:
+        0 10px 28px rgba(30, 27, 22, 0.10),
+        0 1px 0 rgba(255, 255, 255, 0.88) inset;
+
     --radius-sm: 6px;
     --radius-md: 12px;
     --radius-lg: 20px;
@@ -109,6 +114,10 @@ html[data-theme="night"] {
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45);
     --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.45);
     --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
+
+    --discussion-foreground-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.48),
+        0 1px 0 rgba(255, 255, 255, 0.05) inset;
 }
 
 *,
@@ -349,10 +358,7 @@ html[data-theme="night"] .session-dialog {
     border-color: var(--border-subtle) !important;
 }
 
-html[data-theme="night"] .moment-card {
-    background: var(--surface-raised) !important;
-    border-color: var(--border-subtle) !important;
-}
+/* Discussion question states are defined with the Discussion component below. */
 
 html[data-theme="night"] .modal-header,
 html[data-theme="night"] .modal-footer,
@@ -1704,71 +1710,213 @@ ORIENTATION
 }
 
 .main-path-card {
+    min-height: 260px;
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1.42fr)
+        minmax(8rem, 0.92fr);
+    grid-template-rows: auto auto 1fr;
+    column-gap: 0.8rem;
+    align-items: start;
     background: rgba(255, 255, 255, 0.78) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
     border-radius: var(--radius-lg);
-    padding: 2rem 3.6rem 2.4rem 1.8rem;
+    padding: 2.05rem 1.45rem 2.25rem 1.8rem;
     cursor: pointer;
     transition: var(--transition);
     position: relative;
     overflow: hidden;
+    isolation: isolate;
 }
 
 .main-path-card::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, var(--accent-dim) 0%, transparent 60%);
+    z-index: 0;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(var(--accent-rgb), 0.018) 0%,
+            rgba(var(--accent-rgb), 0.075) 100%
+        );
     opacity: 0;
-    transition: var(--transition);
+    transition: opacity 0.32s ease;
 }
 
-.main-path-card:hover {
+.main-path-card:is(:hover, :focus-visible) {
     background: rgba(255, 255, 255, 0.96) !important;
     border-color: #ffffff !important;
-    box-shadow: var(--shadow-md), 0 12px 32px rgba(var(--accent-rgb), 0.08);
+    box-shadow:
+        var(--shadow-md),
+        0 12px 32px rgba(var(--accent-rgb), 0.08);
     transform: translateY(-2px);
 }
 
-.main-path-card:hover::before {
+.main-path-card:is(:hover, :focus-visible)::before {
     opacity: 1;
 }
 
-.path-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: var(--radius-sm);
-    background: var(--accent-pale);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1.2rem;
-    color: var(--accent);
+.main-path-card .path-label,
+.main-path-card .path-title,
+.main-path-card .path-desc {
+    grid-column: 1;
+    min-width: 0;
     position: relative;
+    z-index: 2;
 }
 
 .path-label {
+    grid-row: 1;
+    max-width: none;
     font-size: 0.68rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--accent);
     font-weight: 500;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.48rem;
 }
 
 .path-title {
+    grid-row: 2;
+    max-width: none;
     font-family: var(--font-display);
-    font-size: 1.35rem;
+    font-size: 1.55rem;
     color: var(--text-heading);
-    margin-bottom: 0.6rem;
-    position: relative;
+    line-height: 1.2;
+    margin-bottom: 0.72rem;
 }
 
 .path-desc {
+    grid-row: 3;
+    max-width: 29ch;
     font-size: 0.88rem;
     color: var(--text-muted);
     line-height: 1.6;
-    position: relative;
+}
+
+.path-icon {
+    --path-art-rest-x: 0.35rem;
+    --path-art-rest-scale: 0.98;
+    --path-art-rest-opacity: 0.19;
+
+    grid-column: 2;
+    grid-row: 1 / -1;
+    align-self: stretch;
+    justify-self: start;
+    z-index: 1;
+    width: calc(100% + 2rem);
+    height: 100%;
+    min-height: 0;
+    margin: -0.2rem -2rem -0.2rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--accent);
+    opacity: var(--path-art-rest-opacity);
+    pointer-events: none;
+    transform:
+        translateX(var(--path-art-rest-x))
+        scale(var(--path-art-rest-scale));
+    transform-origin: center right;
+    transition:
+        opacity 0.32s ease,
+        transform 0.46s cubic-bezier(0.22, 1, 0.36, 1),
+        color var(--theme-surface-transition);
+}
+
+.path-illustration {
+    width: 100%;
+    max-width: 12rem;
+    height: auto;
+    overflow: visible;
+    flex: none;
+}
+
+.path-illustration *,
+.reflection-illustration * {
+    vector-effect: non-scaling-stroke;
+}
+
+.main-path-card:is(:hover, :focus-visible) .path-icon {
+    opacity: 0.34;
+    transform: translateX(-0.05rem) scale(1.015);
+}
+
+@media (min-width: 769px) {
+    .main-path-card--discussion .path-icon {
+        position: relative;
+        top: -0.7rem;
+    }
+
+    .main-path-card--cultural-lens .path-icon {
+        position: relative;
+        top: -0.45rem;
+    }
+}
+
+.discussion-bubble,
+.discussion-line,
+.cultural-globe,
+.cultural-orbit,
+.cultural-orbit-dot {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+        transform 0.48s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.28s ease,
+        stroke-dashoffset 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.discussion-line {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0.16;
+    opacity: 0.62;
+}
+
+.discussion-line--two {
+    transition-delay: 0.035s;
+}
+
+.main-path-card--discussion:is(:hover, :focus-visible) .discussion-bubble {
+    transform: translate(-2px, -2px);
+}
+
+.main-path-card--discussion:is(:hover, :focus-visible) .discussion-line {
+    stroke-dashoffset: 0;
+    opacity: 1;
+    transform: translateX(3px);
+}
+
+.cultural-globe {
+    transform: rotate(-3deg) scale(0.97);
+}
+
+.cultural-orbit {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0.22;
+    opacity: 0.58;
+}
+
+.cultural-orbit-dot {
+    opacity: 0.72;
+}
+
+.main-path-card--cultural-lens:is(:hover, :focus-visible) .cultural-globe {
+    transform: rotate(7deg) scale(1.015);
+}
+
+.main-path-card--cultural-lens:is(:hover, :focus-visible) .cultural-orbit {
+    stroke-dashoffset: 0;
+    opacity: 1;
+}
+
+.main-path-card--cultural-lens:is(:hover, :focus-visible) .cultural-orbit-dot {
+    opacity: 1;
+    transform: translate(2px, -3px) scale(1.12);
 }
 
 .path-arrow,
@@ -1783,54 +1931,147 @@ ORIENTATION
 
 .path-arrow {
     position: absolute;
-    bottom: 1.75rem;
-    right: 1.8rem;
+    z-index: 3;
+    bottom: 1.55rem;
+    right: 1.45rem;
 }
 
-.main-path-card:hover .path-arrow,
-.reflection-path-card:hover .card-arrow-badge {
+.main-path-card:is(:hover, :focus-visible) .path-arrow {
     color: var(--accent);
     transform: translateX(4px);
 }
 
 .reflection-path-card {
+    min-height: 104px;
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(6.5rem, 8rem)
+        1.25rem;
+    column-gap: 1rem;
+    align-items: center;
     background: rgba(255, 255, 255, 0.72) !important;
     border: 1px solid rgba(255, 255, 255, 0.85) !important;
     border-radius: var(--radius-md);
-    padding: 1.4rem 1.8rem;
+    padding: 1.35rem 1.5rem 1.35rem 1.8rem;
     cursor: pointer;
     transition: var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 1.2rem;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
 }
 
-.reflection-path-card .card-arrow-badge {
-    margin-left: auto;
-    opacity: 0.78;
+.reflection-path-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+        linear-gradient(
+            110deg,
+            rgba(var(--accent-rgb), 0.012) 0%,
+            rgba(var(--accent-rgb), 0.065) 100%
+        );
+    opacity: 0;
+    transition: opacity 0.32s ease;
 }
 
-.reflection-path-card:hover {
+.reflection-path-card:is(:hover, :focus-visible) {
     background: rgba(255, 255, 255, 0.95) !important;
     border-color: #ffffff !important;
-    box-shadow: var(--shadow-md), 0 8px 24px rgba(var(--accent-rgb), 0.06);
+    box-shadow:
+        var(--shadow-md),
+        0 8px 24px rgba(var(--accent-rgb), 0.06);
+}
+
+.reflection-path-card:is(:hover, :focus-visible)::before {
+    opacity: 1;
+}
+
+.reflection-path-text {
+    grid-column: 1;
+    grid-row: 1;
+    position: relative;
+    z-index: 2;
+    min-width: 0;
 }
 
 .reflection-icon-small {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: var(--accent-pale);
+    --reflection-art-rest-opacity: 0.14;
+    --reflection-art-rest-scale: 0.96;
+
+    grid-column: 2;
+    grid-row: 1;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 76px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
     color: var(--accent);
-    flex-shrink: 0;
+    opacity: var(--reflection-art-rest-opacity);
+    pointer-events: none;
+    transform: scale(var(--reflection-art-rest-scale));
+    transform-origin: center;
+    transition:
+        opacity 0.32s ease,
+        transform 0.46s cubic-bezier(0.22, 1, 0.36, 1),
+        color var(--theme-surface-transition);
+}
+
+.reflection-illustration {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.reflection-stem,
+.reflection-ring,
+.reflection-chevron {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.46s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reflection-path-card:is(:hover, :focus-visible) .reflection-icon-small {
+    opacity: 0.28;
+    transform: scale(1.02);
+}
+
+.reflection-path-card:is(:hover, :focus-visible) .reflection-stem {
+    transform: scaleY(1.08);
+}
+
+.reflection-path-card:is(:hover, :focus-visible) .reflection-ring {
+    transform: translateY(2px);
+}
+
+.reflection-path-card:is(:hover, :focus-visible) .reflection-chevron {
+    transform: translateY(3px);
+}
+
+.reflection-path-card .card-arrow-badge {
+    grid-column: 3;
+    grid-row: 1;
+    position: relative;
+    z-index: 3;
+    margin: 0;
+    opacity: 0.78;
+}
+
+.reflection-path-card:is(:hover, :focus-visible) .card-arrow-badge {
+    color: var(--accent);
+    transform: translateX(4px);
 }
 
 .reflection-path-text h4 {
     color: var(--text-heading);
-    margin-bottom: 0.2rem;
+    font-size: 1.12rem;
+    margin-bottom: 0.22rem;
 }
 
 .reflection-path-text p {
@@ -1839,15 +2080,27 @@ ORIENTATION
     max-width: none;
 }
 
-html[data-theme="night"] .main-path-card::before {
-    background: var(--accent-dim);
+html[data-theme="night"] .path-icon,
+html[data-theme="night"] .reflection-icon-small {
+    background: transparent;
+    border-color: transparent;
+    color: var(--accent-soft);
 }
 
-html[data-theme="night"] .main-path-card:hover::before {
-    opacity: 0.55;
+html[data-theme="night"] .main-path-card::before,
+html[data-theme="night"] .reflection-path-card::before {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(var(--accent-rgb), 0.025) 0%,
+            rgba(var(--accent-rgb), 0.12) 100%
+        );
 }
 
-html[data-theme="night"] .main-path-card:hover {
+html[data-theme="night"] .main-path-card:is(:hover, :focus-visible),
+html[data-theme="night"] .reflection-path-card:is(:hover, :focus-visible) {
+    background: var(--surface-raised-hover) !important;
+    border-color: rgba(var(--accent-rgb), 0.42) !important;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
 }
 
@@ -2094,6 +2347,9 @@ CULTURAL LENS
     border: 1.5px solid rgba(255, 255, 255, 0.88) !important;
     border-radius: var(--radius-md);
     background: rgba(255, 255, 255, 0.75) !important;
+    box-shadow:
+        0 6px 18px rgba(30, 27, 22, 0.065),
+        0 1px 0 rgba(255, 255, 255, 0.72) inset;
     cursor: pointer;
     transition: var(--transition);
 }
@@ -2106,10 +2362,24 @@ CULTURAL LENS
 }
 
 .cl-card.state-explored {
-    border-color: rgba(var(--accent-rgb), 0.30) !important;
-    background-color: rgba(244, 249, 248, 0.86) !important;
+    border-color: rgba(255, 255, 255, 0.88) !important;
+    background-color: rgba(255, 255, 255, 0.75) !important;
     background-image: none !important;
     opacity: 1;
+}
+
+html:not([data-theme="night"]) .cl-card.state-explored {
+    opacity: 0.7;
+    box-shadow: none;
+}
+
+html:not([data-theme="night"]) .cl-card.state-explored:hover {
+    opacity: 0.9;
+    background-color: rgba(255, 255, 255, 0.90) !important;
+    background-image: none !important;
+    border-color: #ffffff !important;
+    box-shadow: none;
+    transform: translateY(0);
 }
 
 .cl-card-state-badge {
@@ -2199,6 +2469,7 @@ html[data-theme="night"] .cl-card.state-explored {
     background-image: none !important;
     border-color: var(--accent) !important;
     box-shadow: none;
+    transform: none;
 }
 
 html[data-theme="night"] .cl-card.state-explored::after {
@@ -4185,14 +4456,31 @@ DISCUSSION SETS AND MOMENTS
 .set-card:hover {
     background: rgba(255, 255, 255, 0.96) !important;
     border-color: #ffffff !important;
-    box-shadow: var(--shadow-md), 0 12px 32px rgba(var(--accent-rgb), 0.08);
+    box-shadow:
+        var(--shadow-md),
+        0 12px 32px rgba(30, 27, 22, 0.08);
     transform: translateY(-2px);
 }
 
 .set-card.active-set {
-    border-color: var(--accent) !important;
-    background: var(--accent-dim) !important;
+    background: rgba(255, 255, 255, 0.99) !important;
+    border-color: #ffffff !important;
+    box-shadow: var(--discussion-foreground-shadow);
     backdrop-filter: none;
+    transform: none;
+}
+
+.discussion-sets:has(.active-set) .set-card:not(.active-set) {
+    opacity: 0.7;
+    box-shadow: none;
+}
+
+.discussion-sets:has(.active-set) .set-card:not(.active-set):hover {
+    opacity: 0.9;
+    background: rgba(255, 255, 255, 0.90) !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 5px 18px rgba(30, 27, 22, 0.06);
+    transform: translateY(-2px);
 }
 
 .set-icon {
@@ -4205,6 +4493,7 @@ DISCUSSION SETS AND MOMENTS
     justify-content: center;
     color: var(--accent);
     margin-bottom: 0.85rem;
+    display: none;
 }
 
 .set-card.active-set .set-icon {
@@ -4227,7 +4516,7 @@ DISCUSSION SETS AND MOMENTS
     margin-bottom: 0.5rem;
     color: var(--text-heading);
     font-family: var(--font-display);
-    font-size: 1.04rem;
+    font-size: 1.24rem;
     line-height: 1.28;
 }
 
@@ -4270,19 +4559,11 @@ DISCUSSION SETS AND MOMENTS
 }
 
 .moments-panel-header {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    margin-bottom: 1.2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-subtle);
+    display: none;
 }
 
 .moments-panel-title {
-    font-family: var(--font-display);
-    font-size: 1.2rem;
-    color: var(--text-heading);
-    flex: 1;
+    display: none;
 }
 
 .btn-close-set {
@@ -4326,20 +4607,37 @@ DISCUSSION SETS AND MOMENTS
 }
 
 .moment-card {
-    border: 1px solid var(--border-subtle) !important;
+    border: 1px solid #ffffff !important;
     border-radius: var(--radius-md);
     margin-bottom: 0.75rem;
-    background: var(--surface-panel) !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    box-shadow: var(--discussion-foreground-shadow) !important;
     overflow: hidden;
-    transition: border-color var(--transition);
+    transition: var(--transition);
     backdrop-filter: none !important;
 }
 
+.moment-card:hover {
+    background: rgba(255, 255, 255, 0.995) !important;
+    border-color: #ffffff !important;
+    box-shadow: var(--discussion-foreground-shadow) !important;
+    transform: translateY(-2px);
+}
+
 .moment-card.state-explored {
-    border-color: rgba(var(--accent-rgb), 0.40) !important;
-    background-color: var(--surface-panel) !important;
-    background-image: linear-gradient(rgba(var(--accent-pale-rgb), 0.34),
-            rgba(var(--accent-pale-rgb), 0.34)) !important;
+    opacity: 0.7;
+    border-color: rgba(255, 255, 255, 0.88) !important;
+    background: rgba(255, 255, 255, 0.76) !important;
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+.moment-card.state-explored:hover {
+    opacity: 0.9;
+    background: rgba(255, 255, 255, 0.90) !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(30, 27, 22, 0.06) !important;
+    transform: translateY(0);
 }
 
 .moment-card-header {
@@ -4348,12 +4646,19 @@ DISCUSSION SETS AND MOMENTS
     gap: 0.8rem;
     padding: 1rem 1.3rem;
     cursor: pointer;
-    transition: background-color var(--transition);
+    transition: var(--transition);
     user-select: none;
 }
 
-.moment-card-header:hover {
-    background: var(--surface-canvas);
+.moment-card:not(.state-explored):hover .moment-card-header,
+.moment-card:not(.state-explored).expanded .moment-card-header,
+.moment-card.state-explored .moment-card-header:hover {
+    background: transparent;
+}
+
+.moment-card:hover .moment-arrow {
+    color: var(--text-heading);
+    transform: translateX(3px);
 }
 
 .moment-state-dot {
@@ -4391,10 +4696,16 @@ DISCUSSION SETS AND MOMENTS
 .moment-chevron {
     flex-shrink: 0;
     color: var(--border-strong);
-    transition: transform var(--transition);
+    transition: transform var(--transition), color var(--transition);
+}
+
+.moment-card:not(.expanded):hover .moment-chevron {
+    color: var(--accent);
+    transform: translateX(4px);
 }
 
 .moment-card.expanded .moment-chevron {
+    color: var(--accent);
     transform: rotate(180deg);
 }
 
@@ -4424,9 +4735,18 @@ DISCUSSION SETS AND MOMENTS
     gap: 0.5rem;
 }
 
-html[data-theme="night"] .set-card.active-set {
-    background: var(--accent-dim) !important;
+html[data-theme="night"] .set-card:hover {
+    background: var(--surface-raised-hover) !important;
     border-color: var(--accent) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+    transform: translateY(-2px);
+}
+
+html[data-theme="night"] .set-card.active-set {
+    background: var(--surface-raised) !important;
+    border-color: var(--accent) !important;
+    box-shadow: none;
+    transform: none;
 }
 
 html[data-theme="night"] .set-card.active-set .set-icon {
@@ -4434,17 +4754,74 @@ html[data-theme="night"] .set-card.active-set .set-icon {
     color: var(--accent-ink);
 }
 
-html[data-theme="night"] .moment-card-header:hover {
-    background: var(--surface-raised-hover);
+html[data-theme="night"] .discussion-sets:has(.active-set) .set-card:not(.active-set) {
+    opacity: 1;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+}
+
+html[data-theme="night"] .discussion-sets:has(.active-set) .set-card:not(.active-set):hover {
+    opacity: 1;
+    background: var(--surface-raised-hover) !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+    transform: translateY(-2px);
+}
+
+html[data-theme="night"] .moment-card {
+    background: var(--surface-raised) !important;
+    border-width: 1.5px !important;
+    border-color: var(--border-subtle) !important;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.05) inset !important;
+}
+
+html[data-theme="night"] .moment-card:hover {
+    background: var(--surface-raised-hover) !important;
+    border-width: 1.5px !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28) !important;
+    transform: translateY(-1px);
+}
+
+html[data-theme="night"] .moment-card.state-explored {
+    opacity: 1;
+    background: var(--surface-raised) !important;
+    border-width: 1.5px !important;
+    border-color: var(--accent) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="night"] .moment-card.state-explored .moment-state-dot {
+    width: 9px;
+    height: 9px;
+    background: var(--accent-soft);
+    opacity: 1;
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.10);
+}
+
+html[data-theme="night"] .moment-card.state-explored .moment-num,
+html[data-theme="night"] .moment-card.state-explored .moment-preview,
+html[data-theme="night"] .moment-card.state-explored .moment-arrow {
+    opacity: 1;
+}
+
+html[data-theme="night"] .moment-card.state-explored:hover {
+    opacity: 1;
+    background: var(--surface-raised) !important;
+    border-width: 1.5px !important;
+    border-color: var(--accent) !important;
+    box-shadow: none !important;
+    transform: translateY(0);
+}
+
+html[data-theme="night"] .moment-card:not(.state-explored):hover .moment-card-header,
+html[data-theme="night"] .moment-card:not(.state-explored).expanded .moment-card-header,
+html[data-theme="night"] .moment-card.state-explored .moment-card-header:hover {
+    background: transparent;
 }
 
 html[data-theme="night"] .moment-body {
     border-top-color: var(--border-faint);
-}
-
-html[data-theme="night"] .moment-card.state-explored {
-    background: var(--accent-dim) !important;
-    border-color: rgba(var(--accent-rgb), 0.45) !important;
 }
 
 /* ============================================================
@@ -5751,6 +6128,50 @@ TOUCH INPUT
     .btn-begin:hover {
         transform: none !important;
     }
+
+    .main-path-card:hover::before,
+    .reflection-path-card:hover::before {
+        opacity: 0 !important;
+    }
+
+    .main-path-card:hover .path-icon {
+        opacity: var(--path-art-rest-opacity) !important;
+        transform:
+            translateX(var(--path-art-rest-x))
+            scale(var(--path-art-rest-scale)) !important;
+    }
+
+    .reflection-path-card:hover .reflection-icon-small {
+        opacity: var(--reflection-art-rest-opacity) !important;
+        transform: scale(var(--reflection-art-rest-scale)) !important;
+    }
+
+    .main-path-card--discussion:hover .discussion-bubble,
+    .main-path-card--discussion:hover .discussion-line,
+    .reflection-path-card:hover .reflection-stem,
+    .reflection-path-card:hover .reflection-ring,
+    .reflection-path-card:hover .reflection-chevron {
+        transform: none !important;
+    }
+
+    .main-path-card--discussion:hover .discussion-line {
+        stroke-dashoffset: 0.16 !important;
+        opacity: 0.62 !important;
+    }
+
+    .main-path-card--cultural-lens:hover .cultural-globe {
+        transform: rotate(-3deg) scale(0.97) !important;
+    }
+
+    .main-path-card--cultural-lens:hover .cultural-orbit {
+        stroke-dashoffset: 0.22 !important;
+        opacity: 0.58 !important;
+    }
+
+    .main-path-card--cultural-lens:hover .cultural-orbit-dot {
+        opacity: 0.72 !important;
+        transform: none !important;
+    }
 }
 
 /* ============================================================
@@ -5857,6 +6278,82 @@ utility controls, already-prominent headings, or focused teaching views.
 
     .main-paths {
         grid-template-columns: 1fr;
+    }
+
+    .main-path-card {
+        min-height: 214px;
+        grid-template-columns:
+            minmax(0, 1fr)
+            6.75rem;
+        grid-template-rows: auto auto auto;
+        column-gap: 0.45rem;
+        padding: 1.65rem 1.15rem 1.9rem 1.35rem;
+    }
+
+    .path-label,
+    .path-title {
+        grid-column: 1;
+    }
+
+    .path-title {
+        font-size: 1.45rem;
+    }
+
+    .path-desc {
+        grid-column: 1 / -1;
+        grid-row: 3;
+        max-width: none;
+        margin-top: 0.15rem;
+        padding-right: 0.5rem;
+    }
+
+    .path-icon {
+        --path-art-rest-x: 0.2rem;
+        --path-art-rest-scale: 0.97;
+        --path-art-rest-opacity: 0.15;
+
+        grid-column: 2;
+        grid-row: 1 / 3;
+        align-self: center;
+        width: calc(100% + 1rem);
+        height: 6.75rem;
+        margin: -0.35rem -1rem 0 0;
+    }
+
+    .path-illustration {
+        max-width: 8.5rem;
+    }
+
+    .main-path-card:is(:hover, :focus-visible) .path-icon {
+        opacity: 0.28;
+        transform: translateX(0) scale(1.01);
+    }
+
+    .path-arrow {
+        right: 1.2rem;
+        bottom: 1.2rem;
+    }
+
+    .reflection-path-card {
+        min-height: 108px;
+        grid-template-columns:
+            minmax(0, 1fr)
+            4.75rem
+            1rem;
+        column-gap: 0.65rem;
+        padding: 1.3rem 1.15rem 1.3rem 1.35rem;
+    }
+
+    .reflection-icon-small {
+        --reflection-art-rest-opacity: 0.11;
+        --reflection-art-rest-scale: 0.96;
+
+        width: 100%;
+        height: 58px;
+    }
+
+    .reflection-path-card:is(:hover, :focus-visible) .reflection-icon-small {
+        opacity: 0.2;
     }
 
     .modal-body {
