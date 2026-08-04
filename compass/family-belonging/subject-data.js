@@ -9,7 +9,7 @@
   accounts, and the version of its history that everybody disputes.
   The Compass subject where the learner is both the unreliable narrator
   and the defence lawyer.
-  Compass active subject · contentVersion 3.1.0
+  Compass active subject · contentVersion 3.1.1
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 const MODULE = {
     id: 'family-belonging',
     schemaVersion: 2,
-    contentVersion: '3.1.0',
+    contentVersion: '3.1.1',
     title: 'Family & Belonging',
     titleHtml: 'Family & <em>Belonging</em>',
     navTitle: 'Family',
@@ -33,11 +33,11 @@ const subjectCopy = {
     },
 
     overview: {
-        heading: `Nobody Wrote It Down`,
+        heading: `What Makes It Feel Like Family?`,
         intro: [
-            `Families are built from more than relatives. They run on private words, invisible jobs, inherited habits, old disagreements, and people who slowly stop being guests.`
+            `Families do not all look or work the same. People can become family through birth, marriage, care, or simply sharing life for a long time. Every family develops its own habits, roles, jokes, and rules.`
         ],
-        question: `What is one small sign that tells you somebody truly belongs in a family?`
+        question: `What is one everyday thing that can make people feel like a family — sharing meals, helping each other, laughing together, or something else?`
     },
 
     paths: {
@@ -73,57 +73,57 @@ const subjectCopy = {
 const discussionSets = [
     {
         id: 'set-nobody-sits-there',
-        title: `Nobody Sits There`,
+        title: `How a Family Works`,
         stage: `First Look`,
         icon: 'first-look',
-        description: `Private words, house rules, family stories, familiar rooms, and the warning every newcomer needs.`,
+        description: `The people, habits, places, and small rules that make each family different. Use your own family, another family, or a fictional one.`,
         moments: [
             {
                 id: 'moment-the-family-word',
-                preview: `Only this family knows what the word means.`,
-                question: `Does your family use a word or phrase that other people would not understand — a nickname, a name for an object, or an inside joke? What does it mean?`,
+                preview: `Everyone arrives. The usual roles appear.`,
+                question: `When your family gets together, who usually takes charge, who talks most, and who stays out of the way?`,
                 upgrade: {
-                    term: `catch on`,
-                    type: `phrasal verb`,
-                    definition: `To become popular or widely used by a group.`,
-                    ordinary: `“My brother invented the word, and soon everyone in the family was using it.”`,
-                    upgraded: `“My brother invented the word, and it quickly caught on.”`,
-                    priority: 'standard',
-                    atlasPrompt: `What expression, nickname, or habit caught on inside a group you belong to?`
+                    term: `fall into a role`,
+                    type: `phrase`,
+                    definition: `To begin behaving in the familiar way people expect within a group.`,
+                    ordinary: `“As soon as everyone arrives, my aunt starts organising and my brother starts making jokes.”`,
+                    upgraded: `“As soon as everyone arrives, we all fall into our usual roles.”`,
+                    priority: 'key',
+                    atlasPrompt: `What role do you naturally fall into in a team, class, or group of friends?`
                 }
             },
             {
                 id: 'moment-nobody-sits-there',
-                preview: `Nobody explains the rule. Everybody follows it.`,
-                question: `Choose one unwritten rule from a family you know — a seat, a topic, a job, or a routine. How would a newcomer discover it, and what happens if they ignore it?`,
+                preview: `Nobody explains it. Everyone seems to know.`,
+                question: `What is one unspoken rule in your family — about food, seats, time, certain topics, or who does what? How would a newcomer discover it?`,
                 upgrade: {
-                    term: `there’ll be hell to pay`,
-                    type: `idiom`,
-                    definition: `There will be serious trouble because somebody will be extremely angry.`,
-                    ordinary: `“If anyone sits in my father’s chair, he becomes furious.”`,
-                    upgraded: `“If anyone sits in Dad’s chair, there’ll be hell to pay.”`,
+                    term: `an unspoken rule`,
+                    type: `phrase`,
+                    definition: `A rule that people understand and follow even though nobody states it directly.`,
+                    ordinary: `“Nobody told me, but everyone expected me not to sit in that chair.”`,
+                    upgraded: `“There was an unspoken rule that I should not sit in that chair.”`,
                     priority: 'key',
-                    atlasPrompt: `What minor rule could cause serious trouble if somebody ignored it?`
+                    atlasPrompt: `What unspoken rule exists in a workplace, classroom, or group you know?`
                 }
             },
             {
                 id: 'moment-the-story-that-grew',
-                preview: `The same story returns. One detail gets bigger.`,
-                question: `Tell one family story in the style of the person who usually tells it. Which detail becomes larger, funnier, or more dramatic each time?`,
+                preview: `The same story comes back again.`,
+                question: `What story does your family tell again and again? What part does everyone remember or laugh about?`,
                 upgrade: {
-                    term: `take on a life of its own`,
-                    type: `phrase`,
-                    definition: `To develop far beyond its original form and become difficult to control.`,
-                    ordinary: `“The original event was small, but the family version has grown far beyond it.”`,
-                    upgraded: `“The story has taken on a life of its own.”`,
+                    term: `bring something up`,
+                    type: `phrasal verb`,
+                    definition: `To mention a subject, event, or memory in a conversation.`,
+                    ordinary: `“My family still mentions the time I missed the flight at every birthday.”`,
+                    upgraded: `“My family still brings up the time I missed the flight at every birthday.”`,
                     priority: 'standard',
-                    atlasPrompt: `What story, joke, rumour, or family tradition has taken on a life of its own?`
+                    atlasPrompt: `What old story or mistake does a group you know keep bringing up?`
                 }
             },
             {
                 id: 'moment-the-house-gives-it-away',
-                preview: `You know whose home it is before anyone speaks.`,
-                question: `Picture a family home you know well. What tells you immediately whose home it is — a smell, a sound, an object, a mess, or something else?`,
+                preview: `One detail tells you exactly where you are.`,
+                question: `Which family home feels instantly recognisable to you — because of a smell, sound, object, or routine?`,
                 upgrade: {
                     term: `have someone’s stamp all over it`,
                     type: `phrase`,
@@ -136,22 +136,22 @@ const discussionSets = [
             },
             {
                 id: 'moment-meeting-them-for-the-first-time',
-                preview: `One warning. One piece of advice.`,
-                question: `A partner or friend will meet the family for the first time. You may give them one warning and one piece of advice. What are they?`,
+                preview: `They want to feel welcome.`,
+                question: `A friend is meeting your family for the first time. What should they know, and who will probably make them feel welcome?`,
                 upgrade: {
-                    term: `be on your best behaviour`,
+                    term: `feel at home`,
                     type: `phrase`,
-                    definition: `To behave as politely and carefully as possible, especially when you want to make a good impression.`,
-                    ordinary: `“I told him to behave as politely as possible around my grandmother.”`,
-                    upgraded: `“I told him to be on his best behaviour around my grandmother.”`,
-                    priority: 'standard',
-                    atlasPrompt: `When do people suddenly become very careful to be on their best behaviour?`
+                    definition: `To feel relaxed, comfortable, and accepted in a place or group.`,
+                    ordinary: `“She included him in the conversation and quickly made him feel comfortable.”`,
+                    upgraded: `“She included him in the conversation and quickly made him feel at home.”`,
+                    priority: 'key',
+                    atlasPrompt: `What helps you feel at home in a new workplace, class, place, or group?`
                 }
             }
         ],
         makeItReal: {
-            title: `The Briefing`,
-            prompt: `Someone is meeting a family you know for the first time next week. Brief them properly: where to sit, what not to mention, who to charm first, and who may corner them in the kitchen.`
+            title: `Before You Go In`,
+            prompt: `Your tutor is joining the family for a meal or gathering for the first time. Give them three useful pieces of advice. Your tutor then chooses one thing to say or do, and you explain how the family would react.`
         }
     },
     {
@@ -164,7 +164,7 @@ const discussionSets = [
             {
                 id: 'moment-the-favourite',
                 preview: `There is one. Everybody denies it.`,
-                question: `Think of a real or fictional family accused of having a favourite. What evidence would convince you? What could look unfair but have another explanation?`,
+                question: `A family is accused of having a favourite. What evidence would convince you? What could look unfair but have another explanation?`,
                 upgrade: {
                     term: `favouritism`,
                     type: `noun`,
@@ -178,7 +178,7 @@ const discussionSets = [
             {
                 id: 'moment-the-one-who-does-everything',
                 preview: `The birthdays, the hospital, the food, the bookings.`,
-                question: `Name the jobs one person quietly does to keep a family running. Which task should somebody else take over first?`,
+                question: `Who in your family remembers the birthdays, makes the plans, and checks that everyone is okay? What do the others rely on them to do without even noticing?`,
                 upgrade: {
                     term: `take someone for granted`,
                     type: `phrase`,
@@ -234,7 +234,7 @@ const discussionSets = [
         ],
         makeItReal: {
             title: `Argue the Other Side`,
-            prompt: `Choose a family disagreement — real, fictional, or invented — about money, responsibility, a wedding, or favouritism. Argue the side you disagree with as convincingly as possible, then identify one part of that position you understand better.`
+            prompt: `Choose a family disagreement about money, responsibility, a wedding, or favouritism. Argue the side you disagree with as convincingly as possible, then identify one part of that position you understand better.`
         }
     },
     {
@@ -261,7 +261,7 @@ const discussionSets = [
             {
                 id: 'moment-who-you-took-in',
                 preview: `They arrived as a guest. Then nobody asked when they were leaving.`,
-                question: `Think of someone who came to stay with a family and gradually became part of it — someone real, fictional, or imagined. What changed when they stopped feeling like a guest?`,
+                question: `Think of someone who arrived as a guest and gradually became part of the family. What changed when they stopped feeling like a guest?`,
                 upgrade: {
                     term: `become one of the family`,
                     type: `phrase`,
@@ -303,7 +303,7 @@ const discussionSets = [
             {
                 id: 'moment-still-winning-arguments',
                 preview: `They are gone. Their influence is not.`,
-                question: `Think of someone who is no longer alive but still influences a family you know — real or fictional. What do people still say or do because of them?`,
+                question: `Think of someone who is no longer alive but still influences a family. What do people still say or do because of them?`,
                 upgrade: {
                     term: `live on`,
                     type: `phrasal verb`,
@@ -317,7 +317,7 @@ const discussionSets = [
         ],
         makeItReal: {
             title: `In Fifty Years`,
-            prompt: `Choose one real family practice you know well. Explain it precisely enough that somebody fifty years from now could repeat it: where it happens, when it begins, who is there, what each person does, and what usually goes wrong.`
+            prompt: `Choose one family practice. Explain it precisely enough that somebody fifty years from now could repeat it: where it happens, when it begins, who is there, what each person does, and what usually goes wrong.`
         }
     }
 ];
