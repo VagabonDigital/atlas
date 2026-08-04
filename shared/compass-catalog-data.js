@@ -35,6 +35,519 @@
         'stories-screen'
     ];
 
+    const COMPASS_SUBJECT_ART = {
+        'travel-route': `
+            <svg class="subject-artwork subject-artwork--travel"
+                viewBox="0 0 180 140"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <g class="travel-map">
+                    <path
+                        d="M20 35L63 24L107 38L160 25V107L111 120L66 106L20 119V35Z"
+                        stroke="currentColor"
+                        stroke-width="2.1"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+
+                    <path
+                        d="M63 24L66 106M107 38L111 120"
+                        stroke="currentColor"
+                        stroke-width="1.75"
+                        stroke-linecap="round"/>
+                </g>
+
+                <path class="travel-route"
+                    d="M34 101C49 90 50 75 67 69C84 63 89 86 107 81C124 77 126 66 144 69"
+                    pathLength="1"
+                    stroke="currentColor"
+                    stroke-width="2.7"
+                    stroke-linecap="round"/>
+
+                <circle class="travel-start"
+                    cx="34"
+                    cy="101"
+                    r="4"
+                    fill="currentColor"/>
+
+                <g class="travel-pin">
+                    <path
+                        d="M144 30C136.3 30 130 35.8 130 43.3C130 53.1 144 69 144 69C144 69 158 53.1 158 43.3C158 35.8 151.7 30 144 30Z"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linejoin="round"/>
+
+                    <circle
+                        cx="144"
+                        cy="43"
+                        r="4.5"
+                        stroke="currentColor"
+                        stroke-width="2"/>
+                </g>
+
+                <path class="travel-spark"
+                    d="M158 15L160.5 22.5L168 25L160.5 27.5L158 35L155.5 27.5L148 25L155.5 22.5L158 15Z"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linejoin="round"/>
+            </svg>
+        `,
+
+        'shared-pot': `
+            <svg class="subject-artwork subject-artwork--food"
+                viewBox="0 0 180 140"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <g class="food-pot">
+                    <path class="food-pot-body"
+                        d="M54 70C55 93 66 111 90 111C114 111 125 93 126 70"
+                        stroke="currentColor"
+                        stroke-width="2.3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+
+                    <ellipse class="food-pot-rim"
+                        cx="90"
+                        cy="70"
+                        rx="36"
+                        ry="10"
+                        stroke="currentColor"
+                        stroke-width="2.3"/>
+
+                    <path class="food-pot-handle food-pot-handle--left"
+                        d="M55 77C45 75 39 79 40 86C41 93 49 95 58 89"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+
+                    <path class="food-pot-handle food-pot-handle--right"
+                        d="M125 77C135 75 141 79 140 86C139 93 131 95 122 89"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </g>
+
+                <g class="food-lid">
+                    <path
+                        d="M61 56C67 43 78 36 90 36C102 36 113 43 119 56C104 62 76 62 61 56Z"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linejoin="round"/>
+
+                    <path
+                        d="M83 36C84 30 87 27 90 27C93 27 96 30 97 36"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"/>
+                </g>
+
+                <g class="food-bowl food-bowl--left">
+                    <ellipse
+                        cx="35"
+                        cy="101"
+                        rx="19"
+                        ry="6"
+                        stroke="currentColor"
+                        stroke-width="2"/>
+
+                    <path
+                        d="M16 101C18 114 25 121 35 121C45 121 52 114 54 101"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </g>
+
+                <g class="food-bowl food-bowl--right">
+                    <ellipse
+                        cx="143"
+                        cy="96"
+                        rx="17"
+                        ry="5.5"
+                        stroke="currentColor"
+                        stroke-width="2"/>
+
+                    <path
+                        d="M126 96C128 108 134 114 143 114C152 114 158 108 160 96"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </g>
+
+                <g class="food-steam">
+                    <path
+                        d="M72 49C66 42 75 37 70 29"
+                        pathLength="1"
+                        stroke="currentColor"
+                        stroke-width="1.9"
+                        stroke-linecap="round"/>
+
+                    <path
+                        d="M89 46C83 39 93 34 88 24"
+                        pathLength="1"
+                        stroke="currentColor"
+                        stroke-width="1.9"
+                        stroke-linecap="round"/>
+
+                    <path
+                        d="M106 49C100 42 110 37 105 29"
+                        pathLength="1"
+                        stroke="currentColor"
+                        stroke-width="1.9"
+                        stroke-linecap="round"/>
+                </g>
+            </svg>
+        `,
+
+        'humour-reactions': `
+            <svg class="subject-artwork subject-artwork--humour"
+                viewBox="0 0 180 140"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <g class="humour-jester">
+                    <g class="humour-jester-point humour-jester-point--left">
+                        <path
+                            d="M65 91C52 78 40 61 38 42C53 48 68 63 77 84"
+                            stroke="currentColor"
+                            stroke-width="2.2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+
+                        <circle
+                            cx="38"
+                            cy="42"
+                            r="5.5"
+                            stroke="currentColor"
+                            stroke-width="2"/>
+
+                        <circle
+                            cx="38"
+                            cy="42"
+                            r="1.5"
+                            fill="currentColor"/>
+                    </g>
+
+                    <g class="humour-jester-point humour-jester-point--centre">
+                        <path
+                            d="M76 84C77 62 84 38 94 20C106 40 112 63 108 86"
+                            stroke="currentColor"
+                            stroke-width="2.2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+
+                        <circle
+                            cx="94"
+                            cy="20"
+                            r="5.5"
+                            stroke="currentColor"
+                            stroke-width="2"/>
+
+                        <circle
+                            cx="94"
+                            cy="20"
+                            r="1.5"
+                            fill="currentColor"/>
+                    </g>
+
+                    <g class="humour-jester-point humour-jester-point--right">
+                        <path
+                            d="M106 86C121 70 139 58 154 56C150 75 139 91 121 98"
+                            stroke="currentColor"
+                            stroke-width="2.2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+
+                        <circle
+                            cx="154"
+                            cy="56"
+                            r="5.5"
+                            stroke="currentColor"
+                            stroke-width="2"/>
+
+                        <circle
+                            cx="154"
+                            cy="56"
+                            r="1.5"
+                            fill="currentColor"/>
+                    </g>
+
+                    <path class="humour-jester-band"
+                        d="M54 87C73 81 103 82 126 92L120 110C100 118 75 116 54 107L54 87Z"
+                        stroke="currentColor"
+                        stroke-width="2.3"
+                        stroke-linejoin="round"/>
+
+                    <path class="humour-jester-fold"
+                        d="M59 98C77 104 101 105 120 99"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"/>
+
+                    <path class="humour-jester-spark"
+                        d="M143 21L146 30L155 33L146 36L143 45L140 36L131 33L140 30L143 21Z"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linejoin="round"/>
+                </g>
+            </svg>
+        `,
+
+        'work-toolkit': `
+            <svg class="subject-artwork subject-artwork--work"
+                viewBox="0 0 180 140"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <g class="work-document">
+                    <rect
+                        x="69"
+                        y="27"
+                        width="42"
+                        height="46"
+                        rx="5"
+                        stroke="currentColor"
+                        stroke-width="2"/>
+
+                    <path
+                        d="M79 41H101M79 50H101M79 59H94"
+                        stroke="currentColor"
+                        stroke-width="1.7"
+                        stroke-linecap="round"/>
+                </g>
+
+                <path class="work-handle"
+                    d="M68 51V42C68 34 74 28 82 28H98C106 28 112 34 112 42V51"
+                    stroke="currentColor"
+                    stroke-width="2.3"
+                    stroke-linecap="round"/>
+
+                <g class="work-briefcase">
+                    <rect
+                        x="27"
+                        y="49"
+                        width="126"
+                        height="70"
+                        rx="12"
+                        stroke="currentColor"
+                        stroke-width="2.3"/>
+
+                    <path
+                        d="M27 75H153"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"/>
+
+                    <path
+                        d="M79 75V83C79 87 82 90 86 90H94C98 90 101 87 101 83V75"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linejoin="round"/>
+
+                    <rect class="work-latch work-latch--left"
+                        x="54"
+                        y="69"
+                        width="13"
+                        height="13"
+                        rx="3"
+                        stroke="currentColor"
+                        stroke-width="1.9"/>
+
+                    <rect class="work-latch work-latch--right"
+                        x="113"
+                        y="69"
+                        width="13"
+                        height="13"
+                        rx="3"
+                        stroke="currentColor"
+                        stroke-width="1.9"/>
+
+                    <path
+                        d="M42 103H138"
+                        stroke="currentColor"
+                        stroke-width="1.7"
+                        stroke-linecap="round"/>
+                </g>
+            </svg>
+        `,
+
+        'technology-circuit': `
+            <svg class="subject-artwork subject-artwork--technology"
+                viewBox="0 0 180 140"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <rect class="technology-chip"
+                    x="53"
+                    y="34"
+                    width="74"
+                    height="72"
+                    rx="14"
+                    stroke="currentColor"
+                    stroke-width="2.2"/>
+
+                <rect class="technology-core"
+                    x="70"
+                    y="51"
+                    width="40"
+                    height="38"
+                    rx="8"
+                    stroke="currentColor"
+                    stroke-width="2"/>
+
+                <path class="technology-trace technology-trace--left-top"
+                    d="M53 52H35V40H24"
+                    pathLength="1"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+
+                <path class="technology-trace technology-trace--left-bottom"
+                    d="M53 87H35V101H22"
+                    pathLength="1"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+
+                <path class="technology-trace technology-trace--right-top"
+                    d="M127 51H145V39H158"
+                    pathLength="1"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+
+                <path class="technology-trace technology-trace--right-bottom"
+                    d="M127 87H145V101H159"
+                    pathLength="1"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+
+                <path class="technology-trace technology-trace--top"
+                    d="M76 34V20M104 34V20"
+                    pathLength="1"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"/>
+
+                <path class="technology-trace technology-trace--bottom"
+                    d="M76 106V120M104 106V120"
+                    pathLength="1"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"/>
+
+                <circle class="technology-node"
+                    cx="24"
+                    cy="40"
+                    r="3.5"
+                    fill="currentColor"/>
+
+                <circle class="technology-node"
+                    cx="22"
+                    cy="101"
+                    r="3.5"
+                    fill="currentColor"/>
+
+                <circle class="technology-node"
+                    cx="158"
+                    cy="39"
+                    r="3.5"
+                    fill="currentColor"/>
+
+                <circle class="technology-node"
+                    cx="159"
+                    cy="101"
+                    r="3.5"
+                    fill="currentColor"/>
+
+                <path class="technology-spark"
+                    d="M139 13L142 22L151 25L142 28L139 37L136 28L127 25L136 22L139 13Z"
+                    stroke="currentColor"
+                    stroke-width="1.9"
+                    stroke-linejoin="round"/>
+            </svg>
+        `,
+
+        'stories-book-screen': `
+            <svg class="subject-artwork subject-artwork--stories"
+                viewBox="0 0 180 140"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <g class="stories-screen">
+                    <rect
+                        x="48"
+                        y="17"
+                        width="112"
+                        height="72"
+                        rx="14"
+                        stroke="currentColor"
+                        stroke-width="2.2"/>
+
+                    <path class="stories-play"
+                        d="M94 38L116 53L94 68V38Z"
+                        stroke="currentColor"
+                        stroke-width="2.1"
+                        stroke-linejoin="round"/>
+
+                    <path
+                        d="M91 89V100M117 89V100M79 103H129"
+                        stroke="currentColor"
+                        stroke-width="1.9"
+                        stroke-linecap="round"/>
+                </g>
+
+                <g class="stories-book">
+                    <path class="stories-page stories-page--left"
+                        d="M19 72C37 67 56 69 77 80V122C57 112 38 110 19 116V72Z"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linejoin="round"/>
+
+                    <path class="stories-page stories-page--right"
+                        d="M77 80C96 69 116 67 136 72V116C116 110 96 112 77 122V80Z"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linejoin="round"/>
+
+                    <path
+                        d="M77 80V122"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"/>
+
+                    <path
+                        d="M33 86C45 83 55 84 66 89M33 97C45 94 55 95 66 100"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"/>
+
+                    <path
+                        d="M89 89C100 84 111 83 122 86M89 100C100 95 111 94 122 97"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"/>
+                </g>
+
+                <path class="stories-thread"
+                    d="M34 113C42 126 61 132 79 126C96 120 104 109 117 105"
+                    pathLength="1"
+                    stroke="currentColor"
+                    stroke-width="1.9"
+                    stroke-linecap="round"/>
+            </svg>
+        `
+    };
+
     const RAW_SUBJECTS = [
         {
             id: 'personality-character-traits',
@@ -155,6 +668,7 @@
             categoryId: 'people-relationships',
             order: 90,
             available: true,
+            artId: 'humour-reactions',
             hook: 'Explore what makes people laugh, why the same joke can feel friendly or hurtful, and how humour changes depending on who tells it and who hears it.'
         },
         {
@@ -206,6 +720,7 @@
             categoryId: 'society-the-world',
             order: 60,
             available: true,
+            artId: 'technology-circuit',
             hook: 'Explore the technology people use every day — what it makes easier, what it changes, and what we gain, lose, depend on, or refuse.'
         },
         {
@@ -221,6 +736,7 @@
             categoryId: 'society-the-world',
             order: 80,
             available: true,
+            artId: 'travel-route',
             hook: 'Explore what travel is really like — the surprises, problems, habits, people, and choices that can change a trip and stay with us afterwards.'
         },
         {
@@ -237,6 +753,7 @@
             categoryId: 'work-time',
             order: 10,
             available: true,
+            artId: 'work-toolkit',
             hook: 'Talk about the work people really do — hidden skills, fair pay, everyday effort, and what makes a job feel worth doing.'
         },
         {
@@ -274,6 +791,7 @@
             categoryId: 'culture-life',
             order: 20,
             available: true,
+            artId: 'shared-pot',
             hook: 'Explore food, sharing, table rules, and who does the work — plus how meals can show care and become part of family and memory.'
         },
         {
@@ -289,6 +807,7 @@
             categoryId: 'culture-life',
             order: 40,
             available: true,
+            artId: 'stories-book-screen',
             hook: 'Explore why stories stay with us — what pulls us in, what makes us stop, the endings we judge, and the characters and moments we remember.'
         },
         {
@@ -331,6 +850,7 @@
             durationLabel: subject.durationLabel || '45–60 min',
             status: available ? 'available' : 'soon',
             launchUrl: available ? `compass/${subject.id}/index.html` : '',
+            artId: subject.artId || '',
             hook: subject.hook || '',
             description: subject.hook || '',
             keywords: [
@@ -376,6 +896,10 @@
         }, {});
     }
 
+    function getCompassSubjectArt(artId) {
+        return COMPASS_SUBJECT_ART[artId] || '';
+    }
+
     function getBuiltCompassSubjectSlugs() {
         const availableIds = new Set(
             COMPASS_SUBJECTS
@@ -392,6 +916,7 @@
         getCompassCategories,
         getCompassSubjects,
         getCompassCatalogMap,
+        getCompassSubjectArt,
         getBuiltCompassSubjectSlugs
     };
 })();
