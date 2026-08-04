@@ -8,7 +8,7 @@
   habits, tensions, surprises, and cultural assumptions that shape travel.
   Built for tutor-led conversation, shared-screen teaching, thoughtful
   disagreement, cultural reflection, and sharper spoken English.
-  Gold Exemplar · contentVersion 3.4.0
+  Gold Exemplar · contentVersion 3.5.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -19,7 +19,7 @@
 const MODULE = {
     id: 'travel-exploration',
     schemaVersion: 2,
-    contentVersion: '3.4.0',
+    contentVersion: '3.5.0',
     title: 'Travel & Exploration',
     titleHtml: 'Travel &amp; <em>Exploration</em>',
     navTitle: 'Travel',
@@ -96,7 +96,7 @@ const discussionSets = [
             {
                 id: 'moment-ordinary-thing-made-no-sense',
                 preview: `Everyone else understood it.`,
-                question: `What ordinary thing took you longer than expected to understand while you were away — a ticket machine, public transport, a door or shower, ordering food, paying, or following a local rule? What finally made sense?`,
+                question: `What took you longer than expected to understand while travelling — a ticket machine, public transport, a door or shower, ordering food, paying, or a local rule? What were you trying to do, and what finally helped?`,
 
                 upgrade: {
                     term: `work something out`,
@@ -117,8 +117,8 @@ const discussionSets = [
                     term: `get the shot`,
                     type: `phrase`,
                     definition: `To capture the exact photograph or video someone wants.`,
-                    ordinary: `“She turned one sunset photo into a twenty-minute production and had everyone moving bags and waiting while she tried to take exactly the photo she wanted.”`,
-                    upgraded: `“She turned one sunset photo into a twenty-minute production and had everyone moving bags and waiting while she tried to get the shot.”`,
+                    ordinary: `“She kept moving everyone’s bags until she took exactly the photo she wanted.”`,
+                    upgraded: `“She kept moving everyone’s bags until she got the shot.”`,
                     priority: 'standard',
                     atlasPrompt: `At a wedding, sports match, or family event, when should someone stop trying to get the shot and simply stay out of the way?`
                 }
@@ -127,6 +127,12 @@ const discussionSets = [
                 id: 'moment-have-it-again',
                 preview: `One taste you still think about.`,
                 question: `What’s something you ate or drank away from home that you would love to have again exactly as it was? What made it so good?`,
+
+                followUp: {
+                    id: 'same-at-home',
+                    kind: 'another-angle',
+                    prompt: `If you had exactly the same thing at home tomorrow, do you think it would taste as good? Why or why not?`
+                },
 
                 upgrade: {
                     term: `worth going back for`,
@@ -156,8 +162,8 @@ const discussionSets = [
         ],
 
         makeItReal: {
-            title: `The version you usually leave out`,
-            prompt: `Choose one trip story you normally tell quickly. Tell it again with one small detail you usually leave out — a sound, smell, delay, awkward moment, minor problem, or something happening in the background.`
+            title: `The Detail That Brings It Back`,
+            prompt: `Choose a trip story and tell it briefly. Then tell one part again with a detail that makes the moment easier to picture — a sound, smell, delay, awkward moment, small problem, or something happening in the background.`
         }
     },
 
@@ -171,8 +177,14 @@ const discussionSets = [
         moments: [
             {
                 id: 'moment-traveller-or-tourist',
-                preview: `Two labels, one quiet hierarchy.`,
-                question: `Someone says, “I’m a traveller, not a tourist,” because they avoid guided tours and famous sights. Are they simply describing how they like to travel, or suggesting that their way is better? What makes you think that?`,
+                preview: `Traveller or tourist?`,
+                question: `Someone says, “I’m a traveller, not a tourist.” What do you think they mean?`,
+
+                followUp: {
+                    id: 'what-separates-them',
+                    kind: 'go-deeper',
+                    prompt: `What would someone actually have to do differently for “traveller” and “tourist” to mean different things — if anything?`
+                },
 
                 upgrade: {
                     term: `look down on`,
@@ -323,7 +335,13 @@ const discussionSets = [
             {
                 id: 'moment-travel-spoiled-home',
                 preview: `When home stops measuring up.`,
-                question: `Sometimes a trip ruins something back home for you — the coffee, the bread, public transport, beaches, or customer service. What has travel spoiled for you? Do people around you think you have become too critical or that your standards are now too high?`,
+                question: `What has travel spoiled for you back home — the coffee, the bread, public transport, beaches, customer service, or something else?`,
+
+                followUp: {
+                    id: 'changed-choices-at-home',
+                    kind: 'go-deeper',
+                    prompt: `Has that changed what you choose, buy, or avoid when you are back home?`
+                },
 
                 upgrade: {
                     term: `not compare with something`,
