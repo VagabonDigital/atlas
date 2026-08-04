@@ -9,7 +9,7 @@
   return, and which bargains people defend, refuse, regret, or cannot
   understand in one another. Built for tutor-led conversation, shared-screen
   teaching, real disagreement, cultural reflection, and sharper spoken English.
-  Compass active subject · contentVersion 1.1.0
+  Compass active subject · contentVersion 1.2.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 const MODULE = {
     id: 'technology-innovation',
     schemaVersion: 2,
-    contentVersion: '1.1.0',
+    contentVersion: '1.2.0',
     title: 'Technology & Innovation',
     titleHtml: 'Technology &amp; <em>Innovation</em>',
     navTitle: 'Technology',
@@ -107,6 +107,12 @@ const discussionSets = [
                 id: 'moment-complain-but-love',
                 preview: `You complain about it, but you love it.`,
                 question: `What piece of technology do you complain about constantly but would hate to lose? What does it do well enough to keep winning you back?`,
+
+                followUp: {
+                    id: 'a-better-alternative',
+                    kind: 'add-a-twist',
+                    prompt: `A simpler alternative appears tomorrow and fixes the thing you hate. What could still stop you switching?`
+                },
 
                 upgrade: {
                     term: `have a love-hate relationship with something`,
@@ -289,6 +295,12 @@ const discussionSets = [
                 id: 'moment-skill-you-carried',
                 preview: `A skill you once carried yourself.`,
                 question: `What could you once do from memory or by hand that you now immediately give to a device? When did you first notice the skill had faded?`,
+
+                followUp: {
+                    id: 'would-you-want-it-back',
+                    kind: 'another-angle',
+                    prompt: `How much do you miss having that skill — and what, if anything, would make it worth learning again?`
+                },
 
                 upgrade: {
                     term: `rusty`,
