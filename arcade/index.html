@@ -122,10 +122,10 @@
 
       /* Game library and cards */
       --library-surface: rgba(252, 248, 242, 0.88);
-      --library-border: rgba(93, 57, 86, 0.105);
+      --library-border: rgba(93, 57, 86, 0.075);
       --library-shadow:
-        0 20px 58px rgba(58, 36, 63, 0.075),
-        inset 0 1px 0 rgba(255, 255, 255, 0.68);
+        0 10px 30px rgba(58, 36, 63, 0.035),
+        inset 0 1px 0 rgba(255, 255, 255, 0.58);
       --card-surface: rgba(255, 253, 249, 0.91);
       --card-surface-hover: rgba(255, 255, 255, 0.97);
       --card-border: var(--border-faint);
@@ -978,7 +978,7 @@
       position: relative;
       margin-top: 1.45rem;
       padding: 1.6rem 1.75rem 1.75rem;
-      border: 1.5px solid var(--library-border);
+      border: 1px solid var(--library-border);
       border-radius: 30px;
       background-color: var(--library-surface);
       box-shadow: var(--library-shadow);
@@ -1449,7 +1449,7 @@
 
       .hub-intro {
         gap: 1rem;
-        padding-bottom: 1.9rem;
+        padding-bottom: 0;
       }
 
       .hub-title {
@@ -1461,9 +1461,12 @@
       }
 
       .library-zone {
-        margin-top: 2.35rem;
-        padding: 1.25rem 1rem 1.35rem;
-        border-radius: 24px;
+        margin-top: 2rem;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
       }
 
       .library-header {
