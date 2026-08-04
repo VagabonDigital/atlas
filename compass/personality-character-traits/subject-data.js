@@ -289,8 +289,8 @@ const discussionSets = [
             },
             {
                 id: 'moment-build-a-crisis-team',
-                preview: `Calm. Practical. Honest. Choose your three.`,
-                question: `You and your tutor must build a three-person crisis team using real or fictional people: one calm person, one practical person, and one person who will tell the truth. Take turns proposing candidates until you agree on all three.`,
+                preview: `Everything went wrong. One person stayed useful.`,
+                question: `Think of a time when a plan suddenly fell apart. Who stayed calm enough to be useful, and what did they do while everyone else was reacting?`,
                 upgrade: {
                     term: `level-headed`,
                     type: `adjective`,
@@ -338,8 +338,8 @@ const discussionSets = [
             }
         ],
         makeItReal: {
-            title: `The Moment You Knew`,
-            prompt: `Tell one story that reveals what a person is really like: one afternoon, one decision, or one thing they did. Do not name the trait. Let the listener work it out from the evidence.`
+            title: `The Chaos Crew`,
+            prompt: `Pick a mini-disaster: a cancelled flight, a broken-down car, a ruined event, or one of your own. Build the perfect three-person team with your tutor: one person who never panics, one who can talk their way out of anything, and one who always seems to have snacks. Choose anyone — real or fictional — and agree on your final crew. Chaos, handled!`
         }
     }
 ];
