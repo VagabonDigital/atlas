@@ -10,7 +10,7 @@
   we all turned out to have completely wrong.
   The Compass subject where the learner states a judgement, produces the
   evidence, and has to defend it.
-  Compass active subject · contentVersion 3.1.0
+  Compass active subject · contentVersion 3.2.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -21,7 +21,7 @@
 const MODULE = {
     id: 'personality-character-traits',
     schemaVersion: 2,
-    contentVersion: '3.1.0',
+    contentVersion: '3.2.0',
     title: 'Personality & Character Traits',
     titleHtml: 'Personality & <em>Character Traits</em>',
     navTitle: 'Personality',
@@ -83,6 +83,13 @@ const discussionSets = [
                 id: 'moment-the-instant-disqualifier',
                 preview: `One behaviour changes the whole impression.`,
                 question: `A person is rude to a waiter, interrupts constantly, or never asks you a question. Which behaviour would change your opinion fastest? You can choose another.`,
+
+                followUp: {
+                    id: 'what-would-change-your-mind',
+                    kind: 'another-angle',
+                    prompt: `What could they do next that would genuinely make you reconsider your first impression?`
+                },
+
                 upgrade: {
                     term: `red flag`,
                     type: `noun`,
@@ -166,6 +173,13 @@ const discussionSets = [
                 id: 'moment-the-test-you-run',
                 preview: `A test they do not know they are taking.`,
                 question: `What small behaviour do you quietly use as a test of character — returning a trolley, remembering a name, admitting a mistake, or something else?`,
+
+                followUp: {
+                    id: 'when-the-test-misleads-you',
+                    kind: 'add-a-twist',
+                    prompt: `What could you find out later — perhaps they were nervous, rushing, or under pressure — that would make you judge them less harshly?`
+                },
+
                 upgrade: {
                     term: `a good judge of character`,
                     type: `phrase`,
@@ -290,7 +304,14 @@ const discussionSets = [
             {
                 id: 'moment-reputation-vs-truth',
                 preview: `They remember who you were. Give them the update.`,
-                question: `Someone who knew you at nineteen still thinks you are the same person. What would surprise them most about you now?`,
+                question: `Someone who knew you at nineteen still thinks of you as you were then. What would surprise them most about you now?`,
+
+                followUp: {
+                    id: 'let-them-see-the-change',
+                    kind: 'go-deeper',
+                    prompt: `What could they see you do now that would show them how much you have changed?`
+                },
+
                 upgrade: {
                     term: `pigeonhole`,
                     type: `verb`,
