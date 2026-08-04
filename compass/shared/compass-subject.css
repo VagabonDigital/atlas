@@ -1836,6 +1836,11 @@ ORIENTATION
     flex: none;
 }
 
+.path-illustration--cultural-lens {
+    transform: scale(1.08);
+    transform-origin: center;
+}
+
 .path-illustration *,
 .reflection-illustration * {
     vector-effect: non-scaling-stroke;
