@@ -9,7 +9,7 @@
   the handful of sentences that turn out to have done something.
   Built for tutor-led conversation, shared-screen teaching, recognition,
   confession, playful disagreement, and sharper spoken English.
-  Compass active subject · contentVersion 3.1.0
+  Compass active subject · contentVersion 3.2.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 const MODULE = {
     id: 'communication-expression',
     schemaVersion: 2,
-    contentVersion: '3.1.0',
+    contentVersion: '3.2.0',
     title: 'Communication & Expression',
     titleHtml: 'Communication & <em>Expression</em>',
     navTitle: 'Communication',
@@ -96,6 +96,13 @@ const discussionSets = [
                 id: 'moment-can-we-talk-later',
                 preview: `“Can we talk later?” Nothing else.`,
                 question: `You receive “Can we talk later?” with no context. What is the first explanation your mind invents?`,
+
+                followUp: {
+                    id: 'rewrite-the-message',
+                    kind: 'another-angle',
+                    prompt: `Rewrite the message so it still asks to talk later but gives enough context to stop the other person worrying.`
+                },
+
                 upgrade: {
                     term: `fear the worst`,
                     type: `phrase`,
