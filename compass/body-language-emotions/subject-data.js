@@ -9,7 +9,7 @@
   perform, and the handful of things it turns out to know first.
   Built for tutor-led conversation, shared-screen teaching, confession,
   playful disagreement, cultural curiosity, and sharper spoken English.
-  Compass active subject · contentVersion 3.1.0
+  Compass active subject · contentVersion 3.2.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -20,7 +20,7 @@
 const MODULE = {
     id: 'body-language-emotions',
     schemaVersion: 2,
-    contentVersion: '3.1.0',
+    contentVersion: '3.2.0',
     title: 'Body Language & Emotions',
     titleHtml: 'Body Language <br>& <em>Emotions</em>',
     navTitle: 'Body Language',
@@ -179,7 +179,13 @@ const discussionSets = [
                 id: 'moment-face-for-work',
                 preview: `The smile that is part of the uniform.`,
 
-                question: `Which job would require the hardest expression to hold for eight hours — nurse, waiter, teacher, flight attendant, funeral director, or another one? What would that person have to hide?`,
+                question: `Which job would require the hardest expression to hold for eight hours — nurse, waiter, teacher, flight attendant, or another one? What would that person have to hide?`,
+
+                followUp: {
+                    id: 'say-it-two-ways',
+                    kind: 'go-deeper',
+                    prompt: `A waiter is exhausted near the end of a long shift. Say “I’m good, thanks” once professionally, then again so we can hear how tired they really are.`
+                },
 
                 upgrade: {
                     term: `put on a front`,
