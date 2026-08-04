@@ -254,7 +254,7 @@ const discussionSets = [
 
         makeItReal: {
             title: `Put the Ending on Trial`,
-            prompt: `Choose an ending you have never accepted. Argue against it while your tutor defends it. Then propose one change. Would it improve the story, or only make you happier?`
+            prompt: `Choose an ending you have never fully accepted. Explain what happened and why it felt wrong, then rewrite it. Your tutor can accept your version or challenge it with one possible problem. Cue the new timeline!`
         }
     },
 
