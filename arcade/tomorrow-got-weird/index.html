@@ -46,6 +46,7 @@
 
       --line: rgba(21, 34, 53, 0.11);
       --line-strong: rgba(21, 34, 53, 0.18);
+      --border-width: 1px;
 
       --cyan: #087f98;
       --cyan-soft: rgba(8, 127, 152, 0.1);
@@ -87,6 +88,7 @@
 
       --line: rgba(0, 240, 255, 0.13);
       --line-strong: rgba(0, 240, 255, 0.24);
+      --border-width: 1.5px;
 
       --cyan: #00d8ec;
       --cyan-soft: rgba(0, 216, 236, 0.1);
@@ -802,20 +804,26 @@
     .btn-complete {
       display: inline-flex;
       width: 150px;
-      min-height: 42px;
+      min-height: 44px;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      padding: 0 16px;
-      border: 1px solid rgba(8, 121, 87, 0.32);
-      border-radius: 11px;
-      background: var(--green-soft);
-      color: var(--green);
+      gap: 9px;
+      padding: 0 15px;
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg,
+          rgba(255, 255, 255, 0.98),
+          rgba(247, 249, 251, 0.92));
+      color: var(--ink);
       font-size: 14px;
       font-weight: 750;
       white-space: nowrap;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(8, 121, 87, 0.06);
+      box-shadow:
+        0 1px 2px rgba(21, 34, 53, 0.06),
+        0 7px 18px rgba(21, 34, 53, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.92);
       transition:
         transform 0.18s ease,
         border-color 0.18s ease,
@@ -824,30 +832,157 @@
         box-shadow 0.18s ease;
     }
 
+    .complete-mark {
+      --pupil-x: 0px;
+      --pupil-y: 0px;
+
+      display: inline-flex;
+      width: 20px;
+      height: 20px;
+      flex: 0 0 20px;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid rgba(8, 127, 152, 0.26);
+      border-radius: 50%;
+      background: var(--cyan-soft);
+      color: var(--cyan);
+      transition:
+        transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+        border-color 0.18s ease,
+        background-color 0.18s ease,
+        color 0.18s ease;
+    }
+
+    .complete-mark svg {
+      width: 14px;
+      height: 14px;
+      overflow: visible;
+    }
+
+    .complete-mark-pupil {
+      fill: currentColor;
+      transform:
+        translate(var(--pupil-x), var(--pupil-y));
+      transform-box: fill-box;
+      transform-origin: center;
+      transition:
+        opacity 0.16s ease,
+        transform 90ms linear;
+    }
+
+    .complete-mark-check {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0;
+      transform: scale(0.55);
+      transform-origin: center;
+      transition:
+        opacity 0.16s ease,
+        transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
     .btn-complete:hover {
-      border-color: var(--green);
-      background: rgba(8, 121, 87, 0.16);
-      box-shadow: 0 7px 18px rgba(8, 121, 87, 0.16);
+      border-color: rgba(8, 127, 152, 0.42);
+      background: var(--surface);
+      box-shadow:
+        0 2px 4px rgba(21, 34, 53, 0.07),
+        0 10px 24px rgba(21, 34, 53, 0.09);
       transform: translateY(-1px);
+    }
+
+    .btn-complete:hover .complete-mark {
+      border-color: var(--cyan);
+      transform: scale(1.05);
+    }
+
+    .btn-complete:active {
+      transform: translateY(0);
     }
 
     .btn-complete.done {
-      border-color: var(--green);
-      background: var(--green);
+      border-color: transparent;
+      background:
+        linear-gradient(135deg,
+          #152235,
+          #253652);
       color: #ffffff;
-      box-shadow: 0 6px 18px rgba(8, 121, 87, 0.18);
+      box-shadow:
+        0 2px 5px rgba(21, 34, 53, 0.14),
+        0 10px 24px rgba(21, 34, 53, 0.2);
+    }
+
+    .btn-complete.done .complete-mark {
+      border-color: rgba(255, 255, 255, 0.22);
+      background: rgba(255, 255, 255, 0.1);
+      color: #70d7e5;
+    }
+
+    .btn-complete.done .complete-mark-pupil {
+      opacity: 0;
+      transform: translate(0, 0) scale(0.45);
+    }
+
+    .btn-complete.done .complete-mark-check {
+      opacity: 1;
+      transform: scale(1);
     }
 
     .btn-complete.done:hover {
-      background: var(--green);
+      border-color: transparent;
+      background:
+        linear-gradient(135deg,
+          #192a42,
+          #2c4162);
       color: #ffffff;
-      box-shadow: 0 8px 22px rgba(8, 121, 87, 0.24);
+      box-shadow:
+        0 3px 7px rgba(21, 34, 53, 0.18),
+        0 13px 30px rgba(21, 34, 53, 0.24);
       transform: translateY(-1px);
     }
 
-    html[data-theme="night"] .btn-complete.done,
+    html[data-theme="night"] .btn-complete {
+      background:
+        linear-gradient(180deg,
+          rgba(255, 255, 255, 0.055),
+          rgba(255, 255, 255, 0.025));
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.22),
+        0 8px 20px rgba(0, 0, 0, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    html[data-theme="night"] .btn-complete:hover {
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    html[data-theme="night"] .btn-complete.done {
+      border-color: rgba(0, 216, 236, 0.36);
+      background:
+        linear-gradient(135deg,
+          rgba(0, 216, 236, 0.2),
+          rgba(117, 55, 220, 0.24));
+      color: var(--ink);
+      box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.32),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.035);
+    }
+
+    html[data-theme="night"] .btn-complete.done .complete-mark {
+      border-color: rgba(0, 216, 236, 0.46);
+      background: rgba(0, 216, 236, 0.12);
+      color: var(--cyan);
+    }
+
     html[data-theme="night"] .btn-complete.done:hover {
-      color: #00170f;
+      background:
+        linear-gradient(135deg,
+          rgba(0, 216, 236, 0.26),
+          rgba(117, 55, 220, 0.3));
+      color: var(--ink);
     }
 
     /* ============================================================
@@ -886,8 +1021,27 @@
     }
 
     .btn-random {
-      border-color: rgba(185, 55, 118, 0.24);
+      border-color: rgba(185, 55, 118, 0.28);
       color: var(--magenta);
+    }
+
+    .btn-random:hover:not(:disabled) {
+      border-color: var(--magenta);
+      background: var(--magenta-soft);
+      color: var(--magenta);
+    }
+
+    html[data-theme="night"] .btn-random {
+      border-color: rgba(255, 76, 158, 0.38);
+      background: rgba(255, 76, 158, 0.06);
+      color: var(--magenta);
+    }
+
+    html[data-theme="night"] .btn-random:hover:not(:disabled) {
+      border-color: rgba(255, 76, 158, 0.72);
+      background: rgba(255, 76, 158, 0.13);
+      color: #ff72b5;
+      box-shadow: 0 6px 18px rgba(255, 76, 158, 0.1);
     }
 
     /* ============================================================
@@ -1084,6 +1238,14 @@
     #toast.show {
       opacity: 1;
       transform: translate(-50%, 0);
+    }
+
+    /* ============================================================
+     NIGHT-MODE BUTTON EDGES
+     ============================================================ */
+
+    html[data-theme="night"] button:not(.scenario-dot) {
+      border-width: 1.5px;
     }
 
     /* ============================================================
@@ -1360,8 +1522,14 @@
       </section>
 
       <div class="scenario-footer">
-        <button class="btn-complete" id="btn-complete" type="button" onclick="toggleComplete()">
-          <span id="complete-icon">○</span>
+        <button class="btn-complete" id="btn-complete" type="button" aria-pressed="false"
+          onclick="toggleComplete()">
+          <span class="complete-mark" aria-hidden="true">
+            <svg viewBox="0 0 20 20" fill="none">
+              <circle class="complete-mark-pupil" cx="10" cy="10" r="2.35"></circle>
+              <path class="complete-mark-check" d="M6.3 10.2l2.35 2.35 5.1-5.35"></path>
+            </svg>
+          </span>
           <span id="complete-label">Mark survived</span>
         </button>
 
@@ -1895,6 +2063,104 @@
     }
 
     /* ============================================================
+       SURVIVAL EYE
+       ============================================================ */
+    function setupSurvivalEye() {
+      const mark = document.querySelector('.complete-mark');
+      const button = document.getElementById('btn-complete');
+
+      if (!mark || !button) return;
+
+      const reducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      );
+
+      let pointerX = 0;
+      let pointerY = 0;
+      let animationFrame = null;
+
+      function centrePupil() {
+        mark.style.setProperty('--pupil-x', '0px');
+        mark.style.setProperty('--pupil-y', '0px');
+      }
+
+      function updatePupil() {
+        animationFrame = null;
+
+        if (
+          reducedMotion.matches ||
+          button.classList.contains('done')
+        ) {
+          centrePupil();
+          return;
+        }
+
+        const rect = mark.getBoundingClientRect();
+        const centreX = rect.left + rect.width / 2;
+        const centreY = rect.top + rect.height / 2;
+
+        const differenceX = pointerX - centreX;
+        const differenceY = pointerY - centreY;
+        const distance = Math.hypot(differenceX, differenceY) || 1;
+
+        const maximumTravel = 2.6;
+        const travel = Math.min(
+          maximumTravel,
+          distance * 0.075
+        );
+
+        const pupilX =
+          (differenceX / distance) * travel;
+
+        const pupilY =
+          (differenceY / distance) * travel;
+
+        mark.style.setProperty(
+          '--pupil-x',
+          pupilX.toFixed(2) + 'px'
+        );
+
+        mark.style.setProperty(
+          '--pupil-y',
+          pupilY.toFixed(2) + 'px'
+        );
+      }
+
+      function queuePupilUpdate(event) {
+        if (
+          event.pointerType &&
+          event.pointerType !== 'mouse'
+        ) {
+          return;
+        }
+
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+
+        if (!animationFrame) {
+          animationFrame =
+            window.requestAnimationFrame(updatePupil);
+        }
+      }
+
+      document.addEventListener(
+        'pointermove',
+        queuePupilUpdate,
+        { passive: true }
+      );
+
+      document.documentElement.addEventListener(
+        'mouseleave',
+        centrePupil
+      );
+
+      window.addEventListener(
+        'blur',
+        centrePupil
+      );
+    }
+
+    /* ============================================================
        COMPLETION
        ============================================================ */
     function showFinish() {
@@ -2044,7 +2310,7 @@
 
       const completeButton = document.getElementById('btn-complete');
       completeButton.classList.toggle('done', done);
-      document.getElementById('complete-icon').textContent = done ? '✓' : '○';
+      completeButton.setAttribute('aria-pressed', String(done));
       document.getElementById('complete-label').textContent = done ? 'Survived' : 'Mark survived';
 
       document.getElementById('btn-prev').disabled = index === 0;
@@ -2198,6 +2464,7 @@
       const saved = readBridgeState();
       state = normalizeState(saved);
       buildScenarioDots();
+      setupSurvivalEye();
 
       const timeline = getTimelineProgress(saved);
 
