@@ -8,7 +8,7 @@
   and refusal, who cooks and who is fed, feeding as love and power, scarcity
   and plenty, and the meals that stay with us. Built for tutor-led
   conversation, shared-screen teaching, real disagreement, and sharper speech.
-  Compass active subject · contentVersion 1.1.0
+  Compass active subject · contentVersion 1.2.0
   The subject may evolve.
   The compass remains.
   --------------------------------------------------------------------------
@@ -19,7 +19,7 @@
 const MODULE = {
     id: 'food-table',
     schemaVersion: 2,
-    contentVersion: '1.1.0',
+    contentVersion: '1.2.0',
     title: 'Food & The Table',
     titleHtml: 'Food &amp; <em>The Table</em>',
     navTitle: 'Food',
@@ -190,6 +190,12 @@ const discussionSets = [
                 preview: `You ordered it. Everyone wants some.`,
                 question: `You order the dish you really wanted, and everyone immediately suggests sharing everything. Are you happy to pass it around, or do you secretly want your own plate left alone?`,
 
+                followUp: {
+                    id: 'sharing-with-nothing-in-return',
+                    kind: 'add-a-twist',
+                    prompt: `Everyone else ordered dishes you don’t really want. Do you still agree to share yours?`
+                },
+
                 upgrade: {
                     term: `territorial`,
                     type: `adjective`,
@@ -218,7 +224,13 @@ const discussionSets = [
             {
                 id: 'moment-work-after-the-meal',
                 preview: `Somebody cooked. Somebody disappeared.`,
-                question: `At a big meal, who usually shops, cooks, serves, and clears up — and who somehow disappears when the work begins? Is the division of work changing where you live, or not really?`,
+                question: `At a big meal, who usually shops, cooks, serves, and clears up — and who somehow disappears when the work begins?`,
+
+                followUp: {
+                    id: 'is-the-division-changing',
+                    kind: 'another-angle',
+                    prompt: `Is that division of work changing where you live, or do the same people still end up doing most of it?`
+                },
 
                 upgrade: {
                     term: `chip in`,
@@ -248,8 +260,8 @@ const discussionSets = [
         ],
 
         makeItReal: {
-            title: `The Rules of Your Table`,
-            prompt: `Create three rules for a shared meal — about phones, sharing, helping, refusing food, or anything else that matters. Your tutor will challenge each rule with one difficult guest or situation. Decide whether the rule survives, changes, or disappears.`
+            title: `Before Everyone Arrives`,
+            prompt: `You are hosting a meal for six people. Decide with your tutor on three things that will help everyone enjoy it — and one thing nobody should do.`
         }
     },
 
