@@ -520,9 +520,9 @@ html.theme-changing .cover-bg {
     align-items: center;
     gap: 0.5rem;
     font-family: var(--font-body);
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: 0.20em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--accent-soft);
     margin-bottom: 1.4rem;
@@ -553,10 +553,10 @@ html.theme-changing .cover-bg {
 
 .cover-hook {
     font-family: var(--font-body);
-    font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.62);
-    font-weight: 300;
-    line-height: 1.7;
+    font-size: clamp(1.05rem, 1.25vw, 1.18rem);
+    color: rgba(255, 255, 255, 0.70);
+    font-weight: 400;
+    line-height: 1.65;
     margin-bottom: 2.2rem;
     max-width: 44ch;
 }
@@ -576,7 +576,7 @@ html.theme-changing .cover-bg {
 }
 
 .cover-returning-name {
-    color: rgba(255, 255, 255, 0.78);
+    color: rgba(255, 255, 255, 0.70);
     font-weight: inherit;
 }
 
@@ -1969,7 +1969,14 @@ CULTURAL LENS
     margin: 0 0.05rem 0 0;
     flex-shrink: 0;
     opacity: 0.68;
-    transform: none;
+    transform: rotate(0deg) scale(1);
+    transform-origin: center;
+}
+
+.upgrade-visibility-trigger:hover .upgrade-chip-icon,
+.upgrade-visibility-trigger[aria-expanded="true"] .upgrade-chip-icon {
+    opacity: 0.92;
+    transform: rotate(90deg) scale(1.12);
 }
 
 .upgrade-visibility-trigger span {
@@ -2868,33 +2875,49 @@ MAKE IT REAL AND SHARED DIALOG ACTIONS
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.35rem;
+    gap: 0.42rem;
     min-height: 2.65rem;
     padding: 0.5rem 1.1rem;
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius-sm);
-    border: 1px solid rgba(var(--accent-rgb), 0.55);
-    background: rgba(var(--accent-pale-rgb), 0.22);
-    color: var(--accent);
+    background: rgba(255, 255, 255, 0.34);
+    color: var(--text-muted);
     font-family: var(--font-body);
     font-size: 0.82rem;
     font-weight: 500;
     cursor: pointer;
+    box-shadow: none;
     transition: var(--transition);
-    box-shadow: 0 4px 14px rgba(var(--accent-rgb), 0.12);
+}
+
+.btn-mark-explored .explored-state-icon {
+    flex-shrink: 0;
+    transform-origin: center;
+    transition: transform var(--transition);
 }
 
 .btn-mark-explored:hover {
-    background: rgba(var(--accent-pale-rgb), 0.45);
-    border-color: rgba(var(--accent-rgb), 0.72);
+    border-color: rgba(var(--accent-rgb), 0.4);
+    background: rgba(var(--accent-pale-rgb), 0.18);
     color: var(--accent);
 }
 
+.btn-mark-explored:hover .explored-state-icon {
+    transform: scale(1.06);
+}
+
 .btn-mark-explored.is-explored {
-    background: rgba(var(--accent-pale-rgb), 0.22);
-    border-color: rgba(var(--accent-rgb), 0.34);
+    border-color: transparent;
+    background: transparent;
     color: var(--accent);
     cursor: pointer;
     box-shadow: none;
+}
+
+.btn-mark-explored.is-explored:hover {
+    border-color: rgba(var(--accent-rgb), 0.28);
+    background: rgba(var(--accent-pale-rgb), 0.12);
+    color: var(--accent);
 }
 
 html[data-theme="night"] .modal-question-block,
@@ -2921,8 +2944,10 @@ html[data-theme="night"] .upgrade-panel {
     border-color: var(--border-subtle);
 }
 
-html[data-theme="night"] .upgrade-example-row {
-    background: var(--surface-panel);
+html[data-theme="night"]
+.upgrade-example-row:not(.upgrade-example-row-primary) {
+    background: var(--surface-raised);
+    border: 1px solid var(--border-faint);
 }
 
 html[data-theme="night"] .upgrade-example-row-primary {
@@ -3048,23 +3073,29 @@ html[data-theme="night"] .btn-primary:disabled {
 }
 
 html[data-theme="night"] .btn-mark-explored {
-    background: var(--accent-pale);
-    border-color: var(--accent);
-    color: var(--accent-soft);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    border-color: var(--border-subtle);
+    background: rgba(255, 255, 255, 0.025);
+    color: var(--text-muted);
+    box-shadow: none;
 }
 
 html[data-theme="night"] .btn-mark-explored:hover {
-    background: var(--accent-dim);
-    border-color: var(--accent-soft);
+    border-color: rgba(var(--accent-rgb), 0.36);
+    background: rgba(var(--accent-rgb), 0.08);
     color: var(--accent-soft);
 }
 
 html[data-theme="night"] .btn-mark-explored.is-explored {
+    border-color: transparent;
     background: transparent;
-    border-color: rgba(var(--accent-rgb), 0.45);
-    color: var(--accent);
+    color: var(--accent-soft);
     box-shadow: none;
+}
+
+html[data-theme="night"] .btn-mark-explored.is-explored:hover {
+    border-color: rgba(var(--accent-rgb), 0.28);
+    background: rgba(var(--accent-rgb), 0.06);
+    color: var(--accent-soft);
 }
 
 /* ============================================================
@@ -3147,6 +3178,10 @@ body.cultural-lens-focus-active #view-cultural-lens {
     font-weight: 500;
     cursor: pointer;
     transition: var(--transition);
+}
+
+.discussion-focus-back-mobile-label {
+    display: none;
 }
 
 .discussion-focus-back:hover {
@@ -3235,9 +3270,48 @@ body.cultural-lens-focus-active #view-cultural-lens {
     -webkit-backdrop-filter: blur(20px) saturate(1.18);
 }
 
+#discussion-focus-view .discussion-focus-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+        "activity activity"
+        "header continuation"
+        "question question"
+        "upgrade upgrade";
+}
+
+#discussion-focus-view .discussion-focus-activity-eyebrow {
+    grid-area: activity;
+}
+
+#discussion-focus-view .discussion-focus-card-header {
+    grid-area: header;
+    display: block;
+}
+
+#discussion-focus-view .discussion-focus-question {
+    grid-area: question;
+}
+
+#discussion-focus-view .discussion-focus-upgrade {
+    grid-area: upgrade;
+}
+
+#discussion-focus-view .discussion-focus-continuation-controls {
+    grid-area: continuation;
+}
+
+.discussion-focus-card-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 1rem;
+    margin-bottom: clamp(1.25rem, 3vw, 2.2rem);
+}
+
 .discussion-focus-title {
     max-width: 19ch;
-    margin: 0 0 clamp(1.25rem, 3vw, 2.2rem);
+    margin: 0;
     color: var(--text-heading);
     font-family: var(--font-display);
     font-size: clamp(1.7rem, 3.5vw, 3rem);
@@ -3245,6 +3319,91 @@ body.cultural-lens-focus-active #view-cultural-lens {
     line-height: 1.16;
     letter-spacing: -0.018em;
     text-wrap: balance;
+}
+
+.discussion-focus-continuation-controls[hidden] {
+    display: none !important;
+}
+
+.discussion-focus-continuation-controls {
+    justify-self: end;
+}
+
+.discussion-focus-continuation-btn {
+    display: inline-flex;
+    min-height: 2.45rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.42rem;
+    padding: 0.42rem 0.12rem;
+    border: 0;
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.34);
+    border-radius: 0;
+    background: transparent;
+    color: var(--accent);
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        color var(--transition),
+        border-color var(--transition),
+        gap var(--transition),
+        opacity var(--transition);
+}
+
+.discussion-focus-continuation-btn:hover {
+    gap: 0.56rem;
+    border-bottom-color: var(--accent);
+    background: transparent;
+    color: var(--accent);
+}
+
+.discussion-focus-continuation-btn.is-return {
+    border-bottom-color: rgba(200, 191, 176, 0.44);
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 500;
+    opacity: 0.72;
+}
+
+.discussion-focus-continuation-btn.is-return:hover,
+.discussion-focus-continuation-btn.is-return:focus-visible {
+    border-bottom-color: rgba(var(--accent-rgb), 0.56);
+    background: transparent;
+    color: var(--accent);
+    opacity: 1;
+}
+
+.discussion-focus-continuation-btn svg {
+    flex-shrink: 0;
+    transition: transform var(--transition);
+}
+
+.discussion-focus-continuation-kind-icon {
+    display: none;
+    opacity: 0.72;
+    transform-origin: center;
+}
+
+.discussion-focus-continuation-btn:not(.is-return):hover
+.discussion-focus-continuation-kind-icon {
+    transform: scale(1.08);
+}
+
+.discussion-focus-continuation-btn:not(.is-return):hover
+.discussion-focus-continuation-chevron {
+    transform: translateX(2px);
+}
+
+.discussion-focus-continuation-btn.is-return:hover svg {
+    transform: translateX(-2px);
+}
+
+.discussion-focus-continuation-btn:focus-visible {
+    outline: 2px solid rgba(var(--accent-rgb), 0.72);
+    outline-offset: 3px;
 }
 
 .discussion-focus-question {
@@ -3276,7 +3435,8 @@ body.cultural-lens-focus-active #view-cultural-lens {
     flex-shrink: 0;
 }
 
-.discussion-focus-view.is-make-it-real .discussion-focus-activity-eyebrow {
+.discussion-focus-view.is-make-it-real
+.discussion-focus-activity-eyebrow {
     display: inline-flex;
 }
 
@@ -3296,6 +3456,36 @@ body.cultural-lens-focus-active #view-cultural-lens {
         );
 }
 
+.discussion-focus-view.is-follow-up .discussion-focus-content {
+    border-style: solid;
+    border-color: rgba(var(--accent-rgb), 0.24);
+    border-left-width: 3px;
+    border-left-color: rgba(var(--accent-rgb), 0.66);
+    background: rgba(255, 255, 255, 0.82);
+}
+
+.discussion-focus-view.is-upgrade .discussion-focus-content {
+    width: min(100%, 980px);
+    border-style: solid;
+    border-color: rgba(var(--accent-rgb), 0.3);
+    background: rgba(255, 255, 255, 0.84);
+}
+
+.discussion-focus-view.is-upgrade
+.discussion-focus-card-header {
+    margin-bottom: clamp(0.85rem, 2vw, 1.25rem);
+}
+
+.discussion-focus-view.is-upgrade
+.discussion-focus-title {
+    max-width: 19ch;
+}
+
+.discussion-focus-view.is-upgrade
+.discussion-focus-question {
+    display: none;
+}
+
 .cultural-lens-focus-content {
     width: min(100%, 1040px);
 }
@@ -3311,17 +3501,21 @@ body.cultural-lens-focus-active #view-cultural-lens {
     text-transform: uppercase;
 }
 
+.cultural-lens-focus-card-header {
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+}
+
 .cultural-lens-focus-title {
     max-width: 26ch;
-    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+    margin-bottom: 0;
 }
 
 .cultural-lens-focus-context {
     max-width: 72ch;
     margin: 0;
     color: var(--text-body);
-    font-size: clamp(1.08rem, 1.7vw, 1.42rem);
-    line-height: 1.62;
+    font-size: clamp(1.02rem, 1.4vw, 1.24rem);
+    line-height: 1.65;
     text-wrap: pretty;
 }
 
@@ -3358,47 +3552,23 @@ body.cultural-lens-focus-active #view-cultural-lens {
     border-top: 1px solid rgba(200, 191, 176, 0.42);
 }
 
-.cultural-lens-focus-reveal-btn {
-    display: inline-flex;
-    min-height: 2.35rem;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.42rem 0.68rem;
-    border: 1px solid rgba(var(--accent-rgb), 0.26);
-    border-radius: var(--radius-sm);
-    background: rgba(var(--accent-pale-rgb), 0.24);
-    color: var(--accent);
-    font-family: var(--font-body);
-    font-size: 0.82rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.cultural-lens-focus-reveal-btn[hidden] {
+.cultural-lens-focus-view.is-upgrade
+.cultural-lens-focus-context-line,
+.cultural-lens-focus-view.is-upgrade
+.cultural-lens-focus-context,
+.cultural-lens-focus-view.is-upgrade
+.cultural-lens-focus-question-block,
+.cultural-lens-focus-view.is-upgrade
+.cultural-lens-focus-thread-panel {
     display: none !important;
 }
 
-.cultural-lens-focus-reveal-btn:hover {
-    border-color: rgba(var(--accent-rgb), 0.4);
-    background: rgba(var(--accent-pale-rgb), 0.4);
-    transform: translateY(-1px);
-}
-
-.cultural-lens-focus-reveal-btn[aria-expanded="true"] {
-    border-color: rgba(var(--accent-rgb), 0.46);
-    background: rgba(var(--accent-pale-rgb), 0.52);
-    box-shadow: var(--shadow-sm);
-}
-
-.cultural-lens-focus-reveal-chevron {
-    margin-left: 0.1rem;
-    transition: transform var(--transition);
-}
-
-.cultural-lens-focus-reveal-btn[aria-expanded="true"]
-.cultural-lens-focus-reveal-chevron {
-    transform: rotate(180deg);
+.cultural-lens-focus-view.is-upgrade
+.cultural-lens-focus-tools {
+    max-width: none;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
 }
 
 .cultural-lens-focus-thread-panel[hidden] {
@@ -3406,12 +3576,21 @@ body.cultural-lens-focus-active #view-cultural-lens {
 }
 
 .cultural-lens-focus-thread-panel {
-    margin-top: 0.6rem;
-    padding: 0.35rem 1rem;
-    border: 1px solid rgba(var(--accent-rgb), 0.18);
-    border-radius: var(--radius-md);
-    background: rgba(255, 255, 255, 0.52);
-    animation: upgradeIn 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+    margin-top: clamp(1.35rem, 2.7vw, 1.9rem);
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(var(--accent-rgb), 0.3);
+}
+
+.cultural-lens-focus-thread-label {
+    max-width: none;
+    margin: 0 0 0.5rem;
+    color: var(--accent);
+    font-family: var(--font-display);
+    font-size: clamp(1.08rem, 1.35vw, 1.25rem);
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    line-height: 1.3;
+    text-transform: none;
 }
 
 .cultural-lens-focus-thread-questions {
@@ -3419,18 +3598,18 @@ body.cultural-lens-focus-active #view-cultural-lens {
 }
 
 .cultural-lens-focus-thread-question {
-    max-width: 64ch;
+    max-width: 66ch;
     margin: 0;
-    padding: 0.85rem 0;
-    color: var(--text-muted);
-    font-size: 0.95rem;
-    line-height: 1.62;
+    padding: 1rem 0;
+    color: var(--text-body);
+    font-size: clamp(1.05rem, 1.35vw, 1.2rem);
+    line-height: 1.58;
     text-wrap: pretty;
 }
 
 .cultural-lens-focus-thread-question +
 .cultural-lens-focus-thread-question {
-    border-top: 1px solid rgba(200, 191, 176, 0.42);
+    border-top: 1px solid rgba(var(--accent-rgb), 0.18);
 }
 
 .discussion-focus-upgrade {
@@ -3445,39 +3624,120 @@ body.cultural-lens-focus-active #view-cultural-lens {
 }
 
 .cultural-lens-focus-upgrade {
-    margin-top: 0.55rem;
-    padding-top: 0.55rem;
+    margin-top: 0;
+    padding-top: 0;
     border-top: none;
 }
 
-.discussion-focus-upgrade .upgrade-chip {
+.discussion-focus-upgrade-trigger {
     font-size: 0.9rem;
 }
 
-.discussion-focus-upgrade .upgrade-panel {
-    padding: clamp(1.1rem, 2.4vw, 1.55rem);
-    border-radius: var(--radius-md);
+.discussion-focus-upgrade-trigger-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
 }
 
-.discussion-focus-upgrade .upgrade-panel-term {
-    font-size: clamp(1.1rem, 1.4vw, 1.22rem);
-    font-style: normal;
-    font-weight: 500;
+.discussion-focus-upgrade-trigger:not(.is-saved)
+.upgrade-chip-icon {
+    transform: rotate(0deg) scale(1);
+    transform-origin: center;
 }
 
-.discussion-focus-upgrade .upgrade-panel-type,
-.discussion-focus-upgrade .upgrade-example-label {
-    font-size: 0.7rem;
+.discussion-focus-upgrade-trigger:not(.is-saved):hover
+.upgrade-chip-icon {
+    transform: rotate(90deg) scale(1.12);
 }
 
-.discussion-focus-upgrade .upgrade-panel-definition {
-    font-size: clamp(0.98rem, 1.18vw, 1.05rem);
+.discussion-focus-upgrade-trigger.is-saved
+.upgrade-chip-icon {
+    opacity: 0.95;
+    transform: rotate(0deg) scale(1);
+    transform-origin: center;
+}
+
+.discussion-focus-upgrade-trigger.is-saved:hover
+.upgrade-chip-icon {
+    transform: rotate(0deg) scale(1.08);
+}
+
+.discussion-focus-upgrade-trigger span {
+    min-width: 0;
+}
+
+.discussion-focus-upgrade-chevron {
+    flex-shrink: 0;
+    margin-left: 0.12rem;
+    transition: transform var(--transition);
+}
+
+.discussion-focus-upgrade-trigger:hover
+.discussion-focus-upgrade-chevron {
+    transform: translateX(2px);
+}
+
+.discussion-focus-view.is-upgrade
+.discussion-focus-upgrade {
+    max-width: none;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+}
+
+.discussion-focus-upgrade-detail {
+    max-width: 52rem;
+    animation: upgradeIn 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.discussion-focus-upgrade-type {
+    max-width: none;
+    margin: 0 0 0.6rem;
+    color: var(--text-subtle);
+    font-size: 0.72rem;
+    font-weight: 650;
+    letter-spacing: 0.13em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.discussion-focus-upgrade-definition {
+    max-width: 48ch;
+    margin: 0 0 clamp(1.2rem, 2.5vw, 1.8rem);
+    color: var(--text-body);
+    font-size: clamp(1.03rem, 1.42vw, 1.22rem);
     line-height: 1.6;
+    text-wrap: pretty;
 }
 
-.discussion-focus-upgrade .upgrade-example {
-    font-size: clamp(0.94rem, 1.1vw, 1rem);
-    line-height: 1.55;
+.discussion-focus-view.is-upgrade
+.upgrade-transformation {
+    gap: 0.7rem;
+}
+
+.discussion-focus-view.is-upgrade
+.upgrade-example-row {
+    grid-template-columns: 6.4rem minmax(0, 1fr);
+    gap: 1rem;
+    padding: 0.92rem 1rem;
+}
+
+.discussion-focus-view.is-upgrade
+.upgrade-example-label {
+    font-size: 0.72rem;
+}
+
+.discussion-focus-view.is-upgrade
+.upgrade-example {
+    font-size: clamp(1rem, 1.27vw, 1.12rem);
+    line-height: 1.58;
+}
+
+.discussion-focus-view.is-upgrade
+.upgrade-panel-actions {
+    margin-top: 1rem;
+    padding-top: 0.9rem;
 }
 
 .discussion-focus-explored-btn[hidden],
@@ -3601,7 +3861,8 @@ html[data-theme="night"] .discussion-focus-content {
     -webkit-backdrop-filter: none;
 }
 
-html[data-theme="night"] .discussion-focus-view.is-make-it-real .discussion-focus-content {
+html[data-theme="night"] .discussion-focus-view.is-make-it-real
+.discussion-focus-content {
     border-color: rgba(var(--accent-rgb), 0.52);
     background:
         linear-gradient(
@@ -3610,6 +3871,19 @@ html[data-theme="night"] .discussion-focus-view.is-make-it-real .discussion-focu
             transparent 42%
         ),
         var(--accent-dim);
+}
+
+html[data-theme="night"] .discussion-focus-view.is-follow-up
+.discussion-focus-content {
+    border-color: var(--border-subtle);
+    border-left-color: rgba(var(--accent-rgb), 0.72);
+    background: var(--surface-panel);
+}
+
+html[data-theme="night"] .discussion-focus-view.is-upgrade
+.discussion-focus-content {
+    border-color: rgba(var(--accent-rgb), 0.46);
+    background: var(--surface-panel);
 }
 
 html[data-theme="night"] .discussion-focus-view.is-make-it-real
@@ -3623,28 +3897,9 @@ html[data-theme="night"] .cultural-lens-focus-question-block {
     background: var(--accent-dim);
 }
 
-html[data-theme="night"] .cultural-lens-focus-tools {
-    border-top-color: var(--border-faint);
-}
-
-html[data-theme="night"] .cultural-lens-focus-reveal-btn {
-    border-color: rgba(var(--accent-rgb), 0.3);
-    background: rgba(var(--accent-rgb), 0.08);
-}
-
-html[data-theme="night"] .cultural-lens-focus-reveal-btn:hover {
-    border-color: rgba(var(--accent-rgb), 0.44);
-    background: var(--accent-dim);
-}
-
-html[data-theme="night"] .cultural-lens-focus-reveal-btn[aria-expanded="true"] {
-    border-color: rgba(var(--accent-rgb), 0.52);
-    background: var(--accent-pale);
-}
-
+html[data-theme="night"] .cultural-lens-focus-tools,
 html[data-theme="night"] .cultural-lens-focus-thread-panel {
-    border-color: var(--border-faint);
-    background: var(--surface-muted);
+    border-top-color: var(--border-faint);
 }
 
 html[data-theme="night"] .cultural-lens-focus-thread-question +
@@ -3666,6 +3921,29 @@ html[data-theme="night"] .discussion-focus-nav-btn:hover:not(:disabled) {
     color: var(--accent-soft);
 }
 
+html[data-theme="night"] .discussion-focus-continuation-btn {
+    border-bottom-color: rgba(var(--accent-rgb), 0.42);
+    background: transparent;
+    color: var(--accent-soft);
+}
+
+html[data-theme="night"] .discussion-focus-continuation-btn:hover {
+    border-bottom-color: var(--accent-soft);
+    background: transparent;
+}
+
+html[data-theme="night"] .discussion-focus-continuation-btn.is-return {
+    border-bottom-color: var(--border-subtle);
+    background: transparent;
+    color: var(--text-muted);
+}
+
+html[data-theme="night"] .discussion-focus-continuation-btn.is-return:hover {
+    border-bottom-color: var(--accent);
+    background: transparent;
+    color: var(--accent-soft);
+}
+
 html[data-theme="night"] .discussion-focus-upgrade {
     border-top-color: var(--border-faint);
 }
@@ -3681,23 +3959,42 @@ html[data-theme="night"] .make-it-real-choice-card:hover {
 
 @media (max-width: 680px) {
     .discussion-focus-header {
-        grid-template-columns: auto minmax(0, 1fr) auto;
-        gap: 0.65rem;
-        padding: 0.5rem 0.75rem;
+        grid-template-columns:
+            minmax(0, 1fr)
+            auto
+            minmax(0, 1fr);
+        gap: 0.55rem;
+        padding: 0.5rem 0.7rem;
     }
 
     .discussion-focus-back {
-        width: 2.45rem;
-        padding: 0;
-        border-radius: 50%;
+        width: fit-content;
+        max-width: 100%;
+        min-height: 2.4rem;
+        justify-self: start;
+        padding: 0.4rem 0.68rem;
+        border-radius: 999px;
+        font-size: 0.74rem;
     }
 
-    .discussion-focus-back span {
+    .discussion-focus-back-desktop-label {
         display: none;
     }
 
+    .discussion-focus-back-mobile-label {
+        display: inline;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     .discussion-focus-provenance {
-        justify-content: flex-start;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .discussion-focus-position {
+        justify-self: end;
     }
 
     .discussion-focus-set-title,
@@ -3707,21 +4004,91 @@ html[data-theme="night"] .make-it-real-choice-card:hover {
 
     .discussion-focus-main {
         align-items: start;
-        padding: 1rem 0.8rem 1.4rem;
+        padding: 0.7rem 0.55rem 0.9rem;
+        scroll-padding-bottom: 1rem;
     }
 
     .discussion-focus-content {
-        padding: 1.7rem 1.2rem 2rem;
-        border-radius: 16px;
+        padding: 1.35rem 1rem 1.55rem;
+        border-radius: 14px;
+    }
+
+    #discussion-focus-view .discussion-focus-content {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "activity"
+            "header"
+            "question"
+            "upgrade"
+            "continuation";
     }
 
     .discussion-focus-title {
         max-width: none;
-        font-size: clamp(1.55rem, 7vw, 2.1rem);
+        font-size: clamp(1.5rem, 6vw, 1.9rem);
+        line-height: 1.15;
+    }
+
+    .discussion-focus-continuation-controls {
+        width: 100%;
+        justify-self: stretch;
+        margin-top: 0.85rem;
+        padding-top: 0.85rem;
+        border-top: 1px solid rgba(var(--accent-rgb), 0.18);
+    }
+
+    .discussion-focus-continuation-btn {
+        gap: 0.45rem;
+        border-bottom: 0;
+        font-size: 0.8rem;
+    }
+
+    .discussion-focus-continuation-kind-icon {
+        display: block;
+    }
+
+    #discussion-focus-view:not(.is-follow-up):not(.is-upgrade)
+    .discussion-focus-content:has(
+        .discussion-focus-continuation-controls:not([hidden])
+    ) {
+        padding-bottom: 1.1rem;
+    }
+
+    .discussion-focus-view.is-follow-up
+    .discussion-focus-continuation-controls,
+    .discussion-focus-view.is-upgrade
+    .discussion-focus-continuation-controls {
+        display: none !important;
+    }
+
+    .discussion-focus-view.is-upgrade
+    .discussion-focus-card-header {
+        margin-bottom: 0.9rem;
+    }
+
+    .discussion-focus-view.is-upgrade
+    .discussion-focus-content {
+        padding-block: 1.25rem 1.55rem;
+    }
+
+    .discussion-focus-view.is-upgrade
+    .discussion-focus-upgrade-detail {
+        padding-bottom: 0.25rem;
+    }
+
+    .discussion-focus-view.is-upgrade
+    .upgrade-example-row {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.35rem;
+    }
+
+    .discussion-focus-view.is-upgrade
+    .upgrade-example-label {
+        padding-top: 0;
     }
 
     .discussion-focus-question {
-        font-size: clamp(1rem, 4.6vw, 1.2rem);
+        font-size: clamp(1rem, 4.2vw, 1.12rem);
         line-height: 1.58;
     }
 
@@ -3731,8 +4098,8 @@ html[data-theme="night"] .make-it-real-choice-card:hover {
     }
 
     .cultural-lens-focus-context {
-        font-size: clamp(1rem, 4.6vw, 1.2rem);
-        line-height: 1.58;
+        font-size: clamp(0.96rem, 4.2vw, 1.08rem);
+        line-height: 1.62;
     }
 
     .cultural-lens-focus-question-block {
@@ -3745,18 +4112,29 @@ html[data-theme="night"] .make-it-real-choice-card:hover {
     }
 
     .cultural-lens-focus-thread-panel {
-        padding: 0.25rem 0.85rem;
+        margin-top: 1rem;
+        padding-top: 0.9rem;
     }
 
     .discussion-focus-footer {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        gap: 0.65rem;
-        padding: 0.7rem 0.8rem;
+        grid-template-columns:
+            minmax(0, 1fr)
+            auto
+            minmax(0, 1fr);
+        gap: 0.45rem;
+        min-height: 56px;
+        padding:
+            0.5rem
+            0.6rem
+            calc(0.5rem + env(safe-area-inset-bottom));
     }
 
     .discussion-focus-prev,
     .discussion-focus-next {
         width: 100%;
+        min-height: 2.45rem;
+        padding: 0.45rem 0.65rem;
+        font-size: 0.74rem;
     }
 
     .discussion-focus-prev {
@@ -3768,14 +4146,17 @@ html[data-theme="night"] .make-it-real-choice-card:hover {
     }
 
     .discussion-focus-explored-btn {
-        grid-column: 1 / -1;
-        grid-row: 2;
-        width: 100%;
-        min-height: 2.85rem;
-        justify-self: stretch;
+        grid-column: auto;
+        grid-row: auto;
+        width: auto;
+        min-width: 0;
+        min-height: 2.45rem;
+        justify-self: center;
+        padding: 0.45rem 0.7rem;
+        font-size: 0.74rem;
+        white-space: nowrap;
     }
 }
-
 
 /* ============================================================
 DISCUSSION SETS AND MOMENTS
@@ -4912,7 +5293,13 @@ WRAP-UP CANVAS
     display: none !important;
 }
 
-html.compass-wrap-up-active,
+html.compass-wrap-up-active {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    scrollbar-gutter: auto;
+}
+
 html.compass-wrap-up-active body {
     height: 100%;
     overflow: hidden;
@@ -4933,10 +5320,26 @@ body.compass-wrap-up-active .view.active {
     z-index: 90;
     overflow: hidden auto;
     overscroll-behavior: contain;
-    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(var(--accent-rgb), 0.46) transparent;
     padding: clamp(2.25rem, 6vw, 5rem) 1.25rem 3rem;
     background-color: var(--surface-canvas);
     background-image: radial-gradient(circle at 15% 8%, rgba(var(--accent-rgb), 0.08), transparent 34%);
+}
+
+.compass-wrap-up-canvas::-webkit-scrollbar {
+    width: 10px;
+}
+
+.compass-wrap-up-canvas::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.compass-wrap-up-canvas::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: rgba(var(--accent-rgb), 0.46);
+    background-clip: padding-box;
 }
 
 #view-cover>.compass-wrap-up-canvas {
@@ -5248,26 +5651,54 @@ button:focus-visible,
 
 /* ============================================================
 THEMED SCROLLBARS
+Shared Compass subject scrollbar for day and night modes.
+The accent token changes automatically with the active theme.
 ============================================================ */
 
-html[data-theme="night"] .modal-body,
-html[data-theme="night"] .vb-list,
-html[data-theme="night"] .mobile-drawer-nav {
-    scrollbar-color: var(--border-strong) var(--surface-muted);
+html,
+.modal-overlay,
+.modal-body,
+.discussion-focus-main,
+.vb-list,
+.mobile-drawer-nav,
+.compass-wrap-up-canvas {
+    scrollbar-width: thin;
+    scrollbar-color:
+        rgba(var(--accent-rgb), 0.46)
+        transparent;
 }
 
-html[data-theme="night"] .modal-body::-webkit-scrollbar-track,
-html[data-theme="night"] .vb-list::-webkit-scrollbar-track,
-html[data-theme="night"] .mobile-drawer-nav::-webkit-scrollbar-track {
-    background: var(--surface-muted);
+html::-webkit-scrollbar,
+.modal-overlay::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar,
+.discussion-focus-main::-webkit-scrollbar,
+.vb-list::-webkit-scrollbar,
+.mobile-drawer-nav::-webkit-scrollbar,
+.compass-wrap-up-canvas::-webkit-scrollbar {
+    width: 10px;
 }
 
-html[data-theme="night"] .modal-body::-webkit-scrollbar-thumb,
-html[data-theme="night"] .vb-list::-webkit-scrollbar-thumb,
-html[data-theme="night"] .mobile-drawer-nav::-webkit-scrollbar-thumb {
-    background: var(--border-strong);
+html::-webkit-scrollbar-track,
+.modal-overlay::-webkit-scrollbar-track,
+.modal-body::-webkit-scrollbar-track,
+.discussion-focus-main::-webkit-scrollbar-track,
+.vb-list::-webkit-scrollbar-track,
+.mobile-drawer-nav::-webkit-scrollbar-track,
+.compass-wrap-up-canvas::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+html::-webkit-scrollbar-thumb,
+.modal-overlay::-webkit-scrollbar-thumb,
+.modal-body::-webkit-scrollbar-thumb,
+.discussion-focus-main::-webkit-scrollbar-thumb,
+.vb-list::-webkit-scrollbar-thumb,
+.mobile-drawer-nav::-webkit-scrollbar-thumb,
+.compass-wrap-up-canvas::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
     border-radius: 999px;
-    border: 2px solid var(--surface-muted);
+    background: rgba(var(--accent-rgb), 0.46);
+    background-clip: padding-box;
 }
 
 /* ============================================================
@@ -5325,6 +5756,55 @@ TOUCH INPUT
 /* ============================================================
 RESPONSIVE LAYOUT
 ============================================================ */
+
+/*
+Desktop and landscape-tablet presentation tuning.
+
+Compass is primarily taught through screen sharing. These adjustments
+increase the size of learner-facing copy without scaling navigation,
+utility controls, already-prominent headings, or focused teaching views.
+*/
+
+@media (min-width: 900px) {
+    .overview-intro p {
+        font-size: 1.02rem;
+        line-height: 1.72;
+    }
+
+    .subject-intro-block .overview-question {
+        max-width: 38em;
+        font-size: clamp(1.14rem, 1.42vw, 1.3rem);
+    }
+
+    .path-desc {
+        font-size: 0.94rem;
+        line-height: 1.62;
+    }
+
+    .reflection-path-text p {
+        font-size: 0.88rem;
+        line-height: 1.55;
+    }
+
+    .section-header p {
+        font-size: 1.03rem;
+        line-height: 1.7;
+    }
+
+    .set-desc {
+        font-size: 0.89rem;
+        line-height: 1.62;
+    }
+
+    .moment-preview {
+        font-size: 0.94rem;
+    }
+
+    .cl-card-teaser {
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+}
 
 @media (max-width: 680px) {
     .compass-wrap-up-canvas {

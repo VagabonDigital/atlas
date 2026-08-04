@@ -68,6 +68,14 @@ const UPGRADE_ICON_SVG = `<svg class="upgrade-chip-icon" viewBox="0 0 13 13" fil
             stroke-linejoin="round"/>
     </svg>`;
 
+const SAVED_UPGRADE_ICON_SVG = `<svg class="upgrade-chip-icon upgrade-chip-saved-icon" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2.2 6.7L5.15 9.5L10.8 3.45"
+            stroke="currentColor"
+            stroke-width="1.45"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+    </svg>`;
+
 
 // ============================================================
 // NAVIGATION CONFIG
@@ -232,6 +240,7 @@ let wrapUpPreviousScrollX = 0;
 let wrapUpPreviousScrollY = 0;
 
 let currentCulturalLensIndex = 0;
+let culturalLensFocusUpgradeOpen = false;
 let culturalLensFocusScrollX = 0;
 let culturalLensFocusScrollY = 0;
 let culturalLensFocusReturnElement = null;
@@ -243,8 +252,16 @@ let activeSetId = null;
 
 const DISCUSSION_FOCUS_MAKE_IT_REAL_ID = 'make-it-real';
 
+const DISCUSSION_FOLLOW_UP_LABELS = {
+    'go-deeper': 'Go deeper',
+    'another-angle': 'Another angle',
+    'add-a-twist': 'Add a twist'
+};
+
 let discussionFocusSetId = null;
 let discussionFocusMomentId = null;
+let discussionFocusFollowUpOpen = false;
+let discussionFocusUpgradeOpen = false;
 let discussionFocusScrollX = 0;
 let discussionFocusScrollY = 0;
 let discussionFocusReturnElement = null;
@@ -253,6 +270,8 @@ let discussionFocusPreviousRootOverflow = '';
 
 let vocabBankActiveTab = 'saved';
 let vocabBankEditMode = false;
+let vocabBankPreviousBodyOverflow = '';
+let vocabBankPreviousRootOverflow = '';
 
 let lastFocusedElement = null;
 let activeFocusTrapRoot = null;
@@ -1754,11 +1773,13 @@ function applyUpgradeVisibilityPreference() {
     }
 
     if (isDiscussionFocusOpen()) {
-        renderDiscussionFocusUpgrade();
+        discussionFocusUpgradeOpen = false;
+        renderDiscussionFocus();
     }
 
     if (isCulturalLensFocusOpen()) {
-        renderCulturalLensFocusUpgrade();
+        culturalLensFocusUpgradeOpen = false;
+        renderCulturalLensFocus();
     }
 }
 
@@ -1896,18 +1917,58 @@ function buildSavedLanguageEntry(contextId) {
 }
 
 function updateUpgradeSaveButton(contextId) {
-    const button = document.getElementById(`us-${contextId}`);
-
-    if (!button) return;
-
     const saved = isUpgradeSaved(contextId);
 
-    button.classList.toggle('is-saved', saved);
-    button.setAttribute('aria-pressed', String(saved));
-    button.title = saved
-        ? 'Remove from Language Bank'
-        : 'Save to Language Bank';
-    button.textContent = saved ? 'Saved' : 'Save';
+    const button = document.getElementById(`us-${contextId}`);
+
+    if (button) {
+        button.classList.toggle('is-saved', saved);
+        button.setAttribute('aria-pressed', String(saved));
+        button.title = saved
+            ? 'Remove from Language Bank'
+            : 'Save to Language Bank';
+        button.textContent = saved ? 'Saved' : 'Save';
+    }
+
+    document
+        .querySelectorAll('[data-upgrade-context-id]')
+        .forEach(trigger => {
+            if (
+                trigger.dataset.upgradeContextId !== contextId
+            ) {
+                return;
+            }
+
+            const term = trigger.dataset.upgradeTerm || '';
+
+            trigger.classList.toggle('is-saved', saved);
+
+            trigger.setAttribute(
+                'aria-label',
+                saved
+                    ? `Open saved Language Upgrade: ${term}`
+                    : `Open Language Upgrade: ${term}`
+            );
+
+            const iconMount = trigger.querySelector(
+                '.discussion-focus-upgrade-trigger-icon'
+            );
+
+            const label = trigger.querySelector(
+                '.discussion-focus-upgrade-trigger-label'
+            );
+
+            if (iconMount) {
+                iconMount.innerHTML = saved
+                    ? SAVED_UPGRADE_ICON_SVG
+                    : UPGRADE_ICON_SVG;
+            }
+
+            if (label) {
+                label.textContent =
+                    `${saved ? 'Saved' : 'Upgrade'}: ${term}`;
+            }
+        });
 }
 
 function saveLanguageFromUpgrade(contextId) {
@@ -2202,13 +2263,23 @@ function getItemState(id) {
 }
 
 function getExploredButtonContent(explored) {
-    return `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <path d="M2 6l3 3 5-5"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"/>
-        </svg>
+    const icon = explored
+        ? `<svg class="explored-state-icon" width="13" height="13"
+                viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                <path d="M2.35 6.7L5.2 9.35L10.65 3.65"
+                    stroke="currentColor"
+                    stroke-width="1.55"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+            </svg>`
+        : `<svg class="explored-state-icon" width="13" height="13"
+                viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                <circle cx="6.5" cy="6.5" r="4.35"
+                    stroke="currentColor"
+                    stroke-width="1.35"/>
+            </svg>`;
+
+    return `${icon}
         ${explored ? 'Explored' : 'Mark explored'}`;
 }
 
@@ -2399,12 +2470,133 @@ function isCulturalLensFocusOpen() {
     );
 }
 
+function isCompactFocusView() {
+    return window.matchMedia(
+        '(max-width: 680px)'
+    ).matches;
+}
+
+function handleCulturalLensFocusBack() {
+    if (
+        isCompactFocusView() &&
+        culturalLensFocusUpgradeOpen
+    ) {
+        setCulturalLensFocusUpgrade(
+            false,
+            'trigger'
+        );
+        return;
+    }
+
+    closeCulturalLensFocus();
+}
+
+function handleDiscussionFocusBack() {
+    if (isCompactFocusView()) {
+        if (discussionFocusUpgradeOpen) {
+            setDiscussionFocusUpgrade(
+                false,
+                'trigger'
+            );
+            return;
+        }
+
+        if (discussionFocusFollowUpOpen) {
+            setDiscussionFocusFollowUp(
+                false,
+                'open'
+            );
+            return;
+        }
+    }
+
+    closeDiscussionFocus();
+}
+
 function getCurrentCulturalLensCard() {
     return clCards[currentCulturalLensIndex] || null;
 }
 
+function getCulturalLensFocusUpgrade() {
+    const upgrade = getCurrentCulturalLensCard()?.upgrade;
+
+    return shouldShowInlineUpgrade(upgrade)
+        ? upgrade
+        : null;
+}
+
+function setCulturalLensFocusUpgrade(
+    isOpen,
+    focusTarget
+) {
+    culturalLensFocusUpgradeOpen = Boolean(
+        isOpen && getCulturalLensFocusUpgrade()
+    );
+
+    closeAllUpgradePanels();
+    renderCulturalLensFocus();
+
+    requestAnimationFrame(() => {
+        const target = focusTarget === 'back'
+            ? document.querySelector(
+                '[data-cultural-lens-focus-action="upgrade-back"]'
+            )
+            : document.getElementById(
+                'cultural-lens-focus-upgrade-trigger'
+            );
+
+        target?.focus({
+            preventScroll: true
+        });
+    });
+}
+
+function renderCulturalLensFocusContinuationControls() {
+    const mount = document.getElementById(
+        'cultural-lens-focus-continuation-controls'
+    );
+
+    if (!mount) return;
+
+    if (!culturalLensFocusUpgradeOpen) {
+        mount.innerHTML = '';
+        mount.hidden = true;
+        return;
+    }
+
+    mount.innerHTML = `
+        <button class="discussion-focus-continuation-btn is-return"
+            type="button"
+            data-cultural-lens-focus-action="upgrade-back">
+
+            <svg width="14" height="14" viewBox="0 0 14 14"
+                fill="none" aria-hidden="true">
+                <path d="M9 3.5L5.5 7 9 10.5"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+            </svg>
+
+            <span>Back to conversation</span>
+        </button>
+    `;
+
+    mount.hidden = false;
+
+    mount.querySelector(
+        '[data-cultural-lens-focus-action="upgrade-back"]'
+    )?.addEventListener('click', () => {
+        setCulturalLensFocusUpgrade(
+            false,
+            'trigger'
+        );
+    });
+}
+
 function renderCulturalLensFocusUpgrade() {
     const card = getCurrentCulturalLensCard();
+    const upgrade = getCulturalLensFocusUpgrade();
 
     const mount = document.getElementById(
         'cultural-lens-focus-upgrade'
@@ -2412,23 +2604,122 @@ function renderCulturalLensFocusUpgrade() {
 
     if (!mount) return;
 
-    const content = card?.upgrade
-        ? buildUpgradeChip(
-            card.upgrade,
-            `cl-${card.id}`
-        )
-        : '';
+    if (!card || !upgrade) {
+        culturalLensFocusUpgradeOpen = false;
+        mount.innerHTML = '';
+        mount.hidden = true;
+        return;
+    }
 
-    mount.innerHTML = content;
-    mount.hidden = !content;
+    const contextId = `cl-${card.id}`;
+    const saved = isUpgradeSaved(contextId);
+
+    if (!culturalLensFocusUpgradeOpen) {
+        mount.innerHTML = `
+            <button
+                class="upgrade-chip discussion-focus-upgrade-trigger${saved ? ' is-saved' : ''}"
+                id="cultural-lens-focus-upgrade-trigger"
+                type="button"
+                data-upgrade-context-id="${escHtml(contextId)}"
+                data-upgrade-term="${escHtml(upgrade.term)}"
+                onclick="setCulturalLensFocusUpgrade(true, 'back')"
+                aria-label="${saved
+                    ? 'Open saved Language Upgrade'
+                    : 'Open Language Upgrade'}: ${escHtml(upgrade.term)}">
+
+                <span class="discussion-focus-upgrade-trigger-icon"
+                    aria-hidden="true">
+                    ${saved
+                        ? SAVED_UPGRADE_ICON_SVG
+                        : UPGRADE_ICON_SVG}
+                </span>
+
+                <span class="discussion-focus-upgrade-trigger-label">
+                    ${saved ? 'Saved' : 'Upgrade'}:
+                    ${escHtml(upgrade.term)}
+                </span>
+
+                <svg class="discussion-focus-upgrade-chevron"
+                    width="14" height="14" viewBox="0 0 14 14"
+                    fill="none" aria-hidden="true">
+                    <path d="M5 3.5L8.5 7 5 10.5"
+                        stroke="currentColor"
+                        stroke-width="1.35"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+            </button>
+        `;
+
+        mount.hidden = false;
+        return;
+    }
+
+    mount.innerHTML = `
+        <div class="discussion-focus-upgrade-detail">
+            <p class="discussion-focus-upgrade-type">
+                ${escHtml(upgrade.type)}
+            </p>
+
+            <p class="discussion-focus-upgrade-definition">
+                ${escHtml(upgrade.definition)}
+            </p>
+
+            ${upgrade.ordinary ? `
+                <div class="upgrade-transformation">
+                    <div class="upgrade-example-row">
+                        <span class="upgrade-example-label">
+                            Instead of
+                        </span>
+
+                        <p class="upgrade-example upgrade-example-ordinary">
+                            ${escHtml(upgrade.ordinary)}
+                        </p>
+                    </div>
+
+                    <div class="upgrade-example-row upgrade-example-row-primary">
+                        <span class="upgrade-example-label">
+                            Try
+                        </span>
+
+                        <p class="upgrade-example upgrade-example-upgraded">
+                            ${escHtml(upgrade.upgraded)}
+                        </p>
+                    </div>
+                </div>
+            ` : `
+                <div class="upgrade-example-row upgrade-example-row-primary">
+                    <span class="upgrade-example-label">
+                        Try
+                    </span>
+
+                    <p class="upgrade-example upgrade-example-upgraded">
+                        ${escHtml(upgrade.upgraded)}
+                    </p>
+                </div>
+            `}
+
+            <div class="upgrade-panel-actions">
+                <button
+                    class="upgrade-save-btn${saved ? ' is-saved' : ''}"
+                    id="us-${escHtml(contextId)}"
+                    type="button"
+                    onclick="toggleSavedLanguage(${jsArg(contextId)}, event)"
+                    aria-pressed="${String(saved)}"
+                    title="${saved
+                        ? 'Remove from Language Bank'
+                        : 'Save to Language Bank'}">
+                    ${saved ? 'Saved' : 'Save'}
+                </button>
+            </div>
+        </div>
+    `;
+
+    mount.hidden = false;
 }
 
 function renderCulturalLensFocusFollowTheThread() {
     const card = getCurrentCulturalLensCard();
-
-    const button = document.getElementById(
-        'cultural-lens-focus-thread-btn'
-    );
 
     const panel = document.getElementById(
         'cultural-lens-focus-thread-panel'
@@ -2440,7 +2731,6 @@ function renderCulturalLensFocusFollowTheThread() {
 
     if (
         !card ||
-        !button ||
         !panel ||
         !container
     ) {
@@ -2451,49 +2741,13 @@ function renderCulturalLensFocusFollowTheThread() {
         ? card.followTheThread
         : [];
 
-    button.hidden = questions.length === 0;
-    button.setAttribute('aria-expanded', 'false');
-
-    panel.hidden = true;
+    panel.hidden = questions.length === 0;
 
     container.innerHTML = questions.map(question => `
             <p class="cultural-lens-focus-thread-question">
                 ${escHtml(question)}
             </p>
         `).join('');
-}
-
-function toggleCulturalLensFocusFollowTheThread() {
-    const button = document.getElementById(
-        'cultural-lens-focus-thread-btn'
-    );
-
-    const panel = document.getElementById(
-        'cultural-lens-focus-thread-panel'
-    );
-
-    if (!button || !panel) return;
-
-    const opening = panel.hidden;
-
-    closeAllUpgradePanels();
-
-    panel.hidden = !opening;
-
-    button.setAttribute(
-        'aria-expanded',
-        String(opening)
-    );
-
-    if (!opening) return;
-
-    requestAnimationFrame(() => {
-        panel.scrollIntoView({
-            behavior: getScrollBehavior(),
-            block: 'nearest',
-            inline: 'nearest'
-        });
-    });
 }
 
 function updateCulturalLensFocusExploredButton() {
@@ -2537,6 +2791,25 @@ function renderCulturalLensFocus() {
 
     if (!card) return;
 
+    const focusView = document.getElementById(
+        'cultural-lens-focus-view'
+    );
+
+    const upgrade = getCulturalLensFocusUpgrade();
+
+    if (!upgrade) {
+        culturalLensFocusUpgradeOpen = false;
+    }
+
+    const isUpgrade = Boolean(
+        upgrade && culturalLensFocusUpgradeOpen
+    );
+
+    focusView?.classList.toggle(
+        'is-upgrade',
+        isUpgrade
+    );
+
     setText(
         'cultural-lens-focus-stage',
         'Cultural Lens'
@@ -2551,12 +2824,26 @@ function renderCulturalLensFocus() {
         'cultural-lens-focus-back-btn'
     );
 
+    const compactBackToConversation =
+        isCompactFocusView() && isUpgrade;
+
+    setText(
+        'cultural-lens-focus-back-mobile-label',
+        isUpgrade
+            ? 'Conversation'
+            : 'Browse'
+    );
+
     if (backButton) {
-        backButton.title = 'Back to browse';
+        backButton.title = compactBackToConversation
+            ? 'Back to conversation'
+            : 'Back to browse';
 
         backButton.setAttribute(
             'aria-label',
-            'Return to Cultural Lens browse'
+            compactBackToConversation
+                ? 'Return to the Cultural Lens conversation'
+                : 'Return to Cultural Lens browse'
         );
     }
 
@@ -2572,7 +2859,9 @@ function renderCulturalLensFocus() {
 
     setText(
         'cultural-lens-focus-title',
-        card.title
+        isUpgrade
+            ? upgrade.term
+            : card.title
     );
 
     setText(
@@ -2618,8 +2907,9 @@ function renderCulturalLensFocus() {
         );
     }
 
-    renderCulturalLensFocusFollowTheThread();
+    renderCulturalLensFocusContinuationControls();
     renderCulturalLensFocusUpgrade();
+    renderCulturalLensFocusFollowTheThread();
     updateCulturalLensFocusExploredButton();
 }
 
@@ -2664,6 +2954,7 @@ function openCulturalLensFocus(
     }
 
     currentCulturalLensIndex = index;
+    culturalLensFocusUpgradeOpen = false;
 
     closeUpgradeVisibilityMenus();
     closeAllUpgradePanels();
@@ -2735,6 +3026,10 @@ function closeCulturalLensFocus({
 
     closeAllUpgradePanels();
 
+    focusView.classList.remove(
+        'is-upgrade'
+    );
+
     focusView.hidden = true;
 
     document.documentElement.classList.remove(
@@ -2759,6 +3054,7 @@ function closeCulturalLensFocus({
         'inert'
     );
 
+    culturalLensFocusUpgradeOpen = false;
     culturalLensFocusReturnElement = null;
     culturalLensFocusReturnCardId = '';
 
@@ -2806,6 +3102,7 @@ function navigateCulturalLensFocus(direction) {
     }
 
     currentCulturalLensIndex = nextIndex;
+    culturalLensFocusUpgradeOpen = false;
 
     closeAllUpgradePanels();
     renderCulturalLensFocus();
@@ -2899,24 +3196,343 @@ function getDiscussionFocusMoment() {
         : null;
 }
 
+function getDiscussionFocusFollowUp() {
+    const followUp =
+        getDiscussionFocusMoment()?.followUp;
+
+    if (
+        !followUp ||
+        !followUp.id ||
+        !followUp.prompt
+    ) {
+        return null;
+    }
+
+    return followUp;
+}
+
+function getDiscussionFocusUpgrade() {
+    const upgrade = getDiscussionFocusMoment()?.upgrade;
+
+    return shouldShowInlineUpgrade(upgrade)
+        ? upgrade
+        : null;
+}
+
+function focusDiscussionFocusContinuationControl(action) {
+    const mount = document.getElementById(
+        'discussion-focus-continuation-controls'
+    );
+
+    const target = mount?.querySelector(
+        `[data-discussion-focus-continuation-action="${action}"]`
+    );
+
+    target?.focus({
+        preventScroll: true
+    });
+}
+
+function setDiscussionFocusFollowUp(
+    isOpen,
+    focusAction
+) {
+    discussionFocusFollowUpOpen = Boolean(
+        isOpen && getDiscussionFocusFollowUp()
+    );
+
+    discussionFocusUpgradeOpen = false;
+
+    closeAllUpgradePanels();
+    renderDiscussionFocus();
+
+    requestAnimationFrame(() => {
+        focusDiscussionFocusContinuationControl(
+            focusAction
+        );
+    });
+}
+
+function setDiscussionFocusUpgrade(
+    isOpen,
+    focusTarget
+) {
+    discussionFocusUpgradeOpen = Boolean(
+        isOpen && getDiscussionFocusUpgrade()
+    );
+
+    closeAllUpgradePanels();
+    renderDiscussionFocus();
+
+    requestAnimationFrame(() => {
+        const target = focusTarget === 'back'
+            ? document.querySelector(
+                '[data-discussion-focus-continuation-action="upgrade-back"]'
+            )
+            : document.getElementById(
+                'discussion-focus-upgrade-trigger'
+            );
+
+        target?.focus({
+            preventScroll: true
+        });
+    });
+}
+
+function renderDiscussionFocusContinuationControls() {
+    const mount = document.getElementById(
+        'discussion-focus-continuation-controls'
+    );
+
+    if (!mount) return;
+
+    if (discussionFocusUpgradeOpen) {
+        mount.innerHTML = `
+            <button class="discussion-focus-continuation-btn is-return"
+                type="button"
+                data-discussion-focus-continuation-action="upgrade-back">
+
+                <svg width="14" height="14" viewBox="0 0 14 14"
+                    fill="none" aria-hidden="true">
+                    <path d="M9 3.5L5.5 7 9 10.5"
+                        stroke="currentColor"
+                        stroke-width="1.4"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+
+                <span>Back to conversation</span>
+            </button>
+        `;
+
+        mount.hidden = false;
+
+        mount.querySelector(
+            '[data-discussion-focus-continuation-action="upgrade-back"]'
+        )?.addEventListener('click', () => {
+            setDiscussionFocusUpgrade(
+                false,
+                'trigger'
+            );
+        });
+
+        return;
+    }
+
+    const followUp = getDiscussionFocusFollowUp();
+
+    if (!followUp) {
+        discussionFocusFollowUpOpen = false;
+        mount.innerHTML = '';
+        mount.hidden = true;
+        return;
+    }
+
+    const followUpLabel =
+        DISCUSSION_FOLLOW_UP_LABELS[followUp.kind] ||
+        'Follow-up';
+
+    const action = discussionFocusFollowUpOpen
+        ? 'opening'
+        : 'open';
+
+    const buttonClass = discussionFocusFollowUpOpen
+        ? 'discussion-focus-continuation-btn is-return'
+        : 'discussion-focus-continuation-btn';
+
+    const content = discussionFocusFollowUpOpen
+        ? `
+            <svg width="14" height="14" viewBox="0 0 14 14"
+                fill="none" aria-hidden="true">
+                <path d="M9 3.5L5.5 7 9 10.5"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+            </svg>
+
+            <span>Back to opening</span>
+        `
+        : `
+            <svg class="discussion-focus-continuation-kind-icon"
+                width="14" height="14" viewBox="0 0 14 14"
+                fill="none" aria-hidden="true">
+                <path d="M3.65 7H4.8
+                    C7.1 7 7.35 3.2 10.35 3.2
+                    M4.8 7
+                    C7.1 7 7.35 10.8 10.35 10.8"
+                    stroke="currentColor"
+                    stroke-width="1.15"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+                <circle cx="2.5" cy="7" r="1.15"
+                    stroke="currentColor"
+                    stroke-width="1.05"/>
+                <circle cx="11.5" cy="3.2" r="1.15"
+                    stroke="currentColor"
+                    stroke-width="1.05"/>
+                <circle cx="11.5" cy="10.8" r="1.15"
+                    stroke="currentColor"
+                    stroke-width="1.05"/>
+            </svg>
+
+            <span>${escHtml(followUpLabel)}</span>
+
+            <svg class="discussion-focus-continuation-chevron"
+                width="14" height="14" viewBox="0 0 14 14"
+                fill="none" aria-hidden="true">
+                <path d="M5 3.5L8.5 7 5 10.5"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+            </svg>
+        `;
+
+    mount.innerHTML = `
+        <button class="${buttonClass}"
+            type="button"
+            data-discussion-focus-continuation-action="${action}">
+            ${content}
+        </button>
+    `;
+
+    mount.hidden = false;
+
+    mount.querySelector(
+        `[data-discussion-focus-continuation-action="${action}"]`
+    )?.addEventListener('click', () => {
+        setDiscussionFocusFollowUp(
+            !discussionFocusFollowUpOpen,
+            discussionFocusFollowUpOpen
+                ? 'open'
+                : 'opening'
+        );
+    });
+}
+
 function renderDiscussionFocusUpgrade() {
     const mount = document.getElementById(
         'discussion-focus-upgrade'
     );
 
     const moment = getDiscussionFocusMoment();
+    const upgrade = getDiscussionFocusUpgrade();
 
     if (!mount) return;
 
-    const content = moment?.upgrade
-        ? buildUpgradeChip(
-            moment.upgrade,
-            `moment-${moment.id}`
-        )
-        : '';
+    if (!moment || !upgrade) {
+        discussionFocusUpgradeOpen = false;
+        mount.innerHTML = '';
+        mount.hidden = true;
+        return;
+    }
 
-    mount.innerHTML = content;
-    mount.hidden = !content;
+    const contextId = `moment-${moment.id}`;
+    const saved = isUpgradeSaved(contextId);
+
+    if (!discussionFocusUpgradeOpen) {
+        mount.innerHTML = `
+            <button
+                class="upgrade-chip discussion-focus-upgrade-trigger${saved ? ' is-saved' : ''}"
+                id="discussion-focus-upgrade-trigger"
+                type="button"
+                data-upgrade-context-id="${escHtml(contextId)}"
+                data-upgrade-term="${escHtml(upgrade.term)}"
+                onclick="setDiscussionFocusUpgrade(true, 'back')"
+                aria-label="${saved
+                    ? 'Open saved Language Upgrade'
+                    : 'Open Language Upgrade'}: ${escHtml(upgrade.term)}">
+
+                <span class="discussion-focus-upgrade-trigger-icon"
+                    aria-hidden="true">
+                    ${saved
+                        ? SAVED_UPGRADE_ICON_SVG
+                        : UPGRADE_ICON_SVG}
+                </span>
+
+                <span class="discussion-focus-upgrade-trigger-label">
+                    ${saved ? 'Saved' : 'Upgrade'}:
+                    ${escHtml(upgrade.term)}
+                </span>
+
+                <svg class="discussion-focus-upgrade-chevron"
+                    width="14" height="14" viewBox="0 0 14 14"
+                    fill="none" aria-hidden="true">
+                    <path d="M5 3.5L8.5 7 5 10.5"
+                        stroke="currentColor"
+                        stroke-width="1.35"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+            </button>
+        `;
+
+        mount.hidden = false;
+        return;
+    }
+
+    mount.innerHTML = `
+        <div class="discussion-focus-upgrade-detail">
+            <p class="discussion-focus-upgrade-type">
+                ${escHtml(upgrade.type)}
+            </p>
+
+            <p class="discussion-focus-upgrade-definition">
+                ${escHtml(upgrade.definition)}
+            </p>
+
+            ${upgrade.ordinary ? `
+                <div class="upgrade-transformation">
+                    <div class="upgrade-example-row">
+                        <span class="upgrade-example-label">
+                            Instead of
+                        </span>
+
+                        <p class="upgrade-example upgrade-example-ordinary">
+                            ${escHtml(upgrade.ordinary)}
+                        </p>
+                    </div>
+
+                    <div class="upgrade-example-row upgrade-example-row-primary">
+                        <span class="upgrade-example-label">
+                            Try
+                        </span>
+
+                        <p class="upgrade-example upgrade-example-upgraded">
+                            ${escHtml(upgrade.upgraded)}
+                        </p>
+                    </div>
+                </div>
+            ` : `
+                <div class="upgrade-example-row upgrade-example-row-primary">
+                    <span class="upgrade-example-label">
+                        Try
+                    </span>
+
+                    <p class="upgrade-example upgrade-example-upgraded">
+                        ${escHtml(upgrade.upgraded)}
+                    </p>
+                </div>
+            `}
+
+            <div class="upgrade-panel-actions">
+                <button
+                    class="upgrade-save-btn${saved ? ' is-saved' : ''}"
+                    id="us-${escHtml(contextId)}"
+                    type="button"
+                    onclick="toggleSavedLanguage(${jsArg(contextId)}, event)"
+                    aria-pressed="${String(saved)}"
+                    title="${saved
+                        ? 'Remove from Language Bank'
+                        : 'Save to Language Bank'}">
+                    ${saved ? 'Saved' : 'Save'}
+                </button>
+            </div>
+        </div>
+    `;
+
+    mount.hidden = false;
 }
 
 function updateDiscussionFocusExploredButton() {
@@ -2978,9 +3594,47 @@ function renderDiscussionFocus() {
         'discussion-focus-view'
     );
 
+    const followUp = getDiscussionFocusFollowUp();
+    const upgrade = getDiscussionFocusUpgrade();
+
+    if (!followUp) {
+        discussionFocusFollowUpOpen = false;
+    }
+
+    if (!upgrade) {
+        discussionFocusUpgradeOpen = false;
+    }
+
+    const isUpgrade = Boolean(
+        upgrade && discussionFocusUpgradeOpen
+    );
+
+    const isFollowUp = Boolean(
+        followUp &&
+        discussionFocusFollowUpOpen &&
+        !isUpgrade
+    );
+
     focusView?.classList.toggle(
         'is-make-it-real',
         isMakeItReal
+    );
+
+    focusView?.classList.toggle(
+        'is-follow-up',
+        isFollowUp
+    );
+
+    focusView?.classList.toggle(
+        'is-upgrade',
+        isUpgrade
+    );
+
+    setText(
+        'discussion-focus-activity-eyebrow-label',
+        isMakeItReal
+            ? 'Make It Real'
+            : ''
     );
 
     setText(
@@ -2995,16 +3649,22 @@ function renderDiscussionFocus() {
 
     setText(
         'discussion-focus-title',
-        isMakeItReal
-            ? entry.item.title
-            : entry.item.preview
+        isUpgrade
+            ? upgrade.term
+            : isMakeItReal
+                ? entry.item.title
+                : entry.item.preview
     );
 
     setText(
         'discussion-focus-question',
-        isMakeItReal
-            ? entry.item.prompt
-            : entry.item.question
+        isUpgrade
+            ? ''
+            : isMakeItReal
+                ? entry.item.prompt
+                : isFollowUp
+                    ? followUp.prompt
+                    : entry.item.question
     );
 
     setText(
@@ -3018,12 +3678,35 @@ function renderDiscussionFocus() {
         'discussion-focus-back-btn'
     );
 
+    const compactBackDestination =
+        isCompactFocusView()
+            ? isUpgrade
+                ? 'conversation'
+                : isFollowUp
+                    ? 'opening'
+                    : 'browse'
+            : 'browse';
+
+    setText(
+        'discussion-focus-back-mobile-label',
+        isUpgrade
+            ? 'Conversation'
+            : isFollowUp
+                ? 'Opening'
+                : 'Browse'
+    );
+
     if (backButton) {
-        backButton.title = 'Back to browse';
+        backButton.title =
+            `Back to ${compactBackDestination}`;
 
         backButton.setAttribute(
             'aria-label',
-            'Return to Discussion browse'
+            compactBackDestination === 'conversation'
+                ? 'Return to the Discussion conversation'
+                : compactBackDestination === 'opening'
+                    ? 'Return to the opening question'
+                    : 'Return to Discussion browse'
         );
     }
 
@@ -3086,6 +3769,7 @@ function renderDiscussionFocus() {
             `;
     }
 
+    renderDiscussionFocusContinuationControls();
     renderDiscussionFocusUpgrade();
     updateDiscussionFocusExploredButton();
 }
@@ -3139,6 +3823,8 @@ function openDiscussionFocus(
     activeSetId = set.id;
     discussionFocusSetId = set.id;
     discussionFocusMomentId = entry.id;
+    discussionFocusFollowUpOpen = false;
+    discussionFocusUpgradeOpen = false;
 
     closeUpgradeVisibilityMenus();
     closeAllUpgradePanels();
@@ -3216,7 +3902,9 @@ function closeDiscussionFocus({
     focusView.hidden = true;
 
     focusView.classList.remove(
-        'is-make-it-real'
+        'is-make-it-real',
+        'is-follow-up',
+        'is-upgrade'
     );
 
     document.documentElement.classList.remove(
@@ -3243,6 +3931,8 @@ function closeDiscussionFocus({
 
     discussionFocusSetId = null;
     discussionFocusMomentId = null;
+    discussionFocusFollowUpOpen = false;
+    discussionFocusUpgradeOpen = false;
     discussionFocusReturnElement = null;
 
     if (!restoreScroll && !restoreFocus) {
@@ -3303,6 +3993,9 @@ function navigateDiscussionFocus(direction) {
 
     discussionFocusMomentId =
         sequence[nextIndex].id;
+
+    discussionFocusFollowUpOpen = false;
+    discussionFocusUpgradeOpen = false;
 
     closeAllUpgradePanels();
     renderDiscussionFocus();
@@ -3786,6 +4479,12 @@ function openVocabBank() {
     vocabBankActiveTab = 'saved';
     vocabBankEditMode = false;
 
+    vocabBankPreviousBodyOverflow =
+        document.body.style.overflow;
+
+    vocabBankPreviousRootOverflow =
+        document.documentElement.style.overflow;
+
     renderVocabBank();
 
     document
@@ -3798,6 +4497,7 @@ function openVocabBank() {
 
     scrollVocabBankToTop();
 
+    document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
 
     activateFocusTrap(
@@ -3814,7 +4514,11 @@ function closeVocabBank() {
         .getElementById('vb-drawer')
         ?.classList.remove('open');
 
-    document.body.style.overflow = '';
+    document.documentElement.style.overflow =
+        vocabBankPreviousRootOverflow;
+
+    document.body.style.overflow =
+        vocabBankPreviousBodyOverflow;
 
     releaseFocusTrap();
 }
@@ -5317,6 +6021,14 @@ document.addEventListener('keydown', event => {
         if (dialog?.open) return;
 
         if (discussionFocusOpen) {
+            if (discussionFocusUpgradeOpen) {
+                setDiscussionFocusUpgrade(
+                    false,
+                    'trigger'
+                );
+                return;
+            }
+
             const upgradeOpen = document.querySelector(
                 '#discussion-focus-upgrade .upgrade-panel.open'
             );
@@ -5326,31 +6038,29 @@ document.addEventListener('keydown', event => {
                 return;
             }
 
+            if (discussionFocusFollowUpOpen) {
+                discussionFocusFollowUpOpen = false;
+                renderDiscussionFocus();
+
+                requestAnimationFrame(() => {
+                    focusDiscussionFocusContinuationControl(
+                        'open'
+                    );
+                });
+
+                return;
+            }
+
             closeDiscussionFocus();
             return;
         }
 
         if (culturalLensFocusOpen) {
-            const upgradeOpen = document.querySelector(
-                '#cultural-lens-focus-upgrade .upgrade-panel.open'
-            );
-
-            if (upgradeOpen) {
-                closeAllUpgradePanels();
-                return;
-            }
-
-            const threadPanel = document.getElementById(
-                'cultural-lens-focus-thread-panel'
-            );
-
-            if (threadPanel && !threadPanel.hidden) {
-                threadPanel.hidden = true;
-
-                document
-                    .getElementById('cultural-lens-focus-thread-btn')
-                    ?.setAttribute('aria-expanded', 'false');
-
+            if (culturalLensFocusUpgradeOpen) {
+                setCulturalLensFocusUpgrade(
+                    false,
+                    'trigger'
+                );
                 return;
             }
 

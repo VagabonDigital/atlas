@@ -227,7 +227,7 @@ function mountCompassSubjectShell() {
 
             <header class="discussion-focus-header">
                 <button class="discussion-focus-back" id="discussion-focus-back-btn"
-                    type="button" onclick="closeDiscussionFocus()"
+                    type="button" onclick="handleDiscussionFocusBack()"
                     title="Back to browse"
                     aria-label="Return to Discussion browse">
 
@@ -239,7 +239,14 @@ function mountCompassSubjectShell() {
                             stroke-linejoin="round"/>
                     </svg>
 
-                    <span>Back to browse</span>
+                    <span class="discussion-focus-back-desktop-label">
+                        Back to browse
+                    </span>
+
+                    <span class="discussion-focus-back-mobile-label"
+                        id="discussion-focus-back-mobile-label">
+                        Browse
+                    </span>
                 </button>
 
                 <div class="discussion-focus-provenance">
@@ -265,16 +272,24 @@ function mountCompassSubjectShell() {
                                 stroke-linejoin="round"/>
                         </svg>
 
-                        Make It Real
+                        <span id="discussion-focus-activity-eyebrow-label">
+                            Make It Real
+                        </span>
                     </p>
 
-                    <h1 class="discussion-focus-title" id="discussion-focus-title"
-                        tabindex="-1"></h1>
+                    <div class="discussion-focus-card-header">
+                        <h1 class="discussion-focus-title" id="discussion-focus-title"
+                            tabindex="-1"></h1>
+                    </div>
 
-                    <p class="discussion-focus-question" id="discussion-focus-question"></p>
+                    <p class="discussion-focus-question" id="discussion-focus-question"
+                        aria-live="polite" aria-atomic="true"></p>
 
                     <div class="discussion-focus-upgrade focus-view-upgrade"
                         id="discussion-focus-upgrade"></div>
+
+                    <div class="discussion-focus-continuation-controls"
+                        id="discussion-focus-continuation-controls" hidden></div>
                 </article>
             </main>
 
@@ -299,12 +314,11 @@ function mountCompassSubjectShell() {
                     onclick="toggleDiscussionFocusExplored()"
                     aria-pressed="false">
 
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                        <path d="M2 6l3 3 5-5"
+                    <svg class="explored-state-icon" width="13" height="13"
+                        viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                        <circle cx="6.5" cy="6.5" r="4.35"
                             stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"/>
+                            stroke-width="1.35"/>
                     </svg>
 
                     Mark explored
@@ -368,7 +382,7 @@ function mountCompassSubjectShell() {
 
             <header class="discussion-focus-header">
                 <button class="discussion-focus-back" id="cultural-lens-focus-back-btn"
-                    type="button" onclick="closeCulturalLensFocus()"
+                    type="button" onclick="handleCulturalLensFocusBack()"
                     title="Back to browse"
                     aria-label="Return to Cultural Lens browse">
 
@@ -380,7 +394,14 @@ function mountCompassSubjectShell() {
                             stroke-linejoin="round"/>
                     </svg>
 
-                    <span>Back to browse</span>
+                    <span class="discussion-focus-back-desktop-label">
+                        Back to browse
+                    </span>
+
+                    <span class="discussion-focus-back-mobile-label"
+                        id="cultural-lens-focus-back-mobile-label">
+                        Browse
+                    </span>
                 </button>
 
                 <div class="discussion-focus-provenance">
@@ -405,8 +426,13 @@ function mountCompassSubjectShell() {
                     <p class="cultural-lens-focus-context-line"
                         id="cultural-lens-focus-context-line"></p>
 
-                    <h1 class="discussion-focus-title cultural-lens-focus-title"
-                        id="cultural-lens-focus-title" tabindex="-1"></h1>
+                    <div class="discussion-focus-card-header cultural-lens-focus-card-header">
+                        <h1 class="discussion-focus-title cultural-lens-focus-title"
+                            id="cultural-lens-focus-title" tabindex="-1"></h1>
+
+                        <div class="discussion-focus-continuation-controls"
+                            id="cultural-lens-focus-continuation-controls" hidden></div>
+                    </div>
 
                     <p class="cultural-lens-focus-context"
                         id="cultural-lens-focus-context"></p>
@@ -421,41 +447,21 @@ function mountCompassSubjectShell() {
                     </div>
 
                     <div class="cultural-lens-focus-tools">
-                        <button class="cultural-lens-focus-reveal-btn"
-                            id="cultural-lens-focus-thread-btn"
-                            type="button"
-                            aria-expanded="false"
-                            aria-controls="cultural-lens-focus-thread-panel"
-                            onclick="toggleCulturalLensFocusFollowTheThread()">
+                        <div class="discussion-focus-upgrade focus-view-upgrade cultural-lens-focus-upgrade"
+                            id="cultural-lens-focus-upgrade"></div>
 
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                                <path d="M3 4.5h8M3 7h6M3 9.5h4"
-                                    stroke="currentColor"
-                                    stroke-width="1.25"
-                                    stroke-linecap="round"/>
-                            </svg>
+                        <section class="cultural-lens-focus-thread-panel"
+                            id="cultural-lens-focus-thread-panel" hidden
+                            aria-labelledby="cultural-lens-focus-thread-label">
 
-                            Follow the Thread
-
-                            <svg class="cultural-lens-focus-reveal-chevron"
-                                width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
-                                <path d="M3.5 5l3 3 3-3"
-                                    stroke="currentColor"
-                                    stroke-width="1.3"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-
-                        <div class="cultural-lens-focus-thread-panel"
-                            id="cultural-lens-focus-thread-panel" hidden>
+                            <h2 class="cultural-lens-focus-thread-label"
+                                id="cultural-lens-focus-thread-label">
+                                Follow the Thread
+                            </h2>
 
                             <div class="cultural-lens-focus-thread-questions"
                                 id="cultural-lens-focus-thread-questions"></div>
-                        </div>
-
-                        <div class="discussion-focus-upgrade focus-view-upgrade cultural-lens-focus-upgrade"
-                            id="cultural-lens-focus-upgrade"></div>
+                        </section>
                     </div>
                 </article>
             </main>
@@ -481,12 +487,11 @@ function mountCompassSubjectShell() {
                     onclick="toggleCulturalLensFocusExplored()"
                     aria-pressed="false">
 
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                        <path d="M2 6l3 3 5-5"
+                    <svg class="explored-state-icon" width="13" height="13"
+                        viewBox="0 0 13 13" fill="none" aria-hidden="true">
+                        <circle cx="6.5" cy="6.5" r="4.35"
                             stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"/>
+                            stroke-width="1.35"/>
                     </svg>
 
                     Mark explored
