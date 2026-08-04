@@ -4193,12 +4193,25 @@ function openSet(setId) {
     renderDiscussionSets();
 
     window.setTimeout(() => {
-        const panel = document.getElementById('moments-panel');
-        if (panel) {
-            const panelRect = panel.getBoundingClientRect();
-            const absoluteTop = window.pageYOffset + panelRect.top;
+        const sets = document.getElementById('discussion-sets');
+        const desktopNav = document.querySelector(
+            '#nav-discussion .top-nav'
+        );
+        const mobileNav = document.querySelector(
+            '#mob-header-discussion .mobile-header'
+        );
+
+        if (sets) {
+            const setsRect = sets.getBoundingClientRect();
+            const absoluteTop = window.pageYOffset + setsRect.top;
+            const navHeight = Math.max(
+                desktopNav?.getBoundingClientRect().height || 0,
+                mobileNav?.getBoundingClientRect().height || 0,
+                56
+            );
+
             window.scrollTo({
-                top: absoluteTop - 30,
+                top: Math.max(0, absoluteTop - navHeight - 20),
                 behavior: getScrollBehavior()
             });
         }
