@@ -5628,8 +5628,8 @@ html[data-theme="night"] #view-reflection.reflection-complete .reflection-progre
     background: transparent;
 }
 
-.reflection-q+.reflection-q {
-    border-top: 1px solid rgba(200, 191, 176, 0.38);
+.reflection-q + .reflection-q {
+    border-top: 1px solid rgba(var(--accent-rgb), 0.34);
 }
 
 .reflection-q-text {
@@ -5705,13 +5705,13 @@ html[data-theme="night"] #view-reflection.reflection-complete .reflection-progre
     min-height: 3rem;
     gap: 0.55rem;
     padding: 0.76rem 1.35rem;
-    border: 1px solid rgba(var(--accent-rgb), 0.30);
+    border: 1px solid rgba(30, 27, 22, 0.14);
     border-radius: 12px;
-    background: rgba(var(--accent-pale-rgb), 0.34);
+    background: rgba(255, 255, 255, 0.44);
     color: var(--accent);
     box-shadow:
-        0 7px 20px rgba(30, 27, 22, 0.065),
-        0 1px 0 rgba(255, 255, 255, 0.78) inset;
+        0 6px 18px rgba(30, 27, 22, 0.052),
+        0 1px 0 rgba(255, 255, 255, 0.82) inset;
     font-size: 0.86rem;
     font-weight: 500;
     letter-spacing: 0.008em;
@@ -5725,12 +5725,12 @@ html[data-theme="night"] #view-reflection.reflection-complete .reflection-progre
 }
 
 #complete-lesson-btn:hover {
-    border-color: rgba(var(--accent-rgb), 0.48);
-    background: rgba(var(--accent-pale-rgb), 0.54);
+    border-color: rgba(30, 27, 22, 0.22);
+    background: rgba(255, 255, 255, 0.68);
     color: var(--accent);
     box-shadow:
-        0 10px 26px rgba(30, 27, 22, 0.09),
-        0 1px 0 rgba(255, 255, 255, 0.86) inset;
+        0 9px 24px rgba(30, 27, 22, 0.085),
+        0 1px 0 rgba(255, 255, 255, 0.90) inset;
     transform: translateY(-1px);
 }
 
@@ -5757,27 +5757,27 @@ html[data-theme="night"] #view-reflection.reflection-complete .reflection-progre
 
 #complete-lesson-btn.btn-complete-done:hover {
     border-color: transparent;
-    background: rgba(var(--accent-rgb), 0.065);
+    background: rgba(255, 255, 255, 0.46);
     color: var(--accent);
     box-shadow: none;
     transform: none;
 }
 
 html[data-theme="night"] #complete-lesson-btn {
-    border-color: rgba(var(--accent-rgb), 0.40);
-    background: rgba(255, 255, 255, 0.035);
+    border-color: var(--border-subtle);
+    background: rgba(255, 255, 255, 0.025);
     color: var(--accent-soft);
     box-shadow:
-        0 8px 22px rgba(0, 0, 0, 0.24),
-        0 1px 0 rgba(255, 255, 255, 0.045) inset;
+        0 7px 20px rgba(0, 0, 0, 0.20),
+        0 1px 0 rgba(255, 255, 255, 0.04) inset;
 }
 
 html[data-theme="night"] #complete-lesson-btn:hover {
-    border-color: var(--accent);
-    background: var(--surface-raised-hover);
+    border-color: var(--border-strong);
+    background: rgba(255, 255, 255, 0.055);
     color: var(--accent-soft);
     box-shadow:
-        0 10px 26px rgba(0, 0, 0, 0.32),
+        0 9px 24px rgba(0, 0, 0, 0.28),
         0 1px 0 rgba(255, 255, 255, 0.055) inset;
 }
 
@@ -5790,7 +5790,7 @@ html[data-theme="night"] #complete-lesson-btn.btn-complete-done {
 
 html[data-theme="night"] #complete-lesson-btn.btn-complete-done:hover {
     border-color: transparent;
-    background: rgba(var(--accent-rgb), 0.08);
+    background: rgba(255, 255, 255, 0.045);
     color: var(--accent-soft);
     box-shadow: none;
 }
