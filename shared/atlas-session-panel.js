@@ -757,10 +757,7 @@
         document.addEventListener('keydown', handleKeydown);
         window.addEventListener('atlas:session-change', refresh);
         window.addEventListener('storage', event => {
-            if (
-                event.key === 'atlas::sessions' ||
-                event.key === 'atlas::activeSessionId'
-            ) {
+            if (event.key === 'atlas::sessions') {
                 refresh();
             }
         });
