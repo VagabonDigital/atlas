@@ -95,6 +95,46 @@
       min-height: 100%;
       overflow-y: scroll;
       scrollbar-gutter: stable;
+      scrollbar-width: thin;
+      scrollbar-color:
+        rgba(90, 74, 110, 0.28)
+        transparent;
+    }
+
+    html::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    html::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    html::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background: rgba(90, 74, 110, 0.28);
+      background-clip: padding-box;
+    }
+
+    html::-webkit-scrollbar-thumb:hover {
+      background: rgba(90, 74, 110, 0.42);
+      background-clip: padding-box;
+    }
+
+    html[data-theme="night"] {
+      scrollbar-color:
+        rgba(207, 193, 209, 0.30)
+        transparent;
+    }
+
+    html[data-theme="night"]::-webkit-scrollbar-thumb {
+      background: rgba(207, 193, 209, 0.30);
+      background-clip: padding-box;
+    }
+
+    html[data-theme="night"]::-webkit-scrollbar-thumb:hover {
+      background: rgba(207, 193, 209, 0.44);
+      background-clip: padding-box;
     }
 
     body {
