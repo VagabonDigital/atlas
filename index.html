@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   ==========================================================================
-  ATLAS V2 · GATEWAY RUNTIME
+  ATLAS V3 · GATEWAY RUNTIME
   SmartStudy™ Methodology
   --------------------------------------------------------------------------
   The calm threshold between learning worlds.
@@ -1249,23 +1249,47 @@
     }
 
     .continue-icon {
-      width: 46px;
-      height: 46px;
+      width: 66px;
+      height: 58px;
       flex-shrink: 0;
-      border-radius: 14px;
-      border: 1px solid rgba(var(--accent-rgb), 0.14);
-      background: rgba(var(--accent-rgb), 0.10);
       color: var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform var(--motion-standard), background var(--motion-standard), border-color var(--motion-standard);
+      opacity: 0.58;
+      transform: translateY(1px) scale(0.96);
+      transform-origin: center;
+      transition:
+        opacity 0.3s ease,
+        transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    .continue-card:hover .continue-icon {
-      background: rgba(var(--accent-rgb), 0.16);
-      border-color: rgba(var(--accent-rgb), 0.24);
-      transform: scale(1.02);
+    .continue-icon > svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .continue-icon path,
+    .continue-icon circle,
+    .continue-icon ellipse,
+    .continue-icon rect,
+    .continue-icon line {
+      vector-effect: non-scaling-stroke;
+    }
+
+    .continue-card:is(:hover, :focus-within) .continue-icon {
+      opacity: 0.88;
+      transform: translateY(0) scale(1);
+    }
+
+    html[data-theme="night"] .continue-icon {
+      opacity: 0.68;
+    }
+
+    html[data-theme="night"] .continue-card:is(:hover, :focus-within) .continue-icon {
+      opacity: 0.94;
     }
 
     .continue-body {
@@ -1356,12 +1380,49 @@
       width: 40px;
       height: 40px;
       flex-shrink: 0;
-      border-radius: 12px;
-      background: var(--accent-pale);
-      color: var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
+      color: var(--accent);
+      opacity: 0.76;
+      transition: opacity 0.22s ease;
+    }
+
+    .saved-recall-mark {
+      display: block;
+      width: 31px;
+      height: 31px;
+      overflow: visible;
+    }
+
+    .saved-recall-mark * {
+      vector-effect: non-scaling-stroke;
+    }
+
+    .saved-recall-card {
+      transform-box: fill-box;
+      transform-origin: center;
+      transition:
+        transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.22s ease;
+    }
+
+    .saved-recall-card--answer {
+      opacity: 0.62;
+      transform: translate(0, 0) rotate(2deg);
+    }
+
+    .review-row:is(:hover, :focus-visible) .review-row-icon {
+      opacity: 0.86;
+    }
+
+    .review-row:is(:hover, :focus-visible) .saved-recall-card--answer {
+      opacity: 0.9;
+      transform: translate(2.5px, -1.5px) rotate(4deg);
+    }
+
+    html[data-theme="night"] .review-row-icon {
+      opacity: 0.86;
     }
 
     .review-row-body {
@@ -2943,6 +3004,7 @@
   </div>
   <!-- ============================================================ SCRIPTS -->
   <script src="./shared/compass-catalog-data.js"></script>
+  <script src="./shared/arcade-catalog-data.js"></script>
   <script src="./shared/atlas-content-registry.js"></script>
   <script src="./shared/atlas-session-panel.js"></script>
   <script src="./shared/atlas-search.js"></script>
@@ -2950,7 +3012,7 @@
     'use strict';
 
     /* ================================================================
-       ATLAS V2 RUNTIME
+       ATLAS V3 RUNTIME
        Atlas is a calm threshold/router. AtlasBridge owns all state.
        Atlas reads through the bridge and writes only through public
        bridge methods. No local session/registry/ledger systems.
@@ -2965,6 +3027,8 @@
         '<p class="empty-setup-sub">The shared runtime didn\u2019t load. Reload the page, and if it keeps happening, check that shared/atlas-bridge.js is in place.</p></div>';
     }
     const Bridge = window.AtlasBridge;
+    const CompassCatalog = window.CompassCatalogData;
+    const ArcadeCatalog = window.ArcadeCatalogData;
 
     // ---- Display labels (decoupled from storage) ----------------------
     const ATLAS_ID = 'atlas';
@@ -3889,6 +3953,28 @@
         renderDoors();
     }
 
+    function getContinueItemArt(item) {
+      if (!item || !item.registryId) return '';
+
+      if (item.world === COMPASS_ID && CompassCatalog) {
+        const subject = CompassCatalog.getCompassCatalogMap()[item.registryId];
+
+        return subject
+          ? CompassCatalog.getCompassSubjectArt(subject.artId)
+          : '';
+      }
+
+      if (item.world === ARCADE_ID && ArcadeCatalog) {
+        const game = ArcadeCatalog.getArcadeGameMap()[item.registryId];
+
+        return game
+          ? ArcadeCatalog.getArcadeGameArt(game.artId)
+          : '';
+      }
+
+      return '';
+    }
+
     function renderContinueCard(item, handoff) {
       const url = item.launchUrl || '';
       const meta = continueLabel(item);
@@ -4017,8 +4103,8 @@
       return '' +
         '<div class="continue-card' + worldClass + (rail ? ' has-rail' : '') + (recapExpanded ? ' is-expanded' : '') + '">' +
         '<div class="continue-summary">' +
-        '<div class="continue-icon">' +
-        '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 9h10M10 5l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        '<div class="continue-icon" aria-hidden="true">' +
+        getContinueItemArt(item) +
         '</div>' +
         '<div class="continue-body">' +
         '<div class="continue-kicker">Continue</div>' +
@@ -4067,8 +4153,17 @@
       const countLabel = count + ' saved item' + (count !== 1 ? 's' : '') + ' ready';
       return '' +
         '<button class="review-row" onclick="openLanguageReview()" aria-label="Open saved language review">' +
-        '<div class="review-row-icon">' +
-        '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 2.5h5c.7 0 1.3.3 1.8.7.5-.4 1.1-.7 1.8-.7H14c.3 0 .5.2.5.5v10c0 .3-.2.5-.5.5h-2.5c-.7 0-1.3.3-1.8.7-.5-.4-1.1-.7-1.8-.7H4c-.3 0-.5-.2-.5-.5v-10C3.5 2.7 3.7 2.5 4 2.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M9.5 3v11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>' +
+        '<div class="review-row-icon" aria-hidden="true">' +
+        '<svg class="saved-recall-mark" width="31" height="31" viewBox="0 0 32 32" fill="none">' +
+        '<g class="saved-recall-card saved-recall-card--answer">' +
+        '<rect x="10.5" y="4.5" width="17" height="21" rx="3.2" fill="var(--accent-pale)" stroke="currentColor" stroke-width="1.9"/>' +
+        '<path d="M15 8.5h8M15 13h7M15 17.5h8.5" stroke="currentColor" stroke-width="1.65" stroke-linecap="round"/>' +
+        '</g>' +
+        '<g class="saved-recall-card saved-recall-card--prompt">' +
+        '<rect x="4.5" y="7.5" width="18.5" height="21" rx="3.5" fill="var(--surface-raised)" stroke="currentColor" stroke-width="2.1"/>' +
+        '<path d="M9 14h9.5M9 18.5h6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+        '</g>' +
+        '</svg>' +
         '</div>' +
         '<div class="review-row-body">' +
         '<div class="review-row-name">Saved language</div>' +
