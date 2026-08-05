@@ -435,11 +435,6 @@
     html.theme-changing .game-card-progress-fill,
     html.theme-changing .btn-primary,
     html.theme-changing .btn-ghost,
-    html.theme-changing .confirm-panel,
-    html.theme-changing .confirm-title,
-    html.theme-changing .confirm-message,
-    html.theme-changing .confirm-input,
-    html.theme-changing .btn-danger,
     html.theme-changing .arcade-toast,
     html.theme-changing .bridge-error,
     html.theme-changing .bridge-error h2,
@@ -1407,94 +1402,6 @@
       color: var(--text-heading);
     }
 
-    /* ============================================================
-       CONFIRMATION DIALOG, TOAST, AND ERROR STATE
-       ============================================================ */
-    .confirm-dialog {
-      position: fixed;
-      inset: 0;
-      z-index: 1300;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      background: var(--surface-dialog-scrim);
-      backdrop-filter: blur(6px);
-    }
-
-    .confirm-dialog.open {
-      display: flex;
-      animation: fadeIn 0.15s ease;
-    }
-
-    .confirm-panel {
-      background: var(--surface-raised);
-      border: var(--dialog-border);
-      border-radius: var(--radius-lg);
-      max-width: 360px;
-      width: 100%;
-      padding: 1.4rem;
-      box-shadow: var(--shadow-lg);
-      animation: slideUp 0.2s cubic-bezier(0.34, 1.25, 0.64, 1);
-    }
-
-    .confirm-title {
-      font-size: 0.94rem;
-      font-weight: 600;
-      color: var(--text-heading);
-      margin-bottom: 0.45rem;
-    }
-
-    .confirm-message {
-      font-size: 0.83rem;
-      color: var(--text-muted);
-      line-height: 1.55;
-      margin-bottom: 1.1rem;
-    }
-
-    .confirm-input {
-      display: none;
-      width: 100%;
-      min-height: 42px;
-      margin-bottom: 0.75rem;
-      padding: 0.58rem 0.8rem;
-      border: 1.5px solid var(--border-faint);
-      border-radius: var(--radius-sm);
-      background: var(--surface-raised);
-      color: var(--text-heading);
-      font-family: var(--font-body);
-      font-size: 0.86rem;
-      outline: none;
-    }
-
-    .confirm-input.visible {
-      display: block;
-    }
-
-    .confirm-input:focus {
-      border-color: var(--accent);
-    }
-
-    .confirm-actions {
-      display: flex;
-      gap: 0.45rem;
-      justify-content: flex-end;
-    }
-
-    .btn-danger {
-      padding: 0.55rem 0.95rem;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--danger-border);
-      background: var(--danger-bg);
-      color: var(--danger-text);
-      font-family: var(--font-body);
-      font-size: 0.83rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--motion-standard);
-      min-height: 40px;
-    }
-
     .arcade-toast {
       position: fixed;
       bottom: 1.5rem;
@@ -1847,19 +1754,6 @@
   </main>
 
   <div id="atlas-session-panel-root"></div>
-
-  <!-- ============================================================ CONFIRM DIALOG -->
-  <div class="confirm-dialog" id="confirm-dialog" role="alertdialog" aria-modal="true">
-    <div class="confirm-panel">
-      <div class="confirm-title" id="confirm-title"></div>
-      <div class="confirm-message" id="confirm-message"></div>
-      <input class="confirm-input" id="confirm-input" type="text" maxlength="40" autocomplete="off">
-      <div class="confirm-actions">
-        <button class="btn-ghost" onclick="resolveConfirm(false)">Cancel</button>
-        <button class="btn-danger" id="confirm-ok-btn" onclick="resolveConfirm(true)">Delete</button>
-      </div>
-    </div>
-  </div>
 
   <!-- ============================================================ SCRIPTS -->
   <script src="../shared/compass-catalog-data.js"></script>
@@ -2284,80 +2178,6 @@
       if (window.AtlasSessionPanel) AtlasSessionPanel.open(trigger);
     }
 
-    async function handleRenameSession(session) {
-      const current = getSessions().find(item => item.id === session.id);
-      if (!current) return;
-
-      const newName = await showConfirm({
-        title: 'Rename session',
-        message: 'Choose a new name for ' + current.name + '.',
-        okLabel: 'Rename',
-        okClass: 'btn-primary',
-        inputMode: true,
-        inputValue: current.name
-      });
-
-      if (!newName || newName === current.name) return;
-      if (!Bridge.renameSession(current.id, newName)) {
-        showToast('That name is already in use.');
-        return;
-      }
-
-      renderHub();
-    }
-
-    async function handleDeleteSession(session) {
-      const id = session.id;
-      const sessions = getSessions();
-      const s = sessions.find(x => x.id === id);
-      if (!s) return;
-      const ok = await showConfirm({
-        title: 'Delete session?',
-        message: 'This permanently removes ' + s.name + ' and their Arcade progress on this device.',
-        okLabel: 'Delete session'
-      });
-      if (!ok) return;
-      Bridge.deleteSession(id);
-      renderHub();
-    }
-
-    /* ================================================================
-       CONFIRM DIALOG
-       ================================================================ */
-    let confirmResolver = null;
-    function showConfirm(opts) {
-      opts = opts || {};
-      return new Promise(resolve => {
-        confirmResolver = resolve;
-        document.getElementById('confirm-title').textContent = opts.title || '';
-        document.getElementById('confirm-message').textContent = opts.message || '';
-        const okBtn = document.getElementById('confirm-ok-btn');
-        okBtn.textContent = opts.okLabel || 'Confirm';
-        okBtn.className = opts.okClass || 'btn-danger';
-        const input = document.getElementById('confirm-input');
-        input.className = 'confirm-input' + (opts.inputMode ? ' visible' : '');
-        input.value = opts.inputValue || '';
-        document.getElementById('confirm-dialog').classList.add('open');
-        if (opts.inputMode) setTimeout(() => { input.focus(); input.select(); }, 50);
-      });
-    }
-    function resolveConfirm(ok) {
-      const input = document.getElementById('confirm-input');
-      const isInput = input.classList.contains('visible');
-      document.getElementById('confirm-dialog').classList.remove('open');
-      if (confirmResolver) {
-        confirmResolver(ok ? (isInput ? input.value.trim() : true) : (isInput ? null : false));
-        confirmResolver = null;
-      }
-    }
-    document.getElementById('confirm-input').addEventListener('keydown', event => {
-      if (event.key === 'Enter') resolveConfirm(true);
-      if (event.key === 'Escape') {
-        event.stopPropagation();
-        resolveConfirm(false);
-      }
-    });
-
     /* ================================================================
        MOBILE DRAWER
        ================================================================ */
@@ -2401,12 +2221,6 @@
        ================================================================ */
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
-        if (document.getElementById('confirm-dialog').classList.contains('open')) {
-          e.stopImmediatePropagation();
-          resolveConfirm(false);
-          return;
-        }
-
         if (window.AtlasSessionPanel && AtlasSessionPanel.isOpen()) return;
         if (document.getElementById('drawer').classList.contains('open')) closeDrawer();
       }
@@ -2476,9 +2290,7 @@
 
       AtlasSessionPanel.mount({
         root: '#atlas-session-panel-root',
-        initialView: 'manage',
-        onRenameSession: handleRenameSession,
-        onDeleteSession: handleDeleteSession
+        initialView: 'manage'
       });
 
       renderHub();
