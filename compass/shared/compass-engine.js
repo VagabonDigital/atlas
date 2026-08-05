@@ -6294,10 +6294,7 @@ function init() {
     window.addEventListener('storage', event => {
         if (!event?.key) return;
 
-        if (
-            event.key === 'atlas::activeSessionId' ||
-            event.key === 'atlas::sessions'
-        ) {
+        if (event.key === 'atlas::sessions') {
             syncSessionsFromBridge();
             loadProgress();
             applyAppearanceMode(getAppearanceMode());
