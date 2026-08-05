@@ -47,7 +47,7 @@
     (function () {
       var m = null;
       try {
-        var sessionId = localStorage.getItem('atlas::activeSessionId') || 'default';
+        var sessionId = sessionStorage.getItem('atlas::activeSessionId') || 'default';
         var sessionModes = JSON.parse(localStorage.getItem('atlas::appearanceBySession') || '{}');
         m = sessionModes[sessionId] || localStorage.getItem('atlas::appearanceMode');
       } catch (e) { m = null; }
@@ -2349,7 +2349,7 @@
     .confirm-dialog {
       position: fixed;
       inset: 0;
-      z-index: 800;
+      z-index: 1300;
       display: none;
       align-items: center;
       justify-content: center;
@@ -4525,7 +4525,7 @@
         return;
       }
 
-      if (k === 'atlas::sessions' || k === 'atlas::activeSessionId' ||
+      if (k === 'atlas::sessions' ||
         k === 'atlas::handoffs' ||
         k === 'atlas::registry' || k === 'learning::ledger') {
         refreshFromBridge();
