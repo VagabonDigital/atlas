@@ -352,8 +352,7 @@ html[data-theme="night"] .moments-panel-header {
 
 html[data-theme="night"] .modal-panel,
 html[data-theme="night"] .vb-drawer,
-html[data-theme="night"] .mobile-drawer,
-html[data-theme="night"] .session-dialog {
+html[data-theme="night"] .mobile-drawer {
     background: var(--surface-panel) !important;
     border-color: var(--border-subtle) !important;
 }
@@ -1560,10 +1559,7 @@ html.theme-changing .btn-ghost,
 html.theme-changing .btn-mark-explored,
 html.theme-changing .btn-close-set,
 html.theme-changing .btn-close-set-bottom,
-html.theme-changing .session-input,
-html.theme-changing .session-dialog,
-html.theme-changing .btn-danger-confirm,
-html.theme-changing .compass-wrap-up-canvas,
+    html.theme-changing .compass-wrap-up-canvas,
 html.theme-changing .compass-wrap-up-stage,
 html.theme-changing .compass-wrap-up-pickup {
     transition:
@@ -1593,12 +1589,6 @@ html.theme-changing body.module-active::after {
         box-shadow var(--hub-theme-motion);
 }
 
-html.theme-changing .session-dialog::backdrop {
-    transition:
-        background-color var(--hub-theme-motion),
-        opacity var(--hub-theme-motion);
-}
-
 html.theme-changing :where(.cover-card *,
     .top-nav *,
     .mobile-header *,
@@ -1606,7 +1596,6 @@ html.theme-changing :where(.cover-card *,
     .section-stage *,
     .modal-panel *,
     .vb-drawer *,
-    .session-dialog *,
     .compass-wrap-up-stage *) {
     transition:
         background-color var(--hub-theme-motion),
@@ -5992,153 +5981,6 @@ html[data-theme="night"] .compass-wrap-up-pickup {
 }
 
 /* ============================================================
-SESSION DIALOG
-============================================================ */
-
-.session-input {
-    flex: 1;
-    padding: 0.6rem 0.9rem;
-    border: 1.5px solid var(--border-subtle);
-    border-radius: var(--radius-sm);
-    font-family: var(--font-body);
-    font-size: 0.88rem;
-    color: var(--text-body);
-    background: var(--surface-panel);
-    outline: none;
-    transition: border-color var(--transition);
-}
-
-.session-input:focus {
-    border-color: var(--accent);
-}
-
-.session-dialog {
-    width: min(420px, calc(100vw - 2rem));
-    margin: auto;
-    padding: 0;
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-lg);
-    background: var(--surface-panel);
-    color: var(--text-body);
-    font-family: var(--font-body);
-    box-shadow: var(--shadow-lg);
-}
-
-.session-dialog::backdrop {
-    background: rgba(20, 17, 12, 0.55);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-}
-
-.session-dialog-panel {
-    padding: 1.45rem 1.55rem 1.35rem;
-}
-
-.session-dialog-kicker {
-    margin-bottom: 0.45rem;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--accent);
-}
-
-.session-dialog-title {
-    margin-bottom: 0.55rem;
-    color: var(--text-heading);
-    font-size: 1.16rem;
-}
-
-.session-dialog-message {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    line-height: 1.6;
-    max-width: none;
-}
-
-.session-dialog-input {
-    display: none;
-    margin-top: 0.95rem;
-}
-
-.session-dialog-input.is-visible {
-    display: block;
-}
-
-.session-dialog-error {
-    display: none;
-    margin-top: 0.55rem;
-    color: var(--danger-text);
-    font-size: 0.8rem;
-    line-height: 1.45;
-    max-width: none;
-}
-
-.session-dialog-error.is-visible {
-    display: block;
-}
-
-html[data-theme="night"] .session-dialog-error {
-    color: #fca5a5;
-}
-
-.session-dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.65rem;
-    margin-top: 1.25rem;
-}
-
-.btn-danger-confirm {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 2.55rem;
-    padding: 0.58rem 1rem;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--danger-border);
-    background: var(--danger-bg);
-    color: var(--danger-text);
-    font-family: var(--font-body);
-    font-size: 0.84rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.btn-danger-confirm:hover {
-    background: #fee2e2;
-    border-color: #f87171;
-}
-
-html[data-theme="night"] .session-dialog {
-    background: var(--surface-panel);
-    border-color: var(--border-subtle);
-}
-
-html[data-theme="night"] .session-dialog::backdrop {
-    background: var(--surface-scrim);
-}
-
-html[data-theme="night"] .btn-danger-confirm {
-    background: var(--danger-bg);
-    border-color: var(--danger-border);
-    color: var(--danger-text);
-}
-
-html[data-theme="night"] .btn-danger-confirm:hover {
-    background: #4a2b27;
-    border-color: #9a5b54;
-    color: #fecaca;
-}
-
-html[data-theme="night"] .session-input {
-    background: var(--surface-muted);
-    border-color: var(--border-subtle);
-    color: var(--text-body);
-}
-
-/* ============================================================
 FOCUS AND SPACING UTILITIES
 ============================================================ */
 
@@ -6388,18 +6230,6 @@ utility controls, already-prominent headings, or focused teaching views.
     .compass-wrap-up-actions .btn-ghost {
         width: 100%;
         min-height: 3rem;
-    }
-
-    .session-dialog-actions {
-        display: grid;
-        grid-template-columns: 1fr;
-    }
-
-    .session-dialog-actions .btn-ghost,
-    .session-dialog-actions .btn-primary,
-    .session-dialog-actions .btn-danger-confirm {
-        width: 100%;
-        justify-content: center;
     }
 
     .top-nav {

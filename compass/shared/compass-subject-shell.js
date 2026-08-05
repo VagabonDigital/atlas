@@ -760,42 +760,6 @@ function mountCompassSubjectShell() {
 
     <div id="print-key-language" class="print-key-language" aria-hidden="true"></div>
 
-    <!-- ============================================================
-     SESSION ACTION DIALOG
-     ============================================================ -->
-
-    <dialog class="session-dialog" id="session-dialog"
-        aria-labelledby="session-dialog-title"
-        aria-describedby="session-dialog-message">
-
-        <div class="session-dialog-panel">
-            <p class="session-dialog-kicker" id="session-dialog-kicker">
-                Session action
-            </p>
-
-            <h3 class="session-dialog-title" id="session-dialog-title">
-                Are you sure?
-            </h3>
-
-            <p class="session-dialog-message" id="session-dialog-message"></p>
-
-            <input class="session-input session-dialog-input" id="session-dialog-input"
-                type="text" maxlength="40" autocomplete="off">
-
-            <p class="session-dialog-error" id="session-dialog-error" role="alert"></p>
-
-            <div class="session-dialog-actions">
-                <button class="btn-ghost" type="button" id="session-dialog-cancel">
-                    Cancel
-                </button>
-
-                <button class="btn-danger-confirm" type="button" id="session-dialog-ok">
-                    OK
-                </button>
-            </div>
-        </div>
-    </dialog>
-
     <!-- Shared safe-first session panel mounts here. -->
     <div id="atlas-session-panel-root"></div>
     `;
