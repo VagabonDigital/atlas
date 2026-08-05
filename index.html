@@ -484,9 +484,6 @@
     html.theme-changing .atmosphere-preview *,
     html.theme-changing .atmosphere-favorite-item,
     html.theme-changing .atmosphere-mini-btn,
-    html.theme-changing .confirm-panel,
-    html.theme-changing .confirm-panel *,
-    html.theme-changing .btn-danger,
     html.theme-changing .empty-setup,
     html.theme-changing .empty-setup *,
     html.theme-changing .atlas-toast {
@@ -2343,110 +2340,6 @@
       padding: 0.55rem 0;
     }
 
-    /* ============================================================
-       CONFIRMATION DIALOG, TOAST, AND ERROR STATES
-       ============================================================ */
-    .confirm-dialog {
-      position: fixed;
-      inset: 0;
-      z-index: 1300;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      background: var(--surface-dialog-scrim);
-      backdrop-filter: blur(6px);
-    }
-
-    .confirm-dialog.open {
-      display: flex;
-      animation: fadeIn 0.15s ease;
-    }
-
-    .confirm-panel {
-      background: var(--surface-raised);
-      border-radius: var(--radius-lg);
-      max-width: 360px;
-      width: 100%;
-      padding: 1.5rem;
-      box-shadow: var(--shadow-lg);
-      animation: slideUp 0.2s cubic-bezier(0.34, 1.25, 0.64, 1);
-    }
-
-    .confirm-title {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--text-heading);
-      margin-bottom: 0.5rem;
-    }
-
-    .confirm-message {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      line-height: 1.55;
-      margin-bottom: 1.2rem;
-    }
-
-    .confirm-input {
-      width: 100%;
-      padding: 0.6rem 0.8rem;
-      border: 1.5px solid var(--border-faint);
-      border-radius: var(--radius-sm);
-      font-family: var(--font-body);
-      font-size: 0.88rem;
-      color: var(--text-heading);
-      background: var(--surface-raised);
-      outline: none;
-      transition: var(--motion-standard);
-      margin-bottom: 0.5rem;
-      display: none;
-      min-height: 44px;
-    }
-
-    .confirm-input.visible {
-      display: block;
-    }
-
-    .confirm-input:focus {
-      border-color: var(--accent);
-    }
-
-    .confirm-error {
-      font-size: 0.78rem;
-      color: var(--danger-text);
-      margin-bottom: 0.8rem;
-      min-height: 1rem;
-      display: none;
-    }
-
-    .confirm-error.visible {
-      display: block;
-    }
-
-    .confirm-actions {
-      display: flex;
-      gap: 0.5rem;
-      justify-content: flex-end;
-    }
-
-    .btn-danger {
-      padding: 0.6rem 1rem;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--danger-border);
-      background: var(--danger-bg);
-      color: var(--danger-text);
-      font-family: var(--font-body);
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: var(--motion-standard);
-      min-height: 44px;
-    }
-
-    .btn-danger:hover {
-      background: var(--danger-bg-hover);
-    }
-
     /* Gateway empty and bridge-error states */
     .empty-setup {
       max-width: 760px;
@@ -3019,19 +2912,6 @@
     </div>
   </div>
 
-  <!-- ============================================================ CONFIRM DIALOG -->
-  <div class="confirm-dialog" id="confirm-dialog" role="alertdialog" aria-modal="true">
-    <div class="confirm-panel">
-      <div class="confirm-title" id="confirm-title"></div>
-      <div class="confirm-message" id="confirm-message"></div>
-      <input class="confirm-input" id="confirm-input" type="text" maxlength="40" autocomplete="off">
-      <div class="confirm-error" id="confirm-error"></div>
-      <div class="confirm-actions">
-        <button class="btn-ghost" onclick="resolveConfirm(false)">Cancel</button>
-        <button class="btn-danger" id="confirm-ok-btn" onclick="resolveConfirm(true)">OK</button>
-      </div>
-    </div>
-  </div>
   <!-- ============================================================ SCRIPTS -->
   <script src="./shared/compass-catalog-data.js"></script>
   <script src="./shared/arcade-catalog-data.js"></script>
@@ -3508,128 +3388,11 @@
     }
 
     // ================================================================
-    // CONFIRM DIALOG (promise-based)
-    // ================================================================
-    let confirmResolver = null;
-    function showConfirm(opts) {
-      opts = opts || {};
-      return new Promise(resolve => {
-        confirmResolver = resolve;
-        document.getElementById('confirm-title').textContent = opts.title || '';
-        document.getElementById('confirm-message').textContent = opts.message || '';
-        const okBtn = document.getElementById('confirm-ok-btn');
-        okBtn.textContent = opts.okLabel || 'Confirm';
-        okBtn.className = opts.okClass || 'btn-danger';
-        const inp = document.getElementById('confirm-input');
-        inp.className = 'confirm-input' + (opts.inputMode ? ' visible' : '');
-        inp.value = opts.inputValue || '';
-        const err = document.getElementById('confirm-error');
-        err.className = 'confirm-error';
-        err.textContent = '';
-        document.getElementById('confirm-dialog').classList.add('open');
-        if (opts.inputMode) setTimeout(() => { inp.focus(); inp.select(); }, 50);
-      });
-    }
-    function showConfirmError(msg) {
-      const err = document.getElementById('confirm-error');
-      err.textContent = msg;
-      err.className = 'confirm-error visible';
-    }
-    function resolveConfirm(ok) {
-      const inp = document.getElementById('confirm-input');
-      const isInput = inp.classList.contains('visible');
-      if (!ok) {
-        document.getElementById('confirm-dialog').classList.remove('open');
-        if (confirmResolver) { confirmResolver(isInput ? null : false); confirmResolver = null; }
-        return;
-      }
-      const value = isInput ? inp.value.trim() : true;
-      document.getElementById('confirm-dialog').classList.remove('open');
-      if (confirmResolver) { confirmResolver(value); confirmResolver = null; }
-    }
-    document.getElementById('confirm-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter') resolveConfirm(true);
-      if (e.key === 'Escape') {
-        e.stopPropagation();
-        resolveConfirm(false);
-      }
-    });
-
-    // ================================================================
     // SESSION MODAL — bridge methods only
     // ================================================================
     function openSessionPanel(trigger = document.activeElement) {
       if (window.AtlasSessionPanel) AtlasSessionPanel.open(trigger);
     }
-    async function handleRenameSession(session) {
-      const id = session.id;
-      const sessions = getSessions();
-      const s = sessions.find(x => x.id === id);
-      if (!s) return;
-      const newName = await showConfirm({
-        title: 'Rename session',
-        message: 'Give this session a new name.',
-        okLabel: 'Rename',
-        okClass: 'btn-primary',
-        inputMode: true,
-        inputValue: s.name
-      });
-      if (newName === null || newName === '' || newName === s.name) return;
-      const renamed = Bridge.renameSession(id, newName);
-      if (!renamed) {
-        await showConfirm({
-          title: 'Name taken',
-          message: 'A session called \u201c' + newName + '\u201d already exists. Choose a different name.',
-          okLabel: 'OK', okClass: 'btn-ghost'
-        });
-        return;
-      }
-      renderHome();
-    }
-    async function handleDeleteSession(session) {
-      const id = session.id;
-      const defId = Bridge.defaultSessionId || 'default';
-      if (id === defId) return; // default can't be deleted
-      const sessions = getSessions();
-      const s = sessions.find(x => x.id === id);
-      if (!s) return;
-      const ok = await showConfirm({
-        title: 'Delete session?',
-        message: 'This permanently removes ' + s.name + ', their progress, and their covered language from this device.',
-        okLabel: 'Delete session'
-      });
-      if (!ok) return;
-
-      // 1) Purge ledger entries for this session.
-      const ledger = getLedger();
-      let ledgerChanged = false;
-      Object.keys(ledger.entries || {}).forEach(k => {
-        if (ledger.entries[k] && ledger.entries[k].sessionId === id) {
-          delete ledger.entries[k];
-          ledgerChanged = true;
-        }
-      });
-      if (ledgerChanged) Bridge.writeLedger(ledger);
-
-      // 2) Scrub this session's registry state + recent activity.
-      const reg = getRegistry();
-      if (reg.sessionStates) delete reg.sessionStates[id];
-      reg.recentActivity = (reg.recentActivity || []).filter(a => a && a.sessionId !== id);
-      Bridge.writeRegistry(reg);
-
-      // 3) Remove this session's welcome image.
-      const atmosphereMap = readSessionAtmosphereImages();
-      if (atmosphereMap[id]) {
-        delete atmosphereMap[id];
-        writeSessionAtmosphereImages(atmosphereMap);
-      }
-
-      // 4) Remove the session record itself (bridge owns active reassignment).
-      Bridge.deleteSession(id); // dispatches event if it was active
-
-      renderHome();
-    }
-
     // ================================================================
     // MOBILE DRAWER
     // ================================================================
@@ -4458,11 +4221,6 @@
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
         if (window.AtlasSearch && AtlasSearch.isOpen && AtlasSearch.isOpen()) return;
-        if (document.getElementById('confirm-dialog').classList.contains('open')) {
-          e.stopImmediatePropagation();
-          resolveConfirm(false);
-          return;
-        }
         if (window.AtlasSessionPanel && AtlasSessionPanel.isOpen()) return;
         if (document.getElementById('settings-modal').classList.contains('open')) { closeSettingsModal(); return; }
         if (document.getElementById('drawer').classList.contains('open')) { closeDrawer(); return; }
@@ -4563,8 +4321,14 @@
       AtlasSessionPanel.mount({
         root: '#atlas-session-panel-root',
         initialView: 'manage',
-        onRenameSession: handleRenameSession,
-        onDeleteSession: handleDeleteSession
+        onBeforeDeleteSession: session => {
+          const atmosphereMap = readSessionAtmosphereImages();
+
+          if (!atmosphereMap[session.id]) return;
+
+          delete atmosphereMap[session.id];
+          writeSessionAtmosphereImages(atmosphereMap);
+        }
       });
 
       renderHome();
