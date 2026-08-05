@@ -66,6 +66,32 @@
         }
     }
 
+    function tabStorageGet(key) {
+        try {
+            return sessionStorage.getItem(key);
+        } catch {
+            return null;
+        }
+    }
+
+    function tabStorageSet(key, value) {
+        try {
+            sessionStorage.setItem(key, value);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    function tabStorageRemove(key) {
+        try {
+            sessionStorage.removeItem(key);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
     function readJson(key, fallback) {
         try {
             const raw = storageGet(key);
@@ -182,14 +208,14 @@
     }
 
     function readActiveSessionId() {
-        const storedId = storageGet(KEYS.activeSessionId);
+        const storedId = tabStorageGet(KEYS.activeSessionId);
         const sessions = readSessions();
 
         if (storedId && sessions.some(session => session.id === storedId)) {
             return storedId;
         }
 
-        storageSet(KEYS.activeSessionId, DEFAULT_SESSION_ID);
+        tabStorageSet(KEYS.activeSessionId, DEFAULT_SESSION_ID);
         return DEFAULT_SESSION_ID;
     }
 
@@ -219,10 +245,9 @@
             item.id === sessionId ? nextSession : item
         );
 
-        writeSessions(nextSessions);
-        storageSet(KEYS.activeSessionId, sessionId);
-
-        const nextAppearanceMode = readAppearanceMode();
+        writeSessions([...sessions, session]);
+        tabStorageSet(KEYS.activeSessionId, session.id);
+        writeSessionAppearanceMode(session.id, inheritedAppearanceMode);
 
         if (nextAppearanceMode !== previousAppearanceMode) {
             beginAppearanceTransition();
@@ -323,7 +348,7 @@
         const activeSessionId = readActiveSessionId();
 
         if (activeSessionId === sessionId) {
-            storageSet(KEYS.activeSessionId, DEFAULT_SESSION_ID);
+            tabStorageSet(KEYS.activeSessionId, DEFAULT_SESSION_ID);
 
             const nextAppearanceMode = readAppearanceMode();
 
@@ -891,11 +916,12 @@
     function resetAllAtlasState() {
         storageRemove(KEYS.sessions);
         storageRemove(KEYS.activeSessionId);
+        tabStorageRemove(KEYS.activeSessionId);
         storageRemove(KEYS.registry);
         storageRemove(KEYS.ledger);
 
         readSessions();
-        storageSet(KEYS.activeSessionId, DEFAULT_SESSION_ID);
+        tabStorageSet(KEYS.activeSessionId, DEFAULT_SESSION_ID);
 
         window.dispatchEvent(new CustomEvent('atlas:session-change', {
             detail: { session: readActiveSession() }
@@ -958,13 +984,26 @@
         resetAllAtlasState
     };
 
-    // Apply saved appearance immediately when Bridge is loaded in <head>.
-    applyAppearanceMode();
-
     // Ensure a valid default session exists immediately after bridge load.
     readSessions();
 
-    if (!storageGet(KEYS.activeSessionId)) {
-        storageSet(KEYS.activeSessionId, DEFAULT_SESSION_ID);
+    // Migrate the previous cross-tab active session once, then keep it
+    // isolated inside this browser tab.
+    const legacyActiveSessionId = storageGet(KEYS.activeSessionId);
+
+    if (
+        !tabStorageGet(KEYS.activeSessionId) &&
+        legacyActiveSessionId
+    ) {
+        tabStorageSet(
+            KEYS.activeSessionId,
+            legacyActiveSessionId
+        );
     }
+
+    storageRemove(KEYS.activeSessionId);
+    readActiveSessionId();
+
+    // Apply the active tab's saved appearance before first paint.
+    applyAppearanceMode();
 })();
