@@ -240,7 +240,9 @@
                     group: 'Recent',
                     registryId: activity.registryId,
                     title: item.title || item.navTitle || 'Untitled',
-                    sub: '',
+                    sub: item.hasMyVersion === true
+                        ? 'My Version'
+                        : '',
                     type: itemIconType(item),
                     hub: false,
                     planned: false,
@@ -251,6 +253,9 @@
                         item.world,
                         item.type,
                         itemTypeWords(item),
+                        item.hasMyVersion === true
+                            ? 'my version'
+                            : '',
                         'recent'
                     ].join(' '),
                     action: () => navigateToItem(
@@ -311,7 +316,9 @@
             .map(item => ({
                 group: itemGroupLabel(item),
                 title: item.title || item.navTitle || 'Untitled',
-                sub: '',
+                sub: item.hasMyVersion === true
+                    ? 'My Version'
+                    : '',
                 type: itemIconType(item),
                 hub: false,
                 planned: false,
@@ -325,6 +332,9 @@
                     item.type,
                     itemTypeWords(item),
                     itemGroupLabel(item),
+                    item.hasMyVersion === true
+                        ? 'my version'
+                        : '',
                     Array.isArray(item.keywords) ? item.keywords.join(' ') : ''
                 ].join(' '),
                 action: () => navigateToItem(
