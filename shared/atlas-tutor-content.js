@@ -14,9 +14,10 @@
 (function () {
     'use strict';
 
-    const SCHEMA_VERSION = 1;
+    const SCHEMA_VERSION = 2;
     const LOCAL_OWNER_ID = 'local-tutor';
     const VERSION_PREFIX = 'atlas::tutorContent::version::';
+    const WORKING_DRAFT_PREFIX = 'atlas::tutorContent::workingDraft::';
     const LIVE_PREFIX = 'atlas::tutorContent::live::';
 
     function encodePart(value) {
@@ -25,6 +26,10 @@
 
     function versionStorageKey(contentId) {
         return `${VERSION_PREFIX}${encodePart(contentId)}`;
+    }
+
+    function workingDraftStorageKey(contentId) {
+        return `${WORKING_DRAFT_PREFIX}${encodePart(contentId)}`;
     }
 
     function liveStorageKey(sessionId, contentId) {
@@ -88,6 +93,22 @@
         );
     }
 
+    function normalizeDocument(document) {
+        if (
+            !document ||
+            typeof document !== 'object' ||
+            Array.isArray(document)
+        ) {
+            return null;
+        }
+
+        try {
+            return JSON.parse(JSON.stringify(document));
+        } catch {
+            return null;
+        }
+    }
+
     function normalizeRecord(record, {
         contentId,
         sessionId = null,
@@ -132,7 +153,38 @@
                 0,
                 Number(record.updatedAt) || 0
             ),
-            overrides: normalizeOverrides(record.overrides)
+            overrides: normalizeOverrides(record.overrides),
+            document: normalizeDocument(record.document)
+        };
+    }
+
+    function normalizeWorkingDraft(record, identity) {
+        const normalized = normalizeRecord(record, identity);
+
+        if (!normalized) return null;
+
+        const includedLiveSessionId =
+            typeof record.includedLiveSessionId === 'string' &&
+            record.includedLiveSessionId.trim()
+                ? record.includedLiveSessionId.trim()
+                : null;
+
+        const activeViewId =
+            typeof record.activeViewId === 'string' &&
+            record.activeViewId.trim()
+                ? record.activeViewId.trim()
+                : 'view-cover';
+
+        return {
+            ...normalized,
+            includedLiveSessionId,
+            activeViewId,
+            startedAt: Math.max(
+                0,
+                Number(record.startedAt) ||
+                normalized.updatedAt ||
+                Date.now()
+            )
         };
     }
 
@@ -147,17 +199,27 @@
             baseContentVersion: '',
             revision: 0,
             updatedAt: 0,
-            overrides: {}
+            overrides: {},
+            document: null
         };
 
         const nextPatch = patch && typeof patch === 'object'
             ? patch
             : {};
 
-        const overrides = {
-            ...base.overrides,
-            ...normalizeOverrides(nextPatch.overrides)
-        };
+        const overrides = nextPatch.replaceOverrides === true
+            ? normalizeOverrides(nextPatch.overrides)
+            : {
+                ...base.overrides,
+                ...normalizeOverrides(nextPatch.overrides)
+            };
+
+        const document = Object.prototype.hasOwnProperty.call(
+            nextPatch,
+            'document'
+        )
+            ? normalizeDocument(nextPatch.document)
+            : base.document;
 
         const removeOverrideKeys = Array.isArray(
             nextPatch.removeOverrideKeys
@@ -179,7 +241,8 @@
                     : base.baseContentVersion,
             revision: base.revision + 1,
             updatedAt: Date.now(),
-            overrides
+            overrides,
+            document
         };
     }
 
@@ -228,6 +291,79 @@
         return removeValue(
             localStorage,
             versionStorageKey(cleanContentId)
+        );
+    }
+
+    async function getWorkingDraft(contentId) {
+        const identity = {
+            contentId: String(contentId || '').trim(),
+            ownerId: LOCAL_OWNER_ID
+        };
+
+        if (!identity.contentId) return null;
+
+        return normalizeWorkingDraft(
+            readJson(
+                localStorage,
+                workingDraftStorageKey(identity.contentId)
+            ),
+            identity
+        );
+    }
+
+    async function saveWorkingDraft(contentId, patch = {}) {
+        const identity = {
+            contentId: String(contentId || '').trim(),
+            ownerId: LOCAL_OWNER_ID
+        };
+
+        if (!identity.contentId) return null;
+
+        const current = await getWorkingDraft(identity.contentId);
+        const nextPatch = patch && typeof patch === 'object'
+            ? patch
+            : {};
+
+        const merged = mergeRecord(current, nextPatch, identity);
+        const next = {
+            ...merged,
+            includedLiveSessionId:
+                Object.prototype.hasOwnProperty.call(
+                    nextPatch,
+                    'includedLiveSessionId'
+                )
+                    ? (
+                        typeof nextPatch.includedLiveSessionId === 'string' &&
+                        nextPatch.includedLiveSessionId.trim()
+                            ? nextPatch.includedLiveSessionId.trim()
+                            : null
+                    )
+                    : current?.includedLiveSessionId || null,
+            activeViewId:
+                typeof nextPatch.activeViewId === 'string' &&
+                nextPatch.activeViewId.trim()
+                    ? nextPatch.activeViewId.trim()
+                    : current?.activeViewId || 'view-cover',
+            startedAt: current?.startedAt || Date.now()
+        };
+
+        return writeJson(
+            localStorage,
+            workingDraftStorageKey(identity.contentId),
+            next
+        )
+            ? next
+            : null;
+    }
+
+    async function clearWorkingDraft(contentId) {
+        const cleanContentId = String(contentId || '').trim();
+
+        if (!cleanContentId) return false;
+
+        return removeValue(
+            localStorage,
+            workingDraftStorageKey(cleanContentId)
         );
     }
 
@@ -309,6 +445,10 @@
         getVersion,
         saveVersion,
         deleteVersion,
+
+        getWorkingDraft,
+        saveWorkingDraft,
+        clearWorkingDraft,
 
         getLiveDraft,
         saveLiveDraft,
