@@ -40,8 +40,10 @@ const subjectCopy = {
     },
 
     paths: {
-        culturalLensDescription: `Explore the customs, rules, and ideas that have shaped how people move through the world.`,
+        discussionTitle: `Discussion`,
         discussionDescription: `Trips, habits, choices, and opinions — from small everyday details to strong disagreements.`,
+        culturalLensTitle: `Cultural Lens`,
+        culturalLensDescription: `Explore the customs, rules, and ideas that have shaped how people move through the world.`,
         reflectionTitle: `Reflection`,
         reflectionDescription: `A place to connect ideas from different parts of the subject.`
     },
