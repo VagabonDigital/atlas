@@ -102,6 +102,7 @@ const NAV_ITEMS = [
     {
         id: 'discussion',
         label: 'Discussion',
+        labelKey: 'discussionTitle',
         viewId: 'view-discussion',
         desktopSvg: `<svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                 <path d="M2 3a1 1 0 011-1h7a1 1 0 011 1v5a1 1 0 01-1 1H7L4.5 11V9H3a1 1 0 01-1-1V3z"
@@ -119,6 +120,7 @@ const NAV_ITEMS = [
     {
         id: 'cultural-lens',
         label: 'Cultural Lens',
+        labelKey: 'culturalLensTitle',
         viewId: 'view-cultural-lens',
         desktopSvg: `<svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
                 <circle cx="7.5" cy="7.5" r="5.2" stroke="currentColor" stroke-width="1.35"/>
@@ -216,8 +218,12 @@ const COMPASS_WORLD_TITLE = 'Compass';
 const COMPASS_LABELS = {
     culturalLensUnitSingular: 'culture',
     culturalLensUnitPlural: 'cultures',
+    culturalLensGenericUnitSingular: 'card',
+    culturalLensGenericUnitPlural: 'cards',
     discussionUnitSingular: 'moment',
-    discussionUnitPlural: 'moments'
+    discussionUnitPlural: 'moments',
+    discussionGenericUnitSingular: 'set',
+    discussionGenericUnitPlural: 'sets'
 };
 
 let currentSession = 'Default';
@@ -255,12 +261,26 @@ const DISCUSSION_FOCUS_MAKE_IT_REAL_ID = 'make-it-real';
 const DISCUSSION_FOLLOW_UP_LABELS = {
     'go-deeper': 'Go deeper',
     'another-angle': 'Another angle',
-    'add-a-twist': 'Add a twist'
+    'add-a-twist': 'Add a twist',
+    'custom': 'Custom path'
+};
+
+const DISCUSSION_FOLLOW_UP_KINDS = Object.keys(
+    DISCUSSION_FOLLOW_UP_LABELS
+);
+
+const DISCUSSION_FOLLOW_UP_LIMIT = 3;
+const DISCUSSION_FOLLOW_UP_LABEL_LIMIT = 24;
+
+const MY_VERSION_UPGRADE_PRIORITIES = {
+    key: 'Key language',
+    standard: 'All language only'
 };
 
 let discussionFocusSetId = null;
 let discussionFocusMomentId = null;
 let discussionFocusFollowUpOpen = false;
+let discussionFocusFollowUpId = null;
 let discussionFocusUpgradeOpen = false;
 let discussionFocusScrollX = 0;
 let discussionFocusScrollY = 0;
@@ -277,9 +297,40 @@ let lastFocusedElement = null;
 let activeFocusTrapRoot = null;
 
 let tutorContentVersion = null;
+let tutorContentWorkingDraft = null;
 let tutorContentLiveDraft = null;
 let tutorContentWriteQueue = Promise.resolve();
 let liveTutorPointerStartedInside = false;
+
+const LIVE_TUTOR_HISTORY_LIMIT = 100;
+const liveTutorHistoryByScope = new Map();
+let liveTutorMutationRevision = 0;
+
+const MY_VERSION_UNLOCK_HOLD_MS = 1500;
+const MY_VERSION_HISTORY_LIMIT = 100;
+const MY_VERSION_WORKING_DRAFT_SAVE_DELAY_MS = 180;
+const ATLAS_SUBJECT_DOCUMENT = createAtlasSubjectDocument();
+const myVersionPressedShiftCodes = new Set();
+const myVersionHistory = {
+    undo: [],
+    redo: []
+};
+
+let myVersionEditing = false;
+let myVersionDraftOverrides = {};
+let myVersionOriginalOverrides = {};
+let myVersionDraftDocument = null;
+let myVersionOriginalDocument = null;
+let myVersionDirty = false;
+let myVersionIncludesLiveChanges = false;
+let myVersionIncludedLiveSessionId = null;
+let myVersionSaving = false;
+let myVersionUnlockTimer = null;
+let myVersionUnlockConsumed = false;
+let myVersionWorkingDraftSaveTimer = null;
+let myVersionPendingWorkingDraftOverrides = null;
+let myVersionResumeViewId = null;
+let myVersionUpgradeOptionsOpenContextId = null;
 
 
 // ============================================================
@@ -323,6 +374,21 @@ function hasTutorContentOverride(record, fieldKey) {
 function resolveTutorContentValue(originalValue, fieldKey) {
     let value = String(originalValue ?? '');
 
+    if (myVersionEditing) {
+        if (
+            Object.prototype.hasOwnProperty.call(
+                myVersionDraftOverrides,
+                fieldKey
+            )
+        ) {
+            return String(
+                myVersionDraftOverrides[fieldKey] ?? ''
+            );
+        }
+
+        return value;
+    }
+
     if (hasTutorContentOverride(tutorContentVersion, fieldKey)) {
         value = tutorContentVersion.overrides[fieldKey];
     }
@@ -338,13 +404,32 @@ async function loadTutorContentState() {
     const Store = requireAtlasTutorContent();
     const contentId = getTutorContentId();
 
-    const [version, liveDraft] = await Promise.all([
+    const [version, workingDraft, liveDraft] = await Promise.all([
         Store.getVersion(contentId),
+        Store.getWorkingDraft(contentId),
         Store.getLiveDraft(currentSessionId, contentId)
     ]);
 
     tutorContentVersion = version;
+    tutorContentWorkingDraft = workingDraft;
     tutorContentLiveDraft = liveDraft;
+    liveTutorMutationRevision += 1;
+
+    if (!myVersionEditing && workingDraft) {
+        resumeMyVersionWorkingDraft(workingDraft);
+    } else if (myVersionEditing) {
+        applyTutorSubjectDocument(
+            myVersionDraftDocument ||
+            tutorContentVersion?.document ||
+            ATLAS_SUBJECT_DOCUMENT
+        );
+    } else {
+        applyTutorSubjectDocument(
+            tutorContentVersion?.document ||
+            ATLAS_SUBJECT_DOCUMENT
+        );
+    }
+
     updateLiveTutorContentControl();
 }
 
@@ -361,7 +446,3404 @@ function queueTutorContentWrite(write) {
     return tutorContentWriteQueue;
 }
 
-function cacheLiveTutorContentOverride(fieldKey, value) {
+
+function cloneTutorContentOverrides(overrides = {}) {
+    return {
+        ...(overrides || {})
+    };
+}
+
+function cloneTutorSubjectDocument(document) {
+    if (!document || typeof document !== 'object') {
+        return null;
+    }
+
+    try {
+        return JSON.parse(JSON.stringify(document));
+    } catch {
+        return null;
+    }
+}
+
+function getAtlasSubjectCatalogDescription() {
+    try {
+        const Catalog = window.CompassCatalogData;
+
+        if (!Catalog) return '';
+
+        const catalog = typeof Catalog.getCompassCatalogMap === 'function'
+            ? Catalog.getCompassCatalogMap()
+            : {};
+
+        const subject =
+            catalog?.[`${COMPASS_WORLD_ID}:${MODULE.id}`] ||
+            Object.values(catalog || {}).find(item =>
+                item?.id === MODULE.id
+            );
+
+        return String(
+            subject?.description ||
+            subject?.hook ||
+            ''
+        ).trim();
+    } catch {
+        return '';
+    }
+}
+
+function createAtlasSubjectDocument() {
+    return {
+        schemaVersion: 1,
+        module: {
+            title: MODULE.title,
+            navTitle: MODULE.navTitle || MODULE.title,
+            bgImage: MODULE.bgImage,
+            catalogDescription:
+                getAtlasSubjectCatalogDescription()
+        },
+        subjectCopy: cloneTutorSubjectDocument(subjectCopy),
+        discussionSets: cloneTutorSubjectDocument(discussionSets),
+        culturalLensCards: cloneTutorSubjectDocument(clCards)
+    };
+}
+
+function normalizeTutorSubjectDocument(document) {
+    const fallback = cloneTutorSubjectDocument(
+        ATLAS_SUBJECT_DOCUMENT
+    );
+
+    const candidate = cloneTutorSubjectDocument(document);
+
+    if (!candidate) return fallback;
+
+    const discussionDocumentIsValid =
+        Array.isArray(candidate.discussionSets) &&
+        candidate.discussionSets.length > 0 &&
+        candidate.discussionSets.every(set =>
+            set &&
+            typeof set === 'object' &&
+            typeof set.id === 'string' &&
+            set.id.trim() &&
+            Array.isArray(set.moments) &&
+            set.moments.length > 0
+        );
+
+    const culturalLensDocumentIsValid =
+        Array.isArray(candidate.culturalLensCards) &&
+        candidate.culturalLensCards.length > 0;
+
+    return {
+        schemaVersion: 1,
+        module: {
+            ...fallback.module,
+            ...(candidate.module &&
+            typeof candidate.module === 'object' &&
+            !Array.isArray(candidate.module)
+                ? candidate.module
+                : {})
+        },
+        subjectCopy:
+            candidate.subjectCopy &&
+            typeof candidate.subjectCopy === 'object' &&
+            !Array.isArray(candidate.subjectCopy)
+                ? candidate.subjectCopy
+                : fallback.subjectCopy,
+        discussionSets: discussionDocumentIsValid
+            ? candidate.discussionSets
+            : fallback.discussionSets,
+        culturalLensCards: culturalLensDocumentIsValid
+            ? candidate.culturalLensCards
+            : fallback.culturalLensCards
+    };
+}
+
+function replaceTutorSubjectObject(target, source) {
+    Object.keys(target).forEach(key => {
+        delete target[key];
+    });
+
+    Object.assign(
+        target,
+        cloneTutorSubjectDocument(source) || {}
+    );
+}
+
+function replaceTutorSubjectArray(target, source) {
+    target.splice(
+        0,
+        target.length,
+        ...(cloneTutorSubjectDocument(source) || [])
+    );
+}
+
+function applyTutorSubjectDocument(document) {
+    const normalized = normalizeTutorSubjectDocument(document);
+
+    replaceTutorSubjectObject(
+        subjectCopy,
+        normalized.subjectCopy
+    );
+
+    replaceTutorSubjectArray(
+        discussionSets,
+        normalized.discussionSets
+    );
+
+    replaceTutorSubjectArray(
+        clCards,
+        normalized.culturalLensCards
+    );
+
+    reconcileTutorSubjectDocumentState();
+
+    return normalized;
+}
+
+function reconcileTutorSubjectDocumentState() {
+    const activeSet = discussionSets.find(
+        set => set.id === activeSetId
+    );
+
+    if (!activeSet && activeSetId) {
+        activeSetId = null;
+
+        document
+            .getElementById('moments-panel')
+            ?.classList.remove('open');
+    }
+
+    if (!isDiscussionFocusOpen()) return;
+
+    const focusSet = discussionSets.find(
+        set => set.id === discussionFocusSetId
+    );
+
+    const focusEntry = getDiscussionFocusSequence(
+        focusSet
+    ).find(entry => entry.id === discussionFocusMomentId);
+
+    if (!focusSet || !focusEntry) {
+        closeDiscussionFocus({
+            restoreScroll: false,
+            restoreFocus: false
+        });
+    }
+}
+
+function getPublishedTutorSubjectDocument() {
+    return normalizeTutorSubjectDocument(
+        tutorContentVersion?.document ||
+        ATLAS_SUBJECT_DOCUMENT
+    );
+}
+
+function tutorSubjectDocumentsMatch(left, right) {
+    try {
+        return JSON.stringify(
+            normalizeTutorSubjectDocument(left)
+        ) === JSON.stringify(
+            normalizeTutorSubjectDocument(right)
+        );
+    } catch {
+        return false;
+    }
+}
+
+function tutorContentOverridesMatch(left, right) {
+    const leftEntries = Object.entries(left || {});
+    const rightEntries = Object.entries(right || {});
+
+    if (leftEntries.length !== rightEntries.length) {
+        return false;
+    }
+
+    return leftEntries.every(([fieldKey, value]) =>
+        Object.prototype.hasOwnProperty.call(
+            right || {},
+            fieldKey
+        ) && right[fieldKey] === value
+    );
+}
+
+function hasSavedMyVersion() {
+    return Boolean(tutorContentVersion);
+}
+
+function getLiveTutorContentChangeCount() {
+    return Object.keys(
+        tutorContentLiveDraft?.overrides || {}
+    ).length;
+}
+
+function getActiveCompassViewId() {
+    return document.querySelector('.view.active')?.id || 'view-cover';
+}
+
+function getMyVersionWorkingDraftPatch(overrides) {
+    return {
+        baseContentVersion: MODULE.contentVersion,
+        replaceOverrides: true,
+        overrides: cloneTutorContentOverrides(overrides),
+        document: cloneTutorSubjectDocument(
+            myVersionDraftDocument ||
+            getPublishedTutorSubjectDocument()
+        ),
+        includedLiveSessionId: myVersionIncludedLiveSessionId,
+        activeViewId: getActiveCompassViewId()
+    };
+}
+
+function clearMyVersionWorkingDraftSaveTimer() {
+    if (myVersionWorkingDraftSaveTimer !== null) {
+        window.clearTimeout(myVersionWorkingDraftSaveTimer);
+        myVersionWorkingDraftSaveTimer = null;
+    }
+}
+
+function saveMyVersionWorkingDraftNow(
+    overrides = myVersionDraftOverrides
+) {
+    if (!myVersionEditing) {
+        return Promise.resolve(null);
+    }
+
+    const contentId = getTutorContentId();
+    const patch = getMyVersionWorkingDraftPatch(overrides);
+
+    return queueTutorContentWrite(async () => {
+        const saved = await requireAtlasTutorContent()
+            .saveWorkingDraft(contentId, patch);
+
+        if (saved && myVersionEditing) {
+            tutorContentWorkingDraft = saved;
+        }
+
+        return saved;
+    });
+}
+
+function scheduleMyVersionWorkingDraftSave(
+    overrides = myVersionDraftOverrides
+) {
+    if (!myVersionEditing) return;
+
+    myVersionPendingWorkingDraftOverrides =
+        cloneTutorContentOverrides(overrides);
+
+    clearMyVersionWorkingDraftSaveTimer();
+
+    myVersionWorkingDraftSaveTimer = window.setTimeout(() => {
+        myVersionWorkingDraftSaveTimer = null;
+
+        const pending = myVersionPendingWorkingDraftOverrides;
+        myVersionPendingWorkingDraftOverrides = null;
+
+        saveMyVersionWorkingDraftNow(
+            pending || myVersionDraftOverrides
+        );
+    }, MY_VERSION_WORKING_DRAFT_SAVE_DELAY_MS);
+}
+
+function flushMyVersionWorkingDraftSave() {
+    clearMyVersionWorkingDraftSaveTimer();
+
+    const pending = myVersionPendingWorkingDraftOverrides;
+    myVersionPendingWorkingDraftOverrides = null;
+
+    return saveMyVersionWorkingDraftNow(
+        pending || myVersionDraftOverrides
+    );
+}
+
+function resumeMyVersionWorkingDraft(workingDraft) {
+    if (!workingDraft) return false;
+
+    myVersionOriginalOverrides = cloneTutorContentOverrides(
+        tutorContentVersion?.overrides
+    );
+
+    myVersionDraftOverrides = cloneTutorContentOverrides(
+        workingDraft.overrides
+    );
+
+    myVersionOriginalDocument =
+        getPublishedTutorSubjectDocument();
+
+    myVersionDraftDocument = normalizeTutorSubjectDocument(
+        workingDraft.document ||
+        myVersionOriginalDocument
+    );
+
+    applyTutorSubjectDocument(myVersionDraftDocument);
+
+    myVersionIncludedLiveSessionId =
+        workingDraft.includedLiveSessionId || null;
+
+    myVersionIncludesLiveChanges = Boolean(
+        myVersionIncludedLiveSessionId
+    );
+
+    myVersionResumeViewId =
+        workingDraft.activeViewId || 'view-cover';
+
+    myVersionEditing = true;
+    myVersionSaving = false;
+    resetMyVersionHistory();
+    refreshMyVersionDirtyState();
+
+    return true;
+}
+
+function restoreMyVersionWorkingDraftView() {
+    if (!myVersionEditing || !myVersionResumeViewId) return;
+
+    const requestedViewId = myVersionResumeViewId;
+    myVersionResumeViewId = null;
+
+    const target = document.getElementById(requestedViewId);
+
+    const safeViewId = target?.classList.contains('view')
+        ? requestedViewId
+        : 'view-cover';
+
+    goToView(safeViewId);
+}
+
+function updateMyVersionAuthorBar() {
+    const bar = document.getElementById(
+        'atlas-my-version-bar'
+    );
+
+    const status = document.getElementById(
+        'atlas-my-version-status'
+    );
+
+    const coverActionButton = document.getElementById(
+        'atlas-my-version-cover-action'
+    );
+
+    const saveButton = document.getElementById(
+        'atlas-my-version-save'
+    );
+
+    const cancelButton = document.getElementById(
+        'atlas-my-version-cancel'
+    );
+
+    const onCover = getActiveCompassViewId() === 'view-cover';
+
+    document.body.classList.toggle(
+        'atlas-my-version-editing',
+        myVersionEditing
+    );
+
+    if (bar) {
+        bar.hidden = !myVersionEditing;
+    }
+
+    if (status) {
+        status.textContent = myVersionSaving
+            ? 'Saving…'
+            : myVersionDirty
+                ? 'Unpublished changes · autosaved'
+                : 'No changes yet';
+    }
+
+    if (coverActionButton) {
+        coverActionButton.disabled = myVersionSaving;
+        coverActionButton.textContent = onCover
+            ? 'Subject details'
+            : 'Cover';
+    }
+
+    if (saveButton) {
+        saveButton.disabled =
+            myVersionSaving || !myVersionDirty;
+
+        saveButton.textContent = myVersionSaving
+            ? 'Saving…'
+            : 'Save My Version';
+    }
+
+    if (cancelButton) {
+        cancelButton.disabled = myVersionSaving;
+    }
+
+    updateCoverActionUI();
+}
+
+function refreshMyVersionDirtyState() {
+    myVersionDirty =
+        !tutorContentOverridesMatch(
+            myVersionDraftOverrides,
+            myVersionOriginalOverrides
+        ) ||
+        !tutorSubjectDocumentsMatch(
+            myVersionDraftDocument,
+            myVersionOriginalDocument
+        ) ||
+        myVersionIncludesLiveChanges;
+
+    updateMyVersionAuthorBar();
+}
+
+function resetMyVersionHistory() {
+    myVersionHistory.undo.length = 0;
+    myVersionHistory.redo.length = 0;
+}
+
+function createMyVersionHistorySnapshot({
+    overrides = myVersionDraftOverrides,
+    document = myVersionDraftDocument
+} = {}) {
+    return {
+        overrides: cloneTutorContentOverrides(overrides),
+        document: normalizeTutorSubjectDocument(document)
+    };
+}
+
+function recordMyVersionHistory(before, after) {
+    myVersionHistory.undo.push({
+        before: createMyVersionHistorySnapshot(before),
+        after: createMyVersionHistorySnapshot(after)
+    });
+
+    if (
+        myVersionHistory.undo.length >
+        MY_VERSION_HISTORY_LIMIT
+    ) {
+        myVersionHistory.undo.shift();
+    }
+
+    myVersionHistory.redo.length = 0;
+}
+
+function applyMyVersionHistorySnapshot(snapshot) {
+    const normalized = createMyVersionHistorySnapshot(snapshot);
+
+    myVersionDraftOverrides = normalized.overrides;
+    myVersionDraftDocument = normalized.document;
+
+    applyTutorSubjectDocument(myVersionDraftDocument);
+    refreshMyVersionDirtyState();
+    scheduleMyVersionWorkingDraftSave();
+    renderAllTutorContentSurfaces();
+}
+
+function undoMyVersionContent() {
+    const action = myVersionHistory.undo.pop();
+
+    if (!action) return false;
+
+    myVersionHistory.redo.push(action);
+    applyMyVersionHistorySnapshot(action.before);
+
+    return true;
+}
+
+function redoMyVersionContent() {
+    const action = myVersionHistory.redo.pop();
+
+    if (!action) return false;
+
+    myVersionHistory.undo.push(action);
+    applyMyVersionHistorySnapshot(action.after);
+
+    return true;
+}
+
+function commitMyVersionDraftContent(fieldKey, value) {
+    if (!myVersionEditing || !fieldKey) return false;
+
+    const nextValue = String(value ?? '');
+
+    const requiresValue =
+        fieldKey === 'module.title' ||
+        /^paths\.(discussionTitle|culturalLensTitle|reflectionTitle)$/
+            .test(fieldKey) ||
+        /^discussion\.set\..+\.title$/
+            .test(fieldKey) ||
+        /^culturalLens\..+\.title$/
+            .test(fieldKey) ||
+        /^discussion\.set\..+\.makeItReal\.(label|title|prompt)$/
+            .test(fieldKey) ||
+        /^discussion\..+\.followUp\..+\.prompt$/
+            .test(fieldKey) ||
+        /^upgrade\.(moment|cultural-lens)\..+\.(term|definition|ordinary|upgraded|atlasPrompt)$/
+            .test(fieldKey);
+
+    if (requiresValue && !nextValue.trim()) {
+        renderAllTutorContentSurfaces();
+        return false;
+    }
+
+    const before = createMyVersionHistorySnapshot();
+    const beforeOverrides = before.overrides;
+
+    if (
+        Object.prototype.hasOwnProperty.call(
+            beforeOverrides,
+            fieldKey
+        ) && beforeOverrides[fieldKey] === nextValue
+    ) {
+        return false;
+    }
+
+    const after = createMyVersionHistorySnapshot({
+        overrides: {
+            ...beforeOverrides,
+            [fieldKey]: nextValue
+        },
+        document: before.document
+    });
+
+    recordMyVersionHistory(before, after);
+    myVersionDraftOverrides = after.overrides;
+    myVersionDraftDocument = after.document;
+    refreshMyVersionDirtyState();
+    scheduleMyVersionWorkingDraftSave();
+    renderAllTutorContentSurfaces();
+
+    return true;
+}
+
+function closeMyVersionStartDialog() {
+    const dialog = document.getElementById(
+        'atlas-my-version-start-dialog'
+    );
+
+    if (!dialog || dialog.hidden) return;
+
+    dialog.hidden = true;
+
+    if (activeFocusTrapRoot === dialog) {
+        releaseFocusTrap();
+    }
+}
+
+function openMyVersionStartDialog() {
+    const dialog = document.getElementById(
+        'atlas-my-version-start-dialog'
+    );
+
+    if (!dialog) return;
+
+    const count = getLiveTutorContentChangeCount();
+    const countLabel = count === 1
+        ? '1 Live Change'
+        : `${count} Live Changes`;
+
+    setText(
+        'atlas-my-version-start-count',
+        `${countLabel} for ${currentSession === 'Default'
+            ? 'Shared'
+            : currentSession}`
+    );
+
+    dialog.hidden = false;
+    activateFocusTrap(dialog);
+}
+
+function beginMyVersionEditing(includeLiveChanges = false) {
+    if (myVersionEditing || myVersionSaving) return;
+
+    const shouldStartOnCover = !hasSavedMyVersion();
+
+    const versionOverrides = cloneTutorContentOverrides(
+        tutorContentVersion?.overrides
+    );
+
+    const liveOverrides = includeLiveChanges
+        ? cloneTutorContentOverrides(
+            tutorContentLiveDraft?.overrides
+        )
+        : {};
+
+    myVersionOriginalOverrides = versionOverrides;
+    myVersionDraftOverrides = {
+        ...versionOverrides,
+        ...liveOverrides
+    };
+
+    myVersionOriginalDocument =
+        getPublishedTutorSubjectDocument();
+
+    myVersionDraftDocument = cloneTutorSubjectDocument(
+        myVersionOriginalDocument
+    );
+
+    applyTutorSubjectDocument(myVersionDraftDocument);
+
+    myVersionIncludesLiveChanges =
+        includeLiveChanges &&
+        Object.keys(liveOverrides).length > 0;
+
+    myVersionIncludedLiveSessionId =
+        myVersionIncludesLiveChanges
+            ? currentSessionId
+            : null;
+
+    closeMyVersionStartDialog();
+
+    if (shouldStartOnCover) {
+        goToView('view-cover');
+    }
+
+    myVersionEditing = true;
+    myVersionSaving = false;
+    resetMyVersionHistory();
+    refreshMyVersionDirtyState();
+    renderAllTutorContentSurfaces();
+    saveMyVersionWorkingDraftNow();
+}
+
+function requestMyVersionEditing() {
+    if (myVersionEditing || myVersionSaving) return;
+
+    if (getLiveTutorContentChangeCount() > 0) {
+        openMyVersionStartDialog();
+        return;
+    }
+
+    beginMyVersionEditing(false);
+}
+
+function finishMyVersionEditingState() {
+    clearMyVersionWorkingDraftSaveTimer();
+    myVersionPendingWorkingDraftOverrides = null;
+    myVersionResumeViewId = null;
+    myVersionUpgradeOptionsOpenContextId = null;
+    myVersionEditing = false;
+    myVersionDraftOverrides = {};
+    myVersionOriginalOverrides = {};
+    myVersionDraftDocument = null;
+    myVersionOriginalDocument = null;
+    myVersionDirty = false;
+    myVersionIncludesLiveChanges = false;
+    myVersionIncludedLiveSessionId = null;
+    myVersionSaving = false;
+    tutorContentWorkingDraft = null;
+    applyTutorSubjectDocument(
+        getPublishedTutorSubjectDocument()
+    );
+    resetMyVersionHistory();
+    closeMyVersionStartDialog();
+    closeMyVersionCoverDialog();
+    closeRestoreAtlasOriginalDialog();
+    updateMyVersionAuthorBar();
+}
+
+async function cancelMyVersionEditing() {
+    if (!myVersionEditing || myVersionSaving) return;
+
+    clearMyVersionWorkingDraftSaveTimer();
+    myVersionPendingWorkingDraftOverrides = null;
+
+    await tutorContentWriteQueue;
+
+    await requireAtlasTutorContent()
+        .clearWorkingDraft(getTutorContentId());
+
+    finishMyVersionEditingState();
+    renderAllTutorContentSurfaces();
+}
+
+async function saveMyVersion() {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !myVersionDirty
+    ) {
+        return;
+    }
+
+    const activeElement = document.activeElement;
+
+    if (isLiveTutorContentTarget(activeElement)) {
+        activeElement.blur();
+    }
+
+     normalizeMyVersionQuestionCollectionsForSave();
+
+    await flushMyVersionWorkingDraftSave();
+    await tutorContentWriteQueue;
+
+    myVersionSaving = true;
+    updateMyVersionAuthorBar();
+
+    const contentId = getTutorContentId();
+    const includedSessionId =
+        myVersionIncludedLiveSessionId;
+
+    const saved = await requireAtlasTutorContent()
+        .saveVersion(
+            contentId,
+            {
+                baseContentVersion: MODULE.contentVersion,
+                replaceOverrides: true,
+                overrides: myVersionDraftOverrides,
+                document: cloneTutorSubjectDocument(
+                    myVersionDraftDocument
+                )
+            }
+        );
+
+    if (!saved) {
+        myVersionSaving = false;
+        updateMyVersionAuthorBar();
+
+        const status = document.getElementById(
+            'atlas-my-version-status'
+        );
+
+        if (status) {
+            status.textContent = 'Couldn’t save';
+        }
+
+        return;
+    }
+
+    tutorContentVersion = saved;
+
+    if (
+        myVersionIncludesLiveChanges &&
+        includedSessionId
+    ) {
+        await requireAtlasTutorContent()
+            .clearLiveDraft(
+                includedSessionId,
+                contentId
+            );
+
+        if (includedSessionId === currentSessionId) {
+            tutorContentLiveDraft = null;
+            clearLiveTutorHistory();
+        }
+    }
+
+    await requireAtlasTutorContent()
+        .clearWorkingDraft(contentId);
+
+    finishMyVersionEditingState();
+    renderAllTutorContentSurfaces();
+    publishAtlasCompassItem('updated');
+}
+
+function handleMyVersionCoverAction() {
+    if (!myVersionEditing || myVersionSaving) return;
+
+    if (getActiveCompassViewId() === 'view-cover') {
+        openMyVersionCoverDialog();
+        return;
+    }
+
+    goToView('view-cover');
+}
+
+function closeMyVersionCoverDialog() {
+    const dialog = document.getElementById(
+        'atlas-my-version-cover-dialog'
+    );
+
+    if (!dialog || dialog.hidden) return;
+
+    dialog.hidden = true;
+
+    if (activeFocusTrapRoot === dialog) {
+        releaseFocusTrap();
+    }
+}
+
+function openMyVersionCoverDialog() {
+    if (!myVersionEditing || myVersionSaving) return;
+
+    const dialog = document.getElementById(
+        'atlas-my-version-cover-dialog'
+    );
+
+    const imageInput = document.getElementById(
+        'atlas-my-version-image-input'
+    );
+
+    const descriptionInput = document.getElementById(
+        'atlas-my-version-description-input'
+    );
+
+    const restoreSection = document.getElementById(
+        'atlas-my-version-restore-section'
+    );
+
+    const error = document.getElementById(
+        'atlas-my-version-cover-error'
+    );
+
+    if (!dialog || !imageInput || !descriptionInput) return;
+
+    imageInput.value = getEffectiveSubjectCoverImage();
+    descriptionInput.value =
+        getEffectiveSubjectCatalogDescription();
+
+    if (restoreSection) {
+        restoreSection.hidden = !hasSavedMyVersion();
+    }
+
+    if (error) {
+        error.hidden = true;
+        error.textContent = '';
+    }
+
+    dialog.hidden = false;
+    activateFocusTrap(dialog);
+}
+
+function applyMyVersionCoverChanges() {
+    if (!myVersionEditing || myVersionSaving) return;
+
+    const imageInput = document.getElementById(
+        'atlas-my-version-image-input'
+    );
+
+    const descriptionInput = document.getElementById(
+        'atlas-my-version-description-input'
+    );
+
+    const error = document.getElementById(
+        'atlas-my-version-cover-error'
+    );
+
+    const image = String(imageInput?.value || '').trim();
+    const description = String(
+        descriptionInput?.value || ''
+    ).trim();
+
+    if (!image) {
+        if (error) {
+            error.hidden = false;
+            error.textContent = 'Add a cover image.';
+        }
+
+        return;
+    }
+
+    try {
+        const parsed = new URL(image, window.location.href);
+        const allowedProtocols = new Set([
+            'http:',
+            'https:',
+            'data:',
+            'blob:',
+            'file:'
+        ]);
+
+        if (!allowedProtocols.has(parsed.protocol)) {
+            throw new Error('Unsupported image URL.');
+        }
+    } catch {
+        if (error) {
+            error.hidden = false;
+            error.textContent =
+                'Use a valid image URL or relative image path.';
+        }
+
+        return;
+    }
+
+    if (image !== getEffectiveSubjectCoverImage()) {
+        commitMyVersionDraftContent(
+            'module.bgImage',
+            image
+        );
+    }
+
+    if (
+        description !==
+        getEffectiveSubjectCatalogDescription()
+    ) {
+        commitMyVersionDraftContent(
+            'module.catalogDescription',
+            description
+        );
+    }
+
+    closeMyVersionCoverDialog();
+}
+
+function closeRestoreAtlasOriginalDialog() {
+    const dialog = document.getElementById(
+        'atlas-restore-original-dialog'
+    );
+
+    if (!dialog || dialog.hidden) return;
+
+    dialog.hidden = true;
+
+    if (activeFocusTrapRoot === dialog) {
+        releaseFocusTrap();
+    }
+}
+
+function openRestoreAtlasOriginalDialog() {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !hasSavedMyVersion()
+    ) {
+        return;
+    }
+
+    const dialog = document.getElementById(
+        'atlas-restore-original-dialog'
+    );
+
+    const restoreButton = document.getElementById(
+        'atlas-restore-original-confirm'
+    );
+
+    if (!dialog) return;
+
+    closeMyVersionCoverDialog();
+
+    if (restoreButton) {
+        restoreButton.disabled = false;
+        restoreButton.textContent = 'Restore original';
+    }
+
+    dialog.hidden = false;
+    activateFocusTrap(dialog);
+}
+
+function cancelRestoreAtlasOriginal() {
+    closeRestoreAtlasOriginalDialog();
+
+    if (
+        myVersionEditing &&
+        !myVersionSaving &&
+        hasSavedMyVersion()
+    ) {
+        openMyVersionCoverDialog();
+    }
+}
+
+async function restoreAtlasOriginal() {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !hasSavedMyVersion()
+    ) {
+        return;
+    }
+
+    const restoreButton = document.getElementById(
+        'atlas-restore-original-confirm'
+    );
+
+    if (restoreButton) {
+        restoreButton.disabled = true;
+        restoreButton.textContent = 'Restoring…';
+    }
+
+    clearMyVersionWorkingDraftSaveTimer();
+    myVersionPendingWorkingDraftOverrides = null;
+    myVersionSaving = true;
+    updateMyVersionAuthorBar();
+
+    await tutorContentWriteQueue;
+
+    const contentId = getTutorContentId();
+    const Store = requireAtlasTutorContent();
+
+    const [versionDeleted] = await Promise.all([
+        Store.deleteVersion(contentId),
+        Store.clearWorkingDraft(contentId)
+    ]);
+
+    if (!versionDeleted) {
+        myVersionSaving = false;
+        updateMyVersionAuthorBar();
+
+        if (restoreButton) {
+            restoreButton.disabled = false;
+            restoreButton.textContent = 'Restore original';
+        }
+
+        return;
+    }
+
+    tutorContentVersion = null;
+    tutorContentWorkingDraft = null;
+    finishMyVersionEditingState();
+    renderAllTutorContentSurfaces();
+    publishAtlasCompassItem('restored-original');
+}
+
+function isMyVersionUnlockBlockedTarget(target) {
+    return Boolean(
+        target instanceof Element &&
+        target.closest(`
+            input,
+            textarea,
+            select,
+            [contenteditable="true"],
+            [contenteditable="plaintext-only"]
+        `)
+    );
+}
+
+function clearMyVersionUnlockTimer() {
+    if (myVersionUnlockTimer !== null) {
+        window.clearTimeout(myVersionUnlockTimer);
+        myVersionUnlockTimer = null;
+    }
+}
+
+function resetMyVersionUnlockKeys() {
+    clearMyVersionUnlockTimer();
+    myVersionPressedShiftCodes.clear();
+    myVersionUnlockConsumed = false;
+}
+
+function handleMyVersionUnlockKeyDown(event) {
+    if (
+        myVersionEditing ||
+        myVersionSaving ||
+        myVersionUnlockConsumed ||
+        isMyVersionUnlockBlockedTarget(event.target) ||
+        !['ShiftLeft', 'ShiftRight'].includes(event.code)
+    ) {
+        return;
+    }
+
+    myVersionPressedShiftCodes.add(event.code);
+
+    if (
+        myVersionPressedShiftCodes.size !== 2 ||
+        myVersionUnlockTimer !== null
+    ) {
+        return;
+    }
+
+    myVersionUnlockTimer = window.setTimeout(() => {
+        myVersionUnlockTimer = null;
+
+        if (myVersionPressedShiftCodes.size !== 2) {
+            return;
+        }
+
+        myVersionUnlockConsumed = true;
+        requestMyVersionEditing();
+    }, MY_VERSION_UNLOCK_HOLD_MS);
+}
+
+function handleMyVersionUnlockKeyUp(event) {
+    if (!['ShiftLeft', 'ShiftRight'].includes(event.code)) {
+        return;
+    }
+
+    myVersionPressedShiftCodes.delete(event.code);
+    clearMyVersionUnlockTimer();
+
+    if (myVersionPressedShiftCodes.size < 2) {
+        myVersionUnlockConsumed = false;
+    }
+}
+
+function createTutorAuthoredContentId(prefix) {
+    const suffix =
+        window.crypto &&
+        typeof window.crypto.randomUUID === 'function'
+            ? window.crypto.randomUUID()
+            : `${Date.now()}-${Math.random()
+                .toString(36)
+                .slice(2, 10)}`;
+
+    return `${prefix}-${suffix}`;
+}
+
+function getMyVersionDocumentSet(document, setId) {
+    return document?.discussionSets?.find(
+        set => set.id === setId
+    ) || null;
+}
+
+function getDiscussionActivityLabel(set) {
+    if (!set?.makeItReal) return '';
+
+    const fieldKey = getDiscussionMakeItRealFieldKey(
+        set.id,
+        'label'
+    );
+
+    return resolveTutorContentValue(
+        set.makeItReal.label || 'Make It Real',
+        fieldKey
+    );
+}
+
+function getDiscussionMomentFollowUps(moment) {
+    if (!moment) return [];
+
+    const source = Array.isArray(moment.followUps)
+        ? moment.followUps
+        : moment.followUp
+            ? [moment.followUp]
+            : [];
+
+    return source
+        .filter(followUp =>
+            followUp &&
+            typeof followUp === 'object' &&
+            followUp.id &&
+            followUp.prompt
+        )
+        .slice(0, DISCUSSION_FOLLOW_UP_LIMIT);
+}
+
+function getDiscussionFollowUpCustomLabel(
+    momentId,
+    followUp
+) {
+    if (!followUp?.id) return '';
+
+    const fieldKey = getDiscussionFollowUpFieldKey(
+        momentId,
+        followUp.id,
+        'label'
+    );
+
+    return normalizeLiveEditableText(
+        resolveTutorContentValue(
+            followUp.label || '',
+            fieldKey
+        ),
+        false
+    ).slice(0, DISCUSSION_FOLLOW_UP_LABEL_LIMIT);
+}
+
+function getDiscussionFollowUpLabel(momentId, followUp) {
+    if (!followUp?.id) return '';
+
+    const defaultLabel =
+        DISCUSSION_FOLLOW_UP_LABELS[followUp.kind] ||
+        'Follow-up';
+
+    if (followUp.kind !== 'custom') {
+        return defaultLabel;
+    }
+
+    return getDiscussionFollowUpCustomLabel(
+        momentId,
+        followUp
+    ) || defaultLabel;
+}
+
+function ensureMyVersionMomentFollowUps(moment) {
+    if (!moment) return [];
+
+    if (!Array.isArray(moment.followUps)) {
+        moment.followUps = moment.followUp
+            ? [moment.followUp]
+            : [];
+    }
+
+    delete moment.followUp;
+
+    return moment.followUps;
+}
+
+function removeMyVersionFollowUpOverrides(
+    overrides,
+    momentId,
+    followUpId
+) {
+    const prefix = getDiscussionFollowUpFieldKey(
+        momentId,
+        followUpId,
+        ''
+    );
+
+    Object.keys(overrides).forEach(fieldKey => {
+        if (fieldKey.startsWith(prefix)) {
+            delete overrides[fieldKey];
+        }
+    });
+}
+
+function removeMyVersionSetActivityOverrides(
+    overrides,
+    setId
+) {
+    const prefix =
+        `discussion.set.${setId}.makeItReal.`;
+
+    Object.keys(overrides).forEach(fieldKey => {
+        if (fieldKey.startsWith(prefix)) {
+            delete overrides[fieldKey];
+        }
+    });
+}
+
+function removeMyVersionMomentOverrides(
+    overrides,
+    momentId
+) {
+    const prefixes = [
+        `discussion.${momentId}.`,
+        `upgrade.moment.${momentId}.`
+    ];
+
+    Object.keys(overrides).forEach(fieldKey => {
+        if (prefixes.some(prefix => fieldKey.startsWith(prefix))) {
+            delete overrides[fieldKey];
+        }
+    });
+}
+
+function getUpgradeContextIdentity(contextId) {
+    const value = String(contextId || '');
+
+    if (value.startsWith('moment-')) {
+        return {
+            sourceKind: 'moment',
+            sourceElementId: value.slice('moment-'.length)
+        };
+    }
+
+    if (value.startsWith('cl-')) {
+        return {
+            sourceKind: 'cultural-lens',
+            sourceElementId: value.slice('cl-'.length)
+        };
+    }
+
+    return null;
+}
+
+function getMyVersionUpgradeTarget(document, contextId) {
+    const identity = getUpgradeContextIdentity(contextId);
+
+    if (!identity) return null;
+
+    if (identity.sourceKind === 'moment') {
+        return getMyVersionDocumentMoment(
+            document,
+            identity.sourceElementId
+        )?.moment || null;
+    }
+
+    return document?.culturalLensCards?.find(
+        card => card.id === identity.sourceElementId
+    ) || null;
+}
+
+function removeMyVersionUpgradeOverrides(
+    overrides,
+    contextId,
+    fields = null
+) {
+    const identity = getUpgradeContextIdentity(contextId);
+
+    if (!identity) return;
+
+    const prefix = [
+        'upgrade',
+        identity.sourceKind,
+        identity.sourceElementId,
+        ''
+    ].join('.');
+
+    Object.keys(overrides).forEach(fieldKey => {
+        if (!fieldKey.startsWith(prefix)) return;
+
+        if (!Array.isArray(fields)) {
+            delete overrides[fieldKey];
+            return;
+        }
+
+        const field = fieldKey.slice(prefix.length);
+
+        if (fields.includes(field)) {
+            delete overrides[fieldKey];
+        }
+    });
+}
+
+function refreshMyVersionUpgradeFocus(
+    contextId,
+    isOpen
+) {
+    const identity = getUpgradeContextIdentity(contextId);
+
+    if (!identity) return;
+
+    if (
+        identity.sourceKind === 'moment' &&
+        getDiscussionFocusMoment()?.id ===
+            identity.sourceElementId
+    ) {
+        discussionFocusUpgradeOpen = Boolean(isOpen);
+        renderDiscussionFocus();
+    }
+
+    if (
+        identity.sourceKind === 'cultural-lens' &&
+        getCurrentCulturalLensCard()?.id ===
+            identity.sourceElementId
+    ) {
+        culturalLensFocusUpgradeOpen = Boolean(isOpen);
+        renderCulturalLensFocus();
+    }
+
+    if (!isOpen) return;
+
+    requestAnimationFrame(() => {
+        const titleId = identity.sourceKind === 'moment'
+            ? 'discussion-focus-title'
+            : 'cultural-lens-focus-title';
+
+        document.getElementById(titleId)?.focus({
+            preventScroll: true
+        });
+    });
+}
+
+function addMyVersionUpgrade(contextId) {
+    const added = commitMyVersionDocumentMutation(
+        document => {
+            const target = getMyVersionUpgradeTarget(
+                document,
+                contextId
+            );
+
+            if (!target || target.upgrade) {
+                return null;
+            }
+
+            target.upgrade = {
+                term: 'New expression',
+                type: 'expression',
+                definition: 'Add a clear meaning.',
+                priority: 'key'
+            };
+
+            return { contextId };
+        }
+    );
+
+    if (!added) return;
+
+    refreshMyVersionUpgradeFocus(contextId, true);
+}
+
+function removeMyVersionUpgrade(contextId) {
+    const removed = commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            const target = getMyVersionUpgradeTarget(
+                document,
+                contextId
+            );
+
+            if (!target?.upgrade) {
+                return null;
+            }
+
+            delete target.upgrade;
+
+            removeMyVersionUpgradeOverrides(
+                overrides,
+                contextId
+            );
+
+            return { contextId };
+        }
+    );
+
+    if (!removed) return;
+
+    myVersionUpgradeOptionsOpenContextId = null;
+    refreshMyVersionUpgradeFocus(contextId, false);
+}
+
+function addMyVersionUpgradeExamples(contextId) {
+    commitMyVersionDocumentMutation(document => {
+        const target = getMyVersionUpgradeTarget(
+            document,
+            contextId
+        );
+
+        if (
+            !target?.upgrade ||
+            target.upgrade.ordinary ||
+            target.upgrade.upgraded
+        ) {
+            return null;
+        }
+
+        target.upgrade.ordinary =
+            '“Add the ordinary version.”';
+
+        target.upgrade.upgraded =
+            '“Rewrite it with the new expression.”';
+
+        return { contextId };
+    });
+}
+
+function removeMyVersionUpgradeExamples(contextId) {
+    commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            const target = getMyVersionUpgradeTarget(
+                document,
+                contextId
+            );
+
+            if (!target?.upgrade) return null;
+
+            const hadExamples = Boolean(
+                target.upgrade.ordinary ||
+                target.upgrade.upgraded
+            );
+
+            if (!hadExamples) return null;
+
+            delete target.upgrade.ordinary;
+            delete target.upgrade.upgraded;
+
+            removeMyVersionUpgradeOverrides(
+                overrides,
+                contextId,
+                [
+                    'ordinary',
+                    'upgraded',
+                    'insteadOfLabel',
+                    'tryLabel'
+                ]
+            );
+
+            return { contextId };
+        }
+    );
+}
+
+function addMyVersionUpgradeReviewPrompt(contextId) {
+    myVersionUpgradeOptionsOpenContextId = contextId;
+
+    commitMyVersionDocumentMutation(document => {
+        const target = getMyVersionUpgradeTarget(
+            document,
+            contextId
+        );
+
+        if (
+            !target?.upgrade ||
+            target.upgrade.atlasPrompt
+        ) {
+            return null;
+        }
+
+        target.upgrade.atlasPrompt =
+            'How could the learner use this expression in a new situation?';
+
+        return { contextId };
+    });
+}
+
+function removeMyVersionUpgradeReviewPrompt(contextId) {
+    myVersionUpgradeOptionsOpenContextId = contextId;
+
+    commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            const target = getMyVersionUpgradeTarget(
+                document,
+                contextId
+            );
+
+            if (!target?.upgrade?.atlasPrompt) {
+                return null;
+            }
+
+            delete target.upgrade.atlasPrompt;
+
+            removeMyVersionUpgradeOverrides(
+                overrides,
+                contextId,
+                ['atlasPrompt']
+            );
+
+            return { contextId };
+        }
+    );
+}
+
+function changeMyVersionUpgradePriority(
+    contextId,
+    priority
+) {
+    if (
+        !Object.prototype.hasOwnProperty.call(
+            MY_VERSION_UPGRADE_PRIORITIES,
+            priority
+        )
+    ) {
+        return;
+    }
+
+    myVersionUpgradeOptionsOpenContextId = contextId;
+
+    commitMyVersionDocumentMutation(document => {
+        const target = getMyVersionUpgradeTarget(
+            document,
+            contextId
+        );
+
+        if (
+            !target?.upgrade ||
+            target.upgrade.priority === priority
+        ) {
+            return null;
+        }
+
+        target.upgrade.priority = priority;
+
+        return { contextId };
+    });
+}
+
+function setMyVersionUpgradeOptionsOpen(
+    contextId,
+    isOpen
+) {
+    myVersionUpgradeOptionsOpenContextId = isOpen
+        ? contextId
+        : null;
+}
+
+function materializeMyVersionMoment(moment) {
+    const copy = cloneTutorSubjectDocument(moment);
+
+    if (!copy) return null;
+
+    copy.preview = resolveTutorContentValue(
+        moment.preview,
+        getDiscussionPreviewFieldKey(moment.id)
+    );
+
+    copy.question = resolveTutorContentValue(
+        moment.question,
+        getDiscussionQuestionFieldKey(moment.id)
+    );
+
+    const followUps = getDiscussionMomentFollowUps(moment);
+
+    delete copy.followUp;
+
+    if (followUps.length) {
+        copy.followUps = followUps.map(followUp => ({
+            ...cloneTutorSubjectDocument(followUp),
+            label: getDiscussionFollowUpLabel(
+                moment.id,
+                followUp
+            ),
+            prompt: resolveTutorContentValue(
+                followUp.prompt,
+                getDiscussionFollowUpFieldKey(
+                    moment.id,
+                    followUp.id
+                )
+            )
+        }));
+    } else {
+        delete copy.followUps;
+    }
+
+    if (moment.upgrade) {
+        const source = {
+            sourceKind: 'moment',
+            sourceElementId: moment.id,
+            upgrade: moment.upgrade
+        };
+
+        [
+            'term',
+            'type',
+            'definition',
+            'ordinary',
+            'upgraded',
+            'atlasPrompt'
+        ].forEach(field => {
+            if (
+                moment.upgrade[field] !== null &&
+                moment.upgrade[field] !== undefined
+            ) {
+                copy.upgrade[field] = resolveTutorContentValue(
+                    moment.upgrade[field],
+                    getUpgradeFieldKey(source, field)
+                );
+            }
+        });
+
+        copy.upgrade.insteadOfLabel =
+            resolveTutorContentValue(
+                'Instead of',
+                getUpgradeFieldKey(
+                    source,
+                    'insteadOfLabel'
+                )
+            );
+
+        copy.upgrade.tryLabel =
+            resolveTutorContentValue(
+                'Try',
+                getUpgradeFieldKey(source, 'tryLabel')
+            );
+    }
+
+    return copy;
+}
+
+function commitMyVersionDocumentMutation(mutator) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        typeof mutator !== 'function'
+    ) {
+        return null;
+    }
+
+    const before = createMyVersionHistorySnapshot();
+    const nextDocument = cloneTutorSubjectDocument(
+        before.document
+    );
+
+    const nextOverrides = cloneTutorContentOverrides(
+        before.overrides
+    );
+
+    const result = mutator(
+        nextDocument,
+        nextOverrides
+    );
+
+    if (!result) return null;
+
+    const after = createMyVersionHistorySnapshot({
+        overrides: nextOverrides,
+        document: nextDocument
+    });
+
+    if (
+        tutorContentOverridesMatch(
+            before.overrides,
+            after.overrides
+        ) &&
+        tutorSubjectDocumentsMatch(
+            before.document,
+            after.document
+        )
+    ) {
+        return null;
+    }
+
+    recordMyVersionHistory(before, after);
+    myVersionDraftOverrides = after.overrides;
+    myVersionDraftDocument = after.document;
+
+    applyTutorSubjectDocument(myVersionDraftDocument);
+    refreshMyVersionDirtyState();
+    scheduleMyVersionWorkingDraftSave();
+    renderAllTutorContentSurfaces();
+
+    return result;
+}
+
+function getMyVersionDocumentCulturalLensCard(
+    document,
+    cardId
+) {
+    return document?.culturalLensCards?.find(
+        card => card.id === cardId
+    ) || null;
+}
+
+function removeMyVersionCulturalLensQuestionOverrides(
+    overrides,
+    cardId
+) {
+    const prefixes = [
+        `culturalLens.${cardId}.mainQuestion`,
+        `culturalLens.${cardId}.questions.`
+    ];
+
+    Object.keys(overrides).forEach(fieldKey => {
+        if (prefixes.some(prefix =>
+            fieldKey.startsWith(prefix)
+        )) {
+            delete overrides[fieldKey];
+        }
+    });
+}
+
+function getCulturalLensQuestionEntries(card) {
+    if (!card) return [];
+
+    if (Array.isArray(card.questions)) {
+        return card.questions.map((question, index) => ({
+            index,
+            originalValue: question,
+            fieldKey: getCulturalLensQuestionFieldKey(
+                card.id,
+                index
+            )
+        }));
+    }
+
+    if (
+        typeof card.mainQuestion === 'string' &&
+        card.mainQuestion.trim()
+    ) {
+        return [{
+            index: 0,
+            originalValue: card.mainQuestion,
+            fieldKey: getCulturalLensFieldKey(
+                card.id,
+                'mainQuestion'
+            )
+        }];
+    }
+
+    return [];
+}
+
+function materializeMyVersionCulturalLensQuestions(
+    card,
+    overrides
+) {
+    if (!card) return [];
+
+    const questions = getCulturalLensQuestionEntries(card)
+        .map(entry => resolveTutorContentValue(
+            entry.originalValue,
+            entry.fieldKey
+        ));
+
+    card.questions = questions;
+    delete card.mainQuestion;
+
+    removeMyVersionCulturalLensQuestionOverrides(
+        overrides,
+        card.id
+    );
+
+    return card.questions;
+}
+
+function removeMyVersionReflectionQuestionOverrides(
+    overrides
+) {
+    const prefix = 'reflection.questions.';
+
+    Object.keys(overrides).forEach(fieldKey => {
+        if (fieldKey.startsWith(prefix)) {
+            delete overrides[fieldKey];
+        }
+    });
+}
+
+function materializeMyVersionReflectionQuestions(
+    document,
+    overrides
+) {
+    const reflection = document?.subjectCopy?.reflection;
+
+    if (!reflection) return [];
+
+    const source = Array.isArray(reflection.questions)
+        ? reflection.questions
+        : [];
+
+    const questions = source.map((question, index) =>
+        resolveTutorContentValue(
+            question,
+            getReflectionQuestionFieldKey(index)
+        )
+    );
+
+    reflection.questions = questions;
+    removeMyVersionReflectionQuestionOverrides(overrides);
+
+    return reflection.questions;
+}
+
+function removeMyVersionCulturalLensThreadOverrides(
+    overrides,
+    cardId
+) {
+    const prefix =
+        `culturalLens.${cardId}.followTheThread.`;
+
+    Object.keys(overrides).forEach(fieldKey => {
+        if (fieldKey.startsWith(prefix)) {
+            delete overrides[fieldKey];
+        }
+    });
+}
+
+function materializeMyVersionCulturalLensThread(
+    card,
+    overrides
+) {
+    if (!card) return [];
+
+    const source = Array.isArray(card.followTheThread)
+        ? card.followTheThread
+        : [];
+
+    const questions = source.map((question, index) =>
+        resolveTutorContentValue(
+            question,
+            getCulturalLensThreadFieldKey(
+                card.id,
+                index
+            )
+        )
+    );
+
+    card.followTheThread = questions;
+
+    removeMyVersionCulturalLensThreadOverrides(
+        overrides,
+        card.id
+    );
+
+    return card.followTheThread;
+}
+
+function removeMyVersionCulturalLensCardOverrides(
+    overrides,
+    card
+) {
+    if (!card?.id) return;
+
+    const prefix = `culturalLens.${card.id}.`;
+
+    Object.keys(overrides).forEach(fieldKey => {
+        if (fieldKey.startsWith(prefix)) {
+            delete overrides[fieldKey];
+        }
+    });
+
+    removeMyVersionUpgradeOverrides(
+        overrides,
+        `cl-${card.id}`
+    );
+}
+
+function materializeMyVersionCulturalLensCard(card) {
+    const copy = cloneTutorSubjectDocument(card);
+
+    if (!copy) return null;
+
+    [
+        'contextLine',
+        'title',
+        'teaser',
+        'context'
+    ].forEach(field => {
+        copy[field] = resolveTutorContentValue(
+            card[field],
+            getCulturalLensFieldKey(card.id, field)
+        );
+    });
+
+    const mainQuestions = getCulturalLensQuestionEntries(card)
+        .map(entry => resolveTutorContentValue(
+            entry.originalValue,
+            entry.fieldKey
+        ))
+        .filter(question => question.trim());
+
+    delete copy.mainQuestion;
+
+    if (mainQuestions.length) {
+        copy.questions = mainQuestions;
+
+        copy.questionLabel = resolveTutorContentValue(
+            card.questionLabel ?? 'Question',
+            getCulturalLensFieldKey(
+                card.id,
+                'questionLabel'
+            )
+        );
+    } else {
+        delete copy.questions;
+        delete copy.questionLabel;
+    }
+
+    copy.followTheThreadLabel =
+        resolveTutorContentValue(
+            card.followTheThreadLabel ??
+                'Follow the Thread',
+            getCulturalLensFieldKey(
+                card.id,
+                'followTheThreadLabel'
+            )
+        );
+
+    const threadQuestions = Array.isArray(
+        card.followTheThread
+    )
+        ? card.followTheThread
+            .map((question, index) =>
+                resolveTutorContentValue(
+                    question,
+                    getCulturalLensThreadFieldKey(
+                        card.id,
+                        index
+                    )
+                )
+            )
+            .filter(question => question.trim())
+        : [];
+
+    if (threadQuestions.length) {
+        copy.followTheThread = threadQuestions;
+    } else {
+        delete copy.followTheThread;
+        delete copy.followTheThreadLabel;
+    }
+
+    const upgrade = getEffectiveUpgradeSourceFromContextId(
+        `cl-${card.id}`
+    )?.upgrade;
+
+    if (upgrade) {
+        copy.upgrade = cloneTutorSubjectDocument(upgrade);
+    } else {
+        delete copy.upgrade;
+    }
+
+    return copy;
+}
+
+function assignFreshMyVersionCulturalLensCardId(card) {
+    const copy = cloneTutorSubjectDocument(card);
+
+    if (!copy) return null;
+
+    copy.id = createTutorAuthoredContentId(
+        'cultural-lens-card'
+    );
+
+    return copy;
+}
+
+function addMyVersionCulturalLensCard() {
+    const cardId = createTutorAuthoredContentId(
+        'cultural-lens-card'
+    );
+
+    const added = commitMyVersionDocumentMutation(
+        document => {
+            document.culturalLensCards.push({
+                id: cardId,
+                title: 'New card',
+                contextLine: '',
+                teaser: '',
+                context: 'Add context or background.',
+                questions: [
+                    'What would you like to explore?'
+                ],
+                followTheThread: []
+            });
+
+            return { cardId };
+        }
+    );
+
+    if (!added) return;
+
+    window.setTimeout(() => {
+        const index = clCards.findIndex(
+            card => card.id === cardId
+        );
+
+        if (index >= 0) {
+            openCulturalLensFocus(index);
+        }
+    }, 0);
+}
+
+function duplicateMyVersionCulturalLensCard(cardId) {
+    const source = clCards.find(
+        card => card.id === cardId
+    );
+
+    const duplicate =
+        assignFreshMyVersionCulturalLensCardId(
+            materializeMyVersionCulturalLensCard(source)
+        );
+
+    if (!duplicate) return;
+
+    const duplicated = commitMyVersionDocumentMutation(
+        document => {
+            const index =
+                document.culturalLensCards.findIndex(
+                    card => card.id === cardId
+                );
+
+            if (index < 0) return null;
+
+            document.culturalLensCards.splice(
+                index + 1,
+                0,
+                duplicate
+            );
+
+            return { cardId: duplicate.id };
+        }
+    );
+
+    if (!duplicated) return;
+
+    window.setTimeout(() => {
+        const index = clCards.findIndex(
+            card => card.id === duplicate.id
+        );
+
+        if (index >= 0) {
+            openCulturalLensFocus(index);
+        }
+    }, 0);
+}
+
+function moveMyVersionCulturalLensCard(
+    cardId,
+    direction
+) {
+    const offset = direction < 0 ? -1 : 1;
+
+    commitMyVersionDocumentMutation(document => {
+        const index =
+            document.culturalLensCards.findIndex(
+                card => card.id === cardId
+            );
+
+        const nextIndex = index + offset;
+
+        if (
+            index < 0 ||
+            nextIndex < 0 ||
+            nextIndex >=
+                document.culturalLensCards.length
+        ) {
+            return null;
+        }
+
+        const [card] =
+            document.culturalLensCards.splice(
+                index,
+                1
+            );
+
+        document.culturalLensCards.splice(
+            nextIndex,
+            0,
+            card
+        );
+
+        return { cardId };
+    });
+}
+
+function removeMyVersionCulturalLensCard(cardId) {
+    commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            if (
+                document.culturalLensCards.length <= 1
+            ) {
+                return null;
+            }
+
+            const index =
+                document.culturalLensCards.findIndex(
+                    card => card.id === cardId
+                );
+
+            if (index < 0) return null;
+
+            const [removedCard] =
+                document.culturalLensCards.splice(
+                    index,
+                    1
+                );
+
+            removeMyVersionCulturalLensCardOverrides(
+                overrides,
+                removedCard
+            );
+
+            return { cardId };
+        }
+    );
+}
+
+function addMyVersionCulturalLensCardField(
+    cardId,
+    field
+) {
+    if (!myVersionEditing) return;
+
+    const defaults = {
+        contextLine: 'New context',
+        teaser: 'Add a short preview.'
+    };
+
+    if (
+        !Object.prototype.hasOwnProperty.call(
+            defaults,
+            field
+        )
+    ) {
+        return;
+    }
+
+    const changed = commitMyVersionDraftContent(
+        getCulturalLensFieldKey(cardId, field),
+        defaults[field]
+    );
+
+    if (!changed) return;
+
+    requestAnimationFrame(() => {
+        const card = document.getElementById(
+            `cl-card-${cardId}`
+        );
+
+        const element = card?.querySelector(
+            field === 'contextLine'
+                ? '.cl-card-location'
+                : '.cl-card-teaser'
+        );
+
+        if (!element) return;
+
+        element.focus({ preventScroll: true });
+
+        const selection = window.getSelection();
+        const range = document.createRange();
+
+        range.selectNodeContents(element);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+    });
+}
+
+function focusAndSelectMyVersionText(selector) {
+    requestAnimationFrame(() => {
+        const element = document.querySelector(selector);
+
+        if (!element) return;
+
+        element.focus({ preventScroll: true });
+
+        const selection = window.getSelection();
+        const range = document.createRange();
+
+        range.selectNodeContents(element);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+    });
+}
+
+function addMyVersionCulturalLensQuestion(cardId) {
+    const added = commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            const card =
+                getMyVersionDocumentCulturalLensCard(
+                    document,
+                    cardId
+                );
+
+            if (!card) return null;
+
+            const questions =
+                materializeMyVersionCulturalLensQuestions(
+                    card,
+                    overrides
+                );
+
+            questions.push(
+                'What would you like to explore?'
+            );
+
+            return {
+                cardId,
+                index: questions.length - 1
+            };
+        }
+    );
+
+    if (!added) return;
+
+    focusAndSelectMyVersionText(
+        `[data-cultural-lens-question-index="${added.index}"]`
+    );
+}
+
+function moveMyVersionCulturalLensQuestion(
+    cardId,
+    index,
+    direction
+) {
+    const offset = direction < 0 ? -1 : 1;
+
+    commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            const card =
+                getMyVersionDocumentCulturalLensCard(
+                    document,
+                    cardId
+                );
+
+            if (!card) return null;
+
+            const questions =
+                materializeMyVersionCulturalLensQuestions(
+                    card,
+                    overrides
+                );
+
+            const nextIndex = index + offset;
+
+            if (
+                index < 0 ||
+                nextIndex < 0 ||
+                nextIndex >= questions.length
+            ) {
+                return null;
+            }
+
+            const [question] = questions.splice(
+                index,
+                1
+            );
+
+            questions.splice(
+                nextIndex,
+                0,
+                question
+            );
+
+            return {
+                cardId,
+                index: nextIndex
+            };
+        }
+    );
+}
+
+function removeMyVersionCulturalLensQuestion(
+    cardId,
+    index
+) {
+    commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            const card =
+                getMyVersionDocumentCulturalLensCard(
+                    document,
+                    cardId
+                );
+
+            if (!card) return null;
+
+            const questions =
+                materializeMyVersionCulturalLensQuestions(
+                    card,
+                    overrides
+                );
+
+            if (
+                index < 0 ||
+                index >= questions.length
+            ) {
+                return null;
+            }
+
+            questions.splice(index, 1);
+
+            if (!questions.length) {
+                delete card.questions;
+                delete card.questionLabel;
+
+                delete overrides[
+                    getCulturalLensFieldKey(
+                        cardId,
+                        'questionLabel'
+                    )
+                ];
+            }
+
+            return { cardId };
+        }
+    );
+}
+
+function addMyVersionReflectionQuestion() {
+    const added = commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            const questions =
+                materializeMyVersionReflectionQuestions(
+                    document,
+                    overrides
+                );
+
+            questions.push(
+                'What would you like the learner to reflect on?'
+            );
+
+            return {
+                index: questions.length - 1
+            };
+        }
+    );
+
+    if (!added) return;
+
+    focusAndSelectMyVersionText(
+        `[data-reflection-question-index="${added.index}"]`
+    );
+}
+
+function moveMyVersionReflectionQuestion(
+    index,
+    direction
+) {
+    const offset = direction < 0 ? -1 : 1;
+
+    commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            const questions =
+                materializeMyVersionReflectionQuestions(
+                    document,
+                    overrides
+                );
+
+            const nextIndex = index + offset;
+
+            if (
+                index < 0 ||
+                nextIndex < 0 ||
+                nextIndex >= questions.length
+            ) {
+                return null;
+            }
+
+            const [question] = questions.splice(
+                index,
+                1
+            );
+
+            questions.splice(
+                nextIndex,
+                0,
+                question
+            );
+
+            return { index: nextIndex };
+        }
+    );
+}
+
+function removeMyVersionReflectionQuestion(index) {
+    commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            const questions =
+                materializeMyVersionReflectionQuestions(
+                    document,
+                    overrides
+                );
+
+            if (
+                index < 0 ||
+                index >= questions.length
+            ) {
+                return null;
+            }
+
+            questions.splice(index, 1);
+
+            return { index };
+        }
+    );
+}
+
+function addMyVersionCulturalLensThreadQuestion(
+    cardId
+) {
+    const added = commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            const card =
+                getMyVersionDocumentCulturalLensCard(
+                    document,
+                    cardId
+                );
+
+            if (!card) return null;
+
+            const questions =
+                materializeMyVersionCulturalLensThread(
+                    card,
+                    overrides
+                );
+
+            questions.push(
+                'What could you explore next?'
+            );
+
+            return {
+                cardId,
+                index: questions.length - 1
+            };
+        }
+    );
+
+    if (!added) return;
+
+    requestAnimationFrame(() => {
+        const element = document.querySelector(
+            `[data-cultural-lens-thread-index="${added.index}"]`
+        );
+
+        if (!element) return;
+
+        element.focus({ preventScroll: true });
+
+        const selection = window.getSelection();
+        const range = document.createRange();
+
+        range.selectNodeContents(element);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+    });
+}
+
+function moveMyVersionCulturalLensThreadQuestion(
+    cardId,
+    index,
+    direction
+) {
+    const offset = direction < 0 ? -1 : 1;
+
+    commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            const card =
+                getMyVersionDocumentCulturalLensCard(
+                    document,
+                    cardId
+                );
+
+            if (!card) return null;
+
+            const questions =
+                materializeMyVersionCulturalLensThread(
+                    card,
+                    overrides
+                );
+
+            const nextIndex = index + offset;
+
+            if (
+                index < 0 ||
+                nextIndex < 0 ||
+                nextIndex >= questions.length
+            ) {
+                return null;
+            }
+
+            const [question] = questions.splice(
+                index,
+                1
+            );
+
+            questions.splice(
+                nextIndex,
+                0,
+                question
+            );
+
+            return {
+                cardId,
+                index: nextIndex
+            };
+        }
+    );
+}
+
+function removeMyVersionCulturalLensThreadQuestion(
+    cardId,
+    index
+) {
+    commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            const card =
+                getMyVersionDocumentCulturalLensCard(
+                    document,
+                    cardId
+                );
+
+            if (!card) return null;
+
+            const questions =
+                materializeMyVersionCulturalLensThread(
+                    card,
+                    overrides
+                );
+
+            if (
+                index < 0 ||
+                index >= questions.length
+            ) {
+                return null;
+            }
+
+            questions.splice(index, 1);
+
+            if (!questions.length) {
+                delete card.followTheThread;
+
+                delete overrides[
+                    getCulturalLensFieldKey(
+                        cardId,
+                        'followTheThreadLabel'
+                    )
+                ];
+            }
+
+            return { cardId };
+        }
+    );
+}
+
+function normalizeMyVersionQuestionCollectionsForSave() {
+    if (!myVersionEditing || !myVersionDraftDocument) {
+        return;
+    }
+
+    const nextDocument = cloneTutorSubjectDocument(
+        myVersionDraftDocument
+    );
+
+    const nextOverrides = cloneTutorContentOverrides(
+        myVersionDraftOverrides
+    );
+
+    (nextDocument.culturalLensCards || []).forEach(
+        card => {
+            const mainQuestions =
+                materializeMyVersionCulturalLensQuestions(
+                    card,
+                    nextOverrides
+                )
+                .filter(question => question.trim());
+
+            if (mainQuestions.length) {
+                card.questions = mainQuestions;
+            } else {
+                delete card.questions;
+                delete card.mainQuestion;
+                delete card.questionLabel;
+
+                delete nextOverrides[
+                    getCulturalLensFieldKey(
+                        card.id,
+                        'questionLabel'
+                    )
+                ];
+            }
+
+            const threadQuestions =
+                materializeMyVersionCulturalLensThread(
+                    card,
+                    nextOverrides
+                )
+                .filter(question => question.trim());
+
+            if (threadQuestions.length) {
+                card.followTheThread = threadQuestions;
+            } else {
+                delete card.followTheThread;
+                delete card.followTheThreadLabel;
+
+                delete nextOverrides[
+                    getCulturalLensFieldKey(
+                        card.id,
+                        'followTheThreadLabel'
+                    )
+                ];
+            }
+        }
+    );
+
+    const reflectionQuestions =
+        materializeMyVersionReflectionQuestions(
+            nextDocument,
+            nextOverrides
+        )
+        .filter(question => question.trim());
+
+    nextDocument.subjectCopy.reflection.questions =
+        reflectionQuestions;
+
+    myVersionDraftDocument =
+        normalizeTutorSubjectDocument(nextDocument);
+
+    myVersionDraftOverrides = nextOverrides;
+    myVersionPendingWorkingDraftOverrides =
+        cloneTutorContentOverrides(nextOverrides);
+
+    applyTutorSubjectDocument(
+        myVersionDraftDocument
+    );
+
+    refreshMyVersionDirtyState();
+}
+
+function removeMyVersionDiscussionSetOverrides(
+    overrides,
+    set
+) {
+    if (!set?.id) return;
+
+    const setPrefix = `discussion.set.${set.id}.`;
+
+    Object.keys(overrides).forEach(fieldKey => {
+        if (fieldKey.startsWith(setPrefix)) {
+            delete overrides[fieldKey];
+        }
+    });
+
+    (set.moments || []).forEach(moment => {
+        removeMyVersionMomentOverrides(
+            overrides,
+            moment.id
+        );
+    });
+}
+
+function materializeMyVersionDiscussionSet(set) {
+    const copy = cloneTutorSubjectDocument(set);
+
+    if (!copy) return null;
+
+    ['stage', 'title', 'description'].forEach(field => {
+        copy[field] = resolveTutorContentValue(
+            set[field],
+            getDiscussionSetFieldKey(set.id, field)
+        );
+    });
+
+    copy.moments = (set.moments || [])
+        .map(materializeMyVersionMoment)
+        .filter(Boolean);
+
+    if (set.makeItReal) {
+        copy.makeItReal = {
+            ...cloneTutorSubjectDocument(set.makeItReal),
+            label: getDiscussionActivityLabel(set),
+            title: resolveTutorContentValue(
+                set.makeItReal.title,
+                getDiscussionMakeItRealFieldKey(
+                    set.id,
+                    'title'
+                )
+            ),
+            prompt: resolveTutorContentValue(
+                set.makeItReal.prompt,
+                getDiscussionMakeItRealFieldKey(
+                    set.id,
+                    'prompt'
+                )
+            )
+        };
+    }
+
+    return copy;
+}
+
+function assignFreshMyVersionDiscussionSetIds(set) {
+    const copy = cloneTutorSubjectDocument(set);
+
+    if (!copy) return null;
+
+    copy.id = createTutorAuthoredContentId(
+        'discussion-set'
+    );
+
+    copy.moments = (copy.moments || []).map(moment => {
+        const nextMoment = {
+            ...moment,
+            id: createTutorAuthoredContentId('moment')
+        };
+
+        if (Array.isArray(nextMoment.followUps)) {
+            nextMoment.followUps = nextMoment.followUps.map(
+                followUp => ({
+                    ...followUp,
+                    id: createTutorAuthoredContentId(
+                        'follow-up'
+                    )
+                })
+            );
+        }
+
+        if (nextMoment.followUp) {
+            nextMoment.followUp = {
+                ...nextMoment.followUp,
+                id: createTutorAuthoredContentId(
+                    'follow-up'
+                )
+            };
+        }
+
+        return nextMoment;
+    });
+
+    return copy;
+}
+
+function addMyVersionDiscussionSet() {
+    const setId = createTutorAuthoredContentId(
+        'discussion-set'
+    );
+
+    const momentId = createTutorAuthoredContentId(
+        'moment'
+    );
+
+    const added = commitMyVersionDocumentMutation(
+        document => {
+            document.discussionSets.push({
+                id: setId,
+                title: 'New set',
+                stage: 'New Set',
+                icon: 'first-look',
+                description:
+                    'What will this part of the conversation explore?',
+                moments: [
+                    {
+                        id: momentId,
+                        preview: 'New conversation moment',
+                        question:
+                            'What would you like to explore?'
+                    }
+                ]
+            });
+
+            return { setId };
+        }
+    );
+
+    if (!added) return;
+
+    window.setTimeout(() => {
+        openSet(setId);
+    }, 0);
+}
+
+function duplicateMyVersionDiscussionSet(setId) {
+    const source = discussionSets.find(
+        set => set.id === setId
+    );
+
+    const duplicate = assignFreshMyVersionDiscussionSetIds(
+        materializeMyVersionDiscussionSet(source)
+    );
+
+    if (!duplicate) return;
+
+    const duplicated = commitMyVersionDocumentMutation(
+        document => {
+            const index = document.discussionSets.findIndex(
+                set => set.id === setId
+            );
+
+            if (index < 0) return null;
+
+            document.discussionSets.splice(
+                index + 1,
+                0,
+                duplicate
+            );
+
+            return { setId: duplicate.id };
+        }
+    );
+
+    if (!duplicated) return;
+
+    window.setTimeout(() => {
+        openSet(duplicate.id);
+    }, 0);
+}
+
+function moveMyVersionDiscussionSet(
+    setId,
+    direction
+) {
+    const offset = direction < 0 ? -1 : 1;
+
+    commitMyVersionDocumentMutation(document => {
+        const index = document.discussionSets.findIndex(
+            set => set.id === setId
+        );
+
+        const nextIndex = index + offset;
+
+        if (
+            index < 0 ||
+            nextIndex < 0 ||
+            nextIndex >= document.discussionSets.length
+        ) {
+            return null;
+        }
+
+        const [set] = document.discussionSets.splice(
+            index,
+            1
+        );
+
+        document.discussionSets.splice(
+            nextIndex,
+            0,
+            set
+        );
+
+        return { setId };
+    });
+}
+
+function removeMyVersionDiscussionSet(setId) {
+    commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            if (document.discussionSets.length <= 1) {
+                return null;
+            }
+
+            const index = document.discussionSets.findIndex(
+                set => set.id === setId
+            );
+
+            if (index < 0) return null;
+
+            const [removedSet] =
+                document.discussionSets.splice(index, 1);
+
+            removeMyVersionDiscussionSetOverrides(
+                overrides,
+                removedSet
+            );
+
+            return { setId };
+        }
+    );
+}
+
+function addMyVersionMoment(setId) {
+    const newMomentId = createTutorAuthoredContentId(
+        'moment'
+    );
+
+    const added = commitMyVersionDocumentMutation(
+        document => {
+            const set = getMyVersionDocumentSet(
+                document,
+                setId
+            );
+
+            if (!set) return null;
+
+            set.moments.push({
+                id: newMomentId,
+                preview: 'New conversation moment',
+                question: 'What would you like to explore?'
+            });
+
+            return {
+                setId,
+                momentId: newMomentId
+            };
+        }
+    );
+
+    if (!added) return;
+
+    activeSetId = setId;
+
+    window.setTimeout(() => {
+        openDiscussionFocus(
+            setId,
+            newMomentId,
+            document.getElementById(
+                `moment-card-${newMomentId}`
+            )
+        );
+    }, 0);
+}
+
+function duplicateMyVersionMoment(setId, momentId) {
+    const sourceSet = discussionSets.find(
+        set => set.id === setId
+    );
+
+    const sourceMoment = sourceSet?.moments.find(
+        moment => moment.id === momentId
+    );
+
+    const duplicate = materializeMyVersionMoment(
+        sourceMoment
+    );
+
+    if (!duplicate) return;
+
+    duplicate.id = createTutorAuthoredContentId('moment');
+
+    if (Array.isArray(duplicate.followUps)) {
+        duplicate.followUps = duplicate.followUps.map(
+            followUp => ({
+                ...followUp,
+                id: createTutorAuthoredContentId(
+                    'follow-up'
+                )
+            })
+        );
+    }
+
+    const duplicated = commitMyVersionDocumentMutation(
+        document => {
+            const set = getMyVersionDocumentSet(
+                document,
+                setId
+            );
+
+            const index = set?.moments.findIndex(
+                moment => moment.id === momentId
+            ) ?? -1;
+
+            if (!set || index < 0) return null;
+
+            set.moments.splice(
+                index + 1,
+                0,
+                duplicate
+            );
+
+            return {
+                setId,
+                momentId: duplicate.id
+            };
+        }
+    );
+
+    if (!duplicated) return;
+
+    activeSetId = setId;
+
+    window.setTimeout(() => {
+        openDiscussionFocus(
+            setId,
+            duplicate.id,
+            document.getElementById(
+                `moment-card-${duplicate.id}`
+            )
+        );
+    }, 0);
+}
+
+function moveMyVersionMoment(setId, momentId, direction) {
+    const offset = direction < 0 ? -1 : 1;
+
+    commitMyVersionDocumentMutation(document => {
+        const set = getMyVersionDocumentSet(
+            document,
+            setId
+        );
+
+        const index = set?.moments.findIndex(
+            moment => moment.id === momentId
+        ) ?? -1;
+
+        const nextIndex = index + offset;
+
+        if (
+            !set ||
+            index < 0 ||
+            nextIndex < 0 ||
+            nextIndex >= set.moments.length
+        ) {
+            return null;
+        }
+
+        const [moment] = set.moments.splice(index, 1);
+        set.moments.splice(nextIndex, 0, moment);
+
+        return {
+            setId,
+            momentId
+        };
+    });
+}
+
+function removeMyVersionMoment(setId, momentId) {
+    commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            const set = getMyVersionDocumentSet(
+                document,
+                setId
+            );
+
+            if (!set || set.moments.length <= 1) {
+                return null;
+            }
+
+            const index = set.moments.findIndex(
+                moment => moment.id === momentId
+            );
+
+            if (index < 0) return null;
+
+            set.moments.splice(index, 1);
+            removeMyVersionMomentOverrides(
+                overrides,
+                momentId
+            );
+
+            return {
+                setId,
+                momentId
+            };
+        }
+    );
+}
+
+function getMyVersionDocumentMoment(document, momentId) {
+    for (const set of document?.discussionSets || []) {
+        const moment = set.moments?.find(
+            item => item.id === momentId
+        );
+
+        if (moment) {
+            return { set, moment };
+        }
+    }
+
+    return null;
+}
+
+function addMyVersionMomentFollowUp(momentId) {
+    const followUpId = createTutorAuthoredContentId(
+        'follow-up'
+    );
+
+    const added = commitMyVersionDocumentMutation(
+        document => {
+            const result = getMyVersionDocumentMoment(
+                document,
+                momentId
+            );
+
+            if (!result) return null;
+
+            const followUps = ensureMyVersionMomentFollowUps(
+                result.moment
+            );
+
+            if (
+                followUps.length >=
+                DISCUSSION_FOLLOW_UP_LIMIT
+            ) {
+                return null;
+            }
+
+            followUps.push({
+                id: followUpId,
+                kind: 'go-deeper',
+                prompt: 'What could you explore next?'
+            });
+
+            return {
+                momentId,
+                followUpId
+            };
+        }
+    );
+
+    if (!added) return;
+
+    setDiscussionFocusFollowUp(
+        followUpId,
+        `follow-up-${followUpId}`
+    );
+}
+
+function removeMyVersionMomentFollowUp(
+    momentId,
+    followUpId
+) {
+    const removed = commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            const result = getMyVersionDocumentMoment(
+                document,
+                momentId
+            );
+
+            if (!result) return null;
+
+            const followUps = ensureMyVersionMomentFollowUps(
+                result.moment
+            );
+
+            const index = followUps.findIndex(
+                followUp => followUp.id === followUpId
+            );
+
+            if (index < 0) return null;
+
+            followUps.splice(index, 1);
+
+            removeMyVersionFollowUpOverrides(
+                overrides,
+                momentId,
+                followUpId
+            );
+
+            if (!followUps.length) {
+                delete result.moment.followUps;
+            }
+
+            return {
+                momentId,
+                followUpId
+            };
+        }
+    );
+
+    if (!removed) return;
+
+    discussionFocusFollowUpId = null;
+    discussionFocusFollowUpOpen = false;
+    renderDiscussionFocus();
+}
+
+function moveMyVersionMomentFollowUp(
+    momentId,
+    followUpId,
+    direction
+) {
+    const offset = direction < 0 ? -1 : 1;
+
+    commitMyVersionDocumentMutation(document => {
+        const result = getMyVersionDocumentMoment(
+            document,
+            momentId
+        );
+
+        if (!result) return null;
+
+        const followUps = ensureMyVersionMomentFollowUps(
+            result.moment
+        );
+
+        const index = followUps.findIndex(
+            followUp => followUp.id === followUpId
+        );
+
+        const nextIndex = index + offset;
+
+        if (
+            index < 0 ||
+            nextIndex < 0 ||
+            nextIndex >= followUps.length
+        ) {
+            return null;
+        }
+
+        const [followUp] = followUps.splice(index, 1);
+        followUps.splice(nextIndex, 0, followUp);
+
+        return {
+            momentId,
+            followUpId
+        };
+    });
+}
+
+function changeMyVersionMomentFollowUpKind(
+    momentId,
+    followUpId,
+    kind
+) {
+    if (!DISCUSSION_FOLLOW_UP_KINDS.includes(kind)) {
+        return;
+    }
+
+    commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            const result = getMyVersionDocumentMoment(
+                document,
+                momentId
+            );
+
+            if (!result) return null;
+
+            const followUps = ensureMyVersionMomentFollowUps(
+                result.moment
+            );
+
+            const followUp = followUps.find(
+                item => item.id === followUpId
+            );
+
+            if (!followUp || followUp.kind === kind) {
+                return null;
+            }
+
+            followUp.kind = kind;
+            delete followUp.label;
+
+            delete overrides[
+                getDiscussionFollowUpFieldKey(
+                    momentId,
+                    followUpId,
+                    'label'
+                )
+            ];
+
+            return {
+                momentId,
+                followUpId
+            };
+        }
+    );
+}
+
+function commitMyVersionMomentFollowUpLabel(
+    momentId,
+    followUpId,
+    value
+) {
+    const nextLabel = normalizeLiveEditableText(
+        value,
+        false
+    ).slice(0, DISCUSSION_FOLLOW_UP_LABEL_LIMIT);
+
+    commitMyVersionDraftContent(
+        getDiscussionFollowUpFieldKey(
+            momentId,
+            followUpId,
+            'label'
+        ),
+        nextLabel
+    );
+}
+
+function addMyVersionSetActivity(setId) {
+    const added = commitMyVersionDocumentMutation(
+        document => {
+            const set = getMyVersionDocumentSet(
+                document,
+                setId
+            );
+
+            if (!set || set.makeItReal) {
+                return null;
+            }
+
+            set.makeItReal = {
+                label: 'Make It Real',
+                title: 'New closing activity',
+                prompt: 'What would you like the learner to do?'
+            };
+
+            return { setId };
+        }
+    );
+
+    if (!added) return;
+
+    activeSetId = setId;
+
+    window.setTimeout(() => {
+        openDiscussionFocus(
+            setId,
+            DISCUSSION_FOCUS_MAKE_IT_REAL_ID,
+            document.getElementById(
+                `make-it-real-card-${setId}`
+            )
+        );
+    }, 0);
+}
+
+function removeMyVersionSetActivity(setId) {
+    commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            const set = getMyVersionDocumentSet(
+                document,
+                setId
+            );
+
+            if (!set?.makeItReal) {
+                return null;
+            }
+
+            delete set.makeItReal;
+
+            removeMyVersionSetActivityOverrides(
+                overrides,
+                setId
+            );
+
+            return { setId };
+        }
+    );
+}
+
+function getLiveTutorHistoryScopeKey(
+    sessionId = currentSessionId,
+    contentId = getTutorContentId()
+) {
+    return `${sessionId}::${contentId}`;
+}
+
+function getLiveTutorHistory() {
+    const scopeKey = getLiveTutorHistoryScopeKey();
+
+    if (!liveTutorHistoryByScope.has(scopeKey)) {
+        liveTutorHistoryByScope.set(scopeKey, {
+            undo: [],
+            redo: []
+        });
+    }
+
+    return liveTutorHistoryByScope.get(scopeKey);
+}
+
+function cloneLiveTutorOverrides() {
+    return {
+        ...(tutorContentLiveDraft?.overrides || {})
+    };
+}
+
+function cacheLiveTutorOverrides(overrides) {
+    const nextOverrides = {
+        ...(overrides || {})
+    };
+
+    if (Object.keys(nextOverrides).length === 0) {
+        tutorContentLiveDraft = null;
+        updateLiveTutorContentControl();
+        return;
+    }
+
     const current = tutorContentLiveDraft || {
         schemaVersion: 1,
         ownerId: 'local-tutor',
@@ -375,21 +3857,184 @@ function cacheLiveTutorContentOverride(fieldKey, value) {
 
     tutorContentLiveDraft = {
         ...current,
+        sessionId: currentSessionId,
+        contentId: getTutorContentId(),
         updatedAt: Date.now(),
-        overrides: {
-            ...(current.overrides || {}),
-            [fieldKey]: value
-        }
+        overrides: nextOverrides
     };
 
     updateLiveTutorContentControl();
 }
 
-function commitLiveTutorContent(fieldKey, value) {
+function recordLiveTutorHistory(before, after) {
+    const history = getLiveTutorHistory();
+
+    history.undo.push({
+        before: { ...before },
+        after: { ...after }
+    });
+
+    if (history.undo.length > LIVE_TUTOR_HISTORY_LIMIT) {
+        history.undo.shift();
+    }
+
+    history.redo.length = 0;
+}
+
+function clearLiveTutorHistory() {
+    liveTutorHistoryByScope.delete(
+        getLiveTutorHistoryScopeKey()
+    );
+}
+
+function persistLiveTutorSnapshot(
+    overrides,
+    sessionId,
+    contentId,
+    mutationRevision
+) {
+    const snapshot = {
+        ...(overrides || {})
+    };
+
+    queueTutorContentWrite(async () => {
+        const Store = requireAtlasTutorContent();
+
+        await Store.clearLiveDraft(
+            sessionId,
+            contentId
+        );
+
+        const saved = Object.keys(snapshot).length
+            ? await Store.saveLiveDraft(
+                sessionId,
+                contentId,
+                {
+                    baseContentVersion: MODULE.contentVersion,
+                    overrides: snapshot
+                }
+            )
+            : null;
+
+        if (
+            mutationRevision === liveTutorMutationRevision &&
+            sessionId === currentSessionId &&
+            contentId === getTutorContentId()
+        ) {
+            tutorContentLiveDraft = saved;
+            updateLiveTutorContentControl();
+        }
+    });
+}
+
+function applyLiveTutorHistorySnapshot(overrides) {
     const sessionId = currentSessionId;
     const contentId = getTutorContentId();
+    const mutationRevision = ++liveTutorMutationRevision;
 
-    cacheLiveTutorContentOverride(fieldKey, value);
+    cacheLiveTutorOverrides(overrides);
+    renderAllTutorContentSurfaces();
+
+    persistLiveTutorSnapshot(
+        overrides,
+        sessionId,
+        contentId,
+        mutationRevision
+    );
+}
+
+function undoLiveTutorContent() {
+    const history = getLiveTutorHistory();
+    const action = history.undo.pop();
+
+    if (!action) return false;
+
+    history.redo.push(action);
+    applyLiveTutorHistorySnapshot(action.before);
+
+    return true;
+}
+
+function redoLiveTutorContent() {
+    const history = getLiveTutorHistory();
+    const action = history.redo.pop();
+
+    if (!action) return false;
+
+    history.undo.push(action);
+    applyLiveTutorHistorySnapshot(action.after);
+
+    return true;
+}
+
+function handleLiveTutorHistoryShortcut(event) {
+    if (
+        !(event.ctrlKey || event.metaKey) ||
+        event.altKey
+    ) {
+        return;
+    }
+
+    const liveTarget = event.target instanceof Element
+        ? event.target.closest(
+            '[data-atlas-live-editable="true"]'
+        )
+        : null;
+
+    if (
+        liveTarget?.dataset.atlasTutorNativeDirty === 'true'
+    ) {
+        return;
+    }
+
+    const key = String(event.key || '').toLowerCase();
+    const wantsUndo = key === 'z' && !event.shiftKey;
+    const wantsRedo = (
+        (key === 'z' && event.shiftKey) ||
+        (key === 'y' && !event.shiftKey)
+    );
+
+    if (!wantsUndo && !wantsRedo) return;
+
+    const handled = myVersionEditing
+        ? (
+            wantsRedo
+                ? redoMyVersionContent()
+                : undoMyVersionContent()
+        )
+        : (
+            wantsRedo
+                ? redoLiveTutorContent()
+                : undoLiveTutorContent()
+        );
+
+    if (!handled) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+}
+
+function commitLiveTutorContent(fieldKey, value) {
+    const requiresValue =
+        /^paths\.(discussionTitle|culturalLensTitle|reflectionTitle)$/
+            .test(fieldKey);
+
+    if (requiresValue && !String(value ?? '').trim()) {
+        renderAllTutorContentSurfaces();
+        return false;
+    }
+
+    const sessionId = currentSessionId;
+    const contentId = getTutorContentId();
+    const before = cloneLiveTutorOverrides();
+    const after = {
+        ...before,
+        [fieldKey]: value
+    };
+    const mutationRevision = ++liveTutorMutationRevision;
+
+    recordLiveTutorHistory(before, after);
+    cacheLiveTutorOverrides(after);
 
     queueTutorContentWrite(async () => {
         const saved = await requireAtlasTutorContent()
@@ -406,10 +4051,12 @@ function commitLiveTutorContent(fieldKey, value) {
 
         if (
             saved &&
+            mutationRevision === liveTutorMutationRevision &&
             sessionId === currentSessionId &&
             contentId === getTutorContentId()
         ) {
             tutorContentLiveDraft = saved;
+            updateLiveTutorContentControl();
         }
     });
 }
@@ -422,13 +4069,17 @@ function getDiscussionQuestionFieldKey(momentId) {
     return `discussion.${momentId}.question`;
 }
 
-function getDiscussionFollowUpFieldKey(momentId, followUpId) {
+function getDiscussionFollowUpFieldKey(
+    momentId,
+    followUpId,
+    field = 'prompt'
+) {
     return [
         'discussion',
         momentId,
         'followUp',
         followUpId,
-        'prompt'
+        field
     ].join('.');
 }
 
@@ -444,8 +4095,16 @@ function getCulturalLensFieldKey(cardId, field) {
     return `culturalLens.${cardId}.${field}`;
 }
 
+function getCulturalLensQuestionFieldKey(cardId, index) {
+    return `culturalLens.${cardId}.questions.${index}`;
+}
+
 function getCulturalLensThreadFieldKey(cardId, index) {
     return `culturalLens.${cardId}.followTheThread.${index}`;
+}
+
+function getReflectionQuestionFieldKey(index) {
+    return `reflection.questions.${index}`;
 }
 
 function updateLiveTutorContentControl() {
@@ -457,12 +4116,11 @@ function updateLiveTutorContentControl() {
         'atlas-live-changes-count'
     );
 
-    const changeCount = Object.keys(
-        tutorContentLiveDraft?.overrides || {}
-    ).length;
+    const changeCount = getLiveTutorContentChangeCount();
 
     if (control) {
-        control.hidden = changeCount === 0;
+        control.hidden =
+            myVersionEditing || changeCount === 0;
     }
 
     if (count) {
@@ -473,7 +4131,13 @@ function updateLiveTutorContentControl() {
 }
 
 function renderAllTutorContentSurfaces() {
+    applyCoverConfig();
+    applyDerivedLabels();
     applySubjectCopy();
+    renderAllCompassNavigation();
+    applySubjectIdentityChrome();
+    updateSessionUI();
+    updateAppearanceToggleUI();
     renderCLGrid();
     renderDiscussionSets();
 
@@ -505,6 +4169,7 @@ function renderAllTutorContentSurfaces() {
 
     updateReflectionCompleteState();
     updateLiveTutorContentControl();
+    updateMyVersionAuthorBar();
 }
 
 async function restoreLiveTutorContent() {
@@ -525,6 +4190,8 @@ async function restoreLiveTutorContent() {
     if (!cleared) return;
 
     tutorContentLiveDraft = null;
+    liveTutorMutationRevision += 1;
+    clearLiveTutorHistory();
     renderAllTutorContentSurfaces();
 }
 
@@ -959,6 +4626,12 @@ function publishAtlasCompassItem(action = 'updated') {
         const activeSession = getCurrentBridgeSession();
         const registryId = getContentRegistryId();
         const timestamp = Date.now();
+        const publishedTitle = getPublishedSubjectTitle();
+        const publishedDescription =
+            getPublishedSubjectCatalogDescription();
+        const publishedCoverImage =
+            getPublishedSubjectCoverImage();
+        const hasMyVersion = hasSavedMyVersion();
 
         const culturalLensExplored = clCards.filter(card =>
             progress.explored.has(card.id)
@@ -995,8 +4668,12 @@ function publishAtlasCompassItem(action = 'updated') {
             schemaVersion: MODULE.schemaVersion,
             contentVersion: MODULE.contentVersion,
             id: MODULE.id,
-            title: MODULE.title,
-            navTitle: MODULE.navTitle || MODULE.title,
+            title: publishedTitle,
+            navTitle: publishedTitle,
+            description: publishedDescription,
+            hook: publishedDescription,
+            coverImage: publishedCoverImage,
+            hasMyVersion,
             status: 'available',
             launchUrl: getAtlasLaunchUrl()
         });
@@ -1010,8 +4687,12 @@ function publishAtlasCompassItem(action = 'updated') {
             schemaVersion: 2,
             contentVersion: MODULE.contentVersion,
             id: MODULE.id,
-            title: MODULE.title,
-            navTitle: MODULE.navTitle || MODULE.title,
+            title: publishedTitle,
+            navTitle: publishedTitle,
+            description: publishedDescription,
+            hook: publishedDescription,
+            coverImage: publishedCoverImage,
+            hasMyVersion,
             status,
             action,
             launchUrl: getAtlasLaunchUrl(),
@@ -1169,6 +4850,7 @@ function disableLiveTutorContentElement(element) {
     delete element.dataset.atlasTutorMultiline;
     delete element.dataset.atlasTutorStartValue;
     delete element.dataset.atlasTutorCancel;
+    delete element.dataset.atlasTutorNativeDirty;
 
     const originalTabIndex =
         element.dataset.atlasTutorOriginalTabindex;
@@ -1181,6 +4863,7 @@ function disableLiveTutorContentElement(element) {
 
     delete element.dataset.atlasTutorOriginalTabindex;
 
+    element.onclick = null;
     element.onfocus = null;
     element.oninput = null;
     element.onbeforeinput = null;
@@ -1220,17 +4903,36 @@ function configureLiveTutorContentElement(
     element.dataset.atlasTutorMultiline = String(multiline);
     element.tabIndex = 0;
 
+    element.onclick = event => {
+        event.stopPropagation();
+    };
+
     element.onfocus = () => {
         element.dataset.atlasTutorStartValue =
             readLiveEditableText(element, multiline);
 
         delete element.dataset.atlasTutorCancel;
+        element.dataset.atlasTutorNativeDirty = 'false';
     };
 
     element.oninput = () => {
-        element.dataset.atlasLiveEmpty = String(
-            readLiveEditableText(element, multiline).length === 0
+        const nextValue = readLiveEditableText(
+            element,
+            multiline
         );
+
+        element.dataset.atlasLiveEmpty = String(
+            nextValue.length === 0
+        );
+
+        element.dataset.atlasTutorNativeDirty = 'true';
+
+        if (myVersionEditing) {
+            scheduleMyVersionWorkingDraftSave({
+                ...myVersionDraftOverrides,
+                [fieldKey]: nextValue
+            });
+        }
     };
 
     element.onbeforeinput = event => {
@@ -1254,6 +4956,10 @@ function configureLiveTutorContentElement(
     };
 
     element.onkeydown = event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.stopPropagation();
+        }
+
         if (event.key === 'Escape') {
             event.preventDefault();
             event.stopPropagation();
@@ -1291,12 +4997,20 @@ function configureLiveTutorContentElement(
 
         delete element.dataset.atlasTutorStartValue;
         delete element.dataset.atlasTutorCancel;
+        delete element.dataset.atlasTutorNativeDirty;
 
         if (cancelled || nextValue === startValue) {
             return;
         }
 
-        commitLiveTutorContent(fieldKey, nextValue);
+        if (myVersionEditing) {
+            commitMyVersionDraftContent(
+                fieldKey,
+                nextValue
+            );
+        } else {
+            commitLiveTutorContent(fieldKey, nextValue);
+        }
     };
 }
 
@@ -1362,18 +5076,178 @@ function applyCompassFavicon() {
     icon.href = `data:image/svg+xml,${encodeURIComponent(faviconSvg)}`;
 }
 
+function resolvePublishedTutorContentValue(
+    originalValue,
+    fieldKey
+) {
+    if (hasTutorContentOverride(tutorContentVersion, fieldKey)) {
+        return String(
+            tutorContentVersion.overrides[fieldKey] ?? ''
+        );
+    }
+
+    return String(originalValue ?? '');
+}
+
+function getEffectiveSubjectTitle() {
+    return resolveTutorContentValue(
+        MODULE.title,
+        'module.title'
+    ).trim() || MODULE.title;
+}
+
+function getPublishedSubjectTitle() {
+    return resolvePublishedTutorContentValue(
+        MODULE.title,
+        'module.title'
+    ).trim() || MODULE.title;
+}
+
+function getEffectiveSubjectCoverImage() {
+    return resolveTutorContentValue(
+        MODULE.bgImage,
+        'module.bgImage'
+    ).trim() || MODULE.bgImage;
+}
+
+function getPublishedSubjectCoverImage() {
+    return resolvePublishedTutorContentValue(
+        MODULE.bgImage,
+        'module.bgImage'
+    ).trim() || MODULE.bgImage;
+}
+
+function getEffectiveSubjectCatalogDescription() {
+    const originalDescription =
+        ATLAS_SUBJECT_DOCUMENT
+            .module
+            .catalogDescription || '';
+
+    return resolveTutorContentValue(
+        originalDescription,
+        'module.catalogDescription'
+    ).trim();
+}
+
+function getPublishedSubjectCatalogDescription() {
+    const originalDescription =
+        ATLAS_SUBJECT_DOCUMENT
+            .module
+            .catalogDescription || '';
+
+    return resolvePublishedTutorContentValue(
+        originalDescription,
+        'module.catalogDescription'
+    ).trim();
+}
+
+function getEffectivePathTitle(pathKey, fallback) {
+    const originalValue =
+        subjectCopy.paths?.[pathKey] || fallback;
+
+    return resolveTutorContentValue(
+        originalValue,
+        `paths.${pathKey}`
+    ).trim() || fallback;
+}
+
+function getDiscussionPathTitle() {
+    return getEffectivePathTitle(
+        'discussionTitle',
+        'Discussion'
+    );
+}
+
+function getCulturalLensPathTitle() {
+    return getEffectivePathTitle(
+        'culturalLensTitle',
+        'Cultural Lens'
+    );
+}
+
+function getReflectionPathTitle() {
+    return getEffectivePathTitle(
+        'reflectionTitle',
+        'Reflection'
+    );
+}
+
+function getNavItemLabel(item) {
+    if (!item?.labelKey) {
+        return item?.label || '';
+    }
+
+    return getEffectivePathTitle(
+        item.labelKey,
+        item.label
+    );
+}
+
+function applySubjectIdentityChrome() {
+    const title = getEffectiveSubjectTitle();
+    const myVersionLabel = myVersionEditing
+        ? `${title} · Editing My Version`
+        : hasSavedMyVersion()
+            ? `${title} · My Version`
+            : title;
+
+    document
+        .querySelectorAll(
+            '.nav-brand-subject, .mobile-header-context'
+        )
+        .forEach(element => {
+            element.textContent = myVersionLabel;
+        });
+
+    setText('mobile-drawer-subject-title', myVersionLabel);
+
+    setText(
+        'cover-eyebrow-label',
+        myVersionEditing
+            ? 'EDITING MY VERSION'
+            : hasSavedMyVersion()
+                ? 'MY VERSION'
+                : 'COMPASS SUBJECT'
+    );
+}
+
 function applyCoverConfig() {
-    document.title = MODULE.title;
+    const title = getEffectiveSubjectTitle();
+    const coverImage = getEffectiveSubjectCoverImage();
+
+    document.title = title;
 
     const coverTitle = document.getElementById('cover-title');
 
     if (coverTitle) {
-        coverTitle.innerHTML = MODULE.titleHtml;
+        if (myVersionEditing) {
+            configureLiveTutorContentElement(
+                coverTitle,
+                {
+                    fieldKey: 'module.title',
+                    value: title,
+                    multiline: false
+                }
+            );
+        } else {
+            disableLiveTutorContentElement(coverTitle);
+
+            if (
+                hasTutorContentOverride(
+                    tutorContentVersion,
+                    'module.title'
+                )
+            ) {
+                coverTitle.textContent = title;
+            } else {
+                coverTitle.innerHTML = MODULE.titleHtml;
+            }
+        }
     }
 
     document.documentElement.style.setProperty(
         '--module-bg-image',
-        `url('${MODULE.bgImage}')`
+        `url(${JSON.stringify(coverImage)})`
     );
 }
 
@@ -1417,46 +5291,187 @@ function renderOverviewIntro() {
 }
 
 function renderReflectionQuestions() {
-    const container = document.getElementById('reflection-questions');
+    const container = document.getElementById(
+        'reflection-questions'
+    );
 
     if (!container) return;
 
-    const questions = Array.isArray(subjectCopy.reflection.questions)
+    const source = Array.isArray(
+        subjectCopy.reflection.questions
+    )
         ? subjectCopy.reflection.questions
         : [];
 
-    const visibleQuestions = questions
-        .map((question, index) => ({ question, index }))
-        .filter(({ question }) =>
-            typeof question === 'string' && question.trim()
+    const questions = source.map((question, index) => {
+        const fieldKey = getReflectionQuestionFieldKey(
+            index
         );
 
-    container.innerHTML = visibleQuestions
-        .map(({ index }) => `
-            <div class="reflection-q">
+        return {
+            index,
+            fieldKey,
+            value: resolveTutorContentValue(
+                question,
+                fieldKey
+            )
+        };
+    });
+
+    const visibleQuestions = myVersionEditing
+        ? questions
+        : questions.filter(question =>
+            question.value.trim()
+        );
+
+    container.hidden =
+        !myVersionEditing &&
+        visibleQuestions.length === 0;
+
+    container.classList.toggle(
+        'is-empty-authoring',
+        myVersionEditing &&
+        visibleQuestions.length === 0
+    );
+
+    if (container.hidden) {
+        container.innerHTML = '';
+        return;
+    }
+
+    container.innerHTML = visibleQuestions.map(
+        (question, position) => `
+            <div class="reflection-q"
+                data-reflection-question-row="${question.index}">
                 <p class="reflection-q-text"
-                    data-reflection-question-index="${index}"></p>
+                    data-reflection-question-index="${question.index}"></p>
+
+                ${myVersionEditing
+                    ? `
+                        <div class="reflection-question-author-controls">
+                            <button class="moment-author-control"
+                                type="button"
+                                data-reflection-question-action="up"
+                                data-reflection-question-index="${question.index}"
+                                aria-label="Move reflection question earlier"
+                                title="Move earlier"
+                                ${position === 0 ? 'disabled' : ''}>
+                                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                    <path d="M4 10l4-4 4 4"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+
+                            <button class="moment-author-control"
+                                type="button"
+                                data-reflection-question-action="down"
+                                data-reflection-question-index="${question.index}"
+                                aria-label="Move reflection question later"
+                                title="Move later"
+                                ${position === visibleQuestions.length - 1
+                                    ? 'disabled'
+                                    : ''}>
+                                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                    <path d="M4 6l4 4 4-4"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+
+                            <button class="moment-author-control moment-author-control--danger"
+                                type="button"
+                                data-reflection-question-action="remove"
+                                data-reflection-question-index="${question.index}"
+                                aria-label="Remove reflection question"
+                                title="Remove question">
+                                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                    <path d="M3.5 4.5h9M6 4.5V3.2c0-.66.54-1.2 1.2-1.2h1.6c.66 0 1.2.54 1.2 1.2v1.3M5 6.5l.45 6.1c.05.78.7 1.4 1.49 1.4h2.12c.79 0 1.44-.62 1.49-1.4L11 6.5"
+                                        stroke="currentColor"
+                                        stroke-width="1.25"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    `
+                    : ''}
             </div>
-        `)
-        .join('');
+        `
+    ).join('');
 
-    visibleQuestions.forEach(({ question, index }) => {
-        const fieldKey = `reflection.questions.${index}`;
-        const value = resolveTutorContentValue(
-            question,
-            fieldKey
+    if (myVersionEditing) {
+        container.insertAdjacentHTML(
+            'beforeend',
+            `
+                <button class="reflection-question-add"
+                    type="button"
+                    data-reflection-question-add>
+                    <svg width="15" height="15" viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <path d="M7.5 2.5v10M2.5 7.5h10"
+                            stroke="currentColor"
+                            stroke-width="1.45"
+                            stroke-linecap="round"/>
+                    </svg>
+                    Add reflection question
+                </button>
+            `
         );
+    }
 
+    visibleQuestions.forEach(question => {
         configureLiveTutorContentElement(
             container.querySelector(
-                `[data-reflection-question-index="${index}"]`
+                `[data-reflection-question-index="${question.index}"]`
             ),
             {
-                fieldKey,
-                value,
+                fieldKey: question.fieldKey,
+                value: question.value,
                 multiline: true
             }
         );
+    });
+
+    container.querySelectorAll(
+        '[data-reflection-question-action]'
+    ).forEach(button => {
+        const index = Number(
+            button.dataset.reflectionQuestionIndex
+        );
+
+        button.onclick = () => {
+            const action =
+                button.dataset.reflectionQuestionAction;
+
+            if (action === 'up') {
+                moveMyVersionReflectionQuestion(
+                    index,
+                    -1
+                );
+                return;
+            }
+
+            if (action === 'down') {
+                moveMyVersionReflectionQuestion(
+                    index,
+                    1
+                );
+                return;
+            }
+
+            removeMyVersionReflectionQuestion(index);
+        };
+    });
+
+    container.querySelector(
+        '[data-reflection-question-add]'
+    )?.addEventListener('click', () => {
+        addMyVersionReflectionQuestion();
     });
 }
 
@@ -1510,7 +5525,7 @@ function applySubjectCopy() {
         'cover-hook',
         subjectCopy.cover.hook,
         'cover.hook',
-        { multiline: true }
+        { multiline: false }
     );
 
     configureStaticTutorContentField(
@@ -1529,10 +5544,57 @@ function applySubjectCopy() {
         { multiline: true }
     );
 
-    setText('path-desc-cl', subjectCopy.paths.culturalLensDescription);
-    setText('path-desc-disc', subjectCopy.paths.discussionDescription);
-    setText('reflection-path-title', subjectCopy.paths.reflectionTitle);
-    setText('reflection-path-desc', subjectCopy.paths.reflectionDescription);
+    configureStaticTutorContentField(
+        'path-title-disc',
+        subjectCopy.paths.discussionTitle || 'Discussion',
+        'paths.discussionTitle',
+        { multiline: false }
+    );
+
+    configureStaticTutorContentField(
+        'path-desc-disc',
+        subjectCopy.paths.discussionDescription,
+        'paths.discussionDescription',
+        { multiline: true }
+    );
+
+    configureStaticTutorContentField(
+        'path-title-cl',
+        subjectCopy.paths.culturalLensTitle || 'Cultural Lens',
+        'paths.culturalLensTitle',
+        { multiline: false }
+    );
+
+    configureStaticTutorContentField(
+        'path-desc-cl',
+        subjectCopy.paths.culturalLensDescription,
+        'paths.culturalLensDescription',
+        { multiline: true }
+    );
+
+    setText(
+        'discussion-section-eyebrow',
+        getDiscussionPathTitle()
+    );
+
+    setText(
+        'cl-section-eyebrow',
+        getCulturalLensPathTitle()
+    );
+
+    configureStaticTutorContentField(
+        'reflection-path-title',
+        subjectCopy.paths.reflectionTitle,
+        'paths.reflectionTitle',
+        { multiline: false }
+    );
+
+    configureStaticTutorContentField(
+        'reflection-path-desc',
+        subjectCopy.paths.reflectionDescription,
+        'paths.reflectionDescription',
+        { multiline: true }
+    );
 
     configureStaticTutorContentField(
         'cl-section-heading',
@@ -1630,7 +5692,8 @@ function updateReflectionCompleteState(animate = false) {
 
     if (!view || !button) return;
 
-    const complete = isLessonComplete();
+    const complete =
+        isLessonComplete() && !myVersionEditing;
 
     view.classList.toggle('reflection-complete', complete);
     updateReflectionProgressSummary();
@@ -1644,7 +5707,7 @@ function updateReflectionCompleteState(animate = false) {
 
         setText(
             'reflection-title',
-            `You explored ${MODULE.title}`
+            `You explored ${getEffectiveSubjectTitle()}`
         );
     } else {
         configureLiveTutorContentElement(
@@ -1711,34 +5774,77 @@ function updateReflectionCompleteState(animate = false) {
     }
 }
 
+function isUsingAtlasPathTitle(pathKey, fallback) {
+    const atlasTitle = String(
+        ATLAS_SUBJECT_DOCUMENT
+            .subjectCopy
+            ?.paths
+            ?.[pathKey] || fallback
+    ).trim();
+
+    return getEffectivePathTitle(
+        pathKey,
+        fallback
+    ) === atlasTitle;
+}
+
 function applyDerivedLabels() {
+    const culturalLensUsesAtlasTitle = isUsingAtlasPathTitle(
+        'culturalLensTitle',
+        'Cultural Lens'
+    );
+
     const culturalLensCount = clCards.length;
-    const culturalLensLabel = document.getElementById('path-label-cl');
+    const culturalLensUnit = culturalLensUsesAtlasTitle
+        ? culturalLensCount === 1
+            ? COMPASS_LABELS.culturalLensUnitSingular
+            : COMPASS_LABELS.culturalLensUnitPlural
+        : culturalLensCount === 1
+            ? COMPASS_LABELS.culturalLensGenericUnitSingular
+            : COMPASS_LABELS.culturalLensGenericUnitPlural;
+
+    const culturalLensLabel = document.getElementById(
+        'path-label-cl'
+    );
 
     if (culturalLensLabel) {
         culturalLensLabel.textContent =
-            `${countLabel(culturalLensCount)} ${culturalLensCount === 1
-                ? COMPASS_LABELS.culturalLensUnitSingular
-                : COMPASS_LABELS.culturalLensUnitPlural
-            }`;
+            `${countLabel(culturalLensCount)} ${culturalLensUnit}`;
     }
 
-    const momentCount = discussionSets.reduce(
-        (total, set) => total + set.moments.length,
-        0
+    const discussionUsesAtlasTitle = isUsingAtlasPathTitle(
+        'discussionTitle',
+        'Discussion'
     );
 
-    const discussionLabel = document.getElementById('path-label-disc');
+    const discussionCount = discussionUsesAtlasTitle
+        ? discussionSets.reduce(
+            (total, set) => total + set.moments.length,
+            0
+        )
+        : discussionSets.length;
+
+    const discussionUnit = discussionUsesAtlasTitle
+        ? discussionCount === 1
+            ? COMPASS_LABELS.discussionUnitSingular
+            : COMPASS_LABELS.discussionUnitPlural
+        : discussionCount === 1
+            ? COMPASS_LABELS.discussionGenericUnitSingular
+            : COMPASS_LABELS.discussionGenericUnitPlural;
+
+    const discussionLabel = document.getElementById(
+        'path-label-disc'
+    );
 
     if (discussionLabel) {
         discussionLabel.textContent =
-            `${countLabel(momentCount)} ${momentCount === 1
-                ? COMPASS_LABELS.discussionUnitSingular
-                : COMPASS_LABELS.discussionUnitPlural
-            }`;
+            `${countLabel(discussionCount)} ${discussionUnit}`;
     }
 
-    setText('orient-eyebrow', MODULE.title);
+    setText(
+        'orient-eyebrow',
+        getEffectiveSubjectTitle()
+    );
 }
 
 
@@ -1776,7 +5882,7 @@ function openAtlasSearchFromDrawer() {
 function getCompassBrandModel() {
     return {
         system: 'Compass Library',
-        subject: MODULE.title
+        subject: getEffectiveSubjectTitle()
     };
 }
 
@@ -1800,6 +5906,50 @@ function renderCompassBrandLockup({
         `;
 }
 
+function renderAllCompassNavigation() {
+    renderNav(
+        'nav-orientation',
+        'view-orientation'
+    );
+
+    renderNav(
+        'nav-cultural-lens',
+        'view-cultural-lens'
+    );
+
+    renderNav(
+        'nav-discussion',
+        'view-discussion'
+    );
+
+    renderNav(
+        'nav-reflection',
+        'view-reflection'
+    );
+
+    renderMobileHeader(
+        'mob-header-orientation',
+        'overview'
+    );
+
+    renderMobileHeader(
+        'mob-header-cultural-lens',
+        'cultural-lens'
+    );
+
+    renderMobileHeader(
+        'mob-header-discussion',
+        'discussion'
+    );
+
+    renderMobileHeader(
+        'mob-header-reflection',
+        'reflection'
+    );
+
+    renderMobileDrawerNav();
+}
+
 function renderNav(containerId, activeViewId) {
     const container = document.getElementById(containerId);
 
@@ -1809,17 +5959,18 @@ function renderNav(containerId, activeViewId) {
 
     const links = NAV_ITEMS.map(item => {
         const active = item.viewId === activeViewId;
+        const label = getNavItemLabel(item);
         const click = active
             ? ''
             : `onclick="goToView('${item.viewId}')"`;
 
         return `<button
                 class="nav-link${active ? ' active' : ''}"
-                title="${escHtml(item.label)}"
-                aria-label="${escHtml(item.label)}"
+                title="${escHtml(label)}"
+                aria-label="${escHtml(label)}"
                 ${click}>
                 ${item.desktopSvg}
-                ${escHtml(item.label)}
+                ${escHtml(label)}
             </button>`;
     }).join('');
 
@@ -1915,17 +6066,24 @@ function renderMobileDrawerNav() {
 
     if (!container) return;
 
-    setText('mobile-drawer-subject-title', MODULE.title);
+    setText(
+        'mobile-drawer-subject-title',
+        getEffectiveSubjectTitle()
+    );
 
-    const items = NAV_ITEMS.map(item => `
+    const items = NAV_ITEMS.map(item => {
+        const label = getNavItemLabel(item);
+
+        return `
             <button
                 class="mobile-nav-item"
                 id="mob-nav-${item.id}"
                 onclick="mobileNavTo('${item.viewId}')">
                 ${item.mobileSvg}
-                ${escHtml(item.label)}
+                ${escHtml(label)}
             </button>
-        `).join('');
+        `;
+    }).join('');
 
     container.innerHTML = `${items}
             <div class="mobile-drawer-divider"></div>
@@ -1997,6 +6155,11 @@ function goToView(viewId) {
     if (viewId === 'view-reflection') {
         renderReflectionQuestions();
         updateReflectionCompleteState();
+    }
+
+    if (myVersionEditing) {
+        scheduleMyVersionWorkingDraftSave();
+        updateMyVersionAuthorBar();
     }
 }
 
@@ -2178,7 +6341,7 @@ function finishCompassWrapUp() {
         v: 1,
         sessionId: activeSession.id,
         subjectId: MODULE.id,
-        subjectTitle: MODULE.title,
+        subjectTitle: getPublishedSubjectTitle(),
         world: COMPASS_WORLD_ID,
         exploredItems: evidence.exploredItems,
         savedLanguageCount: evidence.savedLanguageEntryIds.size,
@@ -2488,42 +6651,69 @@ function getEffectiveUpgradeSourceFromContextId(contextId) {
 
     if (!source?.upgrade) return null;
 
-    const hasOrdinaryExample =
-        source.upgrade.ordinary !== null &&
-        source.upgrade.ordinary !== undefined;
-
-    const resolveField = field =>
+    const resolveField = (field, fallback = '') =>
         resolveTutorContentValue(
-            source.upgrade[field],
+            source.upgrade[field] ?? fallback,
             getUpgradeFieldKey(source, field)
         );
+
+    const ordinary = source.upgrade.ordinary !== null &&
+        source.upgrade.ordinary !== undefined
+            ? resolveField('ordinary')
+            : '';
+
+    const upgraded = source.upgrade.upgraded !== null &&
+        source.upgrade.upgraded !== undefined
+            ? resolveField('upgraded')
+            : '';
+
+    const atlasPrompt =
+        source.upgrade.atlasPrompt !== null &&
+        source.upgrade.atlasPrompt !== undefined
+            ? resolveField('atlasPrompt')
+            : '';
+
+    const hasOrdinaryExample = Boolean(
+        ordinary.trim() && upgraded.trim()
+    );
+
+    const hasUpgradedExample = Boolean(
+        upgraded.trim()
+    );
 
     return {
         ...source,
         hasOrdinaryExample,
+        hasUpgradedExample,
         upgrade: {
             ...source.upgrade,
-
-            // Upgrade identity remains fixed in Live Manipulation.
-            term: source.upgrade.term,
-            atlasPrompt: source.upgrade.atlasPrompt,
-
-            // Visible teaching support may be manipulated live.
-            type: source.upgrade.type,
+            term: resolveField('term'),
+            type:
+                resolveField('type', 'expression').trim() ||
+                'expression',
             definition: resolveField('definition'),
             ordinary: hasOrdinaryExample
-                ? resolveField('ordinary')
+                ? ordinary
                 : null,
-            upgraded: resolveField('upgraded'),
+            upgraded: hasUpgradedExample
+                ? upgraded
+                : '',
+            atlasPrompt,
+            priority:
+                MY_VERSION_UPGRADE_PRIORITIES[
+                    source.upgrade.priority
+                ]
+                    ? source.upgrade.priority
+                    : 'standard',
             insteadOfLabel: resolveTutorContentValue(
-                'Instead of',
+                source.upgrade.insteadOfLabel || 'Instead of',
                 getUpgradeFieldKey(
                     source,
                     'insteadOfLabel'
                 )
             ),
             tryLabel: resolveTutorContentValue(
-                'Try',
+                source.upgrade.tryLabel || 'Try',
                 getUpgradeFieldKey(source, 'tryLabel')
             )
         }
@@ -2559,6 +6749,22 @@ function configureUpgradeLiveSurface(mount, contextId) {
 
     if (!mount || !source?.upgrade) return;
 
+    const typeElement = mount.querySelector(
+        '.discussion-focus-upgrade-type'
+    );
+
+    if (myVersionEditing) {
+        configureUpgradeLiveField(
+            typeElement,
+            source,
+            'type',
+            source.upgrade.type || 'expression',
+            false
+        );
+    } else {
+        disableLiveTutorContentElement(typeElement);
+    }
+
     configureUpgradeLiveField(
         mount.querySelector(
             '.discussion-focus-upgrade-definition'
@@ -2584,15 +6790,20 @@ function configureUpgradeLiveSurface(mount, contextId) {
         );
     }
 
-    configureUpgradeLiveField(
-        mount.querySelector(
-            '.upgrade-example-upgraded'
-        ),
-        source,
-        'upgraded',
-        source.upgrade.upgraded,
-        true
-    );
+    if (
+        source.upgrade.upgraded !== null &&
+        source.upgrade.upgraded !== undefined
+    ) {
+        configureUpgradeLiveField(
+            mount.querySelector(
+                '.upgrade-example-upgraded'
+            ),
+            source,
+            'upgraded',
+            source.upgrade.upgraded,
+            true
+        );
+    }
 
     const labels = mount.querySelectorAll(
         '.upgrade-example-label'
@@ -2606,7 +6817,7 @@ function configureUpgradeLiveSurface(mount, contextId) {
             labels[0],
             source,
             'insteadOfLabel',
-            'Instead of',
+            source.upgrade.insteadOfLabel || 'Instead of',
             false
         );
 
@@ -2614,24 +6825,232 @@ function configureUpgradeLiveSurface(mount, contextId) {
             labels[1],
             source,
             'tryLabel',
-            'Try',
+            source.upgrade.tryLabel || 'Try',
             false
         );
-    } else {
+    } else if (labels[0]) {
         configureUpgradeLiveField(
             labels[0],
             source,
             'tryLabel',
-            'Try',
+            source.upgrade.tryLabel || 'Try',
             false
         );
     }
+
+    if (
+        myVersionEditing &&
+        source.upgrade.atlasPrompt !== null &&
+        source.upgrade.atlasPrompt !== undefined
+    ) {
+        configureUpgradeLiveField(
+            mount.querySelector(
+                '.upgrade-author-review-prompt'
+            ),
+            source,
+            'atlasPrompt',
+            source.upgrade.atlasPrompt,
+            true
+        );
+    }
+}
+
+function buildUpgradeExamplesMarkup(upgrade) {
+    if (upgrade?.ordinary && upgrade?.upgraded) {
+        return `
+            <div class="upgrade-transformation">
+                <div class="upgrade-example-row">
+                    <span class="upgrade-example-label">
+                        ${escHtml(upgrade.insteadOfLabel || 'Instead of')}
+                    </span>
+
+                    <p class="upgrade-example upgrade-example-ordinary">
+                        ${escHtml(upgrade.ordinary)}
+                    </p>
+                </div>
+
+                <div class="upgrade-example-row upgrade-example-row-primary">
+                    <span class="upgrade-example-label">
+                        ${escHtml(upgrade.tryLabel || 'Try')}
+                    </span>
+
+                    <p class="upgrade-example upgrade-example-upgraded">
+                        ${escHtml(upgrade.upgraded)}
+                    </p>
+                </div>
+            </div>
+        `;
+    }
+
+    if (upgrade?.upgraded) {
+        return `
+            <div class="upgrade-example-row upgrade-example-row-primary">
+                <span class="upgrade-example-label">
+                    ${escHtml(upgrade.tryLabel || 'Try')}
+                </span>
+
+                <p class="upgrade-example upgrade-example-upgraded">
+                    ${escHtml(upgrade.upgraded)}
+                </p>
+            </div>
+        `;
+    }
+
+    return '';
+}
+
+function buildMyVersionUpgradeAuthoringControls(
+    contextId,
+    upgrade
+) {
+    if (!myVersionEditing) return '';
+
+    const hasExamples = Boolean(
+        upgrade?.ordinary || upgrade?.upgraded
+    );
+
+    const hasReviewPrompt = Boolean(
+        String(upgrade?.atlasPrompt || '').trim()
+    );
+
+    const priority =
+        MY_VERSION_UPGRADE_PRIORITIES[upgrade?.priority]
+            ? upgrade.priority
+            : 'standard';
+
+    const optionsOpen =
+        myVersionUpgradeOptionsOpenContextId === contextId;
+
+    return `
+        <div class="upgrade-author-actions">
+            <button class="upgrade-author-secondary"
+                type="button"
+                onclick="${hasExamples
+                    ? `removeMyVersionUpgradeExamples(${jsArg(contextId)})`
+                    : `addMyVersionUpgradeExamples(${jsArg(contextId)})`}">
+                ${hasExamples
+                    ? 'Remove examples'
+                    : 'Add contrast examples'}
+            </button>
+        </div>
+
+        <details class="upgrade-author-more"
+            ${optionsOpen ? 'open' : ''}
+            ontoggle="setMyVersionUpgradeOptionsOpen(${jsArg(contextId)}, this.open)">
+            <summary>More options</summary>
+
+            <div class="upgrade-author-more-content">
+                <label class="upgrade-author-priority-field">
+                    <span>Visibility</span>
+
+                    <select onchange="changeMyVersionUpgradePriority(${jsArg(contextId)}, this.value)">
+                        ${Object.entries(
+                            MY_VERSION_UPGRADE_PRIORITIES
+                        ).map(([value, label]) => `
+                            <option value="${escHtml(value)}"
+                                ${value === priority
+                                    ? 'selected'
+                                    : ''}>
+                                ${escHtml(label)}
+                            </option>
+                        `).join('')}
+                    </select>
+                </label>
+
+                <p class="upgrade-author-priority-hint">
+                    Key language appears in the default Key view. All language only appears when the tutor chooses All.
+                </p>
+
+                ${hasReviewPrompt ? `
+                    <div class="upgrade-author-review">
+                        <div class="upgrade-author-review-header">
+                            <span>Atlas review question</span>
+
+                            <button type="button"
+                                onclick="removeMyVersionUpgradeReviewPrompt(${jsArg(contextId)})">
+                                Remove
+                            </button>
+                        </div>
+
+                        <p class="upgrade-author-review-prompt">
+                            ${escHtml(upgrade.atlasPrompt)}
+                        </p>
+                    </div>
+                ` : `
+                    <button class="upgrade-author-add-review"
+                        type="button"
+                        onclick="addMyVersionUpgradeReviewPrompt(${jsArg(contextId)})">
+                        Add Atlas review question
+                    </button>
+                `}
+            </div>
+        </details>
+
+        <div class="upgrade-panel-actions upgrade-panel-actions--authoring">
+            <button class="upgrade-author-danger"
+                type="button"
+                onclick="removeMyVersionUpgrade(${jsArg(contextId)})">
+                Remove language support
+            </button>
+        </div>
+    `;
+}
+
+function buildUpgradeFooterControls(
+    contextId,
+    upgrade,
+    saved
+) {
+    if (myVersionEditing) {
+        return buildMyVersionUpgradeAuthoringControls(
+            contextId,
+            upgrade
+        );
+    }
+
+    return `
+        <div class="upgrade-panel-actions">
+            <button
+                class="upgrade-save-btn${saved ? ' is-saved' : ''}"
+                id="us-${escHtml(contextId)}"
+                type="button"
+                onclick="toggleSavedLanguage(${jsArg(contextId)}, event)"
+                aria-pressed="${String(saved)}"
+                title="${saved
+                    ? 'Remove from Language Bank'
+                    : 'Save to Language Bank'}">
+                ${saved ? 'Saved' : 'Save'}
+            </button>
+        </div>
+    `;
+}
+
+function buildAddUpgradeControl(contextId) {
+    if (!myVersionEditing) return '';
+
+    return `
+        <button class="upgrade-author-add"
+            type="button"
+            onclick="addMyVersionUpgrade(${jsArg(contextId)})">
+            <svg width="14" height="14" viewBox="0 0 14 14"
+                fill="none" aria-hidden="true">
+                <path d="M7 2.5v9M2.5 7h9"
+                    stroke="currentColor"
+                    stroke-width="1.35"
+                    stroke-linecap="round"/>
+            </svg>
+
+            Add language support
+        </button>
+    `;
 }
 
 function getSavedLanguageEntryId(contextId) {
     const Bridge = requireAtlasBridge();
     const activeSession = getCurrentBridgeSession();
-    const source = getUpgradeSourceFromContextId(contextId);
+    const source = getEffectiveUpgradeSourceFromContextId(
+        contextId
+    );
 
     if (!source?.upgrade) return '';
 
@@ -2657,6 +7076,19 @@ function isUpgradeSaved(contextId) {
     const entry = requireAtlasBridge().readLedger().entries?.[entryId];
 
     return !!entry && entry.status === 'saved';
+}
+
+function getUpgradeReviewPrompt(upgrade) {
+    const authoredPrompt = String(
+        upgrade?.atlasPrompt || ''
+    ).trim();
+
+    if (authoredPrompt) return authoredPrompt;
+
+    const term = String(upgrade?.term || 'this expression')
+        .trim();
+
+    return `What does “${term}” mean, and how could you use it in a new situation?`;
 }
 
 function buildSavedLanguageEntry(contextId) {
@@ -2685,8 +7117,8 @@ function buildSavedLanguageEntry(contextId) {
         sourceWorld: COMPASS_WORLD_ID,
         sourceItem: MODULE.id,
         sourceRegistryId: getContentRegistryId(),
-        sourceTitle: MODULE.title,
-        sourceNavTitle: MODULE.navTitle || MODULE.title,
+        sourceTitle: getPublishedSubjectTitle(),
+        sourceNavTitle: getPublishedSubjectTitle(),
         sourceElementId: source.sourceElementId,
         sourceKind: source.sourceKind,
 
@@ -2696,7 +7128,7 @@ function buildSavedLanguageEntry(contextId) {
         ordinary: upgrade.ordinary ?? null,
         upgraded: upgrade.upgraded,
         priority: upgrade.priority,
-        atlasPrompt: upgrade.atlasPrompt,
+        atlasPrompt: getUpgradeReviewPrompt(upgrade),
 
         savedAt: timestamp,
         lastTouchedAt: timestamp
@@ -2790,6 +7222,32 @@ function unsaveLanguageFromUpgrade(contextId) {
     publishAtlasCompassItem('language-unsaved');
 }
 
+function removeSavedLanguageEntryById(entryId, event) {
+    event?.stopPropagation();
+    event?.preventDefault();
+
+    const Bridge = requireAtlasBridge();
+    const activeSession = getCurrentBridgeSession();
+    const cleanEntryId = String(entryId || '').trim();
+
+    if (!cleanEntryId) return;
+
+    const ledger = Bridge.readLedger();
+
+    if (ledger.entries?.[cleanEntryId]) {
+        delete ledger.entries[cleanEntryId];
+        Bridge.writeLedger(ledger);
+    }
+
+    removeSavedLanguageFromWrapUp(
+        activeSession.id,
+        cleanEntryId
+    );
+
+    renderVocabBank();
+    publishAtlasCompassItem('language-unsaved');
+}
+
 function toggleSavedLanguage(contextId, event) {
     event?.stopPropagation();
     event?.preventDefault();
@@ -2838,47 +7296,13 @@ function buildUpgradeChip(upgrade, contextId) {
                     ${escHtml(upgrade.definition)}
                 </p>
 
-                ${upgrade.ordinary ? `
-                    <div class="upgrade-transformation">
-                        <div class="upgrade-example-row">
-                            <span class="upgrade-example-label">Instead of</span>
+                ${buildUpgradeExamplesMarkup(upgrade)}
 
-                            <p class="upgrade-example upgrade-example-ordinary">
-                                ${escHtml(upgrade.ordinary)}
-                            </p>
-                        </div>
-
-                        <div class="upgrade-example-row upgrade-example-row-primary">
-                            <span class="upgrade-example-label">Try</span>
-
-                            <p class="upgrade-example upgrade-example-upgraded">
-                                ${escHtml(upgrade.upgraded)}
-                            </p>
-                        </div>
-                    </div>
-                ` : `
-                    <div class="upgrade-example-row upgrade-example-row-primary">
-                        <span class="upgrade-example-label">Try</span>
-
-                        <p class="upgrade-example upgrade-example-upgraded">
-                            ${escHtml(upgrade.upgraded)}
-                        </p>
-                    </div>
-                `}
-
-                <div class="upgrade-panel-actions">
-                    <button
-                        class="upgrade-save-btn${saved ? ' is-saved' : ''}"
-                        id="us-${escHtml(contextId)}"
-                        type="button"
-                        onclick="toggleSavedLanguage(${jsArg(contextId)}, event)"
-                        aria-pressed="${String(saved)}"
-                        title="${saved
-            ? 'Remove from Language Bank'
-            : 'Save to Language Bank'}">
-                        ${saved ? 'Saved' : 'Save'}
-                    </button>
-                </div>
+                ${buildUpgradeFooterControls(
+                    contextId,
+                    upgrade,
+                    saved
+                )}
             </div>
         `;
 }
@@ -3099,11 +7523,13 @@ function updateCoverActionUI() {
     const button = document.getElementById('cover-begin-btn');
 
     if (button) {
-        const label = isLessonComplete()
-            ? 'Review lesson'
-            : progress.explored.size > 0
-                ? 'Continue lesson'
-                : 'Begin lesson';
+        const label = myVersionEditing
+            ? 'Continue editing'
+            : isLessonComplete()
+                ? 'Review lesson'
+                : progress.explored.size > 0
+                    ? 'Continue lesson'
+                    : 'Begin lesson';
 
         button.innerHTML = `
                 ${label}
@@ -3148,6 +7574,238 @@ function refreshExploredUI() {
 // CULTURAL LENS
 // ============================================================
 
+function configureMyVersionCulturalLensCard(
+    element,
+    card,
+    index,
+    title,
+    teaser,
+    contextLine
+) {
+    if (!myVersionEditing) return;
+
+    element.classList.add('cl-card--authoring');
+    element.setAttribute('role', 'group');
+    element.removeAttribute('tabindex');
+    element.setAttribute(
+        'aria-label',
+        `Edit card ${index + 1}: ${title}`
+    );
+    element.onclick = null;
+    element.onkeydown = null;
+
+    configureLiveTutorContentElement(
+        element.querySelector('.cl-card-title'),
+        {
+            fieldKey: getCulturalLensFieldKey(
+                card.id,
+                'title'
+            ),
+            value: title,
+            multiline: false
+        }
+    );
+
+    const teaserElement = element.querySelector(
+        '.cl-card-teaser'
+    );
+
+    if (teaserElement) {
+        configureLiveTutorContentElement(
+            teaserElement,
+            {
+                fieldKey: getCulturalLensFieldKey(
+                    card.id,
+                    'teaser'
+                ),
+                value: teaser,
+                multiline: true
+            }
+        );
+    }
+
+    const contextLineElement = element.querySelector(
+        '.cl-card-location'
+    );
+
+    if (contextLineElement) {
+        configureLiveTutorContentElement(
+            contextLineElement,
+            {
+                fieldKey: getCulturalLensFieldKey(
+                    card.id,
+                    'contextLine'
+                ),
+                value: contextLine,
+                multiline: false
+            }
+        );
+    }
+
+    element.querySelectorAll(
+        '[data-cultural-lens-add-field]'
+    ).forEach(button => {
+        button.onclick = () => {
+            addMyVersionCulturalLensCardField(
+                card.id,
+                button.dataset.culturalLensAddField
+            );
+        };
+    });
+
+    const controls = document.createElement('div');
+    controls.className = 'cl-card-author-controls';
+
+    const openButton = document.createElement('button');
+
+    openButton.type = 'button';
+    openButton.className = [
+        'moment-author-control',
+        'cl-card-author-open'
+    ].join(' ');
+    openButton.title = 'Edit card contents';
+    openButton.setAttribute(
+        'aria-label',
+        'Edit card contents'
+    );
+    openButton.innerHTML = `
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="3.25" cy="4.5" r="0.72"
+                fill="currentColor"/>
+            <circle cx="3.25" cy="8" r="0.72"
+                fill="currentColor"/>
+            <circle cx="3.25" cy="11.5" r="0.72"
+                fill="currentColor"/>
+
+            <path d="M5.5 4.5h7M5.5 8h7M5.5 11.5h7"
+                stroke="currentColor"
+                stroke-width="1.25"
+                stroke-linecap="round"/>
+        </svg>
+    `;
+
+    openButton.onclick = () => {
+        openCulturalLensFocus(
+            index,
+            openButton
+        );
+    };
+
+    controls.appendChild(openButton);
+
+    const actions = [
+        {
+            label: 'Move card earlier',
+            disabled: index === 0,
+            className: '',
+            icon: `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M4 10l4-4 4 4"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>`,
+            run: () => moveMyVersionCulturalLensCard(
+                card.id,
+                -1
+            )
+        },
+        {
+            label: 'Move card later',
+            disabled: index === clCards.length - 1,
+            className: '',
+            icon: `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M4 6l4 4 4-4"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>`,
+            run: () => moveMyVersionCulturalLensCard(
+                card.id,
+                1
+            )
+        },
+        {
+            label: 'Duplicate card',
+            disabled: false,
+            className: '',
+            icon: `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <rect x="5" y="5" width="7" height="7" rx="1.5"
+                        stroke="currentColor"
+                        stroke-width="1.3"/>
+                    <path d="M4 10H3.5A1.5 1.5 0 012 8.5v-5A1.5 1.5 0 013.5 2h5A1.5 1.5 0 0110 3.5V4"
+                        stroke="currentColor"
+                        stroke-width="1.3"
+                        stroke-linecap="round"/>
+                </svg>`,
+            run: () => duplicateMyVersionCulturalLensCard(
+                card.id
+            )
+        },
+        {
+            label: clCards.length <= 1
+                ? 'Keep at least one card'
+                : 'Remove card',
+            disabled: clCards.length <= 1,
+            className: 'moment-author-control--danger',
+            icon: `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3.5 4.5h9M6 4.5V3.2c0-.66.54-1.2 1.2-1.2h1.6c.66 0 1.2.54 1.2 1.2v1.3M5 6.5l.45 6.1c.05.78.7 1.4 1.49 1.4h2.12c.79 0 1.44-.62 1.49-1.4L11 6.5"
+                        stroke="currentColor"
+                        stroke-width="1.25"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>`,
+            run: () => removeMyVersionCulturalLensCard(
+                card.id
+            )
+        }
+    ];
+
+    actions.forEach(action => {
+        const button = document.createElement('button');
+
+        button.type = 'button';
+        button.className = [
+            'moment-author-control',
+            action.className
+        ].filter(Boolean).join(' ');
+        button.disabled = action.disabled;
+        button.title = action.label;
+        button.setAttribute('aria-label', action.label);
+        button.innerHTML = action.icon;
+        button.onclick = action.run;
+
+        controls.appendChild(button);
+    });
+
+    element.appendChild(controls);
+}
+
+function renderMyVersionAddCulturalLensCardControl(grid) {
+    if (!myVersionEditing) return;
+
+    const addButton = document.createElement('button');
+
+    addButton.type = 'button';
+    addButton.className =
+        'moment-author-add cl-card-author-add';
+
+    addButton.innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 15 15"
+            fill="none" aria-hidden="true">
+            <path d="M7.5 2.5v10M2.5 7.5h10"
+                stroke="currentColor"
+                stroke-width="1.45"
+                stroke-linecap="round"/>
+        </svg>
+        Add card
+    `;
+
+    addButton.onclick = addMyVersionCulturalLensCard;
+    grid.appendChild(addButton);
+}
+
 function renderCLGrid() {
     const grid = document.getElementById('cl-grid');
 
@@ -3171,6 +7829,11 @@ function renderCLGrid() {
         const contextLine = resolveTutorContentValue(
             card.contextLine,
             getCulturalLensFieldKey(card.id, 'contextLine')
+        );
+
+        const hasTeaser = Boolean(teaser.trim());
+        const hasContextLine = Boolean(
+            contextLine.trim()
         );
 
         const element = document.createElement('div');
@@ -3222,18 +7885,52 @@ function renderCLGrid() {
                     ${escHtml(title)}
                 </h3>
 
-                <p class="cl-card-teaser">
-                    ${escHtml(teaser)}
-                </p>
+                ${hasTeaser
+                    ? `
+                        <p class="cl-card-teaser">
+                            ${escHtml(teaser)}
+                        </p>
+                    `
+                    : myVersionEditing
+                        ? `
+                            <button class="cl-card-author-add-field"
+                                type="button"
+                                data-cultural-lens-add-field="teaser">
+                                + Add teaser
+                            </button>
+                        `
+                        : ''}
 
-                <p class="cl-card-location">
-                    ${escHtml(contextLine)}
-                </p>
+                ${hasContextLine
+                    ? `
+                        <p class="cl-card-location">
+                            ${escHtml(contextLine)}
+                        </p>
+                    `
+                    : myVersionEditing
+                        ? `
+                            <button class="cl-card-author-add-field"
+                                type="button"
+                                data-cultural-lens-add-field="contextLine">
+                                + Add eyebrow
+                            </button>
+                        `
+                        : ''}
             `;
+
+        configureMyVersionCulturalLensCard(
+            element,
+            card,
+            index,
+            title,
+            teaser,
+            contextLine
+        );
 
         grid.appendChild(element);
     });
 
+    renderMyVersionAddCulturalLensCardControl(grid);
     updateCLProgress();
 }
 
@@ -3305,9 +8002,14 @@ function handleDiscussionFocusBack() {
         }
 
         if (discussionFocusFollowUpOpen) {
+            const followUpId =
+                discussionFocusFollowUpId;
+
             setDiscussionFocusFollowUp(
-                false,
-                'open'
+                null,
+                followUpId
+                    ? `follow-up-${followUpId}`
+                    : null
             );
             return;
         }
@@ -3322,6 +8024,10 @@ function getCurrentCulturalLensCard() {
 
 function getCulturalLensFocusUpgrade() {
     const upgrade = getCurrentCulturalLensCard()?.upgrade;
+
+    if (myVersionEditing) {
+        return upgrade || null;
+    }
 
     return shouldShowInlineUpgrade(upgrade)
         ? upgrade
@@ -3411,7 +8117,7 @@ function renderCulturalLensFocusUpgrade() {
 
     if (!mount) return;
 
-    if (!card || !upgrade) {
+    if (!card) {
         culturalLensFocusUpgradeOpen = false;
         mount.innerHTML = '';
         mount.hidden = true;
@@ -3419,18 +8125,27 @@ function renderCulturalLensFocusUpgrade() {
         return;
     }
 
-    tools?.classList.add('has-visible-upgrade');
-
     const contextId = `cl-${card.id}`;
+
+    if (!upgrade) {
+        culturalLensFocusUpgradeOpen = false;
+        mount.innerHTML = buildAddUpgradeControl(contextId);
+        mount.hidden = !myVersionEditing;
+
+        tools?.classList.toggle(
+            'has-visible-upgrade',
+            myVersionEditing
+        );
+
+        return;
+    }
+
+    tools?.classList.add('has-visible-upgrade');
 
     const effectiveSource =
         getEffectiveUpgradeSourceFromContextId(contextId);
 
     upgrade = effectiveSource?.upgrade || upgrade;
-
-    const hasOrdinaryExample =
-        effectiveSource?.hasOrdinaryExample ??
-        Boolean(upgrade.ordinary);
 
     const saved = isUpgradeSaved(contextId);
 
@@ -3485,58 +8200,254 @@ function renderCulturalLensFocusUpgrade() {
                 ${escHtml(upgrade.definition)}
             </p>
 
-            ${hasOrdinaryExample ? `
-                <div class="upgrade-transformation">
-                    <div class="upgrade-example-row">
-                        <span class="upgrade-example-label">
-                            ${escHtml(upgrade.insteadOfLabel)}
-                        </span>
+            ${buildUpgradeExamplesMarkup(upgrade)}
 
-                        <p class="upgrade-example upgrade-example-ordinary">
-                            ${escHtml(upgrade.ordinary)}
-                        </p>
-                    </div>
-
-                    <div class="upgrade-example-row upgrade-example-row-primary">
-                        <span class="upgrade-example-label">
-                            ${escHtml(upgrade.tryLabel)}
-                        </span>
-
-                        <p class="upgrade-example upgrade-example-upgraded">
-                            ${escHtml(upgrade.upgraded)}
-                        </p>
-                    </div>
-                </div>
-            ` : `
-                <div class="upgrade-example-row upgrade-example-row-primary">
-                    <span class="upgrade-example-label">
-                        Try
-                    </span>
-
-                    <p class="upgrade-example upgrade-example-upgraded">
-                        ${escHtml(upgrade.upgraded)}
-                    </p>
-                </div>
-            `}
-
-            <div class="upgrade-panel-actions">
-                <button
-                    class="upgrade-save-btn${saved ? ' is-saved' : ''}"
-                    id="us-${escHtml(contextId)}"
-                    type="button"
-                    onclick="toggleSavedLanguage(${jsArg(contextId)}, event)"
-                    aria-pressed="${String(saved)}"
-                    title="${saved
-            ? 'Remove from Language Bank'
-            : 'Save to Language Bank'}">
-                    ${saved ? 'Saved' : 'Save'}
-                </button>
-            </div>
+            ${buildUpgradeFooterControls(
+                contextId,
+                upgrade,
+                saved
+            )}
         </div>
     `;
 
     mount.hidden = false;
     configureUpgradeLiveSurface(mount, contextId);
+}
+
+function renderCulturalLensFocusQuestions(
+    isUpgrade = false
+) {
+    const card = getCurrentCulturalLensCard();
+
+    const block = document.getElementById(
+        'cultural-lens-focus-question-block'
+    );
+
+    const label = document.getElementById(
+        'cultural-lens-focus-question-label'
+    );
+
+    const container = document.getElementById(
+        'cultural-lens-focus-questions'
+    );
+
+    if (!card || !block || !label || !container) {
+        return;
+    }
+
+    const questions = getCulturalLensQuestionEntries(card)
+        .map(entry => ({
+            ...entry,
+            value: resolveTutorContentValue(
+                entry.originalValue,
+                entry.fieldKey
+            )
+        }));
+
+    const visibleQuestions = myVersionEditing
+        ? questions
+        : questions.filter(question =>
+            question.value.trim()
+        );
+
+    block.hidden =
+        isUpgrade ||
+        (
+            !myVersionEditing &&
+            visibleQuestions.length === 0
+        );
+
+    block.classList.toggle(
+        'is-empty-authoring',
+        !isUpgrade &&
+        myVersionEditing &&
+        visibleQuestions.length === 0
+    );
+
+    if (block.hidden) {
+        label.hidden = true;
+        container.innerHTML = '';
+        disableLiveTutorContentElement(label);
+        return;
+    }
+
+    const questionLabelFieldKey =
+        getCulturalLensFieldKey(
+            card.id,
+            'questionLabel'
+        );
+
+    const questionLabelValue =
+        resolveTutorContentValue(
+            card.questionLabel ?? 'Question',
+            questionLabelFieldKey
+        );
+
+    if (visibleQuestions.length) {
+        if (myVersionEditing) {
+            label.hidden = false;
+
+            configureLiveTutorContentElement(
+                label,
+                {
+                    fieldKey: questionLabelFieldKey,
+                    value: questionLabelValue,
+                    multiline: false
+                }
+            );
+        } else {
+            setText(
+                'cultural-lens-focus-question-label',
+                questionLabelValue
+            );
+
+            label.hidden = !questionLabelValue.trim();
+            disableLiveTutorContentElement(label);
+        }
+    } else {
+        label.hidden = true;
+        disableLiveTutorContentElement(label);
+    }
+
+    container.innerHTML = visibleQuestions.map(
+        (question, position) => `
+            <div class="cultural-lens-question-author-row"
+                data-cultural-lens-question-row="${question.index}">
+                <p class="discussion-focus-question cultural-lens-focus-question"
+                    data-cultural-lens-question-index="${question.index}"></p>
+
+                ${myVersionEditing
+                    ? `
+                        <div class="cultural-lens-question-author-controls">
+                            <button class="moment-author-control"
+                                type="button"
+                                data-cultural-lens-question-action="up"
+                                data-cultural-lens-question-index="${question.index}"
+                                aria-label="Move question earlier"
+                                title="Move earlier"
+                                ${position === 0 ? 'disabled' : ''}>
+                                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                    <path d="M4 10l4-4 4 4"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+
+                            <button class="moment-author-control"
+                                type="button"
+                                data-cultural-lens-question-action="down"
+                                data-cultural-lens-question-index="${question.index}"
+                                aria-label="Move question later"
+                                title="Move later"
+                                ${position === visibleQuestions.length - 1
+                                    ? 'disabled'
+                                    : ''}>
+                                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                    <path d="M4 6l4 4 4-4"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+
+                            <button class="moment-author-control moment-author-control--danger"
+                                type="button"
+                                data-cultural-lens-question-action="remove"
+                                data-cultural-lens-question-index="${question.index}"
+                                aria-label="Remove question"
+                                title="Remove question">
+                                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                    <path d="M3.5 4.5h9M6 4.5V3.2c0-.66.54-1.2 1.2-1.2h1.6c.66 0 1.2.54 1.2 1.2v1.3M5 6.5l.45 6.1c.05.78.7 1.4 1.49 1.4h2.12c.79 0 1.44-.62 1.49-1.4L11 6.5"
+                                        stroke="currentColor"
+                                        stroke-width="1.25"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    `
+                    : ''}
+            </div>
+        `
+    ).join('');
+
+    if (myVersionEditing) {
+        container.insertAdjacentHTML(
+            'beforeend',
+            `
+                <button class="cultural-lens-question-add"
+                    type="button"
+                    data-cultural-lens-question-add>
+                    <svg width="15" height="15" viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <path d="M7.5 2.5v10M2.5 7.5h10"
+                            stroke="currentColor"
+                            stroke-width="1.45"
+                            stroke-linecap="round"/>
+                    </svg>
+                    Add question
+                </button>
+            `
+        );
+    }
+
+    visibleQuestions.forEach(question => {
+        configureLiveTutorContentElement(
+            container.querySelector(
+                `[data-cultural-lens-question-index="${question.index}"]`
+            ),
+            {
+                fieldKey: question.fieldKey,
+                value: question.value,
+                multiline: true
+            }
+        );
+    });
+
+    container.querySelectorAll(
+        '[data-cultural-lens-question-action]'
+    ).forEach(button => {
+        const index = Number(
+            button.dataset.culturalLensQuestionIndex
+        );
+
+        button.onclick = () => {
+            const action =
+                button.dataset.culturalLensQuestionAction;
+
+            if (action === 'up') {
+                moveMyVersionCulturalLensQuestion(
+                    card.id,
+                    index,
+                    -1
+                );
+                return;
+            }
+
+            if (action === 'down') {
+                moveMyVersionCulturalLensQuestion(
+                    card.id,
+                    index,
+                    1
+                );
+                return;
+            }
+
+            removeMyVersionCulturalLensQuestion(
+                card.id,
+                index
+            );
+        };
+    });
+
+    container.querySelector(
+        '[data-cultural-lens-question-add]'
+    )?.addEventListener('click', () => {
+        addMyVersionCulturalLensQuestion(card.id);
+    });
 }
 
 function renderCulturalLensFocusFollowTheThread() {
@@ -3558,11 +8469,46 @@ function renderCulturalLensFocusFollowTheThread() {
         return;
     }
 
-    const questions = Array.isArray(card.followTheThread)
+    const sourceQuestions = Array.isArray(
+        card.followTheThread
+    )
         ? card.followTheThread
         : [];
 
-    panel.hidden = questions.length === 0;
+    const questions = sourceQuestions.map(
+        (question, index) => {
+            const fieldKey =
+                getCulturalLensThreadFieldKey(
+                    card.id,
+                    index
+                );
+
+            return {
+                index,
+                fieldKey,
+                originalValue: question,
+                value: resolveTutorContentValue(
+                    question,
+                    fieldKey
+                )
+            };
+        }
+    );
+
+    const visibleQuestions = myVersionEditing
+        ? questions
+        : questions.filter(
+            question => question.value.trim()
+        );
+
+    panel.hidden =
+        !myVersionEditing &&
+        visibleQuestions.length === 0;
+
+    if (panel.hidden) {
+        container.innerHTML = '';
+        return;
+    }
 
     const threadLabelFieldKey =
         getCulturalLensFieldKey(
@@ -3577,36 +8523,154 @@ function renderCulturalLensFocusFollowTheThread() {
         {
             fieldKey: threadLabelFieldKey,
             value: resolveTutorContentValue(
-                'Follow the Thread',
+                card.followTheThreadLabel ||
+                    'Follow the Thread',
                 threadLabelFieldKey
             ),
             multiline: false
         }
     );
 
-    container.innerHTML = questions.map((question, index) => `
-            <p class="cultural-lens-focus-thread-question"
-                data-cultural-lens-thread-index="${index}"></p>
-        `).join('');
+    container.innerHTML = visibleQuestions.map(
+        (question, position) => `
+            <div class="cultural-lens-thread-author-row"
+                data-cultural-lens-thread-row="${question.index}">
 
-    questions.forEach((question, index) => {
-        const fieldKey = getCulturalLensThreadFieldKey(
-            card.id,
-            index
+                <p class="cultural-lens-focus-thread-question"
+                    data-cultural-lens-thread-index="${question.index}"></p>
+
+                ${myVersionEditing
+                    ? `
+                        <div class="cultural-lens-thread-author-controls">
+                            <button class="moment-author-control"
+                                type="button"
+                                data-cultural-lens-thread-action="up"
+                                data-cultural-lens-thread-index="${question.index}"
+                                aria-label="Move question earlier"
+                                title="Move earlier"
+                                ${position === 0 ? 'disabled' : ''}>
+                                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                    <path d="M4 10l4-4 4 4"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+
+                            <button class="moment-author-control"
+                                type="button"
+                                data-cultural-lens-thread-action="down"
+                                data-cultural-lens-thread-index="${question.index}"
+                                aria-label="Move question later"
+                                title="Move later"
+                                ${position === visibleQuestions.length - 1
+                                    ? 'disabled'
+                                    : ''}>
+                                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                    <path d="M4 6l4 4 4-4"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+
+                            <button class="moment-author-control moment-author-control--danger"
+                                type="button"
+                                data-cultural-lens-thread-action="remove"
+                                data-cultural-lens-thread-index="${question.index}"
+                                aria-label="Remove question"
+                                title="Remove question">
+                                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                    <path d="M3.5 4.5h9M6 4.5V3.2c0-.66.54-1.2 1.2-1.2h1.6c.66 0 1.2.54 1.2 1.2v1.3M5 6.5l.45 6.1c.05.78.7 1.4 1.49 1.4h2.12c.79 0 1.44-.62 1.49-1.4L11 6.5"
+                                        stroke="currentColor"
+                                        stroke-width="1.25"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    `
+                    : ''}
+            </div>
+        `
+    ).join('');
+
+    if (myVersionEditing) {
+        container.insertAdjacentHTML(
+            'beforeend',
+            `
+                <button class="cultural-lens-thread-add"
+                    type="button"
+                    data-cultural-lens-thread-add>
+                    <svg width="15" height="15" viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <path d="M7.5 2.5v10M2.5 7.5h10"
+                            stroke="currentColor"
+                            stroke-width="1.45"
+                            stroke-linecap="round"/>
+                    </svg>
+                    Add follow-up question
+                </button>
+            `
         );
+    }
 
+    visibleQuestions.forEach(question => {
         configureLiveTutorContentElement(
             container.querySelector(
-                `[data-cultural-lens-thread-index="${index}"]`
+                `[data-cultural-lens-thread-index="${question.index}"]`
             ),
             {
-                fieldKey,
-                value: resolveTutorContentValue(
-                    question,
-                    fieldKey
-                ),
+                fieldKey: question.fieldKey,
+                value: question.value,
                 multiline: true
             }
+        );
+    });
+
+    container.querySelectorAll(
+        '[data-cultural-lens-thread-action]'
+    ).forEach(button => {
+        const index = Number(
+            button.dataset.culturalLensThreadIndex
+        );
+
+        button.onclick = () => {
+            const action =
+                button.dataset.culturalLensThreadAction;
+
+            if (action === 'up') {
+                moveMyVersionCulturalLensThreadQuestion(
+                    card.id,
+                    index,
+                    -1
+                );
+                return;
+            }
+
+            if (action === 'down') {
+                moveMyVersionCulturalLensThreadQuestion(
+                    card.id,
+                    index,
+                    1
+                );
+                return;
+            }
+
+            removeMyVersionCulturalLensThreadQuestion(
+                card.id,
+                index
+            );
+        };
+    });
+
+    container.querySelector(
+        '[data-cultural-lens-thread-add]'
+    )?.addEventListener('click', () => {
+        addMyVersionCulturalLensThreadQuestion(
+            card.id
         );
     });
 }
@@ -3666,14 +8730,23 @@ function renderCulturalLensFocus() {
         upgrade && culturalLensFocusUpgradeOpen
     );
 
+    const effectiveUpgrade = isUpgrade
+        ? getEffectiveUpgradeSourceFromContextId(
+            `cl-${card.id}`
+        )?.upgrade || upgrade
+        : upgrade;
+
     focusView?.classList.toggle(
         'is-upgrade',
         isUpgrade
     );
 
+    const culturalLensPathTitle =
+        getCulturalLensPathTitle();
+
     setText(
         'cultural-lens-focus-stage',
-        'Cultural Lens'
+        culturalLensPathTitle
     );
 
     const culturalLensHeadingFieldKey =
@@ -3715,8 +8788,8 @@ function renderCulturalLensFocus() {
         backButton.setAttribute(
             'aria-label',
             compactBackToConversation
-                ? 'Return to the Cultural Lens conversation'
-                : 'Return to Cultural Lens browse'
+                ? `Return to the conversation in ${culturalLensPathTitle}`
+                : `Return to ${culturalLensPathTitle} browse`
         );
     }
 
@@ -3743,12 +8816,6 @@ function renderCulturalLensFocus() {
             field: 'context',
             originalValue: card.context,
             multiline: true
-        },
-        {
-            elementId: 'cultural-lens-focus-question',
-            field: 'mainQuestion',
-            originalValue: card.mainQuestion,
-            multiline: true
         }
     ];
 
@@ -3758,14 +8825,36 @@ function renderCulturalLensFocus() {
         );
 
         if (isUpgrade) {
-            setText(
-                field.elementId,
-                field.field === 'title'
-                    ? upgrade.term
-                    : field.originalValue
-            );
+            const isUpgradeTitle = field.field === 'title';
 
-            disableLiveTutorContentElement(element);
+            if (isUpgradeTitle && myVersionEditing) {
+                const fieldKey = getUpgradeFieldKey(
+                    {
+                        sourceKind: 'cultural-lens',
+                        sourceElementId: card.id
+                    },
+                    'term'
+                );
+
+                configureLiveTutorContentElement(
+                    element,
+                    {
+                        fieldKey,
+                        value: effectiveUpgrade.term,
+                        multiline: false
+                    }
+                );
+            } else {
+                setText(
+                    field.elementId,
+                    isUpgradeTitle
+                        ? effectiveUpgrade.term
+                        : field.originalValue
+                );
+
+                disableLiveTutorContentElement(element);
+            }
+
             return;
         }
 
@@ -3787,35 +8876,7 @@ function renderCulturalLensFocus() {
         );
     });
 
-    const questionLabel = document.getElementById(
-        'cultural-lens-focus-question-label'
-    );
-
-    if (isUpgrade) {
-        disableLiveTutorContentElement(questionLabel);
-        setText(
-            'cultural-lens-focus-question-label',
-            'Question'
-        );
-    } else {
-        const questionLabelFieldKey =
-            getCulturalLensFieldKey(
-                card.id,
-                'questionLabel'
-            );
-
-        configureLiveTutorContentElement(
-            questionLabel,
-            {
-                fieldKey: questionLabelFieldKey,
-                value: resolveTutorContentValue(
-                    'Question',
-                    questionLabelFieldKey
-                ),
-                multiline: false
-            }
-        );
-    }
+    renderCulturalLensFocusQuestions(isUpgrade);
 
     const previousButton = document.getElementById(
         'cultural-lens-focus-prev-btn'
@@ -4140,23 +9201,27 @@ function getDiscussionFocusMoment() {
         : null;
 }
 
+function getDiscussionFocusFollowUps() {
+    return getDiscussionMomentFollowUps(
+        getDiscussionFocusMoment()
+    );
+}
+
 function getDiscussionFocusFollowUp() {
-    const followUp =
-        getDiscussionFocusMoment()?.followUp;
+    if (!discussionFocusFollowUpId) return null;
 
-    if (
-        !followUp ||
-        !followUp.id ||
-        !followUp.prompt
-    ) {
-        return null;
-    }
-
-    return followUp;
+    return getDiscussionFocusFollowUps().find(
+        followUp =>
+            followUp.id === discussionFocusFollowUpId
+    ) || null;
 }
 
 function getDiscussionFocusUpgrade() {
     const upgrade = getDiscussionFocusMoment()?.upgrade;
+
+    if (myVersionEditing) {
+        return upgrade || null;
+    }
 
     return shouldShowInlineUpgrade(upgrade)
         ? upgrade
@@ -4178,11 +9243,19 @@ function focusDiscussionFocusContinuationControl(action) {
 }
 
 function setDiscussionFocusFollowUp(
-    isOpen,
+    followUpId,
     focusAction
 ) {
+    const exists = getDiscussionFocusFollowUps().some(
+        followUp => followUp.id === followUpId
+    );
+
+    discussionFocusFollowUpId = exists
+        ? followUpId
+        : null;
+
     discussionFocusFollowUpOpen = Boolean(
-        isOpen && getDiscussionFocusFollowUp()
+        discussionFocusFollowUpId
     );
 
     discussionFocusUpgradeOpen = false;
@@ -4263,95 +9336,324 @@ function renderDiscussionFocusContinuationControls() {
         return;
     }
 
-    const followUp = getDiscussionFocusFollowUp();
+    const moment = getDiscussionFocusMoment();
+    const followUps = getDiscussionFocusFollowUps();
+    const activeFollowUp = getDiscussionFocusFollowUp();
 
-    if (!followUp) {
+    if (!moment) {
+        discussionFocusFollowUpId = null;
         discussionFocusFollowUpOpen = false;
         mount.innerHTML = '';
         mount.hidden = true;
         return;
     }
 
-    const followUpLabel =
-        DISCUSSION_FOLLOW_UP_LABELS[followUp.kind] ||
-        'Follow-up';
+    if (activeFollowUp) {
+        const index = followUps.findIndex(
+            followUp => followUp.id === activeFollowUp.id
+        );
 
-    const action = discussionFocusFollowUpOpen
-        ? 'opening'
-        : 'open';
+        const authorTools = myVersionEditing
+            ? `
+                <div class="discussion-pathway-author-tools">
+                    <label class="discussion-pathway-kind-label">
+                        <span>Path type</span>
 
-    const buttonClass = discussionFocusFollowUpOpen
-        ? 'discussion-focus-continuation-btn is-return'
-        : 'discussion-focus-continuation-btn';
+                        <select class="discussion-pathway-kind-select"
+                            data-discussion-pathway-kind>
+                            ${DISCUSSION_FOLLOW_UP_KINDS.map(kind => `
+                                <option value="${escHtml(kind)}"
+                                    ${kind === activeFollowUp.kind
+                                        ? 'selected'
+                                        : ''}>
+                                    ${escHtml(
+                                        DISCUSSION_FOLLOW_UP_LABELS[kind]
+                                    )}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </label>
 
-    const content = discussionFocusFollowUpOpen
-        ? `
-            <svg width="14" height="14" viewBox="0 0 14 14"
-                fill="none" aria-hidden="true">
-                <path d="M9 3.5L5.5 7 9 10.5"
-                    stroke="currentColor"
-                    stroke-width="1.4"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"/>
-            </svg>
+                    ${activeFollowUp.kind === 'custom'
+                        ? `
+                            <label class="discussion-pathway-name-label">
+                                <span>Path name</span>
 
-            <span>Back to opening</span>
-        `
-        : `
-            <svg class="discussion-focus-continuation-kind-icon"
-                width="14" height="14" viewBox="0 0 14 14"
-                fill="none" aria-hidden="true">
-                <path d="M3.65 7H4.8
-                    C7.1 7 7.35 3.2 10.35 3.2
-                    M4.8 7
-                    C7.1 7 7.35 10.8 10.35 10.8"
-                    stroke="currentColor"
-                    stroke-width="1.15"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"/>
-                <circle cx="2.5" cy="7" r="1.15"
-                    stroke="currentColor"
-                    stroke-width="1.05"/>
-                <circle cx="11.5" cy="3.2" r="1.15"
-                    stroke="currentColor"
-                    stroke-width="1.05"/>
-                <circle cx="11.5" cy="10.8" r="1.15"
-                    stroke="currentColor"
-                    stroke-width="1.05"/>
-            </svg>
+                                <input class="discussion-pathway-name-input"
+                                    type="text"
+                                    maxlength="${DISCUSSION_FOLLOW_UP_LABEL_LIMIT}"
+                                    value="${escHtml(
+                                        getDiscussionFollowUpCustomLabel(
+                                            moment.id,
+                                            activeFollowUp
+                                        )
+                                    )}"
+                                    placeholder="Name this path"
+                                    aria-label="Custom path name, ${DISCUSSION_FOLLOW_UP_LABEL_LIMIT} characters maximum"
+                                    data-discussion-pathway-name>
+                            </label>
+                        `
+                        : ''}
 
-            <span>${escHtml(followUpLabel)}</span>
+                    <button class="discussion-pathway-author-btn"
+                        type="button"
+                        data-discussion-pathway-action="up"
+                        aria-label="Move pathway earlier"
+                        title="Move earlier"
+                        ${index <= 0 ? 'disabled' : ''}>
+                        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <path d="M4 10l4-4 4 4"
+                                stroke="currentColor"
+                                stroke-width="1.35"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"/>
+                        </svg>
+                    </button>
 
-            <svg class="discussion-focus-continuation-chevron"
-                width="14" height="14" viewBox="0 0 14 14"
-                fill="none" aria-hidden="true">
-                <path d="M5 3.5L8.5 7 5 10.5"
-                    stroke="currentColor"
-                    stroke-width="1.4"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"/>
-            </svg>
+                    <button class="discussion-pathway-author-btn"
+                        type="button"
+                        data-discussion-pathway-action="down"
+                        aria-label="Move pathway later"
+                        title="Move later"
+                        ${index >= followUps.length - 1
+                            ? 'disabled'
+                            : ''}>
+                        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <path d="M4 6l4 4 4-4"
+                                stroke="currentColor"
+                                stroke-width="1.35"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+
+                    <button class="discussion-pathway-author-btn is-danger"
+                        type="button"
+                        data-discussion-pathway-action="remove"
+                        aria-label="Remove pathway"
+                        title="Remove pathway">
+                        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <path d="M3.5 4.5h9M6 4.5V3.2c0-.66.54-1.2 1.2-1.2h1.6c.66 0 1.2.54 1.2 1.2v1.3M5 6.5l.45 6.1c.05.78.7 1.4 1.49 1.4h2.12c.79 0 1.44-.62 1.49-1.4L11 6.5"
+                                stroke="currentColor"
+                                stroke-width="1.25"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            `
+            : '';
+
+        mount.innerHTML = `
+            <button class="discussion-focus-continuation-btn is-return"
+                type="button"
+                data-discussion-focus-continuation-action="opening">
+
+                <svg width="14" height="14" viewBox="0 0 14 14"
+                    fill="none" aria-hidden="true">
+                    <path d="M9 3.5L5.5 7 9 10.5"
+                        stroke="currentColor"
+                        stroke-width="1.4"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+
+                <span>Back to opening</span>
+            </button>
+
+            ${authorTools}
         `;
 
+        mount.hidden = false;
+
+        mount.querySelector(
+            '[data-discussion-focus-continuation-action="opening"]'
+        )?.addEventListener('click', () => {
+            setDiscussionFocusFollowUp(
+                null,
+                `follow-up-${activeFollowUp.id}`
+            );
+        });
+
+        mount.querySelector(
+            '[data-discussion-pathway-kind]'
+        )?.addEventListener('change', event => {
+            const nextKind = event.target.value;
+
+            changeMyVersionMomentFollowUpKind(
+                moment.id,
+                activeFollowUp.id,
+                nextKind
+            );
+
+            if (nextKind !== 'custom') return;
+
+            requestAnimationFrame(() => {
+                const input = document.querySelector(
+                    '[data-discussion-pathway-name]'
+                );
+
+                input?.focus({ preventScroll: true });
+                input?.select();
+            });
+        });
+
+        const customNameInput = mount.querySelector(
+            '[data-discussion-pathway-name]'
+        );
+
+        customNameInput?.addEventListener(
+            'change',
+            event => {
+                commitMyVersionMomentFollowUpLabel(
+                    moment.id,
+                    activeFollowUp.id,
+                    event.target.value
+                );
+            }
+        );
+
+        customNameInput?.addEventListener(
+            'keydown',
+            event => {
+                if (event.key !== 'Enter') return;
+
+                event.preventDefault();
+                event.currentTarget.blur();
+            }
+        );
+
+        mount.querySelector(
+            '[data-discussion-pathway-action="up"]'
+        )?.addEventListener('click', () => {
+            moveMyVersionMomentFollowUp(
+                moment.id,
+                activeFollowUp.id,
+                -1
+            );
+        });
+
+        mount.querySelector(
+            '[data-discussion-pathway-action="down"]'
+        )?.addEventListener('click', () => {
+            moveMyVersionMomentFollowUp(
+                moment.id,
+                activeFollowUp.id,
+                1
+            );
+        });
+
+        mount.querySelector(
+            '[data-discussion-pathway-action="remove"]'
+        )?.addEventListener('click', () => {
+            removeMyVersionMomentFollowUp(
+                moment.id,
+                activeFollowUp.id
+            );
+        });
+
+        return;
+    }
+
+    if (!followUps.length && !myVersionEditing) {
+        discussionFocusFollowUpOpen = false;
+        mount.innerHTML = '';
+        mount.hidden = true;
+        return;
+    }
+
+    const pathwayButtons = followUps.map(followUp => {
+        const label = getDiscussionFollowUpLabel(
+            moment.id,
+            followUp
+        );
+
+        return `
+            <button class="discussion-focus-continuation-btn"
+                type="button"
+                data-discussion-focus-continuation-action="follow-up-${escHtml(followUp.id)}">
+
+                <svg class="discussion-focus-continuation-kind-icon"
+                    width="14" height="14" viewBox="0 0 14 14"
+                    fill="none" aria-hidden="true">
+                    <path d="M3.65 7H4.8
+                        C7.1 7 7.35 3.2 10.35 3.2
+                        M4.8 7
+                        C7.1 7 7.35 10.8 10.35 10.8"
+                        stroke="currentColor"
+                        stroke-width="1.15"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                    <circle cx="2.5" cy="7" r="1.15"
+                        stroke="currentColor"
+                        stroke-width="1.05"/>
+                    <circle cx="11.5" cy="3.2" r="1.15"
+                        stroke="currentColor"
+                        stroke-width="1.05"/>
+                    <circle cx="11.5" cy="10.8" r="1.15"
+                        stroke="currentColor"
+                        stroke-width="1.05"/>
+                </svg>
+
+                <span>${escHtml(label)}</span>
+
+                <svg class="discussion-focus-continuation-chevron"
+                    width="14" height="14" viewBox="0 0 14 14"
+                    fill="none" aria-hidden="true">
+                    <path d="M5 3.5L8.5 7 5 10.5"
+                        stroke="currentColor"
+                        stroke-width="1.4"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+            </button>
+        `;
+    }).join('');
+
+    const addButton =
+        myVersionEditing &&
+        followUps.length < DISCUSSION_FOLLOW_UP_LIMIT
+            ? `
+                <button class="discussion-pathway-add-btn"
+                    type="button"
+                    data-discussion-pathway-action="add">
+                    <svg width="14" height="14" viewBox="0 0 14 14"
+                        fill="none" aria-hidden="true">
+                        <path d="M7 2.5v9M2.5 7h9"
+                            stroke="currentColor"
+                            stroke-width="1.35"
+                            stroke-linecap="round"/>
+                    </svg>
+
+                    <span>Add pathway</span>
+                </button>
+            `
+            : '';
+
     mount.innerHTML = `
-        <button class="${buttonClass}"
-            type="button"
-            data-discussion-focus-continuation-action="${action}">
-            ${content}
-        </button>
+        <div class="discussion-pathway-list">
+            ${pathwayButtons}
+            ${addButton}
+        </div>
     `;
 
     mount.hidden = false;
 
+    followUps.forEach(followUp => {
+        mount.querySelector(
+            `[data-discussion-focus-continuation-action="follow-up-${CSS.escape(followUp.id)}"]`
+        )?.addEventListener('click', () => {
+            setDiscussionFocusFollowUp(
+                followUp.id,
+                'opening'
+            );
+        });
+    });
+
     mount.querySelector(
-        `[data-discussion-focus-continuation-action="${action}"]`
+        '[data-discussion-pathway-action="add"]'
     )?.addEventListener('click', () => {
-        setDiscussionFocusFollowUp(
-            !discussionFocusFollowUpOpen,
-            discussionFocusFollowUpOpen
-                ? 'open'
-                : 'opening'
-        );
+        addMyVersionMomentFollowUp(moment.id);
     });
 }
 
@@ -4365,7 +9667,7 @@ function renderDiscussionFocusUpgrade() {
 
     if (!mount) return;
 
-    if (!moment || !upgrade) {
+    if (!moment) {
         discussionFocusUpgradeOpen = false;
         mount.innerHTML = '';
         mount.hidden = true;
@@ -4374,14 +9676,17 @@ function renderDiscussionFocusUpgrade() {
 
     const contextId = `moment-${moment.id}`;
 
+    if (!upgrade) {
+        discussionFocusUpgradeOpen = false;
+        mount.innerHTML = buildAddUpgradeControl(contextId);
+        mount.hidden = !myVersionEditing;
+        return;
+    }
+
     const effectiveSource =
         getEffectiveUpgradeSourceFromContextId(contextId);
 
     upgrade = effectiveSource?.upgrade || upgrade;
-
-    const hasOrdinaryExample =
-        effectiveSource?.hasOrdinaryExample ??
-        Boolean(upgrade.ordinary);
 
     const saved = isUpgradeSaved(contextId);
 
@@ -4436,53 +9741,13 @@ function renderDiscussionFocusUpgrade() {
                 ${escHtml(upgrade.definition)}
             </p>
 
-            ${hasOrdinaryExample ? `
-                <div class="upgrade-transformation">
-                    <div class="upgrade-example-row">
-                        <span class="upgrade-example-label">
-                            ${escHtml(upgrade.insteadOfLabel)}
-                        </span>
+            ${buildUpgradeExamplesMarkup(upgrade)}
 
-                        <p class="upgrade-example upgrade-example-ordinary">
-                            ${escHtml(upgrade.ordinary)}
-                        </p>
-                    </div>
-
-                    <div class="upgrade-example-row upgrade-example-row-primary">
-                        <span class="upgrade-example-label">
-                            ${escHtml(upgrade.tryLabel)}
-                        </span>
-
-                        <p class="upgrade-example upgrade-example-upgraded">
-                            ${escHtml(upgrade.upgraded)}
-                        </p>
-                    </div>
-                </div>
-            ` : `
-                <div class="upgrade-example-row upgrade-example-row-primary">
-                    <span class="upgrade-example-label">
-                        Try
-                    </span>
-
-                    <p class="upgrade-example upgrade-example-upgraded">
-                        ${escHtml(upgrade.upgraded)}
-                    </p>
-                </div>
-            `}
-
-            <div class="upgrade-panel-actions">
-                <button
-                    class="upgrade-save-btn${saved ? ' is-saved' : ''}"
-                    id="us-${escHtml(contextId)}"
-                    type="button"
-                    onclick="toggleSavedLanguage(${jsArg(contextId)}, event)"
-                    aria-pressed="${String(saved)}"
-                    title="${saved
-            ? 'Remove from Language Bank'
-            : 'Save to Language Bank'}">
-                    ${saved ? 'Saved' : 'Save'}
-                </button>
-            </div>
+            ${buildUpgradeFooterControls(
+                contextId,
+                upgrade,
+                saved
+            )}
         </div>
     `;
 
@@ -4553,6 +9818,7 @@ function renderDiscussionFocus() {
     const upgrade = getDiscussionFocusUpgrade();
 
     if (!followUp) {
+        discussionFocusFollowUpId = null;
         discussionFocusFollowUpOpen = false;
     }
 
@@ -4585,16 +9851,44 @@ function renderDiscussionFocus() {
         isUpgrade
     );
 
-    setText(
-        'discussion-focus-activity-eyebrow-label',
-        isMakeItReal
-            ? 'Make It Real'
-            : ''
+    const activityLabel = isMakeItReal
+        ? getDiscussionActivityLabel(set)
+        : isFollowUp
+            ? getDiscussionFollowUpLabel(
+                entry.item.id,
+                followUp
+            )
+            : '';
+
+    const activityLabelElement = document.getElementById(
+        'discussion-focus-activity-eyebrow-label'
     );
 
     setText(
+        'discussion-focus-activity-eyebrow-label',
+        activityLabel
+    );
+
+    configureLiveTutorContentElement(
+        activityLabelElement,
+        {
+            fieldKey: isMakeItReal
+                ? getDiscussionMakeItRealFieldKey(
+                    set.id,
+                    'label'
+                )
+                : '',
+            value: activityLabel,
+            multiline: false
+        }
+    );
+
+    const discussionPathTitle =
+        getDiscussionPathTitle();
+
+    setText(
         'discussion-focus-stage',
-        'Discussion'
+        discussionPathTitle
     );
 
     const setTitleFieldKey = getDiscussionSetFieldKey(
@@ -4624,8 +9918,14 @@ function renderDiscussionFocus() {
         'discussion-focus-question'
     );
 
+    const effectiveUpgrade = isUpgrade
+        ? getEffectiveUpgradeSourceFromContextId(
+            `moment-${entry.item.id}`
+        )?.upgrade || upgrade
+        : upgrade;
+
     const titleOriginalValue = isUpgrade
-        ? upgrade.term
+        ? effectiveUpgrade.term
         : isMakeItReal
             ? entry.item.title
             : entry.item.preview;
@@ -4639,7 +9939,15 @@ function renderDiscussionFocus() {
                 : entry.item.question;
 
     const titleFieldKey = isUpgrade
-        ? ''
+        ? myVersionEditing
+            ? getUpgradeFieldKey(
+                {
+                    sourceKind: 'moment',
+                    sourceElementId: entry.item.id
+                },
+                'term'
+            )
+            : ''
         : isMakeItReal
             ? getDiscussionMakeItRealFieldKey(
                 set.id,
@@ -4741,10 +10049,10 @@ function renderDiscussionFocus() {
         backButton.setAttribute(
             'aria-label',
             compactBackDestination === 'conversation'
-                ? 'Return to the Discussion conversation'
+                ? `Return to the conversation in ${discussionPathTitle}`
                 : compactBackDestination === 'opening'
                     ? 'Return to the opening question'
-                    : 'Return to Discussion browse'
+                    : `Return to ${discussionPathTitle} browse`
         );
     }
 
@@ -4763,7 +10071,7 @@ function renderDiscussionFocus() {
         if (!item) return '';
 
         return item.type === 'make-it-real'
-            ? `Make It Real: ${item.item.title}`
+            ? `${getDiscussionActivityLabel(set)}: ${item.item.title}`
             : `moment: ${item.item.preview}`;
     };
 
@@ -4781,7 +10089,7 @@ function renderDiscussionFocus() {
     if (nextButton) {
         const nextLabel =
             nextEntry?.type === 'make-it-real'
-                ? 'Make It Real'
+                ? getDiscussionActivityLabel(set)
                 : 'Next';
 
         nextButton.hidden = !nextEntry;
@@ -4861,6 +10169,7 @@ function openDiscussionFocus(
     activeSetId = set.id;
     discussionFocusSetId = set.id;
     discussionFocusMomentId = entry.id;
+    discussionFocusFollowUpId = null;
     discussionFocusFollowUpOpen = false;
     discussionFocusUpgradeOpen = false;
 
@@ -4991,6 +10300,7 @@ function closeDiscussionFocus({
 
     discussionFocusSetId = null;
     discussionFocusMomentId = null;
+    discussionFocusFollowUpId = null;
     discussionFocusFollowUpOpen = false;
     discussionFocusUpgradeOpen = false;
     discussionFocusReturnElement = null;
@@ -5054,6 +10364,7 @@ function navigateDiscussionFocus(direction) {
     discussionFocusMomentId =
         sequence[nextIndex].id;
 
+    discussionFocusFollowUpId = null;
     discussionFocusFollowUpOpen = false;
     discussionFocusUpgradeOpen = false;
 
@@ -5150,6 +10461,287 @@ function getSetIconSvg(type, active) {
     return '';
 }
 
+function addMyVersionDiscussionSetField(setId, field) {
+    if (!myVersionEditing) return;
+
+    const defaults = {
+        stage: 'New Set',
+        description: 'Describe what this set explores.'
+    };
+
+    if (!Object.prototype.hasOwnProperty.call(defaults, field)) {
+        return;
+    }
+
+    const changed = commitMyVersionDraftContent(
+        getDiscussionSetFieldKey(setId, field),
+        defaults[field]
+    );
+
+    if (!changed) return;
+
+    requestAnimationFrame(() => {
+        const card = document.querySelector(
+            `.set-card[data-set-id="${CSS.escape(setId)}"]`
+        );
+
+        const element = card?.querySelector(
+            field === 'stage'
+                ? '.set-stage'
+                : '.set-desc'
+        );
+
+        if (!element) return;
+
+        element.focus({ preventScroll: true });
+
+        const selection = window.getSelection();
+        const range = document.createRange();
+
+        range.selectNodeContents(element);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+    });
+}
+
+function configureMyVersionDiscussionSetCard(
+    card,
+    set,
+    index,
+    stage,
+    title,
+    description
+) {
+    if (!myVersionEditing) return;
+
+    const active = activeSetId === set.id;
+
+    card.classList.add('set-card--authoring');
+    card.setAttribute('role', 'group');
+    card.removeAttribute('tabindex');
+    card.setAttribute(
+        'aria-label',
+        `Edit set ${index + 1}: ${title}`
+    );
+    card.onclick = null;
+    card.onkeydown = null;
+
+    const stageElement = card.querySelector('.set-stage');
+
+    if (stageElement) {
+        configureLiveTutorContentElement(
+            stageElement,
+            {
+                fieldKey: getDiscussionSetFieldKey(
+                    set.id,
+                    'stage'
+                ),
+                value: stage,
+                multiline: false
+            }
+        );
+    }
+
+    configureLiveTutorContentElement(
+        card.querySelector('.set-title'),
+        {
+            fieldKey: getDiscussionSetFieldKey(
+                set.id,
+                'title'
+            ),
+            value: title,
+            multiline: false
+        }
+    );
+
+    const descriptionElement = card.querySelector(
+        '.set-desc'
+    );
+
+    if (descriptionElement) {
+        configureLiveTutorContentElement(
+            descriptionElement,
+            {
+                fieldKey: getDiscussionSetFieldKey(
+                    set.id,
+                    'description'
+                ),
+                value: description,
+                multiline: true
+            }
+        );
+    }
+
+    card.querySelectorAll(
+        '[data-set-author-add-field]'
+    ).forEach(button => {
+        button.onclick = () => {
+            addMyVersionDiscussionSetField(
+                set.id,
+                button.dataset.setAuthorAddField
+            );
+        };
+    });
+
+    const controls = document.createElement('div');
+    controls.className = 'set-author-controls';
+
+    const toggleButton = document.createElement('button');
+    const toggleLabel = active
+        ? 'Hide set contents'
+        : 'Show set contents';
+
+    toggleButton.type = 'button';
+    toggleButton.className = [
+        'moment-author-control',
+        'set-author-toggle',
+        active ? 'is-active' : ''
+    ].filter(Boolean).join(' ');
+    toggleButton.title = toggleLabel;
+    toggleButton.setAttribute('aria-label', toggleLabel);
+    toggleButton.setAttribute(
+        'aria-pressed',
+        String(active)
+    );
+    toggleButton.innerHTML = `
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="3.25" cy="4.5" r="0.72"
+                fill="currentColor"/>
+            <circle cx="3.25" cy="8" r="0.72"
+                fill="currentColor"/>
+            <circle cx="3.25" cy="11.5" r="0.72"
+                fill="currentColor"/>
+
+            <path d="M5.5 4.5h7M5.5 8h7M5.5 11.5h7"
+                stroke="currentColor"
+                stroke-width="1.25"
+                stroke-linecap="round"/>
+        </svg>
+    `;
+
+    toggleButton.onclick = () => {
+        if (active) {
+            closeSet();
+        } else {
+            openSet(set.id);
+        }
+    };
+
+    controls.appendChild(toggleButton);
+
+    const actions = [
+        {
+            label: 'Move set earlier',
+            disabled: index === 0,
+            className: '',
+            icon: `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M4 10l4-4 4 4"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>`,
+            run: () => moveMyVersionDiscussionSet(
+                set.id,
+                -1
+            )
+        },
+        {
+            label: 'Move set later',
+            disabled: index === discussionSets.length - 1,
+            className: '',
+            icon: `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M4 6l4 4 4-4"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>`,
+            run: () => moveMyVersionDiscussionSet(
+                set.id,
+                1
+            )
+        },
+        {
+            label: 'Duplicate set',
+            disabled: false,
+            className: '',
+            icon: `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <rect x="5" y="5" width="7" height="7" rx="1.5"
+                        stroke="currentColor"
+                        stroke-width="1.3"/>
+                    <path d="M4 10H3.5A1.5 1.5 0 012 8.5v-5A1.5 1.5 0 013.5 2h5A1.5 1.5 0 0110 3.5V4"
+                        stroke="currentColor"
+                        stroke-width="1.3"
+                        stroke-linecap="round"/>
+                </svg>`,
+            run: () => duplicateMyVersionDiscussionSet(
+                set.id
+            )
+        },
+        {
+            label: discussionSets.length <= 1
+                ? 'Keep at least one set'
+                : 'Remove set',
+            disabled: discussionSets.length <= 1,
+            className: 'moment-author-control--danger',
+            icon: `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3.5 4.5h9M6 4.5V3.2c0-.66.54-1.2 1.2-1.2h1.6c.66 0 1.2.54 1.2 1.2v1.3M5 6.5l.45 6.1c.05.78.7 1.4 1.49 1.4h2.12c.79 0 1.44-.62 1.49-1.4L11 6.5"
+                        stroke="currentColor"
+                        stroke-width="1.25"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>`,
+            run: () => removeMyVersionDiscussionSet(
+                set.id
+            )
+        }
+    ];
+
+    actions.forEach(action => {
+        const button = document.createElement('button');
+
+        button.type = 'button';
+        button.className = [
+            'moment-author-control',
+            action.className
+        ].filter(Boolean).join(' ');
+        button.disabled = action.disabled;
+        button.title = action.label;
+        button.setAttribute('aria-label', action.label);
+        button.innerHTML = action.icon;
+        button.onclick = action.run;
+
+        controls.appendChild(button);
+    });
+
+    card.appendChild(controls);
+}
+
+function renderMyVersionAddDiscussionSetControl(container) {
+    if (!myVersionEditing) return;
+
+    const addButton = document.createElement('button');
+
+    addButton.type = 'button';
+    addButton.className =
+        'moment-author-add set-author-add';
+
+    addButton.innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 15 15"
+            fill="none" aria-hidden="true">
+            <path d="M7.5 2.5v10M2.5 7.5h10"
+                stroke="currentColor"
+                stroke-width="1.45"
+                stroke-linecap="round"/>
+        </svg>
+        Add set
+    `;
+
+    addButton.onclick = addMyVersionDiscussionSet;
+    container.appendChild(addButton);
+}
+
 function renderDiscussionSets() {
     const container = document.getElementById('discussion-sets');
 
@@ -5157,7 +10749,12 @@ function renderDiscussionSets() {
 
     container.innerHTML = '';
 
-    discussionSets.forEach(set => {
+    discussionSets.forEach((set, index) => {
+        const stage = resolveTutorContentValue(
+            set.stage,
+            getDiscussionSetFieldKey(set.id, 'stage')
+        );
+
         const title = resolveTutorContentValue(
             set.title,
             getDiscussionSetFieldKey(set.id, 'title')
@@ -5168,14 +10765,24 @@ function renderDiscussionSets() {
             getDiscussionSetFieldKey(set.id, 'description')
         );
 
+        const hasStage = Boolean(stage.trim());
+        const hasDescription = Boolean(
+            description.trim()
+        );
+
         const element = document.createElement('div');
         const active = activeSetId === set.id;
 
         element.className =
             `set-card${active ? ' active-set' : ''}`;
 
+        element.dataset.setId = set.id;
         element.setAttribute('role', 'button');
         element.setAttribute('tabindex', '0');
+        element.setAttribute(
+            'aria-label',
+            `${active ? 'Close' : 'Open'} ${title}`
+        );
 
         element.onclick = () => {
             if (activeSetId === set.id) {
@@ -5188,6 +10795,7 @@ function renderDiscussionSets() {
         element.onkeydown = event => {
             if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
+
                 if (activeSetId === set.id) {
                     closeSet();
                 } else {
@@ -5201,22 +10809,56 @@ function renderDiscussionSets() {
                     ${getSetIconSvg(set.icon, active)}
                 </div>
 
-                <p class="set-stage">
-                    ${escHtml(set.stage)}
-                </p>
+                ${hasStage
+                    ? `
+                        <p class="set-stage">
+                            ${escHtml(stage)}
+                        </p>
+                    `
+                    : myVersionEditing
+                        ? `
+                            <button class="set-author-add-field set-author-add-field--stage"
+                                type="button"
+                                data-set-author-add-field="stage">
+                                + Add stage
+                            </button>
+                        `
+                        : ''}
 
                 <h3 class="set-title">
                     ${escHtml(title)}
                 </h3>
 
-                <p class="set-desc">
-                    ${escHtml(description)}
-                </p>
+                ${hasDescription
+                    ? `
+                        <p class="set-desc">
+                            ${escHtml(description)}
+                        </p>
+                    `
+                    : myVersionEditing
+                        ? `
+                            <button class="set-author-add-field set-author-add-field--description"
+                                type="button"
+                                data-set-author-add-field="description">
+                                + Add description
+                            </button>
+                        `
+                        : ''}
             `;
+
+        configureMyVersionDiscussionSetCard(
+            element,
+            set,
+            index,
+            stage,
+            title,
+            description
+        );
 
         container.appendChild(element);
     });
 
+    renderMyVersionAddDiscussionSetControl(container);
     updateDiscussionProgress();
 }
 
@@ -5314,6 +10956,181 @@ function closeSet() {
     }, 50);
 }
 
+function configureMyVersionMomentCard(
+    card,
+    set,
+    moment,
+    index,
+    preview
+) {
+    if (!myVersionEditing) return;
+
+    card.classList.add('moment-card--authoring');
+    card.setAttribute('role', 'group');
+    card.removeAttribute('tabindex');
+    card.setAttribute(
+        'aria-label',
+        `Edit moment ${index + 1}: ${preview}`
+    );
+    card.onclick = null;
+    card.onkeydown = null;
+
+    const header = card.querySelector(
+        '.moment-card-header'
+    );
+
+    if (header) {
+        header.setAttribute('role', 'button');
+        header.setAttribute('tabindex', '0');
+        header.setAttribute(
+            'aria-label',
+            `Edit moment ${index + 1}: ${preview}`
+        );
+
+        header.onclick = () => {
+            openDiscussionFocus(
+                set.id,
+                moment.id,
+                header
+            );
+        };
+
+        header.onkeydown = event => {
+            if (
+                event.key === 'Enter' ||
+                event.key === ' '
+            ) {
+                event.preventDefault();
+
+                openDiscussionFocus(
+                    set.id,
+                    moment.id,
+                    header
+                );
+            }
+        };
+    }
+
+    const controls = document.createElement('div');
+    controls.className = 'moment-author-controls';
+
+    const actions = [
+        {
+            label: 'Move moment up',
+            disabled: index === 0,
+            className: '',
+            icon: `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M4 10l4-4 4 4"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>`,
+            run: () => moveMyVersionMoment(
+                set.id,
+                moment.id,
+                -1
+            )
+        },
+        {
+            label: 'Move moment down',
+            disabled: index === set.moments.length - 1,
+            className: '',
+            icon: `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M4 6l4 4 4-4"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>`,
+            run: () => moveMyVersionMoment(
+                set.id,
+                moment.id,
+                1
+            )
+        },
+        {
+            label: 'Duplicate moment',
+            disabled: false,
+            className: '',
+            icon: `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <rect x="5" y="5" width="7" height="7" rx="1.5"
+                        stroke="currentColor"
+                        stroke-width="1.3"/>
+                    <path d="M4 10H3.5A1.5 1.5 0 012 8.5v-5A1.5 1.5 0 013.5 2h5A1.5 1.5 0 0110 3.5V4"
+                        stroke="currentColor"
+                        stroke-width="1.3"
+                        stroke-linecap="round"/>
+                </svg>`,
+            run: () => duplicateMyVersionMoment(
+                set.id,
+                moment.id
+            )
+        },
+        {
+            label: set.moments.length <= 1
+                ? 'A set must keep at least one moment'
+                : 'Remove moment',
+            disabled: set.moments.length <= 1,
+            className: 'moment-author-control--danger',
+            icon: `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3.5 4.5h9M6 4.5V3.2c0-.66.54-1.2 1.2-1.2h1.6c.66 0 1.2.54 1.2 1.2v1.3M5 6.5l.45 6.1c.05.78.7 1.4 1.49 1.4h2.12c.79 0 1.44-.62 1.49-1.4L11 6.5"
+                        stroke="currentColor"
+                        stroke-width="1.25"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>`,
+            run: () => removeMyVersionMoment(
+                set.id,
+                moment.id
+            )
+        }
+    ];
+
+    actions.forEach(action => {
+        const button = document.createElement('button');
+
+        button.type = 'button';
+        button.className = [
+            'moment-author-control',
+            action.className
+        ].filter(Boolean).join(' ');
+        button.disabled = action.disabled;
+        button.title = action.label;
+        button.setAttribute('aria-label', action.label);
+        button.innerHTML = action.icon;
+        button.onclick = action.run;
+
+        controls.appendChild(button);
+    });
+
+    card.appendChild(controls);
+}
+
+function renderMyVersionAddMomentControl(list, set) {
+    if (!myVersionEditing) return;
+
+    const addButton = document.createElement('button');
+
+    addButton.type = 'button';
+    addButton.className = 'moment-author-add';
+    addButton.innerHTML = `
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                <path d="M7.5 2.5v10M2.5 7.5h10"
+                    stroke="currentColor"
+                    stroke-width="1.45"
+                    stroke-linecap="round"/>
+            </svg>
+            Add moment
+        `;
+
+    addButton.onclick = () => {
+        addMyVersionMoment(set.id);
+    };
+
+    list.appendChild(addButton);
+}
+
 function renderMoments(set) {
     const list = document.getElementById('moments-list');
 
@@ -5396,13 +11213,122 @@ function renderMoments(set) {
                 </div>
             `;
 
+        configureMyVersionMomentCard(
+            card,
+            set,
+            moment,
+            index,
+            preview
+        );
+
         list.appendChild(card);
     });
 
+    renderMyVersionAddMomentControl(list, set);
+    renderMyVersionSetActivityControl(list, set);
+}
+
+function configureMyVersionSetActivityCard(
+    card,
+    set,
+    activityLabel,
+    activityTitle
+) {
+    if (!myVersionEditing) return;
+
+    card.classList.add(
+        'make-it-real-card--authoring'
+    );
+
+    card.setAttribute('role', 'group');
+    card.removeAttribute('tabindex');
+    card.setAttribute(
+        'aria-label',
+        `Edit ${activityLabel}: ${activityTitle}`
+    );
+    card.onclick = null;
+    card.onkeydown = null;
+
+    const header = card.querySelector(
+        '.make-it-real-header'
+    );
+
+    if (header) {
+        header.setAttribute('role', 'button');
+        header.setAttribute('tabindex', '0');
+        header.setAttribute(
+            'aria-label',
+            `Edit ${activityLabel}: ${activityTitle}`
+        );
+
+        header.onclick = () => {
+            openDiscussionFocus(
+                set.id,
+                DISCUSSION_FOCUS_MAKE_IT_REAL_ID,
+                header
+            );
+        };
+
+        header.onkeydown = event => {
+            if (
+                event.key === 'Enter' ||
+                event.key === ' '
+            ) {
+                event.preventDefault();
+
+                openDiscussionFocus(
+                    set.id,
+                    DISCUSSION_FOCUS_MAKE_IT_REAL_ID,
+                    header
+                );
+            }
+        };
+    }
+
+    const controls = document.createElement('div');
+    controls.className = 'moment-author-controls';
+
+    const removeButton = document.createElement('button');
+
+    removeButton.type = 'button';
+    removeButton.className = [
+        'moment-author-control',
+        'moment-author-control--danger'
+    ].join(' ');
+    removeButton.title = 'Remove closing activity';
+    removeButton.setAttribute(
+        'aria-label',
+        'Remove closing activity'
+    );
+    removeButton.innerHTML = `
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3.5 4.5h9M6 4.5V3.2c0-.66.54-1.2 1.2-1.2h1.6c.66 0 1.2.54 1.2 1.2v1.3M5 6.5l.45 6.1c.05.78.7 1.4 1.49 1.4h2.12c.79 0 1.44-.62 1.49-1.4L11 6.5"
+                stroke="currentColor"
+                stroke-width="1.25"
+                stroke-linecap="round"
+                stroke-linejoin="round"/>
+        </svg>
+    `;
+
+    removeButton.onclick = () => {
+        removeMyVersionSetActivity(set.id);
+    };
+
+    controls.appendChild(removeButton);
+    card.appendChild(controls);
+}
+
+function renderMyVersionSetActivityControl(list, set) {
     if (set.makeItReal) {
-        const makeItRealTitle = resolveTutorContentValue(
+        const activityLabel =
+            getDiscussionActivityLabel(set);
+
+        const activityTitle = resolveTutorContentValue(
             set.makeItReal.title,
-            getDiscussionMakeItRealFieldKey(set.id, 'title')
+            getDiscussionMakeItRealFieldKey(
+                set.id,
+                'title'
+            )
         );
 
         const card = document.createElement('div');
@@ -5424,7 +11350,7 @@ function renderMoments(set) {
 
         card.setAttribute(
             'aria-label',
-            `Open Make It Real: ${makeItRealTitle}`
+            `Open ${activityLabel}: ${activityTitle}`
         );
 
         card.onclick = () => {
@@ -5459,11 +11385,11 @@ function renderMoments(set) {
                                 stroke-width="1"
                                 stroke-linejoin="round"/>
                         </svg>
-                        Make It Real
+                        ${escHtml(activityLabel)}
                     </span>
 
                     <span class="make-it-real-title">
-                        ${escHtml(makeItRealTitle)}
+                        ${escHtml(activityTitle)}
                     </span>
 
                     <svg class="moment-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -5476,8 +11402,40 @@ function renderMoments(set) {
                 </div>
             `;
 
+        configureMyVersionSetActivityCard(
+            card,
+            set,
+            activityLabel,
+            activityTitle
+        );
+
         list.appendChild(card);
+        return;
     }
+
+    if (!myVersionEditing) return;
+
+    const addButton = document.createElement('button');
+
+    addButton.type = 'button';
+    addButton.className =
+        'moment-author-add moment-author-add--activity';
+
+    addButton.innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+            <path d="M7.5 2.5v10M2.5 7.5h10"
+                stroke="currentColor"
+                stroke-width="1.45"
+                stroke-linecap="round"/>
+        </svg>
+        Add closing activity
+    `;
+
+    addButton.onclick = () => {
+        addMyVersionSetActivity(set.id);
+    };
+
+    list.appendChild(addButton);
 }
 
 function toggleMoment(momentId) {
@@ -5711,7 +11669,7 @@ function getUpgradeContextIdFromSource(
 function getAllLanguageGroups() {
     return [
         {
-            title: 'Cultural Lens',
+            title: getCulturalLensPathTitle(),
             entries: clCards
                 .filter(card => card.upgrade)
                 .map(card => {
@@ -5754,11 +11712,13 @@ function renderVocabEntry({
     ordinary = null,
     upgraded = '',
     contextId = '',
+    entryId = '',
     showSaveControl = false,
     saveControlMode = 'toggle'
 } = {}) {
     const canSave = Boolean(
-        showSaveControl && contextId
+        showSaveControl &&
+        (contextId || entryId)
     );
 
     const removeMode = saveControlMode === 'remove';
@@ -5801,7 +11761,9 @@ function renderVocabEntry({
                         <button
                             class="${buttonClass}"
                             type="button"
-                            onclick="toggleSavedLanguage(${jsArg(contextId)}, event)"
+                            onclick="${removeMode
+                                ? `removeSavedLanguageEntryById(${jsArg(entryId)}, event)`
+                                : `toggleSavedLanguage(${jsArg(contextId)}, event)`}"
                             aria-pressed="${String(saved)}"
                             title="${escHtml(buttonTitle)}">
                             ${escHtml(buttonLabel)}
@@ -5813,7 +11775,7 @@ function renderVocabEntry({
                     ${escHtml(definition)}
                 </p>
 
-                ${ordinary ? `
+                ${ordinary && upgraded ? `
                     <div class="vb-entry-transformation">
                         <p class="vb-entry-example vb-entry-example-ordinary">
                             ${escHtml(ordinary)}
@@ -5827,11 +11789,11 @@ function renderVocabEntry({
                             ${escHtml(upgraded)}
                         </p>
                     </div>
-                ` : `
+                ` : upgraded ? `
                     <p class="vb-entry-example vb-entry-example-upgraded">
                         ${escHtml(upgraded)}
                     </p>
-                `}
+                ` : ''}
             </div>
         `;
 }
@@ -5891,6 +11853,7 @@ function renderSavedLanguageTab() {
             entry.sourceKind,
             entry.sourceElementId
         ),
+        entryId: entry.id,
         showSaveControl: vocabBankEditMode,
         saveControlMode: 'remove'
     })).join('')}
@@ -5993,10 +11956,11 @@ function getLanguageEntryPlainText(entry = {}) {
         lines.push(`Ordinary: ${entry.ordinary}`);
     }
 
-    lines.push(
-        `Upgraded: ${entry.upgraded || ''}`,
-        ''
-    );
+    if (entry.upgraded) {
+        lines.push(`Upgraded: ${entry.upgraded}`);
+    }
+
+    lines.push('');
 
     return lines.join('\n');
 }
@@ -6010,7 +11974,7 @@ function buildAllLanguagePlainText() {
     );
 
     const lines = [
-        `Compass · ${MODULE.title}`,
+        `Compass · ${getEffectiveSubjectTitle()}`,
         'All Language',
         `${totalCount} entries`,
         ''
@@ -6037,7 +12001,7 @@ function buildSavedLanguagePlainText() {
         getSavedLanguageEntriesForCurrentSubject();
 
     const lines = [
-        `Compass · ${MODULE.title}`,
+        `Compass · ${getEffectiveSubjectTitle()}`,
         'Saved Language',
         `${entries.length} saved`,
         ''
@@ -6136,9 +12100,11 @@ function renderPrintLanguageEntry(entry = {}) {
                     </p>
                 ` : ''}
 
-                <p class="print-entry-example print-entry-example-upgraded">
-                    ${escHtml(entry.upgraded)}
-                </p>
+                ${entry.upgraded ? `
+                    <p class="print-entry-example print-entry-example-upgraded">
+                        ${escHtml(entry.upgraded)}
+                    </p>
+                ` : ''}
             </div>
         `;
 }
@@ -6163,7 +12129,7 @@ function printLanguageDocument({
                 </p>
 
                 <h1 class="print-doc-title">
-                    ${escHtml(MODULE.title)}
+                    ${escHtml(getEffectiveSubjectTitle())}
                 </h1>
 
                 ${intro ? `
@@ -6197,7 +12163,7 @@ function printLanguageDocument({
     const originalTitle = document.title;
 
     document.title =
-        `${MODULE.title} — ${titleSuffix}`;
+        `${getEffectiveSubjectTitle()} — ${titleSuffix}`;
 
     document.body.classList.add(
         'printing-key-language'
@@ -6280,7 +12246,7 @@ function mountSessionPanel() {
 
     window.AtlasSessionPanel.mount({
         root: '#atlas-session-panel-root',
-        contextTitle: MODULE.title,
+        contextTitle: getEffectiveSubjectTitle(),
         contextDescription: session =>
             `This subject is saving explored items and language for ${session.name}.`,
         primaryActionLabel: 'Wrap up this lesson',
@@ -6783,6 +12749,39 @@ document.addEventListener('click', event => {
 document.addEventListener('keydown', event => {
     handleFocusTrap(event);
 
+    if (
+        event.key === 'Escape' &&
+        !document
+            .getElementById('atlas-my-version-start-dialog')
+            ?.hidden
+    ) {
+        event.preventDefault();
+        closeMyVersionStartDialog();
+        return;
+    }
+
+    if (
+        event.key === 'Escape' &&
+        !document
+            .getElementById('atlas-restore-original-dialog')
+            ?.hidden
+    ) {
+        event.preventDefault();
+        cancelRestoreAtlasOriginal();
+        return;
+    }
+
+    if (
+        event.key === 'Escape' &&
+        !document
+            .getElementById('atlas-my-version-cover-dialog')
+            ?.hidden
+    ) {
+        event.preventDefault();
+        closeMyVersionCoverDialog();
+        return;
+    }
+
     if (isLiveTutorContentTarget(event.target)) {
         return;
     }
@@ -6813,14 +12812,15 @@ document.addEventListener('keydown', event => {
             }
 
             if (discussionFocusFollowUpOpen) {
-                discussionFocusFollowUpOpen = false;
-                renderDiscussionFocus();
+                const followUpId =
+                    discussionFocusFollowUpId;
 
-                requestAnimationFrame(() => {
-                    focusDiscussionFocusContinuationControl(
-                        'open'
-                    );
-                });
+                setDiscussionFocusFollowUp(
+                    null,
+                    followUpId
+                        ? `follow-up-${followUpId}`
+                        : null
+                );
 
                 return;
             }
@@ -6957,52 +12957,39 @@ async function init() {
     applyDerivedLabels();
     applyLaunchOriginUI();
 
-    renderNav(
-        'nav-orientation',
-        'view-orientation'
+    renderAllCompassNavigation();
+
+    document.addEventListener(
+        'keydown',
+        handleLiveTutorHistoryShortcut,
+        true
     );
 
-    renderNav(
-        'nav-cultural-lens',
-        'view-cultural-lens'
+    document.addEventListener(
+        'keydown',
+        handleMyVersionUnlockKeyDown,
+        true
     );
 
-    renderNav(
-        'nav-discussion',
-        'view-discussion'
+    document.addEventListener(
+        'keyup',
+        handleMyVersionUnlockKeyUp,
+        true
     );
 
-    renderNav(
-        'nav-reflection',
-        'view-reflection'
+    window.addEventListener(
+        'blur',
+        resetMyVersionUnlockKeys
     );
-
-    renderMobileHeader(
-        'mob-header-orientation',
-        'overview'
-    );
-
-    renderMobileHeader(
-        'mob-header-cultural-lens',
-        'cultural-lens'
-    );
-
-    renderMobileHeader(
-        'mob-header-discussion',
-        'discussion'
-    );
-
-    renderMobileHeader(
-        'mob-header-reflection',
-        'reflection'
-    );
-
-    renderMobileDrawerNav();
 
     loadSessions();
     loadProgress();
     await loadTutorContentState();
+    applyCoverConfig();
+    applyDerivedLabels();
     applySubjectCopy();
+    renderAllCompassNavigation();
+    applySubjectIdentityChrome();
     mountSessionPanel();
 
     updateSessionUI();
@@ -7011,6 +12998,7 @@ async function init() {
     renderDiscussionSets();
     updateReflectionCompleteState();
     initAppearanceMode();
+    restoreMyVersionWorkingDraftView();
 
     window.addEventListener(
         'atlas:session-change',

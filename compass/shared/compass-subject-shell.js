@@ -49,7 +49,7 @@ function mountCompassSubjectShell() {
         <div class="cover-card">
             <div class="cover-eyebrow">
                 <span class="cover-eyebrow-line"></span>
-                COMPASS SUBJECT
+                <span id="cover-eyebrow-label">COMPASS SUBJECT</span>
             </div>
 
             <h1 class="cover-title" id="cover-title"></h1>
@@ -115,7 +115,7 @@ function mountCompassSubjectShell() {
                         </div>
 
                         <p class="path-label" id="path-label-disc"></p>
-                        <h2 class="path-title">Discussion</h2>
+                        <h2 class="path-title" id="path-title-disc">Discussion</h2>
                         <p class="path-desc" id="path-desc-disc"></p>
 
                         <div class="path-arrow" aria-hidden="true">
@@ -161,7 +161,7 @@ function mountCompassSubjectShell() {
                         </div>
 
                         <p class="path-label" id="path-label-cl"></p>
-                        <h2 class="path-title">Cultural Lens</h2>
+                        <h2 class="path-title" id="path-title-cl">Cultural Lens</h2>
                         <p class="path-desc" id="path-desc-cl"></p>
 
                         <div class="path-arrow" aria-hidden="true">
@@ -225,7 +225,7 @@ function mountCompassSubjectShell() {
         <div class="section-wrap" id="discussion-browse-view">
             <div class="section-stage">
                 <div class="section-header">
-                    <p class="section-eyebrow">Discussion</p>
+                    <p class="section-eyebrow" id="discussion-section-eyebrow">Discussion</p>
                     <h2 id="discussion-section-heading"></h2>
                     <p id="discussion-section-intro"></p>
 
@@ -394,7 +394,7 @@ function mountCompassSubjectShell() {
         <div class="section-wrap" id="cultural-lens-browse-view">
             <div class="section-stage">
                 <div class="section-header">
-                    <p class="section-eyebrow">Cultural Lens</p>
+                    <p class="section-eyebrow" id="cl-section-eyebrow">Cultural Lens</p>
                     <h2 id="cl-section-heading"></h2>
                     <p id="cl-section-intro"></p>
 
@@ -478,14 +478,15 @@ function mountCompassSubjectShell() {
                     <p class="cultural-lens-focus-context"
                         id="cultural-lens-focus-context"></p>
 
-                    <div class="cultural-lens-focus-question-block">
+                    <div class="cultural-lens-focus-question-block"
+                        id="cultural-lens-focus-question-block">
                         <p class="cultural-lens-focus-question-label"
                             id="cultural-lens-focus-question-label">
                             Question
                         </p>
 
-                        <p class="discussion-focus-question cultural-lens-focus-question"
-                            id="cultural-lens-focus-question"></p>
+                        <div class="cultural-lens-focus-questions"
+                            id="cultural-lens-focus-questions"></div>
                     </div>
 
                     <div class="cultural-lens-focus-tools">
@@ -707,6 +708,190 @@ function mountCompassSubjectShell() {
             onclick="restoreLiveTutorContent()">
             Restore
         </button>
+    </div>
+
+    <!-- ============================================================
+     MY VERSION AUTHORING
+     Appears only while the tutor is deliberately editing My Version.
+     ============================================================ -->
+
+    <div class="atlas-my-version-bar"
+        id="atlas-my-version-bar" hidden>
+        <div class="atlas-my-version-copy">
+            <strong>Editing My Version</strong>
+            <span id="atlas-my-version-status">No changes yet</span>
+        </div>
+
+        <div class="atlas-my-version-actions">
+            <button class="atlas-my-version-secondary"
+                id="atlas-my-version-cover-action"
+                type="button"
+                onclick="handleMyVersionCoverAction()">
+                Cover
+            </button>
+
+            <button class="atlas-my-version-secondary"
+                id="atlas-my-version-cancel"
+                type="button"
+                onclick="cancelMyVersionEditing()">
+                Cancel
+            </button>
+
+            <button class="atlas-my-version-primary"
+                id="atlas-my-version-save"
+                type="button"
+                onclick="saveMyVersion()"
+                disabled>
+                Save My Version
+            </button>
+        </div>
+    </div>
+
+    <div class="atlas-my-version-dialog"
+        id="atlas-my-version-start-dialog" hidden
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="atlas-my-version-start-title"
+        onclick="if(event.target === this) closeMyVersionStartDialog()">
+        <div class="atlas-my-version-dialog-panel">
+            <p class="atlas-my-version-dialog-kicker">MY VERSION</p>
+
+            <h2 id="atlas-my-version-start-title">
+                Start from here?
+            </h2>
+
+            <p class="atlas-my-version-dialog-copy">
+                This lesson already has temporary changes. Choose what becomes the starting point for your reusable version.
+            </p>
+
+            <p class="atlas-my-version-dialog-meta"
+                id="atlas-my-version-start-count"></p>
+
+            <div class="atlas-my-version-dialog-actions">
+                <button class="atlas-my-version-dialog-primary"
+                    type="button"
+                    onclick="beginMyVersionEditing(true)">
+                    Use these Live Changes
+                </button>
+
+                <button class="atlas-my-version-dialog-secondary"
+                    type="button"
+                    onclick="beginMyVersionEditing(false)">
+                    Keep them with this learner
+                </button>
+
+                <button class="atlas-my-version-dialog-cancel"
+                    type="button"
+                    onclick="closeMyVersionStartDialog()">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="atlas-my-version-dialog"
+        id="atlas-my-version-cover-dialog" hidden
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="atlas-my-version-cover-title"
+        onclick="if(event.target === this) closeMyVersionCoverDialog()">
+        <div class="atlas-my-version-dialog-panel">
+            <p class="atlas-my-version-dialog-kicker">MY VERSION</p>
+
+            <h2 id="atlas-my-version-cover-title">
+                Subject details
+            </h2>
+
+            <p class="atlas-my-version-dialog-copy">
+                Edit the title and hook directly on the cover. These details control how your version appears in Atlas and Compass.
+            </p>
+
+            <label class="atlas-my-version-field">
+                <span>Cover image URL or path</span>
+
+                <input id="atlas-my-version-image-input"
+                    type="text"
+                    inputmode="url"
+                    autocomplete="off">
+            </label>
+
+            <label class="atlas-my-version-field">
+                <span>Library introduction</span>
+
+                <textarea id="atlas-my-version-description-input"
+                    rows="4"
+                    maxlength="220"
+                    autocomplete="off"></textarea>
+            </label>
+
+            <p class="atlas-my-version-dialog-error"
+                id="atlas-my-version-cover-error" hidden></p>
+
+            <div class="atlas-my-version-dialog-actions atlas-my-version-dialog-actions--compact">
+                <button class="atlas-my-version-dialog-secondary"
+                    type="button"
+                    onclick="closeMyVersionCoverDialog()">
+                    Cancel
+                </button>
+
+                <button class="atlas-my-version-dialog-primary"
+                    type="button"
+                    onclick="applyMyVersionCoverChanges()">
+                    Apply details
+                </button>
+            </div>
+
+            <div class="atlas-my-version-restore-section"
+                id="atlas-my-version-restore-section" hidden>
+                <p class="atlas-my-version-restore-label">
+                    Version management
+                </p>
+
+                <p class="atlas-my-version-restore-copy">
+                    Return this subject to the Atlas version and remove My Version.
+                </p>
+
+                <button class="atlas-my-version-restore-action"
+                    type="button"
+                    onclick="openRestoreAtlasOriginalDialog()">
+                    Restore Atlas Original
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="atlas-my-version-dialog"
+        id="atlas-restore-original-dialog" hidden
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="atlas-restore-original-title"
+        onclick="if(event.target === this) cancelRestoreAtlasOriginal()">
+        <div class="atlas-my-version-dialog-panel">
+            <p class="atlas-my-version-dialog-kicker">MY VERSION</p>
+
+            <h2 id="atlas-restore-original-title">
+                Restore Atlas Original?
+            </h2>
+
+            <p class="atlas-my-version-dialog-copy">
+                This removes My Version, including any unpublished changes, and makes the Atlas subject your default again. Learner progress and Live Changes are not affected.
+            </p>
+
+            <div class="atlas-my-version-dialog-actions atlas-my-version-dialog-actions--compact">
+                <button class="atlas-my-version-dialog-secondary"
+                    type="button"
+                    onclick="cancelRestoreAtlasOriginal()">
+                    Keep My Version
+                </button>
+
+                <button class="atlas-my-version-dialog-danger"
+                    id="atlas-restore-original-confirm"
+                    type="button"
+                    onclick="restoreAtlasOriginal()">
+                    Restore original
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- ============================================================
