@@ -41,8 +41,10 @@ const subjectCopy = {
     },
 
     paths: {
-        culturalLensDescription: `Explore naming rules, inherited roles, chosen relatives, family duty, and different ways of deciding who belongs.`,
+        discussionTitle: `Discussion`,
         discussionDescription: `Private rules, uneven responsibilities, difficult questions, inherited habits, and the things worth passing on.`,
+        culturalLensTitle: `Cultural Lens`,
+        culturalLensDescription: `Explore naming rules, inherited roles, chosen relatives, family duty, and different ways of deciding who belongs.`,
         reflectionTitle: `Reflection`,
         reflectionDescription: `A place to reconsider what makes a family, what it asks of people, and what continues through them.`
     },
