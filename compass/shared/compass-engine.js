@@ -1,5 +1,5 @@
 // ============================================================
-// COMPASS SHARED SUBJECT ENGINE
+// COMPASS SHARED SUBJECT ENGINE - V3
 // Canonical runtime for Compass subject pages.
 //
 // Subject-specific content lives in subject-data.js:
