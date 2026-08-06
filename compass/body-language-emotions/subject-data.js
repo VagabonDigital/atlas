@@ -41,8 +41,10 @@ const subjectCopy = {
     },
 
     paths: {
-        culturalLensDescription: `Explore gestures, expressions, and physical reactions whose meanings change across cultures, situations, and bodies.`,
+        discussionTitle: `Discussion`,
         discussionDescription: `The reactions you cannot hide, the expressions you perform, and the moments when the body seems to know first.`,
+        culturalLensTitle: `Cultural Lens`,
+        culturalLensDescription: `Explore gestures, expressions, and physical reactions whose meanings change across cultures, situations, and bodies.`,
         reflectionTitle: `Reflection`,
         reflectionDescription: `A place to reconsider what bodies reveal, what people perform, and what may be misread.`
     },
