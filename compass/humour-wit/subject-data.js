@@ -39,8 +39,10 @@ const subjectCopy = {
     },
 
     paths: {
-        culturalLensDescription: `Meet performers, traditions, rules, and rituals that show how different communities organise laughter.`,
+        discussionTitle: `Discussion`,
         discussionDescription: `Your taste, your timing, the people who make you laugh, and the moments when the room suddenly changes.`,
+        culturalLensTitle: `Cultural Lens`,
+        culturalLensDescription: `Meet performers, traditions, rules, and rituals that show how different communities organise laughter.`,
         reflectionTitle: `Reflection`,
         reflectionDescription: `A final pause on what humour reveals about trust, timing, and connection.`
     },
