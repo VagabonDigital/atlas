@@ -422,6 +422,7 @@
     html.theme-changing .subject-library-title,
     html.theme-changing .subject-card,
     html.theme-changing .subject-card-title,
+    html.theme-changing .subject-card-version-badge,
     html.theme-changing .subject-card-hook,
     html.theme-changing .subject-card-progress-label,
     html.theme-changing .subject-card-progress-track,
@@ -1074,6 +1075,26 @@
       line-height: 1.28;
       font-weight: 400;
       color: var(--text-heading);
+    }
+
+    .subject-card-title-block {
+      display: grid;
+      gap: 0.34rem;
+      min-width: 0;
+    }
+
+    .subject-card-version-badge {
+      width: max-content;
+      padding: 0.24rem 0.42rem;
+      border: 1px solid rgba(var(--accent-rgb), 0.24);
+      border-radius: 999px;
+      background: rgba(var(--accent-rgb), 0.08);
+      color: var(--accent);
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      line-height: 1;
+      text-transform: uppercase;
     }
 
     .subject-card-hook {
@@ -2270,10 +2291,16 @@
 
           return {
             registryId: subject.registryId,
-            title: subject.title,
+            title: item?.title || subject.title,
             launchUrl,
             artId: subject.artId || '',
-            hook: subject.hook || '',
+            hook: item && Object.prototype.hasOwnProperty.call(
+              item,
+              'description'
+            )
+              ? item.description || ''
+              : subject.hook || '',
+            hasMyVersion: item?.hasMyVersion === true,
             status: resolveStatus(state),
             state,
             contentVersion: item ? item.contentVersion || null : null
@@ -2617,9 +2644,14 @@
         artworkHtml +
 
         '<div class="subject-card-header">' +
+        '<div class="subject-card-title-block">' +
+        (subject.hasMyVersion
+          ? '<span class="subject-card-version-badge">My Version</span>'
+          : '') +
         '<h3 class="subject-card-title">' +
         escHtml(subject.title) +
         '</h3>' +
+        '</div>' +
         '</div>' +
 
         (subject.hook
