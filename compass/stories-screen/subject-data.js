@@ -40,8 +40,10 @@ const subjectCopy = {
     },
 
     paths: {
-        culturalLensDescription: `Explore how people have told, changed, shared, and waited for stories across different places and times.`,
+        discussionTitle: `Discussion`,
         discussionDescription: `Stories that gripped you, endings you would change, and the characters or fragments that stayed.`,
+        culturalLensTitle: `Cultural Lens`,
+        culturalLensDescription: `Explore how people have told, changed, shared, and waited for stories across different places and times.`,
         reflectionTitle: `Reflection`,
         reflectionDescription: `A place to connect what pulled you in, what you judged, and what remained afterwards.`
     },
