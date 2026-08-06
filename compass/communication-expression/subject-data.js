@@ -41,8 +41,10 @@ const subjectCopy = {
     },
 
     paths: {
-        culturalLensDescription: `Explore languages, customs, and social codes that change how a message is expressed or understood.`,
+        discussionTitle: `Discussion`,
         discussionDescription: `Messages that go wrong, habits that reveal you, and words that change what happens next.`,
+        culturalLensTitle: `Cultural Lens`,
+        culturalLensDescription: `Explore languages, customs, and social codes that change how a message is expressed or understood.`,
         reflectionTitle: `Reflection`,
         reflectionDescription: `A place to reconsider what you express, what other people receive, and what can be repaired.`
     },
