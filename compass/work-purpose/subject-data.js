@@ -40,8 +40,10 @@ const subjectCopy = {
     },
 
     paths: {
-        culturalLensDescription: `Explore the systems, trades, and ideas that shaped when people work, where they work, and when they stop.`,
+        discussionTitle: `Discussion`,
         discussionDescription: `Hidden effort, honest job descriptions, fair pay, and what work changes in people over time.`,
+        culturalLensTitle: `Cultural Lens`,
+        culturalLensDescription: `Explore the systems, trades, and ideas that shaped when people work, where they work, and when they stop.`,
         reflectionTitle: `Reflection`,
         reflectionDescription: `A place to decide what makes work worthwhile and what deserves more respect.`
     },
