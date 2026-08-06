@@ -42,8 +42,10 @@ const subjectCopy = {
     },
 
     paths: {
-        culturalLensDescription: `Explore the faces, handwriting, family positions, references, and private files people have used to judge character.`,
+        discussionTitle: `Discussion`,
         discussionDescription: `First impressions, private tests, changing reputations, qualities you admire, and trust proved through action.`,
+        culturalLensTitle: `Cultural Lens`,
+        culturalLensDescription: `Explore the faces, handwriting, family positions, references, and private files people have used to judge character.`,
         reflectionTitle: `Reflection`,
         reflectionDescription: `A place to reconsider which judgements deserve your trust and what evidence can change them.`
     },
