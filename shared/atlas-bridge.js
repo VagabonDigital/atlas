@@ -656,10 +656,30 @@
 
         const registry = readRegistry();
         const timestamp = now();
+        const existing = registry.items[item.registryId] || {};
+
+        const preserveMyVersionIdentity =
+            existing.hasMyVersion === true &&
+            !Object.prototype.hasOwnProperty.call(
+                item,
+                'hasMyVersion'
+            );
+
+        const nextItem = preserveMyVersionIdentity
+            ? {
+                ...item,
+                title: existing.title,
+                navTitle: existing.navTitle,
+                description: existing.description,
+                hook: existing.hook,
+                coverImage: existing.coverImage,
+                hasMyVersion: true
+            }
+            : item;
 
         registry.items[item.registryId] = {
-            ...(registry.items[item.registryId] || {}),
-            ...item,
+            ...existing,
+            ...nextItem,
             updatedAt: timestamp
         };
 
