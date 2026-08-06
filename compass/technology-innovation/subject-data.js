@@ -39,8 +39,10 @@ const subjectCopy = {
         question: `What piece of technology would be hardest for you to live without — and why?`
     },
     paths: {
-        culturalLensDescription: `See how earlier tools changed everyday manners, replaced familiar skills, and inspired confident predictions that turned out to be wrong.`,
+        discussionTitle: `Discussion`,
         discussionDescription: `The tools you rely on, resist, and can’t understand in other people — from small daily habits to the lines you won’t cross.`,
+        culturalLensTitle: `Cultural Lens`,
+        culturalLensDescription: `See how earlier tools changed everyday manners, replaced familiar skills, and inspired confident predictions that turned out to be wrong.`,
         reflectionTitle: `Reflection`,
         reflectionDescription: `A final look at what technology has given you, what it has cost, and which changes you would refuse next time.`
     },
