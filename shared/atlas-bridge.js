@@ -245,9 +245,10 @@
             item.id === sessionId ? nextSession : item
         );
 
-        writeSessions([...sessions, session]);
-        tabStorageSet(KEYS.activeSessionId, session.id);
-        writeSessionAppearanceMode(session.id, inheritedAppearanceMode);
+        writeSessions(nextSessions);
+        tabStorageSet(KEYS.activeSessionId, nextSession.id);
+
+        const nextAppearanceMode = readAppearanceMode();
 
         if (nextAppearanceMode !== previousAppearanceMode) {
             beginAppearanceTransition();
@@ -285,7 +286,7 @@
         };
 
         writeSessions([...sessions, session]);
-        storageSet(KEYS.activeSessionId, session.id);
+        tabStorageSet(KEYS.activeSessionId, session.id);
         writeSessionAppearanceMode(session.id, inheritedAppearanceMode);
 
         window.dispatchEvent(new CustomEvent('atlas:session-change', {
@@ -333,6 +334,42 @@
         return renamed;
     }
 
+    function purgeSessionData(sessionId) {
+        const registry = readRegistry();
+
+        if (registry.sessionStates?.[sessionId]) {
+            delete registry.sessionStates[sessionId];
+        }
+
+        registry.recentActivity = Array.isArray(registry.recentActivity)
+            ? registry.recentActivity.filter(
+                item => item?.sessionId !== sessionId
+            )
+            : [];
+
+        writeRegistry(registry);
+
+        const ledger = readLedger();
+
+        Object.keys(ledger.entries || {}).forEach(entryId => {
+            if (ledger.entries[entryId]?.sessionId === sessionId) {
+                delete ledger.entries[entryId];
+            }
+        });
+
+        writeLedger(ledger);
+
+        const handoffs = readHandoffStore();
+
+        Object.keys(handoffs).forEach(handoffId => {
+            if (handoffs[handoffId]?.sessionId === sessionId) {
+                delete handoffs[handoffId];
+            }
+        });
+
+        writeJson(KEYS.handoffs, handoffs);
+    }
+
     function deleteSession(sessionId) {
         if (sessionId === DEFAULT_SESSION_ID) return false;
 
@@ -344,6 +381,7 @@
 
         writeSessions(nextSessions);
         removeSessionAppearanceMode(sessionId);
+        purgeSessionData(sessionId);
 
         const activeSessionId = readActiveSessionId();
 
