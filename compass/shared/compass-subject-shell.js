@@ -1,5 +1,5 @@
 /* ============================================================
-   COMPASS SUBJECT SHELL
+   COMPASS SUBJECT SHELL - V3
    Shared DOM scaffold for every Compass subject page.
 
    This file owns the reusable subject interface:
