@@ -276,6 +276,11 @@ let vocabBankPreviousRootOverflow = '';
 let lastFocusedElement = null;
 let activeFocusTrapRoot = null;
 
+let tutorContentVersion = null;
+let tutorContentLiveDraft = null;
+let tutorContentWriteQueue = Promise.resolve();
+let liveTutorPointerStartedInside = false;
+
 
 // ============================================================
 // BRIDGE
@@ -289,6 +294,238 @@ function requireAtlasBridge() {
     }
 
     return window.AtlasBridge;
+}
+
+function requireAtlasTutorContent() {
+    if (!window.AtlasTutorContent) {
+        throw new Error(
+            'AtlasTutorContent is missing. atlas-tutor-content.js must load before compass-engine.js.'
+        );
+    }
+
+    return window.AtlasTutorContent;
+}
+
+function getTutorContentId() {
+    return `${COMPASS_WORLD_ID}:${MODULE.id}`;
+}
+
+function hasTutorContentOverride(record, fieldKey) {
+    return Boolean(
+        record?.overrides &&
+        Object.prototype.hasOwnProperty.call(
+            record.overrides,
+            fieldKey
+        )
+    );
+}
+
+function resolveTutorContentValue(originalValue, fieldKey) {
+    let value = String(originalValue ?? '');
+
+    if (hasTutorContentOverride(tutorContentVersion, fieldKey)) {
+        value = tutorContentVersion.overrides[fieldKey];
+    }
+
+    if (hasTutorContentOverride(tutorContentLiveDraft, fieldKey)) {
+        value = tutorContentLiveDraft.overrides[fieldKey];
+    }
+
+    return value;
+}
+
+async function loadTutorContentState() {
+    const Store = requireAtlasTutorContent();
+    const contentId = getTutorContentId();
+
+    const [version, liveDraft] = await Promise.all([
+        Store.getVersion(contentId),
+        Store.getLiveDraft(currentSessionId, contentId)
+    ]);
+
+    tutorContentVersion = version;
+    tutorContentLiveDraft = liveDraft;
+    updateLiveTutorContentControl();
+}
+
+function queueTutorContentWrite(write) {
+    tutorContentWriteQueue = tutorContentWriteQueue
+        .then(write)
+        .catch(error => {
+            console.warn(
+                '[Compass] Tutor content write failed:',
+                error
+            );
+        });
+
+    return tutorContentWriteQueue;
+}
+
+function cacheLiveTutorContentOverride(fieldKey, value) {
+    const current = tutorContentLiveDraft || {
+        schemaVersion: 1,
+        ownerId: 'local-tutor',
+        sessionId: currentSessionId,
+        contentId: getTutorContentId(),
+        baseContentVersion: MODULE.contentVersion,
+        revision: 0,
+        updatedAt: 0,
+        overrides: {}
+    };
+
+    tutorContentLiveDraft = {
+        ...current,
+        updatedAt: Date.now(),
+        overrides: {
+            ...(current.overrides || {}),
+            [fieldKey]: value
+        }
+    };
+
+    updateLiveTutorContentControl();
+}
+
+function commitLiveTutorContent(fieldKey, value) {
+    const sessionId = currentSessionId;
+    const contentId = getTutorContentId();
+
+    cacheLiveTutorContentOverride(fieldKey, value);
+
+    queueTutorContentWrite(async () => {
+        const saved = await requireAtlasTutorContent()
+            .saveLiveDraft(
+                sessionId,
+                contentId,
+                {
+                    baseContentVersion: MODULE.contentVersion,
+                    overrides: {
+                        [fieldKey]: value
+                    }
+                }
+            );
+
+        if (
+            saved &&
+            sessionId === currentSessionId &&
+            contentId === getTutorContentId()
+        ) {
+            tutorContentLiveDraft = saved;
+        }
+    });
+}
+
+function getDiscussionPreviewFieldKey(momentId) {
+    return `discussion.${momentId}.preview`;
+}
+
+function getDiscussionQuestionFieldKey(momentId) {
+    return `discussion.${momentId}.question`;
+}
+
+function getDiscussionFollowUpFieldKey(momentId, followUpId) {
+    return [
+        'discussion',
+        momentId,
+        'followUp',
+        followUpId,
+        'prompt'
+    ].join('.');
+}
+
+function getDiscussionSetFieldKey(setId, field) {
+    return `discussion.set.${setId}.${field}`;
+}
+
+function getDiscussionMakeItRealFieldKey(setId, field) {
+    return `discussion.set.${setId}.makeItReal.${field}`;
+}
+
+function getCulturalLensFieldKey(cardId, field) {
+    return `culturalLens.${cardId}.${field}`;
+}
+
+function getCulturalLensThreadFieldKey(cardId, index) {
+    return `culturalLens.${cardId}.followTheThread.${index}`;
+}
+
+function updateLiveTutorContentControl() {
+    const control = document.getElementById(
+        'atlas-live-changes-control'
+    );
+
+    const count = document.getElementById(
+        'atlas-live-changes-count'
+    );
+
+    const changeCount = Object.keys(
+        tutorContentLiveDraft?.overrides || {}
+    ).length;
+
+    if (control) {
+        control.hidden = changeCount === 0;
+    }
+
+    if (count) {
+        count.textContent = changeCount === 1
+            ? '1 live change'
+            : `${changeCount} live changes`;
+    }
+}
+
+function renderAllTutorContentSurfaces() {
+    applySubjectCopy();
+    renderCLGrid();
+    renderDiscussionSets();
+
+    if (activeSetId) {
+        const set = discussionSets.find(
+            item => item.id === activeSetId
+        );
+
+        if (set) {
+            setText(
+                'moments-panel-title',
+                resolveTutorContentValue(
+                    set.title,
+                    getDiscussionSetFieldKey(set.id, 'title')
+                )
+            );
+
+            renderMoments(set);
+        }
+    }
+
+    if (isDiscussionFocusOpen()) {
+        renderDiscussionFocus();
+    }
+
+    if (isCulturalLensFocusOpen()) {
+        renderCulturalLensFocus();
+    }
+
+    updateReflectionCompleteState();
+    updateLiveTutorContentControl();
+}
+
+async function restoreLiveTutorContent() {
+    const activeElement = document.activeElement;
+
+    if (isLiveTutorContentTarget(activeElement)) {
+        activeElement.blur();
+    }
+
+    await tutorContentWriteQueue;
+
+    const cleared = await requireAtlasTutorContent()
+        .clearLiveDraft(
+            currentSessionId,
+            getTutorContentId()
+        );
+
+    if (!cleared) return;
+
+    tutorContentLiveDraft = null;
+    renderAllTutorContentSurfaces();
 }
 
 function getCurrentBridgeSession() {
@@ -857,6 +1094,212 @@ function setText(id, value) {
     }
 }
 
+function normalizeLiveEditableText(value, multiline) {
+    const normalized = String(value ?? '')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\u200b/g, '')
+        .replace(/\r\n?/g, '\n');
+
+    if (!multiline) {
+        return normalized
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    return normalized
+        .split('\n')
+        .map(line => line.replace(/[ \t]+$/g, ''))
+        .join('\n')
+        .trim();
+}
+
+function readLiveEditableText(element, multiline) {
+    return normalizeLiveEditableText(
+        element?.innerText ?? element?.textContent ?? '',
+        multiline
+    );
+}
+
+function writeLiveEditableText(element, value) {
+    if (!element) return;
+
+    element.textContent = String(value ?? '');
+    element.dataset.atlasLiveEmpty = String(
+        element.textContent.length === 0
+    );
+}
+
+function insertPlainTextAtSelection(text) {
+    const selection = window.getSelection();
+
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+
+    range.deleteContents();
+
+    const node = document.createTextNode(text);
+
+    range.insertNode(node);
+    range.setStartAfter(node);
+    range.collapse(true);
+
+    selection.removeAllRanges();
+    selection.addRange(range);
+}
+
+function isLiveTutorContentTarget(target) {
+    return Boolean(
+        target instanceof Element &&
+        target.closest('[data-atlas-live-editable="true"]')
+    );
+}
+
+function disableLiveTutorContentElement(element) {
+    if (!element) return;
+
+    element.removeAttribute('contenteditable');
+    element.removeAttribute('role');
+    element.removeAttribute('aria-multiline');
+    element.removeAttribute('spellcheck');
+    element.removeAttribute('data-atlas-live-editable');
+    element.removeAttribute('data-atlas-live-empty');
+
+    delete element.dataset.atlasTutorFieldKey;
+    delete element.dataset.atlasTutorMultiline;
+    delete element.dataset.atlasTutorStartValue;
+    delete element.dataset.atlasTutorCancel;
+
+    const originalTabIndex =
+        element.dataset.atlasTutorOriginalTabindex;
+
+    if (originalTabIndex === '') {
+        element.removeAttribute('tabindex');
+    } else if (originalTabIndex !== undefined) {
+        element.setAttribute('tabindex', originalTabIndex);
+    }
+
+    delete element.dataset.atlasTutorOriginalTabindex;
+
+    element.onfocus = null;
+    element.oninput = null;
+    element.onbeforeinput = null;
+    element.onpaste = null;
+    element.onkeydown = null;
+    element.onblur = null;
+}
+
+function configureLiveTutorContentElement(
+    element,
+    {
+        fieldKey,
+        value,
+        multiline = true
+    }
+) {
+    if (!element || !fieldKey) {
+        disableLiveTutorContentElement(element);
+        return;
+    }
+
+    writeLiveEditableText(element, value);
+
+    if (
+        element.dataset.atlasTutorOriginalTabindex === undefined
+    ) {
+        element.dataset.atlasTutorOriginalTabindex =
+            element.getAttribute('tabindex') || '';
+    }
+
+    element.setAttribute('contenteditable', 'plaintext-only');
+    element.setAttribute('role', 'textbox');
+    element.setAttribute('aria-multiline', String(multiline));
+    element.setAttribute('spellcheck', 'true');
+    element.setAttribute('data-atlas-live-editable', 'true');
+    element.dataset.atlasTutorFieldKey = fieldKey;
+    element.dataset.atlasTutorMultiline = String(multiline);
+    element.tabIndex = 0;
+
+    element.onfocus = () => {
+        element.dataset.atlasTutorStartValue =
+            readLiveEditableText(element, multiline);
+
+        delete element.dataset.atlasTutorCancel;
+    };
+
+    element.oninput = () => {
+        element.dataset.atlasLiveEmpty = String(
+            readLiveEditableText(element, multiline).length === 0
+        );
+    };
+
+    element.onbeforeinput = event => {
+        if (String(event.inputType || '').startsWith('format')) {
+            event.preventDefault();
+        }
+    };
+
+    element.onpaste = event => {
+        event.preventDefault();
+
+        const pasted = event.clipboardData
+            ?.getData('text/plain') || '';
+
+        const plainText = multiline
+            ? pasted.replace(/\r\n?/g, '\n')
+            : pasted.replace(/\s+/g, ' ');
+
+        insertPlainTextAtSelection(plainText);
+        element.dispatchEvent(new Event('input'));
+    };
+
+    element.onkeydown = event => {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+
+            element.dataset.atlasTutorCancel = 'true';
+
+            writeLiveEditableText(
+                element,
+                element.dataset.atlasTutorStartValue || ''
+            );
+
+            element.blur();
+            return;
+        }
+
+        if (!multiline && event.key === 'Enter') {
+            event.preventDefault();
+            element.blur();
+        }
+    };
+
+    element.onblur = () => {
+        const cancelled =
+            element.dataset.atlasTutorCancel === 'true';
+
+        const startValue =
+            element.dataset.atlasTutorStartValue || '';
+
+        const nextValue = readLiveEditableText(
+            element,
+            multiline
+        );
+
+        writeLiveEditableText(element, nextValue);
+
+        delete element.dataset.atlasTutorStartValue;
+        delete element.dataset.atlasTutorCancel;
+
+        if (cancelled || nextValue === startValue) {
+            return;
+        }
+
+        commitLiveTutorContent(fieldKey, nextValue);
+    };
+}
+
 function getScrollBehavior() {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches
         ? 'auto'
@@ -943,10 +1386,34 @@ function renderOverviewIntro() {
         ? subjectCopy.overview.intro
         : [];
 
-    container.innerHTML = paragraphs
-        .filter(paragraph => typeof paragraph === 'string' && paragraph.trim())
-        .map(paragraph => `<p>${escHtml(paragraph)}</p>`)
+    const visibleParagraphs = paragraphs
+        .map((paragraph, index) => ({ paragraph, index }))
+        .filter(({ paragraph }) =>
+            typeof paragraph === 'string' && paragraph.trim()
+        );
+
+    container.innerHTML = visibleParagraphs
+        .map(({ index }) => `<p data-overview-intro-index="${index}"></p>`)
         .join('');
+
+    visibleParagraphs.forEach(({ paragraph, index }) => {
+        const fieldKey = `overview.intro.${index}`;
+        const value = resolveTutorContentValue(
+            paragraph,
+            fieldKey
+        );
+
+        configureLiveTutorContentElement(
+            container.querySelector(
+                `[data-overview-intro-index="${index}"]`
+            ),
+            {
+                fieldKey,
+                value,
+                multiline: true
+            }
+        );
+    });
 }
 
 function renderReflectionQuestions() {
@@ -958,38 +1425,159 @@ function renderReflectionQuestions() {
         ? subjectCopy.reflection.questions
         : [];
 
-    container.innerHTML = questions
-        .filter(question => typeof question === 'string' && question.trim())
-        .map(question => `
+    const visibleQuestions = questions
+        .map((question, index) => ({ question, index }))
+        .filter(({ question }) =>
+            typeof question === 'string' && question.trim()
+        );
+
+    container.innerHTML = visibleQuestions
+        .map(({ index }) => `
             <div class="reflection-q">
-                <p class="reflection-q-text">${escHtml(question)}</p>
+                <p class="reflection-q-text"
+                    data-reflection-question-index="${index}"></p>
             </div>
         `)
         .join('');
+
+    visibleQuestions.forEach(({ question, index }) => {
+        const fieldKey = `reflection.questions.${index}`;
+        const value = resolveTutorContentValue(
+            question,
+            fieldKey
+        );
+
+        configureLiveTutorContentElement(
+            container.querySelector(
+                `[data-reflection-question-index="${index}"]`
+            ),
+            {
+                fieldKey,
+                value,
+                multiline: true
+            }
+        );
+    });
+}
+
+function configureStaticTutorContentField(
+    elementId,
+    originalValue,
+    fieldKey,
+    {
+        multiline = true,
+        allowAbsent = false
+    } = {}
+) {
+    const element = document.getElementById(elementId);
+
+    if (!element) return;
+
+    const fieldExists =
+        (
+            typeof originalValue === 'string' &&
+            originalValue.trim()
+        ) ||
+        hasTutorContentOverride(tutorContentVersion, fieldKey) ||
+        hasTutorContentOverride(tutorContentLiveDraft, fieldKey);
+
+    if (!fieldExists && !allowAbsent) {
+        element.hidden = true;
+        element.textContent = '';
+        disableLiveTutorContentElement(element);
+        return;
+    }
+
+    const value = resolveTutorContentValue(
+        originalValue,
+        fieldKey
+    );
+
+    element.hidden = false;
+
+    configureLiveTutorContentElement(
+        element,
+        {
+            fieldKey,
+            value,
+            multiline
+        }
+    );
 }
 
 function applySubjectCopy() {
-    setText('cover-hook', subjectCopy.cover.hook);
+    configureStaticTutorContentField(
+        'cover-hook',
+        subjectCopy.cover.hook,
+        'cover.hook',
+        { multiline: true }
+    );
 
-    setText('overview-heading', subjectCopy.overview.heading);
+    configureStaticTutorContentField(
+        'overview-heading',
+        subjectCopy.overview.heading,
+        'overview.heading',
+        { multiline: false }
+    );
+
     renderOverviewIntro();
-    setText('overview-question', subjectCopy.overview.question);
+
+    configureStaticTutorContentField(
+        'overview-question',
+        subjectCopy.overview.question,
+        'overview.question',
+        { multiline: true }
+    );
 
     setText('path-desc-cl', subjectCopy.paths.culturalLensDescription);
     setText('path-desc-disc', subjectCopy.paths.discussionDescription);
     setText('reflection-path-title', subjectCopy.paths.reflectionTitle);
     setText('reflection-path-desc', subjectCopy.paths.reflectionDescription);
 
-    setText('cl-section-heading', subjectCopy.culturalLens.heading);
-    setText('cl-section-intro', subjectCopy.culturalLens.intro);
+    configureStaticTutorContentField(
+        'cl-section-heading',
+        subjectCopy.culturalLens.heading,
+        'culturalLens.heading',
+        { multiline: false }
+    );
 
-    setText('discussion-section-heading', subjectCopy.discussion.heading);
-    setText('discussion-section-intro', subjectCopy.discussion.intro);
+    configureStaticTutorContentField(
+        'cl-section-intro',
+        subjectCopy.culturalLens.intro,
+        'culturalLens.intro',
+        { multiline: true }
+    );
 
-    setText('reflection-title', subjectCopy.reflection.title);
-    setText('reflection-summary', subjectCopy.reflection.summary);
+    configureStaticTutorContentField(
+        'discussion-section-heading',
+        subjectCopy.discussion.heading,
+        'discussion.heading',
+        { multiline: false }
+    );
+
+    configureStaticTutorContentField(
+        'discussion-section-intro',
+        subjectCopy.discussion.intro,
+        'discussion.intro',
+        { multiline: true }
+    );
+
+    configureStaticTutorContentField(
+        'reflection-title',
+        subjectCopy.reflection.title,
+        'reflection.title',
+        { multiline: false }
+    );
+
+    configureStaticTutorContentField(
+        'reflection-summary',
+        subjectCopy.reflection.summary,
+        'reflection.summary',
+        { multiline: true }
+    );
 
     renderReflectionQuestions();
+    updateLiveTutorContentControl();
 }
 
 function isLessonComplete() {
@@ -1047,12 +1635,30 @@ function updateReflectionCompleteState(animate = false) {
     view.classList.toggle('reflection-complete', complete);
     updateReflectionProgressSummary();
 
-    setText(
-        'reflection-title',
-        complete
-            ? `You explored ${MODULE.title}`
-            : subjectCopy.reflection.title
+    const reflectionTitle = document.getElementById(
+        'reflection-title'
     );
+
+    if (complete) {
+        disableLiveTutorContentElement(reflectionTitle);
+
+        setText(
+            'reflection-title',
+            `You explored ${MODULE.title}`
+        );
+    } else {
+        configureLiveTutorContentElement(
+            reflectionTitle,
+            {
+                fieldKey: 'reflection.title',
+                value: resolveTutorContentValue(
+                    subjectCopy.reflection.title,
+                    'reflection.title'
+                ),
+                multiline: false
+            }
+        );
+    }
 
     button.disabled = false;
     button.classList.toggle('btn-complete-done', complete);
@@ -1868,6 +2474,160 @@ function getUpgradeSourceFromContextId(contextId) {
     };
 }
 
+function getUpgradeFieldKey(source, field) {
+    return [
+        'upgrade',
+        source.sourceKind,
+        source.sourceElementId,
+        field
+    ].join('.');
+}
+
+function getEffectiveUpgradeSourceFromContextId(contextId) {
+    const source = getUpgradeSourceFromContextId(contextId);
+
+    if (!source?.upgrade) return null;
+
+    const hasOrdinaryExample =
+        source.upgrade.ordinary !== null &&
+        source.upgrade.ordinary !== undefined;
+
+    const resolveField = field =>
+        resolveTutorContentValue(
+            source.upgrade[field],
+            getUpgradeFieldKey(source, field)
+        );
+
+    return {
+        ...source,
+        hasOrdinaryExample,
+        upgrade: {
+            ...source.upgrade,
+
+            // Upgrade identity remains fixed in Live Manipulation.
+            term: source.upgrade.term,
+            atlasPrompt: source.upgrade.atlasPrompt,
+
+            // Visible teaching support may be manipulated live.
+            type: source.upgrade.type,
+            definition: resolveField('definition'),
+            ordinary: hasOrdinaryExample
+                ? resolveField('ordinary')
+                : null,
+            upgraded: resolveField('upgraded'),
+            insteadOfLabel: resolveTutorContentValue(
+                'Instead of',
+                getUpgradeFieldKey(
+                    source,
+                    'insteadOfLabel'
+                )
+            ),
+            tryLabel: resolveTutorContentValue(
+                'Try',
+                getUpgradeFieldKey(source, 'tryLabel')
+            )
+        }
+    };
+}
+
+function configureUpgradeLiveField(
+    element,
+    source,
+    field,
+    originalValue,
+    multiline
+) {
+    if (!element || !source?.upgrade) return;
+
+    const fieldKey = getUpgradeFieldKey(source, field);
+
+    configureLiveTutorContentElement(
+        element,
+        {
+            fieldKey,
+            value: resolveTutorContentValue(
+                originalValue,
+                fieldKey
+            ),
+            multiline
+        }
+    );
+}
+
+function configureUpgradeLiveSurface(mount, contextId) {
+    const source = getUpgradeSourceFromContextId(contextId);
+
+    if (!mount || !source?.upgrade) return;
+
+    configureUpgradeLiveField(
+        mount.querySelector(
+            '.discussion-focus-upgrade-definition'
+        ),
+        source,
+        'definition',
+        source.upgrade.definition,
+        true
+    );
+
+    if (
+        source.upgrade.ordinary !== null &&
+        source.upgrade.ordinary !== undefined
+    ) {
+        configureUpgradeLiveField(
+            mount.querySelector(
+                '.upgrade-example-ordinary'
+            ),
+            source,
+            'ordinary',
+            source.upgrade.ordinary,
+            true
+        );
+    }
+
+    configureUpgradeLiveField(
+        mount.querySelector(
+            '.upgrade-example-upgraded'
+        ),
+        source,
+        'upgraded',
+        source.upgrade.upgraded,
+        true
+    );
+
+    const labels = mount.querySelectorAll(
+        '.upgrade-example-label'
+    );
+
+    if (
+        source.upgrade.ordinary !== null &&
+        source.upgrade.ordinary !== undefined
+    ) {
+        configureUpgradeLiveField(
+            labels[0],
+            source,
+            'insteadOfLabel',
+            'Instead of',
+            false
+        );
+
+        configureUpgradeLiveField(
+            labels[1],
+            source,
+            'tryLabel',
+            'Try',
+            false
+        );
+    } else {
+        configureUpgradeLiveField(
+            labels[0],
+            source,
+            'tryLabel',
+            'Try',
+            false
+        );
+    }
+}
+
 function getSavedLanguageEntryId(contextId) {
     const Bridge = requireAtlasBridge();
     const activeSession = getCurrentBridgeSession();
@@ -1901,7 +2661,9 @@ function isUpgradeSaved(contextId) {
 
 function buildSavedLanguageEntry(contextId) {
     const activeSession = getCurrentBridgeSession();
-    const source = getUpgradeSourceFromContextId(contextId);
+    const source = getEffectiveUpgradeSourceFromContextId(
+        contextId
+    );
 
     if (!source?.upgrade) return null;
 
@@ -2395,6 +3157,22 @@ function renderCLGrid() {
 
     clCards.forEach((card, index) => {
         const state = getItemState(card.id);
+
+        const title = resolveTutorContentValue(
+            card.title,
+            getCulturalLensFieldKey(card.id, 'title')
+        );
+
+        const teaser = resolveTutorContentValue(
+            card.teaser,
+            getCulturalLensFieldKey(card.id, 'teaser')
+        );
+
+        const contextLine = resolveTutorContentValue(
+            card.contextLine,
+            getCulturalLensFieldKey(card.id, 'contextLine')
+        );
+
         const element = document.createElement('div');
 
         element.className = `cl-card state-${state}`;
@@ -2441,15 +3219,15 @@ function renderCLGrid() {
                 </div>
 
                 <h3 class="cl-card-title">
-                    ${escHtml(card.title)}
+                    ${escHtml(title)}
                 </h3>
 
                 <p class="cl-card-teaser">
-                    ${escHtml(card.teaser)}
+                    ${escHtml(teaser)}
                 </p>
 
                 <p class="cl-card-location">
-                    ${escHtml(card.contextLine)}
+                    ${escHtml(contextLine)}
                 </p>
             `;
 
@@ -2621,10 +3399,14 @@ function renderCulturalLensFocusContinuationControls() {
 
 function renderCulturalLensFocusUpgrade() {
     const card = getCurrentCulturalLensCard();
-    const upgrade = getCulturalLensFocusUpgrade();
+    let upgrade = getCulturalLensFocusUpgrade();
 
     const mount = document.getElementById(
         'cultural-lens-focus-upgrade'
+    );
+
+    const tools = document.querySelector(
+        '.cultural-lens-focus-tools'
     );
 
     if (!mount) return;
@@ -2633,10 +3415,23 @@ function renderCulturalLensFocusUpgrade() {
         culturalLensFocusUpgradeOpen = false;
         mount.innerHTML = '';
         mount.hidden = true;
+        tools?.classList.remove('has-visible-upgrade');
         return;
     }
 
+    tools?.classList.add('has-visible-upgrade');
+
     const contextId = `cl-${card.id}`;
+
+    const effectiveSource =
+        getEffectiveUpgradeSourceFromContextId(contextId);
+
+    upgrade = effectiveSource?.upgrade || upgrade;
+
+    const hasOrdinaryExample =
+        effectiveSource?.hasOrdinaryExample ??
+        Boolean(upgrade.ordinary);
+
     const saved = isUpgradeSaved(contextId);
 
     if (!culturalLensFocusUpgradeOpen) {
@@ -2690,11 +3485,11 @@ function renderCulturalLensFocusUpgrade() {
                 ${escHtml(upgrade.definition)}
             </p>
 
-            ${upgrade.ordinary ? `
+            ${hasOrdinaryExample ? `
                 <div class="upgrade-transformation">
                     <div class="upgrade-example-row">
                         <span class="upgrade-example-label">
-                            Instead of
+                            ${escHtml(upgrade.insteadOfLabel)}
                         </span>
 
                         <p class="upgrade-example upgrade-example-ordinary">
@@ -2704,7 +3499,7 @@ function renderCulturalLensFocusUpgrade() {
 
                     <div class="upgrade-example-row upgrade-example-row-primary">
                         <span class="upgrade-example-label">
-                            Try
+                            ${escHtml(upgrade.tryLabel)}
                         </span>
 
                         <p class="upgrade-example upgrade-example-upgraded">
@@ -2741,6 +3536,7 @@ function renderCulturalLensFocusUpgrade() {
     `;
 
     mount.hidden = false;
+    configureUpgradeLiveSurface(mount, contextId);
 }
 
 function renderCulturalLensFocusFollowTheThread() {
@@ -2768,11 +3564,51 @@ function renderCulturalLensFocusFollowTheThread() {
 
     panel.hidden = questions.length === 0;
 
-    container.innerHTML = questions.map(question => `
-            <p class="cultural-lens-focus-thread-question">
-                ${escHtml(question)}
-            </p>
+    const threadLabelFieldKey =
+        getCulturalLensFieldKey(
+            card.id,
+            'followTheThreadLabel'
+        );
+
+    configureLiveTutorContentElement(
+        document.getElementById(
+            'cultural-lens-focus-thread-label'
+        ),
+        {
+            fieldKey: threadLabelFieldKey,
+            value: resolveTutorContentValue(
+                'Follow the Thread',
+                threadLabelFieldKey
+            ),
+            multiline: false
+        }
+    );
+
+    container.innerHTML = questions.map((question, index) => `
+            <p class="cultural-lens-focus-thread-question"
+                data-cultural-lens-thread-index="${index}"></p>
         `).join('');
+
+    questions.forEach((question, index) => {
+        const fieldKey = getCulturalLensThreadFieldKey(
+            card.id,
+            index
+        );
+
+        configureLiveTutorContentElement(
+            container.querySelector(
+                `[data-cultural-lens-thread-index="${index}"]`
+            ),
+            {
+                fieldKey,
+                value: resolveTutorContentValue(
+                    question,
+                    fieldKey
+                ),
+                multiline: true
+            }
+        );
+    });
 }
 
 function updateCulturalLensFocusExploredButton() {
@@ -2840,9 +3676,21 @@ function renderCulturalLensFocus() {
         'Cultural Lens'
     );
 
-    setText(
-        'cultural-lens-focus-heading',
-        subjectCopy.culturalLens.heading || 'Cultural Lens'
+    const culturalLensHeadingFieldKey =
+        'culturalLens.heading';
+
+    configureLiveTutorContentElement(
+        document.getElementById(
+            'cultural-lens-focus-heading'
+        ),
+        {
+            fieldKey: culturalLensHeadingFieldKey,
+            value: resolveTutorContentValue(
+                subjectCopy.culturalLens.heading || 'Cultural Lens',
+                culturalLensHeadingFieldKey
+            ),
+            multiline: false
+        }
     );
 
     const backButton = document.getElementById(
@@ -2877,27 +3725,97 @@ function renderCulturalLensFocus() {
         `${currentCulturalLensIndex + 1} of ${clCards.length}`
     );
 
-    setText(
-        'cultural-lens-focus-context-line',
-        card.contextLine
+    const culturalLensEditableFields = [
+        {
+            elementId: 'cultural-lens-focus-context-line',
+            field: 'contextLine',
+            originalValue: card.contextLine,
+            multiline: false
+        },
+        {
+            elementId: 'cultural-lens-focus-title',
+            field: 'title',
+            originalValue: card.title,
+            multiline: false
+        },
+        {
+            elementId: 'cultural-lens-focus-context',
+            field: 'context',
+            originalValue: card.context,
+            multiline: true
+        },
+        {
+            elementId: 'cultural-lens-focus-question',
+            field: 'mainQuestion',
+            originalValue: card.mainQuestion,
+            multiline: true
+        }
+    ];
+
+    culturalLensEditableFields.forEach(field => {
+        const element = document.getElementById(
+            field.elementId
+        );
+
+        if (isUpgrade) {
+            setText(
+                field.elementId,
+                field.field === 'title'
+                    ? upgrade.term
+                    : field.originalValue
+            );
+
+            disableLiveTutorContentElement(element);
+            return;
+        }
+
+        const fieldKey = getCulturalLensFieldKey(
+            card.id,
+            field.field
+        );
+
+        configureLiveTutorContentElement(
+            element,
+            {
+                fieldKey,
+                value: resolveTutorContentValue(
+                    field.originalValue,
+                    fieldKey
+                ),
+                multiline: field.multiline
+            }
+        );
+    });
+
+    const questionLabel = document.getElementById(
+        'cultural-lens-focus-question-label'
     );
 
-    setText(
-        'cultural-lens-focus-title',
-        isUpgrade
-            ? upgrade.term
-            : card.title
-    );
+    if (isUpgrade) {
+        disableLiveTutorContentElement(questionLabel);
+        setText(
+            'cultural-lens-focus-question-label',
+            'Question'
+        );
+    } else {
+        const questionLabelFieldKey =
+            getCulturalLensFieldKey(
+                card.id,
+                'questionLabel'
+            );
 
-    setText(
-        'cultural-lens-focus-context',
-        card.context
-    );
-
-    setText(
-        'cultural-lens-focus-question',
-        card.mainQuestion
-    );
+        configureLiveTutorContentElement(
+            questionLabel,
+            {
+                fieldKey: questionLabelFieldKey,
+                value: resolveTutorContentValue(
+                    'Question',
+                    questionLabelFieldKey
+                ),
+                multiline: false
+            }
+        );
+    }
 
     const previousButton = document.getElementById(
         'cultural-lens-focus-prev-btn'
@@ -3083,6 +4001,7 @@ function closeCulturalLensFocus({
     culturalLensFocusReturnElement = null;
     culturalLensFocusReturnCardId = '';
 
+    applySubjectCopy();
     renderCLGrid();
 
     if (!restoreScroll && !restoreFocus) {
@@ -3442,7 +4361,7 @@ function renderDiscussionFocusUpgrade() {
     );
 
     const moment = getDiscussionFocusMoment();
-    const upgrade = getDiscussionFocusUpgrade();
+    let upgrade = getDiscussionFocusUpgrade();
 
     if (!mount) return;
 
@@ -3454,6 +4373,16 @@ function renderDiscussionFocusUpgrade() {
     }
 
     const contextId = `moment-${moment.id}`;
+
+    const effectiveSource =
+        getEffectiveUpgradeSourceFromContextId(contextId);
+
+    upgrade = effectiveSource?.upgrade || upgrade;
+
+    const hasOrdinaryExample =
+        effectiveSource?.hasOrdinaryExample ??
+        Boolean(upgrade.ordinary);
+
     const saved = isUpgradeSaved(contextId);
 
     if (!discussionFocusUpgradeOpen) {
@@ -3507,11 +4436,11 @@ function renderDiscussionFocusUpgrade() {
                 ${escHtml(upgrade.definition)}
             </p>
 
-            ${upgrade.ordinary ? `
+            ${hasOrdinaryExample ? `
                 <div class="upgrade-transformation">
                     <div class="upgrade-example-row">
                         <span class="upgrade-example-label">
-                            Instead of
+                            ${escHtml(upgrade.insteadOfLabel)}
                         </span>
 
                         <p class="upgrade-example upgrade-example-ordinary">
@@ -3521,7 +4450,7 @@ function renderDiscussionFocusUpgrade() {
 
                     <div class="upgrade-example-row upgrade-example-row-primary">
                         <span class="upgrade-example-label">
-                            Try
+                            ${escHtml(upgrade.tryLabel)}
                         </span>
 
                         <p class="upgrade-example upgrade-example-upgraded">
@@ -3558,6 +4487,7 @@ function renderDiscussionFocusUpgrade() {
     `;
 
     mount.hidden = false;
+    configureUpgradeLiveSurface(mount, contextId);
 }
 
 function updateDiscussionFocusExploredButton() {
@@ -3667,29 +4597,112 @@ function renderDiscussionFocus() {
         'Discussion'
     );
 
-    setText(
-        'discussion-focus-set-title',
-        set.title
+    const setTitleFieldKey = getDiscussionSetFieldKey(
+        set.id,
+        'title'
     );
+
+    configureLiveTutorContentElement(
+        document.getElementById(
+            'discussion-focus-set-title'
+        ),
+        {
+            fieldKey: setTitleFieldKey,
+            value: resolveTutorContentValue(
+                set.title,
+                setTitleFieldKey
+            ),
+            multiline: false
+        }
+    );
+
+    const titleElement = document.getElementById(
+        'discussion-focus-title'
+    );
+
+    const questionElement = document.getElementById(
+        'discussion-focus-question'
+    );
+
+    const titleOriginalValue = isUpgrade
+        ? upgrade.term
+        : isMakeItReal
+            ? entry.item.title
+            : entry.item.preview;
+
+    const questionOriginalValue = isUpgrade
+        ? ''
+        : isMakeItReal
+            ? entry.item.prompt
+            : isFollowUp
+                ? followUp.prompt
+                : entry.item.question;
+
+    const titleFieldKey = isUpgrade
+        ? ''
+        : isMakeItReal
+            ? getDiscussionMakeItRealFieldKey(
+                set.id,
+                'title'
+            )
+            : getDiscussionPreviewFieldKey(entry.item.id);
+
+    const questionFieldKey = isUpgrade
+        ? ''
+        : isMakeItReal
+            ? getDiscussionMakeItRealFieldKey(
+                set.id,
+                'prompt'
+            )
+            : isFollowUp
+                ? getDiscussionFollowUpFieldKey(
+                    entry.item.id,
+                    followUp.id
+                )
+                : getDiscussionQuestionFieldKey(
+                    entry.item.id
+                );
+
+    const titleValue = titleFieldKey
+        ? resolveTutorContentValue(
+            titleOriginalValue,
+            titleFieldKey
+        )
+        : titleOriginalValue;
+
+    const questionValue = questionFieldKey
+        ? resolveTutorContentValue(
+            questionOriginalValue,
+            questionFieldKey
+        )
+        : questionOriginalValue;
 
     setText(
         'discussion-focus-title',
-        isUpgrade
-            ? upgrade.term
-            : isMakeItReal
-                ? entry.item.title
-                : entry.item.preview
+        titleValue
     );
 
     setText(
         'discussion-focus-question',
-        isUpgrade
-            ? ''
-            : isMakeItReal
-                ? entry.item.prompt
-                : isFollowUp
-                    ? followUp.prompt
-                    : entry.item.question
+        questionValue
+    );
+
+    configureLiveTutorContentElement(
+        titleElement,
+        {
+            fieldKey: titleFieldKey,
+            value: titleValue,
+            multiline: false
+        }
+    );
+
+    configureLiveTutorContentElement(
+        questionElement,
+        {
+            fieldKey: questionFieldKey,
+            value: questionValue,
+            multiline: true
+        }
     );
 
     setText(
@@ -3954,6 +4967,28 @@ function closeDiscussionFocus({
         'inert'
     );
 
+    applySubjectCopy();
+    renderDiscussionSets();
+
+    const returnSet = discussionSets.find(
+        item => item.id === returnSetId
+    );
+
+    if (returnSet) {
+        setText(
+            'moments-panel-title',
+            resolveTutorContentValue(
+                returnSet.title,
+                getDiscussionSetFieldKey(
+                    returnSet.id,
+                    'title'
+                )
+            )
+        );
+
+        renderMoments(returnSet);
+    }
+
     discussionFocusSetId = null;
     discussionFocusMomentId = null;
     discussionFocusFollowUpOpen = false;
@@ -4123,6 +5158,16 @@ function renderDiscussionSets() {
     container.innerHTML = '';
 
     discussionSets.forEach(set => {
+        const title = resolveTutorContentValue(
+            set.title,
+            getDiscussionSetFieldKey(set.id, 'title')
+        );
+
+        const description = resolveTutorContentValue(
+            set.description,
+            getDiscussionSetFieldKey(set.id, 'description')
+        );
+
         const element = document.createElement('div');
         const active = activeSetId === set.id;
 
@@ -4161,11 +5206,11 @@ function renderDiscussionSets() {
                 </p>
 
                 <h3 class="set-title">
-                    ${escHtml(set.title)}
+                    ${escHtml(title)}
                 </h3>
 
                 <p class="set-desc">
-                    ${escHtml(set.description)}
+                    ${escHtml(description)}
                 </p>
             `;
 
@@ -4208,7 +5253,14 @@ function openSet(setId) {
 
     activeSetId = setId;
 
-    setText('moments-panel-title', set.title);
+    setText(
+        'moments-panel-title',
+        resolveTutorContentValue(
+            set.title,
+            getDiscussionSetFieldKey(set.id, 'title')
+        )
+    );
+
     renderMoments(set);
 
     document
@@ -4271,6 +5323,11 @@ function renderMoments(set) {
 
     set.moments.forEach((moment, index) => {
         const state = getItemState(moment.id);
+        const preview = resolveTutorContentValue(
+            moment.preview,
+            getDiscussionPreviewFieldKey(moment.id)
+        );
+
         const card = document.createElement('div');
 
         card.className =
@@ -4291,7 +5348,7 @@ function renderMoments(set) {
 
         card.setAttribute(
             'aria-label',
-            `Open moment ${index + 1}: ${moment.preview}`
+            `Open moment ${index + 1}: ${preview}`
         );
 
         card.onclick = () => {
@@ -4326,7 +5383,7 @@ function renderMoments(set) {
                     </span>
 
                     <span class="moment-preview">
-                        ${escHtml(moment.preview)}
+                        ${escHtml(preview)}
                     </span>
 
                     <svg class="moment-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -4343,6 +5400,11 @@ function renderMoments(set) {
     });
 
     if (set.makeItReal) {
+        const makeItRealTitle = resolveTutorContentValue(
+            set.makeItReal.title,
+            getDiscussionMakeItRealFieldKey(set.id, 'title')
+        );
+
         const card = document.createElement('div');
 
         card.className =
@@ -4362,7 +5424,7 @@ function renderMoments(set) {
 
         card.setAttribute(
             'aria-label',
-            `Open Make It Real: ${set.makeItReal.title}`
+            `Open Make It Real: ${makeItRealTitle}`
         );
 
         card.onclick = () => {
@@ -4401,7 +5463,7 @@ function renderMoments(set) {
                     </span>
 
                     <span class="make-it-real-title">
-                        ${escHtml(set.makeItReal.title)}
+                        ${escHtml(makeItRealTitle)}
                     </span>
 
                     <svg class="moment-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -4652,20 +5714,35 @@ function getAllLanguageGroups() {
             title: 'Cultural Lens',
             entries: clCards
                 .filter(card => card.upgrade)
-                .map(card => ({
-                    ...card.upgrade,
-                    contextId: `cl-${card.id}`
-                }))
+                .map(card => {
+                    const contextId = `cl-${card.id}`;
+
+                    return {
+                        ...getEffectiveUpgradeSourceFromContextId(
+                            contextId
+                        ).upgrade,
+                        contextId
+                    };
+                })
         },
 
         ...discussionSets.map(set => ({
-            title: set.title,
+            title: resolveTutorContentValue(
+                set.title,
+                getDiscussionSetFieldKey(set.id, 'title')
+            ),
             entries: set.moments
                 .filter(moment => moment.upgrade)
-                .map(moment => ({
-                    ...moment.upgrade,
-                    contextId: `moment-${moment.id}`
-                }))
+                .map(moment => {
+                    const contextId = `moment-${moment.id}`;
+
+                    return {
+                        ...getEffectiveUpgradeSourceFromContextId(
+                            contextId
+                        ).upgrade,
+                        contextId
+                    };
+                })
         }))
     ];
 }
@@ -5660,8 +6737,55 @@ function initAppearanceMode() {
 // GLOBAL EVENTS
 // ============================================================
 
+document.addEventListener('pointerdown', event => {
+    const activeElement = document.activeElement;
+
+    liveTutorPointerStartedInside = Boolean(
+        isLiveTutorContentTarget(activeElement) &&
+        activeElement.contains(event.target)
+    );
+}, true);
+
+document.addEventListener('click', event => {
+    const activeElement = document.activeElement;
+
+    if (!isLiveTutorContentTarget(activeElement)) {
+        liveTutorPointerStartedInside = false;
+        return;
+    }
+
+    /*
+     * A selection gesture may begin inside the editable text and finish
+     * outside its visible rectangle. Keep the field active so the tutor
+     * can copy, replace, define, or otherwise use the selected language.
+     */
+    if (liveTutorPointerStartedInside) {
+        liveTutorPointerStartedInside = false;
+        return;
+    }
+
+    const rect = activeElement.getBoundingClientRect();
+    const tolerance = 10;
+
+    const pointerIsNearElement =
+        event.clientX >= rect.left - tolerance &&
+        event.clientX <= rect.right + tolerance &&
+        event.clientY >= rect.top - tolerance &&
+        event.clientY <= rect.bottom + tolerance;
+
+    liveTutorPointerStartedInside = false;
+
+    if (!pointerIsNearElement) {
+        activeElement.blur();
+    }
+}, true);
+
 document.addEventListener('keydown', event => {
     handleFocusTrap(event);
+
+    if (isLiveTutorContentTarget(event.target)) {
+        return;
+    }
 
     const culturalLensFocusOpen =
         isCulturalLensFocusOpen();
@@ -5821,7 +6945,7 @@ document.addEventListener('click', event => {
 // INIT
 // ============================================================
 
-function init() {
+async function init() {
     if (
         typeof mountCompassSubjectShell === 'function'
     ) {
@@ -5831,7 +6955,6 @@ function init() {
     applyCompassFavicon();
     applyCoverConfig();
     applyDerivedLabels();
-    applySubjectCopy();
     applyLaunchOriginUI();
 
     renderNav(
@@ -5878,6 +7001,8 @@ function init() {
 
     loadSessions();
     loadProgress();
+    await loadTutorContentState();
+    applySubjectCopy();
     mountSessionPanel();
 
     updateSessionUI();
@@ -5889,9 +7014,11 @@ function init() {
 
     window.addEventListener(
         'atlas:session-change',
-        () => {
+        async () => {
             syncSessionsFromBridge();
             loadProgress();
+            await loadTutorContentState();
+            renderAllTutorContentSurfaces();
             applyAppearanceMode(getAppearanceMode());
             updateAppearanceToggleUI();
             refreshSessionUI();
@@ -5913,12 +7040,14 @@ function init() {
         }
     );
 
-    window.addEventListener('storage', event => {
+    window.addEventListener('storage', async event => {
         if (!event?.key) return;
 
         if (event.key === 'atlas::sessions') {
             syncSessionsFromBridge();
             loadProgress();
+            await loadTutorContentState();
+            renderAllTutorContentSurfaces();
             applyAppearanceMode(getAppearanceMode());
             updateAppearanceToggleUI();
             refreshSessionUI();

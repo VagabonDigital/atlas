@@ -324,8 +324,7 @@ function mountCompassSubjectShell() {
                             tabindex="-1"></h1>
                     </div>
 
-                    <p class="discussion-focus-question" id="discussion-focus-question"
-                        aria-live="polite" aria-atomic="true"></p>
+                    <p class="discussion-focus-question" id="discussion-focus-question"></p>
 
                     <div class="discussion-focus-upgrade focus-view-upgrade"
                         id="discussion-focus-upgrade"></div>
@@ -480,7 +479,8 @@ function mountCompassSubjectShell() {
                         id="cultural-lens-focus-context"></p>
 
                     <div class="cultural-lens-focus-question-block">
-                        <p class="cultural-lens-focus-question-label">
+                        <p class="cultural-lens-focus-question-label"
+                            id="cultural-lens-focus-question-label">
                             Question
                         </p>
 
@@ -679,6 +679,35 @@ function mountCompassSubjectShell() {
             </div>
         </div>
     </section>
+
+    <!-- ============================================================
+     LIVE MANIPULATION STATUS
+     Appears only when this session has temporary content changes.
+     ============================================================ -->
+
+    <div class="atlas-live-changes-control"
+        id="atlas-live-changes-control" hidden>
+        <span class="atlas-live-changes-info"
+            tabindex="0"
+            aria-describedby="atlas-live-changes-explanation">
+            <span class="atlas-live-changes-count"
+                id="atlas-live-changes-count">
+                Live changes
+            </span>
+
+            <span class="atlas-live-changes-tooltip"
+                id="atlas-live-changes-explanation"
+                role="tooltip">
+                Autosaved for this session and subject. They’ll still be here when you return, until you choose Restore.
+            </span>
+        </span>
+
+        <button class="atlas-live-changes-restore"
+            type="button"
+            onclick="restoreLiveTutorContent()">
+            Restore
+        </button>
+    </div>
 
     <!-- ============================================================
      MOBILE NAVIGATION DRAWER
