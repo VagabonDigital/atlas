@@ -40,8 +40,10 @@ const subjectCopy = {
     },
 
     paths: {
-        culturalLensDescription: `Explore the customs, duties, and social rules that have shaped how people feed one another.`,
+        discussionTitle: `Discussion`,
         discussionDescription: `Cravings, table habits, care, and memory — from the first bite to what stays after the meal.`,
+        culturalLensTitle: `Cultural Lens`,
+        culturalLensDescription: `Explore the customs, duties, and social rules that have shaped how people feed one another.`,
         reflectionTitle: `Reflection`,
         reflectionDescription: `A place to connect the tastes, habits, people, and memories that surfaced.`
     },
