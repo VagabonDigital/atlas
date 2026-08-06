@@ -1,5 +1,5 @@
 // ============================================================
-// COMPASS SHARED SUBJECT ENGINE - V3
+// COMPASS SHARED SUBJECT ENGINE
 // Canonical runtime for Compass subject pages.
 //
 // Subject-specific content lives in subject-data.js:
@@ -5481,7 +5481,8 @@ function configureStaticTutorContentField(
     fieldKey,
     {
         multiline = true,
-        allowAbsent = false
+        allowAbsent = false,
+        myVersionOnly = false
     } = {}
 ) {
     const element = document.getElementById(elementId);
@@ -5509,6 +5510,12 @@ function configureStaticTutorContentField(
     );
 
     element.hidden = false;
+
+    if (myVersionOnly && !myVersionEditing) {
+        writeLiveEditableText(element, value);
+        disableLiveTutorContentElement(element);
+        return;
+    }
 
     configureLiveTutorContentElement(
         element,
@@ -5548,28 +5555,40 @@ function applySubjectCopy() {
         'path-title-disc',
         subjectCopy.paths.discussionTitle || 'Discussion',
         'paths.discussionTitle',
-        { multiline: false }
+        {
+            multiline: false,
+            myVersionOnly: true
+        }
     );
 
     configureStaticTutorContentField(
         'path-desc-disc',
         subjectCopy.paths.discussionDescription,
         'paths.discussionDescription',
-        { multiline: true }
+        {
+            multiline: true,
+            myVersionOnly: true
+        }
     );
 
     configureStaticTutorContentField(
         'path-title-cl',
         subjectCopy.paths.culturalLensTitle || 'Cultural Lens',
         'paths.culturalLensTitle',
-        { multiline: false }
+        {
+            multiline: false,
+            myVersionOnly: true
+        }
     );
 
     configureStaticTutorContentField(
         'path-desc-cl',
         subjectCopy.paths.culturalLensDescription,
         'paths.culturalLensDescription',
-        { multiline: true }
+        {
+            multiline: true,
+            myVersionOnly: true
+        }
     );
 
     setText(
@@ -5586,14 +5605,20 @@ function applySubjectCopy() {
         'reflection-path-title',
         subjectCopy.paths.reflectionTitle,
         'paths.reflectionTitle',
-        { multiline: false }
+        {
+            multiline: false,
+            myVersionOnly: true
+        }
     );
 
     configureStaticTutorContentField(
         'reflection-path-desc',
         subjectCopy.paths.reflectionDescription,
         'paths.reflectionDescription',
-        { multiline: true }
+        {
+            multiline: true,
+            myVersionOnly: true
+        }
     );
 
     configureStaticTutorContentField(
