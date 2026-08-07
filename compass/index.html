@@ -1019,6 +1019,45 @@
       color: var(--text-heading);
     }
 
+    .subject-library-create-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.38rem;
+      min-height: 34px;
+      padding: 0.38rem 0.72rem;
+      border: 1px solid rgba(var(--accent-rgb), 0.24);
+      border-radius: 999px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1;
+      cursor: pointer;
+      transition: var(--t);
+      white-space: nowrap;
+    }
+
+    .subject-library-create-btn:hover {
+      border-color: rgba(var(--accent-rgb), 0.42);
+      background: var(--accent-pale);
+      color: var(--accent);
+    }
+
+    .subject-library-create-plus {
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1;
+    }
+
+    .subject-library-empty-note {
+      padding: 0.25rem 0 0.15rem;
+      color: var(--text-muted);
+      font-size: 0.86rem;
+      line-height: 1.6;
+    }
+
     .subject-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2282,6 +2321,7 @@
   <div id="atlas-session-panel-root"></div>
 
   <!-- ============================================================ SCRIPTS -->
+  <script src="../shared/atlas-structured-subject.js"></script>
   <script src="../shared/atlas-tutor-subjects.js"></script>
   <script src="../shared/compass-catalog-data.js?v=4"></script>
   <script src="../shared/atlas-content-registry.js"></script>
@@ -2543,7 +2583,12 @@
         .filter(Boolean);
     }
 
-    function getOwnedSubjectLaunchUrl(subjectId) {
+    function getOwnedSubjectLaunchUrl(
+      subjectId,
+      {
+        authoringIntent = ''
+      } = {}
+    ) {
       const id = String(subjectId || '').trim();
 
       if (!id) return '';
@@ -2555,6 +2600,13 @@
         );
 
         destination.searchParams.set('id', id);
+
+        if (authoringIntent) {
+          destination.searchParams.set(
+            'author',
+            authoringIntent
+          );
+        }
 
         return withLaunchOrigin(
           destination.href,
@@ -3138,7 +3190,10 @@
       input?.addEventListener('keydown', event => {
         if (
           event.key === 'Enter' &&
-          ownedSubjectDialogState?.mode === 'rename'
+          (
+            ownedSubjectDialogState?.mode === 'create' ||
+            ownedSubjectDialogState?.mode === 'rename'
+          )
         ) {
           event.preventDefault();
           confirmOwnedSubjectDialog();
@@ -3174,6 +3229,86 @@
       }
 
       ownedSubjectDialogReturnFocus = null;
+    }
+
+    function openCreateSubjectDialog(event) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      ownedSubjectDialogReturnFocus =
+        event?.currentTarget ||
+        document.activeElement;
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+      const Structured = window.AtlasStructuredSubject;
+
+      if (
+        !Subjects ||
+        typeof Subjects.createSubject !== 'function' ||
+        !Structured ||
+        typeof Structured.createBlankDocument !== 'function' ||
+        typeof Structured.validateDocument !== 'function'
+      ) {
+        showToast('Subject creation is unavailable.');
+        return;
+      }
+
+      const dialog = ensureOwnedSubjectDialog();
+
+      const title = dialog.querySelector(
+        '#owned-subject-dialog-title'
+      );
+
+      const copy = dialog.querySelector(
+        '#owned-subject-dialog-copy'
+      );
+
+      const field = dialog.querySelector(
+        '#owned-subject-dialog-field'
+      );
+
+      const input = dialog.querySelector(
+        '#owned-subject-dialog-input'
+      );
+
+      const error = dialog.querySelector(
+        '#owned-subject-dialog-error'
+      );
+
+      const confirm = dialog.querySelector(
+        '#owned-subject-dialog-confirm'
+      );
+
+      ownedSubjectDialogState = {
+        mode: 'create'
+      };
+
+      title.textContent = 'Create subject';
+
+      copy.textContent =
+        'Give your subject a name. You can build and shape everything else inside it.';
+
+      field.hidden = false;
+      input.value = '';
+
+      error.hidden = true;
+      error.textContent = '';
+
+      confirm.className = 'btn-primary';
+      confirm.textContent = 'Create subject';
+      confirm.disabled = false;
+
+      ownedSubjectDialogPreviousBodyOverflow =
+        document.body.style.overflow;
+
+      document.body.style.overflow = 'hidden';
+      dialog.hidden = false;
+
+      requestAnimationFrame(() => {
+        input.focus();
+      });
     }
 
     async function openOwnedSubjectRenameDialog(
@@ -3360,6 +3495,118 @@
 
       if (!Subjects || !confirm) return;
 
+      if (state.mode === 'create') {
+        const nextTitle = String(
+          input?.value || ''
+        ).trim();
+
+        if (!nextTitle) {
+          error.hidden = false;
+          error.textContent =
+            'Give the subject a name.';
+          input?.focus();
+          return;
+        }
+
+        const Structured =
+          window.AtlasStructuredSubject;
+
+        if (
+          !Structured ||
+          typeof Structured.createBlankDocument !== 'function' ||
+          typeof Structured.validateDocument !== 'function'
+        ) {
+          error.hidden = false;
+          error.textContent =
+            'Subject creation is unavailable.';
+          return;
+        }
+
+        const document =
+          Structured.createBlankDocument({
+            title: nextTitle
+          });
+
+        const validation =
+          Structured.validateDocument(document);
+
+        if (!validation.valid) {
+          console.error(
+            '[Compass] Blank Structured Subject validation failed:',
+            validation.errors
+          );
+
+          error.hidden = false;
+          error.textContent =
+            'Couldn’t prepare this subject.';
+          return;
+        }
+
+        confirm.disabled = true;
+        confirm.textContent = 'Creating…';
+
+        try {
+          const created =
+            await Subjects.createSubject({
+              format: 'structured',
+
+              metadata: {
+                title: nextTitle,
+                navTitle: nextTitle,
+                description: '',
+                coverImage: ''
+              },
+
+              document,
+
+              provenance: {
+                kind: 'blank-structured'
+              }
+            });
+
+          if (!created) {
+            throw new Error(
+              'Create did not return a subject.'
+            );
+          }
+
+          syncOwnedSubjectRegistryProjection(
+            created
+          );
+
+          const launchUrl =
+            getOwnedSubjectLaunchUrl(
+              created.id,
+              {
+                authoringIntent: 'create'
+              }
+            );
+
+          if (!launchUrl) {
+            throw new Error(
+              'Created subject has no launch URL.'
+            );
+          }
+
+          closeOwnedSubjectDialog(false);
+          navigateTo(launchUrl);
+        } catch (creationError) {
+          console.error(
+            '[Compass] Subject creation failed:',
+            creationError
+          );
+
+          error.hidden = false;
+          error.textContent =
+            'Couldn’t create this subject.';
+
+          confirm.disabled = false;
+          confirm.textContent = 'Create subject';
+        }
+
+        return;
+      }
+
       if (state.mode === 'rename') {
         const nextTitle = String(
           input?.value || ''
@@ -3520,6 +3767,13 @@
       ) {
         main.innerHTML =
           renderIntro(session) +
+          renderSubjectCollection(
+            ownedSubjects,
+            'My Subjects',
+            {
+              canCreate: true
+            }
+          ) +
           renderEmptyLibrary();
 
         return;
@@ -3529,7 +3783,10 @@
         renderIntro(session) +
         renderSubjectCollection(
           ownedSubjects,
-          'My Subjects'
+          'My Subjects',
+          {
+            canCreate: true
+          }
         ) +
         renderSubjectCollection(
           atlasSubjects,
@@ -3553,17 +3810,48 @@
       );
     }
 
-    function renderSubjectCollection(subjects, title) {
-      if (
-        !Array.isArray(subjects) ||
-        !subjects.length
-      ) {
+    function renderSubjectCollection(
+      subjects,
+      title,
+      {
+        canCreate = false
+      } = {}
+    ) {
+      const items =
+        Array.isArray(subjects)
+          ? subjects
+          : [];
+
+      if (!items.length && !canCreate) {
         return '';
       }
 
-      const cards = subjects
+      const cards = items
         .map(subject => renderSubjectCard(subject))
         .join('');
+
+      const createAction = canCreate
+        ? (
+          '<button class="subject-library-create-btn" ' +
+          'type="button" ' +
+          'onclick="openCreateSubjectDialog(event)">' +
+          '<span class="subject-library-create-plus" aria-hidden="true">+</span>' +
+          'Create subject' +
+          '</button>'
+        )
+        : '';
+
+      const contents = items.length
+        ? (
+          '<div class="subject-grid">' +
+          cards +
+          '</div>'
+        )
+        : (
+          '<p class="subject-library-empty-note">' +
+          'Create your first subject and build it directly inside Compass.' +
+          '</p>'
+        );
 
       return (
         '<section class="subject-library">' +
@@ -3571,10 +3859,9 @@
         '<h2 class="subject-library-title">' +
         escHtml(title) +
         '</h2>' +
+        createAction +
         '</div>' +
-        '<div class="subject-grid">' +
-        cards +
-        '</div>' +
+        contents +
         '</section>'
       );
     }
