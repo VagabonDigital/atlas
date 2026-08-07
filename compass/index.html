@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   ==========================================================================
-  COMPASS HUB V2 · SUBJECT LIBRARY :D
+  COMPASS HUB V2 · SUBJECT LIBRARY
   SmartStudy™ Methodology
   --------------------------------------------------------------------------
   The reading room for the Compass world.
@@ -1061,6 +1061,116 @@
       outline-offset: 3px;
     }
 
+    /* Owned cards keep the same visual component, but separate
+       the primary open action from subject-management actions. */
+    .subject-card--owned {
+      cursor: pointer;
+    }
+
+    .subject-card-open-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      border-radius: inherit;
+      cursor: pointer;
+    }
+
+    .subject-card-open-layer:focus-visible {
+      outline: 3px solid rgba(var(--accent-rgb), 0.34);
+      outline-offset: -4px;
+    }
+
+    .subject-card--owned .subject-card-header {
+      padding-right: 2.7rem;
+    }
+
+    .subject-card-management {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      z-index: 6;
+    }
+
+    .subject-card-manage-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 1px solid var(--control-border);
+      border-radius: 10px;
+      background: var(--control-surface);
+      color: var(--control-icon);
+      cursor: pointer;
+      box-shadow: var(--shadow-xs);
+      transition: var(--t);
+    }
+
+    .subject-card-manage-btn:hover,
+    .subject-card-manage-btn[aria-expanded="true"] {
+      border-color: var(--control-border-hover);
+      background: var(--control-hover);
+      color: var(--control-text-hover);
+      box-shadow: var(--control-hover-shadow);
+    }
+
+    .subject-card-manage-btn:focus-visible {
+      outline: 3px solid rgba(var(--accent-rgb), 0.34);
+      outline-offset: 2px;
+    }
+
+    .subject-card-menu {
+      position: absolute;
+      top: calc(100% + 0.42rem);
+      right: 0;
+      width: 154px;
+      padding: 0.32rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      background: var(--surface-panel);
+      box-shadow: var(--shadow-md);
+    }
+
+    .subject-card-menu[hidden] {
+      display: none;
+    }
+
+    .subject-card-menu button {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      min-height: 36px;
+      padding: 0.45rem 0.62rem;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-body);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--t);
+    }
+
+    .subject-card-menu button:hover,
+    .subject-card-menu button:focus-visible {
+      background: var(--surface-muted);
+      color: var(--text-heading);
+      outline: none;
+    }
+
+    .subject-card-menu button.is-danger {
+      color: var(--danger-text);
+    }
+
+    .subject-card-menu button.is-danger:hover,
+    .subject-card-menu button.is-danger:focus-visible {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+    }
+
     .subject-card-header {
       display: flex;
       align-items: flex-start;
@@ -1671,6 +1781,121 @@
        HUB-OWNED DIALOG AND ACTIONS
        ============================================================ */
 
+    .owned-subject-dialog {
+      position: fixed;
+      inset: 0;
+      z-index: 850;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      background: var(--surface-scrim);
+      backdrop-filter: blur(6px);
+    }
+
+    .owned-subject-dialog[hidden] {
+      display: none;
+    }
+
+    .owned-subject-dialog-panel {
+      width: min(430px, 100%);
+      padding: 1.45rem;
+      border: var(--dialog-border);
+      border-radius: var(--radius-lg);
+      background: var(--surface-panel);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .owned-subject-dialog-kicker {
+      margin-bottom: 0.48rem;
+      color: var(--accent);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .owned-subject-dialog-title {
+      margin-bottom: 0.55rem;
+      color: var(--text-heading);
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+
+    .owned-subject-dialog-copy {
+      margin-bottom: 1.15rem;
+      color: var(--text-muted);
+      font-size: 0.84rem;
+      line-height: 1.6;
+    }
+
+    .owned-subject-dialog-field {
+      display: grid;
+      gap: 0.42rem;
+      margin-bottom: 1.15rem;
+    }
+
+    .owned-subject-dialog-field[hidden],
+    .owned-subject-dialog-error[hidden] {
+      display: none;
+    }
+
+    .owned-subject-dialog-field span {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .owned-subject-dialog-field input {
+      width: 100%;
+      min-height: 44px;
+      padding: 0.65rem 0.78rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      background: var(--surface-raised);
+      color: var(--text-heading);
+      font: inherit;
+      outline: none;
+      transition: var(--t);
+    }
+
+    .owned-subject-dialog-field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
+    }
+
+    .owned-subject-dialog-error {
+      margin: -0.55rem 0 1rem;
+      color: var(--danger-text);
+      font-size: 0.76rem;
+    }
+
+    .owned-subject-dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.55rem;
+    }
+
+    .btn-danger {
+      min-height: 42px;
+      padding: 0.58rem 1.05rem;
+      border: 1px solid var(--danger-border);
+      border-radius: var(--radius-sm);
+      background: var(--danger-bg);
+      color: var(--danger-text);
+      font-family: var(--font-body);
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--t);
+    }
+
+    .btn-danger:hover {
+      background: var(--danger-bg-hover);
+    }
+
     .btn-primary {
       padding: 0.58rem 1.05rem;
       border-radius: var(--radius-sm);
@@ -2057,6 +2282,7 @@
   <div id="atlas-session-panel-root"></div>
 
   <!-- ============================================================ SCRIPTS -->
+  <script src="../shared/atlas-tutor-subjects.js"></script>
   <script src="../shared/compass-catalog-data.js?v=4"></script>
   <script src="../shared/atlas-content-registry.js"></script>
   <script src="../shared/atlas-session-panel.js"></script>
@@ -2169,6 +2395,10 @@
         .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
+    function jsArg(value) {
+      return escHtml(JSON.stringify(String(value)));
+    }
+
     function resolveStatus(state) {
       if (!state || typeof state !== 'object') {
         return 'new';
@@ -2263,7 +2493,7 @@
        type=subject, status=available are included.
        ================================================================ */
 
-    function getOperationalSubjects() {
+    function getAtlasSubjects() {
       const reg = getRegistry();
       const session = getActiveSession();
       const sessionStates = ((reg.sessionStates || {})[session.id]) || {};
@@ -2288,6 +2518,7 @@
 
           const item = (reg.items || {})[subject.registryId] || null;
           const state = sessionStates[subject.registryId] || null;
+          const hasMyVersion = item?.hasMyVersion === true;
 
           return {
             registryId: subject.registryId,
@@ -2300,10 +2531,119 @@
             )
               ? item.description || ''
               : subject.hook || '',
-            hasMyVersion: item?.hasMyVersion === true,
+            ownershipLabel: hasMyVersion
+              ? 'My Version'
+              : '',
+            hasMyVersion,
             status: resolveStatus(state),
             state,
             contentVersion: item ? item.contentVersion || null : null
+          };
+        })
+        .filter(Boolean);
+    }
+
+    function getOwnedSubjectLaunchUrl(subjectId) {
+      const id = String(subjectId || '').trim();
+
+      if (!id) return '';
+
+      try {
+        const destination = new URL(
+          './subject/index.html',
+          window.location.href
+        );
+
+        destination.searchParams.set('id', id);
+
+        return withLaunchOrigin(
+          destination.href,
+          'compass'
+        );
+      } catch {
+        return '';
+      }
+    }
+
+    async function getOwnedSubjects() {
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.listSubjects !== 'function'
+      ) {
+        return [];
+      }
+
+      let records = [];
+
+      try {
+        records = await Subjects.listSubjects();
+      } catch {
+        return [];
+      }
+
+      const reg = getRegistry();
+      const session = getActiveSession();
+      const sessionStates =
+        ((reg.sessionStates || {})[session.id]) || {};
+
+      return (Array.isArray(records) ? records : [])
+        .map(record => {
+          const id = String(record?.id || '').trim();
+
+          if (!id) return null;
+
+          const metadata = record.metadata || {};
+          const module = record.document?.module || {};
+
+          const registryId =
+            typeof Bridge.getContentRegistryId === 'function'
+              ? Bridge.getContentRegistryId(COMPASS_ID, id)
+              : COMPASS_ID + ':' + id;
+
+          const launchUrl = getOwnedSubjectLaunchUrl(id);
+
+          if (!launchUrl) return null;
+
+          const state = sessionStates[registryId] || null;
+
+          const title = String(
+            metadata.title ||
+            module.title ||
+            'Untitled Subject'
+          ).trim() || 'Untitled Subject';
+
+          syncOwnedSubjectRegistryProjection(record);
+
+          return {
+            subjectId: id,
+            isOwned: true,
+            registryId,
+            title,
+            launchUrl,
+            artId: '',
+            hook: String(
+              metadata.description ||
+              module.catalogDescription ||
+              ''
+            ).trim(),
+            coverImage: String(
+              metadata.coverImage ||
+              module.bgImage ||
+              ''
+            ).trim(),
+            ownershipLabel: '',
+            hasMyVersion: false,
+            status: resolveStatus(state),
+            state,
+            contentVersion:
+              'owned-r' +
+              Math.max(
+                1,
+                Math.floor(Number(record.revision) || 1)
+              ),
+            updatedAt: Number(record.updatedAt) || 0
           };
         })
         .filter(Boolean);
@@ -2528,32 +2868,673 @@
     }
 
     /* ================================================================
+       OWNED SUBJECT MANAGEMENT
+       ================================================================ */
+
+    let ownedSubjectDialogState = null;
+    let ownedSubjectDialogReturnFocus = null;
+    let ownedSubjectDialogPreviousBodyOverflow = '';
+
+    function getOwnedSubjectRegistryId(subjectId) {
+      const id = String(subjectId || '').trim();
+
+      if (!id) return '';
+
+      return typeof Bridge.getContentRegistryId === 'function'
+        ? Bridge.getContentRegistryId(COMPASS_ID, id)
+        : COMPASS_ID + ':' + id;
+    }
+
+    function getOwnedSubjectRecordTitle(record) {
+      return String(
+        record?.metadata?.title ||
+        record?.document?.module?.title ||
+        'Untitled Subject'
+      ).trim() || 'Untitled Subject';
+    }
+
+    function syncOwnedSubjectRegistryProjection(record) {
+      if (!record?.id) return;
+
+      try {
+        const registryId =
+          getOwnedSubjectRegistryId(record.id);
+
+        const registry = getRegistry();
+        const existing =
+          (registry.items || {})[registryId] || null;
+
+        const metadata = record.metadata || {};
+        const module = record.document?.module || {};
+
+        const title = getOwnedSubjectRecordTitle(record);
+
+        const navTitle = String(
+          metadata.navTitle ||
+          module.navTitle ||
+          title
+        ).trim() || title;
+
+        const description = String(
+          metadata.description ||
+          module.catalogDescription ||
+          ''
+        ).trim();
+
+        const coverImage = String(
+          metadata.coverImage ||
+          module.bgImage ||
+          ''
+        ).trim();
+
+        const contentVersion =
+          'owned-r' +
+          Math.max(
+            1,
+            Math.floor(Number(record.revision) || 1)
+          );
+
+        const launchUrl =
+          getOwnedSubjectLaunchUrl(record.id);
+
+        const projection = {
+          registryId,
+          world: COMPASS_ID,
+          type: 'subject',
+          schemaVersion: Math.max(
+            1,
+            Math.floor(
+              Number(record.document?.schemaVersion) || 1
+            )
+          ),
+          id: record.id,
+          title,
+          navTitle,
+          description,
+          hook: description,
+          coverImage,
+          contentVersion,
+          ownershipKind: 'my-subject',
+          hasMyVersion: false,
+          status: 'available',
+          launchUrl
+        };
+
+        const projectionKeys = [
+          'world',
+          'type',
+          'schemaVersion',
+          'id',
+          'title',
+          'navTitle',
+          'description',
+          'hook',
+          'coverImage',
+          'contentVersion',
+          'ownershipKind',
+          'hasMyVersion',
+          'status',
+          'launchUrl'
+        ];
+
+        const projectionChanged =
+          !existing ||
+          projectionKeys.some(key =>
+            existing[key] !== projection[key]
+          );
+
+        if (projectionChanged) {
+          Bridge.upsertItem({
+            ...(existing || {}),
+            ...projection
+          });
+        }
+
+        Object.entries(
+          registry.sessionStates || {}
+        ).forEach(([sessionId, states]) => {
+          const existingState =
+            states && states[registryId];
+
+          if (
+            !existingState ||
+            typeof Bridge.upsertSessionState !== 'function'
+          ) {
+            return;
+          }
+
+          const sessionProjection = {
+            title,
+            navTitle,
+            description,
+            hook: description,
+            coverImage,
+            contentVersion,
+            ownershipKind: 'my-subject',
+            hasMyVersion: false,
+            launchUrl
+          };
+
+          const sessionChanged =
+            Object.entries(sessionProjection)
+              .some(([key, value]) =>
+                existingState[key] !== value
+              );
+
+          if (!sessionChanged) return;
+
+          Bridge.upsertSessionState(
+            sessionId,
+            registryId,
+            {
+              ...existingState,
+              ...sessionProjection
+            }
+          );
+        });
+      } catch {
+        /* The owned record remains canonical even if a projection
+           has not yet been created. */
+      }
+    }
+
+    function closeOwnedSubjectMenus() {
+      let closed = false;
+
+      document
+        .querySelectorAll('.subject-card-menu')
+        .forEach(menu => {
+          if (!menu.hidden) {
+            menu.hidden = true;
+            closed = true;
+          }
+
+          const button = menu
+            .closest('.subject-card-management')
+            ?.querySelector('.subject-card-manage-btn');
+
+          if (button) {
+            button.setAttribute(
+              'aria-expanded',
+              'false'
+            );
+          }
+        });
+
+      return closed;
+    }
+
+    function toggleOwnedSubjectMenu(button, event) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      const management = button?.closest(
+        '.subject-card-management'
+      );
+
+      const menu = management?.querySelector(
+        '.subject-card-menu'
+      );
+
+      if (!menu) return;
+
+      const opening = menu.hidden;
+
+      closeOwnedSubjectMenus();
+
+      if (!opening) return;
+
+      menu.hidden = false;
+      button.setAttribute('aria-expanded', 'true');
+    }
+
+    function ensureOwnedSubjectDialog() {
+      let dialog = document.getElementById(
+        'owned-subject-dialog'
+      );
+
+      if (dialog) return dialog;
+
+      dialog = document.createElement('div');
+      dialog.id = 'owned-subject-dialog';
+      dialog.className = 'owned-subject-dialog';
+      dialog.hidden = true;
+      dialog.setAttribute('role', 'dialog');
+      dialog.setAttribute('aria-modal', 'true');
+      dialog.setAttribute(
+        'aria-labelledby',
+        'owned-subject-dialog-title'
+      );
+
+      dialog.innerHTML =
+        '<div class="owned-subject-dialog-panel">' +
+        '<p class="owned-subject-dialog-kicker">My Subject</p>' +
+        '<h2 class="owned-subject-dialog-title" id="owned-subject-dialog-title"></h2>' +
+        '<p class="owned-subject-dialog-copy" id="owned-subject-dialog-copy"></p>' +
+
+        '<label class="owned-subject-dialog-field" id="owned-subject-dialog-field">' +
+        '<span>Subject title</span>' +
+        '<input id="owned-subject-dialog-input" type="text" maxlength="120" autocomplete="off">' +
+        '</label>' +
+
+        '<p class="owned-subject-dialog-error" id="owned-subject-dialog-error" hidden></p>' +
+
+        '<div class="owned-subject-dialog-actions">' +
+        '<button class="btn-ghost" type="button" onclick="closeOwnedSubjectDialog()">Cancel</button>' +
+        '<button class="btn-primary" id="owned-subject-dialog-confirm" type="button" onclick="confirmOwnedSubjectDialog()">Save name</button>' +
+        '</div>' +
+        '</div>';
+
+      dialog.addEventListener('click', event => {
+        if (event.target === dialog) {
+          closeOwnedSubjectDialog();
+        }
+      });
+
+      const input = dialog.querySelector(
+        '#owned-subject-dialog-input'
+      );
+
+      input?.addEventListener('keydown', event => {
+        if (
+          event.key === 'Enter' &&
+          ownedSubjectDialogState?.mode === 'rename'
+        ) {
+          event.preventDefault();
+          confirmOwnedSubjectDialog();
+        }
+      });
+
+      document.body.appendChild(dialog);
+
+      return dialog;
+    }
+
+    function closeOwnedSubjectDialog(
+      restoreFocus = true
+    ) {
+      const dialog = document.getElementById(
+        'owned-subject-dialog'
+      );
+
+      if (!dialog || dialog.hidden) return;
+
+      dialog.hidden = true;
+      document.body.style.overflow =
+        ownedSubjectDialogPreviousBodyOverflow;
+
+      ownedSubjectDialogState = null;
+
+      if (
+        restoreFocus &&
+        ownedSubjectDialogReturnFocus &&
+        document.contains(ownedSubjectDialogReturnFocus)
+      ) {
+        ownedSubjectDialogReturnFocus.focus();
+      }
+
+      ownedSubjectDialogReturnFocus = null;
+    }
+
+    async function openOwnedSubjectRenameDialog(
+      subjectId,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      ownedSubjectDialogReturnFocus =
+        event?.currentTarget
+          ?.closest('.subject-card-management')
+          ?.querySelector('.subject-card-manage-btn') ||
+        document.activeElement;
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.getSubject !== 'function'
+      ) {
+        showToast('My Subjects are unavailable.');
+        return;
+      }
+
+      const record = await Subjects.getSubject(subjectId);
+
+      if (!record) {
+        showToast('That subject could not be found.');
+        return;
+      }
+
+      const dialog = ensureOwnedSubjectDialog();
+      const title = dialog.querySelector(
+        '#owned-subject-dialog-title'
+      );
+      const copy = dialog.querySelector(
+        '#owned-subject-dialog-copy'
+      );
+      const field = dialog.querySelector(
+        '#owned-subject-dialog-field'
+      );
+      const input = dialog.querySelector(
+        '#owned-subject-dialog-input'
+      );
+      const error = dialog.querySelector(
+        '#owned-subject-dialog-error'
+      );
+      const confirm = dialog.querySelector(
+        '#owned-subject-dialog-confirm'
+      );
+
+      ownedSubjectDialogState = {
+        mode: 'rename',
+        subjectId: record.id
+      };
+
+      title.textContent = 'Rename subject';
+      copy.textContent =
+        'Change the name of this subject everywhere it appears in Atlas and Compass.';
+
+      field.hidden = false;
+      input.value = getOwnedSubjectRecordTitle(record);
+
+      error.hidden = true;
+      error.textContent = '';
+
+      confirm.className = 'btn-primary';
+      confirm.textContent = 'Save name';
+      confirm.disabled = false;
+
+      ownedSubjectDialogPreviousBodyOverflow =
+        document.body.style.overflow;
+
+      document.body.style.overflow = 'hidden';
+      dialog.hidden = false;
+
+      requestAnimationFrame(() => {
+        input.focus();
+        input.select();
+      });
+    }
+
+    async function openOwnedSubjectDeleteDialog(
+      subjectId,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      ownedSubjectDialogReturnFocus =
+        event?.currentTarget
+          ?.closest('.subject-card-management')
+          ?.querySelector('.subject-card-manage-btn') ||
+        document.activeElement;
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.getSubject !== 'function'
+      ) {
+        showToast('My Subjects are unavailable.');
+        return;
+      }
+
+      const record = await Subjects.getSubject(subjectId);
+
+      if (!record) {
+        showToast('That subject could not be found.');
+        return;
+      }
+
+      const dialog = ensureOwnedSubjectDialog();
+      const title = dialog.querySelector(
+        '#owned-subject-dialog-title'
+      );
+      const copy = dialog.querySelector(
+        '#owned-subject-dialog-copy'
+      );
+      const field = dialog.querySelector(
+        '#owned-subject-dialog-field'
+      );
+      const error = dialog.querySelector(
+        '#owned-subject-dialog-error'
+      );
+      const confirm = dialog.querySelector(
+        '#owned-subject-dialog-confirm'
+      );
+
+      ownedSubjectDialogState = {
+        mode: 'delete',
+        subjectId: record.id
+      };
+
+      title.textContent = 'Delete subject?';
+      copy.textContent =
+        '“' +
+        getOwnedSubjectRecordTitle(record) +
+        '” will be permanently removed from My Subjects.';
+
+      field.hidden = true;
+
+      error.hidden = true;
+      error.textContent = '';
+
+      confirm.className = 'btn-danger';
+      confirm.textContent = 'Delete subject';
+      confirm.disabled = false;
+
+      ownedSubjectDialogPreviousBodyOverflow =
+        document.body.style.overflow;
+
+      document.body.style.overflow = 'hidden';
+      dialog.hidden = false;
+
+      requestAnimationFrame(() => {
+        confirm.focus();
+      });
+    }
+
+    async function confirmOwnedSubjectDialog() {
+      const state = ownedSubjectDialogState;
+      const dialog = document.getElementById(
+        'owned-subject-dialog'
+      );
+
+      if (!state || !dialog) return;
+
+      const Subjects = window.AtlasTutorSubjects;
+      const input = dialog.querySelector(
+        '#owned-subject-dialog-input'
+      );
+      const error = dialog.querySelector(
+        '#owned-subject-dialog-error'
+      );
+      const confirm = dialog.querySelector(
+        '#owned-subject-dialog-confirm'
+      );
+
+      if (!Subjects || !confirm) return;
+
+      if (state.mode === 'rename') {
+        const nextTitle = String(
+          input?.value || ''
+        ).trim();
+
+        if (!nextTitle) {
+          error.hidden = false;
+          error.textContent =
+            'Give the subject a name.';
+          input?.focus();
+          return;
+        }
+
+        confirm.disabled = true;
+        confirm.textContent = 'Saving…';
+
+        try {
+          const saved = await Subjects.renameSubject(
+            state.subjectId,
+            nextTitle
+          );
+
+          if (!saved) {
+            throw new Error(
+              'Rename did not return a subject.'
+            );
+          }
+
+          syncOwnedSubjectRegistryProjection(saved);
+          closeOwnedSubjectDialog(false);
+          await renderHub();
+          showToast('Subject renamed.');
+        } catch {
+          error.hidden = false;
+          error.textContent =
+            'Couldn’t rename this subject.';
+          confirm.disabled = false;
+          confirm.textContent = 'Save name';
+        }
+
+        return;
+      }
+
+      if (state.mode === 'delete') {
+        confirm.disabled = true;
+        confirm.textContent = 'Deleting…';
+
+        try {
+          const registryId =
+            getOwnedSubjectRegistryId(
+              state.subjectId
+            );
+
+          const deleted =
+            await Subjects.deleteSubject(
+              state.subjectId
+            );
+
+          if (!deleted) {
+            throw new Error(
+              'Delete operation failed.'
+            );
+          }
+
+          try {
+            if (
+              registryId &&
+              typeof Bridge.removeItem === 'function'
+            ) {
+              Bridge.removeItem(registryId);
+            }
+          } catch { }
+
+          closeOwnedSubjectDialog(false);
+          await renderHub();
+          showToast('Subject deleted.');
+        } catch {
+          error.hidden = false;
+          error.textContent =
+            'Couldn’t delete this subject.';
+          confirm.disabled = false;
+          confirm.textContent = 'Delete subject';
+        }
+      }
+    }
+
+    async function duplicateOwnedSubject(
+      subjectId,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.duplicateSubject !== 'function'
+      ) {
+        showToast('My Subjects are unavailable.');
+        return;
+      }
+
+      try {
+        const duplicate =
+          await Subjects.duplicateSubject(subjectId);
+
+        if (!duplicate) {
+          throw new Error(
+            'Duplicate operation failed.'
+          );
+        }
+
+        await renderHub();
+
+        showToast(
+          getOwnedSubjectRecordTitle(duplicate) +
+          ' created.'
+        );
+      } catch {
+        showToast('Couldn’t duplicate this subject.');
+      }
+    }
+
+    /* ================================================================
        RENDER
        One curated operational collection containing only playable subjects.
        Progress and continuation state live directly on the standard cards.
        ================================================================ */
 
-    function renderHub() {
+    let hubRenderRevision = 0;
+
+    async function renderHub() {
       if (!Bridge) return;
+
+      const renderRevision = ++hubRenderRevision;
 
       registerWithBridge();
 
       const main = document.getElementById('hub-main');
       const session = getActiveSession();
-      const subjects = getOperationalSubjects();
+      const atlasSubjects = getAtlasSubjects();
+      const ownedSubjects = await getOwnedSubjects();
+
+      if (renderRevision !== hubRenderRevision) {
+        return;
+      }
 
       setSessionLabels();
       renderSpineHubNav();
       renderDrawerHubNav();
 
-      if (!subjects.length) {
-        main.innerHTML = renderIntro(session) + renderEmptyLibrary();
+      if (
+        !atlasSubjects.length &&
+        !ownedSubjects.length
+      ) {
+        main.innerHTML =
+          renderIntro(session) +
+          renderEmptyLibrary();
+
         return;
       }
 
       main.innerHTML =
         renderIntro(session) +
-        renderSubjectCollection(subjects);
+        renderSubjectCollection(
+          ownedSubjects,
+          'My Subjects'
+        ) +
+        renderSubjectCollection(
+          atlasSubjects,
+          'Atlas Subjects'
+        );
     }
 
     function renderIntro(session) {
@@ -2572,7 +3553,14 @@
       );
     }
 
-    function renderSubjectCollection(subjects) {
+    function renderSubjectCollection(subjects, title) {
+      if (
+        !Array.isArray(subjects) ||
+        !subjects.length
+      ) {
+        return '';
+      }
+
       const cards = subjects
         .map(subject => renderSubjectCard(subject))
         .join('');
@@ -2580,7 +3568,9 @@
       return (
         '<section class="subject-library">' +
         '<div class="subject-library-header">' +
-        '<h2 class="subject-library-title">Choose a subject</h2>' +
+        '<h2 class="subject-library-title">' +
+        escHtml(title) +
+        '</h2>' +
         '</div>' +
         '<div class="subject-grid">' +
         cards +
@@ -2623,30 +3613,15 @@
           '</span>'
         : '';
 
-      return (
-        '<a class="subject-card subject-card--' +
-        escHtml(cardState.mode) +
-        artworkClass +
-        '" ' +
-
-        'href="' +
-        escHtml(subject.launchUrl) +
-        '" ' +
-
-        'style="--subject-progress:' +
-        cardState.progressPercent +
-        '%" ' +
-
-        'aria-label="' +
-        escHtml(cardState.actionLabel + ' ' + subject.title) +
-        '">' +
-
+      const cardContents =
         artworkHtml +
 
         '<div class="subject-card-header">' +
         '<div class="subject-card-title-block">' +
-        (subject.hasMyVersion
-          ? '<span class="subject-card-version-badge">My Version</span>'
+        (subject.ownershipLabel
+          ? '<span class="subject-card-version-badge">' +
+            escHtml(subject.ownershipLabel) +
+            '</span>'
           : '') +
         '<h3 class="subject-card-title">' +
         escHtml(subject.title) +
@@ -2678,7 +3653,105 @@
         '</span>' +
         '</div>' +
 
-        progressHtml +
+        progressHtml;
+
+      const cardClasses =
+        'subject-card subject-card--' +
+        escHtml(cardState.mode) +
+        artworkClass;
+
+      const progressStyle =
+        '--subject-progress:' +
+        cardState.progressPercent +
+        '%';
+
+      const actionLabel =
+        escHtml(
+          cardState.actionLabel +
+          ' ' +
+          subject.title
+        );
+
+      if (subject.isOwned && subject.subjectId) {
+        const managementHtml =
+          '<div class="subject-card-management">' +
+
+          '<button class="subject-card-manage-btn" ' +
+          'type="button" ' +
+          'aria-label="' +
+          escHtml('Manage ' + subject.title) +
+          '" ' +
+          'aria-haspopup="menu" ' +
+          'aria-expanded="false" ' +
+          'onclick="toggleOwnedSubjectMenu(this, event)">' +
+
+          '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">' +
+          '<circle cx="3.2" cy="8" r="1.15" fill="currentColor"/>' +
+          '<circle cx="8" cy="8" r="1.15" fill="currentColor"/>' +
+          '<circle cx="12.8" cy="8" r="1.15" fill="currentColor"/>' +
+          '</svg>' +
+          '</button>' +
+
+          '<div class="subject-card-menu" role="menu" hidden>' +
+
+          '<button type="button" role="menuitem" ' +
+          'onclick="openOwnedSubjectRenameDialog(' +
+          jsArg(subject.subjectId) +
+          ', event)">Rename</button>' +
+
+          '<button type="button" role="menuitem" ' +
+          'onclick="duplicateOwnedSubject(' +
+          jsArg(subject.subjectId) +
+          ', event)">Duplicate</button>' +
+
+          '<button class="is-danger" type="button" role="menuitem" ' +
+          'onclick="openOwnedSubjectDeleteDialog(' +
+          jsArg(subject.subjectId) +
+          ', event)">Delete</button>' +
+
+          '</div>' +
+          '</div>';
+
+        return (
+          '<article class="' +
+          cardClasses +
+          ' subject-card--owned" ' +
+          'style="' +
+          progressStyle +
+          '">' +
+
+          '<a class="subject-card-open-layer" ' +
+          'href="' +
+          escHtml(subject.launchUrl) +
+          '" ' +
+          'aria-label="' +
+          actionLabel +
+          '"></a>' +
+
+          managementHtml +
+          cardContents +
+          '</article>'
+        );
+      }
+
+      return (
+        '<a class="' +
+        cardClasses +
+        '" ' +
+
+        'href="' +
+        escHtml(subject.launchUrl) +
+        '" ' +
+
+        'style="' +
+        progressStyle +
+        '" ' +
+
+        'aria-label="' +
+        actionLabel +
+        '">' +
+
+        cardContents +
         '</a>'
       );
     }
@@ -2727,10 +3800,27 @@
        GLOBAL KEYS
        ================================================================ */
 
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.subject-card-management')) {
+        closeOwnedSubjectMenus();
+      }
+    });
+
     document.addEventListener('keydown', e => {
       if (e.defaultPrevented) return;
 
       if (e.key === 'Escape') {
+        const ownedDialog =
+          document.getElementById(
+            'owned-subject-dialog'
+          );
+
+        if (ownedDialog && !ownedDialog.hidden) {
+          closeOwnedSubjectDialog();
+          return;
+        }
+
+        if (closeOwnedSubjectMenus()) return;
         if (window.AtlasSessionPanel && AtlasSessionPanel.isOpen()) return;
         if (document.getElementById('drawer').classList.contains('open')) { closeDrawer(); return; }
       }
@@ -2764,7 +3854,12 @@
         return;
       }
 
-      if (k === 'atlas::sessions' || k === 'atlas::registry' || k === 'learning::ledger') {
+      if (
+        k === 'atlas::sessions' ||
+        k === 'atlas::registry' ||
+        k === 'learning::ledger' ||
+        k.startsWith('atlas::tutorSubjects::subject::')
+      ) {
         refresh();
       }
     });
