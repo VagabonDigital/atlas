@@ -21,7 +21,7 @@
     if (window.AtlasAI) return;
 
     const BASE_URL =
-        'https://atlas-ai.savvy989.workers.dev/';
+        'https://atlas-ai.savvy989.workers.dev';
 
     const DEV_TOKEN_KEY =
         'atlas::aiDevToken';
