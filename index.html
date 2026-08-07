@@ -3748,6 +3748,13 @@
     function getContinueItemArt(item) {
       if (!item || !item.registryId) return '';
 
+      if (
+        item.world === COMPASS_ID &&
+        item.ownershipKind === 'my-subject'
+      ) {
+        return WORLDS.compass.iconSvg;
+      }
+
       if (item.world === COMPASS_ID && CompassCatalog) {
         const subject = CompassCatalog.getCompassCatalogMap()[item.registryId];
 
