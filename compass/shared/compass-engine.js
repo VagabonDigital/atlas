@@ -382,6 +382,36 @@ function isOwnedSubjectRuntime() {
     return getCompassSubjectRuntime().source === 'owned';
 }
 
+function consumeOwnedSubjectCreationAuthoringIntent() {
+    if (!isOwnedSubjectRuntime()) {
+        return false;
+    }
+
+    try {
+        const url = new URL(window.location.href);
+
+        if (
+            url.searchParams.get('author') !== 'create'
+        ) {
+            return false;
+        }
+
+        url.searchParams.delete('author');
+
+        try {
+            window.history.replaceState(
+                window.history.state,
+                '',
+                url.href
+            );
+        } catch { }
+
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 function getTutorContentId() {
     return `${COMPASS_WORLD_ID}:${MODULE.id}`;
 }
@@ -14056,6 +14086,10 @@ async function init() {
     loadSessions();
     loadProgress();
     await loadTutorContentState();
+
+    const shouldStartCreatedSubjectAuthoring =
+        consumeOwnedSubjectCreationAuthoringIntent();
+
     applyCoverConfig();
     applyDerivedLabels();
     applySubjectCopy();
@@ -14070,6 +14104,13 @@ async function init() {
     updateReflectionCompleteState();
     initAppearanceMode();
     restoreMyVersionWorkingDraftView();
+
+    if (
+        shouldStartCreatedSubjectAuthoring &&
+        !myVersionEditing
+    ) {
+        beginMyVersionEditing(false);
+    }
 
     window.addEventListener(
         'atlas:session-change',
