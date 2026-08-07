@@ -665,17 +665,38 @@
                 'hasMyVersion'
             );
 
-        const nextItem = preserveMyVersionIdentity
-            ? {
-                ...item,
+        const preserveOwnershipIdentity =
+            (
+                existing.ownershipKind === 'my-version' ||
+                existing.ownershipKind === 'my-subject'
+            ) &&
+            !Object.prototype.hasOwnProperty.call(
+                item,
+                'ownershipKind'
+            );
+
+        let nextItem = item;
+
+        if (preserveMyVersionIdentity) {
+            nextItem = {
+                ...nextItem,
                 title: existing.title,
                 navTitle: existing.navTitle,
                 description: existing.description,
                 hook: existing.hook,
                 coverImage: existing.coverImage,
+                ownershipKind:
+                    existing.ownershipKind || 'my-version',
                 hasMyVersion: true
-            }
-            : item;
+            };
+        }
+
+        if (preserveOwnershipIdentity) {
+            nextItem = {
+                ...nextItem,
+                ownershipKind: existing.ownershipKind
+            };
+        }
 
         registry.items[item.registryId] = {
             ...existing,
@@ -686,6 +707,150 @@
         writeRegistry(registry);
 
         return registry.items[item.registryId];
+    }
+
+    function removeItem(registryId) {
+        const cleanRegistryId =
+            String(registryId || '').trim();
+
+        if (!cleanRegistryId) return false;
+
+        let removed = false;
+
+        const registry = readRegistry();
+
+        if (
+            Object.prototype.hasOwnProperty.call(
+                registry.items,
+                cleanRegistryId
+            )
+        ) {
+            delete registry.items[cleanRegistryId];
+            removed = true;
+        }
+
+        Object.keys(
+            registry.sessionStates || {}
+        ).forEach(sessionId => {
+            const states =
+                registry.sessionStates[sessionId];
+
+            if (
+                states &&
+                typeof states === 'object' &&
+                Object.prototype.hasOwnProperty.call(
+                    states,
+                    cleanRegistryId
+                )
+            ) {
+                delete states[cleanRegistryId];
+                removed = true;
+            }
+
+            if (
+                states &&
+                typeof states === 'object' &&
+                Object.keys(states).length === 0
+            ) {
+                delete registry.sessionStates[sessionId];
+            }
+        });
+
+        const recentActivity =
+            Array.isArray(registry.recentActivity)
+                ? registry.recentActivity
+                : [];
+
+        const nextRecentActivity =
+            recentActivity.filter(
+                item =>
+                    item?.registryId !== cleanRegistryId
+            );
+
+        if (
+            nextRecentActivity.length !==
+            recentActivity.length
+        ) {
+            registry.recentActivity =
+                nextRecentActivity;
+
+            removed = true;
+        }
+
+        if (removed) {
+            writeRegistry(registry);
+        }
+
+        const separatorIndex =
+            cleanRegistryId.indexOf(':');
+
+        if (separatorIndex > 0) {
+            const world =
+                cleanRegistryId.slice(
+                    0,
+                    separatorIndex
+                );
+
+            const itemId =
+                cleanRegistryId.slice(
+                    separatorIndex + 1
+                );
+
+            const ledger = readLedger();
+            let ledgerChanged = false;
+
+            Object.keys(
+                ledger.entries || {}
+            ).forEach(entryId => {
+                const entry =
+                    ledger.entries[entryId];
+
+                if (
+                    entry?.sourceWorld === world &&
+                    entry?.sourceItem === itemId
+                ) {
+                    delete ledger.entries[entryId];
+                    ledgerChanged = true;
+                }
+            });
+
+            if (ledgerChanged) {
+                writeLedger(ledger);
+                removed = true;
+            }
+
+            const handoffs = readHandoffStore();
+            let handoffsChanged = false;
+
+            Object.keys(handoffs).forEach(
+                handoffId => {
+                    const handoff =
+                        handoffs[handoffId];
+
+                    if (
+                        handoff?.subjectId === itemId &&
+                        (
+                            !handoff.world ||
+                            handoff.world === world
+                        )
+                    ) {
+                        delete handoffs[handoffId];
+                        handoffsChanged = true;
+                    }
+                }
+            );
+
+            if (handoffsChanged) {
+                writeJson(
+                    KEYS.handoffs,
+                    handoffs
+                );
+
+                removed = true;
+            }
+        }
+
+        return removed;
     }
 
     function upsertSessionState(sessionId, registryId, state) {
@@ -1023,6 +1188,7 @@
         getContentRegistryId,
         upsertWorld,
         upsertItem,
+        removeItem,
         upsertSessionState,
         touchRecentActivity,
 

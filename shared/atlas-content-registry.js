@@ -125,11 +125,18 @@
             Object.keys(registry.items || {}).forEach(registryId => {
                 const item = registry.items[registryId];
 
+                const isOwnedSubject =
+                    item &&
+                    item.world === 'compass' &&
+                    item.type === 'subject' &&
+                    item.ownershipKind === 'my-subject';
+
                 if (
                     item &&
                     item.world === 'compass' &&
                     item.type === 'subject' &&
-                    !validIds.has(registryId)
+                    !validIds.has(registryId) &&
+                    !isOwnedSubject
                 ) {
                     delete registry.items[registryId];
                     changed = true;
@@ -138,11 +145,31 @@
 
             if (Array.isArray(registry.recentActivity)) {
                 const nextRecent = registry.recentActivity.filter(activity => {
-                    const id = activity && activity.registryId ? activity.registryId : '';
-                    return !id.startsWith('compass:') || validIds.has(id);
+                    const id =
+                        activity && activity.registryId
+                            ? activity.registryId
+                            : '';
+
+                    if (
+                        !id.startsWith('compass:') ||
+                        validIds.has(id)
+                    ) {
+                        return true;
+                    }
+
+                    const item =
+                        registry.items?.[id] || null;
+
+                    return (
+                        activity?.ownershipKind === 'my-subject' ||
+                        item?.ownershipKind === 'my-subject'
+                    );
                 });
 
-                if (nextRecent.length !== registry.recentActivity.length) {
+                if (
+                    nextRecent.length !==
+                    registry.recentActivity.length
+                ) {
                     registry.recentActivity = nextRecent;
                     changed = true;
                 }

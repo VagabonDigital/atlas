@@ -191,6 +191,36 @@
         if (item.world === 'compass') return 'subject';
         return 'item';
     }
+
+    function itemOwnershipLabel(item) {
+        if (item?.ownershipKind === 'my-subject') {
+            return 'My Subject';
+        }
+
+        if (
+            item?.ownershipKind === 'my-version' ||
+            item?.hasMyVersion === true
+        ) {
+            return 'My Version';
+        }
+
+        return '';
+    }
+
+    function itemOwnershipSearchWords(item) {
+        if (item?.ownershipKind === 'my-subject') {
+            return 'my subject my subjects';
+        }
+
+        if (
+            item?.ownershipKind === 'my-version' ||
+            item?.hasMyVersion === true
+        ) {
+            return 'my version my versions';
+        }
+
+        return '';
+    }
     // Search only includes items that can be opened immediately.
     // Planned catalog entries remain available to roadmap and registry systems,
     // but do not appear as selectable Search results.
@@ -240,9 +270,7 @@
                     group: 'Recent',
                     registryId: activity.registryId,
                     title: item.title || item.navTitle || 'Untitled',
-                    sub: item.hasMyVersion === true
-                        ? 'My Version'
-                        : '',
+                    sub: itemOwnershipLabel(item),
                     type: itemIconType(item),
                     hub: false,
                     planned: false,
@@ -253,9 +281,7 @@
                         item.world,
                         item.type,
                         itemTypeWords(item),
-                        item.hasMyVersion === true
-                            ? 'my version'
-                            : '',
+                        itemOwnershipSearchWords(item),
                         'recent'
                     ].join(' '),
                     action: () => navigateToItem(
@@ -316,9 +342,7 @@
             .map(item => ({
                 group: itemGroupLabel(item),
                 title: item.title || item.navTitle || 'Untitled',
-                sub: item.hasMyVersion === true
-                    ? 'My Version'
-                    : '',
+                sub: itemOwnershipLabel(item),
                 type: itemIconType(item),
                 hub: false,
                 planned: false,
@@ -332,9 +356,7 @@
                     item.type,
                     itemTypeWords(item),
                     itemGroupLabel(item),
-                    item.hasMyVersion === true
-                        ? 'my version'
-                        : '',
+                    itemOwnershipSearchWords(item),
                     Array.isArray(item.keywords) ? item.keywords.join(' ') : ''
                 ].join(' '),
                 action: () => navigateToItem(
