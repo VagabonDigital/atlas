@@ -331,6 +331,7 @@ let myVersionWorkingDraftSaveTimer = null;
 let myVersionPendingWorkingDraftOverrides = null;
 let myVersionResumeViewId = null;
 let myVersionUpgradeOptionsOpenContextId = null;
+let myVersionCreatedSubjectId = null;
 
 
 // ============================================================
@@ -355,6 +356,30 @@ function requireAtlasTutorContent() {
     }
 
     return window.AtlasTutorContent;
+}
+
+function requireAtlasTutorSubjects() {
+    if (!window.AtlasTutorSubjects) {
+        throw new Error(
+            'AtlasTutorSubjects is missing. atlas-tutor-subjects.js must load before compass-engine.js.'
+        );
+    }
+
+    return window.AtlasTutorSubjects;
+}
+
+function getCompassSubjectRuntime() {
+    const runtime = window.AtlasCompassSubjectRuntime;
+
+    return runtime &&
+        typeof runtime === 'object' &&
+        !Array.isArray(runtime)
+        ? runtime
+        : { source: 'atlas' };
+}
+
+function isOwnedSubjectRuntime() {
+    return getCompassSubjectRuntime().source === 'owned';
 }
 
 function getTutorContentId() {
@@ -403,6 +428,39 @@ function resolveTutorContentValue(originalValue, fieldKey) {
 async function loadTutorContentState() {
     const Store = requireAtlasTutorContent();
     const contentId = getTutorContentId();
+
+    if (isOwnedSubjectRuntime()) {
+        const Subjects = requireAtlasTutorSubjects();
+
+        const [workingDraft, liveDraft] = await Promise.all([
+            Subjects.getWorkingDraft(MODULE.id),
+            Store.getLiveDraft(
+                currentSessionId,
+                contentId
+            )
+        ]);
+
+        tutorContentVersion = null;
+        tutorContentWorkingDraft = workingDraft;
+        tutorContentLiveDraft = liveDraft;
+        liveTutorMutationRevision += 1;
+
+        if (!myVersionEditing && workingDraft) {
+            resumeMyVersionWorkingDraft(workingDraft);
+        } else if (myVersionEditing) {
+            applyTutorSubjectDocument(
+                myVersionDraftDocument ||
+                ATLAS_SUBJECT_DOCUMENT
+            );
+        } else {
+            applyTutorSubjectDocument(
+                ATLAS_SUBJECT_DOCUMENT
+            );
+        }
+
+        updateLiveTutorContentControl();
+        return;
+    }
 
     const [version, workingDraft, liveDraft] = await Promise.all([
         Store.getVersion(contentId),
@@ -499,7 +557,9 @@ function createAtlasSubjectDocument() {
             navTitle: MODULE.navTitle || MODULE.title,
             bgImage: MODULE.bgImage,
             catalogDescription:
-                getAtlasSubjectCatalogDescription()
+                typeof MODULE.catalogDescription === 'string'
+                    ? MODULE.catalogDescription
+                    : getAtlasSubjectCatalogDescription()
         },
         subjectCopy: cloneTutorSubjectDocument(subjectCopy),
         discussionSets: cloneTutorSubjectDocument(discussionSets),
@@ -680,6 +740,27 @@ function getActiveCompassViewId() {
 }
 
 function getMyVersionWorkingDraftPatch(overrides) {
+    if (isOwnedSubjectRuntime()) {
+        return {
+            baseRevision: Math.max(
+                1,
+                Math.floor(
+                    Number(
+                        getCompassSubjectRuntime().revision
+                    ) || 1
+                )
+            ),
+            document: materializeTutorSubjectDocument(
+                myVersionDraftDocument ||
+                getPublishedTutorSubjectDocument(),
+                overrides,
+                'My Subject draft'
+            ),
+            includedLiveSessionId: myVersionIncludedLiveSessionId,
+            activeViewId: getActiveCompassViewId()
+        };
+    }
+
     return {
         baseContentVersion: MODULE.contentVersion,
         replaceOverrides: true,
@@ -711,8 +792,11 @@ function saveMyVersionWorkingDraftNow(
     const patch = getMyVersionWorkingDraftPatch(overrides);
 
     return queueTutorContentWrite(async () => {
-        const saved = await requireAtlasTutorContent()
-            .saveWorkingDraft(contentId, patch);
+        const saved = isOwnedSubjectRuntime()
+            ? await requireAtlasTutorSubjects()
+                .saveWorkingDraft(MODULE.id, patch)
+            : await requireAtlasTutorContent()
+                .saveWorkingDraft(contentId, patch);
 
         if (saved && myVersionEditing) {
             tutorContentWorkingDraft = saved;
@@ -830,6 +914,11 @@ function updateMyVersionAuthorBar() {
         'atlas-my-version-cancel'
     );
 
+    const authoringLabel = bar?.querySelector(
+        '.atlas-my-version-copy strong'
+    );
+
+    const ownedSubject = isOwnedSubjectRuntime();
     const onCover = getActiveCompassViewId() === 'view-cover';
 
     document.body.classList.toggle(
@@ -839,6 +928,12 @@ function updateMyVersionAuthorBar() {
 
     if (bar) {
         bar.hidden = !myVersionEditing;
+    }
+
+    if (authoringLabel) {
+        authoringLabel.textContent = ownedSubject
+            ? 'Editing My Subject'
+            : 'Editing My Version';
     }
 
     if (status) {
@@ -862,7 +957,9 @@ function updateMyVersionAuthorBar() {
 
         saveButton.textContent = myVersionSaving
             ? 'Saving…'
-            : 'Save My Version';
+            : ownedSubject
+                ? 'Save My Subject'
+                : 'Save My Version';
     }
 
     if (cancelButton) {
@@ -1028,10 +1125,30 @@ function openMyVersionStartDialog() {
 
     if (!dialog) return;
 
+    const ownedSubject = isOwnedSubjectRuntime();
+    const kicker = dialog.querySelector(
+        '.atlas-my-version-dialog-kicker'
+    );
+    const copy = dialog.querySelector(
+        '.atlas-my-version-dialog-copy'
+    );
+
     const count = getLiveTutorContentChangeCount();
     const countLabel = count === 1
         ? '1 Live Change'
         : `${count} Live Changes`;
+
+    if (kicker) {
+        kicker.textContent = ownedSubject
+            ? 'MY SUBJECT'
+            : 'MY VERSION';
+    }
+
+    if (copy) {
+        copy.textContent = ownedSubject
+            ? 'This lesson already has temporary changes. Choose whether they become part of your subject or stay with this learner.'
+            : 'This lesson already has temporary changes. Choose what becomes the starting point for your reusable version.';
+    }
 
     setText(
         'atlas-my-version-start-count',
@@ -1047,7 +1164,9 @@ function openMyVersionStartDialog() {
 function beginMyVersionEditing(includeLiveChanges = false) {
     if (myVersionEditing || myVersionSaving) return;
 
-    const shouldStartOnCover = !hasSavedMyVersion();
+    const shouldStartOnCover =
+        !isOwnedSubjectRuntime() &&
+        !hasSavedMyVersion();
 
     const versionOverrides = cloneTutorContentOverrides(
         tutorContentVersion?.overrides
@@ -1098,7 +1217,9 @@ function beginMyVersionEditing(includeLiveChanges = false) {
 }
 
 function requestMyVersionEditing() {
-    if (myVersionEditing || myVersionSaving) return;
+    if (myVersionEditing || myVersionSaving) {
+        return;
+    }
 
     if (getLiveTutorContentChangeCount() > 0) {
         openMyVersionStartDialog();
@@ -1141,8 +1262,13 @@ async function cancelMyVersionEditing() {
 
     await tutorContentWriteQueue;
 
-    await requireAtlasTutorContent()
-        .clearWorkingDraft(getTutorContentId());
+    if (isOwnedSubjectRuntime()) {
+        await requireAtlasTutorSubjects()
+            .clearWorkingDraft(MODULE.id);
+    } else {
+        await requireAtlasTutorContent()
+            .clearWorkingDraft(getTutorContentId());
+    }
 
     finishMyVersionEditingState();
     renderAllTutorContentSurfaces();
@@ -1163,7 +1289,7 @@ async function saveMyVersion() {
         activeElement.blur();
     }
 
-     normalizeMyVersionQuestionCollectionsForSave();
+    normalizeMyVersionQuestionCollectionsForSave();
 
     await flushMyVersionWorkingDraftSave();
     await tutorContentWriteQueue;
@@ -1174,19 +1300,62 @@ async function saveMyVersion() {
     const contentId = getTutorContentId();
     const includedSessionId =
         myVersionIncludedLiveSessionId;
+    const ownedSubject = isOwnedSubjectRuntime();
 
-    const saved = await requireAtlasTutorContent()
-        .saveVersion(
-            contentId,
-            {
-                baseContentVersion: MODULE.contentVersion,
-                replaceOverrides: true,
-                overrides: myVersionDraftOverrides,
-                document: cloneTutorSubjectDocument(
-                    myVersionDraftDocument
-                )
-            }
+    let saved = null;
+
+    if (ownedSubject) {
+        const document = materializeTutorSubjectDocument(
+            myVersionDraftDocument ||
+            getPublishedTutorSubjectDocument(),
+            myVersionDraftOverrides,
+            'My Subject'
         );
+
+        saved = await requireAtlasTutorSubjects()
+            .updateSubject(
+                MODULE.id,
+                {
+                    metadata: {
+                        title:
+                            String(
+                                document.module?.title ||
+                                MODULE.title
+                            ).trim() || MODULE.title,
+                        navTitle:
+                            String(
+                                document.module?.navTitle ||
+                                document.module?.title ||
+                                MODULE.navTitle ||
+                                MODULE.title
+                            ).trim(),
+                        description:
+                            String(
+                                document.module
+                                    ?.catalogDescription || ''
+                            ).trim(),
+                        coverImage:
+                            String(
+                                document.module?.bgImage || ''
+                            ).trim()
+                    },
+                    document
+                }
+            );
+    } else {
+        saved = await requireAtlasTutorContent()
+            .saveVersion(
+                contentId,
+                {
+                    baseContentVersion: MODULE.contentVersion,
+                    replaceOverrides: true,
+                    overrides: myVersionDraftOverrides,
+                    document: cloneTutorSubjectDocument(
+                        myVersionDraftDocument
+                    )
+                }
+            );
+    }
 
     if (!saved) {
         myVersionSaving = false;
@@ -1203,7 +1372,11 @@ async function saveMyVersion() {
         return;
     }
 
-    tutorContentVersion = saved;
+    if (ownedSubject) {
+        syncOwnedSubjectRuntime(saved);
+    } else {
+        tutorContentVersion = saved;
+    }
 
     if (
         myVersionIncludesLiveChanges &&
@@ -1221,8 +1394,13 @@ async function saveMyVersion() {
         }
     }
 
-    await requireAtlasTutorContent()
-        .clearWorkingDraft(contentId);
+    if (ownedSubject) {
+        await requireAtlasTutorSubjects()
+            .clearWorkingDraft(MODULE.id);
+    } else {
+        await requireAtlasTutorContent()
+            .clearWorkingDraft(contentId);
+    }
 
     finishMyVersionEditingState();
     renderAllTutorContentSurfaces();
@@ -1254,6 +1432,239 @@ function closeMyVersionCoverDialog() {
     }
 }
 
+function closeMyVersionManagementDialog() {
+    const dialog = document.getElementById(
+        'atlas-my-version-management-dialog'
+    );
+
+    if (!dialog || dialog.hidden) return;
+
+    dialog.hidden = true;
+
+    if (activeFocusTrapRoot === dialog) {
+        releaseFocusTrap();
+    }
+}
+
+function openMyVersionManagementDialog() {
+    if (
+        isOwnedSubjectRuntime() ||
+        !myVersionEditing ||
+        myVersionSaving ||
+        !hasSavedMyVersion()
+    ) {
+        return;
+    }
+
+    const dialog = document.getElementById(
+        'atlas-my-version-management-dialog'
+    );
+
+    if (!dialog) return;
+
+    closeMyVersionCoverDialog();
+
+    myVersionCreatedSubjectId = null;
+    updateCreateSubjectFromMyVersionUI();
+
+    dialog.hidden = false;
+    activateFocusTrap(dialog);
+}
+
+function returnToMyVersionSubjectDetails() {
+    closeMyVersionManagementDialog();
+
+    if (
+        myVersionEditing &&
+        !myVersionSaving
+    ) {
+        openMyVersionCoverDialog();
+    }
+}
+
+function hasUnappliedMyVersionCoverChanges() {
+    const imageInput = document.getElementById(
+        'atlas-my-version-image-input'
+    );
+
+    const descriptionInput = document.getElementById(
+        'atlas-my-version-description-input'
+    );
+
+    if (!imageInput || !descriptionInput) {
+        return false;
+    }
+
+    return (
+        String(imageInput.value || '').trim() !==
+            getEffectiveSubjectCoverImage() ||
+        String(descriptionInput.value || '').trim() !==
+            getEffectiveSubjectCatalogDescription()
+    );
+}
+
+function updateCreateSubjectFromMyVersionUI() {
+    const button = document.getElementById(
+        'atlas-create-subject-from-version'
+    );
+
+    const copy = document.getElementById(
+        'atlas-create-subject-from-version-copy'
+    );
+
+    const status = document.getElementById(
+        'atlas-create-subject-from-version-status'
+    );
+
+    const openButton = document.getElementById(
+        'atlas-created-subject-open'
+    );
+
+    if (!button || !copy) return;
+
+    if (myVersionCreatedSubjectId) {
+        button.hidden = true;
+
+        copy.textContent =
+            'Your My Version is unchanged.';
+
+        if (status) {
+            status.hidden = false;
+            status.textContent = '✓ New subject created';
+        }
+
+        if (openButton) {
+            openButton.hidden = false;
+        }
+
+        return;
+    }
+
+    button.hidden = false;
+
+    const available =
+        !isOwnedSubjectRuntime() &&
+        hasSavedMyVersion();
+
+    const hasUnpublishedChanges =
+        myVersionDirty ||
+        hasUnappliedMyVersionCoverChanges();
+
+    button.textContent = 'Create as new subject';
+    button.disabled =
+        !available ||
+        hasUnpublishedChanges ||
+        myVersionSaving;
+
+    if (!available) {
+        copy.textContent =
+            'Save My Version before creating a separate subject.';
+    } else if (hasUnpublishedChanges) {
+        copy.textContent =
+            'Save My Version first so the new subject includes your latest changes.';
+    } else {
+        copy.textContent =
+            'Keep this saved My Version as a separate subject. Your My Version stays here.';
+    }
+
+    if (status) {
+        status.hidden = true;
+        status.textContent = '';
+    }
+
+    if (openButton) {
+        openButton.hidden = true;
+    }
+}
+
+async function createSubjectFromMyVersion() {
+    if (
+        isOwnedSubjectRuntime() ||
+        !myVersionEditing ||
+        myVersionSaving ||
+        !hasSavedMyVersion()
+    ) {
+        return;
+    }
+
+    const button = document.getElementById(
+        'atlas-create-subject-from-version'
+    );
+
+    const status = document.getElementById(
+        'atlas-create-subject-from-version-status'
+    );
+
+    if (
+        myVersionDirty ||
+        hasUnappliedMyVersionCoverChanges()
+    ) {
+        updateCreateSubjectFromMyVersionUI();
+
+        if (status) {
+            status.hidden = false;
+            status.textContent =
+                'Apply any detail changes and save My Version first.';
+        }
+
+        return;
+    }
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = 'Creating…';
+    }
+
+    if (status) {
+        status.hidden = true;
+        status.textContent = '';
+    }
+
+    try {
+        const subject =
+            await createSubjectFromPublishedMyVersion();
+
+        myVersionCreatedSubjectId = subject.id;
+
+        try {
+            publishOwnedSubjectProjection(subject);
+        } catch (error) {
+            console.warn(
+                '[Compass] Created subject could not be projected immediately:',
+                error
+            );
+        }
+
+        updateCreateSubjectFromMyVersionUI();
+    } catch (error) {
+        console.error(
+            '[Compass] Create as new subject failed:',
+            error
+        );
+
+        myVersionCreatedSubjectId = null;
+        updateCreateSubjectFromMyVersionUI();
+
+        if (status) {
+            status.hidden = false;
+            status.textContent =
+                'Couldn’t create the new subject.';
+        }
+    }
+}
+
+function openCreatedSubjectFromMyVersion() {
+    if (!myVersionCreatedSubjectId) return;
+
+    const launchUrl = getOwnedSubjectLaunchUrl(
+        myVersionCreatedSubjectId
+    );
+
+    if (!launchUrl) return;
+
+    window.location.assign(launchUrl);
+}
+
 function openMyVersionCoverDialog() {
     if (!myVersionEditing || myVersionSaving) return;
 
@@ -1269,8 +1680,8 @@ function openMyVersionCoverDialog() {
         'atlas-my-version-description-input'
     );
 
-    const restoreSection = document.getElementById(
-        'atlas-my-version-restore-section'
+    const managementEntry = document.getElementById(
+        'atlas-my-version-management-entry'
     );
 
     const error = document.getElementById(
@@ -1279,18 +1690,43 @@ function openMyVersionCoverDialog() {
 
     if (!dialog || !imageInput || !descriptionInput) return;
 
+    const ownedSubject = isOwnedSubjectRuntime();
+    const kicker = dialog.querySelector(
+        '.atlas-my-version-dialog-kicker'
+    );
+    const copy = dialog.querySelector(
+        '.atlas-my-version-dialog-copy'
+    );
+
+    if (kicker) {
+        kicker.textContent = ownedSubject
+            ? 'MY SUBJECT'
+            : 'MY VERSION';
+    }
+
+    if (copy) {
+        copy.textContent = ownedSubject
+            ? 'Edit the title and hook directly on the cover. These details control how your subject appears in Atlas and Compass.'
+            : 'Edit the title and hook directly on the cover. These details control how your version appears in Atlas and Compass.';
+    }
+
     imageInput.value = getEffectiveSubjectCoverImage();
     descriptionInput.value =
         getEffectiveSubjectCatalogDescription();
 
-    if (restoreSection) {
-        restoreSection.hidden = !hasSavedMyVersion();
+    myVersionCreatedSubjectId = null;
+
+    if (managementEntry) {
+        managementEntry.hidden =
+            ownedSubject || !hasSavedMyVersion();
     }
 
     if (error) {
         error.hidden = true;
         error.textContent = '';
     }
+
+    updateCreateSubjectFromMyVersionUI();
 
     dialog.hidden = false;
     activateFocusTrap(dialog);
@@ -1384,6 +1820,7 @@ function closeRestoreAtlasOriginalDialog() {
 
 function openRestoreAtlasOriginalDialog() {
     if (
+        isOwnedSubjectRuntime() ||
         !myVersionEditing ||
         myVersionSaving ||
         !hasSavedMyVersion()
@@ -1401,6 +1838,7 @@ function openRestoreAtlasOriginalDialog() {
 
     if (!dialog) return;
 
+    closeMyVersionManagementDialog();
     closeMyVersionCoverDialog();
 
     if (restoreButton) {
@@ -1416,16 +1854,18 @@ function cancelRestoreAtlasOriginal() {
     closeRestoreAtlasOriginalDialog();
 
     if (
+        !isOwnedSubjectRuntime() &&
         myVersionEditing &&
         !myVersionSaving &&
         hasSavedMyVersion()
     ) {
-        openMyVersionCoverDialog();
+        openMyVersionManagementDialog();
     }
 }
 
 async function restoreAtlasOriginal() {
     if (
+        isOwnedSubjectRuntime() ||
         !myVersionEditing ||
         myVersionSaving ||
         !hasSavedMyVersion()
@@ -4242,6 +4682,94 @@ function getCompassWorldLaunchUrl() {
     }
 }
 
+function getOwnedSubjectLaunchUrl(subjectId) {
+    const id = String(subjectId || '').trim();
+
+    if (!id) return '';
+
+    try {
+        const destination = new URL(
+            '../subject/index.html',
+            window.location.href
+        );
+
+        destination.searchParams.set('id', id);
+        destination.searchParams.set(
+            'from',
+            getLaunchOriginId()
+        );
+
+        return destination.href;
+    } catch {
+        return '';
+    }
+}
+
+function publishOwnedSubjectProjection(subject) {
+    if (!subject?.id) return null;
+
+    const Bridge = requireAtlasBridge();
+    const metadata = subject.metadata || {};
+    const module = subject.document?.module || {};
+
+    const title = String(
+        metadata.title ||
+        module.title ||
+        'Untitled Subject'
+    ).trim() || 'Untitled Subject';
+
+    const navTitle = String(
+        metadata.navTitle ||
+        module.navTitle ||
+        title
+    ).trim() || title;
+
+    const description = String(
+        metadata.description ||
+        module.catalogDescription ||
+        ''
+    ).trim();
+
+    const coverImage = String(
+        metadata.coverImage ||
+        module.bgImage ||
+        ''
+    ).trim();
+
+    return Bridge.upsertItem({
+        registryId:
+            typeof Bridge.getContentRegistryId === 'function'
+                ? Bridge.getContentRegistryId(
+                    COMPASS_WORLD_ID,
+                    subject.id
+                )
+                : `${COMPASS_WORLD_ID}:${subject.id}`,
+        world: COMPASS_WORLD_ID,
+        type: 'subject',
+        schemaVersion: Math.max(
+            1,
+            Math.floor(
+                Number(subject.document?.schemaVersion) || 1
+            )
+        ),
+        contentVersion:
+            `owned-r${Math.max(
+                1,
+                Math.floor(Number(subject.revision) || 1)
+            )}`,
+        id: subject.id,
+        title,
+        navTitle,
+        description,
+        hook: description,
+        coverImage,
+        ownershipKind: 'my-subject',
+        hasMyVersion: false,
+        status: 'available',
+        launchUrl: getOwnedSubjectLaunchUrl(subject.id)
+    });
+}
+
 function getLaunchOriginId() {
     try {
         const origin = new URL(
@@ -4633,6 +5161,12 @@ function publishAtlasCompassItem(action = 'updated') {
             getPublishedSubjectCoverImage();
         const hasMyVersion = hasSavedMyVersion();
 
+        const ownershipKind = isOwnedSubjectRuntime()
+            ? 'my-subject'
+            : hasMyVersion
+                ? 'my-version'
+                : 'atlas';
+
         const culturalLensExplored = clCards.filter(card =>
             progress.explored.has(card.id)
         ).length;
@@ -4673,6 +5207,7 @@ function publishAtlasCompassItem(action = 'updated') {
             description: publishedDescription,
             hook: publishedDescription,
             coverImage: publishedCoverImage,
+            ownershipKind,
             hasMyVersion,
             status: 'available',
             launchUrl: getAtlasLaunchUrl()
@@ -4692,6 +5227,7 @@ function publishAtlasCompassItem(action = 'updated') {
             description: publishedDescription,
             hook: publishedDescription,
             coverImage: publishedCoverImage,
+            ownershipKind,
             hasMyVersion,
             status,
             action,
@@ -4741,6 +5277,7 @@ function publishAtlasCompassItem(action = 'updated') {
             sessionId: activeSession.id,
             sessionName: activeSession.name,
             world: COMPASS_WORLD_ID,
+            ownershipKind,
             action,
             timestamp
         });
@@ -5089,6 +5626,495 @@ function resolvePublishedTutorContentValue(
     return String(originalValue ?? '');
 }
 
+function getMaterializationDiscussionMoment(
+    document,
+    momentId
+) {
+    for (const set of document?.discussionSets || []) {
+        const moment = (set.moments || []).find(
+            item => item.id === momentId
+        );
+
+        if (moment) return moment;
+    }
+
+    return null;
+}
+
+function getMaterializationCulturalLensCard(
+    document,
+    cardId
+) {
+    return (document?.culturalLensCards || []).find(
+        card => card.id === cardId
+    ) || null;
+}
+
+function applyPublishedMyVersionOverride(
+    document,
+    fieldKey,
+    value
+) {
+    const nextValue = String(value ?? '');
+
+    const exactTargets = {
+        'module.title': [document?.module, 'title'],
+        'module.bgImage': [document?.module, 'bgImage'],
+        'module.catalogDescription': [
+            document?.module,
+            'catalogDescription'
+        ],
+        'cover.hook': [
+            document?.subjectCopy?.cover,
+            'hook'
+        ],
+        'overview.heading': [
+            document?.subjectCopy?.overview,
+            'heading'
+        ],
+        'overview.question': [
+            document?.subjectCopy?.overview,
+            'question'
+        ],
+        'paths.discussionTitle': [
+            document?.subjectCopy?.paths,
+            'discussionTitle'
+        ],
+        'paths.discussionDescription': [
+            document?.subjectCopy?.paths,
+            'discussionDescription'
+        ],
+        'paths.culturalLensTitle': [
+            document?.subjectCopy?.paths,
+            'culturalLensTitle'
+        ],
+        'paths.culturalLensDescription': [
+            document?.subjectCopy?.paths,
+            'culturalLensDescription'
+        ],
+        'paths.reflectionTitle': [
+            document?.subjectCopy?.paths,
+            'reflectionTitle'
+        ],
+        'paths.reflectionDescription': [
+            document?.subjectCopy?.paths,
+            'reflectionDescription'
+        ],
+        'culturalLens.heading': [
+            document?.subjectCopy?.culturalLens,
+            'heading'
+        ],
+        'culturalLens.intro': [
+            document?.subjectCopy?.culturalLens,
+            'intro'
+        ],
+        'discussion.heading': [
+            document?.subjectCopy?.discussion,
+            'heading'
+        ],
+        'discussion.intro': [
+            document?.subjectCopy?.discussion,
+            'intro'
+        ],
+        'reflection.title': [
+            document?.subjectCopy?.reflection,
+            'title'
+        ],
+        'reflection.summary': [
+            document?.subjectCopy?.reflection,
+            'summary'
+        ]
+    };
+
+    if (Object.prototype.hasOwnProperty.call(
+        exactTargets,
+        fieldKey
+    )) {
+        const [target, field] = exactTargets[fieldKey];
+
+        if (!target) return false;
+
+        target[field] = nextValue;
+        return true;
+    }
+
+    let match = fieldKey.match(/^overview\.intro\.(\d+)$/);
+
+    if (match) {
+        const intro = document?.subjectCopy?.overview?.intro;
+        const index = Number(match[1]);
+
+        if (!Array.isArray(intro) || index >= intro.length) {
+            return false;
+        }
+
+        intro[index] = nextValue;
+        return true;
+    }
+
+    match = fieldKey.match(/^reflection\.questions\.(\d+)$/);
+
+    if (match) {
+        const questions =
+            document?.subjectCopy?.reflection?.questions;
+        const index = Number(match[1]);
+
+        if (
+            !Array.isArray(questions) ||
+            index >= questions.length
+        ) {
+            return false;
+        }
+
+        questions[index] = nextValue;
+        return true;
+    }
+
+    match = fieldKey.match(
+        /^discussion\.set\.([^.]+)\.makeItReal\.(label|title|prompt)$/
+    );
+
+    if (match) {
+        const set = (document?.discussionSets || []).find(
+            item => item.id === match[1]
+        );
+
+        if (!set?.makeItReal) return false;
+
+        set.makeItReal[match[2]] = nextValue;
+        return true;
+    }
+
+    match = fieldKey.match(
+        /^discussion\.set\.([^.]+)\.(stage|title|description)$/
+    );
+
+    if (match) {
+        const set = (document?.discussionSets || []).find(
+            item => item.id === match[1]
+        );
+
+        if (!set) return false;
+
+        set[match[2]] = nextValue;
+        return true;
+    }
+
+    match = fieldKey.match(
+        /^discussion\.([^.]+)\.(preview|question)$/
+    );
+
+    if (match) {
+        const moment = getMaterializationDiscussionMoment(
+            document,
+            match[1]
+        );
+
+        if (!moment) return false;
+
+        moment[match[2]] = nextValue;
+        return true;
+    }
+
+    match = fieldKey.match(
+        /^discussion\.([^.]+)\.followUp\.([^.]+)\.(prompt|label)$/
+    );
+
+    if (match) {
+        const moment = getMaterializationDiscussionMoment(
+            document,
+            match[1]
+        );
+
+        if (!moment) return false;
+
+        const followUps = Array.isArray(moment.followUps)
+            ? moment.followUps
+            : moment.followUp
+                ? [moment.followUp]
+                : [];
+
+        const followUp = followUps.find(
+            item => item.id === match[2]
+        );
+
+        if (!followUp) return false;
+
+        followUp[match[3]] = nextValue;
+        return true;
+    }
+
+    match = fieldKey.match(
+        /^culturalLens\.([^.]+)\.(contextLine|title|teaser|context|questionLabel|followTheThreadLabel|mainQuestion)$/
+    );
+
+    if (match) {
+        const card = getMaterializationCulturalLensCard(
+            document,
+            match[1]
+        );
+
+        if (!card) return false;
+
+        if (
+            match[2] === 'mainQuestion' &&
+            Array.isArray(card.questions)
+        ) {
+            return true;
+        }
+
+        card[match[2]] = nextValue;
+        return true;
+    }
+
+    match = fieldKey.match(
+        /^culturalLens\.([^.]+)\.questions\.(\d+)$/
+    );
+
+    if (match) {
+        const card = getMaterializationCulturalLensCard(
+            document,
+            match[1]
+        );
+        const index = Number(match[2]);
+
+        if (
+            !Array.isArray(card?.questions) ||
+            index >= card.questions.length
+        ) {
+            return false;
+        }
+
+        card.questions[index] = nextValue;
+        return true;
+    }
+
+    match = fieldKey.match(
+        /^culturalLens\.([^.]+)\.followTheThread\.(\d+)$/
+    );
+
+    if (match) {
+        const card = getMaterializationCulturalLensCard(
+            document,
+            match[1]
+        );
+        const index = Number(match[2]);
+
+        if (
+            !Array.isArray(card?.followTheThread) ||
+            index >= card.followTheThread.length
+        ) {
+            return false;
+        }
+
+        card.followTheThread[index] = nextValue;
+        return true;
+    }
+
+    match = fieldKey.match(
+        /^upgrade\.(moment|cultural-lens)\.([^.]+)\.(term|type|definition|ordinary|upgraded|atlasPrompt|insteadOfLabel|tryLabel)$/
+    );
+
+    if (match) {
+        const sourceKind = match[1];
+        const sourceElementId = match[2];
+        const field = match[3];
+
+        const target = sourceKind === 'moment'
+            ? getMaterializationDiscussionMoment(
+                document,
+                sourceElementId
+            )
+            : getMaterializationCulturalLensCard(
+                document,
+                sourceElementId
+            );
+
+        if (!target?.upgrade) return false;
+
+        target.upgrade[field] = nextValue;
+        return true;
+    }
+
+    return false;
+}
+
+function materializeTutorSubjectDocument(
+    sourceDocument,
+    sourceOverrides,
+    label = 'Tutor subject'
+) {
+    const document = normalizeTutorSubjectDocument(
+        sourceDocument ||
+        ATLAS_SUBJECT_DOCUMENT
+    );
+
+    const overrides = cloneTutorContentOverrides(
+        sourceOverrides
+    );
+
+    const unmappedOverrideKeys = Object.entries(overrides)
+        .filter(([fieldKey, value]) =>
+            !applyPublishedMyVersionOverride(
+                document,
+                fieldKey,
+                value
+            )
+        )
+        .map(([fieldKey]) => fieldKey);
+
+    if (unmappedOverrideKeys.length) {
+        throw new Error(
+            `[Compass] ${label} materialization has unmapped overrides: ${unmappedOverrideKeys.join(', ')}`
+        );
+    }
+
+    return cloneTutorSubjectDocument(document);
+}
+
+function materializePublishedMyVersionDocument() {
+    if (!tutorContentVersion) return null;
+
+    return materializeTutorSubjectDocument(
+        tutorContentVersion.document ||
+        ATLAS_SUBJECT_DOCUMENT,
+        tutorContentVersion.overrides,
+        'My Version'
+    );
+}
+
+function syncOwnedSubjectRuntime(subject) {
+    if (
+        !isOwnedSubjectRuntime() ||
+        !subject?.document
+    ) {
+        return false;
+    }
+
+    const normalized = normalizeTutorSubjectDocument(
+        subject.document
+    );
+
+    replaceTutorSubjectObject(
+        ATLAS_SUBJECT_DOCUMENT,
+        normalized
+    );
+
+    const title = String(
+        normalized.module?.title || MODULE.title
+    ).trim() || MODULE.title;
+
+    MODULE.title = title;
+    MODULE.titleHtml = escHtml(title);
+    MODULE.navTitle = String(
+        normalized.module?.navTitle ||
+        title
+    ).trim() || title;
+    MODULE.bgImage = String(
+        normalized.module?.bgImage || ''
+    ).trim();
+    MODULE.catalogDescription = String(
+        normalized.module?.catalogDescription || ''
+    ).trim();
+    MODULE.schemaVersion = Math.max(
+        1,
+        Math.floor(
+            Number(normalized.schemaVersion) || 1
+        )
+    );
+    MODULE.contentVersion =
+        `owned-r${Math.max(
+            1,
+            Math.floor(Number(subject.revision) || 1)
+        )}`;
+
+    window.AtlasCompassSubjectRuntime = {
+        ...getCompassSubjectRuntime(),
+        revision: Math.max(
+            1,
+            Math.floor(Number(subject.revision) || 1)
+        )
+    };
+
+    return true;
+}
+
+async function createSubjectFromPublishedMyVersion() {
+    if (!tutorContentVersion) {
+        throw new Error(
+            '[Compass] Cannot create an owned subject because this Atlas subject has no published My Version.'
+        );
+    }
+
+    const document =
+        materializePublishedMyVersionDocument();
+
+    if (!document) {
+        throw new Error(
+            '[Compass] Published My Version could not be materialized.'
+        );
+    }
+
+    const Subjects = requireAtlasTutorSubjects();
+
+    const subject = await Subjects.createSubject({
+        format: 'structured',
+
+        metadata: {
+            title:
+                String(
+                    document.module?.title || MODULE.title
+                ).trim() || MODULE.title,
+
+            navTitle:
+                String(
+                    document.module?.navTitle ||
+                    document.module?.title ||
+                    MODULE.navTitle ||
+                    MODULE.title
+                ).trim(),
+
+            description:
+                String(
+                    document.module?.catalogDescription || ''
+                ).trim(),
+
+            coverImage:
+                String(
+                    document.module?.bgImage || ''
+                ).trim()
+        },
+
+        document,
+
+        provenance: {
+            kind: 'atlas-my-version',
+            sourceWorld: COMPASS_WORLD_ID,
+            sourceSubjectId: MODULE.id,
+            sourceContentId: getTutorContentId(),
+            sourceContentVersion:
+                typeof MODULE.contentVersion === 'string'
+                    ? MODULE.contentVersion
+                    : '',
+            sourceVersionRevision:
+                Math.max(
+                    0,
+                    Math.floor(
+                        Number(tutorContentVersion.revision) || 0
+                    )
+                )
+        }
+    });
+
+    if (!subject) {
+        throw new Error(
+            '[Compass] AtlasTutorSubjects failed to create the owned subject.'
+        );
+    }
+
+    return subject;
+}
+
 function getEffectiveSubjectTitle() {
     return resolveTutorContentValue(
         MODULE.title,
@@ -5185,29 +6211,38 @@ function getNavItemLabel(item) {
 
 function applySubjectIdentityChrome() {
     const title = getEffectiveSubjectTitle();
-    const myVersionLabel = myVersionEditing
-        ? `${title} · Editing My Version`
-        : hasSavedMyVersion()
-            ? `${title} · My Version`
-            : title;
+    const ownedSubject = isOwnedSubjectRuntime();
+    const subjectLabel = myVersionEditing
+        ? ownedSubject
+            ? `${title} · Editing My Subject`
+            : `${title} · Editing My Version`
+        : ownedSubject
+            ? `${title} · My Subject`
+            : hasSavedMyVersion()
+                ? `${title} · My Version`
+                : title;
 
     document
         .querySelectorAll(
             '.nav-brand-subject, .mobile-header-context'
         )
         .forEach(element => {
-            element.textContent = myVersionLabel;
+            element.textContent = subjectLabel;
         });
 
-    setText('mobile-drawer-subject-title', myVersionLabel);
+    setText('mobile-drawer-subject-title', subjectLabel);
 
     setText(
         'cover-eyebrow-label',
         myVersionEditing
-            ? 'EDITING MY VERSION'
-            : hasSavedMyVersion()
-                ? 'MY VERSION'
-                : 'COMPASS SUBJECT'
+            ? ownedSubject
+                ? 'EDITING MY SUBJECT'
+                : 'EDITING MY VERSION'
+            : ownedSubject
+                ? 'MY SUBJECT'
+                : hasSavedMyVersion()
+                    ? 'MY VERSION'
+                    : 'COMPASS SUBJECT'
     );
 }
 
@@ -12799,6 +13834,17 @@ document.addEventListener('keydown', event => {
     if (
         event.key === 'Escape' &&
         !document
+            .getElementById('atlas-my-version-management-dialog')
+            ?.hidden
+    ) {
+        event.preventDefault();
+        closeMyVersionManagementDialog();
+        return;
+    }
+
+    if (
+        event.key === 'Escape' &&
+        !document
             .getElementById('atlas-my-version-cover-dialog')
             ?.hidden
     ) {
@@ -13082,4 +14128,8 @@ async function init() {
     publishAtlasCompassItem('opened');
 }
 
-document.addEventListener('DOMContentLoaded', init);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}

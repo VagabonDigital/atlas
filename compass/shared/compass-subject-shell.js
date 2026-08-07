@@ -812,7 +812,8 @@ function mountCompassSubjectShell() {
                 <input id="atlas-my-version-image-input"
                     type="text"
                     inputmode="url"
-                    autocomplete="off">
+                    autocomplete="off"
+                    oninput="updateCreateSubjectFromMyVersionUI()">
             </label>
 
             <label class="atlas-my-version-field">
@@ -821,7 +822,8 @@ function mountCompassSubjectShell() {
                 <textarea id="atlas-my-version-description-input"
                     rows="4"
                     maxlength="220"
-                    autocomplete="off"></textarea>
+                    autocomplete="off"
+                    oninput="updateCreateSubjectFromMyVersionUI()"></textarea>
             </label>
 
             <p class="atlas-my-version-dialog-error"
@@ -841,20 +843,87 @@ function mountCompassSubjectShell() {
                 </button>
             </div>
 
-            <div class="atlas-my-version-restore-section"
-                id="atlas-my-version-restore-section" hidden>
-                <p class="atlas-my-version-restore-label">
-                    Version management
-                </p>
-
-                <p class="atlas-my-version-restore-copy">
-                    Return this subject to the Atlas version and remove My Version.
-                </p>
-
-                <button class="atlas-my-version-restore-action"
+            <div class="atlas-my-version-management-entry"
+                id="atlas-my-version-management-entry" hidden>
+                <button class="atlas-my-version-management-trigger"
                     type="button"
-                    onclick="openRestoreAtlasOriginalDialog()">
-                    Restore Atlas Original
+                    onclick="openMyVersionManagementDialog()">
+                    <span>Version management</span>
+                    <span aria-hidden="true">→</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="atlas-my-version-dialog"
+        id="atlas-my-version-management-dialog" hidden
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="atlas-my-version-management-title"
+        onclick="if(event.target === this) closeMyVersionManagementDialog()">
+        <div class="atlas-my-version-dialog-panel atlas-my-version-management-panel">
+            <p class="atlas-my-version-dialog-kicker">MY VERSION</p>
+
+            <h2 id="atlas-my-version-management-title">
+                Version management
+            </h2>
+
+            <p class="atlas-my-version-dialog-copy">
+                Keep this version as its own subject, or return this Atlas subject to its original state.
+            </p>
+
+            <div class="atlas-my-version-management-list">
+                <section class="atlas-my-version-management-item">
+                    <h3>Create an independent subject</h3>
+
+                    <p class="atlas-my-version-restore-copy"
+                        id="atlas-create-subject-from-version-copy">
+                        Keep this saved My Version as a separate subject. Your My Version stays here.
+                    </p>
+
+                    <button class="atlas-my-version-create-action"
+                        id="atlas-create-subject-from-version"
+                        type="button"
+                        onclick="createSubjectFromMyVersion()">
+                        Create as new subject
+                    </button>
+
+                    <p class="atlas-my-version-create-status"
+                        id="atlas-create-subject-from-version-status"
+                        role="status"
+                        hidden></p>
+
+                    <button class="atlas-my-version-create-open"
+                        id="atlas-created-subject-open"
+                        type="button"
+                        onclick="openCreatedSubjectFromMyVersion()"
+                        hidden>
+                        Open new subject
+                        <span aria-hidden="true">→</span>
+                    </button>
+                </section>
+
+                <section class="atlas-my-version-management-item atlas-my-version-management-item--restore">
+                    <h3>Return to Atlas Original</h3>
+
+                    <p class="atlas-my-version-restore-copy">
+                        Remove My Version and make the Atlas Original your default again.
+                    </p>
+
+                    <button class="atlas-my-version-restore-action"
+                        type="button"
+                        onclick="openRestoreAtlasOriginalDialog()">
+                        Restore Atlas Original
+                    </button>
+                </section>
+            </div>
+
+            <div class="atlas-my-version-management-back-row">
+                <button class="atlas-my-version-management-back"
+                    type="button"
+                    onclick="returnToMyVersionSubjectDetails()">
+                    <span aria-hidden="true">←</span>
+                    <span>Back to subject details</span>
                 </button>
             </div>
         </div>
