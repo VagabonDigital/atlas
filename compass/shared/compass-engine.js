@@ -368,6 +368,29 @@ function requireAtlasTutorSubjects() {
     return window.AtlasTutorSubjects;
 }
 
+function requireAtlasStructuredSubject() {
+    if (!window.AtlasStructuredSubject) {
+        throw new Error(
+            'AtlasStructuredSubject is missing. atlas-structured-subject.js must load before compass-engine.js.'
+        );
+    }
+
+    return window.AtlasStructuredSubject;
+}
+
+function requireAtlasAI() {
+    if (
+        !window.AtlasAI ||
+        typeof window.AtlasAI.generateMoment !== 'function'
+    ) {
+        throw new Error(
+            'AtlasAI is missing. atlas-ai.js must load before AI-assisted authorship.'
+        );
+    }
+
+    return window.AtlasAI;
+}
+
 function getCompassSubjectRuntime() {
     const runtime = window.AtlasCompassSubjectRuntime;
 
@@ -3818,10 +3841,22 @@ function removeMyVersionDiscussionSet(setId) {
     );
 }
 
-function addMyVersionMoment(setId) {
-    const newMomentId = createTutorAuthoredContentId(
-        'moment'
-    );
+function insertMyVersionMoment(
+    setId,
+    moment
+) {
+    const nativeMoment =
+        cloneTutorSubjectDocument(moment);
+
+    if (
+        !nativeMoment ||
+        typeof nativeMoment.id !== 'string' ||
+        !nativeMoment.id.trim() ||
+        typeof nativeMoment.preview !== 'string' ||
+        typeof nativeMoment.question !== 'string'
+    ) {
+        return null;
+    }
 
     const added = commitMyVersionDocumentMutation(
         document => {
@@ -3830,34 +3865,116 @@ function addMyVersionMoment(setId) {
                 setId
             );
 
-            if (!set) return null;
+            if (
+                !set ||
+                set.moments.some(
+                    item => item.id === nativeMoment.id
+                )
+            ) {
+                return null;
+            }
 
-            set.moments.push({
-                id: newMomentId,
-                preview: 'New conversation moment',
-                question: 'What would you like to explore?'
-            });
+            set.moments.push(nativeMoment);
 
             return {
                 setId,
-                momentId: newMomentId
+                momentId: nativeMoment.id
             };
         }
     );
 
-    if (!added) return;
+    if (!added) return null;
 
     activeSetId = setId;
 
     window.setTimeout(() => {
         openDiscussionFocus(
             setId,
-            newMomentId,
+            nativeMoment.id,
             document.getElementById(
-                `moment-card-${newMomentId}`
+                `moment-card-${nativeMoment.id}`
             )
         );
     }, 0);
+
+    return nativeMoment;
+}
+
+function addMyVersionMoment(setId) {
+    const nativeMoment =
+        requireAtlasStructuredSubject()
+            .createMoment();
+
+    return insertMyVersionMoment(
+        setId,
+        nativeMoment
+    );
+}
+
+async function generateMyVersionMoment(
+    setId,
+    brief = ''
+) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime()
+    ) {
+        return null;
+    }
+
+    const sourceSet = discussionSets.find(
+        set => set.id === setId
+    );
+
+    const contextSet =
+        materializeMyVersionDiscussionSet(
+            sourceSet
+        );
+
+    if (!contextSet) return null;
+
+    const generated =
+        await requireAtlasAI()
+            .generateMoment({
+                subject: {
+                    title:
+                        getEffectiveSubjectTitle(),
+                    description:
+                        getEffectiveSubjectCatalogDescription()
+                },
+
+                set: {
+                    title:
+                        contextSet.title,
+                    stage:
+                        contextSet.stage,
+                    description:
+                        contextSet.description,
+                    moments:
+                        contextSet.moments.map(
+                            ({
+                                preview,
+                                question
+                            }) => ({
+                                preview,
+                                question
+                            })
+                        )
+                },
+
+                brief:
+                    String(brief || '').trim()
+            });
+
+    const nativeMoment =
+        requireAtlasStructuredSubject()
+            .createMoment(generated);
+
+    return insertMyVersionMoment(
+        setId,
+        nativeMoment
+    );
 }
 
 function duplicateMyVersionMoment(setId, momentId) {
