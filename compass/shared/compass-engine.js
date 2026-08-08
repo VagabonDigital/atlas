@@ -333,6 +333,12 @@ let myVersionResumeViewId = null;
 let myVersionUpgradeOptionsOpenContextId = null;
 let myVersionCreatedSubjectId = null;
 
+const myVersionGeneratingMomentSetIds = new Set();
+const myVersionMomentGenerationErrors = new Map();
+
+let myVersionGeneratingCulturalLensCard = false;
+let myVersionCulturalLensGenerationError = '';
+
 
 // ============================================================
 // BRIDGE
@@ -381,10 +387,11 @@ function requireAtlasStructuredSubject() {
 function requireAtlasAI() {
     if (
         !window.AtlasAI ||
-        typeof window.AtlasAI.generateMoment !== 'function'
+        typeof window.AtlasAI.generateMoment !== 'function' ||
+        typeof window.AtlasAI.generateCulturalLensCard !== 'function'
     ) {
         throw new Error(
-            'AtlasAI is missing. atlas-ai.js must load before AI-assisted authorship.'
+            'AtlasAI is missing or incomplete. atlas-ai.js must load before AI-assisted authorship.'
         );
     }
 
@@ -2929,40 +2936,202 @@ function assignFreshMyVersionCulturalLensCardId(card) {
     return copy;
 }
 
-function addMyVersionCulturalLensCard() {
-    const cardId = createTutorAuthoredContentId(
-        'cultural-lens-card'
-    );
+function insertMyVersionCulturalLensCard(card) {
+    const nativeCard =
+        cloneTutorSubjectDocument(card);
+
+    if (
+        !nativeCard ||
+        typeof nativeCard.id !== 'string' ||
+        !nativeCard.id.trim() ||
+        typeof nativeCard.title !== 'string' ||
+        typeof nativeCard.contextLine !== 'string' ||
+        typeof nativeCard.teaser !== 'string' ||
+        typeof nativeCard.context !== 'string' ||
+        !Array.isArray(nativeCard.questions) ||
+        !Array.isArray(nativeCard.followTheThread)
+    ) {
+        return null;
+    }
 
     const added = commitMyVersionDocumentMutation(
         document => {
-            document.culturalLensCards.push({
-                id: cardId,
-                title: 'New card',
-                contextLine: '',
-                teaser: '',
-                context: 'Add context or background.',
-                questions: [
-                    'What would you like to explore?'
-                ],
-                followTheThread: []
-            });
+            if (
+                document.culturalLensCards.some(
+                    item => item.id === nativeCard.id
+                )
+            ) {
+                return null;
+            }
 
-            return { cardId };
+            document.culturalLensCards.push(
+                nativeCard
+            );
+
+            return {
+                cardId: nativeCard.id
+            };
         }
     );
 
-    if (!added) return;
+    if (!added) return null;
 
     window.setTimeout(() => {
         const index = clCards.findIndex(
-            card => card.id === cardId
+            card => card.id === nativeCard.id
         );
 
         if (index >= 0) {
             openCulturalLensFocus(index);
         }
     }, 0);
+
+    return nativeCard;
+}
+
+function addMyVersionCulturalLensCard() {
+    const nativeCard =
+        requireAtlasStructuredSubject()
+            .createCulturalLensCard();
+
+    return insertMyVersionCulturalLensCard(
+        nativeCard
+    );
+}
+
+async function generateMyVersionCulturalLensCard(
+    brief = ''
+) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime()
+    ) {
+        return null;
+    }
+
+    const culturalLens =
+        subjectCopy.culturalLens || {};
+
+    const existingCards =
+        clCards
+            .map(card =>
+                materializeMyVersionCulturalLensCard(
+                    card
+                )
+            )
+            .filter(Boolean)
+            .map(card => ({
+                title:
+                    String(
+                        card.title || ''
+                    ).trim(),
+
+                contextLine:
+                    String(
+                        card.contextLine || ''
+                    ).trim(),
+
+                teaser:
+                    String(
+                        card.teaser || ''
+                    ).trim()
+            }));
+
+    const generated =
+        await requireAtlasAI()
+            .generateCulturalLensCard({
+                subject: {
+                    title:
+                        getEffectiveSubjectTitle(),
+
+                    description:
+                        getEffectiveSubjectCatalogDescription()
+                },
+
+                culturalLens: {
+                    heading:
+                        resolveTutorContentValue(
+                            culturalLens.heading ||
+                                'Cultural Lens',
+                            'culturalLens.heading'
+                        ).trim(),
+
+                    intro:
+                        resolveTutorContentValue(
+                            culturalLens.intro || '',
+                            'culturalLens.intro'
+                        ).trim(),
+
+                    cards:
+                        existingCards
+                },
+
+                brief:
+                    String(
+                        brief || ''
+                    ).trim()
+            });
+
+    const nativeCard =
+        requireAtlasStructuredSubject()
+            .createCulturalLensCard(
+                generated
+            );
+
+    return insertMyVersionCulturalLensCard(
+        nativeCard
+    );
+}
+
+async function generateMyVersionCulturalLensCardFromUI() {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime() ||
+        myVersionGeneratingCulturalLensCard
+    ) {
+        return null;
+    }
+
+    myVersionCulturalLensGenerationError = '';
+    myVersionGeneratingCulturalLensCard = true;
+
+    renderCLGrid();
+
+    try {
+        const generatedCard =
+            await generateMyVersionCulturalLensCard();
+
+        if (
+            !generatedCard &&
+            myVersionEditing
+        ) {
+            throw new Error(
+                'Atlas AI did not create a Cultural Lens card.'
+            );
+        }
+
+        return generatedCard;
+    } catch (error) {
+        console.error(
+            '[Compass] AI Cultural Lens generation failed:',
+            error
+        );
+
+        if (myVersionEditing) {
+            myVersionCulturalLensGenerationError =
+                'Couldn’t generate a card. Try again.';
+        }
+
+        return null;
+    } finally {
+        myVersionGeneratingCulturalLensCard = false;
+
+        if (myVersionEditing) {
+            renderCLGrid();
+        }
+    }
 }
 
 function duplicateMyVersionCulturalLensCard(cardId) {
@@ -3975,6 +4144,64 @@ async function generateMyVersionMoment(
         setId,
         nativeMoment
     );
+}
+
+async function generateMyVersionMomentFromUI(setId) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime() ||
+        myVersionGeneratingMomentSetIds.has(setId)
+    ) {
+        return null;
+    }
+
+    myVersionMomentGenerationErrors.delete(setId);
+    myVersionGeneratingMomentSetIds.add(setId);
+
+    const refreshSetControls = () => {
+        if (activeSetId !== setId) return;
+
+        const currentSet = discussionSets.find(
+            set => set.id === setId
+        );
+
+        if (currentSet) {
+            renderMoments(currentSet);
+        }
+    };
+
+    refreshSetControls();
+
+    try {
+        const generatedMoment =
+            await generateMyVersionMoment(setId);
+
+        if (!generatedMoment && myVersionEditing) {
+            throw new Error(
+                'Atlas AI did not create a Moment.'
+            );
+        }
+
+        return generatedMoment;
+    } catch (error) {
+        console.error(
+            '[Compass] AI Moment generation failed:',
+            error
+        );
+
+        if (myVersionEditing) {
+            myVersionMomentGenerationErrors.set(
+                setId,
+                'Couldn’t generate a moment. Try again.'
+            );
+        }
+
+        return null;
+    } finally {
+        myVersionGeneratingMomentSetIds.delete(setId);
+        refreshSetControls();
+    }
 }
 
 function duplicateMyVersionMoment(setId, momentId) {
@@ -8992,6 +9219,14 @@ function configureMyVersionCulturalLensCard(
 function renderMyVersionAddCulturalLensCardControl(grid) {
     if (!myVersionEditing) return;
 
+    const block = document.createElement('div');
+    block.className =
+        'cl-card-author-create-block';
+
+    const controls = document.createElement('div');
+    controls.className =
+        'moment-author-create-row';
+
     const addButton = document.createElement('button');
 
     addButton.type = 'button';
@@ -9009,8 +9244,93 @@ function renderMyVersionAddCulturalLensCardControl(grid) {
         Add card
     `;
 
-    addButton.onclick = addMyVersionCulturalLensCard;
-    grid.appendChild(addButton);
+    addButton.onclick = () => {
+        myVersionCulturalLensGenerationError = '';
+
+        addMyVersionCulturalLensCard();
+    };
+
+    controls.appendChild(addButton);
+
+    if (isOwnedSubjectRuntime()) {
+        const generating =
+            myVersionGeneratingCulturalLensCard;
+
+        const generateButton =
+            document.createElement('button');
+
+        generateButton.type = 'button';
+
+        generateButton.className = [
+            'moment-author-add',
+            'moment-author-add--ai',
+            'cl-card-author-add',
+            generating
+                ? 'is-generating'
+                : ''
+        ].filter(Boolean).join(' ');
+
+        generateButton.disabled = generating;
+
+        generateButton.setAttribute(
+            'aria-busy',
+            String(generating)
+        );
+
+        generateButton.innerHTML = generating
+            ? `
+                <svg class="moment-author-generate-spinner"
+                    width="15" height="15"
+                    viewBox="0 0 15 15"
+                    fill="none" aria-hidden="true">
+                    <circle cx="7.5" cy="7.5" r="5"
+                        stroke="currentColor"
+                        stroke-width="1.45"
+                        stroke-linecap="round"
+                        stroke-dasharray="20 12"/>
+                </svg>
+                Generating…
+            `
+            : `
+                <svg width="15" height="15"
+                    viewBox="0 0 15 15"
+                    fill="none" aria-hidden="true">
+                    <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                        stroke="currentColor"
+                        stroke-width="1.15"
+                        stroke-linejoin="round"/>
+                    <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                        stroke="currentColor"
+                        stroke-width="0.95"
+                        stroke-linejoin="round"/>
+                </svg>
+                Generate card
+            `;
+
+        generateButton.onclick = () => {
+            generateMyVersionCulturalLensCardFromUI();
+        };
+
+        controls.appendChild(generateButton);
+    }
+
+    block.appendChild(controls);
+
+    if (myVersionCulturalLensGenerationError) {
+        const error = document.createElement('p');
+
+        error.className =
+            'moment-author-generate-error';
+
+        error.setAttribute('role', 'alert');
+
+        error.textContent =
+            myVersionCulturalLensGenerationError;
+
+        block.appendChild(error);
+    }
+
+    grid.appendChild(block);
 }
 
 function renderCLGrid() {
@@ -12317,25 +12637,115 @@ function configureMyVersionMomentCard(
 function renderMyVersionAddMomentControl(list, set) {
     if (!myVersionEditing) return;
 
+    const controls = document.createElement('div');
+    controls.className = 'moment-author-create-row';
+
     const addButton = document.createElement('button');
 
     addButton.type = 'button';
     addButton.className = 'moment-author-add';
     addButton.innerHTML = `
-            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-                <path d="M7.5 2.5v10M2.5 7.5h10"
-                    stroke="currentColor"
-                    stroke-width="1.45"
-                    stroke-linecap="round"/>
-            </svg>
-            Add moment
-        `;
+        <svg width="15" height="15" viewBox="0 0 15 15"
+            fill="none" aria-hidden="true">
+            <path d="M7.5 2.5v10M2.5 7.5h10"
+                stroke="currentColor"
+                stroke-width="1.45"
+                stroke-linecap="round"/>
+        </svg>
+        Add moment
+    `;
 
     addButton.onclick = () => {
+        myVersionMomentGenerationErrors.delete(
+            set.id
+        );
+
         addMyVersionMoment(set.id);
     };
 
-    list.appendChild(addButton);
+    controls.appendChild(addButton);
+
+    if (isOwnedSubjectRuntime()) {
+        const generating =
+            myVersionGeneratingMomentSetIds.has(
+                set.id
+            );
+
+        const generateButton =
+            document.createElement('button');
+
+        generateButton.type = 'button';
+        generateButton.className = [
+            'moment-author-add',
+            'moment-author-add--ai',
+            generating
+                ? 'is-generating'
+                : ''
+        ].filter(Boolean).join(' ');
+
+        generateButton.disabled = generating;
+        generateButton.setAttribute(
+            'aria-busy',
+            String(generating)
+        );
+
+        generateButton.innerHTML = generating
+            ? `
+                <svg class="moment-author-generate-spinner"
+                    width="15" height="15"
+                    viewBox="0 0 15 15"
+                    fill="none" aria-hidden="true">
+                    <circle cx="7.5" cy="7.5" r="5"
+                        stroke="currentColor"
+                        stroke-width="1.45"
+                        stroke-linecap="round"
+                        stroke-dasharray="20 12"/>
+                </svg>
+                Generating…
+            `
+            : `
+                <svg width="15" height="15"
+                    viewBox="0 0 15 15"
+                    fill="none" aria-hidden="true">
+                    <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                        stroke="currentColor"
+                        stroke-width="1.15"
+                        stroke-linejoin="round"/>
+                    <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                        stroke="currentColor"
+                        stroke-width="0.95"
+                        stroke-linejoin="round"/>
+                </svg>
+                Generate moment
+            `;
+
+        generateButton.onclick = () => {
+            generateMyVersionMomentFromUI(
+                set.id
+            );
+        };
+
+        controls.appendChild(generateButton);
+    }
+
+    list.appendChild(controls);
+
+    const errorMessage =
+        myVersionMomentGenerationErrors.get(
+            set.id
+        );
+
+    if (errorMessage) {
+        const error = document.createElement('p');
+
+        error.className =
+            'moment-author-generate-error';
+
+        error.setAttribute('role', 'alert');
+        error.textContent = errorMessage;
+
+        list.appendChild(error);
+    }
 }
 
 function renderMoments(set) {

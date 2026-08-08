@@ -2418,9 +2418,17 @@ CULTURAL LENS
     margin-right: auto;
 }
 
-.cl-card-author-add {
+.cl-card-author-create-block {
     grid-column: 1 / -1;
     margin: 0.15rem 0 0;
+}
+
+.cl-card-author-create-block .moment-author-create-row {
+    margin: 0;
+}
+
+.cl-card-author-create-block .moment-author-generate-error {
+    margin: 0.5rem 0 0;
 }
 
 .cl-card-author-add-field:focus-visible {
@@ -6256,6 +6264,13 @@ body.atlas-my-version-editing .moment-card.state-explored:hover {
     outline-offset: 2px;
 }
 
+.moment-author-create-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0.55rem;
+    margin: 0.15rem 0 0.75rem;
+}
+
 .moment-author-add {
     display: flex;
     width: 100%;
@@ -6276,9 +6291,48 @@ body.atlas-my-version-editing .moment-card.state-explored:hover {
     transition: var(--transition);
 }
 
-.moment-author-add:hover {
+.moment-author-create-row .moment-author-add {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    margin: 0;
+}
+
+.moment-author-add--ai {
+    border-style: solid;
+    background: rgba(var(--accent-rgb), 0.085);
+}
+
+.moment-author-add:hover:not(:disabled) {
     border-color: var(--accent);
     background: rgba(var(--accent-rgb), 0.10);
+}
+
+.moment-author-add--ai:hover:not(:disabled) {
+    background: rgba(var(--accent-rgb), 0.14);
+}
+
+.moment-author-add:disabled {
+    opacity: 0.58;
+    cursor: progress;
+}
+
+.moment-author-generate-spinner {
+    flex-shrink: 0;
+    animation: momentAuthorGenerateSpin 0.8s linear infinite;
+}
+
+@keyframes momentAuthorGenerateSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.moment-author-generate-error {
+    margin: -0.35rem 0 0.75rem;
+    color: var(--danger-text);
+    font-size: 0.76rem;
+    line-height: 1.45;
 }
 
 .moment-card:not(.state-explored):hover .moment-card-header,
@@ -6510,9 +6564,17 @@ html[data-theme="night"] .moment-author-add {
     color: var(--accent-soft);
 }
 
-html[data-theme="night"] .moment-author-add:hover {
+html[data-theme="night"] .moment-author-add--ai {
+    background: rgba(var(--accent-rgb), 0.12);
+}
+
+html[data-theme="night"] .moment-author-add:hover:not(:disabled) {
     border-color: var(--accent);
     background: rgba(var(--accent-rgb), 0.13);
+}
+
+html[data-theme="night"] .moment-author-add--ai:hover:not(:disabled) {
+    background: rgba(var(--accent-rgb), 0.18);
 }
 
 html[data-theme="night"] .moment-body {
