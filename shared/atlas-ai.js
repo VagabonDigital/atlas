@@ -155,9 +155,134 @@
         };
     }
 
+    async function generateCulturalLensCard(
+        input = {}
+    ) {
+        const token = getDevToken();
+
+        if (!token) {
+            throw new Error(
+                'Atlas AI development token is not configured.'
+            );
+        }
+
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const response = await fetch(
+            `${BASE_URL}/generate-cultural-lens-card`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json',
+
+                    'X-Atlas-AI-Token':
+                        token
+                },
+
+                body: JSON.stringify({
+                    subject:
+                        candidate.subject || {},
+
+                    culturalLens:
+                        candidate.culturalLens || {},
+
+                    brief:
+                        cleanString(
+                            candidate.brief
+                        )
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+        }
+
+        const title =
+            cleanString(
+                result.payload?.title
+            );
+
+        const contextLine =
+            cleanString(
+                result.payload?.contextLine
+            );
+
+        const teaser =
+            cleanString(
+                result.payload?.teaser
+            );
+
+        const context =
+            cleanString(
+                result.payload?.context
+            );
+
+        const questions =
+            Array.isArray(
+                result.payload?.questions
+            )
+                ? result.payload.questions
+                    .map(cleanString)
+                    .filter(Boolean)
+                : [];
+
+        const followTheThread =
+            Array.isArray(
+                result.payload?.followTheThread
+            )
+                ? result.payload.followTheThread
+                    .map(cleanString)
+                    .filter(Boolean)
+                : [];
+
+        if (
+            !title ||
+            !contextLine ||
+            !teaser ||
+            !context ||
+            questions.length !== 1 ||
+            followTheThread.length !== 2
+        ) {
+            throw new Error(
+                'Atlas AI returned an invalid Cultural Lens card payload.'
+            );
+        }
+
+        return {
+            title,
+            contextLine,
+            teaser,
+            context,
+            questions,
+            followTheThread
+        };
+    }
+
     window.AtlasAI = {
         setDevToken,
         clearDevToken,
-        generateMoment
+        generateMoment,
+        generateCulturalLensCard
     };
 })();
