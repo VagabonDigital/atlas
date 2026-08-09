@@ -336,6 +336,9 @@ let myVersionCreatedSubjectId = null;
 const myVersionGeneratingMomentSetIds = new Set();
 const myVersionMomentGenerationErrors = new Map();
 
+const myVersionGeneratingPathwayMomentIds = new Set();
+const myVersionPathwayGenerationErrors = new Map();
+
 let myVersionGeneratingCulturalLensCard = false;
 let myVersionCulturalLensGenerationError = '';
 
@@ -356,6 +359,14 @@ let myVersionCulturalLensFramingGenerationError = '';
 
 let myVersionGeneratingReflection = false;
 let myVersionReflectionGenerationError = '';
+
+let myVersionEnrichingDiscussion = false;
+let myVersionDiscussionEnrichmentError = '';
+let myVersionDiscussionEnrichmentProgress = null;
+
+let myVersionEnrichingCulturalLens = false;
+let myVersionCulturalLensEnrichmentError = '';
+let myVersionCulturalLensEnrichmentProgress = null;
 
 
 // ============================================================
@@ -412,7 +423,11 @@ function requireAtlasAI() {
         typeof window.AtlasAI.generateOverview !== 'function' ||
         typeof window.AtlasAI.generateDiscussionFraming !== 'function' ||
         typeof window.AtlasAI.generateCulturalLensFraming !== 'function' ||
-        typeof window.AtlasAI.generateReflection !== 'function'
+        typeof window.AtlasAI.generateReflection !== 'function' ||
+        typeof window.AtlasAI.generateMomentUpgrade !== 'function' ||
+        typeof window.AtlasAI.generateCulturalLensUpgrade !== 'function' ||
+        typeof window.AtlasAI.generateMakeItReal !== 'function' ||
+        typeof window.AtlasAI.generateDiscussionPathway !== 'function'
     ) {
         throw new Error(
             'AtlasAI is missing or incomplete. atlas-ai.js must load before AI-assisted authorship.'
@@ -1002,8 +1017,16 @@ function updateMyVersionAuthorBar() {
         'atlas-my-version-generate-discussion-framing'
     );
 
+    const discussionEnrichButton = document.getElementById(
+        'atlas-my-version-enrich-discussion'
+    );
+
     const culturalLensFramingButton = document.getElementById(
         'atlas-my-version-generate-cultural-lens-framing'
+    );
+
+    const culturalLensEnrichButton = document.getElementById(
+        'atlas-my-version-enrich-cultural-lens'
     );
 
     const reflectionButton = document.getElementById(
@@ -1034,6 +1057,16 @@ function updateMyVersionAuthorBar() {
     const onReflection =
         activeViewId === 'view-reflection';
 
+    const discussionFocusOpen =
+        isDiscussionFocusOpen();
+
+    const culturalLensFocusOpen =
+        isCulturalLensFocusOpen();
+
+    const enrichmentActive =
+        myVersionEnrichingDiscussion ||
+        myVersionEnrichingCulturalLens;
+
     document.body.classList.toggle(
         'atlas-my-version-editing',
         myVersionEditing
@@ -1057,9 +1090,21 @@ function updateMyVersionAuthorBar() {
                     ? 'Generating overview…'
                     : myVersionGeneratingDiscussionFraming
                         ? 'Generating discussion framing…'
-                        : myVersionGeneratingCulturalLensFraming
+                        : myVersionEnrichingDiscussion
+                            ? `Enriching discussion${
+                                myVersionDiscussionEnrichmentProgress
+                                    ? ` · ${myVersionDiscussionEnrichmentProgress.current} of ${myVersionDiscussionEnrichmentProgress.total}`
+                                    : ''
+                            }…`
+                            : myVersionGeneratingCulturalLensFraming
                             ? 'Generating Cultural Lens framing…'
-                            : myVersionGeneratingReflection
+                            : myVersionEnrichingCulturalLens
+                                ? `Enriching Cultural Lens${
+                                    myVersionCulturalLensEnrichmentProgress
+                                        ? ` · ${myVersionCulturalLensEnrichmentProgress.current} of ${myVersionCulturalLensEnrichmentProgress.total}`
+                                        : ''
+                                }…`
+                                : myVersionGeneratingReflection
                                 ? 'Generating reflection…'
                                 : (
                             ownedSubject &&
@@ -1076,16 +1121,28 @@ function updateMyVersionAuthorBar() {
                                 : (
                                     ownedSubject &&
                                     onDiscussion &&
-                                    myVersionDiscussionFramingGenerationError
+                                    myVersionDiscussionEnrichmentError
                                 )
-                                    ? myVersionDiscussionFramingGenerationError
+                                    ? myVersionDiscussionEnrichmentError
                                     : (
                                         ownedSubject &&
-                                        onCulturalLens &&
-                                        myVersionCulturalLensFramingGenerationError
+                                        onDiscussion &&
+                                        myVersionDiscussionFramingGenerationError
                                     )
-                                        ? myVersionCulturalLensFramingGenerationError
+                                        ? myVersionDiscussionFramingGenerationError
                                         : (
+                                            ownedSubject &&
+                                            onCulturalLens &&
+                                            myVersionCulturalLensEnrichmentError
+                                        )
+                                            ? myVersionCulturalLensEnrichmentError
+                                            : (
+                                                ownedSubject &&
+                                                onCulturalLens &&
+                                                myVersionCulturalLensFramingGenerationError
+                                            )
+                                                ? myVersionCulturalLensFramingGenerationError
+                                                : (
                                             ownedSubject &&
                                             onReflection &&
                                             myVersionReflectionGenerationError
@@ -1116,7 +1173,8 @@ function updateMyVersionAuthorBar() {
 
         framingButton.disabled =
             myVersionSaving ||
-            myVersionGeneratingSubjectFraming;
+            myVersionGeneratingSubjectFraming ||
+            enrichmentActive;
 
         framingButton.setAttribute(
             'aria-busy',
@@ -1168,7 +1226,8 @@ function updateMyVersionAuthorBar() {
 
         overviewButton.disabled =
             myVersionSaving ||
-            myVersionGeneratingOverview;
+            myVersionGeneratingOverview ||
+            enrichmentActive;
 
         overviewButton.setAttribute(
             'aria-busy',
@@ -1213,6 +1272,7 @@ function updateMyVersionAuthorBar() {
         const showDiscussionFramingButton =
             ownedSubject &&
             onDiscussion &&
+            !discussionFocusOpen &&
             myVersionEditing;
 
         discussionFramingButton.hidden =
@@ -1220,7 +1280,8 @@ function updateMyVersionAuthorBar() {
 
         discussionFramingButton.disabled =
             myVersionSaving ||
-            myVersionGeneratingDiscussionFraming;
+            myVersionGeneratingDiscussionFraming ||
+            enrichmentActive;
 
         discussionFramingButton.setAttribute(
             'aria-busy',
@@ -1261,10 +1322,78 @@ function updateMyVersionAuthorBar() {
                 `;
     }
 
+    if (discussionEnrichButton) {
+        const remainingUpgrades =
+            getMyVersionDiscussionLanguageUpgradeCandidateIds()
+                .length;
+
+        const remainingActivities =
+            getMyVersionDiscussionMakeItRealCandidateSetIds()
+                .length;
+
+        const showDiscussionEnrichButton =
+            ownedSubject &&
+            onDiscussion &&
+            !discussionFocusOpen &&
+            myVersionEditing &&
+            (
+                remainingUpgrades > 0 ||
+                remainingActivities > 0 ||
+                myVersionEnrichingDiscussion
+            );
+
+        discussionEnrichButton.hidden =
+            !showDiscussionEnrichButton;
+
+        discussionEnrichButton.disabled =
+            myVersionSaving ||
+            myVersionGeneratingDiscussionFraming ||
+            enrichmentActive;
+
+        discussionEnrichButton.setAttribute(
+            'aria-busy',
+            String(
+                myVersionEnrichingDiscussion
+            )
+        );
+
+        discussionEnrichButton.innerHTML =
+            myVersionEnrichingDiscussion
+                ? `
+                    <svg class="moment-author-generate-spinner"
+                        width="14" height="14"
+                        viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <circle cx="7.5" cy="7.5" r="5"
+                            stroke="currentColor"
+                            stroke-width="1.45"
+                            stroke-linecap="round"
+                            stroke-dasharray="20 12"/>
+                    </svg>
+                    Enriching…
+                `
+                : `
+                    <svg width="14" height="14"
+                        viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                            stroke="currentColor"
+                            stroke-width="1.15"
+                            stroke-linejoin="round"/>
+                        <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                            stroke="currentColor"
+                            stroke-width="0.95"
+                            stroke-linejoin="round"/>
+                    </svg>
+                    Enrich discussion
+                `;
+    }
+
     if (culturalLensFramingButton) {
         const showCulturalLensFramingButton =
             ownedSubject &&
             onCulturalLens &&
+            !culturalLensFocusOpen &&
             myVersionEditing;
 
         culturalLensFramingButton.hidden =
@@ -1272,7 +1401,8 @@ function updateMyVersionAuthorBar() {
 
         culturalLensFramingButton.disabled =
             myVersionSaving ||
-            myVersionGeneratingCulturalLensFraming;
+            myVersionGeneratingCulturalLensFraming ||
+            enrichmentActive;
 
         culturalLensFramingButton.setAttribute(
             'aria-busy',
@@ -1313,6 +1443,68 @@ function updateMyVersionAuthorBar() {
                 `;
     }
 
+    if (culturalLensEnrichButton) {
+        const remainingUpgrades =
+            getMyVersionCulturalLensLanguageUpgradeCandidateIds()
+                .length;
+
+        const showCulturalLensEnrichButton =
+            ownedSubject &&
+            onCulturalLens &&
+            !culturalLensFocusOpen &&
+            myVersionEditing &&
+            (
+                remainingUpgrades > 0 ||
+                myVersionEnrichingCulturalLens
+            );
+
+        culturalLensEnrichButton.hidden =
+            !showCulturalLensEnrichButton;
+
+        culturalLensEnrichButton.disabled =
+            myVersionSaving ||
+            myVersionGeneratingCulturalLensFraming ||
+            enrichmentActive;
+
+        culturalLensEnrichButton.setAttribute(
+            'aria-busy',
+            String(
+                myVersionEnrichingCulturalLens
+            )
+        );
+
+        culturalLensEnrichButton.innerHTML =
+            myVersionEnrichingCulturalLens
+                ? `
+                    <svg class="moment-author-generate-spinner"
+                        width="14" height="14"
+                        viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <circle cx="7.5" cy="7.5" r="5"
+                            stroke="currentColor"
+                            stroke-width="1.45"
+                            stroke-linecap="round"
+                            stroke-dasharray="20 12"/>
+                    </svg>
+                    Enriching…
+                `
+                : `
+                    <svg width="14" height="14"
+                        viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                            stroke="currentColor"
+                            stroke-width="1.15"
+                            stroke-linejoin="round"/>
+                        <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                            stroke="currentColor"
+                            stroke-width="0.95"
+                            stroke-linejoin="round"/>
+                    </svg>
+                    Enrich Cultural Lens
+                `;
+    }
+
     if (reflectionButton) {
         const showReflectionButton =
             ownedSubject &&
@@ -1324,7 +1516,8 @@ function updateMyVersionAuthorBar() {
 
         reflectionButton.disabled =
             myVersionSaving ||
-            myVersionGeneratingReflection;
+            myVersionGeneratingReflection ||
+            enrichmentActive;
 
         reflectionButton.setAttribute(
             'aria-busy',
@@ -1367,7 +1560,9 @@ function updateMyVersionAuthorBar() {
 
     if (saveButton) {
         saveButton.disabled =
-            myVersionSaving || !myVersionDirty;
+            myVersionSaving ||
+            enrichmentActive ||
+            !myVersionDirty;
 
         saveButton.textContent = myVersionSaving
             ? 'Saving…'
@@ -1377,7 +1572,9 @@ function updateMyVersionAuthorBar() {
     }
 
     if (cancelButton) {
-        cancelButton.disabled = myVersionSaving;
+        cancelButton.disabled =
+            myVersionSaving ||
+            enrichmentActive;
     }
 
     updateCoverActionUI();
@@ -5965,6 +6162,849 @@ async function generateMyVersionMoment(
     );
 }
 
+function getMyVersionExistingLanguage(
+    excludedContextId = ''
+) {
+    const excluded =
+        getUpgradeContextIdentity(
+            excludedContextId
+        );
+
+    return [
+        ...discussionSets.flatMap(set =>
+            Array.isArray(set.moments)
+                ? set.moments
+                : []
+        )
+            .filter(moment =>
+                !(
+                    excluded?.sourceKind === 'moment' &&
+                    moment.id === excluded.sourceElementId
+                )
+            )
+            .map(moment =>
+                materializeMyVersionMoment(
+                    moment
+                )
+            )
+            .filter(moment =>
+                moment?.upgrade
+            )
+            .map(moment => ({
+                term:
+                    String(
+                        moment.upgrade.term || ''
+                    ).trim(),
+
+                type:
+                    String(
+                        moment.upgrade.type || ''
+                    ).trim(),
+
+                priority:
+                    String(
+                        moment.upgrade.priority ||
+                            'standard'
+                    ).trim()
+            })),
+
+        ...clCards
+            .filter(card =>
+                !(
+                    excluded?.sourceKind === 'cultural-lens' &&
+                    card.id === excluded.sourceElementId
+                )
+            )
+            .map(card =>
+                materializeMyVersionCulturalLensCard(
+                    card
+                )
+            )
+            .filter(card =>
+                card?.upgrade
+            )
+            .map(card => ({
+                term:
+                    String(
+                        card.upgrade.term || ''
+                    ).trim(),
+
+                type:
+                    String(
+                        card.upgrade.type || ''
+                    ).trim(),
+
+                priority:
+                    String(
+                        card.upgrade.priority ||
+                            'standard'
+                    ).trim()
+            }))
+    ].filter(item => item.term);
+}
+
+async function generateMyVersionMomentUpgrade(
+    momentId,
+    brief = '',
+    options = {}
+) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime()
+    ) {
+        return null;
+    }
+
+    const sourceSet = discussionSets.find(
+        set =>
+            Array.isArray(set.moments) &&
+            set.moments.some(
+                moment => moment.id === momentId
+            )
+    );
+
+    const contextSet =
+        materializeMyVersionDiscussionSet(
+            sourceSet
+        );
+
+    const contextMoment =
+        contextSet?.moments.find(
+            moment => moment.id === momentId
+        );
+
+    if (
+        !contextSet ||
+        !contextMoment ||
+        contextMoment.upgrade
+    ) {
+        return null;
+    }
+
+    const existingLanguage =
+        getMyVersionExistingLanguage(
+            `moment-${momentId}`
+        );
+
+    const generated =
+        await requireAtlasAI()
+            .generateMomentUpgrade({
+                subject: {
+                    title:
+                        getEffectiveSubjectTitle(),
+
+                    description:
+                        getEffectiveSubjectCatalogDescription()
+                },
+
+                set: {
+                    title:
+                        String(
+                            contextSet.title || ''
+                        ).trim(),
+
+                    stage:
+                        String(
+                            contextSet.stage || ''
+                        ).trim(),
+
+                    description:
+                        String(
+                            contextSet.description || ''
+                        ).trim()
+                },
+
+                moment: {
+                    preview:
+                        String(
+                            contextMoment.preview || ''
+                        ).trim(),
+
+                    question:
+                        String(
+                            contextMoment.question || ''
+                        ).trim()
+                },
+
+                existingLanguage,
+
+                brief:
+                    String(
+                        brief || ''
+                    ).trim()
+            });
+
+    const contextId =
+        `moment-${momentId}`;
+
+    const committed =
+        commitMyVersionDocumentMutation(
+            (document, overrides) => {
+                const target =
+                    getMyVersionUpgradeTarget(
+                        document,
+                        contextId
+                    );
+
+                if (
+                    !target ||
+                    target.upgrade
+                ) {
+                    return null;
+                }
+
+                removeMyVersionUpgradeOverrides(
+                    overrides,
+                    contextId
+                );
+
+                target.upgrade = {
+                    term:
+                        generated.term,
+
+                    type:
+                        generated.type,
+
+                    definition:
+                        generated.definition,
+
+                    ordinary:
+                        generated.ordinary,
+
+                    upgraded:
+                        generated.upgraded,
+
+                    priority:
+                        generated.priority,
+
+                    atlasPrompt:
+                        generated.atlasPrompt
+                };
+
+                return {
+                    contextId,
+                    upgrade:
+                        cloneTutorSubjectDocument(
+                            target.upgrade
+                        )
+                };
+            }
+        );
+
+    if (!committed) return null;
+
+    if (options?.reveal !== false) {
+        refreshMyVersionUpgradeFocus(
+            contextId,
+            true
+        );
+    }
+
+    return committed.upgrade;
+}
+
+function getMyVersionDiscussionLanguageUpgradeCandidateIds() {
+    if (
+        !myVersionEditing ||
+        !isOwnedSubjectRuntime()
+    ) {
+        return [];
+    }
+
+    return discussionSets.flatMap(set => {
+        const starterMoment =
+            getPristineMyVersionMomentStarter(
+                set.id
+            );
+
+        return (
+            Array.isArray(set.moments)
+                ? set.moments
+                : []
+        )
+            .map(moment =>
+                materializeMyVersionMoment(
+                    moment
+                )
+            )
+            .filter(Boolean)
+            .filter(moment =>
+                !starterMoment ||
+                moment.id !== starterMoment.id
+            )
+            .filter(moment =>
+                !moment.upgrade
+            )
+            .map(moment => moment.id);
+    });
+}
+
+function getMyVersionDiscussionMakeItRealCandidateSetIds() {
+    if (
+        !myVersionEditing ||
+        !isOwnedSubjectRuntime()
+    ) {
+        return [];
+    }
+
+    const pristineStarter =
+        getPristineMyVersionDiscussionStarter();
+
+    return discussionSets
+        .filter(set =>
+            !pristineStarter ||
+            set.id !== pristineStarter.id
+        )
+        .map(set =>
+            materializeMyVersionDiscussionSet(
+                set
+            )
+        )
+        .filter(Boolean)
+        .filter(set =>
+            !set.makeItReal
+        )
+        .map(set => set.id);
+}
+
+async function generateMyVersionMakeItReal(
+    setId,
+    brief = ''
+) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime()
+    ) {
+        return null;
+    }
+
+    const sourceSet = discussionSets.find(
+        set => set.id === setId
+    );
+
+    const contextSet =
+        materializeMyVersionDiscussionSet(
+            sourceSet
+        );
+
+    if (
+        !contextSet ||
+        contextSet.makeItReal
+    ) {
+        return null;
+    }
+
+    const existingActivities =
+        discussionSets
+            .filter(set =>
+                set.id !== setId
+            )
+            .map(set =>
+                materializeMyVersionDiscussionSet(
+                    set
+                )
+            )
+            .filter(set =>
+                set?.makeItReal
+            )
+            .map(set => ({
+                setTitle:
+                    String(
+                        set.title || ''
+                    ).trim(),
+
+                title:
+                    String(
+                        set.makeItReal.title || ''
+                    ).trim(),
+
+                prompt:
+                    String(
+                        set.makeItReal.prompt || ''
+                    ).trim()
+            }));
+
+    const generated =
+        await requireAtlasAI()
+            .generateMakeItReal({
+                subject: {
+                    title:
+                        getEffectiveSubjectTitle(),
+
+                    description:
+                        getEffectiveSubjectCatalogDescription()
+                },
+
+                set: {
+                    title:
+                        String(
+                            contextSet.title || ''
+                        ).trim(),
+
+                    stage:
+                        String(
+                            contextSet.stage || ''
+                        ).trim(),
+
+                    description:
+                        String(
+                            contextSet.description || ''
+                        ).trim(),
+
+                    moments:
+                        Array.isArray(
+                            contextSet.moments
+                        )
+                            ? contextSet.moments
+                                .map(moment => ({
+                                    preview:
+                                        String(
+                                            moment.preview || ''
+                                        ).trim(),
+
+                                    question:
+                                        String(
+                                            moment.question || ''
+                                        ).trim()
+                                }))
+                            : []
+                },
+
+                existingActivities,
+
+                brief:
+                    String(
+                        brief || ''
+                    ).trim()
+            });
+
+    const committed =
+        commitMyVersionDocumentMutation(
+            (document, overrides) => {
+                const set =
+                    getMyVersionDocumentSet(
+                        document,
+                        setId
+                    );
+
+                if (
+                    !set ||
+                    set.makeItReal
+                ) {
+                    return null;
+                }
+
+                removeMyVersionSetActivityOverrides(
+                    overrides,
+                    setId
+                );
+
+                set.makeItReal = {
+                    label: 'Make It Real',
+                    title:
+                        generated.title,
+                    prompt:
+                        generated.prompt
+                };
+
+                return {
+                    setId,
+                    makeItReal:
+                        cloneTutorSubjectDocument(
+                            set.makeItReal
+                        )
+                };
+            }
+        );
+
+    return committed?.makeItReal || null;
+}
+
+async function enrichMyVersionDiscussionFromUI() {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime() ||
+        myVersionEnrichingDiscussion ||
+        myVersionEnrichingCulturalLens
+    ) {
+        return null;
+    }
+
+    const operations = [
+        ...getMyVersionDiscussionLanguageUpgradeCandidateIds()
+            .map(momentId => ({
+                kind: 'upgrade',
+                id: momentId
+            })),
+
+        ...getMyVersionDiscussionMakeItRealCandidateSetIds()
+            .map(setId => ({
+                kind: 'make-it-real',
+                id: setId
+            }))
+    ];
+
+    if (!operations.length) {
+        return [];
+    }
+
+    const completedOperations = [];
+
+    myVersionDiscussionEnrichmentError = '';
+    myVersionEnrichingDiscussion = true;
+    myVersionDiscussionEnrichmentProgress = {
+        current: 0,
+        total: operations.length
+    };
+
+    updateMyVersionAuthorBar();
+
+    try {
+        for (
+            let index = 0;
+            index < operations.length;
+            index += 1
+        ) {
+            const operation = operations[index];
+
+            myVersionDiscussionEnrichmentProgress = {
+                current: index + 1,
+                total: operations.length
+            };
+
+            updateMyVersionAuthorBar();
+
+            const result =
+                operation.kind === 'upgrade'
+                    ? await generateMyVersionMomentUpgrade(
+                        operation.id,
+                        '',
+                        { reveal: false }
+                    )
+                    : await generateMyVersionMakeItReal(
+                        operation.id
+                    );
+
+            if (result) {
+                completedOperations.push(
+                    operation
+                );
+            }
+        }
+
+        return completedOperations;
+    } catch (error) {
+        console.error(
+            '[Compass] AI Discussion enrichment failed:',
+            error
+        );
+
+        if (myVersionEditing) {
+            myVersionDiscussionEnrichmentError =
+                completedOperations.length
+                    ? `Completed ${completedOperations.length} of ${operations.length} enrichment steps. Try again to finish.`
+                    : 'Couldn’t enrich Discussion. Try again.';
+        }
+
+        return null;
+    } finally {
+        myVersionEnrichingDiscussion = false;
+        myVersionDiscussionEnrichmentProgress = null;
+
+        if (myVersionEditing) {
+            updateMyVersionAuthorBar();
+        }
+    }
+}
+
+async function generateMyVersionCulturalLensUpgrade(
+    cardId,
+    brief = '',
+    options = {}
+) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime()
+    ) {
+        return null;
+    }
+
+    const sourceCard = clCards.find(
+        card => card.id === cardId
+    );
+
+    const contextCard =
+        materializeMyVersionCulturalLensCard(
+            sourceCard
+        );
+
+    if (
+        !contextCard ||
+        contextCard.upgrade
+    ) {
+        return null;
+    }
+
+    const culturalLens =
+        subjectCopy.culturalLens || {};
+
+    const existingLanguage =
+        getMyVersionExistingLanguage(
+            `cl-${cardId}`
+        );
+
+    const generated =
+        await requireAtlasAI()
+            .generateCulturalLensUpgrade({
+                subject: {
+                    title:
+                        getEffectiveSubjectTitle(),
+
+                    description:
+                        getEffectiveSubjectCatalogDescription()
+                },
+
+                culturalLens: {
+                    heading:
+                        resolveTutorContentValue(
+                            culturalLens.heading ||
+                                'Cultural Lens',
+                            'culturalLens.heading'
+                        ).trim(),
+
+                    intro:
+                        resolveTutorContentValue(
+                            culturalLens.intro || '',
+                            'culturalLens.intro'
+                        ).trim()
+                },
+
+                card: {
+                    title:
+                        String(
+                            contextCard.title || ''
+                        ).trim(),
+
+                    contextLine:
+                        String(
+                            contextCard.contextLine || ''
+                        ).trim(),
+
+                    teaser:
+                        String(
+                            contextCard.teaser || ''
+                        ).trim(),
+
+                    context:
+                        String(
+                            contextCard.context || ''
+                        ).trim(),
+
+                    questions:
+                        Array.isArray(
+                            contextCard.questions
+                        )
+                            ? contextCard.questions.slice()
+                            : [],
+
+                    followTheThread:
+                        Array.isArray(
+                            contextCard.followTheThread
+                        )
+                            ? contextCard.followTheThread.slice()
+                            : []
+                },
+
+                existingLanguage,
+
+                brief:
+                    String(
+                        brief || ''
+                    ).trim()
+            });
+
+    const contextId =
+        `cl-${cardId}`;
+
+    const committed =
+        commitMyVersionDocumentMutation(
+            (document, overrides) => {
+                const target =
+                    getMyVersionUpgradeTarget(
+                        document,
+                        contextId
+                    );
+
+                if (
+                    !target ||
+                    target.upgrade
+                ) {
+                    return null;
+                }
+
+                removeMyVersionUpgradeOverrides(
+                    overrides,
+                    contextId
+                );
+
+                target.upgrade = {
+                    term:
+                        generated.term,
+
+                    type:
+                        generated.type,
+
+                    definition:
+                        generated.definition,
+
+                    ordinary:
+                        generated.ordinary,
+
+                    upgraded:
+                        generated.upgraded,
+
+                    priority:
+                        generated.priority,
+
+                    atlasPrompt:
+                        generated.atlasPrompt
+                };
+
+                return {
+                    contextId,
+                    upgrade:
+                        cloneTutorSubjectDocument(
+                            target.upgrade
+                        )
+                };
+            }
+        );
+
+    if (!committed) return null;
+
+    if (options?.reveal !== false) {
+        refreshMyVersionUpgradeFocus(
+            contextId,
+            true
+        );
+    }
+
+    return committed.upgrade;
+}
+
+function getMyVersionCulturalLensLanguageUpgradeCandidateIds() {
+    if (
+        !myVersionEditing ||
+        !isOwnedSubjectRuntime()
+    ) {
+        return [];
+    }
+
+    const starterCard =
+        getPristineMyVersionCulturalLensStarter();
+
+    return clCards
+        .map(card =>
+            materializeMyVersionCulturalLensCard(
+                card
+            )
+        )
+        .filter(Boolean)
+        .filter(card =>
+            !starterCard ||
+            card.id !== starterCard.id
+        )
+        .filter(card =>
+            !card.upgrade
+        )
+        .map(card => card.id);
+}
+
+async function enrichMyVersionCulturalLensFromUI() {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime() ||
+        myVersionEnrichingDiscussion ||
+        myVersionEnrichingCulturalLens
+    ) {
+        return null;
+    }
+
+    const candidateIds =
+        getMyVersionCulturalLensLanguageUpgradeCandidateIds();
+
+    if (!candidateIds.length) {
+        return [];
+    }
+
+    const completedIds = [];
+
+    myVersionCulturalLensEnrichmentError = '';
+    myVersionEnrichingCulturalLens = true;
+    myVersionCulturalLensEnrichmentProgress = {
+        current: 0,
+        total: candidateIds.length
+    };
+
+    updateMyVersionAuthorBar();
+
+    try {
+        for (
+            let index = 0;
+            index < candidateIds.length;
+            index += 1
+        ) {
+            const cardId = candidateIds[index];
+
+            myVersionCulturalLensEnrichmentProgress = {
+                current: index + 1,
+                total: candidateIds.length
+            };
+
+            updateMyVersionAuthorBar();
+
+            const upgrade =
+                await generateMyVersionCulturalLensUpgrade(
+                    cardId,
+                    '',
+                    { reveal: false }
+                );
+
+            if (upgrade) {
+                completedIds.push(cardId);
+            }
+        }
+
+        return completedIds;
+    } catch (error) {
+        console.error(
+            '[Compass] AI Cultural Lens enrichment failed:',
+            error
+        );
+
+        if (myVersionEditing) {
+            myVersionCulturalLensEnrichmentError =
+                completedIds.length
+                    ? `Enriched ${completedIds.length} of ${candidateIds.length} cards. Try again to finish.`
+                    : 'Couldn’t enrich Cultural Lens. Try again.';
+        }
+
+        return null;
+    } finally {
+        myVersionEnrichingCulturalLens = false;
+        myVersionCulturalLensEnrichmentProgress = null;
+
+        if (myVersionEditing) {
+            updateMyVersionAuthorBar();
+        }
+    }
+}
+
 async function generateMyVersionMomentFromUI(setId) {
     if (
         !myVersionEditing ||
@@ -6170,6 +7210,261 @@ function getMyVersionDocumentMoment(document, momentId) {
     }
 
     return null;
+}
+
+async function generateMyVersionMomentPathway(
+    momentId,
+    brief = '',
+    options = {}
+) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime()
+    ) {
+        return null;
+    }
+
+    const sourceSet = discussionSets.find(
+        set =>
+            Array.isArray(set.moments) &&
+            set.moments.some(
+                moment => moment.id === momentId
+            )
+    );
+
+    const contextSet =
+        materializeMyVersionDiscussionSet(
+            sourceSet
+        );
+
+    const contextMoment =
+        contextSet?.moments?.find(
+            moment => moment.id === momentId
+        ) || null;
+
+    if (!contextSet || !contextMoment) {
+        return null;
+    }
+
+    const currentFollowUps =
+        getDiscussionMomentFollowUps(
+            contextMoment
+        );
+
+    if (
+        currentFollowUps.length >=
+        DISCUSSION_FOLLOW_UP_LIMIT
+    ) {
+        return null;
+    }
+
+    const existingPathways =
+        discussionSets
+            .map(set =>
+                materializeMyVersionDiscussionSet(
+                    set
+                )
+            )
+            .filter(Boolean)
+            .flatMap(set =>
+                (set.moments || []).flatMap(moment =>
+                    getDiscussionMomentFollowUps(
+                        moment
+                    ).map(followUp => ({
+                        setTitle:
+                            String(
+                                set.title || ''
+                            ).trim(),
+
+                        momentQuestion:
+                            String(
+                                moment.question || ''
+                            ).trim(),
+
+                        kind:
+                            String(
+                                followUp.kind || ''
+                            ).trim(),
+
+                        prompt:
+                            String(
+                                followUp.prompt || ''
+                            ).trim()
+                    }))
+                )
+            );
+
+    const generated =
+        await requireAtlasAI()
+            .generateDiscussionPathway({
+                subject: {
+                    title:
+                        getEffectiveSubjectTitle(),
+
+                    description:
+                        getEffectiveSubjectCatalogDescription()
+                },
+
+                set: {
+                    title:
+                        String(
+                            contextSet.title || ''
+                        ).trim(),
+
+                    stage:
+                        String(
+                            contextSet.stage || ''
+                        ).trim(),
+
+                    description:
+                        String(
+                            contextSet.description || ''
+                        ).trim()
+                },
+
+                moment: {
+                    preview:
+                        String(
+                            contextMoment.preview || ''
+                        ).trim(),
+
+                    question:
+                        String(
+                            contextMoment.question || ''
+                        ).trim()
+                },
+
+                existingPathways,
+
+                brief:
+                    String(
+                        brief || ''
+                    ).trim()
+            });
+
+    const followUpId =
+        createTutorAuthoredContentId(
+            'follow-up'
+        );
+
+    const committed =
+        commitMyVersionDocumentMutation(
+            document => {
+                const result =
+                    getMyVersionDocumentMoment(
+                        document,
+                        momentId
+                    );
+
+                if (!result) return null;
+
+                const followUps =
+                    ensureMyVersionMomentFollowUps(
+                        result.moment
+                    );
+
+                if (
+                    followUps.length >=
+                    DISCUSSION_FOLLOW_UP_LIMIT
+                ) {
+                    return null;
+                }
+
+                followUps.push({
+                    id: followUpId,
+                    kind:
+                        generated.kind,
+                    prompt:
+                        generated.prompt
+                });
+
+                return {
+                    momentId,
+                    followUp:
+                        cloneTutorSubjectDocument(
+                            followUps[
+                                followUps.length - 1
+                            ]
+                        )
+                };
+            }
+        );
+
+    if (!committed?.followUp) {
+        return null;
+    }
+
+    if (options?.reveal !== false) {
+        setDiscussionFocusFollowUp(
+            followUpId,
+            `follow-up-${followUpId}`
+        );
+    }
+
+    return committed.followUp;
+}
+
+async function generateMyVersionMomentPathwayFromUI(
+    momentId
+) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime() ||
+        myVersionGeneratingPathwayMomentIds.has(
+            momentId
+        )
+    ) {
+        return null;
+    }
+
+    myVersionPathwayGenerationErrors.delete(
+        momentId
+    );
+
+    myVersionGeneratingPathwayMomentIds.add(
+        momentId
+    );
+
+    renderDiscussionFocusContinuationControls();
+
+    try {
+        const generated =
+            await generateMyVersionMomentPathway(
+                momentId
+            );
+
+        if (!generated && myVersionEditing) {
+            throw new Error(
+                'Atlas AI did not create a pathway.'
+            );
+        }
+
+        return generated;
+    } catch (error) {
+        console.error(
+            '[Compass] AI Discussion pathway generation failed:',
+            error
+        );
+
+        if (myVersionEditing) {
+            myVersionPathwayGenerationErrors.set(
+                momentId,
+                'Couldn’t generate a pathway. Try again.'
+            );
+        }
+
+        return null;
+    } finally {
+        myVersionGeneratingPathwayMomentIds.delete(
+            momentId
+        );
+
+        if (myVersionEditing) {
+            renderDiscussionFocusContinuationControls();
+        }
+    }
 }
 
 function addMyVersionMomentFollowUp(momentId) {
@@ -12366,6 +13661,10 @@ function openCulturalLensFocus(
         main.scrollTop = 0;
     }
 
+    if (myVersionEditing) {
+        updateMyVersionAuthorBar();
+    }
+
     requestAnimationFrame(() => {
         document
             .getElementById('cultural-lens-focus-back-btn')
@@ -12434,6 +13733,10 @@ function closeCulturalLensFocus({
 
     applySubjectCopy();
     renderCLGrid();
+
+    if (myVersionEditing) {
+        updateMyVersionAuthorBar();
+    }
 
     if (!restoreScroll && !restoreFocus) {
         return;
@@ -12980,13 +14283,29 @@ function renderDiscussionFocusContinuationControls() {
         `;
     }).join('');
 
-    const addButton =
+    const canAddPathway =
         myVersionEditing &&
-        followUps.length < DISCUSSION_FOLLOW_UP_LIMIT
+        followUps.length < DISCUSSION_FOLLOW_UP_LIMIT;
+
+    const pathwayGenerating =
+        myVersionGeneratingPathwayMomentIds.has(
+            moment.id
+        );
+
+    const pathwayGenerationError =
+        myVersionPathwayGenerationErrors.get(
+            moment.id
+        ) || '';
+
+    const addButton =
+        canAddPathway
             ? `
                 <button class="discussion-pathway-add-btn"
                     type="button"
-                    data-discussion-pathway-action="add">
+                    data-discussion-pathway-action="add"
+                    ${pathwayGenerating
+                        ? 'disabled'
+                        : ''}>
                     <svg width="14" height="14" viewBox="0 0 14 14"
                         fill="none" aria-hidden="true">
                         <path d="M7 2.5v9M2.5 7h9"
@@ -13000,10 +14319,66 @@ function renderDiscussionFocusContinuationControls() {
             `
             : '';
 
+    const generateButton =
+        canAddPathway &&
+        isOwnedSubjectRuntime()
+            ? `
+                <button class="discussion-pathway-add-btn moment-author-add--ai"
+                    type="button"
+                    data-discussion-pathway-action="generate"
+                    aria-busy="${pathwayGenerating}"
+                    ${pathwayGenerating
+                        ? 'disabled'
+                        : ''}>
+                    ${pathwayGenerating
+                        ? `
+                            <svg class="moment-author-generate-spinner"
+                                width="14" height="14"
+                                viewBox="0 0 15 15"
+                                fill="none" aria-hidden="true">
+                                <circle cx="7.5" cy="7.5" r="5"
+                                    stroke="currentColor"
+                                    stroke-width="1.45"
+                                    stroke-linecap="round"
+                                    stroke-dasharray="20 12"/>
+                            </svg>
+
+                            <span>Generating…</span>
+                        `
+                        : `
+                            <svg width="14" height="14"
+                                viewBox="0 0 15 15"
+                                fill="none" aria-hidden="true">
+                                <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                                    stroke="currentColor"
+                                    stroke-width="1.15"
+                                    stroke-linejoin="round"/>
+                                <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                                    stroke="currentColor"
+                                    stroke-width="0.95"
+                                    stroke-linejoin="round"/>
+                            </svg>
+
+                            <span>Generate pathway</span>
+                        `}
+                </button>
+            `
+            : '';
+
     mount.innerHTML = `
         <div class="discussion-pathway-list">
             ${pathwayButtons}
             ${addButton}
+            ${generateButton}
+
+            ${pathwayGenerationError
+                ? `
+                    <p class="discussion-pathway-generate-error"
+                        role="alert">
+                        ${escHtml(pathwayGenerationError)}
+                    </p>
+                `
+                : ''}
         </div>
     `;
 
@@ -13023,7 +14398,19 @@ function renderDiscussionFocusContinuationControls() {
     mount.querySelector(
         '[data-discussion-pathway-action="add"]'
     )?.addEventListener('click', () => {
+        myVersionPathwayGenerationErrors.delete(
+            moment.id
+        );
+
         addMyVersionMomentFollowUp(moment.id);
+    });
+
+    mount.querySelector(
+        '[data-discussion-pathway-action="generate"]'
+    )?.addEventListener('click', () => {
+        generateMyVersionMomentPathwayFromUI(
+            moment.id
+        );
     });
 }
 
@@ -13579,6 +14966,10 @@ function openDiscussionFocus(
         main.scrollTop = 0;
     }
 
+    if (myVersionEditing) {
+        updateMyVersionAuthorBar();
+    }
+
     requestAnimationFrame(() => {
         document
             .getElementById('discussion-focus-back-btn')
@@ -13674,6 +15065,10 @@ function closeDiscussionFocus({
     discussionFocusFollowUpOpen = false;
     discussionFocusUpgradeOpen = false;
     discussionFocusReturnElement = null;
+
+    if (myVersionEditing) {
+        updateMyVersionAuthorBar();
+    }
 
     if (!restoreScroll && !restoreFocus) {
         return;

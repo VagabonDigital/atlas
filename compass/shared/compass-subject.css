@@ -3761,9 +3761,23 @@ body.cultural-lens-focus-active #view-cultural-lens {
     transition: var(--transition);
 }
 
-.discussion-pathway-add-btn:hover {
+.discussion-pathway-add-btn:hover:not(:disabled) {
     border-color: var(--accent);
     background: rgba(var(--accent-rgb), 0.10);
+}
+
+.discussion-pathway-add-btn:disabled {
+    opacity: 0.58;
+    cursor: default;
+}
+
+.discussion-pathway-generate-error {
+    flex: 1 0 100%;
+    margin: 0;
+    color: var(--danger-text);
+    font-size: 0.74rem;
+    line-height: 1.4;
+    text-align: right;
 }
 
 .discussion-pathway-author-tools {
@@ -4175,7 +4189,7 @@ MY VERSION AUTHORING
     left: 50%;
     z-index: 240;
     display: flex;
-    width: min(760px, calc(100% - 2rem));
+    width: min(960px, calc(100% - 2rem));
     min-height: 3.4rem;
     align-items: center;
     justify-content: space-between;
