@@ -724,6 +724,505 @@
         };
     }
 
+    async function generateDiscussionPathway(
+        input = {}
+    ) {
+        const token = getDevToken();
+
+        if (!token) {
+            throw new Error(
+                'Atlas AI development token is not configured.'
+            );
+        }
+
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const response = await fetch(
+            `${BASE_URL}/generate-discussion-pathway`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json',
+
+                    'X-Atlas-AI-Token':
+                        token
+                },
+
+                body: JSON.stringify({
+                    subject:
+                        candidate.subject || {},
+
+                    set:
+                        candidate.set || {},
+
+                    moment:
+                        candidate.moment || {},
+
+                    existingPathways:
+                        Array.isArray(
+                            candidate.existingPathways
+                        )
+                            ? candidate.existingPathways
+                            : [],
+
+                    brief:
+                        cleanString(
+                            candidate.brief
+                        )
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+        }
+
+        const kind =
+            cleanString(
+                result.payload?.kind
+            );
+
+        const prompt =
+            cleanString(
+                result.payload?.prompt
+            );
+
+        const allowedKinds =
+            new Set([
+                'go-deeper',
+                'another-angle',
+                'add-a-twist'
+            ]);
+
+        if (
+            !allowedKinds.has(kind) ||
+            !prompt
+        ) {
+            throw new Error(
+                'Atlas AI returned an invalid Discussion pathway payload.'
+            );
+        }
+
+        return {
+            kind,
+            prompt
+        };
+    }
+
+    async function generateMakeItReal(
+        input = {}
+    ) {
+        const token = getDevToken();
+
+        if (!token) {
+            throw new Error(
+                'Atlas AI development token is not configured.'
+            );
+        }
+
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const response = await fetch(
+            `${BASE_URL}/generate-make-it-real`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json',
+
+                    'X-Atlas-AI-Token':
+                        token
+                },
+
+                body: JSON.stringify({
+                    subject:
+                        candidate.subject || {},
+
+                    set:
+                        candidate.set || {},
+
+                    existingActivities:
+                        Array.isArray(
+                            candidate.existingActivities
+                        )
+                            ? candidate.existingActivities
+                            : [],
+
+                    brief:
+                        cleanString(
+                            candidate.brief
+                        )
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+        }
+
+        const title =
+            cleanString(
+                result.payload?.title
+            );
+
+        const prompt =
+            cleanString(
+                result.payload?.prompt
+            );
+
+        if (!title || !prompt) {
+            throw new Error(
+                'Atlas AI returned an invalid Make It Real payload.'
+            );
+        }
+
+        return {
+            title,
+            prompt
+        };
+    }
+
+    async function generateCulturalLensUpgrade(
+        input = {}
+    ) {
+        const token = getDevToken();
+
+        if (!token) {
+            throw new Error(
+                'Atlas AI development token is not configured.'
+            );
+        }
+
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const response = await fetch(
+            `${BASE_URL}/generate-cultural-lens-upgrade`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json',
+
+                    'X-Atlas-AI-Token':
+                        token
+                },
+
+                body: JSON.stringify({
+                    subject:
+                        candidate.subject || {},
+
+                    culturalLens:
+                        candidate.culturalLens || {},
+
+                    card:
+                        candidate.card || {},
+
+                    existingLanguage:
+                        Array.isArray(
+                            candidate.existingLanguage
+                        )
+                            ? candidate.existingLanguage
+                            : [],
+
+                    brief:
+                        cleanString(
+                            candidate.brief
+                        )
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+        }
+
+        const term =
+            cleanString(
+                result.payload?.term
+            );
+
+        const type =
+            cleanString(
+                result.payload?.type
+            );
+
+        const definition =
+            cleanString(
+                result.payload?.definition
+            );
+
+        const ordinary =
+            cleanString(
+                result.payload?.ordinary
+            );
+
+        const upgraded =
+            cleanString(
+                result.payload?.upgraded
+            );
+
+        const priority =
+            cleanString(
+                result.payload?.priority
+            );
+
+        const atlasPrompt =
+            cleanString(
+                result.payload?.atlasPrompt
+            );
+
+        const allowedTypes =
+            new Set([
+                'expression',
+                'phrase',
+                'phrasal verb',
+                'collocation',
+                'idiom',
+                'adjective',
+                'verb',
+                'noun'
+            ]);
+
+        const allowedPriorities =
+            new Set([
+                'key',
+                'standard'
+            ]);
+
+        if (
+            !term ||
+            !allowedTypes.has(type) ||
+            !definition ||
+            !ordinary ||
+            !upgraded ||
+            !allowedPriorities.has(priority) ||
+            !atlasPrompt
+        ) {
+            throw new Error(
+                'Atlas AI returned an invalid Language Upgrade payload.'
+            );
+        }
+
+        return {
+            term,
+            type,
+            definition,
+            ordinary,
+            upgraded,
+            priority,
+            atlasPrompt
+        };
+    }
+
+    async function generateMomentUpgrade(
+        input = {}
+    ) {
+        const token = getDevToken();
+
+        if (!token) {
+            throw new Error(
+                'Atlas AI development token is not configured.'
+            );
+        }
+
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const response = await fetch(
+            `${BASE_URL}/generate-moment-upgrade`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json',
+
+                    'X-Atlas-AI-Token':
+                        token
+                },
+
+                body: JSON.stringify({
+                    subject:
+                        candidate.subject || {},
+
+                    set:
+                        candidate.set || {},
+
+                    moment:
+                        candidate.moment || {},
+
+                    existingLanguage:
+                        Array.isArray(
+                            candidate.existingLanguage
+                        )
+                            ? candidate.existingLanguage
+                            : [],
+
+                    brief:
+                        cleanString(
+                            candidate.brief
+                        )
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+        }
+
+        const term =
+            cleanString(
+                result.payload?.term
+            );
+
+        const type =
+            cleanString(
+                result.payload?.type
+            );
+
+        const definition =
+            cleanString(
+                result.payload?.definition
+            );
+
+        const ordinary =
+            cleanString(
+                result.payload?.ordinary
+            );
+
+        const upgraded =
+            cleanString(
+                result.payload?.upgraded
+            );
+
+        const priority =
+            cleanString(
+                result.payload?.priority
+            );
+
+        const atlasPrompt =
+            cleanString(
+                result.payload?.atlasPrompt
+            );
+
+        const allowedTypes =
+            new Set([
+                'expression',
+                'phrase',
+                'phrasal verb',
+                'collocation',
+                'idiom',
+                'adjective',
+                'verb',
+                'noun'
+            ]);
+
+        const allowedPriorities =
+            new Set([
+                'key',
+                'standard'
+            ]);
+
+        if (
+            !term ||
+            !allowedTypes.has(type) ||
+            !definition ||
+            !ordinary ||
+            !upgraded ||
+            !allowedPriorities.has(priority) ||
+            !atlasPrompt
+        ) {
+            throw new Error(
+                'Atlas AI returned an invalid Language Upgrade payload.'
+            );
+        }
+
+        return {
+            term,
+            type,
+            definition,
+            ordinary,
+            upgraded,
+            priority,
+            atlasPrompt
+        };
+    }
+
     async function generateReflection(
         input = {}
     ) {
@@ -969,6 +1468,10 @@
         generateOverview,
         generateDiscussionFraming,
         generateCulturalLensFraming,
-        generateReflection
+        generateReflection,
+        generateMomentUpgrade,
+        generateCulturalLensUpgrade,
+        generateMakeItReal,
+        generateDiscussionPathway
     };
 })();
