@@ -32,7 +32,7 @@
 
     function getDevToken() {
         try {
-            return sessionStorage.getItem(
+            return localStorage.getItem(
                 DEV_TOKEN_KEY
             ) || '';
         } catch {
@@ -47,7 +47,7 @@
         if (!token) return false;
 
         try {
-            sessionStorage.setItem(
+            localStorage.setItem(
                 DEV_TOKEN_KEY,
                 token
             );
@@ -60,7 +60,7 @@
 
     function clearDevToken() {
         try {
-            sessionStorage.removeItem(
+            localStorage.removeItem(
                 DEV_TOKEN_KEY
             );
 

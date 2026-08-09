@@ -23,6 +23,17 @@
     if (window.AtlasStructuredSubject) return;
 
     const SCHEMA_VERSION = 1;
+    const DISCUSSION_FOLLOW_UP_LIMIT = 3;
+    const DISCUSSION_FOLLOW_UP_KINDS = new Set([
+        'go-deeper',
+        'another-angle',
+        'add-a-twist',
+        'custom'
+    ]);
+    const UPGRADE_PRIORITIES = new Set([
+        'key',
+        'standard'
+    ]);
 
     function cloneJson(value) {
         try {
@@ -274,6 +285,569 @@
         };
     }
 
+    function isPlainObject(value) {
+        return Boolean(
+            value &&
+            typeof value === 'object' &&
+            !Array.isArray(value)
+        );
+    }
+
+    function validateString(
+        value,
+        label,
+        errors,
+        optional = false
+    ) {
+        if (optional && value === undefined) return;
+
+        if (typeof value !== 'string') {
+            errors.push(`${label} must be a string.`);
+        }
+    }
+
+    function validateStringArray(
+        value,
+        label,
+        errors,
+        optional = false
+    ) {
+        if (optional && value === undefined) return;
+
+        if (!Array.isArray(value)) {
+            errors.push(`${label} must be an array.`);
+            return;
+        }
+
+        value.forEach((item, index) => {
+            if (typeof item !== 'string') {
+                errors.push(
+                    `${label} item ${index + 1} must be a string.`
+                );
+            }
+        });
+    }
+
+    function validateUpgrade(
+        upgrade,
+        label,
+        errors
+    ) {
+        if (upgrade === undefined) return;
+
+        if (!isPlainObject(upgrade)) {
+            errors.push(`${label} must be an object.`);
+            return;
+        }
+
+        [
+            'term',
+            'type',
+            'definition',
+            'ordinary',
+            'upgraded',
+            'atlasPrompt',
+            'insteadOfLabel',
+            'tryLabel'
+        ].forEach(field => {
+            validateString(
+                upgrade[field],
+                `${label}.${field}`,
+                errors,
+                true
+            );
+        });
+
+        if (upgrade.priority !== undefined) {
+            validateString(
+                upgrade.priority,
+                `${label}.priority`,
+                errors
+            );
+
+            if (
+                typeof upgrade.priority === 'string' &&
+                !UPGRADE_PRIORITIES.has(upgrade.priority)
+            ) {
+                errors.push(
+                    `${label}.priority must be key or standard.`
+                );
+            }
+        }
+    }
+
+    function validateDiscussionFollowUps(
+        moment,
+        label,
+        errors
+    ) {
+        const hasLegacyFollowUp =
+            Object.prototype.hasOwnProperty.call(
+                moment,
+                'followUp'
+            );
+
+        const hasFollowUps =
+            Object.prototype.hasOwnProperty.call(
+                moment,
+                'followUps'
+            );
+
+        if (hasLegacyFollowUp && hasFollowUps) {
+            errors.push(
+                `${label} cannot contain both followUp and followUps.`
+            );
+        }
+
+        let followUps = [];
+
+        if (hasFollowUps) {
+            if (!Array.isArray(moment.followUps)) {
+                errors.push(
+                    `${label}.followUps must be an array.`
+                );
+                return;
+            }
+
+            followUps = moment.followUps;
+        } else if (hasLegacyFollowUp) {
+            if (!isPlainObject(moment.followUp)) {
+                errors.push(
+                    `${label}.followUp must be an object.`
+                );
+                return;
+            }
+
+            followUps = [moment.followUp];
+        }
+
+        if (
+            followUps.length >
+            DISCUSSION_FOLLOW_UP_LIMIT
+        ) {
+            errors.push(
+                `${label} cannot contain more than ${DISCUSSION_FOLLOW_UP_LIMIT} follow-ups.`
+            );
+        }
+
+        const followUpIds = new Set();
+
+        followUps.forEach((followUp, index) => {
+            const followUpLabel =
+                `${label} follow-up ${index + 1}`;
+
+            if (!isPlainObject(followUp)) {
+                errors.push(
+                    `${followUpLabel} must be an object.`
+                );
+                return;
+            }
+
+            const id =
+                typeof followUp.id === 'string'
+                    ? followUp.id.trim()
+                    : '';
+
+            if (!id) {
+                errors.push(
+                    `${followUpLabel} requires an ID.`
+                );
+            } else if (followUpIds.has(id)) {
+                errors.push(
+                    `${followUpLabel} has a duplicate ID.`
+                );
+            } else {
+                followUpIds.add(id);
+            }
+
+            validateString(
+                followUp.kind,
+                `${followUpLabel}.kind`,
+                errors
+            );
+
+            if (
+                typeof followUp.kind === 'string' &&
+                !DISCUSSION_FOLLOW_UP_KINDS.has(
+                    followUp.kind
+                )
+            ) {
+                errors.push(
+                    `${followUpLabel}.kind is not supported.`
+                );
+            }
+
+            validateString(
+                followUp.prompt,
+                `${followUpLabel}.prompt`,
+                errors
+            );
+
+            validateString(
+                followUp.label,
+                `${followUpLabel}.label`,
+                errors,
+                true
+            );
+        });
+    }
+
+    function validateLevelOneContent(
+        document,
+        errors
+    ) {
+        if (
+            document.schemaVersion !== undefined &&
+            (
+                !Number.isInteger(document.schemaVersion) ||
+                document.schemaVersion < 1
+            )
+        ) {
+            errors.push(
+                'Document schemaVersion must be a positive integer.'
+            );
+        }
+
+        if (isPlainObject(document.module)) {
+            [
+                'navTitle',
+                'bgImage',
+                'catalogDescription'
+            ].forEach(field => {
+                validateString(
+                    document.module[field],
+                    `module.${field}`,
+                    errors,
+                    true
+                );
+            });
+        }
+
+        const copy = document.subjectCopy;
+
+        if (isPlainObject(copy)) {
+            if (isPlainObject(copy.cover)) {
+                validateString(
+                    copy.cover.hook,
+                    'subjectCopy.cover.hook',
+                    errors,
+                    true
+                );
+            }
+
+            if (isPlainObject(copy.overview)) {
+                validateString(
+                    copy.overview.heading,
+                    'subjectCopy.overview.heading',
+                    errors,
+                    true
+                );
+
+                validateString(
+                    copy.overview.question,
+                    'subjectCopy.overview.question',
+                    errors,
+                    true
+                );
+
+                if (
+                    Array.isArray(
+                        copy.overview.intro
+                    )
+                ) {
+                    validateStringArray(
+                        copy.overview.intro,
+                        'subjectCopy.overview.intro',
+                        errors
+                    );
+                }
+            }
+
+            if (isPlainObject(copy.discussion)) {
+                validateString(
+                    copy.discussion.heading,
+                    'subjectCopy.discussion.heading',
+                    errors,
+                    true
+                );
+
+                validateString(
+                    copy.discussion.intro,
+                    'subjectCopy.discussion.intro',
+                    errors,
+                    true
+                );
+            }
+
+            if (isPlainObject(copy.culturalLens)) {
+                validateString(
+                    copy.culturalLens.heading,
+                    'subjectCopy.culturalLens.heading',
+                    errors,
+                    true
+                );
+
+                validateString(
+                    copy.culturalLens.intro,
+                    'subjectCopy.culturalLens.intro',
+                    errors,
+                    true
+                );
+            }
+
+            if (isPlainObject(copy.reflection)) {
+                validateString(
+                    copy.reflection.title,
+                    'subjectCopy.reflection.title',
+                    errors,
+                    true
+                );
+
+                validateString(
+                    copy.reflection.summary,
+                    'subjectCopy.reflection.summary',
+                    errors,
+                    true
+                );
+
+                if (
+                    Array.isArray(
+                        copy.reflection.questions
+                    )
+                ) {
+                    validateStringArray(
+                        copy.reflection.questions,
+                        'subjectCopy.reflection.questions',
+                        errors
+                    );
+                }
+            }
+        }
+
+        const setIds = new Set();
+        const momentIds = new Set();
+
+        if (Array.isArray(document.discussionSets)) {
+            document.discussionSets.forEach(
+                (set, setIndex) => {
+                    if (!isPlainObject(set)) return;
+
+                    const setLabel =
+                        `Discussion set ${setIndex + 1}`;
+
+                    const setId =
+                        typeof set.id === 'string'
+                            ? set.id.trim()
+                            : '';
+
+                    if (setId) {
+                        if (setIds.has(setId)) {
+                            errors.push(
+                                `${setLabel} has a duplicate ID.`
+                            );
+                        } else {
+                            setIds.add(setId);
+                        }
+                    }
+
+                    [
+                        'title',
+                        'stage',
+                        'icon',
+                        'description'
+                    ].forEach(field => {
+                        validateString(
+                            set[field],
+                            `${setLabel}.${field}`,
+                            errors
+                        );
+                    });
+
+                    if (
+                        set.makeItReal !== undefined
+                    ) {
+                        if (
+                            !isPlainObject(
+                                set.makeItReal
+                            )
+                        ) {
+                            errors.push(
+                                `${setLabel}.makeItReal must be an object.`
+                            );
+                        } else {
+                            validateString(
+                                set.makeItReal.label,
+                                `${setLabel}.makeItReal.label`,
+                                errors,
+                                true
+                            );
+
+                            validateString(
+                                set.makeItReal.title,
+                                `${setLabel}.makeItReal.title`,
+                                errors
+                            );
+
+                            validateString(
+                                set.makeItReal.prompt,
+                                `${setLabel}.makeItReal.prompt`,
+                                errors
+                            );
+                        }
+                    }
+
+                    if (!Array.isArray(set.moments)) {
+                        return;
+                    }
+
+                    set.moments.forEach(
+                        (moment, momentIndex) => {
+                            if (
+                                !isPlainObject(moment)
+                            ) {
+                                return;
+                            }
+
+                            const momentLabel =
+                                `${setLabel} moment ${momentIndex + 1}`;
+
+                            const momentId =
+                                typeof moment.id === 'string'
+                                    ? moment.id.trim()
+                                    : '';
+
+                            if (momentId) {
+                                if (
+                                    momentIds.has(
+                                        momentId
+                                    )
+                                ) {
+                                    errors.push(
+                                        `${momentLabel} has a duplicate ID.`
+                                    );
+                                } else {
+                                    momentIds.add(
+                                        momentId
+                                    );
+                                }
+                            }
+
+                            validateString(
+                                moment.preview,
+                                `${momentLabel}.preview`,
+                                errors
+                            );
+
+                            validateString(
+                                moment.question,
+                                `${momentLabel}.question`,
+                                errors
+                            );
+
+                            validateDiscussionFollowUps(
+                                moment,
+                                momentLabel,
+                                errors
+                            );
+
+                            validateUpgrade(
+                                moment.upgrade,
+                                `${momentLabel}.upgrade`,
+                                errors
+                            );
+                        }
+                    );
+                }
+            );
+        }
+
+        const cardIds = new Set();
+
+        if (
+            Array.isArray(
+                document.culturalLensCards
+            )
+        ) {
+            document.culturalLensCards.forEach(
+                (card, cardIndex) => {
+                    if (!isPlainObject(card)) return;
+
+                    const cardLabel =
+                        `Cultural Lens card ${cardIndex + 1}`;
+
+                    const cardId =
+                        typeof card.id === 'string'
+                            ? card.id.trim()
+                            : '';
+
+                    if (cardId) {
+                        if (cardIds.has(cardId)) {
+                            errors.push(
+                                `${cardLabel} has a duplicate ID.`
+                            );
+                        } else {
+                            cardIds.add(cardId);
+                        }
+                    }
+
+                    [
+                        'title',
+                        'contextLine',
+                        'teaser',
+                        'context'
+                    ].forEach(field => {
+                        validateString(
+                            card[field],
+                            `${cardLabel}.${field}`,
+                            errors
+                        );
+                    });
+
+                    validateString(
+                        card.mainQuestion,
+                        `${cardLabel}.mainQuestion`,
+                        errors,
+                        true
+                    );
+
+                    validateString(
+                        card.questionLabel,
+                        `${cardLabel}.questionLabel`,
+                        errors,
+                        true
+                    );
+
+                    validateString(
+                        card.followTheThreadLabel,
+                        `${cardLabel}.followTheThreadLabel`,
+                        errors,
+                        true
+                    );
+
+                    validateStringArray(
+                        card.questions,
+                        `${cardLabel}.questions`,
+                        errors,
+                        true
+                    );
+
+                    validateStringArray(
+                        card.followTheThread,
+                        `${cardLabel}.followTheThread`,
+                        errors,
+                        true
+                    );
+
+                    validateUpgrade(
+                        card.upgrade,
+                        `${cardLabel}.upgrade`,
+                        errors
+                    );
+                }
+            );
+        }
+    }
+
     function validateDocument(document) {
         const errors = [];
 
@@ -447,6 +1021,11 @@
                 }
             );
         }
+
+        validateLevelOneContent(
+            document,
+            errors
+        );
 
         return {
             valid: errors.length === 0,
