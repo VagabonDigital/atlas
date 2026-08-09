@@ -17,6 +17,7 @@
     const LOCAL_OWNER_ID = 'local-tutor';
     const SUBJECT_PREFIX = 'atlas::tutorSubjects::subject::';
     const WORKING_DRAFT_PREFIX = 'atlas::tutorSubjects::workingDraft::';
+    const ORDER_KEY = 'atlas::tutorSubjects::order';
     const STRUCTURED_FORMAT = 'structured';
 
     function encodePart(value) {
@@ -58,6 +59,38 @@
         }
     }
 
+    function normalizeSubjectOrder(value) {
+        const seen = new Set();
+
+        return (Array.isArray(value) ? value : [])
+            .map(id =>
+                typeof id === 'string'
+                    ? id.trim()
+                    : ''
+            )
+            .filter(id => {
+                if (!id || seen.has(id)) {
+                    return false;
+                }
+
+                seen.add(id);
+                return true;
+            });
+    }
+
+    function readSubjectOrder() {
+        return normalizeSubjectOrder(
+            readJson(ORDER_KEY)
+        );
+    }
+
+    function writeSubjectOrder(order) {
+        return writeJson(
+            ORDER_KEY,
+            normalizeSubjectOrder(order)
+        );
+    }
+
     function cloneJson(value) {
         try {
             return JSON.parse(JSON.stringify(value));
@@ -76,6 +109,37 @@
         }
 
         return cloneJson(document);
+    }
+
+    function validateStructuredDocument(
+        document,
+        operation = 'write'
+    ) {
+        const Structured =
+            window.AtlasStructuredSubject;
+
+        if (
+            !Structured ||
+            typeof Structured.validateDocument !== 'function'
+        ) {
+            console.error(
+                '[AtlasTutorSubjects] Structured Subject validation is unavailable.'
+            );
+            return false;
+        }
+
+        const validation =
+            Structured.validateDocument(document);
+
+        if (!validation.valid) {
+            console.error(
+                `[AtlasTutorSubjects] Structured Subject ${operation} rejected:`,
+                validation.errors
+            );
+            return false;
+        }
+
+        return true;
     }
 
     function normalizeMetadata(metadata) {
@@ -257,7 +321,11 @@
 
         if (
             format !== STRUCTURED_FORMAT ||
-            !document
+            !document ||
+            !validateStructuredDocument(
+                document,
+                'create'
+            )
         ) {
             return null;
         }
@@ -345,12 +413,52 @@
             return [];
         }
 
-        subjects.sort(
-            (left, right) =>
-                right.updatedAt - left.updatedAt
+        const storedOrder = readSubjectOrder();
+
+        const subjectsById = new Map(
+            subjects.map(subject => [
+                subject.id,
+                subject
+            ])
         );
 
-        return cloneJson(subjects) || [];
+        const storedSubjects = storedOrder
+            .map(id => subjectsById.get(id))
+            .filter(Boolean);
+
+        const storedIds = new Set(
+            storedSubjects.map(subject =>
+                subject.id
+            )
+        );
+
+        const unlistedSubjects = subjects
+            .filter(subject =>
+                !storedIds.has(subject.id)
+            )
+            .sort(
+                (left, right) =>
+                    right.updatedAt - left.updatedAt
+            );
+
+        const orderedSubjects = [
+            ...unlistedSubjects,
+            ...storedSubjects
+        ];
+
+        const normalizedOrder =
+            orderedSubjects.map(subject =>
+                subject.id
+            );
+
+        if (
+            JSON.stringify(normalizedOrder) !==
+            JSON.stringify(storedOrder)
+        ) {
+            writeSubjectOrder(normalizedOrder);
+        }
+
+        return cloneJson(orderedSubjects) || [];
     }
 
     async function getWorkingDraft(subjectId) {
@@ -383,7 +491,15 @@
             nextPatch.document
         );
 
-        if (!document) return null;
+        if (
+            !document ||
+            !validateStructuredDocument(
+                document,
+                'working draft'
+            )
+        ) {
+            return null;
+        }
 
         const current = await getWorkingDraft(subject.id);
         const timestamp = Date.now();
@@ -464,6 +580,15 @@
             if (!document) return null;
         }
 
+        if (
+            !validateStructuredDocument(
+                document,
+                'update'
+            )
+        ) {
+            return null;
+        }
+
         const metadataPatch =
             nextPatch.metadata &&
             typeof nextPatch.metadata === 'object' &&
@@ -507,6 +632,56 @@
         )
             ? cloneJson(next)
             : null;
+    }
+
+    async function moveSubject(
+        subjectId,
+        offset
+    ) {
+        const id = String(subjectId || '').trim();
+        const movement = Number(offset);
+
+        if (
+            !id ||
+            (
+                movement !== -1 &&
+                movement !== 1
+            )
+        ) {
+            return false;
+        }
+
+        const subjects = await listSubjects();
+        const order = subjects.map(subject =>
+            subject.id
+        );
+
+        const currentIndex =
+            order.indexOf(id);
+
+        if (currentIndex === -1) {
+            return false;
+        }
+
+        const targetIndex =
+            currentIndex + movement;
+
+        if (
+            targetIndex < 0 ||
+            targetIndex >= order.length
+        ) {
+            return false;
+        }
+
+        [
+            order[currentIndex],
+            order[targetIndex]
+        ] = [
+            order[targetIndex],
+            order[currentIndex]
+        ];
+
+        return writeSubjectOrder(order);
     }
 
     async function renameSubject(
@@ -646,6 +821,12 @@
             removeValue(
                 workingDraftStorageKey(current.id)
             );
+
+            writeSubjectOrder(
+                readSubjectOrder().filter(id =>
+                    id !== current.id
+                )
+            );
         }
 
         return deleted;
@@ -665,6 +846,7 @@
         clearWorkingDraft,
 
         updateSubject,
+        moveSubject,
         renameSubject,
         duplicateSubject,
         deleteSubject
