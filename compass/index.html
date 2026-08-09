@@ -2641,7 +2641,7 @@
         ((reg.sessionStates || {})[session.id]) || {};
 
       return (Array.isArray(records) ? records : [])
-        .map(record => {
+        .map((record, index, allRecords) => {
           const id = String(record?.id || '').trim();
 
           if (!id) return null;
@@ -2695,7 +2695,10 @@
                 1,
                 Math.floor(Number(record.revision) || 1)
               ),
-            updatedAt: Number(record.updatedAt) || 0
+            updatedAt: Number(record.updatedAt) || 0,
+            canMoveEarlier: index > 0,
+            canMoveLater:
+              index < allRecords.length - 1
           };
         })
         .filter(Boolean);
@@ -3733,6 +3736,49 @@
       }
     }
 
+    async function moveOwnedSubject(
+      subjectId,
+      offset,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.moveSubject !== 'function'
+      ) {
+        showToast('Subject ordering is unavailable.');
+        return;
+      }
+
+      try {
+        const moved =
+          await Subjects.moveSubject(
+            subjectId,
+            offset
+          );
+
+        if (!moved) {
+          return;
+        }
+
+        await renderHub();
+
+        showToast(
+          offset < 0
+            ? 'Subject moved earlier.'
+            : 'Subject moved later.'
+        );
+      } catch {
+        showToast('Couldn’t move this subject.');
+      }
+    }
+
     /* ================================================================
        RENDER
        One curated operational collection containing only playable subjects.
@@ -3990,6 +4036,24 @@
           'onclick="duplicateOwnedSubject(' +
           jsArg(subject.subjectId) +
           ', event)">Duplicate</button>' +
+
+          (subject.canMoveEarlier
+            ? (
+              '<button type="button" role="menuitem" ' +
+              'onclick="moveOwnedSubject(' +
+              jsArg(subject.subjectId) +
+              ', -1, event)">Move earlier</button>'
+            )
+            : '') +
+
+          (subject.canMoveLater
+            ? (
+              '<button type="button" role="menuitem" ' +
+              'onclick="moveOwnedSubject(' +
+              jsArg(subject.subjectId) +
+              ', 1, event)">Move later</button>'
+            )
+            : '') +
 
           '<button class="is-danger" type="button" role="menuitem" ' +
           'onclick="openOwnedSubjectDeleteDialog(' +
