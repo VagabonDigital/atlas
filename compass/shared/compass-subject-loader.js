@@ -75,9 +75,29 @@
         }
 
         const document = cloneJson(record.document);
+        const Structured =
+            window.AtlasStructuredSubject;
 
         if (
             !document ||
+            !Structured ||
+            typeof Structured.validateDocument !== 'function'
+        ) {
+            return null;
+        }
+
+        const validation =
+            Structured.validateDocument(document);
+
+        if (!validation.valid) {
+            console.error(
+                '[Compass] Owned Structured Subject validation failed:',
+                validation.errors
+            );
+            return null;
+        }
+
+        if (
             !document.module ||
             typeof document.module !== 'object' ||
             !document.subjectCopy ||
