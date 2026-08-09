@@ -4250,6 +4250,30 @@ MY VERSION AUTHORING
     color: var(--accent);
 }
 
+.atlas-my-version-ai {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.38rem;
+    border-color: rgba(var(--accent-rgb), 0.42);
+    background: rgba(var(--accent-rgb), 0.085);
+    color: var(--accent);
+}
+
+.atlas-my-version-ai:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.14);
+    color: var(--accent);
+}
+
+.atlas-my-version-ai:disabled {
+    cursor: progress;
+}
+
+.atlas-my-version-ai[hidden] {
+    display: none !important;
+}
+
 .atlas-my-version-primary {
     border: 1px solid var(--accent);
     background: var(--accent);
@@ -4705,6 +4729,10 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     .atlas-my-version-actions {
         display: grid;
         grid-template-columns: 1fr 1fr;
+    }
+
+    .atlas-my-version-ai {
+        grid-column: 1 / -1;
     }
 
     .atlas-my-version-primary {
@@ -6000,8 +6028,20 @@ DISCUSSION SETS AND MOMENTS
     outline-offset: 2px;
 }
 
-.set-author-add {
+.set-author-create-block {
     grid-column: 1 / -1;
+    margin: 0.15rem 0 0;
+}
+
+.set-author-create-block .moment-author-create-row {
+    margin: 0;
+}
+
+.set-author-create-block .moment-author-generate-error {
+    margin: 0.5rem 0 0;
+}
+
+.set-author-add {
     margin: 0.15rem 0 0;
 }
 

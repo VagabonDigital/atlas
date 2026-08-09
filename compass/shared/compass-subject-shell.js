@@ -730,6 +730,106 @@ function mountCompassSubjectShell() {
                 Cover
             </button>
 
+            <button class="atlas-my-version-secondary atlas-my-version-ai"
+                id="atlas-my-version-generate-framing"
+                type="button"
+                onclick="generateMyVersionSubjectFramingFromUI()"
+                hidden>
+                <svg width="14" height="14"
+                    viewBox="0 0 15 15"
+                    fill="none" aria-hidden="true">
+                    <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                        stroke="currentColor"
+                        stroke-width="1.15"
+                        stroke-linejoin="round"/>
+                    <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                        stroke="currentColor"
+                        stroke-width="0.95"
+                        stroke-linejoin="round"/>
+                </svg>
+                Generate hook + intro
+            </button>
+
+            <button class="atlas-my-version-secondary atlas-my-version-ai"
+                id="atlas-my-version-generate-overview"
+                type="button"
+                onclick="generateMyVersionOverviewFromUI()"
+                hidden>
+                <svg width="14" height="14"
+                    viewBox="0 0 15 15"
+                    fill="none" aria-hidden="true">
+                    <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                        stroke="currentColor"
+                        stroke-width="1.15"
+                        stroke-linejoin="round"/>
+                    <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                        stroke="currentColor"
+                        stroke-width="0.95"
+                        stroke-linejoin="round"/>
+                </svg>
+                Generate overview
+            </button>
+
+            <button class="atlas-my-version-secondary atlas-my-version-ai"
+                id="atlas-my-version-generate-discussion-framing"
+                type="button"
+                onclick="generateMyVersionDiscussionFramingFromUI()"
+                hidden>
+                <svg width="14" height="14"
+                    viewBox="0 0 15 15"
+                    fill="none" aria-hidden="true">
+                    <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                        stroke="currentColor"
+                        stroke-width="1.15"
+                        stroke-linejoin="round"/>
+                    <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                        stroke="currentColor"
+                        stroke-width="0.95"
+                        stroke-linejoin="round"/>
+                </svg>
+                Generate discussion framing
+            </button>
+
+            <button class="atlas-my-version-secondary atlas-my-version-ai"
+                id="atlas-my-version-generate-cultural-lens-framing"
+                type="button"
+                onclick="generateMyVersionCulturalLensFramingFromUI()"
+                hidden>
+                <svg width="14" height="14"
+                    viewBox="0 0 15 15"
+                    fill="none" aria-hidden="true">
+                    <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                        stroke="currentColor"
+                        stroke-width="1.15"
+                        stroke-linejoin="round"/>
+                    <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                        stroke="currentColor"
+                        stroke-width="0.95"
+                        stroke-linejoin="round"/>
+                </svg>
+                Generate Cultural Lens framing
+            </button>
+
+            <button class="atlas-my-version-secondary atlas-my-version-ai"
+                id="atlas-my-version-generate-reflection"
+                type="button"
+                onclick="generateMyVersionReflectionFromUI()"
+                hidden>
+                <svg width="14" height="14"
+                    viewBox="0 0 15 15"
+                    fill="none" aria-hidden="true">
+                    <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                        stroke="currentColor"
+                        stroke-width="1.15"
+                        stroke-linejoin="round"/>
+                    <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                        stroke="currentColor"
+                        stroke-width="0.95"
+                        stroke-linejoin="round"/>
+                </svg>
+                Generate reflection
+            </button>
+
             <button class="atlas-my-version-secondary"
                 id="atlas-my-version-cancel"
                 type="button"

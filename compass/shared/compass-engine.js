@@ -339,6 +339,24 @@ const myVersionMomentGenerationErrors = new Map();
 let myVersionGeneratingCulturalLensCard = false;
 let myVersionCulturalLensGenerationError = '';
 
+let myVersionGeneratingDiscussionSet = false;
+let myVersionDiscussionSetGenerationError = '';
+
+let myVersionGeneratingSubjectFraming = false;
+let myVersionSubjectFramingGenerationError = '';
+
+let myVersionGeneratingOverview = false;
+let myVersionOverviewGenerationError = '';
+
+let myVersionGeneratingDiscussionFraming = false;
+let myVersionDiscussionFramingGenerationError = '';
+
+let myVersionGeneratingCulturalLensFraming = false;
+let myVersionCulturalLensFramingGenerationError = '';
+
+let myVersionGeneratingReflection = false;
+let myVersionReflectionGenerationError = '';
+
 
 // ============================================================
 // BRIDGE
@@ -388,7 +406,13 @@ function requireAtlasAI() {
     if (
         !window.AtlasAI ||
         typeof window.AtlasAI.generateMoment !== 'function' ||
-        typeof window.AtlasAI.generateCulturalLensCard !== 'function'
+        typeof window.AtlasAI.generateCulturalLensCard !== 'function' ||
+        typeof window.AtlasAI.generateDiscussionSet !== 'function' ||
+        typeof window.AtlasAI.generateSubjectFraming !== 'function' ||
+        typeof window.AtlasAI.generateOverview !== 'function' ||
+        typeof window.AtlasAI.generateDiscussionFraming !== 'function' ||
+        typeof window.AtlasAI.generateCulturalLensFraming !== 'function' ||
+        typeof window.AtlasAI.generateReflection !== 'function'
     ) {
         throw new Error(
             'AtlasAI is missing or incomplete. atlas-ai.js must load before AI-assisted authorship.'
@@ -966,6 +990,26 @@ function updateMyVersionAuthorBar() {
         'atlas-my-version-cover-action'
     );
 
+    const framingButton = document.getElementById(
+        'atlas-my-version-generate-framing'
+    );
+
+    const overviewButton = document.getElementById(
+        'atlas-my-version-generate-overview'
+    );
+
+    const discussionFramingButton = document.getElementById(
+        'atlas-my-version-generate-discussion-framing'
+    );
+
+    const culturalLensFramingButton = document.getElementById(
+        'atlas-my-version-generate-cultural-lens-framing'
+    );
+
+    const reflectionButton = document.getElementById(
+        'atlas-my-version-generate-reflection'
+    );
+
     const saveButton = document.getElementById(
         'atlas-my-version-save'
     );
@@ -979,7 +1023,16 @@ function updateMyVersionAuthorBar() {
     );
 
     const ownedSubject = isOwnedSubjectRuntime();
-    const onCover = getActiveCompassViewId() === 'view-cover';
+    const activeViewId = getActiveCompassViewId();
+    const onCover = activeViewId === 'view-cover';
+    const onOverview =
+        activeViewId === 'view-orientation';
+    const onDiscussion =
+        activeViewId === 'view-discussion';
+    const onCulturalLens =
+        activeViewId === 'view-cultural-lens';
+    const onReflection =
+        activeViewId === 'view-reflection';
 
     document.body.classList.toggle(
         'atlas-my-version-editing',
@@ -997,11 +1050,52 @@ function updateMyVersionAuthorBar() {
     }
 
     if (status) {
-        status.textContent = myVersionSaving
-            ? 'Saving…'
-            : myVersionDirty
-                ? 'Unpublished changes · autosaved'
-                : 'No changes yet';
+        status.textContent =
+            myVersionGeneratingSubjectFraming
+                ? 'Generating hook and introduction…'
+                : myVersionGeneratingOverview
+                    ? 'Generating overview…'
+                    : myVersionGeneratingDiscussionFraming
+                        ? 'Generating discussion framing…'
+                        : myVersionGeneratingCulturalLensFraming
+                            ? 'Generating Cultural Lens framing…'
+                            : myVersionGeneratingReflection
+                                ? 'Generating reflection…'
+                                : (
+                            ownedSubject &&
+                            onCover &&
+                            myVersionSubjectFramingGenerationError
+                        )
+                            ? myVersionSubjectFramingGenerationError
+                            : (
+                                ownedSubject &&
+                                onOverview &&
+                                myVersionOverviewGenerationError
+                            )
+                                ? myVersionOverviewGenerationError
+                                : (
+                                    ownedSubject &&
+                                    onDiscussion &&
+                                    myVersionDiscussionFramingGenerationError
+                                )
+                                    ? myVersionDiscussionFramingGenerationError
+                                    : (
+                                        ownedSubject &&
+                                        onCulturalLens &&
+                                        myVersionCulturalLensFramingGenerationError
+                                    )
+                                        ? myVersionCulturalLensFramingGenerationError
+                                        : (
+                                            ownedSubject &&
+                                            onReflection &&
+                                            myVersionReflectionGenerationError
+                                        )
+                                            ? myVersionReflectionGenerationError
+                                            : myVersionSaving
+                                        ? 'Saving…'
+                                        : myVersionDirty
+                                            ? 'Unpublished changes · autosaved'
+                                            : 'No changes yet';
     }
 
     if (coverActionButton) {
@@ -1009,6 +1103,266 @@ function updateMyVersionAuthorBar() {
         coverActionButton.textContent = onCover
             ? 'Subject details'
             : 'Cover';
+    }
+
+    if (framingButton) {
+        const showFramingButton =
+            ownedSubject &&
+            onCover &&
+            myVersionEditing;
+
+        framingButton.hidden =
+            !showFramingButton;
+
+        framingButton.disabled =
+            myVersionSaving ||
+            myVersionGeneratingSubjectFraming;
+
+        framingButton.setAttribute(
+            'aria-busy',
+            String(
+                myVersionGeneratingSubjectFraming
+            )
+        );
+
+        framingButton.innerHTML =
+            myVersionGeneratingSubjectFraming
+                ? `
+                    <svg class="moment-author-generate-spinner"
+                        width="14" height="14"
+                        viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <circle cx="7.5" cy="7.5" r="5"
+                            stroke="currentColor"
+                            stroke-width="1.45"
+                            stroke-linecap="round"
+                            stroke-dasharray="20 12"/>
+                    </svg>
+                    Generating…
+                `
+                : `
+                    <svg width="14" height="14"
+                        viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                            stroke="currentColor"
+                            stroke-width="1.15"
+                            stroke-linejoin="round"/>
+                        <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                            stroke="currentColor"
+                            stroke-width="0.95"
+                            stroke-linejoin="round"/>
+                    </svg>
+                    Generate hook + intro
+                `;
+    }
+
+    if (overviewButton) {
+        const showOverviewButton =
+            ownedSubject &&
+            onOverview &&
+            myVersionEditing;
+
+        overviewButton.hidden =
+            !showOverviewButton;
+
+        overviewButton.disabled =
+            myVersionSaving ||
+            myVersionGeneratingOverview;
+
+        overviewButton.setAttribute(
+            'aria-busy',
+            String(
+                myVersionGeneratingOverview
+            )
+        );
+
+        overviewButton.innerHTML =
+            myVersionGeneratingOverview
+                ? `
+                    <svg class="moment-author-generate-spinner"
+                        width="14" height="14"
+                        viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <circle cx="7.5" cy="7.5" r="5"
+                            stroke="currentColor"
+                            stroke-width="1.45"
+                            stroke-linecap="round"
+                            stroke-dasharray="20 12"/>
+                    </svg>
+                    Generating…
+                `
+                : `
+                    <svg width="14" height="14"
+                        viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                            stroke="currentColor"
+                            stroke-width="1.15"
+                            stroke-linejoin="round"/>
+                        <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                            stroke="currentColor"
+                            stroke-width="0.95"
+                            stroke-linejoin="round"/>
+                    </svg>
+                    Generate overview
+                `;
+    }
+
+    if (discussionFramingButton) {
+        const showDiscussionFramingButton =
+            ownedSubject &&
+            onDiscussion &&
+            myVersionEditing;
+
+        discussionFramingButton.hidden =
+            !showDiscussionFramingButton;
+
+        discussionFramingButton.disabled =
+            myVersionSaving ||
+            myVersionGeneratingDiscussionFraming;
+
+        discussionFramingButton.setAttribute(
+            'aria-busy',
+            String(
+                myVersionGeneratingDiscussionFraming
+            )
+        );
+
+        discussionFramingButton.innerHTML =
+            myVersionGeneratingDiscussionFraming
+                ? `
+                    <svg class="moment-author-generate-spinner"
+                        width="14" height="14"
+                        viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <circle cx="7.5" cy="7.5" r="5"
+                            stroke="currentColor"
+                            stroke-width="1.45"
+                            stroke-linecap="round"
+                            stroke-dasharray="20 12"/>
+                    </svg>
+                    Generating…
+                `
+                : `
+                    <svg width="14" height="14"
+                        viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                            stroke="currentColor"
+                            stroke-width="1.15"
+                            stroke-linejoin="round"/>
+                        <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                            stroke="currentColor"
+                            stroke-width="0.95"
+                            stroke-linejoin="round"/>
+                    </svg>
+                    Generate discussion framing
+                `;
+    }
+
+    if (culturalLensFramingButton) {
+        const showCulturalLensFramingButton =
+            ownedSubject &&
+            onCulturalLens &&
+            myVersionEditing;
+
+        culturalLensFramingButton.hidden =
+            !showCulturalLensFramingButton;
+
+        culturalLensFramingButton.disabled =
+            myVersionSaving ||
+            myVersionGeneratingCulturalLensFraming;
+
+        culturalLensFramingButton.setAttribute(
+            'aria-busy',
+            String(
+                myVersionGeneratingCulturalLensFraming
+            )
+        );
+
+        culturalLensFramingButton.innerHTML =
+            myVersionGeneratingCulturalLensFraming
+                ? `
+                    <svg class="moment-author-generate-spinner"
+                        width="14" height="14"
+                        viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <circle cx="7.5" cy="7.5" r="5"
+                            stroke="currentColor"
+                            stroke-width="1.45"
+                            stroke-linecap="round"
+                            stroke-dasharray="20 12"/>
+                    </svg>
+                    Generating…
+                `
+                : `
+                    <svg width="14" height="14"
+                        viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                            stroke="currentColor"
+                            stroke-width="1.15"
+                            stroke-linejoin="round"/>
+                        <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                            stroke="currentColor"
+                            stroke-width="0.95"
+                            stroke-linejoin="round"/>
+                    </svg>
+                    Generate Cultural Lens framing
+                `;
+    }
+
+    if (reflectionButton) {
+        const showReflectionButton =
+            ownedSubject &&
+            onReflection &&
+            myVersionEditing;
+
+        reflectionButton.hidden =
+            !showReflectionButton;
+
+        reflectionButton.disabled =
+            myVersionSaving ||
+            myVersionGeneratingReflection;
+
+        reflectionButton.setAttribute(
+            'aria-busy',
+            String(
+                myVersionGeneratingReflection
+            )
+        );
+
+        reflectionButton.innerHTML =
+            myVersionGeneratingReflection
+                ? `
+                    <svg class="moment-author-generate-spinner"
+                        width="14" height="14"
+                        viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <circle cx="7.5" cy="7.5" r="5"
+                            stroke="currentColor"
+                            stroke-width="1.45"
+                            stroke-linecap="round"
+                            stroke-dasharray="20 12"/>
+                    </svg>
+                    Generating…
+                `
+                : `
+                    <svg width="14" height="14"
+                        viewBox="0 0 15 15"
+                        fill="none" aria-hidden="true">
+                        <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                            stroke="currentColor"
+                            stroke-width="1.15"
+                            stroke-linejoin="round"/>
+                        <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                            stroke="currentColor"
+                            stroke-width="0.95"
+                            stroke-linejoin="round"/>
+                    </svg>
+                    Generate reflection
+                `;
     }
 
     if (saveButton) {
@@ -1117,8 +1471,6 @@ function commitMyVersionDraftContent(fieldKey, value) {
     const requiresValue =
         fieldKey === 'module.title' ||
         /^paths\.(discussionTitle|culturalLensTitle|reflectionTitle)$/
-            .test(fieldKey) ||
-        /^discussion\.set\..+\.title$/
             .test(fieldKey) ||
         /^culturalLens\..+\.title$/
             .test(fieldKey) ||
@@ -2924,6 +3276,61 @@ function materializeMyVersionCulturalLensCard(card) {
     return copy;
 }
 
+function getPristineMyVersionCulturalLensStarter() {
+    if (
+        !isOwnedSubjectRuntime() ||
+        clCards.length !== 1
+    ) {
+        return null;
+    }
+
+    const source = clCards[0];
+    const card =
+        materializeMyVersionCulturalLensCard(
+            source
+        );
+
+    if (!card) return null;
+
+    const starter =
+        requireAtlasStructuredSubject()
+            .createCulturalLensCard({
+                id: source.id
+            });
+
+    const questions =
+        Array.isArray(card.questions)
+            ? card.questions
+            : [];
+
+    const followTheThread =
+        Array.isArray(card.followTheThread)
+            ? card.followTheThread
+            : [];
+
+    const pristine =
+        card.title === starter.title &&
+        card.contextLine === starter.contextLine &&
+        card.teaser === starter.teaser &&
+        card.context === starter.context &&
+        questions.length ===
+            starter.questions.length &&
+        questions.every(
+            (question, index) =>
+                question === starter.questions[index]
+        ) &&
+        (
+            card.questionLabel === undefined ||
+            card.questionLabel === 'Question'
+        ) &&
+        followTheThread.length === 0 &&
+        !card.upgrade;
+
+    return pristine
+        ? source
+        : null;
+}
+
 function assignFreshMyVersionCulturalLensCardId(card) {
     const copy = cloneTutorSubjectDocument(card);
 
@@ -2936,7 +3343,10 @@ function assignFreshMyVersionCulturalLensCardId(card) {
     return copy;
 }
 
-function insertMyVersionCulturalLensCard(card) {
+function insertMyVersionCulturalLensCard(
+    card,
+    { replaceStarter = false } = {}
+) {
     const nativeCard =
         cloneTutorSubjectDocument(card);
 
@@ -2954,14 +3364,44 @@ function insertMyVersionCulturalLensCard(card) {
         return null;
     }
 
+    const starterCard =
+        replaceStarter
+            ? getPristineMyVersionCulturalLensStarter()
+            : null;
+
     const added = commitMyVersionDocumentMutation(
-        document => {
+        (document, overrides) => {
             if (
                 document.culturalLensCards.some(
                     item => item.id === nativeCard.id
                 )
             ) {
                 return null;
+            }
+
+            if (starterCard) {
+                const starterIndex =
+                    document.culturalLensCards.findIndex(
+                        item => item.id === starterCard.id
+                    );
+
+                if (starterIndex >= 0) {
+                    const [removedCard] =
+                        document.culturalLensCards.splice(
+                            starterIndex,
+                            1,
+                            nativeCard
+                        );
+
+                    removeMyVersionCulturalLensCardOverrides(
+                        overrides,
+                        removedCard
+                    );
+
+                    return {
+                        cardId: nativeCard.id
+                    };
+                }
             }
 
             document.culturalLensCards.push(
@@ -2990,6 +3430,21 @@ function insertMyVersionCulturalLensCard(card) {
 }
 
 function addMyVersionCulturalLensCard() {
+    const starterCard =
+        getPristineMyVersionCulturalLensStarter();
+
+    if (starterCard) {
+        const index = clCards.findIndex(
+            card => card.id === starterCard.id
+        );
+
+        if (index >= 0) {
+            openCulturalLensFocus(index);
+        }
+
+        return starterCard;
+    }
+
     const nativeCard =
         requireAtlasStructuredSubject()
             .createCulturalLensCard();
@@ -2997,6 +3452,939 @@ function addMyVersionCulturalLensCard() {
     return insertMyVersionCulturalLensCard(
         nativeCard
     );
+}
+
+async function generateMyVersionSubjectFraming(
+    brief = ''
+) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime()
+    ) {
+        return null;
+    }
+
+    const generated =
+        await requireAtlasAI()
+            .generateSubjectFraming({
+                subject: {
+                    title:
+                        getEffectiveSubjectTitle()
+                },
+
+                brief:
+                    String(
+                        brief || ''
+                    ).trim()
+            });
+
+    return commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            if (
+                !document.module ||
+                typeof document.module !== 'object' ||
+                Array.isArray(document.module) ||
+                !document.subjectCopy ||
+                typeof document.subjectCopy !== 'object' ||
+                Array.isArray(document.subjectCopy)
+            ) {
+                return null;
+            }
+
+            document.subjectCopy.cover =
+                document.subjectCopy.cover &&
+                typeof document.subjectCopy.cover === 'object' &&
+                !Array.isArray(
+                    document.subjectCopy.cover
+                )
+                    ? document.subjectCopy.cover
+                    : {};
+
+            document.module.catalogDescription =
+                generated.catalogDescription;
+
+            document.subjectCopy.cover.hook =
+                generated.hook;
+
+            delete overrides[
+                'module.catalogDescription'
+            ];
+
+            delete overrides[
+                'cover.hook'
+            ];
+
+            return {
+                catalogDescription:
+                    generated.catalogDescription,
+
+                hook:
+                    generated.hook
+            };
+        }
+    );
+}
+
+async function generateMyVersionSubjectFramingFromUI() {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime() ||
+        myVersionGeneratingSubjectFraming
+    ) {
+        return null;
+    }
+
+    myVersionSubjectFramingGenerationError = '';
+    myVersionGeneratingSubjectFraming = true;
+
+    updateMyVersionAuthorBar();
+
+    try {
+        const framing =
+            await generateMyVersionSubjectFraming();
+
+        if (!framing) {
+            throw new Error(
+                'Atlas AI did not create subject framing.'
+            );
+        }
+
+        return framing;
+    } catch (error) {
+        console.error(
+            '[Compass] AI subject framing generation failed:',
+            error
+        );
+
+        if (myVersionEditing) {
+            myVersionSubjectFramingGenerationError =
+                'Couldn’t generate framing. Try again.';
+        }
+
+        return null;
+    } finally {
+        myVersionGeneratingSubjectFraming = false;
+
+        if (myVersionEditing) {
+            updateMyVersionAuthorBar();
+        }
+    }
+}
+
+async function generateMyVersionOverview(
+    brief = ''
+) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime()
+    ) {
+        return null;
+    }
+
+    const generated =
+        await requireAtlasAI()
+            .generateOverview({
+                subject: {
+                    title:
+                        getEffectiveSubjectTitle(),
+
+                    description:
+                        getEffectiveSubjectCatalogDescription(),
+
+                    hook:
+                        resolveTutorContentValue(
+                            subjectCopy.cover?.hook || '',
+                            'cover.hook'
+                        ).trim()
+                },
+
+                brief:
+                    String(
+                        brief || ''
+                    ).trim()
+            });
+
+    return commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            if (
+                !document.subjectCopy ||
+                typeof document.subjectCopy !== 'object' ||
+                Array.isArray(document.subjectCopy)
+            ) {
+                return null;
+            }
+
+            document.subjectCopy.overview =
+                document.subjectCopy.overview &&
+                typeof document.subjectCopy.overview === 'object' &&
+                !Array.isArray(
+                    document.subjectCopy.overview
+                )
+                    ? document.subjectCopy.overview
+                    : {};
+
+            document.subjectCopy.overview.heading =
+                generated.heading;
+
+            document.subjectCopy.overview.intro = [
+                generated.intro
+            ];
+
+            document.subjectCopy.overview.question =
+                generated.question;
+
+            delete overrides[
+                'overview.heading'
+            ];
+
+            delete overrides[
+                'overview.question'
+            ];
+
+            Object.keys(overrides)
+                .forEach(fieldKey => {
+                    if (
+                        fieldKey.startsWith(
+                            'overview.intro.'
+                        )
+                    ) {
+                        delete overrides[fieldKey];
+                    }
+                });
+
+            return {
+                heading:
+                    generated.heading,
+
+                intro:
+                    generated.intro,
+
+                question:
+                    generated.question
+            };
+        }
+    );
+}
+
+async function generateMyVersionOverviewFromUI() {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime() ||
+        myVersionGeneratingOverview
+    ) {
+        return null;
+    }
+
+    myVersionOverviewGenerationError = '';
+    myVersionGeneratingOverview = true;
+
+    updateMyVersionAuthorBar();
+
+    try {
+        const overview =
+            await generateMyVersionOverview();
+
+        if (!overview) {
+            throw new Error(
+                'Atlas AI did not create an Overview.'
+            );
+        }
+
+        return overview;
+    } catch (error) {
+        console.error(
+            '[Compass] AI Overview generation failed:',
+            error
+        );
+
+        if (myVersionEditing) {
+            myVersionOverviewGenerationError =
+                'Couldn’t generate the overview. Try again.';
+        }
+
+        return null;
+    } finally {
+        myVersionGeneratingOverview = false;
+
+        if (myVersionEditing) {
+            updateMyVersionAuthorBar();
+        }
+    }
+}
+
+async function generateMyVersionDiscussionFraming(
+    brief = ''
+) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime()
+    ) {
+        return null;
+    }
+
+    const overview =
+        subjectCopy.overview || {};
+
+    const overviewIntro =
+        Array.isArray(overview.intro)
+            ? overview.intro
+                .map((paragraph, index) =>
+                    resolveTutorContentValue(
+                        paragraph,
+                        `overview.intro.${index}`
+                    ).trim()
+                )
+                .filter(Boolean)
+                .join('\n\n')
+            : '';
+
+    const generated =
+        await requireAtlasAI()
+            .generateDiscussionFraming({
+                subject: {
+                    title:
+                        getEffectiveSubjectTitle(),
+
+                    description:
+                        getEffectiveSubjectCatalogDescription(),
+
+                    hook:
+                        resolveTutorContentValue(
+                            subjectCopy.cover?.hook || '',
+                            'cover.hook'
+                        ).trim()
+                },
+
+                overview: {
+                    heading:
+                        resolveTutorContentValue(
+                            overview.heading || '',
+                            'overview.heading'
+                        ).trim(),
+
+                    intro:
+                        overviewIntro,
+
+                    question:
+                        resolveTutorContentValue(
+                            overview.question || '',
+                            'overview.question'
+                        ).trim()
+                },
+
+                brief:
+                    String(
+                        brief || ''
+                    ).trim()
+            });
+
+    return commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            if (
+                !document.subjectCopy ||
+                typeof document.subjectCopy !== 'object' ||
+                Array.isArray(document.subjectCopy)
+            ) {
+                return null;
+            }
+
+            document.subjectCopy.discussion =
+                document.subjectCopy.discussion &&
+                typeof document.subjectCopy.discussion === 'object' &&
+                !Array.isArray(
+                    document.subjectCopy.discussion
+                )
+                    ? document.subjectCopy.discussion
+                    : {};
+
+            document.subjectCopy.discussion.heading =
+                generated.heading;
+
+            document.subjectCopy.discussion.intro =
+                generated.intro;
+
+            document.subjectCopy.paths =
+                document.subjectCopy.paths &&
+                typeof document.subjectCopy.paths === 'object' &&
+                !Array.isArray(
+                    document.subjectCopy.paths
+                )
+                    ? document.subjectCopy.paths
+                    : {};
+
+            document.subjectCopy.paths.discussionDescription =
+                generated.pathDescription;
+
+            delete overrides[
+                'discussion.heading'
+            ];
+
+            delete overrides[
+                'discussion.intro'
+            ];
+
+            delete overrides[
+                'paths.discussionDescription'
+            ];
+
+            return {
+                heading:
+                    generated.heading,
+
+                intro:
+                    generated.intro,
+
+                pathDescription:
+                    generated.pathDescription
+            };
+        }
+    );
+}
+
+async function generateMyVersionDiscussionFramingFromUI() {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime() ||
+        myVersionGeneratingDiscussionFraming
+    ) {
+        return null;
+    }
+
+    myVersionDiscussionFramingGenerationError = '';
+    myVersionGeneratingDiscussionFraming = true;
+
+    updateMyVersionAuthorBar();
+
+    try {
+        const framing =
+            await generateMyVersionDiscussionFraming();
+
+        if (!framing) {
+            throw new Error(
+                'Atlas AI did not create Discussion framing.'
+            );
+        }
+
+        return framing;
+    } catch (error) {
+        console.error(
+            '[Compass] AI Discussion framing generation failed:',
+            error
+        );
+
+        if (myVersionEditing) {
+            myVersionDiscussionFramingGenerationError =
+                'Couldn’t generate Discussion framing. Try again.';
+        }
+
+        return null;
+    } finally {
+        myVersionGeneratingDiscussionFraming = false;
+
+        if (myVersionEditing) {
+            updateMyVersionAuthorBar();
+        }
+    }
+}
+
+async function generateMyVersionCulturalLensFraming(
+    brief = ''
+) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime()
+    ) {
+        return null;
+    }
+
+    const overview =
+        subjectCopy.overview || {};
+
+    const overviewIntro =
+        Array.isArray(overview.intro)
+            ? overview.intro
+                .map((paragraph, index) =>
+                    resolveTutorContentValue(
+                        paragraph,
+                        `overview.intro.${index}`
+                    ).trim()
+                )
+                .filter(Boolean)
+                .join('\n\n')
+            : '';
+
+    const generated =
+        await requireAtlasAI()
+            .generateCulturalLensFraming({
+                subject: {
+                    title:
+                        getEffectiveSubjectTitle(),
+
+                    description:
+                        getEffectiveSubjectCatalogDescription(),
+
+                    hook:
+                        resolveTutorContentValue(
+                            subjectCopy.cover?.hook || '',
+                            'cover.hook'
+                        ).trim()
+                },
+
+                overview: {
+                    heading:
+                        resolveTutorContentValue(
+                            overview.heading || '',
+                            'overview.heading'
+                        ).trim(),
+
+                    intro:
+                        overviewIntro,
+
+                    question:
+                        resolveTutorContentValue(
+                            overview.question || '',
+                            'overview.question'
+                        ).trim()
+                },
+
+                brief:
+                    String(
+                        brief || ''
+                    ).trim()
+            });
+
+    return commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            if (
+                !document.subjectCopy ||
+                typeof document.subjectCopy !== 'object' ||
+                Array.isArray(document.subjectCopy)
+            ) {
+                return null;
+            }
+
+            document.subjectCopy.culturalLens =
+                document.subjectCopy.culturalLens &&
+                typeof document.subjectCopy.culturalLens === 'object' &&
+                !Array.isArray(
+                    document.subjectCopy.culturalLens
+                )
+                    ? document.subjectCopy.culturalLens
+                    : {};
+
+            document.subjectCopy.culturalLens.heading =
+                generated.heading;
+
+            document.subjectCopy.culturalLens.intro =
+                generated.intro;
+
+            document.subjectCopy.paths =
+                document.subjectCopy.paths &&
+                typeof document.subjectCopy.paths === 'object' &&
+                !Array.isArray(
+                    document.subjectCopy.paths
+                )
+                    ? document.subjectCopy.paths
+                    : {};
+
+            document.subjectCopy.paths.culturalLensDescription =
+                generated.pathDescription;
+
+            delete overrides[
+                'culturalLens.heading'
+            ];
+
+            delete overrides[
+                'culturalLens.intro'
+            ];
+
+            delete overrides[
+                'paths.culturalLensDescription'
+            ];
+
+            return {
+                heading:
+                    generated.heading,
+
+                intro:
+                    generated.intro,
+
+                pathDescription:
+                    generated.pathDescription
+            };
+        }
+    );
+}
+
+async function generateMyVersionCulturalLensFramingFromUI() {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime() ||
+        myVersionGeneratingCulturalLensFraming
+    ) {
+        return null;
+    }
+
+    myVersionCulturalLensFramingGenerationError = '';
+    myVersionGeneratingCulturalLensFraming = true;
+
+    updateMyVersionAuthorBar();
+
+    try {
+        const framing =
+            await generateMyVersionCulturalLensFraming();
+
+        if (!framing) {
+            throw new Error(
+                'Atlas AI did not create Cultural Lens framing.'
+            );
+        }
+
+        return framing;
+    } catch (error) {
+        console.error(
+            '[Compass] AI Cultural Lens framing generation failed:',
+            error
+        );
+
+        if (myVersionEditing) {
+            myVersionCulturalLensFramingGenerationError =
+                'Couldn’t generate Cultural Lens framing. Try again.';
+        }
+
+        return null;
+    } finally {
+        myVersionGeneratingCulturalLensFraming = false;
+
+        if (myVersionEditing) {
+            updateMyVersionAuthorBar();
+        }
+    }
+}
+
+async function generateMyVersionReflection(
+    brief = ''
+) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime()
+    ) {
+        return null;
+    }
+
+    const overview =
+        subjectCopy.overview || {};
+
+    const discussion =
+        subjectCopy.discussion || {};
+
+    const culturalLens =
+        subjectCopy.culturalLens || {};
+
+    const overviewIntro =
+        Array.isArray(overview.intro)
+            ? overview.intro
+                .map((paragraph, index) =>
+                    resolveTutorContentValue(
+                        paragraph,
+                        `overview.intro.${index}`
+                    ).trim()
+                )
+                .filter(Boolean)
+                .join('\n\n')
+            : '';
+
+    const starterSet =
+        getPristineMyVersionDiscussionStarter();
+
+    const existingSets =
+        discussionSets
+            .map(set =>
+                materializeMyVersionDiscussionSet(
+                    set
+                )
+            )
+            .filter(Boolean)
+            .filter(set =>
+                !starterSet ||
+                set.id !== starterSet.id
+            )
+            .map(set => ({
+                title:
+                    String(
+                        set.title || ''
+                    ).trim(),
+
+                stage:
+                    String(
+                        set.stage || ''
+                    ).trim(),
+
+                description:
+                    String(
+                        set.description || ''
+                    ).trim(),
+
+                moments:
+                    Array.isArray(set.moments)
+                        ? set.moments.map(moment => ({
+                            preview:
+                                String(
+                                    moment.preview || ''
+                                ).trim(),
+
+                            question:
+                                String(
+                                    moment.question || ''
+                                ).trim()
+                        }))
+                        : []
+            }));
+
+    const starterCard =
+        getPristineMyVersionCulturalLensStarter();
+
+    const existingCards =
+        clCards
+            .map(card =>
+                materializeMyVersionCulturalLensCard(
+                    card
+                )
+            )
+            .filter(Boolean)
+            .filter(card =>
+                !starterCard ||
+                card.id !== starterCard.id
+            )
+            .map(card => ({
+                title:
+                    String(
+                        card.title || ''
+                    ).trim(),
+
+                contextLine:
+                    String(
+                        card.contextLine || ''
+                    ).trim(),
+
+                teaser:
+                    String(
+                        card.teaser || ''
+                    ).trim(),
+
+                questions:
+                    Array.isArray(card.questions)
+                        ? card.questions
+                            .map(question =>
+                                String(
+                                    question || ''
+                                ).trim()
+                            )
+                            .filter(Boolean)
+                        : []
+            }));
+
+    const generated =
+        await requireAtlasAI()
+            .generateReflection({
+                subject: {
+                    title:
+                        getEffectiveSubjectTitle(),
+
+                    description:
+                        getEffectiveSubjectCatalogDescription(),
+
+                    hook:
+                        resolveTutorContentValue(
+                            subjectCopy.cover?.hook || '',
+                            'cover.hook'
+                        ).trim()
+                },
+
+                overview: {
+                    heading:
+                        resolveTutorContentValue(
+                            overview.heading || '',
+                            'overview.heading'
+                        ).trim(),
+
+                    intro:
+                        overviewIntro,
+
+                    question:
+                        resolveTutorContentValue(
+                            overview.question || '',
+                            'overview.question'
+                        ).trim()
+                },
+
+                discussion: {
+                    heading:
+                        resolveTutorContentValue(
+                            discussion.heading || '',
+                            'discussion.heading'
+                        ).trim(),
+
+                    intro:
+                        resolveTutorContentValue(
+                            discussion.intro || '',
+                            'discussion.intro'
+                        ).trim(),
+
+                    sets:
+                        existingSets
+                },
+
+                culturalLens: {
+                    heading:
+                        resolveTutorContentValue(
+                            culturalLens.heading || '',
+                            'culturalLens.heading'
+                        ).trim(),
+
+                    intro:
+                        resolveTutorContentValue(
+                            culturalLens.intro || '',
+                            'culturalLens.intro'
+                        ).trim(),
+
+                    cards:
+                        existingCards
+                },
+
+                brief:
+                    String(
+                        brief || ''
+                    ).trim()
+            });
+
+    return commitMyVersionDocumentMutation(
+        (document, overrides) => {
+            if (
+                !document.subjectCopy ||
+                typeof document.subjectCopy !== 'object' ||
+                Array.isArray(document.subjectCopy)
+            ) {
+                return null;
+            }
+
+            document.subjectCopy.reflection =
+                document.subjectCopy.reflection &&
+                typeof document.subjectCopy.reflection === 'object' &&
+                !Array.isArray(
+                    document.subjectCopy.reflection
+                )
+                    ? document.subjectCopy.reflection
+                    : {};
+
+            document.subjectCopy.reflection.title =
+                generated.title;
+
+            document.subjectCopy.reflection.summary =
+                generated.summary;
+
+            document.subjectCopy.reflection.questions =
+                generated.questions.slice();
+
+            document.subjectCopy.paths =
+                document.subjectCopy.paths &&
+                typeof document.subjectCopy.paths === 'object' &&
+                !Array.isArray(
+                    document.subjectCopy.paths
+                )
+                    ? document.subjectCopy.paths
+                    : {};
+
+            document.subjectCopy.paths.reflectionDescription =
+                generated.pathDescription;
+
+            delete overrides[
+                'reflection.title'
+            ];
+
+            delete overrides[
+                'reflection.summary'
+            ];
+
+            removeMyVersionReflectionQuestionOverrides(
+                overrides
+            );
+
+            delete overrides[
+                'paths.reflectionDescription'
+            ];
+
+            return {
+                title:
+                    generated.title,
+
+                summary:
+                    generated.summary,
+
+                questions:
+                    generated.questions.slice(),
+
+                pathDescription:
+                    generated.pathDescription
+            };
+        }
+    );
+}
+
+async function generateMyVersionReflectionFromUI() {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime() ||
+        myVersionGeneratingReflection
+    ) {
+        return null;
+    }
+
+    myVersionReflectionGenerationError = '';
+    myVersionGeneratingReflection = true;
+
+    updateMyVersionAuthorBar();
+
+    try {
+        const reflection =
+            await generateMyVersionReflection();
+
+        if (!reflection) {
+            throw new Error(
+                'Atlas AI did not create Reflection.'
+            );
+        }
+
+        return reflection;
+    } catch (error) {
+        console.error(
+            '[Compass] AI Reflection generation failed:',
+            error
+        );
+
+        if (myVersionEditing) {
+            myVersionReflectionGenerationError =
+                'Couldn’t generate Reflection. Try again.';
+        }
+
+        return null;
+    } finally {
+        myVersionGeneratingReflection = false;
+
+        if (myVersionEditing) {
+            updateMyVersionAuthorBar();
+        }
+    }
 }
 
 async function generateMyVersionCulturalLensCard(
@@ -3013,6 +4401,9 @@ async function generateMyVersionCulturalLensCard(
     const culturalLens =
         subjectCopy.culturalLens || {};
 
+    const starterCard =
+        getPristineMyVersionCulturalLensStarter();
+
     const existingCards =
         clCards
             .map(card =>
@@ -3021,6 +4412,10 @@ async function generateMyVersionCulturalLensCard(
                 )
             )
             .filter(Boolean)
+            .filter(card =>
+                !starterCard ||
+                card.id !== starterCard.id
+            )
             .map(card => ({
                 title:
                     String(
@@ -3080,7 +4475,11 @@ async function generateMyVersionCulturalLensCard(
             );
 
     return insertMyVersionCulturalLensCard(
-        nativeCard
+        nativeCard,
+        {
+            replaceStarter:
+                Boolean(starterCard)
+        }
     );
 }
 
@@ -3832,6 +5231,62 @@ function materializeMyVersionDiscussionSet(set) {
     return copy;
 }
 
+function getPristineMyVersionDiscussionStarter() {
+    if (
+        !isOwnedSubjectRuntime() ||
+        discussionSets.length !== 1
+    ) {
+        return null;
+    }
+
+    const source = discussionSets[0];
+    const set =
+        materializeMyVersionDiscussionSet(
+            source
+        );
+
+    if (
+        !set ||
+        !Array.isArray(set.moments) ||
+        set.moments.length !== 1
+    ) {
+        return null;
+    }
+
+    const starter =
+        requireAtlasStructuredSubject()
+            .createDiscussionSet({
+                id: source.id,
+                moments: [
+                    {
+                        id: set.moments[0].id
+                    }
+                ]
+            });
+
+    const moment = set.moments[0];
+    const starterMoment = starter.moments[0];
+
+    const pristine =
+        set.title === starter.title &&
+        set.stage === starter.stage &&
+        set.icon === starter.icon &&
+        set.description === starter.description &&
+        !set.makeItReal &&
+        moment.preview === starterMoment.preview &&
+        moment.question === starterMoment.question &&
+        !moment.followUp &&
+        (
+            !Array.isArray(moment.followUps) ||
+            moment.followUps.length === 0
+        ) &&
+        !moment.upgrade;
+
+    return pristine
+        ? source
+        : null;
+}
+
 function assignFreshMyVersionDiscussionSetIds(set) {
     const copy = cloneTutorSubjectDocument(set);
 
@@ -3873,43 +5328,292 @@ function assignFreshMyVersionDiscussionSetIds(set) {
     return copy;
 }
 
-function addMyVersionDiscussionSet() {
-    const setId = createTutorAuthoredContentId(
-        'discussion-set'
-    );
+function insertMyVersionDiscussionSet(
+    set,
+    { replaceStarter = false } = {}
+) {
+    const nativeSet =
+        cloneTutorSubjectDocument(set);
 
-    const momentId = createTutorAuthoredContentId(
-        'moment'
-    );
+    if (
+        !nativeSet ||
+        typeof nativeSet.id !== 'string' ||
+        !nativeSet.id.trim() ||
+        typeof nativeSet.title !== 'string' ||
+        typeof nativeSet.stage !== 'string' ||
+        typeof nativeSet.icon !== 'string' ||
+        typeof nativeSet.description !== 'string' ||
+        !Array.isArray(nativeSet.moments) ||
+        !nativeSet.moments.length ||
+        nativeSet.moments.some(moment =>
+            !moment ||
+            typeof moment !== 'object' ||
+            typeof moment.id !== 'string' ||
+            !moment.id.trim() ||
+            typeof moment.preview !== 'string' ||
+            typeof moment.question !== 'string'
+        )
+    ) {
+        return null;
+    }
+
+    const starterSet =
+        replaceStarter
+            ? getPristineMyVersionDiscussionStarter()
+            : null;
 
     const added = commitMyVersionDocumentMutation(
-        document => {
-            document.discussionSets.push({
-                id: setId,
-                title: 'New set',
-                stage: 'New Set',
-                icon: 'first-look',
-                description:
-                    'What will this part of the conversation explore?',
-                moments: [
-                    {
-                        id: momentId,
-                        preview: 'New conversation moment',
-                        question:
-                            'What would you like to explore?'
-                    }
-                ]
-            });
+        (document, overrides) => {
+            if (
+                document.discussionSets.some(
+                    item => item.id === nativeSet.id
+                )
+            ) {
+                return null;
+            }
 
-            return { setId };
+            if (starterSet) {
+                const starterIndex =
+                    document.discussionSets.findIndex(
+                        item => item.id === starterSet.id
+                    );
+
+                if (starterIndex >= 0) {
+                    const [removedSet] =
+                        document.discussionSets.splice(
+                            starterIndex,
+                            1,
+                            nativeSet
+                        );
+
+                    removeMyVersionDiscussionSetOverrides(
+                        overrides,
+                        removedSet
+                    );
+
+                    return {
+                        setId: nativeSet.id
+                    };
+                }
+            }
+
+            document.discussionSets.push(
+                nativeSet
+            );
+
+            return {
+                setId: nativeSet.id
+            };
         }
     );
 
-    if (!added) return;
+    if (!added) return null;
 
     window.setTimeout(() => {
-        openSet(setId);
+        openSet(nativeSet.id);
     }, 0);
+
+    return nativeSet;
+}
+
+function addMyVersionDiscussionSet() {
+    const starterSet =
+        getPristineMyVersionDiscussionStarter();
+
+    if (starterSet) {
+        openSet(starterSet.id);
+        return starterSet;
+    }
+
+    const nativeSet =
+        requireAtlasStructuredSubject()
+            .createDiscussionSet({
+                stage: 'New Set'
+            });
+
+    return insertMyVersionDiscussionSet(
+        nativeSet
+    );
+}
+
+async function generateMyVersionDiscussionSet(
+    brief = ''
+) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime()
+    ) {
+        return null;
+    }
+
+    const discussion =
+        subjectCopy.discussion || {};
+
+    const starterSet =
+        getPristineMyVersionDiscussionStarter();
+
+    const existingSets =
+        discussionSets
+            .map(set =>
+                materializeMyVersionDiscussionSet(
+                    set
+                )
+            )
+            .filter(Boolean)
+            .filter(set =>
+                !starterSet ||
+                set.id !== starterSet.id
+            )
+            .map(set => ({
+                title:
+                    String(
+                        set.title || ''
+                    ).trim(),
+
+                stage:
+                    String(
+                        set.stage || ''
+                    ).trim(),
+
+                description:
+                    String(
+                        set.description || ''
+                    ).trim(),
+
+                moments:
+                    set.moments.map(
+                        ({
+                            preview,
+                            question
+                        }) => ({
+                            preview:
+                                String(
+                                    preview || ''
+                                ).trim(),
+
+                            question:
+                                String(
+                                    question || ''
+                                ).trim()
+                        })
+                    )
+            }));
+
+    const generated =
+        await requireAtlasAI()
+            .generateDiscussionSet({
+                subject: {
+                    title:
+                        getEffectiveSubjectTitle(),
+
+                    description:
+                        getEffectiveSubjectCatalogDescription()
+                },
+
+                discussion: {
+                    heading:
+                        resolveTutorContentValue(
+                            discussion.heading ||
+                                'Discussion',
+                            'discussion.heading'
+                        ).trim(),
+
+                    intro:
+                        resolveTutorContentValue(
+                            discussion.intro || '',
+                            'discussion.intro'
+                        ).trim(),
+
+                    sets:
+                        existingSets
+                },
+
+                brief:
+                    String(
+                        brief || ''
+                    ).trim()
+            });
+
+    const iconByStage = {
+        'First Look':
+            'first-look',
+
+        'Look Closer':
+            'closer-look',
+
+        'Wider View':
+            'wider-view'
+    };
+
+    const nativeSet =
+        requireAtlasStructuredSubject()
+            .createDiscussionSet({
+                ...generated,
+
+                icon:
+                    iconByStage[
+                        generated.stage
+                    ] || 'first-look'
+            });
+
+    return insertMyVersionDiscussionSet(
+        nativeSet,
+        {
+            replaceStarter:
+                Boolean(starterSet)
+        }
+    );
+}
+
+async function generateMyVersionDiscussionSetFromUI() {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime() ||
+        myVersionGeneratingDiscussionSet
+    ) {
+        return null;
+    }
+
+    myVersionDiscussionSetGenerationError = '';
+    myVersionGeneratingDiscussionSet = true;
+
+    renderDiscussionSets();
+
+    try {
+        const generatedSet =
+            await generateMyVersionDiscussionSet();
+
+        if (
+            !generatedSet &&
+            myVersionEditing
+        ) {
+            throw new Error(
+                'Atlas AI did not create a Discussion set.'
+            );
+        }
+
+        return generatedSet;
+    } catch (error) {
+        console.error(
+            '[Compass] AI Discussion set generation failed:',
+            error
+        );
+
+        if (myVersionEditing) {
+            myVersionDiscussionSetGenerationError =
+                'Couldn’t generate a set. Try again.';
+        }
+
+        return null;
+    } finally {
+        myVersionGeneratingDiscussionSet = false;
+
+        if (myVersionEditing) {
+            renderDiscussionSets();
+        }
+    }
 }
 
 function duplicateMyVersionDiscussionSet(setId) {
@@ -4010,9 +5714,55 @@ function removeMyVersionDiscussionSet(setId) {
     );
 }
 
+function getPristineMyVersionMomentStarter(setId) {
+    if (!isOwnedSubjectRuntime()) {
+        return null;
+    }
+
+    const sourceSet = discussionSets.find(
+        set => set.id === setId
+    );
+
+    const set =
+        materializeMyVersionDiscussionSet(
+            sourceSet
+        );
+
+    if (
+        !set ||
+        !Array.isArray(set.moments) ||
+        set.moments.length !== 1
+    ) {
+        return null;
+    }
+
+    const moment = set.moments[0];
+
+    const starter =
+        requireAtlasStructuredSubject()
+            .createMoment({
+                id: moment.id
+            });
+
+    const pristine =
+        moment.preview === starter.preview &&
+        moment.question === starter.question &&
+        !moment.followUp &&
+        (
+            !Array.isArray(moment.followUps) ||
+            moment.followUps.length === 0
+        ) &&
+        !moment.upgrade;
+
+    return pristine
+        ? sourceSet.moments[0]
+        : null;
+}
+
 function insertMyVersionMoment(
     setId,
-    moment
+    moment,
+    { replaceStarter = false } = {}
 ) {
     const nativeMoment =
         cloneTutorSubjectDocument(moment);
@@ -4027,8 +5777,15 @@ function insertMyVersionMoment(
         return null;
     }
 
+    const starterMoment =
+        replaceStarter
+            ? getPristineMyVersionMomentStarter(
+                setId
+            )
+            : null;
+
     const added = commitMyVersionDocumentMutation(
-        document => {
+        (document, overrides) => {
             const set = getMyVersionDocumentSet(
                 document,
                 setId
@@ -4041,6 +5798,34 @@ function insertMyVersionMoment(
                 )
             ) {
                 return null;
+            }
+
+            if (starterMoment) {
+                const starterIndex =
+                    set.moments.findIndex(
+                        item =>
+                            item.id ===
+                            starterMoment.id
+                    );
+
+                if (starterIndex >= 0) {
+                    const [removedMoment] =
+                        set.moments.splice(
+                            starterIndex,
+                            1,
+                            nativeMoment
+                        );
+
+                    removeMyVersionMomentOverrides(
+                        overrides,
+                        removedMoment.id
+                    );
+
+                    return {
+                        setId,
+                        momentId: nativeMoment.id
+                    };
+                }
             }
 
             set.moments.push(nativeMoment);
@@ -4070,6 +5855,23 @@ function insertMyVersionMoment(
 }
 
 function addMyVersionMoment(setId) {
+    const starterMoment =
+        getPristineMyVersionMomentStarter(
+            setId
+        );
+
+    if (starterMoment) {
+        openDiscussionFocus(
+            setId,
+            starterMoment.id,
+            document.getElementById(
+                `moment-card-${starterMoment.id}`
+            )
+        );
+
+        return starterMoment;
+    }
+
     const nativeMoment =
         requireAtlasStructuredSubject()
             .createMoment();
@@ -4103,6 +5905,27 @@ async function generateMyVersionMoment(
 
     if (!contextSet) return null;
 
+    const starterMoment =
+        getPristineMyVersionMomentStarter(
+            setId
+        );
+
+    const existingMoments =
+        contextSet.moments
+            .filter(moment =>
+                !starterMoment ||
+                moment.id !== starterMoment.id
+            )
+            .map(
+                ({
+                    preview,
+                    question
+                }) => ({
+                    preview,
+                    question
+                })
+            );
+
     const generated =
         await requireAtlasAI()
             .generateMoment({
@@ -4121,15 +5944,7 @@ async function generateMyVersionMoment(
                     description:
                         contextSet.description,
                     moments:
-                        contextSet.moments.map(
-                            ({
-                                preview,
-                                question
-                            }) => ({
-                                preview,
-                                question
-                            })
-                        )
+                        existingMoments
                 },
 
                 brief:
@@ -4142,7 +5957,11 @@ async function generateMyVersionMoment(
 
     return insertMyVersionMoment(
         setId,
-        nativeMoment
+        nativeMoment,
+        {
+            replaceStarter:
+                Boolean(starterMoment)
+        }
     );
 }
 
@@ -6490,8 +8309,15 @@ async function createSubjectFromPublishedMyVersion() {
 }
 
 function getEffectiveSubjectTitle() {
+    const draftTitle =
+        isOwnedSubjectRuntime() &&
+        myVersionEditing &&
+        typeof myVersionDraftDocument?.module?.title === 'string'
+            ? myVersionDraftDocument.module.title
+            : MODULE.title;
+
     return resolveTutorContentValue(
-        MODULE.title,
+        draftTitle,
         'module.title'
     ).trim() || MODULE.title;
 }
@@ -6504,8 +8330,15 @@ function getPublishedSubjectTitle() {
 }
 
 function getEffectiveSubjectCoverImage() {
+    const draftImage =
+        isOwnedSubjectRuntime() &&
+        myVersionEditing &&
+        typeof myVersionDraftDocument?.module?.bgImage === 'string'
+            ? myVersionDraftDocument.module.bgImage
+            : MODULE.bgImage;
+
     return resolveTutorContentValue(
-        MODULE.bgImage,
+        draftImage,
         'module.bgImage'
     ).trim() || MODULE.bgImage;
 }
@@ -6518,13 +8351,20 @@ function getPublishedSubjectCoverImage() {
 }
 
 function getEffectiveSubjectCatalogDescription() {
-    const originalDescription =
-        ATLAS_SUBJECT_DOCUMENT
-            .module
-            .catalogDescription || '';
+    const draftDescription =
+        isOwnedSubjectRuntime() &&
+        myVersionEditing &&
+        typeof myVersionDraftDocument?.module
+            ?.catalogDescription === 'string'
+            ? myVersionDraftDocument
+                .module
+                .catalogDescription
+            : ATLAS_SUBJECT_DOCUMENT
+                .module
+                .catalogDescription || '';
 
     return resolveTutorContentValue(
-        originalDescription,
+        draftDescription,
         'module.catalogDescription'
     ).trim();
 }
@@ -7055,7 +8895,10 @@ function applySubjectCopy() {
         'discussion-section-intro',
         subjectCopy.discussion.intro,
         'discussion.intro',
-        { multiline: true }
+        {
+            multiline: true,
+            allowAbsent: myVersionEditing
+        }
     );
 
     configureStaticTutorContentField(
@@ -12248,6 +14091,14 @@ function configureMyVersionDiscussionSetCard(
 function renderMyVersionAddDiscussionSetControl(container) {
     if (!myVersionEditing) return;
 
+    const block = document.createElement('div');
+    block.className =
+        'set-author-create-block';
+
+    const controls = document.createElement('div');
+    controls.className =
+        'moment-author-create-row';
+
     const addButton = document.createElement('button');
 
     addButton.type = 'button';
@@ -12265,8 +14116,93 @@ function renderMyVersionAddDiscussionSetControl(container) {
         Add set
     `;
 
-    addButton.onclick = addMyVersionDiscussionSet;
-    container.appendChild(addButton);
+    addButton.onclick = () => {
+        myVersionDiscussionSetGenerationError = '';
+
+        addMyVersionDiscussionSet();
+    };
+
+    controls.appendChild(addButton);
+
+    if (isOwnedSubjectRuntime()) {
+        const generating =
+            myVersionGeneratingDiscussionSet;
+
+        const generateButton =
+            document.createElement('button');
+
+        generateButton.type = 'button';
+
+        generateButton.className = [
+            'moment-author-add',
+            'moment-author-add--ai',
+            'set-author-add',
+            generating
+                ? 'is-generating'
+                : ''
+        ].filter(Boolean).join(' ');
+
+        generateButton.disabled = generating;
+
+        generateButton.setAttribute(
+            'aria-busy',
+            String(generating)
+        );
+
+        generateButton.innerHTML = generating
+            ? `
+                <svg class="moment-author-generate-spinner"
+                    width="15" height="15"
+                    viewBox="0 0 15 15"
+                    fill="none" aria-hidden="true">
+                    <circle cx="7.5" cy="7.5" r="5"
+                        stroke="currentColor"
+                        stroke-width="1.45"
+                        stroke-linecap="round"
+                        stroke-dasharray="20 12"/>
+                </svg>
+                Generating…
+            `
+            : `
+                <svg width="15" height="15"
+                    viewBox="0 0 15 15"
+                    fill="none" aria-hidden="true">
+                    <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                        stroke="currentColor"
+                        stroke-width="1.15"
+                        stroke-linejoin="round"/>
+                    <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                        stroke="currentColor"
+                        stroke-width="0.95"
+                        stroke-linejoin="round"/>
+                </svg>
+                Generate set
+            `;
+
+        generateButton.onclick = () => {
+            generateMyVersionDiscussionSetFromUI();
+        };
+
+        controls.appendChild(generateButton);
+    }
+
+    block.appendChild(controls);
+
+    if (myVersionDiscussionSetGenerationError) {
+        const error = document.createElement('p');
+
+        error.className =
+            'moment-author-generate-error';
+
+        error.setAttribute('role', 'alert');
+
+        error.textContent =
+            myVersionDiscussionSetGenerationError;
+
+        block.appendChild(error);
+    }
+
+    container.appendChild(block);
 }
 
 function renderDiscussionSets() {
