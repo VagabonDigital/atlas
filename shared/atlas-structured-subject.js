@@ -245,7 +245,8 @@
                 },
 
                 discussion: {
-                    heading: 'Discussion'
+                    heading: 'Discussion',
+                    intro: ''
                 },
 
                 reflection: {
@@ -337,6 +338,19 @@
             ) {
                 errors.push(
                     'Overview intro must be an array.'
+                );
+            }
+
+            if (
+                copy.discussion &&
+                Object.prototype.hasOwnProperty.call(
+                    copy.discussion,
+                    'intro'
+                ) &&
+                typeof copy.discussion.intro !== 'string'
+            ) {
+                errors.push(
+                    'Discussion intro must be a string.'
                 );
             }
 

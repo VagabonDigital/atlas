@@ -279,10 +279,696 @@
         };
     }
 
+    async function generateDiscussionSet(
+        input = {}
+    ) {
+        const token = getDevToken();
+
+        if (!token) {
+            throw new Error(
+                'Atlas AI development token is not configured.'
+            );
+        }
+
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const response = await fetch(
+            `${BASE_URL}/generate-discussion-set`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json',
+
+                    'X-Atlas-AI-Token':
+                        token
+                },
+
+                body: JSON.stringify({
+                    subject:
+                        candidate.subject || {},
+
+                    discussion:
+                        candidate.discussion || {},
+
+                    brief:
+                        cleanString(
+                            candidate.brief
+                        )
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+        }
+
+        const title =
+            cleanString(
+                result.payload?.title
+            );
+
+        const stage =
+            cleanString(
+                result.payload?.stage
+            );
+
+        const description =
+            cleanString(
+                result.payload?.description
+            );
+
+        const allowedStages =
+            new Set([
+                'First Look',
+                'Look Closer',
+                'Wider View'
+            ]);
+
+        const moments =
+            Array.isArray(
+                result.payload?.moments
+            )
+                ? result.payload.moments
+                    .map(moment => ({
+                        preview:
+                            cleanString(
+                                moment?.preview
+                            ),
+
+                        question:
+                            cleanString(
+                                moment?.question
+                            )
+                    }))
+                : [];
+
+        if (
+            !title ||
+            !allowedStages.has(stage) ||
+            !description ||
+            moments.length !== 5 ||
+            moments.some(moment =>
+                !moment.preview ||
+                !moment.question
+            )
+        ) {
+            throw new Error(
+                'Atlas AI returned an invalid Discussion set payload.'
+            );
+        }
+
+        return {
+            title,
+            stage,
+            description,
+            moments
+        };
+    }
+
+    async function generateSubjectFraming(
+        input = {}
+    ) {
+        const token = getDevToken();
+
+        if (!token) {
+            throw new Error(
+                'Atlas AI development token is not configured.'
+            );
+        }
+
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const response = await fetch(
+            `${BASE_URL}/generate-subject-framing`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json',
+
+                    'X-Atlas-AI-Token':
+                        token
+                },
+
+                body: JSON.stringify({
+                    subject: {
+                        title:
+                            cleanString(
+                                candidate.subject?.title
+                            )
+                    },
+
+                    brief:
+                        cleanString(
+                            candidate.brief
+                        )
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+        }
+
+        const catalogDescription =
+            cleanString(
+                result.payload
+                    ?.catalogDescription
+            );
+
+        const hook =
+            cleanString(
+                result.payload?.hook
+            );
+
+        if (
+            !catalogDescription ||
+            !hook
+        ) {
+            throw new Error(
+                'Atlas AI returned an invalid subject framing payload.'
+            );
+        }
+
+        return {
+            catalogDescription,
+            hook
+        };
+    }
+
+    async function generateOverview(
+        input = {}
+    ) {
+        const token = getDevToken();
+
+        if (!token) {
+            throw new Error(
+                'Atlas AI development token is not configured.'
+            );
+        }
+
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const response = await fetch(
+            `${BASE_URL}/generate-overview`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json',
+
+                    'X-Atlas-AI-Token':
+                        token
+                },
+
+                body: JSON.stringify({
+                    subject: {
+                        title:
+                            cleanString(
+                                candidate.subject?.title
+                            ),
+
+                        description:
+                            cleanString(
+                                candidate.subject?.description
+                            ),
+
+                        hook:
+                            cleanString(
+                                candidate.subject?.hook
+                            )
+                    },
+
+                    brief:
+                        cleanString(
+                            candidate.brief
+                        )
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+        }
+
+        const heading =
+            cleanString(
+                result.payload?.heading
+            );
+
+        const intro =
+            cleanString(
+                result.payload?.intro
+            );
+
+        const question =
+            cleanString(
+                result.payload?.question
+            );
+
+        if (
+            !heading ||
+            !intro ||
+            !question
+        ) {
+            throw new Error(
+                'Atlas AI returned an invalid Overview payload.'
+            );
+        }
+
+        return {
+            heading,
+            intro,
+            question
+        };
+    }
+
+    async function generateCulturalLensFraming(
+        input = {}
+    ) {
+        const token = getDevToken();
+
+        if (!token) {
+            throw new Error(
+                'Atlas AI development token is not configured.'
+            );
+        }
+
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const response = await fetch(
+            `${BASE_URL}/generate-cultural-lens-framing`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json',
+
+                    'X-Atlas-AI-Token':
+                        token
+                },
+
+                body: JSON.stringify({
+                    subject: {
+                        title:
+                            cleanString(
+                                candidate.subject?.title
+                            ),
+
+                        description:
+                            cleanString(
+                                candidate.subject?.description
+                            ),
+
+                        hook:
+                            cleanString(
+                                candidate.subject?.hook
+                            )
+                    },
+
+                    overview: {
+                        heading:
+                            cleanString(
+                                candidate.overview?.heading
+                            ),
+
+                        intro:
+                            cleanString(
+                                candidate.overview?.intro
+                            ),
+
+                        question:
+                            cleanString(
+                                candidate.overview?.question
+                            )
+                    },
+
+                    brief:
+                        cleanString(
+                            candidate.brief
+                        )
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+        }
+
+        const heading =
+            cleanString(
+                result.payload?.heading
+            );
+
+        const intro =
+            cleanString(
+                result.payload?.intro
+            );
+
+        const pathDescription =
+            cleanString(
+                result.payload?.pathDescription
+            );
+
+        if (
+            !heading ||
+            !intro ||
+            !pathDescription
+        ) {
+            throw new Error(
+                'Atlas AI returned an invalid Cultural Lens framing payload.'
+            );
+        }
+
+        return {
+            heading,
+            intro,
+            pathDescription
+        };
+    }
+
+    async function generateReflection(
+        input = {}
+    ) {
+        const token = getDevToken();
+
+        if (!token) {
+            throw new Error(
+                'Atlas AI development token is not configured.'
+            );
+        }
+
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const response = await fetch(
+            `${BASE_URL}/generate-reflection`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json',
+
+                    'X-Atlas-AI-Token':
+                        token
+                },
+
+                body: JSON.stringify({
+                    subject:
+                        candidate.subject || {},
+
+                    overview:
+                        candidate.overview || {},
+
+                    discussion:
+                        candidate.discussion || {},
+
+                    culturalLens:
+                        candidate.culturalLens || {},
+
+                    brief:
+                        cleanString(
+                            candidate.brief
+                        )
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+        }
+
+        const title =
+            cleanString(
+                result.payload?.title
+            );
+
+        const summary =
+            cleanString(
+                result.payload?.summary
+            );
+
+        const questions =
+            Array.isArray(
+                result.payload?.questions
+            )
+                ? result.payload.questions
+                    .map(cleanString)
+                    .filter(Boolean)
+                : [];
+
+        const pathDescription =
+            cleanString(
+                result.payload?.pathDescription
+            );
+
+        if (
+            !title ||
+            !summary ||
+            questions.length !== 2 ||
+            !pathDescription
+        ) {
+            throw new Error(
+                'Atlas AI returned an invalid Reflection payload.'
+            );
+        }
+
+        return {
+            title,
+            summary,
+            questions,
+            pathDescription
+        };
+    }
+
+    async function generateDiscussionFraming(
+        input = {}
+    ) {
+        const token = getDevToken();
+
+        if (!token) {
+            throw new Error(
+                'Atlas AI development token is not configured.'
+            );
+        }
+
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const response = await fetch(
+            `${BASE_URL}/generate-discussion-framing`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json',
+
+                    'X-Atlas-AI-Token':
+                        token
+                },
+
+                body: JSON.stringify({
+                    subject: {
+                        title:
+                            cleanString(
+                                candidate.subject?.title
+                            ),
+
+                        description:
+                            cleanString(
+                                candidate.subject?.description
+                            ),
+
+                        hook:
+                            cleanString(
+                                candidate.subject?.hook
+                            )
+                    },
+
+                    overview: {
+                        heading:
+                            cleanString(
+                                candidate.overview?.heading
+                            ),
+
+                        intro:
+                            cleanString(
+                                candidate.overview?.intro
+                            ),
+
+                        question:
+                            cleanString(
+                                candidate.overview?.question
+                            )
+                    },
+
+                    brief:
+                        cleanString(
+                            candidate.brief
+                        )
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+        }
+
+        const heading =
+            cleanString(
+                result.payload?.heading
+            );
+
+        const intro =
+            cleanString(
+                result.payload?.intro
+            );
+
+        const pathDescription =
+            cleanString(
+                result.payload?.pathDescription
+            );
+
+        if (
+            !heading ||
+            !intro ||
+            !pathDescription
+        ) {
+            throw new Error(
+                'Atlas AI returned an invalid Discussion framing payload.'
+            );
+        }
+
+        return {
+            heading,
+            intro,
+            pathDescription
+        };
+    }
+
     window.AtlasAI = {
         setDevToken,
         clearDevToken,
         generateMoment,
-        generateCulturalLensCard
+        generateCulturalLensCard,
+        generateDiscussionSet,
+        generateSubjectFraming,
+        generateOverview,
+        generateDiscussionFraming,
+        generateCulturalLensFraming,
+        generateReflection
     };
 })();
