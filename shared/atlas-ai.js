@@ -23,63 +23,13 @@
     const BASE_URL =
         'https://atlas-ai.savvy989.workers.dev';
 
-    const DEV_TOKEN_KEY =
-        'atlas::aiDevToken';
-
     function cleanString(value) {
         return String(value ?? '').trim();
-    }
-
-    function getDevToken() {
-        try {
-            return localStorage.getItem(
-                DEV_TOKEN_KEY
-            ) || '';
-        } catch {
-            return '';
-        }
-    }
-
-    function setDevToken(value) {
-        const token =
-            cleanString(value);
-
-        if (!token) return false;
-
-        try {
-            localStorage.setItem(
-                DEV_TOKEN_KEY,
-                token
-            );
-
-            return true;
-        } catch {
-            return false;
-        }
-    }
-
-    function clearDevToken() {
-        try {
-            localStorage.removeItem(
-                DEV_TOKEN_KEY
-            );
-
-            return true;
-        } catch {
-            return false;
-        }
     }
 
     async function generateMoment(
         input = {}
     ) {
-        const token = getDevToken();
-
-        if (!token) {
-            throw new Error(
-                'Atlas AI development token is not configured.'
-            );
-        }
 
         const candidate =
             input &&
@@ -95,10 +45,7 @@
 
                 headers: {
                     'Content-Type':
-                        'application/json',
-
-                    'X-Atlas-AI-Token':
-                        token
+                        'application/json'
                 },
 
                 body: JSON.stringify({
@@ -158,13 +105,6 @@
     async function generateCulturalLensCard(
         input = {}
     ) {
-        const token = getDevToken();
-
-        if (!token) {
-            throw new Error(
-                'Atlas AI development token is not configured.'
-            );
-        }
 
         const candidate =
             input &&
@@ -180,10 +120,7 @@
 
                 headers: {
                     'Content-Type':
-                        'application/json',
-
-                    'X-Atlas-AI-Token':
-                        token
+                        'application/json'
                 },
 
                 body: JSON.stringify({
@@ -282,13 +219,6 @@
     async function generateDiscussionSet(
         input = {}
     ) {
-        const token = getDevToken();
-
-        if (!token) {
-            throw new Error(
-                'Atlas AI development token is not configured.'
-            );
-        }
 
         const candidate =
             input &&
@@ -304,10 +234,7 @@
 
                 headers: {
                     'Content-Type':
-                        'application/json',
-
-                    'X-Atlas-AI-Token':
-                        token
+                        'application/json'
                 },
 
                 body: JSON.stringify({
@@ -408,13 +335,6 @@
     async function generateSubjectFraming(
         input = {}
     ) {
-        const token = getDevToken();
-
-        if (!token) {
-            throw new Error(
-                'Atlas AI development token is not configured.'
-            );
-        }
 
         const candidate =
             input &&
@@ -430,10 +350,7 @@
 
                 headers: {
                     'Content-Type':
-                        'application/json',
-
-                    'X-Atlas-AI-Token':
-                        token
+                        'application/json'
                 },
 
                 body: JSON.stringify({
@@ -498,13 +415,6 @@
     async function generateOverview(
         input = {}
     ) {
-        const token = getDevToken();
-
-        if (!token) {
-            throw new Error(
-                'Atlas AI development token is not configured.'
-            );
-        }
 
         const candidate =
             input &&
@@ -520,10 +430,7 @@
 
                 headers: {
                     'Content-Type':
-                        'application/json',
-
-                    'X-Atlas-AI-Token':
-                        token
+                        'application/json'
                 },
 
                 body: JSON.stringify({
@@ -604,13 +511,6 @@
     async function generateCulturalLensFraming(
         input = {}
     ) {
-        const token = getDevToken();
-
-        if (!token) {
-            throw new Error(
-                'Atlas AI development token is not configured.'
-            );
-        }
 
         const candidate =
             input &&
@@ -626,10 +526,7 @@
 
                 headers: {
                     'Content-Type':
-                        'application/json',
-
-                    'X-Atlas-AI-Token':
-                        token
+                        'application/json'
                 },
 
                 body: JSON.stringify({
@@ -727,13 +624,6 @@
     async function generateDiscussionPathway(
         input = {}
     ) {
-        const token = getDevToken();
-
-        if (!token) {
-            throw new Error(
-                'Atlas AI development token is not configured.'
-            );
-        }
 
         const candidate =
             input &&
@@ -749,10 +639,7 @@
 
                 headers: {
                     'Content-Type':
-                        'application/json',
-
-                    'X-Atlas-AI-Token':
-                        token
+                        'application/json'
                 },
 
                 body: JSON.stringify({
@@ -832,13 +719,6 @@
     async function generateMakeItReal(
         input = {}
     ) {
-        const token = getDevToken();
-
-        if (!token) {
-            throw new Error(
-                'Atlas AI development token is not configured.'
-            );
-        }
 
         const candidate =
             input &&
@@ -854,10 +734,7 @@
 
                 headers: {
                     'Content-Type':
-                        'application/json',
-
-                    'X-Atlas-AI-Token':
-                        token
+                        'application/json'
                 },
 
                 body: JSON.stringify({
@@ -924,13 +801,6 @@
     async function generateCulturalLensUpgrade(
         input = {}
     ) {
-        const token = getDevToken();
-
-        if (!token) {
-            throw new Error(
-                'Atlas AI development token is not configured.'
-            );
-        }
 
         const candidate =
             input &&
@@ -946,10 +816,7 @@
 
                 headers: {
                     'Content-Type':
-                        'application/json',
-
-                    'X-Atlas-AI-Token':
-                        token
+                        'application/json'
                 },
 
                 body: JSON.stringify({
@@ -1075,13 +942,6 @@
     async function generateMomentUpgrade(
         input = {}
     ) {
-        const token = getDevToken();
-
-        if (!token) {
-            throw new Error(
-                'Atlas AI development token is not configured.'
-            );
-        }
 
         const candidate =
             input &&
@@ -1097,10 +957,7 @@
 
                 headers: {
                     'Content-Type':
-                        'application/json',
-
-                    'X-Atlas-AI-Token':
-                        token
+                        'application/json'
                 },
 
                 body: JSON.stringify({
@@ -1226,13 +1083,6 @@
     async function generateReflection(
         input = {}
     ) {
-        const token = getDevToken();
-
-        if (!token) {
-            throw new Error(
-                'Atlas AI development token is not configured.'
-            );
-        }
 
         const candidate =
             input &&
@@ -1248,10 +1098,7 @@
 
                 headers: {
                     'Content-Type':
-                        'application/json',
-
-                    'X-Atlas-AI-Token':
-                        token
+                        'application/json'
                 },
 
                 body: JSON.stringify({
@@ -1338,13 +1185,6 @@
     async function generateDiscussionFraming(
         input = {}
     ) {
-        const token = getDevToken();
-
-        if (!token) {
-            throw new Error(
-                'Atlas AI development token is not configured.'
-            );
-        }
 
         const candidate =
             input &&
@@ -1360,10 +1200,7 @@
 
                 headers: {
                     'Content-Type':
-                        'application/json',
-
-                    'X-Atlas-AI-Token':
-                        token
+                        'application/json'
                 },
 
                 body: JSON.stringify({
@@ -1459,8 +1296,6 @@
     }
 
     window.AtlasAI = {
-        setDevToken,
-        clearDevToken,
         generateMoment,
         generateCulturalLensCard,
         generateDiscussionSet,
