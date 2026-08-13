@@ -1106,6 +1106,13 @@
       cursor: pointer;
     }
 
+    .subject-card--owned:has(
+      .subject-card-manage-btn[aria-expanded="true"]
+    ) {
+      overflow: visible;
+      z-index: 10;
+    }
+
     .subject-card-open-layer {
       position: absolute;
       inset: 0;
