@@ -42,6 +42,7 @@
     :root {
       --surface: #f5f1e9;
       --surface-raised: rgba(255, 253, 249, 0.88);
+      --chrome-surface: rgba(245, 241, 233, 0.88);
       --border: rgba(61, 56, 48, 0.12);
       --heading: #1e1b16;
       --body: #514b42;
@@ -55,6 +56,7 @@
     html[data-theme="night"] {
       --surface: #221f1b;
       --surface-raised: #38332d;
+      --chrome-surface: rgba(34, 31, 27, 0.90);
       --border: #4c453d;
       --heading: #f5f0e8;
       --body: #e7e0d4;
@@ -82,36 +84,71 @@
     }
 
     .topbar {
-      height: 76px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 56px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 2rem;
+      padding: 0 1.5rem;
+      background: var(--chrome-surface);
       border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(22px) saturate(1.08);
+      -webkit-backdrop-filter: blur(22px) saturate(1.08);
     }
 
     .brand {
       color: var(--heading);
       font-family: var(--font-display);
-      font-size: 1.45rem;
+      font-size: 1.22rem;
+      letter-spacing: -0.01em;
       text-decoration: none;
+      transition: color 180ms ease;
     }
 
-    .back {
+    .brand:hover {
+      color: var(--accent);
+    }
+
+    .brand:focus-visible,
+    .topbar-parent:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+
+    .topbar-parent {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
       color: var(--muted);
       font-size: 0.82rem;
       font-weight: 500;
       text-decoration: none;
+      transition: color 180ms ease;
     }
 
-    .back:hover {
+    .topbar-parent[hidden] {
+      display: none;
+    }
+
+    .topbar-parent svg {
+      transition: transform 180ms ease;
+    }
+
+    .topbar-parent:hover {
       color: var(--heading);
+    }
+
+    .topbar-parent:hover svg {
+      transform: translateX(-2px);
     }
 
     main {
       width: min(920px, calc(100% - 3rem));
       margin: 0 auto;
-      padding: 6rem 0;
+      padding: 3.35rem 0 6rem;
     }
 
     .eyebrow {
@@ -180,13 +217,18 @@
       position: absolute;
       top: 1.7rem;
       right: 1.7rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       color: var(--accent);
-      font-size: 1rem;
+    }
+
+    .section-arrow svg {
       transition: transform 180ms ease;
     }
 
-    .section-link:hover .section-arrow {
-      transform: translateX(3px);
+    .section-link:hover .section-arrow svg {
+      transform: translateX(2px);
     }
 
     .section:first-child {
@@ -195,7 +237,7 @@
 
     .section-label {
       margin: 0 0 0.45rem;
-      color: var(--accent);
+      color: var(--muted);
       font-size: 0.68rem;
       font-weight: 600;
       letter-spacing: 0.13em;
@@ -219,20 +261,7 @@
 
     .tutor-detail {
       width: min(780px, calc(100% - 3rem));
-      padding-top: 4.8rem;
-    }
-
-    .detail-back {
-      display: inline-block;
-      margin-bottom: 3.4rem;
-      color: var(--muted);
-      font-size: 0.78rem;
-      font-weight: 500;
-      text-decoration: none;
-    }
-
-    .detail-back:hover {
-      color: var(--heading);
+      padding-top: 3.35rem;
     }
 
     .detail-title {
@@ -339,9 +368,9 @@
         padding: 0 1rem;
       }
 
-      main {
-        width: min(100% - 2rem, 920px);
-        padding: 4rem 0;
+      .tutor-detail {
+        width: min(100% - 2rem, 780px);
+        padding-top: 3rem;
       }
 
       .sections {
@@ -354,7 +383,7 @@
 
       .tutor-detail {
         width: min(100% - 2rem, 780px);
-        padding-top: 3rem;
+        padding-top: 2.5rem;
       }
 
       .atlas-system {
@@ -367,8 +396,23 @@
 <body data-atlas-world="atlas" data-atlas-surface="tutors">
 
   <header class="topbar">
-    <a class="brand" href="../">Atlas.</a>
-    <a class="back" href="../">← Back to Atlas</a>
+    <a class="brand" href="../" aria-label="Atlas home">
+      Atlas.
+    </a>
+
+    <a class="topbar-parent" id="tutor-parent-link" href="#" hidden>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path
+          d="M11 7H3M6 4L3 7l3 3"
+          stroke="currentColor"
+          stroke-width="1.3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+
+      <span>Inside Atlas</span>
+    </a>
   </header>
 
   <main id="tutor-home">
@@ -390,7 +434,17 @@
           and the quickest way to understand the whole system.
         </p>
 
-        <span class="section-arrow" aria-hidden="true">→</span>
+        <span class="section-arrow" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path
+              d="M3 7h8M8 4l3 3-3 3"
+              stroke="currentColor"
+              stroke-width="1.3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
       </a>
 
       <a class="section section-link" href="#teaching-with-atlas">
@@ -401,7 +455,17 @@
           during a real lesson.
         </p>
 
-        <span class="section-arrow" aria-hidden="true">→</span>
+        <span class="section-arrow" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path
+              d="M3 7h8M8 4l3 3-3 3"
+              stroke="currentColor"
+              stroke-width="1.3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
       </a>
 
       <a class="section section-link" href="#make-it-yours">
@@ -412,7 +476,17 @@
           and create subjects that belong to you.
         </p>
 
-        <span class="section-arrow" aria-hidden="true">→</span>
+        <span class="section-arrow" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path
+              d="M3 7h8M8 4l3 3-3 3"
+              stroke="currentColor"
+              stroke-width="1.3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
       </a>
 
       <a class="section section-link" href="#help-shape-atlas">
@@ -423,7 +497,17 @@
           and how your feedback influences what happens next.
         </p>
 
-        <span class="section-arrow" aria-hidden="true">→</span>
+        <span class="section-arrow" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path
+              d="M3 7h8M8 4l3 3-3 3"
+              stroke="currentColor"
+              stroke-width="1.3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
       </a>
 
       <a class="section section-link" href="#whats-next">
@@ -434,15 +518,22 @@
           and the ideas being explored beyond the pilot.
         </p>
 
-        <span class="section-arrow" aria-hidden="true">→</span>
+        <span class="section-arrow" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path
+              d="M3 7h8M8 4l3 3-3 3"
+              stroke="currentColor"
+              stroke-width="1.3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
       </a>
     </div>
   </main>
 
   <main class="tutor-detail" id="what-is-atlas" hidden>
-    <a class="detail-back" href="#">
-      ← Back to Inside Atlas
-    </a>
 
     <p class="eyebrow">Start here</p>
 
@@ -527,9 +618,6 @@
   </main>
 
   <main class="tutor-detail" id="teaching-with-atlas" hidden>
-    <a class="detail-back" href="#">
-      ← Back to Inside Atlas
-    </a>
 
     <p class="eyebrow">Use it</p>
 
@@ -583,9 +671,6 @@
   </main>
 
   <main class="tutor-detail" id="make-it-yours" hidden>
-    <a class="detail-back" href="#">
-      ← Back to Inside Atlas
-    </a>
 
     <p class="eyebrow">Own it</p>
 
@@ -639,9 +724,6 @@
   </main>
 
   <main class="tutor-detail" id="help-shape-atlas" hidden>
-    <a class="detail-back" href="#">
-      ← Back to Inside Atlas
-    </a>
 
     <p class="eyebrow">Pilot</p>
 
@@ -695,9 +777,6 @@
   </main>
 
   <main class="tutor-detail" id="whats-next" hidden>
-    <a class="detail-back" href="#">
-      ← Back to Inside Atlas
-    </a>
 
     <p class="eyebrow">Direction</p>
 
@@ -755,10 +834,31 @@
       var home =
         document.getElementById('tutor-home');
 
+      var parentLink =
+        document.getElementById('tutor-parent-link');
+
       var detailViews =
         Array.from(
           document.querySelectorAll('.tutor-detail[id]')
         );
+
+      var sectionLinks =
+        Array.from(
+          document.querySelectorAll('.section-link')
+        );
+
+      var homeScrollY = 0;
+      var homeReturnTarget = null;
+
+      sectionLinks.forEach(function (link) {
+        link.addEventListener('click', function () {
+          homeScrollY =
+            window.scrollY;
+
+          homeReturnTarget =
+            link;
+        });
+      });
 
       function getActiveDetailView() {
         var route =
@@ -780,21 +880,44 @@
         home.hidden =
           Boolean(activeView);
 
+        parentLink.hidden =
+          !activeView;
+
         detailViews.forEach(function (view) {
           view.hidden =
             view !== activeView;
         });
 
-        window.scrollTo(0, 0);
-
         if (!activeView) {
+          document.title =
+            'Inside Atlas';
+
+          requestAnimationFrame(function () {
+            window.scrollTo(
+              0,
+              homeScrollY
+            );
+
+            if (homeReturnTarget) {
+              homeReturnTarget.focus({
+                preventScroll: true
+              });
+            }
+          });
+
           return;
         }
+
+        window.scrollTo(0, 0);
 
         var heading =
           activeView.querySelector('.detail-title');
 
         if (heading) {
+          document.title =
+            heading.textContent.trim() +
+            ' · Inside Atlas';
+
           requestAnimationFrame(function () {
             heading.focus({
               preventScroll: true
