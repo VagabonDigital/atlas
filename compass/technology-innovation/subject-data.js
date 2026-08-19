@@ -24,7 +24,7 @@ const MODULE = {
     title: 'Technology & Innovation',
     titleHtml: 'Technology &amp; <em>Innovation</em>',
     navTitle: 'Technology',
-    bgImage: 'https://photos.smugmug.com/Atlas/i-HRxxfKm/0/LxfwrSftsBGtshL2rMnbjKdDnxpzS6kRwnZFvCXF5/O/2d9b20d4-fb4f-4a9d-b2de-80dd6a13a04a.png'
+    bgImage: 'https://static.wixstatic.com/media/c50469_bce6b50502f242c098f6edda48d2559b~mv2.jpeg/v1/fill/w_1110,h_662,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c50469_bce6b50502f242c098f6edda48d2559b~mv2.jpeg'
 };
 
 const subjectCopy = {
