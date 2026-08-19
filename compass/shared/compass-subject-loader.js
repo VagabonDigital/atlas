@@ -138,7 +138,11 @@
                 subjectId: record.id,
                 ownerId: record.ownerId,
                 format: record.format,
-                revision: record.revision
+                revision: record.revision,
+                generationContext:
+                    cloneJson(
+                        record.metadata?.generationContext
+                    ) || {}
             },
 
             module: {
@@ -168,6 +172,12 @@
 
     function installRuntimeSubject(subject) {
         window.AtlasCompassSubjectRuntime = subject.runtime;
+
+        window.AtlasGenerationContext =
+            cloneJson(
+                subject.runtime?.generationContext
+            ) || {};
+
         window.MODULE = subject.module;
         window.subjectCopy = subject.subjectCopy;
         window.discussionSets = subject.discussionSets;
