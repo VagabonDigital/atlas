@@ -27,6 +27,104 @@
         return String(value ?? '').trim();
     }
 
+    function buildGenerationBrief(localBrief = '') {
+        const context =
+            window.AtlasGenerationContext &&
+            typeof window.AtlasGenerationContext === 'object' &&
+            !Array.isArray(window.AtlasGenerationContext)
+                ? window.AtlasGenerationContext
+                : {};
+
+        const levelGuidance = {
+            'a1-a2':
+                'Use very simple, concrete learner-facing English. Keep questions short and focused on one idea at a time. Prefer common vocabulary and simple sentence patterns. Avoid unnecessary abstraction, idioms, nested hypotheticals and multi-part questions. Keep Cultural Lens, Reflection and Language Upgrades equally accessible.',
+
+            'b1':
+                'Use clear everyday learner-facing English. Keep questions easy to enter, limit unnecessary complexity and favour concrete language before abstract discussion.',
+
+            'b2':
+                'Use natural B2 learner-facing English with varied but accessible vocabulary. Allow thoughtful discussion without unnecessary complexity.',
+
+            'c1-plus':
+                'Use natural advanced learner-facing English. Nuance and more complex ideas are welcome, but keep the material conversational rather than academic.'
+        };
+
+        const styleGuidance = {
+            balanced:
+                'Keep the tone natural, warm and varied.',
+
+            playful:
+                'Keep the tone playful, lively and imaginative. Use humour and occasional emojis when they genuinely help.',
+
+            relaxed:
+                'Keep the tone relaxed, personal and low-pressure, with easy conversational entry points.',
+
+            thoughtful:
+                'Keep the tone thoughtful and reflective without becoming academic or artificially abstract.',
+
+            practical:
+                'Keep the conversation concrete and useful, favouring real-life situations, decisions and examples.'
+        };
+
+        const parts = [];
+
+        if (levelGuidance[context.languageLevel]) {
+            parts.push(
+                'LANGUAGE LEVEL: ' +
+                levelGuidance[context.languageLevel]
+            );
+        }
+
+        if (styleGuidance[context.style]) {
+            parts.push(
+                'STYLE: ' +
+                styleGuidance[context.style]
+            );
+        }
+
+        const tutorBrief =
+            cleanString(context.brief);
+
+        if (tutorBrief) {
+            parts.push(
+                'TUTOR INTENT: ' +
+                tutorBrief
+            );
+        }
+
+        const currentBrief =
+            cleanString(localBrief);
+
+        if (currentBrief) {
+            parts.push(
+                'CURRENT REQUEST: ' +
+                currentBrief
+            );
+        }
+
+        return parts.join('\n');
+    }
+
+    function withGenerationContext(generator) {
+        return function (input = {}) {
+            const candidate =
+                input &&
+                typeof input === 'object' &&
+                !Array.isArray(input)
+                    ? input
+                    : {};
+
+            return generator({
+                ...candidate,
+
+                brief:
+                    buildGenerationBrief(
+                        candidate.brief
+                    )
+            });
+        };
+    }
+
     async function generateMoment(
         input = {}
     ) {
@@ -1296,17 +1394,40 @@
     }
 
     window.AtlasAI = {
-        generateMoment,
-        generateCulturalLensCard,
-        generateDiscussionSet,
-        generateSubjectFraming,
-        generateOverview,
-        generateDiscussionFraming,
-        generateCulturalLensFraming,
-        generateReflection,
-        generateMomentUpgrade,
-        generateCulturalLensUpgrade,
-        generateMakeItReal,
-        generateDiscussionPathway
+        generateMoment:
+            withGenerationContext(generateMoment),
+
+        generateCulturalLensCard:
+            withGenerationContext(generateCulturalLensCard),
+
+        generateDiscussionSet:
+            withGenerationContext(generateDiscussionSet),
+
+        generateSubjectFraming:
+            withGenerationContext(generateSubjectFraming),
+
+        generateOverview:
+            withGenerationContext(generateOverview),
+
+        generateDiscussionFraming:
+            withGenerationContext(generateDiscussionFraming),
+
+        generateCulturalLensFraming:
+            withGenerationContext(generateCulturalLensFraming),
+
+        generateReflection:
+            withGenerationContext(generateReflection),
+
+        generateMomentUpgrade:
+            withGenerationContext(generateMomentUpgrade),
+
+        generateCulturalLensUpgrade:
+            withGenerationContext(generateCulturalLensUpgrade),
+
+        generateMakeItReal:
+            withGenerationContext(generateMakeItReal),
+
+        generateDiscussionPathway:
+            withGenerationContext(generateDiscussionPathway)
     };
 })();
