@@ -1844,7 +1844,7 @@
     }
 
     .owned-subject-dialog-panel {
-      width: min(430px, 100%);
+      width: min(500px, 100%);
       padding: 1.45rem;
       border: var(--dialog-border);
       border-radius: var(--radius-lg);
@@ -1908,6 +1908,83 @@
     }
 
     .owned-subject-dialog-field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
+    }
+
+    .owned-subject-dialog-create-fields {
+      display: grid;
+      gap: 0.9rem;
+      margin-bottom: 1.15rem;
+    }
+
+    .owned-subject-dialog-create-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.8rem;
+    }
+
+    .owned-subject-dialog-create-fields[hidden] {
+      display: none;
+    }
+
+    .owned-subject-dialog-create-field {
+      display: grid;
+      gap: 0.42rem;
+    }
+
+    .owned-subject-dialog-create-field > span {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .owned-subject-dialog-create-field select,
+    .owned-subject-dialog-create-field textarea {
+      width: 100%;
+      padding: 0.65rem 0.78rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      background: var(--surface-raised);
+      color: var(--text-heading);
+      font: inherit;
+      outline: none;
+      transition: var(--t);
+    }
+
+    .owned-subject-dialog-create-field select {
+      min-height: 44px;
+      padding-right: 2.5rem;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image:
+        linear-gradient(
+          45deg,
+          transparent 50%,
+          var(--text-muted) 50%
+        ),
+        linear-gradient(
+          135deg,
+          var(--text-muted) 50%,
+          transparent 50%
+        );
+      background-position:
+        calc(100% - 1.05rem) calc(50% - 0.1rem),
+        calc(100% - 0.81rem) calc(50% - 0.1rem);
+      background-size:
+        0.28rem 0.28rem,
+        0.28rem 0.28rem;
+      background-repeat: no-repeat;
+    }
+
+    .owned-subject-dialog-create-field textarea {
+      min-height: 82px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .owned-subject-dialog-create-field select:focus,
+    .owned-subject-dialog-create-field textarea:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
     }
@@ -2129,6 +2206,10 @@
       }
 
       .subject-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .owned-subject-dialog-create-grid {
         grid-template-columns: 1fr;
       }
 
@@ -3175,9 +3256,43 @@
         '<p class="owned-subject-dialog-copy" id="owned-subject-dialog-copy"></p>' +
 
         '<label class="owned-subject-dialog-field" id="owned-subject-dialog-field">' +
-        '<span>Subject title</span>' +
+        '<span id="owned-subject-dialog-field-label">Subject title</span>' +
         '<input id="owned-subject-dialog-input" type="text" maxlength="120" autocomplete="off">' +
         '</label>' +
+
+        '<div class="owned-subject-dialog-create-fields" id="owned-subject-dialog-create-fields" hidden>' +
+
+        '<div class="owned-subject-dialog-create-grid">' +
+
+        '<label class="owned-subject-dialog-create-field">' +
+        '<span>Language level</span>' +
+        '<select id="owned-subject-dialog-level">' +
+        '<option value="a1-a2">A1–A2</option>' +
+        '<option value="b1">B1</option>' +
+        '<option value="b2" selected>B2</option>' +
+        '<option value="c1-plus">C1+</option>' +
+        '</select>' +
+        '</label>' +
+
+        '<label class="owned-subject-dialog-create-field">' +
+        '<span>Style</span>' +
+        '<select id="owned-subject-dialog-style">' +
+        '<option value="balanced" selected>Balanced</option>' +
+        '<option value="playful">Playful</option>' +
+        '<option value="relaxed">Relaxed</option>' +
+        '<option value="thoughtful">Thoughtful</option>' +
+        '<option value="practical">Practical</option>' +
+        '</select>' +
+        '</label>' +
+
+        '</div>' +
+
+        '<label class="owned-subject-dialog-create-field">' +
+        '<span>Anything Atlas should know? — optional</span>' +
+        '<textarea id="owned-subject-dialog-brief" maxlength="360" placeholder="Add any useful direction for this subject."></textarea>' +
+        '</label>' +
+
+        '</div>' +
 
         '<p class="owned-subject-dialog-error" id="owned-subject-dialog-error" hidden></p>' +
 
@@ -3283,6 +3398,26 @@
         '#owned-subject-dialog-input'
       );
 
+      const fieldLabel = dialog.querySelector(
+        '#owned-subject-dialog-field-label'
+      );
+
+      const createFields = dialog.querySelector(
+        '#owned-subject-dialog-create-fields'
+      );
+
+      const levelSelect = dialog.querySelector(
+        '#owned-subject-dialog-level'
+      );
+
+      const styleSelect = dialog.querySelector(
+        '#owned-subject-dialog-style'
+      );
+
+      const briefInput = dialog.querySelector(
+        '#owned-subject-dialog-brief'
+      );
+
       const error = dialog.querySelector(
         '#owned-subject-dialog-error'
       );
@@ -3298,10 +3433,22 @@
       title.textContent = 'Create subject';
 
       copy.textContent =
-        'Give your subject a name. You can build and shape everything else inside it.';
+        'Start with a topic and a few teaching preferences. Atlas will use them to guide the subject as you build it.';
 
       field.hidden = false;
+
+      fieldLabel.textContent =
+        'What do you want to explore?';
+
       input.value = '';
+      input.placeholder =
+        'A topic, situation, film or idea…';
+
+      createFields.hidden = false;
+
+      levelSelect.value = 'b2';
+      styleSelect.value = 'balanced';
+      briefInput.value = '';
 
       error.hidden = true;
       error.textContent = '';
@@ -3366,6 +3513,12 @@
       const input = dialog.querySelector(
         '#owned-subject-dialog-input'
       );
+      const fieldLabel = dialog.querySelector(
+        '#owned-subject-dialog-field-label'
+      );
+      const createFields = dialog.querySelector(
+        '#owned-subject-dialog-create-fields'
+      );
       const error = dialog.querySelector(
         '#owned-subject-dialog-error'
       );
@@ -3383,7 +3536,16 @@
         'Change the name of this subject everywhere it appears in Atlas and Compass.';
 
       field.hidden = false;
-      input.value = getOwnedSubjectRecordTitle(record);
+
+      fieldLabel.textContent =
+        'Subject title';
+
+      input.value =
+        getOwnedSubjectRecordTitle(record);
+
+      input.placeholder = '';
+
+      createFields.hidden = true;
 
       error.hidden = true;
       error.textContent = '';
@@ -3446,6 +3608,9 @@
       const field = dialog.querySelector(
         '#owned-subject-dialog-field'
       );
+      const createFields = dialog.querySelector(
+        '#owned-subject-dialog-create-fields'
+      );
       const error = dialog.querySelector(
         '#owned-subject-dialog-error'
       );
@@ -3465,6 +3630,7 @@
         '” will be permanently removed from My Subjects.';
 
       field.hidden = true;
+      createFields.hidden = true;
 
       error.hidden = true;
       error.textContent = '';
@@ -3496,6 +3662,19 @@
       const input = dialog.querySelector(
         '#owned-subject-dialog-input'
       );
+
+      const levelSelect = dialog.querySelector(
+        '#owned-subject-dialog-level'
+      );
+
+      const styleSelect = dialog.querySelector(
+        '#owned-subject-dialog-style'
+      );
+
+      const briefInput = dialog.querySelector(
+        '#owned-subject-dialog-brief'
+      );
+
       const error = dialog.querySelector(
         '#owned-subject-dialog-error'
       );
@@ -3517,6 +3696,39 @@
           input?.focus();
           return;
         }
+
+        const allowedLevels = new Set([
+          'a1-a2',
+          'b1',
+          'b2',
+          'c1-plus'
+        ]);
+
+        const allowedStyles = new Set([
+          'balanced',
+          'playful',
+          'relaxed',
+          'thoughtful',
+          'practical'
+        ]);
+
+        const generationContext = {
+          version: 1,
+
+          languageLevel:
+            allowedLevels.has(levelSelect?.value)
+              ? levelSelect.value
+              : 'b2',
+
+          style:
+            allowedStyles.has(styleSelect?.value)
+              ? styleSelect.value
+              : 'balanced',
+
+          brief: String(
+            briefInput?.value || ''
+          ).trim()
+        };
 
         const Structured =
           window.AtlasStructuredSubject;
@@ -3564,7 +3776,8 @@
                 title: nextTitle,
                 navTitle: nextTitle,
                 description: '',
-                coverImage: ''
+                coverImage: '',
+                generationContext
               },
 
               document,
