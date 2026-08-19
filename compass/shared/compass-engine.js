@@ -2113,6 +2113,16 @@ function hasUnappliedMyVersionCoverChanges() {
 }
 
 function updateCreateSubjectFromMyVersionUI() {
+    const applyButton = document.getElementById(
+        'atlas-my-version-cover-confirm'
+    );
+
+    if (applyButton) {
+        applyButton.disabled =
+            !hasUnappliedMyVersionCoverChanges() ||
+            myVersionSaving;
+    }
+
     const button = document.getElementById(
         'atlas-create-subject-from-version'
     );
@@ -2360,15 +2370,6 @@ function applyMyVersionCoverChanges() {
     const description = String(
         descriptionInput?.value || ''
     ).trim();
-
-    if (!image) {
-        if (error) {
-            error.hidden = false;
-            error.textContent = 'Add a cover image.';
-        }
-
-        return;
-    }
 
     try {
         const parsed = new URL(image, window.location.href);
