@@ -4427,9 +4427,14 @@ body.atlas-my-version-editing .cover-hook[data-atlas-live-editable="true"]:focus
     color: var(--accent-ink);
 }
 
-.atlas-my-version-dialog-primary:hover {
+.atlas-my-version-dialog-primary:hover:not(:disabled) {
     border-color: var(--accent-soft);
     background: var(--accent-soft);
+}
+
+.atlas-my-version-dialog-primary:disabled {
+    opacity: 0.5;
+    cursor: default;
 }
 
 .atlas-my-version-dialog-secondary {
