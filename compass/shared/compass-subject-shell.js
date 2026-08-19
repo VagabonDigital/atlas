@@ -977,6 +977,7 @@ function mountCompassSubjectShell() {
                 </button>
 
                 <button class="atlas-my-version-dialog-primary"
+                    id="atlas-my-version-cover-confirm"
                     type="button"
                     onclick="applyMyVersionCoverChanges()">
                     Apply details
