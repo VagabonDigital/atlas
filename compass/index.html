@@ -4029,6 +4029,110 @@
       }
     }
 
+    function getActiveSessionSubjectCollectionTitle() {
+      const session = getActiveSession();
+
+      return isDefaultSession(session)
+        ? 'Session Subjects'
+        : session.name + '’s Subjects';
+    }
+
+    async function addOwnedSubjectToActiveSession(
+      subjectId,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+      const session = getActiveSession();
+
+      if (
+        !Subjects ||
+        typeof Subjects.addSessionSubject !== 'function'
+      ) {
+        showToast('Session subjects are unavailable.');
+        return;
+      }
+
+      try {
+        const saved =
+          await Subjects.addSessionSubject(
+            session.id,
+            {
+              kind: 'my-subject',
+              id: subjectId
+            }
+          );
+
+        if (!saved) {
+          throw new Error(
+            'Session subject assignment failed.'
+          );
+        }
+
+        await renderHub();
+
+        showToast(
+          'Added to ' +
+          getActiveSessionSubjectCollectionTitle() +
+          '.'
+        );
+      } catch {
+        showToast('Couldn’t add this subject.');
+      }
+    }
+
+    async function removeOwnedSubjectFromActiveSession(
+      subjectId,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+      const session = getActiveSession();
+
+      if (
+        !Subjects ||
+        typeof Subjects.removeSessionSubject !== 'function'
+      ) {
+        showToast('Session subjects are unavailable.');
+        return;
+      }
+
+      try {
+        const saved =
+          await Subjects.removeSessionSubject(
+            session.id,
+            {
+              kind: 'my-subject',
+              id: subjectId
+            }
+          );
+
+        if (!saved) {
+          throw new Error(
+            'Session subject removal failed.'
+          );
+        }
+
+        await renderHub();
+
+        showToast(
+          'Removed from ' +
+          getActiveSessionSubjectCollectionTitle() +
+          '.'
+        );
+      } catch {
+        showToast('Couldn’t remove this subject.');
+      }
+    }
+
     /* ================================================================
        RENDER
        One curated operational collection containing only playable subjects.
@@ -4049,9 +4153,81 @@
       const atlasSubjects = getAtlasSubjects();
       const ownedSubjects = await getOwnedSubjects();
 
+      const Subjects = window.AtlasTutorSubjects;
+
+      let sessionSubjectRefs = [];
+
+      try {
+        if (
+          Subjects &&
+          typeof Subjects.getSessionSubjects === 'function'
+        ) {
+          sessionSubjectRefs =
+            await Subjects.getSessionSubjects(session.id);
+        }
+      } catch {
+        sessionSubjectRefs = [];
+      }
+
       if (renderRevision !== hubRenderRevision) {
         return;
       }
+
+      const ownedById = new Map(
+        ownedSubjects.map(subject => [
+          subject.subjectId,
+          subject
+        ])
+      );
+
+      const atlasById = new Map(
+        atlasSubjects.map(subject => [
+          subject.registryId,
+          subject
+        ])
+      );
+
+      const sessionSubjects = [];
+      const promotedOwnedIds = new Set();
+      const promotedAtlasIds = new Set();
+
+      sessionSubjectRefs.forEach(ref => {
+        if (
+          ref.kind === 'my-subject' &&
+          ownedById.has(ref.id)
+        ) {
+          promotedOwnedIds.add(ref.id);
+
+          sessionSubjects.push({
+            ...ownedById.get(ref.id),
+            isSessionRelevant: true
+          });
+
+          return;
+        }
+
+        if (
+          ref.kind === 'atlas-subject' &&
+          atlasById.has(ref.id)
+        ) {
+          promotedAtlasIds.add(ref.id);
+
+          sessionSubjects.push({
+            ...atlasById.get(ref.id),
+            isSessionRelevant: true
+          });
+        }
+      });
+
+      const remainingOwnedSubjects =
+        ownedSubjects.filter(subject =>
+          !promotedOwnedIds.has(subject.subjectId)
+        );
+
+      const remainingAtlasSubjects =
+        atlasSubjects.filter(subject =>
+          !promotedAtlasIds.has(subject.registryId)
+        );
 
       setSessionLabels();
       renderSpineHubNav();
@@ -4064,7 +4240,7 @@
         main.innerHTML =
           renderIntro(session) +
           renderSubjectCollection(
-            ownedSubjects,
+            remainingOwnedSubjects,
             'My Subjects',
             {
               canCreate: true
@@ -4078,14 +4254,18 @@
       main.innerHTML =
         renderIntro(session) +
         renderSubjectCollection(
-          ownedSubjects,
+          sessionSubjects,
+          getActiveSessionSubjectCollectionTitle()
+        ) +
+        renderSubjectCollection(
+          remainingOwnedSubjects,
           'My Subjects',
           {
             canCreate: true
           }
         ) +
         renderSubjectCollection(
-          atlasSubjects,
+          remainingAtlasSubjects,
           'Atlas Subjects'
         );
     }
@@ -4291,6 +4471,30 @@
           'onclick="duplicateOwnedSubject(' +
           jsArg(subject.subjectId) +
           ', event)">Duplicate</button>' +
+
+          (subject.isSessionRelevant
+            ? (
+              '<button type="button" role="menuitem" ' +
+              'onclick="removeOwnedSubjectFromActiveSession(' +
+              jsArg(subject.subjectId) +
+              ', event)">' +
+              'Remove from ' +
+              escHtml(
+                getActiveSessionSubjectCollectionTitle()
+              ) +
+              '</button>'
+            )
+            : (
+              '<button type="button" role="menuitem" ' +
+              'onclick="addOwnedSubjectToActiveSession(' +
+              jsArg(subject.subjectId) +
+              ', event)">' +
+              'Add to ' +
+              escHtml(
+                getActiveSessionSubjectCollectionTitle()
+              ) +
+              '</button>'
+            )) +
 
           (subject.canMoveEarlier
             ? (

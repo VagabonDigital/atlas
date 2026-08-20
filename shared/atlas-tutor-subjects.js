@@ -18,6 +18,7 @@
     const LOCAL_OWNER_ID = 'local-tutor';
     const SUBJECT_PREFIX = 'atlas::tutorSubjects::subject::';
     const WORKING_DRAFT_PREFIX = 'atlas::tutorSubjects::workingDraft::';
+    const SESSION_SUBJECTS_PREFIX = 'atlas::tutorSubjects::sessionSubjects::';
     const ORDER_KEY = 'atlas::tutorSubjects::order';
     const STRUCTURED_FORMAT = 'structured';
 
@@ -31,6 +32,10 @@
 
     function workingDraftStorageKey(subjectId) {
         return `${WORKING_DRAFT_PREFIX}${encodePart(subjectId)}`;
+    }
+
+    function sessionSubjectsStorageKey(sessionId) {
+        return `${SESSION_SUBJECTS_PREFIX}${encodePart(sessionId)}`;
     }
 
     function readJson(key) {
@@ -132,6 +137,125 @@
                 seen.add(id);
                 return true;
             });
+    }
+
+    function normalizeSubjectRef(value) {
+        if (
+            !value ||
+            typeof value !== 'object' ||
+            Array.isArray(value)
+        ) {
+            return null;
+        }
+
+        const kind =
+            typeof value.kind === 'string'
+                ? value.kind.trim()
+                : '';
+
+        const id =
+            typeof value.id === 'string'
+                ? value.id.trim()
+                : '';
+
+        if (
+            !id ||
+            (
+                kind !== 'my-subject' &&
+                kind !== 'atlas-subject'
+            )
+        ) {
+            return null;
+        }
+
+        return { kind, id };
+    }
+
+    function normalizeSessionSubjectRefs(value) {
+        const seen = new Set();
+
+        return (Array.isArray(value) ? value : [])
+            .map(normalizeSubjectRef)
+            .filter(ref => {
+                if (!ref) return false;
+
+                const key = `${ref.kind}:${ref.id}`;
+
+                if (seen.has(key)) {
+                    return false;
+                }
+
+                seen.add(key);
+                return true;
+            });
+    }
+
+    function readSessionSubjects(sessionId) {
+        const id = String(sessionId || '').trim();
+
+        if (!id) return [];
+
+        return normalizeSessionSubjectRefs(
+            readJson(sessionSubjectsStorageKey(id))
+        );
+    }
+
+    function writeSessionSubjects(
+        sessionId,
+        subjectRefs
+    ) {
+        const id = String(sessionId || '').trim();
+
+        if (!id) return false;
+
+        const refs =
+            normalizeSessionSubjectRefs(subjectRefs);
+
+        if (refs.length === 0) {
+            return removeValue(
+                sessionSubjectsStorageKey(id)
+            );
+        }
+
+        return writeJson(
+            sessionSubjectsStorageKey(id),
+            refs
+        );
+    }
+
+    function removeMySubjectFromSessionSubjects(
+        subjectId
+    ) {
+        const id = String(subjectId || '').trim();
+
+        if (!id) return;
+
+        listKeysWithPrefix(
+            SESSION_SUBJECTS_PREFIX
+        ).forEach(key => {
+            const refs =
+                normalizeSessionSubjectRefs(
+                    readJson(key)
+                );
+
+            const next = refs.filter(ref =>
+                !(
+                    ref.kind === 'my-subject' &&
+                    ref.id === id
+                )
+            );
+
+            if (next.length === refs.length) {
+                return;
+            }
+
+            if (next.length === 0) {
+                removeValue(key);
+                return;
+            }
+
+            writeJson(key, next);
+        });
     }
 
     function readSubjectOrder() {
@@ -746,6 +870,80 @@
         return cloneJson(orderedSubjects) || [];
     }
 
+    async function getSessionSubjects(sessionId) {
+        return cloneJson(
+            readSessionSubjects(sessionId)
+        ) || [];
+    }
+
+    async function setSessionSubjects(
+        sessionId,
+        subjectRefs
+    ) {
+        const id = String(sessionId || '').trim();
+
+        if (!id || !Array.isArray(subjectRefs)) {
+            return null;
+        }
+
+        const refs =
+            normalizeSessionSubjectRefs(subjectRefs);
+
+        return writeSessionSubjects(id, refs)
+            ? cloneJson(refs)
+            : null;
+    }
+
+    async function addSessionSubject(
+        sessionId,
+        subjectRef
+    ) {
+        const ref = normalizeSubjectRef(subjectRef);
+
+        if (!ref) return null;
+
+        const current =
+            readSessionSubjects(sessionId);
+
+        const next =
+            normalizeSessionSubjectRefs([
+                ...current,
+                ref
+            ]);
+
+        return writeSessionSubjects(
+            sessionId,
+            next
+        )
+            ? cloneJson(next)
+            : null;
+    }
+
+    async function removeSessionSubject(
+        sessionId,
+        subjectRef
+    ) {
+        const ref = normalizeSubjectRef(subjectRef);
+
+        if (!ref) return null;
+
+        const next =
+            readSessionSubjects(sessionId)
+                .filter(item =>
+                    !(
+                        item.kind === ref.kind &&
+                        item.id === ref.id
+                    )
+                );
+
+        return writeSessionSubjects(
+            sessionId,
+            next
+        )
+            ? cloneJson(next)
+            : null;
+    }
+
     async function getWorkingDraft(subjectId) {
         const subject = await getSubject(subjectId);
 
@@ -1107,6 +1305,10 @@
                 workingDraftStorageKey(current.id)
             );
 
+            removeMySubjectFromSessionSubjects(
+                current.id
+            );
+
             writeSubjectOrder(
                 readSubjectOrder().filter(id =>
                     id !== current.id
@@ -1365,6 +1567,11 @@
         createSubject,
         getSubject,
         listSubjects,
+
+        getSessionSubjects,
+        setSessionSubjects,
+        addSessionSubject,
+        removeSessionSubject,
 
         getWorkingDraft,
         saveWorkingDraft,
