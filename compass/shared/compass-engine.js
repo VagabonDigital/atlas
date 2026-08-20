@@ -451,16 +451,18 @@ function isOwnedSubjectRuntime() {
     return getCompassSubjectRuntime().source === 'owned';
 }
 
-function consumeOwnedSubjectCreationAuthoringIntent() {
+function consumeOwnedSubjectAuthoringIntent() {
     if (!isOwnedSubjectRuntime()) {
         return false;
     }
 
     try {
         const url = new URL(window.location.href);
+        const intent =
+            url.searchParams.get('author');
 
         if (
-            url.searchParams.get('author') !== 'create'
+            !['create', 'edit'].includes(intent)
         ) {
             return false;
         }
@@ -18059,8 +18061,8 @@ async function init() {
     loadProgress();
     await loadTutorContentState();
 
-    const shouldStartCreatedSubjectAuthoring =
-        consumeOwnedSubjectCreationAuthoringIntent();
+    const shouldStartOwnedSubjectAuthoring =
+        consumeOwnedSubjectAuthoringIntent();
 
     applyCoverConfig();
     applyDerivedLabels();
@@ -18078,7 +18080,7 @@ async function init() {
     restoreMyVersionWorkingDraftView();
 
     if (
-        shouldStartCreatedSubjectAuthoring &&
+        shouldStartOwnedSubjectAuthoring &&
         !myVersionEditing
     ) {
         beginMyVersionEditing(false);

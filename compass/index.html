@@ -3921,6 +3921,31 @@
       }
     }
 
+    function editOwnedSubject(
+      subjectId,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      closeOwnedSubjectMenus();
+
+      const launchUrl =
+        getOwnedSubjectLaunchUrl(
+          subjectId,
+          {
+            authoringIntent: 'edit'
+          }
+        );
+
+      if (!launchUrl) {
+        showToast('That subject could not be opened.');
+        return;
+      }
+
+      navigateTo(launchUrl);
+    }
+
     async function duplicateOwnedSubject(
       subjectId,
       event
@@ -4251,6 +4276,11 @@
           '</button>' +
 
           '<div class="subject-card-menu" role="menu" hidden>' +
+
+          '<button type="button" role="menuitem" ' +
+          'onclick="editOwnedSubject(' +
+          jsArg(subject.subjectId) +
+          ', event)">Edit subject</button>' +
 
           '<button type="button" role="menuitem" ' +
           'onclick="openOwnedSubjectRenameDialog(' +
