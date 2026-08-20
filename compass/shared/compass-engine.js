@@ -1674,14 +1674,17 @@ function updateMyVersionAuthorBar() {
     updateCoverActionUI();
 }
 
-function refreshMyVersionDirtyState() {
+function refreshMyVersionDirtyState(
+    overrides = myVersionDraftOverrides,
+    draftDocument = myVersionDraftDocument
+) {
     myVersionDirty =
         !tutorContentOverridesMatch(
-            myVersionDraftOverrides,
+            overrides,
             myVersionOriginalOverrides
         ) ||
         !tutorSubjectDocumentsMatch(
-            myVersionDraftDocument,
+            draftDocument,
             myVersionOriginalDocument
         ) ||
         myVersionIncludesLiveChanges;
@@ -9059,10 +9062,24 @@ function configureLiveTutorContentElement(
         element.dataset.atlasTutorNativeDirty = 'true';
 
         if (myVersionEditing) {
-            scheduleMyVersionWorkingDraftSave({
-                ...myVersionDraftOverrides,
-                [fieldKey]: nextValue
-            });
+            const startValue =
+                element.dataset.atlasTutorStartValue || '';
+
+            const previewOverrides =
+                nextValue === startValue
+                    ? myVersionDraftOverrides
+                    : {
+                        ...myVersionDraftOverrides,
+                        [fieldKey]: nextValue
+                    };
+
+            refreshMyVersionDirtyState(
+                previewOverrides
+            );
+
+            scheduleMyVersionWorkingDraftSave(
+                previewOverrides
+            );
         }
     };
 
