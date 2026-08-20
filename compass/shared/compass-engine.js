@@ -1020,10 +1020,12 @@ function toggleMyVersionMobileTools() {
         String(open)
     );
 
-    toggle.textContent =
+    toggle.setAttribute(
+        'aria-label',
         open
-            ? 'Done'
-            : 'Tools';
+            ? 'Close subject tools'
+            : 'Open subject tools'
+    );
 }
 
 function closeMyVersionMobileTools() {
@@ -1045,7 +1047,10 @@ function closeMyVersionMobileTools() {
             'false'
         );
 
-        toggle.textContent = 'Tools';
+        toggle.setAttribute(
+            'aria-label',
+            'Open subject tools'
+        );
     }
 }
 
@@ -1098,11 +1103,41 @@ function updateMyVersionAuthorBar() {
         'atlas-my-version-cancel'
     );
 
+    const mobileTutorToolsLabel = document.getElementById(
+        'mobile-tutor-tools-entry-label'
+    );
+
+    const coverTutorToolsButton = document.querySelector(
+        '.cover-tutor-tools-btn'
+    );
+
     const authoringLabel = bar?.querySelector(
         '.atlas-my-version-copy strong'
     );
 
     const ownedSubject = isOwnedSubjectRuntime();
+
+    const mobileEditLabel = ownedSubject
+        ? 'Edit subject'
+        : hasSavedMyVersion()
+            ? 'Edit My Version'
+            : 'Create My Version';
+
+    if (mobileTutorToolsLabel) {
+        mobileTutorToolsLabel.textContent =
+            mobileEditLabel;
+    }
+
+    if (coverTutorToolsButton) {
+        coverTutorToolsButton.title =
+            mobileEditLabel;
+
+        coverTutorToolsButton.setAttribute(
+            'aria-label',
+            mobileEditLabel
+        );
+    }
+
     const activeViewId = getActiveCompassViewId();
     const onCover = activeViewId === 'view-cover';
     const onOverview =
@@ -1880,6 +1915,15 @@ function beginMyVersionEditing(includeLiveChanges = false) {
     refreshMyVersionDirtyState();
     renderAllTutorContentSurfaces();
     saveMyVersionWorkingDraftNow();
+}
+
+function openMyVersionSubjectDetailsFromMobile() {
+    if (!myVersionEditing || myVersionSaving) {
+        return;
+    }
+
+    closeMyVersionMobileTools();
+    openMyVersionCoverDialog();
 }
 
 function requestMyVersionEditing() {

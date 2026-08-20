@@ -741,12 +741,33 @@ function mountCompassSubjectShell() {
             type="button"
             aria-expanded="false"
             aria-controls="atlas-my-version-actions"
+            aria-label="Open subject tools"
             onclick="toggleMyVersionMobileTools()">
-            Tools
+            <svg width="18" height="18" viewBox="0 0 18 18"
+                fill="none" aria-hidden="true">
+                <circle cx="4" cy="9" r="1.2" fill="currentColor"/>
+                <circle cx="9" cy="9" r="1.2" fill="currentColor"/>
+                <circle cx="14" cy="9" r="1.2" fill="currentColor"/>
+            </svg>
         </button>
 
         <div class="atlas-my-version-actions"
             id="atlas-my-version-actions">
+            <div class="atlas-my-version-mobile-sheet-header">
+                <strong>Subject tools</strong>
+
+                <button type="button"
+                    onclick="closeMyVersionMobileTools()">
+                    Done
+                </button>
+            </div>
+
+            <button class="atlas-my-version-secondary atlas-my-version-mobile-details"
+                type="button"
+                onclick="openMyVersionSubjectDetailsFromMobile()">
+                Subject details
+            </button>
+
             <button class="atlas-my-version-secondary"
                 id="atlas-my-version-cover-action"
                 type="button"
@@ -898,7 +919,13 @@ function mountCompassSubjectShell() {
                 id="atlas-my-version-cancel"
                 type="button"
                 onclick="cancelMyVersionEditing()">
-                Cancel
+                <span class="atlas-my-version-cancel-desktop">
+                    Cancel
+                </span>
+
+                <span class="atlas-my-version-cancel-mobile">
+                    Exit editing
+                </span>
             </button>
 
             <button class="atlas-my-version-primary"
@@ -1159,7 +1186,9 @@ function mountCompassSubjectShell() {
                         stroke-linecap="round"
                         stroke-linejoin="round"/>
                 </svg>
-                <span>Tutor tools</span>
+                <span id="mobile-tutor-tools-entry-label">
+                    Edit subject
+                </span>
             </button>
 
             <div class="mobile-footer-actions">
