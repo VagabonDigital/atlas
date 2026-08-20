@@ -4844,7 +4844,7 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     }
 
     .atlas-my-version-bar.is-mobile-tools-open {
-        grid-template-columns: minmax(0, 1fr) 40px 7.5rem;
+        grid-template-columns: minmax(0, 1fr) 40px;
     }
 
     .atlas-my-version-bar.is-mobile-tools-open
@@ -4862,6 +4862,9 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
         left: 0.75rem;
         z-index: 260;
         display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: stretch;
+        justify-content: stretch;
         gap: 0.55rem;
         max-height: calc(100dvh - 10rem);
         overflow-y: auto;
@@ -4884,6 +4887,7 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     .atlas-my-version-bar.is-mobile-tools-open
     .atlas-my-version-mobile-sheet-header {
         display: flex;
+        grid-column: 1;
         min-height: 38px;
         align-items: center;
         justify-content: space-between;
@@ -4924,6 +4928,7 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     .atlas-my-version-actions >
     button:not(#atlas-my-version-save):not(#atlas-my-version-cover-action):not([hidden]) {
         display: inline-flex;
+        grid-column: 1;
         width: 100%;
         min-height: 44px;
         align-items: center;
@@ -4947,20 +4952,10 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
 
     .atlas-my-version-bar.is-mobile-tools-open
     #atlas-my-version-save {
-        position: fixed;
-        right: 1.37rem;
-        bottom: 1.37rem;
-        z-index: 270;
-        width: 7.5rem;
-    }
-
-    .discussion-focus-active
-    .atlas-my-version-bar.is-mobile-tools-open
-    #atlas-my-version-save,
-    .cultural-lens-focus-active
-    .atlas-my-version-bar.is-mobile-tools-open
-    #atlas-my-version-save {
-        bottom: 5.62rem;
+        position: static;
+        grid-column: 1;
+        width: 100%;
+        min-height: 44px;
     }
 
     .atlas-my-version-dialog-panel {
