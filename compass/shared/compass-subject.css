@@ -1249,6 +1249,30 @@ MOBILE NAVIGATION AND APPEARANCE CONTROLS
     white-space: nowrap;
 }
 
+.cover-tutor-tools-btn {
+    display: none;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.62);
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: var(--transition);
+}
+
+.cover-tutor-tools-btn:hover {
+    border-color: rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.92);
+}
+
 .cover-appearance-toggle {
     width: 32px;
     height: 32px;
@@ -1276,6 +1300,35 @@ MOBILE NAVIGATION AND APPEARANCE CONTROLS
 }
 
 /* Mobile drawer footer: session and appearance utilities */
+
+.mobile-tutor-tools-entry {
+    display: flex;
+    width: 100%;
+    min-height: 44px;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(var(--accent-rgb), 0.28);
+    border-radius: var(--radius-md);
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.mobile-tutor-tools-entry:hover {
+    border-color: rgba(var(--accent-rgb), 0.44);
+    background: var(--accent-pale);
+}
+
+.mobile-tutor-tools-entry:focus-visible {
+    outline: 2px solid rgba(var(--accent-rgb), 0.62);
+    outline-offset: 2px;
+}
+
 .mobile-footer-actions {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -1560,7 +1613,7 @@ html.theme-changing .btn-ghost,
 html.theme-changing .btn-mark-explored,
 html.theme-changing .btn-close-set,
 html.theme-changing .btn-close-set-bottom,
-    html.theme-changing .compass-wrap-up-canvas,
+html.theme-changing .compass-wrap-up-canvas,
 html.theme-changing .compass-wrap-up-stage,
 html.theme-changing .compass-wrap-up-pickup {
     transition:
@@ -1703,8 +1756,7 @@ ORIENTATION
     min-height: 260px;
     display: grid;
     grid-template-columns:
-        minmax(0, 1.42fr)
-        minmax(8rem, 0.92fr);
+        minmax(0, 1.42fr) minmax(8rem, 0.92fr);
     grid-template-rows: auto auto 1fr;
     column-gap: 0.8rem;
     align-items: start;
@@ -1725,11 +1777,9 @@ ORIENTATION
     inset: 0;
     z-index: 0;
     background:
-        linear-gradient(
-            135deg,
+        linear-gradient(135deg,
             rgba(var(--accent-rgb), 0.018) 0%,
-            rgba(var(--accent-rgb), 0.075) 100%
-        );
+            rgba(var(--accent-rgb), 0.075) 100%);
     opacity: 0;
     transition: opacity 0.32s ease;
 }
@@ -1809,8 +1859,7 @@ ORIENTATION
     opacity: var(--path-art-rest-opacity);
     pointer-events: none;
     transform:
-        translateX(var(--path-art-rest-x))
-        scale(var(--path-art-rest-scale));
+        translateX(var(--path-art-rest-x)) scale(var(--path-art-rest-scale));
     transform-origin: center right;
     transition:
         opacity 0.32s ease,
@@ -1940,9 +1989,7 @@ ORIENTATION
     min-height: 104px;
     display: grid;
     grid-template-columns:
-        minmax(0, 1fr)
-        minmax(6.5rem, 8rem)
-        1.25rem;
+        minmax(0, 1fr) minmax(6.5rem, 8rem) 1.25rem;
     column-gap: 1rem;
     align-items: center;
     background: rgba(255, 255, 255, 0.72) !important;
@@ -1962,11 +2009,9 @@ ORIENTATION
     inset: 0;
     z-index: 0;
     background:
-        linear-gradient(
-            110deg,
+        linear-gradient(110deg,
             rgba(var(--accent-rgb), 0.012) 0%,
-            rgba(var(--accent-rgb), 0.065) 100%
-        );
+            rgba(var(--accent-rgb), 0.065) 100%);
     opacity: 0;
     transition: opacity 0.32s ease;
 }
@@ -2085,11 +2130,9 @@ html[data-theme="night"] .reflection-icon-small {
 html[data-theme="night"] .main-path-card::before,
 html[data-theme="night"] .reflection-path-card::before {
     background:
-        linear-gradient(
-            135deg,
+        linear-gradient(135deg,
             rgba(var(--accent-rgb), 0.025) 0%,
-            rgba(var(--accent-rgb), 0.12) 100%
-        );
+            rgba(var(--accent-rgb), 0.12) 100%);
 }
 
 html[data-theme="night"] .main-path-card:is(:hover, :focus-visible),
@@ -2235,11 +2278,11 @@ CULTURAL LENS
     line-height: 1.2;
 }
 
-.upgrade-visibility-trigger .upgrade-visibility-copy > span {
+.upgrade-visibility-trigger .upgrade-visibility-copy>span {
     color: var(--text-muted);
 }
 
-.upgrade-visibility-trigger .upgrade-visibility-copy > strong {
+.upgrade-visibility-trigger .upgrade-visibility-copy>strong {
     margin: 0;
     color: var(--text-subtle);
     font-size: 0.72rem;
@@ -2576,10 +2619,8 @@ html[data-theme="night"] .cl-card-location {
 }
 
 html[data-theme="night"] .cl-card--authoring:hover,
-html[data-theme="night"] body.atlas-my-version-editing
-.cl-card.state-explored,
-html[data-theme="night"] body.atlas-my-version-editing
-.cl-card.state-explored:hover {
+html[data-theme="night"] body.atlas-my-version-editing .cl-card.state-explored,
+html[data-theme="night"] body.atlas-my-version-editing .cl-card.state-explored:hover {
     background: var(--surface-raised) !important;
     border-color: var(--border-subtle) !important;
     box-shadow:
@@ -3345,8 +3386,7 @@ html[data-theme="night"] .upgrade-panel {
     border-color: var(--border-subtle);
 }
 
-html[data-theme="night"]
-.upgrade-example-row:not(.upgrade-example-row-primary) {
+html[data-theme="night"] .upgrade-example-row:not(.upgrade-example-row-primary) {
     background: var(--surface-raised);
     border: 1px solid var(--border-faint);
 }
@@ -3541,10 +3581,8 @@ body.cultural-lens-focus-active #view-cultural-lens {
     overflow: hidden;
     color: var(--text-body);
     background:
-        linear-gradient(
-            rgba(247, 244, 239, 0.68),
-            rgba(247, 244, 239, 0.80)
-        );
+        linear-gradient(rgba(247, 244, 239, 0.68),
+            rgba(247, 244, 239, 0.80));
     backdrop-filter: blur(18px) saturate(0.94);
     -webkit-backdrop-filter: blur(18px) saturate(0.94);
 }
@@ -3650,8 +3688,7 @@ body.cultural-lens-focus-active #view-cultural-lens {
     overflow-y: auto;
     overscroll-behavior: contain;
     padding:
-        clamp(1rem, 2.5vw, 1.75em)
-        clamp(1rem, 5vw, 5.5rem);
+        clamp(1rem, 2.5vw, 1.75em) clamp(1rem, 5vw, 5.5rem);
     scrollbar-gutter: auto;
 }
 
@@ -3659,8 +3696,7 @@ body.cultural-lens-focus-active #view-cultural-lens {
     width: min(100%, 980px);
     margin: auto;
     padding:
-        clamp(2rem, 4.5vw, 4rem)
-        clamp(1.4rem, 5vw, 4.4rem);
+        clamp(2rem, 4.5vw, 4rem) clamp(1.4rem, 5vw, 4.4rem);
     border: 1px solid rgba(255, 255, 255, 0.76);
     border-radius: clamp(16px, 2vw, 24px);
     background: rgba(255, 255, 255, 0.72);
@@ -3810,8 +3846,8 @@ body.cultural-lens-focus-active #view-cultural-lens {
     transform: translateY(-68%) rotate(45deg);
 }
 
-.discussion-pathway-kind-label > span,
-.discussion-pathway-name-label > span {
+.discussion-pathway-kind-label>span,
+.discussion-pathway-name-label>span {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -3958,13 +3994,11 @@ body.cultural-lens-focus-active #view-cultural-lens {
     transform-origin: center;
 }
 
-.discussion-focus-continuation-btn:not(.is-return):hover
-.discussion-focus-continuation-kind-icon {
+.discussion-focus-continuation-btn:not(.is-return):hover .discussion-focus-continuation-kind-icon {
     transform: scale(1.08);
 }
 
-.discussion-focus-continuation-btn:not(.is-return):hover
-.discussion-focus-continuation-chevron {
+.discussion-focus-continuation-btn:not(.is-return):hover .discussion-focus-continuation-chevron {
     transform: translateX(2px);
 }
 
@@ -4118,10 +4152,8 @@ body.cultural-lens-focus-active #view-cultural-lens {
     transform: rotate(45deg);
 }
 
-.atlas-live-changes-info:hover
-.atlas-live-changes-tooltip,
-.atlas-live-changes-info:focus
-.atlas-live-changes-tooltip {
+.atlas-live-changes-info:hover .atlas-live-changes-tooltip,
+.atlas-live-changes-info:focus .atlas-live-changes-tooltip {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
@@ -4167,6 +4199,10 @@ html[data-theme="night"] .atlas-live-changes-restore:hover {
 }
 
 @media (max-width: 680px) {
+    .cover-tutor-tools-btn {
+        display: inline-flex;
+    }
+
     .atlas-live-changes-control {
         right: 0.75rem;
         left: 0.75rem;
@@ -4178,6 +4214,11 @@ html[data-theme="night"] .atlas-live-changes-restore:hover {
     .cultural-lens-focus-active .atlas-live-changes-control {
         bottom: 5rem;
     }
+}
+
+body.atlas-my-version-editing .cover-tutor-tools-btn,
+body.atlas-my-version-editing .mobile-tutor-tools-entry {
+    display: none;
 }
 
 /* ============================================================
@@ -4717,11 +4758,11 @@ body.atlas-my-version-editing .cover-hook[data-atlas-live-editable="true"]:focus
     color: var(--text-body);
 }
 
-.atlas-my-version-management-back > span:first-child {
+.atlas-my-version-management-back>span:first-child {
     transition: transform var(--transition);
 }
 
-.atlas-my-version-management-back:hover > span:first-child {
+.atlas-my-version-management-back:hover>span:first-child {
     transform: translateX(-2px);
 }
 
@@ -4777,8 +4818,7 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
         display: contents;
     }
 
-    .atlas-my-version-actions >
-    button:not(#atlas-my-version-save) {
+    .atlas-my-version-actions>button:not(#atlas-my-version-save) {
         display: none;
     }
 
@@ -4788,16 +4828,13 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
         padding-inline: 0.7rem;
     }
 
-    .atlas-my-version-bar.is-mobile-tools-open
-    .atlas-my-version-tools-toggle {
+    .atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-tools-toggle {
         border-color: rgba(var(--accent-rgb), 0.42);
         background: var(--accent-dim);
         color: var(--accent);
     }
 
-    .atlas-my-version-bar.is-mobile-tools-open
-    .atlas-my-version-actions >
-    button:not(#atlas-my-version-save):not([hidden]) {
+    .atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-actions>button:not(#atlas-my-version-save):not([hidden]) {
         display: inline-flex;
         grid-column: 1 / -1;
         width: 100%;
@@ -4829,8 +4866,7 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     flex-shrink: 0;
 }
 
-.discussion-focus-view.is-make-it-real
-.discussion-focus-activity-eyebrow {
+.discussion-focus-view.is-make-it-real .discussion-focus-activity-eyebrow {
     display: inline-flex;
 }
 
@@ -4838,16 +4874,12 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     border-style: solid;
     border-color: rgba(var(--accent-rgb), 0.3);
     background:
-        radial-gradient(
-            circle at 10% 8%,
+        radial-gradient(circle at 10% 8%,
             rgba(var(--accent-pale-rgb), 0.52),
-            transparent 34%
-        ),
-        linear-gradient(
-            145deg,
+            transparent 34%),
+        linear-gradient(145deg,
             rgba(255, 255, 255, 0.96),
-            rgba(255, 255, 255, 0.82)
-        );
+            rgba(255, 255, 255, 0.82));
 }
 
 .discussion-focus-view.is-follow-up .discussion-focus-content {
@@ -4865,18 +4897,15 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     background: rgba(255, 255, 255, 0.84);
 }
 
-.discussion-focus-view.is-upgrade
-.discussion-focus-card-header {
+.discussion-focus-view.is-upgrade .discussion-focus-card-header {
     margin-bottom: clamp(0.85rem, 2vw, 1.25rem);
 }
 
-.discussion-focus-view.is-upgrade
-.discussion-focus-title {
+.discussion-focus-view.is-upgrade .discussion-focus-title {
     max-width: 19ch;
 }
 
-.discussion-focus-view.is-upgrade
-.discussion-focus-question {
+.discussion-focus-view.is-upgrade .discussion-focus-question {
     display: none;
 }
 
@@ -4966,8 +4995,7 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     padding-top: 0;
 }
 
-.cultural-lens-question-author-row +
-.cultural-lens-question-author-row {
+.cultural-lens-question-author-row+.cultural-lens-question-author-row {
     border-top: 1px solid rgba(var(--accent-rgb), 0.18);
 }
 
@@ -5023,19 +5051,14 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     border-top: 1px solid rgba(200, 191, 176, 0.42);
 }
 
-.cultural-lens-focus-view.is-upgrade
-.cultural-lens-focus-context-line,
-.cultural-lens-focus-view.is-upgrade
-.cultural-lens-focus-context,
-.cultural-lens-focus-view.is-upgrade
-.cultural-lens-focus-question-block,
-.cultural-lens-focus-view.is-upgrade
-.cultural-lens-focus-thread-panel {
+.cultural-lens-focus-view.is-upgrade .cultural-lens-focus-context-line,
+.cultural-lens-focus-view.is-upgrade .cultural-lens-focus-context,
+.cultural-lens-focus-view.is-upgrade .cultural-lens-focus-question-block,
+.cultural-lens-focus-view.is-upgrade .cultural-lens-focus-thread-panel {
     display: none !important;
 }
 
-.cultural-lens-focus-view.is-upgrade
-.cultural-lens-focus-tools {
+.cultural-lens-focus-view.is-upgrade .cultural-lens-focus-tools {
     max-width: none;
     margin-top: 0;
     padding-top: 0;
@@ -5076,8 +5099,7 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     padding: 1rem 0;
 }
 
-.cultural-lens-thread-author-row +
-.cultural-lens-thread-author-row {
+.cultural-lens-thread-author-row+.cultural-lens-thread-author-row {
     border-top: 1px solid rgba(var(--accent-rgb), 0.18);
 }
 
@@ -5155,26 +5177,22 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     justify-content: center;
 }
 
-.discussion-focus-upgrade-trigger:not(.is-saved)
-.upgrade-chip-icon {
+.discussion-focus-upgrade-trigger:not(.is-saved) .upgrade-chip-icon {
     transform: rotate(0deg) scale(1);
     transform-origin: center;
 }
 
-.discussion-focus-upgrade-trigger:not(.is-saved):hover
-.upgrade-chip-icon {
+.discussion-focus-upgrade-trigger:not(.is-saved):hover .upgrade-chip-icon {
     transform: rotate(90deg) scale(1.12);
 }
 
-.discussion-focus-upgrade-trigger.is-saved
-.upgrade-chip-icon {
+.discussion-focus-upgrade-trigger.is-saved .upgrade-chip-icon {
     opacity: 0.95;
     transform: rotate(0deg) scale(1);
     transform-origin: center;
 }
 
-.discussion-focus-upgrade-trigger.is-saved:hover
-.upgrade-chip-icon {
+.discussion-focus-upgrade-trigger.is-saved:hover .upgrade-chip-icon {
     transform: rotate(0deg) scale(1.08);
 }
 
@@ -5188,13 +5206,11 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     transition: transform var(--transition);
 }
 
-.discussion-focus-upgrade-trigger:hover
-.discussion-focus-upgrade-chevron {
+.discussion-focus-upgrade-trigger:hover .discussion-focus-upgrade-chevron {
     transform: translateX(2px);
 }
 
-.discussion-focus-view.is-upgrade
-.discussion-focus-upgrade {
+.discussion-focus-view.is-upgrade .discussion-focus-upgrade {
     max-width: none;
     margin-top: 0;
     padding-top: 0;
@@ -5332,16 +5348,12 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     -webkit-appearance: none;
     background-color: var(--surface-raised);
     background-image:
-        linear-gradient(
-            45deg,
+        linear-gradient(45deg,
             transparent 50%,
-            var(--text-muted) 50%
-        ),
-        linear-gradient(
-            135deg,
+            var(--text-muted) 50%),
+        linear-gradient(135deg,
             var(--text-muted) 50%,
-            transparent 50%
-        );
+            transparent 50%);
     background-position:
         calc(100% - 0.82rem) calc(50% - 0.1rem),
         calc(100% - 0.58rem) calc(50% - 0.1rem);
@@ -5451,31 +5463,26 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     text-wrap: pretty;
 }
 
-.discussion-focus-view.is-upgrade
-.upgrade-transformation {
+.discussion-focus-view.is-upgrade .upgrade-transformation {
     gap: 0.7rem;
 }
 
-.discussion-focus-view.is-upgrade
-.upgrade-example-row {
+.discussion-focus-view.is-upgrade .upgrade-example-row {
     grid-template-columns: 6.4rem minmax(0, 1fr);
     gap: 1rem;
     padding: 0.92rem 1rem;
 }
 
-.discussion-focus-view.is-upgrade
-.upgrade-example-label {
+.discussion-focus-view.is-upgrade .upgrade-example-label {
     font-size: 0.72rem;
 }
 
-.discussion-focus-view.is-upgrade
-.upgrade-example {
+.discussion-focus-view.is-upgrade .upgrade-example {
     font-size: clamp(1rem, 1.27vw, 1.12rem);
     line-height: 1.58;
 }
 
-.discussion-focus-view.is-upgrade
-.upgrade-panel-actions {
+.discussion-focus-view.is-upgrade .upgrade-panel-actions {
     margin-top: 1rem;
     padding-top: 0.9rem;
 }
@@ -5492,8 +5499,7 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     gap: 1rem;
     min-height: 68px;
     padding:
-        0.72rem
-        clamp(1rem, 3vw, 2.2rem);
+        0.72rem clamp(1rem, 3vw, 2.2rem);
     border-top: 1px solid rgba(200, 191, 176, 0.52);
     background: rgba(247, 244, 239, 0.94);
     backdrop-filter: blur(18px);
@@ -5577,10 +5583,8 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
 
 html[data-theme="night"] .discussion-focus-view {
     background:
-        linear-gradient(
-            rgba(34, 31, 27, 0.78),
-            rgba(34, 31, 27, 0.86)
-        );
+        linear-gradient(rgba(34, 31, 27, 0.78),
+            rgba(34, 31, 27, 0.86));
     backdrop-filter: blur(26px) saturate(0.62);
     -webkit-backdrop-filter: blur(26px) saturate(0.62);
 }
@@ -5601,33 +5605,27 @@ html[data-theme="night"] .discussion-focus-content {
     -webkit-backdrop-filter: none;
 }
 
-html[data-theme="night"] .discussion-focus-view.is-make-it-real
-.discussion-focus-content {
+html[data-theme="night"] .discussion-focus-view.is-make-it-real .discussion-focus-content {
     border-color: rgba(var(--accent-rgb), 0.52);
     background:
-        linear-gradient(
-            135deg,
+        linear-gradient(135deg,
             rgba(var(--accent-rgb), 0.12),
-            transparent 42%
-        ),
+            transparent 42%),
         var(--accent-dim);
 }
 
-html[data-theme="night"] .discussion-focus-view.is-follow-up
-.discussion-focus-content {
+html[data-theme="night"] .discussion-focus-view.is-follow-up .discussion-focus-content {
     border-color: var(--border-subtle);
     border-left-color: rgba(var(--accent-rgb), 0.72);
     background: var(--surface-panel);
 }
 
-html[data-theme="night"] .discussion-focus-view.is-upgrade
-.discussion-focus-content {
+html[data-theme="night"] .discussion-focus-view.is-upgrade .discussion-focus-content {
     border-color: rgba(var(--accent-rgb), 0.46);
     background: var(--surface-panel);
 }
 
-html[data-theme="night"] .discussion-focus-view.is-make-it-real
-.discussion-focus-activity-eyebrow {
+html[data-theme="night"] .discussion-focus-view.is-make-it-real .discussion-focus-activity-eyebrow {
     color: var(--accent-soft);
 }
 
@@ -5637,8 +5635,7 @@ html[data-theme="night"] .cultural-lens-focus-question-block {
     background: var(--accent-dim);
 }
 
-html[data-theme="night"]
-.cultural-lens-focus-question-block.is-empty-authoring {
+html[data-theme="night"] .cultural-lens-focus-question-block.is-empty-authoring {
     border: 0;
     background: transparent;
 }
@@ -5648,10 +5645,8 @@ html[data-theme="night"] .cultural-lens-focus-thread-panel {
     border-top-color: var(--border-faint);
 }
 
-html[data-theme="night"] .cultural-lens-question-author-row +
-html[data-theme="night"] .cultural-lens-question-author-row,
-html[data-theme="night"] .cultural-lens-thread-author-row +
-html[data-theme="night"] .cultural-lens-thread-author-row {
+html[data-theme="night"] .cultural-lens-question-author-row+html[data-theme="night"] .cultural-lens-question-author-row,
+html[data-theme="night"] .cultural-lens-thread-author-row+html[data-theme="night"] .cultural-lens-thread-author-row {
     border-top-color: var(--border-faint);
 }
 
@@ -5723,9 +5718,7 @@ html[data-theme="night"] .make-it-real-choice-card:hover {
 @media (max-width: 680px) {
     .discussion-focus-header {
         grid-template-columns:
-            minmax(0, 1fr)
-            auto
-            minmax(0, 1fr);
+            minmax(0, 1fr) auto minmax(0, 1fr);
         gap: 0.55rem;
         padding: 0.5rem 0.7rem;
     }
@@ -5810,29 +5803,20 @@ html[data-theme="night"] .make-it-real-choice-card:hover {
         display: block;
     }
 
-    #discussion-focus-view:not(.is-follow-up):not(.is-upgrade)
-    .discussion-focus-content:has(
-        .discussion-focus-continuation-controls:not([hidden])
-    ) {
+    #discussion-focus-view:not(.is-follow-up):not(.is-upgrade) .discussion-focus-content:has(.discussion-focus-continuation-controls:not([hidden])) {
         padding-bottom: 1.1rem;
     }
 
-    .discussion-focus-view.is-follow-up
-    .discussion-focus-continuation-controls,
-    .discussion-focus-view.is-upgrade
-    .discussion-focus-continuation-controls {
+    .discussion-focus-view.is-follow-up .discussion-focus-continuation-controls,
+    .discussion-focus-view.is-upgrade .discussion-focus-continuation-controls {
         display: none !important;
     }
 
-    body.atlas-my-version-editing
-    .discussion-focus-view.is-follow-up
-    .discussion-focus-continuation-controls {
+    body.atlas-my-version-editing .discussion-focus-view.is-follow-up .discussion-focus-continuation-controls {
         display: flex !important;
     }
 
-    body.atlas-my-version-editing
-    .discussion-focus-view.is-follow-up
-    .discussion-focus-continuation-btn.is-return {
+    body.atlas-my-version-editing .discussion-focus-view.is-follow-up .discussion-focus-continuation-btn.is-return {
         display: none;
     }
 
@@ -5842,8 +5826,7 @@ html[data-theme="night"] .make-it-real-choice-card:hover {
         justify-content: flex-start;
     }
 
-    .discussion-pathway-list
-    .discussion-focus-continuation-btn,
+    .discussion-pathway-list .discussion-focus-continuation-btn,
     .discussion-pathway-add-btn {
         flex: 1 1 auto;
     }
@@ -5865,18 +5848,15 @@ html[data-theme="night"] .make-it-real-choice-card:hover {
         width: 100%;
     }
 
-    .discussion-focus-view.is-upgrade
-    .discussion-focus-card-header {
+    .discussion-focus-view.is-upgrade .discussion-focus-card-header {
         margin-bottom: 0.9rem;
     }
 
-    .discussion-focus-view.is-upgrade
-    .discussion-focus-content {
+    .discussion-focus-view.is-upgrade .discussion-focus-content {
         padding-block: 1.25rem 1.55rem;
     }
 
-    .discussion-focus-view.is-upgrade
-    .discussion-focus-upgrade-detail {
+    .discussion-focus-view.is-upgrade .discussion-focus-upgrade-detail {
         padding-bottom: 0.25rem;
     }
 
@@ -5896,14 +5876,12 @@ html[data-theme="night"] .make-it-real-choice-card:hover {
         padding: 0.72rem;
     }
 
-    .discussion-focus-view.is-upgrade
-    .upgrade-example-row {
+    .discussion-focus-view.is-upgrade .upgrade-example-row {
         grid-template-columns: minmax(0, 1fr);
         gap: 0.35rem;
     }
 
-    .discussion-focus-view.is-upgrade
-    .upgrade-example-label {
+    .discussion-focus-view.is-upgrade .upgrade-example-label {
         padding-top: 0;
     }
 
@@ -5949,15 +5927,11 @@ html[data-theme="night"] .make-it-real-choice-card:hover {
 
     .discussion-focus-footer {
         grid-template-columns:
-            minmax(0, 1fr)
-            auto
-            minmax(0, 1fr);
+            minmax(0, 1fr) auto minmax(0, 1fr);
         gap: 0.45rem;
         min-height: 56px;
         padding:
-            0.5rem
-            0.6rem
-            calc(0.5rem + env(safe-area-inset-bottom));
+            0.5rem 0.6rem calc(0.5rem + env(safe-area-inset-bottom));
     }
 
     .discussion-focus-prev,
@@ -7483,7 +7457,7 @@ html[data-theme="night"] #view-reflection.reflection-complete .reflection-progre
     background: transparent;
 }
 
-.reflection-q + .reflection-q {
+.reflection-q+.reflection-q {
     border-top: 1px solid rgba(var(--accent-rgb), 0.34);
 }
 
@@ -7899,8 +7873,7 @@ html,
 .compass-wrap-up-canvas {
     scrollbar-width: thin;
     scrollbar-color:
-        rgba(var(--accent-rgb), 0.46)
-        transparent;
+        rgba(var(--accent-rgb), 0.46) transparent;
 }
 
 html::-webkit-scrollbar,
@@ -7995,8 +7968,7 @@ TOUCH INPUT
     .main-path-card:hover .path-icon {
         opacity: var(--path-art-rest-opacity) !important;
         transform:
-            translateX(var(--path-art-rest-x))
-            scale(var(--path-art-rest-scale)) !important;
+            translateX(var(--path-art-rest-x)) scale(var(--path-art-rest-scale)) !important;
     }
 
     .reflection-path-card:hover .reflection-icon-small {
@@ -8129,8 +8101,7 @@ utility controls, already-prominent headings, or focused teaching views.
     .main-path-card {
         min-height: 214px;
         grid-template-columns:
-            minmax(0, 1fr)
-            6.75rem;
+            minmax(0, 1fr) 6.75rem;
         grid-template-rows: auto auto auto;
         column-gap: 0.45rem;
         padding: 1.65rem 1.15rem 1.9rem 1.35rem;
@@ -8183,9 +8154,7 @@ utility controls, already-prominent headings, or focused teaching views.
     .reflection-path-card {
         min-height: 108px;
         grid-template-columns:
-            minmax(0, 1fr)
-            4.75rem
-            1rem;
+            minmax(0, 1fr) 4.75rem 1rem;
         column-gap: 0.65rem;
         padding: 1.3rem 1.15rem 1.3rem 1.35rem;
     }

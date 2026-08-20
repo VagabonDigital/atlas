@@ -17475,6 +17475,14 @@ function openVocabBankFromDrawer() {
     }, 80);
 }
 
+function requestMyVersionEditingFromMobile() {
+    closeMobileDrawer();
+
+    window.setTimeout(() => {
+        requestMyVersionEditing();
+    }, 80);
+}
+
 function openSessionModalFromDrawer() {
     const returnTrigger = document.querySelector(
         '.view.active .mobile-menu-btn:not(.mobile-search-btn)'

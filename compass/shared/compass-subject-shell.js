@@ -31,6 +31,20 @@ function mountCompassSubjectShell() {
         </button>
 
         <div class="cover-utility-row">
+            <button class="cover-tutor-tools-btn"
+                type="button"
+                onclick="requestMyVersionEditingFromMobile()"
+                title="Tutor tools"
+                aria-label="Open tutor tools">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M9.6 2.1l2.3 2.3-6.8 6.8-3 .7.7-3 6.8-6.8Z"
+                        stroke="currentColor"
+                        stroke-width="1.2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+            </button>
+
             <button class="cover-appearance-toggle" id="cover-appearance-toggle" onclick="toggleAppearanceMode()"
                 title="Switch to night mode" aria-label="Switch to night mode">
             </button>
@@ -1129,12 +1143,43 @@ function mountCompassSubjectShell() {
                     <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5"
                         stroke-linecap="round" />
                 </svg>
+            </button>            <button class="cover-tutor-tools-btn"
+                type="button"
+                onclick="requestMyVersionEditingFromMobile()"
+                title="Tutor tools"
+                aria-label="Open tutor tools">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M9.6 2.1l2.3 2.3-6.8 6.8-3 .7.7-3 6.8-6.8Z"
+                        stroke="currentColor"
+                        stroke-width="1.2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
             </button>
+
+            <button class="cover-appearance-toggle" id="cover-appearance-toggle" onclick="toggleAppearanceMode()"
+                title="Switch to night mode" aria-label="Switch to night mode">
+            </button>
+
+            <button class="cover-session-btn" onclick="openSessionModal()"
         </div>
 
         <div class="mobile-drawer-nav" id="mobile-drawer-nav"></div>
 
         <div class="mobile-drawer-footer">
+            <button class="mobile-tutor-tools-entry"
+                type="button"
+                onclick="requestMyVersionEditingFromMobile()">
+                <svg width="15" height="15" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M9.6 2.1l2.3 2.3-6.8 6.8-3 .7.7-3 6.8-6.8Z"
+                        stroke="currentColor"
+                        stroke-width="1.2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+                <span>Tutor tools</span>
+            </button>
+
             <div class="mobile-footer-actions">
                 <button class="mobile-session-btn" onclick="openSessionModalFromDrawer()"
                     aria-label="Open session panel. Working with Shared">
