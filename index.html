@@ -3404,10 +3404,43 @@
             return null;
           }
 
-          const launchUrl =
+          let launchUrl =
             state.launchUrl ||
             item.launchUrl ||
             '';
+
+          if (
+            !launchUrl &&
+            world === ARCADE_ID &&
+            ArcadeCatalog &&
+            typeof ArcadeCatalog.getArcadeGameMap === 'function'
+          ) {
+            const game =
+              ArcadeCatalog.getArcadeGameMap()[state.registryId];
+
+            if (game?.launchUrl) {
+              launchUrl = new URL(
+                './arcade/' +
+                game.launchUrl.replace(/^\.\//, ''),
+                window.location.href
+              ).href;
+            }
+          }
+
+          if (
+            !launchUrl &&
+            world === COMPASS_ID &&
+            state.ownershipKind === 'my-subject' &&
+            state.id
+          ) {
+            const destination = new URL(
+              './compass/subject/index.html',
+              window.location.href
+            );
+
+            destination.searchParams.set('id', state.id);
+            launchUrl = destination.href;
+          }
 
           if (!launchUrl) {
             return null;
