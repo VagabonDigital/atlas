@@ -4827,6 +4827,11 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
         display: contents;
     }
 
+    .atlas-my-version-actions >
+    button:not(#atlas-my-version-save) {
+        display: none;
+    }
+
     .atlas-my-version-mobile-sheet-header,
     .atlas-my-version-mobile-details,
     .atlas-my-version-cancel-mobile {
