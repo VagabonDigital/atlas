@@ -3404,6 +3404,7 @@
             return null;
           }
 
+          let arcadeFallback = null;
           let launchUrl =
             state.launchUrl ||
             item.launchUrl ||
@@ -3417,6 +3418,8 @@
           ) {
             const game =
               ArcadeCatalog.getArcadeGameMap()[state.registryId];
+
+            arcadeFallback = game || null;
 
             if (game?.launchUrl) {
               launchUrl = new URL(
@@ -3446,7 +3449,7 @@
             return null;
           }
 
-          return Object.assign({}, item, state, {
+          return Object.assign({}, arcadeFallback || {}, item, state, {
             world,
             launchUrl,
             lastTouchedAt:
