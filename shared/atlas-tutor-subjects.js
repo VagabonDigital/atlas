@@ -20,6 +20,10 @@
     const WORKING_DRAFT_PREFIX = 'atlas::tutorSubjects::workingDraft::';
     const SESSION_SUBJECTS_PREFIX = 'atlas::tutorSubjects::sessionSubjects::';
     const ORDER_KEY = 'atlas::tutorSubjects::order';
+    const LIBRARY_KEY = 'atlas::tutorSubjects::library';
+    const LIBRARY_SCHEMA_VERSION = 1;
+    const DEFAULT_CATEGORY_ID = 'default';
+    const DEFAULT_CATEGORY_NAME = 'My Subjects';
     const STRUCTURED_FORMAT = 'structured';
 
     function encodePart(value) {
@@ -188,6 +192,323 @@
                 seen.add(key);
                 return true;
             });
+    }
+
+    function listStoredSubjectIds() {
+        return listKeysWithPrefix(SUBJECT_PREFIX)
+            .map(key => {
+                try {
+                    return decodeURIComponent(
+                        key.slice(SUBJECT_PREFIX.length)
+                    );
+                } catch {
+                    return '';
+                }
+            })
+            .filter(Boolean);
+    }
+
+    function normalizeLibraryCategory(value) {
+        if (
+            !value ||
+            typeof value !== 'object' ||
+            Array.isArray(value)
+        ) {
+            return null;
+        }
+
+        const id =
+            typeof value.id === 'string'
+                ? value.id.trim()
+                : '';
+
+        const name =
+            typeof value.name === 'string'
+                ? value.name.trim()
+                : '';
+
+        if (!id || !name) {
+            return null;
+        }
+
+        return {
+            id,
+            name
+        };
+    }
+
+    function normalizeLibraryState(
+        value,
+        subjectIds = listStoredSubjectIds()
+    ) {
+        const candidate =
+            value &&
+            typeof value === 'object' &&
+            !Array.isArray(value)
+                ? value
+                : {};
+
+        const categoryMap = new Map();
+
+        (Array.isArray(candidate.categories)
+            ? candidate.categories
+            : []
+        ).forEach(item => {
+            const category =
+                normalizeLibraryCategory(item);
+
+            if (
+                category &&
+                !categoryMap.has(category.id)
+            ) {
+                categoryMap.set(
+                    category.id,
+                    category
+                );
+            }
+        });
+
+        if (!categoryMap.has(DEFAULT_CATEGORY_ID)) {
+            categoryMap.set(
+                DEFAULT_CATEGORY_ID,
+                {
+                    id: DEFAULT_CATEGORY_ID,
+                    name: DEFAULT_CATEGORY_NAME
+                }
+            );
+        }
+
+        const categoryOrder = [];
+        const seenCategoryIds = new Set();
+
+        (Array.isArray(candidate.categoryOrder)
+            ? candidate.categoryOrder
+            : []
+        ).forEach(value => {
+            const id =
+                typeof value === 'string'
+                    ? value.trim()
+                    : '';
+
+            if (
+                !id ||
+                seenCategoryIds.has(id) ||
+                !categoryMap.has(id)
+            ) {
+                return;
+            }
+
+            seenCategoryIds.add(id);
+            categoryOrder.push(id);
+        });
+
+        if (!seenCategoryIds.has(DEFAULT_CATEGORY_ID)) {
+            categoryOrder.unshift(
+                DEFAULT_CATEGORY_ID
+            );
+
+            seenCategoryIds.add(
+                DEFAULT_CATEGORY_ID
+            );
+        }
+
+        categoryMap.forEach(category => {
+            if (seenCategoryIds.has(category.id)) {
+                return;
+            }
+
+            seenCategoryIds.add(category.id);
+            categoryOrder.push(category.id);
+        });
+
+        const categories = categoryOrder
+            .map(id => categoryMap.get(id))
+            .filter(Boolean);
+
+        const validCategoryIds = new Set(
+            categories.map(category =>
+                category.id
+            )
+        );
+
+        const rawSubjectStates =
+            candidate.subjects &&
+            typeof candidate.subjects === 'object' &&
+            !Array.isArray(candidate.subjects)
+                ? candidate.subjects
+                : {};
+
+        const subjects = {};
+
+        normalizeSubjectOrder(subjectIds)
+            .forEach(subjectId => {
+                const raw =
+                    rawSubjectStates[subjectId] &&
+                    typeof rawSubjectStates[subjectId] === 'object' &&
+                    !Array.isArray(
+                        rawSubjectStates[subjectId]
+                    )
+                        ? rawSubjectStates[subjectId]
+                        : {};
+
+                const libraryIncluded =
+                    raw.libraryIncluded !== false;
+
+                const archived =
+                    raw.archived === true;
+
+                let categoryId = null;
+
+                if (libraryIncluded) {
+                    const requestedCategoryId =
+                        typeof raw.categoryId === 'string'
+                            ? raw.categoryId.trim()
+                            : '';
+
+                    categoryId =
+                        validCategoryIds.has(
+                            requestedCategoryId
+                        )
+                            ? requestedCategoryId
+                            : DEFAULT_CATEGORY_ID;
+                }
+
+                subjects[subjectId] = {
+                    libraryIncluded,
+                    categoryId,
+                    archived
+                };
+            });
+
+        return {
+            schemaVersion: LIBRARY_SCHEMA_VERSION,
+            defaultCategoryId: DEFAULT_CATEGORY_ID,
+            categories,
+            categoryOrder,
+            subjects
+        };
+    }
+
+    function readLibraryState() {
+        const current =
+            readJson(LIBRARY_KEY);
+
+        const normalized =
+            normalizeLibraryState(current);
+
+        if (
+            JSON.stringify(current) !==
+            JSON.stringify(normalized)
+        ) {
+            writeJson(
+                LIBRARY_KEY,
+                normalized
+            );
+        }
+
+        return normalized;
+    }
+
+    function writeLibraryState(value) {
+        return writeJson(
+            LIBRARY_KEY,
+            normalizeLibraryState(value)
+        );
+    }
+
+    function updateLibrarySubjectState(
+        libraryState,
+        subjectId,
+        patch = {}
+    ) {
+        const id = String(subjectId || '').trim();
+
+        const next =
+            normalizeLibraryState(libraryState);
+
+        if (!id || !next.subjects[id]) {
+            return null;
+        }
+
+        const current =
+            next.subjects[id];
+
+        const nextPatch =
+            patch &&
+            typeof patch === 'object' &&
+            !Array.isArray(patch)
+                ? patch
+                : {};
+
+        let libraryIncluded =
+            current.libraryIncluded;
+
+        if (
+            Object.prototype.hasOwnProperty.call(
+                nextPatch,
+                'libraryIncluded'
+            )
+        ) {
+            libraryIncluded =
+                nextPatch.libraryIncluded !== false;
+        }
+
+        let archived =
+            current.archived;
+
+        if (
+            Object.prototype.hasOwnProperty.call(
+                nextPatch,
+                'archived'
+            )
+        ) {
+            archived =
+                nextPatch.archived === true;
+        }
+
+        let categoryId =
+            current.categoryId;
+
+        if (!libraryIncluded) {
+            categoryId = null;
+        } else if (
+            Object.prototype.hasOwnProperty.call(
+                nextPatch,
+                'categoryId'
+            )
+        ) {
+            const requestedCategoryId =
+                typeof nextPatch.categoryId === 'string'
+                    ? nextPatch.categoryId.trim()
+                    : '';
+
+            const categoryExists =
+                next.categories.some(category =>
+                    category.id === requestedCategoryId
+                );
+
+            if (
+                requestedCategoryId &&
+                !categoryExists
+            ) {
+                return null;
+            }
+
+            categoryId =
+                requestedCategoryId ||
+                next.defaultCategoryId;
+        } else if (!categoryId) {
+            categoryId =
+                next.defaultCategoryId;
+        }
+
+        next.subjects[id] = {
+            libraryIncluded,
+            categoryId,
+            archived
+        };
+
+        return next;
     }
 
     function readSessionSubjects(sessionId) {
@@ -720,6 +1041,103 @@
         return normalized;
     }
 
+    function validatePortableLibraryState(
+        value,
+        subjectIds,
+        errors
+    ) {
+        if (value === undefined) {
+            return normalizeLibraryState(
+                null,
+                [...subjectIds]
+            );
+        }
+
+        if (
+            !value ||
+            typeof value !== 'object' ||
+            Array.isArray(value)
+        ) {
+            errors.push(
+                'Tutor Subjects library must be an object.'
+            );
+
+            return normalizeLibraryState(
+                null,
+                [...subjectIds]
+            );
+        }
+
+        if (!hasExactKeys(value, [
+            'schemaVersion',
+            'defaultCategoryId',
+            'categories',
+            'categoryOrder',
+            'subjects'
+        ])) {
+            errors.push(
+                'Tutor Subjects library has an invalid shape.'
+            );
+        }
+
+        if (
+            value.schemaVersion !==
+            LIBRARY_SCHEMA_VERSION
+        ) {
+            errors.push(
+                `Tutor Subjects library schema must be ${LIBRARY_SCHEMA_VERSION}.`
+            );
+        }
+
+        if (
+            value.defaultCategoryId !==
+            DEFAULT_CATEGORY_ID
+        ) {
+            errors.push(
+                'Tutor Subjects library has an invalid default category.'
+            );
+        }
+
+        if (!Array.isArray(value.categories)) {
+            errors.push(
+                'Tutor Subjects library categories must be an array.'
+            );
+        }
+
+        if (!Array.isArray(value.categoryOrder)) {
+            errors.push(
+                'Tutor Subjects library categoryOrder must be an array.'
+            );
+        }
+
+        if (
+            !value.subjects ||
+            typeof value.subjects !== 'object' ||
+            Array.isArray(value.subjects)
+        ) {
+            errors.push(
+                'Tutor Subjects library subjects must be an object.'
+            );
+        }
+
+        const normalized =
+            normalizeLibraryState(
+                value,
+                [...subjectIds]
+            );
+
+        if (
+            JSON.stringify(normalized) !==
+            JSON.stringify(value)
+        ) {
+            errors.push(
+                'Tutor Subjects library contains invalid categories or subject placement.'
+            );
+        }
+
+        return normalized;
+    }
+
     async function createSubject(input = {}) {
         const format =
             typeof input.format === 'string'
@@ -762,12 +1180,47 @@
             )
         };
 
-        return writeJson(
+        const stored = writeJson(
             subjectStorageKey(id),
             record
-        )
-            ? cloneJson(record)
-            : null;
+        );
+
+        if (!stored) {
+            return null;
+        }
+
+        const placement =
+            input.libraryPlacement &&
+            typeof input.libraryPlacement === 'object' &&
+            !Array.isArray(input.libraryPlacement)
+                ? input.libraryPlacement
+                : null;
+
+        if (placement) {
+            const nextLibrary =
+                updateLibrarySubjectState(
+                    readLibraryState(),
+                    id,
+                    placement
+                );
+
+            if (
+                !nextLibrary ||
+                !writeLibraryState(nextLibrary)
+            ) {
+                removeValue(
+                    subjectStorageKey(id)
+                );
+
+                readLibraryState();
+
+                return null;
+            }
+        } else {
+            readLibraryState();
+        }
+
+        return cloneJson(record);
     }
 
     async function getSubject(subjectId) {
@@ -870,6 +1323,121 @@
         return cloneJson(orderedSubjects) || [];
     }
 
+    async function getLibraryState() {
+        return cloneJson(
+            readLibraryState()
+        );
+    }
+
+    async function getSubjectLibraryState(
+        subjectId
+    ) {
+        const subject = await getSubject(subjectId);
+
+        if (!subject) return null;
+
+        const library =
+            readLibraryState();
+
+        return cloneJson(
+            library.subjects[subject.id] || null
+        );
+    }
+
+    async function setSubjectLibraryPlacement(
+        subjectId,
+        patch = {}
+    ) {
+        const subject = await getSubject(subjectId);
+
+        if (!subject) return null;
+
+        const nextPatch =
+            patch &&
+            typeof patch === 'object' &&
+            !Array.isArray(patch)
+                ? patch
+                : {};
+
+        if (
+            Object.prototype.hasOwnProperty.call(
+                nextPatch,
+                'libraryIncluded'
+            ) &&
+            nextPatch.libraryIncluded === false
+        ) {
+            const sessionIds =
+                await getSubjectSessionIds({
+                    kind: 'my-subject',
+                    id: subject.id
+                });
+
+            if (sessionIds.length === 0) {
+                return null;
+            }
+        }
+
+        const next =
+            updateLibrarySubjectState(
+                readLibraryState(),
+                subject.id,
+                nextPatch
+            );
+
+        if (!next) {
+            return null;
+        }
+
+        return writeLibraryState(next)
+            ? cloneJson(
+                next.subjects[subject.id]
+            )
+            : null;
+    }
+
+    async function getSubjectSessionIds(subjectRef) {
+        const ref = normalizeSubjectRef(subjectRef);
+
+        if (!ref) return [];
+
+        const sessionIds = [];
+
+        listKeysWithPrefix(
+            SESSION_SUBJECTS_PREFIX
+        ).forEach(key => {
+            let sessionId = '';
+
+            try {
+                sessionId = decodeURIComponent(
+                    key.slice(
+                        SESSION_SUBJECTS_PREFIX.length
+                    )
+                );
+            } catch {
+                return;
+            }
+
+            if (!sessionId) return;
+
+            const refs =
+                normalizeSessionSubjectRefs(
+                    readJson(key)
+                );
+
+            const containsSubject =
+                refs.some(item =>
+                    item.kind === ref.kind &&
+                    item.id === ref.id
+                );
+
+            if (containsSubject) {
+                sessionIds.push(sessionId);
+            }
+        });
+
+        return cloneJson(sessionIds) || [];
+    }
+
     async function getSessionSubjects(sessionId) {
         return cloneJson(
             readSessionSubjects(sessionId)
@@ -924,11 +1492,43 @@
         subjectRef
     ) {
         const ref = normalizeSubjectRef(subjectRef);
+        const id = String(sessionId || '').trim();
 
-        if (!ref) return null;
+        if (!ref || !id) return null;
+
+        if (ref.kind === 'my-subject') {
+            const subject = await getSubject(ref.id);
+
+            if (!subject) return null;
+
+            const library =
+                readLibraryState();
+
+            const placement =
+                library.subjects[ref.id];
+
+            if (
+                placement &&
+                placement.libraryIncluded === false &&
+                placement.archived !== true
+            ) {
+                const sessionIds =
+                    await getSubjectSessionIds(ref);
+
+                const remainingHomes =
+                    sessionIds.filter(
+                        sessionId =>
+                            sessionId !== id
+                    );
+
+                if (remainingHomes.length === 0) {
+                    return null;
+                }
+            }
+        }
 
         const next =
-            readSessionSubjects(sessionId)
+            readSessionSubjects(id)
                 .filter(item =>
                     !(
                         item.kind === ref.kind &&
@@ -937,7 +1537,7 @@
                 );
 
         return writeSessionSubjects(
-            sessionId,
+            id,
             next
         )
             ? cloneJson(next)
@@ -1314,6 +1914,8 @@
                     id !== current.id
                 )
             );
+
+            readLibraryState();
         }
 
         return deleted;
@@ -1339,22 +1941,44 @@
             );
         }
 
-        if (
-            !hasExactKeys(payload, [
-                'schemaVersion',
-                'subjects',
-                'workingDrafts',
-                'order'
-            ]) &&
-            !hasExactKeys(payload, [
-                'schemaVersion',
-                'subjects',
-                'workingDrafts',
-                'order',
-                'sessionSubjects'
-            ])
-        ) {
-            errors.push('Tutor Subjects data has an invalid shape.');
+        const validPayloadShape =
+            [
+                [
+                    'schemaVersion',
+                    'subjects',
+                    'workingDrafts',
+                    'order'
+                ],
+                [
+                    'schemaVersion',
+                    'subjects',
+                    'workingDrafts',
+                    'order',
+                    'sessionSubjects'
+                ],
+                [
+                    'schemaVersion',
+                    'subjects',
+                    'workingDrafts',
+                    'order',
+                    'library'
+                ],
+                [
+                    'schemaVersion',
+                    'subjects',
+                    'workingDrafts',
+                    'order',
+                    'sessionSubjects',
+                    'library'
+                ]
+            ].some(keys =>
+                hasExactKeys(payload, keys)
+            );
+
+        if (!validPayloadShape) {
+            errors.push(
+                'Tutor Subjects data has an invalid shape.'
+            );
         }
 
         if (!Array.isArray(payload.subjects)) {
@@ -1504,6 +2128,13 @@
                 });
         }
 
+        const library =
+            validatePortableLibraryState(
+                payload.library,
+                subjectIds,
+                errors
+            );
+
         const order = Array.isArray(payload.order)
             ? payload.order
             : [];
@@ -1537,7 +2168,8 @@
                         subjects,
                         workingDrafts,
                         order: normalizedOrder,
-                        sessionSubjects
+                        sessionSubjects,
+                        library
                     }
                 }
                 : {})
@@ -1625,12 +2257,19 @@
                 readJsonStrict(key);
         });
 
+        const library =
+            normalizeLibraryState(
+                readLibraryState(),
+                [...subjectIds]
+            );
+
         const validation = validatePortableData({
             schemaVersion: PORTABLE_SCHEMA_VERSION,
             subjects,
             workingDrafts,
             order: [...unlistedIds, ...orderedIds],
-            sessionSubjects
+            sessionSubjects,
+            library
         });
 
         if (!validation.valid) {
@@ -1657,6 +2296,7 @@
             localStorage.removeItem(key);
         });
         localStorage.removeItem(ORDER_KEY);
+        localStorage.removeItem(LIBRARY_KEY);
 
         validation.data.subjects.forEach(record => {
             localStorage.setItem(
@@ -1686,6 +2326,13 @@
             );
         });
 
+        localStorage.setItem(
+            LIBRARY_KEY,
+            JSON.stringify(
+                validation.data.library
+            )
+        );
+
         return true;
     }
 
@@ -1698,6 +2345,11 @@
         getSubject,
         listSubjects,
 
+        getLibraryState,
+        getSubjectLibraryState,
+        setSubjectLibraryPlacement,
+
+        getSubjectSessionIds,
         getSessionSubjects,
         setSessionSubjects,
         addSessionSubject,

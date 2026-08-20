@@ -2765,11 +2765,53 @@
       }
 
       let records = [];
+      let libraryState = null;
 
       try {
-        records = await Subjects.listSubjects();
+        [
+          records,
+          libraryState
+        ] = await Promise.all([
+          Subjects.listSubjects(),
+          typeof Subjects.getLibraryState === 'function'
+            ? Subjects.getLibraryState()
+            : Promise.resolve(null)
+        ]);
       } catch {
         return [];
+      }
+
+      const subjectSessionIds = new Map();
+
+      if (
+        typeof Subjects.getSubjectSessionIds === 'function'
+      ) {
+        await Promise.all(
+          (Array.isArray(records) ? records : [])
+            .map(async record => {
+              const id =
+                String(record?.id || '').trim();
+
+              if (!id) return;
+
+              try {
+                const sessionIds =
+                  await Subjects.getSubjectSessionIds({
+                    kind: 'my-subject',
+                    id
+                  });
+
+                subjectSessionIds.set(
+                  id,
+                  Array.isArray(sessionIds)
+                    ? sessionIds
+                    : []
+                );
+              } catch {
+                subjectSessionIds.set(id, []);
+              }
+            })
+        );
       }
 
       const reg = getRegistry();
@@ -2805,10 +2847,27 @@
 
           syncOwnedSubjectRegistryProjection(record);
 
+          const placement =
+            libraryState?.subjects?.[id] || {
+              libraryIncluded: true,
+              categoryId: 'default',
+              archived: false
+            };
+
           return {
             subjectId: id,
             isOwned: true,
             registryId,
+            libraryIncluded:
+              placement.libraryIncluded !== false,
+            categoryId:
+              placement.categoryId || null,
+            archived:
+              placement.archived === true,
+            sessionIds:
+              subjectSessionIds.get(id) || [],
+            hasSessionHome:
+              (subjectSessionIds.get(id) || []).length > 0,
             title,
             launchUrl,
             artId: '',
@@ -3956,6 +4015,14 @@
                 generationContext
               },
 
+              libraryPlacement: state.sessionId
+                ? {
+                  libraryIncluded: false
+                }
+                : {
+                  libraryIncluded: true
+                },
+
               document,
 
               provenance: {
@@ -4397,6 +4464,8 @@
         const myChoices = ownedSubjects
           .filter(subject =>
             subject.subjectId &&
+            subject.libraryIncluded &&
+            !subject.archived &&
             !promoted.has(
               'my-subject:' + subject.subjectId
             )
@@ -4641,6 +4710,94 @@
       }
     }
 
+    async function addOwnedSubjectToLibrary(
+      subjectId,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.setSubjectLibraryPlacement !== 'function'
+      ) {
+        showToast('My Subjects are unavailable.');
+        return;
+      }
+
+      try {
+        const saved =
+          await Subjects.setSubjectLibraryPlacement(
+            subjectId,
+            {
+              libraryIncluded: true
+            }
+          );
+
+        if (!saved) {
+          throw new Error(
+            'Library placement failed.'
+          );
+        }
+
+        await renderHub();
+
+        showToast('Added to My Subjects.');
+      } catch {
+        showToast(
+          'Couldn’t add this subject to My Subjects.'
+        );
+      }
+    }
+
+    async function removeOwnedSubjectFromLibrary(
+      subjectId,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.setSubjectLibraryPlacement !== 'function'
+      ) {
+        showToast('My Subjects are unavailable.');
+        return;
+      }
+
+      try {
+        const saved =
+          await Subjects.setSubjectLibraryPlacement(
+            subjectId,
+            {
+              libraryIncluded: false
+            }
+          );
+
+        if (!saved) {
+          throw new Error(
+            'Library placement removal failed.'
+          );
+        }
+
+        await renderHub();
+
+        showToast('Removed from My Subjects.');
+      } catch {
+        showToast(
+          'Couldn’t remove this subject from My Subjects.'
+        );
+      }
+    }
+
     async function removeOwnedSubjectFromActiveSession(
       subjectId,
       event
@@ -4655,13 +4812,40 @@
 
       if (
         !Subjects ||
-        typeof Subjects.removeSessionSubject !== 'function'
+        typeof Subjects.removeSessionSubject !== 'function' ||
+        typeof Subjects.getSubjectLibraryState !== 'function' ||
+        typeof Subjects.getSubjectSessionIds !== 'function'
       ) {
         showToast('Session subjects are unavailable.');
         return;
       }
 
       try {
+        const [
+          placement,
+          sessionIds
+        ] = await Promise.all([
+          Subjects.getSubjectLibraryState(
+            subjectId
+          ),
+          Subjects.getSubjectSessionIds({
+            kind: 'my-subject',
+            id: subjectId
+          })
+        ]);
+
+        if (
+          placement &&
+          placement.libraryIncluded === false &&
+          placement.archived !== true &&
+          sessionIds.length <= 1
+        ) {
+          showToast(
+            'Add this subject to My Subjects before removing its only session.'
+          );
+          return;
+        }
+
         const saved =
           await Subjects.removeSessionSubject(
             session.id,
@@ -4750,7 +4934,8 @@
       sessionSubjectRefs.forEach(ref => {
         if (
           ref.kind === 'my-subject' &&
-          ownedById.has(ref.id)
+          ownedById.has(ref.id) &&
+          !ownedById.get(ref.id).archived
         ) {
           promotedOwnedIds.add(ref.id);
 
@@ -4777,6 +4962,8 @@
 
       const remainingOwnedSubjects =
         ownedSubjects.filter(subject =>
+          subject.libraryIncluded &&
+          !subject.archived &&
           !promotedOwnedIds.has(subject.subjectId)
         );
 
@@ -5048,6 +5235,30 @@
           'onclick="duplicateOwnedSubject(' +
           jsArg(subject.subjectId) +
           ', event)">Duplicate</button>' +
+
+          (
+            subject.isSessionRelevant &&
+            !subject.libraryIncluded
+              ? (
+                '<button type="button" role="menuitem" ' +
+                'onclick="addOwnedSubjectToLibrary(' +
+                jsArg(subject.subjectId) +
+                ', event)">Add to My Subjects</button>'
+              )
+              : ''
+          ) +
+
+          (
+            subject.libraryIncluded &&
+            subject.hasSessionHome
+              ? (
+                '<button type="button" role="menuitem" ' +
+                'onclick="removeOwnedSubjectFromLibrary(' +
+                jsArg(subject.subjectId) +
+                ', event)">Remove from My Subjects</button>'
+              )
+              : ''
+          ) +
 
           (subject.isSessionRelevant
             ? (
