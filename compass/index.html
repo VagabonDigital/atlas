@@ -2002,6 +2002,50 @@
       gap: 0.55rem;
     }
 
+    .owned-subject-dialog-choice-fields {
+      display: grid;
+      gap: 0.7rem;
+      margin-bottom: 1.15rem;
+    }
+
+    .owned-subject-dialog-choice-fields[hidden] {
+      display: none;
+    }
+
+    .owned-subject-dialog-choice-btn {
+      display: grid;
+      gap: 0.2rem;
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      background: var(--surface-raised);
+      color: var(--text-body);
+      font-family: var(--font-body);
+      text-align: left;
+      cursor: pointer;
+      transition: var(--t);
+    }
+
+    .owned-subject-dialog-choice-btn:hover,
+    .owned-subject-dialog-choice-btn:focus-visible {
+      border-color: rgba(var(--accent-rgb), 0.38);
+      background: var(--accent-dim);
+      outline: none;
+    }
+
+    .owned-subject-dialog-choice-btn strong {
+      color: var(--text-heading);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .owned-subject-dialog-choice-btn span {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
     .btn-danger {
       min-height: 42px;
       padding: 0.58rem 1.05rem;
@@ -3256,7 +3300,7 @@
 
       dialog.innerHTML =
         '<div class="owned-subject-dialog-panel">' +
-        '<p class="owned-subject-dialog-kicker">My Subject</p>' +
+        '<p class="owned-subject-dialog-kicker" id="owned-subject-dialog-kicker">My Subject</p>' +
         '<h2 class="owned-subject-dialog-title" id="owned-subject-dialog-title"></h2>' +
         '<p class="owned-subject-dialog-copy" id="owned-subject-dialog-copy"></p>' +
 
@@ -3264,6 +3308,27 @@
         '<span id="owned-subject-dialog-field-label">Subject title</span>' +
         '<input id="owned-subject-dialog-input" type="text" maxlength="120" autocomplete="off">' +
         '</label>' +
+
+        '<div class="owned-subject-dialog-choice-fields" id="owned-subject-dialog-choice-fields" hidden>' +
+
+        '<button class="owned-subject-dialog-choice-btn" type="button" onclick="createSessionSubjectFromAdd(event)">' +
+        '<strong>Create new subject</strong>' +
+        '<span>Start something new for this session.</span>' +
+        '</button>' +
+
+        '<button class="owned-subject-dialog-choice-btn" type="button" onclick="chooseSessionSubjectFromAdd(event)">' +
+        '<strong>Choose existing subject</strong>' +
+        '<span>Add something from My Subjects or Atlas.</span>' +
+        '</button>' +
+
+        '</div>' +
+
+        '<div class="owned-subject-dialog-create-fields" id="owned-subject-dialog-session-fields" hidden>' +
+        '<label class="owned-subject-dialog-create-field">' +
+        '<span>Choose subject</span>' +
+        '<select id="owned-subject-dialog-session-subject"></select>' +
+        '</label>' +
+        '</div>' +
 
         '<div class="owned-subject-dialog-create-fields" id="owned-subject-dialog-create-fields" hidden>' +
 
@@ -3348,6 +3413,38 @@
       document.body.style.overflow =
         ownedSubjectDialogPreviousBodyOverflow;
 
+      const kicker = dialog.querySelector(
+        '#owned-subject-dialog-kicker'
+      );
+
+      const sessionFields = dialog.querySelector(
+        '#owned-subject-dialog-session-fields'
+      );
+
+      const choiceFields = dialog.querySelector(
+        '#owned-subject-dialog-choice-fields'
+      );
+
+      const confirm = dialog.querySelector(
+        '#owned-subject-dialog-confirm'
+      );
+
+      if (kicker) {
+        kicker.textContent = 'My Subject';
+      }
+
+      if (sessionFields) {
+        sessionFields.hidden = true;
+      }
+
+      if (choiceFields) {
+        choiceFields.hidden = true;
+      }
+
+      if (confirm) {
+        confirm.hidden = false;
+      }
+
       ownedSubjectDialogState = null;
 
       if (
@@ -3361,11 +3458,16 @@
       ownedSubjectDialogReturnFocus = null;
     }
 
-    function openCreateSubjectDialog(event) {
+    function openCreateSubjectDialog(
+      event,
+      sessionId = '',
+      returnFocus = null
+    ) {
       event?.preventDefault();
       event?.stopPropagation();
 
       ownedSubjectDialogReturnFocus =
+        returnFocus ||
         event?.currentTarget ||
         document.activeElement;
 
@@ -3432,7 +3534,9 @@
       );
 
       ownedSubjectDialogState = {
-        mode: 'create'
+        mode: 'create',
+        sessionId:
+          String(sessionId || '').trim() || null
       };
 
       title.textContent = 'Create subject';
@@ -3689,6 +3793,73 @@
 
       if (!Subjects || !confirm) return;
 
+      if (state.mode === 'session-add') {
+        const select = dialog.querySelector(
+          '#owned-subject-dialog-session-subject'
+        );
+
+        const selected =
+          select?.selectedOptions?.[0];
+
+        const kind =
+          selected?.dataset?.kind || '';
+
+        const id =
+          String(selected?.value || '').trim();
+
+        if (
+          !id ||
+          (
+            kind !== 'my-subject' &&
+            kind !== 'atlas-subject'
+          )
+        ) {
+          error.hidden = false;
+          error.textContent =
+            'Choose a subject to add.';
+          return;
+        }
+
+        confirm.disabled = true;
+        confirm.textContent = 'Adding…';
+
+        try {
+          const session = getActiveSession();
+
+          const saved =
+            await Subjects.addSessionSubject(
+              session.id,
+              {
+                kind,
+                id
+              }
+            );
+
+          if (!saved) {
+            throw new Error(
+              'Session subject assignment failed.'
+            );
+          }
+
+          closeOwnedSubjectDialog(false);
+          await renderHub();
+
+          showToast(
+            'Added to ' +
+            getActiveSessionSubjectCollectionTitle() +
+            '.'
+          );
+        } catch {
+          error.hidden = false;
+          error.textContent =
+            'Couldn’t add this subject.';
+          confirm.disabled = false;
+          confirm.textContent = 'Add subject';
+        }
+
+        return;
+      }
+
       if (state.mode === 'create') {
         const nextTitle = String(
           input?.value || ''
@@ -3796,6 +3967,27 @@
             throw new Error(
               'Create did not return a subject.'
             );
+          }
+
+          if (state.sessionId) {
+            const promoted =
+              await Subjects.addSessionSubject(
+                state.sessionId,
+                {
+                  kind: 'my-subject',
+                  id: created.id
+                }
+              );
+
+            if (!promoted) {
+              await Subjects.deleteSubject(
+                created.id
+              );
+
+              throw new Error(
+                'Created subject could not be added to the session.'
+              );
+            }
           }
 
           syncOwnedSubjectRegistryProjection(
@@ -4037,6 +4229,370 @@
         : session.name + '’s Subjects';
     }
 
+    function openAddSessionSubjectDialog(event) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      ownedSubjectDialogReturnFocus =
+        event?.currentTarget ||
+        document.activeElement;
+
+      closeOwnedSubjectMenus();
+
+      const dialog = ensureOwnedSubjectDialog();
+
+      const kicker = dialog.querySelector(
+        '#owned-subject-dialog-kicker'
+      );
+
+      const title = dialog.querySelector(
+        '#owned-subject-dialog-title'
+      );
+
+      const copy = dialog.querySelector(
+        '#owned-subject-dialog-copy'
+      );
+
+      const field = dialog.querySelector(
+        '#owned-subject-dialog-field'
+      );
+
+      const createFields = dialog.querySelector(
+        '#owned-subject-dialog-create-fields'
+      );
+
+      const sessionFields = dialog.querySelector(
+        '#owned-subject-dialog-session-fields'
+      );
+
+      const choiceFields = dialog.querySelector(
+        '#owned-subject-dialog-choice-fields'
+      );
+
+      const error = dialog.querySelector(
+        '#owned-subject-dialog-error'
+      );
+
+      const confirm = dialog.querySelector(
+        '#owned-subject-dialog-confirm'
+      );
+
+      ownedSubjectDialogState = {
+        mode: 'session-add-choice'
+      };
+
+      kicker.textContent = 'Session Subjects';
+
+      title.textContent =
+        'Add to ' +
+        getActiveSessionSubjectCollectionTitle();
+
+      copy.textContent =
+        'Create something new or choose a subject you already have.';
+
+      field.hidden = true;
+      createFields.hidden = true;
+      sessionFields.hidden = true;
+      choiceFields.hidden = false;
+
+      error.hidden = true;
+      error.textContent = '';
+
+      confirm.hidden = true;
+
+      ownedSubjectDialogPreviousBodyOverflow =
+        document.body.style.overflow;
+
+      document.body.style.overflow = 'hidden';
+      dialog.hidden = false;
+
+      requestAnimationFrame(() => {
+        choiceFields
+          .querySelector(
+            '.owned-subject-dialog-choice-btn'
+          )
+          ?.focus();
+      });
+    }
+
+    function createSessionSubjectFromAdd(event) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      const returnFocus =
+        ownedSubjectDialogReturnFocus;
+
+      const session = getActiveSession();
+
+      closeOwnedSubjectDialog(false);
+
+      openCreateSubjectDialog(
+        null,
+        session.id,
+        returnFocus
+      );
+    }
+
+    function chooseSessionSubjectFromAdd(event) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      const returnFocus =
+        ownedSubjectDialogReturnFocus;
+
+      closeOwnedSubjectDialog(false);
+
+      openChooseSessionSubjectDialog(
+        null,
+        returnFocus
+      );
+    }
+
+    async function openChooseSessionSubjectDialog(
+      event,
+      returnFocus = null
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      ownedSubjectDialogReturnFocus =
+        returnFocus ||
+        event?.currentTarget ||
+        document.activeElement;
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+      const session = getActiveSession();
+
+      if (
+        !Subjects ||
+        typeof Subjects.getSessionSubjects !== 'function' ||
+        typeof Subjects.addSessionSubject !== 'function'
+      ) {
+        showToast('Session subjects are unavailable.');
+        return;
+      }
+
+      try {
+        const [
+          ownedSubjects,
+          sessionSubjectRefs
+        ] = await Promise.all([
+          getOwnedSubjects(),
+          Subjects.getSessionSubjects(session.id)
+        ]);
+
+        const atlasSubjects = getAtlasSubjects();
+
+        const promoted = new Set(
+          (Array.isArray(sessionSubjectRefs)
+            ? sessionSubjectRefs
+            : []
+          ).map(ref =>
+            ref.kind + ':' + ref.id
+          )
+        );
+
+        const myChoices = ownedSubjects
+          .filter(subject =>
+            subject.subjectId &&
+            !promoted.has(
+              'my-subject:' + subject.subjectId
+            )
+          );
+
+        const atlasChoices = atlasSubjects
+          .filter(subject =>
+            subject.registryId &&
+            !promoted.has(
+              'atlas-subject:' + subject.registryId
+            )
+          );
+
+        if (
+          !myChoices.length &&
+          !atlasChoices.length
+        ) {
+          showToast(
+            'Everything available is already here.'
+          );
+          return;
+        }
+
+        const dialog = ensureOwnedSubjectDialog();
+
+        const kicker = dialog.querySelector(
+          '#owned-subject-dialog-kicker'
+        );
+
+        const title = dialog.querySelector(
+          '#owned-subject-dialog-title'
+        );
+
+        const copy = dialog.querySelector(
+          '#owned-subject-dialog-copy'
+        );
+
+        const field = dialog.querySelector(
+          '#owned-subject-dialog-field'
+        );
+
+        const createFields = dialog.querySelector(
+          '#owned-subject-dialog-create-fields'
+        );
+
+        const sessionFields = dialog.querySelector(
+          '#owned-subject-dialog-session-fields'
+        );
+
+        const choiceFields = dialog.querySelector(
+          '#owned-subject-dialog-choice-fields'
+        );
+
+        const select = dialog.querySelector(
+          '#owned-subject-dialog-session-subject'
+        );
+
+        const error = dialog.querySelector(
+          '#owned-subject-dialog-error'
+        );
+
+        const confirm = dialog.querySelector(
+          '#owned-subject-dialog-confirm'
+        );
+
+        ownedSubjectDialogState = {
+          mode: 'session-add'
+        };
+
+        kicker.textContent = 'Session Subjects';
+
+        title.textContent =
+          'Add to ' +
+          getActiveSessionSubjectCollectionTitle();
+
+        copy.textContent =
+          'Choose something you want especially close at hand for this session.';
+
+        field.hidden = true;
+        createFields.hidden = true;
+        choiceFields.hidden = true;
+        sessionFields.hidden = false;
+
+        confirm.hidden = false;
+
+        select.innerHTML = '';
+
+        if (myChoices.length) {
+          const group =
+            document.createElement('optgroup');
+
+          group.label = 'My Subjects';
+
+          myChoices.forEach(subject => {
+            const option =
+              document.createElement('option');
+
+            option.value = subject.subjectId;
+            option.dataset.kind = 'my-subject';
+            option.textContent = subject.title;
+
+            group.appendChild(option);
+          });
+
+          select.appendChild(group);
+        }
+
+        if (atlasChoices.length) {
+          const group =
+            document.createElement('optgroup');
+
+          group.label = 'Atlas Subjects';
+
+          atlasChoices.forEach(subject => {
+            const option =
+              document.createElement('option');
+
+            option.value = subject.registryId;
+            option.dataset.kind = 'atlas-subject';
+            option.textContent = subject.title;
+
+            group.appendChild(option);
+          });
+
+          select.appendChild(group);
+        }
+
+        error.hidden = true;
+        error.textContent = '';
+
+        confirm.className = 'btn-primary';
+        confirm.textContent = 'Add subject';
+        confirm.disabled = false;
+
+        ownedSubjectDialogPreviousBodyOverflow =
+          document.body.style.overflow;
+
+        document.body.style.overflow = 'hidden';
+        dialog.hidden = false;
+
+        requestAnimationFrame(() => {
+          select.focus();
+        });
+      } catch {
+        showToast('Couldn’t load available subjects.');
+      }
+    }
+
+    async function removeAtlasSubjectFromActiveSession(
+      registryId,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+      const session = getActiveSession();
+
+      if (
+        !Subjects ||
+        typeof Subjects.removeSessionSubject !== 'function'
+      ) {
+        showToast('Session subjects are unavailable.');
+        return;
+      }
+
+      try {
+        const saved =
+          await Subjects.removeSessionSubject(
+            session.id,
+            {
+              kind: 'atlas-subject',
+              id: registryId
+            }
+          );
+
+        if (!saved) {
+          throw new Error(
+            'Session subject removal failed.'
+          );
+        }
+
+        await renderHub();
+
+        showToast(
+          'Removed from ' +
+          getActiveSessionSubjectCollectionTitle() +
+          '.'
+        );
+      } catch {
+        showToast('Couldn’t remove this subject.');
+      }
+    }
+
     async function addOwnedSubjectToActiveSession(
       subjectId,
       event
@@ -4255,7 +4811,10 @@
         renderIntro(session) +
         renderSubjectCollection(
           sessionSubjects,
-          getActiveSessionSubjectCollectionTitle()
+          getActiveSessionSubjectCollectionTitle(),
+          {
+            canAdd: true
+          }
         ) +
         renderSubjectCollection(
           remainingOwnedSubjects,
@@ -4290,7 +4849,8 @@
       subjects,
       title,
       {
-        canCreate = false
+        canCreate = false,
+        canAdd = false
       } = {}
     ) {
       const items =
@@ -4298,7 +4858,11 @@
           ? subjects
           : [];
 
-      if (!items.length && !canCreate) {
+      if (
+        !items.length &&
+        !canCreate &&
+        !canAdd
+      ) {
         return '';
       }
 
@@ -4306,16 +4870,25 @@
         .map(subject => renderSubjectCard(subject))
         .join('');
 
-      const createAction = canCreate
+      const headerAction = canAdd
         ? (
           '<button class="subject-library-create-btn" ' +
           'type="button" ' +
-          'onclick="openCreateSubjectDialog(event)">' +
+          'onclick="openAddSessionSubjectDialog(event)">' +
           '<span class="subject-library-create-plus" aria-hidden="true">+</span>' +
-          'Create subject' +
+          'Add' +
           '</button>'
         )
-        : '';
+        : canCreate
+          ? (
+            '<button class="subject-library-create-btn" ' +
+            'type="button" ' +
+            'onclick="openCreateSubjectDialog(event)">' +
+            '<span class="subject-library-create-plus" aria-hidden="true">+</span>' +
+            'Create' +
+            '</button>'
+          )
+          : '';
 
       const contents = items.length
         ? (
@@ -4325,7 +4898,11 @@
         )
         : (
           '<p class="subject-library-empty-note">' +
-          'Create your first subject and build it directly inside Compass.' +
+          (
+            canAdd
+              ? 'Add the subjects you want close at hand for this session.'
+              : 'Create your first subject and build it directly inside Compass.'
+          ) +
           '</p>'
         );
 
@@ -4335,7 +4912,7 @@
         '<h2 class="subject-library-title">' +
         escHtml(title) +
         '</h2>' +
-        createAction +
+        headerAction +
         '</div>' +
         contents +
         '</section>'
@@ -4544,6 +5121,65 @@
         );
       }
 
+      if (
+        subject.isSessionRelevant &&
+        !subject.isOwned &&
+        subject.registryId
+      ) {
+        const managementHtml =
+          '<div class="subject-card-management">' +
+
+          '<button class="subject-card-manage-btn" ' +
+          'type="button" ' +
+          'aria-label="' +
+          escHtml('Manage ' + subject.title) +
+          '" ' +
+          'aria-haspopup="menu" ' +
+          'aria-expanded="false" ' +
+          'onclick="toggleOwnedSubjectMenu(this, event)">' +
+
+          '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">' +
+          '<circle cx="3.2" cy="8" r="1.15" fill="currentColor"/>' +
+          '<circle cx="8" cy="8" r="1.15" fill="currentColor"/>' +
+          '<circle cx="12.8" cy="8" r="1.15" fill="currentColor"/>' +
+          '</svg>' +
+          '</button>' +
+
+          '<div class="subject-card-menu" role="menu" hidden>' +
+          '<button type="button" role="menuitem" ' +
+          'onclick="removeAtlasSubjectFromActiveSession(' +
+          jsArg(subject.registryId) +
+          ', event)">' +
+          'Remove from ' +
+          escHtml(
+            getActiveSessionSubjectCollectionTitle()
+          ) +
+          '</button>' +
+          '</div>' +
+          '</div>';
+
+        return (
+          '<article class="' +
+          cardClasses +
+          ' subject-card--owned" ' +
+          'style="' +
+          progressStyle +
+          '">' +
+
+          '<a class="subject-card-open-layer" ' +
+          'href="' +
+          escHtml(subject.launchUrl) +
+          '" ' +
+          'aria-label="' +
+          actionLabel +
+          '"></a>' +
+
+          managementHtml +
+          cardContents +
+          '</article>'
+        );
+      }
+
       return (
         '<a class="' +
         cardClasses +
@@ -4668,7 +5304,8 @@
         k === 'atlas::sessions' ||
         k === 'atlas::registry' ||
         k === 'learning::ledger' ||
-        k.startsWith('atlas::tutorSubjects::subject::')
+        k.startsWith('atlas::tutorSubjects::subject::') ||
+        k.startsWith('atlas::tutorSubjects::sessionSubjects::')
       ) {
         refresh();
       }

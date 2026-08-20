@@ -1339,12 +1339,21 @@
             );
         }
 
-        if (!hasExactKeys(payload, [
-            'schemaVersion',
-            'subjects',
-            'workingDrafts',
-            'order'
-        ])) {
+        if (
+            !hasExactKeys(payload, [
+                'schemaVersion',
+                'subjects',
+                'workingDrafts',
+                'order'
+            ]) &&
+            !hasExactKeys(payload, [
+                'schemaVersion',
+                'subjects',
+                'workingDrafts',
+                'order',
+                'sessionSubjects'
+            ])
+        ) {
             errors.push('Tutor Subjects data has an invalid shape.');
         }
 
@@ -1362,6 +1371,7 @@
 
         const subjects = [];
         const workingDrafts = [];
+        const sessionSubjects = {};
         const subjectIds = new Set();
         const draftIds = new Set();
 
@@ -1415,6 +1425,85 @@
             workingDrafts.push(normalized);
         });
 
+        const rawSessionSubjects =
+            payload.sessionSubjects === undefined
+                ? {}
+                : payload.sessionSubjects;
+
+        if (
+            !rawSessionSubjects ||
+            typeof rawSessionSubjects !== 'object' ||
+            Array.isArray(rawSessionSubjects)
+        ) {
+            errors.push(
+                'Tutor Subjects sessionSubjects must be an object.'
+            );
+        } else {
+            Object.entries(rawSessionSubjects)
+                .forEach(([sessionId, refs]) => {
+                    const normalizedSessionId =
+                        String(sessionId || '').trim();
+
+                    if (
+                        !normalizedSessionId ||
+                        normalizedSessionId !== sessionId
+                    ) {
+                        errors.push(
+                            'Tutor Subjects sessionSubjects requires valid session IDs.'
+                        );
+                        return;
+                    }
+
+                    if (!Array.isArray(refs)) {
+                        errors.push(
+                            `Tutor Subjects session ${sessionId} must be an array.`
+                        );
+                        return;
+                    }
+
+                    const normalizedRefs =
+                        normalizeSessionSubjectRefs(refs);
+
+                    const refsAreValid =
+                        normalizedRefs.length === refs.length &&
+                        refs.every((ref, index) => {
+                            const normalized =
+                                normalizedRefs[index];
+
+                            return (
+                                ref &&
+                                typeof ref === 'object' &&
+                                !Array.isArray(ref) &&
+                                hasExactKeys(ref, ['kind', 'id']) &&
+                                normalized &&
+                                normalized.kind === ref.kind &&
+                                normalized.id === ref.id
+                            );
+                        });
+
+                    if (!refsAreValid) {
+                        errors.push(
+                            `Tutor Subjects session ${sessionId} has invalid subject references.`
+                        );
+                        return;
+                    }
+
+                    normalizedRefs.forEach(ref => {
+                        if (
+                            ref.kind === 'my-subject' &&
+                            !subjectIds.has(ref.id)
+                        ) {
+                            errors.push(
+                                `Tutor Subjects session ${sessionId} references missing My Subject ${ref.id}.`
+                            );
+                        }
+                    });
+
+                    sessionSubjects[sessionId] =
+                        normalizedRefs;
+                });
+        }
+
         const order = Array.isArray(payload.order)
             ? payload.order
             : [];
@@ -1447,7 +1536,8 @@
                         schemaVersion: PORTABLE_SCHEMA_VERSION,
                         subjects,
                         workingDrafts,
-                        order: normalizedOrder
+                        order: normalizedOrder,
+                        sessionSubjects
                     }
                 }
                 : {})
@@ -1506,11 +1596,41 @@
             )
             .map(record => record.id);
 
+        const sessionSubjects = {};
+
+        listKeysWithPrefix(
+            SESSION_SUBJECTS_PREFIX
+        ).forEach(key => {
+            let sessionId = '';
+
+            try {
+                sessionId = decodeURIComponent(
+                    key.slice(
+                        SESSION_SUBJECTS_PREFIX.length
+                    )
+                );
+            } catch {
+                throw new Error(
+                    `Invalid Tutor Subjects session key: ${key}`
+                );
+            }
+
+            if (!sessionId) {
+                throw new Error(
+                    `Invalid Tutor Subjects session key: ${key}`
+                );
+            }
+
+            sessionSubjects[sessionId] =
+                readJsonStrict(key);
+        });
+
         const validation = validatePortableData({
             schemaVersion: PORTABLE_SCHEMA_VERSION,
             subjects,
             workingDrafts,
-            order: [...unlistedIds, ...orderedIds]
+            order: [...unlistedIds, ...orderedIds],
+            sessionSubjects
         });
 
         if (!validation.valid) {
@@ -1529,7 +1649,8 @@
 
         const existingKeys = [
             ...listKeysWithPrefix(SUBJECT_PREFIX),
-            ...listKeysWithPrefix(WORKING_DRAFT_PREFIX)
+            ...listKeysWithPrefix(WORKING_DRAFT_PREFIX),
+            ...listKeysWithPrefix(SESSION_SUBJECTS_PREFIX)
         ];
 
         existingKeys.forEach(key => {
@@ -1555,6 +1676,15 @@
             ORDER_KEY,
             JSON.stringify(validation.data.order)
         );
+
+        Object.entries(
+            validation.data.sessionSubjects
+        ).forEach(([sessionId, refs]) => {
+            localStorage.setItem(
+                sessionSubjectsStorageKey(sessionId),
+                JSON.stringify(refs)
+            );
+        });
 
         return true;
     }
