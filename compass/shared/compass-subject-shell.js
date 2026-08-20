@@ -722,7 +722,17 @@ function mountCompassSubjectShell() {
             <span id="atlas-my-version-status">No changes yet</span>
         </div>
 
-        <div class="atlas-my-version-actions">
+        <button class="atlas-my-version-secondary atlas-my-version-tools-toggle"
+            id="atlas-my-version-tools-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="atlas-my-version-actions"
+            onclick="toggleMyVersionMobileTools()">
+            Tools
+        </button>
+
+        <div class="atlas-my-version-actions"
+            id="atlas-my-version-actions">
             <button class="atlas-my-version-secondary"
                 id="atlas-my-version-cover-action"
                 type="button"

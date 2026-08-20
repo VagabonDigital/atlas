@@ -4242,6 +4242,10 @@ MY VERSION AUTHORING
     flex-shrink: 0;
 }
 
+.atlas-my-version-tools-toggle {
+    display: none;
+}
+
 .atlas-my-version-secondary,
 .atlas-my-version-primary {
     min-height: 2.2rem;
@@ -4735,9 +4739,13 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
         right: 0.75rem;
         bottom: 0.75rem;
         left: 0.75rem;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
         width: auto;
-        align-items: stretch;
-        flex-direction: column;
+        min-height: 0;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.62rem;
         transform: none;
     }
 
@@ -4746,17 +4754,56 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
         bottom: 5rem;
     }
 
+    .atlas-my-version-copy {
+        min-width: 0;
+    }
+
+    .atlas-my-version-copy strong,
+    .atlas-my-version-copy span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .atlas-my-version-tools-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding-inline: 0.7rem;
+    }
+
     .atlas-my-version-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+        display: contents;
     }
 
-    .atlas-my-version-ai {
-        grid-column: 1 / -1;
+    .atlas-my-version-actions >
+    button:not(#atlas-my-version-save) {
+        display: none;
     }
 
-    .atlas-my-version-primary {
+    #atlas-my-version-save {
+        grid-column: 3;
+        min-height: 40px;
+        padding-inline: 0.7rem;
+    }
+
+    .atlas-my-version-bar.is-mobile-tools-open
+    .atlas-my-version-tools-toggle {
+        border-color: rgba(var(--accent-rgb), 0.42);
+        background: var(--accent-dim);
+        color: var(--accent);
+    }
+
+    .atlas-my-version-bar.is-mobile-tools-open
+    .atlas-my-version-actions >
+    button:not(#atlas-my-version-save):not([hidden]) {
+        display: inline-flex;
         grid-column: 1 / -1;
+        width: 100%;
+        min-height: 44px;
+        align-items: center;
+        justify-content: center;
     }
 
     .atlas-my-version-dialog-panel {

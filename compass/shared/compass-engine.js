@@ -992,6 +992,63 @@ function restoreMyVersionWorkingDraftView() {
     goToView(safeViewId);
 }
 
+function toggleMyVersionMobileTools() {
+    const bar = document.getElementById(
+        'atlas-my-version-bar'
+    );
+
+    const toggle = document.getElementById(
+        'atlas-my-version-tools-toggle'
+    );
+
+    if (!bar || !toggle) {
+        return;
+    }
+
+    const open =
+        !bar.classList.contains(
+            'is-mobile-tools-open'
+        );
+
+    bar.classList.toggle(
+        'is-mobile-tools-open',
+        open
+    );
+
+    toggle.setAttribute(
+        'aria-expanded',
+        String(open)
+    );
+
+    toggle.textContent =
+        open
+            ? 'Done'
+            : 'Tools';
+}
+
+function closeMyVersionMobileTools() {
+    const bar = document.getElementById(
+        'atlas-my-version-bar'
+    );
+
+    const toggle = document.getElementById(
+        'atlas-my-version-tools-toggle'
+    );
+
+    bar?.classList.remove(
+        'is-mobile-tools-open'
+    );
+
+    if (toggle) {
+        toggle.setAttribute(
+            'aria-expanded',
+            'false'
+        );
+
+        toggle.textContent = 'Tools';
+    }
+}
+
 function updateMyVersionAuthorBar() {
     const bar = document.getElementById(
         'atlas-my-version-bar'
@@ -1829,6 +1886,8 @@ function requestMyVersionEditing() {
     if (myVersionEditing || myVersionSaving) {
         return;
     }
+
+    closeMyVersionMobileTools();
 
     if (getLiveTutorContentChangeCount() > 0) {
         openMyVersionStartDialog();
