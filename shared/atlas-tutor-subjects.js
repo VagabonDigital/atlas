@@ -14,6 +14,7 @@
     'use strict';
 
     const SCHEMA_VERSION = 1;
+    const PORTABLE_SCHEMA_VERSION = 1;
     const LOCAL_OWNER_ID = 'local-tutor';
     const SUBJECT_PREFIX = 'atlas::tutorSubjects::subject::';
     const WORKING_DRAFT_PREFIX = 'atlas::tutorSubjects::workingDraft::';
@@ -57,6 +58,61 @@
         } catch {
             return false;
         }
+    }
+
+    function listKeysWithPrefix(prefix) {
+        const keys = [];
+
+        for (let index = 0; index < localStorage.length; index += 1) {
+            const key = localStorage.key(index);
+
+            if (key && key.startsWith(prefix)) {
+                keys.push(key);
+            }
+        }
+
+        return keys.sort();
+    }
+
+    function readJsonStrict(key) {
+        const raw = localStorage.getItem(key);
+
+        if (raw === null) {
+            throw new Error(`Missing Tutor Subjects record: ${key}`);
+        }
+
+        try {
+            return JSON.parse(raw);
+        } catch {
+            throw new Error(`Invalid Tutor Subjects JSON: ${key}`);
+        }
+    }
+
+    function readPortableRecord(key, prefix, identityField) {
+        const record = readJsonStrict(key);
+        let storageId = '';
+
+        try {
+            storageId = decodeURIComponent(key.slice(prefix.length));
+        } catch {
+            throw new Error(`Invalid Tutor Subjects key: ${key}`);
+        }
+
+        if (record?.[identityField] !== storageId) {
+            throw new Error(
+                `Tutor Subjects record does not match its key: ${key}`
+            );
+        }
+
+        return record;
+    }
+
+    function hasExactKeys(value, expectedKeys) {
+        const keys = Object.keys(value).sort();
+        const expected = [...expectedKeys].sort();
+
+        return keys.length === expected.length &&
+            keys.every((key, index) => key === expected[index]);
     }
 
     function normalizeSubjectOrder(value) {
@@ -309,6 +365,235 @@
                 Number(record.updatedAt) || 0
             )
         };
+    }
+
+    function validatePortableDocument(document, label, errors) {
+        const Structured = window.AtlasStructuredSubject;
+
+        if (
+            !Structured ||
+            typeof Structured.validateDocument !== 'function'
+        ) {
+            errors.push(
+                'Structured Subject validation is unavailable.'
+            );
+            return;
+        }
+
+        const validation = Structured.validateDocument(document);
+
+        if (!validation.valid) {
+            validation.errors.forEach(error => {
+                errors.push(`${label}: ${error}`);
+            });
+        }
+    }
+
+    function validatePortableSubject(record, label, errors) {
+        if (
+            !record ||
+            typeof record !== 'object' ||
+            Array.isArray(record)
+        ) {
+            errors.push(`${label} must be an object.`);
+            return null;
+        }
+
+        const id =
+            typeof record.id === 'string'
+                ? record.id.trim()
+                : '';
+
+        if (!id) {
+            errors.push(`${label} requires id.`);
+            return null;
+        }
+
+        if (!hasExactKeys(record, [
+            'schemaVersion',
+            'id',
+            'ownerId',
+            'format',
+            'metadata',
+            'document',
+            'revision',
+            'createdAt',
+            'updatedAt',
+            'provenance'
+        ])) {
+            errors.push(`${label} has an invalid shape.`);
+        }
+
+        if (record.schemaVersion !== SCHEMA_VERSION) {
+            errors.push(
+                `${label} must use Tutor Subjects schema ${SCHEMA_VERSION}.`
+            );
+        }
+
+        if (record.ownerId !== LOCAL_OWNER_ID) {
+            errors.push(`${label} has an unsupported owner.`);
+        }
+
+        if (record.format !== STRUCTURED_FORMAT) {
+            errors.push(`${label} has an unsupported format.`);
+        }
+
+        if (
+            !record.metadata ||
+            typeof record.metadata !== 'object' ||
+            Array.isArray(record.metadata)
+        ) {
+            errors.push(`${label}.metadata must be an object.`);
+        }
+
+        if (
+            !Number.isInteger(record.revision) ||
+            record.revision < 1
+        ) {
+            errors.push(`${label}.revision must be a positive integer.`);
+        }
+
+        ['createdAt', 'updatedAt'].forEach(field => {
+            if (
+                !Number.isFinite(record[field]) ||
+                record[field] < 0
+            ) {
+                errors.push(`${label}.${field} must be a non-negative number.`);
+            }
+        });
+
+        if (
+            Number.isFinite(record.createdAt) &&
+            Number.isFinite(record.updatedAt) &&
+            record.updatedAt < record.createdAt
+        ) {
+            errors.push(`${label}.updatedAt cannot precede createdAt.`);
+        }
+
+        if (
+            record.provenance !== null &&
+            (
+                typeof record.provenance !== 'object' ||
+                Array.isArray(record.provenance)
+            )
+        ) {
+            errors.push(`${label}.provenance must be null or an object.`);
+        }
+
+        validatePortableDocument(
+            record.document,
+            `${label}.document`,
+            errors
+        );
+
+        const normalized = normalizeRecord(record);
+
+        if (!normalized || !cloneJson(record)) {
+            errors.push(`${label} cannot be serialized safely.`);
+            return null;
+        }
+
+        return normalized;
+    }
+
+    function validatePortableWorkingDraft(record, label, errors) {
+        if (
+            !record ||
+            typeof record !== 'object' ||
+            Array.isArray(record)
+        ) {
+            errors.push(`${label} must be an object.`);
+            return null;
+        }
+
+        const subjectId =
+            typeof record.subjectId === 'string'
+                ? record.subjectId.trim()
+                : '';
+
+        if (!subjectId) {
+            errors.push(`${label} requires subjectId.`);
+            return null;
+        }
+
+        if (!hasExactKeys(record, [
+            'schemaVersion',
+            'subjectId',
+            'ownerId',
+            'format',
+            'baseRevision',
+            'document',
+            'includedLiveSessionId',
+            'activeViewId',
+            'startedAt',
+            'updatedAt'
+        ])) {
+            errors.push(`${label} has an invalid shape.`);
+        }
+
+        if (record.schemaVersion !== SCHEMA_VERSION) {
+            errors.push(
+                `${label} must use Tutor Subjects schema ${SCHEMA_VERSION}.`
+            );
+        }
+
+        if (record.ownerId !== LOCAL_OWNER_ID) {
+            errors.push(`${label} has an unsupported owner.`);
+        }
+
+        if (record.format !== STRUCTURED_FORMAT) {
+            errors.push(`${label} has an unsupported format.`);
+        }
+
+        if (
+            !Number.isInteger(record.baseRevision) ||
+            record.baseRevision < 1
+        ) {
+            errors.push(`${label}.baseRevision must be a positive integer.`);
+        }
+
+        if (
+            record.includedLiveSessionId !== null &&
+            (
+                typeof record.includedLiveSessionId !== 'string' ||
+                !record.includedLiveSessionId.trim()
+            )
+        ) {
+            errors.push(
+                `${label}.includedLiveSessionId must be null or a non-empty string.`
+            );
+        }
+
+        if (
+            typeof record.activeViewId !== 'string' ||
+            !record.activeViewId.trim()
+        ) {
+            errors.push(`${label}.activeViewId must be a non-empty string.`);
+        }
+
+        ['startedAt', 'updatedAt'].forEach(field => {
+            if (
+                !Number.isFinite(record[field]) ||
+                record[field] < 0
+            ) {
+                errors.push(`${label}.${field} must be a non-negative number.`);
+            }
+        });
+
+        validatePortableDocument(
+            record.document,
+            `${label}.document`,
+            errors
+        );
+
+        const normalized = normalizeWorkingDraft(record, subjectId);
+
+        if (!normalized || !cloneJson(record)) {
+            errors.push(`${label} cannot be serialized safely.`);
+            return null;
+        }
+
+        return normalized;
     }
 
     async function createSubject(input = {}) {
@@ -832,6 +1117,246 @@
         return deleted;
     }
 
+    function validatePortableData(payload) {
+        const errors = [];
+
+        if (
+            !payload ||
+            typeof payload !== 'object' ||
+            Array.isArray(payload)
+        ) {
+            return {
+                valid: false,
+                errors: ['Tutor Subjects data must be an object.']
+            };
+        }
+
+        if (payload.schemaVersion !== PORTABLE_SCHEMA_VERSION) {
+            errors.push(
+                `Tutor Subjects portable schema must be ${PORTABLE_SCHEMA_VERSION}.`
+            );
+        }
+
+        if (!hasExactKeys(payload, [
+            'schemaVersion',
+            'subjects',
+            'workingDrafts',
+            'order'
+        ])) {
+            errors.push('Tutor Subjects data has an invalid shape.');
+        }
+
+        if (!Array.isArray(payload.subjects)) {
+            errors.push('Tutor Subjects subjects must be an array.');
+        }
+
+        if (!Array.isArray(payload.workingDrafts)) {
+            errors.push('Tutor Subjects workingDrafts must be an array.');
+        }
+
+        if (!Array.isArray(payload.order)) {
+            errors.push('Tutor Subjects order must be an array.');
+        }
+
+        const subjects = [];
+        const workingDrafts = [];
+        const subjectIds = new Set();
+        const draftIds = new Set();
+
+        (Array.isArray(payload.subjects) ? payload.subjects : [])
+            .forEach((record, index) => {
+                const label = `Tutor Subject ${index + 1}`;
+                const normalized = validatePortableSubject(
+                    record,
+                    label,
+                    errors
+                );
+
+                if (!normalized) return;
+
+                if (subjectIds.has(normalized.id)) {
+                    errors.push(`${label} duplicates id ${normalized.id}.`);
+                    return;
+                }
+
+                subjectIds.add(normalized.id);
+                subjects.push(normalized);
+            });
+
+        (Array.isArray(payload.workingDrafts)
+            ? payload.workingDrafts
+            : []
+        ).forEach((record, index) => {
+            const label = `Tutor Subject working draft ${index + 1}`;
+            const normalized = validatePortableWorkingDraft(
+                record,
+                label,
+                errors
+            );
+
+            if (!normalized) return;
+
+            if (draftIds.has(normalized.subjectId)) {
+                errors.push(
+                    `${label} duplicates subjectId ${normalized.subjectId}.`
+                );
+                return;
+            }
+
+            if (!subjectIds.has(normalized.subjectId)) {
+                errors.push(
+                    `${label} does not belong to a restored My Subject.`
+                );
+            }
+
+            draftIds.add(normalized.subjectId);
+            workingDrafts.push(normalized);
+        });
+
+        const order = Array.isArray(payload.order)
+            ? payload.order
+            : [];
+        const normalizedOrder = normalizeSubjectOrder(order);
+
+        if (
+            normalizedOrder.length !== order.length ||
+            normalizedOrder.some((id, index) => id !== order[index])
+        ) {
+            errors.push(
+                'Tutor Subjects order must contain unique, non-empty subject IDs.'
+            );
+        }
+
+        if (
+            normalizedOrder.length !== subjectIds.size ||
+            normalizedOrder.some(id => !subjectIds.has(id))
+        ) {
+            errors.push(
+                'Tutor Subjects order must contain every restored My Subject exactly once.'
+            );
+        }
+
+        return {
+            valid: errors.length === 0,
+            errors,
+            ...(errors.length === 0
+                ? {
+                    data: {
+                        schemaVersion: PORTABLE_SCHEMA_VERSION,
+                        subjects,
+                        workingDrafts,
+                        order: normalizedOrder
+                    }
+                }
+                : {})
+        };
+    }
+
+    async function exportPortableData() {
+        const subjects = listKeysWithPrefix(SUBJECT_PREFIX)
+            .map(key => readPortableRecord(
+                key,
+                SUBJECT_PREFIX,
+                'id'
+            ));
+        const subjectIds = new Set(
+            subjects
+                .map(record =>
+                    typeof record?.id === 'string'
+                        ? record.id.trim()
+                        : ''
+                )
+                .filter(Boolean)
+        );
+        const workingDrafts = listKeysWithPrefix(
+            WORKING_DRAFT_PREFIX
+        )
+            .map(key => readPortableRecord(
+                key,
+                WORKING_DRAFT_PREFIX,
+                'subjectId'
+            ))
+            .filter(record => subjectIds.has(record?.subjectId));
+
+        let storedOrder = [];
+        const rawOrder = localStorage.getItem(ORDER_KEY);
+
+        if (rawOrder !== null) {
+            try {
+                storedOrder = normalizeSubjectOrder(
+                    JSON.parse(rawOrder)
+                );
+            } catch {
+                throw new Error('Invalid Tutor Subjects ordering JSON.');
+            }
+        }
+
+        const orderedIds = storedOrder.filter(id =>
+            subjectIds.has(id)
+        );
+        const orderedIdSet = new Set(orderedIds);
+        const unlistedIds = subjects
+            .filter(record => !orderedIdSet.has(record.id))
+            .sort(
+                (left, right) =>
+                    Number(right.updatedAt || 0) -
+                    Number(left.updatedAt || 0)
+            )
+            .map(record => record.id);
+
+        const validation = validatePortableData({
+            schemaVersion: PORTABLE_SCHEMA_VERSION,
+            subjects,
+            workingDrafts,
+            order: [...unlistedIds, ...orderedIds]
+        });
+
+        if (!validation.valid) {
+            throw new Error(validation.errors.join(' '));
+        }
+
+        return validation.data;
+    }
+
+    async function restorePortableData(payload) {
+        const validation = validatePortableData(payload);
+
+        if (!validation.valid) {
+            throw new Error(validation.errors.join(' '));
+        }
+
+        const existingKeys = [
+            ...listKeysWithPrefix(SUBJECT_PREFIX),
+            ...listKeysWithPrefix(WORKING_DRAFT_PREFIX)
+        ];
+
+        existingKeys.forEach(key => {
+            localStorage.removeItem(key);
+        });
+        localStorage.removeItem(ORDER_KEY);
+
+        validation.data.subjects.forEach(record => {
+            localStorage.setItem(
+                subjectStorageKey(record.id),
+                JSON.stringify(record)
+            );
+        });
+
+        validation.data.workingDrafts.forEach(record => {
+            localStorage.setItem(
+                workingDraftStorageKey(record.subjectId),
+                JSON.stringify(record)
+            );
+        });
+
+        localStorage.setItem(
+            ORDER_KEY,
+            JSON.stringify(validation.data.order)
+        );
+
+        return true;
+    }
+
     window.AtlasTutorSubjects = {
         schemaVersion: SCHEMA_VERSION,
         localOwnerId: LOCAL_OWNER_ID,
@@ -849,6 +1374,10 @@
         moveSubject,
         renameSubject,
         duplicateSubject,
-        deleteSubject
+        deleteSubject,
+
+        exportPortableData,
+        validatePortableData,
+        restorePortableData
     };
 })();

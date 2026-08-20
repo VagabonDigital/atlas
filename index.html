@@ -2455,6 +2455,68 @@
       padding: 0.55rem 0;
     }
 
+    .data-backup-section {
+      margin-top: 1.15rem;
+      padding-top: 0.15rem;
+      border-top: 1px solid var(--border-faint);
+    }
+
+    .data-backup-actions,
+    .data-backup-preview-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.55rem;
+    }
+
+    .data-backup-actions .btn-primary,
+    .data-backup-actions .btn-ghost,
+    .data-backup-preview-actions .btn-primary,
+    .data-backup-preview-actions .btn-ghost {
+      width: 100%;
+      white-space: normal;
+    }
+
+    .data-backup-status,
+    .data-backup-preview {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      border: 1px solid var(--border-faint);
+      border-radius: var(--radius-sm);
+      background: var(--surface-muted);
+      color: var(--text-body);
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+
+    .data-backup-status.error {
+      color: var(--danger-text);
+      border-color: var(--danger-border);
+      background: var(--danger-bg);
+    }
+
+    .data-backup-summary {
+      color: var(--text-heading);
+      font-weight: 600;
+    }
+
+    .data-backup-warning {
+      margin-top: 0.5rem;
+      color: var(--text-muted);
+    }
+
+    .data-backup-preview-actions {
+      margin-top: 0.75rem;
+    }
+
+    .data-backup-section [hidden] {
+      display: none;
+    }
+
+    .data-backup-section button:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+
     /* Gateway empty and bridge-error states */
     .empty-setup {
       max-width: 760px;
@@ -3023,6 +3085,35 @@
 
         <p class="modal-section-label">Favourites</p>
         <div class="atmosphere-favorites-list" id="atmosphere-favorites-list"></div>
+
+        <section class="data-backup-section" aria-labelledby="data-backup-title">
+          <p class="modal-section-label" id="data-backup-title">Data &amp; backup</p>
+          <p class="modal-helper">Keep a portable copy of your students, progress and tutor-created content. Backups
+            may contain learner data, so keep them private.</p>
+
+          <div class="data-backup-actions">
+            <button class="btn-primary" id="download-backup-button" onclick="handleDownloadBackup()">Download
+              backup</button>
+            <button class="btn-ghost" id="choose-restore-button" onclick="handleChooseRestoreBackup()">Restore
+              backup</button>
+          </div>
+
+          <input id="restore-backup-input" type="file" accept="application/json,.json" hidden
+            onchange="handleRestoreBackupFile(event)">
+
+          <div class="data-backup-status" id="data-backup-status" role="status" aria-live="polite" hidden></div>
+
+          <div class="data-backup-preview" id="data-backup-preview" hidden>
+            <p class="data-backup-summary" id="data-backup-summary"></p>
+            <p class="data-backup-warning">Restoring replaces the Atlas data stored in this browser. If this browser
+              already contains Atlas data, a safety backup will download first.</p>
+            <div class="data-backup-preview-actions">
+              <button class="btn-ghost" id="cancel-restore-button" onclick="cancelRestoreBackup()">Cancel</button>
+              <button class="btn-primary" id="confirm-restore-button" onclick="confirmRestoreBackup()">Restore
+                backup</button>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </div>
@@ -3030,6 +3121,10 @@
   <!-- ============================================================ SCRIPTS -->
   <script src="./shared/compass-catalog-data.js"></script>
   <script src="./shared/arcade-catalog-data.js"></script>
+  <script src="./shared/atlas-structured-subject.js"></script>
+  <script src="./shared/atlas-tutor-content.js"></script>
+  <script src="./shared/atlas-tutor-subjects.js"></script>
+  <script src="./shared/atlas-portable-data.js"></script>
   <script src="./shared/atlas-content-registry.js"></script>
   <script src="./shared/atlas-session-panel.js"></script>
   <script src="./shared/atlas-search.js"></script>
@@ -3195,6 +3290,7 @@
     const SESSION_ATMOSPHERE_KEY = 'atlas::sessionAtmosphereImages';
     const ATMOSPHERE_FAVORITES_KEY = 'atlas::welcomeImageFavorites';
     const MAX_ATMOSPHERE_FAVORITES = 12;
+    let pendingRestoreBackup = null;
 
     // ================================================================
     // SAFE BRIDGE READS
@@ -4287,6 +4383,7 @@
     function closeSettingsModal() {
       document.getElementById('settings-modal').classList.remove('open');
       document.body.style.overflow = '';
+      cancelRestoreBackup();
       applyEffectiveAtmosphereImage();
     }
 
@@ -4357,6 +4454,158 @@
       writeAtmosphereFavorites(favorites);
       renderAtmosphereFavorites();
       showToast('Favourite removed.');
+    }
+
+    function requirePortableData() {
+      if (!window.AtlasPortableData) {
+        throw new Error('Atlas Backup & Restore is unavailable. Reload Atlas and try again.');
+      }
+
+      return window.AtlasPortableData;
+    }
+
+    function setBackupStatus(message, isError) {
+      const status = document.getElementById('data-backup-status');
+      if (!status) return;
+
+      status.textContent = message || '';
+      status.classList.toggle('error', Boolean(isError));
+      status.hidden = !message;
+    }
+
+    function setBackupBusy(busy) {
+      [
+        'download-backup-button',
+        'choose-restore-button',
+        'cancel-restore-button',
+        'confirm-restore-button'
+      ].forEach(id => {
+        const button = document.getElementById(id);
+        if (button) button.disabled = Boolean(busy);
+      });
+    }
+
+    function countLabel(count, singular, plural) {
+      return count + ' ' + (count === 1 ? singular : plural);
+    }
+
+    function formatBackupSummary(summary) {
+      return [
+        countLabel(summary.students, 'student', 'students'),
+        countLabel(summary.tutorSubjects, 'My Subject', 'My Subjects'),
+        countLabel(summary.tutorVersions, 'My Version', 'My Versions'),
+        countLabel(summary.savedExpressions, 'saved expression', 'saved expressions')
+      ].join(' · ');
+    }
+
+    async function handleDownloadBackup() {
+      setBackupBusy(true);
+      setBackupStatus('Preparing backup…', false);
+
+      try {
+        await requirePortableData().downloadBackup();
+        setBackupStatus('Backup downloaded. Keep it somewhere private.', false);
+      } catch (error) {
+        console.error('[Atlas Backup] Could not create backup:', error);
+        setBackupStatus(
+          'Atlas couldn’t create this backup yet. Your existing data was not changed.',
+          true
+        );
+      } finally {
+        setBackupBusy(false);
+      }
+    }
+
+    function handleChooseRestoreBackup() {
+      const input = document.getElementById('restore-backup-input');
+      if (input) input.click();
+    }
+
+    async function handleRestoreBackupFile(event) {
+      const input = event && event.target;
+      const file = input && input.files && input.files[0];
+      const preview = document.getElementById('data-backup-preview');
+
+      pendingRestoreBackup = null;
+      if (preview) preview.hidden = true;
+
+      if (!file) return;
+
+      setBackupBusy(true);
+      setBackupStatus('Checking backup…', false);
+
+      try {
+        let candidate;
+
+        try {
+          candidate = JSON.parse(await file.text());
+        } catch (error) {
+          throw new Error('This file is not valid JSON. No Atlas data was changed.');
+        }
+
+        const Portable = requirePortableData();
+        const validation = Portable.validateBackup(candidate);
+
+        if (!validation.valid) {
+          throw new Error(
+            'This is not a valid Atlas Backup V1. No Atlas data was changed. ' +
+            (validation.errors[0] || '')
+          );
+        }
+
+        const summary = Portable.summarizeBackup(validation.backup);
+        const summaryHost = document.getElementById('data-backup-summary');
+
+        pendingRestoreBackup = validation.backup;
+        if (summaryHost) summaryHost.textContent = formatBackupSummary(summary);
+        if (preview) preview.hidden = false;
+        setBackupStatus('', false);
+      } catch (error) {
+        setBackupStatus(
+          error && error.message
+            ? error.message
+            : 'Atlas could not validate this backup. No Atlas data was changed.',
+          true
+        );
+      } finally {
+        if (input) input.value = '';
+        setBackupBusy(false);
+      }
+    }
+
+    function cancelRestoreBackup() {
+      pendingRestoreBackup = null;
+
+      const preview = document.getElementById('data-backup-preview');
+      const input = document.getElementById('restore-backup-input');
+
+      if (preview) preview.hidden = true;
+      if (input) input.value = '';
+      setBackupStatus('', false);
+    }
+
+    async function confirmRestoreBackup() {
+      if (!pendingRestoreBackup) return;
+
+      const backup = pendingRestoreBackup;
+      setBackupBusy(true);
+      setBackupStatus('Restoring Atlas data…', false);
+
+      try {
+        await requirePortableData().restoreBackup(backup, {
+          downloadSafetyBackup: true
+        });
+        setBackupStatus('Restore complete. Reloading Atlas…', false);
+        window.location.reload();
+      } catch (error) {
+        setBackupStatus(
+          error && error.message
+            ? 'Restore could not finish. ' + error.message
+            : 'Restore could not finish.',
+          true
+        );
+        setBackupBusy(false);
+      }
     }
 
     // ================================================================

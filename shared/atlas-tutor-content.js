@@ -15,6 +15,7 @@
     'use strict';
 
     const SCHEMA_VERSION = 2;
+    const PORTABLE_SCHEMA_VERSION = 1;
     const LOCAL_OWNER_ID = 'local-tutor';
     const VERSION_PREFIX = 'atlas::tutorContent::version::';
     const WORKING_DRAFT_PREFIX = 'atlas::tutorContent::workingDraft::';
@@ -66,6 +67,219 @@
         } catch {
             return false;
         }
+    }
+
+    function listKeysWithPrefix(storage, prefix) {
+        const keys = [];
+
+        for (let index = 0; index < storage.length; index += 1) {
+            const key = storage.key(index);
+
+            if (key && key.startsWith(prefix)) {
+                keys.push(key);
+            }
+        }
+
+        return keys.sort();
+    }
+
+    function readJsonStrict(storage, key) {
+        const raw = storage.getItem(key);
+
+        if (raw === null) {
+            throw new Error(`Missing Tutor Content record: ${key}`);
+        }
+
+        try {
+            return JSON.parse(raw);
+        } catch {
+            throw new Error(`Invalid Tutor Content JSON: ${key}`);
+        }
+    }
+
+    function readPortableRecord(storage, key, prefix) {
+        const record = readJsonStrict(storage, key);
+        let storageContentId = '';
+
+        try {
+            storageContentId = decodeURIComponent(
+                key.slice(prefix.length)
+            );
+        } catch {
+            throw new Error(`Invalid Tutor Content key: ${key}`);
+        }
+
+        if (record?.contentId !== storageContentId) {
+            throw new Error(
+                `Tutor Content record does not match its key: ${key}`
+            );
+        }
+
+        return record;
+    }
+
+    function hasExactKeys(value, expectedKeys) {
+        const keys = Object.keys(value).sort();
+        const expected = [...expectedKeys].sort();
+
+        return keys.length === expected.length &&
+            keys.every((key, index) => key === expected[index]);
+    }
+
+    function validateAuthoredDocument(document, label, errors) {
+        const Structured = window.AtlasStructuredSubject;
+
+        if (
+            !Structured ||
+            typeof Structured.validateDocument !== 'function'
+        ) {
+            errors.push(
+                'Structured Subject validation is unavailable.'
+            );
+            return;
+        }
+
+        const validation = Structured.validateDocument(document);
+
+        if (!validation.valid) {
+            validation.errors.forEach(error => {
+                errors.push(`${label}: ${error}`);
+            });
+        }
+    }
+
+    function validatePortableRecord(record, label, isDraft, errors) {
+        if (
+            !record ||
+            typeof record !== 'object' ||
+            Array.isArray(record)
+        ) {
+            errors.push(`${label} must be an object.`);
+            return null;
+        }
+
+        const contentId =
+            typeof record.contentId === 'string'
+                ? record.contentId.trim()
+                : '';
+
+        if (!contentId) {
+            errors.push(`${label} requires contentId.`);
+            return null;
+        }
+
+        const expectedKeys = [
+            'schemaVersion',
+            'ownerId',
+            'contentId',
+            'baseContentVersion',
+            'revision',
+            'updatedAt',
+            'overrides',
+            'document',
+            ...(isDraft
+                ? [
+                    'includedLiveSessionId',
+                    'activeViewId',
+                    'startedAt'
+                ]
+                : [])
+        ];
+
+        if (!hasExactKeys(record, expectedKeys)) {
+            errors.push(`${label} has an invalid shape.`);
+        }
+
+        if (record.schemaVersion !== SCHEMA_VERSION) {
+            errors.push(
+                `${label} must use Tutor Content schema ${SCHEMA_VERSION}.`
+            );
+        }
+
+        if (record.ownerId !== LOCAL_OWNER_ID) {
+            errors.push(`${label} has an unsupported owner.`);
+        }
+
+        if (typeof record.baseContentVersion !== 'string') {
+            errors.push(`${label}.baseContentVersion must be a string.`);
+        }
+
+        if (
+            !Number.isInteger(record.revision) ||
+            record.revision < 0
+        ) {
+            errors.push(`${label}.revision must be a non-negative integer.`);
+        }
+
+        if (
+            !Number.isFinite(record.updatedAt) ||
+            record.updatedAt < 0
+        ) {
+            errors.push(`${label}.updatedAt must be a non-negative number.`);
+        }
+
+        if (
+            !record.overrides ||
+            typeof record.overrides !== 'object' ||
+            Array.isArray(record.overrides) ||
+            Object.entries(record.overrides).some(
+                ([fieldKey, value]) =>
+                    !fieldKey.trim() || typeof value !== 'string'
+            )
+        ) {
+            errors.push(`${label}.overrides must contain only string fields.`);
+        }
+
+        validateAuthoredDocument(
+            record.document,
+            `${label}.document`,
+            errors
+        );
+
+        if (isDraft) {
+            if (
+                record.includedLiveSessionId !== null &&
+                (
+                    typeof record.includedLiveSessionId !== 'string' ||
+                    !record.includedLiveSessionId.trim()
+                )
+            ) {
+                errors.push(
+                    `${label}.includedLiveSessionId must be null or a non-empty string.`
+                );
+            }
+
+            if (
+                typeof record.activeViewId !== 'string' ||
+                !record.activeViewId.trim()
+            ) {
+                errors.push(`${label}.activeViewId must be a non-empty string.`);
+            }
+
+            if (
+                !Number.isFinite(record.startedAt) ||
+                record.startedAt < 0
+            ) {
+                errors.push(`${label}.startedAt must be a non-negative number.`);
+            }
+        }
+
+        const normalized = isDraft
+            ? normalizeWorkingDraft(record, {
+                contentId,
+                ownerId: LOCAL_OWNER_ID
+            })
+            : normalizeRecord(record, {
+                contentId,
+                ownerId: LOCAL_OWNER_ID
+            });
+
+        if (!normalized || !normalized.document) {
+            errors.push(`${label} cannot be serialized safely.`);
+            return null;
+        }
+
+        return normalized;
     }
 
     function normalizeOverrides(overrides) {
@@ -438,6 +652,182 @@
         );
     }
 
+    function validatePortableData(payload) {
+        const errors = [];
+
+        if (
+            !payload ||
+            typeof payload !== 'object' ||
+            Array.isArray(payload)
+        ) {
+            return {
+                valid: false,
+                errors: ['Tutor Content data must be an object.']
+            };
+        }
+
+        if (payload.schemaVersion !== PORTABLE_SCHEMA_VERSION) {
+            errors.push(
+                `Tutor Content portable schema must be ${PORTABLE_SCHEMA_VERSION}.`
+            );
+        }
+
+        if (!hasExactKeys(payload, [
+            'schemaVersion',
+            'versions',
+            'workingDrafts'
+        ])) {
+            errors.push('Tutor Content data has an invalid shape.');
+        }
+
+        if (!Array.isArray(payload.versions)) {
+            errors.push('Tutor Content versions must be an array.');
+        }
+
+        if (!Array.isArray(payload.workingDrafts)) {
+            errors.push('Tutor Content workingDrafts must be an array.');
+        }
+
+        const versions = [];
+        const workingDrafts = [];
+        const versionIds = new Set();
+        const draftIds = new Set();
+
+        (Array.isArray(payload.versions) ? payload.versions : [])
+            .forEach((record, index) => {
+                const label = `Tutor Content version ${index + 1}`;
+                const normalized = validatePortableRecord(
+                    record,
+                    label,
+                    false,
+                    errors
+                );
+
+                if (!normalized) return;
+
+                if (versionIds.has(normalized.contentId)) {
+                    errors.push(
+                        `${label} duplicates contentId ${normalized.contentId}.`
+                    );
+                    return;
+                }
+
+                versionIds.add(normalized.contentId);
+                versions.push(normalized);
+            });
+
+        (Array.isArray(payload.workingDrafts)
+            ? payload.workingDrafts
+            : []
+        ).forEach((record, index) => {
+            const label = `Tutor Content working draft ${index + 1}`;
+            const normalized = validatePortableRecord(
+                record,
+                label,
+                true,
+                errors
+            );
+
+            if (!normalized) return;
+
+            if (draftIds.has(normalized.contentId)) {
+                errors.push(
+                    `${label} duplicates contentId ${normalized.contentId}.`
+                );
+                return;
+            }
+
+            draftIds.add(normalized.contentId);
+            workingDrafts.push(normalized);
+        });
+
+        return {
+            valid: errors.length === 0,
+            errors,
+            ...(errors.length === 0
+                ? {
+                    data: {
+                        schemaVersion: PORTABLE_SCHEMA_VERSION,
+                        versions,
+                        workingDrafts
+                    }
+                }
+                : {})
+        };
+    }
+
+    async function exportPortableData() {
+        const versions = listKeysWithPrefix(
+            localStorage,
+            VERSION_PREFIX
+        ).map(key => readPortableRecord(
+            localStorage,
+            key,
+            VERSION_PREFIX
+        ));
+
+        const workingDrafts = listKeysWithPrefix(
+            localStorage,
+            WORKING_DRAFT_PREFIX
+        ).map(key => readPortableRecord(
+            localStorage,
+            key,
+            WORKING_DRAFT_PREFIX
+        ));
+
+        const validation = validatePortableData({
+            schemaVersion: PORTABLE_SCHEMA_VERSION,
+            versions,
+            workingDrafts
+        });
+
+        if (!validation.valid) {
+            throw new Error(validation.errors.join(' '));
+        }
+
+        validation.data.versions.sort((left, right) =>
+            left.contentId.localeCompare(right.contentId)
+        );
+        validation.data.workingDrafts.sort((left, right) =>
+            left.contentId.localeCompare(right.contentId)
+        );
+
+        return validation.data;
+    }
+
+    async function restorePortableData(payload) {
+        const validation = validatePortableData(payload);
+
+        if (!validation.valid) {
+            throw new Error(validation.errors.join(' '));
+        }
+
+        const existingKeys = [
+            ...listKeysWithPrefix(localStorage, VERSION_PREFIX),
+            ...listKeysWithPrefix(localStorage, WORKING_DRAFT_PREFIX)
+        ];
+
+        existingKeys.forEach(key => {
+            localStorage.removeItem(key);
+        });
+
+        validation.data.versions.forEach(record => {
+            localStorage.setItem(
+                versionStorageKey(record.contentId),
+                JSON.stringify(record)
+            );
+        });
+
+        validation.data.workingDrafts.forEach(record => {
+            localStorage.setItem(
+                workingDraftStorageKey(record.contentId),
+                JSON.stringify(record)
+            );
+        });
+
+        return true;
+    }
+
     window.AtlasTutorContent = {
         schemaVersion: SCHEMA_VERSION,
         localOwnerId: LOCAL_OWNER_ID,
@@ -452,6 +842,10 @@
 
         getLiveDraft,
         saveLiveDraft,
-        clearLiveDraft
+        clearLiveDraft,
+
+        exportPortableData,
+        validatePortableData,
+        restorePortableData
     };
 })();
