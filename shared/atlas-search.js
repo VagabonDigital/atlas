@@ -230,7 +230,14 @@
                 if (!item) return null;
                 const world = item.world || '';
                 const allowed = world === 'compass' || world === 'arcade';
-                if (!allowed || !item.launchUrl) return null;
+
+                if (
+                    !allowed ||
+                    !item.launchUrl ||
+                    item.archived === true
+                ) {
+                    return null;
+                }
 
                 return {
                     ...item,

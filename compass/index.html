@@ -3459,6 +3459,7 @@
 
         '<div class="owned-subject-dialog-actions">' +
         '<button class="btn-ghost" type="button" onclick="closeOwnedSubjectDialog()">Cancel</button>' +
+        '<button class="btn-ghost" id="owned-subject-dialog-secondary" type="button" onclick="runOwnedSubjectDialogSecondary()" hidden></button>' +
         '<button class="btn-primary" id="owned-subject-dialog-confirm" type="button" onclick="confirmOwnedSubjectDialog()">Save name</button>' +
         '</div>' +
         '</div>';
@@ -3544,6 +3545,16 @@
 
       if (confirm) {
         confirm.hidden = false;
+      }
+
+      const secondary = dialog.querySelector(
+        '#owned-subject-dialog-secondary'
+      );
+
+      if (secondary) {
+        secondary.hidden = true;
+        secondary.textContent = '';
+        secondary.disabled = false;
       }
 
       ownedSubjectDialogState = null;
@@ -4297,7 +4308,7 @@
       copy.textContent =
         '“' +
         getOwnedSubjectRecordTitle(record) +
-        '” will be permanently removed from My Subjects.';
+        '” will be permanently deleted from Atlas.';
 
       field.hidden = true;
       createFields.hidden = true;
@@ -4353,6 +4364,113 @@
       );
 
       if (!Subjects || !confirm) return;
+
+      if (state.mode === 'archive-restore') {
+        const select = dialog.querySelector(
+          '#owned-subject-dialog-session-subject'
+        );
+
+        const subjectId =
+          String(select?.value || '').trim();
+
+        if (!subjectId) {
+          error.hidden = false;
+          error.textContent =
+            'Choose a subject to restore.';
+          return;
+        }
+
+        confirm.disabled = true;
+        confirm.textContent = 'Restoring…';
+
+        try {
+          const saved =
+            await Subjects.setSubjectLibraryPlacement(
+              subjectId,
+              {
+                archived: false
+              }
+            );
+
+          if (!saved) {
+            throw new Error(
+              'Restore operation failed.'
+            );
+          }
+
+          setOwnedSubjectRegistryArchived(
+            subjectId,
+            false
+          );
+
+          closeOwnedSubjectDialog(false);
+          await renderHub();
+          showToast('Subject restored.');
+        } catch {
+          error.hidden = false;
+          error.textContent =
+            'Couldn’t restore this subject.';
+
+          confirm.disabled = false;
+          confirm.textContent = 'Restore subject';
+        }
+
+        return;
+      }
+
+      if (state.mode === 'orphan-remove') {
+        confirm.disabled = true;
+        confirm.textContent = 'Keeping…';
+
+        try {
+          const placed =
+            await Subjects.setSubjectLibraryPlacement(
+              state.subjectId,
+              {
+                libraryIncluded: true,
+                archived: false
+              }
+            );
+
+          if (!placed) {
+            throw new Error(
+              'Library placement failed.'
+            );
+          }
+
+          const removed =
+            await Subjects.removeSessionSubject(
+              state.sessionId,
+              {
+                kind: 'my-subject',
+                id: state.subjectId
+              }
+            );
+
+          if (!removed) {
+            throw new Error(
+              'Session removal failed.'
+            );
+          }
+
+          closeOwnedSubjectDialog(false);
+          await renderHub();
+
+          showToast(
+            'Kept in My Subjects.'
+          );
+        } catch {
+          error.hidden = false;
+          error.textContent =
+            'Couldn’t move this subject to My Subjects.';
+
+          confirm.disabled = false;
+          confirm.textContent =
+            'Keep in My Subjects';
+        }
+
+        return;
+      }
 
       if (state.mode === 'category-move') {
         const select = dialog.querySelector(
@@ -5074,6 +5192,402 @@
       });
     }
 
+    function setOwnedSubjectRegistryArchived(
+      subjectId,
+      archived
+    ) {
+      try {
+        const registryId =
+          getOwnedSubjectRegistryId(subjectId);
+
+        const registry = getRegistry();
+        const existing =
+          (registry.items || {})[registryId];
+
+        if (
+          !existing ||
+          typeof Bridge.upsertItem !== 'function'
+        ) {
+          return;
+        }
+
+        Bridge.upsertItem({
+          ...existing,
+          archived: archived === true
+        });
+      } catch { }
+    }
+
+    async function archiveOwnedSubject(
+      subjectId,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.setSubjectLibraryPlacement !== 'function'
+      ) {
+        showToast('Archive is unavailable.');
+        return;
+      }
+
+      try {
+        const saved =
+          await Subjects.setSubjectLibraryPlacement(
+            subjectId,
+            {
+              archived: true
+            }
+          );
+
+        if (!saved) {
+          throw new Error(
+            'Archive operation failed.'
+          );
+        }
+
+        setOwnedSubjectRegistryArchived(
+          subjectId,
+          true
+        );
+
+        await renderHub();
+        showToast(
+          'Subject archived. Restore it anytime in Settings → Compass.'
+        );
+      } catch {
+        showToast('Couldn’t archive this subject.');
+      }
+    }
+
+    async function openArchivedSubjectsDialog(event) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      ownedSubjectDialogReturnFocus =
+        event?.currentTarget ||
+        document.activeElement;
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.setSubjectLibraryPlacement !== 'function'
+      ) {
+        showToast('Archive is unavailable.');
+        return;
+      }
+
+      const archivedSubjects =
+        (await getOwnedSubjects())
+          .filter(subject =>
+            subject.archived &&
+            subject.subjectId
+          );
+
+      if (!archivedSubjects.length) {
+        showToast('No archived subjects.');
+        return;
+      }
+
+      const dialog = ensureOwnedSubjectDialog();
+
+      const kicker = dialog.querySelector(
+        '#owned-subject-dialog-kicker'
+      );
+
+      const title = dialog.querySelector(
+        '#owned-subject-dialog-title'
+      );
+
+      const copy = dialog.querySelector(
+        '#owned-subject-dialog-copy'
+      );
+
+      const field = dialog.querySelector(
+        '#owned-subject-dialog-field'
+      );
+
+      const createFields = dialog.querySelector(
+        '#owned-subject-dialog-create-fields'
+      );
+
+      const sessionFields = dialog.querySelector(
+        '#owned-subject-dialog-session-fields'
+      );
+
+      const choiceFields = dialog.querySelector(
+        '#owned-subject-dialog-choice-fields'
+      );
+
+      const select = dialog.querySelector(
+        '#owned-subject-dialog-session-subject'
+      );
+
+      const selectLabel =
+        sessionFields?.querySelector('span');
+
+      const error = dialog.querySelector(
+        '#owned-subject-dialog-error'
+      );
+
+      const secondary = dialog.querySelector(
+        '#owned-subject-dialog-secondary'
+      );
+
+      const confirm = dialog.querySelector(
+        '#owned-subject-dialog-confirm'
+      );
+
+      ownedSubjectDialogState = {
+        mode: 'archive-restore'
+      };
+
+      kicker.textContent = 'My Subjects';
+      title.textContent = 'Archived subjects';
+
+      copy.textContent =
+        'Restore a subject to the places it previously lived.';
+
+      field.hidden = true;
+      createFields.hidden = true;
+      choiceFields.hidden = true;
+      sessionFields.hidden = false;
+
+      if (selectLabel) {
+        selectLabel.textContent = 'Choose subject';
+      }
+
+      select.innerHTML = '';
+
+      archivedSubjects.forEach(subject => {
+        const option =
+          document.createElement('option');
+
+        option.value = subject.subjectId;
+        option.textContent = subject.title;
+
+        select.appendChild(option);
+      });
+
+      error.hidden = true;
+      error.textContent = '';
+
+      secondary.hidden = true;
+
+      confirm.hidden = false;
+      confirm.className = 'btn-primary';
+      confirm.textContent = 'Restore subject';
+      confirm.disabled = false;
+
+      ownedSubjectDialogPreviousBodyOverflow =
+        document.body.style.overflow;
+
+      document.body.style.overflow = 'hidden';
+      dialog.hidden = false;
+
+      requestAnimationFrame(() => {
+        select.focus();
+      });
+    }
+
+    async function openOwnedSubjectLastHomeDialog(
+      subjectId,
+      event
+    ) {
+      ownedSubjectDialogReturnFocus =
+        event?.currentTarget
+          ?.closest('.subject-card-management')
+          ?.querySelector('.subject-card-manage-btn') ||
+        document.activeElement;
+
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.getSubject !== 'function'
+      ) {
+        showToast('My Subjects are unavailable.');
+        return;
+      }
+
+      const record =
+        await Subjects.getSubject(subjectId);
+
+      if (!record) {
+        showToast('That subject could not be found.');
+        return;
+      }
+
+      const session = getActiveSession();
+      const dialog = ensureOwnedSubjectDialog();
+
+      const kicker = dialog.querySelector(
+        '#owned-subject-dialog-kicker'
+      );
+
+      const title = dialog.querySelector(
+        '#owned-subject-dialog-title'
+      );
+
+      const copy = dialog.querySelector(
+        '#owned-subject-dialog-copy'
+      );
+
+      const field = dialog.querySelector(
+        '#owned-subject-dialog-field'
+      );
+
+      const createFields = dialog.querySelector(
+        '#owned-subject-dialog-create-fields'
+      );
+
+      const sessionFields = dialog.querySelector(
+        '#owned-subject-dialog-session-fields'
+      );
+
+      const choiceFields = dialog.querySelector(
+        '#owned-subject-dialog-choice-fields'
+      );
+
+      const error = dialog.querySelector(
+        '#owned-subject-dialog-error'
+      );
+
+      const secondary = dialog.querySelector(
+        '#owned-subject-dialog-secondary'
+      );
+
+      const confirm = dialog.querySelector(
+        '#owned-subject-dialog-confirm'
+      );
+
+      ownedSubjectDialogState = {
+        mode: 'orphan-remove',
+        subjectId,
+        sessionId: session.id
+      };
+
+      kicker.textContent = 'My Subject';
+
+      title.textContent =
+        isDefaultSession(session)
+          ? 'Remove from this session?'
+          : 'Remove from ' + session.name + '?';
+
+      copy.textContent =
+        'This is the only place this subject currently appears.';
+
+      field.hidden = true;
+      createFields.hidden = true;
+      sessionFields.hidden = true;
+      choiceFields.hidden = true;
+
+      error.hidden = true;
+      error.textContent = '';
+
+      secondary.hidden = false;
+      secondary.className = 'btn-ghost';
+      secondary.textContent = 'Archive';
+      secondary.disabled = false;
+
+      confirm.hidden = false;
+      confirm.className = 'btn-primary';
+      confirm.textContent = 'Keep in My Subjects';
+      confirm.disabled = false;
+
+      ownedSubjectDialogPreviousBodyOverflow =
+        document.body.style.overflow;
+
+      document.body.style.overflow = 'hidden';
+      dialog.hidden = false;
+
+      requestAnimationFrame(() => {
+        confirm.focus();
+      });
+    }
+
+    async function runOwnedSubjectDialogSecondary() {
+      const state = ownedSubjectDialogState;
+
+      if (
+        !state ||
+        state.mode !== 'orphan-remove'
+      ) {
+        return;
+      }
+
+      const dialog = document.getElementById(
+        'owned-subject-dialog'
+      );
+
+      const error = dialog?.querySelector(
+        '#owned-subject-dialog-error'
+      );
+
+      const secondary = dialog?.querySelector(
+        '#owned-subject-dialog-secondary'
+      );
+
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !dialog ||
+        !error ||
+        !secondary ||
+        !Subjects ||
+        typeof Subjects.setSubjectLibraryPlacement !== 'function'
+      ) {
+        return;
+      }
+
+      secondary.disabled = true;
+      secondary.textContent = 'Archiving…';
+
+      try {
+        const saved =
+          await Subjects.setSubjectLibraryPlacement(
+            state.subjectId,
+            {
+              archived: true
+            }
+          );
+
+        if (!saved) {
+          throw new Error(
+            'Archive operation failed.'
+          );
+        }
+
+        setOwnedSubjectRegistryArchived(
+          state.subjectId,
+          true
+        );
+
+        closeOwnedSubjectDialog(false);
+        await renderHub();
+
+        showToast(
+          'Subject archived. Restore it anytime in Settings → Compass.'
+        );
+      } catch {
+        error.hidden = false;
+        error.textContent =
+          'Couldn’t archive this subject.';
+
+        secondary.disabled = false;
+        secondary.textContent = 'Archive';
+      }
+    }
+
     async function moveShelfSubject(
       scope,
       subjectKind,
@@ -5755,8 +6269,9 @@
           placement.archived !== true &&
           sessionIds.length <= 1
         ) {
-          showToast(
-            'Add this subject to My Subjects before removing its only session.'
+          await openOwnedSubjectLastHomeDialog(
+            subjectId,
+            event
           );
           return;
         }
@@ -6464,6 +6979,11 @@
               ', 1, event)">Move later</button>'
             )
             : '') +
+
+          '<button type="button" role="menuitem" ' +
+          'onclick="archiveOwnedSubject(' +
+          jsArg(subject.subjectId) +
+          ', event)">Archive</button>' +
 
           '<button class="is-danger" type="button" role="menuitem" ' +
           'onclick="openOwnedSubjectDeleteDialog(' +

@@ -2455,6 +2455,69 @@
       padding: 0.55rem 0;
     }
 
+    .compass-settings-section {
+      margin-top: 1.15rem;
+      padding-top: 0.15rem;
+      border-top: 1px solid var(--border-faint);
+    }
+
+    .settings-utility-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .settings-utility-copy {
+      min-width: 0;
+    }
+
+    .settings-utility-title {
+      display: block;
+      color: var(--text-heading);
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .settings-utility-meta {
+      display: block;
+      margin-top: 0.15rem;
+      color: var(--text-muted);
+      font-size: 0.76rem;
+      line-height: 1.4;
+    }
+
+    .archived-subjects-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin-top: 0.7rem;
+    }
+
+    .archived-subjects-list[hidden] {
+      display: none;
+    }
+
+    .archived-subject-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.6rem 0.7rem;
+      border: 1px solid var(--border-faint);
+      border-radius: var(--radius-sm);
+      background: var(--surface-muted);
+    }
+
+    .archived-subject-title {
+      min-width: 0;
+      color: var(--text-body);
+      font-size: 0.78rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .data-backup-section {
       margin-top: 1.15rem;
       padding-top: 0.15rem;
@@ -3085,6 +3148,22 @@
 
         <p class="modal-section-label">Favourites</p>
         <div class="atmosphere-favorites-list" id="atmosphere-favorites-list"></div>
+
+        <section class="compass-settings-section" aria-labelledby="compass-settings-title">
+          <p class="modal-section-label" id="compass-settings-title">Compass</p>
+
+          <div class="settings-utility-row">
+            <div class="settings-utility-copy">
+              <span class="settings-utility-title">Archived subjects</span>
+              <span class="settings-utility-meta" id="archived-subjects-summary">Checking archive…</span>
+            </div>
+
+            <button class="btn-ghost" id="archived-subjects-toggle"
+              onclick="toggleArchivedSubjectsSettings()" disabled>View</button>
+          </div>
+
+          <div class="archived-subjects-list" id="archived-subjects-list" hidden></div>
+        </section>
 
         <section class="data-backup-section" aria-labelledby="data-backup-title">
           <p class="modal-section-label" id="data-backup-title">Data &amp; backup</p>
@@ -4397,9 +4476,202 @@
       }).join('');
     }
 
+    async function readArchivedSubjectsForSettings() {
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.listSubjects !== 'function' ||
+        typeof Subjects.getLibraryState !== 'function'
+      ) {
+        return [];
+      }
+
+      const [
+        subjects,
+        library
+      ] = await Promise.all([
+        Subjects.listSubjects(),
+        Subjects.getLibraryState()
+      ]);
+
+      const placements =
+        library?.subjects || {};
+
+      return subjects
+        .filter(subject =>
+          subject?.id &&
+          placements[subject.id]?.archived === true
+        )
+        .map(subject => ({
+          id: subject.id,
+          title:
+            subject.metadata?.title ||
+            subject.document?.module?.title ||
+            'Untitled Subject'
+        }));
+    }
+
+    async function renderArchivedSubjectsSettings() {
+      const summary = document.getElementById(
+        'archived-subjects-summary'
+      );
+
+      const toggle = document.getElementById(
+        'archived-subjects-toggle'
+      );
+
+      const list = document.getElementById(
+        'archived-subjects-list'
+      );
+
+      if (!summary || !toggle || !list) {
+        return;
+      }
+
+      try {
+        const subjects =
+          await readArchivedSubjectsForSettings();
+
+        if (!subjects.length) {
+          summary.textContent =
+            'No archived subjects.';
+
+          toggle.disabled = true;
+          toggle.textContent = 'View';
+
+          list.hidden = true;
+          list.innerHTML = '';
+
+          return;
+        }
+
+        summary.textContent =
+          subjects.length +
+          ' archived subject' +
+          (subjects.length === 1 ? '.' : 's.');
+
+        toggle.disabled = false;
+
+        list.innerHTML =
+          subjects.map(subject =>
+            '<div class="archived-subject-row">' +
+            '<span class="archived-subject-title">' +
+            escHtml(subject.title) +
+            '</span>' +
+            '<button class="btn-ghost" type="button" ' +
+            'data-archived-subject-id="' +
+            escAttr(subject.id) +
+            '" ' +
+            'onclick="restoreArchivedSubjectFromSettings(this.dataset.archivedSubjectId, this)">' +
+            'Restore' +
+            '</button>' +
+            '</div>'
+          ).join('');
+      } catch {
+        summary.textContent =
+          'Archived subjects are unavailable.';
+
+        toggle.disabled = true;
+        list.hidden = true;
+        list.innerHTML = '';
+      }
+    }
+
+    function toggleArchivedSubjectsSettings() {
+      const toggle = document.getElementById(
+        'archived-subjects-toggle'
+      );
+
+      const list = document.getElementById(
+        'archived-subjects-list'
+      );
+
+      if (!toggle || !list || toggle.disabled) {
+        return;
+      }
+
+      list.hidden = !list.hidden;
+
+      toggle.textContent =
+        list.hidden
+          ? 'View'
+          : 'Hide';
+    }
+
+    async function restoreArchivedSubjectFromSettings(
+      subjectId,
+      button
+    ) {
+      const Subjects = window.AtlasTutorSubjects;
+      const id = String(subjectId || '').trim();
+
+      if (
+        !id ||
+        !Subjects ||
+        typeof Subjects.setSubjectLibraryPlacement !== 'function'
+      ) {
+        showToast('Archived subjects are unavailable.');
+        return;
+      }
+
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Restoring…';
+      }
+
+      try {
+        const restored =
+          await Subjects.setSubjectLibraryPlacement(
+            id,
+            {
+              archived: false
+            }
+          );
+
+        if (!restored) {
+          throw new Error(
+            'Restore operation failed.'
+          );
+        }
+
+        const registryId =
+          'compass:' + id;
+
+        const registry =
+          getRegistry();
+
+        const existing =
+          registry?.items?.[registryId];
+
+        if (
+          existing &&
+          typeof Bridge.upsertItem === 'function'
+        ) {
+          Bridge.upsertItem({
+            ...existing,
+            archived: false
+          });
+        }
+
+        await renderArchivedSubjectsSettings();
+
+        showToast('Subject restored.');
+      } catch {
+        showToast('Couldn’t restore this subject.');
+
+        if (button) {
+          button.disabled = false;
+          button.textContent = 'Restore';
+        }
+      }
+    }
+
     function openSettingsModal() {
       const session = getActiveSession();
       const currentUrl = readSessionAtmosphereImage(session.id);
+
+      renderArchivedSubjectsSettings();
 
       const input = document.getElementById('atmosphere-input');
       if (input) input.value = currentUrl;
