@@ -234,6 +234,10 @@
     .atlas-search-overlay {
         padding: 2rem 0.75rem 1rem;
     }
+
+    .atlas-search-results {
+        max-height: min(480px, calc(100svh - 7rem));
+    }
 }
 
 /* ============================================================
