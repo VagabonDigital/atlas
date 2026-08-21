@@ -1143,7 +1143,7 @@
       .subject-card-manage-btn[aria-expanded="true"]
     ) {
       overflow: visible;
-      z-index: 10;
+      z-index: 30;
     }
 
     .subject-card-open-layer {
@@ -6887,6 +6887,40 @@
           jsArg(subject.subjectId) +
           ', event)">Duplicate</button>' +
 
+          (subject.canMoveEarlier
+            ? (
+              '<button type="button" role="menuitem" ' +
+              'onclick="moveShelfSubject(' +
+              jsArg(subject.moveScope) +
+              ', ' +
+              jsArg(subject.moveSubjectKind) +
+              ', ' +
+              jsArg(subject.moveSubjectId) +
+              ', ' +
+              jsArg(subject.moveEarlierTargetKind) +
+              ', ' +
+              jsArg(subject.moveEarlierTargetId) +
+              ', -1, event)">Move earlier</button>'
+            )
+            : '') +
+
+          (subject.canMoveLater
+            ? (
+              '<button type="button" role="menuitem" ' +
+              'onclick="moveShelfSubject(' +
+              jsArg(subject.moveScope) +
+              ', ' +
+              jsArg(subject.moveSubjectKind) +
+              ', ' +
+              jsArg(subject.moveSubjectId) +
+              ', ' +
+              jsArg(subject.moveLaterTargetKind) +
+              ', ' +
+              jsArg(subject.moveLaterTargetId) +
+              ', 1, event)">Move later</button>'
+            )
+            : '') +
+
           (
             subject.canMoveCategory
               ? (
@@ -6946,39 +6980,6 @@
               '</button>'
             )) +
 
-          (subject.canMoveEarlier
-            ? (
-              '<button type="button" role="menuitem" ' +
-              'onclick="moveShelfSubject(' +
-              jsArg(subject.moveScope) +
-              ', ' +
-              jsArg(subject.moveSubjectKind) +
-              ', ' +
-              jsArg(subject.moveSubjectId) +
-              ', ' +
-              jsArg(subject.moveEarlierTargetKind) +
-              ', ' +
-              jsArg(subject.moveEarlierTargetId) +
-              ', -1, event)">Move earlier</button>'
-            )
-            : '') +
-
-          (subject.canMoveLater
-            ? (
-              '<button type="button" role="menuitem" ' +
-              'onclick="moveShelfSubject(' +
-              jsArg(subject.moveScope) +
-              ', ' +
-              jsArg(subject.moveSubjectKind) +
-              ', ' +
-              jsArg(subject.moveSubjectId) +
-              ', ' +
-              jsArg(subject.moveLaterTargetKind) +
-              ', ' +
-              jsArg(subject.moveLaterTargetId) +
-              ', 1, event)">Move later</button>'
-            )
-            : '') +
 
           '<button type="button" role="menuitem" ' +
           'onclick="archiveOwnedSubject(' +
@@ -7040,40 +7041,6 @@
           '</button>' +
 
           '<div class="subject-card-menu" role="menu" hidden>' +
-
-          (subject.canMoveEarlier
-            ? (
-              '<button type="button" role="menuitem" ' +
-              'onclick="moveShelfSubject(' +
-              jsArg(subject.moveScope) +
-              ', ' +
-              jsArg(subject.moveSubjectKind) +
-              ', ' +
-              jsArg(subject.moveSubjectId) +
-              ', ' +
-              jsArg(subject.moveEarlierTargetKind) +
-              ', ' +
-              jsArg(subject.moveEarlierTargetId) +
-              ', -1, event)">Move earlier</button>'
-            )
-            : '') +
-
-          (subject.canMoveLater
-            ? (
-              '<button type="button" role="menuitem" ' +
-              'onclick="moveShelfSubject(' +
-              jsArg(subject.moveScope) +
-              ', ' +
-              jsArg(subject.moveSubjectKind) +
-              ', ' +
-              jsArg(subject.moveSubjectId) +
-              ', ' +
-              jsArg(subject.moveLaterTargetKind) +
-              ', ' +
-              jsArg(subject.moveLaterTargetId) +
-              ', 1, event)">Move later</button>'
-            )
-            : '') +
 
           '<button type="button" role="menuitem" ' +
           'onclick="removeAtlasSubjectFromActiveSession(' +
