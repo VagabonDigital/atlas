@@ -3790,6 +3790,176 @@
       });
     }
 
+    async function openDeleteCategoryDialog(
+      categoryId,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      ownedSubjectDialogReturnFocus =
+        event?.currentTarget
+          ?.closest('.subject-category-management')
+          ?.querySelector('.subject-category-manage-btn') ||
+        document.activeElement;
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.getLibraryState !== 'function' ||
+        typeof Subjects.deleteLibraryCategory !== 'function'
+      ) {
+        showToast('Categories are unavailable.');
+        return;
+      }
+
+      let library;
+
+      try {
+        library =
+          await Subjects.getLibraryState();
+      } catch {
+        showToast('Couldn’t load this category.');
+        return;
+      }
+
+      const category =
+        library?.categories?.find(item =>
+          item.id === categoryId
+        );
+
+      if (
+        !category ||
+        category.id === library.defaultCategoryId
+      ) {
+        showToast(
+          'The default category can’t be deleted.'
+        );
+        return;
+      }
+
+      const subjectCount =
+        Object.values(
+          library.subjects || {}
+        ).filter(placement =>
+          placement.categoryId === category.id
+        ).length;
+
+      if (subjectCount === 0) {
+        try {
+          const deleted =
+            await Subjects.deleteLibraryCategory(
+              category.id
+            );
+
+          if (!deleted) {
+            throw new Error(
+              'Category deletion failed.'
+            );
+          }
+
+          await renderHub();
+          showToast('Category deleted.');
+        } catch {
+          showToast(
+            'Couldn’t delete this category.'
+          );
+        }
+
+        return;
+      }
+
+      const defaultCategory =
+        library.categories.find(item =>
+          item.id === library.defaultCategoryId
+        );
+
+      const dialog = ensureOwnedSubjectDialog();
+
+      const kicker = dialog.querySelector(
+        '#owned-subject-dialog-kicker'
+      );
+
+      const title = dialog.querySelector(
+        '#owned-subject-dialog-title'
+      );
+
+      const copy = dialog.querySelector(
+        '#owned-subject-dialog-copy'
+      );
+
+      const field = dialog.querySelector(
+        '#owned-subject-dialog-field'
+      );
+
+      const createFields = dialog.querySelector(
+        '#owned-subject-dialog-create-fields'
+      );
+
+      const sessionFields = dialog.querySelector(
+        '#owned-subject-dialog-session-fields'
+      );
+
+      const choiceFields = dialog.querySelector(
+        '#owned-subject-dialog-choice-fields'
+      );
+
+      const error = dialog.querySelector(
+        '#owned-subject-dialog-error'
+      );
+
+      const confirm = dialog.querySelector(
+        '#owned-subject-dialog-confirm'
+      );
+
+      ownedSubjectDialogState = {
+        mode: 'category-delete',
+        categoryId: category.id
+      };
+
+      kicker.textContent = 'My Subjects';
+      title.textContent = 'Delete category?';
+
+      copy.textContent =
+        '“' +
+        category.name +
+        '” contains ' +
+        subjectCount +
+        ' subject' +
+        (subjectCount === 1 ? '' : 's') +
+        '. ' +
+        (subjectCount === 1 ? 'It' : 'They') +
+        ' will move to “' +
+        (defaultCategory?.name || 'My Subjects') +
+        '”.';
+
+      field.hidden = true;
+      createFields.hidden = true;
+      sessionFields.hidden = true;
+      choiceFields.hidden = true;
+
+      error.hidden = true;
+      error.textContent = '';
+
+      confirm.hidden = false;
+      confirm.className = 'btn-danger';
+      confirm.textContent = 'Delete category';
+      confirm.disabled = false;
+
+      ownedSubjectDialogPreviousBodyOverflow =
+        document.body.style.overflow;
+
+      document.body.style.overflow = 'hidden';
+      dialog.hidden = false;
+
+      requestAnimationFrame(() => {
+        confirm.focus();
+      });
+    }
+
     function openCreateSubjectDialog(
       event,
       sessionId = '',
@@ -4190,6 +4360,38 @@
             'Couldn’t add this subject.';
           confirm.disabled = false;
           confirm.textContent = 'Add subject';
+        }
+
+        return;
+      }
+
+      if (state.mode === 'category-delete') {
+        confirm.disabled = true;
+        confirm.textContent = 'Deleting…';
+
+        try {
+          const deleted =
+            await Subjects.deleteLibraryCategory(
+              state.categoryId
+            );
+
+          if (!deleted) {
+            throw new Error(
+              'Category deletion failed.'
+            );
+          }
+
+          closeOwnedSubjectDialog(false);
+          await renderHub();
+          showToast('Category deleted.');
+        } catch {
+          error.hidden = false;
+          error.textContent =
+            'Couldn’t delete this category.';
+
+          confirm.disabled = false;
+          confirm.textContent =
+            'Delete category';
         }
 
         return;
@@ -5358,7 +5560,10 @@
               {
                 canCreate: true,
                 categoryId: category.id,
-                canManageCategory: true
+                canManageCategory: true,
+                isDefaultCategory:
+                  category.id ===
+                  libraryState?.defaultCategoryId
               }
             )
           )
@@ -5419,7 +5624,8 @@
         canCreate = false,
         canAdd = false,
         categoryId = '',
-        canManageCategory = false
+        canManageCategory = false,
+        isDefaultCategory = false
       } = {}
     ) {
       const items =
@@ -5470,6 +5676,17 @@
             '<button type="button" role="menuitem" ' +
             'onclick="openCreateCategoryDialog(event)">New category</button>' +
 
+            (
+              !isDefaultCategory
+                ? (
+                  '<button class="is-danger" type="button" role="menuitem" ' +
+                  'onclick="openDeleteCategoryDialog(' +
+                  jsArg(categoryId) +
+                  ', event)">Delete category</button>'
+                )
+                : ''
+            ) +
+
             '</div>' +
             '</div>'
           )
@@ -5518,7 +5735,9 @@
           (
             canAdd
               ? 'Add the subjects you want close at hand for this session.'
-              : 'Create your first subject and build it directly inside Compass.'
+              : canManageCategory
+                ? 'Create a subject here.'
+                : 'Create your first subject and build it directly inside Compass.'
           ) +
           '</p>'
         );

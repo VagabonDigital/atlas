@@ -1382,8 +1382,8 @@
                 category
             ],
             categoryOrder: [
-                ...library.categoryOrder,
-                id
+                id,
+                ...library.categoryOrder
             ]
         };
 
@@ -1444,6 +1444,82 @@
                 categories[categoryIndex]
             )
             : null;
+    }
+
+    async function deleteLibraryCategory(
+        categoryId
+    ) {
+        const id = String(categoryId || '').trim();
+
+        if (
+            !id ||
+            id === DEFAULT_CATEGORY_ID
+        ) {
+            return null;
+        }
+
+        const library =
+            readLibraryState();
+
+        const category =
+            library.categories.find(item =>
+                item.id === id
+            );
+
+        if (!category) {
+            return null;
+        }
+
+        let movedSubjectCount = 0;
+
+        const subjects =
+            Object.fromEntries(
+                Object.entries(
+                    library.subjects
+                ).map(([subjectId, placement]) => {
+                    if (
+                        placement.categoryId !== id
+                    ) {
+                        return [
+                            subjectId,
+                            placement
+                        ];
+                    }
+
+                    movedSubjectCount += 1;
+
+                    return [
+                        subjectId,
+                        {
+                            ...placement,
+                            categoryId:
+                                library.defaultCategoryId
+                        }
+                    ];
+                })
+            );
+
+        const next = {
+            ...library,
+            categories:
+                library.categories.filter(item =>
+                    item.id !== id
+                ),
+            categoryOrder:
+                library.categoryOrder.filter(item =>
+                    item !== id
+                ),
+            subjects
+        };
+
+        if (!writeLibraryState(next)) {
+            return null;
+        }
+
+        return cloneJson({
+            category,
+            movedSubjectCount
+        });
     }
 
     async function getSubjectLibraryState(
@@ -2465,6 +2541,7 @@
         getLibraryState,
         createLibraryCategory,
         renameLibraryCategory,
+        deleteLibraryCategory,
         getSubjectLibraryState,
         setSubjectLibraryPlacement,
 
