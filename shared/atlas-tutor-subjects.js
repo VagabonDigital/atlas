@@ -1446,6 +1446,61 @@
             : null;
     }
 
+    async function moveLibraryCategory(
+        categoryId,
+        offset
+    ) {
+        const id = String(categoryId || '').trim();
+        const movement = Number(offset);
+
+        if (
+            !id ||
+            (
+                movement !== -1 &&
+                movement !== 1
+            )
+        ) {
+            return false;
+        }
+
+        const library =
+            readLibraryState();
+
+        const currentIndex =
+            library.categoryOrder.indexOf(id);
+
+        if (currentIndex === -1) {
+            return false;
+        }
+
+        const targetIndex =
+            currentIndex + movement;
+
+        if (
+            targetIndex < 0 ||
+            targetIndex >= library.categoryOrder.length
+        ) {
+            return false;
+        }
+
+        const categoryOrder = [
+            ...library.categoryOrder
+        ];
+
+        [
+            categoryOrder[currentIndex],
+            categoryOrder[targetIndex]
+        ] = [
+            categoryOrder[targetIndex],
+            categoryOrder[currentIndex]
+        ];
+
+        return writeLibraryState({
+            ...library,
+            categoryOrder
+        });
+    }
+
     async function deleteLibraryCategory(
         categoryId
     ) {
@@ -2128,10 +2183,23 @@
         document.module.bgImage =
             metadata.coverImage;
 
+        const sourcePlacement =
+            readLibraryState().subjects[source.id] || null;
+
+        const libraryPlacement =
+            sourcePlacement?.libraryIncluded !== false &&
+            sourcePlacement?.categoryId
+                ? {
+                    libraryIncluded: true,
+                    categoryId: sourcePlacement.categoryId
+                }
+                : undefined;
+
         return createSubject({
             format: source.format,
             metadata,
             document,
+            libraryPlacement,
             provenance:
                 Object.prototype.hasOwnProperty.call(
                     nextPatch,
@@ -2605,6 +2673,7 @@
         getLibraryState,
         createLibraryCategory,
         renameLibraryCategory,
+        moveLibraryCategory,
         deleteLibraryCategory,
         getSubjectLibraryState,
         setSubjectLibraryPlacement,

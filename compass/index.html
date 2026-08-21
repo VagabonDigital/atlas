@@ -3798,6 +3798,54 @@
       });
     }
 
+    async function moveLibraryCategory(
+      categoryId,
+      offset,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+      const movement = Number(offset);
+
+      if (
+        !Subjects ||
+        typeof Subjects.moveLibraryCategory !== 'function' ||
+        (
+          movement !== -1 &&
+          movement !== 1
+        )
+      ) {
+        showToast('Category ordering is unavailable.');
+        return;
+      }
+
+      try {
+        const moved =
+          await Subjects.moveLibraryCategory(
+            categoryId,
+            movement
+          );
+
+        if (!moved) {
+          return;
+        }
+
+        await renderHub();
+
+        showToast(
+          movement < 0
+            ? 'Category moved earlier.'
+            : 'Category moved later.'
+        );
+      } catch {
+        showToast('Couldn’t move this category.');
+      }
+    }
+
     async function openDeleteCategoryDialog(
       categoryId,
       event
@@ -5873,7 +5921,7 @@
 
       const ownedLibraryHtml =
         libraryCategories
-          .map(category =>
+          .map((category, index) =>
             renderSubjectCollection(
               remainingOwnedSubjects.filter(subject =>
                 subject.categoryId === category.id
@@ -5885,7 +5933,11 @@
                 canManageCategory: true,
                 isDefaultCategory:
                   category.id ===
-                  libraryState?.defaultCategoryId
+                  libraryState?.defaultCategoryId,
+                canMoveCategoryEarlier:
+                  index > 0,
+                canMoveCategoryLater:
+                  index < libraryCategories.length - 1
               }
             )
           )
@@ -5947,7 +5999,9 @@
         canAdd = false,
         categoryId = '',
         canManageCategory = false,
-        isDefaultCategory = false
+        isDefaultCategory = false,
+        canMoveCategoryEarlier = false,
+        canMoveCategoryLater = false
       } = {}
     ) {
       const items =
@@ -6086,6 +6140,28 @@
 
             '<button type="button" role="menuitem" ' +
             'onclick="openCreateCategoryDialog(event)">New category</button>' +
+
+            (
+              canMoveCategoryEarlier
+                ? (
+                  '<button type="button" role="menuitem" ' +
+                  'onclick="moveLibraryCategory(' +
+                  jsArg(categoryId) +
+                  ', -1, event)">Move earlier</button>'
+                )
+                : ''
+            ) +
+
+            (
+              canMoveCategoryLater
+                ? (
+                  '<button type="button" role="menuitem" ' +
+                  'onclick="moveLibraryCategory(' +
+                  jsArg(categoryId) +
+                  ', 1, event)">Move later</button>'
+                )
+                : ''
+            ) +
 
             (
               !isDefaultCategory
