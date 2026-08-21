@@ -409,7 +409,7 @@
         overlay.setAttribute('aria-label', 'Atlas Search');
         overlay.setAttribute('aria-modal', 'true');
         overlay.innerHTML = `
-            <div class="atlas-search-panel" id="${IDS.panel}">
+            <div class="atlas-search-panel" id="${IDS.panel}" tabindex="-1">
                 <div class="atlas-search-input-row">
                     ${SEARCH_ICON}
                     <input class="atlas-search-input" id="${IDS.input}" placeholder="Search subjects, games, and worlds…" autocomplete="off" autocorrect="off" spellcheck="false">
@@ -460,7 +460,15 @@
         input.value = '';
         focusIdx = -1;
         renderResults('');
+
         window.setTimeout(() => {
+            if (window.matchMedia('(max-width: 680px)').matches) {
+                document
+                    .getElementById(IDS.panel)
+                    ?.focus({ preventScroll: true });
+                return;
+            }
+
             input.focus();
         }, 40);
     }

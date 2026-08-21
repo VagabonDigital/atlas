@@ -446,6 +446,25 @@
     ) {
         const elements = getElements();
 
+        const focusedElement =
+            document.activeElement;
+
+        if (
+            focusedElement instanceof HTMLInputElement ||
+            focusedElement instanceof HTMLTextAreaElement
+        ) {
+            focusedElement.blur();
+        }
+
+        if (
+            window.AtlasSearch &&
+            typeof AtlasSearch.isOpen === 'function' &&
+            AtlasSearch.isOpen() &&
+            typeof AtlasSearch.close === 'function'
+        ) {
+            AtlasSearch.close();
+        }
+
         const initialView =
             openOptions.initialView === 'manage'
                 ? 'manage'
@@ -481,9 +500,15 @@
 
         window.requestAnimationFrame(() => {
             if (initialView === 'manage') {
-                elements.searchInput?.focus({
-                    preventScroll: true
-                });
+                if (window.matchMedia('(max-width: 680px)').matches) {
+                    root
+                        ?.querySelector('#atlas-session-manage-title')
+                        ?.focus({ preventScroll: true });
+                } else {
+                    elements.searchInput?.focus({
+                        preventScroll: true
+                    });
+                }
             } else {
                 elements.activeName?.focus({
                     preventScroll: true
@@ -709,7 +734,7 @@
                             <button class="atlas-session-back" id="atlas-session-manage-back" type="button">
                                 ← Back to current session
                             </button>
-                            <h2 id="atlas-session-manage-title">Switch or manage sessions</h2>
+                            <h2 id="atlas-session-manage-title" tabindex="-1">Switch or manage sessions</h2>
                             <label class="atlas-session-search-label" for="atlas-session-search">
                                 Search sessions
                             </label>
