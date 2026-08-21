@@ -956,15 +956,6 @@
       min-width: 0;
     }
 
-    .hub-eyebrow {
-      font-size: 0.72rem;
-      font-weight: 650;
-      letter-spacing: 0.09em;
-      text-transform: none;
-      color: var(--accent);
-      margin-bottom: 0.72rem;
-    }
-
     .hub-title {
       font-family: var(--font-display);
       font-size: clamp(2.05rem, 4.5vw, 2.85rem);
@@ -973,6 +964,48 @@
       line-height: 1.08;
       letter-spacing: -0.022em;
       margin-bottom: 0.72rem;
+    }
+
+    .hub-game-rotator {
+      display: grid;
+      margin-top: 0.08em;
+      color: var(--accent);
+    }
+
+    .hub-game-prompt {
+      grid-area: 1 / 1;
+      opacity: 0;
+      animation: hub-game-prompt-cycle 60s ease-in-out infinite;
+      animation-delay: calc(
+        var(--prompt-delay) - var(--prompt-phase, 0ms)
+      );
+    }
+
+    @keyframes hub-game-prompt-cycle {
+      0% {
+        opacity: 0;
+      }
+
+      1%,
+      9% {
+        opacity: 1;
+      }
+
+      10%,
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hub-game-prompt {
+        animation: none;
+        opacity: 0;
+      }
+
+      .hub-game-prompt:first-child {
+        opacity: 1;
+      }
     }
 
     .hub-desc {
@@ -2097,6 +2130,59 @@
       }).join('');
     }
 
+    const ARCADE_PROMPT_CYCLE_MS = 60000;
+    const ARCADE_PROMPT_SLOT_MS = 6000;
+    const ARCADE_PROMPT_SETTLE_MS = 600;
+    const ARCADE_PROMPT_STARTED_AT_KEY =
+      'atlas::arcadePromptCycleStartedAt';
+
+    function getArcadePromptPhaseMs() {
+      const now = Date.now();
+      let startedAt = now;
+
+      try {
+        const storedStartedAt = Number(
+          sessionStorage.getItem(
+            ARCADE_PROMPT_STARTED_AT_KEY
+          )
+        );
+
+        if (
+          Number.isFinite(storedStartedAt) &&
+          storedStartedAt > 0
+        ) {
+          startedAt = storedStartedAt;
+        } else {
+          sessionStorage.setItem(
+            ARCADE_PROMPT_STARTED_AT_KEY,
+            String(now)
+          );
+        }
+      } catch (e) { }
+
+      const rawPhase =
+        (now - startedAt) % ARCADE_PROMPT_CYCLE_MS;
+
+      const slotStart =
+        Math.floor(
+          rawPhase / ARCADE_PROMPT_SLOT_MS
+        ) * ARCADE_PROMPT_SLOT_MS;
+
+      const slotOffset =
+        rawPhase - slotStart;
+
+      const settledOffset = Math.min(
+        Math.max(
+          slotOffset,
+          ARCADE_PROMPT_SETTLE_MS
+        ),
+        ARCADE_PROMPT_SLOT_MS -
+          ARCADE_PROMPT_SETTLE_MS
+      );
+
+      return slotStart + settledOffset;
+    }
+
     /* ================================================================
        RENDER MAIN HUB
        ================================================================ */
@@ -2111,16 +2197,28 @@
       renderSpineHubNav();
       renderDrawerHubNav();
 
-      const eyebrow = isDefaultSession(session)
-        ? 'Games & Spontaneity'
-        : 'Welcome, ' + session.name;
+      const arcadePromptPhaseMs =
+        getArcadePromptPhaseMs();
 
       let html = '';
 
       html += '<div class="hub-intro">' +
         '<div class="hub-intro-text">' +
-        '<div class="hub-eyebrow">' + escHtml(eyebrow) + '</div>' +
-        '<h1 class="hub-title">Conversation games that get you talking.</h1>' +
+        '<h1 class="hub-title" aria-label="Ready to play?">' +
+        'Ready to' +
+        '<span class="hub-game-rotator" style="--prompt-phase: ' + arcadePromptPhaseMs + 'ms;" aria-hidden="true">' +
+        '<span class="hub-game-prompt" style="--prompt-delay: 0s;">make a terrible decision?</span>' +
+        '<span class="hub-game-prompt" style="--prompt-delay: 6s;">spot the lie?</span>' +
+        '<span class="hub-game-prompt" style="--prompt-delay: 12s;">choose between two disasters?</span>' +
+        '<span class="hub-game-prompt" style="--prompt-delay: 18s;">survive a very strange tomorrow?</span>' +
+        '<span class="hub-game-prompt" style="--prompt-delay: 24s;">defend a ridiculous opinion?</span>' +
+        '<span class="hub-game-prompt" style="--prompt-delay: 30s;">invent something convincing?</span>' +
+        '<span class="hub-game-prompt" style="--prompt-delay: 36s;">argue for the impossible?</span>' +
+        '<span class="hub-game-prompt" style="--prompt-delay: 42s;">make the worse choice on purpose?</span>' +
+        '<span class="hub-game-prompt" style="--prompt-delay: 48s;">explain the unexplainable?</span>' +
+        '<span class="hub-game-prompt" style="--prompt-delay: 54s;">change your mind at the last second?</span>' +
+        '</span>' +
+        '</h1>' +
         '<p class="hub-desc">Think fast, speak freely, and see where the game takes you.</p>' +
         '</div>' +
         '</div>';
