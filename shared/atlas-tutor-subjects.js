@@ -1912,7 +1912,8 @@
 
     async function moveSubject(
         subjectId,
-        offset
+        offset,
+        targetSubjectId = ''
     ) {
         const id = String(subjectId || '').trim();
         const movement = Number(offset);
@@ -1932,19 +1933,82 @@
             subject.id
         );
 
-        const currentIndex =
-            order.indexOf(id);
+        const library =
+            readLibraryState();
 
-        if (currentIndex === -1) {
+        const placement =
+            library.subjects[id];
+
+        if (
+            !placement ||
+            placement.libraryIncluded === false ||
+            placement.archived === true ||
+            !placement.categoryId
+        ) {
             return false;
         }
 
+        const categoryIds =
+            order.filter(candidateId => {
+                const candidatePlacement =
+                    library.subjects[candidateId];
+
+                return (
+                    candidatePlacement &&
+                    candidatePlacement.libraryIncluded !== false &&
+                    candidatePlacement.archived !== true &&
+                    candidatePlacement.categoryId ===
+                        placement.categoryId
+                );
+            });
+
+        const categoryIndex =
+            categoryIds.indexOf(id);
+
+        if (categoryIndex === -1) {
+            return false;
+        }
+
+        let targetId =
+            String(targetSubjectId || '').trim();
+
+        if (targetId) {
+            const targetCategoryIndex =
+                categoryIds.indexOf(targetId);
+
+            if (
+                targetCategoryIndex === -1 ||
+                (
+                    movement < 0 &&
+                    targetCategoryIndex >= categoryIndex
+                ) ||
+                (
+                    movement > 0 &&
+                    targetCategoryIndex <= categoryIndex
+                )
+            ) {
+                return false;
+            }
+        } else {
+            targetId =
+                categoryIds[
+                    categoryIndex + movement
+                ] || '';
+        }
+
+        if (!targetId) {
+            return false;
+        }
+
+        const currentIndex =
+            order.indexOf(id);
+
         const targetIndex =
-            currentIndex + movement;
+            order.indexOf(targetId);
 
         if (
-            targetIndex < 0 ||
-            targetIndex >= order.length
+            currentIndex === -1 ||
+            targetIndex === -1
         ) {
             return false;
         }

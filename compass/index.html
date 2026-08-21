@@ -2852,7 +2852,7 @@
         ((reg.sessionStates || {})[session.id]) || {};
 
       return (Array.isArray(records) ? records : [])
-        .map((record, index, allRecords) => {
+        .map(record => {
           const id = String(record?.id || '').trim();
 
           if (!id) return null;
@@ -2923,10 +2923,7 @@
                 1,
                 Math.floor(Number(record.revision) || 1)
               ),
-            updatedAt: Number(record.updatedAt) || 0,
-            canMoveEarlier: index > 0,
-            canMoveLater:
-              index < allRecords.length - 1
+            updatedAt: Number(record.updatedAt) || 0
           };
         })
         .filter(Boolean);
@@ -4790,8 +4787,12 @@
       }
     }
 
-    async function moveOwnedSubject(
+    async function moveShelfSubject(
+      scope,
+      subjectKind,
       subjectId,
+      targetKind,
+      targetSubjectId,
       offset,
       event
     ) {
@@ -4801,30 +4802,112 @@
       closeOwnedSubjectMenus();
 
       const Subjects = window.AtlasTutorSubjects;
+      const movement = Number(offset);
 
       if (
         !Subjects ||
-        typeof Subjects.moveSubject !== 'function'
+        (
+          movement !== -1 &&
+          movement !== 1
+        )
       ) {
         showToast('Subject ordering is unavailable.');
         return;
       }
 
       try {
-        const moved =
-          await Subjects.moveSubject(
-            subjectId,
-            offset
-          );
+        let moved = null;
+
+        if (scope === 'category') {
+          if (
+            subjectKind !== 'my-subject' ||
+            targetKind !== 'my-subject' ||
+            typeof Subjects.moveSubject !== 'function'
+          ) {
+            throw new Error(
+              'Category ordering is unavailable.'
+            );
+          }
+
+          moved =
+            await Subjects.moveSubject(
+              subjectId,
+              movement,
+              targetSubjectId
+            );
+        } else if (scope === 'session') {
+          if (
+            typeof Subjects.getSessionSubjects !== 'function' ||
+            typeof Subjects.setSessionSubjects !== 'function'
+          ) {
+            throw new Error(
+              'Session ordering is unavailable.'
+            );
+          }
+
+          const session = getActiveSession();
+
+          const refs =
+            await Subjects.getSessionSubjects(
+              session.id
+            );
+
+          const currentIndex =
+            refs.findIndex(ref =>
+              ref.kind === subjectKind &&
+              ref.id === subjectId
+            );
+
+          const targetIndex =
+            refs.findIndex(ref =>
+              ref.kind === targetKind &&
+              ref.id === targetSubjectId
+            );
+
+          if (
+            currentIndex === -1 ||
+            targetIndex === -1 ||
+            (
+              movement < 0 &&
+              targetIndex >= currentIndex
+            ) ||
+            (
+              movement > 0 &&
+              targetIndex <= currentIndex
+            )
+          ) {
+            throw new Error(
+              'Invalid session movement.'
+            );
+          }
+
+          [
+            refs[currentIndex],
+            refs[targetIndex]
+          ] = [
+            refs[targetIndex],
+            refs[currentIndex]
+          ];
+
+          moved =
+            await Subjects.setSessionSubjects(
+              session.id,
+              refs
+            );
+        } else {
+          return;
+        }
 
         if (!moved) {
-          return;
+          throw new Error(
+            'Subject movement failed.'
+          );
         }
 
         await renderHub();
 
         showToast(
-          offset < 0
+          movement < 0
             ? 'Subject moved earlier.'
             : 'Subject moved later.'
         );
@@ -5641,8 +5724,97 @@
         return '';
       }
 
+      const getMovementRef = subject => {
+        if (
+          subject?.isOwned &&
+          subject.subjectId
+        ) {
+          return {
+            kind: 'my-subject',
+            id: String(subject.subjectId)
+          };
+        }
+
+        if (subject?.registryId) {
+          return {
+            kind: 'atlas-subject',
+            id: String(subject.registryId)
+          };
+        }
+
+        return null;
+      };
+
       const cards = items
-        .map(subject => renderSubjectCard(subject))
+        .map((subject, index) => {
+          const subjectRef =
+            getMovementRef(subject);
+
+          const moveScope =
+            canAdd &&
+            subject.isSessionRelevant
+              ? 'session'
+              : (
+                categoryId &&
+                subject.isOwned &&
+                subject.subjectId
+                  ? 'category'
+                  : ''
+              );
+
+          const canReorder =
+            Boolean(
+              moveScope &&
+              subjectRef &&
+              items.length > 1
+            );
+
+          const earlierRef =
+            canReorder &&
+            index > 0
+              ? getMovementRef(
+                items[index - 1]
+              )
+              : null;
+
+          const laterRef =
+            canReorder &&
+            index < items.length - 1
+              ? getMovementRef(
+                items[index + 1]
+              )
+              : null;
+
+          return renderSubjectCard({
+            ...subject,
+
+            moveScope,
+
+            moveSubjectKind:
+              subjectRef?.kind || '',
+
+            moveSubjectId:
+              subjectRef?.id || '',
+
+            canMoveEarlier:
+              Boolean(earlierRef),
+
+            canMoveLater:
+              Boolean(laterRef),
+
+            moveEarlierTargetKind:
+              earlierRef?.kind || '',
+
+            moveEarlierTargetId:
+              earlierRef?.id || '',
+
+            moveLaterTargetKind:
+              laterRef?.kind || '',
+
+            moveLaterTargetId:
+              laterRef?.id || ''
+          });
+        })
         .join('');
 
       const categoryManagement =
@@ -5936,8 +6108,16 @@
           (subject.canMoveEarlier
             ? (
               '<button type="button" role="menuitem" ' +
-              'onclick="moveOwnedSubject(' +
-              jsArg(subject.subjectId) +
+              'onclick="moveShelfSubject(' +
+              jsArg(subject.moveScope) +
+              ', ' +
+              jsArg(subject.moveSubjectKind) +
+              ', ' +
+              jsArg(subject.moveSubjectId) +
+              ', ' +
+              jsArg(subject.moveEarlierTargetKind) +
+              ', ' +
+              jsArg(subject.moveEarlierTargetId) +
               ', -1, event)">Move earlier</button>'
             )
             : '') +
@@ -5945,8 +6125,16 @@
           (subject.canMoveLater
             ? (
               '<button type="button" role="menuitem" ' +
-              'onclick="moveOwnedSubject(' +
-              jsArg(subject.subjectId) +
+              'onclick="moveShelfSubject(' +
+              jsArg(subject.moveScope) +
+              ', ' +
+              jsArg(subject.moveSubjectKind) +
+              ', ' +
+              jsArg(subject.moveSubjectId) +
+              ', ' +
+              jsArg(subject.moveLaterTargetKind) +
+              ', ' +
+              jsArg(subject.moveLaterTargetId) +
               ', 1, event)">Move later</button>'
             )
             : '') +
@@ -6006,6 +6194,41 @@
           '</button>' +
 
           '<div class="subject-card-menu" role="menu" hidden>' +
+
+          (subject.canMoveEarlier
+            ? (
+              '<button type="button" role="menuitem" ' +
+              'onclick="moveShelfSubject(' +
+              jsArg(subject.moveScope) +
+              ', ' +
+              jsArg(subject.moveSubjectKind) +
+              ', ' +
+              jsArg(subject.moveSubjectId) +
+              ', ' +
+              jsArg(subject.moveEarlierTargetKind) +
+              ', ' +
+              jsArg(subject.moveEarlierTargetId) +
+              ', -1, event)">Move earlier</button>'
+            )
+            : '') +
+
+          (subject.canMoveLater
+            ? (
+              '<button type="button" role="menuitem" ' +
+              'onclick="moveShelfSubject(' +
+              jsArg(subject.moveScope) +
+              ', ' +
+              jsArg(subject.moveSubjectKind) +
+              ', ' +
+              jsArg(subject.moveSubjectId) +
+              ', ' +
+              jsArg(subject.moveLaterTargetKind) +
+              ', ' +
+              jsArg(subject.moveLaterTargetId) +
+              ', 1, event)">Move later</button>'
+            )
+            : '') +
+
           '<button type="button" role="menuitem" ' +
           'onclick="removeAtlasSubjectFromActiveSession(' +
           jsArg(subject.registryId) +
