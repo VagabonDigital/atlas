@@ -15895,25 +15895,55 @@ function openSet(setId) {
     renderDiscussionSets();
 
     window.setTimeout(() => {
-        const sets = document.getElementById('discussion-sets');
-        const desktopNav = document.querySelector(
-            '#nav-discussion .top-nav'
-        );
+        const isMobile =
+            window.matchMedia('(max-width: 680px)').matches;
+
         const mobileNav = document.querySelector(
             '#mob-header-discussion .mobile-header'
         );
 
+        const firstMoment = document.querySelector(
+            '#moments-list .moment-card'
+        );
+
+        if (isMobile && firstMoment) {
+            const momentRect =
+                firstMoment.getBoundingClientRect();
+
+            const navHeight =
+                mobileNav?.getBoundingClientRect().height || 0;
+
+            const absoluteTop =
+                window.pageYOffset + momentRect.top;
+
+            window.scrollTo({
+                top: Math.max(0, absoluteTop - navHeight),
+                behavior: getScrollBehavior()
+            });
+
+            return;
+        }
+
+        const sets = document.getElementById('discussion-sets');
+        const desktopNav = document.querySelector(
+            '#nav-discussion .top-nav'
+        );
+
         if (sets) {
             const setsRect = sets.getBoundingClientRect();
-            const absoluteTop = window.pageYOffset + setsRect.top;
+            const absoluteTop =
+                window.pageYOffset + setsRect.top;
+
             const navHeight = Math.max(
                 desktopNav?.getBoundingClientRect().height || 0,
-                mobileNav?.getBoundingClientRect().height || 0,
                 56
             );
 
             window.scrollTo({
-                top: Math.max(0, absoluteTop - navHeight - 20),
+                top: Math.max(
+                    0,
+                    absoluteTop - navHeight - 20
+                ),
                 behavior: getScrollBehavior()
             });
         }
