@@ -1020,6 +1020,38 @@
       color: var(--text-heading);
     }
 
+    .subject-library-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.42rem;
+      margin-left: auto;
+    }
+
+    .subject-category-management.subject-card-management {
+      position: relative;
+      top: auto;
+      right: auto;
+      z-index: 15;
+    }
+
+    .subject-category-manage-btn.subject-card-manage-btn {
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+    }
+
+    .subject-category-manage-btn.subject-card-manage-btn:hover,
+    .subject-category-manage-btn.subject-card-manage-btn[aria-expanded="true"] {
+      border-color: var(--control-border);
+      background: var(--control-surface);
+      box-shadow: var(--shadow-xs);
+    }
+
+    .subject-category-menu.subject-card-menu {
+      z-index: 20;
+      width: 160px;
+    }
+
     .subject-library-create-btn {
       display: inline-flex;
       align-items: center;
@@ -3446,7 +3478,9 @@
           event.key === 'Enter' &&
           (
             ownedSubjectDialogState?.mode === 'create' ||
-            ownedSubjectDialogState?.mode === 'rename'
+            ownedSubjectDialogState?.mode === 'rename' ||
+            ownedSubjectDialogState?.mode === 'category-create' ||
+            ownedSubjectDialogState?.mode === 'category-rename'
           )
         ) {
           event.preventDefault();
@@ -3517,10 +3551,250 @@
       ownedSubjectDialogReturnFocus = null;
     }
 
+    function openCreateCategoryDialog(event) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      ownedSubjectDialogReturnFocus =
+        event?.currentTarget
+          ?.closest('.subject-category-management')
+          ?.querySelector('.subject-category-manage-btn') ||
+        document.activeElement;
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.createLibraryCategory !== 'function'
+      ) {
+        showToast('Categories are unavailable.');
+        return;
+      }
+
+      const dialog = ensureOwnedSubjectDialog();
+
+      const kicker = dialog.querySelector(
+        '#owned-subject-dialog-kicker'
+      );
+
+      const title = dialog.querySelector(
+        '#owned-subject-dialog-title'
+      );
+
+      const copy = dialog.querySelector(
+        '#owned-subject-dialog-copy'
+      );
+
+      const field = dialog.querySelector(
+        '#owned-subject-dialog-field'
+      );
+
+      const input = dialog.querySelector(
+        '#owned-subject-dialog-input'
+      );
+
+      const fieldLabel = dialog.querySelector(
+        '#owned-subject-dialog-field-label'
+      );
+
+      const createFields = dialog.querySelector(
+        '#owned-subject-dialog-create-fields'
+      );
+
+      const sessionFields = dialog.querySelector(
+        '#owned-subject-dialog-session-fields'
+      );
+
+      const choiceFields = dialog.querySelector(
+        '#owned-subject-dialog-choice-fields'
+      );
+
+      const error = dialog.querySelector(
+        '#owned-subject-dialog-error'
+      );
+
+      const confirm = dialog.querySelector(
+        '#owned-subject-dialog-confirm'
+      );
+
+      ownedSubjectDialogState = {
+        mode: 'category-create'
+      };
+
+      kicker.textContent = 'My Subjects';
+      title.textContent = 'New category';
+
+      copy.textContent =
+        'Create another place for reusable subjects in your library.';
+
+      field.hidden = false;
+      fieldLabel.textContent = 'Category name';
+
+      input.value = '';
+      input.placeholder = 'Culture, Stories, Work…';
+
+      createFields.hidden = true;
+      sessionFields.hidden = true;
+      choiceFields.hidden = true;
+
+      error.hidden = true;
+      error.textContent = '';
+
+      confirm.hidden = false;
+      confirm.className = 'btn-primary';
+      confirm.textContent = 'Create category';
+      confirm.disabled = false;
+
+      ownedSubjectDialogPreviousBodyOverflow =
+        document.body.style.overflow;
+
+      document.body.style.overflow = 'hidden';
+      dialog.hidden = false;
+
+      requestAnimationFrame(() => {
+        input.focus();
+      });
+    }
+
+    async function openRenameCategoryDialog(
+      categoryId,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      ownedSubjectDialogReturnFocus =
+        event?.currentTarget
+          ?.closest('.subject-category-management')
+          ?.querySelector('.subject-category-manage-btn') ||
+        document.activeElement;
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.getLibraryState !== 'function' ||
+        typeof Subjects.renameLibraryCategory !== 'function'
+      ) {
+        showToast('Categories are unavailable.');
+        return;
+      }
+
+      let library;
+
+      try {
+        library = await Subjects.getLibraryState();
+      } catch {
+        showToast('Couldn’t load this category.');
+        return;
+      }
+
+      const category =
+        library?.categories?.find(item =>
+          item.id === categoryId
+        );
+
+      if (!category) {
+        showToast('That category could not be found.');
+        return;
+      }
+
+      const dialog = ensureOwnedSubjectDialog();
+
+      const kicker = dialog.querySelector(
+        '#owned-subject-dialog-kicker'
+      );
+
+      const title = dialog.querySelector(
+        '#owned-subject-dialog-title'
+      );
+
+      const copy = dialog.querySelector(
+        '#owned-subject-dialog-copy'
+      );
+
+      const field = dialog.querySelector(
+        '#owned-subject-dialog-field'
+      );
+
+      const input = dialog.querySelector(
+        '#owned-subject-dialog-input'
+      );
+
+      const fieldLabel = dialog.querySelector(
+        '#owned-subject-dialog-field-label'
+      );
+
+      const createFields = dialog.querySelector(
+        '#owned-subject-dialog-create-fields'
+      );
+
+      const sessionFields = dialog.querySelector(
+        '#owned-subject-dialog-session-fields'
+      );
+
+      const choiceFields = dialog.querySelector(
+        '#owned-subject-dialog-choice-fields'
+      );
+
+      const error = dialog.querySelector(
+        '#owned-subject-dialog-error'
+      );
+
+      const confirm = dialog.querySelector(
+        '#owned-subject-dialog-confirm'
+      );
+
+      ownedSubjectDialogState = {
+        mode: 'category-rename',
+        categoryId: category.id
+      };
+
+      kicker.textContent = 'My Subjects';
+      title.textContent = 'Rename category';
+
+      copy.textContent =
+        'Change how this part of your subject library is labelled.';
+
+      field.hidden = false;
+      fieldLabel.textContent = 'Category name';
+
+      input.value = category.name;
+      input.placeholder = '';
+
+      createFields.hidden = true;
+      sessionFields.hidden = true;
+      choiceFields.hidden = true;
+
+      error.hidden = true;
+      error.textContent = '';
+
+      confirm.hidden = false;
+      confirm.className = 'btn-primary';
+      confirm.textContent = 'Save name';
+      confirm.disabled = false;
+
+      ownedSubjectDialogPreviousBodyOverflow =
+        document.body.style.overflow;
+
+      document.body.style.overflow = 'hidden';
+      dialog.hidden = false;
+
+      requestAnimationFrame(() => {
+        input.focus();
+        input.select();
+      });
+    }
+
     function openCreateSubjectDialog(
       event,
       sessionId = '',
-      returnFocus = null
+      returnFocus = null,
+      categoryId = ''
     ) {
       event?.preventDefault();
       event?.stopPropagation();
@@ -3595,7 +3869,9 @@
       ownedSubjectDialogState = {
         mode: 'create',
         sessionId:
-          String(sessionId || '').trim() || null
+          String(sessionId || '').trim() || null,
+        categoryId:
+          String(categoryId || '').trim() || null
       };
 
       title.textContent = 'Create subject';
@@ -3919,6 +4195,68 @@
         return;
       }
 
+      if (
+        state.mode === 'category-create' ||
+        state.mode === 'category-rename'
+      ) {
+        const nextName = String(
+          input?.value || ''
+        ).trim();
+
+        if (!nextName) {
+          error.hidden = false;
+          error.textContent =
+            'Give the category a name.';
+          input?.focus();
+          return;
+        }
+
+        confirm.disabled = true;
+        confirm.textContent =
+          state.mode === 'category-create'
+            ? 'Creating…'
+            : 'Saving…';
+
+        try {
+          const saved =
+            state.mode === 'category-create'
+              ? await Subjects.createLibraryCategory(
+                nextName
+              )
+              : await Subjects.renameLibraryCategory(
+                state.categoryId,
+                nextName
+              );
+
+          if (!saved) {
+            throw new Error(
+              'Category operation failed.'
+            );
+          }
+
+          closeOwnedSubjectDialog(false);
+          await renderHub();
+
+          showToast(
+            state.mode === 'category-create'
+              ? 'Category created.'
+              : 'Category renamed.'
+          );
+        } catch {
+          error.hidden = false;
+          error.textContent =
+            'Couldn’t save this category. Check that the name is unique.';
+
+          confirm.disabled = false;
+          confirm.textContent =
+            state.mode === 'category-create'
+              ? 'Create category'
+              : 'Save name';
+        }
+
+        return;
+      }
+
       if (state.mode === 'create') {
         const nextTitle = String(
           input?.value || ''
@@ -4019,9 +4357,14 @@
                 ? {
                   libraryIncluded: false
                 }
-                : {
-                  libraryIncluded: true
-                },
+                : state.categoryId
+                  ? {
+                    libraryIncluded: true,
+                    categoryId: state.categoryId
+                  }
+                  : {
+                    libraryIncluded: true
+                  },
 
               document,
 
@@ -4896,17 +5239,29 @@
       const Subjects = window.AtlasTutorSubjects;
 
       let sessionSubjectRefs = [];
+      let libraryState = null;
 
       try {
-        if (
-          Subjects &&
-          typeof Subjects.getSessionSubjects === 'function'
-        ) {
+        if (Subjects) {
+          const results = await Promise.all([
+            typeof Subjects.getSessionSubjects === 'function'
+              ? Subjects.getSessionSubjects(session.id)
+              : Promise.resolve([]),
+            typeof Subjects.getLibraryState === 'function'
+              ? Subjects.getLibraryState()
+              : Promise.resolve(null)
+          ]);
+
           sessionSubjectRefs =
-            await Subjects.getSessionSubjects(session.id);
+            Array.isArray(results[0])
+              ? results[0]
+              : [];
+
+          libraryState = results[1];
         }
       } catch {
         sessionSubjectRefs = [];
+        libraryState = null;
       }
 
       if (renderRevision !== hubRenderRevision) {
@@ -4972,6 +5327,43 @@
           !promotedAtlasIds.has(subject.registryId)
         );
 
+      const fallbackCategory = {
+        id: 'default',
+        name: 'My Subjects'
+      };
+
+      const libraryCategories =
+        Array.isArray(libraryState?.categoryOrder)
+          ? libraryState.categoryOrder
+            .map(categoryId =>
+              libraryState.categories?.find(category =>
+                category.id === categoryId
+              )
+            )
+            .filter(Boolean)
+          : [fallbackCategory];
+
+      if (!libraryCategories.length) {
+        libraryCategories.push(fallbackCategory);
+      }
+
+      const ownedLibraryHtml =
+        libraryCategories
+          .map(category =>
+            renderSubjectCollection(
+              remainingOwnedSubjects.filter(subject =>
+                subject.categoryId === category.id
+              ),
+              category.name,
+              {
+                canCreate: true,
+                categoryId: category.id,
+                canManageCategory: true
+              }
+            )
+          )
+          .join('');
+
       setSessionLabels();
       renderSpineHubNav();
       renderDrawerHubNav();
@@ -4982,13 +5374,7 @@
       ) {
         main.innerHTML =
           renderIntro(session) +
-          renderSubjectCollection(
-            remainingOwnedSubjects,
-            'My Subjects',
-            {
-              canCreate: true
-            }
-          ) +
+          ownedLibraryHtml +
           renderEmptyLibrary();
 
         return;
@@ -5003,13 +5389,7 @@
             canAdd: true
           }
         ) +
-        renderSubjectCollection(
-          remainingOwnedSubjects,
-          'My Subjects',
-          {
-            canCreate: true
-          }
-        ) +
+        ownedLibraryHtml +
         renderSubjectCollection(
           remainingAtlasSubjects,
           'Atlas Subjects'
@@ -5037,7 +5417,9 @@
       title,
       {
         canCreate = false,
-        canAdd = false
+        canAdd = false,
+        categoryId = '',
+        canManageCategory = false
       } = {}
     ) {
       const items =
@@ -5057,6 +5439,42 @@
         .map(subject => renderSubjectCard(subject))
         .join('');
 
+      const categoryManagement =
+        canManageCategory && categoryId
+          ? (
+            '<div class="subject-card-management subject-category-management">' +
+
+            '<button class="subject-card-manage-btn subject-category-manage-btn" ' +
+            'type="button" ' +
+            'aria-label="' +
+            escHtml('Manage ' + title) +
+            '" ' +
+            'aria-haspopup="menu" ' +
+            'aria-expanded="false" ' +
+            'onclick="toggleOwnedSubjectMenu(this, event)">' +
+
+            '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">' +
+            '<circle cx="3.2" cy="8" r="1.15" fill="currentColor"/>' +
+            '<circle cx="8" cy="8" r="1.15" fill="currentColor"/>' +
+            '<circle cx="12.8" cy="8" r="1.15" fill="currentColor"/>' +
+            '</svg>' +
+            '</button>' +
+
+            '<div class="subject-card-menu subject-category-menu" role="menu" hidden>' +
+
+            '<button type="button" role="menuitem" ' +
+            'onclick="openRenameCategoryDialog(' +
+            jsArg(categoryId) +
+            ', event)">Rename category</button>' +
+
+            '<button type="button" role="menuitem" ' +
+            'onclick="openCreateCategoryDialog(event)">New category</button>' +
+
+            '</div>' +
+            '</div>'
+          )
+          : '';
+
       const headerAction = canAdd
         ? (
           '<button class="subject-library-create-btn" ' +
@@ -5070,10 +5488,22 @@
           ? (
             '<button class="subject-library-create-btn" ' +
             'type="button" ' +
-            'onclick="openCreateSubjectDialog(event)">' +
+            'onclick="openCreateSubjectDialog(event, \'\', null, ' +
+            jsArg(categoryId) +
+            ')">' +
             '<span class="subject-library-create-plus" aria-hidden="true">+</span>' +
             'Create' +
             '</button>'
+          )
+          : '';
+
+      const headerActions =
+        categoryManagement || headerAction
+          ? (
+            '<div class="subject-library-actions">' +
+            categoryManagement +
+            headerAction +
+            '</div>'
           )
           : '';
 
@@ -5099,7 +5529,7 @@
         '<h2 class="subject-library-title">' +
         escHtml(title) +
         '</h2>' +
-        headerAction +
+        headerActions +
         '</div>' +
         contents +
         '</section>'

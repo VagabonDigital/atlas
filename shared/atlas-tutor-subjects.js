@@ -701,6 +701,19 @@
             .slice(2, 10)}`;
     }
 
+    function createLibraryCategoryId() {
+        if (
+            window.crypto &&
+            typeof window.crypto.randomUUID === 'function'
+        ) {
+            return `category-${window.crypto.randomUUID()}`;
+        }
+
+        return `category-${Date.now()}-${Math.random()
+            .toString(36)
+            .slice(2, 10)}`;
+    }
+
     function normalizeRecord(record) {
         if (
             !record ||
@@ -1327,6 +1340,110 @@
         return cloneJson(
             readLibraryState()
         );
+    }
+
+    async function createLibraryCategory(name) {
+        const nextName = String(name || '').trim();
+
+        if (!nextName) return null;
+
+        const library =
+            readLibraryState();
+
+        const duplicateName =
+            library.categories.some(category =>
+                category.name.toLocaleLowerCase() ===
+                nextName.toLocaleLowerCase()
+            );
+
+        if (duplicateName) {
+            return null;
+        }
+
+        let id = createLibraryCategoryId();
+
+        while (
+            library.categories.some(category =>
+                category.id === id
+            )
+        ) {
+            id = createLibraryCategoryId();
+        }
+
+        const category = {
+            id,
+            name: nextName
+        };
+
+        const next = {
+            ...library,
+            categories: [
+                ...library.categories,
+                category
+            ],
+            categoryOrder: [
+                ...library.categoryOrder,
+                id
+            ]
+        };
+
+        return writeLibraryState(next)
+            ? cloneJson(category)
+            : null;
+    }
+
+    async function renameLibraryCategory(
+        categoryId,
+        name
+    ) {
+        const id = String(categoryId || '').trim();
+        const nextName = String(name || '').trim();
+
+        if (!id || !nextName) return null;
+
+        const library =
+            readLibraryState();
+
+        const categoryIndex =
+            library.categories.findIndex(category =>
+                category.id === id
+            );
+
+        if (categoryIndex === -1) {
+            return null;
+        }
+
+        const duplicateName =
+            library.categories.some(category =>
+                category.id !== id &&
+                category.name.toLocaleLowerCase() ===
+                nextName.toLocaleLowerCase()
+            );
+
+        if (duplicateName) {
+            return null;
+        }
+
+        const categories =
+            library.categories.map(category =>
+                category.id === id
+                    ? {
+                        ...category,
+                        name: nextName
+                    }
+                    : category
+            );
+
+        const next = {
+            ...library,
+            categories
+        };
+
+        return writeLibraryState(next)
+            ? cloneJson(
+                categories[categoryIndex]
+            )
+            : null;
     }
 
     async function getSubjectLibraryState(
@@ -2346,6 +2463,8 @@
         listSubjects,
 
         getLibraryState,
+        createLibraryCategory,
+        renameLibraryCategory,
         getSubjectLibraryState,
         setSubjectLibraryPlacement,
 
