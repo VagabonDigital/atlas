@@ -2894,6 +2894,9 @@
               placement.libraryIncluded !== false,
             categoryId:
               placement.categoryId || null,
+            canMoveCategory:
+              placement.libraryIncluded !== false &&
+              (libraryState?.categories?.length || 0) > 1,
             archived:
               placement.archived === true,
             sessionIds:
@@ -3525,6 +3528,14 @@
 
       if (sessionFields) {
         sessionFields.hidden = true;
+
+        const sessionFieldLabel =
+          sessionFields.querySelector('span');
+
+        if (sessionFieldLabel) {
+          sessionFieldLabel.textContent =
+            'Choose subject';
+        }
       }
 
       if (choiceFields) {
@@ -4295,6 +4306,66 @@
 
       if (!Subjects || !confirm) return;
 
+      if (state.mode === 'category-move') {
+        const select = dialog.querySelector(
+          '#owned-subject-dialog-session-subject'
+        );
+
+        const categoryId =
+          String(select?.value || '').trim();
+
+        const categoryName =
+          String(
+            select?.selectedOptions?.[0]
+              ?.textContent || ''
+          ).trim();
+
+        if (!categoryId) {
+          error.hidden = false;
+          error.textContent =
+            'Choose a category.';
+          return;
+        }
+
+        confirm.disabled = true;
+        confirm.textContent = 'Moving…';
+
+        try {
+          const saved =
+            await Subjects.setSubjectLibraryPlacement(
+              state.subjectId,
+              {
+                libraryIncluded: true,
+                categoryId
+              }
+            );
+
+          if (!saved) {
+            throw new Error(
+              'Category movement failed.'
+            );
+          }
+
+          closeOwnedSubjectDialog(false);
+          await renderHub();
+
+          showToast(
+            categoryName
+              ? 'Moved to ' + categoryName + '.'
+              : 'Subject moved.'
+          );
+        } catch {
+          error.hidden = false;
+          error.textContent =
+            'Couldn’t move this subject.';
+
+          confirm.disabled = false;
+          confirm.textContent = 'Move subject';
+        }
+
+        return;
+      }
+
       if (state.mode === 'session-add') {
         const select = dialog.querySelector(
           '#owned-subject-dialog-session-subject'
@@ -4785,6 +4856,174 @@
       } catch {
         showToast('Couldn’t duplicate this subject.');
       }
+    }
+
+    async function openMoveOwnedSubjectCategoryDialog(
+      subjectId,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      ownedSubjectDialogReturnFocus =
+        event?.currentTarget
+          ?.closest('.subject-card-management')
+          ?.querySelector('.subject-card-manage-btn') ||
+        document.activeElement;
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.getLibraryState !== 'function' ||
+        typeof Subjects.setSubjectLibraryPlacement !== 'function'
+      ) {
+        showToast('Categories are unavailable.');
+        return;
+      }
+
+      let library;
+
+      try {
+        library =
+          await Subjects.getLibraryState();
+      } catch {
+        showToast('Couldn’t load categories.');
+        return;
+      }
+
+      const placement =
+        library?.subjects?.[subjectId];
+
+      if (
+        !placement ||
+        placement.libraryIncluded === false ||
+        !placement.categoryId
+      ) {
+        showToast(
+          'This subject isn’t in My Subjects.'
+        );
+        return;
+      }
+
+      const categories =
+        (Array.isArray(library.categoryOrder)
+          ? library.categoryOrder
+          : []
+        )
+          .map(categoryId =>
+            library.categories?.find(category =>
+              category.id === categoryId
+            )
+          )
+          .filter(category =>
+            category &&
+            category.id !== placement.categoryId
+          );
+
+      if (!categories.length) {
+        showToast(
+          'There are no other categories yet.'
+        );
+        return;
+      }
+
+      const dialog = ensureOwnedSubjectDialog();
+
+      const kicker = dialog.querySelector(
+        '#owned-subject-dialog-kicker'
+      );
+
+      const title = dialog.querySelector(
+        '#owned-subject-dialog-title'
+      );
+
+      const copy = dialog.querySelector(
+        '#owned-subject-dialog-copy'
+      );
+
+      const field = dialog.querySelector(
+        '#owned-subject-dialog-field'
+      );
+
+      const createFields = dialog.querySelector(
+        '#owned-subject-dialog-create-fields'
+      );
+
+      const sessionFields = dialog.querySelector(
+        '#owned-subject-dialog-session-fields'
+      );
+
+      const choiceFields = dialog.querySelector(
+        '#owned-subject-dialog-choice-fields'
+      );
+
+      const select = dialog.querySelector(
+        '#owned-subject-dialog-session-subject'
+      );
+
+      const selectLabel =
+        sessionFields?.querySelector('span');
+
+      const error = dialog.querySelector(
+        '#owned-subject-dialog-error'
+      );
+
+      const confirm = dialog.querySelector(
+        '#owned-subject-dialog-confirm'
+      );
+
+      ownedSubjectDialogState = {
+        mode: 'category-move',
+        subjectId
+      };
+
+      kicker.textContent = 'My Subjects';
+      title.textContent = 'Move to category';
+
+      copy.textContent =
+        'Choose where this subject belongs in your reusable library.';
+
+      field.hidden = true;
+      createFields.hidden = true;
+      choiceFields.hidden = true;
+      sessionFields.hidden = false;
+
+      if (selectLabel) {
+        selectLabel.textContent = 'Move to';
+      }
+
+      select.innerHTML = '';
+
+      categories.forEach(category => {
+        const option =
+          document.createElement('option');
+
+        option.value = category.id;
+        option.textContent = category.name;
+
+        select.appendChild(option);
+      });
+
+      error.hidden = true;
+      error.textContent = '';
+
+      confirm.hidden = false;
+      confirm.className = 'btn-primary';
+      confirm.textContent = 'Move subject';
+      confirm.disabled = false;
+
+      ownedSubjectDialogPreviousBodyOverflow =
+        document.body.style.overflow;
+
+      document.body.style.overflow = 'hidden';
+      dialog.hidden = false;
+
+      requestAnimationFrame(() => {
+        select.focus();
+      });
     }
 
     async function moveShelfSubject(
@@ -6056,6 +6295,17 @@
           'onclick="duplicateOwnedSubject(' +
           jsArg(subject.subjectId) +
           ', event)">Duplicate</button>' +
+
+          (
+            subject.canMoveCategory
+              ? (
+                '<button type="button" role="menuitem" ' +
+                'onclick="openMoveOwnedSubjectCategoryDialog(' +
+                jsArg(subject.subjectId) +
+                ', event)">Move to category…</button>'
+              )
+              : ''
+          ) +
 
           (
             subject.isSessionRelevant &&
