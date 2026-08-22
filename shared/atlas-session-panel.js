@@ -15,6 +15,7 @@
     let panelView = 'safe';
     let manageHasSafeHistory = false;
     let expandedSessionId = null;
+    let rowActionState = null;
     let lastTrigger = null;
     let previousBodyOverflow = '';
     let mounted = false;
@@ -118,12 +119,24 @@
     }
 
     function getAvailableSessionActions(session) {
-        const isFallback = session.id === getBridge().defaultSessionId;
+        const Bridge = getBridge();
+        const isFallback = session.id === Bridge.defaultSessionId;
 
         return {
-            rename: !isFallback && typeof options.onRenameSession === 'function',
-            reset: typeof options.onResetSession === 'function',
-            delete: !isFallback && typeof options.onDeleteSession === 'function'
+            rename:
+                !isFallback &&
+                (
+                    typeof options.onRenameSession === 'function' ||
+                    typeof Bridge.renameSession === 'function'
+                ),
+            reset:
+                typeof options.onResetSession === 'function',
+            delete:
+                !isFallback &&
+                (
+                    typeof options.onDeleteSession === 'function' ||
+                    typeof Bridge.deleteSession === 'function'
+                )
         };
     }
 
@@ -228,8 +241,298 @@
         expandedSessionId = expandedSessionId === sessionId
             ? null
             : sessionId;
+
+        rowActionState = null;
+
         renderManageView();
         focusSessionActionsToggle(sessionId);
+    }
+
+    function focusRowActionControl(sessionId, selector) {
+        window.requestAnimationFrame(() => {
+            const row = root?.querySelector(
+                `.atlas-session-row[data-session-id="${CSS.escape(sessionId)}"]`
+            );
+
+            row?.querySelector(selector)?.focus({
+                preventScroll: true
+            });
+        });
+    }
+
+    function startRowAction(type, session) {
+        rowActionState = {
+            type,
+            sessionId: session.id,
+            value: session.name || '',
+            error: ''
+        };
+
+        expandedSessionId = session.id;
+
+        renderManageView();
+
+        focusRowActionControl(
+            session.id,
+            type === 'rename'
+                ? '.atlas-session-row-editor-input'
+                : '[data-action="confirm-delete"]'
+        );
+    }
+
+    function cancelRowAction(sessionId) {
+        rowActionState = null;
+        renderManageView();
+        focusSessionActionsToggle(sessionId);
+    }
+
+    async function commitSessionRename(
+        sessionId,
+        nextName
+    ) {
+        const Bridge = getBridge();
+        const session = Bridge.readSessions().find(
+            item => item.id === sessionId
+        );
+
+        if (!session) return;
+
+        const cleanName = String(nextName || '').trim();
+
+        if (!cleanName) {
+            rowActionState = {
+                type: 'rename',
+                sessionId,
+                value: cleanName,
+                error: 'Enter a session name.'
+            };
+
+            renderManageView();
+            focusRowActionControl(
+                sessionId,
+                '.atlas-session-row-editor-input'
+            );
+            return;
+        }
+
+        if (cleanName === session.name) {
+            cancelRowAction(sessionId);
+            return;
+        }
+
+        const renamed =
+            Bridge.renameSession(sessionId, cleanName);
+
+        if (!renamed) {
+            rowActionState = {
+                type: 'rename',
+                sessionId,
+                value: cleanName,
+                error: 'That name is already in use.'
+            };
+
+            renderManageView();
+            focusRowActionControl(
+                sessionId,
+                '.atlas-session-row-editor-input'
+            );
+            return;
+        }
+
+        rowActionState = null;
+        renderManageView();
+        focusSessionActionsToggle(sessionId);
+    }
+
+    async function commitSessionDelete(sessionId) {
+        const Bridge = getBridge();
+        const session = Bridge.readSessions().find(
+            item => item.id === sessionId
+        );
+
+        if (!session) return;
+
+        try {
+            if (
+                typeof options.onBeforeDeleteSession ===
+                'function'
+            ) {
+                await options.onBeforeDeleteSession(session);
+            }
+
+            const deleted =
+                Bridge.deleteSession(session.id);
+
+            if (!deleted) {
+                throw new Error(
+                    'Session deletion failed.'
+                );
+            }
+        } catch {
+            rowActionState = {
+                type: 'delete',
+                sessionId,
+                value: '',
+                error: 'Couldn’t delete this session.'
+            };
+
+            renderManageView();
+            focusRowActionControl(
+                sessionId,
+                '[data-action="confirm-delete"]'
+            );
+            return;
+        }
+
+        rowActionState = null;
+        expandedSessionId = null;
+
+        updateSafeView();
+        renderManageView();
+
+        window.requestAnimationFrame(() => {
+            getElements().searchInput?.focus({
+                preventScroll: true
+            });
+        });
+    }
+
+    function renderRowAction(
+        container,
+        session
+    ) {
+        const state =
+            rowActionState?.sessionId === session.id
+                ? rowActionState
+                : null;
+
+        if (!state) return false;
+
+        const displayName =
+            getSessionDisplayName(session);
+
+        if (state.type === 'rename') {
+            const form = document.createElement('form');
+            const input = document.createElement('input');
+            const actions = document.createElement('div');
+            const save = document.createElement('button');
+            const cancel = document.createElement('button');
+            const error = document.createElement('p');
+
+            form.className =
+                'atlas-session-row-editor';
+
+            input.className =
+                'atlas-session-row-editor-input';
+            input.type = 'text';
+            input.maxLength = 40;
+            input.value =
+                typeof state.value === 'string'
+                    ? state.value
+                    : session.name || '';
+            input.setAttribute(
+                'aria-label',
+                `Rename ${displayName}`
+            );
+
+            actions.className =
+                'atlas-session-row-editor-actions';
+
+            save.type = 'submit';
+            save.className =
+                'atlas-session-row-action';
+            save.textContent = 'Save';
+
+            cancel.type = 'button';
+            cancel.className =
+                'atlas-session-row-action';
+            cancel.textContent = 'Cancel';
+            cancel.dataset.action =
+                'cancel-row-action';
+            cancel.dataset.sessionId =
+                session.id;
+
+            error.className =
+                'atlas-session-row-editor-error';
+            error.textContent =
+                state.error || '';
+
+            actions.appendChild(save);
+            actions.appendChild(cancel);
+
+            form.appendChild(input);
+            form.appendChild(actions);
+            form.appendChild(error);
+
+            form.addEventListener(
+                'submit',
+                event => {
+                    event.preventDefault();
+
+                    commitSessionRename(
+                        session.id,
+                        input.value
+                    );
+                }
+            );
+
+            container.appendChild(form);
+            return true;
+        }
+
+        if (state.type === 'delete') {
+            const confirmation =
+                document.createElement('div');
+            const copy =
+                document.createElement('p');
+            const actions =
+                document.createElement('div');
+            const confirm =
+                createActionButton({
+                    label: 'Delete session',
+                    ariaLabel:
+                        `Permanently delete ${displayName}`,
+                    className: 'is-danger',
+                    action: 'confirm-delete',
+                    sessionId: session.id
+                });
+            const cancel =
+                createActionButton({
+                    label: 'Cancel',
+                    action: 'cancel-row-action',
+                    sessionId: session.id
+                });
+            const error =
+                document.createElement('p');
+
+            confirmation.className =
+                'atlas-session-row-confirm';
+
+            copy.className =
+                'atlas-session-row-confirm-copy';
+            copy.textContent =
+                `Delete ${displayName}? This permanently removes this session and its saved activity from this device.`;
+
+            actions.className =
+                'atlas-session-row-editor-actions';
+
+            error.className =
+                'atlas-session-row-editor-error';
+            error.textContent =
+                state.error || '';
+
+            actions.appendChild(confirm);
+            actions.appendChild(cancel);
+
+            confirmation.appendChild(copy);
+            confirmation.appendChild(actions);
+            confirmation.appendChild(error);
+
+            container.appendChild(confirmation);
+            return true;
+        }
+
+        return false;
     }
 
     function renderManageView() {
@@ -327,33 +630,50 @@
                 secondaryActions.setAttribute('role', 'group');
                 secondaryActions.setAttribute('aria-label', `Actions for ${displayName}`);
 
-                if (availableActions.rename) {
-                    secondaryActions.appendChild(createActionButton({
-                        label: 'Rename',
-                        ariaLabel: `Rename ${displayName}`,
-                        action: 'rename',
-                        sessionId: session.id
-                    }));
-                }
+                const renderingRowAction =
+                    renderRowAction(
+                        secondaryActions,
+                        session
+                    );
 
-                if (availableActions.reset) {
-                    secondaryActions.appendChild(createActionButton({
-                        label: 'Clear',
-                        ariaLabel: `Clear subject activity for ${displayName}`,
-                        className: 'is-danger',
-                        action: 'reset',
-                        sessionId: session.id
-                    }));
-                }
+                if (!renderingRowAction) {
+                    if (availableActions.rename) {
+                        secondaryActions.appendChild(
+                            createActionButton({
+                                label: 'Rename',
+                                ariaLabel:
+                                    `Rename ${displayName}`,
+                                action: 'rename',
+                                sessionId: session.id
+                            })
+                        );
+                    }
 
-                if (availableActions.delete) {
-                    secondaryActions.appendChild(createActionButton({
-                        label: 'Delete',
-                        ariaLabel: `Delete ${displayName}`,
-                        className: 'is-danger',
-                        action: 'delete',
-                        sessionId: session.id
-                    }));
+                    if (availableActions.reset) {
+                        secondaryActions.appendChild(
+                            createActionButton({
+                                label: 'Clear',
+                                ariaLabel:
+                                    `Clear subject activity for ${displayName}`,
+                                className: 'is-danger',
+                                action: 'reset',
+                                sessionId: session.id
+                            })
+                        );
+                    }
+
+                    if (availableActions.delete) {
+                        secondaryActions.appendChild(
+                            createActionButton({
+                                label: 'Delete',
+                                ariaLabel:
+                                    `Delete ${displayName}`,
+                                className: 'is-danger',
+                                action: 'delete',
+                                sessionId: session.id
+                            })
+                        );
+                    }
                 }
             }
 
@@ -526,11 +846,33 @@
         if (action === 'switch') {
             Bridge.setActiveSession(session.id);
         } else if (action === 'rename') {
-            await options.onRenameSession?.(session);
+            if (
+                typeof options.onRenameSession ===
+                'function'
+            ) {
+                await options.onRenameSession(session);
+            } else {
+                startRowAction('rename', session);
+                return;
+            }
         } else if (action === 'reset') {
             await options.onResetSession?.(session);
         } else if (action === 'delete') {
-            await options.onDeleteSession?.(session);
+            if (
+                typeof options.onDeleteSession ===
+                'function'
+            ) {
+                await options.onDeleteSession(session);
+            } else {
+                startRowAction('delete', session);
+                return;
+            }
+        } else if (action === 'confirm-delete') {
+            await commitSessionDelete(session.id);
+            return;
+        } else if (action === 'cancel-row-action') {
+            cancelRowAction(session.id);
+            return;
         }
 
         updateSafeView();
