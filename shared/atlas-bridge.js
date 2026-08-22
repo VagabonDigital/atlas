@@ -29,7 +29,8 @@
         ledger: 'learning::ledger',
         appearance: 'atlas::appearanceMode',
         appearanceBySession: 'atlas::appearanceBySession',
-        preferences: 'atlas::preferences'
+        preferences: 'atlas::preferences',
+        learnerMemory: 'atlas::learnerMemory'
     };
 
     const DEFAULT_SESSION_ID = 'default';
@@ -334,7 +335,128 @@
         return renamed;
     }
 
+    function createEmptyLearnerMemory(sessionId) {
+        return {
+            schemaVersion: 1,
+            sessionId,
+            notes: '',
+            nextTime: '',
+            updatedAt: 0
+        };
+    }
+
+    function normalizeLearnerMemory(record, sessionId) {
+        const fallback = createEmptyLearnerMemory(sessionId);
+
+        if (!record || typeof record !== 'object' || Array.isArray(record)) {
+            return fallback;
+        }
+
+        return {
+            schemaVersion: 1,
+            sessionId,
+            notes: typeof record.notes === 'string'
+                ? record.notes
+                : '',
+            nextTime: typeof record.nextTime === 'string'
+                ? record.nextTime
+                : '',
+            updatedAt: Number(record.updatedAt) || 0
+        };
+    }
+
+    function readLearnerMemory(sessionId) {
+        const cleanSessionId = String(sessionId || '').trim();
+
+        if (!cleanSessionId) {
+            return createEmptyLearnerMemory('');
+        }
+
+        const store = readJson(KEYS.learnerMemory, {});
+
+        return normalizeLearnerMemory(
+            store && typeof store === 'object'
+                ? store[cleanSessionId]
+                : null,
+            cleanSessionId
+        );
+    }
+
+    function writeLearnerMemory(sessionId, changes = {}) {
+        const cleanSessionId = String(sessionId || '').trim();
+
+        if (!cleanSessionId) return null;
+
+        const sessionExists = readSessions().some(
+            session => session.id === cleanSessionId
+        );
+
+        if (!sessionExists) return null;
+
+        const store = readJson(KEYS.learnerMemory, {});
+        const safeStore =
+            store && typeof store === 'object' && !Array.isArray(store)
+                ? store
+                : {};
+
+        const current = readLearnerMemory(cleanSessionId);
+
+        const next = normalizeLearnerMemory(
+            {
+                ...current,
+                ...changes,
+                updatedAt: now()
+            },
+            cleanSessionId
+        );
+
+        if (!next.notes.trim() && !next.nextTime.trim()) {
+            delete safeStore[cleanSessionId];
+        } else {
+            safeStore[cleanSessionId] = next;
+        }
+
+        writeJson(KEYS.learnerMemory, safeStore);
+
+        window.dispatchEvent(
+            new CustomEvent('atlas:learner-memory-change', {
+                detail: {
+                    sessionId: cleanSessionId,
+                    memory: next
+                }
+            })
+        );
+
+        return next;
+    }
+
+    function removeLearnerMemory(sessionId) {
+        const cleanSessionId = String(sessionId || '').trim();
+
+        if (!cleanSessionId) return false;
+
+        const store = readJson(KEYS.learnerMemory, {});
+
+        if (
+            !store ||
+            typeof store !== 'object' ||
+            !Object.prototype.hasOwnProperty.call(
+                store,
+                cleanSessionId
+            )
+        ) {
+            return false;
+        }
+
+        delete store[cleanSessionId];
+        writeJson(KEYS.learnerMemory, store);
+
+        return true;
+    }
+
     function purgeSessionData(sessionId) {
+        removeLearnerMemory(sessionId);
+
         const registry = readRegistry();
 
         if (registry.sessionStates?.[sessionId]) {
@@ -1142,6 +1264,7 @@
         tabStorageRemove(KEYS.activeSessionId);
         storageRemove(KEYS.registry);
         storageRemove(KEYS.ledger);
+        storageRemove(KEYS.learnerMemory);
 
         readSessions();
         tabStorageSet(KEYS.activeSessionId, DEFAULT_SESSION_ID);
@@ -1178,6 +1301,9 @@
         createSession,
         renameSession,
         deleteSession,
+
+        readLearnerMemory,
+        writeLearnerMemory,
 
         writeHandoff,
         readHandoff,

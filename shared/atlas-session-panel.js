@@ -10,6 +10,10 @@
 (function () {
     'use strict';
 
+    const SCRIPT_URL =
+        document.currentScript?.src ||
+        window.location.href;
+
     let root = null;
     let options = {};
     let panelView = 'safe';
@@ -109,6 +113,20 @@
         }
 
         return session.name || 'Shared';
+    }
+
+    function getLearnerMemoryUrl(sessionId) {
+        const destination = new URL(
+            '../memory/',
+            SCRIPT_URL
+        );
+
+        destination.searchParams.set(
+            'session',
+            sessionId
+        );
+
+        return destination.href;
     }
 
     function getDisplaySession(session) {
@@ -610,6 +628,16 @@
                 }));
             }
 
+            if (session.id !== Bridge.defaultSessionId) {
+                controls.appendChild(createActionButton({
+                    label: 'Memory',
+                    ariaLabel: `Open learner memory for ${displayName}`,
+                    className: 'is-switch',
+                    action: 'memory',
+                    sessionId: session.id
+                }));
+            }
+
             if (hasSecondaryActions) {
                 moreButton.type = 'button';
                 moreButton.className = 'atlas-session-row-more';
@@ -842,6 +870,13 @@
         const session = Bridge.readSessions().find(item => item.id === sessionId);
 
         if (!session) return;
+
+        if (action === 'memory') {
+            close();
+            window.location.href =
+                getLearnerMemoryUrl(session.id);
+            return;
+        }
 
         if (action === 'switch') {
             Bridge.setActiveSession(session.id);
