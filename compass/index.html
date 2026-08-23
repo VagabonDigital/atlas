@@ -4323,9 +4323,7 @@
       createFields.hidden = false;
 
       idea.hidden =
-        !compassRecommendationContext ||
-        compassRecommendationContext
-          .candidates.length < 3;
+        !compassRecommendationContext;
 
       recommendationRegion.innerHTML = '';
 
@@ -6522,153 +6520,56 @@
     let compassRecommendationContext = null;
     let compassRecommendationRequestId = 0;
 
-    function getCompassRecommendationCandidate(
+    function getCompassIdeaContextSubject(
       subject
     ) {
-      const ownedId =
-        subject?.isOwned === true
-          ? String(
-            subject.subjectId || ''
-          ).trim()
-          : '';
-
-      const registryId =
-        String(
-          subject?.registryId || ''
-        ).trim();
-
-      const key =
-        ownedId
-          ? 'my-subject:' + ownedId
-          : registryId
-            ? 'atlas-subject:' + registryId
-            : '';
-
       const title =
         String(
           subject?.title || ''
         ).trim();
 
-      const launchUrl =
-        String(
-          subject?.launchUrl || ''
-        ).trim();
-
-      if (
-        !key ||
-        !title ||
-        !launchUrl
-      ) {
+      if (!title) {
         return null;
       }
 
       return {
-        key,
         title,
 
         description:
           String(
             subject?.hook || ''
-          ).trim(),
-
-        launchUrl
+          ).trim()
       };
     }
 
     function buildCompassRecommendationContext(
       session,
-      sessionSubjects,
-      candidateSubjects
+      sessionSubjects
     ) {
-      const candidateMap =
-        new Map();
-
-      candidateSubjects.forEach(subject => {
-        const candidate =
-          getCompassRecommendationCandidate(
-            subject
-          );
-
-        if (
-          candidate &&
-          !candidateMap.has(
-            candidate.key
-          )
-        ) {
-          candidateMap.set(
-            candidate.key,
-            candidate
-          );
-        }
-      });
-
-      const sessionSubjectKeys =
-        sessionSubjects
-          .map(subject =>
-            getCompassRecommendationCandidate(
-              subject
-            )
-          )
-          .filter(Boolean)
-          .map(subject =>
-            subject.key
-          )
-          .filter(key =>
-            candidateMap.has(key)
-          );
-
       return {
         sessionId:
           session.id,
 
-        sessionSubjectKeys,
-
-        candidates:
-          Array.from(
-            candidateMap.values()
-          )
+        sessionSubjects:
+          sessionSubjects
+            .map(subject =>
+              getCompassIdeaContextSubject(
+                subject
+              )
+            )
+            .filter(Boolean)
       };
     }
 
     function renderCompassRecommendationResult(
-      result,
-      context
+      result
     ) {
-      const candidateMap =
-        new Map(
-          context.candidates.map(
-            candidate => [
-              candidate.key,
-              candidate
-            ]
-          )
-        );
-
-      const recommendations =
-        result.recommendations
-          .map(recommendation => {
-            const candidate =
-              candidateMap.get(
-                recommendation.key
-              );
-
-            if (!candidate) {
-              return null;
-            }
-
-            return {
-              ...candidate,
-              reason:
-                recommendation.reason
-            };
-          })
-          .filter(Boolean);
-
       if (
-        recommendations.length !== 3
+        !Array.isArray(result.ideas) ||
+        result.ideas.length !== 3
       ) {
         throw new Error(
-          'Compass could not resolve its recommendations.'
+          'Compass could not resolve its ideas.'
         );
       }
 
@@ -6678,23 +6579,23 @@
         '<p class="compass-recommendation-message">' +
         escHtml(result.message) +
         '</p>' +
-        recommendations.map(
-          recommendation =>
+        result.ideas.map(
+          idea =>
             '<button class="compass-recommendation-row" type="button" ' +
-            'data-recommendation-key="' +
+            'data-subject-idea="' +
             escAttr(
-              recommendation.key
+              idea.title
             ) +
-            '" onclick="openCompassRecommendation(this)">' +
+            '" onclick="chooseCompassSubjectIdea(this)">' +
             '<span class="compass-recommendation-copy">' +
             '<span class="compass-recommendation-title">' +
             escHtml(
-              recommendation.title
+              idea.title
             ) +
             '</span>' +
             '<span class="compass-recommendation-reason">' +
             escHtml(
-              recommendation.reason
+              idea.reason
             ) +
             '</span>' +
             '</span>' +
@@ -6709,33 +6610,60 @@
       );
     }
 
-    function openCompassRecommendation(
+    function chooseCompassSubjectIdea(
       button
     ) {
-      const key =
+      const title =
         String(
           button?.dataset
-            ?.recommendationKey ||
+            ?.subjectIdea ||
           ''
         ).trim();
 
-      const candidate =
-        compassRecommendationContext
-          ?.candidates
-          ?.find(item =>
-            item.key === key
-          );
-
-      if (!candidate) {
-        showToast(
-          'That subject is no longer available.'
+      const dialog =
+        button?.closest(
+          '.owned-subject-dialog-panel'
         );
+
+      const input =
+        dialog?.querySelector(
+          '#owned-subject-dialog-input'
+        );
+
+      const region =
+        dialog?.querySelector(
+          '.compass-recommendation-region'
+        );
+
+      const label =
+        dialog?.querySelector(
+          '[data-idea-label]'
+        );
+
+      if (!title || !input) {
         return;
       }
 
-      navigateTo(
-        candidate.launchUrl
+      input.value = title;
+      input.dispatchEvent(
+        new Event(
+          'input',
+          {
+            bubbles: true
+          }
+        )
       );
+
+      if (region) {
+        region.innerHTML = '';
+      }
+
+      if (label) {
+        label.textContent =
+          'Need another idea?';
+      }
+
+      input.focus();
     }
 
     async function askCompassForSubjects(
@@ -6988,12 +6916,7 @@
       compassRecommendationContext =
         buildCompassRecommendationContext(
           session,
-          sessionSubjects,
-          [
-            ...sessionSubjects,
-            ...remainingOwnedSubjects,
-            ...remainingAtlasSubjects
-          ]
+          sessionSubjects
         );
 
       const fallbackCategory = {
