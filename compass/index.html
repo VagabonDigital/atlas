@@ -1060,7 +1060,7 @@
       outline-offset: 3px;
     }
 
-    .hub-idea-btn:disabled {
+    .owned-subject-dialog-idea-btn:disabled {
       opacity: 0.62;
       cursor: wait;
       transform: none;
@@ -3586,6 +3586,17 @@
         '<span>Add something from My Subjects or Atlas.</span>' +
         '</button>' +
 
+        '</div>' +
+
+        '<div class="owned-subject-dialog-create-fields" id="owned-subject-dialog-session-fields" hidden>' +
+        '<label class="owned-subject-dialog-create-field">' +
+        '<span>Choose subject</span>' +
+        '<select id="owned-subject-dialog-session-subject"></select>' +
+        '</label>' +
+        '</div>' +
+
+        '<div class="owned-subject-dialog-create-fields" id="owned-subject-dialog-create-fields" hidden>' +
+
         '<div class="owned-subject-dialog-idea" id="owned-subject-dialog-idea" hidden>' +
         '<button class="owned-subject-dialog-idea-btn" type="button" onclick="askCompassForSubjects(this)" aria-label="Ask Compass for a subject idea">' +
         '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
@@ -3597,18 +3608,7 @@
         '</button>' +
         '</div>' +
 
-        '<div id="compass-recommendation-region" class="compass-recommendation-region" aria-live="polite"></div>' +
-
-        '</div>' +
-
-        '<div class="owned-subject-dialog-create-fields" id="owned-subject-dialog-session-fields" hidden>' +
-        '<label class="owned-subject-dialog-create-field">' +
-        '<span>Choose subject</span>' +
-        '<select id="owned-subject-dialog-session-subject"></select>' +
-        '</label>' +
-        '</div>' +
-
-        '<div class="owned-subject-dialog-create-fields" id="owned-subject-dialog-create-fields" hidden>' +
+        '<div class="compass-recommendation-region" aria-live="polite"></div>' +
 
         '<div class="owned-subject-dialog-create-grid">' +
 
@@ -4266,13 +4266,18 @@
         '#owned-subject-dialog-field-label'
       );
 
-      const createFields = dialog.querySelector(
-        '#owned-subject-dialog-create-fields'
-      );
+      createFields.hidden = false;
 
-      const levelSelect = dialog.querySelector(
-        '#owned-subject-dialog-level'
-      );
+      idea.hidden =
+        !compassRecommendationContext ||
+        compassRecommendationContext
+          .candidates.length < 3;
+
+      recommendationRegion.innerHTML = '';
+
+      levelSelect.value = 'b2';
+      styleSelect.value = 'balanced';
+      briefInput.value = '';
 
       const styleSelect = dialog.querySelector(
         '#owned-subject-dialog-style'
@@ -5985,13 +5990,6 @@
       createFields.hidden = true;
       sessionFields.hidden = true;
       choiceFields.hidden = false;
-
-      idea.hidden =
-        !compassRecommendationContext ||
-        compassRecommendationContext
-          .candidates.length < 3;
-
-      recommendationRegion.innerHTML = '';
 
       error.hidden = true;
       error.textContent = '';
