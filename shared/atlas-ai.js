@@ -1178,6 +1178,152 @@
         };
     }
 
+    async function recommendSubjects(
+        input = {}
+    ) {
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const candidates =
+            Array.isArray(
+                candidate.candidates
+            )
+                ? candidate.candidates
+                    .map(subject => ({
+                        key:
+                            cleanString(
+                                subject?.key
+                            ),
+
+                        title:
+                            cleanString(
+                                subject?.title
+                            ),
+
+                        description:
+                            cleanString(
+                                subject?.description
+                            )
+                    }))
+                    .filter(subject =>
+                        subject.key &&
+                        subject.title
+                    )
+                : [];
+
+        const candidateKeys =
+            new Set(
+                candidates.map(subject =>
+                    subject.key
+                )
+            );
+
+        const sessionSubjectKeys =
+            Array.isArray(
+                candidate.sessionSubjectKeys
+            )
+                ? candidate.sessionSubjectKeys
+                    .map(cleanString)
+                    .filter(key =>
+                        candidateKeys.has(key)
+                    )
+                : [];
+
+        const response = await fetch(
+            `${BASE_URL}/recommend-subjects`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json'
+                },
+
+                body: JSON.stringify({
+                    notes:
+                        cleanString(
+                            candidate.notes
+                        ),
+
+                    sessionSubjectKeys,
+
+                    candidates
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+        }
+
+        const message =
+            cleanString(
+                result.payload?.message
+            );
+
+        const recommendations =
+            Array.isArray(
+                result.payload?.recommendations
+            )
+                ? result.payload.recommendations
+                    .map(recommendation => ({
+                        key:
+                            cleanString(
+                                recommendation?.key
+                            ),
+
+                        reason:
+                            cleanString(
+                                recommendation?.reason
+                            )
+                    }))
+                : [];
+
+        if (
+            !message ||
+            recommendations.length !== 3 ||
+            recommendations.some(
+                recommendation =>
+                    !candidateKeys.has(
+                        recommendation.key
+                    ) ||
+                    !recommendation.reason
+            ) ||
+            new Set(
+                recommendations.map(
+                    recommendation =>
+                        recommendation.key
+                )
+            ).size !== 3
+        ) {
+            throw new Error(
+                'Atlas AI returned an invalid subject recommendation payload.'
+            );
+        }
+
+        return {
+            message,
+            recommendations
+        };
+    }
+
     async function generateReflection(
         input = {}
     ) {
@@ -1428,6 +1574,8 @@
             withGenerationContext(generateMakeItReal),
 
         generateDiscussionPathway:
-            withGenerationContext(generateDiscussionPathway)
+            withGenerationContext(generateDiscussionPathway),
+
+        recommendSubjects
     };
 })();

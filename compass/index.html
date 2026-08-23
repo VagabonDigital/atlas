@@ -1024,6 +1024,145 @@
       max-width: 58ch;
     }
 
+    .hub-intro-text {
+      flex: 1 1 620px;
+      min-width: 0;
+    }
+
+    .hub-idea-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.48rem;
+      min-height: 42px;
+      padding: 0.68rem 1rem;
+      border: 1px solid rgba(var(--accent-rgb), 0.28);
+      border-radius: 999px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-family: var(--font-body);
+      font-size: 0.84rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      box-shadow: var(--shadow-xs);
+      transition: var(--t);
+    }
+
+    .hub-idea-btn:hover {
+      border-color: rgba(var(--accent-rgb), 0.46);
+      background: var(--accent-pale);
+      transform: translateY(-1px);
+    }
+
+    .hub-idea-btn:focus-visible {
+      outline: 3px solid rgba(var(--accent-rgb), 0.34);
+      outline-offset: 3px;
+    }
+
+    .hub-idea-btn:disabled {
+      opacity: 0.62;
+      cursor: wait;
+      transform: none;
+    }
+
+    .compass-recommendation-region:empty {
+      display: none;
+    }
+
+    .compass-recommendation-panel {
+      margin-top: 0.15rem;
+      padding: 1.35rem 1.45rem 0.25rem;
+      border: 1px solid rgba(var(--accent-rgb), 0.20);
+      border-radius: var(--radius-lg);
+      background: var(--library-surface);
+      box-shadow: var(--library-shadow);
+      animation: hubPageFadeIn 0.28s ease both;
+    }
+
+    .compass-recommendation-kicker {
+      margin-bottom: 0.35rem;
+      color: var(--accent);
+      font-size: 0.69rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .compass-recommendation-message {
+      margin: 0 0 0.75rem;
+      color: var(--text-heading);
+      font-family: var(--font-display);
+      font-size: clamp(1.15rem, 2.3vw, 1.4rem);
+      font-weight: 400;
+      line-height: 1.3;
+    }
+
+    .compass-recommendation-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+      padding: 1rem 0;
+      border: 0;
+      border-top: 1px solid var(--border-faint);
+      background: transparent;
+      color: inherit;
+      font-family: var(--font-body);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .compass-recommendation-copy {
+      min-width: 0;
+    }
+
+    .compass-recommendation-title {
+      margin-bottom: 0.22rem;
+      color: var(--text-heading);
+      font-size: 0.94rem;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .compass-recommendation-reason {
+      color: var(--text-muted);
+      font-size: 0.83rem;
+      line-height: 1.55;
+    }
+
+    .compass-recommendation-arrow {
+      color: var(--accent);
+      transition: transform var(--t);
+    }
+
+    .compass-recommendation-row:hover
+    .compass-recommendation-title {
+      color: var(--accent);
+    }
+
+    .compass-recommendation-row:hover
+    .compass-recommendation-arrow {
+      transform: translateX(3px);
+    }
+
+    .compass-recommendation-row:focus-visible {
+      outline: 3px solid rgba(var(--accent-rgb), 0.28);
+      outline-offset: 4px;
+      border-radius: var(--radius-sm);
+    }
+
+    .compass-recommendation-panel--state {
+      padding-bottom: 1.25rem;
+    }
+
+    .compass-recommendation-state {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
     /* ============================================================
        SUBJECT LIBRARY
        One curated operational collection.
@@ -2526,6 +2665,7 @@
   <!-- ============================================================ SCRIPTS -->
   <script src="../shared/atlas-structured-subject.js"></script>
   <script src="../shared/atlas-tutor-subjects.js"></script>
+  <script src="../shared/atlas-ai.js"></script>
   <script src="../shared/compass-catalog-data.js?v=4"></script>
   <script src="../shared/atlas-content-registry.js"></script>
   <script src="../shared/atlas-session-panel.js"></script>
@@ -6343,6 +6483,363 @@
        Progress and continuation state live directly on the standard cards.
        ================================================================ */
 
+    let compassRecommendationContext = null;
+    let compassRecommendationRequestId = 0;
+
+    function getCompassRecommendationCandidate(
+      subject
+    ) {
+      const ownedId =
+        subject?.isOwned === true
+          ? String(
+            subject.subjectId || ''
+          ).trim()
+          : '';
+
+      const registryId =
+        String(
+          subject?.registryId || ''
+        ).trim();
+
+      const key =
+        ownedId
+          ? 'my-subject:' + ownedId
+          : registryId
+            ? 'atlas-subject:' + registryId
+            : '';
+
+      const title =
+        String(
+          subject?.title || ''
+        ).trim();
+
+      const launchUrl =
+        String(
+          subject?.launchUrl || ''
+        ).trim();
+
+      if (
+        !key ||
+        !title ||
+        !launchUrl
+      ) {
+        return null;
+      }
+
+      return {
+        key,
+        title,
+
+        description:
+          String(
+            subject?.hook || ''
+          ).trim(),
+
+        launchUrl
+      };
+    }
+
+    function buildCompassRecommendationContext(
+      session,
+      sessionSubjects,
+      candidateSubjects
+    ) {
+      const candidateMap =
+        new Map();
+
+      candidateSubjects.forEach(subject => {
+        const candidate =
+          getCompassRecommendationCandidate(
+            subject
+          );
+
+        if (
+          candidate &&
+          !candidateMap.has(
+            candidate.key
+          )
+        ) {
+          candidateMap.set(
+            candidate.key,
+            candidate
+          );
+        }
+      });
+
+      const sessionSubjectKeys =
+        sessionSubjects
+          .map(subject =>
+            getCompassRecommendationCandidate(
+              subject
+            )
+          )
+          .filter(Boolean)
+          .map(subject =>
+            subject.key
+          )
+          .filter(key =>
+            candidateMap.has(key)
+          );
+
+      return {
+        sessionId:
+          session.id,
+
+        sessionSubjectKeys,
+
+        candidates:
+          Array.from(
+            candidateMap.values()
+          )
+      };
+    }
+
+    function renderCompassRecommendationResult(
+      result,
+      context
+    ) {
+      const candidateMap =
+        new Map(
+          context.candidates.map(
+            candidate => [
+              candidate.key,
+              candidate
+            ]
+          )
+        );
+
+      const recommendations =
+        result.recommendations
+          .map(recommendation => {
+            const candidate =
+              candidateMap.get(
+                recommendation.key
+              );
+
+            if (!candidate) {
+              return null;
+            }
+
+            return {
+              ...candidate,
+              reason:
+                recommendation.reason
+            };
+          })
+          .filter(Boolean);
+
+      if (
+        recommendations.length !== 3
+      ) {
+        throw new Error(
+          'Compass could not resolve its recommendations.'
+        );
+      }
+
+      return (
+        '<section class="compass-recommendation-panel" aria-label="Compass suggestions">' +
+        '<div class="compass-recommendation-kicker">Compass</div>' +
+        '<p class="compass-recommendation-message">' +
+        escHtml(result.message) +
+        '</p>' +
+        recommendations.map(
+          recommendation =>
+            '<button class="compass-recommendation-row" type="button" ' +
+            'data-recommendation-key="' +
+            escAttr(
+              recommendation.key
+            ) +
+            '" onclick="openCompassRecommendation(this)">' +
+            '<span class="compass-recommendation-copy">' +
+            '<span class="compass-recommendation-title">' +
+            escHtml(
+              recommendation.title
+            ) +
+            '</span>' +
+            '<span class="compass-recommendation-reason">' +
+            escHtml(
+              recommendation.reason
+            ) +
+            '</span>' +
+            '</span>' +
+            '<span class="compass-recommendation-arrow" aria-hidden="true">' +
+            '<svg width="16" height="16" viewBox="0 0 16 16" fill="none">' +
+            '<path d="M4 8h8M9 5l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '</svg>' +
+            '</span>' +
+            '</button>'
+        ).join('') +
+        '</section>'
+      );
+    }
+
+    function openCompassRecommendation(
+      button
+    ) {
+      const key =
+        String(
+          button?.dataset
+            ?.recommendationKey ||
+          ''
+        ).trim();
+
+      const candidate =
+        compassRecommendationContext
+          ?.candidates
+          ?.find(item =>
+            item.key === key
+          );
+
+      if (!candidate) {
+        showToast(
+          'That subject is no longer available.'
+        );
+        return;
+      }
+
+      navigateTo(
+        candidate.launchUrl
+      );
+    }
+
+    async function askCompassForSubjects(
+      button
+    ) {
+      const context =
+        compassRecommendationContext;
+
+      const region =
+        document.getElementById(
+          'compass-recommendation-region'
+        );
+
+      const label =
+        button?.querySelector(
+          '[data-idea-label]'
+        );
+
+      if (
+        !context ||
+        !region ||
+        context.candidates.length < 3 ||
+        !window.AtlasAI ||
+        typeof window.AtlasAI
+          .recommendSubjects !== 'function'
+      ) {
+        showToast(
+          'Compass suggestions are unavailable.'
+        );
+        return;
+      }
+
+      const requestId =
+        ++compassRecommendationRequestId;
+
+      button.disabled = true;
+
+      if (label) {
+        label.textContent =
+          'Thinking…';
+      }
+
+      region.innerHTML =
+        '<div class="compass-recommendation-panel compass-recommendation-panel--state">' +
+        '<div class="compass-recommendation-kicker">Compass</div>' +
+        '<div class="compass-recommendation-state">Give me a second…</div>' +
+        '</div>';
+
+      let notes = '';
+
+      try {
+        if (
+          typeof Bridge
+            .readLearnerMemory ===
+          'function'
+        ) {
+          notes =
+            Bridge.readLearnerMemory(
+              context.sessionId
+            )?.notes || '';
+        }
+      } catch { }
+
+      try {
+        const result =
+          await window.AtlasAI
+            .recommendSubjects({
+              notes,
+
+              sessionSubjectKeys:
+                context
+                  .sessionSubjectKeys,
+
+              candidates:
+                context.candidates
+                  .map(candidate => ({
+                    key:
+                      candidate.key,
+
+                    title:
+                      candidate.title,
+
+                    description:
+                      candidate.description
+                  }))
+            });
+
+        if (
+          requestId !==
+            compassRecommendationRequestId ||
+          getActiveSession().id !==
+            context.sessionId
+        ) {
+          return;
+        }
+
+        region.innerHTML =
+          renderCompassRecommendationResult(
+            result,
+            context
+          );
+
+        if (label) {
+          label.textContent =
+            'Ask again';
+        }
+      } catch (error) {
+        console.error(
+          '[Compass] Recommendation failed:',
+          error
+        );
+
+        if (
+          requestId !==
+          compassRecommendationRequestId
+        ) {
+          return;
+        }
+
+        region.innerHTML =
+          '<div class="compass-recommendation-panel compass-recommendation-panel--state">' +
+          '<div class="compass-recommendation-kicker">Compass</div>' +
+          '<div class="compass-recommendation-state">I couldn’t get a clear answer just now. Try me again.</div>' +
+          '</div>';
+
+        if (label) {
+          label.textContent =
+            'Try again';
+        }
+      } finally {
+        if (
+          requestId ===
+            compassRecommendationRequestId &&
+          document.contains(button)
+        ) {
+          button.disabled = false;
+        }
+      }
+    }
+
     let hubRenderRevision = 0;
 
     async function renderHub() {
@@ -6448,6 +6945,17 @@
           !promotedAtlasIds.has(subject.registryId)
         );
 
+      compassRecommendationContext =
+        buildCompassRecommendationContext(
+          session,
+          sessionSubjects,
+          [
+            ...sessionSubjects,
+            ...remainingOwnedSubjects,
+            ...remainingAtlasSubjects
+          ]
+        );
+
       const fallbackCategory = {
         id: 'default',
         name: 'My Subjects'
@@ -6502,6 +7010,7 @@
       ) {
         main.innerHTML =
           renderIntro(session) +
+          '<div id="compass-recommendation-region" class="compass-recommendation-region" aria-live="polite"></div>' +
           ownedLibraryHtml +
           renderEmptyLibrary();
 
@@ -6510,6 +7019,7 @@
 
       main.innerHTML =
         renderIntro(session) +
+        '<div id="compass-recommendation-region" class="compass-recommendation-region" aria-live="polite"></div>' +
         renderSubjectCollection(
           sessionSubjects,
           getActiveSessionSubjectCollectionTitle(),
@@ -6581,6 +7091,22 @@
       const topicPhaseMs =
         getCompassTopicPhaseMs();
 
+      const ideaButton =
+        compassRecommendationContext &&
+        compassRecommendationContext
+          .candidates.length >= 3
+          ? (
+            '<button class="hub-idea-btn" type="button" onclick="askCompassForSubjects(this)" aria-label="Ask Compass what to talk about">' +
+            '<svg width="15" height="15" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+            '<circle cx="7" cy="7" r="5.2" stroke="currentColor" stroke-width="1.2"/>' +
+            '<path d="M9.55 4.45L7.85 7.85L4.45 9.55L6.15 6.15L9.55 4.45Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/>' +
+            '<path d="M9.55 4.45L7.85 7.85L6.15 6.15Z" fill="currentColor"/>' +
+            '</svg>' +
+            '<span data-idea-label>Need an idea?</span>' +
+            '</button>'
+          )
+          : '';
+
       return (
         '<div class="hub-intro">' +
         '<div class="hub-intro-text">' +
@@ -6601,6 +7127,7 @@
         '</h1>' +
         '<p class="hub-desc">Explore Atlas Subjects or create your own, then see where the conversation goes.</p>' +
         '</div>' +
+        ideaButton +
         '</div>'
       );
     }

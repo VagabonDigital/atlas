@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Learner Memory · Atlas</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;400;500;600&family=DM+Serif+Display&display=swap"
+        rel="stylesheet"
+    >
+
+    <script src="../shared/atlas-bridge.js"></script>
+
+    <script>
+        (function () {
+            if (!window.AtlasBridge) return;
+
+            const mode = AtlasBridge.readAppearanceMode();
+
+            document.documentElement.dataset.theme =
+                mode === 'night'
+                    ? 'night'
+                    : 'light';
+        })();
+    </script>
+
+    <style>
+        :root {
+            --surface-canvas: #f3f0e9;
+            --surface-raised: #fffdf9;
+
+            --border-faint: rgba(49, 45, 38, 0.10);
+            --border-focus: rgba(77, 113, 132, 0.34);
+
+            --text-muted: #7b7469;
+            --text-body: #504b43;
+            --text-heading: #211f1b;
+
+            --accent: #4d7184;
+            --accent-rgb: 77, 113, 132;
+
+            --chrome: rgba(243, 240, 233, 0.88);
+
+            --shadow:
+                0 18px 48px rgba(42, 37, 29, 0.07);
+
+            --font-display:
+                'DM Serif Display',
+                Georgia,
+                serif;
+
+            --font-body:
+                'DM Sans',
+                system-ui,
+                sans-serif;
+        }
+
+        html[data-theme="night"] {
+            --surface-canvas: #1b1d1c;
+            --surface-raised: #252826;
+
+            --border-faint: rgba(255, 255, 255, 0.08);
+            --border-focus: rgba(143, 178, 194, 0.38);
+
+            --text-muted: #89847b;
+            --text-body: #bdb8ae;
+            --text-heading: #ebe9e4;
+
+            --accent: #8fb2c2;
+            --accent-rgb: 143, 178, 194;
+
+            --chrome: rgba(27, 29, 28, 0.90);
+
+            --shadow:
+                0 22px 60px rgba(0, 0, 0, 0.22);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            min-height: 100%;
+        }
+
+        body {
+            margin: 0;
+
+            background:
+                radial-gradient(
+                    circle at 12% -8%,
+                    rgba(var(--accent-rgb), 0.10),
+                    transparent 34rem
+                ),
+                var(--surface-canvas);
+
+            color: var(--text-body);
+            font-family: var(--font-body);
+        }
+
+        .memory-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            height: 56px;
+            padding: 0 1.5rem;
+
+            border-bottom:
+                1px solid var(--border-faint);
+
+            background: var(--chrome);
+
+            backdrop-filter:
+                blur(18px) saturate(1.08);
+
+            -webkit-backdrop-filter:
+                blur(18px) saturate(1.08);
+        }
+
+        .memory-brand {
+            color: var(--text-heading);
+
+            font-family: var(--font-display);
+            font-size: 1.22rem;
+
+            text-decoration: none;
+        }
+
+        .memory-brand span {
+            color: var(--accent);
+        }
+
+        .memory-back {
+            color: var(--text-muted);
+
+            font-size: 0.78rem;
+            font-weight: 500;
+
+            text-decoration: none;
+
+            transition:
+                color 0.18s ease,
+                transform 0.18s ease;
+        }
+
+        .memory-back:hover {
+            color: var(--text-heading);
+            transform: translateX(-2px);
+        }
+
+        .memory-main {
+            width:
+                min(760px, calc(100% - 3rem));
+
+            margin: 0 auto;
+
+            padding:
+                4.6rem 0 6rem;
+        }
+
+        .memory-eyebrow {
+            margin-bottom: 0.7rem;
+
+            color: var(--accent);
+
+            font-size: 0.68rem;
+            font-weight: 600;
+
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .memory-name {
+            margin: 0;
+
+            color: var(--text-heading);
+
+            font-family: var(--font-display);
+            font-size:
+                clamp(2.8rem, 7vw, 4.6rem);
+
+            font-weight: 400;
+            letter-spacing: -0.025em;
+            line-height: 1;
+        }
+
+        .memory-intro {
+            margin:
+                1rem 0 0;
+
+            color: var(--text-muted);
+
+            font-size: 0.91rem;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        .memory-notes {
+            margin-top: 3rem;
+
+            overflow: hidden;
+
+            border:
+                1px solid var(--border-faint);
+
+            border-radius: 22px;
+
+            background:
+                var(--surface-raised);
+
+            box-shadow:
+                var(--shadow);
+
+            transition:
+                border-color 0.18s ease,
+                box-shadow 0.18s ease;
+        }
+
+        .memory-notes:focus-within {
+            border-color:
+                var(--border-focus);
+
+            box-shadow:
+                var(--shadow),
+                0 0 0 3px
+                rgba(var(--accent-rgb), 0.06);
+        }
+
+        .memory-notes-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 1rem;
+
+            padding:
+                1.15rem 1.35rem;
+
+            border-bottom:
+                1px solid var(--border-faint);
+        }
+
+        .memory-notes-label {
+            margin: 0;
+
+            color:
+                var(--text-heading);
+
+            font-size:
+                0.86rem;
+
+            font-weight:
+                600;
+        }
+
+        .memory-status {
+            min-width: 4rem;
+
+            color:
+                var(--text-muted);
+
+            font-size:
+                0.72rem;
+
+            text-align:
+                right;
+        }
+
+        .memory-textarea {
+            display: block;
+
+            width: 100%;
+            min-height: 430px;
+
+            padding: 1.4rem;
+
+            resize: vertical;
+
+            border: 0;
+            outline: 0;
+
+            background:
+                transparent;
+
+            color:
+                var(--text-body);
+
+            font-family:
+                var(--font-body);
+
+            font-size:
+                0.94rem;
+
+            line-height:
+                1.7;
+        }
+
+        .memory-textarea::placeholder {
+            color:
+                var(--text-muted);
+
+            opacity:
+                0.5;
+        }
+
+        .memory-empty {
+            margin-top: 6rem;
+
+            text-align:
+                center;
+        }
+
+        .memory-empty h1 {
+            margin:
+                0 0 0.75rem;
+
+            color:
+                var(--text-heading);
+
+            font-family:
+                var(--font-display);
+
+            font-size:
+                2rem;
+
+            font-weight:
+                400;
+        }
+
+        .memory-empty p {
+            color:
+                var(--text-muted);
+        }
+
+        .memory-empty a {
+            color:
+                var(--accent);
+
+            font-weight:
+                600;
+
+            text-decoration:
+                none;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        @media (max-width: 680px) {
+            .memory-header {
+                padding:
+                    0 1rem;
+            }
+
+            .memory-main {
+                width:
+                    calc(100% - 2rem);
+
+                padding:
+                    3rem 0 4rem;
+            }
+
+            .memory-notes {
+                margin-top:
+                    2.25rem;
+
+                border-radius:
+                    18px;
+            }
+
+            .memory-textarea {
+                min-height:
+                    55vh;
+
+                padding:
+                    1.15rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="memory-header">
+        <a
+            class="memory-brand"
+            href="../index.html"
+        >
+            Atlas<span>.</span>
+        </a>
+
+        <a
+            class="memory-back"
+            href="../index.html"
+        >
+            ← Back to Atlas
+        </a>
+    </header>
+
+    <main class="memory-main">
+        <div
+            id="memory-content"
+            hidden
+        >
+            <div class="memory-eyebrow">
+                Learner Memory
+            </div>
+
+            <h1
+                class="memory-name"
+                id="memory-name"
+            ></h1>
+
+            <p class="memory-intro">
+                The useful things worth carrying into future sessions.
+            </p>
+
+            <section class="memory-notes">
+                <div class="memory-notes-header">
+                    <h2 class="memory-notes-label">
+                        Notes
+                    </h2>
+
+                    <div
+                        class="memory-status"
+                        id="memory-status"
+                        aria-live="polite"
+                    ></div>
+                </div>
+
+                <textarea
+                    class="memory-textarea"
+                    id="memory-textarea"
+                    placeholder="Anything worth remembering…"
+                    aria-label="Learner notes"
+                ></textarea>
+            </section>
+        </div>
+
+        <div
+            class="memory-empty"
+            id="memory-empty"
+            hidden
+        >
+            <h1>Choose a learner first</h1>
+
+            <p>
+                Learner Memory belongs to a named session.
+            </p>
+
+            <a href="../index.html">
+                Back to Atlas
+            </a>
+        </div>
+    </main>
+
+    <script>
+        const Bridge =
+            window.AtlasBridge;
+
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const requestedSessionId =
+            params.get('session');
+
+        const sessions =
+            Bridge?.readSessions?.() || [];
+
+        const session =
+            requestedSessionId
+                ? sessions.find(
+                    item =>
+                        item.id ===
+                        requestedSessionId
+                )
+                : Bridge?.readActiveSession?.();
+
+        const content =
+            document.getElementById(
+                'memory-content'
+            );
+
+        const empty =
+            document.getElementById(
+                'memory-empty'
+            );
+
+        const textarea =
+            document.getElementById(
+                'memory-textarea'
+            );
+
+        const status =
+            document.getElementById(
+                'memory-status'
+            );
+
+        let saveTimer = null;
+        let lastSavedValue = '';
+
+        function setStatus(message) {
+            status.textContent =
+                message;
+        }
+
+        function saveNotes() {
+            if (
+                !Bridge ||
+                !session
+            ) {
+                return;
+            }
+
+            const notes =
+                textarea.value;
+
+            if (
+                notes ===
+                lastSavedValue
+            ) {
+                setStatus('');
+                return;
+            }
+
+            Bridge.writeLearnerMemory(
+                session.id,
+                { notes }
+            );
+
+            lastSavedValue =
+                notes;
+
+            setStatus('Saved');
+
+            window.setTimeout(
+                () => {
+                    if (
+                        status.textContent ===
+                        'Saved'
+                    ) {
+                        setStatus('');
+                    }
+                },
+                1400
+            );
+        }
+
+        function queueSave() {
+            setStatus('Saving…');
+
+            window.clearTimeout(
+                saveTimer
+            );
+
+            saveTimer =
+                window.setTimeout(
+                    saveNotes,
+                    400
+                );
+        }
+
+        function init() {
+            if (
+                !Bridge ||
+                !session ||
+                session.id ===
+                    Bridge.defaultSessionId
+            ) {
+                empty.hidden = false;
+                return;
+            }
+
+            const memory =
+                Bridge.readLearnerMemory(
+                    session.id
+                );
+
+            document.title =
+                `${session.name} · Learner Memory · Atlas`;
+
+            document
+                .getElementById(
+                    'memory-name'
+                )
+                .textContent =
+                    session.name;
+
+            textarea.value =
+                memory.notes || '';
+
+            lastSavedValue =
+                textarea.value;
+
+            textarea.addEventListener(
+                'input',
+                queueSave
+            );
+
+            textarea.addEventListener(
+                'blur',
+                saveNotes
+            );
+
+            content.hidden = false;
+        }
+
+        window.addEventListener(
+            'pagehide',
+            saveNotes
+        );
+
+        init();
+    </script>
+</body>
+
+</html>
