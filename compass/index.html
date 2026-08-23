@@ -1029,7 +1029,7 @@
       min-width: 0;
     }
 
-    .hub-idea-btn {
+    .owned-subject-dialog-idea-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -1049,13 +1049,13 @@
       transition: var(--t);
     }
 
-    .hub-idea-btn:hover {
+    .owned-subject-dialog-idea-btn:hover {
       border-color: rgba(var(--accent-rgb), 0.46);
       background: var(--accent-pale);
       transform: translateY(-1px);
     }
 
-    .hub-idea-btn:focus-visible {
+    .owned-subject-dialog-idea-btn:focus-visible {
       outline: 3px solid rgba(var(--accent-rgb), 0.34);
       outline-offset: 3px;
     }
@@ -3586,6 +3586,19 @@
         '<span>Add something from My Subjects or Atlas.</span>' +
         '</button>' +
 
+        '<div class="owned-subject-dialog-idea" id="owned-subject-dialog-idea" hidden>' +
+        '<button class="owned-subject-dialog-idea-btn" type="button" onclick="askCompassForSubjects(this)" aria-label="Ask Compass for a subject idea">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+        '<circle cx="7" cy="7" r="5.2" stroke="currentColor" stroke-width="1.2"/>' +
+        '<path d="M9.55 4.45L7.85 7.85L4.45 9.55L6.15 6.15L9.55 4.45Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/>' +
+        '<path d="M9.55 4.45L7.85 7.85L6.15 6.15Z" fill="currentColor"/>' +
+        '</svg>' +
+        '<span data-idea-label>Need an idea?</span>' +
+        '</button>' +
+        '</div>' +
+
+        '<div id="compass-recommendation-region" class="compass-recommendation-region" aria-live="polite"></div>' +
+
         '</div>' +
 
         '<div class="owned-subject-dialog-create-fields" id="owned-subject-dialog-session-fields" hidden>' +
@@ -3802,6 +3815,14 @@
 
       const choiceFields = dialog.querySelector(
         '#owned-subject-dialog-choice-fields'
+      );
+
+      const idea = dialog.querySelector(
+        '#owned-subject-dialog-idea'
+      );
+
+      const recommendationRegion = dialog.querySelector(
+        '.compass-recommendation-region'
       );
 
       const error = dialog.querySelector(
@@ -5965,6 +5986,13 @@
       sessionFields.hidden = true;
       choiceFields.hidden = false;
 
+      idea.hidden =
+        !compassRecommendationContext ||
+        compassRecommendationContext
+          .candidates.length < 3;
+
+      recommendationRegion.innerHTML = '';
+
       error.hidden = true;
       error.textContent = '';
 
@@ -6709,9 +6737,13 @@
         compassRecommendationContext;
 
       const region =
-        document.getElementById(
-          'compass-recommendation-region'
-        );
+        button
+          ?.closest(
+            '.owned-subject-dialog-panel'
+          )
+          ?.querySelector(
+            '.compass-recommendation-region'
+          );
 
       const label =
         button?.querySelector(
@@ -7010,7 +7042,6 @@
       ) {
         main.innerHTML =
           renderIntro(session) +
-          '<div id="compass-recommendation-region" class="compass-recommendation-region" aria-live="polite"></div>' +
           ownedLibraryHtml +
           renderEmptyLibrary();
 
@@ -7019,7 +7050,6 @@
 
       main.innerHTML =
         renderIntro(session) +
-        '<div id="compass-recommendation-region" class="compass-recommendation-region" aria-live="polite"></div>' +
         renderSubjectCollection(
           sessionSubjects,
           getActiveSessionSubjectCollectionTitle(),
@@ -7091,22 +7121,6 @@
       const topicPhaseMs =
         getCompassTopicPhaseMs();
 
-      const ideaButton =
-        compassRecommendationContext &&
-        compassRecommendationContext
-          .candidates.length >= 3
-          ? (
-            '<button class="hub-idea-btn" type="button" onclick="askCompassForSubjects(this)" aria-label="Ask Compass what to talk about">' +
-            '<svg width="15" height="15" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
-            '<circle cx="7" cy="7" r="5.2" stroke="currentColor" stroke-width="1.2"/>' +
-            '<path d="M9.55 4.45L7.85 7.85L4.45 9.55L6.15 6.15L9.55 4.45Z" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/>' +
-            '<path d="M9.55 4.45L7.85 7.85L6.15 6.15Z" fill="currentColor"/>' +
-            '</svg>' +
-            '<span data-idea-label>Need an idea?</span>' +
-            '</button>'
-          )
-          : '';
-
       return (
         '<div class="hub-intro">' +
         '<div class="hub-intro-text">' +
@@ -7127,7 +7141,6 @@
         '</h1>' +
         '<p class="hub-desc">Explore Atlas Subjects or create your own, then see where the conversation goes.</p>' +
         '</div>' +
-        ideaButton +
         '</div>'
       );
     }
