@@ -4266,18 +4266,21 @@
         '#owned-subject-dialog-field-label'
       );
 
-      createFields.hidden = false;
+      const createFields = dialog.querySelector(
+        '#owned-subject-dialog-create-fields'
+      );
 
-      idea.hidden =
-        !compassRecommendationContext ||
-        compassRecommendationContext
-          .candidates.length < 3;
+      const idea = dialog.querySelector(
+        '#owned-subject-dialog-idea'
+      );
 
-      recommendationRegion.innerHTML = '';
+      const recommendationRegion = dialog.querySelector(
+        '.compass-recommendation-region'
+      );
 
-      levelSelect.value = 'b2';
-      styleSelect.value = 'balanced';
-      briefInput.value = '';
+      const levelSelect = dialog.querySelector(
+        '#owned-subject-dialog-level'
+      );
 
       const styleSelect = dialog.querySelector(
         '#owned-subject-dialog-style'
@@ -4318,6 +4321,13 @@
         'A topic, situation, film or idea…';
 
       createFields.hidden = false;
+
+      idea.hidden =
+        !compassRecommendationContext ||
+        compassRecommendationContext
+          .candidates.length < 3;
+
+      recommendationRegion.innerHTML = '';
 
       levelSelect.value = 'b2';
       styleSelect.value = 'balanced';
