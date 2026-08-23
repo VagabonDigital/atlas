@@ -6689,10 +6689,9 @@
       if (
         !context ||
         !region ||
-        context.candidates.length < 3 ||
         !window.AtlasAI ||
         typeof window.AtlasAI
-          .recommendSubjects !== 'function'
+          .suggestSubjectIdeas !== 'function'
       ) {
         showToast(
           'Compass suggestions are unavailable.'
@@ -6734,25 +6733,11 @@
       try {
         const result =
           await window.AtlasAI
-            .recommendSubjects({
+            .suggestSubjectIdeas({
               notes,
 
-              sessionSubjectKeys:
-                context
-                  .sessionSubjectKeys,
-
-              candidates:
-                context.candidates
-                  .map(candidate => ({
-                    key:
-                      candidate.key,
-
-                    title:
-                      candidate.title,
-
-                    description:
-                      candidate.description
-                  }))
+              sessionSubjects:
+                context.sessionSubjects
             });
 
         if (
@@ -6766,8 +6751,7 @@
 
         region.innerHTML =
           renderCompassRecommendationResult(
-            result,
-            context
+            result
           );
 
         if (label) {

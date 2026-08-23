@@ -1324,6 +1324,122 @@
         };
     }
 
+    async function suggestSubjectIdeas(
+        input = {}
+    ) {
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const sessionSubjects =
+            Array.isArray(
+                candidate.sessionSubjects
+            )
+                ? candidate.sessionSubjects
+                    .map(subject => ({
+                        title:
+                            cleanString(
+                                subject?.title
+                            ),
+
+                        description:
+                            cleanString(
+                                subject?.description
+                            )
+                    }))
+                    .filter(subject =>
+                        subject.title
+                    )
+                : [];
+
+        const response = await fetch(
+            `${BASE_URL}/suggest-subject-ideas`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json'
+                },
+
+                body: JSON.stringify({
+                    notes:
+                        cleanString(
+                            candidate.notes
+                        ),
+
+                    sessionSubjects
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+        }
+
+        const message =
+            cleanString(
+                result.payload?.message
+            );
+
+        const ideas =
+            Array.isArray(
+                result.payload?.ideas
+            )
+                ? result.payload.ideas
+                    .map(idea => ({
+                        title:
+                            cleanString(
+                                idea?.title
+                            ),
+
+                        reason:
+                            cleanString(
+                                idea?.reason
+                            )
+                    }))
+                : [];
+
+        if (
+            !message ||
+            ideas.length !== 3 ||
+            ideas.some(idea =>
+                !idea.title ||
+                !idea.reason
+            ) ||
+            new Set(
+                ideas.map(idea =>
+                    idea.title.toLowerCase()
+                )
+            ).size !== 3
+        ) {
+            throw new Error(
+                'Atlas AI returned an invalid subject idea payload.'
+            );
+        }
+
+        return {
+            message,
+            ideas
+        };
+    }
+
     async function generateReflection(
         input = {}
     ) {
@@ -1576,6 +1692,8 @@
         generateDiscussionPathway:
             withGenerationContext(generateDiscussionPathway),
 
-        recommendSubjects
+        recommendSubjects,
+
+        suggestSubjectIdeas
     };
 })();
