@@ -3089,6 +3089,49 @@
         );
       }
 
+      const workingDraftDescriptions = new Map();
+
+      if (
+        typeof Subjects.getWorkingDraft === 'function'
+      ) {
+        await Promise.all(
+          (Array.isArray(records) ? records : [])
+            .map(async record => {
+              const id =
+                String(record?.id || '').trim();
+
+              if (!id) return;
+
+              const publishedDescription =
+                String(
+                  record?.metadata?.description ||
+                  record?.document?.module?.catalogDescription ||
+                  ''
+                ).trim();
+
+              if (publishedDescription) return;
+
+              try {
+                const draft =
+                  await Subjects.getWorkingDraft(id);
+
+                const draftDescription =
+                  String(
+                    draft?.document?.module?.catalogDescription ||
+                    ''
+                  ).trim();
+
+                if (draftDescription) {
+                  workingDraftDescriptions.set(
+                    id,
+                    draftDescription
+                  );
+                }
+              } catch { }
+            })
+        );
+      }
+
       const reg = getRegistry();
       const session = getActiveSession();
       const sessionStates =
@@ -3150,6 +3193,7 @@
             launchUrl,
             artId: '',
             hook: String(
+              workingDraftDescriptions.get(id) ||
               metadata.description ||
               module.catalogDescription ||
               ''

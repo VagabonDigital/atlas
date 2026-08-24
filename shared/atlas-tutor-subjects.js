@@ -1723,8 +1723,8 @@
 
         const next =
             normalizeSessionSubjectRefs([
-                ...current,
-                ref
+                ref,
+                ...current
             ]);
 
         return writeSessionSubjects(
