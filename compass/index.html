@@ -5027,6 +5027,10 @@
           ).trim()
         };
 
+        const targetSessionId =
+          state.sessionId ||
+          getActiveSession().id;
+
         const Structured =
           window.AtlasStructuredSubject;
 
@@ -5115,25 +5119,23 @@
             );
           }
 
-          if (state.sessionId) {
-            const promoted =
-              await Subjects.addSessionSubject(
-                state.sessionId,
-                {
-                  kind: 'my-subject',
-                  id: created.id
-                }
-              );
+          const promoted =
+            await Subjects.addSessionSubject(
+              targetSessionId,
+              {
+                kind: 'my-subject',
+                id: created.id
+              }
+            );
 
-            if (!promoted) {
-              await Subjects.deleteSubject(
-                created.id
-              );
+          if (!promoted) {
+            await Subjects.deleteSubject(
+              created.id
+            );
 
-              throw new Error(
-                'Created subject could not be added to the session.'
-              );
-            }
+            throw new Error(
+              'Created subject could not be added to the session.'
+            );
           }
 
           syncOwnedSubjectRegistryProjection(
