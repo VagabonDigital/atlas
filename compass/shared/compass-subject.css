@@ -4429,7 +4429,9 @@ MY VERSION AUTHORING
 .atlas-my-version-copy {
     display: flex;
     min-width: 0;
+    flex: 1 1 auto;
     flex-direction: column;
+    overflow: hidden;
     line-height: 1.25;
 }
 

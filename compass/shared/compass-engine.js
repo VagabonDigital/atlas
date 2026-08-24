@@ -1272,9 +1272,8 @@ function updateMyVersionAuthorBar() {
     }
 
     if (authoringLabel) {
-        authoringLabel.textContent = ownedSubject
-            ? 'Editing My Subject'
-            : 'Editing My Version';
+        authoringLabel.textContent =
+            getEffectiveSubjectTitle();
     }
 
     if (status) {
@@ -10375,15 +10374,11 @@ function getNavItemLabel(item) {
 function applySubjectIdentityChrome() {
     const title = getEffectiveSubjectTitle();
     const ownedSubject = isOwnedSubjectRuntime();
-    const subjectLabel = myVersionAuthoringOpen
-        ? ownedSubject
-            ? `${title} · Editing My Subject`
-            : `${title} · Editing My Version`
-        : ownedSubject
-            ? `${title} · My Subject`
-            : hasSavedMyVersion()
-                ? `${title} · My Version`
-                : title;
+    const subjectLabel = ownedSubject
+        ? `${title} · My Subject`
+        : hasSavedMyVersion()
+            ? `${title} · My Version`
+            : title;
 
     document
         .querySelectorAll(
@@ -10397,15 +10392,11 @@ function applySubjectIdentityChrome() {
 
     setText(
         'cover-eyebrow-label',
-        myVersionAuthoringOpen
-            ? ownedSubject
-                ? 'EDITING MY SUBJECT'
-                : 'EDITING MY VERSION'
-            : ownedSubject
-                ? 'MY SUBJECT'
-                : hasSavedMyVersion()
-                    ? 'MY VERSION'
-                    : 'COMPASS SUBJECT'
+        ownedSubject
+            ? 'MY SUBJECT'
+            : hasSavedMyVersion()
+                ? 'MY VERSION'
+                : 'COMPASS SUBJECT'
     );
 }
 
