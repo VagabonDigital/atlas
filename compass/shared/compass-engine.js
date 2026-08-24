@@ -374,12 +374,13 @@ const FULL_SUBJECT_DISCUSSION_STAGES = [
     'Wider View'
 ];
 
-const FULL_SUBJECT_CULTURAL_LENS_CARD_COUNT = 8;
+const FULL_SUBJECT_CULTURAL_LENS_CARD_COUNT = 6;
 const FULL_SUBJECT_GENERATION_STAGE_COUNT = 9;
 
 let myVersionGeneratingFullSubject = false;
 let myVersionFullSubjectGenerationError = '';
 let myVersionFullSubjectGenerationProgress = null;
+let myVersionFullSubjectGenerationNotice = '';
 
 
 // ============================================================
@@ -1200,7 +1201,9 @@ function updateMyVersionAuthorBar() {
                 ? getMyVersionFullSubjectGenerationStatus()
                 : myVersionFullSubjectGenerationError
                     ? myVersionFullSubjectGenerationError
-                    : myVersionGeneratingSubjectFraming
+                    : myVersionFullSubjectGenerationNotice
+                        ? myVersionFullSubjectGenerationNotice
+                        : myVersionGeneratingSubjectFraming
                 ? 'Generating hook and introduction…'
                 : myVersionGeneratingOverview
                     ? 'Generating overview…'
@@ -1989,6 +1992,7 @@ function finishMyVersionEditingState() {
     myVersionGeneratingFullSubject = false;
     myVersionFullSubjectGenerationError = '';
     myVersionFullSubjectGenerationProgress = null;
+    myVersionFullSubjectGenerationNotice = '';
     tutorContentWorkingDraft = null;
     applyTutorSubjectDocument(
         getPublishedTutorSubjectDocument()
@@ -4918,6 +4922,7 @@ async function generateMyVersionFullSubject() {
 
     myVersionGeneratingFullSubject = true;
     myVersionFullSubjectGenerationError = '';
+    myVersionFullSubjectGenerationNotice = '';
 
     try {
         setMyVersionFullSubjectGenerationProgress(
@@ -5048,12 +5053,12 @@ async function generateMyVersionFullSubject() {
             'Finishing Discussion'
         );
 
-        const discussionEnrichment =
+        try {
             await enrichMyVersionDiscussionFromUI();
-
-        if (discussionEnrichment === null) {
-            throw new Error(
-                'Discussion enrichment failed.'
+        } catch (error) {
+            console.error(
+                '[Compass] Discussion finishing pass could not complete:',
+                error
             );
         }
 
@@ -5062,14 +5067,18 @@ async function generateMyVersionFullSubject() {
             'Finishing Cultural Lens'
         );
 
-        const culturalLensEnrichment =
+        try {
             await enrichMyVersionCulturalLensFromUI();
-
-        if (culturalLensEnrichment === null) {
-            throw new Error(
-                'Cultural Lens enrichment failed.'
+        } catch (error) {
+            console.error(
+                '[Compass] Cultural Lens finishing pass could not complete:',
+                error
             );
         }
+
+        refreshMyVersionFullSubjectReadyNotice(
+            true
+        );
 
         return true;
     } catch (error) {
@@ -7000,6 +7009,83 @@ async function generateMyVersionMakeItReal(
     return committed?.makeItReal || null;
 }
 
+async function runMyVersionEnrichmentOperationWithRetry(
+    operation,
+    label
+) {
+    let lastError = null;
+
+    for (
+        let attempt = 1;
+        attempt <= 2;
+        attempt += 1
+    ) {
+        try {
+            const result = await operation();
+
+            if (result) {
+                return result;
+            }
+
+            lastError = new Error(
+                `${label} returned no result.`
+            );
+        } catch (error) {
+            lastError = error;
+        }
+
+        if (attempt === 1) {
+            console.warn(
+                `[Compass] ${label} failed. Retrying once.`,
+                lastError
+            );
+
+            await new Promise(resolve => {
+                window.setTimeout(resolve, 600);
+            });
+        }
+    }
+
+    console.error(
+        `[Compass] ${label} failed after retry:`,
+        lastError
+    );
+
+    return null;
+}
+
+function getMyVersionRemainingEnrichmentCount() {
+    return (
+        getMyVersionDiscussionLanguageUpgradeCandidateIds()
+            .length +
+        getMyVersionDiscussionMakeItRealCandidateSetIds()
+            .length +
+        getMyVersionCulturalLensLanguageUpgradeCandidateIds()
+            .length
+    );
+}
+
+function refreshMyVersionFullSubjectReadyNotice(
+    force = false
+) {
+    if (
+        !force &&
+        !myVersionFullSubjectGenerationNotice
+    ) {
+        return;
+    }
+
+    const remaining =
+        getMyVersionRemainingEnrichmentCount();
+
+    myVersionFullSubjectGenerationNotice =
+        remaining > 0
+            ? `Subject ready ✓ · ${remaining} finishing touch${remaining === 1 ? '' : 'es'} remaining`
+            : 'Subject ready ✓ · Generation complete';
+
+    updateMyVersionAuthorBar();
+}
+
 async function enrichMyVersionDiscussionFromUI() {
     if (
         !myVersionEditing ||
@@ -7026,10 +7112,12 @@ async function enrichMyVersionDiscussionFromUI() {
     ];
 
     if (!operations.length) {
+        refreshMyVersionFullSubjectReadyNotice();
         return [];
     }
 
     const completedOperations = [];
+    const failedOperations = [];
 
     myVersionDiscussionEnrichmentError = '';
     myVersionEnrichingDiscussion = true;
@@ -7055,44 +7143,49 @@ async function enrichMyVersionDiscussionFromUI() {
 
             updateMyVersionAuthorBar();
 
-            const result =
+            const label =
                 operation.kind === 'upgrade'
-                    ? await generateMyVersionMomentUpgrade(
-                        operation.id,
-                        '',
-                        { reveal: false }
-                    )
-                    : await generateMyVersionMakeItReal(
-                        operation.id
-                    );
+                    ? `Discussion language upgrade ${index + 1}`
+                    : `Discussion activity ${index + 1}`;
+
+            const result =
+                await runMyVersionEnrichmentOperationWithRetry(
+                    () =>
+                        operation.kind === 'upgrade'
+                            ? generateMyVersionMomentUpgrade(
+                                operation.id,
+                                '',
+                                { reveal: false }
+                            )
+                            : generateMyVersionMakeItReal(
+                                operation.id
+                            ),
+                    label
+                );
 
             if (result) {
                 completedOperations.push(
                     operation
                 );
+            } else {
+                failedOperations.push(
+                    operation
+                );
             }
         }
 
-        return completedOperations;
-    } catch (error) {
-        console.error(
-            '[Compass] AI Discussion enrichment failed:',
-            error
-        );
-
-        if (myVersionEditing) {
+        if (failedOperations.length) {
             myVersionDiscussionEnrichmentError =
-                completedOperations.length
-                    ? `Completed ${completedOperations.length} of ${operations.length} enrichment steps. Try again to finish.`
-                    : 'Couldn’t enrich Discussion. Try again.';
+                `${failedOperations.length} finishing touch${failedOperations.length === 1 ? '' : 'es'} still remaining.`;
         }
 
-        return null;
+        return completedOperations;
     } finally {
         myVersionEnrichingDiscussion = false;
         myVersionDiscussionEnrichmentProgress = null;
 
         if (myVersionEditing) {
+            refreshMyVersionFullSubjectReadyNotice();
             updateMyVersionAuthorBar();
         }
     }
@@ -7317,10 +7410,12 @@ async function enrichMyVersionCulturalLensFromUI() {
         getMyVersionCulturalLensLanguageUpgradeCandidateIds();
 
     if (!candidateIds.length) {
+        refreshMyVersionFullSubjectReadyNotice();
         return [];
     }
 
     const completedIds = [];
+    const failedIds = [];
 
     myVersionCulturalLensEnrichmentError = '';
     myVersionEnrichingCulturalLens = true;
@@ -7347,37 +7442,35 @@ async function enrichMyVersionCulturalLensFromUI() {
             updateMyVersionAuthorBar();
 
             const upgrade =
-                await generateMyVersionCulturalLensUpgrade(
-                    cardId,
-                    '',
-                    { reveal: false }
+                await runMyVersionEnrichmentOperationWithRetry(
+                    () =>
+                        generateMyVersionCulturalLensUpgrade(
+                            cardId,
+                            '',
+                            { reveal: false }
+                        ),
+                    `Cultural Lens language upgrade ${index + 1}`
                 );
 
             if (upgrade) {
                 completedIds.push(cardId);
+            } else {
+                failedIds.push(cardId);
             }
         }
 
-        return completedIds;
-    } catch (error) {
-        console.error(
-            '[Compass] AI Cultural Lens enrichment failed:',
-            error
-        );
-
-        if (myVersionEditing) {
+        if (failedIds.length) {
             myVersionCulturalLensEnrichmentError =
-                completedIds.length
-                    ? `Enriched ${completedIds.length} of ${candidateIds.length} cards. Try again to finish.`
-                    : 'Couldn’t enrich Cultural Lens. Try again.';
+                `${failedIds.length} finishing touch${failedIds.length === 1 ? '' : 'es'} still remaining.`;
         }
 
-        return null;
+        return completedIds;
     } finally {
         myVersionEnrichingCulturalLens = false;
         myVersionCulturalLensEnrichmentProgress = null;
 
         if (myVersionEditing) {
+            refreshMyVersionFullSubjectReadyNotice();
             updateMyVersionAuthorBar();
         }
     }
