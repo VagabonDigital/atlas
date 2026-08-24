@@ -10395,6 +10395,7 @@ function applySubjectIdentityChrome() {
         )
         .forEach(element => {
             element.textContent = subjectLabel;
+            element.title = subjectLabel;
         });
 
     setText('mobile-drawer-subject-title', subjectLabel);

@@ -696,6 +696,7 @@ DESKTOP NAVIGATION
     align-items: center;
     gap: 0.58rem;
     min-width: 0;
+    max-width: clamp(240px, 24vw, 340px);
     text-decoration: none;
     flex-shrink: 0;
     justify-self: start;
