@@ -4237,7 +4237,7 @@ MY VERSION AUTHORING
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 0.62rem 0.72rem 0.62rem 1rem;
+    padding: 0.62rem 0.72rem 0.62rem 3.55rem;
     border: 1px solid rgba(var(--accent-rgb), 0.34);
     border-radius: 16px;
     background: rgba(255, 253, 249, 0.97);
@@ -4245,6 +4245,85 @@ MY VERSION AUTHORING
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     transform: translateX(-50%);
+    transition:
+        width var(--transition),
+        min-height var(--transition),
+        padding var(--transition),
+        border-radius var(--transition);
+}
+
+.atlas-my-version-bar-toggle {
+    position: absolute;
+    top: 50%;
+    left: 0.58rem;
+    display: inline-flex;
+    width: 36px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid rgba(var(--accent-rgb), 0.28);
+    border-radius: 999px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition: var(--transition);
+}
+
+.atlas-my-version-bar-toggle:hover {
+    border-color: rgba(var(--accent-rgb), 0.48);
+    background: var(--accent-pale);
+}
+
+.atlas-my-version-bar-toggle:focus-visible {
+    outline: 2px solid rgba(var(--accent-rgb), 0.62);
+    outline-offset: 2px;
+}
+
+.atlas-my-version-build-mark {
+    display: block;
+}
+
+.atlas-my-version-build-ring {
+    transform-origin: 10px 10px;
+    animation: atlas-my-version-build-spin 1.8s linear infinite;
+}
+
+@keyframes atlas-my-version-build-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+    .atlas-my-version-bar.is-minimized {
+        right: 0.75rem;
+        left: auto;
+        display: flex;
+        width: 44px;
+        min-height: 44px;
+        gap: 0;
+        padding: 0;
+        transform: none;
+    }
+
+.atlas-my-version-bar.is-minimized
+.atlas-my-version-copy,
+.atlas-my-version-bar.is-minimized
+.atlas-my-version-tools-toggle,
+.atlas-my-version-bar.is-minimized
+.atlas-my-version-actions {
+    display: none;
+}
+
+.atlas-my-version-bar.is-minimized
+.atlas-my-version-bar-toggle {
+    position: static;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: transparent;
+    transform: none;
 }
 
 .atlas-my-version-bar[hidden] {
@@ -4794,7 +4873,18 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
         min-height: 0;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.62rem;
+        padding: 0.62rem 0.62rem 0.62rem 3.55rem;
+        transform: none;
+    }
+
+    .atlas-my-version-bar.is-minimized {
+        right: 0.75rem;
+        left: auto;
+        display: flex;
+        width: 44px;
+        min-height: 44px;
+        gap: 0;
+        padding: 0;
         transform: none;
     }
 

@@ -327,6 +327,7 @@ let myVersionIncludedLiveSessionId = null;
 let myVersionSaving = false;
 let myVersionUnlockTimer = null;
 let myVersionUnlockConsumed = false;
+let myVersionExpandBarOnEditStart = false;
 let myVersionWorkingDraftSaveTimer = null;
 let myVersionPendingWorkingDraftOverrides = null;
 let myVersionResumeViewId = null;
@@ -1010,6 +1011,63 @@ function restoreMyVersionWorkingDraftView() {
         : 'view-cover';
 
     goToView(safeViewId);
+}
+
+function setMyVersionAuthorBarMinimized(minimized) {
+    const bar = document.getElementById(
+        'atlas-my-version-bar'
+    );
+
+    const toggle = document.getElementById(
+        'atlas-my-version-bar-toggle'
+    );
+
+    if (!bar || !toggle) {
+        return;
+    }
+
+    const nextMinimized = Boolean(minimized);
+
+    if (nextMinimized) {
+        closeMyVersionMobileTools();
+    }
+
+    bar.classList.toggle(
+        'is-minimized',
+        nextMinimized
+    );
+
+    toggle.setAttribute(
+        'aria-expanded',
+        String(!nextMinimized)
+    );
+
+    toggle.setAttribute(
+        'aria-label',
+        nextMinimized
+            ? 'Open subject tools'
+            : 'Minimize subject tools'
+    );
+}
+
+function toggleMyVersionAuthorBar() {
+    if (!myVersionEditing) {
+        return;
+    }
+
+    const bar = document.getElementById(
+        'atlas-my-version-bar'
+    );
+
+    if (!bar) {
+        return;
+    }
+
+    setMyVersionAuthorBarMinimized(
+        !bar.classList.contains(
+            'is-minimized'
+        )
+    );
 }
 
 function toggleMyVersionMobileTools() {
@@ -1937,6 +1995,11 @@ function beginMyVersionEditing(includeLiveChanges = false) {
             ? currentSessionId
             : null;
 
+    const expandAuthorBar =
+        myVersionExpandBarOnEditStart;
+
+    myVersionExpandBarOnEditStart = false;
+
     closeMyVersionStartDialog();
 
     if (shouldStartOnCover) {
@@ -1948,6 +2011,11 @@ function beginMyVersionEditing(includeLiveChanges = false) {
     resetMyVersionHistory();
     refreshMyVersionDirtyState();
     renderAllTutorContentSurfaces();
+
+    if (expandAuthorBar) {
+        setMyVersionAuthorBarMinimized(false);
+    }
+
     saveMyVersionWorkingDraftNow();
 }
 
@@ -1960,10 +2028,15 @@ function openMyVersionSubjectDetailsFromMobile() {
     openMyVersionCoverDialog();
 }
 
-function requestMyVersionEditing() {
+function requestMyVersionEditing({
+    expandAuthorBar = false
+} = {}) {
     if (myVersionEditing || myVersionSaving) {
         return;
     }
+
+    myVersionExpandBarOnEditStart =
+        Boolean(expandAuthorBar);
 
     closeMyVersionMobileTools();
 
@@ -2001,6 +2074,7 @@ function finishMyVersionEditingState() {
     closeMyVersionStartDialog();
     closeMyVersionCoverDialog();
     closeRestoreAtlasOriginalDialog();
+    setMyVersionAuthorBarMinimized(true);
     updateMyVersionAuthorBar();
 }
 
@@ -2721,7 +2795,10 @@ function handleMyVersionUnlockKeyDown(event) {
         }
 
         myVersionUnlockConsumed = true;
-        requestMyVersionEditing();
+
+        requestMyVersionEditing({
+            expandAuthorBar: true
+        });
     }, MY_VERSION_UNLOCK_HOLD_MS);
 }
 

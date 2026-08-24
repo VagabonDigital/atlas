@@ -729,8 +729,45 @@ function mountCompassSubjectShell() {
      Appears only while the tutor is deliberately editing My Version.
      ============================================================ -->
 
-    <div class="atlas-my-version-bar"
+    <div class="atlas-my-version-bar is-minimized"
         id="atlas-my-version-bar" hidden>
+        <button class="atlas-my-version-bar-toggle"
+            id="atlas-my-version-bar-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="atlas-my-version-actions"
+            aria-label="Open subject tools"
+            onclick="
+                const bar = this.closest('.atlas-my-version-bar');
+                const minimized = bar.classList.toggle('is-minimized');
+                this.setAttribute('aria-expanded', String(!minimized));
+                this.setAttribute(
+                    'aria-label',
+                    minimized
+                        ? 'Open subject tools'
+                        : 'Minimize subject tools'
+                );
+            ">
+            <svg class="atlas-my-version-build-mark"
+                width="20" height="20"
+                viewBox="0 0 20 20"
+                fill="none" aria-hidden="true">
+                <circle class="atlas-my-version-build-ring"
+                    cx="10"
+                    cy="10"
+                    r="7"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-dasharray="22 22"/>
+                <circle
+                    cx="10"
+                    cy="10"
+                    r="1.6"
+                    fill="currentColor"/>
+            </svg>
+        </button>
+
         <div class="atlas-my-version-copy">
             <strong>Editing My Version</strong>
             <span id="atlas-my-version-status">No changes yet</span>
