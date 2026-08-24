@@ -760,11 +760,17 @@ function mountCompassSubjectShell() {
                     stroke-width="1.5"
                     stroke-linecap="round"
                     stroke-dasharray="22 22"/>
-                <circle
+                <circle class="atlas-my-version-build-dot"
                     cx="10"
                     cy="10"
                     r="1.6"
                     fill="currentColor"/>
+                <path class="atlas-my-version-build-check"
+                    d="M6.2 10.1L8.7 12.35L13.8 7.25"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
             </svg>
         </button>
 

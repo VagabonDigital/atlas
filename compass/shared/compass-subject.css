@@ -4285,9 +4285,48 @@ MY VERSION AUTHORING
     display: block;
 }
 
-.atlas-my-version-build-ring {
+.atlas-my-version-build-ring,
+.atlas-my-version-build-dot,
+.atlas-my-version-build-check {
     transform-origin: 10px 10px;
+}
+
+.atlas-my-version-build-ring {
     animation: atlas-my-version-build-spin 1.8s linear infinite;
+}
+
+.atlas-my-version-build-dot {
+    transition:
+        opacity 0.18s ease,
+        transform 0.22s ease;
+}
+
+.atlas-my-version-build-check {
+    opacity: 0;
+    transform: scale(0.72);
+    transition:
+        opacity 0.18s ease,
+        transform 0.22s ease;
+}
+
+.atlas-my-version-bar.is-generation-complete .atlas-my-version-build-ring {
+    animation: none;
+    stroke-dasharray: 44 0;
+}
+
+.atlas-my-version-bar.is-generation-complete .atlas-my-version-build-dot {
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+.atlas-my-version-bar.is-generation-complete .atlas-my-version-build-check {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.atlas-my-version-bar.is-generation-complete .atlas-my-version-build-mark {
+    animation:
+        atlas-my-version-build-complete 0.72s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes atlas-my-version-build-spin {
@@ -4296,28 +4335,38 @@ MY VERSION AUTHORING
     }
 }
 
-    .atlas-my-version-bar.is-minimized {
-        right: 0.75rem;
-        left: auto;
-        display: flex;
-        width: 44px;
-        min-height: 44px;
-        gap: 0;
-        padding: 0;
-        transform: none;
+@keyframes atlas-my-version-build-complete {
+    0% {
+        transform: scale(0.88);
     }
 
-.atlas-my-version-bar.is-minimized
-.atlas-my-version-copy,
-.atlas-my-version-bar.is-minimized
-.atlas-my-version-tools-toggle,
-.atlas-my-version-bar.is-minimized
-.atlas-my-version-actions {
+    55% {
+        transform: scale(1.12);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.atlas-my-version-bar.is-minimized {
+    right: 0.75rem;
+    left: auto;
+    display: flex;
+    width: 44px;
+    min-height: 44px;
+    gap: 0;
+    padding: 0;
+    transform: none;
+}
+
+.atlas-my-version-bar.is-minimized .atlas-my-version-copy,
+.atlas-my-version-bar.is-minimized .atlas-my-version-tools-toggle,
+.atlas-my-version-bar.is-minimized .atlas-my-version-actions {
     display: none;
 }
 
-.atlas-my-version-bar.is-minimized
-.atlas-my-version-bar-toggle {
+.atlas-my-version-bar.is-minimized .atlas-my-version-bar-toggle {
     position: static;
     width: 100%;
     height: 100%;
@@ -4918,8 +4967,7 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
         display: contents;
     }
 
-    .atlas-my-version-actions >
-    button:not(#atlas-my-version-save) {
+    .atlas-my-version-actions>button:not(#atlas-my-version-save) {
         display: none;
     }
 
@@ -4943,15 +4991,13 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
         grid-template-columns: minmax(0, 1fr) 40px;
     }
 
-    .atlas-my-version-bar.is-mobile-tools-open
-    .atlas-my-version-tools-toggle {
+    .atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-tools-toggle {
         border-color: rgba(var(--accent-rgb), 0.42);
         background: var(--accent-dim);
         color: var(--accent);
     }
 
-    .atlas-my-version-bar.is-mobile-tools-open
-    .atlas-my-version-actions {
+    .atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-actions {
         position: fixed;
         right: 0.75rem;
         bottom: 5rem;
@@ -4971,17 +5017,12 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
         box-shadow: var(--shadow-lg);
     }
 
-    .discussion-focus-active
-    .atlas-my-version-bar.is-mobile-tools-open
-    .atlas-my-version-actions,
-    .cultural-lens-focus-active
-    .atlas-my-version-bar.is-mobile-tools-open
-    .atlas-my-version-actions {
+    .discussion-focus-active .atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-actions,
+    .cultural-lens-focus-active .atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-actions {
         bottom: 9.25rem;
     }
 
-    .atlas-my-version-bar.is-mobile-tools-open
-    .atlas-my-version-mobile-sheet-header {
+    .atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-mobile-sheet-header {
         display: flex;
         grid-column: 1;
         min-height: 38px;
@@ -5010,19 +5051,15 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
         cursor: pointer;
     }
 
-    .atlas-my-version-bar.is-mobile-tools-open
-    .atlas-my-version-mobile-details {
+    .atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-mobile-details {
         display: inline-flex;
     }
 
-    .atlas-my-version-bar.is-mobile-tools-open
-    #atlas-my-version-cover-action {
+    .atlas-my-version-bar.is-mobile-tools-open #atlas-my-version-cover-action {
         display: none !important;
     }
 
-    .atlas-my-version-bar.is-mobile-tools-open
-    .atlas-my-version-actions >
-    button:not(#atlas-my-version-save):not(#atlas-my-version-cover-action):not([hidden]) {
+    .atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-actions>button:not(#atlas-my-version-save):not(#atlas-my-version-cover-action):not([hidden]) {
         display: inline-flex;
         grid-column: 1;
         width: 100%;
@@ -5031,23 +5068,19 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
         justify-content: center;
     }
 
-    .atlas-my-version-bar.is-mobile-tools-open
-    #atlas-my-version-cancel {
+    .atlas-my-version-bar.is-mobile-tools-open #atlas-my-version-cancel {
         color: var(--text-muted);
     }
 
-    .atlas-my-version-bar.is-mobile-tools-open
-    .atlas-my-version-cancel-desktop {
+    .atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-cancel-desktop {
         display: none;
     }
 
-    .atlas-my-version-bar.is-mobile-tools-open
-    .atlas-my-version-cancel-mobile {
+    .atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-cancel-mobile {
         display: inline;
     }
 
-    .atlas-my-version-bar.is-mobile-tools-open
-    #atlas-my-version-save {
+    .atlas-my-version-bar.is-mobile-tools-open #atlas-my-version-save {
         position: static;
         grid-column: 1;
         width: 100%;

@@ -377,8 +377,10 @@ const FULL_SUBJECT_DISCUSSION_STAGES = [
 
 const FULL_SUBJECT_CULTURAL_LENS_CARD_COUNT = 6;
 const FULL_SUBJECT_GENERATION_STAGE_COUNT = 9;
+const FULL_SUBJECT_COMPLETION_HOLD_MS = 900;
 
 let myVersionGeneratingFullSubject = false;
+let myVersionAutoSavingFullSubject = false;
 let myVersionFullSubjectGenerationError = '';
 let myVersionFullSubjectGenerationProgress = null;
 let myVersionFullSubjectGenerationNotice = '';
@@ -1245,6 +1247,11 @@ function updateMyVersionAuthorBar() {
 
     if (bar) {
         bar.hidden = !myVersionEditing;
+
+        bar.classList.toggle(
+            'is-generation-complete',
+            myVersionAutoSavingFullSubject
+        );
     }
 
     if (authoringLabel) {
@@ -1255,8 +1262,10 @@ function updateMyVersionAuthorBar() {
 
     if (status) {
         status.textContent =
-            myVersionGeneratingFullSubject
-                ? getMyVersionFullSubjectGenerationStatus()
+            myVersionAutoSavingFullSubject
+                ? 'Subject ready ✓ · Saving…'
+                : myVersionGeneratingFullSubject
+                    ? getMyVersionFullSubjectGenerationStatus()
                 : myVersionFullSubjectGenerationError
                     ? myVersionFullSubjectGenerationError
                     : myVersionFullSubjectGenerationNotice
@@ -2063,6 +2072,7 @@ function finishMyVersionEditingState() {
     myVersionIncludedLiveSessionId = null;
     myVersionSaving = false;
     myVersionGeneratingFullSubject = false;
+    myVersionAutoSavingFullSubject = false;
     myVersionFullSubjectGenerationError = '';
     myVersionFullSubjectGenerationProgress = null;
     myVersionFullSubjectGenerationNotice = '';
@@ -4987,7 +4997,9 @@ function getMyVersionFullSubjectGenerationStatus() {
     );
 }
 
-async function generateMyVersionFullSubject() {
+async function generateMyVersionFullSubject({
+    autoSaveOnComplete = false
+} = {}) {
     if (
         !myVersionEditing ||
         myVersionSaving ||
@@ -4998,6 +5010,7 @@ async function generateMyVersionFullSubject() {
     }
 
     myVersionGeneratingFullSubject = true;
+    myVersionAutoSavingFullSubject = false;
     myVersionFullSubjectGenerationError = '';
     myVersionFullSubjectGenerationNotice = '';
 
@@ -5156,6 +5169,42 @@ async function generateMyVersionFullSubject() {
         refreshMyVersionFullSubjectReadyNotice(
             true
         );
+
+        if (autoSaveOnComplete) {
+            myVersionAutoSavingFullSubject = true;
+            updateMyVersionAuthorBar();
+
+            await new Promise(resolve => {
+                window.setTimeout(
+                    resolve,
+                    FULL_SUBJECT_COMPLETION_HOLD_MS
+                );
+            });
+
+            let saved = false;
+
+            try {
+                await saveMyVersion();
+                saved = !myVersionEditing;
+            } catch (error) {
+                console.error(
+                    '[Compass] Generated subject auto-save failed:',
+                    error
+                );
+
+                myVersionSaving = false;
+            }
+
+            if (!saved && myVersionEditing) {
+                myVersionAutoSavingFullSubject = false;
+                myVersionFullSubjectGenerationError =
+                    'Subject complete, but automatic save failed. Save manually.';
+
+                updateMyVersionAuthorBar();
+
+                return null;
+            }
+        }
 
         return true;
     } catch (error) {
@@ -18577,7 +18626,9 @@ async function init() {
         myVersionEditing
     ) {
         window.setTimeout(() => {
-            generateMyVersionFullSubject();
+            generateMyVersionFullSubject({
+                autoSaveOnComplete: true
+            });
         }, 0);
     }
 
