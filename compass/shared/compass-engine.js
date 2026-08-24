@@ -368,6 +368,14 @@ let myVersionEnrichingCulturalLens = false;
 let myVersionCulturalLensEnrichmentError = '';
 let myVersionCulturalLensEnrichmentProgress = null;
 
+const FULL_SUBJECT_DISCUSSION_SET_COUNT = 3;
+const FULL_SUBJECT_CULTURAL_LENS_CARD_COUNT = 8;
+const FULL_SUBJECT_GENERATION_STAGE_COUNT = 9;
+
+let myVersionGeneratingFullSubject = false;
+let myVersionFullSubjectGenerationError = '';
+let myVersionFullSubjectGenerationProgress = null;
+
 
 // ============================================================
 // BRIDGE
@@ -453,7 +461,7 @@ function isOwnedSubjectRuntime() {
 
 function consumeOwnedSubjectAuthoringIntent() {
     if (!isOwnedSubjectRuntime()) {
-        return false;
+        return '';
     }
 
     try {
@@ -462,9 +470,13 @@ function consumeOwnedSubjectAuthoringIntent() {
             url.searchParams.get('author');
 
         if (
-            !['create', 'edit'].includes(intent)
+            ![
+                'create',
+                'edit',
+                'generate'
+            ].includes(intent)
         ) {
-            return false;
+            return '';
         }
 
         url.searchParams.delete('author');
@@ -477,9 +489,9 @@ function consumeOwnedSubjectAuthoringIntent() {
             );
         } catch { }
 
-        return true;
+        return intent;
     } catch {
-        return false;
+        return '';
     }
 }
 
@@ -1159,7 +1171,8 @@ function updateMyVersionAuthorBar() {
 
     const enrichmentActive =
         myVersionEnrichingDiscussion ||
-        myVersionEnrichingCulturalLens;
+        myVersionEnrichingCulturalLens ||
+        myVersionGeneratingFullSubject;
 
     document.body.classList.toggle(
         'atlas-my-version-editing',
@@ -1178,7 +1191,11 @@ function updateMyVersionAuthorBar() {
 
     if (status) {
         status.textContent =
-            myVersionGeneratingSubjectFraming
+            myVersionGeneratingFullSubject
+                ? getMyVersionFullSubjectGenerationStatus()
+                : myVersionFullSubjectGenerationError
+                    ? myVersionFullSubjectGenerationError
+                    : myVersionGeneratingSubjectFraming
                 ? 'Generating hook and introduction…'
                 : myVersionGeneratingOverview
                     ? 'Generating overview…'
@@ -1760,6 +1777,10 @@ function redoMyVersionContent() {
 function commitMyVersionDraftContent(fieldKey, value) {
     if (!myVersionEditing || !fieldKey) return false;
 
+    if (!myVersionGeneratingFullSubject) {
+        myVersionFullSubjectGenerationError = '';
+    }
+
     const nextValue = String(value ?? '');
 
     const requiresValue =
@@ -1960,6 +1981,9 @@ function finishMyVersionEditingState() {
     myVersionIncludesLiveChanges = false;
     myVersionIncludedLiveSessionId = null;
     myVersionSaving = false;
+    myVersionGeneratingFullSubject = false;
+    myVersionFullSubjectGenerationError = '';
+    myVersionFullSubjectGenerationProgress = null;
     tutorContentWorkingDraft = null;
     applyTutorSubjectDocument(
         getPublishedTutorSubjectDocument()
@@ -3267,6 +3291,10 @@ function commitMyVersionDocumentMutation(mutator) {
         return null;
     }
 
+    if (!myVersionGeneratingFullSubject) {
+        myVersionFullSubjectGenerationError = '';
+    }
+
     const before = createMyVersionHistorySnapshot();
     const nextDocument = cloneTutorSubjectDocument(
         before.document
@@ -3651,7 +3679,10 @@ function assignFreshMyVersionCulturalLensCardId(card) {
 
 function insertMyVersionCulturalLensCard(
     card,
-    { replaceStarter = false } = {}
+    {
+        replaceStarter = false,
+        reveal = true
+    } = {}
 ) {
     const nativeCard =
         cloneTutorSubjectDocument(card);
@@ -4694,7 +4725,8 @@ async function generateMyVersionReflectionFromUI() {
 }
 
 async function generateMyVersionCulturalLensCard(
-    brief = ''
+    brief = '',
+    options = {}
 ) {
     if (
         !myVersionEditing ||
@@ -4784,7 +4816,10 @@ async function generateMyVersionCulturalLensCard(
         nativeCard,
         {
             replaceStarter:
-                Boolean(starterCard)
+                Boolean(starterCard),
+
+            reveal:
+                options?.reveal !== false
         }
     );
 }
@@ -4835,6 +4870,240 @@ async function generateMyVersionCulturalLensCardFromUI() {
 
         if (myVersionEditing) {
             renderCLGrid();
+        }
+    }
+}
+
+function setMyVersionFullSubjectGenerationProgress(
+    current,
+    label
+) {
+    myVersionFullSubjectGenerationProgress = {
+        current,
+        total:
+            FULL_SUBJECT_GENERATION_STAGE_COUNT,
+        label
+    };
+
+    updateMyVersionAuthorBar();
+}
+
+function getMyVersionFullSubjectGenerationStatus() {
+    const progress =
+        myVersionFullSubjectGenerationProgress;
+
+    if (!progress) {
+        return 'Building subject…';
+    }
+
+    let operationProgress = '';
+
+    if (
+        myVersionEnrichingDiscussion &&
+        myVersionDiscussionEnrichmentProgress
+    ) {
+        operationProgress =
+            ` · ${myVersionDiscussionEnrichmentProgress.current} of ${myVersionDiscussionEnrichmentProgress.total}`;
+    } else if (
+        myVersionEnrichingCulturalLens &&
+        myVersionCulturalLensEnrichmentProgress
+    ) {
+        operationProgress =
+            ` · ${myVersionCulturalLensEnrichmentProgress.current} of ${myVersionCulturalLensEnrichmentProgress.total}`;
+    }
+
+    return (
+        `Building subject · ${progress.current} of ${progress.total} · ` +
+        `${progress.label}${operationProgress}`
+    );
+}
+
+async function generateMyVersionFullSubject() {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime() ||
+        myVersionGeneratingFullSubject
+    ) {
+        return null;
+    }
+
+    myVersionGeneratingFullSubject = true;
+    myVersionFullSubjectGenerationError = '';
+
+    try {
+        setMyVersionFullSubjectGenerationProgress(
+            1,
+            'Hook and introduction'
+        );
+
+        const framing =
+            await generateMyVersionSubjectFraming();
+
+        if (!framing) {
+            throw new Error(
+                'Subject framing generation failed.'
+            );
+        }
+
+        setMyVersionFullSubjectGenerationProgress(
+            2,
+            'Overview'
+        );
+
+        const overview =
+            await generateMyVersionOverview();
+
+        if (!overview) {
+            throw new Error(
+                'Overview generation failed.'
+            );
+        }
+
+        setMyVersionFullSubjectGenerationProgress(
+            3,
+            'Discussion framing'
+        );
+
+        const discussionFraming =
+            await generateMyVersionDiscussionFraming();
+
+        if (!discussionFraming) {
+            throw new Error(
+                'Discussion framing generation failed.'
+            );
+        }
+
+        for (
+            let index = 0;
+            index < FULL_SUBJECT_DISCUSSION_SET_COUNT;
+            index += 1
+        ) {
+            setMyVersionFullSubjectGenerationProgress(
+                4,
+                `Discussion set ${index + 1} of ${FULL_SUBJECT_DISCUSSION_SET_COUNT}`
+            );
+
+            const set =
+                await generateMyVersionDiscussionSet(
+                    '',
+                    {
+                        reveal: false
+                    }
+                );
+
+            if (!set) {
+                throw new Error(
+                    `Discussion set ${index + 1} generation failed.`
+                );
+            }
+        }
+
+        setMyVersionFullSubjectGenerationProgress(
+            5,
+            'Enriching Discussion'
+        );
+
+        const discussionEnrichment =
+            await enrichMyVersionDiscussionFromUI();
+
+        if (discussionEnrichment === null) {
+            throw new Error(
+                'Discussion enrichment failed.'
+            );
+        }
+
+        setMyVersionFullSubjectGenerationProgress(
+            6,
+            'Cultural Lens framing'
+        );
+
+        const culturalLensFraming =
+            await generateMyVersionCulturalLensFraming();
+
+        if (!culturalLensFraming) {
+            throw new Error(
+                'Cultural Lens framing generation failed.'
+            );
+        }
+
+        for (
+            let index = 0;
+            index < FULL_SUBJECT_CULTURAL_LENS_CARD_COUNT;
+            index += 1
+        ) {
+            setMyVersionFullSubjectGenerationProgress(
+                7,
+                `Cultural Lens card ${index + 1} of ${FULL_SUBJECT_CULTURAL_LENS_CARD_COUNT}`
+            );
+
+            const card =
+                await generateMyVersionCulturalLensCard(
+                    '',
+                    {
+                        reveal: false
+                    }
+                );
+
+            if (!card) {
+                throw new Error(
+                    `Cultural Lens card ${index + 1} generation failed.`
+                );
+            }
+        }
+
+        setMyVersionFullSubjectGenerationProgress(
+            8,
+            'Enriching Cultural Lens'
+        );
+
+        const culturalLensEnrichment =
+            await enrichMyVersionCulturalLensFromUI();
+
+        if (culturalLensEnrichment === null) {
+            throw new Error(
+                'Cultural Lens enrichment failed.'
+            );
+        }
+
+        setMyVersionFullSubjectGenerationProgress(
+            9,
+            'Reflection'
+        );
+
+        const reflection =
+            await generateMyVersionReflection();
+
+        if (!reflection) {
+            throw new Error(
+                'Reflection generation failed.'
+            );
+        }
+
+        return true;
+    } catch (error) {
+        console.error(
+            '[Compass] Full subject generation paused:',
+            error
+        );
+
+        if (myVersionEditing) {
+            const failedAt =
+                myVersionFullSubjectGenerationProgress
+                    ?.label ||
+                'this step';
+
+            myVersionFullSubjectGenerationError =
+                `Generation paused at ${failedAt}. Your work is autosaved — continue from here.`;
+        }
+
+        return null;
+    } finally {
+        myVersionGeneratingFullSubject = false;
+        myVersionFullSubjectGenerationProgress = null;
+
+        if (myVersionEditing) {
+            updateMyVersionAuthorBar();
         }
     }
 }
@@ -5636,7 +5905,10 @@ function assignFreshMyVersionDiscussionSetIds(set) {
 
 function insertMyVersionDiscussionSet(
     set,
-    { replaceStarter = false } = {}
+    {
+        replaceStarter = false,
+        reveal = true
+    } = {}
 ) {
     const nativeSet =
         cloneTutorSubjectDocument(set);
@@ -5715,9 +5987,11 @@ function insertMyVersionDiscussionSet(
 
     if (!added) return null;
 
-    window.setTimeout(() => {
-        openSet(nativeSet.id);
-    }, 0);
+    if (reveal) {
+        window.setTimeout(() => {
+            openSet(nativeSet.id);
+        }, 0);
+    }
 
     return nativeSet;
 }
@@ -5743,7 +6017,8 @@ function addMyVersionDiscussionSet() {
 }
 
 async function generateMyVersionDiscussionSet(
-    brief = ''
+    brief = '',
+    options = {}
 ) {
     if (
         !myVersionEditing ||
@@ -5867,7 +6142,10 @@ async function generateMyVersionDiscussionSet(
         nativeSet,
         {
             replaceStarter:
-                Boolean(starterSet)
+                Boolean(starterSet),
+
+            reveal:
+                options?.reveal !== false
         }
     );
 }
@@ -18108,7 +18386,7 @@ async function init() {
     loadProgress();
     await loadTutorContentState();
 
-    const shouldStartOwnedSubjectAuthoring =
+    const ownedSubjectAuthoringIntent =
         consumeOwnedSubjectAuthoringIntent();
 
     applyCoverConfig();
@@ -18127,10 +18405,19 @@ async function init() {
     restoreMyVersionWorkingDraftView();
 
     if (
-        shouldStartOwnedSubjectAuthoring &&
+        ownedSubjectAuthoringIntent &&
         !myVersionEditing
     ) {
         beginMyVersionEditing(false);
+    }
+
+    if (
+        ownedSubjectAuthoringIntent === 'generate' &&
+        myVersionEditing
+    ) {
+        window.setTimeout(() => {
+            generateMyVersionFullSubject();
+        }, 0);
     }
 
     window.addEventListener(

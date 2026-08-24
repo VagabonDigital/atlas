@@ -1030,39 +1030,106 @@
     }
 
     .owned-subject-dialog-idea-btn {
+      position: relative;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 0.48rem;
-      min-height: 42px;
-      padding: 0.68rem 1rem;
-      border: 1px solid rgba(var(--accent-rgb), 0.28);
+      gap: 0.62rem;
+      min-height: 44px;
+      padding: 0.48rem 1rem 0.48rem 0.5rem;
+      overflow: hidden;
+      border: 1px solid rgba(var(--accent-rgb), 0.34);
       border-radius: 999px;
-      background: var(--accent-dim);
-      color: var(--accent);
+      background:
+        radial-gradient(
+          circle at 18% 12%,
+          rgba(255, 255, 255, 0.48),
+          transparent 32%
+        ),
+        linear-gradient(
+          135deg,
+          rgba(var(--accent-rgb), 0.14),
+          rgba(var(--accent-rgb), 0.045) 58%,
+          rgba(var(--accent-soft-rgb), 0.10)
+        ),
+        var(--surface-raised);
+      color: var(--text-heading);
       font-family: var(--font-body);
       font-size: 0.84rem;
       font-weight: 600;
+      letter-spacing: -0.005em;
       white-space: nowrap;
       cursor: pointer;
-      box-shadow: var(--shadow-xs);
-      transition: var(--t);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.58),
+        0 3px 10px rgba(var(--accent-rgb), 0.08);
+      transition:
+        transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease;
+    }
+
+    .owned-subject-dialog-idea-btn svg {
+      width: 30px;
+      height: 30px;
+      padding: 6px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--accent-ink);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 3px 9px rgba(var(--accent-rgb), 0.24);
+      transition:
+        transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        box-shadow 180ms ease;
     }
 
     .owned-subject-dialog-idea-btn:hover {
-      border-color: rgba(var(--accent-rgb), 0.46);
-      background: var(--accent-pale);
-      transform: translateY(-1px);
+      border-color: rgba(var(--accent-rgb), 0.58);
+      background:
+        radial-gradient(
+          circle at 18% 12%,
+          rgba(255, 255, 255, 0.58),
+          transparent 32%
+        ),
+        linear-gradient(
+          135deg,
+          rgba(var(--accent-rgb), 0.20),
+          rgba(var(--accent-rgb), 0.07) 58%,
+          rgba(var(--accent-soft-rgb), 0.14)
+        ),
+        var(--surface-raised-hover);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.68),
+        0 9px 24px rgba(var(--accent-rgb), 0.16);
+      transform: translateY(-2px);
+    }
+
+    .owned-subject-dialog-idea-btn:hover svg {
+      transform: rotate(9deg) scale(1.04);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.20),
+        0 5px 14px rgba(var(--accent-rgb), 0.30);
+    }
+
+    .owned-subject-dialog-idea-btn:active {
+      transform: translateY(0);
     }
 
     .owned-subject-dialog-idea-btn:focus-visible {
-      outline: 3px solid rgba(var(--accent-rgb), 0.34);
+      outline: 3px solid rgba(var(--accent-rgb), 0.32);
       outline-offset: 3px;
     }
 
     .owned-subject-dialog-idea-btn:disabled {
       opacity: 0.62;
       cursor: wait;
+      transform: none;
+    }
+
+    .owned-subject-dialog-idea-btn:disabled svg {
       transform: none;
     }
 
@@ -4296,6 +4363,10 @@
         '#owned-subject-dialog-error'
       );
 
+      const secondary = dialog.querySelector(
+        '#owned-subject-dialog-secondary'
+      );
+
       const confirm = dialog.querySelector(
         '#owned-subject-dialog-confirm'
       );
@@ -4311,7 +4382,7 @@
       title.textContent = 'Create subject';
 
       copy.textContent =
-        'Start with a topic and a few teaching preferences. Atlas will use them to guide the subject as you build it.';
+        'Start with a topic and a few teaching preferences. Atlas will build a complete first draft you can change afterwards.';
 
       field.hidden = false;
 
@@ -4336,8 +4407,13 @@
       error.hidden = true;
       error.textContent = '';
 
+      secondary.hidden = false;
+      secondary.className = 'btn-ghost';
+      secondary.textContent = 'Start blank';
+      secondary.disabled = false;
+
       confirm.className = 'btn-primary';
-      confirm.textContent = 'Create subject';
+      confirm.textContent = 'Generate subject';
       confirm.disabled = false;
 
       ownedSubjectDialogPreviousBodyOverflow =
@@ -4533,7 +4609,9 @@
       });
     }
 
-    async function confirmOwnedSubjectDialog() {
+    async function confirmOwnedSubjectDialog(
+      createMode = 'generate'
+    ) {
       const state = ownedSubjectDialogState;
       const dialog = document.getElementById(
         'owned-subject-dialog'
@@ -4561,6 +4639,11 @@
       const error = dialog.querySelector(
         '#owned-subject-dialog-error'
       );
+
+      const secondary = dialog.querySelector(
+        '#owned-subject-dialog-secondary'
+      );
+
       const confirm = dialog.querySelector(
         '#owned-subject-dialog-confirm'
       );
@@ -4908,6 +4991,9 @@
           return;
         }
 
+        const generateFullSubject =
+          createMode !== 'blank';
+
         const allowedLevels = new Set([
           'a1-a2',
           'b1',
@@ -4976,7 +5062,19 @@
         }
 
         confirm.disabled = true;
-        confirm.textContent = 'Creating…';
+
+        confirm.textContent =
+          generateFullSubject
+            ? 'Preparing…'
+            : 'Generate subject';
+
+        if (secondary) {
+          secondary.disabled = true;
+
+          if (!generateFullSubject) {
+            secondary.textContent = 'Creating…';
+          }
+        }
 
         try {
           const created =
@@ -5046,7 +5144,10 @@
             getOwnedSubjectLaunchUrl(
               created.id,
               {
-                authoringIntent: 'create'
+                authoringIntent:
+                  generateFullSubject
+                    ? 'generate'
+                    : 'create'
               }
             );
 
@@ -5069,7 +5170,12 @@
             'Couldn’t create this subject.';
 
           confirm.disabled = false;
-          confirm.textContent = 'Create subject';
+          confirm.textContent = 'Generate subject';
+
+          if (secondary) {
+            secondary.disabled = false;
+            secondary.textContent = 'Start blank';
+          }
         }
 
         return;
@@ -5720,10 +5826,19 @@
     async function runOwnedSubjectDialogSecondary() {
       const state = ownedSubjectDialogState;
 
-      if (
-        !state ||
-        state.mode !== 'orphan-remove'
-      ) {
+      if (!state) {
+        return;
+      }
+
+      if (state.mode === 'create') {
+        await confirmOwnedSubjectDialog(
+          'blank'
+        );
+
+        return;
+      }
+
+      if (state.mode !== 'orphan-remove') {
         return;
       }
 
