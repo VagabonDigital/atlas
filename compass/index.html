@@ -1119,6 +1119,7 @@
     }
 
     .compass-recommendation-title {
+      display: block;
       margin-bottom: 0.22rem;
       color: var(--text-heading);
       font-size: 0.94rem;
@@ -1127,6 +1128,7 @@
     }
 
     .compass-recommendation-reason {
+      display: block;
       color: var(--text-muted);
       font-size: 0.83rem;
       line-height: 1.55;
@@ -6544,7 +6546,8 @@
 
     function buildCompassRecommendationContext(
       session,
-      sessionSubjects
+      sessionSubjects,
+      existingSubjects
     ) {
       return {
         sessionId:
@@ -6552,6 +6555,15 @@
 
         sessionSubjects:
           sessionSubjects
+            .map(subject =>
+              getCompassIdeaContextSubject(
+                subject
+              )
+            )
+            .filter(Boolean),
+
+        existingSubjects:
+          existingSubjects
             .map(subject =>
               getCompassIdeaContextSubject(
                 subject
@@ -6583,7 +6595,7 @@
           idea =>
             '<button class="compass-recommendation-row" type="button" ' +
             'data-subject-idea="' +
-            escAttr(
+            escHtml(
               idea.title
             ) +
             '" onclick="chooseCompassSubjectIdea(this)">' +
@@ -6737,7 +6749,10 @@
               notes,
 
               sessionSubjects:
-                context.sessionSubjects
+                context.sessionSubjects,
+
+              existingSubjects:
+                context.existingSubjects
             });
 
         if (
@@ -6900,7 +6915,12 @@
       compassRecommendationContext =
         buildCompassRecommendationContext(
           session,
-          sessionSubjects
+          sessionSubjects,
+          [
+            ...sessionSubjects,
+            ...remainingOwnedSubjects,
+            ...remainingAtlasSubjects
+          ]
         );
 
       const fallbackCategory = {
