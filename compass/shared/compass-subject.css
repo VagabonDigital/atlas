@@ -4228,15 +4228,18 @@ MY VERSION AUTHORING
 
 .atlas-my-version-bar {
     position: fixed;
+    right: 0.75rem;
     bottom: 1rem;
-    left: 50%;
+    left: auto;
     z-index: 240;
     display: flex;
     width: min(960px, calc(100% - 2rem));
-    min-height: 3.4rem;
+    height: 3.5rem;
+    min-height: 3.5rem;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+    overflow: hidden;
     padding: 0.62rem 0.72rem 0.62rem 3.55rem;
     border: 1px solid rgba(var(--accent-rgb), 0.34);
     border-radius: 16px;
@@ -4244,21 +4247,32 @@ MY VERSION AUTHORING
     box-shadow: var(--shadow-lg);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    transform: translateX(-50%);
+    transform: translateX(
+        calc(
+            0.75rem -
+            (
+                (
+                    100vw -
+                    min(960px, calc(100vw - 2rem))
+                ) / 2
+            )
+        )
+    );
     transition:
-        width var(--transition),
-        min-height var(--transition),
-        padding var(--transition),
-        border-radius var(--transition);
+        width 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+        height 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+        padding 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+        border-radius 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .atlas-my-version-bar-toggle {
     position: absolute;
     top: 50%;
-    left: 0.58rem;
+    left: 0.25rem;
     display: inline-flex;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     align-items: center;
     justify-content: center;
     padding: 0;
@@ -4268,7 +4282,10 @@ MY VERSION AUTHORING
     color: var(--accent);
     cursor: pointer;
     transform: translateY(-50%);
-    transition: var(--transition);
+    transition:
+        left 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.2s ease,
+        background-color 0.2s ease;
 }
 
 .atlas-my-version-bar-toggle:hover {
@@ -4349,14 +4366,37 @@ MY VERSION AUTHORING
     }
 }
 
+.atlas-my-version-bar:not(.is-minimized)
+.atlas-my-version-copy,
+.atlas-my-version-bar:not(.is-minimized)
+.atlas-my-version-tools-toggle,
+.atlas-my-version-bar:not(.is-minimized)
+.atlas-my-version-actions > button:not([hidden]) {
+    animation:
+        atlas-my-version-bar-content-in
+        0.18s ease-out 0.18s both;
+}
+
+@keyframes atlas-my-version-bar-content-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
 .atlas-my-version-bar.is-minimized {
     right: 0.75rem;
     left: auto;
     display: flex;
     width: 44px;
+    height: 44px;
     min-height: 44px;
     gap: 0;
     padding: 0;
+    border-radius: 999px;
     transform: none;
 }
 
@@ -4367,12 +4407,14 @@ MY VERSION AUTHORING
 }
 
 .atlas-my-version-bar.is-minimized .atlas-my-version-bar-toggle {
-    position: static;
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 44px;
+    height: 44px;
     border: 0;
     background: transparent;
-    transform: none;
+    transform: translateY(-50%);
 }
 
 .atlas-my-version-bar[hidden] {
@@ -4402,6 +4444,13 @@ MY VERSION AUTHORING
     margin-top: 0.12rem;
     color: var(--text-subtle);
     font-size: 0.72rem;
+}
+
+.atlas-my-version-copy strong,
+.atlas-my-version-copy span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .atlas-my-version-actions {
@@ -4915,10 +4964,10 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     .atlas-my-version-bar {
         right: 0.75rem;
         bottom: 0.75rem;
-        left: 0.75rem;
+        left: auto;
         display: grid;
         grid-template-columns: minmax(0, 1fr) 40px auto;
-        width: auto;
+        width: calc(100% - 1.5rem);
         min-height: 0;
         align-items: center;
         gap: 0.5rem;
@@ -4929,11 +4978,13 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     .atlas-my-version-bar.is-minimized {
         right: 0.75rem;
         left: auto;
-        display: flex;
+        display: grid;
+        grid-template-columns: 1fr;
         width: 44px;
         min-height: 44px;
         gap: 0;
         padding: 0;
+        border-radius: 999px;
         transform: none;
     }
 
@@ -4989,6 +5040,7 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
 
     .atlas-my-version-bar.is-mobile-tools-open {
         grid-template-columns: minmax(0, 1fr) 40px;
+        overflow: visible;
     }
 
     .atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-tools-toggle {

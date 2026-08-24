@@ -12753,7 +12753,7 @@ function updateCoverActionUI() {
 
     if (button) {
         const label = myVersionAuthoringOpen
-            ? 'Continue editing'
+            ? 'Open subject'
             : isLessonComplete()
                 ? 'Review lesson'
                 : progress.explored.size > 0
