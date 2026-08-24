@@ -3684,10 +3684,7 @@ function assignFreshMyVersionCulturalLensCardId(card) {
 
 function insertMyVersionCulturalLensCard(
     card,
-    {
-        replaceStarter = false,
-        reveal = true
-    } = {}
+    { replaceStarter = false } = {}
 ) {
     const nativeCard =
         cloneTutorSubjectDocument(card);
@@ -3757,16 +3754,6 @@ function insertMyVersionCulturalLensCard(
     );
 
     if (!added) return null;
-
-    window.setTimeout(() => {
-        const index = clCards.findIndex(
-            card => card.id === nativeCard.id
-        );
-
-        if (index >= 0) {
-            openCulturalLensFocus(index);
-        }
-    }, 0);
 
     return nativeCard;
 }
@@ -4730,8 +4717,7 @@ async function generateMyVersionReflectionFromUI() {
 }
 
 async function generateMyVersionCulturalLensCard(
-    brief = '',
-    options = {}
+    brief = ''
 ) {
     if (
         !myVersionEditing ||
@@ -4821,10 +4807,7 @@ async function generateMyVersionCulturalLensCard(
         nativeCard,
         {
             replaceStarter:
-                Boolean(starterCard),
-
-            reveal:
-                options?.reveal !== false
+                Boolean(starterCard)
         }
     );
 }
@@ -5032,12 +5015,7 @@ async function generateMyVersionFullSubject() {
             );
 
             const card =
-                await generateMyVersionCulturalLensCard(
-                    '',
-                    {
-                        reveal: false
-                    }
-                );
+                await generateMyVersionCulturalLensCard();
 
             if (!card) {
                 throw new Error(
