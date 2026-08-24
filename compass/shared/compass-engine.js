@@ -368,7 +368,12 @@ let myVersionEnrichingCulturalLens = false;
 let myVersionCulturalLensEnrichmentError = '';
 let myVersionCulturalLensEnrichmentProgress = null;
 
-const FULL_SUBJECT_DISCUSSION_SET_COUNT = 3;
+const FULL_SUBJECT_DISCUSSION_STAGES = [
+    'First Look',
+    'Look Closer',
+    'Wider View'
+];
+
 const FULL_SUBJECT_CULTURAL_LENS_CARD_COUNT = 8;
 const FULL_SUBJECT_GENERATION_STAGE_COUNT = 9;
 
@@ -4976,17 +4981,20 @@ async function generateMyVersionFullSubject() {
 
         for (
             let index = 0;
-            index < FULL_SUBJECT_DISCUSSION_SET_COUNT;
+            index < FULL_SUBJECT_DISCUSSION_STAGES.length;
             index += 1
         ) {
+            const stage =
+                FULL_SUBJECT_DISCUSSION_STAGES[index];
+
             setMyVersionFullSubjectGenerationProgress(
                 4,
-                `Discussion set ${index + 1} of ${FULL_SUBJECT_DISCUSSION_SET_COUNT}`
+                `${stage} · ${index + 1} of ${FULL_SUBJECT_DISCUSSION_STAGES.length}`
             );
 
             const set =
                 await generateMyVersionDiscussionSet(
-                    '',
+                    `Create the ${stage} discussion set.`,
                     {
                         reveal: false
                     }
@@ -4994,27 +5002,13 @@ async function generateMyVersionFullSubject() {
 
             if (!set) {
                 throw new Error(
-                    `Discussion set ${index + 1} generation failed.`
+                    `${stage} generation failed.`
                 );
             }
         }
 
         setMyVersionFullSubjectGenerationProgress(
             5,
-            'Enriching Discussion'
-        );
-
-        const discussionEnrichment =
-            await enrichMyVersionDiscussionFromUI();
-
-        if (discussionEnrichment === null) {
-            throw new Error(
-                'Discussion enrichment failed.'
-            );
-        }
-
-        setMyVersionFullSubjectGenerationProgress(
-            6,
             'Cultural Lens framing'
         );
 
@@ -5033,7 +5027,7 @@ async function generateMyVersionFullSubject() {
             index += 1
         ) {
             setMyVersionFullSubjectGenerationProgress(
-                7,
+                6,
                 `Cultural Lens card ${index + 1} of ${FULL_SUBJECT_CULTURAL_LENS_CARD_COUNT}`
             );
 
@@ -5053,21 +5047,7 @@ async function generateMyVersionFullSubject() {
         }
 
         setMyVersionFullSubjectGenerationProgress(
-            8,
-            'Enriching Cultural Lens'
-        );
-
-        const culturalLensEnrichment =
-            await enrichMyVersionCulturalLensFromUI();
-
-        if (culturalLensEnrichment === null) {
-            throw new Error(
-                'Cultural Lens enrichment failed.'
-            );
-        }
-
-        setMyVersionFullSubjectGenerationProgress(
-            9,
+            7,
             'Reflection'
         );
 
@@ -5077,6 +5057,39 @@ async function generateMyVersionFullSubject() {
         if (!reflection) {
             throw new Error(
                 'Reflection generation failed.'
+            );
+        }
+
+        /*
+         * The complete teaching environment now exists.
+         * Enrichment is deliberately the finishing layer.
+         */
+
+        setMyVersionFullSubjectGenerationProgress(
+            8,
+            'Finishing Discussion'
+        );
+
+        const discussionEnrichment =
+            await enrichMyVersionDiscussionFromUI();
+
+        if (discussionEnrichment === null) {
+            throw new Error(
+                'Discussion enrichment failed.'
+            );
+        }
+
+        setMyVersionFullSubjectGenerationProgress(
+            9,
+            'Finishing Cultural Lens'
+        );
+
+        const culturalLensEnrichment =
+            await enrichMyVersionCulturalLensFromUI();
+
+        if (culturalLensEnrichment === null) {
+            throw new Error(
+                'Cultural Lens enrichment failed.'
             );
         }
 
