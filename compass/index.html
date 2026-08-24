@@ -6985,7 +6985,6 @@
       );
 
       const sessionSubjects = [];
-      const promotedOwnedIds = new Set();
       const promotedAtlasIds = new Set();
 
       sessionSubjectRefs.forEach(ref => {
@@ -6994,8 +6993,6 @@
           ownedById.has(ref.id) &&
           !ownedById.get(ref.id).archived
         ) {
-          promotedOwnedIds.add(ref.id);
-
           sessionSubjects.push({
             ...ownedById.get(ref.id),
             isSessionRelevant: true
@@ -7020,8 +7017,7 @@
       const remainingOwnedSubjects =
         ownedSubjects.filter(subject =>
           subject.libraryIncluded &&
-          !subject.archived &&
-          !promotedOwnedIds.has(subject.subjectId)
+          !subject.archived
         );
 
       const remainingAtlasSubjects =
