@@ -737,17 +737,7 @@ function mountCompassSubjectShell() {
             aria-expanded="false"
             aria-controls="atlas-my-version-actions"
             aria-label="Open subject tools"
-            onclick="
-                const bar = this.closest('.atlas-my-version-bar');
-                const minimized = bar.classList.toggle('is-minimized');
-                this.setAttribute('aria-expanded', String(!minimized));
-                this.setAttribute(
-                    'aria-label',
-                    minimized
-                        ? 'Open subject tools'
-                        : 'Minimize subject tools'
-                );
-            ">
+            onclick="toggleMyVersionAuthorBar()">
             <svg class="atlas-my-version-build-mark"
                 width="20" height="20"
                 viewBox="0 0 20 20"

@@ -317,6 +317,7 @@ const myVersionHistory = {
 };
 
 let myVersionEditing = false;
+let myVersionAuthoringOpen = false;
 let myVersionDraftOverrides = {};
 let myVersionOriginalOverrides = {};
 let myVersionDraftDocument = null;
@@ -993,6 +994,7 @@ function resumeMyVersionWorkingDraft(workingDraft) {
         workingDraft.activeViewId || 'view-cover';
 
     myVersionEditing = true;
+    myVersionAuthoringOpen = false;
     myVersionSaving = false;
     resetMyVersionHistory();
     refreshMyVersionDirtyState();
@@ -1029,6 +1031,14 @@ function setMyVersionAuthorBarMinimized(minimized) {
     }
 
     const nextMinimized = Boolean(minimized);
+    const nextAuthoringOpen = !nextMinimized;
+
+    const authoringChanged =
+        myVersionAuthoringOpen !==
+        nextAuthoringOpen;
+
+    myVersionAuthoringOpen =
+        nextAuthoringOpen;
 
     if (nextMinimized) {
         closeMyVersionMobileTools();
@@ -1050,6 +1060,13 @@ function setMyVersionAuthorBarMinimized(minimized) {
             ? 'Open subject tools'
             : 'Minimize subject tools'
     );
+
+    if (
+        authoringChanged &&
+        myVersionEditing
+    ) {
+        renderAllTutorContentSurfaces();
+    }
 }
 
 function toggleMyVersionAuthorBar() {
@@ -1242,7 +1259,7 @@ function updateMyVersionAuthorBar() {
 
     document.body.classList.toggle(
         'atlas-my-version-editing',
-        myVersionEditing
+        myVersionAuthoringOpen
     );
 
     if (bar) {
@@ -1277,7 +1294,12 @@ function updateMyVersionAuthorBar() {
                     : myVersionGeneratingDiscussionFraming
                         ? 'Generating discussion framing…'
                         : myVersionEnrichingDiscussion
-                            ? `Enriching discussion${
+                            ? `${
+                                myVersionDiscussionEnrichmentProgress?.kind ===
+                                    'make-it-real'
+                                    ? 'Adding Discussion activities'
+                                    : 'Adding Discussion language'
+                            }${
                                 myVersionDiscussionEnrichmentProgress
                                     ? ` · ${myVersionDiscussionEnrichmentProgress.current} of ${myVersionDiscussionEnrichmentProgress.total}`
                                     : ''
@@ -1285,7 +1307,7 @@ function updateMyVersionAuthorBar() {
                             : myVersionGeneratingCulturalLensFraming
                             ? 'Generating Cultural Lens framing…'
                             : myVersionEnrichingCulturalLens
-                                ? `Enriching Cultural Lens${
+                                ? `Adding Cultural Lens language${
                                     myVersionCulturalLensEnrichmentProgress
                                         ? ` · ${myVersionCulturalLensEnrichmentProgress.current} of ${myVersionCulturalLensEnrichmentProgress.total}`
                                         : ''
@@ -2016,6 +2038,7 @@ function beginMyVersionEditing(includeLiveChanges = false) {
     }
 
     myVersionEditing = true;
+    myVersionAuthoringOpen = false;
     myVersionSaving = false;
     resetMyVersionHistory();
     refreshMyVersionDirtyState();
@@ -2038,7 +2061,7 @@ function openMyVersionSubjectDetailsFromMobile() {
 }
 
 function requestMyVersionEditing({
-    expandAuthorBar = false
+    expandAuthorBar = true
 } = {}) {
     if (myVersionEditing || myVersionSaving) {
         return;
@@ -2063,6 +2086,7 @@ function finishMyVersionEditingState() {
     myVersionResumeViewId = null;
     myVersionUpgradeOptionsOpenContextId = null;
     myVersionEditing = false;
+    myVersionAuthoringOpen = false;
     myVersionDraftOverrides = {};
     myVersionOriginalOverrides = {};
     myVersionDraftDocument = null;
@@ -4975,25 +4999,35 @@ function getMyVersionFullSubjectGenerationStatus() {
         return 'Building subject…';
     }
 
+    let operationLabel = progress.label;
     let operationProgress = '';
 
     if (
         myVersionEnrichingDiscussion &&
         myVersionDiscussionEnrichmentProgress
     ) {
+        operationLabel =
+            myVersionDiscussionEnrichmentProgress.kind ===
+                'make-it-real'
+                ? 'Adding Discussion activities'
+                : 'Adding Discussion language';
+
         operationProgress =
             ` · ${myVersionDiscussionEnrichmentProgress.current} of ${myVersionDiscussionEnrichmentProgress.total}`;
     } else if (
         myVersionEnrichingCulturalLens &&
         myVersionCulturalLensEnrichmentProgress
     ) {
+        operationLabel =
+            'Adding Cultural Lens language';
+
         operationProgress =
             ` · ${myVersionCulturalLensEnrichmentProgress.current} of ${myVersionCulturalLensEnrichmentProgress.total}`;
     }
 
     return (
         `Building subject · ${progress.current} of ${progress.total} · ` +
-        `${progress.label}${operationProgress}`
+        `${operationLabel}${operationProgress}`
     );
 }
 
@@ -5140,7 +5174,7 @@ async function generateMyVersionFullSubject({
 
         setMyVersionFullSubjectGenerationProgress(
             8,
-            'Finishing Discussion'
+            'Adding Discussion language + activities'
         );
 
         try {
@@ -5154,7 +5188,7 @@ async function generateMyVersionFullSubject({
 
         setMyVersionFullSubjectGenerationProgress(
             9,
-            'Finishing Cultural Lens'
+            'Adding Cultural Lens language'
         );
 
         try {
@@ -7264,7 +7298,8 @@ async function enrichMyVersionDiscussionFromUI() {
 
             myVersionDiscussionEnrichmentProgress = {
                 current: index + 1,
-                total: operations.length
+                total: operations.length,
+                kind: operation.kind
             };
 
             updateMyVersionAuthorBar();
@@ -9510,6 +9545,14 @@ function configureLiveTutorContentElement(
     writeLiveEditableText(element, value);
 
     if (
+        myVersionEditing &&
+        !myVersionAuthoringOpen
+    ) {
+        disableLiveTutorContentElement(element);
+        return;
+    }
+
+    if (
         element.dataset.atlasTutorOriginalTabindex === undefined
     ) {
         element.dataset.atlasTutorOriginalTabindex =
@@ -10332,7 +10375,7 @@ function getNavItemLabel(item) {
 function applySubjectIdentityChrome() {
     const title = getEffectiveSubjectTitle();
     const ownedSubject = isOwnedSubjectRuntime();
-    const subjectLabel = myVersionEditing
+    const subjectLabel = myVersionAuthoringOpen
         ? ownedSubject
             ? `${title} · Editing My Subject`
             : `${title} · Editing My Version`
@@ -10354,7 +10397,7 @@ function applySubjectIdentityChrome() {
 
     setText(
         'cover-eyebrow-label',
-        myVersionEditing
+        myVersionAuthoringOpen
             ? ownedSubject
                 ? 'EDITING MY SUBJECT'
                 : 'EDITING MY VERSION'
@@ -10475,19 +10518,19 @@ function renderReflectionQuestions() {
         };
     });
 
-    const visibleQuestions = myVersionEditing
+    const visibleQuestions = myVersionAuthoringOpen
         ? questions
         : questions.filter(question =>
             question.value.trim()
         );
 
     container.hidden =
-        !myVersionEditing &&
+        !myVersionAuthoringOpen &&
         visibleQuestions.length === 0;
 
     container.classList.toggle(
         'is-empty-authoring',
-        myVersionEditing &&
+        myVersionAuthoringOpen &&
         visibleQuestions.length === 0
     );
 
@@ -10503,7 +10546,7 @@ function renderReflectionQuestions() {
                 <p class="reflection-q-text"
                     data-reflection-question-index="${question.index}"></p>
 
-                ${myVersionEditing
+                ${myVersionAuthoringOpen
                     ? `
                         <div class="reflection-question-author-controls">
                             <button class="moment-author-control"
@@ -10561,7 +10604,7 @@ function renderReflectionQuestions() {
         `
     ).join('');
 
-    if (myVersionEditing) {
+    if (myVersionAuthoringOpen) {
         container.insertAdjacentHTML(
             'beforeend',
             `
@@ -10878,7 +10921,8 @@ function updateReflectionCompleteState(animate = false) {
     if (!view || !button) return;
 
     const complete =
-        isLessonComplete() && !myVersionEditing;
+        isLessonComplete() &&
+        !myVersionAuthoringOpen;
 
     view.classList.toggle('reflection-complete', complete);
     updateReflectionProgressSummary();
@@ -12088,7 +12132,7 @@ function buildMyVersionUpgradeAuthoringControls(
     contextId,
     upgrade
 ) {
-    if (!myVersionEditing) return '';
+    if (!myVersionAuthoringOpen) return '';
 
     const hasExamples = Boolean(
         upgrade?.ordinary || upgrade?.upgraded
@@ -12211,7 +12255,7 @@ function buildUpgradeFooterControls(
 }
 
 function buildAddUpgradeControl(contextId) {
-    if (!myVersionEditing) return '';
+    if (!myVersionAuthoringOpen) return '';
 
     return `
         <button class="upgrade-author-add"
@@ -12708,7 +12752,7 @@ function updateCoverActionUI() {
     const button = document.getElementById('cover-begin-btn');
 
     if (button) {
-        const label = myVersionEditing
+        const label = myVersionAuthoringOpen
             ? 'Continue editing'
             : isLessonComplete()
                 ? 'Review lesson'
@@ -12767,7 +12811,7 @@ function configureMyVersionCulturalLensCard(
     teaser,
     contextLine
 ) {
-    if (!myVersionEditing) return;
+    if (!myVersionAuthoringOpen) return;
 
     element.classList.add('cl-card--authoring');
     element.setAttribute('role', 'group');
@@ -12968,7 +13012,7 @@ function configureMyVersionCulturalLensCard(
 }
 
 function renderMyVersionAddCulturalLensCardControl(grid) {
-    if (!myVersionEditing) return;
+    if (!myVersionAuthoringOpen) return;
 
     const block = document.createElement('div');
     block.className =
@@ -15890,7 +15934,7 @@ function configureMyVersionDiscussionSetCard(
     title,
     description
 ) {
-    if (!myVersionEditing) return;
+    if (!myVersionAuthoringOpen) return;
 
     const active = activeSetId === set.id;
 
@@ -16097,7 +16141,7 @@ function configureMyVersionDiscussionSetCard(
 }
 
 function renderMyVersionAddDiscussionSetControl(container) {
-    if (!myVersionEditing) return;
+    if (!myVersionAuthoringOpen) return;
 
     const block = document.createElement('div');
     block.className =
@@ -16464,7 +16508,7 @@ function configureMyVersionMomentCard(
     index,
     preview
 ) {
-    if (!myVersionEditing) return;
+    if (!myVersionAuthoringOpen) return;
 
     card.classList.add('moment-card--authoring');
     card.setAttribute('role', 'group');
@@ -16609,7 +16653,7 @@ function configureMyVersionMomentCard(
 }
 
 function renderMyVersionAddMomentControl(list, set) {
-    if (!myVersionEditing) return;
+    if (!myVersionAuthoringOpen) return;
 
     const controls = document.createElement('div');
     controls.className = 'moment-author-create-row';
@@ -16825,7 +16869,7 @@ function configureMyVersionSetActivityCard(
     activityLabel,
     activityTitle
 ) {
-    if (!myVersionEditing) return;
+    if (!myVersionAuthoringOpen) return;
 
     card.classList.add(
         'make-it-real-card--authoring'
@@ -17004,7 +17048,7 @@ function renderMyVersionSetActivityControl(list, set) {
         return;
     }
 
-    if (!myVersionEditing) return;
+    if (!myVersionAuthoringOpen) return;
 
     const addButton = document.createElement('button');
 
@@ -18618,7 +18662,10 @@ async function init() {
         ownedSubjectAuthoringIntent &&
         !myVersionEditing
     ) {
-        beginMyVersionEditing(false);
+        beginMyVersionEditing(
+            ownedSubjectAuthoringIntent !==
+                'generate'
+        );
     }
 
     if (
