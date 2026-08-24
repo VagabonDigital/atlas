@@ -1766,16 +1766,25 @@ function updateMyVersionAuthorBar() {
     }
 
     if (saveButton) {
-        saveButton.disabled =
-            myVersionSaving ||
-            enrichmentActive ||
-            !myVersionDirty;
+        const saveAvailable =
+            myVersionEditing &&
+            !myVersionSaving &&
+            !enrichmentActive &&
+            myVersionDirty;
 
-        saveButton.textContent = myVersionSaving
-            ? 'Saving…'
-            : ownedSubject
-                ? 'Save My Subject'
-                : 'Save My Version';
+        saveButton.disabled =
+            !saveAvailable;
+
+        saveButton.textContent =
+            myVersionSaving
+                ? 'Saving…'
+                : enrichmentActive
+                    ? 'Building…'
+                    : !myVersionDirty
+                        ? 'Saved'
+                        : ownedSubject
+                            ? 'Save My Subject'
+                            : 'Save My Version';
     }
 
     if (cancelButton) {

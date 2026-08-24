@@ -4532,10 +4532,18 @@ MY VERSION AUTHORING
     background: var(--accent-soft);
 }
 
-.atlas-my-version-secondary:disabled,
-.atlas-my-version-primary:disabled {
+.atlas-my-version-secondary:disabled {
     cursor: default;
     opacity: 0.5;
+}
+
+.atlas-my-version-primary:disabled {
+    border-color: var(--border-subtle);
+    background: var(--surface-muted);
+    color: var(--text-subtle);
+    box-shadow: none;
+    cursor: default;
+    opacity: 1;
 }
 
 .atlas-my-version-secondary:focus-visible,
