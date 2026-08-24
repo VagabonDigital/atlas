@@ -10383,11 +10383,7 @@ function getNavItemLabel(item) {
 function applySubjectIdentityChrome() {
     const title = getEffectiveSubjectTitle();
     const ownedSubject = isOwnedSubjectRuntime();
-    const subjectLabel = ownedSubject
-        ? `${title} · My Subject`
-        : hasSavedMyVersion()
-            ? `${title} · My Version`
-            : title;
+    const subjectLabel = title;
 
     document
         .querySelectorAll(
