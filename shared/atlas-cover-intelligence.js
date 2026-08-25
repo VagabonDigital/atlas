@@ -22,13 +22,7 @@
         lastError: ''
     };
 
-    function cleanString(value) {
-        return typeof value === 'string'
-            ? value.trim()
-            : '';
-    }
-
-    function getAuthorIntent() {
+    const initialAuthorIntent = (() => {
         try {
             return new URL(window.location.href)
                 .searchParams
@@ -37,6 +31,12 @@
         } catch {
             return '';
         }
+    })();
+
+    function cleanString(value) {
+        return typeof value === 'string'
+            ? value.trim()
+            : '';
     }
 
     function isOwnedSubject() {
@@ -279,7 +279,7 @@
         if (
             state.autoAttempted ||
             state.pending ||
-            getAuthorIntent() !== 'generate' ||
+            initialAuthorIntent !== 'generate' ||
             !isOwnedSubject() ||
             !isEditingSubject()
         ) {
@@ -438,7 +438,7 @@
             );
 
             const autoPending =
-                getAuthorIntent() === 'generate' &&
+                initialAuthorIntent === 'generate' &&
                 !state.autoAttempted;
 
             if (
