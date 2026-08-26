@@ -363,6 +363,23 @@
       line-height: 1.7;
     }
 
+    .feedback-action {
+      margin-top: 1.25rem;
+      padding: 0.72rem 1rem;
+      border: 1px solid var(--accent);
+      border-radius: 9px;
+      background: var(--accent);
+      color: #ffffff;
+      font: inherit;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .feedback-action:hover {
+      filter: brightness(0.96);
+    }
+
     @media (max-width: 680px) {
       .topbar {
         padding: 0 1rem;
@@ -770,9 +787,18 @@
     <aside class="detail-note">
       <p class="detail-kicker">Feedback</p>
       <p>
-        The actual feedback pathway will live here before tutors enter
-        the pilot.
+        Something worked brilliantly, got in the way, surprised you,
+        or made you wish Atlas behaved differently? Send it while
+        the moment is still fresh.
       </p>
+
+      <button
+        class="feedback-action"
+        type="button"
+        data-atlas-feedback
+      >
+        Send feedback
+      </button>
     </aside>
   </main>
 
@@ -828,6 +854,8 @@
       </p>
     </aside>
   </main>
+
+  <script src="../shared/atlas-feedback.js"></script>
 
   <script>
     (function () {
