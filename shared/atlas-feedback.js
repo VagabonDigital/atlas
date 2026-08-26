@@ -6,8 +6,7 @@
    - context-aware feedback capture
    - feedback overlay
    - feedback submission
-   - desktop spine entry
-   - mobile drawer entry
+   - global feedback trigger binding
 
    Does NOT own:
    - feedback storage
@@ -30,24 +29,6 @@
         status: 'atlas-feedback-status',
         submit: 'atlas-feedback-submit'
     };
-
-    const FEEDBACK_ICON = `
-        <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-        >
-            <path
-                d="M3 3.25h10v7H8.4L5 13v-2.75H3v-7Z"
-                stroke="currentColor"
-                stroke-width="1.25"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-            />
-        </svg>
-    `;
 
     let previousFocus = null;
     let previousBodyOverflow = '';
@@ -609,125 +590,21 @@
         }
     }
 
-    function createDesktopDoor() {
-        if (
-            document.querySelector(
-                '[data-atlas-feedback-door="desktop"]'
-            )
-        ) {
-            return;
-        }
-
-        const searchButton =
-            document.querySelector(
-                '.spine-actions [data-atlas-search]'
-            );
-
-        if (!searchButton) return;
-
-        const button =
-            document.createElement('button');
-
-        button.type =
-            'button';
-
-        button.className =
-            'spine-btn';
-
-        button.dataset.atlasFeedbackDoor =
-            'desktop';
-
-        button.title =
-            'Feedback';
-
-        button.setAttribute(
-            'aria-label',
-            'Send feedback'
-        );
-
-        button.innerHTML =
-            FEEDBACK_ICON;
-
-        button.addEventListener(
+    function bindFeedbackButtons() {
+        document.addEventListener(
             'click',
-            open
-        );
+            event => {
+                const button =
+                    event.target.closest(
+                        '[data-atlas-feedback]'
+                    );
 
-        searchButton.insertAdjacentElement(
-            'afterend',
-            button
-        );
-    }
+                if (!button) return;
 
-    function createMobileDoor() {
-        if (
-            document.querySelector(
-                '[data-atlas-feedback-door="mobile"]'
-            )
-        ) {
-            return;
-        }
-
-        const drawer =
-            document.querySelector(
-                '.drawer-nav'
-            );
-
-        if (!drawer) return;
-
-        const searchButton =
-            Array.from(
-                drawer.querySelectorAll(
-                    '.drawer-nav-item'
-                )
-            ).find(button =>
-                button.textContent
-                    .trim()
-                    .toLowerCase() ===
-                'search'
-            );
-
-        if (!searchButton) return;
-
-        const button =
-            document.createElement('button');
-
-        button.type =
-            'button';
-
-        button.className =
-            'drawer-nav-item';
-
-        button.dataset.atlasFeedbackDoor =
-            'mobile';
-
-        button.innerHTML =
-            FEEDBACK_ICON +
-            '<span>Feedback</span>';
-
-        button.addEventListener(
-            'click',
-            () => {
-                if (
-                    typeof window.closeDrawer ===
-                    'function'
-                ) {
-                    window.closeDrawer();
-                }
-
+                event.preventDefault();
                 open();
             }
         );
-
-        searchButton.insertAdjacentElement(
-            'afterend',
-            button
-        );
-    }
-
-    function installDoors() {
-        createDesktopDoor();
-        createMobileDoor();
     }
 
     function handleKeydown(event) {
@@ -753,17 +630,7 @@
     function start() {
         installStyles();
         mountOverlay();
-        installDoors();
-
-        window.setTimeout(
-            installDoors,
-            500
-        );
-
-        window.setTimeout(
-            installDoors,
-            1500
-        );
+        bindFeedbackButtons();
 
         document.addEventListener(
             'keydown',
@@ -775,8 +642,7 @@
         open,
         close,
         submit,
-        captureContext,
-        installDoors
+        captureContext
     };
 
     if (
