@@ -126,10 +126,31 @@
         if (id) state.usedPhotoIds.add(id);
     }
 
-    async function resolveCandidates() {
+    async function resolveCandidates(
+        subjectOverride = null
+    ) {
         if (state.pending) return [];
 
-        const subject = getSubjectContext();
+        const subject =
+            subjectOverride &&
+            typeof subjectOverride === 'object'
+                ? {
+                    title:
+                        cleanString(
+                            subjectOverride.title
+                        ),
+
+                    description:
+                        cleanString(
+                            subjectOverride.description
+                        ),
+
+                    hook:
+                        cleanString(
+                            subjectOverride.hook
+                        )
+                }
+                : getSubjectContext();
 
         if (!subject.title) {
             throw new Error(
@@ -294,18 +315,23 @@
         const subject = getSubjectContext();
 
         /*
-         * Subject framing is the first full-generation stage.
-         * Once its Library introduction exists, the cover can resolve
-         * while every later subject stage continues independently.
+         * Initial Cover Intelligence branches directly from the
+         * creator's original subject title. Generated framing is a
+         * sibling output and must not become its source of truth.
          */
-        if (!subject.title || !subject.description) {
+        if (!subject.title) {
             return;
         }
 
         state.autoAttempted = true;
 
         try {
-            await resolveCandidates();
+            await resolveCandidates({
+                title: subject.title,
+                description: '',
+                hook: ''
+            });
+
             await useNextCandidate({
                 commit: true
             });
