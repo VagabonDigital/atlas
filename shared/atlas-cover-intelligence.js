@@ -455,7 +455,6 @@
         const timer = window.setInterval(() => {
             checks += 1;
             installRetryUI();
-            autoResolveCover();
 
             const retryUIReady = Boolean(
                 document.getElementById(
@@ -463,13 +462,9 @@
                 )
             );
 
-            const autoPending =
-                initialAuthorIntent === 'generate' &&
-                !state.autoAttempted;
-
             if (
                 checks >= 480 ||
-                (retryUIReady && !autoPending)
+                retryUIReady
             ) {
                 window.clearInterval(timer);
             }
