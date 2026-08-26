@@ -6690,6 +6690,7 @@
 
     let compassRecommendationContext = null;
     let compassRecommendationRequestId = 0;
+    const compassSuggestionHistory = new Map();
 
     function getCompassIdeaContextSubject(
       subject
@@ -6715,7 +6716,8 @@
 
     function buildCompassRecommendationContext(
       session,
-      sessionSubjects
+      sessionSubjects,
+      existingSubjects
     ) {
       return {
         sessionId:
@@ -6723,6 +6725,15 @@
 
         sessionSubjects:
           sessionSubjects
+            .map(subject =>
+              getCompassIdeaContextSubject(
+                subject
+              )
+            )
+            .filter(Boolean),
+
+        existingSubjects:
+          existingSubjects
             .map(subject =>
               getCompassIdeaContextSubject(
                 subject
@@ -7067,7 +7078,11 @@
       compassRecommendationContext =
         buildCompassRecommendationContext(
           session,
-          sessionSubjects
+          sessionSubjects,
+          [
+            ...atlasSubjects,
+            ...ownedSubjects
+          ]
         );
 
       const fallbackCategory = {
