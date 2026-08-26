@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atlas Feedback</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --surface: #f5f1e9;
+      --surface-raised: #fffdf9;
+      --border: rgba(61, 56, 48, 0.14);
+      --heading: #1e1b16;
+      --body: #514b42;
+      --muted: #7a7268;
+      --accent: #4f7772;
+      --danger: #b43b32;
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--surface);
+      color: var(--body);
+      font-family: var(--font-body);
+    }
+
+    main {
+      width: min(820px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 4rem 0 6rem;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--heading);
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 7vw, 4.8rem);
+      font-weight: 400;
+      line-height: 1;
+    }
+
+    .lede {
+      margin: 1rem 0 2.5rem;
+      color: var(--muted);
+    }
+
+    .access {
+      display: flex;
+      gap: 0.65rem;
+      margin-bottom: 2rem;
+    }
+
+    .access input {
+      flex: 1;
+      min-width: 0;
+      padding: 0.8rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-raised);
+      color: var(--heading);
+      font: inherit;
+      outline: none;
+    }
+
+    .access input:focus {
+      border-color: var(--accent);
+    }
+
+    button {
+      padding: 0.8rem 1rem;
+      border: 0;
+      border-radius: 10px;
+      background: var(--accent);
+      color: white;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .status {
+      min-height: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .status.error {
+      color: var(--danger);
+    }
+
+    .feedback-list {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .feedback-card {
+      padding: 1.35rem 1.4rem;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface-raised);
+    }
+
+    .feedback-message {
+      margin: 0 0 1rem;
+      color: var(--heading);
+      font-size: 1rem;
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+
+    .feedback-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem 0.8rem;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .empty {
+      padding: 2rem;
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 560px) {
+      .access {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main>
+    <h1>Feedback.</h1>
+    <p class="lede">
+      Atlas pilot observations, newest first.
+    </p>
+
+    <div class="access">
+      <input
+        id="admin-key"
+        type="password"
+        autocomplete="off"
+        placeholder="Feedback admin key"
+        aria-label="Feedback admin key">
+      <button id="load-button" type="button">
+        Open inbox
+      </button>
+    </div>
+
+    <div
+      class="status"
+      id="status"
+      role="status"
+      aria-live="polite">
+    </div>
+
+    <div
+      class="feedback-list"
+      id="feedback-list">
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const ENDPOINT =
+        'https://atlas-ai.savvy989.workers.dev/feedback';
+
+      const STORAGE_KEY =
+        'atlas::feedbackAdminKey';
+
+      const keyInput =
+        document.getElementById('admin-key');
+
+      const loadButton =
+        document.getElementById('load-button');
+
+      const status =
+        document.getElementById('status');
+
+      const list =
+        document.getElementById('feedback-list');
+
+      function clean(value) {
+        return typeof value === 'string'
+          ? value.trim()
+          : '';
+      }
+
+      function formatDate(value) {
+        const date =
+          new Date(value);
+
+        if (
+          Number.isNaN(
+            date.getTime()
+          )
+        ) {
+          return clean(value);
+        }
+
+        return date.toLocaleString();
+      }
+
+      function render(feedback) {
+        list.innerHTML = '';
+
+        if (!feedback.length) {
+          list.innerHTML = `
+            <div class="empty">
+              No feedback yet.
+            </div>
+          `;
+          return;
+        }
+
+        feedback.forEach(item => {
+          const context =
+            item?.context || {};
+
+          const card =
+            document.createElement('article');
+
+          card.className =
+            'feedback-card';
+
+          const message =
+            document.createElement('p');
+
+          message.className =
+            'feedback-message';
+
+          message.textContent =
+            clean(item?.message) ||
+            'Empty feedback';
+
+          const meta =
+            document.createElement('div');
+
+          meta.className =
+            'feedback-meta';
+
+          const values = [
+            formatDate(
+              item?.submittedAt ||
+              item?.clientTimestamp
+            ),
+            clean(context.world),
+            clean(context.surface),
+            clean(context.path),
+            clean(context.title),
+            clean(context.theme)
+          ].filter(Boolean);
+
+          values.forEach(value => {
+            const span =
+              document.createElement('span');
+
+            span.textContent = value;
+            meta.appendChild(span);
+          });
+
+          card.appendChild(message);
+          card.appendChild(meta);
+          list.appendChild(card);
+        });
+      }
+
+      async function loadFeedback() {
+        const key =
+          clean(keyInput.value);
+
+        if (!key) {
+          status.className =
+            'status error';
+
+          status.textContent =
+            'Enter the admin key.';
+
+          keyInput.focus();
+          return;
+        }
+
+        status.className =
+          'status';
+
+        status.textContent =
+          'Loading…';
+
+        loadButton.disabled = true;
+
+        try {
+          const response =
+            await fetch(
+              ENDPOINT,
+              {
+                headers: {
+                  Authorization:
+                    `Bearer ${key}`
+                }
+              }
+            );
+
+          const result =
+            await response.json();
+
+          if (
+            !response.ok ||
+            result?.ok !== true
+          ) {
+            throw new Error(
+              result?.error ||
+              'Could not load feedback.'
+            );
+          }
+
+          sessionStorage.setItem(
+            STORAGE_KEY,
+            key
+          );
+
+          render(
+            Array.isArray(result.feedback)
+              ? result.feedback
+              : []
+          );
+
+          status.textContent =
+            `${result.feedback?.length || 0} submission${
+              result.feedback?.length === 1
+                ? ''
+                : 's'
+            }.`;
+        } catch (error) {
+          status.className =
+            'status error';
+
+          status.textContent =
+            error?.message ||
+            'Could not load feedback.';
+        } finally {
+          loadButton.disabled = false;
+        }
+      }
+
+      loadButton.addEventListener(
+        'click',
+        loadFeedback
+      );
+
+      keyInput.addEventListener(
+        'keydown',
+        event => {
+          if (event.key === 'Enter') {
+            loadFeedback();
+          }
+        }
+      );
+
+      const rememberedKey =
+        sessionStorage.getItem(
+          STORAGE_KEY
+        );
+
+      if (rememberedKey) {
+        keyInput.value =
+          rememberedKey;
+
+        loadFeedback();
+      }
+    })();
+  </script>
+
+</body>
+
+</html>
