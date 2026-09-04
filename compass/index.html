@@ -6690,7 +6690,57 @@
 
     let compassRecommendationContext = null;
     let compassRecommendationRequestId = 0;
+    const COMPASS_SUGGESTION_HISTORY_LIMIT = 18;
     const compassSuggestionHistory = new Map();
+
+    function getCompassSuggestionHistory(
+      sessionId
+    ) {
+      const history =
+        compassSuggestionHistory.get(
+          sessionId
+        );
+
+      return Array.isArray(history)
+        ? history
+        : [];
+    }
+
+    function rememberCompassSuggestions(
+      sessionId,
+      ideas
+    ) {
+      const next = [
+        ...getCompassSuggestionHistory(
+          sessionId
+        ),
+        ...(Array.isArray(ideas)
+          ? ideas
+          : [])
+      ]
+        .map(idea => ({
+          title:
+            String(
+              idea?.title || ''
+            ).trim(),
+
+          reason:
+            String(
+              idea?.reason || ''
+            ).trim()
+        }))
+        .filter(idea =>
+          idea.title
+        )
+        .slice(
+          -COMPASS_SUGGESTION_HISTORY_LIMIT
+        );
+
+      compassSuggestionHistory.set(
+        sessionId,
+        next
+      );
+    }
 
     function getCompassIdeaContextSubject(
       subject
@@ -6901,6 +6951,8 @@
 
       try {
         if (
+          context.sessionId !==
+            Bridge.defaultSessionId &&
           typeof Bridge
             .readLearnerMemory ===
           'function'
@@ -6912,6 +6964,11 @@
         }
       } catch { }
 
+      const recentSuggestions =
+        getCompassSuggestionHistory(
+          context.sessionId
+        );
+
       try {
         const result =
           await window.AtlasAI
@@ -6919,7 +6976,12 @@
               notes,
 
               sessionSubjects:
-                context.sessionSubjects
+                context.sessionSubjects,
+
+              existingSubjects:
+                context.existingSubjects,
+
+              recentSuggestions
             });
 
         if (
@@ -6930,6 +6992,11 @@
         ) {
           return;
         }
+
+        rememberCompassSuggestions(
+          context.sessionId,
+          result.ideas
+        );
 
         region.innerHTML =
           renderCompassRecommendationResult(

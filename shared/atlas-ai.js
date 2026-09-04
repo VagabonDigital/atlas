@@ -1355,6 +1355,48 @@
                     )
                 : [];
 
+        const existingSubjects =
+            Array.isArray(
+                candidate.existingSubjects
+            )
+                ? candidate.existingSubjects
+                    .map(subject => ({
+                        title:
+                            cleanString(
+                                subject?.title
+                            ),
+
+                        description:
+                            cleanString(
+                                subject?.description
+                            )
+                    }))
+                    .filter(subject =>
+                        subject.title
+                    )
+                : [];
+
+        const recentSuggestions =
+            Array.isArray(
+                candidate.recentSuggestions
+            )
+                ? candidate.recentSuggestions
+                    .map(idea => ({
+                        title:
+                            cleanString(
+                                idea?.title
+                            ),
+
+                        reason:
+                            cleanString(
+                                idea?.reason
+                            )
+                    }))
+                    .filter(idea =>
+                        idea.title
+                    )
+                : [];
+
         const response = await fetch(
             `${BASE_URL}/suggest-subject-ideas`,
             {
@@ -1371,7 +1413,9 @@
                             candidate.notes
                         ),
 
-                    sessionSubjects
+                    sessionSubjects,
+                    existingSubjects,
+                    recentSuggestions
                 })
             }
         );
