@@ -124,6 +124,19 @@
       white-space: pre-wrap;
     }
 
+    .feedback-contact {
+      display: inline-block;
+      margin: 0 0 1rem;
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .feedback-contact:hover {
+      text-decoration: underline;
+    }
+
     .feedback-meta {
       display: flex;
       flex-wrap: wrap;
@@ -155,9 +168,9 @@
 <body>
 
   <main>
-    <h1>Feedback.</h1>
+    <h1>Atlas inbox.</h1>
     <p class="lede">
-      Atlas pilot observations, newest first.
+      Pilot messages, newest first.
     </p>
 
     <div class="access">
@@ -260,6 +273,25 @@
             clean(item?.message) ||
             'Empty feedback';
 
+          const replyEmail =
+            clean(item?.replyEmail);
+
+          let contact = null;
+
+          if (replyEmail) {
+            contact =
+              document.createElement('a');
+
+            contact.className =
+              'feedback-contact';
+
+            contact.href =
+              `mailto:${replyEmail}`;
+
+            contact.textContent =
+              `Reply to ${replyEmail}`;
+          }
+
           const meta =
             document.createElement('div');
 
@@ -287,6 +319,11 @@
           });
 
           card.appendChild(message);
+
+          if (contact) {
+            card.appendChild(contact);
+          }
+
           card.appendChild(meta);
           list.appendChild(card);
         });

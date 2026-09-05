@@ -26,6 +26,7 @@
     const IDS = {
         overlay: 'atlas-feedback-overlay',
         textarea: 'atlas-feedback-message',
+        email: 'atlas-feedback-email',
         status: 'atlas-feedback-status',
         submit: 'atlas-feedback-submit'
     };
@@ -169,11 +170,19 @@
 
             .atlas-feedback-label {
                 display: block;
-                margin-bottom: 0.55rem;
+                margin-bottom: 0.45rem;
                 color:
                     var(--text-heading, #211f1b);
                 font-size: 0.86rem;
                 font-weight: 600;
+            }
+
+            .atlas-feedback-copy {
+                margin: 0 0 0.9rem;
+                color:
+                    var(--text-muted, #7b7469);
+                font-size: 0.8rem;
+                line-height: 1.55;
             }
 
             #${IDS.textarea} {
@@ -202,6 +211,52 @@
                 box-shadow:
                     0 0 0 3px
                     rgba(var(--accent-rgb, 77, 113, 132), 0.12);
+            }
+
+            .atlas-feedback-email-field {
+                margin-top: 1rem;
+            }
+
+            .atlas-feedback-email-label {
+                display: block;
+                margin-bottom: 0.45rem;
+                color:
+                    var(--text-heading, #211f1b);
+                font-size: 0.8rem;
+                font-weight: 600;
+            }
+
+            #${IDS.email} {
+                display: block;
+                width: 100%;
+                padding: 0.72rem 0.85rem;
+                border:
+                    1px solid
+                    var(--border-subtle, rgba(61, 56, 48, 0.16));
+                border-radius: 10px;
+                outline: none;
+                background:
+                    var(--surface-canvas, #f5f1e9);
+                color:
+                    var(--text-body, #504b43);
+                font: inherit;
+                font-size: 0.88rem;
+            }
+
+            #${IDS.email}:focus {
+                border-color:
+                    var(--accent, #4d7184);
+                box-shadow:
+                    0 0 0 3px
+                    rgba(var(--accent-rgb, 77, 113, 132), 0.12);
+            }
+
+            .atlas-feedback-email-helper {
+                margin: 0.4rem 0 0;
+                color:
+                    var(--text-muted, #7b7469);
+                font-size: 0.74rem;
+                line-height: 1.45;
             }
 
             .atlas-feedback-footer {
@@ -314,13 +369,13 @@
                         class="atlas-feedback-title"
                         id="atlas-feedback-title"
                     >
-                        Send feedback
+                        Contact us
                     </h2>
 
                     <button
                         class="atlas-feedback-close"
                         type="button"
-                        aria-label="Close feedback"
+                        aria-label="Close contact form"
                     >
                         <svg
                             width="14"
@@ -343,14 +398,39 @@
                     class="atlas-feedback-label"
                     for="${IDS.textarea}"
                 >
-                    What happened?
+                    What would you like to share?
                 </label>
+
+                <p class="atlas-feedback-copy">
+                    Questions, ideas, problems, feature requests, or something that worked particularly well — we'd like to hear it.
+                </p>
 
                 <textarea
                     id="${IDS.textarea}"
                     maxlength="5000"
-                    placeholder="What worked, got in the way, surprised you, or made you wish Atlas did something differently?"
+                    placeholder="Share a question, idea, problem, suggestion, or something that worked well…"
                 ></textarea>
+
+                <div class="atlas-feedback-email-field">
+                    <label
+                        class="atlas-feedback-email-label"
+                        for="${IDS.email}"
+                    >
+                        Email for a reply (optional)
+                    </label>
+
+                    <input
+                        id="${IDS.email}"
+                        type="email"
+                        maxlength="320"
+                        autocomplete="email"
+                        placeholder="you@example.com"
+                    >
+
+                    <p class="atlas-feedback-email-helper">
+                        Only used if you'd like us to respond.
+                    </p>
+                </div>
 
                 <div class="atlas-feedback-footer">
                     <div
@@ -415,6 +495,11 @@
         const textarea =
             document.getElementById(
                 IDS.textarea
+            );
+
+        const emailInput =
+            document.getElementById(
+                IDS.email
             );
 
         const status =
@@ -498,6 +583,11 @@
                 textarea?.value || ''
             ).trim();
 
+        const replyEmail =
+            String(
+                emailInput?.value || ''
+            ).trim();
+
         if (!message) {
             if (status) {
                 status.textContent =
@@ -505,6 +595,20 @@
             }
 
             textarea?.focus();
+            return;
+        }
+
+        if (
+            replyEmail &&
+            emailInput &&
+            !emailInput.checkValidity()
+        ) {
+            if (status) {
+                status.textContent =
+                    'Enter a valid email or leave it blank.';
+            }
+
+            emailInput.focus();
             return;
         }
 
@@ -535,6 +639,7 @@
                         body:
                             JSON.stringify({
                                 message,
+                                replyEmail,
 
                                 context:
                                     captureContext(),
@@ -564,6 +669,10 @@
             }
 
             textarea.value = '';
+
+            if (emailInput) {
+                emailInput.value = '';
+            }
 
             if (status) {
                 status.textContent =
