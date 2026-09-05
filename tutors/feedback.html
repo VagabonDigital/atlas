@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Atlas Feedback</title>
+  <title>Atlas Inbox</title>
   <link rel="icon" type="image/svg+xml"
     href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20x%3D%275%27%20y%3D%275%27%20width%3D%2790%27%20height%3D%2790%27%20rx%3D%2724%27%20fill%3D%27%233F7FA3%27%2F%3E%3Cpath%20d%3D%27M20%2080V48C20%2028%2033%2015%2050%2015S80%2028%2080%2048V80H65V49C65%2039%2059%2033%2050%2033S35%2039%2035%2049V80Z%27%20fill%3D%27%23FFFFFF%27%2F%3E%3Cpath%20d%3D%27M16%2080H84%27%20stroke%3D%27%23DFF4FC%27%20stroke-width%3D%278%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E">
 
@@ -66,6 +66,11 @@
       margin-bottom: 2rem;
     }
 
+    .access[hidden],
+    .inbox-toolbar[hidden] {
+      display: none;
+    }
+
     .access input {
       flex: 1;
       min-width: 0;
@@ -93,15 +98,46 @@
       cursor: pointer;
     }
 
+    button:disabled {
+      opacity: 0.55;
+      cursor: default;
+    }
+
     .status {
-      min-height: 1.5rem;
-      margin-bottom: 1rem;
+      margin: 0 0 1rem;
       color: var(--muted);
       font-size: 0.86rem;
     }
 
+    .status:empty {
+      display: none;
+    }
+
     .status.error {
       color: var(--danger);
+    }
+
+    .inbox-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .message-count {
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 500;
+    }
+
+    .toolbar-action {
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 500;
     }
 
     .feedback-list {
@@ -116,17 +152,29 @@
       background: var(--surface-raised);
     }
 
+    .feedback-date {
+      display: block;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
     .feedback-message {
-      margin: 0 0 1rem;
+      margin: 0.65rem 0 1rem;
       color: var(--heading);
       font-size: 1rem;
       line-height: 1.65;
       white-space: pre-wrap;
     }
 
+    .feedback-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      min-height: 1.5rem;
+    }
+
     .feedback-contact {
-      display: inline-block;
-      margin: 0 0 1rem;
       color: var(--accent);
       font-size: 0.82rem;
       font-weight: 500;
@@ -137,12 +185,70 @@
       text-decoration: underline;
     }
 
-    .feedback-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem 0.8rem;
+    .delete-action {
+      margin-left: auto;
+      padding: 0.35rem 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--danger);
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    .delete-action:hover:not(:disabled) {
+      text-decoration: underline;
+    }
+
+    .confirm-dialog {
+      width: min(380px, calc(100% - 2rem));
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface-raised);
+      color: var(--body);
+      box-shadow: 0 24px 70px rgba(20, 17, 12, 0.18);
+    }
+
+    .confirm-dialog::backdrop {
+      background: rgba(30, 27, 22, 0.42);
+      backdrop-filter: blur(3px);
+    }
+
+    .confirm-content {
+      padding: 1.4rem;
+    }
+
+    .confirm-title {
+      margin: 0;
+      color: var(--heading);
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      font-weight: 400;
+    }
+
+    .confirm-copy {
+      margin: 0.55rem 0 1.35rem;
       color: var(--muted);
-      font-size: 0.75rem;
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+
+    .confirm-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.65rem;
+    }
+
+    .confirm-cancel {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--body);
+    }
+
+    .confirm-delete {
+      background: var(--danger);
+      color: white;
     }
 
     .empty {
@@ -158,7 +264,7 @@
         flex-direction: column;
       }
 
-      button {
+      .access button {
         width: 100%;
       }
     }
@@ -170,18 +276,35 @@
   <main>
     <h1>Atlas inbox.</h1>
     <p class="lede">
-      Pilot messages, newest first.
+      Messages from pilot tutors.
     </p>
 
-    <div class="access">
+    <div class="access" id="access">
       <input
         id="admin-key"
         type="password"
         autocomplete="off"
-        placeholder="Feedback admin key"
-        aria-label="Feedback admin key">
+        placeholder="Admin key"
+        aria-label="Admin key">
       <button id="load-button" type="button">
         Open inbox
+      </button>
+    </div>
+
+    <div
+      class="inbox-toolbar"
+      id="inbox-toolbar"
+      hidden>
+      <span
+        class="message-count"
+        id="message-count">
+      </span>
+
+      <button
+        class="toolbar-action"
+        id="refresh-button"
+        type="button">
+        Refresh
       </button>
     </div>
 
@@ -198,6 +321,36 @@
     </div>
   </main>
 
+  <dialog
+    class="confirm-dialog"
+    id="delete-dialog">
+    <div class="confirm-content">
+      <h2 class="confirm-title">
+        Delete this message?
+      </h2>
+
+      <p class="confirm-copy">
+        This can’t be undone.
+      </p>
+
+      <div class="confirm-actions">
+        <button
+          class="confirm-cancel"
+          id="delete-cancel"
+          type="button">
+          Keep it
+        </button>
+
+        <button
+          class="confirm-delete"
+          id="delete-confirm"
+          type="button">
+          Delete
+        </button>
+      </div>
+    </div>
+  </dialog>
+
   <script>
     (function () {
       'use strict';
@@ -208,17 +361,91 @@
       const STORAGE_KEY =
         'atlas::feedbackAdminKey';
 
+      const access =
+        document.getElementById('access');
+
       const keyInput =
         document.getElementById('admin-key');
 
       const loadButton =
         document.getElementById('load-button');
 
+      const inboxToolbar =
+        document.getElementById('inbox-toolbar');
+
+      const messageCount =
+        document.getElementById('message-count');
+
+      const refreshButton =
+        document.getElementById('refresh-button');
+
       const status =
         document.getElementById('status');
 
       const list =
         document.getElementById('feedback-list');
+
+      const deleteDialog =
+        document.getElementById('delete-dialog');
+
+      const deleteCancel =
+        document.getElementById('delete-cancel');
+
+      const deleteConfirm =
+        document.getElementById('delete-confirm');
+
+      let feedbackItems = [];
+
+      function confirmDelete() {
+        return new Promise(resolve => {
+          function finish(confirmed) {
+            deleteDialog.close();
+
+            deleteCancel.removeEventListener(
+              'click',
+              handleCancel
+            );
+
+            deleteConfirm.removeEventListener(
+              'click',
+              handleConfirm
+            );
+
+            deleteDialog.removeEventListener(
+              'cancel',
+              handleCancel
+            );
+
+            resolve(confirmed);
+          }
+
+          function handleCancel(event) {
+            event?.preventDefault();
+            finish(false);
+          }
+
+          function handleConfirm() {
+            finish(true);
+          }
+
+          deleteCancel.addEventListener(
+            'click',
+            handleCancel
+          );
+
+          deleteConfirm.addEventListener(
+            'click',
+            handleConfirm
+          );
+
+          deleteDialog.addEventListener(
+            'cancel',
+            handleCancel
+          );
+
+          deleteDialog.showModal();
+        });
+      }
 
       function clean(value) {
         return typeof value === 'string'
@@ -242,26 +469,50 @@
       }
 
       function render(feedback) {
+        feedbackItems =
+          Array.isArray(feedback)
+            ? feedback
+            : [];
+
         list.innerHTML = '';
 
-        if (!feedback.length) {
+        messageCount.textContent =
+          `${feedbackItems.length} message${
+            feedbackItems.length === 1
+              ? ''
+              : 's'
+          }`;
+
+        if (!feedbackItems.length) {
           list.innerHTML = `
             <div class="empty">
-              No feedback yet.
+              No messages yet.
             </div>
           `;
           return;
         }
 
-        feedback.forEach(item => {
-          const context =
-            item?.context || {};
-
+        feedbackItems.forEach(item => {
           const card =
             document.createElement('article');
 
           card.className =
             'feedback-card';
+
+          const date =
+            document.createElement('time');
+
+          date.className =
+            'feedback-date';
+
+          date.dateTime =
+            clean(item?.submittedAt);
+
+          date.textContent =
+            formatDate(
+              item?.submittedAt ||
+              item?.clientTimestamp
+            );
 
           const message =
             document.createElement('p');
@@ -271,15 +522,19 @@
 
           message.textContent =
             clean(item?.message) ||
-            'Empty feedback';
+            'Empty message';
+
+          const footer =
+            document.createElement('div');
+
+          footer.className =
+            'feedback-footer';
 
           const replyEmail =
             clean(item?.replyEmail);
 
-          let contact = null;
-
           if (replyEmail) {
-            contact =
+            const contact =
               document.createElement('a');
 
             contact.className =
@@ -290,43 +545,130 @@
 
             contact.textContent =
               `Reply to ${replyEmail}`;
+
+            footer.appendChild(contact);
           }
 
-          const meta =
-            document.createElement('div');
+          const deleteButton =
+            document.createElement('button');
 
-          meta.className =
-            'feedback-meta';
+          deleteButton.className =
+            'delete-action';
 
-          const values = [
-            formatDate(
-              item?.submittedAt ||
-              item?.clientTimestamp
-            ),
-            clean(context.world),
-            clean(context.surface),
-            clean(context.path),
-            clean(context.title),
-            clean(context.theme)
-          ].filter(Boolean);
+          deleteButton.type =
+            'button';
 
-          values.forEach(value => {
-            const span =
-              document.createElement('span');
+          deleteButton.textContent =
+            'Delete';
 
-            span.textContent = value;
-            meta.appendChild(span);
-          });
+          deleteButton.addEventListener(
+            'click',
+            () =>
+              deleteFeedback(
+                item,
+                deleteButton
+              )
+          );
 
+          footer.appendChild(
+            deleteButton
+          );
+
+          card.appendChild(date);
           card.appendChild(message);
-
-          if (contact) {
-            card.appendChild(contact);
-          }
-
-          card.appendChild(meta);
+          card.appendChild(footer);
           list.appendChild(card);
         });
+      }
+
+      async function deleteFeedback(
+        item,
+        button
+      ) {
+        const submittedAt =
+          clean(item?.submittedAt);
+
+        const id =
+          clean(item?.id);
+
+        if (
+          !submittedAt ||
+          !id
+        ) {
+          status.className =
+            'status error';
+
+          status.textContent =
+            'This message cannot be deleted.';
+          return;
+        }
+
+        const confirmed =
+          await confirmDelete();
+
+        if (!confirmed) {
+          return;
+        }
+
+        const key =
+          clean(keyInput.value);
+
+        button.disabled = true;
+        button.textContent = 'Deleting…';
+
+        status.className = 'status';
+        status.textContent = '';
+
+        try {
+          const params =
+            new URLSearchParams({
+              submittedAt,
+              id
+            });
+
+          const response =
+            await fetch(
+              `${ENDPOINT}?${params.toString()}`,
+              {
+                method: 'DELETE',
+
+                headers: {
+                  Authorization:
+                    `Bearer ${key}`
+                }
+              }
+            );
+
+          const result =
+            await response.json();
+
+          if (
+            !response.ok ||
+            result?.ok !== true
+          ) {
+            throw new Error(
+              result?.error ||
+              'Could not delete message.'
+            );
+          }
+
+          render(
+            feedbackItems.filter(
+              feedback =>
+                feedback !== item
+            )
+          );
+        } catch (error) {
+          status.className =
+            'status error';
+
+          status.textContent =
+            error?.message ||
+            'Could not delete message.';
+
+          button.disabled = false;
+          button.textContent = 'Delete';
+        }
       }
 
       async function loadFeedback() {
@@ -351,6 +693,7 @@
           'Loading…';
 
         loadButton.disabled = true;
+        refreshButton.disabled = true;
 
         try {
           const response =
@@ -373,7 +716,7 @@
           ) {
             throw new Error(
               result?.error ||
-              'Could not load feedback.'
+              'Could not load messages.'
             );
           }
 
@@ -382,31 +725,36 @@
             key
           );
 
+          access.hidden = true;
+          inboxToolbar.hidden = false;
+
+          status.className = 'status';
+          status.textContent = '';
+
           render(
             Array.isArray(result.feedback)
               ? result.feedback
               : []
           );
-
-          status.textContent =
-            `${result.feedback?.length || 0} submission${
-              result.feedback?.length === 1
-                ? ''
-                : 's'
-            }.`;
         } catch (error) {
           status.className =
             'status error';
 
           status.textContent =
             error?.message ||
-            'Could not load feedback.';
+            'Could not load messages.';
         } finally {
           loadButton.disabled = false;
+          refreshButton.disabled = false;
         }
       }
 
       loadButton.addEventListener(
+        'click',
+        loadFeedback
+      );
+
+      refreshButton.addEventListener(
         'click',
         loadFeedback
       );

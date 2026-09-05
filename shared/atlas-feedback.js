@@ -1,15 +1,14 @@
 /* ============================================================
    ATLAS FEEDBACK
-   Shared pilot feedback boundary.
+   Shared pilot contact boundary.
 
    Owns:
-   - context-aware feedback capture
-   - feedback overlay
-   - feedback submission
-   - global feedback trigger binding
+   - contact overlay
+   - message submission
+   - global contact trigger binding
 
    Does NOT own:
-   - feedback storage
+   - message storage
    - tutor identity
    - learner data
    - analytics
@@ -34,39 +33,6 @@
     let previousFocus = null;
     let previousBodyOverflow = '';
     let submitting = false;
-
-    function captureContext() {
-        return {
-            world:
-                String(
-                    document.body?.dataset.atlasWorld || ''
-                ),
-
-            surface:
-                String(
-                    document.body?.dataset.atlasSurface || ''
-                ),
-
-            path:
-                window.location.pathname +
-                window.location.search +
-                window.location.hash,
-
-            title:
-                document.title || '',
-
-            theme:
-                document.documentElement.dataset.theme || '',
-
-            viewport: {
-                width:
-                    window.innerWidth || 0,
-
-                height:
-                    window.innerHeight || 0
-            }
-        };
-    }
 
     function installStyles() {
         if (
@@ -639,14 +605,7 @@
                         body:
                             JSON.stringify({
                                 message,
-                                replyEmail,
-
-                                context:
-                                    captureContext(),
-
-                                clientTimestamp:
-                                    new Date()
-                                        .toISOString()
+                                replyEmail
                             })
                     }
                 );
@@ -664,7 +623,7 @@
             ) {
                 throw new Error(
                     result?.error ||
-                    'Feedback could not be sent.'
+                    'Message could not be sent.'
                 );
             }
 
@@ -750,8 +709,7 @@
     window.AtlasFeedback = {
         open,
         close,
-        submit,
-        captureContext
+        submit
     };
 
     if (
