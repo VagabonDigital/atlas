@@ -1266,6 +1266,11 @@ function updateMyVersionAuthorBar() {
         bar.hidden = !myVersionEditing;
 
         bar.classList.toggle(
+            'is-generating-full-subject',
+            myVersionGeneratingFullSubject
+        );
+
+        bar.classList.toggle(
             'is-generation-complete',
             myVersionAutoSavingFullSubject
         );

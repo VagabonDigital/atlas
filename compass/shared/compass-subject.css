@@ -4518,6 +4518,16 @@ MY VERSION AUTHORING
     cursor: progress;
 }
 
+.atlas-my-version-bar.is-generating-full-subject
+.atlas-my-version-ai {
+    border-color: var(--border-subtle);
+    background: transparent;
+    color: var(--text-subtle);
+    opacity: 0.32;
+    box-shadow: none;
+    cursor: wait;
+}
+
 .atlas-my-version-ai[hidden] {
     display: none !important;
 }
