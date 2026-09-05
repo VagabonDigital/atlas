@@ -369,13 +369,13 @@
                         class="atlas-feedback-title"
                         id="atlas-feedback-title"
                     >
-                        Contact us
+                        Message the Atlas team
                     </h2>
 
                     <button
                         class="atlas-feedback-close"
                         type="button"
-                        aria-label="Close contact form"
+                        aria-label="Close message form"
                     >
                         <svg
                             width="14"
@@ -402,7 +402,7 @@
                 </label>
 
                 <p class="atlas-feedback-copy">
-                    Questions, ideas, problems, feature requests, or something that worked particularly well — we'd like to hear it.
+                    Questions, ideas, problems, feature requests, or something that worked particularly well — we'd love to hear it!
                 </p>
 
                 <textarea
@@ -497,11 +497,6 @@
                 IDS.textarea
             );
 
-        const emailInput =
-            document.getElementById(
-                IDS.email
-            );
-
         const status =
             document.getElementById(
                 IDS.status
@@ -566,6 +561,11 @@
         const textarea =
             document.getElementById(
                 IDS.textarea
+            );
+
+        const emailInput =
+            document.getElementById(
+                IDS.email
             );
 
         const status =
