@@ -25,6 +25,7 @@
     const IDS = {
         overlay: 'atlas-feedback-overlay',
         textarea: 'atlas-feedback-message',
+        name: 'atlas-feedback-name',
         email: 'atlas-feedback-email',
         status: 'atlas-feedback-status',
         submit: 'atlas-feedback-submit'
@@ -179,11 +180,11 @@
                     rgba(var(--accent-rgb, 77, 113, 132), 0.12);
             }
 
-            .atlas-feedback-email-field {
+            .atlas-feedback-contact-field {
                 margin-top: 1rem;
             }
 
-            .atlas-feedback-email-label {
+            .atlas-feedback-contact-label {
                 display: block;
                 margin-bottom: 0.45rem;
                 color:
@@ -192,7 +193,7 @@
                 font-weight: 600;
             }
 
-            #${IDS.email} {
+            .atlas-feedback-contact-input {
                 display: block;
                 width: 100%;
                 padding: 0.72rem 0.85rem;
@@ -209,7 +210,7 @@
                 font-size: 0.88rem;
             }
 
-            #${IDS.email}:focus {
+            .atlas-feedback-contact-input:focus {
                 border-color:
                     var(--accent, #4d7184);
                 box-shadow:
@@ -217,7 +218,7 @@
                     rgba(var(--accent-rgb, 77, 113, 132), 0.12);
             }
 
-            .atlas-feedback-email-helper {
+            .atlas-feedback-contact-helper {
                 margin: 0.4rem 0 0;
                 color:
                     var(--text-muted, #7b7469);
@@ -377,15 +378,34 @@
                     placeholder="Share a question, idea, problem, suggestion, or something that worked well…"
                 ></textarea>
 
-                <div class="atlas-feedback-email-field">
+                <div class="atlas-feedback-contact-field">
                     <label
-                        class="atlas-feedback-email-label"
+                        class="atlas-feedback-contact-label"
+                        for="${IDS.name}"
+                    >
+                        Name (optional)
+                    </label>
+
+                    <input
+                        class="atlas-feedback-contact-input"
+                        id="${IDS.name}"
+                        type="text"
+                        maxlength="120"
+                        autocomplete="name"
+                        placeholder="Your name"
+                    >
+                </div>
+
+                <div class="atlas-feedback-contact-field">
+                    <label
+                        class="atlas-feedback-contact-label"
                         for="${IDS.email}"
                     >
                         Email for a reply (optional)
                     </label>
 
                     <input
+                        class="atlas-feedback-contact-input"
                         id="${IDS.email}"
                         type="email"
                         maxlength="320"
@@ -393,7 +413,7 @@
                         placeholder="you@example.com"
                     >
 
-                    <p class="atlas-feedback-email-helper">
+                    <p class="atlas-feedback-contact-helper">
                         Only used if you'd like us to respond.
                     </p>
                 </div>
@@ -529,6 +549,11 @@
                 IDS.textarea
             );
 
+        const nameInput =
+            document.getElementById(
+                IDS.name
+            );
+
         const emailInput =
             document.getElementById(
                 IDS.email
@@ -547,6 +572,11 @@
         const message =
             String(
                 textarea?.value || ''
+            ).trim();
+
+        const replyName =
+            String(
+                nameInput?.value || ''
             ).trim();
 
         const replyEmail =
@@ -605,6 +635,7 @@
                         body:
                             JSON.stringify({
                                 message,
+                                replyName,
                                 replyEmail
                             })
                     }
@@ -628,6 +659,10 @@
             }
 
             textarea.value = '';
+
+            if (nameInput) {
+                nameInput.value = '';
+            }
 
             if (emailInput) {
                 emailInput.value = '';
