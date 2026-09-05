@@ -2626,13 +2626,6 @@
         </svg>
       </button>
 
-      <button class="spine-btn" data-atlas-feedback title="Feedback" aria-label="Send feedback">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M3 3.25h10v7H8.4L5 13v-2.75H3v-7Z"
-            stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </button>
-
       <button class="spine-btn" id="spine-appearance-btn" onclick="toggleAppearance()"
         aria-label="Switch to night mode">
         <svg class="appearance-icon appearance-icon--moon" width="16" height="16" viewBox="0 0 17 17" fill="none"
@@ -2707,14 +2700,6 @@
         Search
       </button>
 
-      <button class="drawer-nav-item" data-atlas-feedback onclick="closeDrawer()">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M3 3.25h10v7H8.4L5 13v-2.75H3v-7Z"
-            stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-        Feedback
-      </button>
-
     </div>
     <div class="drawer-footer">
       <div class="drawer-footer-row">
@@ -2762,7 +2747,6 @@
   <script src="../shared/atlas-content-registry.js"></script>
   <script src="../shared/atlas-session-panel.js"></script>
   <script src="../shared/atlas-search.js"></script>
-  <script src="../shared/atlas-feedback.js"></script>
   <script>
     'use strict';
 
@@ -6706,57 +6690,7 @@
 
     let compassRecommendationContext = null;
     let compassRecommendationRequestId = 0;
-    const COMPASS_SUGGESTION_HISTORY_LIMIT = 18;
     const compassSuggestionHistory = new Map();
-
-    function getCompassSuggestionHistory(
-      sessionId
-    ) {
-      const history =
-        compassSuggestionHistory.get(
-          sessionId
-        );
-
-      return Array.isArray(history)
-        ? history
-        : [];
-    }
-
-    function rememberCompassSuggestions(
-      sessionId,
-      ideas
-    ) {
-      const next = [
-        ...getCompassSuggestionHistory(
-          sessionId
-        ),
-        ...(Array.isArray(ideas)
-          ? ideas
-          : [])
-      ]
-        .map(idea => ({
-          title:
-            String(
-              idea?.title || ''
-            ).trim(),
-
-          reason:
-            String(
-              idea?.reason || ''
-            ).trim()
-        }))
-        .filter(idea =>
-          idea.title
-        )
-        .slice(
-          -COMPASS_SUGGESTION_HISTORY_LIMIT
-        );
-
-      compassSuggestionHistory.set(
-        sessionId,
-        next
-      );
-    }
 
     function getCompassIdeaContextSubject(
       subject
@@ -6967,8 +6901,6 @@
 
       try {
         if (
-          context.sessionId !==
-            Bridge.defaultSessionId &&
           typeof Bridge
             .readLearnerMemory ===
           'function'
@@ -6980,11 +6912,6 @@
         }
       } catch { }
 
-      const recentSuggestions =
-        getCompassSuggestionHistory(
-          context.sessionId
-        );
-
       try {
         const result =
           await window.AtlasAI
@@ -6992,12 +6919,7 @@
               notes,
 
               sessionSubjects:
-                context.sessionSubjects,
-
-              existingSubjects:
-                context.existingSubjects,
-
-              recentSuggestions
+                context.sessionSubjects
             });
 
         if (
@@ -7008,11 +6930,6 @@
         ) {
           return;
         }
-
-        rememberCompassSuggestions(
-          context.sessionId,
-          result.ideas
-        );
 
         region.innerHTML =
           renderCompassRecommendationResult(
