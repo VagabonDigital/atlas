@@ -139,7 +139,7 @@
                 margin-bottom: 0.45rem;
                 color:
                     var(--text-heading, #211f1b);
-                font-size: 0.86rem;
+                font-size: 0.95rem;
                 font-weight: 600;
             }
 
@@ -147,14 +147,14 @@
                 margin: 0 0 0.9rem;
                 color:
                     var(--text-muted, #7b7469);
-                font-size: 0.8rem;
+                font-size: 0.88rem;
                 line-height: 1.55;
             }
 
             #${IDS.textarea} {
                 display: block;
                 width: 100%;
-                min-height: 170px;
+                min-height: 158px;
                 resize: vertical;
                 padding: 0.95rem 1rem;
                 border:
@@ -188,7 +188,7 @@
                 margin-bottom: 0.45rem;
                 color:
                     var(--text-heading, #211f1b);
-                font-size: 0.8rem;
+                font-size: 0.86rem;
                 font-weight: 600;
             }
 
