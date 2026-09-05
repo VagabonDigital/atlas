@@ -152,8 +152,20 @@
       background: var(--surface-raised);
     }
 
+    .feedback-card-head {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .feedback-name {
+      color: var(--heading);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
     .feedback-date {
-      display: block;
       color: var(--muted);
       font-size: 0.75rem;
     }
@@ -499,6 +511,28 @@
           card.className =
             'feedback-card';
 
+          const cardHead =
+            document.createElement('div');
+
+          cardHead.className =
+            'feedback-card-head';
+
+          const replyName =
+            clean(item?.replyName);
+
+          if (replyName) {
+            const name =
+              document.createElement('span');
+
+            name.className =
+              'feedback-name';
+
+            name.textContent =
+              replyName;
+
+            cardHead.appendChild(name);
+          }
+
           const date =
             document.createElement('time');
 
@@ -513,6 +547,8 @@
               item?.submittedAt ||
               item?.clientTimestamp
             );
+
+          cardHead.appendChild(date);
 
           const message =
             document.createElement('p');
@@ -574,7 +610,7 @@
             deleteButton
           );
 
-          card.appendChild(date);
+          card.appendChild(cardHead);
           card.appendChild(message);
           card.appendChild(footer);
           list.appendChild(card);
