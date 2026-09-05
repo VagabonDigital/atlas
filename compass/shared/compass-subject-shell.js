@@ -11,6 +11,29 @@
    ============================================================ */
 
 function mountCompassSubjectShell() {
+    if (
+        !window.AtlasFeedback &&
+        !document.querySelector(
+            '[data-atlas-feedback-runtime]'
+        )
+    ) {
+        const feedbackScript =
+            document.createElement('script');
+
+        feedbackScript.src =
+            new URL(
+                '../../shared/atlas-feedback.js',
+                window.location.href
+            ).href;
+
+        feedbackScript.dataset.atlasFeedbackRuntime =
+            'true';
+
+        document.head.appendChild(
+            feedbackScript
+        );
+    }
+
     document.body.innerHTML = `
     <!-- ============================================================
      VIEW 1: COVER
@@ -40,6 +63,20 @@ function mountCompassSubjectShell() {
                     <path d="M9.6 2.1l2.3 2.3-6.8 6.8-3 .7.7-3 6.8-6.8Z"
                         stroke="currentColor"
                         stroke-width="1.2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+            </button>
+
+            <button class="cover-feedback-btn"
+                type="button"
+                data-atlas-feedback
+                title="Feedback"
+                aria-label="Send feedback">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3 3.25h10v7H8.4L5 13v-2.75H3v-7Z"
+                        stroke="currentColor"
+                        stroke-width="1.25"
                         stroke-linecap="round"
                         stroke-linejoin="round"/>
                 </svg>

@@ -20,6 +20,35 @@
   const mountedLandingRoots = new WeakSet();
   const mountedGameRoots = new WeakSet();
 
+  function ensureFeedbackRuntime() {
+    if (
+      window.AtlasFeedback ||
+      document.querySelector(
+        '[data-atlas-feedback-runtime]'
+      )
+    ) {
+      return;
+    }
+
+    const feedbackScript =
+      document.createElement('script');
+
+    feedbackScript.src =
+      new URL(
+        '../../shared/atlas-feedback.js',
+        window.location.href
+      ).href;
+
+    feedbackScript.dataset.atlasFeedbackRuntime =
+      'true';
+
+    document.head.appendChild(
+      feedbackScript
+    );
+  }
+
+  ensureFeedbackRuntime();
+
   function getBridge() {
     return window.AtlasBridge || null;
   }
@@ -265,6 +294,30 @@
 
         <div class="arcade-game-chrome-actions">
           <button
+            class="arcade-game-chrome-icon-btn"
+            type="button"
+            data-atlas-feedback
+            aria-label="Send feedback"
+            title="Feedback"
+          >
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 16 16"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M3 3.25h10v7H8.4L5 13v-2.75H3v-7Z"
+                stroke="currentColor"
+                stroke-width="1.25"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+
+          <button
             class="arcade-game-chrome-icon-btn arcade-game-chrome-appearance"
             type="button"
             aria-label="Toggle appearance"
@@ -437,6 +490,30 @@
                 stroke="currentColor"
                 stroke-width="1.4"
                 stroke-linecap="round"
+              />
+            </svg>
+          </button>
+
+          <button
+            class="arcade-game-chrome-game-icon-btn"
+            type="button"
+            data-atlas-feedback
+            aria-label="Send feedback"
+            title="Feedback"
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 16 16"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M3 3.25h10v7H8.4L5 13v-2.75H3v-7Z"
+                stroke="currentColor"
+                stroke-width="1.25"
+                stroke-linecap="round"
+                stroke-linejoin="round"
               />
             </svg>
           </button>

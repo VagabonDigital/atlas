@@ -11233,6 +11233,21 @@ function renderNav(containerId, activeViewId) {
 
                 <button
                     class="nav-keylang-btn"
+                    type="button"
+                    data-atlas-feedback
+                    title="Feedback"
+                    aria-label="Send feedback">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="M3 3.25h10v7H8.4L5 13v-2.75H3v-7Z"
+                            stroke="currentColor"
+                            stroke-width="1.25"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                    </svg>
+                </button>
+
+                <button
+                    class="nav-keylang-btn"
                     onclick="openVocabBank()"
                     title="Language Bank"
                     aria-label="Open Language Bank">
@@ -11317,6 +11332,17 @@ function renderMobileDrawerNav() {
             <button class="mobile-nav-item" onclick="openAtlasSearchFromDrawer()">
                 ${getAtlasSearchIcon()}
                 Search
+            </button>
+
+            <button class="mobile-nav-item" data-atlas-feedback onclick="closeMobileDrawer()">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3 3.25h10v7H8.4L5 13v-2.75H3v-7Z"
+                        stroke="currentColor"
+                        stroke-width="1.25"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+                Feedback
             </button>
 
             <button class="mobile-nav-item" onclick="openVocabBankFromDrawer()">

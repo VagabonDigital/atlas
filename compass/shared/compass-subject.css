@@ -1250,7 +1250,8 @@ MOBILE NAVIGATION AND APPEARANCE CONTROLS
     white-space: nowrap;
 }
 
-.cover-tutor-tools-btn {
+.cover-tutor-tools-btn,
+.cover-feedback-btn {
     display: none;
     width: 32px;
     height: 32px;
@@ -1268,7 +1269,12 @@ MOBILE NAVIGATION AND APPEARANCE CONTROLS
     transition: var(--transition);
 }
 
-.cover-tutor-tools-btn:hover {
+.cover-feedback-btn {
+    display: inline-flex;
+}
+
+.cover-tutor-tools-btn:hover,
+.cover-feedback-btn:hover {
     border-color: rgba(255, 255, 255, 0.28);
     background: rgba(255, 255, 255, 0.14);
     color: rgba(255, 255, 255, 0.92);
@@ -4201,7 +4207,8 @@ html[data-theme="night"] .atlas-live-changes-restore:hover {
 }
 
 @media (max-width: 680px) {
-    .cover-tutor-tools-btn {
+    .cover-tutor-tools-btn,
+.cover-feedback-btn {
         display: inline-flex;
     }
 
