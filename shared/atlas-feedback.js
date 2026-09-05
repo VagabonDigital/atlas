@@ -375,7 +375,7 @@
                 <textarea
                     id="${IDS.textarea}"
                     maxlength="5000"
-                    placeholder="Share a question, idea, problem, suggestion, or something that worked well…"
+                    placeholder="Share a question, idea, problem, suggestion, or anythingyou like.."
                 ></textarea>
 
                 <div class="atlas-feedback-contact-field">
