@@ -5149,8 +5149,7 @@ function getMyVersionFullSubjectGenerationStatus() {
     }
 
     return (
-        `Building subject · ${progress.current} of ${progress.total} · ` +
-        `${operationLabel}${operationProgress}`
+        `Building subject · ${operationLabel}${operationProgress}`
     );
 }
 
