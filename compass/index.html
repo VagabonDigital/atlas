@@ -5298,6 +5298,20 @@
               ).trim()
               : '',
 
+          source:
+            state.suggestion &&
+            String(
+              state.suggestion.title || ''
+            ).trim() === nextTitle &&
+            state.suggestion.source &&
+            typeof state.suggestion.source ===
+              'object' &&
+            !Array.isArray(
+              state.suggestion.source
+            )
+              ? state.suggestion.source
+              : null,
+
           brief: String(
             briefInput?.value || ''
           ).trim()

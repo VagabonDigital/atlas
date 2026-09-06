@@ -1367,7 +1367,7 @@ export default {
                                                     'web_search',
 
                                                 search_context_size:
-                                                    'medium'
+                                                    'low'
                                             }
                                         ]
                                     }

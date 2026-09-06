@@ -93,6 +93,59 @@
             );
         }
 
+        const source =
+            context.source &&
+            typeof context.source === 'object' &&
+            !Array.isArray(context.source)
+                ? context.source
+                : null;
+
+        if (source) {
+            const sourceSummary =
+                cleanString(source.summary);
+
+            const sourceFacts =
+                Array.isArray(source.keyFacts)
+                    ? source.keyFacts
+                        .map(cleanString)
+                        .filter(Boolean)
+                        .slice(0, 4)
+                    : [];
+
+            const sourceReference =
+                [
+                    cleanString(source.title),
+                    cleanString(source.publisher),
+                    cleanString(source.publishedAt)
+                ]
+                    .filter(Boolean)
+                    .join(' · ');
+
+            if (
+                sourceSummary ||
+                sourceFacts.length
+            ) {
+                parts.push(
+                    [
+                        'CURRENT AFFAIRS ANCHOR: Build the subject around this specific recent development. Establish what happened and why it matters before broadening; do not turn it into an evergreen topic.',
+                        'SOURCE CONTEXT: ' +
+                        [
+                            sourceSummary,
+                            ...sourceFacts
+                        ]
+                            .filter(Boolean)
+                            .join(' '),
+                        sourceReference
+                            ? 'SOURCE: ' +
+                              sourceReference
+                            : ''
+                    ]
+                        .filter(Boolean)
+                        .join('\n')
+                );
+            }
+        }
+
         const tutorBrief =
             cleanString(context.brief);
 
