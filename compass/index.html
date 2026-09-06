@@ -1201,20 +1201,6 @@
       line-height: 1;
     }
 
-    .compass-recommendation-panel.is-minimized {
-      padding-bottom: 1.35rem;
-    }
-
-    .compass-recommendation-panel.is-minimized
-    .compass-recommendation-head {
-      margin-bottom: 0;
-    }
-
-    .compass-recommendation-panel.is-minimized
-    .compass-recommendation-body {
-      display: none;
-    }
-
     .compass-recommendation-kicker {
       margin-bottom: 0.35rem;
       color: var(--accent);
@@ -7072,11 +7058,6 @@
         'onclick="changeCompassIdeaMode(this)">' +
         'Change' +
         '</button>' +
-        '<button class="compass-recommendation-control" type="button" ' +
-        'onclick="toggleCompassRecommendations(this)" ' +
-        'aria-expanded="true">' +
-        'Minimise' +
-        '</button>' +
         '<button class="compass-recommendation-control compass-recommendation-control--close" ' +
         'type="button" onclick="closeCompassRecommendations(this)" ' +
         'aria-label="Close suggestions" title="Close suggestions">' +
@@ -7121,34 +7102,6 @@
         ).join('') +
         '</div>' +
         '</section>'
-      );
-    }
-
-    function toggleCompassRecommendations(
-      button
-    ) {
-      const panel =
-        button?.closest(
-          '.compass-recommendation-panel'
-        );
-
-      if (!panel) {
-        return;
-      }
-
-      const minimized =
-        panel.classList.toggle(
-          'is-minimized'
-        );
-
-      button.textContent =
-        minimized
-          ? 'Show'
-          : 'Minimise';
-
-      button.setAttribute(
-        'aria-expanded',
-        String(!minimized)
       );
     }
 
