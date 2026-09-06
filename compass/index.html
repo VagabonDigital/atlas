@@ -6935,11 +6935,24 @@
     function getAvailableCompassIdeaModes(
       session
     ) {
-      return COMPASS_IDEA_MODES.filter(
-        mode =>
-          !mode.namedSessionOnly ||
-          !isDefaultSession(session)
-      );
+      const learnerName =
+        String(session?.name || '').trim();
+
+      return COMPASS_IDEA_MODES
+        .filter(
+          mode =>
+            !mode.namedSessionOnly ||
+            !isDefaultSession(session)
+        )
+        .map(mode =>
+          mode.id === 'learner' &&
+          learnerName
+            ? {
+                ...mode,
+                label: `For ${learnerName}`
+              }
+            : mode
+        );
     }
 
     function getCompassIdeaMode(
