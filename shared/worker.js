@@ -1406,7 +1406,7 @@ export default {
                                             'Do not copy the source headline word for word. Rewrite it as a concise, natural Atlas subject title.',
                                             'Use this test: if the exact title could have been suggested unchanged five years ago, it probably does not express the current development strongly enough.',
                                             '',
-                                            'reason must be clean learner-facing Atlas prose explaining what happened and why it is interesting to explore.',
+                                            'reason must be concise learner-facing Atlas prose explaining what happened and the single strongest reason it is interesting to explore.',
                                             'Do not put URLs, Markdown links, citation syntax, publisher names, source labels, or bibliographic information inside reason.',
                                             '',
                                             'For each idea, choose one primary web source that directly supports the recent development.',
