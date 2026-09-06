@@ -1029,6 +1029,52 @@
       min-width: 0;
     }
 
+    .owned-subject-dialog-idea {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .owned-subject-dialog-idea-mode-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.42rem;
+      min-height: 44px;
+      padding: 0.48rem 0.78rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: var(--t);
+    }
+
+    .owned-subject-dialog-idea-mode-btn:hover,
+    .owned-subject-dialog-idea-mode-btn:focus-visible {
+      border-color: rgba(var(--accent-rgb), 0.38);
+      background: var(--accent-dim);
+      color: var(--accent);
+      outline: none;
+    }
+
+    .owned-subject-dialog-idea-mode-btn svg {
+      width: 12px;
+      height: 12px;
+      flex: 0 0 auto;
+      opacity: 0.72;
+    }
+
+    .owned-subject-dialog-idea-mode-btn[hidden] {
+      display: none;
+    }
+
     .owned-subject-dialog-idea-btn {
       position: relative;
       display: inline-flex;
@@ -3835,6 +3881,13 @@
         '<div class="owned-subject-dialog-create-fields" id="owned-subject-dialog-create-fields" hidden>' +
 
         '<div class="owned-subject-dialog-idea" id="owned-subject-dialog-idea" hidden>' +
+        '<button class="owned-subject-dialog-idea-mode-btn" data-idea-mode-control type="button" ' +
+        'onclick="showCompassIdeaModeChooser(this, false)" hidden>' +
+        '<span data-idea-mode-label></span>' +
+        '<svg viewBox="0 0 12 12" fill="none" aria-hidden="true">' +
+        '<path d="M3 4.5 6 7.5l3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+        '</button>' +
         '<button class="owned-subject-dialog-idea-btn" type="button" onclick="askCompassForSubjects(this)" aria-label="Ask Compass for a subject idea">' +
         '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
         '<circle cx="7" cy="7" r="5.2" stroke="currentColor" stroke-width="1.2"/>' +
@@ -4571,6 +4624,10 @@
         !compassRecommendationContext;
 
       recommendationRegion.innerHTML = '';
+
+      syncCompassIdeaModeControl(
+        dialog
+      );
 
       if (ideaLabel) {
         ideaLabel.textContent =
@@ -6944,6 +7001,49 @@
       } catch { }
     }
 
+    function syncCompassIdeaModeControl(
+      dialog,
+      modeId = ''
+    ) {
+      const session =
+        getActiveSession();
+
+      const mode =
+        getCompassIdeaMode(
+          modeId ||
+            readCompassIdeaMode(
+              session
+            ),
+          session
+        );
+
+      const button =
+        dialog?.querySelector(
+          '[data-idea-mode-control]'
+        );
+
+      const label =
+        button?.querySelector(
+          '[data-idea-mode-label]'
+        );
+
+      if (!button || !label) {
+        return;
+      }
+
+      button.hidden = !mode;
+      label.textContent =
+        mode?.label || '';
+
+      if (mode) {
+        button.setAttribute(
+          'aria-label',
+          'Change idea type. Current: ' +
+            mode.label
+        );
+      }
+    }
+
     function getCompassLearnerInterests(
       session
     ) {
@@ -7031,8 +7131,7 @@
     }
 
     function renderCompassRecommendationResult(
-      result,
-      modeId
+      result
     ) {
       if (
         !Array.isArray(result.ideas) ||
@@ -7043,30 +7142,12 @@
         );
       }
 
-      const mode =
-        getCompassIdeaMode(
-          modeId
-        );
-
-      const modeLabel =
-        mode?.label ||
-        'Ideas';
-
       return (
         '<section class="compass-recommendation-panel" aria-label="Compass suggestions">' +
         '<div class="compass-recommendation-head">' +
         '<div class="compass-recommendation-kicker">' +
         'Compass' +
-        '<span class="compass-recommendation-mode"> · ' +
-        escHtml(modeLabel) +
-        '</span>' +
         '<span class="compass-recommendation-count">3 ideas</span>' +
-        '</div>' +
-        '<div class="compass-recommendation-actions">' +
-        '<button class="compass-recommendation-control compass-recommendation-control--change" type="button" ' +
-        'onclick="changeCompassIdeaMode(this)">' +
-        'Change' +
-        '</button>' +
         '</div>' +
         '</div>' +
         '<div class="compass-recommendation-body">' +
@@ -7110,7 +7191,8 @@
     }
 
     function showCompassIdeaModeChooser(
-      button
+      button,
+      generateOnChoose = true
     ) {
       const dialog =
         button?.closest(
@@ -7165,6 +7247,8 @@
           ) +
           '" onclick="chooseCompassIdeaMode(this, ' +
           jsArg(mode.id) +
+          ', ' +
+          String(generateOnChoose) +
           ')">' +
           escHtml(mode.label) +
           '</button>'
@@ -7180,7 +7264,8 @@
 
     function chooseCompassIdeaMode(
       button,
-      modeId
+      modeId,
+      generateOnChoose = true
     ) {
       const session =
         getActiveSession();
@@ -7210,21 +7295,42 @@
           '.owned-subject-dialog-idea-btn'
         );
 
+      const region =
+        dialog?.querySelector(
+          '.compass-recommendation-region'
+        );
+
+      const label =
+        dialog?.querySelector(
+          '[data-idea-label]'
+        );
+
       if (!ideaButton) {
+        return;
+      }
+
+      syncCompassIdeaModeControl(
+        dialog,
+        mode.id
+      );
+
+      if (!generateOnChoose) {
+        if (region) {
+          region.innerHTML = '';
+        }
+
+        if (label) {
+          label.textContent =
+            'Get ideas';
+        }
+
+        ideaButton.focus();
         return;
       }
 
       askCompassForSubjects(
         ideaButton,
         mode.id
-      );
-    }
-
-    function changeCompassIdeaMode(
-      button
-    ) {
-      showCompassIdeaModeChooser(
-        button
       );
     }
 
@@ -7361,6 +7467,11 @@
         selectedMode.id
       );
 
+      syncCompassIdeaModeControl(
+        dialog,
+        selectedMode.id
+      );
+
       const requestId =
         ++compassRecommendationRequestId;
 
@@ -7373,9 +7484,7 @@
 
       region.innerHTML =
         '<div class="compass-recommendation-panel compass-recommendation-panel--state">' +
-        '<div class="compass-recommendation-kicker">Compass · ' +
-        escHtml(selectedMode.label) +
-        '</div>' +
+        '<div class="compass-recommendation-kicker">Compass</div>' +
         '<div class="compass-recommendation-state">Give me a second…</div>' +
         '</div>';
 
@@ -7448,8 +7557,7 @@
 
         region.innerHTML =
           renderCompassRecommendationResult(
-            result,
-            selectedMode.id
+            result
           );
 
         if (label) {
@@ -7471,9 +7579,7 @@
 
         region.innerHTML =
           '<div class="compass-recommendation-panel compass-recommendation-panel--state">' +
-          '<div class="compass-recommendation-kicker">Compass · ' +
-          escHtml(selectedMode.label) +
-          '</div>' +
+          '<div class="compass-recommendation-kicker">Compass</div>' +
           '<div class="compass-recommendation-state">I couldn’t get a clear answer just now. Try me again.</div>' +
           '</div>';
 
