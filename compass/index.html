@@ -1194,11 +1194,20 @@
       outline: none;
     }
 
-    .compass-recommendation-control--close {
-      width: 28px;
-      padding: 0;
-      font-size: 1.05rem;
-      line-height: 1;
+    .compass-recommendation-control--change {
+      min-height: 30px;
+      padding: 0.32rem 0.68rem;
+      border-color: rgba(var(--accent-rgb), 0.28);
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .compass-recommendation-control--change:hover,
+    .compass-recommendation-control--change:focus-visible {
+      border-color: rgba(var(--accent-rgb), 0.44);
+      background: var(--accent-pale);
+      color: var(--accent);
     }
 
     .compass-recommendation-kicker {
@@ -7054,14 +7063,9 @@
         '<span class="compass-recommendation-count">3 ideas</span>' +
         '</div>' +
         '<div class="compass-recommendation-actions">' +
-        '<button class="compass-recommendation-control" type="button" ' +
+        '<button class="compass-recommendation-control compass-recommendation-control--change" type="button" ' +
         'onclick="changeCompassIdeaMode(this)">' +
         'Change' +
-        '</button>' +
-        '<button class="compass-recommendation-control compass-recommendation-control--close" ' +
-        'type="button" onclick="closeCompassRecommendations(this)" ' +
-        'aria-label="Close suggestions" title="Close suggestions">' +
-        '×' +
         '</button>' +
         '</div>' +
         '</div>' +
@@ -7105,39 +7109,6 @@
       );
     }
 
-    function closeCompassRecommendations(
-      button
-    ) {
-      const panel =
-        button?.closest(
-          '.compass-recommendation-panel'
-        );
-
-      const region =
-        panel?.closest(
-          '.compass-recommendation-region'
-        );
-
-      const dialog =
-        panel?.closest(
-          '.owned-subject-dialog-panel'
-        );
-
-      const label =
-        dialog?.querySelector(
-          '[data-idea-label]'
-        );
-
-      if (region) {
-        region.innerHTML = '';
-      }
-
-      if (label) {
-        label.textContent =
-          'Need an idea?';
-      }
-    }
-
     function showCompassIdeaModeChooser(
       button
     ) {
@@ -7177,13 +7148,6 @@
         '<section class="compass-recommendation-panel compass-recommendation-panel--chooser" aria-label="Choose idea type">' +
         '<div class="compass-recommendation-head">' +
         '<div class="compass-recommendation-kicker">Compass</div>' +
-        '<div class="compass-recommendation-actions">' +
-        '<button class="compass-recommendation-control compass-recommendation-control--close" ' +
-        'type="button" onclick="closeCompassRecommendations(this)" ' +
-        'aria-label="Close idea types" title="Close">' +
-        '×' +
-        '</button>' +
-        '</div>' +
         '</div>' +
         '<p class="compass-recommendation-message">What kind of subject are you looking for?</p>' +
         '<div class="compass-idea-mode-grid">' +
