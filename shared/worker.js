@@ -1172,12 +1172,12 @@ export default {
                 url.pathname ===
                 '/suggest-subject-ideas'
             ) {
-                const notes =
+                const interests =
                     String(
-                        body?.notes || ''
+                        body?.interests || ''
                     )
                         .trim()
-                        .slice(0, 6000);
+                        .slice(0, 3000);
 
                 const sessionSubjects =
                     Array.isArray(
@@ -1550,12 +1550,12 @@ export default {
                 url.pathname ===
                 '/recommend-subjects'
             ) {
-                const interests =
+                const notes =
                     String(
-                        body?.interests || ''
+                        body?.notes || ''
                     )
                         .trim()
-                        .slice(0, 3000);
+                        .slice(0, 6000);
 
                 const candidates = [];
                 const seenCandidateKeys =
