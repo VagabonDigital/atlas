@@ -365,6 +365,17 @@ const myVersionCoverPickerState = {
         hasMore: false,
         hasSearched: false,
         scrollTop: 0
+    },
+
+    url: {
+        query: '',
+        searchedQuery: '',
+        page: 1,
+        photos: [],
+        selectedPhoto: null,
+        hasMore: false,
+        hasSearched: false,
+        scrollTop: 0
     }
 };
 
@@ -2605,7 +2616,8 @@ function closeMyVersionCoverPicker() {
 function updateMyVersionCoverPickerProviderUI() {
     [
         'web',
-        'pexels'
+        'pexels',
+        'url'
     ].forEach(provider => {
         const button = document.getElementById(
             `atlas-cover-picker-provider-${provider}`
@@ -2629,6 +2641,46 @@ function updateMyVersionCoverPickerProviderUI() {
                 : 'false'
         );
     });
+
+    const urlMode =
+        myVersionCoverPickerProvider === 'url';
+
+    const search = document.getElementById(
+        'atlas-cover-picker-search'
+    );
+
+    const layout = document.getElementById(
+        'atlas-cover-picker-layout'
+    );
+
+    const urlPanel = document.getElementById(
+        'atlas-cover-picker-url-panel'
+    );
+
+    const urlInput = document.getElementById(
+        'atlas-cover-picker-manual-url'
+    );
+
+    if (search) {
+        search.hidden = urlMode;
+    }
+
+    if (layout) {
+        layout.hidden = urlMode;
+    }
+
+    if (urlPanel) {
+        urlPanel.hidden = !urlMode;
+    }
+
+    if (
+        urlMode &&
+        urlInput &&
+        !String(urlInput.value || '').trim()
+    ) {
+        urlInput.value =
+            getEffectiveSubjectCoverImage();
+    }
 
     const rights = document.getElementById(
         'atlas-cover-picker-rights'
@@ -2679,6 +2731,97 @@ function applyMyVersionCoverPickerPhoto(
     }
 
     closeMyVersionCoverPicker();
+}
+
+function applyMyVersionCoverPickerUrl() {
+    if (
+        !myVersionEditing ||
+        myVersionSaving
+    ) {
+        return;
+    }
+
+    const input = document.getElementById(
+        'atlas-cover-picker-manual-url'
+    );
+
+    const button = document.getElementById(
+        'atlas-cover-picker-url-apply'
+    );
+
+    const error = document.getElementById(
+        'atlas-cover-picker-url-error'
+    );
+
+    const rawUrl = String(
+        input?.value || ''
+    ).trim();
+
+    if (error) {
+        error.hidden = true;
+        error.textContent = '';
+    }
+
+    let parsedUrl = null;
+
+    try {
+        parsedUrl = new URL(rawUrl);
+    } catch (urlError) {
+        parsedUrl = null;
+    }
+
+    if (
+        !parsedUrl ||
+        (
+            parsedUrl.protocol !== 'http:' &&
+            parsedUrl.protocol !== 'https:'
+        )
+    ) {
+        if (error) {
+            error.textContent =
+                'Enter a valid direct image URL.';
+            error.hidden = false;
+        }
+
+        input?.focus();
+        return;
+    }
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = 'Checking…';
+    }
+
+    const resetButton = () => {
+        if (!button) return;
+
+        button.disabled = false;
+        button.textContent = 'Use image';
+    };
+
+    const image = new Image();
+
+    image.onload = () => {
+        resetButton();
+
+        applyMyVersionCoverPickerPhoto({
+            imageUrl: parsedUrl.href
+        });
+    };
+
+    image.onerror = () => {
+        resetButton();
+
+        if (error) {
+            error.textContent =
+                'That image could not be loaded. Try another direct image link.';
+            error.hidden = false;
+        }
+
+        input?.focus();
+    };
+
+    image.src = parsedUrl.href;
 }
 
 function renderMyVersionCoverPickerResults() {
@@ -2809,7 +2952,8 @@ async function performMyVersionCoverPickerSearch({
     append = false
 } = {}) {
     if (
-        myVersionCoverPickerLoading
+        myVersionCoverPickerLoading ||
+        myVersionCoverPickerProvider === 'url'
     ) {
         return;
     }
@@ -3044,7 +3188,8 @@ function setMyVersionCoverPickerProvider(
 ) {
     if (
         provider !== 'web' &&
-        provider !== 'pexels'
+        provider !== 'pexels' &&
+        provider !== 'url'
     ) {
         return;
     }
