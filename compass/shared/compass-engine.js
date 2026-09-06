@@ -340,6 +340,7 @@ let myVersionCoverPickerQuery = '';
 let myVersionCoverPickerPage = 1;
 let myVersionCoverPickerPhotos = [];
 let myVersionCoverPickerSelectedPhoto = null;
+let myVersionCoverPickerPreviewPhoto = null;
 let myVersionCoverPickerLoading = false;
 let myVersionCoverPickerHasMore = false;
 const myVersionCoverPickerCache = new Map();
@@ -2477,8 +2478,8 @@ function saveMyVersionCoverPickerProviderState() {
         'atlas-cover-picker-query'
     );
 
-    const results = document.getElementById(
-        'atlas-cover-picker-results'
+    const scroller = document.getElementById(
+        'atlas-cover-picker-results-scroll'
     );
 
     state.query =
@@ -2500,9 +2501,9 @@ function saveMyVersionCoverPickerProviderState() {
     state.hasMore =
         myVersionCoverPickerHasMore;
 
-    if (results) {
+    if (scroller) {
         state.scrollTop =
-            results.scrollTop;
+            scroller.scrollTop;
     }
 }
 
@@ -2514,8 +2515,8 @@ function restoreMyVersionCoverPickerProviderState() {
         'atlas-cover-picker-query'
     );
 
-    const results = document.getElementById(
-        'atlas-cover-picker-results'
+    const scroller = document.getElementById(
+        'atlas-cover-picker-results-scroll'
     );
 
     myVersionCoverPickerQuery =
@@ -2542,9 +2543,9 @@ function restoreMyVersionCoverPickerProviderState() {
 
     renderMyVersionCoverPickerResults();
 
-    if (results) {
+    if (scroller) {
         requestAnimationFrame(() => {
-            results.scrollTop =
+            scroller.scrollTop =
                 state.scrollTop;
         });
     }
@@ -2606,68 +2607,96 @@ function updateMyVersionCoverPickerProviderUI() {
     }
 }
 
-function updateMyVersionCoverPickerPreview() {
-    const image = document.getElementById(
-        'atlas-cover-picker-preview-image'
+function setMyVersionCoverPreviewImage(
+    imageUrl
+) {
+    const normalizedUrl =
+        String(imageUrl || '').trim();
+
+    if (!normalizedUrl) return;
+
+    document.documentElement.style.setProperty(
+        '--module-bg-image',
+        `url(${JSON.stringify(normalizedUrl)})`
     );
+}
 
-    const title = document.getElementById(
-        'atlas-cover-picker-preview-title'
-    );
-
-    const source = document.getElementById(
-        'atlas-cover-picker-preview-source'
-    );
-
-    const useButton = document.getElementById(
-        'atlas-cover-picker-use'
-    );
-
-    const selected =
-        myVersionCoverPickerSelectedPhoto;
-
-    if (!image || !title || !source || !useButton) {
-        return;
-    }
-
-    image.src =
-        selected?.imageUrl ||
-        getEffectiveSubjectCoverImage();
-
-    image.alt =
-        selected?.alt ||
-        getEffectiveSubjectTitle();
-
-    title.textContent =
-        selected
-            ? selected.sourceName ||
-              selected.sourceDomain ||
-              selected.photographer ||
-              'Selected image'
-            : 'Current cover';
-
-    const sourceUrl =
+function openMyVersionCoverPickerPreview(
+    photo
+) {
+    const imageUrl =
         String(
-            selected?.sourceUrl ||
-            selected?.photographerUrl ||
-            ''
+            photo?.imageUrl || ''
         ).trim();
 
-    if (sourceUrl) {
-        source.href = sourceUrl;
-        source.hidden = false;
-    } else {
-        source.removeAttribute('href');
-        source.hidden = true;
+    if (!imageUrl) return;
+
+    myVersionCoverPickerSelectedPhoto =
+        photo;
+
+    myVersionCoverPickerPreviewPhoto =
+        photo;
+
+    const providerState =
+        getMyVersionCoverPickerProviderState();
+
+    providerState.selectedPhoto =
+        photo;
+
+    closeMyVersionCoverPicker();
+
+    setMyVersionCoverPreviewImage(
+        imageUrl
+    );
+
+    const actions = document.getElementById(
+        'atlas-cover-preview-actions'
+    );
+
+    if (actions) {
+        actions.hidden = false;
     }
 
-    useButton.disabled =
-        !selected?.imageUrl;
+    document.body.classList.add(
+        'atlas-cover-previewing'
+    );
+}
+
+function closeMyVersionCoverPickerPreview({
+    restoreCover = true
+} = {}) {
+    const actions = document.getElementById(
+        'atlas-cover-preview-actions'
+    );
+
+    if (actions) {
+        actions.hidden = true;
+    }
+
+    document.body.classList.remove(
+        'atlas-cover-previewing'
+    );
+
+    myVersionCoverPickerPreviewPhoto = null;
+
+    if (restoreCover) {
+        applyCoverConfig();
+    }
+}
+
+function returnToMyVersionCoverPickerResults() {
+    closeMyVersionCoverPickerPreview();
+
+    openMyVersionCoverPicker();
 }
 
 function renderMyVersionCoverPickerResults() {
     const results = document.getElementById(
         'atlas-cover-picker-results'
+    );
+
+    const scroller = document.getElementById(
+        'atlas-cover-picker-results-scroll'
     );
 
     const status = document.getElementById(
@@ -2678,16 +2707,21 @@ function renderMyVersionCoverPickerResults() {
         'atlas-cover-picker-more'
     );
 
-    if (!results || !status || !moreButton) {
+    if (
+        !results ||
+        !scroller ||
+        !status ||
+        !moreButton
+    ) {
         return;
     }
 
     const providerState =
         getMyVersionCoverPickerProviderState();
 
-    results.onscroll = () => {
+    scroller.onscroll = () => {
         providerState.scrollTop =
-            results.scrollTop;
+            scroller.scrollTop;
     };
 
     results.innerHTML = '';
@@ -2763,24 +2797,8 @@ function renderMyVersionCoverPickerResults() {
         button.addEventListener(
             'click',
             () => {
-                myVersionCoverPickerSelectedPhoto =
-                    photo;
-
-                providerState.selectedPhoto =
-                    photo;
-
-                results
-                    .querySelectorAll(
-                        '.atlas-cover-picker-result.is-selected'
-                    )
-                    .forEach(resultButton => {
-                        resultButton.classList.remove(
-                            'is-selected'
-                        );
-                    });
-
-                button.classList.add(
-                    'is-selected'
+                openMyVersionCoverPickerPreview(
+                    photo
                 );
             }
         );
@@ -2813,8 +2831,8 @@ async function performMyVersionCoverPickerSearch({
         'atlas-cover-picker-error'
     );
 
-    const results = document.getElementById(
-        'atlas-cover-picker-results'
+    const scroller = document.getElementById(
+        'atlas-cover-picker-results-scroll'
     );
 
     const provider =
@@ -2862,7 +2880,7 @@ async function performMyVersionCoverPickerSearch({
     const preservedScrollTop =
         append
             ? (
-                results?.scrollTop ||
+                scroller?.scrollTop ||
                 providerState.scrollTop ||
                 0
             )
@@ -3003,9 +3021,9 @@ async function performMyVersionCoverPickerSearch({
 
         renderMyVersionCoverPickerResults();
 
-        if (results) {
+        if (scroller) {
             requestAnimationFrame(() => {
-                results.scrollTop =
+                scroller.scrollTop =
                     providerState.scrollTop;
             });
         }

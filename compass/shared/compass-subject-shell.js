@@ -80,6 +80,32 @@ function mountCompassSubjectShell() {
                 </button>
             </div>
         </div>
+
+        <div class="atlas-cover-preview-actions"
+            id="atlas-cover-preview-actions"
+            hidden>
+            <button class="atlas-cover-preview-back"
+                type="button"
+                onclick="returnToMyVersionCoverPickerResults()">
+                <svg width="14" height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    aria-hidden="true">
+                    <path d="M8.5 3L4.5 7l4 4M5 7h5"
+                        stroke="currentColor"
+                        stroke-width="1.35"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+                Back to results
+            </button>
+
+            <button class="atlas-cover-preview-use"
+                type="button"
+                onclick="applyMyVersionCoverPickerSelection()">
+                Use this cover
+            </button>
+        </div>
     </div>
 
     <!-- ============================================================
@@ -1076,7 +1102,8 @@ function mountCompassSubjectShell() {
             </div>
 
             <div class="atlas-cover-picker-layout">
-                <div class="atlas-cover-picker-results-column">
+                <div class="atlas-cover-picker-results-column"
+                    id="atlas-cover-picker-results-scroll">
                     <div class="atlas-cover-picker-status"
                         id="atlas-cover-picker-status"
                         role="status"
