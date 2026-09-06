@@ -1419,6 +1419,11 @@
                 },
 
                 body: JSON.stringify({
+                    mode:
+                        cleanString(
+                            candidate.mode
+                        ),
+
                     interests:
                         cleanString(
                             candidate.interests
