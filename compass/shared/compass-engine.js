@@ -344,6 +344,30 @@ let myVersionCoverPickerLoading = false;
 let myVersionCoverPickerHasMore = false;
 const myVersionCoverPickerCache = new Map();
 
+const myVersionCoverPickerState = {
+    web: {
+        query: '',
+        searchedQuery: '',
+        page: 1,
+        photos: [],
+        selectedPhoto: null,
+        hasMore: false,
+        hasSearched: false,
+        scrollTop: 0
+    },
+
+    pexels: {
+        query: '',
+        searchedQuery: '',
+        page: 1,
+        photos: [],
+        selectedPhoto: null,
+        hasMore: false,
+        hasSearched: false,
+        scrollTop: 0
+    }
+};
+
 const myVersionGeneratingMomentSetIds = new Set();
 const myVersionMomentGenerationErrors = new Map();
 
@@ -2436,12 +2460,104 @@ function getMyVersionCoverPickerCacheKey(
     ].join('::');
 }
 
+function getMyVersionCoverPickerProviderState(
+    provider = myVersionCoverPickerProvider
+) {
+    return (
+        myVersionCoverPickerState[provider] ||
+        myVersionCoverPickerState.web
+    );
+}
+
+function saveMyVersionCoverPickerProviderState() {
+    const state =
+        getMyVersionCoverPickerProviderState();
+
+    const queryInput = document.getElementById(
+        'atlas-cover-picker-query'
+    );
+
+    const results = document.getElementById(
+        'atlas-cover-picker-results'
+    );
+
+    state.query =
+        String(
+            queryInput?.value ||
+            state.query ||
+            ''
+        ).trim();
+
+    state.page =
+        myVersionCoverPickerPage;
+
+    state.photos =
+        myVersionCoverPickerPhotos;
+
+    state.selectedPhoto =
+        myVersionCoverPickerSelectedPhoto;
+
+    state.hasMore =
+        myVersionCoverPickerHasMore;
+
+    if (results) {
+        state.scrollTop =
+            results.scrollTop;
+    }
+}
+
+function restoreMyVersionCoverPickerProviderState() {
+    const state =
+        getMyVersionCoverPickerProviderState();
+
+    const queryInput = document.getElementById(
+        'atlas-cover-picker-query'
+    );
+
+    const results = document.getElementById(
+        'atlas-cover-picker-results'
+    );
+
+    myVersionCoverPickerQuery =
+        state.searchedQuery ||
+        state.query;
+
+    myVersionCoverPickerPage =
+        state.page;
+
+    myVersionCoverPickerPhotos =
+        state.photos;
+
+    myVersionCoverPickerSelectedPhoto =
+        state.selectedPhoto;
+
+    myVersionCoverPickerHasMore =
+        state.hasMore;
+
+    if (queryInput) {
+        queryInput.value =
+            state.query ||
+            state.searchedQuery;
+    }
+
+    renderMyVersionCoverPickerResults();
+
+    if (results) {
+        requestAnimationFrame(() => {
+            results.scrollTop =
+                state.scrollTop;
+        });
+    }
+}
+
 function closeMyVersionCoverPicker() {
     const dialog = document.getElementById(
         'atlas-cover-picker-dialog'
     );
 
     if (!dialog || dialog.hidden) return;
+
+    saveMyVersionCoverPickerProviderState();
 
     dialog.hidden = true;
 
@@ -2566,19 +2682,34 @@ function renderMyVersionCoverPickerResults() {
         return;
     }
 
+    const providerState =
+        getMyVersionCoverPickerProviderState();
+
+    results.onscroll = () => {
+        providerState.scrollTop =
+            results.scrollTop;
+    };
+
     results.innerHTML = '';
 
-    if (
-        !myVersionCoverPickerPhotos.length &&
-        !myVersionCoverPickerLoading
-    ) {
-        status.textContent =
-            'No images found. Try another search.';
-    } else if (myVersionCoverPickerLoading) {
+    if (myVersionCoverPickerLoading) {
         status.textContent =
             myVersionCoverPickerPhotos.length
                 ? 'Loading more images…'
                 : 'Searching images…';
+    } else if (
+        !myVersionCoverPickerPhotos.length &&
+        providerState.hasSearched
+    ) {
+        status.textContent =
+            'No images found. Try another search.';
+    } else if (
+        !myVersionCoverPickerPhotos.length
+    ) {
+        status.textContent =
+            myVersionCoverPickerProvider === 'web'
+                ? 'Search Web images for a cover.'
+                : 'Search Pexels for a cover.';
     } else {
         status.textContent =
             `${myVersionCoverPickerPhotos.length} images`;
@@ -2635,8 +2766,22 @@ function renderMyVersionCoverPickerResults() {
                 myVersionCoverPickerSelectedPhoto =
                     photo;
 
-                renderMyVersionCoverPickerResults();
-                updateMyVersionCoverPickerPreview();
+                providerState.selectedPhoto =
+                    photo;
+
+                results
+                    .querySelectorAll(
+                        '.atlas-cover-picker-result.is-selected'
+                    )
+                    .forEach(resultButton => {
+                        resultButton.classList.remove(
+                            'is-selected'
+                        );
+                    });
+
+                button.classList.add(
+                    'is-selected'
+                );
             }
         );
 
@@ -2668,9 +2813,23 @@ async function performMyVersionCoverPickerSearch({
         'atlas-cover-picker-error'
     );
 
+    const results = document.getElementById(
+        'atlas-cover-picker-results'
+    );
+
+    const provider =
+        myVersionCoverPickerProvider;
+
+    const providerState =
+        getMyVersionCoverPickerProviderState(
+            provider
+        );
+
     const query =
         String(
-            queryInput?.value || ''
+            append
+                ? providerState.searchedQuery
+                : queryInput?.value || ''
         ).trim();
 
     if (!query) {
@@ -2690,15 +2849,24 @@ async function performMyVersionCoverPickerSearch({
 
     const page =
         append
-            ? myVersionCoverPickerPage + 1
+            ? providerState.page + 1
             : 1;
 
     const cacheKey =
         getMyVersionCoverPickerCacheKey(
-            myVersionCoverPickerProvider,
+            provider,
             query,
             page
         );
+
+    const preservedScrollTop =
+        append
+            ? (
+                results?.scrollTop ||
+                providerState.scrollTop ||
+                0
+            )
+            : 0;
 
     myVersionCoverPickerLoading = true;
 
@@ -2708,10 +2876,21 @@ async function performMyVersionCoverPickerSearch({
         myVersionCoverPickerPhotos = [];
         myVersionCoverPickerSelectedPhoto = null;
         myVersionCoverPickerHasMore = false;
+
+        providerState.query =
+            query;
+
+        providerState.searchedQuery =
+            query;
+
+        providerState.page = 1;
+        providerState.photos = [];
+        providerState.selectedPhoto = null;
+        providerState.hasMore = false;
+        providerState.scrollTop = 0;
     }
 
     renderMyVersionCoverPickerResults();
-    updateMyVersionCoverPickerPreview();
 
     try {
         let response =
@@ -2723,8 +2902,7 @@ async function performMyVersionCoverPickerSearch({
             response =
                 await requireAtlasAI()
                     .searchCovers({
-                        provider:
-                            myVersionCoverPickerProvider,
+                        provider,
                         query,
                         page
                     });
@@ -2776,6 +2954,31 @@ async function performMyVersionCoverPickerSearch({
             Boolean(
                 response.hasMore
             );
+
+        providerState.query =
+            String(
+                queryInput?.value ||
+                query
+            ).trim();
+
+        providerState.searchedQuery =
+            query;
+
+        providerState.page =
+            myVersionCoverPickerPage;
+
+        providerState.photos =
+            myVersionCoverPickerPhotos;
+
+        providerState.selectedPhoto =
+            myVersionCoverPickerSelectedPhoto;
+
+        providerState.hasMore =
+            myVersionCoverPickerHasMore;
+
+        providerState.hasSearched = true;
+        providerState.scrollTop =
+            preservedScrollTop;
     } catch (searchError) {
         console.error(
             '[Compass] Cover search failed:',
@@ -2791,11 +2994,21 @@ async function performMyVersionCoverPickerSearch({
         if (!append) {
             myVersionCoverPickerPhotos = [];
             myVersionCoverPickerHasMore = false;
+
+            providerState.photos = [];
+            providerState.hasMore = false;
         }
     } finally {
         myVersionCoverPickerLoading = false;
+
         renderMyVersionCoverPickerResults();
-        updateMyVersionCoverPickerPreview();
+
+        if (results) {
+            requestAnimationFrame(() => {
+                results.scrollTop =
+                    providerState.scrollTop;
+            });
+        }
     }
 }
 
@@ -2829,23 +3042,32 @@ function setMyVersionCoverPickerProvider(
 
     if (
         provider ===
-        myVersionCoverPickerProvider
+        myVersionCoverPickerProvider ||
+        myVersionCoverPickerLoading
     ) {
         return;
     }
 
+    saveMyVersionCoverPickerProviderState();
+
+    const previousState =
+        getMyVersionCoverPickerProviderState();
+
     myVersionCoverPickerProvider =
         provider;
 
-    myVersionCoverPickerPage = 1;
-    myVersionCoverPickerPhotos = [];
-    myVersionCoverPickerSelectedPhoto = null;
-    myVersionCoverPickerHasMore = false;
+    const nextState =
+        getMyVersionCoverPickerProviderState();
+
+    if (!nextState.query) {
+        nextState.query =
+            previousState.query ||
+            previousState.searchedQuery ||
+            buildMyVersionCoverSearchSeed();
+    }
 
     updateMyVersionCoverPickerProviderUI();
-    updateMyVersionCoverPickerPreview();
-
-    searchMyVersionCoverPicker();
+    restoreMyVersionCoverPickerProviderState();
 }
 
 function previewMyVersionCoverManualUrl() {
@@ -2971,33 +3193,18 @@ function openMyVersionCoverPicker() {
         'atlas-cover-picker-query'
     );
 
-    const manualInput = document.getElementById(
-        'atlas-cover-picker-manual-url'
-    );
-
     const error = document.getElementById(
         'atlas-cover-picker-error'
     );
 
     if (!dialog || !queryInput) return;
 
-    myVersionCoverPickerProvider = 'web';
-    myVersionCoverPickerPage = 1;
-    myVersionCoverPickerPhotos = [];
-    myVersionCoverPickerSelectedPhoto = null;
-    myVersionCoverPickerHasMore = false;
+    const providerState =
+        getMyVersionCoverPickerProviderState();
 
-    const searchSeed =
-        buildMyVersionCoverSearchSeed();
-
-    myVersionCoverPickerQuery =
-        searchSeed;
-
-    queryInput.value =
-        searchSeed;
-
-    if (manualInput) {
-        manualInput.value = '';
+    if (!providerState.query) {
+        providerState.query =
+            buildMyVersionCoverSearchSeed();
     }
 
     if (error) {
@@ -3005,14 +3212,18 @@ function openMyVersionCoverPicker() {
         error.textContent = '';
     }
 
-    updateMyVersionCoverPickerProviderUI();
-    renderMyVersionCoverPickerResults();
-    updateMyVersionCoverPickerPreview();
-
     dialog.hidden = false;
     activateFocusTrap(dialog);
 
-    searchMyVersionCoverPicker();
+    updateMyVersionCoverPickerProviderUI();
+    restoreMyVersionCoverPickerProviderState();
+
+    if (
+        myVersionCoverPickerProvider === 'web' &&
+        !providerState.hasSearched
+    ) {
+        searchMyVersionCoverPicker();
+    }
 }
 
 function handleMyVersionCoverAction() {

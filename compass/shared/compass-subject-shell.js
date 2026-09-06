@@ -1082,6 +1082,10 @@ function mountCompassSubjectShell() {
                         role="status"
                         aria-live="polite"></div>
 
+                    <p class="atlas-my-version-dialog-error"
+                        id="atlas-cover-picker-error"
+                        hidden></p>
+
                     <div class="atlas-cover-picker-results"
                         id="atlas-cover-picker-results"></div>
 
@@ -1093,65 +1097,6 @@ function mountCompassSubjectShell() {
                         More images
                     </button>
                 </div>
-
-                <aside class="atlas-cover-picker-preview">
-                    <p class="atlas-cover-picker-preview-label">
-                        Preview
-                    </p>
-
-                    <div class="atlas-cover-picker-preview-frame">
-                        <img id="atlas-cover-picker-preview-image"
-                            alt="">
-                    </div>
-
-                    <div class="atlas-cover-picker-preview-meta">
-                        <strong id="atlas-cover-picker-preview-title">
-                            Current cover
-                        </strong>
-
-                        <a id="atlas-cover-picker-preview-source"
-                            href="#"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            hidden>
-                            View source ↗
-                        </a>
-                    </div>
-
-                    <p class="atlas-cover-picker-rights"
-                        id="atlas-cover-picker-rights"></p>
-
-                    <details class="atlas-cover-picker-manual">
-                        <summary>
-                            Use image URL
-                        </summary>
-
-                        <div class="atlas-cover-picker-manual-row">
-                            <input id="atlas-cover-picker-manual-url"
-                                type="text"
-                                inputmode="url"
-                                autocomplete="off"
-                                placeholder="Paste image URL">
-
-                            <button type="button"
-                                onclick="previewMyVersionCoverManualUrl()">
-                                Preview
-                            </button>
-                        </div>
-                    </details>
-
-                    <p class="atlas-my-version-dialog-error"
-                        id="atlas-cover-picker-error"
-                        hidden></p>
-
-                    <button class="atlas-cover-picker-use"
-                        id="atlas-cover-picker-use"
-                        type="button"
-                        onclick="applyMyVersionCoverPickerSelection()"
-                        disabled>
-                        Use this cover
-                    </button>
-                </aside>
             </div>
         </div>
     </div>
