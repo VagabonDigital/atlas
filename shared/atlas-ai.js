@@ -1472,7 +1472,49 @@
                         reason:
                             cleanString(
                                 idea?.reason
-                            )
+                            ),
+
+                        source:
+                            idea?.source &&
+                            typeof idea.source === 'object' &&
+                            !Array.isArray(idea.source)
+                                ? {
+                                    publisher:
+                                        cleanString(
+                                            idea.source.publisher
+                                        ),
+
+                                    title:
+                                        cleanString(
+                                            idea.source.title
+                                        ),
+
+                                    url:
+                                        cleanString(
+                                            idea.source.url
+                                        ),
+
+                                    publishedAt:
+                                        cleanString(
+                                            idea.source.publishedAt
+                                        ),
+
+                                    summary:
+                                        cleanString(
+                                            idea.source.summary
+                                        ),
+
+                                    keyFacts:
+                                        Array.isArray(
+                                            idea.source.keyFacts
+                                        )
+                                            ? idea.source.keyFacts
+                                                .map(cleanString)
+                                                .filter(Boolean)
+                                                .slice(0, 4)
+                                            : []
+                                }
+                                : null
                     }))
                 : [];
 
@@ -1482,6 +1524,19 @@
             ideas.some(idea =>
                 !idea.title ||
                 !idea.reason
+            ) ||
+            (
+                cleanString(candidate.mode) ===
+                'current-affairs' &&
+                ideas.some(idea =>
+                    !idea.source ||
+                    !idea.source.publisher ||
+                    !idea.source.title ||
+                    !idea.source.url ||
+                    !idea.source.publishedAt ||
+                    !idea.source.summary ||
+                    idea.source.keyFacts.length < 2
+                )
             ) ||
             new Set(
                 ideas.map(idea =>

@@ -1310,6 +1310,15 @@
       line-height: 1.55;
     }
 
+    .compass-recommendation-source {
+      display: block;
+      margin-top: 0.32rem;
+      color: var(--text-subtle);
+      font-size: 0.72rem;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
     .compass-recommendation-arrow {
       color: var(--accent);
       transition: transform var(--t);
@@ -3019,6 +3028,28 @@
 
     function jsArg(value) {
       return escHtml(JSON.stringify(String(value)));
+    }
+
+    function formatCompassSourceDate(value) {
+      const raw =
+        String(value || '').trim();
+
+      if (!raw) return '';
+
+      const date =
+        new Date(raw + 'T00:00:00Z');
+
+      if (Number.isNaN(date.getTime())) {
+        return raw;
+      }
+
+      return new Intl.DateTimeFormat(
+        'en',
+        {
+          month: 'short',
+          day: 'numeric'
+        }
+      ).format(date);
     }
 
     function resolveStatus(state) {
@@ -7176,6 +7207,12 @@
             escHtml(
               idea.reason
             ) +
+            '" data-subject-source="' +
+            escHtml(
+              JSON.stringify(
+                idea.source || {}
+              )
+            ) +
             '" onclick="chooseCompassSubjectIdea(this)">' +
             '<span class="compass-recommendation-copy">' +
             '<span class="compass-recommendation-title">' +
@@ -7188,6 +7225,26 @@
               idea.reason
             ) +
             '</span>' +
+            (
+              idea.source?.publisher
+                ? '<span class="compass-recommendation-source">' +
+                  'Source: ' +
+                  escHtml(
+                    idea.source.publisher
+                  ) +
+                  (
+                    idea.source.publishedAt
+                      ? ' · ' +
+                        escHtml(
+                          formatCompassSourceDate(
+                            idea.source.publishedAt
+                          )
+                        )
+                      : ''
+                  ) +
+                  '</span>'
+                : ''
+            ) +
             '</span>' +
             '<span class="compass-recommendation-arrow" aria-hidden="true">' +
             '<svg width="16" height="16" viewBox="0 0 16 16" fill="none">' +
@@ -7356,6 +7413,30 @@
           ''
         ).trim();
 
+      let source = null;
+
+      try {
+        const parsedSource =
+          JSON.parse(
+            String(
+              button?.dataset
+                ?.subjectSource ||
+              ''
+            ).trim() || '{}'
+          );
+
+        if (
+          parsedSource &&
+          typeof parsedSource === 'object' &&
+          !Array.isArray(parsedSource) &&
+          String(
+            parsedSource.url || ''
+          ).trim()
+        ) {
+          source = parsedSource;
+        }
+      } catch { }
+
       const dialog =
         button?.closest(
           '.owned-subject-dialog-panel'
@@ -7386,7 +7467,8 @@
       ) {
         ownedSubjectDialogState.suggestion = {
           title,
-          premise
+          premise,
+          source
         };
       }
 

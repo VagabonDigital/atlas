@@ -1290,7 +1290,7 @@ export default {
                         'Range freely across the world. Look for fascinating real phenomena, discoveries, mysteries, practices, places, behaviours, stories, inventions, natural features, cultural ideas and surprising questions. Variety and genuine curiosity matter more than fitting a theme.',
 
                     'current-affairs':
-                        'Use the available web search tool before choosing the ideas. Find genuinely recent developments, preferably from the last 7 days and generally no older than about 14 days relative to currentDate. Turn the strongest developments into interesting standalone Compass subjects rather than merely repeating headlines. Prefer developments with real conversational depth and do not make all three ideas variations of the same news domain.',
+                        'Use the available web search tool before choosing the ideas. Find genuinely recent developments, preferably from the last 7 days and generally no older than about 14 days relative to currentDate. Each idea must be anchored in one specific recent development with enough substance for a complete Compass conversation. Prefer developments with real conversational depth and do not make all three ideas variations of the same news domain.',
 
                     'science-nature':
                         'Explore science and the natural world: animals, biology, space, physics, medicine, psychology, geology, climate, evolution, ecosystems, discoveries, unanswered questions and unusual natural phenomena. Prefer specific real things that are intrinsically fascinating.',
@@ -1398,6 +1398,28 @@ export default {
                                     'Reasons should briefly explain what makes the subject interesting and worth exploring. Do not prescribe a classroom exercise.',
                                     'message should be one short natural invitation to the tutor.',
                                     '',
+                                    ...(mode === 'current-affairs'
+                                        ? [
+                                            'CURRENT AFFAIRS OUTPUT RULES:',
+                                            'Title the recent development itself, not merely the evergreen topic behind it.',
+                                            'A tutor should be able to understand what has just happened, changed, been discovered, launched, reported, decided, or revealed from the title alone.',
+                                            'Do not copy the source headline word for word. Rewrite it as a concise, natural Atlas subject title.',
+                                            'Use this test: if the exact title could have been suggested unchanged five years ago, it probably does not express the current development strongly enough.',
+                                            '',
+                                            'reason must be clean learner-facing Atlas prose explaining what happened and why it is interesting to explore.',
+                                            'Do not put URLs, Markdown links, citation syntax, publisher names, source labels, or bibliographic information inside reason.',
+                                            '',
+                                            'For each idea, choose one primary web source that directly supports the recent development.',
+                                            'source.publisher is the publisher or site name.',
+                                            'source.title is the actual title of the source article or page.',
+                                            'source.url is the normal https URL of that source. Do not use Markdown or citation syntax.',
+                                            'source.publishedAt must be the publication date in YYYY-MM-DD format.',
+                                            'source.summary should give one or two concise factual sentences explaining the specific development, based on that source.',
+                                            'source.keyFacts must contain two to four concise factual points from that source that would help Atlas understand what actually happened.',
+                                            'Do not invent or infer facts that are not supported by the selected source.'
+                                        ]
+                                        : []),
+                                    '',
                                     'When the discovery mode requires web search, use it before choosing the final ideas.',
                                     '',
                                     'Do not mention learner memory, interests data, profiling, matching, scores, algorithms, discovery modes, or internal category instructions.',
@@ -1456,13 +1478,84 @@ export default {
                                                             reason: {
                                                                 type:
                                                                     'string'
-                                                            }
+                                                            },
+
+                                                            ...(mode === 'current-affairs'
+                                                                ? {
+                                                                    source: {
+                                                                        type:
+                                                                            'object',
+
+                                                                        properties: {
+                                                                            publisher: {
+                                                                                type:
+                                                                                    'string'
+                                                                            },
+
+                                                                            title: {
+                                                                                type:
+                                                                                    'string'
+                                                                            },
+
+                                                                            url: {
+                                                                                type:
+                                                                                    'string'
+                                                                            },
+
+                                                                            publishedAt: {
+                                                                                type:
+                                                                                    'string'
+                                                                            },
+
+                                                                            summary: {
+                                                                                type:
+                                                                                    'string'
+                                                                            },
+
+                                                                            keyFacts: {
+                                                                                type:
+                                                                                    'array',
+
+                                                                                minItems:
+                                                                                    2,
+
+                                                                                maxItems:
+                                                                                    4,
+
+                                                                                items: {
+                                                                                    type:
+                                                                                        'string'
+                                                                                }
+                                                                            }
+                                                                        },
+
+                                                                        required: [
+                                                                            'publisher',
+                                                                            'title',
+                                                                            'url',
+                                                                            'publishedAt',
+                                                                            'summary',
+                                                                            'keyFacts'
+                                                                        ],
+
+                                                                        additionalProperties:
+                                                                            false
+                                                                    }
+                                                                }
+                                                                : {})
                                                         },
 
-                                                        required: [
-                                                            'title',
-                                                            'reason'
-                                                        ],
+                                                        required:
+                                                            mode === 'current-affairs'
+                                                                ? [
+                                                                    'title',
+                                                                    'reason',
+                                                                    'source'
+                                                                ]
+                                                                : [
+                                                                    'title',
+                                                                    'reason'
+                                                                ],
 
                                                         additionalProperties:
                                                             false
@@ -1594,7 +1687,53 @@ export default {
                                 reason:
                                     String(
                                         idea?.reason || ''
-                                    ).trim()
+                                    ).trim(),
+
+                                source:
+                                    idea?.source &&
+                                    typeof idea.source === 'object' &&
+                                    !Array.isArray(idea.source)
+                                        ? {
+                                            publisher:
+                                                String(
+                                                    idea.source.publisher || ''
+                                                ).trim(),
+
+                                            title:
+                                                String(
+                                                    idea.source.title || ''
+                                                ).trim(),
+
+                                            url:
+                                                String(
+                                                    idea.source.url || ''
+                                                ).trim(),
+
+                                            publishedAt:
+                                                String(
+                                                    idea.source.publishedAt || ''
+                                                ).trim(),
+
+                                            summary:
+                                                String(
+                                                    idea.source.summary || ''
+                                                ).trim(),
+
+                                            keyFacts:
+                                                Array.isArray(
+                                                    idea.source.keyFacts
+                                                )
+                                                    ? idea.source.keyFacts
+                                                        .slice(0, 4)
+                                                        .map(fact =>
+                                                            String(
+                                                                fact || ''
+                                                            ).trim()
+                                                        )
+                                                        .filter(Boolean)
+                                                    : []
+                                        }
+                                        : null
                             }))
                         : [];
 
@@ -1604,6 +1743,18 @@ export default {
                     ideas.some(idea =>
                         !idea.title ||
                         !idea.reason
+                    ) ||
+                    (
+                        mode === 'current-affairs' &&
+                        ideas.some(idea =>
+                            !idea.source ||
+                            !idea.source.publisher ||
+                            !idea.source.title ||
+                            !idea.source.url ||
+                            !idea.source.publishedAt ||
+                            !idea.source.summary ||
+                            idea.source.keyFacts.length < 2
+                        )
                     ) ||
                     new Set(
                         ideas.map(idea =>
