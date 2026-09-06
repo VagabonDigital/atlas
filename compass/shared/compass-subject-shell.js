@@ -1013,6 +1013,149 @@ function mountCompassSubjectShell() {
         </div>
     </div>
 
+    <div class="atlas-my-version-dialog atlas-cover-picker-dialog"
+        id="atlas-cover-picker-dialog" hidden
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="atlas-cover-picker-title"
+        onclick="if(event.target === this) closeMyVersionCoverPicker()">
+        <div class="atlas-my-version-dialog-panel atlas-cover-picker-panel">
+            <div class="atlas-cover-picker-header">
+                <div>
+                    <p class="atlas-my-version-dialog-kicker">
+                        COVER
+                    </p>
+
+                    <h2 id="atlas-cover-picker-title">
+                        Choose a cover
+                    </h2>
+                </div>
+
+                <button class="atlas-cover-picker-close"
+                    type="button"
+                    onclick="closeMyVersionCoverPicker()"
+                    aria-label="Close cover picker">
+                    ×
+                </button>
+            </div>
+
+            <div class="atlas-cover-picker-providers"
+                role="tablist"
+                aria-label="Image source">
+                <button class="atlas-cover-picker-provider is-active"
+                    id="atlas-cover-picker-provider-web"
+                    type="button"
+                    role="tab"
+                    aria-selected="true"
+                    onclick="setMyVersionCoverPickerProvider('web')">
+                    Web images
+                </button>
+
+                <button class="atlas-cover-picker-provider"
+                    id="atlas-cover-picker-provider-pexels"
+                    type="button"
+                    role="tab"
+                    aria-selected="false"
+                    onclick="setMyVersionCoverPickerProvider('pexels')">
+                    Pexels
+                </button>
+            </div>
+
+            <div class="atlas-cover-picker-search">
+                <input id="atlas-cover-picker-query"
+                    type="search"
+                    autocomplete="off"
+                    placeholder="Search for images"
+                    aria-label="Search for cover images"
+                    onkeydown="if(event.key === 'Enter') { event.preventDefault(); searchMyVersionCoverPicker(); }">
+
+                <button type="button"
+                    onclick="searchMyVersionCoverPicker()">
+                    Search
+                </button>
+            </div>
+
+            <div class="atlas-cover-picker-layout">
+                <div class="atlas-cover-picker-results-column">
+                    <div class="atlas-cover-picker-status"
+                        id="atlas-cover-picker-status"
+                        role="status"
+                        aria-live="polite"></div>
+
+                    <div class="atlas-cover-picker-results"
+                        id="atlas-cover-picker-results"></div>
+
+                    <button class="atlas-cover-picker-more"
+                        id="atlas-cover-picker-more"
+                        type="button"
+                        onclick="loadMoreMyVersionCoverPicker()"
+                        hidden>
+                        More images
+                    </button>
+                </div>
+
+                <aside class="atlas-cover-picker-preview">
+                    <p class="atlas-cover-picker-preview-label">
+                        Preview
+                    </p>
+
+                    <div class="atlas-cover-picker-preview-frame">
+                        <img id="atlas-cover-picker-preview-image"
+                            alt="">
+                    </div>
+
+                    <div class="atlas-cover-picker-preview-meta">
+                        <strong id="atlas-cover-picker-preview-title">
+                            Current cover
+                        </strong>
+
+                        <a id="atlas-cover-picker-preview-source"
+                            href="#"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            hidden>
+                            View source ↗
+                        </a>
+                    </div>
+
+                    <p class="atlas-cover-picker-rights"
+                        id="atlas-cover-picker-rights"></p>
+
+                    <details class="atlas-cover-picker-manual">
+                        <summary>
+                            Use image URL
+                        </summary>
+
+                        <div class="atlas-cover-picker-manual-row">
+                            <input id="atlas-cover-picker-manual-url"
+                                type="text"
+                                inputmode="url"
+                                autocomplete="off"
+                                placeholder="Paste image URL">
+
+                            <button type="button"
+                                onclick="previewMyVersionCoverManualUrl()">
+                                Preview
+                            </button>
+                        </div>
+                    </details>
+
+                    <p class="atlas-my-version-dialog-error"
+                        id="atlas-cover-picker-error"
+                        hidden></p>
+
+                    <button class="atlas-cover-picker-use"
+                        id="atlas-cover-picker-use"
+                        type="button"
+                        onclick="applyMyVersionCoverPickerSelection()"
+                        disabled>
+                        Use this cover
+                    </button>
+                </aside>
+            </div>
+        </div>
+    </div>
+
     <div class="atlas-my-version-dialog"
         id="atlas-my-version-cover-dialog" hidden
         role="dialog"

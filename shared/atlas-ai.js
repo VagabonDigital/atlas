@@ -1823,6 +1823,202 @@
         };
     }
 
+    async function searchCovers(
+        input = {}
+    ) {
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const requestedProvider =
+            cleanString(
+                candidate.provider
+            ).toLowerCase();
+
+        const provider =
+            requestedProvider === 'pexels'
+                ? 'pexels'
+                : 'web';
+
+        const query =
+            cleanString(
+                candidate.query
+            );
+
+        const page =
+            Math.max(
+                1,
+                Math.floor(
+                    Number(
+                        candidate.page
+                    ) || 1
+                )
+            );
+
+        if (!query) {
+            throw new Error(
+                'A cover search term is required.'
+            );
+        }
+
+        const response = await fetch(
+            `${BASE_URL}/search-covers`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json'
+                },
+
+                body: JSON.stringify({
+                    provider,
+                    query,
+                    page
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Cover search failed with status ${response.status}.`
+            );
+        }
+
+        const payload =
+            result.payload &&
+            typeof result.payload === 'object' &&
+            !Array.isArray(result.payload)
+                ? result.payload
+                : {};
+
+        const photos =
+            Array.isArray(
+                payload.photos
+            )
+                ? payload.photos
+                    .map(photo => ({
+                        id:
+                            cleanString(
+                                photo?.id
+                            ),
+
+                        width:
+                            Number(
+                                photo?.width
+                            ) || 0,
+
+                        height:
+                            Number(
+                                photo?.height
+                            ) || 0,
+
+                        imageUrl:
+                            cleanString(
+                                photo?.imageUrl
+                            ),
+
+                        previewUrl:
+                            cleanString(
+                                photo?.previewUrl ||
+                                photo?.imageUrl
+                            ),
+
+                        photographer:
+                            cleanString(
+                                photo?.photographer
+                            ),
+
+                        photographerUrl:
+                            cleanString(
+                                photo?.photographerUrl
+                            ),
+
+                        sourceUrl:
+                            cleanString(
+                                photo?.sourceUrl
+                            ),
+
+                        sourceName:
+                            cleanString(
+                                photo?.sourceName
+                            ),
+
+                        sourceDomain:
+                            cleanString(
+                                photo?.sourceDomain
+                            ),
+
+                        alt:
+                            cleanString(
+                                photo?.alt
+                            )
+                    }))
+                    .filter(photo =>
+                        photo.id &&
+                        photo.imageUrl &&
+                        photo.previewUrl
+                    )
+                : [];
+
+        return {
+            provider:
+                cleanString(
+                    payload.provider
+                ) || provider,
+
+            query:
+                cleanString(
+                    payload.query
+                ) || query,
+
+            page:
+                Math.max(
+                    1,
+                    Number(
+                        payload.page
+                    ) || page
+                ),
+
+            perPage:
+                Number(
+                    payload.perPage
+                ) || photos.length,
+
+            totalResults:
+                Number.isFinite(
+                    Number(
+                        payload.totalResults
+                    )
+                )
+                    ? Number(
+                        payload.totalResults
+                    )
+                    : null,
+
+            hasMore:
+                Boolean(
+                    payload.hasMore
+                ),
+
+            photos
+        };
+    }
+
     window.AtlasAI = {
         generateMoment:
             withGenerationContext(generateMoment),
@@ -1859,6 +2055,8 @@
 
         generateDiscussionPathway:
             withGenerationContext(generateDiscussionPathway),
+
+        searchCovers,
 
         recommendSubjects,
 
