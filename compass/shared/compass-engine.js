@@ -13393,7 +13393,7 @@ function renderCLGrid() {
                             ${escHtml(teaser)}
                         </p>
                     `
-                    : myVersionEditing
+                    : myVersionAuthoringOpen
                         ? `
                             <button class="cl-card-author-add-field"
                                 type="button"
@@ -13409,7 +13409,7 @@ function renderCLGrid() {
                             ${escHtml(contextLine)}
                         </p>
                     `
-                    : myVersionEditing
+                    : myVersionAuthoringOpen
                         ? `
                             <button class="cl-card-author-add-field"
                                 type="button"
@@ -13632,11 +13632,11 @@ function renderCulturalLensFocusUpgrade() {
     if (!upgrade) {
         culturalLensFocusUpgradeOpen = false;
         mount.innerHTML = buildAddUpgradeControl(contextId);
-        mount.hidden = !myVersionEditing;
+        mount.hidden = !myVersionAuthoringOpen;
 
         tools?.classList.toggle(
             'has-visible-upgrade',
-            myVersionEditing
+            myVersionAuthoringOpen
         );
 
         return;
@@ -13746,7 +13746,7 @@ function renderCulturalLensFocusQuestions(
             )
         }));
 
-    const visibleQuestions = myVersionEditing
+    const visibleQuestions = myVersionAuthoringOpen
         ? questions
         : questions.filter(question =>
             question.value.trim()
@@ -13755,14 +13755,14 @@ function renderCulturalLensFocusQuestions(
     block.hidden =
         isUpgrade ||
         (
-            !myVersionEditing &&
+            !myVersionAuthoringOpen &&
             visibleQuestions.length === 0
         );
 
     block.classList.toggle(
         'is-empty-authoring',
         !isUpgrade &&
-        myVersionEditing &&
+        myVersionAuthoringOpen &&
         visibleQuestions.length === 0
     );
 
@@ -13786,7 +13786,7 @@ function renderCulturalLensFocusQuestions(
         );
 
     if (visibleQuestions.length) {
-        if (myVersionEditing) {
+        if (myVersionAuthoringOpen) {
             label.hidden = false;
 
             configureLiveTutorContentElement(
@@ -13818,7 +13818,7 @@ function renderCulturalLensFocusQuestions(
                 <p class="discussion-focus-question cultural-lens-focus-question"
                     data-cultural-lens-question-index="${question.index}"></p>
 
-                ${myVersionEditing
+                ${myVersionAuthoringOpen
                     ? `
                         <div class="cultural-lens-question-author-controls">
                             <button class="moment-author-control"
@@ -13876,7 +13876,7 @@ function renderCulturalLensFocusQuestions(
         `
     ).join('');
 
-    if (myVersionEditing) {
+    if (myVersionAuthoringOpen) {
         container.insertAdjacentHTML(
             'beforeend',
             `
@@ -13997,14 +13997,14 @@ function renderCulturalLensFocusFollowTheThread() {
         }
     );
 
-    const visibleQuestions = myVersionEditing
+    const visibleQuestions = myVersionAuthoringOpen
         ? questions
         : questions.filter(
             question => question.value.trim()
         );
 
     panel.hidden =
-        !myVersionEditing &&
+        !myVersionAuthoringOpen &&
         visibleQuestions.length === 0;
 
     if (panel.hidden) {
@@ -14041,7 +14041,7 @@ function renderCulturalLensFocusFollowTheThread() {
                 <p class="cultural-lens-focus-thread-question"
                     data-cultural-lens-thread-index="${question.index}"></p>
 
-                ${myVersionEditing
+                ${myVersionAuthoringOpen
                     ? `
                         <div class="cultural-lens-thread-author-controls">
                             <button class="moment-author-control"
@@ -14099,7 +14099,7 @@ function renderCulturalLensFocusFollowTheThread() {
         `
     ).join('');
 
-    if (myVersionEditing) {
+    if (myVersionAuthoringOpen) {
         container.insertAdjacentHTML(
             'beforeend',
             `
