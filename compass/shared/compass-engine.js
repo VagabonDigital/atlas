@@ -18823,6 +18823,12 @@ async function init() {
     const ownedSubjectAuthoringIntent =
         consumeOwnedSubjectAuthoringIntent();
 
+    const ownedSubjectBuildState =
+        isOwnedSubjectRuntime()
+            ? await requireAtlasTutorSubjects()
+                .getBuildState(MODULE.id)
+            : null;
+
     applyCoverConfig();
     applyDerivedLabels();
     applySubjectCopy();
@@ -18848,13 +18854,32 @@ async function init() {
         );
     }
 
+    const resumableFullSubjectBuild =
+        ownedSubjectBuildState?.kind ===
+            'full-subject'
+            ? ownedSubjectBuildState
+            : null;
+
     if (
-        ownedSubjectAuthoringIntent === 'generate' &&
-        myVersionEditing
+        myVersionEditing &&
+        (
+            ownedSubjectAuthoringIntent === 'generate' ||
+            resumableFullSubjectBuild
+        )
     ) {
         window.setTimeout(() => {
             generateMyVersionFullSubject({
-                autoSaveOnComplete: true
+                autoSaveOnComplete:
+                    resumableFullSubjectBuild
+                        ? resumableFullSubjectBuild
+                            .autoSaveOnComplete
+                        : true,
+
+                resumeFromStep:
+                    resumableFullSubjectBuild
+                        ? resumableFullSubjectBuild
+                            .completedStep
+                        : 0
             });
         }, 0);
     }
