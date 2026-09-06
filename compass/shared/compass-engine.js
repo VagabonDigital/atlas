@@ -19041,6 +19041,11 @@ function requestMyVersionEditingFromMobile() {
     closeMobileDrawer();
 
     window.setTimeout(() => {
+        if (myVersionEditing) {
+            setMyVersionAuthorBarMinimized(false);
+            return;
+        }
+
         requestMyVersionEditing();
     }, 80);
 }

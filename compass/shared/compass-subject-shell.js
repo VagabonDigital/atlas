@@ -34,8 +34,8 @@ function mountCompassSubjectShell() {
             <button class="cover-tutor-tools-btn"
                 type="button"
                 onclick="requestMyVersionEditingFromMobile()"
-                title="Tutor tools"
-                aria-label="Open tutor tools">
+                title="Edit subject"
+                aria-label="Edit subject">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                     <path d="M9.6 2.1l2.3 2.3-6.8 6.8-3 .7.7-3 6.8-6.8Z"
                         stroke="currentColor"

@@ -1251,7 +1251,7 @@ MOBILE NAVIGATION AND APPEARANCE CONTROLS
 }
 
 .cover-tutor-tools-btn {
-    display: none;
+    display: inline-flex;
     width: 32px;
     height: 32px;
     flex-shrink: 0;
@@ -4201,10 +4201,6 @@ html[data-theme="night"] .atlas-live-changes-restore:hover {
 }
 
 @media (max-width: 680px) {
-    .cover-tutor-tools-btn {
-        display: inline-flex;
-    }
-
     .atlas-live-changes-control {
         right: 0.75rem;
         left: 0.75rem;
