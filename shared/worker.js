@@ -230,7 +230,7 @@ export default {
                 '/generate-cultural-lens-upgrade',
                 '/generate-make-it-real',
                 '/generate-discussion-pathway',
-                '/resolve-cover',
+                '/search-covers',
                 '/suggest-subject-ideas',
                 '/recommend-subjects',
                 '/submit-feedback'
@@ -340,6 +340,198 @@ export default {
 
                 return json({
                     ok: true
+                });
+            }
+
+            if (
+                url.pathname ===
+                '/search-covers'
+            ) {
+                if (!env.PEXELS_API_KEY) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Cover search is not configured.'
+                        },
+                        503
+                    );
+                }
+
+                const query =
+                    String(
+                        body?.query || ''
+                    )
+                        .trim()
+                        .slice(0, 160);
+
+                const page =
+                    Math.max(
+                        1,
+                        Math.floor(
+                            Number(body?.page) || 1
+                        )
+                    );
+
+                if (!query) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Search term is required.'
+                        },
+                        400
+                    );
+                }
+
+                const searchUrl =
+                    new URL(
+                        'https://api.pexels.com/v1/search'
+                    );
+
+                searchUrl.searchParams.set(
+                    'query',
+                    query
+                );
+
+                searchUrl.searchParams.set(
+                    'orientation',
+                    'landscape'
+                );
+
+                searchUrl.searchParams.set(
+                    'page',
+                    String(page)
+                );
+
+                searchUrl.searchParams.set(
+                    'per_page',
+                    '30'
+                );
+
+                const response =
+                    await fetch(
+                        searchUrl.toString(),
+                        {
+                            headers: {
+                                'Authorization':
+                                    env.PEXELS_API_KEY
+                            }
+                        }
+                    );
+
+                const result =
+                    await response.json();
+
+                if (!response.ok) {
+                    console.error(
+                        '[Atlas AI] Pexels cover search error:',
+                        result
+                    );
+
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Cover search failed.',
+                            providerStatus:
+                                response.status
+                        },
+                        502
+                    );
+                }
+
+                const photos =
+                    (
+                        Array.isArray(
+                            result?.photos
+                        )
+                            ? result.photos
+                            : []
+                    )
+                        .map(photo => {
+                            const id =
+                                String(
+                                    photo?.id || ''
+                                ).trim();
+
+                            const imageUrl =
+                                String(
+                                    photo?.src?.large2x ||
+                                    photo?.src?.large ||
+                                    photo?.src?.landscape ||
+                                    ''
+                                ).trim();
+
+                            const previewUrl =
+                                String(
+                                    photo?.src?.medium ||
+                                    photo?.src?.landscape ||
+                                    imageUrl
+                                ).trim();
+
+                            if (
+                                !id ||
+                                !imageUrl ||
+                                !previewUrl
+                            ) {
+                                return null;
+                            }
+
+                            return {
+                                id,
+                                width:
+                                    Number(
+                                        photo?.width
+                                    ) || 0,
+                                height:
+                                    Number(
+                                        photo?.height
+                                    ) || 0,
+                                imageUrl,
+                                previewUrl,
+                                photographer:
+                                    String(
+                                        photo?.photographer ||
+                                        ''
+                                    ).trim(),
+                                photographerUrl:
+                                    String(
+                                        photo?.photographer_url ||
+                                        ''
+                                    ).trim(),
+                                sourceUrl:
+                                    String(
+                                        photo?.url || ''
+                                    ).trim(),
+                                alt:
+                                    String(
+                                        photo?.alt || ''
+                                    )
+                                        .trim()
+                                        .slice(0, 300)
+                            };
+                        })
+                        .filter(Boolean);
+
+                return json({
+                    ok: true,
+
+                    payload: {
+                        provider: 'pexels',
+                        query,
+                        page,
+                        perPage: 30,
+                        totalResults:
+                            Number(
+                                result?.total_results
+                            ) || 0,
+                        hasMore:
+                            Boolean(
+                                result?.next_page
+                            ),
+                        photos
+                    }
                 });
             }
 
