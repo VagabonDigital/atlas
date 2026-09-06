@@ -1467,8 +1467,7 @@ function updateMyVersionAuthorBar() {
 
     if (coverActionButton) {
         coverActionButton.disabled =
-            myVersionSaving ||
-            enrichmentActive;
+            myVersionSaving;
 
         coverActionButton.textContent =
             'Change cover';
@@ -1476,8 +1475,7 @@ function updateMyVersionAuthorBar() {
 
     if (libraryIntroButton) {
         libraryIntroButton.disabled =
-            myVersionSaving ||
-            enrichmentActive;
+            myVersionSaving;
     }
 
     if (moreActionButton) {
