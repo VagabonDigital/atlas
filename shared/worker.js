@@ -5120,7 +5120,7 @@ export default {
                                     '',
                                     'intro should be one concise paragraph of two or three clear sentences.',
                                     'Do not summarise the Library introduction.',
-                                    'Instead, choose one concrete human angle from that framing and bring it closer to everyday experience.',
+                                    'If the tutor brief contains CURRENT AFFAIRS ANCHOR, first establish what happened and why it matters using the supplied facts; otherwise choose one concrete human angle from the framing and bring it closer to everyday experience.',
                                     'Use accessible natural English suitable for approximately B1+ to B2 learners.',
                                     'The intro should feel like the learner is moving into the subject, not reading another description of it.',
                                     'Do not overload the learner with explanation, terminology, or background information.',

@@ -1479,7 +1479,7 @@ function updateMyVersionAuthorBar() {
                             stroke-width="0.95"
                             stroke-linejoin="round"/>
                     </svg>
-                    Generate hook + intro
+                    Regenerate hook + intro
                 `;
     }
 
@@ -1532,7 +1532,7 @@ function updateMyVersionAuthorBar() {
                             stroke-width="0.95"
                             stroke-linejoin="round"/>
                     </svg>
-                    Generate overview
+                    Regenerate overview
                 `;
     }
 
@@ -1586,7 +1586,7 @@ function updateMyVersionAuthorBar() {
                             stroke-width="0.95"
                             stroke-linejoin="round"/>
                     </svg>
-                    Generate discussion framing
+                    Regenerate discussion framing
                 `;
     }
 
@@ -1707,7 +1707,7 @@ function updateMyVersionAuthorBar() {
                             stroke-width="0.95"
                             stroke-linejoin="round"/>
                     </svg>
-                    Generate Cultural Lens framing
+                    Regenerate Cultural Lens framing
                 `;
     }
 
@@ -1822,7 +1822,7 @@ function updateMyVersionAuthorBar() {
                             stroke-width="0.95"
                             stroke-linejoin="round"/>
                     </svg>
-                    Generate reflection
+                    Regenerate reflection
                 `;
     }
 
