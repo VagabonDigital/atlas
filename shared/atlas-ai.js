@@ -82,6 +82,17 @@
             );
         }
 
+        const selectedPremise =
+            cleanString(context.premise);
+
+        if (selectedPremise) {
+            parts.push(
+                'SELECTED SUBJECT PREMISE: ' +
+                selectedPremise +
+                ' Preserve this core conversational promise throughout the subject. Treat it as editorial direction, not text to copy verbatim.'
+            );
+        }
+
         const tutorBrief =
             cleanString(context.brief);
 
