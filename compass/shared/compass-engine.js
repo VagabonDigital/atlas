@@ -4946,40 +4946,94 @@ async function generateMyVersionCulturalLensCard(
                     ).trim()
             }));
 
-    const generated =
-        await requireAtlasAI()
-            .generateCulturalLensCard({
-                subject: {
-                    title:
-                        getEffectiveSubjectTitle(),
+    const baseBrief =
+        String(
+            brief || ''
+        ).trim();
 
-                    description:
-                        getEffectiveSubjectCatalogDescription()
-                },
-
-                culturalLens: {
-                    heading:
-                        resolveTutorContentValue(
-                            culturalLens.heading ||
-                                'Cultural Lens',
-                            'culturalLens.heading'
-                        ).trim(),
-
-                    intro:
-                        resolveTutorContentValue(
-                            culturalLens.intro || '',
-                            'culturalLens.intro'
-                        ).trim(),
-
-                    cards:
-                        existingCards
-                },
-
-                brief:
+    const existingTitles =
+        new Set(
+            existingCards
+                .map(card =>
                     String(
-                        brief || ''
-                    ).trim()
-            });
+                        card.title || ''
+                    )
+                        .trim()
+                        .toLowerCase()
+                )
+                .filter(Boolean)
+        );
+
+    const generateCard =
+        retryBrief =>
+            requireAtlasAI()
+                .generateCulturalLensCard({
+                    subject: {
+                        title:
+                            getEffectiveSubjectTitle(),
+
+                        description:
+                            getEffectiveSubjectCatalogDescription()
+                    },
+
+                    culturalLens: {
+                        heading:
+                            resolveTutorContentValue(
+                                culturalLens.heading ||
+                                    'Cultural Lens',
+                                'culturalLens.heading'
+                            ).trim(),
+
+                        intro:
+                            resolveTutorContentValue(
+                                culturalLens.intro || '',
+                                'culturalLens.intro'
+                            ).trim(),
+
+                        cards:
+                            existingCards
+                    },
+
+                    brief:
+                        retryBrief
+                });
+
+    let generated =
+        await generateCard(
+            baseBrief
+        );
+
+    if (
+        existingTitles.has(
+            String(
+                generated?.title || ''
+            )
+                .trim()
+                .toLowerCase()
+        )
+    ) {
+        generated =
+            await generateCard(
+                [
+                    baseBrief,
+                    `Do not reuse the existing Cultural Lens card title "${generated.title}". Choose a genuinely different angle and title.`
+                ]
+                    .filter(Boolean)
+                    .join('\n')
+            );
+    }
+
+    if (
+        existingTitles.has(
+            String(
+                generated?.title || ''
+            )
+                .trim()
+                .toLowerCase()
+        )
+    ) {
+        return null;
+    }
 
     const nativeCard =
         requireAtlasStructuredSubject()
