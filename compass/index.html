@@ -1147,6 +1147,74 @@
       animation: hubPageFadeIn 0.28s ease both;
     }
 
+    .compass-recommendation-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .compass-recommendation-head
+    .compass-recommendation-kicker {
+      margin-bottom: 0;
+    }
+
+    .compass-recommendation-count {
+      margin-left: 0.38rem;
+      color: var(--text-subtle);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+
+    .compass-recommendation-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .compass-recommendation-control {
+      min-height: 28px;
+      padding: 0.28rem 0.48rem;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      cursor: pointer;
+      transition: var(--t);
+    }
+
+    .compass-recommendation-control:hover,
+    .compass-recommendation-control:focus-visible {
+      border-color: var(--border-subtle);
+      background: var(--surface-raised);
+      color: var(--text-heading);
+      outline: none;
+    }
+
+    .compass-recommendation-control--close {
+      width: 28px;
+      padding: 0;
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+
+    .compass-recommendation-panel.is-minimized {
+      padding-bottom: 1.35rem;
+    }
+
+    .compass-recommendation-panel.is-minimized
+    .compass-recommendation-head {
+      margin-bottom: 0;
+    }
+
+    .compass-recommendation-panel.is-minimized
+    .compass-recommendation-body {
+      display: none;
+    }
+
     .compass-recommendation-kicker {
       margin-bottom: 0.35rem;
       color: var(--accent);
@@ -6764,7 +6832,25 @@
 
       return (
         '<section class="compass-recommendation-panel" aria-label="Compass suggestions">' +
-        '<div class="compass-recommendation-kicker">Compass</div>' +
+        '<div class="compass-recommendation-head">' +
+        '<div class="compass-recommendation-kicker">' +
+        'Compass' +
+        '<span class="compass-recommendation-count">3 ideas</span>' +
+        '</div>' +
+        '<div class="compass-recommendation-actions">' +
+        '<button class="compass-recommendation-control" type="button" ' +
+        'onclick="toggleCompassRecommendations(this)" ' +
+        'aria-expanded="true">' +
+        'Minimise' +
+        '</button>' +
+        '<button class="compass-recommendation-control compass-recommendation-control--close" ' +
+        'type="button" onclick="closeCompassRecommendations(this)" ' +
+        'aria-label="Close suggestions" title="Close suggestions">' +
+        '×' +
+        '</button>' +
+        '</div>' +
+        '</div>' +
+        '<div class="compass-recommendation-body">' +
         '<p class="compass-recommendation-message">' +
         escHtml(result.message) +
         '</p>' +
@@ -6795,8 +6881,70 @@
             '</span>' +
             '</button>'
         ).join('') +
+        '</div>' +
         '</section>'
       );
+    }
+
+    function toggleCompassRecommendations(
+      button
+    ) {
+      const panel =
+        button?.closest(
+          '.compass-recommendation-panel'
+        );
+
+      if (!panel) {
+        return;
+      }
+
+      const minimized =
+        panel.classList.toggle(
+          'is-minimized'
+        );
+
+      button.textContent =
+        minimized
+          ? 'Show'
+          : 'Minimise';
+
+      button.setAttribute(
+        'aria-expanded',
+        String(!minimized)
+      );
+    }
+
+    function closeCompassRecommendations(
+      button
+    ) {
+      const panel =
+        button?.closest(
+          '.compass-recommendation-panel'
+        );
+
+      const region =
+        panel?.closest(
+          '.compass-recommendation-region'
+        );
+
+      const dialog =
+        panel?.closest(
+          '.owned-subject-dialog-panel'
+        );
+
+      const label =
+        dialog?.querySelector(
+          '[data-idea-label]'
+        );
+
+      if (region) {
+        region.innerHTML = '';
+      }
+
+      if (label) {
+        label.textContent =
+          'Need an idea?';
+      }
     }
 
     function chooseCompassSubjectIdea(
@@ -6904,10 +7052,21 @@
         '<div class="compass-recommendation-state">Give me a second…</div>' +
         '</div>';
 
+      const activeSession =
+        getActiveSession();
+
+      const recentSuggestions =
+        compassSuggestionHistory.get(
+          context.sessionId
+        ) || [];
+
       let notes = '';
 
       try {
         if (
+          !isDefaultSession(
+            activeSession
+          ) &&
           typeof Bridge
             .readLearnerMemory ===
           'function'
@@ -6926,7 +7085,12 @@
               notes,
 
               sessionSubjects:
-                context.sessionSubjects
+                context.sessionSubjects,
+
+              existingSubjects:
+                context.existingSubjects,
+
+              recentSuggestions
             });
 
         if (
@@ -6937,6 +7101,27 @@
         ) {
           return;
         }
+
+        const nextSuggestionHistory = [
+          ...recentSuggestions,
+
+          ...result.ideas.map(idea => ({
+            title:
+              String(
+                idea?.title || ''
+              ).trim(),
+
+            reason:
+              String(
+                idea?.reason || ''
+              ).trim()
+          }))
+        ].slice(-18);
+
+        compassSuggestionHistory.set(
+          context.sessionId,
+          nextSuggestionHistory
+        );
 
         region.innerHTML =
           renderCompassRecommendationResult(

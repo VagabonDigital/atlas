@@ -1258,6 +1258,11 @@ export default {
                         : [];
 
                 const context = {
+                    currentDate:
+                        new Date()
+                            .toISOString()
+                            .slice(0, 10),
+
                     notes,
                     sessionSubjects,
                     existingSubjects,
@@ -1284,19 +1289,63 @@ export default {
                                     'gpt-5.6-luna',
 
                                 reasoning: {
-                                    effort: 'low'
+                                    effort: 'medium'
                                 },
 
+                                tools: [
+                                    {
+                                        type:
+                                            'web_search',
+
+                                        search_context_size:
+                                            'low'
+                                    }
+                                ],
+
                                 instructions: [
-                                    'You are the direct editorial voice of Compass, an adult English conversation product used by tutors.',
+                                    'You are the senior subject editor for Compass, an adult English conversation product used by tutors.',
                                     '',
                                     'Suggest exactly three genuinely new Atlas subject ideas.',
                                     '',
-                                    'You receive four different forms of context:',
-                                    '1. notes — learner context containing durable traits, preferences, goals, experiences, previous conversations, current interests, and possible future threads.',
-                                    '2. sessionSubjects — subjects the tutor has deliberately kept close at hand for this learner.',
-                                    '3. existingSubjects — subjects that already exist in Compass.',
-                                    '4. recentSuggestions — ideas Compass has already offered during this current ideation interaction.',
+                                    'Do not jump straight to the final three.',
+                                    'Before choosing them, internally explore at least twelve substantially different candidate PREMISES across several kinds of conversational territory.',
+                                    '',
+                                    'Use these four invisible discovery lanes to force breadth:',
+                                    '- NOW — something genuinely unfolding in the current world that can open a strong adult conversation.',
+                                    '- WIDER WORLD — history, science, nature, technology, design, economics, language, arts, media, places, inventions, systems, or other substantial territory.',
+                                    '- HUMAN SITUATIONS — choices, relationships, awkward situations, habits, money, work, identity, etiquette, conflict, behaviour, or everyday life with a sharp premise.',
+                                    '- WILDCARD — speculative, counterfactual, weird, playful, overlooked, niche, surprising, or difficult-to-categorise territory a strong human editor might unexpectedly choose.',
+                                    '',
+                                    'These lanes are discovery machinery, not output categories.',
+                                    'Do not expose lane names to the tutor and do not mechanically choose one final idea from each lane.',
+                                    'Do not allow Human Situations, cultural micro-behaviour, cities, social norms, personal space, habits, or similar comfortable territory to become the default shape of the candidate pool.',
+                                    '',
+                                    'An Atlas subject idea is a PREMISE, not merely a TOPIC.',
+                                    'A premise already contains a reason to talk: a tension, dilemma, surprise, change, contradiction, consequence, strange phenomenon, provocative choice, or useful human question.',
+                                    'Reject broad category-style ideas even when the category itself is interesting.',
+                                    '',
+                                    'For example:',
+                                    '- Artificial Intelligence is a topic; What Happens When Nobody Knows Whether a Photo Is Real? is a premise.',
+                                    '- Gift Giving is a topic; When a Gift Becomes a Problem is a premise.',
+                                    '- Travel is a topic; The Trip You Would Never Repeat is a premise.',
+                                    '',
+                                    'NOW is optional.',
+                                    'Use web search only when it helps discover a genuinely worthwhile current-world doorway.',
+                                    'Do not search merely because web search is available and do not force a news idea into every result.',
+                                    'Current-world material should be occasional rather than obligatory; usually zero or one of the final three ideas should depend on something happening now.',
+                                    'When something current is worth using, transform it into a durable conversational premise rather than a news recap or factual quiz.',
+                                    'The subject should still be discussable without requiring the tutor or learner to read an article, know specialist background, or reproduce exact news details.',
+                                    '',
+                                    'After exploring broadly, make the candidate ideas COMPETE.',
+                                    'Choose the final three by weighing conversational strength, specificity, novelty, learner fit when available, range across the final set, and whether currentness genuinely adds value.',
+                                    'The final three should occupy substantially different conversational worlds and should not repeat the same editorial pattern with different nouns.',
+                                    '',
+                                    'You receive five different forms of context:',
+                                    '1. currentDate — today’s date, so genuinely current material can be recognised when useful.',
+                                    '2. notes — learner context containing durable traits, preferences, goals, experiences, previous conversations, current interests, and possible future threads.',
+                                    '3. sessionSubjects — subjects the tutor has deliberately kept close at hand for this learner.',
+                                    '4. existingSubjects — subjects that already exist in Compass.',
+                                    '5. recentSuggestions — ideas Compass has already offered during this current ideation interaction.',
                                     '',
                                     'Your central job is to discover NEW conversational territory.',
                                     'When meaningful learner context exists, use what Compass knows about the learner without treating previous conversation topics as recommendations for more of the same.',
