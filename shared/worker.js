@@ -347,16 +347,12 @@ export default {
                 url.pathname ===
                 '/search-covers'
             ) {
-                if (!env.PEXELS_API_KEY) {
-                    return json(
-                        {
-                            ok: false,
-                            error:
-                                'Cover search is not configured.'
-                        },
-                        503
-                    );
-                }
+                const provider =
+                    String(
+                        body?.provider || 'web'
+                    )
+                        .trim()
+                        .toLowerCase();
 
                 const query =
                     String(
@@ -373,6 +369,20 @@ export default {
                         )
                     );
 
+                if (
+                    provider !== 'web' &&
+                    provider !== 'pexels'
+                ) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Unsupported cover provider.'
+                        },
+                        400
+                    );
+                }
+
                 if (!query) {
                     return json(
                         {
@@ -381,6 +391,193 @@ export default {
                                 'Search term is required.'
                         },
                         400
+                    );
+                }
+
+                if (provider === 'web') {
+                    if (!env.SERPER_API_KEY) {
+                        return json(
+                            {
+                                ok: false,
+                                error:
+                                    'Web image search is not configured.'
+                            },
+                            503
+                        );
+                    }
+
+                    const response =
+                        await fetch(
+                            'https://google.serper.dev/images',
+                            {
+                                method: 'POST',
+
+                                headers: {
+                                    'X-API-KEY':
+                                        env.SERPER_API_KEY,
+
+                                    'Content-Type':
+                                        'application/json'
+                                },
+
+                                body: JSON.stringify({
+                                    q: query,
+                                    gl: 'us',
+                                    hl: 'en',
+                                    page,
+                                    num: 30
+                                })
+                            }
+                        );
+
+                    const result =
+                        await response.json();
+
+                    if (!response.ok) {
+                        console.error(
+                            '[Atlas AI] Serper cover search error:',
+                            result
+                        );
+
+                        return json(
+                            {
+                                ok: false,
+                                error:
+                                    'Web image search failed.',
+                                providerStatus:
+                                    response.status
+                            },
+                            502
+                        );
+                    }
+
+                    const rawImages =
+                        Array.isArray(
+                            result?.images
+                        )
+                            ? result.images
+                            : [];
+
+                    const photos =
+                        rawImages
+                            .map(
+                                (
+                                    image,
+                                    index
+                                ) => {
+                                    const imageUrl =
+                                        String(
+                                            image?.imageUrl ||
+                                            ''
+                                        ).trim();
+
+                                    const previewUrl =
+                                        String(
+                                            image?.thumbnailUrl ||
+                                            imageUrl
+                                        ).trim();
+
+                                    const width =
+                                        Number(
+                                            image?.imageWidth
+                                        ) || 0;
+
+                                    const height =
+                                        Number(
+                                            image?.imageHeight
+                                        ) || 0;
+
+                                    if (
+                                        !imageUrl ||
+                                        !previewUrl ||
+                                        (
+                                            width &&
+                                            height &&
+                                            width <= height
+                                        )
+                                    ) {
+                                        return null;
+                                    }
+
+                                    const position =
+                                        Number(
+                                            image?.position
+                                        ) ||
+                                        index + 1;
+
+                                    return {
+                                        id:
+                                            `web-${page}-${position}`,
+
+                                        width,
+                                        height,
+                                        imageUrl,
+                                        previewUrl,
+
+                                        photographer:
+                                            '',
+
+                                        photographerUrl:
+                                            '',
+
+                                        sourceUrl:
+                                            String(
+                                                image?.link ||
+                                                ''
+                                            ).trim(),
+
+                                        sourceName:
+                                            String(
+                                                image?.source ||
+                                                ''
+                                            ).trim(),
+
+                                        sourceDomain:
+                                            String(
+                                                image?.domain ||
+                                                ''
+                                            ).trim(),
+
+                                        alt:
+                                            String(
+                                                image?.title ||
+                                                ''
+                                            )
+                                                .trim()
+                                                .slice(
+                                                    0,
+                                                    300
+                                                )
+                                    };
+                                }
+                            )
+                            .filter(Boolean);
+
+                    return json({
+                        ok: true,
+
+                        payload: {
+                            provider: 'web',
+                            query,
+                            page,
+                            perPage: 30,
+                            totalResults:
+                                null,
+                            hasMore:
+                                rawImages.length > 0,
+                            photos
+                        }
+                    });
+                }
+
+                if (!env.PEXELS_API_KEY) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Pexels search is not configured.'
+                        },
+                        503
                     );
                 }
 
