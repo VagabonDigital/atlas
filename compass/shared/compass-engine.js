@@ -15121,7 +15121,7 @@ function renderDiscussionFocusContinuationControls() {
     }).join('');
 
     const canAddPathway =
-        myVersionEditing &&
+        myVersionAuthoringOpen &&
         followUps.length < DISCUSSION_FOLLOW_UP_LIMIT;
 
     const pathwayGenerating =
