@@ -897,6 +897,62 @@ function getMyVersionWorkingDraftPatch(overrides) {
     };
 }
 
+async function saveMyVersionFullSubjectBuildState(
+    completedStep,
+    autoSaveOnComplete
+) {
+    if (!isOwnedSubjectRuntime()) {
+        return null;
+    }
+
+    return requireAtlasTutorSubjects()
+        .saveBuildState(
+            MODULE.id,
+            {
+                kind: 'full-subject',
+                completedStep,
+                autoSaveOnComplete
+            }
+        );
+}
+
+async function checkpointMyVersionFullSubjectGeneration(
+    completedStep,
+    autoSaveOnComplete
+) {
+    const savedDraft =
+        await flushMyVersionWorkingDraftSave();
+
+    if (!savedDraft) {
+        throw new Error(
+            'Could not autosave subject construction progress.'
+        );
+    }
+
+    const savedState =
+        await saveMyVersionFullSubjectBuildState(
+            completedStep,
+            autoSaveOnComplete
+        );
+
+    if (!savedState) {
+        throw new Error(
+            'Could not save subject construction state.'
+        );
+    }
+
+    return savedState;
+}
+
+function clearMyVersionFullSubjectBuildState() {
+    if (!isOwnedSubjectRuntime()) {
+        return Promise.resolve(false);
+    }
+
+    return requireAtlasTutorSubjects()
+        .clearBuildState(MODULE.id);
+}
+
 function clearMyVersionWorkingDraftSaveTimer() {
     if (myVersionWorkingDraftSaveTimer !== null) {
         window.clearTimeout(myVersionWorkingDraftSaveTimer);
@@ -5045,7 +5101,8 @@ function getMyVersionFullSubjectGenerationStatus() {
 }
 
 async function generateMyVersionFullSubject({
-    autoSaveOnComplete = false
+    autoSaveOnComplete = false,
+    resumeFromStep = 0
 } = {}) {
     if (
         !myVersionEditing ||
@@ -5056,51 +5113,93 @@ async function generateMyVersionFullSubject({
         return null;
     }
 
+    let completedStep = Math.min(
+        18,
+        Math.max(
+            0,
+            Math.floor(
+                Number(resumeFromStep) || 0
+            )
+        )
+    );
+
     myVersionGeneratingFullSubject = true;
     myVersionAutoSavingFullSubject = false;
     myVersionFullSubjectGenerationError = '';
     myVersionFullSubjectGenerationNotice = '';
 
     try {
-        setMyVersionFullSubjectGenerationProgress(
-            1,
-            'Hook and introduction'
+        await checkpointMyVersionFullSubjectGeneration(
+            completedStep,
+            autoSaveOnComplete
         );
 
-        const framing =
-            await generateMyVersionSubjectFraming();
+        if (completedStep < 1) {
+            setMyVersionFullSubjectGenerationProgress(
+                1,
+                'Hook and introduction'
+            );
 
-        if (!framing) {
-            throw new Error(
-                'Subject framing generation failed.'
+            const framing =
+                await generateMyVersionSubjectFraming();
+
+            if (!framing) {
+                throw new Error(
+                    'Subject framing generation failed.'
+                );
+            }
+
+            completedStep = 1;
+
+            await checkpointMyVersionFullSubjectGeneration(
+                completedStep,
+                autoSaveOnComplete
             );
         }
 
-        setMyVersionFullSubjectGenerationProgress(
-            2,
-            'Overview'
-        );
+        if (completedStep < 2) {
+            setMyVersionFullSubjectGenerationProgress(
+                2,
+                'Overview'
+            );
 
-        const overview =
-            await generateMyVersionOverview();
+            const overview =
+                await generateMyVersionOverview();
 
-        if (!overview) {
-            throw new Error(
-                'Overview generation failed.'
+            if (!overview) {
+                throw new Error(
+                    'Overview generation failed.'
+                );
+            }
+
+            completedStep = 2;
+
+            await checkpointMyVersionFullSubjectGeneration(
+                completedStep,
+                autoSaveOnComplete
             );
         }
 
-        setMyVersionFullSubjectGenerationProgress(
-            3,
-            'Discussion framing'
-        );
+        if (completedStep < 3) {
+            setMyVersionFullSubjectGenerationProgress(
+                3,
+                'Discussion framing'
+            );
 
-        const discussionFraming =
-            await generateMyVersionDiscussionFraming();
+            const discussionFraming =
+                await generateMyVersionDiscussionFraming();
 
-        if (!discussionFraming) {
-            throw new Error(
-                'Discussion framing generation failed.'
+            if (!discussionFraming) {
+                throw new Error(
+                    'Discussion framing generation failed.'
+                );
+            }
+
+            completedStep = 3;
+
+            await checkpointMyVersionFullSubjectGeneration(
+                completedStep,
+                autoSaveOnComplete
             );
         }
 
@@ -5109,6 +5208,12 @@ async function generateMyVersionFullSubject({
             index < FULL_SUBJECT_DISCUSSION_STAGES.length;
             index += 1
         ) {
+            const step = 4 + index;
+
+            if (completedStep >= step) {
+                continue;
+            }
+
             const stage =
                 FULL_SUBJECT_DISCUSSION_STAGES[index];
 
@@ -5130,19 +5235,35 @@ async function generateMyVersionFullSubject({
                     `${stage} generation failed.`
                 );
             }
+
+            completedStep = step;
+
+            await checkpointMyVersionFullSubjectGeneration(
+                completedStep,
+                autoSaveOnComplete
+            );
         }
 
-        setMyVersionFullSubjectGenerationProgress(
-            5,
-            'Cultural Lens framing'
-        );
+        if (completedStep < 7) {
+            setMyVersionFullSubjectGenerationProgress(
+                5,
+                'Cultural Lens framing'
+            );
 
-        const culturalLensFraming =
-            await generateMyVersionCulturalLensFraming();
+            const culturalLensFraming =
+                await generateMyVersionCulturalLensFraming();
 
-        if (!culturalLensFraming) {
-            throw new Error(
-                'Cultural Lens framing generation failed.'
+            if (!culturalLensFraming) {
+                throw new Error(
+                    'Cultural Lens framing generation failed.'
+                );
+            }
+
+            completedStep = 7;
+
+            await checkpointMyVersionFullSubjectGeneration(
+                completedStep,
+                autoSaveOnComplete
             );
         }
 
@@ -5151,6 +5272,12 @@ async function generateMyVersionFullSubject({
             index < FULL_SUBJECT_CULTURAL_LENS_CARD_COUNT;
             index += 1
         ) {
+            const step = 8 + index;
+
+            if (completedStep >= step) {
+                continue;
+            }
+
             setMyVersionFullSubjectGenerationProgress(
                 6,
                 `Cultural Lens card ${index + 1} of ${FULL_SUBJECT_CULTURAL_LENS_CARD_COUNT}`
@@ -5164,19 +5291,35 @@ async function generateMyVersionFullSubject({
                     `Cultural Lens card ${index + 1} generation failed.`
                 );
             }
+
+            completedStep = step;
+
+            await checkpointMyVersionFullSubjectGeneration(
+                completedStep,
+                autoSaveOnComplete
+            );
         }
 
-        setMyVersionFullSubjectGenerationProgress(
-            7,
-            'Reflection'
-        );
+        if (completedStep < 16) {
+            setMyVersionFullSubjectGenerationProgress(
+                7,
+                'Reflection'
+            );
 
-        const reflection =
-            await generateMyVersionReflection();
+            const reflection =
+                await generateMyVersionReflection();
 
-        if (!reflection) {
-            throw new Error(
-                'Reflection generation failed.'
+            if (!reflection) {
+                throw new Error(
+                    'Reflection generation failed.'
+                );
+            }
+
+            completedStep = 16;
+
+            await checkpointMyVersionFullSubjectGeneration(
+                completedStep,
+                autoSaveOnComplete
             );
         }
 
@@ -5185,31 +5328,57 @@ async function generateMyVersionFullSubject({
          * Enrichment is deliberately the finishing layer.
          */
 
-        setMyVersionFullSubjectGenerationProgress(
-            8,
-            'Adding Discussion language + activities'
-        );
+        if (completedStep < 17) {
+            setMyVersionFullSubjectGenerationProgress(
+                8,
+                'Adding Discussion language + activities'
+            );
 
-        try {
             await enrichMyVersionDiscussionFromUI();
-        } catch (error) {
-            console.error(
-                '[Compass] Discussion finishing pass could not complete:',
-                error
+
+            const remainingDiscussionEnrichment =
+                getMyVersionDiscussionLanguageUpgradeCandidateIds()
+                    .length +
+                getMyVersionDiscussionMakeItRealCandidateSetIds()
+                    .length;
+
+            if (remainingDiscussionEnrichment > 0) {
+                throw new Error(
+                    'Discussion enrichment did not finish.'
+                );
+            }
+
+            completedStep = 17;
+
+            await checkpointMyVersionFullSubjectGeneration(
+                completedStep,
+                autoSaveOnComplete
             );
         }
 
-        setMyVersionFullSubjectGenerationProgress(
-            9,
-            'Adding Cultural Lens language'
-        );
+        if (completedStep < 18) {
+            setMyVersionFullSubjectGenerationProgress(
+                9,
+                'Adding Cultural Lens language'
+            );
 
-        try {
             await enrichMyVersionCulturalLensFromUI();
-        } catch (error) {
-            console.error(
-                '[Compass] Cultural Lens finishing pass could not complete:',
-                error
+
+            const remainingCulturalLensEnrichment =
+                getMyVersionCulturalLensLanguageUpgradeCandidateIds()
+                    .length;
+
+            if (remainingCulturalLensEnrichment > 0) {
+                throw new Error(
+                    'Cultural Lens enrichment did not finish.'
+                );
+            }
+
+            completedStep = 18;
+
+            await checkpointMyVersionFullSubjectGeneration(
+                completedStep,
+                autoSaveOnComplete
             );
         }
 
@@ -5251,6 +5420,8 @@ async function generateMyVersionFullSubject({
 
                 return null;
             }
+        } else {
+            await clearMyVersionFullSubjectBuildState();
         }
 
         return true;
@@ -5267,7 +5438,7 @@ async function generateMyVersionFullSubject({
                 'this step';
 
             myVersionFullSubjectGenerationError =
-                `Generation paused at ${failedAt}. Your work is autosaved — continue from here.`;
+                `Generation paused at ${failedAt}. Your work is autosaved — Atlas will continue from here when you return.`;
         }
 
         return null;

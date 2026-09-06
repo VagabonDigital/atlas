@@ -18,6 +18,7 @@
     const LOCAL_OWNER_ID = 'local-tutor';
     const SUBJECT_PREFIX = 'atlas::tutorSubjects::subject::';
     const WORKING_DRAFT_PREFIX = 'atlas::tutorSubjects::workingDraft::';
+    const BUILD_STATE_PREFIX = 'atlas::tutorSubjects::buildState::';
     const SESSION_SUBJECTS_PREFIX = 'atlas::tutorSubjects::sessionSubjects::';
     const ORDER_KEY = 'atlas::tutorSubjects::order';
     const LIBRARY_KEY = 'atlas::tutorSubjects::library';
@@ -36,6 +37,10 @@
 
     function workingDraftStorageKey(subjectId) {
         return `${WORKING_DRAFT_PREFIX}${encodePart(subjectId)}`;
+    }
+
+    function buildStateStorageKey(subjectId) {
+        return `${BUILD_STATE_PREFIX}${encodePart(subjectId)}`;
     }
 
     function sessionSubjectsStorageKey(sessionId) {
@@ -812,6 +817,51 @@
                 record.activeViewId.trim()
                     ? record.activeViewId.trim()
                     : 'view-cover',
+            startedAt: Math.max(
+                0,
+                Number(record.startedAt) ||
+                Number(record.updatedAt) ||
+                Date.now()
+            ),
+            updatedAt: Math.max(
+                0,
+                Number(record.updatedAt) || 0
+            )
+        };
+    }
+
+    function normalizeBuildState(record, subjectId) {
+        if (
+            !record ||
+            typeof record !== 'object' ||
+            Array.isArray(record)
+        ) {
+            return null;
+        }
+
+        const id = String(subjectId || '').trim();
+
+        const kind =
+            record.kind === 'full-subject'
+                ? 'full-subject'
+                : '';
+
+        if (!id || !kind) {
+            return null;
+        }
+
+        return {
+            schemaVersion: SCHEMA_VERSION,
+            subjectId: id,
+            kind,
+            completedStep: Math.max(
+                0,
+                Math.floor(
+                    Number(record.completedStep) || 0
+                )
+            ),
+            autoSaveOnComplete:
+                record.autoSaveOnComplete !== false,
             startedAt: Math.max(
                 0,
                 Number(record.startedAt) ||
@@ -1871,14 +1921,88 @@
             : null;
     }
 
-    async function clearWorkingDraft(subjectId) {
+    async function getBuildState(subjectId) {
+        const subject = await getSubject(subjectId);
+
+        if (!subject) return null;
+
+        return normalizeBuildState(
+            readJson(
+                buildStateStorageKey(subject.id)
+            ),
+            subject.id
+        );
+    }
+
+    async function saveBuildState(
+        subjectId,
+        patch = {}
+    ) {
+        const subject = await getSubject(subjectId);
+
+        if (!subject) return null;
+
+        const nextPatch =
+            patch &&
+            typeof patch === 'object' &&
+            !Array.isArray(patch)
+                ? patch
+                : {};
+
+        const current =
+            await getBuildState(subject.id);
+
+        const timestamp = Date.now();
+
+        const next = normalizeBuildState(
+            {
+                ...current,
+                ...nextPatch,
+                kind:
+                    nextPatch.kind ||
+                    current?.kind ||
+                    'full-subject',
+                startedAt:
+                    current?.startedAt ||
+                    timestamp,
+                updatedAt:
+                    timestamp
+            },
+            subject.id
+        );
+
+        if (!next) return null;
+
+        return writeJson(
+            buildStateStorageKey(subject.id),
+            next
+        )
+            ? cloneJson(next)
+            : null;
+    }
+
+    async function clearBuildState(subjectId) {
         const id = String(subjectId || '').trim();
 
         if (!id) return false;
 
         return removeValue(
+            buildStateStorageKey(id)
+        );
+    }
+
+    async function clearWorkingDraft(subjectId) {
+        const id = String(subjectId || '').trim();
+
+        if (!id) return false;
+
+        const draftRemoved = removeValue(
             workingDraftStorageKey(id)
         );
+
+        await clearBuildState(id);
+
+        return draftRemoved;
     }
 
     async function updateSubject(
@@ -2228,6 +2352,10 @@
         if (deleted) {
             removeValue(
                 workingDraftStorageKey(current.id)
+            );
+
+            removeValue(
+                buildStateStorageKey(current.id)
             );
 
             removeMySubjectFromSessionSubjects(
@@ -2614,6 +2742,7 @@
         const existingKeys = [
             ...listKeysWithPrefix(SUBJECT_PREFIX),
             ...listKeysWithPrefix(WORKING_DRAFT_PREFIX),
+            ...listKeysWithPrefix(BUILD_STATE_PREFIX),
             ...listKeysWithPrefix(SESSION_SUBJECTS_PREFIX)
         ];
 
@@ -2687,6 +2816,10 @@
         getWorkingDraft,
         saveWorkingDraft,
         clearWorkingDraft,
+
+        getBuildState,
+        saveBuildState,
+        clearBuildState,
 
         updateSubject,
         moveSubject,
