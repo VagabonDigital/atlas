@@ -2892,6 +2892,10 @@
     function startGame() {
       if (!Bridge || !session || !ST) return;
 
+      window.AtlasAnalytics?.arcadeGameStart(
+        'truth-trap'
+      );
+
       ST.lastOpenedAt = Date.now();
       saveState();
       touchActivity();

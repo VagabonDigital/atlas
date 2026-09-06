@@ -673,6 +673,9 @@
                     'Sent — thank you.';
             }
 
+            window.AtlasAnalytics
+                ?.messageAtlasTeamSubmit();
+
             window.setTimeout(
                 close,
                 650

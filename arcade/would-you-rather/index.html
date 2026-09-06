@@ -1578,6 +1578,10 @@
        SCREEN TRANSITIONS
     ================================================================ */
     function startGame() {
+      window.AtlasAnalytics?.arcadeGameStart(
+        'would-you-rather'
+      );
+
       const intro = document.getElementById('intro-screen');
       intro.classList.add('fade-out');
       setTimeout(() => { intro.style.display = 'none'; }, 420);

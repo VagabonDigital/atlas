@@ -5194,6 +5194,13 @@
             created
           );
 
+          window.AtlasAnalytics?.subjectCreate({
+            creationMode:
+              generateFullSubject
+                ? 'generate'
+                : 'create'
+          });
+
           const launchUrl =
             getOwnedSubjectLaunchUrl(
               created.id,

@@ -54,6 +54,88 @@
         );
     }
 
+    function trackAtlasEvent(
+        eventName,
+        parameters = {}
+    ) {
+        if (
+            !eventName ||
+            typeof window.gtag !== 'function'
+        ) {
+            return;
+        }
+
+        window.gtag(
+            'event',
+            eventName,
+            parameters
+        );
+    }
+
+    window.AtlasAnalytics = Object.freeze({
+        track: trackAtlasEvent,
+
+        compassLessonBegin({
+            subjectSource = 'atlas'
+        } = {}) {
+            trackAtlasEvent(
+                'compass_lesson_begin',
+                {
+                    subject_source:
+                        subjectSource
+                }
+            );
+        },
+
+        arcadeGameStart(gameId) {
+            trackAtlasEvent(
+                'arcade_game_start',
+                {
+                    game_id:
+                        String(gameId || '')
+                }
+            );
+        },
+
+        subjectCreate({
+            creationMode = 'create'
+        } = {}) {
+            trackAtlasEvent(
+                'subject_create',
+                {
+                    creation_mode:
+                        creationMode
+                }
+            );
+        },
+
+        messageAtlasTeamSubmit() {
+            trackAtlasEvent(
+                'message_atlas_team_submit'
+            );
+        },
+
+        checkinShown(checkinId) {
+            trackAtlasEvent(
+                'checkin_shown',
+                {
+                    checkin_id:
+                        String(checkinId || '')
+                }
+            );
+        },
+
+        checkinCompleted(checkinId) {
+            trackAtlasEvent(
+                'checkin_completed',
+                {
+                    checkin_id:
+                        String(checkinId || '')
+                }
+            );
+        }
+    });
+
     const KEYS = {
         sessions: 'atlas::sessions',
         activeSessionId: 'atlas::activeSessionId',

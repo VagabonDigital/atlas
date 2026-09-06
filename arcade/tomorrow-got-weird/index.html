@@ -2067,6 +2067,11 @@
 
     function startGame() {
       if (!Bridge || !session) return;
+
+      window.AtlasAnalytics?.arcadeGameStart(
+        'tomorrow-got-weird'
+      );
+
       state.lastOpenedAt = Date.now();
       saveState();
       touchActivity();

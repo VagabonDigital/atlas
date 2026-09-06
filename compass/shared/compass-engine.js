@@ -11337,6 +11337,13 @@ function renderMobileDrawerNav() {
 // ============================================================
 
 function beginModule() {
+    window.AtlasAnalytics?.compassLessonBegin({
+        subjectSource:
+            isOwnedSubjectRuntime()
+                ? 'owned'
+                : 'atlas'
+    });
+
     document.body.classList.add('module-active');
     goToView('view-orientation');
 }
