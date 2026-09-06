@@ -21,6 +21,39 @@
 (function () {
     'use strict';
 
+    // ============================================================
+    // GA4
+    // ============================================================
+
+    const GA_MEASUREMENT_ID = 'G-Q6Z6YWZ5YP';
+
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function () {
+        window.dataLayer.push(arguments);
+    };
+
+    window.gtag('js', new Date());
+    window.gtag('config', GA_MEASUREMENT_ID);
+
+    if (!document.querySelector(
+        `script[data-atlas-ga4="${GA_MEASUREMENT_ID}"]`
+    )) {
+        const analyticsScript =
+            document.createElement('script');
+
+        analyticsScript.async = true;
+        analyticsScript.src =
+            'https://www.googletagmanager.com/gtag/js?id=' +
+            encodeURIComponent(GA_MEASUREMENT_ID);
+
+        analyticsScript.dataset.atlasGa4 =
+            GA_MEASUREMENT_ID;
+
+        document.head.appendChild(
+            analyticsScript
+        );
+    }
+
     const KEYS = {
         sessions: 'atlas::sessions',
         activeSessionId: 'atlas::activeSessionId',
