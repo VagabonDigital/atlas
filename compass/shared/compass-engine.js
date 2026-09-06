@@ -1254,6 +1254,14 @@ function updateMyVersionAuthorBar() {
         'atlas-my-version-cover-action'
     );
 
+    const libraryIntroButton = document.getElementById(
+        'atlas-my-version-library-intro-action'
+    );
+
+    const moreActionButton = document.getElementById(
+        'atlas-my-version-more-action'
+    );
+
     const framingButton = document.getElementById(
         'atlas-my-version-generate-framing'
     );
@@ -1458,10 +1466,28 @@ function updateMyVersionAuthorBar() {
     }
 
     if (coverActionButton) {
-        coverActionButton.disabled = myVersionSaving;
-        coverActionButton.textContent = onCover
-            ? 'Subject details'
-            : 'Cover';
+        coverActionButton.disabled =
+            myVersionSaving ||
+            enrichmentActive;
+
+        coverActionButton.textContent =
+            'Change cover';
+    }
+
+    if (libraryIntroButton) {
+        libraryIntroButton.disabled =
+            myVersionSaving ||
+            enrichmentActive;
+    }
+
+    if (moreActionButton) {
+        moreActionButton.hidden =
+            ownedSubject ||
+            !hasSavedMyVersion();
+
+        moreActionButton.disabled =
+            myVersionSaving ||
+            enrichmentActive;
     }
 
     if (framingButton) {
@@ -2154,13 +2180,25 @@ function beginMyVersionEditing(includeLiveChanges = false) {
     saveMyVersionWorkingDraftNow();
 }
 
-function openMyVersionSubjectDetailsFromMobile() {
+function openMyVersionLibraryIntroFromBar() {
     if (!myVersionEditing || myVersionSaving) {
         return;
     }
 
     closeMyVersionMobileTools();
     openMyVersionCoverDialog();
+}
+
+function openMyVersionManagementFromBar() {
+    if (
+        !myVersionEditing ||
+        myVersionSaving
+    ) {
+        return;
+    }
+
+    closeMyVersionMobileTools();
+    openMyVersionManagementDialog();
 }
 
 function requestMyVersionEditing({
@@ -2642,16 +2680,6 @@ function applyMyVersionCoverPickerPhoto(
         );
     }
 
-    const legacyImageInput =
-        document.getElementById(
-            'atlas-my-version-image-input'
-        );
-
-    if (legacyImageInput) {
-        legacyImageInput.value =
-            imageUrl;
-    }
-
     closeMyVersionCoverPicker();
 }
 
@@ -3051,6 +3079,13 @@ function setMyVersionCoverPickerProvider(
 
     updateMyVersionCoverPickerProviderUI();
     restoreMyVersionCoverPickerProviderState();
+
+    if (
+        provider === 'pexels' &&
+        !nextState.hasSearched
+    ) {
+        searchMyVersionCoverPicker();
+    }
 }
 
 function openMyVersionCoverPicker() {
@@ -3105,12 +3140,16 @@ function openMyVersionCoverPicker() {
 function handleMyVersionCoverAction() {
     if (!myVersionEditing || myVersionSaving) return;
 
-    if (getActiveCompassViewId() === 'view-cover') {
-        openMyVersionCoverPicker();
-        return;
+    closeMyVersionMobileTools();
+
+    if (
+        getActiveCompassViewId() !==
+        'view-cover'
+    ) {
+        goToView('view-cover');
     }
 
-    goToView('view-cover');
+    openMyVersionCoverPicker();
 }
 
 function closeMyVersionCoverDialog() {
@@ -3166,46 +3205,29 @@ function openMyVersionManagementDialog() {
     activateFocusTrap(dialog);
 }
 
-function returnToMyVersionSubjectDetails() {
-    closeMyVersionManagementDialog();
-
-    if (
-        myVersionEditing &&
-        !myVersionSaving
-    ) {
-        openMyVersionCoverDialog();
-    }
-}
-
-function hasUnappliedMyVersionCoverChanges() {
-    const imageInput = document.getElementById(
-        'atlas-my-version-image-input'
-    );
-
+function hasUnappliedMyVersionLibraryIntroChanges() {
     const descriptionInput = document.getElementById(
         'atlas-my-version-description-input'
     );
 
-    if (!imageInput || !descriptionInput) {
+    if (!descriptionInput) {
         return false;
     }
 
     return (
-        String(imageInput.value || '').trim() !==
-            getEffectiveSubjectCoverImage() ||
         String(descriptionInput.value || '').trim() !==
-            getEffectiveSubjectCatalogDescription()
+        getEffectiveSubjectCatalogDescription()
     );
 }
 
 function updateCreateSubjectFromMyVersionUI() {
     const applyButton = document.getElementById(
-        'atlas-my-version-cover-confirm'
+        'atlas-my-version-library-intro-confirm'
     );
 
     if (applyButton) {
         applyButton.disabled =
-            !hasUnappliedMyVersionCoverChanges() ||
+            !hasUnappliedMyVersionLibraryIntroChanges() ||
             myVersionSaving;
     }
 
@@ -3253,7 +3275,7 @@ function updateCreateSubjectFromMyVersionUI() {
 
     const hasUnpublishedChanges =
         myVersionDirty ||
-        hasUnappliedMyVersionCoverChanges();
+        hasUnappliedMyVersionLibraryIntroChanges();
 
     button.textContent = 'Create as new subject';
     button.disabled =
@@ -3302,14 +3324,14 @@ async function createSubjectFromMyVersion() {
 
     if (
         myVersionDirty ||
-        hasUnappliedMyVersionCoverChanges()
+        hasUnappliedMyVersionLibraryIntroChanges()
     ) {
         updateCreateSubjectFromMyVersionUI();
 
         if (status) {
             status.hidden = false;
             status.textContent =
-                'Apply any detail changes and save My Version first.';
+                'Apply the library introduction and save My Version first.';
         }
 
         return;
@@ -3377,59 +3399,14 @@ function openMyVersionCoverDialog() {
         'atlas-my-version-cover-dialog'
     );
 
-    const imageInput = document.getElementById(
-        'atlas-my-version-image-input'
-    );
-
     const descriptionInput = document.getElementById(
         'atlas-my-version-description-input'
     );
 
-    const managementEntry = document.getElementById(
-        'atlas-my-version-management-entry'
-    );
+    if (!dialog || !descriptionInput) return;
 
-    const error = document.getElementById(
-        'atlas-my-version-cover-error'
-    );
-
-    if (!dialog || !imageInput || !descriptionInput) return;
-
-    const ownedSubject = isOwnedSubjectRuntime();
-    const kicker = dialog.querySelector(
-        '.atlas-my-version-dialog-kicker'
-    );
-    const copy = dialog.querySelector(
-        '.atlas-my-version-dialog-copy'
-    );
-
-    if (kicker) {
-        kicker.textContent = ownedSubject
-            ? 'MY SUBJECT'
-            : 'MY VERSION';
-    }
-
-    if (copy) {
-        copy.textContent = ownedSubject
-            ? 'Edit the title and hook directly on the cover. These details control how your subject appears in Atlas and Compass.'
-            : 'Edit the title and hook directly on the cover. These details control how your version appears in Atlas and Compass.';
-    }
-
-    imageInput.value = getEffectiveSubjectCoverImage();
     descriptionInput.value =
         getEffectiveSubjectCatalogDescription();
-
-    myVersionCreatedSubjectId = null;
-
-    if (managementEntry) {
-        managementEntry.hidden =
-            ownedSubject || !hasSavedMyVersion();
-    }
-
-    if (error) {
-        error.hidden = true;
-        error.textContent = '';
-    }
 
     updateCreateSubjectFromMyVersionUI();
 
@@ -3440,52 +3417,13 @@ function openMyVersionCoverDialog() {
 function applyMyVersionCoverChanges() {
     if (!myVersionEditing || myVersionSaving) return;
 
-    const imageInput = document.getElementById(
-        'atlas-my-version-image-input'
-    );
-
     const descriptionInput = document.getElementById(
         'atlas-my-version-description-input'
     );
 
-    const error = document.getElementById(
-        'atlas-my-version-cover-error'
-    );
-
-    const image = String(imageInput?.value || '').trim();
     const description = String(
         descriptionInput?.value || ''
     ).trim();
-
-    try {
-        const parsed = new URL(image, window.location.href);
-        const allowedProtocols = new Set([
-            'http:',
-            'https:',
-            'data:',
-            'blob:',
-            'file:'
-        ]);
-
-        if (!allowedProtocols.has(parsed.protocol)) {
-            throw new Error('Unsupported image URL.');
-        }
-    } catch {
-        if (error) {
-            error.hidden = false;
-            error.textContent =
-                'Use a valid image URL or relative image path.';
-        }
-
-        return;
-    }
-
-    if (image !== getEffectiveSubjectCoverImage()) {
-        commitMyVersionDraftContent(
-            'module.bgImage',
-            image
-        );
-    }
 
     if (
         description !==

@@ -5470,15 +5470,7 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
         cursor: pointer;
     }
 
-    .atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-mobile-details {
-        display: inline-flex;
-    }
-
-    .atlas-my-version-bar.is-mobile-tools-open #atlas-my-version-cover-action {
-        display: none !important;
-    }
-
-    .atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-actions>button:not(#atlas-my-version-save):not(#atlas-my-version-cover-action):not([hidden]) {
+    .atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-actions>button:not(#atlas-my-version-save):not([hidden]) {
         display: inline-flex;
         grid-column: 1;
         width: 100%;

@@ -796,17 +796,18 @@ function mountCompassSubjectShell() {
                 </button>
             </div>
 
-            <button class="atlas-my-version-secondary atlas-my-version-mobile-details"
-                type="button"
-                onclick="openMyVersionSubjectDetailsFromMobile()">
-                Subject details
-            </button>
-
             <button class="atlas-my-version-secondary"
                 id="atlas-my-version-cover-action"
                 type="button"
                 onclick="handleMyVersionCoverAction()">
-                Cover
+                Change cover
+            </button>
+
+            <button class="atlas-my-version-secondary"
+                id="atlas-my-version-library-intro-action"
+                type="button"
+                onclick="openMyVersionLibraryIntroFromBar()">
+                Library intro
             </button>
 
             <button class="atlas-my-version-secondary atlas-my-version-ai"
@@ -947,6 +948,14 @@ function mountCompassSubjectShell() {
                         stroke-linejoin="round"/>
                 </svg>
                 Generate reflection
+            </button>
+
+            <button class="atlas-my-version-secondary"
+                id="atlas-my-version-more-action"
+                type="button"
+                onclick="openMyVersionManagementFromBar()"
+                hidden>
+                More
             </button>
 
             <button class="atlas-my-version-secondary"
@@ -1107,31 +1116,23 @@ function mountCompassSubjectShell() {
         id="atlas-my-version-cover-dialog" hidden
         role="dialog"
         aria-modal="true"
-        aria-labelledby="atlas-my-version-cover-title"
+        aria-labelledby="atlas-my-version-library-intro-title"
         onclick="if(event.target === this) closeMyVersionCoverDialog()">
         <div class="atlas-my-version-dialog-panel">
-            <p class="atlas-my-version-dialog-kicker">MY VERSION</p>
+            <p class="atlas-my-version-dialog-kicker">
+                LIBRARY
+            </p>
 
-            <h2 id="atlas-my-version-cover-title">
-                Subject details
+            <h2 id="atlas-my-version-library-intro-title">
+                Library introduction
             </h2>
 
             <p class="atlas-my-version-dialog-copy">
-                Edit the title and hook directly on the cover. These details control how your version appears in Atlas and Compass.
+                This short introduction appears with the subject in the Atlas and Compass library.
             </p>
 
             <label class="atlas-my-version-field">
-                <span>Cover image URL or path</span>
-
-                <input id="atlas-my-version-image-input"
-                    type="text"
-                    inputmode="url"
-                    autocomplete="off"
-                    oninput="updateCreateSubjectFromMyVersionUI()">
-            </label>
-
-            <label class="atlas-my-version-field">
-                <span>Library introduction</span>
+                <span>Introduction</span>
 
                 <textarea id="atlas-my-version-description-input"
                     rows="4"
@@ -1139,9 +1140,6 @@ function mountCompassSubjectShell() {
                     autocomplete="off"
                     oninput="updateCreateSubjectFromMyVersionUI()"></textarea>
             </label>
-
-            <p class="atlas-my-version-dialog-error"
-                id="atlas-my-version-cover-error" hidden></p>
 
             <div class="atlas-my-version-dialog-actions atlas-my-version-dialog-actions--compact">
                 <button class="atlas-my-version-dialog-secondary"
@@ -1151,20 +1149,10 @@ function mountCompassSubjectShell() {
                 </button>
 
                 <button class="atlas-my-version-dialog-primary"
-                    id="atlas-my-version-cover-confirm"
+                    id="atlas-my-version-library-intro-confirm"
                     type="button"
                     onclick="applyMyVersionCoverChanges()">
-                    Apply details
-                </button>
-            </div>
-
-            <div class="atlas-my-version-management-entry"
-                id="atlas-my-version-management-entry" hidden>
-                <button class="atlas-my-version-management-trigger"
-                    type="button"
-                    onclick="openMyVersionManagementDialog()">
-                    <span>Version management</span>
-                    <span aria-hidden="true">→</span>
+                    Apply introduction
                 </button>
             </div>
         </div>
@@ -1233,12 +1221,11 @@ function mountCompassSubjectShell() {
                 </section>
             </div>
 
-            <div class="atlas-my-version-management-back-row">
-                <button class="atlas-my-version-management-back"
+            <div class="atlas-my-version-dialog-actions">
+                <button class="atlas-my-version-dialog-cancel"
                     type="button"
-                    onclick="returnToMyVersionSubjectDetails()">
-                    <span aria-hidden="true">←</span>
-                    <span>Back to subject details</span>
+                    onclick="closeMyVersionManagementDialog()">
+                    Done
                 </button>
             </div>
         </div>
