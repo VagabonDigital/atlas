@@ -11200,7 +11200,6 @@ async function createSubjectFromPublishedMyVersion() {
 
 function getEffectiveSubjectTitle() {
     const draftTitle =
-        isOwnedSubjectRuntime() &&
         myVersionEditing &&
         typeof myVersionDraftDocument?.module?.title === 'string'
             ? myVersionDraftDocument.module.title
@@ -11221,7 +11220,6 @@ function getPublishedSubjectTitle() {
 
 function getEffectiveSubjectCoverImage() {
     const draftImage =
-        isOwnedSubjectRuntime() &&
         myVersionEditing &&
         typeof myVersionDraftDocument?.module?.bgImage === 'string'
             ? myVersionDraftDocument.module.bgImage
@@ -11242,7 +11240,6 @@ function getPublishedSubjectCoverImage() {
 
 function getEffectiveSubjectCatalogDescription() {
     const draftDescription =
-        isOwnedSubjectRuntime() &&
         myVersionEditing &&
         typeof myVersionDraftDocument?.module
             ?.catalogDescription === 'string'
