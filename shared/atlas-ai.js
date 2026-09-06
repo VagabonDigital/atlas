@@ -1408,9 +1408,9 @@
                 },
 
                 body: JSON.stringify({
-                    notes:
+                    interests:
                         cleanString(
-                            candidate.notes
+                            candidate.interests
                         ),
 
                     sessionSubjects,

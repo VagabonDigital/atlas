@@ -250,6 +250,10 @@
                 rgba(var(--accent-rgb), 0.06);
         }
 
+        .memory-notes + .memory-notes {
+            margin-top: 1rem;
+        }
+
         .memory-notes-header {
             display: flex;
             align-items: center;
@@ -275,6 +279,19 @@
 
             font-weight:
                 600;
+        }
+
+        .memory-notes-hint {
+            margin-top: 0.22rem;
+
+            color:
+                var(--text-muted);
+
+            font-size:
+                0.72rem;
+
+            line-height:
+                1.45;
         }
 
         .memory-status {
@@ -317,6 +334,10 @@
 
             line-height:
                 1.7;
+        }
+
+        .memory-textarea.memory-textarea--interests {
+            min-height: 150px;
         }
 
         .memory-textarea::placeholder {
@@ -441,13 +462,38 @@
 
             <section class="memory-notes">
                 <div class="memory-notes-header">
+                    <div>
+                        <h2 class="memory-notes-label">
+                            Interests
+                        </h2>
+
+                        <div class="memory-notes-hint">
+                            Used by Compass when suggesting subjects.
+                        </div>
+                    </div>
+
+                    <div
+                        class="memory-status"
+                        aria-live="polite"
+                    ></div>
+                </div>
+
+                <textarea
+                    class="memory-textarea memory-textarea--interests"
+                    id="memory-interests"
+                    placeholder="Topics, hobbies, interests, or things they enjoy talking about…"
+                    aria-label="Learner interests"
+                ></textarea>
+            </section>
+
+            <section class="memory-notes">
+                <div class="memory-notes-header">
                     <h2 class="memory-notes-label">
                         Notes
                     </h2>
 
                     <div
                         class="memory-status"
-                        id="memory-status"
                         aria-live="polite"
                     ></div>
                 </div>
@@ -512,25 +558,43 @@
                 'memory-empty'
             );
 
-        const textarea =
+        const interestsTextarea =
+            document.getElementById(
+                'memory-interests'
+            );
+
+        const notesTextarea =
             document.getElementById(
                 'memory-textarea'
             );
 
-        const status =
-            document.getElementById(
-                'memory-status'
+        const statuses =
+            Array.from(
+                document.querySelectorAll(
+                    '.memory-status'
+                )
             );
 
         let saveTimer = null;
         let lastSavedValue = '';
 
         function setStatus(message) {
-            status.textContent =
-                message;
+            statuses.forEach(status => {
+                status.textContent =
+                    message;
+            });
         }
 
-        function saveNotes() {
+        function getMemoryValue() {
+            return JSON.stringify({
+                interests:
+                    interestsTextarea.value,
+                notes:
+                    notesTextarea.value
+            });
+        }
+
+        function saveMemory() {
             if (
                 !Bridge ||
                 !session
@@ -538,11 +602,20 @@
                 return;
             }
 
+            const interests =
+                interestsTextarea.value;
+
             const notes =
-                textarea.value;
+                notesTextarea.value;
+
+            const nextSavedValue =
+                JSON.stringify({
+                    interests,
+                    notes
+                });
 
             if (
-                notes ===
+                nextSavedValue ===
                 lastSavedValue
             ) {
                 setStatus('');
@@ -551,19 +624,24 @@
 
             Bridge.writeLearnerMemory(
                 session.id,
-                { notes }
+                {
+                    interests,
+                    notes
+                }
             );
 
             lastSavedValue =
-                notes;
+                nextSavedValue;
 
             setStatus('Saved');
 
             window.setTimeout(
                 () => {
                     if (
-                        status.textContent ===
-                        'Saved'
+                        statuses.some(status =>
+                            status.textContent ===
+                            'Saved'
+                        )
                     ) {
                         setStatus('');
                     }
@@ -581,7 +659,7 @@
 
             saveTimer =
                 window.setTimeout(
-                    saveNotes,
+                    saveMemory,
                     400
                 );
         }
@@ -612,28 +690,36 @@
                 .textContent =
                     session.name;
 
-            textarea.value =
+            interestsTextarea.value =
+                memory.interests || '';
+
+            notesTextarea.value =
                 memory.notes || '';
 
             lastSavedValue =
-                textarea.value;
+                getMemoryValue();
 
-            textarea.addEventListener(
-                'input',
-                queueSave
-            );
+            [
+                interestsTextarea,
+                notesTextarea
+            ].forEach(textarea => {
+                textarea.addEventListener(
+                    'input',
+                    queueSave
+                );
 
-            textarea.addEventListener(
-                'blur',
-                saveNotes
-            );
+                textarea.addEventListener(
+                    'blur',
+                    saveMemory
+                );
+            });
 
             content.hidden = false;
         }
 
         window.addEventListener(
             'pagehide',
-            saveNotes
+            saveMemory
         );
 
         init();

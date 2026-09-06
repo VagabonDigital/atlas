@@ -454,6 +454,7 @@
         return {
             schemaVersion: 1,
             sessionId,
+            interests: '',
             notes: '',
             nextTime: '',
             updatedAt: 0
@@ -470,6 +471,9 @@
         return {
             schemaVersion: 1,
             sessionId,
+            interests: typeof record.interests === 'string'
+                ? record.interests
+                : '',
             notes: typeof record.notes === 'string'
                 ? record.notes
                 : '',
@@ -525,7 +529,11 @@
             cleanSessionId
         );
 
-        if (!next.notes.trim() && !next.nextTime.trim()) {
+        if (
+            !next.interests.trim() &&
+            !next.notes.trim() &&
+            !next.nextTime.trim()
+        ) {
             delete safeStore[cleanSessionId];
         } else {
             safeStore[cleanSessionId] = next;

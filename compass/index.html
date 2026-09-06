@@ -7060,7 +7060,7 @@
           context.sessionId
         ) || [];
 
-      let notes = '';
+      let interests = '';
 
       try {
         if (
@@ -7071,10 +7071,10 @@
             .readLearnerMemory ===
           'function'
         ) {
-          notes =
+          interests =
             Bridge.readLearnerMemory(
               context.sessionId
-            )?.notes || '';
+            )?.interests || '';
         }
       } catch { }
 
@@ -7082,7 +7082,7 @@
         const result =
           await window.AtlasAI
             .suggestSubjectIdeas({
-              notes,
+              interests,
 
               sessionSubjects:
                 context.sessionSubjects,
