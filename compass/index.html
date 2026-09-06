@@ -5142,6 +5142,16 @@
               ? styleSelect.value
               : 'balanced',
 
+          premise:
+            state.suggestion &&
+            String(
+              state.suggestion.title || ''
+            ).trim() === nextTitle
+              ? String(
+                state.suggestion.premise || ''
+              ).trim()
+              : '',
+
           brief: String(
             briefInput?.value || ''
           ).trim()
@@ -6861,6 +6871,10 @@
             escHtml(
               idea.title
             ) +
+            '" data-subject-premise="' +
+            escHtml(
+              idea.reason
+            ) +
             '" onclick="chooseCompassSubjectIdea(this)">' +
             '<span class="compass-recommendation-copy">' +
             '<span class="compass-recommendation-title">' +
@@ -6957,6 +6971,13 @@
           ''
         ).trim();
 
+      const premise =
+        String(
+          button?.dataset
+            ?.subjectPremise ||
+          ''
+        ).trim();
+
       const dialog =
         button?.closest(
           '.owned-subject-dialog-panel'
@@ -6979,6 +7000,16 @@
 
       if (!title || !input) {
         return;
+      }
+
+      if (
+        ownedSubjectDialogState?.mode ===
+        'create'
+      ) {
+        ownedSubjectDialogState.suggestion = {
+          title,
+          premise
+        };
       }
 
       input.value = title;
