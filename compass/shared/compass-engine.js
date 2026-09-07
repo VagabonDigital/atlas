@@ -431,6 +431,8 @@ let myVersionFullSubjectGenerationError = '';
 let myVersionFullSubjectGenerationProgress = null;
 let myVersionFullSubjectGenerationNotice = '';
 
+let currentAffairsReadMoreEnrichmentPromise = null;
+
 
 // ============================================================
 // BRIDGE
@@ -6458,6 +6460,10 @@ async function generateMyVersionFullSubject({
             );
         }
 
+        if (completedStep >= 2) {
+            startCurrentAffairsReadMoreEnrichment();
+        }
+
         if (completedStep < 3) {
             setMyVersionFullSubjectGenerationProgress(
                 3,
@@ -12173,6 +12179,246 @@ function configureStaticTutorContentField(
             multiline
         }
     );
+}
+
+function startCurrentAffairsReadMoreEnrichment() {
+    if (
+        !isOwnedSubjectRuntime() ||
+        currentAffairsReadMoreEnrichmentPromise
+    ) {
+        return currentAffairsReadMoreEnrichmentPromise;
+    }
+
+    const context =
+        window.AtlasGenerationContext &&
+        typeof window.AtlasGenerationContext === 'object' &&
+        !Array.isArray(
+            window.AtlasGenerationContext
+        )
+            ? window.AtlasGenerationContext
+            : {};
+
+    if (
+        String(
+            context.ideaMode || ''
+        ).trim() !== 'current-affairs'
+    ) {
+        return null;
+    }
+
+    const source =
+        context.source &&
+        typeof context.source === 'object' &&
+        !Array.isArray(context.source)
+            ? context.source
+            : null;
+
+    if (!source) {
+        return null;
+    }
+
+    const existingQuestions =
+        Array.isArray(
+            source.readMoreQuestions
+        )
+            ? source.readMoreQuestions
+                .map(question =>
+                    String(
+                        question || ''
+                    ).trim()
+                )
+                .filter(Boolean)
+                .slice(0, 2)
+            : [];
+
+    if (
+        String(
+            source.readMore || ''
+        ).trim() &&
+        existingQuestions.length === 2
+    ) {
+        renderCurrentAffairsReadMore();
+        return null;
+    }
+
+    const keyFacts =
+        Array.isArray(source.keyFacts)
+            ? source.keyFacts
+                .map(fact =>
+                    String(
+                        fact || ''
+                    ).trim()
+                )
+                .filter(Boolean)
+                .slice(0, 4)
+            : [];
+
+    if (
+        !String(
+            source.publisher || ''
+        ).trim() ||
+        !String(
+            source.title || ''
+        ).trim() ||
+        !String(
+            source.url || ''
+        ).trim() ||
+        !String(
+            source.summary || ''
+        ).trim() ||
+        keyFacts.length < 2
+    ) {
+        return null;
+    }
+
+    const AI =
+        window.AtlasAI;
+
+    if (
+        !AI ||
+        typeof AI.generateCurrentAffairsReading !==
+            'function'
+    ) {
+        return null;
+    }
+
+    currentAffairsReadMoreEnrichmentPromise =
+        (async () => {
+            try {
+                const reading =
+                    await AI
+                        .generateCurrentAffairsReading({
+                            source: {
+                                ...source,
+                                keyFacts
+                            },
+
+                            languageLevel:
+                                String(
+                                    context.languageLevel ||
+                                    'b2'
+                                ).trim() || 'b2'
+                        });
+
+                const readMore =
+                    String(
+                        reading?.readMore || ''
+                    ).trim();
+
+                const readMoreQuestions =
+                    Array.isArray(
+                        reading?.readMoreQuestions
+                    )
+                        ? reading.readMoreQuestions
+                            .map(question =>
+                                String(
+                                    question || ''
+                                ).trim()
+                            )
+                            .filter(Boolean)
+                            .slice(0, 2)
+                        : [];
+
+                if (
+                    !readMore ||
+                    readMoreQuestions.length !== 2
+                ) {
+                    throw new Error(
+                        'Atlas returned an incomplete Current Affairs reading.'
+                    );
+                }
+
+                const latestContext =
+                    window.AtlasGenerationContext &&
+                    typeof window.AtlasGenerationContext ===
+                        'object' &&
+                    !Array.isArray(
+                        window.AtlasGenerationContext
+                    )
+                        ? window.AtlasGenerationContext
+                        : context;
+
+                const latestSource =
+                    latestContext.source &&
+                    typeof latestContext.source ===
+                        'object' &&
+                    !Array.isArray(
+                        latestContext.source
+                    )
+                        ? latestContext.source
+                        : source;
+
+                const nextGenerationContext = {
+                    ...latestContext,
+
+                    source: {
+                        ...latestSource,
+                        readMore,
+                        readMoreQuestions
+                    }
+                };
+
+                const saved =
+                    await queueTutorContentWrite(
+                        async () =>
+                            requireAtlasTutorSubjects()
+                                .updateSubject(
+                                    MODULE.id,
+                                    {
+                                        metadata: {
+                                            generationContext:
+                                                nextGenerationContext
+                                        }
+                                    }
+                                )
+                    );
+
+                if (!saved) {
+                    throw new Error(
+                        'Current Affairs reading could not be saved.'
+                    );
+                }
+
+                window.AtlasGenerationContext =
+                    nextGenerationContext;
+
+                const revision =
+                    Math.max(
+                        1,
+                        Math.floor(
+                            Number(
+                                saved.revision
+                            ) || 1
+                        )
+                    );
+
+                window.AtlasCompassSubjectRuntime = {
+                    ...getCompassSubjectRuntime(),
+                    generationContext:
+                        nextGenerationContext,
+                    revision
+                };
+
+                MODULE.contentVersion =
+                    `owned-r${revision}`;
+
+                renderCurrentAffairsReadMore();
+
+                return reading;
+            } catch (error) {
+                console.warn(
+                    '[Compass] Current Affairs Read more enrichment failed:',
+                    error
+                );
+
+                return null;
+            } finally {
+                currentAffairsReadMoreEnrichmentPromise =
+                    null;
+            }
+        })();
+
+    return currentAffairsReadMoreEnrichmentPromise;
 }
 
 function getCurrentAffairsSource() {

@@ -5371,50 +5371,6 @@
         }
 
         try {
-          if (
-            generateFullSubject &&
-            generationContext.source &&
-            window.AtlasAI &&
-            typeof window.AtlasAI
-              .generateCurrentAffairsReading ===
-              'function'
-          ) {
-            try {
-              const reading =
-                await window.AtlasAI
-                  .generateCurrentAffairsReading({
-                    source:
-                      generationContext.source,
-
-                    languageLevel:
-                      generationContext.languageLevel
-                  });
-
-              if (reading?.readMore) {
-                generationContext.source = {
-                  ...generationContext.source,
-
-                  readMore:
-                    reading.readMore,
-
-                  readMoreQuestions:
-                    Array.isArray(
-                      reading.readMoreQuestions
-                    )
-                      ? reading.readMoreQuestions
-                        .slice(0, 2)
-                      : []
-                };
-              }
-            } catch (readingError) {
-              console.warn(
-                '[Compass] Current Affairs Read more generation failed:',
-                readingError
-              );
-            }
-
-          }
-
           const created =
             await Subjects.createSubject({
               format: 'structured',
