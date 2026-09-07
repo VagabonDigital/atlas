@@ -6461,7 +6461,12 @@ async function generateMyVersionFullSubject({
         }
 
         if (completedStep >= 2) {
-            startCurrentAffairsReadMoreEnrichment();
+            setMyVersionFullSubjectGenerationProgress(
+                3,
+                'Adding source context'
+            );
+
+            await startCurrentAffairsReadMoreEnrichment();
         }
 
         if (completedStep < 3) {
