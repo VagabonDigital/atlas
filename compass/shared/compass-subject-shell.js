@@ -1282,7 +1282,7 @@ function mountCompassSubjectShell() {
 
             <div class="atlas-my-version-management-list">
                 <section class="atlas-my-version-management-item">
-                    <h3>Create an independent subject</h3>
+                    <h3>Save a copy to My Subjects</h3>
 
                     <p class="atlas-my-version-restore-copy"
                         id="atlas-create-subject-from-version-copy">
@@ -1293,7 +1293,7 @@ function mountCompassSubjectShell() {
                         id="atlas-create-subject-from-version"
                         type="button"
                         onclick="createSubjectFromMyVersion()">
-                        Create as new subject
+                        Save copy to My Subjects
                     </button>
 
                     <p class="atlas-my-version-create-status"
