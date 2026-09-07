@@ -342,6 +342,7 @@ let myVersionCoverPickerPhotos = [];
 let myVersionCoverPickerSelectedPhoto = null;
 let myVersionCoverPickerLoading = false;
 let myVersionCoverPickerHasMore = false;
+let myVersionCoverPickerPendingCustomImage = null;
 const myVersionCoverPickerCache = new Map();
 
 const myVersionCoverPickerState = {
@@ -2606,6 +2607,33 @@ function closeMyVersionCoverPicker() {
 
     saveMyVersionCoverPickerProviderState();
 
+    resetMyVersionCoverPickerCustomPreview();
+
+    const uploadInput = document.getElementById(
+        'atlas-cover-picker-upload-input'
+    );
+
+    const uploadName = document.getElementById(
+        'atlas-cover-picker-upload-name'
+    );
+
+    const urlInput = document.getElementById(
+        'atlas-cover-picker-manual-url'
+    );
+
+    if (uploadInput) {
+        uploadInput.value = '';
+    }
+
+    if (uploadName) {
+        uploadName.textContent =
+            'No image selected';
+    }
+
+    if (urlInput) {
+        urlInput.value = '';
+    }
+
     dialog.hidden = true;
 
     if (activeFocusTrapRoot === dialog) {
@@ -2681,7 +2709,9 @@ function updateMyVersionCoverPickerProviderUI() {
         rights.textContent =
             myVersionCoverPickerProvider === 'web'
                 ? 'Web images come from third-party sites. Check the source before reuse outside your lesson.'
-                : 'Photos are provided by Pexels.';
+                : myVersionCoverPickerProvider === 'pexels'
+                    ? 'Photos are provided by Pexels.'
+                    : 'Use an image you have permission to use.';
     }
 }
 
@@ -2724,7 +2754,361 @@ function applyMyVersionCoverPickerPhoto(
     closeMyVersionCoverPicker();
 }
 
-function applyMyVersionCoverPickerUrl() {
+const MY_VERSION_COVER_UPLOAD_MAX_FILE_BYTES =
+    10 * 1024 * 1024;
+
+const MY_VERSION_COVER_UPLOAD_MAX_DATA_URL_LENGTH =
+    280000;
+
+const MY_VERSION_COVER_UPLOAD_TYPES = new Set([
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/avif'
+]);
+
+function setMyVersionCoverPickerCustomError(
+    message = ''
+) {
+    const error = document.getElementById(
+        'atlas-cover-picker-custom-error'
+    );
+
+    if (!error) return;
+
+    error.textContent = message;
+    error.hidden = !message;
+}
+
+function resetMyVersionCoverPickerCustomPreview() {
+    myVersionCoverPickerPendingCustomImage =
+        null;
+
+    const preview = document.getElementById(
+        'atlas-cover-picker-custom-preview'
+    );
+
+    const previewImage = document.getElementById(
+        'atlas-cover-picker-custom-preview-image'
+    );
+
+    const previewMeta = document.getElementById(
+        'atlas-cover-picker-custom-preview-meta'
+    );
+
+    if (preview) {
+        preview.hidden = true;
+    }
+
+    if (previewImage) {
+        previewImage.removeAttribute('src');
+    }
+
+    if (previewMeta) {
+        previewMeta.textContent = '';
+    }
+
+    setMyVersionCoverPickerCustomError('');
+}
+
+function showMyVersionCoverPickerCustomPreview({
+    imageUrl,
+    meta = ''
+}) {
+    const normalizedUrl = String(
+        imageUrl || ''
+    ).trim();
+
+    if (!normalizedUrl) return;
+
+    const preview = document.getElementById(
+        'atlas-cover-picker-custom-preview'
+    );
+
+    const previewImage = document.getElementById(
+        'atlas-cover-picker-custom-preview-image'
+    );
+
+    const previewMeta = document.getElementById(
+        'atlas-cover-picker-custom-preview-meta'
+    );
+
+    myVersionCoverPickerPendingCustomImage = {
+        imageUrl: normalizedUrl
+    };
+
+    if (previewImage) {
+        previewImage.src = normalizedUrl;
+    }
+
+    if (previewMeta) {
+        previewMeta.textContent = meta;
+    }
+
+    if (preview) {
+        preview.hidden = false;
+    }
+
+    setMyVersionCoverPickerCustomError('');
+}
+
+function loadMyVersionCoverPreviewImage(
+    source
+) {
+    return new Promise(
+        (
+            resolve,
+            reject
+        ) => {
+            const image = new Image();
+
+            image.onload = () => {
+                resolve(image);
+            };
+
+            image.onerror = () => {
+                reject(
+                    new Error(
+                        'Image could not be loaded.'
+                    )
+                );
+            };
+
+            image.src = source;
+        }
+    );
+}
+
+function renderMyVersionCoverUploadDataUrl(
+    image,
+    {
+        maxDimension,
+        quality
+    }
+) {
+    const sourceWidth =
+        image.naturalWidth ||
+        image.width;
+
+    const sourceHeight =
+        image.naturalHeight ||
+        image.height;
+
+    if (
+        !sourceWidth ||
+        !sourceHeight
+    ) {
+        throw new Error(
+            'Image dimensions are unavailable.'
+        );
+    }
+
+    const scale = Math.min(
+        1,
+        maxDimension /
+            Math.max(
+                sourceWidth,
+                sourceHeight
+            )
+    );
+
+    const width = Math.max(
+        1,
+        Math.round(
+            sourceWidth * scale
+        )
+    );
+
+    const height = Math.max(
+        1,
+        Math.round(
+            sourceHeight * scale
+        )
+    );
+
+    const canvas =
+        document.createElement('canvas');
+
+    canvas.width = width;
+    canvas.height = height;
+
+    const context =
+        canvas.getContext('2d');
+
+    if (!context) {
+        throw new Error(
+            'Image processing is unavailable.'
+        );
+    }
+
+    context.drawImage(
+        image,
+        0,
+        0,
+        width,
+        height
+    );
+
+    return canvas.toDataURL(
+        'image/webp',
+        quality
+    );
+}
+
+async function compressMyVersionCoverUpload(
+    file
+) {
+    const objectUrl =
+        URL.createObjectURL(file);
+
+    try {
+        const image =
+            await loadMyVersionCoverPreviewImage(
+                objectUrl
+            );
+
+        const attempts = [
+            {
+                maxDimension: 1600,
+                quality: 0.80
+            },
+            {
+                maxDimension: 1450,
+                quality: 0.74
+            },
+            {
+                maxDimension: 1280,
+                quality: 0.68
+            },
+            {
+                maxDimension: 1100,
+                quality: 0.62
+            }
+        ];
+
+        let dataUrl = '';
+
+        for (
+            const attempt of attempts
+        ) {
+            dataUrl =
+                renderMyVersionCoverUploadDataUrl(
+                    image,
+                    attempt
+                );
+
+            if (
+                dataUrl.length <=
+                MY_VERSION_COVER_UPLOAD_MAX_DATA_URL_LENGTH
+            ) {
+                return dataUrl;
+            }
+        }
+
+        throw new Error(
+            'That image is too large to store safely. Try a smaller image.'
+        );
+    } finally {
+        URL.revokeObjectURL(
+            objectUrl
+        );
+    }
+}
+
+function openMyVersionCoverPickerUpload() {
+    const input = document.getElementById(
+        'atlas-cover-picker-upload-input'
+    );
+
+    if (!input) return;
+
+    input.value = '';
+    input.click();
+}
+
+async function previewMyVersionCoverPickerUpload(
+    file
+) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !file
+    ) {
+        return;
+    }
+
+    resetMyVersionCoverPickerCustomPreview();
+
+    const button = document.getElementById(
+        'atlas-cover-picker-upload-button'
+    );
+
+    const fileName = document.getElementById(
+        'atlas-cover-picker-upload-name'
+    );
+
+    if (fileName) {
+        fileName.textContent =
+            file.name;
+    }
+
+    if (
+        !MY_VERSION_COVER_UPLOAD_TYPES.has(
+            file.type
+        )
+    ) {
+        setMyVersionCoverPickerCustomError(
+            'Choose a JPG, PNG, WebP or AVIF image.'
+        );
+        return;
+    }
+
+    if (
+        file.size >
+        MY_VERSION_COVER_UPLOAD_MAX_FILE_BYTES
+    ) {
+        setMyVersionCoverPickerCustomError(
+            'Choose an image smaller than 10 MB.'
+        );
+        return;
+    }
+
+    if (button) {
+        button.disabled = true;
+        button.textContent =
+            'Preparing…';
+    }
+
+    try {
+        const imageUrl =
+            await compressMyVersionCoverUpload(
+                file
+            );
+
+        showMyVersionCoverPickerCustomPreview({
+            imageUrl,
+            meta: file.name
+        });
+    } catch (uploadError) {
+        console.error(
+            '[Compass] Cover upload failed:',
+            uploadError
+        );
+
+        setMyVersionCoverPickerCustomError(
+            uploadError?.message ||
+            'That image could not be prepared. Try another image.'
+        );
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.textContent =
+                'Choose image';
+        }
+    }
+}
+
+async function previewMyVersionCoverPickerUrl() {
     if (
         !myVersionEditing ||
         myVersionSaving
@@ -2732,31 +3116,25 @@ function applyMyVersionCoverPickerUrl() {
         return;
     }
 
+    resetMyVersionCoverPickerCustomPreview();
+
     const input = document.getElementById(
         'atlas-cover-picker-manual-url'
     );
 
     const button = document.getElementById(
-        'atlas-cover-picker-url-apply'
-    );
-
-    const error = document.getElementById(
-        'atlas-cover-picker-url-error'
+        'atlas-cover-picker-url-preview'
     );
 
     const rawUrl = String(
         input?.value || ''
     ).trim();
 
-    if (error) {
-        error.hidden = true;
-        error.textContent = '';
-    }
-
     let parsedUrl = null;
 
     try {
-        parsedUrl = new URL(rawUrl);
+        parsedUrl =
+            new URL(rawUrl);
     } catch (urlError) {
         parsedUrl = null;
     }
@@ -2768,11 +3146,9 @@ function applyMyVersionCoverPickerUrl() {
             parsedUrl.protocol !== 'https:'
         )
     ) {
-        if (error) {
-            error.textContent =
-                'Enter a valid direct image URL.';
-            error.hidden = false;
-        }
+        setMyVersionCoverPickerCustomError(
+            'Enter a valid direct image URL.'
+        );
 
         input?.focus();
         return;
@@ -2780,39 +3156,48 @@ function applyMyVersionCoverPickerUrl() {
 
     if (button) {
         button.disabled = true;
-        button.textContent = 'Checking…';
+        button.textContent =
+            'Checking…';
     }
 
-    const resetButton = () => {
-        if (!button) return;
+    try {
+        await loadMyVersionCoverPreviewImage(
+            parsedUrl.href
+        );
 
-        button.disabled = false;
-        button.textContent = 'Use image';
-    };
-
-    const image = new Image();
-
-    image.onload = () => {
-        resetButton();
-
-        applyMyVersionCoverPickerPhoto({
-            imageUrl: parsedUrl.href
+        showMyVersionCoverPickerCustomPreview({
+            imageUrl: parsedUrl.href,
+            meta: 'Image URL'
         });
-    };
-
-    image.onerror = () => {
-        resetButton();
-
-        if (error) {
-            error.textContent =
-                'That image could not be loaded. Try another direct image link.';
-            error.hidden = false;
-        }
+    } catch (urlError) {
+        setMyVersionCoverPickerCustomError(
+            'That image could not be loaded. Try another direct image link.'
+        );
 
         input?.focus();
-    };
+    } finally {
+        if (button) {
+            button.disabled = false;
+            button.textContent =
+                'Preview';
+        }
+    }
+}
 
-    image.src = parsedUrl.href;
+function applyMyVersionCoverPickerCustomPreview() {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        !myVersionCoverPickerPendingCustomImage
+    ) {
+        return;
+    }
+
+    applyMyVersionCoverPickerPhoto({
+        imageUrl:
+            myVersionCoverPickerPendingCustomImage
+                .imageUrl
+    });
 }
 
 function renderMyVersionCoverPickerResults() {

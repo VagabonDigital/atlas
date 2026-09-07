@@ -1076,7 +1076,7 @@ function mountCompassSubjectShell() {
                     role="tab"
                     aria-selected="false"
                     onclick="setMyVersionCoverPickerProvider('url')">
-                    Image URL
+                    Your image
                 </button>
             </div>
 
@@ -1098,34 +1098,94 @@ function mountCompassSubjectShell() {
             <div class="atlas-cover-picker-url-panel"
                 id="atlas-cover-picker-url-panel"
                 hidden>
-                <div class="atlas-cover-picker-url-card">
-                    <p class="atlas-cover-picker-url-title">
-                        Use an image URL
-                    </p>
+                <div class="atlas-cover-picker-your-image-grid">
+                    <div class="atlas-cover-picker-url-card">
+                        <p class="atlas-cover-picker-url-title">
+                            Upload an image
+                        </p>
 
-                    <p class="atlas-cover-picker-url-help">
-                        Paste a direct link to an image you want to use as this subject’s cover.
-                    </p>
+                        <p class="atlas-cover-picker-url-help">
+                            Choose a JPG, PNG, WebP or AVIF image from your computer.
+                        </p>
 
-                    <div class="atlas-cover-picker-manual-row">
-                        <input id="atlas-cover-picker-manual-url"
-                            type="url"
-                            inputmode="url"
-                            autocomplete="off"
-                            placeholder="https://example.com/image.jpg"
-                            aria-label="Image URL"
-                            onkeydown="if(event.key === 'Enter') { event.preventDefault(); applyMyVersionCoverPickerUrl(); }">
+                        <input id="atlas-cover-picker-upload-input"
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,image/avif"
+                            onchange="previewMyVersionCoverPickerUpload(this.files?.[0] || null)"
+                            hidden>
 
-                        <button id="atlas-cover-picker-url-apply"
-                            type="button"
-                            onclick="applyMyVersionCoverPickerUrl()">
-                            Use image
-                        </button>
+                        <div class="atlas-cover-picker-upload-row">
+                            <button class="atlas-cover-picker-upload-button"
+                                id="atlas-cover-picker-upload-button"
+                                type="button"
+                                onclick="openMyVersionCoverPickerUpload()">
+                                Choose image
+                            </button>
+
+                            <span class="atlas-cover-picker-upload-name"
+                                id="atlas-cover-picker-upload-name">
+                                No image selected
+                            </span>
+                        </div>
                     </div>
 
-                    <p class="atlas-my-version-dialog-error"
-                        id="atlas-cover-picker-url-error"
-                        hidden></p>
+                    <div class="atlas-cover-picker-url-card">
+                        <p class="atlas-cover-picker-url-title">
+                            Use an image URL
+                        </p>
+
+                        <p class="atlas-cover-picker-url-help">
+                            Paste a direct link to an image you already want to use.
+                        </p>
+
+                        <div class="atlas-cover-picker-manual-row">
+                            <input id="atlas-cover-picker-manual-url"
+                                type="url"
+                                inputmode="url"
+                                autocomplete="off"
+                                placeholder="https://example.com/image.jpg"
+                                aria-label="Image URL"
+                                oninput="resetMyVersionCoverPickerCustomPreview()"
+                                onkeydown="if(event.key === 'Enter') { event.preventDefault(); previewMyVersionCoverPickerUrl(); }">
+
+                            <button id="atlas-cover-picker-url-preview"
+                                type="button"
+                                onclick="previewMyVersionCoverPickerUrl()">
+                                Preview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="atlas-my-version-dialog-error"
+                    id="atlas-cover-picker-custom-error"
+                    hidden></p>
+
+                <div class="atlas-cover-picker-custom-preview"
+                    id="atlas-cover-picker-custom-preview"
+                    hidden>
+                    <div class="atlas-cover-picker-custom-preview-frame">
+                        <img id="atlas-cover-picker-custom-preview-image"
+                            alt="Cover preview">
+                    </div>
+
+                    <div class="atlas-cover-picker-custom-preview-footer">
+                        <div>
+                            <p class="atlas-cover-picker-custom-preview-label">
+                                Cover preview
+                            </p>
+
+                            <p class="atlas-cover-picker-custom-preview-meta"
+                                id="atlas-cover-picker-custom-preview-meta"></p>
+                        </div>
+
+                        <button class="atlas-cover-picker-custom-use"
+                            id="atlas-cover-picker-custom-use"
+                            type="button"
+                            onclick="applyMyVersionCoverPickerCustomPreview()">
+                            Use as cover
+                        </button>
+                    </div>
                 </div>
             </div>
 

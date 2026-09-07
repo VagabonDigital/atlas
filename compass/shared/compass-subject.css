@@ -4890,7 +4890,8 @@ body.atlas-my-version-editing .cover-hook[data-atlas-live-editable="true"]:focus
 .atlas-cover-picker-url-panel {
     flex: 1;
     min-height: 0;
-    padding-top: 1.25rem;
+    padding: 1.25rem 0 0.25rem;
+    overflow-y: auto;
 }
 
 .atlas-cover-picker-url-card {
@@ -4922,6 +4923,113 @@ body.atlas-my-version-editing .cover-hook[data-atlas-live-editable="true"]:focus
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 0.4rem;
     margin-top: 1rem;
+}
+
+.atlas-cover-picker-your-image-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.atlas-cover-picker-your-image-grid .atlas-cover-picker-url-card {
+    width: 100%;
+    height: 100%;
+}
+
+.atlas-cover-picker-upload-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: 1rem;
+    min-height: 2.7rem;
+}
+
+.atlas-cover-picker-upload-button,
+.atlas-cover-picker-custom-use {
+    flex: none;
+    min-height: 2.7rem;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    background: var(--surface-raised);
+    color: var(--text-body);
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.atlas-cover-picker-upload-button:hover,
+.atlas-cover-picker-custom-use:hover {
+    border-color: rgba(var(--accent-rgb), 0.42);
+    color: var(--accent);
+}
+
+.atlas-cover-picker-upload-button:disabled,
+.atlas-cover-picker-custom-use:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.atlas-cover-picker-upload-name {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    line-height: 1.45;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.atlas-cover-picker-custom-preview {
+    margin-top: 1.2rem;
+    padding: 0.8rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    background: var(--surface-raised);
+}
+
+.atlas-cover-picker-custom-preview[hidden] {
+    display: none !important;
+}
+
+.atlas-cover-picker-custom-preview-frame {
+    width: 100%;
+    height: min(38vh, 370px);
+    min-height: 240px;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--surface-muted);
+}
+
+.atlas-cover-picker-custom-preview-frame img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 15%;
+}
+
+.atlas-cover-picker-custom-preview-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.8rem 0.2rem 0.05rem;
+}
+
+.atlas-cover-picker-custom-preview-label {
+    margin: 0;
+    color: var(--text-heading);
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.atlas-cover-picker-custom-preview-meta {
+    margin: 0.12rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.72rem;
 }
 
 .atlas-cover-picker-use {
@@ -4964,12 +5072,29 @@ body.atlas-my-version-editing .cover-hook[data-atlas-live-editable="true"]:focus
         overflow-y: auto;
     }
 
+    .atlas-cover-picker-your-image-grid {
+        grid-template-columns: 1fr;
+    }
+
     .atlas-cover-picker-manual-row {
         grid-template-columns: 1fr;
     }
 
-    .atlas-cover-picker-manual-row button {
+    .atlas-cover-picker-manual-row button,
+    .atlas-cover-picker-upload-button,
+    .atlas-cover-picker-custom-use {
         width: 100%;
+    }
+
+    .atlas-cover-picker-upload-row,
+    .atlas-cover-picker-custom-preview-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .atlas-cover-picker-custom-preview-frame {
+        min-height: 200px;
+        height: 32vh;
     }
 
     .atlas-cover-picker-results {
