@@ -1451,11 +1451,20 @@ function mountCompassSubjectShell() {
                     <span aria-hidden="true">↗</span>
                 </a>
 
-                <button class="btn-ghost"
-                    type="button"
-                    onclick="closeCurrentAffairsReadMore()">
-                    Close
-                </button>
+                <div class="current-affairs-source-footer-actions">
+                    <button class="btn-ghost"
+                        id="current-affairs-source-focus-toggle"
+                        type="button"
+                        onclick="toggleCurrentAffairsReadMoreFocus()">
+                        Expand
+                    </button>
+
+                    <button class="btn-ghost"
+                        type="button"
+                        onclick="closeCurrentAffairsReadMore()">
+                        Close
+                    </button>
+                </div>
             </div>
         </div>
     </div>

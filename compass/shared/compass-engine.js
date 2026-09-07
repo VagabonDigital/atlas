@@ -432,6 +432,8 @@ let myVersionFullSubjectGenerationProgress = null;
 let myVersionFullSubjectGenerationNotice = '';
 
 let currentAffairsReadMoreEnrichmentPromise = null;
+let currentAffairsPreviousBodyOverflow = '';
+let currentAffairsPreviousRootOverflow = '';
 
 
 // ============================================================
@@ -12732,6 +12734,20 @@ function openCurrentAffairsReadMore() {
         }
     }
 
+    if (!dialog.classList.contains('open')) {
+        currentAffairsPreviousBodyOverflow =
+            document.body.style.overflow;
+
+        currentAffairsPreviousRootOverflow =
+            document.documentElement.style.overflow;
+
+        document.documentElement.style.overflow =
+            'hidden';
+
+        document.body.style.overflow =
+            'hidden';
+    }
+
     dialog.classList.add('open');
 
     dialog.setAttribute(
@@ -12740,6 +12756,37 @@ function openCurrentAffairsReadMore() {
     );
 
     activateFocusTrap(dialog);
+}
+
+function toggleCurrentAffairsReadMoreFocus() {
+    const dialog =
+        document.getElementById(
+            'current-affairs-source-modal'
+        );
+
+    const button =
+        document.getElementById(
+            'current-affairs-source-focus-toggle'
+        );
+
+    if (!dialog) return;
+
+    const focused =
+        dialog.classList.toggle(
+            'is-focus'
+        );
+
+    if (button) {
+        button.textContent =
+            focused
+                ? 'Collapse'
+                : 'Expand';
+
+        button.setAttribute(
+            'aria-pressed',
+            String(focused)
+        );
+    }
 }
 
 function closeCurrentAffairsReadMore() {
@@ -12755,12 +12802,37 @@ function closeCurrentAffairsReadMore() {
         return;
     }
 
+    dialog.classList.remove(
+        'is-focus'
+    );
+
+    const focusButton =
+        document.getElementById(
+            'current-affairs-source-focus-toggle'
+        );
+
+    if (focusButton) {
+        focusButton.textContent =
+            'Expand';
+
+        focusButton.setAttribute(
+            'aria-pressed',
+            'false'
+        );
+    }
+
     dialog.classList.remove('open');
 
     dialog.setAttribute(
         'aria-hidden',
         'true'
     );
+
+    document.documentElement.style.overflow =
+        currentAffairsPreviousRootOverflow;
+
+    document.body.style.overflow =
+        currentAffairsPreviousBodyOverflow;
 
     if (activeFocusTrapRoot === dialog) {
         releaseFocusTrap();

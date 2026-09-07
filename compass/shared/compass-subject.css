@@ -1776,6 +1776,94 @@ ORIENTATION
 
 .current-affairs-source-panel {
     max-width: 620px;
+    transition:
+        max-width 220ms ease,
+        border-radius 220ms ease,
+        box-shadow 220ms ease;
+}
+
+.current-affairs-source-footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+#current-affairs-source-modal.is-focus {
+    padding: 0;
+    align-items: stretch;
+    overflow: hidden;
+    background: var(--surface-canvas);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+#current-affairs-source-modal.is-focus
+.current-affairs-source-panel {
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+#current-affairs-source-modal.is-focus
+.modal-body {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding:
+        clamp(2rem, 4vw, 3.5rem)
+        clamp(1.5rem, 5vw, 4rem);
+}
+
+#current-affairs-source-modal.is-focus
+.current-affairs-source-summary {
+    max-width: 60ch;
+    margin-right: auto;
+    margin-left: auto;
+    font-size: clamp(1.32rem, 1.6vw, 1.48rem);
+    line-height: 1.78;
+}
+
+#current-affairs-source-modal.is-focus
+.current-affairs-source-questions {
+    max-width: 60ch;
+}
+
+#current-affairs-source-modal.is-focus
+.cultural-lens-focus-thread-label {
+    font-size: clamp(1.3rem, 1.6vw, 1.5rem);
+}
+
+#current-affairs-source-modal.is-focus
+.cultural-lens-focus-thread-question {
+    max-width: none;
+    font-size: clamp(1.22rem, 1.5vw, 1.38rem);
+    line-height: 1.7;
+}
+
+#current-affairs-source-modal.is-focus
+.current-affairs-source-heading h3 {
+    font-size: clamp(1.55rem, 2vw, 2rem);
+    line-height: 1.25;
+}
+
+#current-affairs-source-modal.is-focus
+.current-affairs-source-meta {
+    font-size: 0.9rem;
+}
+
+#current-affairs-source-modal.is-focus
+.current-affairs-source-image img {
+    max-height: 480px;
+}
+
+#current-affairs-source-modal.is-focus
+.current-affairs-source-questions {
+    max-width: 68ch;
+    margin-right: auto;
+    margin-left: auto;
 }
 
 .current-affairs-source-heading {
@@ -1801,14 +1889,8 @@ ORIENTATION
 .current-affairs-source-image {
     display: flex;
     width: 100%;
-    max-height: 340px;
     margin: 0 0 1.35rem;
-    align-items: center;
     justify-content: center;
-    overflow: hidden;
-    border: 1px solid var(--border-subtle);
-    border-radius: 14px;
-    background: var(--surface-muted);
 }
 
 .current-affairs-source-image[hidden] {
@@ -1821,7 +1903,8 @@ ORIENTATION
     max-width: 100%;
     height: auto;
     max-height: 340px;
-    object-fit: contain;
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
 }
 
 .current-affairs-source-summary {

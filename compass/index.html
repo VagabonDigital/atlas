@@ -5345,6 +5345,11 @@
             title: nextTitle
           });
 
+        if (generateFullSubject) {
+          document.subjectCopy.cover.hook =
+            'Finding the right angle…';
+        }
+
         const validation =
           Structured.validateDocument(document);
 
