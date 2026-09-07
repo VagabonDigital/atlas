@@ -524,9 +524,14 @@
                     },
 
                     brief:
-                        cleanString(
-                            candidate.brief
-                        )
+                        [
+                            cleanString(
+                                candidate.brief
+                            ),
+                            'CATALOG DESCRIPTION: Write one concise sentence, ideally 24–32 words. This is compact subject-card copy, not a full introduction. Give enough texture to establish the conversational promise without becoming a mini-essay. Never exceed 220 characters.'
+                        ]
+                            .filter(Boolean)
+                            .join('\n')
                 })
             }
         );
@@ -585,7 +590,7 @@
                                 cleanString(
                                     candidate.brief
                                 ),
-                                'RETRY REQUIRED: The catalog description must be one concise sentence and must not exceed 220 characters under any circumstances. Aim for roughly 18–26 words. Return a genuinely shorter description, not a truncated sentence.'
+                                'RETRY REQUIRED: The catalog description must be one concise sentence and must not exceed 220 characters under any circumstances. Aim for roughly 24–32 words. Keep enough texture to establish the conversational promise, but return a genuinely shorter description rather than a truncated sentence.'
                             ]
                                 .filter(Boolean)
                                 .join('\n')

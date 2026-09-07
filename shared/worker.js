@@ -984,7 +984,7 @@ export default {
                                     'Language level controls how easily the learner can enter the conversation, not the intellectual ambition of the subject. Do not infantilise lower-level adult learners or restrict them to simplistic subject matter.',
                                     '',
                                     'Titles should be concise, natural, intriguing, and directly usable as Atlas subject titles.',
-                                    'Reasons should briefly explain what makes the subject interesting and worth exploring. Do not prescribe a classroom exercise.',
+                                    'Reasons should be one concise natural sentence, ideally around 24–32 words. Give enough context to understand the conversational promise and choose between the three ideas, without trying to preview the whole subject. Do not prescribe a classroom exercise.',
                                     'message should be one short natural invitation to the tutor.',
                                     '',
                                     ...(mode === 'current-affairs'
