@@ -5763,6 +5763,7 @@ export default {
                                     'Each Moment needs a short preview and one strong learner-facing question.',
                                     'The five Moments should feel related enough to belong together but different enough to create five genuinely distinct conversations.',
                                     'Do not simply rephrase the same question five times.',
+                                    'Do not include URLs, citations, citation markers, source labels, search references, or provider metadata anywhere in the learner-facing content.',
                                     'Do not generate IDs, icons, upgrades, follow-ups, Make It Real activities, or metadata.',
                                     '',
                                     'Return only the requested structured payload.'
@@ -5998,14 +5999,30 @@ export default {
                             }))
                         : [];
 
+                const containsProviderCitation =
+                    value =>
+                        /turn\d+(?:search|news|fetch|view)\d+/i.test(
+                            String(
+                                value || ''
+                            )
+                        );
+
                 if (
                     !title ||
                     !allowedStages.has(stage) ||
                     !description ||
+                    containsProviderCitation(title) ||
+                    containsProviderCitation(description) ||
                     moments.length !== 5 ||
                     moments.some(moment =>
                         !moment.preview ||
-                        !moment.question
+                        !moment.question ||
+                        containsProviderCitation(
+                            moment.preview
+                        ) ||
+                        containsProviderCitation(
+                            moment.question
+                        )
                     )
                 ) {
                     return json(

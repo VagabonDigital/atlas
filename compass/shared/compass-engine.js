@@ -12203,13 +12203,10 @@ function startCurrentAffairsReadMoreEnrichment() {
             ? window.AtlasGenerationContext
             : {};
 
-    if (
+    const ideaMode =
         String(
             context.ideaMode || ''
-        ).trim() !== 'current-affairs'
-    ) {
-        return null;
-    }
+        ).trim();
 
     const source =
         context.source &&
@@ -12218,7 +12215,13 @@ function startCurrentAffairsReadMoreEnrichment() {
             ? context.source
             : null;
 
-    if (!source) {
+    if (
+        !source ||
+        (
+            ideaMode &&
+            ideaMode !== 'current-affairs'
+        )
+    ) {
         return null;
     }
 
