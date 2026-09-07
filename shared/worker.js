@@ -692,7 +692,24 @@ export default {
                         generated.readMore || ''
                     ).trim();
 
-                if (!readMore) {
+                const readMoreQuestions =
+                    Array.isArray(
+                        generated.readMoreQuestions
+                    )
+                        ? generated.readMoreQuestions
+                            .map(question =>
+                                String(
+                                    question || ''
+                                ).trim()
+                            )
+                            .filter(Boolean)
+                            .slice(0, 2)
+                        : [];
+
+                if (
+                    !readMore ||
+                    readMoreQuestions.length !== 2
+                ) {
                     return json(
                         {
                             ok: false,
@@ -707,7 +724,8 @@ export default {
                     ok: true,
 
                     payload: {
-                        readMore
+                        readMore,
+                        readMoreQuestions
                     }
                 });
             }
