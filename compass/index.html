@@ -7584,13 +7584,23 @@
 
       if (label) {
         label.textContent =
-          'Thinking…';
+          selectedMode.id ===
+            'current-affairs'
+            ? 'Checking…'
+            : 'Thinking…';
       }
 
       region.innerHTML =
         '<div class="compass-recommendation-panel compass-recommendation-panel--state">' +
         '<div class="compass-recommendation-kicker">Compass</div>' +
-        '<div class="compass-recommendation-state">Give me a second…</div>' +
+        '<div class="compass-recommendation-state">' +
+        (
+          selectedMode.id ===
+            'current-affairs'
+            ? 'Checking what’s current… Usually takes about 15 seconds.'
+            : 'Give me a second…'
+        ) +
+        '</div>' +
         '</div>';
 
       const historyKey =
@@ -7620,6 +7630,13 @@
                 selectedMode.id,
 
               interests,
+
+              languageLevel:
+                String(
+                  dialog?.querySelector(
+                    '#owned-subject-dialog-level'
+                  )?.value || 'b2'
+                ).trim(),
 
               sessionSubjects:
                 context.sessionSubjects,

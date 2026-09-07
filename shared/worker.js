@@ -768,6 +768,26 @@ export default {
                         .trim()
                         .slice(0, 3000);
 
+                const allowedLanguageLevels =
+                    new Set([
+                        'a1-a2',
+                        'b1',
+                        'b2',
+                        'c1-plus'
+                    ]);
+
+                const requestedLanguageLevel =
+                    String(
+                        body?.languageLevel || ''
+                    ).trim();
+
+                const languageLevel =
+                    allowedLanguageLevels.has(
+                        requestedLanguageLevel
+                    )
+                        ? requestedLanguageLevel
+                        : 'b2';
+
                 const sessionSubjects =
                     Array.isArray(
                         body?.sessionSubjects
@@ -885,6 +905,7 @@ export default {
                 const context = {
                     mode,
                     currentDate,
+                    languageLevel,
 
                     interests:
                         mode === 'learner'
@@ -957,6 +978,10 @@ export default {
                                     'Do not repeat or lightly remix subjects or ideas already represented there.',
                                     '',
                                     'Make the three final ideas meaningfully different from one another.',
+                                    '',
+                                    'Calibrate conversational accessibility to context.languageLevel.',
+                                    'For a1-a2, favour subjects with concrete, easy entry points and express titles and reasons in very simple, clear English. For b1, use clear everyday framing. For b2, use natural accessible B2 framing. For c1-plus, greater nuance and conceptual complexity are welcome.',
+                                    'Language level controls how easily the learner can enter the conversation, not the intellectual ambition of the subject. Do not infantilise lower-level adult learners or restrict them to simplistic subject matter.',
                                     '',
                                     'Titles should be concise, natural, intriguing, and directly usable as Atlas subject titles.',
                                     'Reasons should briefly explain what makes the subject interesting and worth exploring. Do not prescribe a classroom exercise.',

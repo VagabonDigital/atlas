@@ -1482,6 +1482,11 @@
                             candidate.interests
                         ),
 
+                    languageLevel:
+                        cleanString(
+                            candidate.languageLevel
+                        ) || 'b2',
+
                     sessionSubjects,
                     existingSubjects,
                     recentSuggestions
