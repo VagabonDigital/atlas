@@ -1747,6 +1747,95 @@ ORIENTATION
     display: none;
 }
 
+.current-affairs-read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+    margin-top: 1rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--accent);
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.current-affairs-read-more[hidden] {
+    display: none;
+}
+
+.current-affairs-read-more span {
+    transition: transform 0.18s ease;
+}
+
+.current-affairs-read-more:hover span {
+    transform: translateX(3px);
+}
+
+.current-affairs-source-panel {
+    max-width: 620px;
+}
+
+.current-affairs-source-heading {
+    min-width: 0;
+    padding-right: 1rem;
+}
+
+.current-affairs-source-kicker {
+    margin-bottom: 0.35rem;
+    color: var(--accent);
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+}
+
+.current-affairs-source-meta {
+    margin-top: 0.45rem;
+    color: var(--text-subtle);
+    font-size: 0.76rem;
+}
+
+.current-affairs-source-summary {
+    color: var(--text-body);
+    font-size: 0.97rem;
+    line-height: 1.72;
+}
+
+.current-affairs-source-facts {
+    display: grid;
+    gap: 0.7rem;
+    margin-top: 1.25rem;
+    padding-left: 1.2rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.current-affairs-source-facts[hidden] {
+    display: none;
+}
+
+.current-affairs-source-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--accent);
+    font-size: 0.82rem;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.current-affairs-source-link:hover {
+    text-decoration: underline;
+}
+
+.current-affairs-source-link[hidden] {
+    display: none;
+}
+
 .main-paths {
     display: grid;
     grid-template-columns: 1fr 1fr;

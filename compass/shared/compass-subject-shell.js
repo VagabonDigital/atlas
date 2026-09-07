@@ -98,6 +98,16 @@ function mountCompassSubjectShell() {
                     <p class="section-eyebrow" id="orient-eyebrow"></p>
                     <h1 id="overview-heading"></h1>
                     <div id="overview-intro" class="overview-intro"></div>
+
+                    <button class="current-affairs-read-more"
+                        id="current-affairs-read-more"
+                        type="button"
+                        onclick="openCurrentAffairsReadMore()"
+                        hidden>
+                        Read more
+                        <span aria-hidden="true">→</span>
+                    </button>
+
                     <p id="overview-question" class="overview-question"></p>
                 </div>
 
@@ -1365,6 +1375,66 @@ function mountCompassSubjectShell() {
                     type="button"
                     onclick="restoreAtlasOriginal()">
                     Restore original
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+     CURRENT AFFAIRS SOURCE
+     ============================================================ -->
+
+    <div class="modal-overlay"
+        id="current-affairs-source-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-hidden="true"
+        aria-labelledby="current-affairs-source-title"
+        onclick="if(event.target === this) closeCurrentAffairsReadMore()">
+
+        <div class="modal-panel current-affairs-source-panel">
+
+            <div class="modal-header">
+                <div class="current-affairs-source-heading">
+                    <p class="current-affairs-source-kicker">
+                        READ MORE
+                    </p>
+
+                    <h3 id="current-affairs-source-title"></h3>
+
+                    <p class="current-affairs-source-meta"
+                        id="current-affairs-source-meta"></p>
+                </div>
+
+                <button class="modal-close-x"
+                    type="button"
+                    onclick="closeCurrentAffairsReadMore()"
+                    aria-label="Close source">
+                    ×
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p class="current-affairs-source-summary"
+                    id="current-affairs-source-summary"></p>
+
+                <ul class="current-affairs-source-facts"
+                    id="current-affairs-source-facts"></ul>
+            </div>
+
+            <div class="modal-footer">
+                <a class="current-affairs-source-link"
+                    id="current-affairs-source-link"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    Open original source
+                    <span aria-hidden="true">↗</span>
+                </a>
+
+                <button class="btn-ghost"
+                    type="button"
+                    onclick="closeCurrentAffairsReadMore()">
+                    Close
                 </button>
             </div>
         </div>

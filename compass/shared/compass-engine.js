@@ -12175,6 +12175,241 @@ function configureStaticTutorContentField(
     );
 }
 
+function getCurrentAffairsSource() {
+    const context =
+        window.AtlasGenerationContext &&
+        typeof window.AtlasGenerationContext === 'object' &&
+        !Array.isArray(window.AtlasGenerationContext)
+            ? window.AtlasGenerationContext
+            : {};
+
+    const candidate =
+        context.source &&
+        typeof context.source === 'object' &&
+        !Array.isArray(context.source)
+            ? context.source
+            : null;
+
+    if (!candidate) return null;
+
+    const title =
+        String(candidate.title || '').trim();
+
+    const publisher =
+        String(candidate.publisher || '').trim();
+
+    const publishedAt =
+        String(candidate.publishedAt || '').trim();
+
+    const summary =
+        String(candidate.summary || '').trim();
+
+    const keyFacts =
+        Array.isArray(candidate.keyFacts)
+            ? candidate.keyFacts
+                .map(fact =>
+                    String(fact || '').trim()
+                )
+                .filter(Boolean)
+                .slice(0, 4)
+            : [];
+
+    let url = '';
+
+    try {
+        const parsed =
+            new URL(
+                String(candidate.url || '').trim()
+            );
+
+        if (
+            parsed.protocol === 'https:' ||
+            parsed.protocol === 'http:'
+        ) {
+            url = parsed.href;
+        }
+    } catch { }
+
+    if (
+        !title ||
+        (
+            !summary &&
+            keyFacts.length === 0
+        )
+    ) {
+        return null;
+    }
+
+    return {
+        title,
+        publisher,
+        publishedAt,
+        summary,
+        keyFacts,
+        url
+    };
+}
+
+function formatCurrentAffairsSourceDate(value) {
+    const input =
+        String(value || '').trim();
+
+    if (
+        !/^\d{4}-\d{2}-\d{2}$/.test(input)
+    ) {
+        return input;
+    }
+
+    const date =
+        new Date(`${input}T00:00:00Z`);
+
+    if (Number.isNaN(date.getTime())) {
+        return input;
+    }
+
+    return new Intl.DateTimeFormat(
+        'en',
+        {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            timeZone: 'UTC'
+        }
+    ).format(date);
+}
+
+function renderCurrentAffairsReadMore() {
+    const button =
+        document.getElementById(
+            'current-affairs-read-more'
+        );
+
+    if (!button) return;
+
+    button.hidden =
+        !getCurrentAffairsSource() ||
+        myVersionEditing;
+}
+
+function openCurrentAffairsReadMore() {
+    const source =
+        getCurrentAffairsSource();
+
+    const dialog =
+        document.getElementById(
+            'current-affairs-source-modal'
+        );
+
+    if (!source || !dialog) return;
+
+    const title =
+        document.getElementById(
+            'current-affairs-source-title'
+        );
+
+    const meta =
+        document.getElementById(
+            'current-affairs-source-meta'
+        );
+
+    const summary =
+        document.getElementById(
+            'current-affairs-source-summary'
+        );
+
+    const facts =
+        document.getElementById(
+            'current-affairs-source-facts'
+        );
+
+    const link =
+        document.getElementById(
+            'current-affairs-source-link'
+        );
+
+    if (title) {
+        title.textContent =
+            source.title;
+    }
+
+    if (meta) {
+        meta.textContent =
+            [
+                source.publisher,
+                formatCurrentAffairsSourceDate(
+                    source.publishedAt
+                )
+            ]
+                .filter(Boolean)
+                .join(' · ');
+    }
+
+    if (summary) {
+        summary.textContent =
+            source.summary;
+    }
+
+    if (facts) {
+        facts.replaceChildren(
+            ...source.keyFacts.map(fact => {
+                const item =
+                    document.createElement('li');
+
+                item.textContent = fact;
+
+                return item;
+            })
+        );
+
+        facts.hidden =
+            source.keyFacts.length === 0;
+    }
+
+    if (link) {
+        if (source.url) {
+            link.href = source.url;
+            link.hidden = false;
+        } else {
+            link.removeAttribute('href');
+            link.hidden = true;
+        }
+    }
+
+    dialog.classList.add('open');
+
+    dialog.setAttribute(
+        'aria-hidden',
+        'false'
+    );
+
+    activateFocusTrap(dialog);
+}
+
+function closeCurrentAffairsReadMore() {
+    const dialog =
+        document.getElementById(
+            'current-affairs-source-modal'
+        );
+
+    if (
+        !dialog ||
+        !dialog.classList.contains('open')
+    ) {
+        return;
+    }
+
+    dialog.classList.remove('open');
+
+    dialog.setAttribute(
+        'aria-hidden',
+        'true'
+    );
+
+    if (activeFocusTrapRoot === dialog) {
+        releaseFocusTrap();
+    }
+}
+
 function applySubjectCopy() {
     configureStaticTutorContentField(
         'cover-hook',
@@ -12191,6 +12426,7 @@ function applySubjectCopy() {
     );
 
     renderOverviewIntro();
+    renderCurrentAffairsReadMore();
 
     configureStaticTutorContentField(
         'overview-question',
@@ -19851,6 +20087,19 @@ document.addEventListener('click', event => {
 
 document.addEventListener('keydown', event => {
     handleFocusTrap(event);
+
+    if (
+        event.key === 'Escape' &&
+        document
+            .getElementById(
+                'current-affairs-source-modal'
+            )
+            ?.classList.contains('open')
+    ) {
+        event.preventDefault();
+        closeCurrentAffairsReadMore();
+        return;
+    }
 
     if (
         event.key === 'Escape' &&
