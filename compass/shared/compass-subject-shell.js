@@ -70,19 +70,6 @@ function mountCompassSubjectShell() {
             <p class="cover-hook" id="cover-hook"></p>
             <p class="cover-returning" id="cover-returning"></p>
 
-            <p class="cover-image-warning"
-                id="cover-image-warning"
-                hidden>
-                <span id="cover-image-warning-label">
-                    Custom cover unavailable.
-                </span>
-
-                <button type="button"
-                    onclick="handleUnavailableCoverChange()">
-                    Change cover
-                </button>
-            </p>
-
             <div class="cover-actions">
                 <button class="btn-begin" id="cover-begin-btn" onclick="beginModule()">
                     Begin lesson
