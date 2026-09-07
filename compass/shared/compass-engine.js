@@ -2673,15 +2673,6 @@ function updateMyVersionCoverPickerProviderUI() {
         urlPanel.hidden = !urlMode;
     }
 
-    if (
-        urlMode &&
-        urlInput &&
-        !String(urlInput.value || '').trim()
-    ) {
-        urlInput.value =
-            getEffectiveSubjectCoverImage();
-    }
-
     const rights = document.getElementById(
         'atlas-cover-picker-rights'
     );
