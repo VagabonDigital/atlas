@@ -3796,7 +3796,7 @@ function updateCreateSubjectFromMyVersionUI() {
         myVersionDirty ||
         hasUnappliedMyVersionLibraryIntroChanges();
 
-    button.textContent = 'Create as new subject';
+    button.textContent = 'Save copy to My Subjects';
     button.disabled =
         !available ||
         hasUnpublishedChanges ||
