@@ -548,19 +548,83 @@
             );
         }
 
-        const catalogDescription =
+        let catalogDescription =
             cleanString(
                 result.payload
                     ?.catalogDescription
             );
 
-        const hook =
+        let hook =
             cleanString(
                 result.payload?.hook
             );
 
         if (
+            catalogDescription.length > 220
+        ) {
+            const retryResponse = await fetch(
+                `${BASE_URL}/generate-subject-framing`,
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        subject: {
+                            title:
+                                cleanString(
+                                    candidate.subject?.title
+                                )
+                        },
+
+                        brief:
+                            [
+                                cleanString(
+                                    candidate.brief
+                                ),
+                                'RETRY REQUIRED: The catalog description must be one concise sentence and must not exceed 220 characters under any circumstances. Aim for roughly 18–26 words. Return a genuinely shorter description, not a truncated sentence.'
+                            ]
+                                .filter(Boolean)
+                                .join('\n')
+                    })
+                }
+            );
+
+            let retryResult = null;
+
+            try {
+                retryResult =
+                    await retryResponse.json();
+            } catch { }
+
+            if (
+                !retryResponse.ok ||
+                retryResult?.ok !== true
+            ) {
+                throw new Error(
+                    retryResult?.error ||
+                    `Atlas AI request failed with status ${retryResponse.status}.`
+                );
+            }
+
+            catalogDescription =
+                cleanString(
+                    retryResult.payload
+                        ?.catalogDescription
+                );
+
+            hook =
+                cleanString(
+                    retryResult.payload?.hook
+                );
+        }
+
+        if (
             !catalogDescription ||
+            catalogDescription.length > 220 ||
             !hook
         ) {
             throw new Error(
