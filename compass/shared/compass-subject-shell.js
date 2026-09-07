@@ -1418,8 +1418,19 @@ function mountCompassSubjectShell() {
                 <p class="current-affairs-source-summary"
                     id="current-affairs-source-summary"></p>
 
-                <ul class="current-affairs-source-facts"
-                    id="current-affairs-source-facts"></ul>
+                <section class="cultural-lens-focus-thread-panel"
+                    id="current-affairs-source-questions"
+                    aria-labelledby="current-affairs-source-questions-label"
+                    hidden>
+
+                    <h2 class="cultural-lens-focus-thread-label"
+                        id="current-affairs-source-questions-label">
+                        Talk It Through
+                    </h2>
+
+                    <div class="cultural-lens-focus-thread-questions"
+                        id="current-affairs-source-question-list"></div>
+                </section>
             </div>
 
             <div class="modal-footer">

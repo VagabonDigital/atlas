@@ -526,6 +526,12 @@ export default {
                                     'For b2, use natural accessible B2 English.',
                                     'For c1-plus, more nuance and lexical range are welcome without becoming academic.',
                                     '',
+                                    'Also create exactly two readMoreQuestions based specifically on the richer reading.',
+                                    'These are immediate conversational exits from the reading, not comprehension checks and not a replacement for the full Discussion section.',
+                                    'Ask open, natural adult conversation questions that invite reaction, interpretation, personal connection or implication.',
+                                    'Do not ask the learner to recall a fact from the passage.',
+                                    'Keep each question concise and easy to enter at the supplied languageLevel.',
+                                    '',
                                     'Return only the requested structured payload.'
                                 ].join('\n'),
 
@@ -560,11 +566,28 @@ export default {
                                                 readMore: {
                                                     type:
                                                         'string'
+                                                },
+
+                                                readMoreQuestions: {
+                                                    type:
+                                                        'array',
+
+                                                    minItems:
+                                                        2,
+
+                                                    maxItems:
+                                                        2,
+
+                                                    items: {
+                                                        type:
+                                                            'string'
+                                                    }
                                                 }
                                             },
 
                                             required: [
-                                                'readMore'
+                                                'readMore',
+                                                'readMoreQuestions'
                                             ],
 
                                             additionalProperties:

@@ -5379,9 +5379,6 @@
               .generateCurrentAffairsReading ===
               'function'
           ) {
-            confirm.textContent =
-              'Reading source…';
-
             try {
               const reading =
                 await window.AtlasAI
@@ -5396,8 +5393,17 @@
               if (reading?.readMore) {
                 generationContext.source = {
                   ...generationContext.source,
+
                   readMore:
-                    reading.readMore
+                    reading.readMore,
+
+                  readMoreQuestions:
+                    Array.isArray(
+                      reading.readMoreQuestions
+                    )
+                      ? reading.readMoreQuestions
+                        .slice(0, 2)
+                      : []
                 };
               }
             } catch (readingError) {
@@ -5407,8 +5413,6 @@
               );
             }
 
-            confirm.textContent =
-              'Preparing…';
           }
 
           const created =

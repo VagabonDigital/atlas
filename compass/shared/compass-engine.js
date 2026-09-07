@@ -12219,6 +12219,20 @@ function getCurrentAffairsSource() {
             candidate.readMore || ''
         ).trim();
 
+    const readMoreQuestions =
+        Array.isArray(
+            candidate.readMoreQuestions
+        )
+            ? candidate.readMoreQuestions
+                .map(question =>
+                    String(
+                        question || ''
+                    ).trim()
+                )
+                .filter(Boolean)
+                .slice(0, 2)
+            : [];
+
     let url = '';
 
     try {
@@ -12249,6 +12263,7 @@ function getCurrentAffairsSource() {
         summary,
         keyFacts,
         readMore,
+        readMoreQuestions,
         url
     };
 }
@@ -12290,8 +12305,7 @@ function renderCurrentAffairsReadMore() {
     if (!button) return;
 
     button.hidden =
-        !getCurrentAffairsSource() ||
-        myVersionEditing;
+        !getCurrentAffairsSource();
 }
 
 function openCurrentAffairsReadMore() {
@@ -12320,9 +12334,14 @@ function openCurrentAffairsReadMore() {
             'current-affairs-source-summary'
         );
 
-    const facts =
+    const questionsPanel =
         document.getElementById(
-            'current-affairs-source-facts'
+            'current-affairs-source-questions'
+        );
+
+    const questionList =
+        document.getElementById(
+            'current-affairs-source-question-list'
         );
 
     const link =
@@ -12352,9 +12371,41 @@ function openCurrentAffairsReadMore() {
             source.readMore;
     }
 
-    if (facts) {
-        facts.replaceChildren();
-        facts.hidden = true;
+    if (
+        questionsPanel &&
+        questionList
+    ) {
+        questionList.replaceChildren(
+            ...source.readMoreQuestions.map(
+                question => {
+                    const row =
+                        document.createElement(
+                            'div'
+                        );
+
+                    row.className =
+                        'cultural-lens-thread-author-row';
+
+                    const text =
+                        document.createElement(
+                            'p'
+                        );
+
+                    text.className =
+                        'cultural-lens-focus-thread-question';
+
+                    text.textContent =
+                        question;
+
+                    row.appendChild(text);
+
+                    return row;
+                }
+            )
+        );
+
+        questionsPanel.hidden =
+            source.readMoreQuestions.length === 0;
     }
 
     if (link) {

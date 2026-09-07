@@ -1998,14 +1998,28 @@
                 result.payload?.readMore
             );
 
-        if (!readMore) {
+        const readMoreQuestions =
+            Array.isArray(
+                result.payload?.readMoreQuestions
+            )
+                ? result.payload.readMoreQuestions
+                    .map(cleanString)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                : [];
+
+        if (
+            !readMore ||
+            readMoreQuestions.length !== 2
+        ) {
             throw new Error(
                 'Atlas AI returned an invalid Current Affairs reading.'
             );
         }
 
         return {
-            readMore
+            readMore,
+            readMoreQuestions
         };
     }
 
