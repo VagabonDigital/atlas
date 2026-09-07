@@ -12327,6 +12327,11 @@ function startCurrentAffairsReadMoreEnrichment() {
                             .slice(0, 2)
                         : [];
 
+                const imageUrl =
+                    String(
+                        reading?.imageUrl || ''
+                    ).trim();
+
                 if (
                     !readMore ||
                     readMoreQuestions.length !== 2
@@ -12362,7 +12367,8 @@ function startCurrentAffairsReadMoreEnrichment() {
                     source: {
                         ...latestSource,
                         readMore,
-                        readMoreQuestions
+                        readMoreQuestions,
+                        imageUrl
                     }
                 };
 
@@ -12487,6 +12493,24 @@ function getCurrentAffairsSource() {
                 .slice(0, 2)
             : [];
 
+    let imageUrl = '';
+
+    try {
+        const parsed =
+            new URL(
+                String(
+                    candidate.imageUrl || ''
+                ).trim()
+            );
+
+        if (
+            parsed.protocol === 'https:' ||
+            parsed.protocol === 'http:'
+        ) {
+            imageUrl = parsed.href;
+        }
+    } catch { }
+
     let url = '';
 
     try {
@@ -12518,6 +12542,7 @@ function getCurrentAffairsSource() {
         keyFacts,
         readMore,
         readMoreQuestions,
+        imageUrl,
         url
     };
 }
@@ -12588,6 +12613,16 @@ function openCurrentAffairsReadMore() {
             'current-affairs-source-summary'
         );
 
+    const imageFrame =
+        document.getElementById(
+            'current-affairs-source-image'
+        );
+
+    const image =
+        document.getElementById(
+            'current-affairs-source-image-element'
+        );
+
     const questionsPanel =
         document.getElementById(
             'current-affairs-source-questions'
@@ -12623,6 +12658,31 @@ function openCurrentAffairsReadMore() {
     if (summary) {
         summary.textContent =
             source.readMore;
+    }
+
+    if (
+        imageFrame &&
+        image
+    ) {
+        image.onload = null;
+        image.onerror = null;
+
+        imageFrame.hidden = true;
+        image.removeAttribute('src');
+
+        if (source.imageUrl) {
+            image.onload = () => {
+                imageFrame.hidden = false;
+            };
+
+            image.onerror = () => {
+                imageFrame.hidden = true;
+                image.removeAttribute('src');
+            };
+
+            image.src =
+                source.imageUrl;
+        }
     }
 
     if (

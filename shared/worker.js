@@ -463,6 +463,564 @@ export default {
                 source.url =
                     validSourceUrl;
 
+                const sourceImageUrlPromise =
+                    (async () => {
+                        const controller =
+                            new AbortController();
+
+                        const timeoutId =
+                            setTimeout(
+                                () =>
+                                    controller.abort(),
+                                3500
+                            );
+
+                        try {
+                            const pageResponse =
+                                await fetch(
+                                    source.url,
+                                    {
+                                        method: 'GET',
+                                        redirect: 'follow',
+                                        signal:
+                                            controller.signal,
+
+                                        headers: {
+                                            'Accept':
+                                                'text/html,application/xhtml+xml'
+                                        }
+                                    }
+                                );
+
+                            if (!pageResponse.ok) {
+                                return '';
+                            }
+
+                            const contentType =
+                                String(
+                                    pageResponse.headers.get(
+                                        'content-type'
+                                    ) || ''
+                                ).toLowerCase();
+
+                            if (
+                                contentType &&
+                                !contentType.includes(
+                                    'text/html'
+                                ) &&
+                                !contentType.includes(
+                                    'application/xhtml+xml'
+                                )
+                            ) {
+                                return '';
+                            }
+
+                            const html =
+                                String(
+                                    await pageResponse.text()
+                                ).slice(0, 500000);
+
+                            const pageUrl =
+                                pageResponse.url ||
+                                source.url;
+
+                            const decodeAttributeValue =
+                                value =>
+                                    String(
+                                        value || ''
+                                    )
+                                        .trim()
+                                        .replace(
+                                            /&amp;/gi,
+                                            '&'
+                                        )
+                                        .replace(
+                                            /&#38;/g,
+                                            '&'
+                                        )
+                                        .replace(
+                                            /&#x26;/gi,
+                                            '&'
+                                        );
+
+                            const getTagAttribute =
+                                (
+                                    tag,
+                                    attribute
+                                ) => {
+                                    const escaped =
+                                        attribute.replace(
+                                            /[-/\\^$*+?.()|[\]{}]/g,
+                                            '\\$&'
+                                        );
+
+                                    const match =
+                                        tag.match(
+                                            new RegExp(
+                                                `\\s${escaped}\\s*=\\s*["']([^"']+)["']`,
+                                                'i'
+                                            )
+                                        );
+
+                                    return decodeAttributeValue(
+                                        match?.[1] || ''
+                                    );
+                                };
+
+                            const isLikelyBrandingImage =
+                                (
+                                    candidate,
+                                    context = ''
+                                ) => {
+                                    const combined =
+                                        (
+                                            String(
+                                                candidate || ''
+                                            ) +
+                                            ' ' +
+                                            String(
+                                                context || ''
+                                            )
+                                        )
+                                            .toLowerCase();
+
+                                    return /(?:^|[\s/_.?=&-])(logo|logotype|brand|branding|crest|favicon|icon|avatar|placeholder|default|sprite|seal|emblem)(?:$|[\s/_.?=&-])/
+                                        .test(combined);
+                                };
+
+                            const resolveImageUrl =
+                                (
+                                    candidate,
+                                    context = ''
+                                ) => {
+                                    const raw =
+                                        decodeAttributeValue(
+                                            candidate
+                                        );
+
+                                    if (
+                                        !raw ||
+                                        raw.startsWith(
+                                            'data:'
+                                        ) ||
+                                        isLikelyBrandingImage(
+                                            raw,
+                                            context
+                                        )
+                                    ) {
+                                        return '';
+                                    }
+
+                                    try {
+                                        const parsed =
+                                            new URL(
+                                                raw,
+                                                pageUrl
+                                            );
+
+                                        if (
+                                            parsed.protocol !==
+                                                'https:' &&
+                                            parsed.protocol !==
+                                                'http:'
+                                        ) {
+                                            return '';
+                                        }
+
+                                        return parsed.href;
+                                    } catch {
+                                        return '';
+                                    }
+                                };
+
+                            const collectStructuredImageValues =
+                                (
+                                    value,
+                                    results
+                                ) => {
+                                    if (!value) {
+                                        return;
+                                    }
+
+                                    if (
+                                        typeof value ===
+                                        'string'
+                                    ) {
+                                        results.push(
+                                            value
+                                        );
+                                        return;
+                                    }
+
+                                    if (
+                                        Array.isArray(value)
+                                    ) {
+                                        value.forEach(
+                                            item =>
+                                                collectStructuredImageValues(
+                                                    item,
+                                                    results
+                                                )
+                                        );
+
+                                        return;
+                                    }
+
+                                    if (
+                                        typeof value ===
+                                        'object'
+                                    ) {
+                                        [
+                                            value.url,
+                                            value.contentUrl
+                                        ]
+                                            .filter(Boolean)
+                                            .forEach(
+                                                item =>
+                                                    results.push(
+                                                        item
+                                                    )
+                                            );
+                                    }
+                                };
+
+                            const structuredImageCandidates =
+                                [];
+
+                            const inspectStructuredData =
+                                value => {
+                                    if (!value) {
+                                        return;
+                                    }
+
+                                    if (
+                                        Array.isArray(value)
+                                    ) {
+                                        value.forEach(
+                                            inspectStructuredData
+                                        );
+
+                                        return;
+                                    }
+
+                                    if (
+                                        typeof value !==
+                                        'object'
+                                    ) {
+                                        return;
+                                    }
+
+                                    const rawTypes =
+                                        Array.isArray(
+                                            value['@type']
+                                        )
+                                            ? value['@type']
+                                            : [
+                                                value[
+                                                    '@type'
+                                                ]
+                                            ];
+
+                                    const types =
+                                        rawTypes
+                                            .map(type =>
+                                                String(
+                                                    type ||
+                                                    ''
+                                                )
+                                                    .trim()
+                                                    .toLowerCase()
+                                            )
+                                            .filter(
+                                                Boolean
+                                            );
+
+                                    const isArticle =
+                                        types.some(
+                                            type =>
+                                                type ===
+                                                    'article' ||
+                                                type ===
+                                                    'newsarticle' ||
+                                                type ===
+                                                    'reportagenewsarticle'
+                                        );
+
+                                    if (isArticle) {
+                                        collectStructuredImageValues(
+                                            value.image,
+                                            structuredImageCandidates
+                                        );
+
+                                        collectStructuredImageValues(
+                                            value.thumbnailUrl,
+                                            structuredImageCandidates
+                                        );
+                                    }
+
+                                    Object.values(
+                                        value
+                                    ).forEach(
+                                        inspectStructuredData
+                                    );
+                                };
+
+                            const jsonLdMatches =
+                                html.matchAll(
+                                    /<script\b[^>]*type\s*=\s*["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi
+                                );
+
+                            for (
+                                const match of
+                                jsonLdMatches
+                            ) {
+                                try {
+                                    inspectStructuredData(
+                                        JSON.parse(
+                                            String(
+                                                match[1] ||
+                                                ''
+                                            ).trim()
+                                        )
+                                    );
+                                } catch { }
+                            }
+
+                            for (
+                                const candidate of
+                                structuredImageCandidates
+                            ) {
+                                const resolved =
+                                    resolveImageUrl(
+                                        candidate
+                                    );
+
+                                if (resolved) {
+                                    return resolved;
+                                }
+                            }
+
+                            const articleMatch =
+                                html.match(
+                                    /<article\b[^>]*>[\s\S]*?<\/article>/i
+                                );
+
+                            const mainMatch =
+                                html.match(
+                                    /<main\b[^>]*>[\s\S]*?<\/main>/i
+                                );
+
+                            const articleHtml =
+                                String(
+                                    articleMatch?.[0] ||
+                                    mainMatch?.[0] ||
+                                    ''
+                                );
+
+                            if (articleHtml) {
+                                const imageTags =
+                                    articleHtml.match(
+                                        /<img\b[^>]*>/gi
+                                    ) || [];
+
+                                for (
+                                    const tag of
+                                    imageTags
+                                ) {
+                                    const context =
+                                        [
+                                            getTagAttribute(
+                                                tag,
+                                                'alt'
+                                            ),
+                                            getTagAttribute(
+                                                tag,
+                                                'class'
+                                            ),
+                                            getTagAttribute(
+                                                tag,
+                                                'id'
+                                            ),
+                                            getTagAttribute(
+                                                tag,
+                                                'title'
+                                            )
+                                        ]
+                                            .filter(Boolean)
+                                            .join(' ');
+
+                                    if (
+                                        isLikelyBrandingImage(
+                                            '',
+                                            context
+                                        )
+                                    ) {
+                                        continue;
+                                    }
+
+                                    const width =
+                                        Number(
+                                            getTagAttribute(
+                                                tag,
+                                                'width'
+                                            )
+                                        ) || 0;
+
+                                    const height =
+                                        Number(
+                                            getTagAttribute(
+                                                tag,
+                                                'height'
+                                            )
+                                        ) || 0;
+
+                                    if (
+                                        width &&
+                                        height &&
+                                        (
+                                            width < 320 ||
+                                            height < 180
+                                        )
+                                    ) {
+                                        continue;
+                                    }
+
+                                    const srcset =
+                                        getTagAttribute(
+                                            tag,
+                                            'srcset'
+                                        );
+
+                                    const srcsetCandidates =
+                                        srcset
+                                            ? srcset
+                                                .split(',')
+                                                .map(item =>
+                                                    String(
+                                                        item ||
+                                                        ''
+                                                    )
+                                                        .trim()
+                                                        .split(
+                                                            /\s+/
+                                                        )[0]
+                                                )
+                                                .filter(
+                                                    Boolean
+                                                )
+                                                .reverse()
+                                            : [];
+
+                                    const candidates =
+                                        [
+                                            ...srcsetCandidates,
+
+                                            getTagAttribute(
+                                                tag,
+                                                'data-src'
+                                            ),
+
+                                            getTagAttribute(
+                                                tag,
+                                                'data-lazy-src'
+                                            ),
+
+                                            getTagAttribute(
+                                                tag,
+                                                'data-original'
+                                            ),
+
+                                            getTagAttribute(
+                                                tag,
+                                                'src'
+                                            )
+                                        ]
+                                            .filter(
+                                                Boolean
+                                            );
+
+                                    for (
+                                        const candidate of
+                                        candidates
+                                    ) {
+                                        const resolved =
+                                            resolveImageUrl(
+                                                candidate,
+                                                context
+                                            );
+
+                                        if (resolved) {
+                                            return resolved;
+                                        }
+                                    }
+                                }
+                            }
+
+                            const metaTags =
+                                html.match(
+                                    /<meta\b[^>]*>/gi
+                                ) || [];
+
+                            const preferredKeys = [
+                                'og:image:secure_url',
+                                'og:image:url',
+                                'og:image',
+                                'twitter:image:src',
+                                'twitter:image'
+                            ];
+
+                            for (
+                                const key of
+                                preferredKeys
+                            ) {
+                                const matchingTag =
+                                    metaTags.find(
+                                        tag => {
+                                            const tagKey =
+                                                getTagAttribute(
+                                                    tag,
+                                                    'property'
+                                                ) ||
+                                                getTagAttribute(
+                                                    tag,
+                                                    'name'
+                                                );
+
+                                            return (
+                                                tagKey
+                                                    .toLowerCase() ===
+                                                key
+                                            );
+                                        }
+                                    );
+
+                                if (!matchingTag) {
+                                    continue;
+                                }
+
+                                const resolved =
+                                    resolveImageUrl(
+                                        getTagAttribute(
+                                            matchingTag,
+                                            'content'
+                                        )
+                                    );
+
+                                if (resolved) {
+                                    return resolved;
+                                }
+                            }
+
+                            return '';
+                        } catch {
+                            return '';
+                        } finally {
+                            clearTimeout(
+                                timeoutId
+                            );
+                        }
+                    })();
+
                 const openaiResponse =
                     await fetch(
                         'https://api.openai.com/v1/responses',
@@ -720,12 +1278,16 @@ export default {
                     );
                 }
 
+                const imageUrl =
+                    await sourceImageUrlPromise;
+
                 return json({
                     ok: true,
 
                     payload: {
                         readMore,
-                        readMoreQuestions
+                        readMoreQuestions,
+                        imageUrl
                     }
                 });
             }

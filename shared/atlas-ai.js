@@ -2008,6 +2008,11 @@
                     .slice(0, 2)
                 : [];
 
+        const imageUrl =
+            cleanString(
+                result.payload?.imageUrl
+            );
+
         if (
             !readMore ||
             readMoreQuestions.length !== 2
@@ -2019,7 +2024,8 @@
 
         return {
             readMore,
-            readMoreQuestions
+            readMoreQuestions,
+            imageUrl
         };
     }
 

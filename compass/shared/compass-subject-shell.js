@@ -1415,6 +1415,15 @@ function mountCompassSubjectShell() {
             </div>
 
             <div class="modal-body">
+                <figure class="current-affairs-source-image"
+                    id="current-affairs-source-image"
+                    hidden>
+
+                    <img id="current-affairs-source-image-element"
+                        alt=""
+                        decoding="async">
+                </figure>
+
                 <p class="current-affairs-source-summary"
                     id="current-affairs-source-summary"></p>
 
