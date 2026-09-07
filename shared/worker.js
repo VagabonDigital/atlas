@@ -1717,6 +1717,13 @@ export default {
                         .trim()
                         .slice(0, 3000);
 
+                const topicFocus =
+                    String(
+                        body?.topicFocus || ''
+                    )
+                        .trim()
+                        .slice(0, 240);
+
                 const allowedLanguageLevels =
                     new Set([
                         'a1-a2',
@@ -1855,6 +1862,7 @@ export default {
                     mode,
                     currentDate,
                     languageLevel,
+                    topicFocus,
 
                     interests:
                         mode === 'learner'
@@ -1922,6 +1930,13 @@ export default {
                                     '',
                                     'DISCOVERY MODE:',
                                     modeInstruction,
+                                    '',
+                                    'OPTIONAL TOPIC FOCUS:',
+                                    'If context.topicFocus is non-empty, treat it as a strong scope constraint inside the selected discovery mode.',
+                                    'All three suggestions should be recognisably connected to that focus, interpreted naturally and semantically rather than as an exact keyword match.',
+                                    'Do not abandon the supplied focus merely to produce more varied ideas.',
+                                    'For Current Affairs, search for genuinely recent developments within that focus while keeping the existing recency and source-quality requirements.',
+                                    'If context.topicFocus is empty, preserve the normal broad discovery behaviour.',
                                     '',
                                     'sessionSubjects, existingSubjects, and recentSuggestions provide coverage context.',
                                     'Do not repeat or lightly remix subjects or ideas already represented there.',

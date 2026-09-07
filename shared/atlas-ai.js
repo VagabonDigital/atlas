@@ -1551,6 +1551,11 @@
                             candidate.interests
                         ),
 
+                    topicFocus:
+                        cleanString(
+                            candidate.topicFocus
+                        ),
+
                     languageLevel:
                         cleanString(
                             candidate.languageLevel

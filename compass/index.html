@@ -1371,6 +1371,45 @@
       margin-top: 0.95rem;
     }
 
+    .compass-idea-focus-field {
+      display: grid;
+      gap: 0.42rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-faint);
+    }
+
+    .compass-idea-focus-label {
+      color: var(--text-muted);
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+
+    .compass-idea-focus-input {
+      width: 100%;
+      min-height: 42px;
+      padding: 0.62rem 0.75rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      background: var(--surface-raised);
+      color: var(--text-heading);
+      font: inherit;
+      font-size: 0.84rem;
+      outline: none;
+      transition: var(--t);
+    }
+
+    .compass-idea-focus-input::placeholder {
+      color: var(--text-subtle);
+    }
+
+    .compass-idea-focus-input:focus {
+      border-color: var(--accent);
+      box-shadow:
+        0 0 0 3px
+        rgba(var(--accent-rgb), 0.10);
+    }
+
     .compass-idea-mode-btn {
       min-height: 46px;
       padding: 0.7rem 0.8rem;
@@ -4633,7 +4672,8 @@
           String(sessionId || '').trim() || null,
         categoryId:
           String(categoryId || '').trim() || null,
-        ideaMode: ''
+        ideaMode: '',
+        topicFocus: ''
       };
 
       title.textContent = 'Create subject';
@@ -7136,12 +7176,17 @@
 
     function getCompassSuggestionHistoryKey(
       sessionId,
-      modeId
+      modeId,
+      topicFocus = ''
     ) {
       return (
         String(sessionId || '') +
         '::' +
-        String(modeId || '')
+        String(modeId || '') +
+        '::' +
+        String(topicFocus || '')
+          .trim()
+          .toLowerCase()
       );
     }
 
@@ -7321,6 +7366,14 @@
           session
         );
 
+      const topicFocus =
+        String(
+          ownedSubjectDialogState
+            ?.topicFocus || ''
+        )
+          .trim()
+          .slice(0, 240);
+
       region.innerHTML =
         '<section class="compass-recommendation-panel compass-recommendation-panel--chooser" aria-label="Choose idea type">' +
         '<div class="compass-recommendation-head">' +
@@ -7347,6 +7400,15 @@
           '</button>'
         ).join('') +
         '</div>' +
+        '<label class="compass-idea-focus-field">' +
+        '<span class="compass-idea-focus-label">Narrow the ideas — optional</span>' +
+        '<input class="compass-idea-focus-input" id="compass-idea-topic-focus" ' +
+        'type="text" maxlength="240" autocomplete="off" ' +
+        'placeholder="e.g. a place, theme, industry, person or idea" ' +
+        'value="' +
+        escHtml(topicFocus) +
+        '">' +
+        '</label>' +
         '</section>';
 
       if (label) {
@@ -7577,6 +7639,29 @@
         return;
       }
 
+      const topicFocusInput =
+        dialog?.querySelector(
+          '#compass-idea-topic-focus'
+        );
+
+      const topicFocus =
+        String(
+          topicFocusInput
+            ? topicFocusInput.value
+            : ownedSubjectDialogState
+                ?.topicFocus || ''
+        )
+          .trim()
+          .slice(0, 240);
+
+      if (
+        ownedSubjectDialogState?.mode ===
+        'create'
+      ) {
+        ownedSubjectDialogState.topicFocus =
+          topicFocus;
+      }
+
       writeCompassIdeaMode(
         activeSession.id,
         selectedMode.id
@@ -7616,7 +7701,8 @@
       const historyKey =
         getCompassSuggestionHistoryKey(
           context.sessionId,
-          selectedMode.id
+          selectedMode.id,
+          topicFocus
         );
 
       const recentSuggestions =
@@ -7640,6 +7726,8 @@
                 selectedMode.id,
 
               interests,
+
+              topicFocus,
 
               languageLevel:
                 String(
