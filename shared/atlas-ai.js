@@ -1897,6 +1897,118 @@
         };
     }
 
+    async function generateCurrentAffairsReading(
+        input = {}
+    ) {
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const source =
+            candidate.source &&
+            typeof candidate.source === 'object' &&
+            !Array.isArray(candidate.source)
+                ? {
+                    publisher:
+                        cleanString(
+                            candidate.source.publisher
+                        ),
+
+                    title:
+                        cleanString(
+                            candidate.source.title
+                        ),
+
+                    url:
+                        cleanString(
+                            candidate.source.url
+                        ),
+
+                    publishedAt:
+                        cleanString(
+                            candidate.source.publishedAt
+                        ),
+
+                    summary:
+                        cleanString(
+                            candidate.source.summary
+                        ),
+
+                    keyFacts:
+                        Array.isArray(
+                            candidate.source.keyFacts
+                        )
+                            ? candidate.source.keyFacts
+                                .map(cleanString)
+                                .filter(Boolean)
+                                .slice(0, 4)
+                            : []
+                }
+                : null;
+
+        if (!source) {
+            throw new Error(
+                'A Current Affairs source is required.'
+            );
+        }
+
+        const response = await fetch(
+            `${BASE_URL}/generate-current-affairs-reading`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json'
+                },
+
+                body: JSON.stringify({
+                    source,
+
+                    languageLevel:
+                        cleanString(
+                            candidate.languageLevel
+                        ) || 'b2'
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Current Affairs reading failed with status ${response.status}.`
+            );
+        }
+
+        const readMore =
+            cleanString(
+                result.payload?.readMore
+            );
+
+        if (!readMore) {
+            throw new Error(
+                'Atlas AI returned an invalid Current Affairs reading.'
+            );
+        }
+
+        return {
+            readMore
+        };
+    }
+
     async function searchCovers(
         input = {}
     ) {
@@ -2129,6 +2241,8 @@
 
         generateDiscussionPathway:
             withGenerationContext(generateDiscussionPathway),
+
+        generateCurrentAffairsReading,
 
         searchCovers,
 

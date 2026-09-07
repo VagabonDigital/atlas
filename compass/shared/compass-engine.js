@@ -12214,6 +12214,11 @@ function getCurrentAffairsSource() {
                 .slice(0, 4)
             : [];
 
+    const readMore =
+        String(
+            candidate.readMore || ''
+        ).trim();
+
     let url = '';
 
     try {
@@ -12232,10 +12237,7 @@ function getCurrentAffairsSource() {
 
     if (
         !title ||
-        (
-            !summary &&
-            keyFacts.length === 0
-        )
+        !readMore
     ) {
         return null;
     }
@@ -12246,6 +12248,7 @@ function getCurrentAffairsSource() {
         publishedAt,
         summary,
         keyFacts,
+        readMore,
         url
     };
 }
@@ -12346,23 +12349,12 @@ function openCurrentAffairsReadMore() {
 
     if (summary) {
         summary.textContent =
-            source.summary;
+            source.readMore;
     }
 
     if (facts) {
-        facts.replaceChildren(
-            ...source.keyFacts.map(fact => {
-                const item =
-                    document.createElement('li');
-
-                item.textContent = fact;
-
-                return item;
-            })
-        );
-
-        facts.hidden =
-            source.keyFacts.length === 0;
+        facts.replaceChildren();
+        facts.hidden = true;
     }
 
     if (link) {

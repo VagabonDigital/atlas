@@ -1802,6 +1802,7 @@ ORIENTATION
     color: var(--text-body);
     font-size: 0.97rem;
     line-height: 1.72;
+    white-space: pre-line;
 }
 
 .current-affairs-source-facts {
