@@ -11481,11 +11481,146 @@ function applySubjectIdentityChrome() {
     );
 }
 
+const COMPASS_GENERIC_COVER_IMAGE =
+    'https://thumbs.dreamstime.com/b/compass-gold-center-blue-arrow-purple-compass-rose-set-against-rainbow-colors-vintage-compass-colorful-background-359049338.jpg?w=992';
+
+const coverImageHealthCache = new Map();
+let coverImageHealthRequestId = 0;
+
+function updateCoverImageWarning(
+    unavailable,
+    {
+        custom = false
+    } = {}
+) {
+    const warning = document.getElementById(
+        'cover-image-warning'
+    );
+
+    const label = document.getElementById(
+        'cover-image-warning-label'
+    );
+
+    if (!warning) return;
+
+    warning.hidden =
+        !unavailable;
+
+    if (label) {
+        label.textContent =
+            custom
+                ? 'Custom cover unavailable.'
+                : 'Cover image unavailable.';
+    }
+}
+
+function checkCoverImageAvailability(
+    imageUrl,
+    {
+        custom = false
+    } = {}
+) {
+    const normalizedUrl = String(
+        imageUrl || ''
+    ).trim();
+
+    const requestId =
+        ++coverImageHealthRequestId;
+
+    if (!normalizedUrl) {
+        updateCoverImageWarning(
+            true,
+            {
+                custom
+            }
+        );
+
+        return;
+    }
+
+    const cachedHealth =
+        coverImageHealthCache.get(
+            normalizedUrl
+        );
+
+    if (cachedHealth === true) {
+        updateCoverImageWarning(false);
+        return;
+    }
+
+    if (cachedHealth === false) {
+        updateCoverImageWarning(
+            true,
+            {
+                custom
+            }
+        );
+
+        return;
+    }
+
+    updateCoverImageWarning(false);
+
+    const image = new Image();
+
+    image.onload = () => {
+        coverImageHealthCache.set(
+            normalizedUrl,
+            true
+        );
+
+        if (
+            requestId !==
+            coverImageHealthRequestId
+        ) {
+            return;
+        }
+
+        updateCoverImageWarning(false);
+    };
+
+    image.onerror = () => {
+        coverImageHealthCache.set(
+            normalizedUrl,
+            false
+        );
+
+        if (
+            requestId !==
+            coverImageHealthRequestId
+        ) {
+            return;
+        }
+
+        updateCoverImageWarning(
+            true,
+            {
+                custom
+            }
+        );
+    };
+
+    image.src =
+        normalizedUrl;
+}
+
+function handleUnavailableCoverChange() {
+    if (!myVersionEditing) {
+        requestMyVersionEditing({
+            expandAuthorBar: true
+        });
+    }
+
+    if (myVersionEditing) {
+        handleMyVersionCoverAction();
+    }
+}
+
 function applyCoverConfig() {
     const title = getEffectiveSubjectTitle();
     const coverImage =
         getEffectiveSubjectCoverImage() ||
-        'https://thumbs.dreamstime.com/b/compass-gold-center-blue-arrow-purple-compass-rose-set-against-rainbow-colors-vintage-compass-colorful-background-359049338.jpg?w=992';
+        COMPASS_GENERIC_COVER_IMAGE;
 
     document.title = title;
 
@@ -11517,9 +11652,52 @@ function applyCoverConfig() {
         }
     }
 
+    const atlasDefaultCover =
+        String(
+            MODULE.bgImage || ''
+        ).trim();
+
+    const coverLayers = [
+        coverImage,
+        atlasDefaultCover,
+        COMPASS_GENERIC_COVER_IMAGE
+    ]
+        .map(imageUrl =>
+            String(
+                imageUrl || ''
+            ).trim()
+        )
+        .filter(
+            (
+                imageUrl,
+                index,
+                imageUrls
+            ) =>
+                imageUrl &&
+                imageUrls.indexOf(
+                    imageUrl
+                ) === index
+        );
+
     document.documentElement.style.setProperty(
         '--module-bg-image',
-        `url(${JSON.stringify(coverImage)})`
+        coverLayers
+            .map(imageUrl =>
+                `url(${JSON.stringify(imageUrl)})`
+            )
+            .join(', ')
+    );
+
+    checkCoverImageAvailability(
+        coverImage,
+        {
+            custom:
+                Boolean(
+                    atlasDefaultCover &&
+                    coverImage !==
+                        atlasDefaultCover
+                )
+        }
     );
 }
 

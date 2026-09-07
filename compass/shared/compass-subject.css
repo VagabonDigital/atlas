@@ -586,6 +586,44 @@ html.theme-changing .cover-bg {
     font-weight: inherit;
 }
 
+.cover-image-warning {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+    margin: -0.9rem 0 -0.65rem;
+    color: rgba(255, 255, 255, 0.68);
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.cover-image-warning[hidden] {
+    display: none;
+}
+
+.cover-image-warning button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: rgba(255, 255, 255, 0.92);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cover-image-warning button:hover {
+    color: #ffffff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.cover-image-warning button:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.72);
+    outline-offset: 3px;
+    border-radius: 3px;
+}
+
 .cover-actions {
     display: flex;
     align-items: center;
