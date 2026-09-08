@@ -368,16 +368,30 @@
       line-height: 1.45;
     }
 
+    .why-title {
+      max-width: 760px;
+      font-size: clamp(32px, 3.7vw, 41px);
+    }
+
     .why-grid {
-      margin-top: 46px;
+      margin-top: 34px;
       display: grid;
       grid-template-columns: .9fr 1.1fr;
-      gap: 58px;
+      gap: 46px;
       align-items: start;
     }
 
+    .why-column-label {
+      margin-bottom: 8px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
     .problem-line {
-      padding: 16px 0;
+      padding: 14px 0;
       border-top: 1px solid var(--border-faint);
       color: var(--text-heading);
       font-size: 16px;
@@ -388,7 +402,7 @@
     }
 
     .why-copy p+p {
-      margin-top: 18px;
+      margin-top: 16px;
     }
 
     .why-copy p {
@@ -397,7 +411,7 @@
     }
 
     .quiet-thesis {
-      margin-top: 26px;
+      margin-top: 22px;
       padding-left: 18px;
       border-left: 2px solid var(--accent);
       color: var(--text-heading);
@@ -1445,21 +1459,22 @@
     <section class="section" id="why">
       <div class="frame">
         <p class="kicker">Why Atlas exists</p>
-        <h2>The lesson is live. Most of what surrounds it isn’t.</h2>
+        <h2 class="why-title">The lesson is live. Most of what surrounds it isn’t.</h2>
         <div class="why-grid">
           <div>
-            <div class="problem-line">Useful material lives across documents, websites, bookmarks and notes.</div>
-            <div class="problem-line">A tutor learns the learner, but much of that context lives only in memory.</div>
-            <div class="problem-line">Good language appears in conversation and is easy to lose afterwards.</div>
-            <div class="problem-line">Strong material gets adapted informally, then disappears into another copy.</div>
+            <p class="why-column-label">What gets lost</p>
+            <div class="problem-line">Useful material gets scattered across documents, websites and notes.</div>
+            <div class="problem-line">Learner context lives mostly in the tutor’s memory.</div>
+            <div class="problem-line">Good language appears in conversation, then disappears.</div>
+            <div class="problem-line">Strong material gets adapted, copied and eventually lost.</div>
           </div>
           <div class="why-copy">
-            <p>Atlas grew from the practical problem of teaching recurring one-to-one lessons with material that was
-              scattered, static and difficult to carry forward.</p>
-            <p>It brings the material, the learner and the useful teaching history into one workspace — while giving the
-              tutor much more creative control over what that workspace contains.</p>
-            <div class="quiet-thesis">The point is not a bigger lesson library. The point is a teaching environment the
-              tutor can actively shape.</div>
+            <p class="why-column-label">What Atlas changes</p>
+            <p>Atlas brings the material, the learner and the teaching history into one workspace.</p>
+            <p>Instead of treating lessons as isolated sessions, it lets useful material, adaptations and learner context
+              carry forward — while giving the tutor control over what happens next.</p>
+            <div class="quiet-thesis">Atlas is not a bigger lesson library. It is a teaching environment the tutor can
+              actively shape.</div>
           </div>
         </div>
       </div>
@@ -1503,50 +1518,25 @@
             <div class="direction-head"><strong>A few starting points</strong><span>Pick one, or ask Atlas below.</span>
             </div>
             <div class="direction-list" id="subjectField">
-              <button class="subject-title is-selected" data-title="The Forests That Glow at Night"><span
-                  class="subject-name">The Forests That Glow at Night</span></button>
-              <button class="subject-title" data-title="IELTS Speaking: Stronger Answers"><span
-                  class="subject-name">IELTS Speaking: Stronger Answers</span></button>
+              <button class="subject-title is-selected" data-title="Past Simple or Present Perfect?"><span
+                  class="subject-name">Past Simple or Present Perfect?</span></button>
+              <button class="subject-title" data-title="The Odyssey: Worth the Hype?"><span
+                  class="subject-name">The Odyssey: Worth the Hype?</span></button>
 
+              <button class="subject-title" data-title="Disagreeing with Your Manager"><span
+                  class="subject-name">Disagreeing with Your Manager</span></button>
               <button class="subject-title" data-title="The Meal You’d Cross a City For"><span
                   class="subject-name">The Meal You’d Cross a City For</span></button>
-              <button class="subject-title" data-title="Singapore’s Public Housing Experiment"><span
-                  class="subject-name">Singapore’s Public Housing Experiment</span></button>
 
+              <button class="subject-title" data-title="IELTS Speaking: Stronger Answers"><span
+                  class="subject-name">IELTS Speaking: Stronger Answers</span></button>
               <button class="subject-title" data-title="How Octopuses Change Colour"><span
                   class="subject-name">How Octopuses Change Colour</span></button>
-              <button class="subject-title" data-title="Are We Getting Worse at Being Friends?"><span
-                  class="subject-name">Are We Getting Worse at Being Friends?</span></button>
 
-              <button class="subject-title" data-title="The Algorithm Knows You’re Still Watching"><span
-                  class="subject-name">The Algorithm Knows You’re Still Watching</span></button>
-              <button class="subject-title" data-title="The Antikythera Mechanism: An Ancient Greek Computer"><span
-                  class="subject-name">The Antikythera Mechanism: An Ancient Greek Computer</span></button>
-
-              <button class="subject-title" data-title="The World of Japanese Convenience Stores"><span
-                  class="subject-name">The World of Japanese Convenience Stores</span></button>
-              <button class="subject-title" data-title="The Strange Afterlife of Abandoned Amusement Parks"><span
-                  class="subject-name">The Strange Afterlife of Abandoned Amusement Parks</span></button>
-
-              <button class="subject-title" data-title="The Psychology of Waiting in Line"><span
-                  class="subject-name">The Psychology of Waiting in Line</span></button>
-              <button class="subject-title" data-title="Can You Separate the Artist from the Art?"><span
-                  class="subject-name">Can You Separate the Artist from the Art?</span></button>
-
-              <button class="subject-title" data-title="The Odyssey: Worth The Hype?"><span
-                  class="subject-name">The Odyssey: Worth The Hype?</span></button>
-              <button class="subject-title" data-title="Paris Underground Music Scene"><span
-                  class="subject-name">Paris Underground Music Scene</span></button>
-
-              <button class="subject-title" data-title="What Makes a Place Worth Visiting?"><span
-                  class="subject-name">What Makes a Place Worth Visiting?</span></button>
-              <button class="subject-title" data-title="Conditionals for Real Decisions"><span
-                  class="subject-name">Conditionals for Real Decisions</span></button>
-
-              <button class="subject-title" data-title="Preparing for a Job Interview"><span
-                  class="subject-name">Preparing for a Job Interview</span></button>
-              <button class="subject-title" data-title="Former Tropical Storm Edouard Floods Parts of Texas"><span
-                  class="subject-name">Former Tropical Storm Edouard Floods Parts of Texas</span></button>
+              <button class="subject-title" data-title="Your First Month Abroad"><span
+                  class="subject-name">Your First Month Abroad</span></button>
+              <button class="subject-title" data-title="Today’s Big Story"><span
+                  class="subject-name">Today’s Big Story</span></button>
             </div>
           </div>
         </div>
