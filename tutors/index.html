@@ -453,12 +453,20 @@
 
     .create-label {
       display: block;
-      margin-bottom: 7px;
-      color: var(--text-muted);
+      margin-bottom: 12px;
+      color: var(--compass);
       text-transform: uppercase;
       letter-spacing: .12em;
       font-size: 10px;
       font-weight: 700;
+    }
+
+    .create-prompt {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--text-body);
+      font-size: 12px;
+      font-weight: 600;
     }
 
     .create-input {
@@ -473,11 +481,13 @@
     }
 
     .create-controls {
-      padding: 16px 20px 20px;
+      padding: 16px 20px 18px;
       display: flex;
       gap: 9px;
       flex-wrap: wrap;
       align-items: center;
+      border-top: 1px solid var(--border-faint);
+      background: var(--surface-panel);
     }
 
     .control-chip {
@@ -491,24 +501,27 @@
 
     .create-button {
       margin-left: auto;
+      min-width: 152px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       border: 0;
       border-radius: 9px;
       padding: 9px 13px;
-      min-width: 116px;
       background: var(--accent);
       color: white;
       font-weight: 600;
+      text-decoration: none;
       cursor: pointer;
       transition: opacity var(--motion) ease, transform var(--motion) ease;
     }
 
-    .create-button:active {
-      transform: translateY(1px);
+    .create-button:hover {
+      opacity: .92;
     }
 
-    .create-button[disabled] {
-      cursor: wait;
-      opacity: .72;
+    .create-button:active {
+      transform: translateY(1px);
     }
 
     html[data-theme="dark"] .create-button {
@@ -525,11 +538,6 @@
       opacity: 1;
       transform: translateY(0);
       transition: opacity 180ms ease, transform 180ms ease;
-    }
-
-    .result-shell.is-building {
-      opacity: .38;
-      transform: translateY(3px);
     }
 
     .result-nav {
@@ -557,14 +565,23 @@
     }
 
     .result-state {
+      width: fit-content;
       display: flex;
       align-items: center;
       gap: 8px;
+      min-height: 28px;
+      padding: 5px 0;
+      border: 1px solid transparent;
+      border-radius: 999px;
       color: var(--compass);
       font-size: 10px;
       font-weight: 700;
       letter-spacing: .09em;
       text-transform: uppercase;
+      transition:
+        padding var(--motion),
+        background var(--motion),
+        border-color var(--motion);
     }
 
     .result-dot {
@@ -576,8 +593,14 @@
       box-shadow: 0 0 0 0 rgba(var(--compass-rgb), 0);
     }
 
+    .result-shell.is-active .result-state {
+      padding: 5px 10px;
+      border-color: rgba(var(--compass-rgb), .22);
+      background: var(--compass-soft);
+    }
+
     .result-shell.is-active .result-dot {
-      animation: result-dot-pulse 1.45s ease-out infinite;
+      animation: result-dot-pulse 1.15s ease-out infinite;
     }
 
     @keyframes result-dot-pulse {
@@ -620,71 +643,7 @@
       max-width: 540px;
     }
 
-    .result-foot {
-      margin-top: 18px;
-      padding-top: 14px;
-      border-top: 1px solid var(--border-faint);
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .result-ready {
-      color: var(--text-muted);
-      font-size: 11px;
-    }
-
-    .result-open {
-      padding: 7px 10px;
-      border: 1px solid rgba(var(--compass-rgb), .24);
-      border-radius: 8px;
-      background: var(--compass-soft);
-      color: var(--compass);
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .result-open[disabled] {
-      cursor: default;
-      opacity: .52;
-    }
-
-    .build-line {
-      padding: 0 20px 18px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-    }
-
-    .build-line span {
-      height: 5px;
-      border-radius: 999px;
-      background: var(--surface-muted);
-      overflow: hidden;
-      transition: background 180ms ease;
-    }
-
-    .build-line span.ready {
-      background: color-mix(in srgb, var(--compass) 65%, var(--surface-muted));
-    }
-
-    .build-line span.building {
-      background: linear-gradient(90deg, var(--surface-muted) 0%, color-mix(in srgb, var(--compass) 55%, var(--surface-muted)) 50%, var(--surface-muted) 100%);
-      background-size: 180% 100%;
-      animation: buildSweep 820ms ease infinite;
-    }
-
-    @keyframes buildSweep {
-      from {
-        background-position: 100% 0;
-      }
-
-      to {
-        background-position: -80% 0;
-      }
-    }
+    /* Creation continues in Compass; this card only previews the idea. */
 
     .create-copy {
       margin-top: 46px;
@@ -1432,10 +1391,6 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .build-line span.building {
-        animation: none;
-      }
-
       *,
       *::before,
       *::after {
@@ -1520,30 +1475,29 @@
           structured Compass subject.</p>
         <div class="create-layout">
           <div class="create-console" aria-label="Example Compass subject creator">
-            <div class="create-top"><label class="create-label" for="subjectInput">Subject</label><input
-                class="create-input" id="subjectInput" value="The Forests That Glow at Night"></div>
-            <div class="create-controls"><span class="control-chip">B2</span><span
-                class="control-chip">Conversational</span><span class="control-chip">Optional brief</span><button
-                class="create-button" id="createButton" type="button">Create subject</button></div>
+            <div class="create-top">
+              <div class="create-label">My Subject</div>
+              <label class="create-prompt" for="subjectInput">What do you want to explore?</label>
+              <input class="create-input" id="subjectInput" value="The Forests That Glow at Night">
+            </div>
             <div class="create-result" aria-live="polite">
               <div class="result-shell" id="resultShell">
                 <div class="result-nav" aria-label="Compass subject sections">
                   <span>Overview</span><span>Discussion</span><span>Cultural Lens</span><span>Reflection</span></div>
                 <div class="result-body">
-                  <div class="result-state"><span class="result-dot"></span> Compass subject</div>
+                  <div class="result-state"><span class="result-dot"></span><span
+                      id="resultStateText">Compass subject</span></div>
                   <h3 id="resultTitle">The Forests That Glow at Night</h3>
                   <div class="result-intro-label">Introduction</div>
                   <p class="result-intro" id="resultIntro">Some forests seem ordinary in daylight and completely
                     different after dark. This subject explores the organisms that can make a forest glow, why
                     bioluminescence exists, and what happens when science makes a familiar place feel strange again.</p>
-                  <div class="result-foot"><span class="result-ready" id="resultReady">Overview ready to
-                      teach</span><button class="result-open" id="resultOpen" type="button" disabled>Open in Compass</button></div>
                 </div>
               </div>
-              <div class="build-line" id="buildLine" aria-label="Subject build progress"><span class="ready"
-                  title="Overview ready"></span><span title="Discussion"></span><span
-                  title="Cultural Lens"></span><span title="Reflection"></span></div>
             </div>
+            <div class="create-controls"><span class="control-chip">B2</span><span
+                class="control-chip">Balanced</span><span class="control-chip">Optional brief</span><a
+                class="create-button" id="createButton" href="../compass/index.html">Continue in Compass</a></div>
           </div>
           <div class="direction-picker">
             <div class="direction-head"><strong>A few starting points</strong><span>Pick one, or ask Atlas below.</span>
@@ -1880,15 +1834,10 @@
       var subjectInput = document.getElementById("subjectInput");
       var resultTitle = document.getElementById("resultTitle");
       var resultIntro = document.getElementById("resultIntro");
-      var resultReady = document.getElementById("resultReady");
       var resultShell = document.getElementById("resultShell");
-      var resultOpen = document.getElementById("resultOpen");
-      var buildLine = document.getElementById("buildLine");
+      var resultStateText = document.getElementById("resultStateText");
       var subjectField = document.getElementById("subjectField");
       var subjectButtons = Array.prototype.slice.call(document.querySelectorAll(".subject-title"));
-      var createButton = document.getElementById("createButton");
-      var completedBuildStep = 0;
-      var buildInProgress = false;
       var demoIdeaQueue = [];
       var demoIdeaHistory = [];
       var activeDemoCategory = null;
@@ -1921,6 +1870,11 @@
 
       function setDirectionDemoStatus(text) {
         if (directionDemoStatus) directionDemoStatus.textContent = text;
+      }
+
+      function setResultCardStatus(text, active) {
+        if (resultStateText) resultStateText.textContent = text;
+        resultShell.classList.toggle("is-active", !!active);
       }
 
       function syncDemoCategoryControls() {
@@ -1958,36 +1912,15 @@
       function showDemoIdeaInSubjectCard(idea) {
         if (!idea) return;
 
-        completedBuildStep = 0;
-        resultShell.classList.remove("is-building");
         resultTitle.textContent = idea.title;
         resultIntro.textContent = idea.reason;
-        resultReady.textContent = "Ready to create";
-        resultOpen.disabled = true;
-        createButton.disabled = false;
-        createButton.textContent = "Create subject";
-
-        Array.prototype.slice.call(buildLine.querySelectorAll("span")).forEach(function (step) {
-          step.classList.remove("ready", "building");
-        });
       }
 
       function showCuratedSubjectInCard(seed) {
         if (!seed) return;
 
-        completedBuildStep = 0;
-        resultShell.classList.remove("is-building");
         resultTitle.textContent = seed.title;
         resultIntro.textContent = seed.overview.intro;
-        resultReady.textContent = "Ready to create";
-        resultOpen.disabled = true;
-        createButton.disabled = false;
-        createButton.textContent = "Create subject";
-
-        Array.prototype.slice.call(buildLine.querySelectorAll("span")).forEach(function (step, index) {
-          step.classList.toggle("ready", index === 0);
-          step.classList.remove("building");
-        });
       }
 
       function chooseSubject(button) {
@@ -2055,8 +1988,6 @@
 
         activeDemoCategory = category;
         syncDemoCategoryControls();
-        completedBuildStep = 0;
-        resultOpen.disabled = true;
 
         if (canReuseQueue) {
           var queuedIdea = demoIdeaQueue.shift();
@@ -2069,12 +2000,15 @@
         demoIdeaQueue = [];
         button.classList.add("is-loading");
         button.disabled = true;
-        resultShell.classList.add("is-active");
-        setDirectionDemoStatus(
+
+        setResultCardStatus(
           category.mode === "current-affairs"
             ? "Checking what’s current… Usually about 15 seconds"
-            : "Finding an idea…"
+            : "Finding a " + category.label.toLowerCase() + " idea…",
+          true
         );
+
+        setDirectionDemoStatus("Working…");
 
         try {
           var response = await window.AtlasAI.suggestSubjectIdeas({
@@ -2102,16 +2036,21 @@
           demoIdeaQueue = ideas.slice(1);
           fillSubject(ideas[0].title, ideas[0], category, false);
           showDemoIdeaInSubjectCard(ideas[0]);
+          setResultCardStatus("Compass subject", false);
           setDirectionDemoStatus("Click again for another");
         } catch (error) {
           if (requestId !== demoIdeaRequestId) return;
           console.error("Tutor Layer idea suggestion failed:", error);
           demoIdeaQueue = [];
+          setResultCardStatus("Couldn’t fetch a new idea · try again", false);
           setDirectionDemoStatus("Try that direction again");
         } finally {
           button.classList.remove("is-loading");
           button.disabled = false;
-          resultShell.classList.remove("is-active");
+
+          if (requestId === demoIdeaRequestId && resultShell.classList.contains("is-active")) {
+            setResultCardStatus("Compass subject", false);
+          }
         }
       }
 
@@ -2121,38 +2060,6 @@
         directionDemo.setAttribute("aria-live", "polite");
         subjectField.insertAdjacentElement("afterend", directionDemo);
         renderDemoCategories();
-      }
-
-      function getBuildStatus(completedStep, isBuilding, failed) {
-        if (failed) {
-          return completedStep >= 2
-            ? "Background build paused"
-            : "Couldn’t create subject";
-        }
-
-        if (completedStep >= 16) return "Subject ready to teach";
-        if (completedStep >= 13) return isBuilding ? "Cultural Lens ready · Building Reflection…" : "Cultural Lens ready";
-        if (completedStep >= 6) return isBuilding ? "Discussion ready · Building Cultural Lens…" : "Discussion ready";
-        if (completedStep >= 2) return isBuilding ? "Overview ready · Building Discussion…" : "Overview ready to teach";
-        return "Building Overview…";
-      }
-
-      function renderBuildProgress(isBuilding, completedStep, failed) {
-        var steps = Array.prototype.slice.call(buildLine.querySelectorAll("span"));
-        var thresholds = [2, 6, 13, 16];
-        var activeIndex = completedStep < 2 ? 0 : completedStep < 6 ? 1 : completedStep < 13 ? 2 : completedStep < 16 ? 3 : -1;
-
-        resultShell.classList.toggle("is-building", isBuilding && completedStep < 2);
-        resultShell.classList.toggle("is-active", isBuilding);
-        createButton.disabled = isBuilding;
-        createButton.textContent = isBuilding ? (completedStep >= 2 ? "Building…" : "Creating…") : "Create subject";
-        resultReady.textContent = getBuildStatus(completedStep, isBuilding, failed);
-        resultOpen.disabled = completedStep < 2;
-
-        steps.forEach(function (step, index) {
-          step.classList.toggle("ready", completedStep >= thresholds[index]);
-          step.classList.toggle("building", isBuilding && index === activeIndex);
-        });
       }
 
       subjectInput.addEventListener("input", function () {
