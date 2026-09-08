@@ -2230,6 +2230,165 @@
         };
     }
 
+    async function startSubjectBuild(
+        input = {}
+    ) {
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const subjectId =
+            cleanString(
+                candidate.subjectId
+            );
+
+        if (
+            !subjectId ||
+            !candidate.document
+        ) {
+            throw new Error(
+                'Atlas requires a subject and document to start a durable build.'
+            );
+        }
+
+        const response = await fetch(
+            `${BASE_URL}/subject-builds`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json'
+                },
+
+                body: JSON.stringify({
+                    subjectId,
+
+                    document:
+                        candidate.document,
+
+                    generationContext:
+                        candidate
+                            .generationContext ||
+                        {},
+
+                    generationBrief:
+                        buildGenerationBrief(
+                            ''
+                        ),
+
+                    resumeFromStep:
+                        Math.max(
+                            0,
+                            Math.floor(
+                                Number(
+                                    candidate
+                                        .resumeFromStep
+                                ) || 0
+                            )
+                        )
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                'Atlas could not start the durable subject build.'
+            );
+        }
+
+        const buildId =
+            cleanString(
+                result.payload
+                    ?.buildId
+            );
+
+        if (!buildId) {
+            throw new Error(
+                'Atlas did not return a durable build ID.'
+            );
+        }
+
+        return {
+            buildId,
+
+            subjectId,
+
+            status:
+                cleanString(
+                    result.payload
+                        ?.status
+                ) || 'queued',
+
+            completedStep:
+                Math.max(
+                    0,
+                    Math.floor(
+                        Number(
+                            result.payload
+                                ?.completedStep
+                        ) || 0
+                    )
+                )
+        };
+    }
+
+    async function getSubjectBuild(
+        buildId
+    ) {
+        const id =
+            cleanString(buildId);
+
+        if (!id) {
+            throw new Error(
+                'A durable subject build ID is required.'
+            );
+        }
+
+        const response = await fetch(
+            `${BASE_URL}/subject-builds/${encodeURIComponent(id)}`
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                'Atlas could not read the durable subject build.'
+            );
+        }
+
+        return (
+            result.payload &&
+            typeof result.payload ===
+                'object'
+                ? result.payload
+                : null
+        );
+    }
+
     window.AtlasAI = {
         generateMoment:
             withGenerationContext(generateMoment),
@@ -2268,6 +2427,10 @@
             withGenerationContext(generateDiscussionPathway),
 
         generateCurrentAffairsReading,
+
+        startSubjectBuild,
+
+        getSubjectBuild,
 
         searchCovers,
 

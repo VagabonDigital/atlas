@@ -20814,7 +20814,8 @@ async function init() {
 
     const resumableFullSubjectBuild =
         ownedSubjectBuildState?.kind ===
-            'full-subject'
+            'full-subject' &&
+        !ownedSubjectBuildState?.remoteBuildId
             ? ownedSubjectBuildState
             : null;
 

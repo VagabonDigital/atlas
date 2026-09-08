@@ -862,6 +862,14 @@
             ),
             autoSaveOnComplete:
                 record.autoSaveOnComplete !== false,
+            remoteBuildId:
+                typeof record.remoteBuildId === 'string'
+                    ? record.remoteBuildId.trim()
+                    : '',
+            remoteStatus:
+                typeof record.remoteStatus === 'string'
+                    ? record.remoteStatus.trim()
+                    : '',
             startedAt: Math.max(
                 0,
                 Number(record.startedAt) ||

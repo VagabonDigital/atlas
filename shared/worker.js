@@ -1,3 +1,5 @@
+import { WorkflowEntrypoint } from 'cloudflare:workers';
+
 /* ============================================================
    ATLAS AI — DEVELOPMENT WORKER
 
@@ -13,8 +15,7 @@
    - ownership
    ============================================================ */
 
-export default {
-    async fetch(request, env) {
+async function handleAtlasRequest(request, env) {
         const url = new URL(request.url);
         const origin = request.headers.get('Origin') || '';
 
@@ -213,6 +214,246 @@ export default {
             return json({
                 ok: true,
                 feedback
+            });
+        }
+
+        const subjectBuildMatch =
+            url.pathname.match(
+                /^\/subject-builds\/([^/]+)$/
+            );
+
+        if (
+            request.method === 'POST' &&
+            url.pathname === '/subject-builds'
+        ) {
+            if (
+                !env.SUBJECT_BUILD_WORKFLOW ||
+                !env.ATLAS_SUBJECT_BUILDS
+            ) {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'Durable subject building is not configured.'
+                    },
+                    503
+                );
+            }
+
+            let body = null;
+
+            try {
+                body = await request.json();
+            } catch {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'A valid subject build payload is required.'
+                    },
+                    400
+                );
+            }
+
+            const subjectId =
+                String(
+                    body?.subjectId || ''
+                ).trim();
+
+            const document =
+                body?.document &&
+                typeof body.document === 'object' &&
+                !Array.isArray(body.document)
+                    ? body.document
+                    : null;
+
+            const generationContext =
+                body?.generationContext &&
+                typeof body.generationContext === 'object' &&
+                !Array.isArray(
+                    body.generationContext
+                )
+                    ? body.generationContext
+                    : {};
+
+            const generationBrief =
+                String(
+                    body?.generationBrief || ''
+                ).trim();
+
+            const resumeFromStep =
+                Math.min(
+                    16,
+                    Math.max(
+                        0,
+                        Math.floor(
+                            Number(
+                                body?.resumeFromStep
+                            ) || 0
+                        )
+                    )
+                );
+
+            if (
+                !subjectId ||
+                !document ||
+                !document.module ||
+                !document.subjectCopy ||
+                !Array.isArray(
+                    document.discussionSets
+                ) ||
+                !Array.isArray(
+                    document.culturalLensCards
+                )
+            ) {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'A valid Structured Subject is required.'
+                    },
+                    400
+                );
+            }
+
+            const buildId =
+                `subject-build-${crypto.randomUUID()}`;
+
+            const now = Date.now();
+
+            const initialRecord = {
+                buildId,
+                subjectId,
+                status: 'queued',
+                completedStep:
+                    resumeFromStep,
+                document,
+                generationContext,
+                createdAt: now,
+                updatedAt: now,
+                error: ''
+            };
+
+            await env.ATLAS_SUBJECT_BUILDS.put(
+                `subject-build:${buildId}`,
+                JSON.stringify(
+                    initialRecord
+                )
+            );
+
+            try {
+                const instance =
+                    await env
+                        .SUBJECT_BUILD_WORKFLOW
+                        .create({
+                            id: buildId,
+
+                            params: {
+                                buildId,
+                                subjectId,
+                                document,
+                                generationContext,
+                                generationBrief,
+                                resumeFromStep
+                            }
+                        });
+
+                return json({
+                    ok: true,
+
+                    payload: {
+                        buildId:
+                            instance.id,
+
+                        subjectId,
+
+                        status:
+                            'queued',
+
+                        completedStep:
+                            resumeFromStep
+                    }
+                });
+            } catch (error) {
+                await env
+                    .ATLAS_SUBJECT_BUILDS
+                    .delete(
+                        `subject-build:${buildId}`
+                    );
+
+                console.error(
+                    '[Atlas AI] Durable subject build could not start:',
+                    error
+                );
+
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'Atlas could not start the durable subject build.'
+                    },
+                    500
+                );
+            }
+        }
+
+        if (
+            request.method === 'GET' &&
+            subjectBuildMatch
+        ) {
+            if (!env.ATLAS_SUBJECT_BUILDS) {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'Durable subject building is not configured.'
+                    },
+                    503
+                );
+            }
+
+            let buildId = '';
+
+            try {
+                buildId =
+                    decodeURIComponent(
+                        subjectBuildMatch[1]
+                    ).trim();
+            } catch { }
+
+            if (!buildId) {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'A subject build ID is required.'
+                    },
+                    400
+                );
+            }
+
+            const record =
+                await env
+                    .ATLAS_SUBJECT_BUILDS
+                    .get(
+                        `subject-build:${buildId}`,
+                        'json'
+                    );
+
+            if (!record) {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'That subject build could not be found.'
+                    },
+                    404
+                );
+            }
+
+            return json({
+                ok: true,
+                payload: record
             });
         }
 
@@ -7347,5 +7588,1362 @@ export default {
                 500
             );
         }
+}
+
+function cloneSubjectBuildValue(value) {
+    return JSON.parse(
+        JSON.stringify(value)
+    );
+}
+
+function createSubjectBuildId(prefix) {
+    return `${prefix}-${crypto.randomUUID()}`;
+}
+
+function getSubjectBuildSubject(document) {
+    return {
+        title:
+            String(
+                document.module?.title || ''
+            ).trim(),
+
+        description:
+            String(
+                document.module
+                    ?.catalogDescription || ''
+            ).trim(),
+
+        hook:
+            String(
+                document.subjectCopy
+                    ?.cover?.hook || ''
+            ).trim()
+    };
+}
+
+function getSubjectBuildOverview(document) {
+    const overview =
+        document.subjectCopy?.overview || {};
+
+    return {
+        heading:
+            String(
+                overview.heading || ''
+            ).trim(),
+
+        intro:
+            Array.isArray(
+                overview.intro
+            )
+                ? overview.intro
+                    .map(value =>
+                        String(
+                            value || ''
+                        ).trim()
+                    )
+                    .filter(Boolean)
+                    .join('\n\n')
+                : '',
+
+        question:
+            String(
+                overview.question || ''
+            ).trim()
+    };
+}
+
+function isStarterSubjectBuildDiscussionSet(
+    set
+) {
+    return (
+        set?.title === 'New set' &&
+        set?.stage === 'First Look' &&
+        Array.isArray(set?.moments) &&
+        set.moments.length === 1 &&
+        set.moments[0]?.preview ===
+            'New conversation moment' &&
+        set.moments[0]?.question ===
+            'What would you like to explore?'
+    );
+}
+
+function isStarterSubjectBuildCulturalLensCard(
+    card
+) {
+    return (
+        card?.title === 'New card' &&
+        card?.context ===
+            'Add context or background.' &&
+        Array.isArray(card?.questions) &&
+        card.questions.length === 1 &&
+        card.questions[0] ===
+            'What would you like to explore?'
+    );
+}
+
+function getSubjectBuildDiscussionSets(
+    document
+) {
+    return (
+        Array.isArray(
+            document.discussionSets
+        )
+            ? document.discussionSets
+            : []
+    )
+        .filter(set =>
+            !isStarterSubjectBuildDiscussionSet(
+                set
+            )
+        )
+        .map(set => ({
+            title:
+                String(
+                    set.title || ''
+                ).trim(),
+
+            stage:
+                String(
+                    set.stage || ''
+                ).trim(),
+
+            description:
+                String(
+                    set.description || ''
+                ).trim(),
+
+            moments:
+                Array.isArray(set.moments)
+                    ? set.moments.map(
+                        moment => ({
+                            preview:
+                                String(
+                                    moment.preview ||
+                                    ''
+                                ).trim(),
+
+                            question:
+                                String(
+                                    moment.question ||
+                                    ''
+                                ).trim()
+                        })
+                    )
+                    : []
+        }));
+}
+
+function getSubjectBuildCulturalLensCards(
+    document
+) {
+    return (
+        Array.isArray(
+            document.culturalLensCards
+        )
+            ? document.culturalLensCards
+            : []
+    )
+        .filter(card =>
+            !isStarterSubjectBuildCulturalLensCard(
+                card
+            )
+        )
+        .map(card => ({
+            title:
+                String(
+                    card.title || ''
+                ).trim(),
+
+            contextLine:
+                String(
+                    card.contextLine || ''
+                ).trim(),
+
+            teaser:
+                String(
+                    card.teaser || ''
+                ).trim(),
+
+            questions:
+                Array.isArray(
+                    card.questions
+                )
+                    ? card.questions
+                        .map(question =>
+                            String(
+                                question || ''
+                            ).trim()
+                        )
+                        .filter(Boolean)
+                    : []
+        }));
+}
+
+function createSubjectBuildDiscussionSet(
+    generated
+) {
+    const iconByStage = {
+        'First Look': 'first-look',
+        'Look Closer': 'closer-look',
+        'Wider View': 'wider-view'
+    };
+
+    return {
+        id:
+            createSubjectBuildId(
+                'discussion-set'
+            ),
+
+        title:
+            String(
+                generated.title || ''
+            ),
+
+        stage:
+            String(
+                generated.stage || ''
+            ),
+
+        icon:
+            iconByStage[
+                generated.stage
+            ] || 'first-look',
+
+        description:
+            String(
+                generated.description || ''
+            ),
+
+        moments:
+            (
+                Array.isArray(
+                    generated.moments
+                )
+                    ? generated.moments
+                    : []
+            ).map(moment => ({
+                id:
+                    createSubjectBuildId(
+                        'moment'
+                    ),
+
+                preview:
+                    String(
+                        moment.preview || ''
+                    ),
+
+                question:
+                    String(
+                        moment.question || ''
+                    )
+            }))
+    };
+}
+
+function createSubjectBuildCulturalLensCard(
+    generated
+) {
+    return {
+        id:
+            createSubjectBuildId(
+                'cultural-lens-card'
+            ),
+
+        title:
+            String(
+                generated.title || ''
+            ),
+
+        contextLine:
+            String(
+                generated.contextLine || ''
+            ),
+
+        teaser:
+            String(
+                generated.teaser || ''
+            ),
+
+        context:
+            String(
+                generated.context || ''
+            ),
+
+        questions:
+            Array.isArray(
+                generated.questions
+            )
+                ? generated.questions
+                    .map(question =>
+                        String(
+                            question || ''
+                        )
+                    )
+                : [],
+
+        followTheThread:
+            Array.isArray(
+                generated.followTheThread
+            )
+                ? generated.followTheThread
+                    .map(question =>
+                        String(
+                            question || ''
+                        )
+                    )
+                : []
+    };
+}
+
+function getSubjectBuildInternalOrigin(env) {
+    return String(
+        env.ALLOWED_ORIGIN ||
+        env.ALLOWED_DEV_ORIGIN ||
+        ''
+    ).trim();
+}
+
+async function callSubjectBuildGeneration(
+    env,
+    pathname,
+    body
+) {
+    const origin =
+        getSubjectBuildInternalOrigin(
+            env
+        );
+
+    if (!origin) {
+        throw new Error(
+            'Atlas AI has no configured internal origin.'
+        );
+    }
+
+    const response =
+        await handleAtlasRequest(
+            new Request(
+                `https://atlas.internal${pathname}`,
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json',
+
+                        'Origin':
+                            origin
+                    },
+
+                    body:
+                        JSON.stringify(body)
+                }
+            ),
+            env
+        );
+
+    let result = null;
+
+    try {
+        result =
+            await response.json();
+    } catch { }
+
+    if (
+        !response.ok ||
+        result?.ok !== true
+    ) {
+        throw new Error(
+            result?.error ||
+            `Atlas generation failed at ${pathname}.`
+        );
+    }
+
+    return (
+        result.payload &&
+        typeof result.payload === 'object'
+            ? result.payload
+            : {}
+    );
+}
+
+async function writeSubjectBuildCheckpoint(
+    env,
+    state,
+    status = 'running',
+    error = ''
+) {
+    const now = Date.now();
+
+    const record = {
+        buildId:
+            state.buildId,
+
+        subjectId:
+            state.subjectId,
+
+        status,
+
+        completedStep:
+            state.completedStep,
+
+        document:
+            state.document,
+
+        generationContext:
+            state.generationContext,
+
+        createdAt:
+            state.createdAt,
+
+        updatedAt:
+            now,
+
+        error:
+            String(
+                error || ''
+            ).trim()
+    };
+
+    await env
+        .ATLAS_SUBJECT_BUILDS
+        .put(
+            `subject-build:${state.buildId}`,
+            JSON.stringify(record)
+        );
+
+    return record;
+}
+
+export class AtlasSubjectBuildWorkflow
+    extends WorkflowEntrypoint {
+
+    async run(event, step) {
+        const payload =
+            event.payload &&
+            typeof event.payload === 'object'
+                ? event.payload
+                : {};
+
+        let state = {
+            buildId:
+                String(
+                    payload.buildId ||
+                    event.instanceId ||
+                    ''
+                ).trim(),
+
+            subjectId:
+                String(
+                    payload.subjectId || ''
+                ).trim(),
+
+            document:
+                cloneSubjectBuildValue(
+                    payload.document || {}
+                ),
+
+            generationContext:
+                cloneSubjectBuildValue(
+                    payload.generationContext ||
+                    {}
+                ),
+
+            generationBrief:
+                String(
+                    payload.generationBrief ||
+                    ''
+                ).trim(),
+
+            completedStep:
+                Math.min(
+                    16,
+                    Math.max(
+                        0,
+                        Math.floor(
+                            Number(
+                                payload.resumeFromStep
+                            ) || 0
+                        )
+                    )
+                ),
+
+            createdAt:
+                Date.now()
+        };
+
+        const runStep =
+            async (
+                name,
+                completedStep,
+                operation
+            ) => {
+                state =
+                    await step.do(
+                        name,
+
+                        {
+                            retries: {
+                                limit: 3,
+                                delay: '5 seconds',
+                                backoff:
+                                    'exponential'
+                            }
+                        },
+
+                        async () => {
+                            const next =
+                                cloneSubjectBuildValue(
+                                    state
+                                );
+
+                            await operation(next);
+
+                            next.completedStep =
+                                completedStep;
+
+                            await writeSubjectBuildCheckpoint(
+                                this.env,
+                                next,
+                                'running'
+                            );
+
+                            return next;
+                        }
+                    );
+            };
+
+        try {
+            state =
+                await step.do(
+                    'start subject build',
+                    async () => {
+                        const next =
+                            cloneSubjectBuildValue(
+                                state
+                            );
+
+                        await writeSubjectBuildCheckpoint(
+                            this.env,
+                            next,
+                            'running'
+                        );
+
+                        return next;
+                    }
+                );
+
+            if (state.completedStep < 1) {
+                await runStep(
+                    'generate subject framing',
+                    1,
+                    async next => {
+                        const subject =
+                            getSubjectBuildSubject(
+                                next.document
+                            );
+
+                        const framingBrief = [
+                            next.generationBrief,
+
+                            'CATALOG DESCRIPTION: Write one concise sentence, ideally 24–32 words. This is compact subject-card copy, not a full introduction. Give enough texture to establish the conversational promise without becoming a mini-essay. Never exceed 220 characters.'
+                        ]
+                            .filter(Boolean)
+                            .join('\n');
+
+                        let generated =
+                            await callSubjectBuildGeneration(
+                                this.env,
+                                '/generate-subject-framing',
+                                {
+                                    subject: {
+                                        title:
+                                            subject.title
+                                    },
+
+                                    brief:
+                                        framingBrief
+                                }
+                            );
+
+                        if (
+                            String(
+                                generated
+                                    .catalogDescription ||
+                                ''
+                            ).length > 220
+                        ) {
+                            generated =
+                                await callSubjectBuildGeneration(
+                                    this.env,
+                                    '/generate-subject-framing',
+                                    {
+                                        subject: {
+                                            title:
+                                                subject.title
+                                        },
+
+                                        brief: [
+                                            next.generationBrief,
+
+                                            'RETRY REQUIRED: The catalog description must be one concise sentence and must not exceed 220 characters under any circumstances. Aim for roughly 24–32 words. Keep enough texture to establish the conversational promise, but return a genuinely shorter description rather than a truncated sentence.'
+                                        ]
+                                            .filter(
+                                                Boolean
+                                            )
+                                            .join('\n')
+                                    }
+                                );
+                        }
+
+                        next.document
+                            .module
+                            .catalogDescription =
+                            String(
+                                generated
+                                    .catalogDescription ||
+                                ''
+                            ).trim();
+
+                        next.document
+                            .subjectCopy
+                            .cover
+                            .hook =
+                            String(
+                                generated.hook ||
+                                ''
+                            ).trim();
+                    }
+                );
+            }
+
+            if (state.completedStep < 2) {
+                await runStep(
+                    'generate overview',
+                    2,
+                    async next => {
+                        const generated =
+                            await callSubjectBuildGeneration(
+                                this.env,
+                                '/generate-overview',
+                                {
+                                    subject:
+                                        getSubjectBuildSubject(
+                                            next.document
+                                        ),
+
+                                    brief:
+                                        next.generationBrief
+                                }
+                            );
+
+                        next.document
+                            .subjectCopy
+                            .overview
+                            .heading =
+                            String(
+                                generated.heading ||
+                                ''
+                            ).trim();
+
+                        next.document
+                            .subjectCopy
+                            .overview
+                            .intro = [
+                                String(
+                                    generated.intro ||
+                                    ''
+                                ).trim()
+                            ];
+
+                        next.document
+                            .subjectCopy
+                            .overview
+                            .question =
+                            String(
+                                generated.question ||
+                                ''
+                            ).trim();
+                    }
+                );
+            }
+
+            const source =
+                state.generationContext
+                    ?.source;
+
+            const currentAffairs =
+                String(
+                    state.generationContext
+                        ?.ideaMode || ''
+                ).trim() ===
+                    'current-affairs' &&
+                source &&
+                typeof source === 'object' &&
+                !Array.isArray(source);
+
+            if (
+                currentAffairs &&
+                !String(
+                    source.readMore || ''
+                ).trim()
+            ) {
+                state =
+                    await step.do(
+                        'enrich current affairs source',
+                        {
+                            retries: {
+                                limit: 3,
+                                delay: '5 seconds',
+                                backoff:
+                                    'exponential'
+                            }
+                        },
+                        async () => {
+                            const next =
+                                cloneSubjectBuildValue(
+                                    state
+                                );
+
+                            const reading =
+                                await callSubjectBuildGeneration(
+                                    this.env,
+                                    '/generate-current-affairs-reading',
+                                    {
+                                        source:
+                                            next
+                                                .generationContext
+                                                .source,
+
+                                        languageLevel:
+                                            String(
+                                                next
+                                                    .generationContext
+                                                    .languageLevel ||
+                                                'b2'
+                                            ).trim() ||
+                                            'b2'
+                                    }
+                                );
+
+                            next.generationContext = {
+                                ...next
+                                    .generationContext,
+
+                                source: {
+                                    ...next
+                                        .generationContext
+                                        .source,
+
+                                    readMore:
+                                        String(
+                                            reading
+                                                .readMore ||
+                                            ''
+                                        ).trim(),
+
+                                    readMoreQuestions:
+                                        Array.isArray(
+                                            reading
+                                                .readMoreQuestions
+                                        )
+                                            ? reading
+                                                .readMoreQuestions
+                                                .slice(
+                                                    0,
+                                                    2
+                                                )
+                                            : [],
+
+                                    imageUrl:
+                                        String(
+                                            reading
+                                                .imageUrl ||
+                                            ''
+                                        ).trim()
+                                }
+                            };
+
+                            await writeSubjectBuildCheckpoint(
+                                this.env,
+                                next,
+                                'running'
+                            );
+
+                            return next;
+                        }
+                    );
+            }
+
+            if (state.completedStep < 3) {
+                await runStep(
+                    'generate discussion framing',
+                    3,
+                    async next => {
+                        const generated =
+                            await callSubjectBuildGeneration(
+                                this.env,
+                                '/generate-discussion-framing',
+                                {
+                                    subject:
+                                        getSubjectBuildSubject(
+                                            next.document
+                                        ),
+
+                                    overview:
+                                        getSubjectBuildOverview(
+                                            next.document
+                                        ),
+
+                                    brief:
+                                        next.generationBrief
+                                }
+                            );
+
+                        next.document
+                            .subjectCopy
+                            .discussion
+                            .heading =
+                            String(
+                                generated.heading ||
+                                ''
+                            ).trim();
+
+                        next.document
+                            .subjectCopy
+                            .discussion
+                            .intro =
+                            String(
+                                generated.intro ||
+                                ''
+                            ).trim();
+
+                        next.document
+                            .subjectCopy
+                            .paths
+                            .discussionDescription =
+                            String(
+                                generated
+                                    .pathDescription ||
+                                ''
+                            ).trim();
+                    }
+                );
+            }
+
+            const discussionStages = [
+                'First Look',
+                'Look Closer',
+                'Wider View'
+            ];
+
+            for (
+                let index = 0;
+                index <
+                    discussionStages.length;
+                index += 1
+            ) {
+                const targetStep =
+                    4 + index;
+
+                if (
+                    state.completedStep >=
+                    targetStep
+                ) {
+                    continue;
+                }
+
+                const stage =
+                    discussionStages[
+                        index
+                    ];
+
+                await runStep(
+                    `generate discussion ${stage}`,
+                    targetStep,
+                    async next => {
+                        const discussion =
+                            next.document
+                                .subjectCopy
+                                ?.discussion || {};
+
+                        const generated =
+                            await callSubjectBuildGeneration(
+                                this.env,
+                                '/generate-discussion-set',
+                                {
+                                    subject:
+                                        getSubjectBuildSubject(
+                                            next.document
+                                        ),
+
+                                    discussion: {
+                                        heading:
+                                            String(
+                                                discussion
+                                                    .heading ||
+                                                ''
+                                            ).trim(),
+
+                                        intro:
+                                            String(
+                                                discussion
+                                                    .intro ||
+                                                ''
+                                            ).trim(),
+
+                                        sets:
+                                            getSubjectBuildDiscussionSets(
+                                                next
+                                                    .document
+                                            )
+                                    },
+
+                                    brief: [
+                                        next
+                                            .generationBrief,
+
+                                        `Create the ${stage} discussion set.`
+                                    ]
+                                        .filter(
+                                            Boolean
+                                        )
+                                        .join(
+                                            '\n'
+                                        )
+                                }
+                            );
+
+                        const nativeSet =
+                            createSubjectBuildDiscussionSet(
+                                generated
+                            );
+
+                        const starterIndex =
+                            next.document
+                                .discussionSets
+                                .findIndex(
+                                    isStarterSubjectBuildDiscussionSet
+                                );
+
+                        if (
+                            starterIndex >= 0
+                        ) {
+                            next.document
+                                .discussionSets
+                                .splice(
+                                    starterIndex,
+                                    1,
+                                    nativeSet
+                                );
+                        } else {
+                            next.document
+                                .discussionSets
+                                .push(
+                                    nativeSet
+                                );
+                        }
+                    }
+                );
+            }
+
+            if (state.completedStep < 7) {
+                await runStep(
+                    'generate cultural lens framing',
+                    7,
+                    async next => {
+                        const generated =
+                            await callSubjectBuildGeneration(
+                                this.env,
+                                '/generate-cultural-lens-framing',
+                                {
+                                    subject:
+                                        getSubjectBuildSubject(
+                                            next.document
+                                        ),
+
+                                    overview:
+                                        getSubjectBuildOverview(
+                                            next.document
+                                        ),
+
+                                    brief:
+                                        next.generationBrief
+                                }
+                            );
+
+                        next.document
+                            .subjectCopy
+                            .culturalLens
+                            .heading =
+                            String(
+                                generated.heading ||
+                                ''
+                            ).trim();
+
+                        next.document
+                            .subjectCopy
+                            .culturalLens
+                            .intro =
+                            String(
+                                generated.intro ||
+                                ''
+                            ).trim();
+
+                        next.document
+                            .subjectCopy
+                            .paths
+                            .culturalLensDescription =
+                            String(
+                                generated
+                                    .pathDescription ||
+                                ''
+                            ).trim();
+                    }
+                );
+            }
+
+            for (
+                let index = 0;
+                index < 6;
+                index += 1
+            ) {
+                const targetStep =
+                    8 + index;
+
+                if (
+                    state.completedStep >=
+                    targetStep
+                ) {
+                    continue;
+                }
+
+                await runStep(
+                    `generate cultural lens card ${index + 1}`,
+                    targetStep,
+                    async next => {
+                        const culturalLens =
+                            next.document
+                                .subjectCopy
+                                ?.culturalLens ||
+                            {};
+
+                        const existingCards =
+                            getSubjectBuildCulturalLensCards(
+                                next.document
+                            );
+
+                        const existingTitles =
+                            new Set(
+                                existingCards
+                                    .map(card =>
+                                        String(
+                                            card.title ||
+                                            ''
+                                        )
+                                            .trim()
+                                            .toLowerCase()
+                                    )
+                                    .filter(
+                                        Boolean
+                                    )
+                            );
+
+                        const generateCard =
+                            retryBrief =>
+                                callSubjectBuildGeneration(
+                                    this.env,
+                                    '/generate-cultural-lens-card',
+                                    {
+                                        subject:
+                                            getSubjectBuildSubject(
+                                                next
+                                                    .document
+                                            ),
+
+                                        culturalLens: {
+                                            heading:
+                                                String(
+                                                    culturalLens
+                                                        .heading ||
+                                                    'Cultural Lens'
+                                                ).trim(),
+
+                                            intro:
+                                                String(
+                                                    culturalLens
+                                                        .intro ||
+                                                    ''
+                                                ).trim(),
+
+                                            cards:
+                                                existingCards
+                                        },
+
+                                        brief:
+                                            retryBrief
+                                    }
+                                );
+
+                        let generated =
+                            await generateCard(
+                                next
+                                    .generationBrief
+                            );
+
+                        if (
+                            existingTitles.has(
+                                String(
+                                    generated
+                                        .title ||
+                                    ''
+                                )
+                                    .trim()
+                                    .toLowerCase()
+                            )
+                        ) {
+                            generated =
+                                await generateCard(
+                                    [
+                                        next
+                                            .generationBrief,
+
+                                        `Do not reuse the existing Cultural Lens card title "${generated.title}". Choose a genuinely different angle and title.`
+                                    ]
+                                        .filter(
+                                            Boolean
+                                        )
+                                        .join(
+                                            '\n'
+                                        )
+                                );
+                        }
+
+                        if (
+                            existingTitles.has(
+                                String(
+                                    generated
+                                        .title ||
+                                    ''
+                                )
+                                    .trim()
+                                    .toLowerCase()
+                            )
+                        ) {
+                            throw new Error(
+                                'Atlas generated a duplicate Cultural Lens card.'
+                            );
+                        }
+
+                        const nativeCard =
+                            createSubjectBuildCulturalLensCard(
+                                generated
+                            );
+
+                        const starterIndex =
+                            next.document
+                                .culturalLensCards
+                                .findIndex(
+                                    isStarterSubjectBuildCulturalLensCard
+                                );
+
+                        if (
+                            starterIndex >= 0
+                        ) {
+                            next.document
+                                .culturalLensCards
+                                .splice(
+                                    starterIndex,
+                                    1,
+                                    nativeCard
+                                );
+                        } else {
+                            next.document
+                                .culturalLensCards
+                                .push(
+                                    nativeCard
+                                );
+                        }
+                    }
+                );
+            }
+
+            if (state.completedStep < 16) {
+                await runStep(
+                    'generate reflection',
+                    16,
+                    async next => {
+                        const discussion =
+                            next.document
+                                .subjectCopy
+                                ?.discussion || {};
+
+                        const culturalLens =
+                            next.document
+                                .subjectCopy
+                                ?.culturalLens || {};
+
+                        const generated =
+                            await callSubjectBuildGeneration(
+                                this.env,
+                                '/generate-reflection',
+                                {
+                                    subject:
+                                        getSubjectBuildSubject(
+                                            next.document
+                                        ),
+
+                                    overview:
+                                        getSubjectBuildOverview(
+                                            next.document
+                                        ),
+
+                                    discussion: {
+                                        heading:
+                                            String(
+                                                discussion
+                                                    .heading ||
+                                                ''
+                                            ).trim(),
+
+                                        intro:
+                                            String(
+                                                discussion
+                                                    .intro ||
+                                                ''
+                                            ).trim(),
+
+                                        sets:
+                                            getSubjectBuildDiscussionSets(
+                                                next
+                                                    .document
+                                            )
+                                    },
+
+                                    culturalLens: {
+                                        heading:
+                                            String(
+                                                culturalLens
+                                                    .heading ||
+                                                ''
+                                            ).trim(),
+
+                                        intro:
+                                            String(
+                                                culturalLens
+                                                    .intro ||
+                                                ''
+                                            ).trim(),
+
+                                        cards:
+                                            getSubjectBuildCulturalLensCards(
+                                                next
+                                                    .document
+                                            )
+                                    },
+
+                                    brief:
+                                        next.generationBrief
+                                }
+                            );
+
+                        next.document
+                            .subjectCopy
+                            .reflection
+                            .title =
+                            String(
+                                generated.title ||
+                                ''
+                            ).trim();
+
+                        next.document
+                            .subjectCopy
+                            .reflection
+                            .summary =
+                            String(
+                                generated.summary ||
+                                ''
+                            ).trim();
+
+                        next.document
+                            .subjectCopy
+                            .reflection
+                            .questions =
+                            Array.isArray(
+                                generated.questions
+                            )
+                                ? generated
+                                    .questions
+                                    .slice()
+                                : [];
+
+                        next.document
+                            .subjectCopy
+                            .paths
+                            .reflectionDescription =
+                            String(
+                                generated
+                                    .pathDescription ||
+                                ''
+                            ).trim();
+                    }
+                );
+            }
+
+            state =
+                await step.do(
+                    'finish subject build',
+                    async () => {
+                        const next =
+                            cloneSubjectBuildValue(
+                                state
+                            );
+
+                        await writeSubjectBuildCheckpoint(
+                            this.env,
+                            next,
+                            'complete'
+                        );
+
+                        return next;
+                    }
+                );
+
+            return {
+                buildId:
+                    state.buildId,
+
+                subjectId:
+                    state.subjectId,
+
+                completedStep:
+                    state.completedStep
+            };
+        } catch (error) {
+            try {
+                await step.do(
+                    'record subject build failure',
+                    async () => {
+                        await writeSubjectBuildCheckpoint(
+                            this.env,
+                            state,
+                            'errored',
+                            error?.message ||
+                            'Subject build failed.'
+                        );
+                    }
+                );
+            } catch { }
+
+            throw error;
+        }
+    }
+}
+
+export default {
+    async fetch(request, env) {
+        return handleAtlasRequest(
+            request,
+            env
+        );
     }
 };

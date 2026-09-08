@@ -65,6 +65,182 @@
         return window.AtlasTutorSubjects;
     }
 
+    async function syncRemoteSubjectBuild(
+        subjectId
+    ) {
+        const Subjects =
+            requireAtlasTutorSubjects();
+
+        let record =
+            await Subjects.getSubject(
+                subjectId
+            );
+
+        if (!record) return null;
+
+        const buildState =
+            await Subjects.getBuildState(
+                subjectId
+            );
+
+        const buildId =
+            String(
+                buildState
+                    ?.remoteBuildId || ''
+            ).trim();
+
+        if (
+            !buildId ||
+            !window.AtlasAI ||
+            typeof window.AtlasAI
+                .getSubjectBuild !==
+                'function'
+        ) {
+            return record;
+        }
+
+        try {
+            const remote =
+                await window.AtlasAI
+                    .getSubjectBuild(
+                        buildId
+                    );
+
+            if (
+                !remote ||
+                !remote.document ||
+                typeof remote.document !==
+                    'object'
+            ) {
+                return record;
+            }
+
+            const completedStep =
+                Math.max(
+                    0,
+                    Math.floor(
+                        Number(
+                            remote.completedStep
+                        ) || 0
+                    )
+                );
+
+            const validation =
+                window
+                    .AtlasStructuredSubject
+                    .validateDocument(
+                        remote.document
+                    );
+
+            if (!validation.valid) {
+                console.warn(
+                    '[Compass] Durable subject build returned an invalid document:',
+                    validation.errors
+                );
+
+                return record;
+            }
+
+            const generationContext =
+                remote
+                    .generationContext &&
+                typeof remote
+                    .generationContext ===
+                    'object' &&
+                !Array.isArray(
+                    remote
+                        .generationContext
+                )
+                    ? remote
+                        .generationContext
+                    : record.metadata
+                        ?.generationContext ||
+                        {};
+
+            const updated =
+                await Subjects
+                    .updateSubject(
+                        subjectId,
+                        {
+                            metadata: {
+                                title:
+                                    remote
+                                        .document
+                                        .module
+                                        .title,
+
+                                navTitle:
+                                    remote
+                                        .document
+                                        .module
+                                        .navTitle,
+
+                                description:
+                                    remote
+                                        .document
+                                        .module
+                                        .catalogDescription,
+
+                                coverImage:
+                                    remote
+                                        .document
+                                        .module
+                                        .bgImage,
+
+                                generationContext
+                            },
+
+                            document:
+                                remote.document
+                        }
+                    );
+
+            if (updated) {
+                record = updated;
+            }
+
+            if (
+                remote.status ===
+                'complete'
+            ) {
+                await Subjects
+                    .clearBuildState(
+                        subjectId
+                    );
+            } else {
+                await Subjects
+                    .saveBuildState(
+                        subjectId,
+                        {
+                            kind:
+                                'full-subject',
+
+                            completedStep,
+
+                            autoSaveOnComplete:
+                                true,
+
+                            remoteBuildId:
+                                buildId,
+
+                            remoteStatus:
+                                String(
+                                    remote.status ||
+                                    ''
+                                ).trim()
+                        }
+                    );
+            }
+        } catch (error) {
+            console.warn(
+                '[Compass] Durable subject sync deferred:',
+                error
+            );
+        }
+
+        return record;
+    }
+
     function normalizeOwnedStructuredSubject(record) {
         if (
             !record ||
@@ -213,8 +389,10 @@
         }
 
         try {
-            const record = await requireAtlasTutorSubjects()
-                .getSubject(subjectId);
+            const record =
+                await syncRemoteSubjectBuild(
+                    subjectId
+                );
 
             if (!record) {
                 showLoadError(
