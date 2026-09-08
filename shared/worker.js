@@ -1833,22 +1833,22 @@ export default {
                         'Use the available web search tool before choosing the ideas. Find genuinely recent developments, preferably from the last 7 days and generally no older than about 14 days relative to currentDate. Each idea must be anchored in one specific recent development with enough substance for a complete Compass conversation. Prefer developments with real conversational depth and do not make all three ideas variations of the same news domain.',
 
                     'science-nature':
-                        'Explore science and the natural world: animals, biology, space, physics, medicine, psychology, geology, climate, evolution, ecosystems, discoveries, unanswered questions and unusual natural phenomena. Prefer specific real things that are intrinsically fascinating.',
+                        'Scope: science and the natural world — animals, biology, space, physics, medicine, psychology, geology, climate, evolution, ecosystems, discoveries, unanswered questions and unusual natural phenomena. Prefer specific real things that are intrinsically fascinating.',
 
                     'technology-future':
-                        'Explore technology and future-facing change: AI, robotics, digital life, inventions, interfaces, engineering, emerging systems, scientific technologies and ways technology may alter ordinary life. Prefer specific technologies, developments or consequences over generic future speculation.',
+                        'Scope: technology and future-facing change — AI, robotics, digital life, inventions, interfaces, engineering, emerging systems, scientific technologies and ways technology may alter ordinary life. Prefer specific technologies, developments or consequences over generic future speculation.',
 
                     'culture-society':
-                        'Explore culture and society: music, film, television, books, art, language, customs, relationships, communities, traditions, entertainment, identity, social patterns and unusual ways people live together. Prefer specific phenomena, practices and stories over broad themes.',
+                        'Scope: culture and society — music, film, television, books, art, language, customs, relationships, communities, traditions, entertainment, identity, social patterns and unusual ways people live together. Prefer specific phenomena, practices and stories over broad themes.',
 
                     'history-civilization':
-                        'Explore history and civilization: specific people, events, societies, discoveries, customs, conflicts, inventions, archaeological finds, lost places and turning points. Avoid broad school-subject labels such as Ancient Rome or World War II unless the idea has a much more specific angle.',
+                        'Scope: history and civilization — specific people, events, societies, discoveries, customs, conflicts, inventions, archaeological finds, lost places and turning points. Avoid broad school-subject labels such as Ancient Rome or World War II unless the idea has a much more specific angle.',
 
                     'business-politics':
-                        'Explore business and politics: companies, markets, economics, political systems, institutions, leadership, trade, unusual laws, policy, governance, power, corporate stories and economic experiments. Ideas may be contemporary or evergreen, but should be specific and interesting rather than generic workplace discussion.',
+                        'Scope: business and politics — companies, markets, economics, political systems, institutions, leadership, trade, unusual laws, policy, governance, power, corporate stories and economic experiments. Ideas may be contemporary or evergreen, but should be specific and interesting rather than generic workplace discussion.',
 
                     'travel-experiences':
-                        'Explore travel and human experiences of the world: unusual journeys, destinations, transport, tourism, festivals, border experiences, living abroad, cultural encounters, hospitality, exploration and distinctive ways people experience places. Avoid generic destination lists and travel-advice topics.'
+                        'Scope: travel and human experiences of the world — unusual journeys, destinations, transport, tourism, festivals, border experiences, living abroad, cultural encounters, hospitality, exploration and distinctive ways people experience places. Avoid generic destination lists and travel-advice topics.'
                 };
 
                 const currentDate =
@@ -1949,6 +1949,7 @@ export default {
                                     '',
                                     'Titles should be concise, natural, intriguing, and directly usable as Atlas subject titles.',
                                     'Reasons should be one concise natural sentence, ideally around 24–32 words. Give enough context to understand the conversational promise and choose between the three ideas, without trying to preview the whole subject. Do not prescribe a classroom exercise.',
+                                    'Reasons are descriptions of why the subject is interesting, not instructions to the learner. Prefer natural declarative framing and vary the sentence construction across the three ideas. Do not default to formulaic openings such as “Explore…” or “Discover…”.',
                                     'message should be one short natural invitation to the tutor.',
                                     '',
                                     ...(mode === 'current-affairs'
@@ -5673,6 +5674,7 @@ export default {
                                     '',
                                     'intro should be one concise paragraph of two or three clear sentences.',
                                     'Do not summarise the Library introduction.',
+                                    'Vary how the intro opens from subject to subject. Do not default to formulaic course-style openings such as “Explore…” or “Discover…”. A direct invitation such as “Imagine…” or “Consider…” is completely acceptable when it is genuinely the strongest natural opening for that particular subject.',
                                     'If the tutor brief contains CURRENT AFFAIRS ANCHOR, first establish what happened and why it matters using the supplied facts; otherwise choose one concrete human angle from the framing and bring it closer to everyday experience.',
                                     'Use accessible natural English suitable for approximately B1+ to B2 learners.',
                                     'The intro should feel like the learner is moving into the subject, not reading another description of it.',
@@ -5958,6 +5960,7 @@ export default {
                                     'Write one or two concise sentences that define the human and conversational territory of the subject.',
                                     'It should be specific enough to guide later content generation without trying to describe an entire lesson.',
                                     'Prefer experiences, choices, relationships, behaviour, tensions, reactions, or perspectives that people can genuinely discuss.',
+                                    'Write it primarily as descriptive subject framing rather than an instruction to the learner. Avoid falling into a repeated “Explore…” or “Discover…” opening pattern, and vary the construction naturally across subjects.',
                                     'Do not write promotional product copy or generic textbook language.',
                                     '',
                                     'hook is a short learner-facing line for the subject cover.',
