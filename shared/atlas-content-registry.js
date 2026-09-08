@@ -224,7 +224,7 @@
         return true;
     }
 
-    function getTutorCreateSeedIntroduction() {
+    function getTutorCreateSeedIntroduction(subjectTitle = '') {
         const context =
             window.AtlasGenerationContext &&
             typeof window.AtlasGenerationContext === 'object' &&
@@ -242,6 +242,20 @@
         if (
             !source ||
             source.kind !== TUTOR_CREATE_SOURCE_KIND
+        ) {
+            return '';
+        }
+
+        const seededTitle =
+            String(source.title || '').trim();
+
+        const currentTitle =
+            String(subjectTitle || '').trim();
+
+        if (
+            seededTitle &&
+            currentTitle &&
+            seededTitle !== currentTitle
         ) {
             return '';
         }
@@ -297,13 +311,6 @@
             }
 
             AI[methodName] = async function (...args) {
-                const introduction =
-                    getTutorCreateSeedIntroduction();
-
-                if (!introduction) {
-                    return original.apply(this, args);
-                }
-
                 const options = args[0];
 
                 if (
@@ -311,6 +318,15 @@
                     typeof options !== 'object' ||
                     Array.isArray(options)
                 ) {
+                    return original.apply(this, args);
+                }
+
+                const introduction =
+                    getTutorCreateSeedIntroduction(
+                        options.subject?.title
+                    );
+
+                if (!introduction) {
                     return original.apply(this, args);
                 }
 
@@ -470,7 +486,8 @@
                 title: handoff.title,
                 premise: handoff.introduction,
                 source: {
-                    kind: TUTOR_CREATE_SOURCE_KIND
+                    kind: TUTOR_CREATE_SOURCE_KIND,
+                    title: handoff.title
                 }
             };
 
