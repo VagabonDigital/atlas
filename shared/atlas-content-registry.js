@@ -265,98 +265,48 @@
         ).trim();
     }
 
-    function mergeTutorCreateGenerationBrief(
-        brief,
-        introduction
-    ) {
-        const existing =
-            String(brief || '').trim();
-
-        const direction = [
-            'Atlas introduction — use this exact introduction as the fixed framing for the subject. Keep every generated section aligned with it:',
-            introduction
-        ].join('\n');
-
-        return [
-            existing,
-            direction
-        ]
-            .filter(Boolean)
-            .join('\n\n');
-    }
-
     function patchTutorCreateGeneration() {
         const AI = window.AtlasAI;
 
         if (
             !AI ||
-            AI.__atlasTutorCreateHandoffPatched
+            AI.__atlasTutorCreateHandoffPatched ||
+            typeof AI.generateOverview !== 'function'
         ) {
             return;
         }
 
-        [
-            'generateSubjectFraming',
-            'generateOverview',
-            'generateDiscussionFraming',
-            'generateDiscussionSet',
-            'generateCulturalLensFraming',
-            'generateCulturalLensCard',
-            'generateReflection'
-        ].forEach(methodName => {
-            const original = AI[methodName];
+        const originalGenerateOverview =
+            AI.generateOverview;
 
-            if (typeof original !== 'function') {
-                return;
+        AI.generateOverview = async function (...args) {
+            const options = args[0];
+
+            const introduction =
+                getTutorCreateSeedIntroduction(
+                    options?.subject?.title
+                );
+
+            const generated =
+                await originalGenerateOverview.apply(
+                    this,
+                    args
+                );
+
+            if (
+                !introduction ||
+                !generated ||
+                typeof generated !== 'object' ||
+                Array.isArray(generated)
+            ) {
+                return generated;
             }
 
-            AI[methodName] = async function (...args) {
-                const options = args[0];
-
-                if (
-                    !options ||
-                    typeof options !== 'object' ||
-                    Array.isArray(options)
-                ) {
-                    return original.apply(this, args);
-                }
-
-                const introduction =
-                    getTutorCreateSeedIntroduction(
-                        options.subject?.title
-                    );
-
-                if (!introduction) {
-                    return original.apply(this, args);
-                }
-
-                args[0] = {
-                    ...options,
-                    brief:
-                        mergeTutorCreateGenerationBrief(
-                            options.brief,
-                            introduction
-                        )
-                };
-
-                const generated =
-                    await original.apply(this, args);
-
-                if (
-                    methodName === 'generateOverview' &&
-                    generated &&
-                    typeof generated === 'object' &&
-                    !Array.isArray(generated)
-                ) {
-                    return {
-                        ...generated,
-                        intro: introduction
-                    };
-                }
-
-                return generated;
+            return {
+                ...generated,
+                intro: introduction
             };
-        });
+        };
 
         AI.__atlasTutorCreateHandoffPatched = true;
     }
