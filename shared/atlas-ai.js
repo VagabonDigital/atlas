@@ -27,13 +27,26 @@
         return String(value ?? '').trim();
     }
 
-    function buildGenerationBrief(localBrief = '') {
+    function buildGenerationBrief(
+        localBrief = '',
+        contextOverride = null
+    ) {
+        const explicitContext =
+            contextOverride &&
+            typeof contextOverride === 'object' &&
+            !Array.isArray(contextOverride)
+                ? contextOverride
+                : null;
+
         const context =
-            window.AtlasGenerationContext &&
-            typeof window.AtlasGenerationContext === 'object' &&
-            !Array.isArray(window.AtlasGenerationContext)
-                ? window.AtlasGenerationContext
-                : {};
+            explicitContext ||
+            (
+                window.AtlasGenerationContext &&
+                typeof window.AtlasGenerationContext === 'object' &&
+                !Array.isArray(window.AtlasGenerationContext)
+                    ? window.AtlasGenerationContext
+                    : {}
+            );
 
         const levelGuidance = {
             'a1-a2':
@@ -2277,7 +2290,8 @@
 
                     generationBrief:
                         buildGenerationBrief(
-                            ''
+                            '',
+                            candidate.generationContext || {}
                         ),
 
                     resumeFromStep:
