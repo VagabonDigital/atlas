@@ -224,7 +224,7 @@
         return true;
     }
 
-    function getTutorCreateSeedIntroduction(subjectTitle = '') {
+    function getTutorCreateSeedIntroduction() {
         const context =
             window.AtlasGenerationContext &&
             typeof window.AtlasGenerationContext === 'object' &&
@@ -242,20 +242,6 @@
         if (
             !source ||
             source.kind !== TUTOR_CREATE_SOURCE_KIND
-        ) {
-            return '';
-        }
-
-        const seededTitle =
-            String(source.title || '').trim();
-
-        const currentTitle =
-            String(subjectTitle || '').trim();
-
-        if (
-            seededTitle &&
-            currentTitle &&
-            seededTitle !== currentTitle
         ) {
             return '';
         }
@@ -280,12 +266,8 @@
             AI.generateOverview;
 
         AI.generateOverview = async function (...args) {
-            const options = args[0];
-
             const introduction =
-                getTutorCreateSeedIntroduction(
-                    options?.subject?.title
-                );
+                getTutorCreateSeedIntroduction();
 
             const generated =
                 await originalGenerateOverview.apply(
