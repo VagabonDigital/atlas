@@ -633,9 +633,15 @@
       }
     }
 
+    .create-copy {
+      margin-top: 46px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
     .create-copy p {
       margin-top: 18px;
-      max-width: 480px;
+      max-width: 700px;
     }
 
     .at-fingertips {
@@ -655,9 +661,7 @@
     }
 
     .direction-picker {
-      margin-top: 34px;
-      padding-top: 24px;
-      border-top: 1px solid var(--border-subtle);
+      min-width: 0;
     }
 
     .direction-head {
@@ -1430,37 +1434,38 @@
                   title="Cultural Lens"></span><span title="Reflection"></span></div>
             </div>
           </div>
-          <div class="create-copy">
-            <h3>The creative range is the point.</h3>
-            <p>Atlas is not asking you to work inside a fixed syllabus. You can build around what this learner needs,
-              cares about, is studying, is curious about, or simply wants to talk about.</p>
-            <p>You can also open something already ready, continue previous material, search, ask for an idea, or return
-              to your own library. It is all in the same environment.</p>
-            <div class="at-fingertips" aria-label="Other Atlas starting points">
-              <span>Continue</span><span>Browse</span><span>Search</span><span>Give me an idea</span><span>My
-                Versions</span><span>My Subjects</span></div>
-            <div class="direction-picker">
-              <div class="direction-head"><strong>Need a direction?</strong><span>Pick one or ask Atlas for three.</span>
-              </div>
-              <div class="direction-list" id="subjectField">
-                <button class="subject-title is-selected" data-title="The Forests That Glow at Night"><span
-                    class="subject-name">The Forests That Glow at Night</span></button>
-                <button class="subject-title" data-title="IELTS Speaking: Stronger Answers"><span
-                    class="subject-name">IELTS Speaking: Stronger Answers</span></button>
-                <button class="subject-title" data-title="Singapore’s Public Housing Experiment"><span
-                    class="subject-name">Singapore’s Public Housing Experiment</span></button>
-                <button class="subject-title" data-title="Conditionals for Real Decisions"><span
-                    class="subject-name">Conditionals for Real Decisions</span></button>
-                <button class="subject-title" data-title="A Pig Kidney Bridges the Wait for a Human Transplant"><span
-                    class="subject-name">A Pig Kidney Bridges the Wait for a Human Transplant</span></button>
-                <button class="subject-title" data-title="Why Is Dating So Complicated Now?"><span
-                    class="subject-name">Why Is Dating So Complicated Now?</span></button>
-              </div>
-              <div class="surprise-row"><button class="surprise-button" id="surpriseButton" type="button">Surprise me
-                  →</button><span class="surprise-status" id="surpriseStatus" aria-live="polite"></span></div>
-              <div class="surprise-results" id="surpriseResults" aria-live="polite"></div>
+          <div class="direction-picker">
+            <div class="direction-head"><strong>Need a direction?</strong><span>Pick one or ask Atlas for three.</span>
             </div>
+            <div class="direction-list" id="subjectField">
+              <button class="subject-title is-selected" data-title="The Forests That Glow at Night"><span
+                  class="subject-name">The Forests That Glow at Night</span></button>
+              <button class="subject-title" data-title="IELTS Speaking: Stronger Answers"><span
+                  class="subject-name">IELTS Speaking: Stronger Answers</span></button>
+              <button class="subject-title" data-title="Singapore’s Public Housing Experiment"><span
+                  class="subject-name">Singapore’s Public Housing Experiment</span></button>
+              <button class="subject-title" data-title="Conditionals for Real Decisions"><span
+                  class="subject-name">Conditionals for Real Decisions</span></button>
+              <button class="subject-title" data-title="Europe’s New Private Rocket Reaches Orbit"><span
+                  class="subject-name">Europe’s New Private Rocket Reaches Orbit</span></button>
+              <button class="subject-title" data-title="Why Is Dating So Complicated Now?"><span
+                  class="subject-name">Why Is Dating So Complicated Now?</span></button>
+            </div>
+            <div class="surprise-row"><button class="surprise-button" id="surpriseButton" type="button">Surprise me
+                →</button><span class="surprise-status" id="surpriseStatus" aria-live="polite"></span></div>
+            <div class="surprise-results" id="surpriseResults" aria-live="polite"></div>
           </div>
+        </div>
+
+        <div class="create-copy">
+          <h3>The creative range is the point.</h3>
+          <p>Atlas is not asking you to work inside a fixed syllabus. You can build around what this learner needs,
+            cares about, is studying, is curious about, or simply wants to talk about.</p>
+          <p>You can also open something already ready, continue previous material, search, ask for an idea, or return
+            to your own library. It is all in the same environment.</p>
+          <div class="at-fingertips" aria-label="Other Atlas starting points">
+            <span>Continue</span><span>Browse</span><span>Search</span><span>Give me an idea</span><span>My
+              Versions</span><span>My Subjects</span></div>
         </div>
       </div>
     </section>
