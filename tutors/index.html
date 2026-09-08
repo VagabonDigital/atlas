@@ -1841,6 +1841,24 @@
         }
       }
 
+      function showDemoIdeaInSubjectCard(idea) {
+        if (!idea) return;
+
+        createdSubjectId = "";
+        completedBuildStep = 0;
+        resultShell.classList.remove("is-building");
+        resultTitle.textContent = idea.title;
+        resultIntro.textContent = idea.reason;
+        resultReady.textContent = "Ready to create";
+        resultOpen.disabled = true;
+        createButton.disabled = false;
+        createButton.textContent = "Create subject";
+
+        Array.prototype.slice.call(buildLine.querySelectorAll("span")).forEach(function (step) {
+          step.classList.remove("ready", "building");
+        });
+      }
+
       function chooseSubject(button) {
         fillSubject(button.getAttribute("data-title"), null, null, true);
       }
@@ -1903,10 +1921,14 @@
 
         activeDemoCategory = category;
         syncDemoCategoryControls();
+        createdSubjectId = "";
+        completedBuildStep = 0;
+        resultOpen.disabled = true;
 
         if (canReuseQueue) {
           var queuedIdea = demoIdeaQueue.shift();
           fillSubject(queuedIdea.title, queuedIdea, category, false);
+          showDemoIdeaInSubjectCard(queuedIdea);
           setDirectionDemoStatus("Click again for another");
           return;
         }
@@ -1941,6 +1963,7 @@
 
           demoIdeaQueue = ideas.slice(1);
           fillSubject(ideas[0].title, ideas[0], category, false);
+          showDemoIdeaInSubjectCard(ideas[0]);
           setDirectionDemoStatus("Click again for another");
         } catch (error) {
           if (requestId !== demoIdeaRequestId) return;
