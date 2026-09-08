@@ -232,7 +232,12 @@
       text-decoration: none;
       color: var(--text-heading);
       font-family: var(--font-display);
-      font-size: 18px;
+      font-size: 1.22rem;
+      letter-spacing: -0.01em;
+    }
+
+    .brand span {
+      color: var(--accent);
     }
 
     .nav {
@@ -1417,12 +1422,12 @@
   </style>
 </head>
 
-<body>
+<body id="top">
   <header class="site-header">
     <div class="frame header-inner">
-      <a class="brand" href="#top" aria-label="Inside Atlas">Atlas</a>
+      <a class="brand" href="../index.html" aria-label="Atlas home">Atlas<span>.</span></a>
       <nav class="nav" aria-label="Tutor Layer chapters">
-        <a href="#why">Why</a><a href="#create">Create</a><a href="#teach">Teach</a><a href="#own">Yours</a><a
+        <a href="#top">Overview</a><a href="#why">Why</a><a href="#create">Create</a><a href="#teach">Teach</a><a href="#own">Yours</a><a
           href="#keep">Continuity</a><a href="#early">Story</a>
       </nav>
       <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch theme" title="Switch theme"><span
@@ -1430,7 +1435,7 @@
     </div>
   </header>
 
-  <main id="top">
+  <main>
     <section class="hero">
       <div class="frame hero-inner">
         <p class="kicker">Inside Atlas</p>
@@ -2176,8 +2181,13 @@
       stageButtons.forEach(function (button) { button.addEventListener("click", function () { stageButtons.forEach(function (item) { item.setAttribute("aria-pressed", String(item === button)); }); var stage = ownershipStages[button.getAttribute("data-stage")]; materialState.textContent = stage.state; materialMeta.textContent = stage.meta; materialTitle.textContent = stage.title; materialQuestion.textContent = stage.question; materialNote.textContent = stage.note; }); });
 
       var navLinks = Array.prototype.slice.call(document.querySelectorAll(".nav a"));
-      var sections = navLinks.map(function (link) { return document.querySelector(link.getAttribute("href")); }).filter(Boolean);
-      if ("IntersectionObserver" in window) { var observer = new IntersectionObserver(function (entries) { var visible = entries.filter(function (entry) { return entry.isIntersecting; }).sort(function (a, b) { return b.intersectionRatio - a.intersectionRatio; })[0]; if (!visible) return; navLinks.forEach(function (link) { var current = link.getAttribute("href") === "#" + visible.target.id; if (current) link.setAttribute("aria-current", "true"); else link.removeAttribute("aria-current"); }); }, { rootMargin: "-18% 0px -65% 0px", threshold: [0, .15, .4] }); sections.forEach(function (section) { observer.observe(section); }); }
+      var sectionLinks = navLinks.filter(function (link) { return link.getAttribute("href") !== "#top"; });
+      var sections = sectionLinks.map(function (link) { return document.querySelector(link.getAttribute("href")); }).filter(Boolean);
+      function setCurrentNav(href) { navLinks.forEach(function (link) { if (link.getAttribute("href") === href) link.setAttribute("aria-current", "true"); else link.removeAttribute("aria-current"); }); }
+      function syncOverviewNav() { if (window.scrollY <= 24) setCurrentNav("#top"); }
+      if ("IntersectionObserver" in window) { var observer = new IntersectionObserver(function (entries) { var visible = entries.filter(function (entry) { return entry.isIntersecting; }).sort(function (a, b) { return b.intersectionRatio - a.intersectionRatio; })[0]; if (!visible) return; setCurrentNav("#" + visible.target.id); }, { rootMargin: "-18% 0px -65% 0px", threshold: [0, .15, .4] }); sections.forEach(function (section) { observer.observe(section); }); }
+      window.addEventListener("scroll", syncOverviewNav, { passive: true });
+      syncOverviewNav();
     })();
   </script>
 </body>
