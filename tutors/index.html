@@ -368,81 +368,6 @@
       line-height: 1.45;
     }
 
-    .system-map {
-      width: min(100%, 760px);
-      margin: 44px auto 0;
-    }
-
-    .system-map svg {
-      width: 100%;
-      height: auto;
-    }
-
-    .system-map-line {
-      stroke: var(--border-subtle);
-      stroke-width: 1.5;
-    }
-
-    .system-map-line--quiet {
-      stroke: var(--border-faint);
-      stroke-width: 1;
-      stroke-dasharray: 3 6;
-    }
-
-    .system-map-center {
-      fill: var(--surface-panel);
-      stroke: var(--accent);
-      stroke-width: 2;
-    }
-
-    .system-map-node {
-      fill: var(--surface-canvas);
-      stroke: var(--border-subtle);
-      stroke-width: 1.5;
-    }
-
-    .system-map-dot {
-      fill: var(--border-subtle);
-    }
-
-    .system-map-center-label {
-      fill: var(--text-heading);
-      font-family: var(--font-display);
-      font-size: 19px;
-    }
-
-    .system-map-center-sub,
-    .system-map-node-sub,
-    .system-map-satellite-label {
-      fill: var(--text-muted);
-      font-family: var(--font-body);
-    }
-
-    .system-map-center-sub {
-      font-size: 10px;
-    }
-
-    .system-map-node-label {
-      fill: var(--text-heading);
-      font-family: var(--font-body);
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .system-map-node-sub,
-    .system-map-satellite-label {
-      font-size: 11px;
-    }
-
-    .system-map figcaption {
-      margin-top: 10px;
-      text-align: center;
-      color: var(--text-subtle);
-      font-family: var(--font-compass);
-      font-size: 13px;
-      font-style: italic;
-    }
-
     .why-grid {
       margin-top: 46px;
       display: grid;
@@ -1419,14 +1344,6 @@
       .learner-board {
         gap: 28px;
       }
-
-      .system-map {
-        margin-top: 34px;
-      }
-
-      .system-map-satellite-label {
-        display: none;
-      }
     }
 
     @media (hover: none) and (pointer: coarse) {
@@ -1522,50 +1439,6 @@
           <div class="power"><strong>Remember</strong><span>Carry learner context, language and progress forward.</span>
           </div>
         </div>
-        <figure class="system-map">
-          <svg viewBox="0 0 800 400" role="img" aria-labelledby="systemMapTitle systemMapDesc">
-            <title id="systemMapTitle">How Atlas fits around the learner</title>
-            <desc id="systemMapDesc">The learner sits at the centre, connected to Compass, Arcade, finding or creating material, keeping and returning to material, with memory, language, progress and owned material around them.</desc>
-
-            <line class="system-map-line" x1="400" y1="164" x2="400" y2="58" />
-            <line class="system-map-line" x1="400" y1="236" x2="400" y2="342" />
-            <line class="system-map-line" x1="364" y1="200" x2="146" y2="200" />
-            <line class="system-map-line" x1="436" y1="200" x2="654" y2="200" />
-
-            <line class="system-map-line--quiet" x1="376" y1="176" x2="210" y2="104" />
-            <line class="system-map-line--quiet" x1="424" y1="176" x2="590" y2="104" />
-            <line class="system-map-line--quiet" x1="376" y1="224" x2="210" y2="296" />
-            <line class="system-map-line--quiet" x1="424" y1="224" x2="590" y2="296" />
-
-            <circle class="system-map-node" cx="400" cy="52" r="5" />
-            <text class="system-map-node-label" x="400" y="28" text-anchor="middle">Compass</text>
-            <text class="system-map-node-sub" x="400" y="44" text-anchor="middle">depth and ideas</text>
-
-            <circle class="system-map-node" cx="400" cy="348" r="5" />
-            <text class="system-map-node-label" x="400" y="376" text-anchor="middle">Arcade</text>
-            <text class="system-map-node-sub" x="400" y="392" text-anchor="middle">speed and spontaneity</text>
-
-            <circle class="system-map-node" cx="140" cy="200" r="5" />
-            <text class="system-map-node-label" x="126" y="196" text-anchor="end">Find or create</text>
-
-            <circle class="system-map-node" cx="660" cy="200" r="5" />
-            <text class="system-map-node-label" x="674" y="196" text-anchor="start">Keep and return</text>
-
-            <circle class="system-map-dot" cx="210" cy="104" r="3" />
-            <text class="system-map-satellite-label" x="220" y="108">Memory</text>
-            <circle class="system-map-dot" cx="590" cy="104" r="3" />
-            <text class="system-map-satellite-label" x="580" y="108" text-anchor="end">Language</text>
-            <circle class="system-map-dot" cx="210" cy="296" r="3" />
-            <text class="system-map-satellite-label" x="220" y="300">Progress</text>
-            <circle class="system-map-dot" cx="590" cy="296" r="3" />
-            <text class="system-map-satellite-label" x="580" y="300" text-anchor="end">Owned material</text>
-
-            <circle class="system-map-center" cx="400" cy="200" r="36" />
-            <text class="system-map-center-label" x="400" y="197" text-anchor="middle">Learner</text>
-            <text class="system-map-center-sub" x="400" y="214" text-anchor="middle">at the centre</text>
-          </svg>
-          <figcaption>The learner stays at the centre. Atlas keeps the material, memory and next move connected around them.</figcaption>
-        </figure>
       </div>
     </section>
 
