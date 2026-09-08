@@ -8,6 +8,7 @@
 // Owns:
 // - world/item registry seeding
 // - stale Compass subject cleanup
+// - Tutor Layer → Compass create handoff
 //
 // Does NOT own:
 // - Compass hub rendering
@@ -22,6 +23,12 @@
     if (window.AtlasContentRegistry) return;
 
     let registered = false;
+
+    const TUTOR_CREATE_HANDOFF_KEY =
+        'atlas::tutorCreateHandoff::v1';
+
+    const TUTOR_CREATE_SOURCE_KIND =
+        'tutor-layer-handoff';
 
     const COMPASS_WORLD = {
         registryId: 'compass',
@@ -217,6 +224,305 @@
         return true;
     }
 
+    function getTutorCreateSeedIntroduction() {
+        const context =
+            window.AtlasGenerationContext &&
+            typeof window.AtlasGenerationContext === 'object' &&
+            !Array.isArray(window.AtlasGenerationContext)
+                ? window.AtlasGenerationContext
+                : {};
+
+        const source =
+            context.source &&
+            typeof context.source === 'object' &&
+            !Array.isArray(context.source)
+                ? context.source
+                : null;
+
+        if (
+            !source ||
+            source.kind !== TUTOR_CREATE_SOURCE_KIND
+        ) {
+            return '';
+        }
+
+        return String(
+            context.premise || ''
+        ).trim();
+    }
+
+    function mergeTutorCreateGenerationBrief(
+        brief,
+        introduction
+    ) {
+        const existing =
+            String(brief || '').trim();
+
+        const direction = [
+            'Atlas introduction — use this exact introduction as the fixed framing for the subject. Keep every generated section aligned with it:',
+            introduction
+        ].join('\n');
+
+        return [
+            existing,
+            direction
+        ]
+            .filter(Boolean)
+            .join('\n\n');
+    }
+
+    function patchTutorCreateGeneration() {
+        const AI = window.AtlasAI;
+
+        if (
+            !AI ||
+            AI.__atlasTutorCreateHandoffPatched
+        ) {
+            return;
+        }
+
+        [
+            'generateSubjectFraming',
+            'generateOverview',
+            'generateDiscussionFraming',
+            'generateDiscussionSet',
+            'generateCulturalLensFraming',
+            'generateCulturalLensCard',
+            'generateReflection'
+        ].forEach(methodName => {
+            const original = AI[methodName];
+
+            if (typeof original !== 'function') {
+                return;
+            }
+
+            AI[methodName] = async function (...args) {
+                const introduction =
+                    getTutorCreateSeedIntroduction();
+
+                if (!introduction) {
+                    return original.apply(this, args);
+                }
+
+                const options = args[0];
+
+                if (
+                    !options ||
+                    typeof options !== 'object' ||
+                    Array.isArray(options)
+                ) {
+                    return original.apply(this, args);
+                }
+
+                args[0] = {
+                    ...options,
+                    brief:
+                        mergeTutorCreateGenerationBrief(
+                            options.brief,
+                            introduction
+                        )
+                };
+
+                const generated =
+                    await original.apply(this, args);
+
+                if (
+                    methodName === 'generateOverview' &&
+                    generated &&
+                    typeof generated === 'object' &&
+                    !Array.isArray(generated)
+                ) {
+                    return {
+                        ...generated,
+                        intro: introduction
+                    };
+                }
+
+                return generated;
+            };
+        });
+
+        AI.__atlasTutorCreateHandoffPatched = true;
+    }
+
+    function cleanTutorCreateHandoffUrl() {
+        try {
+            const url = new URL(window.location.href);
+
+            if (
+                url.searchParams.get('create') !== 'tutor'
+            ) {
+                return false;
+            }
+
+            url.searchParams.delete('create');
+
+            window.history.replaceState(
+                window.history.state,
+                '',
+                url.href
+            );
+
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    function readTutorCreateHandoff() {
+        let raw = null;
+
+        try {
+            raw = sessionStorage.getItem(
+                TUTOR_CREATE_HANDOFF_KEY
+            );
+
+            sessionStorage.removeItem(
+                TUTOR_CREATE_HANDOFF_KEY
+            );
+        } catch {
+            return null;
+        }
+
+        if (!raw) return null;
+
+        let candidate = null;
+
+        try {
+            candidate = JSON.parse(raw);
+        } catch {
+            return null;
+        }
+
+        if (
+            !candidate ||
+            typeof candidate !== 'object' ||
+            Array.isArray(candidate) ||
+            Number(candidate.version) !== 1
+        ) {
+            return null;
+        }
+
+        const title =
+            String(candidate.title || '').trim();
+
+        if (!title) return null;
+
+        return {
+            version: 1,
+            title,
+            introduction:
+                String(
+                    candidate.introduction || ''
+                ).trim()
+        };
+    }
+
+    function openTutorCreateHandoff() {
+        let isTutorCreate = false;
+
+        try {
+            isTutorCreate =
+                new URL(window.location.href)
+                    .searchParams
+                    .get('create') === 'tutor';
+        } catch { }
+
+        if (!isTutorCreate) return;
+
+        const handoff = readTutorCreateHandoff();
+        cleanTutorCreateHandoffUrl();
+
+        if (
+            !handoff ||
+            typeof window.openCreateSubjectDialog !== 'function'
+        ) {
+            return;
+        }
+
+        window.scrollTo(0, 0);
+
+        window.openCreateSubjectDialog(
+            null,
+            '',
+            null,
+            ''
+        );
+
+        const dialog = document.getElementById(
+            'owned-subject-dialog'
+        );
+
+        const input = dialog?.querySelector(
+            '#owned-subject-dialog-input'
+        );
+
+        if (!dialog || !input) return;
+
+        input.value = handoff.title;
+
+        if (
+            handoff.introduction &&
+            typeof ownedSubjectDialogState !== 'undefined' &&
+            ownedSubjectDialogState?.mode === 'create'
+        ) {
+            ownedSubjectDialogState.suggestion = {
+                title: handoff.title,
+                premise: handoff.introduction,
+                source: {
+                    kind: TUTOR_CREATE_SOURCE_KIND
+                }
+            };
+
+            const releaseHandoffIntroduction = () => {
+                if (
+                    String(input.value || '').trim() ===
+                    handoff.title
+                ) {
+                    return;
+                }
+
+                if (
+                    typeof ownedSubjectDialogState !== 'undefined' &&
+                    ownedSubjectDialogState?.mode === 'create' &&
+                    ownedSubjectDialogState.suggestion?.source?.kind ===
+                    TUTOR_CREATE_SOURCE_KIND
+                ) {
+                    ownedSubjectDialogState.suggestion = null;
+                }
+
+                input.removeEventListener(
+                    'input',
+                    releaseHandoffIntroduction
+                );
+            };
+
+            input.addEventListener(
+                'input',
+                releaseHandoffIntroduction
+            );
+        }
+
+        requestAnimationFrame(() => {
+            window.scrollTo(0, 0);
+            input.focus();
+            input.setSelectionRange(
+                input.value.length,
+                input.value.length
+            );
+        });
+    }
+
+    function installTutorCreateHandoff() {
+        patchTutorCreateGeneration();
+
+        window.addEventListener(
+            'load',
+            openTutorCreateHandoff,
+            { once: true }
+        );
+    }
+
     function registerAll() {
         if (registered) return true;
 
@@ -234,5 +540,6 @@
         registerCompass
     };
 
+    installTutorCreateHandoff();
     registerAll();
 })();
