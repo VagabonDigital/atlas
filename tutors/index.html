@@ -567,33 +567,32 @@
     }
 
     .result-dot {
-      position: relative;
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       flex: 0 0 auto;
       border-radius: 50%;
       background: var(--compass);
+      box-shadow: 0 0 0 0 rgba(var(--compass-rgb), 0);
     }
 
-    .result-shell.is-active .result-dot::after {
-      content: "";
-      position: absolute;
-      inset: -4px;
-      border: 1px solid var(--compass);
-      border-radius: 50%;
-      animation: result-dot-pulse 1.6s ease-out infinite;
+    .result-shell.is-active .result-dot {
+      animation: result-dot-pulse 1.45s ease-out infinite;
     }
 
     @keyframes result-dot-pulse {
       0% {
-        opacity: .55;
-        transform: scale(.55);
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(var(--compass-rgb), .46);
       }
 
-      70%,
+      55% {
+        transform: scale(1.08);
+        box-shadow: 0 0 0 7px rgba(var(--compass-rgb), 0);
+      }
+
       100% {
-        opacity: 0;
-        transform: scale(1.5);
+        transform: scale(1);
+        box-shadow: 0 0 0 7px rgba(var(--compass-rgb), 0);
       }
     }
 
