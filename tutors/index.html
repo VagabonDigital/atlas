@@ -567,10 +567,34 @@
     }
 
     .result-dot {
+      position: relative;
       width: 7px;
       height: 7px;
+      flex: 0 0 auto;
       border-radius: 50%;
       background: var(--compass);
+    }
+
+    .result-shell.is-active .result-dot::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border: 1px solid var(--compass);
+      border-radius: 50%;
+      animation: result-dot-pulse 1.6s ease-out infinite;
+    }
+
+    @keyframes result-dot-pulse {
+      0% {
+        opacity: .55;
+        transform: scale(.55);
+      }
+
+      70%,
+      100% {
+        opacity: 0;
+        transform: scale(1.5);
+      }
     }
 
     .create-result h3 {
@@ -1527,7 +1551,7 @@
             <div class="direction-list" id="subjectField">
               <button class="subject-title is-selected" data-title="Using Modal Verbs in Real Situations"><span
                   class="subject-name">Using Modal Verbs in Real Situations</span></button>
-              <button class="subject-title" data-title="The Future of the Internet"><span
+              <button class="subject-title" data-title="The Wild Future of the Internet"><span
                   class="subject-name">The Wild Future of the Internet</span></button>
 
               <button class="subject-title" data-title="Explaining Projects to Senior Leaders"><span
@@ -1742,6 +1766,121 @@
       var selectedDemoIdea = null;
       var selectedDemoMode = "";
       var selectedDemoTopicFocus = "";
+      var selectedCuratedSeed = null;
+
+      var curatedSubjectSeeds = {
+        "Using Modal Verbs in Real Situations": {
+          title: "Using Modal Verbs in Real Situations",
+          brief: "Explore modal verbs through realistic everyday and professional situations. Focus on how can, could, should, must, have to, might and may express ability, permission, advice, obligation, possibility and certainty. Keep the grammar explicit but conversation-led rather than worksheet-like.",
+          framing: {
+            catalogDescription: "A practical look at how small changes in modal verbs can completely change what we mean.",
+            hook: "Small verbs. Very different meanings."
+          },
+          overview: {
+            heading: "What changes when the verb changes?",
+            intro: "Modal verbs can make the same idea sound certain, doubtful, polite, necessary or optional. Choosing between should, must, might, could and can often changes much more than the grammar.",
+            question: "Which sounds stronger: 'You should go' or 'You must go'? What changes?"
+          }
+        },
+
+        "The Wild Future of the Internet": {
+          title: "The Wild Future of the Internet",
+          brief: "Explore how the internet may change over the coming decades, including AI agents, immersive digital spaces, decentralisation, identity, privacy, ownership and new ways of interacting online. Avoid treating any single prediction as inevitable. Use competing possibilities and their consequences to drive discussion.",
+          framing: {
+            catalogDescription: "A look beyond today’s websites and apps at what the next internet might actually become.",
+            hook: "The internet we know may only be version one."
+          },
+          overview: {
+            heading: "What comes after the internet we know?",
+            intro: "The internet has already transformed communication, work, entertainment and commerce. But AI, new interfaces and changing ideas about identity and ownership could make tomorrow’s online world feel radically different from today’s.",
+            question: "What part of today’s internet do you think will seem primitive in twenty years?"
+          }
+        },
+
+        "Explaining Projects to Senior Leaders": {
+          title: "Explaining Projects to Senior Leaders",
+          brief: "Develop the ability to explain projects clearly and concisely to senior leaders. Focus on purpose, progress, priorities, risks, decisions and next steps rather than unnecessary operational detail. Explore how to structure updates, answer executive questions and communicate uncertainty with confidence.",
+          framing: {
+            catalogDescription: "How to turn a complicated project into the information senior leaders actually need.",
+            hook: "They don’t need every detail. They need the right ones."
+          },
+          overview: {
+            heading: "What does a senior leader actually need to know?",
+            intro: "The closer we are to a project, the easier it is to explain too much. Senior leaders usually need a different view: what matters, what has changed, where the risks are and what decision comes next.",
+            question: "If you had sixty seconds to explain your current project, what would you include?"
+          }
+        },
+
+        "How the Suez Canal Changed Trade": {
+          title: "How the Suez Canal Changed Trade",
+          brief: "Explore why the Suez Canal transformed global trade by connecting the Mediterranean and Red Seas and dramatically shortening major shipping routes. Examine its strategic importance, effects on commerce and empire, modern dependence on shipping chokepoints and what happens when the canal is disrupted.",
+          framing: {
+            catalogDescription: "How one narrow waterway reshaped global trade and became one of the world’s most important chokepoints.",
+            hook: "A shortcut through Egypt changed the world economy."
+          },
+          overview: {
+            heading: "Why does one narrow canal matter so much?",
+            intro: "Before the Suez Canal, ships travelling between Europe and Asia often had to sail around Africa. Opening a direct route through Egypt changed journey times, trade networks and geopolitical power — and made one narrow passage extraordinarily important.",
+            question: "Why can shortening a journey by a few thousand kilometres change much more than travel time?"
+          }
+        },
+
+        "IELTS: Building Stronger Answers": {
+          title: "IELTS: Building Stronger Answers",
+          brief: "Build stronger IELTS Speaking responses by answering questions directly, developing ideas with reasons and examples, and extending naturally without rambling. Include both familiar and unexpected questions that require the learner to organise an answer quickly. Prioritise communication and development over memorised formulas.",
+          framing: {
+            catalogDescription: "Practical IELTS Speaking work for turning short reactions into clear, developed answers.",
+            hook: "A good answer needs somewhere to go."
+          },
+          overview: {
+            heading: "What makes an answer feel complete?",
+            intro: "IELTS Speaking is not about giving the longest possible answer. Strong responses usually make a clear point, develop it naturally and give the listener enough detail to understand why the idea matters.",
+            question: "When you get a difficult question, what usually makes answering it harder?"
+          }
+        },
+
+        "Who Owns a Stolen Masterpiece?": {
+          title: "Who Owns a Stolen Masterpiece?",
+          brief: "Explore disputes over ownership of valuable artworks that were stolen, looted or transferred under questionable circumstances. Examine museums, collectors, governments, descendants, restitution, provenance and the tension between legal ownership and moral claims. Use realistic dilemmas rather than turning the subject into a legal lecture.",
+          framing: {
+            catalogDescription: "A journey through stolen art, disputed ownership and the question of who has the strongest claim.",
+            hook: "A masterpiece can have more than one rightful owner."
+          },
+          overview: {
+            heading: "Can ownership survive theft?",
+            intro: "A famous artwork may pass through countries, collectors and museums for generations before someone discovers that it was once stolen or taken under coercion. Returning it can sound simple — until several people can make convincing claims to it.",
+            question: "If someone legally buys a painting without knowing it was stolen decades earlier, should they have to give it back?"
+          }
+        },
+
+        "Settling Into Your First Month Abroad": {
+          title: "Settling Into Your First Month Abroad",
+          brief: "Explore the practical and social challenges of settling into another country during the first month. Include housing, transport, everyday services, meeting people, unfamiliar systems, cultural differences, loneliness, independence and asking for help. Keep the situations grounded in real decisions and experiences rather than generic travel advice.",
+          framing: {
+            catalogDescription: "The strange, practical and exciting first weeks of trying to build an ordinary life somewhere new.",
+            hook: "Arriving is easy. Living there is different."
+          },
+          overview: {
+            heading: "When does a new country start feeling normal?",
+            intro: "The first month abroad is full of small problems that tourists rarely notice: finding groceries, understanding transport, dealing with paperwork, meeting people and working out how everyday life actually functions.",
+            question: "What would be the first thing you would want to understand after arriving somewhere new?"
+          }
+        },
+
+        "Why Time Feels Faster as We Age": {
+          title: "Why Time Feels Faster as We Age",
+          brief: "Explore why the subjective experience of time often seems to accelerate as people get older. Examine novelty, routine, attention, memory, proportional theories of time and how memorable periods differ from repetitive ones. Clearly distinguish plausible psychological explanations from facts that remain uncertain.",
+          framing: {
+            catalogDescription: "Why childhood summers can feel enormous while entire adult years seem to disappear.",
+            hook: "The clock stays the same. Our experience of it doesn’t."
+          },
+          overview: {
+            heading: "Where did the year go?",
+            intro: "A year is always the same length, yet it rarely feels that way. Childhood periods can seem enormous in memory while months of adult routine disappear almost instantly. The difference may tell us something surprising about attention and memory.",
+            question: "What period of your life feels much longer in memory than it really was?"
+          }
+        }
+      };
 
       function getTutorLayerGenerationContext() {
         return {
@@ -1751,7 +1890,7 @@
           style: "balanced",
           premise: selectedDemoIdea ? String(selectedDemoIdea.premise || selectedDemoIdea.reason || "").trim() : "",
           source: selectedDemoIdea && selectedDemoIdea.source && typeof selectedDemoIdea.source === "object" ? selectedDemoIdea.source : null,
-          brief: ""
+          brief: selectedCuratedSeed ? selectedCuratedSeed.brief : ""
         };
       }
 
@@ -1779,7 +1918,7 @@
       var demoIdeaRequestId = 0;
 
       var demoCategories = [
-        { label: "Current affairs", cue: "What just changed", mode: "current-affairs" },
+        { label: "Current affairs", cue: "Live web · ~15 sec", mode: "current-affairs" },
         { label: "Science & Nature", cue: "Real phenomena", mode: "science-nature" },
         { label: "Technology & Future", cue: "What’s coming next", mode: "technology-future" },
         { label: "Culture & Society", cue: "How people live", mode: "culture-society" },
@@ -1819,7 +1958,8 @@
         window.AtlasGenerationContext = getTutorLayerGenerationContext();
       }
 
-      function fillSubject(title, idea, category, shouldFocus) {
+      function fillSubject(title, idea, category, shouldFocus, curatedSeed) {
+        selectedCuratedSeed = curatedSeed || null;
         setSelectedDemoIdea(idea || null, category || null);
 
         if (!idea) {
@@ -1856,8 +1996,30 @@
         });
       }
 
+      function showCuratedSubjectInCard(seed) {
+        if (!seed) return;
+
+        createdSubjectId = "";
+        completedBuildStep = 0;
+        resultShell.classList.remove("is-building");
+        resultTitle.textContent = seed.title;
+        resultIntro.textContent = seed.overview.intro;
+        resultReady.textContent = "Ready to create";
+        resultOpen.disabled = true;
+        createButton.disabled = false;
+        createButton.textContent = "Create subject";
+
+        Array.prototype.slice.call(buildLine.querySelectorAll("span")).forEach(function (step, index) {
+          step.classList.toggle("ready", index === 0);
+          step.classList.remove("building");
+        });
+      }
+
       function chooseSubject(button) {
-        fillSubject(button.getAttribute("data-title"), null, null, true);
+        var title = button.getAttribute("data-title");
+        var seed = curatedSubjectSeeds[title] || null;
+        fillSubject(title, null, null, true, seed);
+        showCuratedSubjectInCard(seed);
       }
 
       subjectButtons.forEach(function (button) { button.addEventListener("click", function () { chooseSubject(button); }); });
@@ -1933,7 +2095,12 @@
         demoIdeaQueue = [];
         button.classList.add("is-loading");
         button.disabled = true;
-        setDirectionDemoStatus("Finding an idea…");
+        resultShell.classList.add("is-active");
+        setDirectionDemoStatus(
+          category.mode === "current-affairs"
+            ? "Checking what’s current… Usually about 15 seconds"
+            : "Finding an idea…"
+        );
 
         try {
           var response = await window.AtlasAI.suggestSubjectIdeas({
@@ -1970,6 +2137,7 @@
         } finally {
           button.classList.remove("is-loading");
           button.disabled = false;
+          resultShell.classList.remove("is-active");
         }
       }
 
@@ -2001,6 +2169,7 @@
         var activeIndex = completedStep < 2 ? 0 : completedStep < 6 ? 1 : completedStep < 13 ? 2 : completedStep < 16 ? 3 : -1;
 
         resultShell.classList.toggle("is-building", isBuilding && completedStep < 2);
+        resultShell.classList.toggle("is-active", isBuilding);
         createButton.disabled = isBuilding;
         createButton.textContent = isBuilding ? (completedStep >= 2 ? "Building…" : "Creating…") : "Create subject";
         resultReady.textContent = getBuildStatus(completedStep, isBuilding, failed);
@@ -2056,13 +2225,22 @@
           setDirectionDemoStatus("One live idea at a time");
         }
 
+        if (selectedCuratedSeed && selectedCuratedSeed.title !== value) {
+          selectedCuratedSeed = null;
+          window.AtlasGenerationContext = getTutorLayerGenerationContext();
+        }
+
+        var curatedSeed = selectedCuratedSeed && selectedCuratedSeed.title === value
+          ? selectedCuratedSeed
+          : null;
+
         subjectButtons.forEach(function (item) { item.classList.toggle("is-selected", !selectedDemoIdea && item.getAttribute("data-title") === value); });
         createdSubjectId = "";
         completedBuildStep = 0;
         buildInProgress = true;
         resultTitle.textContent = value;
-        resultIntro.textContent = "Atlas is building the opening for this subject…";
-        renderBuildProgress(true, 0, false);
+        resultIntro.textContent = curatedSeed ? curatedSeed.overview.intro : "Atlas is building the opening for this subject…";
+        renderBuildProgress(true, curatedSeed ? 2 : 0, false);
 
         var created = null;
         var document = null;
@@ -2077,7 +2255,16 @@
           window.AtlasGenerationContext = generationContext;
 
           document = window.AtlasStructuredSubject.createBlankDocument({ title: value });
-          document.subjectCopy.cover.hook = "Finding the right angle…";
+
+          if (curatedSeed) {
+            document.module.catalogDescription = curatedSeed.framing.catalogDescription;
+            document.subjectCopy.cover.hook = curatedSeed.framing.hook;
+            document.subjectCopy.overview.heading = curatedSeed.overview.heading;
+            document.subjectCopy.overview.intro = [curatedSeed.overview.intro];
+            document.subjectCopy.overview.question = curatedSeed.overview.question;
+          } else {
+            document.subjectCopy.cover.hook = "Finding the right angle…";
+          }
 
           var validation = window.AtlasStructuredSubject.validateDocument(document);
           if (!validation.valid) throw new Error("Atlas could not prepare a valid subject.");
@@ -2087,7 +2274,7 @@
             metadata: {
               title: value,
               navTitle: value,
-              description: "",
+              description: document.module.catalogDescription,
               coverImage: "",
               generationContext: generationContext
             },
@@ -2104,13 +2291,24 @@
 
           createdSubjectId = created.id;
 
+          var resumeFromStep = 0;
+
+          if (curatedSeed) {
+            await persistBuildCheckpoint(created.id, document, generationContext, 2);
+            completedBuildStep = 2;
+            resultTitle.textContent = document.module.title;
+            resultIntro.textContent = document.subjectCopy.overview.intro[0];
+            renderBuildProgress(true, 2, false);
+            resumeFromStep = 2;
+          }
+
           var operations = window.AtlasSubjectGenerationRunner.createStructuredDocumentOperations({
             getDocument: function () { return document; },
             brief: generationContext.brief
           });
 
           await window.AtlasSubjectGenerationRunner.run({
-            resumeFromStep: 0,
+            resumeFromStep: resumeFromStep,
             includeEnrichment: false,
             operations: operations,
             onProgress: function (progress) {
@@ -2167,6 +2365,10 @@
           demoIdeaQueue = [];
           syncDemoCategoryControls();
           setDirectionDemoStatus("One live idea at a time");
+        }
+        if (selectedCuratedSeed && selectedCuratedSeed.title !== value) {
+          selectedCuratedSeed = null;
+          window.AtlasGenerationContext = getTutorLayerGenerationContext();
         }
         subjectButtons.forEach(function (item) { item.classList.toggle("is-selected", !selectedDemoIdea && item.getAttribute("data-title") === value); });
       });
