@@ -596,6 +596,12 @@
       color: var(--compass);
       font-size: 11px;
       font-weight: 700;
+      cursor: pointer;
+    }
+
+    .result-open[disabled] {
+      cursor: default;
+      opacity: .52;
     }
 
     .build-line {
@@ -1396,7 +1402,7 @@
                     different after dark. This subject explores the organisms that can make a forest glow, why
                     bioluminescence exists, and what happens when science makes a familiar place feel strange again.</p>
                   <div class="result-foot"><span class="result-ready" id="resultReady">Overview ready to
-                      teach</span><span class="result-open">Open in Compass →</span></div>
+                      teach</span><button class="result-open" id="resultOpen" type="button" disabled>Open in Compass</button></div>
                 </div>
               </div>
               <div class="build-line" id="buildLine" aria-label="Subject build progress"><span class="ready"
@@ -1625,6 +1631,8 @@
         Keep what works.</span></div>
   </footer>
 
+  <script src="../shared/atlas-structured-subject.js"></script>
+  <script src="../shared/atlas-tutor-subjects.js"></script>
   <script src="../shared/atlas-ai.js"></script>
   <script>
     (function () {
@@ -1644,25 +1652,143 @@
       var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (!reduceMotion && revolverItems.length > 1) { var lineIndex = 0; window.setInterval(function () { revolverItems[lineIndex].classList.remove("is-active"); lineIndex = (lineIndex + 1) % revolverItems.length; revolverItems[lineIndex].classList.add("is-active"); }, 3200); }
 
-      window.AtlasGenerationContext = {
-        languageLevel: "b2",
-        style: "balanced"
-      };
+      function getTutorLayerGenerationContext() {
+        return {
+          version: 1,
+          ideaMode: "",
+          languageLevel: "b2",
+          style: "balanced",
+          premise: "",
+          source: null,
+          brief: ""
+        };
+      }
+
+      window.AtlasGenerationContext = getTutorLayerGenerationContext();
 
       var subjectInput = document.getElementById("subjectInput");
       var resultTitle = document.getElementById("resultTitle");
       var resultIntro = document.getElementById("resultIntro");
       var resultReady = document.getElementById("resultReady");
       var resultShell = document.getElementById("resultShell");
+      var resultOpen = document.getElementById("resultOpen");
       var buildLine = document.getElementById("buildLine");
       var subjectButtons = Array.prototype.slice.call(document.querySelectorAll(".subject-title"));
       var createButton = document.getElementById("createButton");
+      var createdSubjectId = "";
       function fillSubject(title) { subjectInput.value = title; subjectButtons.forEach(function (item) { item.classList.toggle("is-selected", item.getAttribute("data-title") === title); }); subjectInput.focus(); subjectInput.setSelectionRange(subjectInput.value.length, subjectInput.value.length); }
       function chooseSubject(button) { fillSubject(button.getAttribute("data-title")); }
       subjectButtons.forEach(function (button) { button.addEventListener("click", function () { chooseSubject(button); }); });
-      function setBuildState(isBuilding, succeeded) { var steps = Array.prototype.slice.call(buildLine.querySelectorAll("span")); resultShell.classList.toggle("is-building", isBuilding); createButton.disabled = isBuilding; createButton.textContent = isBuilding ? "Creating…" : "Create subject"; resultReady.textContent = isBuilding ? "Building the opening…" : (succeeded === false ? "Generation unavailable" : "Overview ready to teach"); steps.forEach(function (step, index) { step.classList.remove("building"); if (isBuilding) { step.classList.remove("ready"); if (index === 0) step.classList.add("building"); } else { step.classList.toggle("ready", succeeded !== false && index === 0); } }); }
-      async function buildSubject() { var value = subjectInput.value.trim(); if (!value) return; subjectButtons.forEach(function (item) { item.classList.toggle("is-selected", item.getAttribute("data-title") === value); }); resultTitle.textContent = value; setBuildState(true); try { if (!window.AtlasAI || typeof window.AtlasAI.generateOverview !== "function") throw new Error("Atlas AI is unavailable."); var overview = await window.AtlasAI.generateOverview({ subject: { title: value } }); resultIntro.textContent = overview.intro; setBuildState(false, true); } catch (error) { console.error("Tutor Layer subject preview failed:", error); resultIntro.textContent = "Atlas couldn’t generate this opening right now. Try again."; setBuildState(false, false); } }
+      function setBuildState(isBuilding, succeeded) { var steps = Array.prototype.slice.call(buildLine.querySelectorAll("span")); resultShell.classList.toggle("is-building", isBuilding); createButton.disabled = isBuilding; createButton.textContent = isBuilding ? "Creating…" : "Create subject"; resultReady.textContent = isBuilding ? "Building the opening…" : (succeeded === false ? "Couldn’t create subject" : "Overview ready to teach"); resultOpen.disabled = isBuilding || succeeded !== true || !createdSubjectId; steps.forEach(function (step, index) { step.classList.remove("building"); if (isBuilding) { step.classList.remove("ready"); if (index === 0) step.classList.add("building"); } else { step.classList.toggle("ready", succeeded === true && index === 0); } }); }
+      async function buildSubject() {
+        var value = subjectInput.value.trim();
+        if (!value) return;
+        subjectButtons.forEach(function (item) { item.classList.toggle("is-selected", item.getAttribute("data-title") === value); });
+        createdSubjectId = "";
+        resultTitle.textContent = value;
+        resultIntro.textContent = "Atlas is building the opening for this subject…";
+        setBuildState(true);
+        var created = null;
+        try {
+          if (!window.AtlasStructuredSubject || typeof window.AtlasStructuredSubject.createBlankDocument !== "function" || typeof window.AtlasStructuredSubject.validateDocument !== "function") throw new Error("Structured Subject creation is unavailable.");
+          if (!window.AtlasTutorSubjects || typeof window.AtlasTutorSubjects.createSubject !== "function" || typeof window.AtlasTutorSubjects.updateSubject !== "function" || typeof window.AtlasTutorSubjects.saveBuildState !== "function") throw new Error("My Subjects is unavailable.");
+          if (!window.AtlasAI || typeof window.AtlasAI.generateSubjectFraming !== "function" || typeof window.AtlasAI.generateOverview !== "function") throw new Error("Atlas AI is unavailable.");
+
+          var generationContext = getTutorLayerGenerationContext();
+          window.AtlasGenerationContext = generationContext;
+
+          var document = window.AtlasStructuredSubject.createBlankDocument({ title: value });
+          document.subjectCopy.cover.hook = "Finding the right angle…";
+
+          var validation = window.AtlasStructuredSubject.validateDocument(document);
+          if (!validation.valid) throw new Error("Atlas could not prepare a valid subject.");
+
+          created = await window.AtlasTutorSubjects.createSubject({
+            format: "structured",
+            metadata: {
+              title: value,
+              navTitle: value,
+              description: "",
+              coverImage: "",
+              generationContext: generationContext
+            },
+            libraryPlacement: {
+              libraryIncluded: true
+            },
+            document: document,
+            provenance: {
+              kind: "blank-structured"
+            }
+          });
+
+          if (!created) throw new Error("Atlas could not create the My Subject.");
+
+          var framing = await window.AtlasAI.generateSubjectFraming({
+            subject: {
+              title: value
+            }
+          });
+
+          document.module.catalogDescription = framing.catalogDescription;
+          document.subjectCopy.cover.hook = framing.hook;
+
+          var overview = await window.AtlasAI.generateOverview({
+            subject: {
+              title: value,
+              description: framing.catalogDescription,
+              hook: framing.hook
+            }
+          });
+
+          document.subjectCopy.overview.heading = overview.heading;
+          document.subjectCopy.overview.intro = [overview.intro];
+          document.subjectCopy.overview.question = overview.question;
+
+          var updated = await window.AtlasTutorSubjects.updateSubject(created.id, {
+            metadata: {
+              title: value,
+              navTitle: value,
+              description: framing.catalogDescription,
+              coverImage: "",
+              generationContext: generationContext
+            },
+            document: document
+          });
+
+          if (!updated) throw new Error("Atlas could not save the generated opening.");
+
+          var buildState = await window.AtlasTutorSubjects.saveBuildState(updated.id, {
+            kind: "full-subject",
+            completedStep: 2,
+            autoSaveOnComplete: true
+          });
+
+          if (!buildState) throw new Error("Atlas could not save the subject build state.");
+
+          createdSubjectId = updated.id;
+          resultTitle.textContent = updated.metadata.title;
+          resultIntro.textContent = updated.document.subjectCopy.overview.intro[0];
+          setBuildState(false, true);
+        } catch (error) {
+          console.error("Tutor Layer subject creation failed:", error);
+          if (created && created.id && window.AtlasTutorSubjects && typeof window.AtlasTutorSubjects.deleteSubject === "function") {
+            try { await window.AtlasTutorSubjects.deleteSubject(created.id); } catch (cleanupError) { console.warn("Tutor Layer could not clean up failed subject:", cleanupError); }
+          }
+          createdSubjectId = "";
+          resultIntro.textContent = "Atlas couldn’t create this subject right now. Try again.";
+          setBuildState(false, false);
+        }
+      }
+      function openCreatedSubject() {
+        if (!createdSubjectId) return;
+        var destination = new URL("../compass/subject/index.html", window.location.href);
+        destination.searchParams.set("id", createdSubjectId);
+        destination.searchParams.set("author", "generate");
+        destination.searchParams.set("from", "compass");
+        window.location.assign(destination.href);
+      }
       createButton.addEventListener("click", buildSubject);
+      resultOpen.addEventListener("click", openCreatedSubject);
       subjectInput.addEventListener("input", function () { var value = subjectInput.value.trim(); subjectButtons.forEach(function (item) { item.classList.toggle("is-selected", item.getAttribute("data-title") === value); }); });
       subjectInput.addEventListener("keydown", function (event) { if (event.key === "Enter") { event.preventDefault(); buildSubject(); } });
 
