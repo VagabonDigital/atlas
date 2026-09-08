@@ -20814,8 +20814,7 @@ async function init() {
 
     const resumableFullSubjectBuild =
         ownedSubjectBuildState?.kind ===
-            'full-subject' &&
-        !ownedSubjectBuildState?.remoteBuildId
+            'full-subject'
             ? ownedSubjectBuildState
             : null;
 
@@ -20826,21 +20825,19 @@ async function init() {
             resumableFullSubjectBuild
         )
     ) {
-        window.setTimeout(() => {
-            generateMyVersionFullSubject({
-                autoSaveOnComplete:
-                    resumableFullSubjectBuild
-                        ? resumableFullSubjectBuild
-                            .autoSaveOnComplete
-                        : true,
+        void generateMyVersionFullSubject({
+            autoSaveOnComplete:
+                resumableFullSubjectBuild
+                    ? resumableFullSubjectBuild
+                        .autoSaveOnComplete
+                    : true,
 
-                resumeFromStep:
-                    resumableFullSubjectBuild
-                        ? resumableFullSubjectBuild
-                            .completedStep
-                        : 0
-            });
-        }, 0);
+            resumeFromStep:
+                resumableFullSubjectBuild
+                    ? resumableFullSubjectBuild
+                        .completedStep
+                    : 0
+        });
     }
 
     window.addEventListener(
