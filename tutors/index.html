@@ -1647,7 +1647,7 @@
       root.dataset.theme = stored || (prefersDark ? "dark" : "light");
       function syncTheme() { var dark = root.dataset.theme === "dark"; themeIcon.textContent = dark ? "☾" : "☼"; themeToggle.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode"); }
       syncTheme();
-      themeToggle.addEventListener("click", function () { root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark"; try { localStorage.setItem("atlas-theme", root.datasetTheme); } catch (e) { } syncTheme(); });
+      themeToggle.addEventListener("click", function () { root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark"; try { localStorage.setItem("atlas-theme", root.dataset.theme); } catch (e) { } syncTheme(); });
 
       var revolverItems = Array.prototype.slice.call(document.querySelectorAll(".revolver-item"));
       var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
