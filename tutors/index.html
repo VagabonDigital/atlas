@@ -673,39 +673,94 @@ html[data-theme="dark"] .create-button {
 }
 
 .subject-field {
-  margin-top: 22px;
-  columns: 3;
-  column-gap: 30px;
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-flow: row dense;
+  gap: 2.2rem 1.8rem;
 }
 
 .subject-title {
   width: 100%;
-  break-inside: avoid;
-  display: block;
-  padding: 13px 0;
+  min-width: 0;
+  padding: .95rem 0 0;
   border: 0;
   border-top: 1px solid var(--border-faint);
   background: transparent;
   text-align: left;
   cursor: pointer;
+  transition: border-color var(--motion), transform var(--motion);
+}
+
+.subject-title.size-lg { grid-column: span 7; }
+.subject-title.size-md { grid-column: span 5; }
+.subject-title.size-sm { grid-column: span 4; }
+
+.subject-title.align-end {
+  justify-self: end;
+  text-align: right;
+}
+
+.subject-title.push-down {
+  margin-top: clamp(0px, 3vw, 2rem);
+}
+
+.subject-name {
+  display: block;
   color: var(--text-heading);
   font-family: var(--font-display);
-  font-size: 17px;
-  line-height: 1.25;
-  transition: color var(--motion), transform var(--motion);
+  font-weight: 400;
+  line-height: 1.18;
+  transition: color var(--motion);
+}
+
+.subject-note {
+  display: block;
+  margin-top: .55rem;
+  max-width: 42ch;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: .91rem;
+  line-height: 1.55;
+}
+
+.subject-title.size-lg .subject-name {
+  font-size: clamp(1.45rem, 1.18rem + 1vw, 1.95rem);
+}
+
+.subject-title.size-lg .subject-note {
+  font-size: .99rem;
+}
+
+.subject-title.size-md .subject-name {
+  font-size: 1.28rem;
+}
+
+.subject-title.size-sm .subject-name {
+  font-size: 1.06rem;
+}
+
+.subject-title.size-sm .subject-note {
+  max-width: 31ch;
+  font-size: .87rem;
+}
+
+.subject-title.align-end .subject-note {
+  margin-left: auto;
 }
 
 .subject-title:hover {
-  color: var(--accent-ink);
-  transform: translateX(2px);
+  border-top-color: rgba(var(--accent-rgb), .38);
+  transform: translateY(-2px);
 }
 
-.subject-title:last-child {
-  border-bottom: 1px solid var(--border-faint);
+.subject-title:hover .subject-name,
+.subject-title.is-selected .subject-name {
+  color: var(--accent-ink);
 }
 
 .subject-title.is-selected {
-  color: var(--accent-ink);
+  border-top-color: rgba(var(--accent-rgb), .55);
 }
 
 /* ============================================================
@@ -1146,7 +1201,22 @@ html[data-theme="dark"] .create-button {
 
   .create-copy { order: -1; }
 
-  .subject-field { columns: 2; }
+  .subject-field {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.8rem 1.5rem;
+  }
+
+  .subject-title.size-lg { grid-column: span 2; }
+  .subject-title.size-md,
+  .subject-title.size-sm { grid-column: span 1; }
+
+  .subject-title.align-end {
+    justify-self: stretch;
+    text-align: left;
+  }
+
+  .subject-title.align-end .subject-note { margin-left: 0; }
+  .subject-title.push-down { margin-top: 0; }
 
   .worlds {
     grid-template-columns: 1fr;
@@ -1210,7 +1280,16 @@ html[data-theme="dark"] .create-button {
     border-top: 1px solid var(--border-faint);
   }
 
-  .subject-field { columns: 1; }
+  .subject-field {
+    grid-template-columns: 1fr;
+    gap: 1.65rem;
+  }
+
+  .subject-title.size-lg,
+  .subject-title.size-md,
+  .subject-title.size-sm {
+    grid-column: 1 / -1;
+  }
 
   .breadth-head {
     display: block;
@@ -1459,35 +1538,70 @@ html[data-theme="dark"] .create-button {
 
       <div class="breadth">
         <div class="breadth-head">
-          <h3>Try a suggested topic</h3>
-          <p>Choose one, then press Create subject. Atlas will build its opening in the mockup above.</p>
+          <h3>A few places Atlas can go</h3>
+          <p>Pick a direction to drop it into the creator. The range matters more than the list.</p>
         </div>
 
         <div class="subject-field" id="subjectField">
-          <button class="subject-title is-selected" data-title="The Forests That Glow at Night">The Forests That Glow at Night</button>
-          <button class="subject-title" data-title="Former Tropical Storm Edouard Floods Parts of Texas">Former Tropical Storm Edouard Floods Parts of Texas</button>
-          <button class="subject-title" data-title="IELTS Speaking: Stronger Answers">IELTS Speaking: Stronger Answers</button>
-          <button class="subject-title" data-title="The Meal You’d Cross a City For">The Meal You’d Cross a City For</button>
-          <button class="subject-title" data-title="Singapore’s Public Housing Experiment">Singapore’s Public Housing Experiment</button>
-          <button class="subject-title" data-title="A Pig Kidney Bridges the Wait for a Human Transplant">A Pig Kidney Bridges the Wait for a Human Transplant</button>
-          <button class="subject-title" data-title="The Antikythera Mechanism: An Ancient Greek Computer">The Antikythera Mechanism: An Ancient Greek Computer</button>
-          <button class="subject-title" data-title="The Algorithm Knows You’re Still Watching">The Algorithm Knows You’re Still Watching</button>
-          <button class="subject-title" data-title="The World of Japanese Convenience Stores">The World of Japanese Convenience Stores</button>
-          <button class="subject-title" data-title="Conditionals for Real Decisions">Conditionals for Real Decisions</button>
-          <button class="subject-title" data-title="The Strange Afterlife of Abandoned Amusement Parks">The Strange Afterlife of Abandoned Amusement Parks</button>
-          <button class="subject-title" data-title="Why Certain Songs Give Us Chills">Why Certain Songs Give Us Chills</button>
-          <button class="subject-title" data-title="The Odyssey: Worth The Hype?">The Odyssey: Worth The Hype?</button>
-          <button class="subject-title" data-title="Paris Underground Music Scene">Paris Underground Music Scene</button>
-          <button class="subject-title" data-title="Material Engineering">Material Engineering</button>
-          <button class="subject-title" data-title="Living Abroad in Australia">Living Abroad in Australia</button>
-          <button class="subject-title" data-title="How Supply Chains Break">How Supply Chains Break</button>
-          <button class="subject-title" data-title="Why Football Tactics Keep Changing">Why Football Tactics Keep Changing</button>
-          <button class="subject-title" data-title="Why Is Dating So Complicated Now?">Why Is Dating So Complicated Now?</button>
-          <button class="subject-title" data-title="The First Hint of Dark Matter?">The First Hint of Dark Matter?</button>
-          <button class="subject-title" data-title="The Invisible Rules of Elevators">The Invisible Rules of Elevators</button>
-          <button class="subject-title" data-title="The Day the Internet Disappears">The Day the Internet Disappears</button>
-          <button class="subject-title" data-title="Can You Separate the Artist from the Art?">Can You Separate the Artist from the Art?</button>
-          <button class="subject-title" data-title="Why Does Time Speed Up as We Get Older?">Why Does Time Speed Up as We Get Older?</button>
+          <button class="subject-title size-lg is-selected" data-title="The Forests That Glow at Night">
+            <span class="subject-name">The Forests That Glow at Night</span>
+            <span class="subject-note">Bioluminescence, ecosystems and the science behind a forest that seems to glow.</span>
+          </button>
+
+          <button class="subject-title size-sm align-end push-down" data-title="The Meal You’d Cross a City For">
+            <span class="subject-name">The Meal You’d Cross a City For</span>
+            <span class="subject-note">Food, memory and the dishes people will happily travel for.</span>
+          </button>
+
+          <button class="subject-title size-md" data-title="IELTS Speaking: Stronger Answers">
+            <span class="subject-name">IELTS Speaking: Stronger Answers</span>
+            <span class="subject-note">Stronger speaking without memorised scripts — ideas, examples and clearer development.</span>
+          </button>
+
+          <button class="subject-title size-sm push-down" data-title="The Algorithm Knows You’re Still Watching">
+            <span class="subject-name">The Algorithm Knows You’re Still Watching</span>
+            <span class="subject-note">Personalisation, attention and the systems learning what keeps us watching.</span>
+          </button>
+
+          <button class="subject-title size-lg" data-title="Singapore’s Public Housing Experiment">
+            <span class="subject-name">Singapore’s Public Housing Experiment</span>
+            <span class="subject-note">Housing, ownership and what changes when a city builds public housing at enormous scale.</span>
+          </button>
+
+          <button class="subject-title size-sm align-end" data-title="The Odyssey: Worth The Hype?">
+            <span class="subject-name">The Odyssey: Worth The Hype?</span>
+            <span class="subject-note">A three-thousand-year-old epic judged by a modern reader: classic, ordeal, or both?</span>
+          </button>
+
+          <button class="subject-title size-md push-down" data-title="Conditionals for Real Decisions">
+            <span class="subject-name">Conditionals for Real Decisions</span>
+            <span class="subject-note">Real choices and consequences, with grammar doing actual work.</span>
+          </button>
+
+          <button class="subject-title size-lg" data-title="A Pig Kidney Bridges the Wait for a Human Transplant">
+            <span class="subject-name">A Pig Kidney Bridges the Wait for a Human Transplant</span>
+            <span class="subject-note">A medical bridge that sounds like science fiction — and the questions that come with it.</span>
+          </button>
+
+          <button class="subject-title size-sm align-end push-down" data-title="Paris Underground Music Scene">
+            <span class="subject-name">Paris Underground Music Scene</span>
+            <span class="subject-note">Small rooms, local scenes and music before it travels beyond the city.</span>
+          </button>
+
+          <button class="subject-title size-sm" data-title="Why Football Tactics Keep Changing">
+            <span class="subject-name">Why Football Tactics Keep Changing</span>
+            <span class="subject-note">Pressing, space, formations and why tactical ideas never stay still.</span>
+          </button>
+
+          <button class="subject-title size-md push-down" data-title="The Invisible Rules of Elevators">
+            <span class="subject-name">The Invisible Rules of Elevators</span>
+            <span class="subject-note">Personal space, eye contact and the strange rules strangers obey without discussing them.</span>
+          </button>
+
+          <button class="subject-title size-md align-end" data-title="Why Is Dating So Complicated Now?">
+            <span class="subject-name">Why Is Dating So Complicated Now?</span>
+            <span class="subject-note">Apps, choice, ambiguity and why more ways to connect can make connection feel harder.</span>
+          </button>
         </div>
       </div>
     </div>
