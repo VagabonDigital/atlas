@@ -224,19 +224,19 @@
         return true;
     }
 
-    function getTutorCreateSeedIntroduction() {
-        const context =
-            window.AtlasGenerationContext &&
-            typeof window.AtlasGenerationContext === 'object' &&
-            !Array.isArray(window.AtlasGenerationContext)
-                ? window.AtlasGenerationContext
+    function getTutorCreateIntroductionFromContext(context) {
+        const candidate =
+            context &&
+            typeof context === 'object' &&
+            !Array.isArray(context)
+                ? context
                 : {};
 
         const source =
-            context.source &&
-            typeof context.source === 'object' &&
-            !Array.isArray(context.source)
-                ? context.source
+            candidate.source &&
+            typeof candidate.source === 'object' &&
+            !Array.isArray(candidate.source)
+                ? candidate.source
                 : null;
 
         if (
@@ -247,8 +247,63 @@
         }
 
         return String(
-            context.premise || ''
+            source.introduction ||
+            candidate.premise ||
+            ''
         ).trim();
+    }
+
+    function getTutorCreateSeedIntroduction() {
+        return getTutorCreateIntroductionFromContext(
+            window.AtlasGenerationContext
+        );
+    }
+
+    function cloneWithTutorCreateIntroduction(
+        document,
+        introduction
+    ) {
+        const exactIntroduction =
+            String(introduction || '').trim();
+
+        if (
+            !exactIntroduction ||
+            !document ||
+            typeof document !== 'object' ||
+            Array.isArray(document)
+        ) {
+            return document;
+        }
+
+        let next = null;
+
+        try {
+            next = JSON.parse(
+                JSON.stringify(document)
+            );
+        } catch {
+            return document;
+        }
+
+        next.subjectCopy =
+            next.subjectCopy &&
+            typeof next.subjectCopy === 'object' &&
+            !Array.isArray(next.subjectCopy)
+                ? next.subjectCopy
+                : {};
+
+        next.subjectCopy.overview =
+            next.subjectCopy.overview &&
+            typeof next.subjectCopy.overview === 'object' &&
+            !Array.isArray(next.subjectCopy.overview)
+                ? next.subjectCopy.overview
+                : {};
+
+        next.subjectCopy.overview.intro = [
+            exactIntroduction
+        ];
+
+        return next;
     }
 
     function patchTutorCreateGeneration() {
@@ -291,6 +346,171 @@
         };
 
         AI.__atlasTutorCreateHandoffPatched = true;
+    }
+
+    function patchTutorCreatePersistence() {
+        const Subjects = window.AtlasTutorSubjects;
+
+        if (
+            !Subjects ||
+            Subjects.__atlasTutorCreateHandoffPatched
+        ) {
+            return;
+        }
+
+        const originalCreateSubject =
+            Subjects.createSubject;
+
+        const originalSaveWorkingDraft =
+            Subjects.saveWorkingDraft;
+
+        const originalUpdateSubject =
+            Subjects.updateSubject;
+
+        if (typeof originalCreateSubject === 'function') {
+            Subjects.createSubject = async function (input = {}) {
+                const candidate =
+                    input &&
+                    typeof input === 'object' &&
+                    !Array.isArray(input)
+                        ? input
+                        : {};
+
+                const introduction =
+                    getTutorCreateIntroductionFromContext(
+                        candidate.metadata?.generationContext
+                    );
+
+                if (!introduction || !candidate.document) {
+                    return originalCreateSubject.call(
+                        this,
+                        input
+                    );
+                }
+
+                return originalCreateSubject.call(
+                    this,
+                    {
+                        ...candidate,
+                        document:
+                            cloneWithTutorCreateIntroduction(
+                                candidate.document,
+                                introduction
+                            )
+                    }
+                );
+            };
+        }
+
+        if (
+            typeof originalSaveWorkingDraft === 'function' &&
+            typeof Subjects.getSubject === 'function'
+        ) {
+            Subjects.saveWorkingDraft = async function (
+                subjectId,
+                patch = {}
+            ) {
+                const candidate =
+                    patch &&
+                    typeof patch === 'object' &&
+                    !Array.isArray(patch)
+                        ? patch
+                        : {};
+
+                let introduction = '';
+
+                try {
+                    const subject =
+                        await Subjects.getSubject(subjectId);
+
+                    introduction =
+                        getTutorCreateIntroductionFromContext(
+                            subject?.metadata?.generationContext
+                        );
+                } catch { }
+
+                if (!introduction || !candidate.document) {
+                    return originalSaveWorkingDraft.call(
+                        this,
+                        subjectId,
+                        patch
+                    );
+                }
+
+                return originalSaveWorkingDraft.call(
+                    this,
+                    subjectId,
+                    {
+                        ...candidate,
+                        document:
+                            cloneWithTutorCreateIntroduction(
+                                candidate.document,
+                                introduction
+                            )
+                    }
+                );
+            };
+        }
+
+        if (
+            typeof originalUpdateSubject === 'function' &&
+            typeof Subjects.getSubject === 'function'
+        ) {
+            Subjects.updateSubject = async function (
+                subjectId,
+                patch = {}
+            ) {
+                const candidate =
+                    patch &&
+                    typeof patch === 'object' &&
+                    !Array.isArray(patch)
+                        ? patch
+                        : {};
+
+                let context =
+                    candidate.metadata?.generationContext ||
+                    null;
+
+                if (!context) {
+                    try {
+                        const subject =
+                            await Subjects.getSubject(subjectId);
+
+                        context =
+                            subject?.metadata?.generationContext ||
+                            null;
+                    } catch { }
+                }
+
+                const introduction =
+                    getTutorCreateIntroductionFromContext(
+                        context
+                    );
+
+                if (!introduction || !candidate.document) {
+                    return originalUpdateSubject.call(
+                        this,
+                        subjectId,
+                        patch
+                    );
+                }
+
+                return originalUpdateSubject.call(
+                    this,
+                    subjectId,
+                    {
+                        ...candidate,
+                        document:
+                            cloneWithTutorCreateIntroduction(
+                                candidate.document,
+                                introduction
+                            )
+                    }
+                );
+            };
+        }
+
+        Subjects.__atlasTutorCreateHandoffPatched = true;
     }
 
     function cleanTutorCreateHandoffUrl() {
@@ -419,7 +639,8 @@
                 premise: handoff.introduction,
                 source: {
                     kind: TUTOR_CREATE_SOURCE_KIND,
-                    title: handoff.title
+                    title: handoff.title,
+                    introduction: handoff.introduction
                 }
             };
 
@@ -464,6 +685,7 @@
 
     function installTutorCreateHandoff() {
         patchTutorCreateGeneration();
+        patchTutorCreatePersistence();
 
         window.addEventListener(
             'load',
