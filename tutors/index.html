@@ -1406,7 +1406,7 @@
                 </div>
               </div>
               <div class="build-line" id="buildLine" aria-label="Subject build progress"><span class="ready"
-                  title="Overview ready"></span><span class="ready" title="Discussion ready"></span><span
+                  title="Overview ready"></span><span title="Discussion"></span><span
                   title="Cultural Lens"></span><span title="Reflection"></span></div>
             </div>
           </div>
@@ -1610,6 +1610,7 @@
         Keep what works.</span></div>
   </footer>
 
+  <script src="../shared/atlas-ai.js"></script>
   <script>
     (function () {
       "use strict";
@@ -1628,6 +1629,11 @@
       var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (!reduceMotion && revolverItems.length > 1) { var lineIndex = 0; window.setInterval(function () { revolverItems[lineIndex].classList.remove("is-active"); lineIndex = (lineIndex + 1) % revolverItems.length; revolverItems[lineIndex].classList.add("is-active"); }, 3200); }
 
+      window.AtlasGenerationContext = {
+        languageLevel: "b2",
+        style: "balanced"
+      };
+
       var subjectInput = document.getElementById("subjectInput");
       var resultTitle = document.getElementById("resultTitle");
       var resultIntro = document.getElementById("resultIntro");
@@ -1636,23 +1642,10 @@
       var buildLine = document.getElementById("buildLine");
       var subjectButtons = Array.prototype.slice.call(document.querySelectorAll(".subject-title"));
       var createButton = document.getElementById("createButton");
-      var buildTimer = null;
-      var subjectIntros = {
-        "The Forests That Glow at Night": "Some forests seem ordinary in daylight and completely different after dark. This subject explores the organisms that can make a forest glow, why bioluminescence exists, and what happens when science makes a familiar place feel strange again.",
-        "IELTS Speaking: Stronger Answers": "A strong speaking answer needs more than correct English. This subject works on extending ideas, giving useful examples and explaining opinions clearly without turning the response into a memorised script.",
-        "The Meal You’d Cross a City For": "Some food is worth planning an entire journey around. This subject starts with the meals people will travel for, then opens into taste, memory, local identity and the strange power certain dishes have over us.",
-        "Singapore’s Public Housing Experiment": "In Singapore, public housing is not simply a safety net at the edge of the market. This subject explores what happens when housing policy shapes neighbourhoods, ownership, social mixing and everyday ideas about what a city should provide.",
-        "A Pig Kidney Bridges the Wait for a Human Transplant": "Organ shortages force medicine to ask questions that once sounded like science fiction. This subject explores the possibility of using animal organs to bridge the wait for a human transplant, alongside the medical and ethical questions that follow.",
-        "The Algorithm Knows You’re Still Watching": "The next video, song or post rarely arrives by accident. This subject looks at recommendation algorithms, the signals they learn from us, and the uneasy line between helpful personalisation and systems that are very good at keeping us there.",
-        "Conditionals for Real Decisions": "Conditionals become more useful when there is something real at stake. This subject uses actual choices, consequences and imagined alternatives to practise the language of if, would, could and might without separating grammar from meaning.",
-        "The Odyssey: Worth The Hype?": "The Odyssey has survived for thousands of years, but longevity does not automatically make a story enjoyable. This subject asks what still works, what feels distant, and whether Homer’s epic deserves its enormous reputation for a modern reader.",
-        "Why Is Dating So Complicated Now?": "Dating has more tools, more choice and more ways to communicate than ever, yet many people describe it as exhausting. This subject explores apps, expectations, ambiguity and how technology changes the way people meet and evaluate one another."
-      };
       function chooseSubject(button) { subjectButtons.forEach(function (item) { item.classList.toggle("is-selected", item === button); }); subjectInput.value = button.getAttribute("data-title"); }
       subjectButtons.forEach(function (button) { button.addEventListener("click", function () { chooseSubject(button); subjectInput.focus(); subjectInput.setSelectionRange(subjectInput.value.length, subjectInput.value.length); }); });
-      function genericIntro(title) { return "A new Compass subject built around “" + title + "”. The opening gives the learner an accessible way in, then creates room to explain, compare, question and connect the topic to wider ideas."; }
-      function setBuildState(isBuilding) { var steps = Array.prototype.slice.call(buildLine.querySelectorAll("span")); resultShell.classList.toggle("is-building", isBuilding); createButton.disabled = isBuilding; createButton.textContent = isBuilding ? "Creating…" : "Create subject"; resultReady.textContent = isBuilding ? "Building the opening…" : "Overview ready to teach"; steps.forEach(function (step, index) { step.classList.remove("building"); if (isBuilding) { step.classList.remove("ready"); if (index === 0) step.classList.add("building"); } else { step.classList.toggle("ready", index < 2); } }); }
-      function buildSubject() { var value = subjectInput.value.trim(); if (!value) return; if (buildTimer) window.clearTimeout(buildTimer); subjectButtons.forEach(function (item) { item.classList.toggle("is-selected", item.getAttribute("data-title") === value); }); setBuildState(true); buildTimer = window.setTimeout(function () { resultTitle.textContent = value; resultIntro.textContent = subjectIntros[value] || genericIntro(value); setBuildState(false); }, reduceMotion ? 0 : 650); }
+      function setBuildState(isBuilding, succeeded) { var steps = Array.prototype.slice.call(buildLine.querySelectorAll("span")); resultShell.classList.toggle("is-building", isBuilding); createButton.disabled = isBuilding; createButton.textContent = isBuilding ? "Creating…" : "Create subject"; resultReady.textContent = isBuilding ? "Building the opening…" : (succeeded === false ? "Generation unavailable" : "Overview ready to teach"); steps.forEach(function (step, index) { step.classList.remove("building"); if (isBuilding) { step.classList.remove("ready"); if (index === 0) step.classList.add("building"); } else { step.classList.toggle("ready", succeeded !== false && index === 0); } }); }
+      async function buildSubject() { var value = subjectInput.value.trim(); if (!value) return; subjectButtons.forEach(function (item) { item.classList.toggle("is-selected", item.getAttribute("data-title") === value); }); resultTitle.textContent = value; setBuildState(true); try { if (!window.AtlasAI || typeof window.AtlasAI.generateOverview !== "function") throw new Error("Atlas AI is unavailable."); var overview = await window.AtlasAI.generateOverview({ subject: { title: value } }); resultIntro.textContent = overview.intro; setBuildState(false, true); } catch (error) { console.error("Tutor Layer subject preview failed:", error); resultIntro.textContent = "Atlas couldn’t generate this opening right now. Try again."; setBuildState(false, false); } }
       createButton.addEventListener("click", buildSubject);
       subjectInput.addEventListener("input", function () { var value = subjectInput.value.trim(); subjectButtons.forEach(function (item) { item.classList.toggle("is-selected", item.getAttribute("data-title") === value); }); });
       subjectInput.addEventListener("keydown", function (event) { if (event.key === "Enter") { event.preventDefault(); buildSubject(); } });
