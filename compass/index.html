@@ -1663,6 +1663,11 @@
       box-shadow: var(--shadow-md);
     }
 
+    .subject-card-menu.is-flipped {
+      top: auto;
+      bottom: calc(100% + 0.42rem);
+    }
+
     .subject-card-menu[hidden] {
       display: none;
     }
@@ -3894,7 +3899,30 @@
 
       if (!opening) return;
 
+      menu.classList.remove('is-flipped');
       menu.hidden = false;
+
+      const menuRect = menu.getBoundingClientRect();
+      const buttonRect = button.getBoundingClientRect();
+      const viewportHeight =
+        window.innerHeight ||
+        document.documentElement.clientHeight;
+      const viewportPadding = 12;
+      const spaceBelow =
+        viewportHeight -
+        buttonRect.bottom -
+        viewportPadding;
+      const spaceAbove =
+        buttonRect.top -
+        viewportPadding;
+
+      if (
+        menuRect.height > spaceBelow &&
+        spaceAbove > spaceBelow
+      ) {
+        menu.classList.add('is-flipped');
+      }
+
       button.setAttribute('aria-expanded', 'true');
     }
 
