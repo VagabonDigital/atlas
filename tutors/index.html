@@ -1548,7 +1548,7 @@
             <div class="direction-head"><strong>A few starting points</strong><span>Pick one, or ask Atlas below.</span>
             </div>
             <div class="direction-list" id="subjectField">
-              <button class="subject-title is-selected" data-title="Using Modal Verbs in Real Situations"><span
+              <button class="subject-title" data-title="Using Modal Verbs in Real Situations"><span
                   class="subject-name">Using Modal Verbs in Real Situations</span></button>
               <button class="subject-title" data-title="The Wild Future of the Internet"><span
                   class="subject-name">The Wild Future of the Internet</span></button>
@@ -2151,7 +2151,7 @@
       function getBuildStatus(completedStep, isBuilding, failed) {
         if (failed) {
           return completedStep >= 2
-            ? "Generation paused · Open in Compass to continue"
+            ? "Background build paused"
             : "Couldn’t create subject";
         }
 
@@ -2180,36 +2180,186 @@
         });
       }
 
-      async function persistBuildCheckpoint(subjectId, document, generationContext, completedStep) {
+      function waitForRemoteBuildPoll() {
+        return new Promise(function (resolve) {
+          window.setTimeout(resolve, 900);
+        });
+      }
+
+      async function applyRemoteBuildSnapshot(subjectId, buildId, snapshot, fallbackGenerationContext) {
+        if (!snapshot || !subjectId || !buildId) return null;
+
         var Subjects = window.AtlasTutorSubjects;
+        var completedStep = Math.max(0, Math.floor(Number(snapshot.completedStep) || 0));
+        var remoteStatus = String(snapshot.status || "").trim();
+
+        var generationContext =
+          snapshot.generationContext &&
+          typeof snapshot.generationContext === "object" &&
+          !Array.isArray(snapshot.generationContext)
+            ? snapshot.generationContext
+            : fallbackGenerationContext;
+
         var updated = null;
 
-        if (completedStep > 0) {
-          var validation = window.AtlasStructuredSubject.validateDocument(document);
-          if (!validation.valid) throw new Error("Atlas generated an invalid subject document.");
+        if (
+          snapshot.document &&
+          typeof snapshot.document === "object" &&
+          completedStep > completedBuildStep
+        ) {
+          var validation =
+            window.AtlasStructuredSubject.validateDocument(
+              snapshot.document
+            );
 
-          updated = await Subjects.updateSubject(subjectId, {
-            metadata: {
-              title: document.module.title,
-              navTitle: document.module.navTitle,
-              description: document.module.catalogDescription,
-              coverImage: document.module.bgImage,
-              generationContext: generationContext
-            },
-            document: document
-          });
+          if (!validation.valid) {
+            throw new Error(
+              "Atlas returned an invalid durable subject document."
+            );
+          }
 
-          if (!updated) throw new Error("Atlas could not save subject progress.");
+          updated =
+            await Subjects.updateSubject(
+              subjectId,
+              {
+                metadata: {
+                  title:
+                    snapshot.document.module.title,
+                  navTitle:
+                    snapshot.document.module.navTitle,
+                  description:
+                    snapshot.document.module.catalogDescription,
+                  coverImage:
+                    snapshot.document.module.bgImage,
+                  generationContext:
+                    generationContext
+                },
+                document:
+                  snapshot.document
+              }
+            );
+
+          if (!updated) {
+            throw new Error(
+              "Atlas could not save durable subject progress."
+            );
+          }
+
+          completedBuildStep =
+            completedStep;
+
+          if (completedStep >= 2) {
+            resultTitle.textContent =
+              updated.metadata.title;
+
+            resultIntro.textContent =
+              updated.document.subjectCopy.overview.intro[0];
+          }
         }
 
-        var buildState = await Subjects.saveBuildState(subjectId, {
-          kind: "full-subject",
-          completedStep: completedStep,
-          autoSaveOnComplete: true
-        });
+        if (remoteStatus === "complete") {
+          await Subjects.clearBuildState(
+            subjectId
+          );
+        } else {
+          await Subjects.saveBuildState(
+            subjectId,
+            {
+              kind: "full-subject",
+              completedStep: Math.max(
+                completedBuildStep,
+                completedStep
+              ),
+              autoSaveOnComplete: true,
+              remoteBuildId: buildId,
+              remoteStatus: remoteStatus
+            }
+          );
+        }
 
-        if (!buildState) throw new Error("Atlas could not save subject build progress.");
-        return updated;
+        return {
+          status: remoteStatus,
+          completedStep: completedStep,
+          updated: updated
+        };
+      }
+
+      async function followRemoteSubjectBuild(subjectId, buildId, generationContext) {
+        var consecutiveReadErrors = 0;
+
+        while (
+          createdSubjectId === subjectId &&
+          buildInProgress
+        ) {
+          try {
+            var snapshot =
+              await window.AtlasAI.getSubjectBuild(
+                buildId
+              );
+
+            consecutiveReadErrors = 0;
+
+            var applied =
+              await applyRemoteBuildSnapshot(
+                subjectId,
+                buildId,
+                snapshot,
+                generationContext
+              );
+
+            renderBuildProgress(
+              applied.status !== "complete" &&
+                applied.status !== "errored",
+              Math.max(
+                completedBuildStep,
+                applied.completedStep
+              ),
+              applied.status === "errored"
+            );
+
+            if (applied.status === "complete") {
+              buildInProgress = false;
+              completedBuildStep = Math.max(
+                16,
+                applied.completedStep
+              );
+
+              renderBuildProgress(
+                false,
+                completedBuildStep,
+                false
+              );
+
+              return;
+            }
+
+            if (applied.status === "errored") {
+              buildInProgress = false;
+
+              renderBuildProgress(
+                false,
+                completedBuildStep,
+                true
+              );
+
+              return;
+            }
+          } catch (error) {
+            consecutiveReadErrors += 1;
+
+            console.warn(
+              "Tutor Layer could not read durable subject progress:",
+              error
+            );
+
+            if (consecutiveReadErrors >= 3) {
+              resultReady.textContent =
+                "Building safely in the background";
+            }
+          }
+
+          await waitForRemoteBuildPoll();
+        }
       }
 
       async function buildSubject() {
@@ -2247,8 +2397,13 @@
         try {
           if (!window.AtlasStructuredSubject || typeof window.AtlasStructuredSubject.createBlankDocument !== "function" || typeof window.AtlasStructuredSubject.validateDocument !== "function") throw new Error("Structured Subject creation is unavailable.");
           if (!window.AtlasTutorSubjects || typeof window.AtlasTutorSubjects.createSubject !== "function" || typeof window.AtlasTutorSubjects.updateSubject !== "function" || typeof window.AtlasTutorSubjects.saveBuildState !== "function") throw new Error("My Subjects is unavailable.");
-          if (!window.AtlasAI) throw new Error("Atlas AI is unavailable.");
-          if (!window.AtlasSubjectGenerationRunner || typeof window.AtlasSubjectGenerationRunner.run !== "function" || typeof window.AtlasSubjectGenerationRunner.createStructuredDocumentOperations !== "function") throw new Error("Atlas subject generation is unavailable.");
+          if (
+            !window.AtlasAI ||
+            typeof window.AtlasAI.startSubjectBuild !== "function" ||
+            typeof window.AtlasAI.getSubjectBuild !== "function"
+          ) {
+            throw new Error("Durable Atlas subject generation is unavailable.");
+          }
 
           var generationContext = getTutorLayerGenerationContext();
           window.AtlasGenerationContext = generationContext;
@@ -2290,44 +2445,52 @@
 
           createdSubjectId = created.id;
 
-          var resumeFromStep = 0;
+          var resumeFromStep = curatedSeed ? 2 : 0;
 
           if (curatedSeed) {
-            await persistBuildCheckpoint(created.id, document, generationContext, 2);
             completedBuildStep = 2;
             resultTitle.textContent = document.module.title;
             resultIntro.textContent = document.subjectCopy.overview.intro[0];
             renderBuildProgress(true, 2, false);
-            resumeFromStep = 2;
           }
 
-          var operations = window.AtlasSubjectGenerationRunner.createStructuredDocumentOperations({
-            getDocument: function () { return document; },
-            brief: generationContext.brief
-          });
+          var remoteBuild =
+            await window.AtlasAI.startSubjectBuild({
+              subjectId: created.id,
+              document: document,
+              generationContext: generationContext,
+              resumeFromStep: resumeFromStep
+            });
 
-          await window.AtlasSubjectGenerationRunner.run({
-            resumeFromStep: resumeFromStep,
-            includeEnrichment: false,
-            operations: operations,
-            onProgress: function (progress) {
-              renderBuildProgress(true, progress.completedStep, false);
-            },
-            onCheckpoint: async function (step) {
-              completedBuildStep = step;
-              var updated = await persistBuildCheckpoint(created.id, document, generationContext, step);
+          if (!remoteBuild || !remoteBuild.buildId) {
+            throw new Error(
+              "Atlas could not start the durable subject build."
+            );
+          }
 
-              if (updated && step >= 2) {
-                resultTitle.textContent = updated.metadata.title;
-                resultIntro.textContent = updated.document.subjectCopy.overview.intro[0];
+          var buildState =
+            await window.AtlasTutorSubjects.saveBuildState(
+              created.id,
+              {
+                kind: "full-subject",
+                completedStep: resumeFromStep,
+                autoSaveOnComplete: true,
+                remoteBuildId: remoteBuild.buildId,
+                remoteStatus: remoteBuild.status || "queued"
               }
+            );
 
-              renderBuildProgress(true, step, false);
-            }
-          });
+          if (!buildState) {
+            throw new Error(
+              "Atlas could not remember the durable subject build."
+            );
+          }
 
-          buildInProgress = false;
-          renderBuildProgress(false, completedBuildStep, false);
+          followRemoteSubjectBuild(
+            created.id,
+            remoteBuild.buildId,
+            generationContext
+          );
         } catch (error) {
           console.error("Tutor Layer subject creation failed:", error);
           buildInProgress = false;
@@ -2349,7 +2512,7 @@
         if (!createdSubjectId || completedBuildStep < 2) return;
         var destination = new URL("../compass/subject/index.html", window.location.href);
         destination.searchParams.set("id", createdSubjectId);
-        destination.searchParams.set("author", "generate");
+        destination.searchParams.set("author", "edit");
         destination.searchParams.set("from", "compass");
         window.location.assign(destination.href);
       }
