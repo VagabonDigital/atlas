@@ -785,7 +785,7 @@
       background: var(--surface-panel);
       text-align: left;
       cursor: pointer;
-      transition: border-color var(--motion), background var(--motion), transform var(--motion);
+      transition: border-color var(--motion), background var(--motion), transform var(--motion), opacity var(--motion);
     }
 
     .direction-category:hover,
@@ -793,6 +793,16 @@
       border-color: rgba(var(--accent-rgb), .34);
       background: var(--accent-pale);
       transform: translateY(-1px);
+    }
+
+    .direction-category.is-active {
+      border-color: rgba(var(--accent-rgb), .42);
+      background: var(--accent-soft);
+    }
+
+    .direction-category.is-loading {
+      cursor: wait;
+      opacity: .68;
     }
 
     .direction-category strong,
@@ -818,88 +828,6 @@
       line-height: 1.2;
       text-overflow: ellipsis;
       white-space: nowrap;
-    }
-
-    .direction-demo-loading,
-    .direction-demo-error,
-    .direction-idea {
-      min-height: 184px;
-      padding-top: 12px;
-    }
-
-    .direction-demo-loading,
-    .direction-demo-error {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-start;
-      color: var(--text-muted);
-      font-size: 12px;
-    }
-
-    .direction-demo-loading::before {
-      content: "";
-      width: 52px;
-      height: 4px;
-      margin-bottom: 12px;
-      border-radius: 999px;
-      background: linear-gradient(90deg, var(--surface-muted), var(--accent-soft), var(--surface-muted));
-      background-size: 180% 100%;
-      animation: buildSweep 820ms ease infinite;
-    }
-
-    .direction-idea-kicker {
-      color: var(--accent);
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-    }
-
-    .direction-idea-title {
-      margin-top: 7px;
-      color: var(--text-heading);
-      font-family: var(--font-display);
-      font-size: 18px;
-      line-height: 1.22;
-    }
-
-    .direction-idea-reason {
-      margin-top: 7px;
-      color: var(--text-muted);
-      font-size: 11px;
-      line-height: 1.45;
-    }
-
-    .direction-idea-actions {
-      margin-top: 13px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .direction-idea-actions button {
-      padding: 6px 8px;
-      border: 1px solid var(--border-faint);
-      border-radius: 7px;
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 10px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .direction-idea-actions .is-primary {
-      border-color: rgba(var(--accent-rgb), .24);
-      background: var(--accent-soft);
-      color: var(--accent-ink);
-    }
-
-    .direction-idea-actions button:hover,
-    .direction-idea-actions button:focus-visible {
-      border-color: rgba(var(--accent-rgb), .38);
-      color: var(--text-heading);
     }
 
     .worlds {
@@ -1459,8 +1387,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .build-line span.building,
-      .direction-demo-loading::before {
+      .build-line span.building {
         animation: none;
       }
 
@@ -1573,7 +1500,7 @@
             </div>
           </div>
           <div class="direction-picker">
-            <div class="direction-head"><strong>Need a direction?</strong><span>Pick one to drop it into the creator.</span>
+            <div class="direction-head"><strong>A few starting points</strong><span>Pick one, or ask Atlas below.</span>
             </div>
             <div class="direction-list" id="subjectField">
               <button class="subject-title is-selected" data-title="The Forests That Glow at Night"><span
@@ -1850,6 +1777,9 @@
       var demoIdeaHistory = [];
       var activeDemoCategory = null;
       var directionDemo = null;
+      var directionDemoStatus = null;
+      var directionCategoryControls = [];
+      var demoIdeaRequestId = 0;
 
       var demoCategories = [
         { label: "Current affairs", cue: "What just changed", mode: "current-affairs" },
@@ -1867,6 +1797,24 @@
         subjectButtons = subjectButtons.slice(0, 8);
       }
 
+      function sameDemoCategory(left, right) {
+        return !!left && !!right &&
+          left.mode === right.mode &&
+          String(left.topicFocus || "") === String(right.topicFocus || "");
+      }
+
+      function setDirectionDemoStatus(text) {
+        if (directionDemoStatus) directionDemoStatus.textContent = text;
+      }
+
+      function syncDemoCategoryControls() {
+        directionCategoryControls.forEach(function (control) {
+          var active = sameDemoCategory(control.category, activeDemoCategory);
+          control.button.classList.toggle("is-active", active);
+          control.button.setAttribute("aria-pressed", String(active));
+        });
+      }
+
       function setSelectedDemoIdea(idea, category) {
         selectedDemoIdea = idea || null;
         selectedDemoMode = idea && category ? category.mode : "";
@@ -1874,16 +1822,27 @@
         window.AtlasGenerationContext = getTutorLayerGenerationContext();
       }
 
-      function fillSubject(title, idea, category) {
+      function fillSubject(title, idea, category, shouldFocus) {
         setSelectedDemoIdea(idea || null, category || null);
+
+        if (!idea) {
+          activeDemoCategory = null;
+          demoIdeaQueue = [];
+          syncDemoCategoryControls();
+          setDirectionDemoStatus("One live idea at a time");
+        }
+
         subjectInput.value = title;
         subjectButtons.forEach(function (item) { item.classList.toggle("is-selected", !idea && item.getAttribute("data-title") === title); });
-        subjectInput.focus();
-        subjectInput.setSelectionRange(subjectInput.value.length, subjectInput.value.length);
+
+        if (shouldFocus !== false) {
+          subjectInput.focus();
+          subjectInput.setSelectionRange(subjectInput.value.length, subjectInput.value.length);
+        }
       }
 
       function chooseSubject(button) {
-        fillSubject(button.getAttribute("data-title"), null, null);
+        fillSubject(button.getAttribute("data-title"), null, null, true);
       }
 
       subjectButtons.forEach(function (button) { button.addEventListener("click", function () { chooseSubject(button); }); });
@@ -1891,9 +1850,8 @@
       function renderDemoCategories() {
         if (!directionDemo) return;
 
-        activeDemoCategory = null;
-        demoIdeaQueue = [];
         directionDemo.innerHTML = "";
+        directionCategoryControls = [];
 
         var head = document.createElement("div");
         head.className = "direction-demo-head";
@@ -1901,11 +1859,11 @@
         var title = document.createElement("strong");
         title.textContent = "Or point Atlas somewhere.";
 
-        var copy = document.createElement("span");
-        copy.textContent = "Get one live idea";
+        directionDemoStatus = document.createElement("span");
+        directionDemoStatus.textContent = "One live idea at a time";
 
         head.appendChild(title);
-        head.appendChild(copy);
+        head.appendChild(directionDemoStatus);
         directionDemo.appendChild(head);
 
         var grid = document.createElement("div");
@@ -1915,6 +1873,7 @@
           var button = document.createElement("button");
           button.type = "button";
           button.className = "direction-category";
+          button.setAttribute("aria-pressed", "false");
 
           var name = document.createElement("strong");
           name.textContent = category.label;
@@ -1924,165 +1883,38 @@
 
           button.appendChild(name);
           button.appendChild(cue);
-          button.addEventListener("click", function () { requestDemoIdeas(category, true); });
+          button.addEventListener("click", function () { requestDemoIdeas(category, button); });
           grid.appendChild(button);
+          directionCategoryControls.push({ category: category, button: button });
         });
 
         directionDemo.appendChild(grid);
+        syncDemoCategoryControls();
       }
 
-      function renderDemoLoading(category) {
-        if (!directionDemo) return;
-        directionDemo.innerHTML = "";
-
-        var head = document.createElement("div");
-        head.className = "direction-demo-head";
-
-        var title = document.createElement("strong");
-        title.textContent = category.label;
-
-        var copy = document.createElement("span");
-        copy.textContent = "Atlas is looking";
-
-        head.appendChild(title);
-        head.appendChild(copy);
-        directionDemo.appendChild(head);
-
-        var loading = document.createElement("div");
-        loading.className = "direction-demo-loading";
-        loading.textContent = "Finding an idea worth exploring…";
-        directionDemo.appendChild(loading);
-      }
-
-      function renderDemoError(category) {
-        if (!directionDemo) return;
-        directionDemo.innerHTML = "";
-
-        var head = document.createElement("div");
-        head.className = "direction-demo-head";
-
-        var title = document.createElement("strong");
-        title.textContent = category.label;
-
-        var copy = document.createElement("span");
-        copy.textContent = "Try again";
-
-        head.appendChild(title);
-        head.appendChild(copy);
-        directionDemo.appendChild(head);
-
-        var error = document.createElement("div");
-        error.className = "direction-demo-error";
-
-        var message = document.createElement("span");
-        message.textContent = "Couldn’t get an idea right now.";
-
-        var actions = document.createElement("div");
-        actions.className = "direction-idea-actions";
-
-        var retry = document.createElement("button");
-        retry.type = "button";
-        retry.className = "is-primary";
-        retry.textContent = "Try again";
-        retry.addEventListener("click", function () { requestDemoIdeas(category, true); });
-
-        var back = document.createElement("button");
-        back.type = "button";
-        back.textContent = "Back";
-        back.addEventListener("click", renderDemoCategories);
-
-        actions.appendChild(retry);
-        actions.appendChild(back);
-        error.appendChild(message);
-        error.appendChild(actions);
-        directionDemo.appendChild(error);
-      }
-
-      function renderDemoIdea(idea, category) {
-        if (!directionDemo) return;
-        directionDemo.innerHTML = "";
-
-        var head = document.createElement("div");
-        head.className = "direction-demo-head";
-
-        var headTitle = document.createElement("strong");
-        headTitle.textContent = category.label;
-
-        var headCopy = document.createElement("span");
-        headCopy.textContent = "One live idea";
-
-        head.appendChild(headTitle);
-        head.appendChild(headCopy);
-        directionDemo.appendChild(head);
-
-        var card = document.createElement("div");
-        card.className = "direction-idea";
-
-        var kicker = document.createElement("div");
-        kicker.className = "direction-idea-kicker";
-        kicker.textContent = "Atlas suggests";
-
-        var title = document.createElement("div");
-        title.className = "direction-idea-title";
-        title.textContent = idea.title;
-
-        var reason = document.createElement("p");
-        reason.className = "direction-idea-reason";
-        reason.textContent = idea.reason;
-
-        var actions = document.createElement("div");
-        actions.className = "direction-idea-actions";
-
-        var use = document.createElement("button");
-        use.type = "button";
-        use.className = "is-primary";
-        use.textContent = "Use this idea";
-        use.addEventListener("click", function () {
-          fillSubject(idea.title, idea, category);
-          use.textContent = "Added to creator";
-        });
-
-        var another = document.createElement("button");
-        another.type = "button";
-        another.textContent = "Try another";
-        another.addEventListener("click", function () {
-          if (demoIdeaQueue.length) {
-            renderDemoIdea(demoIdeaQueue.shift(), category);
-          } else {
-            requestDemoIdeas(category, true);
-          }
-        });
-
-        var back = document.createElement("button");
-        back.type = "button";
-        back.textContent = "Back";
-        back.addEventListener("click", renderDemoCategories);
-
-        actions.appendChild(use);
-        actions.appendChild(another);
-        actions.appendChild(back);
-
-        card.appendChild(kicker);
-        card.appendChild(title);
-        card.appendChild(reason);
-        card.appendChild(actions);
-        directionDemo.appendChild(card);
-      }
-
-      async function requestDemoIdeas(category, freshBatch) {
+      async function requestDemoIdeas(category, button) {
         if (!category || !window.AtlasAI || typeof window.AtlasAI.suggestSubjectIdeas !== "function") {
-          renderDemoError(category || { label: "Ideas" });
+          setDirectionDemoStatus("Ideas are unavailable right now");
           return;
         }
+
+        var requestId = ++demoIdeaRequestId;
+        var canReuseQueue = sameDemoCategory(activeDemoCategory, category) && demoIdeaQueue.length;
 
         activeDemoCategory = category;
+        syncDemoCategoryControls();
 
-        if (!freshBatch && demoIdeaQueue.length) {
-          renderDemoIdea(demoIdeaQueue.shift(), category);
+        if (canReuseQueue) {
+          var queuedIdea = demoIdeaQueue.shift();
+          fillSubject(queuedIdea.title, queuedIdea, category, false);
+          setDirectionDemoStatus("Click again for another");
           return;
         }
 
-        renderDemoLoading(category);
+        demoIdeaQueue = [];
+        button.classList.add("is-loading");
+        button.disabled = true;
+        setDirectionDemoStatus("Finding an idea…");
 
         try {
           var response = await window.AtlasAI.suggestSubjectIdeas({
@@ -2091,9 +1923,11 @@
             topicFocus: String(category.topicFocus || ""),
             languageLevel: "b2",
             sessionSubjects: [],
-            existingSubjects: subjectButtons.map(function (button) { return { title: button.getAttribute("data-title") }; }),
+            existingSubjects: subjectButtons.map(function (item) { return { title: item.getAttribute("data-title") }; }),
             recentSuggestions: demoIdeaHistory.slice(-18).map(function (title) { return { title: title }; })
           });
+
+          if (requestId !== demoIdeaRequestId) return;
 
           var ideas = response && Array.isArray(response.ideas)
             ? response.ideas.filter(function (idea) { return idea && idea.title && idea.reason; })
@@ -2106,11 +1940,16 @@
           });
 
           demoIdeaQueue = ideas.slice(1);
-          renderDemoIdea(ideas[0], category);
+          fillSubject(ideas[0].title, ideas[0], category, false);
+          setDirectionDemoStatus("Click again for another");
         } catch (error) {
+          if (requestId !== demoIdeaRequestId) return;
           console.error("Tutor Layer idea suggestion failed:", error);
           demoIdeaQueue = [];
-          renderDemoError(category);
+          setDirectionDemoStatus("Try that direction again");
+        } finally {
+          button.classList.remove("is-loading");
+          button.disabled = false;
         }
       }
 
@@ -2191,6 +2030,10 @@
 
         if (selectedDemoIdea && selectedDemoIdea.title !== value) {
           setSelectedDemoIdea(null, null);
+          activeDemoCategory = null;
+          demoIdeaQueue = [];
+          syncDemoCategoryControls();
+          setDirectionDemoStatus("One live idea at a time");
         }
 
         subjectButtons.forEach(function (item) { item.classList.toggle("is-selected", !selectedDemoIdea && item.getAttribute("data-title") === value); });
@@ -2298,7 +2141,13 @@
       resultOpen.addEventListener("click", openCreatedSubject);
       subjectInput.addEventListener("input", function () {
         var value = subjectInput.value.trim();
-        if (selectedDemoIdea && selectedDemoIdea.title !== value) setSelectedDemoIdea(null, null);
+        if (selectedDemoIdea && selectedDemoIdea.title !== value) {
+          setSelectedDemoIdea(null, null);
+          activeDemoCategory = null;
+          demoIdeaQueue = [];
+          syncDemoCategoryControls();
+          setDirectionDemoStatus("One live idea at a time");
+        }
         subjectButtons.forEach(function (item) { item.classList.toggle("is-selected", !selectedDemoIdea && item.getAttribute("data-title") === value); });
       });
       subjectInput.addEventListener("keydown", function (event) { if (event.key === "Enter") { event.preventDefault(); buildSubject(); } });
