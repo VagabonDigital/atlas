@@ -635,17 +635,27 @@
 
     .create-copy {
       margin-top: 46px;
-      padding-top: 28px;
+      padding-top: 30px;
       border-top: 1px solid var(--border-subtle);
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px 56px;
+      align-items: start;
+    }
+
+    .create-copy h3 {
+      grid-column: 1 / -1;
+      font-size: 30px;
     }
 
     .create-copy p {
-      margin-top: 18px;
-      max-width: 700px;
+      margin-top: 0;
+      max-width: none;
     }
 
     .at-fingertips {
-      margin-top: 30px;
+      grid-column: 1 / -1;
+      margin-top: 4px;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
@@ -690,8 +700,7 @@
       column-gap: 20px;
     }
 
-    .subject-title,
-    .idea-option {
+    .subject-title {
       width: 100%;
       min-width: 0;
       padding: 12px 0;
@@ -703,8 +712,8 @@
       transition: border-color var(--motion), transform var(--motion), color var(--motion);
     }
 
-    .subject-name,
-    .idea-option {
+    .subject-name {
+      display: block;
       color: var(--text-heading);
       font-family: var(--font-display);
       font-size: 1rem;
@@ -712,66 +721,18 @@
       line-height: 1.3;
     }
 
-    .subject-name {
-      display: block;
-    }
-
-    .subject-title:hover,
-    .idea-option:hover {
+    .subject-title:hover {
       border-top-color: rgba(var(--accent-rgb), .38);
       transform: translateY(-1px);
     }
 
     .subject-title:hover .subject-name,
-    .subject-title.is-selected .subject-name,
-    .idea-option:hover {
+    .subject-title.is-selected .subject-name {
       color: var(--accent-ink);
     }
 
     .subject-title.is-selected {
       border-top-color: rgba(var(--accent-rgb), .55);
-    }
-
-    .surprise-row {
-      margin-top: 18px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .surprise-button {
-      padding: 8px 11px;
-      border: 1px solid rgba(var(--accent-rgb), .24);
-      border-radius: 8px;
-      background: var(--accent-pale);
-      color: var(--accent-ink);
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-      transition: background var(--motion), border-color var(--motion), transform var(--motion);
-    }
-
-    .surprise-button:hover {
-      border-color: rgba(var(--accent-rgb), .42);
-      background: var(--accent-soft);
-      transform: translateY(-1px);
-    }
-
-    .surprise-button[disabled] {
-      cursor: wait;
-      opacity: .65;
-      transform: none;
-    }
-
-    .surprise-status {
-      color: var(--text-muted);
-      font-size: 12px;
-    }
-
-    .surprise-results {
-      margin-top: 10px;
-      display: grid;
     }
 
     .worlds {
@@ -1188,6 +1149,15 @@
       }
 
       .create-copy {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .at-fingertips {
+        grid-column: auto;
+      }
+
+      .create-copy {
         order: -1;
       }
 
@@ -1435,25 +1405,54 @@
             </div>
           </div>
           <div class="direction-picker">
-            <div class="direction-head"><strong>Need a direction?</strong><span>Pick one or ask Atlas for three.</span>
+            <div class="direction-head"><strong>Need a direction?</strong><span>Pick one to drop it into the creator.</span>
             </div>
             <div class="direction-list" id="subjectField">
               <button class="subject-title is-selected" data-title="The Forests That Glow at Night"><span
                   class="subject-name">The Forests That Glow at Night</span></button>
               <button class="subject-title" data-title="IELTS Speaking: Stronger Answers"><span
                   class="subject-name">IELTS Speaking: Stronger Answers</span></button>
+
+              <button class="subject-title" data-title="The Meal You’d Cross a City For"><span
+                  class="subject-name">The Meal You’d Cross a City For</span></button>
               <button class="subject-title" data-title="Singapore’s Public Housing Experiment"><span
                   class="subject-name">Singapore’s Public Housing Experiment</span></button>
+
+              <button class="subject-title" data-title="How Octopuses Change Colour"><span
+                  class="subject-name">How Octopuses Change Colour</span></button>
+              <button class="subject-title" data-title="Are We Getting Worse at Being Friends?"><span
+                  class="subject-name">Are We Getting Worse at Being Friends?</span></button>
+
+              <button class="subject-title" data-title="The Algorithm Knows You’re Still Watching"><span
+                  class="subject-name">The Algorithm Knows You’re Still Watching</span></button>
+              <button class="subject-title" data-title="The Antikythera Mechanism: An Ancient Greek Computer"><span
+                  class="subject-name">The Antikythera Mechanism: An Ancient Greek Computer</span></button>
+
+              <button class="subject-title" data-title="The World of Japanese Convenience Stores"><span
+                  class="subject-name">The World of Japanese Convenience Stores</span></button>
+              <button class="subject-title" data-title="The Strange Afterlife of Abandoned Amusement Parks"><span
+                  class="subject-name">The Strange Afterlife of Abandoned Amusement Parks</span></button>
+
+              <button class="subject-title" data-title="The Psychology of Waiting in Line"><span
+                  class="subject-name">The Psychology of Waiting in Line</span></button>
+              <button class="subject-title" data-title="Can You Separate the Artist from the Art?"><span
+                  class="subject-name">Can You Separate the Artist from the Art?</span></button>
+
+              <button class="subject-title" data-title="The Odyssey: Worth The Hype?"><span
+                  class="subject-name">The Odyssey: Worth The Hype?</span></button>
+              <button class="subject-title" data-title="Paris Underground Music Scene"><span
+                  class="subject-name">Paris Underground Music Scene</span></button>
+
+              <button class="subject-title" data-title="What Makes a Place Worth Visiting?"><span
+                  class="subject-name">What Makes a Place Worth Visiting?</span></button>
               <button class="subject-title" data-title="Conditionals for Real Decisions"><span
                   class="subject-name">Conditionals for Real Decisions</span></button>
-              <button class="subject-title" data-title="Europe’s New Private Rocket Reaches Orbit"><span
-                  class="subject-name">Europe’s New Private Rocket Reaches Orbit</span></button>
-              <button class="subject-title" data-title="Why Is Dating So Complicated Now?"><span
-                  class="subject-name">Why Is Dating So Complicated Now?</span></button>
+
+              <button class="subject-title" data-title="Preparing for a Job Interview"><span
+                  class="subject-name">Preparing for a Job Interview</span></button>
+              <button class="subject-title" data-title="Former Tropical Storm Edouard Floods Parts of Texas"><span
+                  class="subject-name">Former Tropical Storm Edouard Floods Parts of Texas</span></button>
             </div>
-            <div class="surprise-row"><button class="surprise-button" id="surpriseButton" type="button">Surprise me
-                →</button><span class="surprise-status" id="surpriseStatus" aria-live="polite"></span></div>
-            <div class="surprise-results" id="surpriseResults" aria-live="polite"></div>
           </div>
         </div>
 
@@ -1658,18 +1657,12 @@
       var buildLine = document.getElementById("buildLine");
       var subjectButtons = Array.prototype.slice.call(document.querySelectorAll(".subject-title"));
       var createButton = document.getElementById("createButton");
-      var surpriseButton = document.getElementById("surpriseButton");
-      var surpriseStatus = document.getElementById("surpriseStatus");
-      var surpriseResults = document.getElementById("surpriseResults");
       function fillSubject(title) { subjectInput.value = title; subjectButtons.forEach(function (item) { item.classList.toggle("is-selected", item.getAttribute("data-title") === title); }); subjectInput.focus(); subjectInput.setSelectionRange(subjectInput.value.length, subjectInput.value.length); }
       function chooseSubject(button) { fillSubject(button.getAttribute("data-title")); }
       subjectButtons.forEach(function (button) { button.addEventListener("click", function () { chooseSubject(button); }); });
       function setBuildState(isBuilding, succeeded) { var steps = Array.prototype.slice.call(buildLine.querySelectorAll("span")); resultShell.classList.toggle("is-building", isBuilding); createButton.disabled = isBuilding; createButton.textContent = isBuilding ? "Creating…" : "Create subject"; resultReady.textContent = isBuilding ? "Building the opening…" : (succeeded === false ? "Generation unavailable" : "Overview ready to teach"); steps.forEach(function (step, index) { step.classList.remove("building"); if (isBuilding) { step.classList.remove("ready"); if (index === 0) step.classList.add("building"); } else { step.classList.toggle("ready", succeeded !== false && index === 0); } }); }
       async function buildSubject() { var value = subjectInput.value.trim(); if (!value) return; subjectButtons.forEach(function (item) { item.classList.toggle("is-selected", item.getAttribute("data-title") === value); }); resultTitle.textContent = value; setBuildState(true); try { if (!window.AtlasAI || typeof window.AtlasAI.generateOverview !== "function") throw new Error("Atlas AI is unavailable."); var overview = await window.AtlasAI.generateOverview({ subject: { title: value } }); resultIntro.textContent = overview.intro; setBuildState(false, true); } catch (error) { console.error("Tutor Layer subject preview failed:", error); resultIntro.textContent = "Atlas couldn’t generate this opening right now. Try again."; setBuildState(false, false); } }
-      function renderSurpriseIdeas(ideas) { surpriseResults.innerHTML = ""; ideas.forEach(function (idea) { var button = document.createElement("button"); button.type = "button"; button.className = "idea-option"; button.textContent = idea.title; button.addEventListener("click", function () { fillSubject(idea.title); }); surpriseResults.appendChild(button); }); }
-      async function surpriseMe() { if (!window.AtlasAI || typeof window.AtlasAI.suggestSubjectIdeas !== "function") { surpriseStatus.textContent = "Ideas are unavailable right now."; return; } surpriseButton.disabled = true; surpriseButton.textContent = "Finding ideas…"; surpriseStatus.textContent = ""; surpriseResults.innerHTML = ""; try { var result = await window.AtlasAI.suggestSubjectIdeas({ mode: "surprise", languageLevel: "b2", interests: "", topicFocus: "", sessionSubjects: [], existingSubjects: [], recentSuggestions: [] }); renderSurpriseIdeas(result.ideas); surpriseStatus.textContent = "Pick one to drop it into the creator."; } catch (error) { console.error("Tutor Layer subject ideas failed:", error); surpriseStatus.textContent = "Atlas couldn’t find ideas right now. Try again."; } finally { surpriseButton.disabled = false; surpriseButton.textContent = "Surprise me →"; } }
       createButton.addEventListener("click", buildSubject);
-      surpriseButton.addEventListener("click", surpriseMe);
       subjectInput.addEventListener("input", function () { var value = subjectInput.value.trim(); subjectButtons.forEach(function (item) { item.classList.toggle("is-selected", item.getAttribute("data-title") === value); }); });
       subjectInput.addEventListener("keydown", function (event) { if (event.key === "Enter") { event.preventDefault(); buildSubject(); } });
 
