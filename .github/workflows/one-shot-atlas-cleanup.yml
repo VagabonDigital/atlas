@@ -25,14 +25,10 @@ jobs:
           tutor_path = Path('tutors/index.html')
           tutor = tutor_path.read_text(encoding='utf-8')
 
-          css_block = """    #early .origin > .kicker {
-              color: var(--text-muted);
-            }
-
-          """
+          css_block = "\n    #early .origin > .kicker {\n      color: var(--text-muted);\n    }\n"
           if tutor.count(css_block) != 1:
               raise SystemExit('Expected Story kicker override exactly once')
-          tutor = tutor.replace(css_block, '', 1)
+          tutor = tutor.replace(css_block, '\n', 1)
 
           replacements = [
               ('Useful subjects and questions', 'Strong subjects and questions'),
