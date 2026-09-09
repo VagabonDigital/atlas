@@ -967,6 +967,11 @@
       font-size: 18px;
     }
 
+    #own h2 {
+      max-width: none;
+      margin-bottom: 34px;
+    }
+
     .ownership-layout {
       margin-top: 46px;
       display: grid;
@@ -1005,6 +1010,22 @@
       font-size: 12px;
     }
 
+    .material-sheet[data-stage="original"] {
+      --ownership-rgb: 100, 104, 109;
+    }
+
+    .material-sheet[data-stage="version"] {
+      --ownership-rgb: 82, 101, 174;
+    }
+
+    .material-sheet[data-stage="subject"] {
+      --ownership-rgb: 67, 139, 101;
+    }
+
+    .material-sheet[data-stage="session"] {
+      --ownership-rgb: 178, 116, 55;
+    }
+
     .stage-tabs button[aria-pressed="true"] {
       color: var(--text-heading);
       border-color: rgba(var(--accent-rgb), .28);
@@ -1012,11 +1033,12 @@
     }
 
     .material-sheet {
-      border: 1px solid var(--border-subtle);
+      border: 1px solid rgba(var(--ownership-rgb), .2);
       border-radius: var(--radius-lg);
       background: var(--surface-panel);
       overflow: hidden;
-      box-shadow: var(--shadow-sm);
+      box-shadow: inset 0 2px 0 rgba(var(--ownership-rgb), .48), var(--shadow-sm);
+      transition: border-color var(--motion), box-shadow var(--motion);
     }
 
     .material-head {
@@ -1025,8 +1047,10 @@
       justify-content: space-between;
       gap: 16px;
       border-bottom: 1px solid var(--border-faint);
+      background: rgba(var(--ownership-rgb), .045);
       color: var(--text-muted);
       font-size: 11px;
+      transition: background var(--motion);
     }
 
     .material-body {
@@ -1598,9 +1622,10 @@
         <div class="ownership-layout">
           <div class="ownership-copy">
             <h3>The material answers to the tutor.</h3>
-            <p>Change wording, questions, activities, framing, covers or structure. Keep a learner-specific change
-              local, save your preferred version, or create an independent subject of your own.</p>
-            <div class="library-line">My Subjects is your personal teaching library.</div>
+            <p>Make the material sound, feel and work like you. Rewrite questions, change the framing, swap the cover,
+              save your own version of an Atlas Original, create material for your teaching library, and build custom Session
+              Subjects for any of your learners in seconds.</p>
+            <div class="library-line">Atlas is your personal teaching library to create, shape and share with learners.</div>
           </div>
           <div>
             <div class="stage-tabs" aria-label="Material state"><button type="button" aria-pressed="true"
@@ -1608,13 +1633,13 @@
                 data-stage="version">My Version</button><button type="button" aria-pressed="false"
                 data-stage="subject">My Subject</button><button type="button" aria-pressed="false"
                 data-stage="session">Session Subject</button></div>
-            <div class="material-sheet" aria-live="polite">
+            <div class="material-sheet" id="materialSheet" data-stage="original" aria-live="polite">
               <div class="material-head"><span id="materialState">Atlas Original</span><span
                   id="materialMeta">created by Atlas</span></div>
               <div class="material-body">
-                <h3 id="materialTitle">The Invisible Rules of Elevators</h3>
-                <div class="material-question" id="materialQuestion">Why do people behave so differently when they share
-                  a tiny public space?</div>
+                <h3 id="materialTitle">Why Certain Songs Give Us Chills</h3>
+                <div class="material-question" id="materialQuestion">Can you think of a song that gives you goosebumps or
+                  makes you feel a strong physical reaction? When does it happen?</div>
                 <div class="material-note" id="materialNote">A subject created by Atlas.</div>
               </div>
             </div>
@@ -2120,8 +2145,30 @@
         session: { state: "Session Subject", meta: "made for one learner", title: "Your Interview for a Product Designer Role at LEGO", question: "If a six-year-old hates your idea but your manager loves it, who do you listen to?", note: "A custom subject made for one learner." }
       };
       var stageButtons = Array.prototype.slice.call(document.querySelectorAll(".stage-tabs button"));
+      var materialSheet = document.getElementById("materialSheet");
       var materialState = document.getElementById("materialState"), materialMeta = document.getElementById("materialMeta"), materialTitle = document.getElementById("materialTitle"), materialQuestion = document.getElementById("materialQuestion"), materialNote = document.getElementById("materialNote");
-      stageButtons.forEach(function (button) { button.addEventListener("click", function () { stageButtons.forEach(function (item) { item.setAttribute("aria-pressed", String(item === button)); }); var stage = ownershipStages[button.getAttribute("data-stage")]; materialState.textContent = stage.state; materialMeta.textContent = stage.meta; materialTitle.textContent = stage.title; materialQuestion.textContent = stage.question; materialNote.textContent = stage.note; }); });
+
+      function renderOwnershipStage(stageName) {
+        var stage = ownershipStages[stageName];
+        if (!stage) return;
+        materialSheet.dataset.stage = stageName;
+        materialState.textContent = stage.state;
+        materialMeta.textContent = stage.meta;
+        materialTitle.textContent = stage.title;
+        materialQuestion.textContent = stage.question;
+        materialNote.textContent = stage.note;
+      }
+
+      stageButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          stageButtons.forEach(function (item) {
+            item.setAttribute("aria-pressed", String(item === button));
+          });
+          renderOwnershipStage(button.getAttribute("data-stage"));
+        });
+      });
+
+      renderOwnershipStage("original");
 
       var navLinks = Array.prototype.slice.call(document.querySelectorAll(".nav a"));
       var sectionLinks = navLinks.filter(function (link) { return link.getAttribute("href") !== "#top"; });
