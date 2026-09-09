@@ -392,6 +392,40 @@
       line-height: 1.45;
     }
 
+    .overview-video {
+      padding-top: 0;
+    }
+
+    .overview-video-copy {
+      max-width: 720px;
+      margin-bottom: 30px;
+    }
+
+    .overview-video-copy h2 {
+      margin-top: 6px;
+    }
+
+    .overview-video-copy p {
+      margin-top: 12px;
+      color: var(--text-muted);
+      font-size: 17px;
+    }
+
+    .overview-video-player {
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      background: #000;
+      box-shadow: var(--shadow-md);
+    }
+
+    .overview-video-player video {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+    }
+
     .why-title {
       max-width: none;
       font-size: clamp(32px, 3.7vw, 41px);
@@ -1523,6 +1557,22 @@
               want to teach again.</span></div>
           <div class="power"><strong>Remember</strong><span>Come back next lesson with context, language and progress already
               there.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section overview-video" aria-labelledby="atlas-video-title">
+      <div class="frame">
+        <div class="overview-video-copy">
+          <p class="kicker">Atlas overview</p>
+          <h2 id="atlas-video-title">See Atlas in action.</h2>
+          <p>A short introduction to creating, shaping and teaching with Atlas.</p>
+        </div>
+        <div class="overview-video-player">
+          <video controls preload="metadata" playsinline>
+            <source src="atlas-overview.mp4" type="video/mp4">
+            Your browser does not support HTML video.
+          </video>
         </div>
       </div>
     </section>
