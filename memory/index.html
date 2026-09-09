@@ -336,6 +336,10 @@
                 1.7;
         }
 
+        .memory-textarea.memory-textarea--about {
+            min-height: 105px;
+        }
+
         .memory-textarea.memory-textarea--interests {
             min-height: 150px;
         }
@@ -457,8 +461,34 @@
             ></h1>
 
             <p class="memory-intro">
-                The useful things worth carrying into future sessions.
+                The things worth carrying into future sessions.
             </p>
+
+            <section class="memory-notes">
+                <div class="memory-notes-header">
+                    <div>
+                        <h2 class="memory-notes-label">
+                            About
+                        </h2>
+
+                        <div class="memory-notes-hint">
+                            A quick picture of who they are.
+                        </div>
+                    </div>
+
+                    <div
+                        class="memory-status"
+                        aria-live="polite"
+                    ></div>
+                </div>
+
+                <textarea
+                    class="memory-textarea memory-textarea--about"
+                    id="memory-about"
+                    placeholder="Where they’re from, what they do, what’s changing…"
+                    aria-label="About learner"
+                ></textarea>
+            </section>
 
             <section class="memory-notes">
                 <div class="memory-notes-header">
@@ -558,6 +588,11 @@
                 'memory-empty'
             );
 
+        const aboutTextarea =
+            document.getElementById(
+                'memory-about'
+            );
+
         const interestsTextarea =
             document.getElementById(
                 'memory-interests'
@@ -587,6 +622,8 @@
 
         function getMemoryValue() {
             return JSON.stringify({
+                about:
+                    aboutTextarea.value,
                 interests:
                     interestsTextarea.value,
                 notes:
@@ -602,6 +639,9 @@
                 return;
             }
 
+            const about =
+                aboutTextarea.value;
+
             const interests =
                 interestsTextarea.value;
 
@@ -610,6 +650,7 @@
 
             const nextSavedValue =
                 JSON.stringify({
+                    about,
                     interests,
                     notes
                 });
@@ -625,6 +666,7 @@
             Bridge.writeLearnerMemory(
                 session.id,
                 {
+                    about,
                     interests,
                     notes
                 }
@@ -690,6 +732,9 @@
                 .textContent =
                     session.name;
 
+            aboutTextarea.value =
+                memory.about || '';
+
             interestsTextarea.value =
                 memory.interests || '';
 
@@ -700,6 +745,7 @@
                 getMemoryValue();
 
             [
+                aboutTextarea,
                 interestsTextarea,
                 notesTextarea
             ].forEach(textarea => {

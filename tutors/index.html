@@ -1076,10 +1076,11 @@
     }
 
     .learner-board {
-      margin-top: 46px;
+      width: min(100%, 1040px);
+      margin: 46px auto 0;
       display: grid;
-      grid-template-columns: 230px 1fr;
-      gap: 40px;
+      grid-template-columns: 300px minmax(0, 1fr);
+      gap: 64px;
       align-items: start;
     }
 
@@ -1109,6 +1110,37 @@
       color: var(--text-body);
       font-size: 13px;
       line-height: 1.5;
+    }
+
+    .learner-history {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-faint);
+      display: grid;
+      gap: 20px;
+    }
+
+    .learner-history-label {
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .learner-history-group.compass .learner-history-label {
+      color: var(--compass);
+    }
+
+    .learner-history-group.arcade .learner-history-label {
+      color: var(--arcade);
+    }
+
+    .learner-history-item {
+      margin-top: 7px;
+      color: var(--text-heading);
+      font-size: 12px;
+      line-height: 1.4;
     }
 
     .thread {
@@ -1168,24 +1200,29 @@
     }
 
     .thread-details span {
-      padding: 7px 9px;
-      border: 1px solid var(--border-faint);
-      border-radius: 999px;
-      background: var(--surface-panel);
+      min-height: 28px;
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 9px;
+      border: 0;
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--surface-panel) 76%, var(--accent-soft));
+      box-shadow: inset 0 0 0 1px var(--border-faint);
       color: var(--text-muted);
       font-size: 11px;
+      line-height: 1.25;
     }
 
     .thread-details .language {
       color: var(--compass);
-      border-color: rgba(var(--compass-rgb), .22);
       background: var(--compass-soft);
+      box-shadow: inset 0 0 0 1px rgba(var(--compass-rgb), .18);
     }
 
     .thread-details .arcade {
       color: var(--arcade);
-      border-color: rgba(var(--arcade-rgb), .22);
       background: var(--arcade-soft);
+      box-shadow: inset 0 0 0 1px rgba(var(--arcade-rgb), .18);
     }
 
     .early {
@@ -1656,34 +1693,48 @@
           explored material, saved language, recent activity, Continue, Review and Arcade position. Session Subjects
           keeps the material you want ready for that learner; My Subjects is your reusable teaching library.</p>
         <div class="learner-board">
-          <div class="learner-card"><strong>Maya</strong><span>Recurring learner</span>
-            <div class="memory"><b>Interests</b><br>architecture · cities · music<br><br><b>Note</b><br>moving abroad
-              later this year</div>
+          <div class="learner-card"><strong>Maya</strong><span>From Istanbul, Türkiye · studying urban design · moving to
+              Berlin later this year.</span>
+            <div class="memory"><b>Into</b><br>brutalist buildings · live gigs · making playlists for places she’s never
+              been<br><br><b>Tutor note</b><br>Gets much more talkative when the conversation gets concrete or slightly
+              strange.</div>
+            <div class="learner-history">
+              <div class="learner-history-group compass">
+                <div class="learner-history-label">Previous Compass</div>
+                <div class="learner-history-item">Finding Your Crowd in Berlin’s Live Music Scene</div>
+                <div class="learner-history-item">The Brutalist Buildings People Love to Hate</div>
+              </div>
+              <div class="learner-history-group arcade">
+                <div class="learner-history-label">Arcade history</div>
+                <div class="learner-history-item">Would You Rather · 18 / 50</div>
+                <div class="learner-history-item">Tomorrow Got Weird · 16 / 25</div>
+              </div>
+            </div>
           </div>
           <div class="thread">
             <article class="thread-step">
-              <div class="time">Lesson 1</div>
-              <h3>The Underground Rivers Beneath Modern Cities</h3>
-              <div class="thread-details"><span>3 moments explored</span><span class="language">“hidden infrastructure”
+              <div class="time">Last lesson</div>
+              <h3>The Sound of a Place You’ve Never Visited</h3>
+              <div class="thread-details"><span>3 moments explored</span><span class="language">“evocative”
                   saved</span></div>
             </article>
             <article class="thread-step">
               <div class="time">Wrap Up</div>
-              <h3>The useful trail is kept.</h3>
-              <div class="thread-details"><span>pickup point preserved</span><span class="language">saved language
-                  retained</span></div>
+              <h3>This session is now part of Maya’s history.</h3>
+              <div class="thread-details"><span>where you stopped remembered</span><span class="language">“evocative”
+                  added to Review</span></div>
             </article>
             <article class="thread-step">
               <div class="time">Next time</div>
               <h3>Continue, review, or go somewhere else.</h3>
-              <div class="thread-details"><span>subject appears as Continue</span><span class="language">Review can
-                  bring language back</span><span>Session Subjects kept for Maya</span></div>
+              <div class="thread-details"><span>pick up from last lesson</span><span class="language">“evocative” in
+                  Review</span><span>Maya’s Session Subjects</span></div>
             </article>
             <article class="thread-step">
               <div class="time">Another lesson</div>
-              <h3>A different format, same learner.</h3>
-              <div class="thread-details"><span class="arcade">Would You Rather · 18 / 50</span><span>previous Compass
-                  work still there</span></div>
+              <h3>Time for a game? Let’s jump into Arcade.</h3>
+              <div class="thread-details"><span class="arcade">Would You Rather · 18 / 50</span><span>Compass history
+                  still there</span></div>
             </article>
           </div>
         </div>
@@ -1709,7 +1760,7 @@
             to teach again. Switch from Compass to Arcade when the lesson needs a different rhythm, then come back.</p>
           <p>Return to the same learner later and see what Atlas actually carried forward. If something feels awkward,
             limited or unnecessary, tell us. That is exactly what the pilot is for.</p>
-          <div class="pilot-actions"><a href="#" aria-label="Message Atlas">Message Atlas</a><a href="#"
+          <div class="pilot-actions"><a href="#" aria-label="Message Atlas Team">Message Atlas Team</a><a href="#"
               aria-label="Share Atlas">Share Atlas</a></div>
         </aside>
       </div>

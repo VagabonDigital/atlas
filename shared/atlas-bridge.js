@@ -454,6 +454,7 @@
         return {
             schemaVersion: 1,
             sessionId,
+            about: '',
             interests: '',
             notes: '',
             nextTime: '',
@@ -471,6 +472,9 @@
         return {
             schemaVersion: 1,
             sessionId,
+            about: typeof record.about === 'string'
+                ? record.about
+                : '',
             interests: typeof record.interests === 'string'
                 ? record.interests
                 : '',
@@ -530,6 +534,7 @@
         );
 
         if (
+            !next.about.trim() &&
             !next.interests.trim() &&
             !next.notes.trim() &&
             !next.nextTime.trim()
