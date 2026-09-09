@@ -1785,7 +1785,7 @@
             to teach again. Switch from Compass to Arcade when the lesson needs a different rhythm, then come back.</p>
           <p>Return to the same learner later and see what Atlas actually carried forward. If something feels awkward,
             limited or unnecessary, tell us. That is exactly what the pilot is for.</p>
-          <div class="pilot-actions"><a href="#" aria-label="Message Atlas Team">Message Atlas Team</a><a href="#"
+          <div class="pilot-actions"><a href="#" aria-label="Message Atlas Team">Message Atlas Team</a><a href="#" id="shareAtlas"
               aria-label="Share Atlas">Share Atlas</a><a href="https://buymeacoffee.com/urkoeiqgy" target="_blank"
               rel="noopener noreferrer" aria-label="Buy us a coffee">Buy us a coffee</a></div>
         </aside>
@@ -2271,6 +2271,46 @@
 
         revealSections.forEach(function (section) {
           revealObserver.observe(section);
+        });
+      }
+
+      var shareAtlas = document.getElementById("shareAtlas");
+
+      if (shareAtlas) {
+        shareAtlas.addEventListener("click", async function (event) {
+          event.preventDefault();
+
+          var shareUrl = new URL(window.location.href);
+          shareUrl.hash = "";
+          shareUrl.search = "";
+
+          var shareData = {
+            title: "Atlas",
+            text: "A creative teaching workspace for one-to-one English tutors.",
+            url: shareUrl.href
+          };
+
+          if (navigator.share) {
+            try {
+              await navigator.share(shareData);
+              return;
+            } catch (error) {
+              if (error && error.name === "AbortError") return;
+            }
+          }
+
+          try {
+            await navigator.clipboard.writeText(shareUrl.href);
+
+            var originalText = shareAtlas.textContent;
+            shareAtlas.textContent = "Link copied ✓";
+
+            window.setTimeout(function () {
+              shareAtlas.textContent = originalText;
+            }, 1800);
+          } catch (error) {
+            console.error("Could not share Atlas:", error);
+          }
         });
       }
 
