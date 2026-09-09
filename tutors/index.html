@@ -1593,8 +1593,8 @@
       <div class="frame">
         <p class="kicker">Make it yours</p>
         <h2>Create it. Change it. Keep it. Build your library.</h2>
-        <p class="lede">Start with an Atlas Original, adapt it for one learner, save a reusable version, or create a
-          subject that is entirely your own.</p>
+        <p class="lede">Start with an Atlas Original, save your own version of it, create a subject yourself, or build a
+          custom Session Subject for one learner.</p>
         <div class="ownership-layout">
           <div class="ownership-copy">
             <h3>The material answers to the tutor.</h3>
@@ -1603,19 +1603,19 @@
             <div class="library-line">My Subjects is your personal teaching library.</div>
           </div>
           <div>
-            <div class="stage-tabs" aria-label="Material ownership state"><button type="button" aria-pressed="true"
+            <div class="stage-tabs" aria-label="Material state"><button type="button" aria-pressed="true"
                 data-stage="original">Atlas Original</button><button type="button" aria-pressed="false"
-                data-stage="learner">For this learner</button><button type="button" aria-pressed="false"
                 data-stage="version">My Version</button><button type="button" aria-pressed="false"
-                data-stage="subject">My Subject</button></div>
+                data-stage="subject">My Subject</button><button type="button" aria-pressed="false"
+                data-stage="session">Session Subject</button></div>
             <div class="material-sheet" aria-live="polite">
               <div class="material-head"><span id="materialState">Atlas Original</span><span
-                  id="materialMeta">ready-made</span></div>
+                  id="materialMeta">created by Atlas</span></div>
               <div class="material-body">
                 <h3 id="materialTitle">The Invisible Rules of Elevators</h3>
                 <div class="material-question" id="materialQuestion">Why do people behave so differently when they share
                   a tiny public space?</div>
-                <div class="material-note" id="materialNote">Use it as Atlas built it, or make it yours.</div>
+                <div class="material-note" id="materialNote">A subject created by Atlas.</div>
               </div>
             </div>
           </div>
@@ -1628,8 +1628,8 @@
         <p class="kicker">Continuity</p>
         <h2>The learner doesn’t reset between lessons.</h2>
         <p class="lede">Atlas keeps the useful context around a recurring learner available: interests and notes,
-          Session Subjects, explored material, saved language, recent activity, Continue, Review and Arcade position.
-          Session Subjects stays with the learner. My Subjects stays with you.</p>
+          explored material, saved language, recent activity, Continue, Review and Arcade position. Session Subjects
+          keeps the material you want ready for that learner; My Subjects is your reusable teaching library.</p>
         <div class="learner-board">
           <div class="learner-card"><strong>Maya</strong><span>Recurring learner</span>
             <div class="memory"><b>Interests</b><br>architecture · cities · music<br><br><b>Note</b><br>moving abroad
@@ -1652,7 +1652,7 @@
               <div class="time">Next time</div>
               <h3>Continue, review, or go somewhere else.</h3>
               <div class="thread-details"><span>subject appears as Continue</span><span class="language">Review can
-                  bring language back</span><span>Session Subjects still available</span></div>
+                  bring language back</span><span>Session Subjects kept for Maya</span></div>
             </article>
             <article class="thread-step">
               <div class="time">Another lesson</div>
@@ -2114,10 +2114,10 @@
       }
 
       var ownershipStages = {
-        original: { state: "Atlas Original", meta: "ready-made", title: "The Invisible Rules of Elevators", question: "Why do people behave so differently when they share a tiny public space?", note: "Use it as Atlas built it, or make it yours." },
-        learner: { state: "For this learner", meta: "learner-specific change", title: "The Invisible Rules of Elevators", question: "What feels polite or awkward when strangers share a tiny space where you live?", note: "The change stays with this learner without rewriting the reusable source." },
-        version: { state: "My Version", meta: "your reusable adaptation", title: "The Invisible Rules of Shared Spaces", question: "What unwritten rules appear when strangers have to share very little space?", note: "Your preferred adaptation is now reusable." },
-        subject: { state: "My Subject", meta: "your teaching library", title: "The Unwritten Rules of Shared Kitchens", question: "What rules appear when strangers have to share a kitchen, and which ones matter most?", note: "Independent material in My Subjects, ready to refine and use again." }
+        original: { state: "Atlas Original", meta: "created by Atlas", title: "Why Certain Songs Give Us Chills", question: "Can you think of a song that gives you goosebumps or makes you feel a strong physical reaction? When does it happen?", note: "A subject created by Atlas." },
+        version: { state: "My Version", meta: "your saved version", title: "Why Certain Songs Give Us Chills", question: "Can you think of a song that gives you goosebumps or a strong physical reaction? What is happening in the music when you feel it?", note: "Your saved version of an Atlas Original." },
+        subject: { state: "My Subject", meta: "created by you", title: "Small Talk That Actually Goes Somewhere", question: "What do you say after someone answers, “Yeah, not bad”?", note: "A subject you created yourself for your teaching library." },
+        session: { state: "Session Subject", meta: "made for one learner", title: "Your Interview for a Product Designer Role at LEGO", question: "If a six-year-old hates your idea but your manager loves it, who do you listen to?", note: "A custom subject made for one learner." }
       };
       var stageButtons = Array.prototype.slice.call(document.querySelectorAll(".stage-tabs button"));
       var materialState = document.getElementById("materialState"), materialMeta = document.getElementById("materialMeta"), materialTitle = document.getElementById("materialTitle"), materialQuestion = document.getElementById("materialQuestion"), materialNote = document.getElementById("materialNote");
