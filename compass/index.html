@@ -3257,12 +3257,14 @@
             title: item?.title || subject.title,
             launchUrl,
             artId: subject.artId || '',
-            hook: item && Object.prototype.hasOwnProperty.call(
-              item,
-              'description'
-            )
-              ? item.description || ''
-              : subject.hook || '',
+            hook: hasMyVersion &&
+              item &&
+              Object.prototype.hasOwnProperty.call(
+                item,
+                'description'
+              )
+                ? item.description || ''
+                : subject.hook || '',
             ownershipLabel: hasMyVersion
               ? 'My Version'
               : '',
