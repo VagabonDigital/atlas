@@ -20,17 +20,8 @@ jobs:
           from pathlib import Path
           path = Path('tutors/index.html')
           text = path.read_text()
-          old = """        window.requestAnimationFrame(function () {
-          createResult.scrollIntoView({ behavior: reduceMotion ? \"auto\" : \"smooth\", block: \"start\" });
-        });
-"""
-          new = """        window.requestAnimationFrame(function () {
-          var header = document.querySelector(\".site-header\");
-          var headerHeight = header ? header.getBoundingClientRect().height : 56;
-          var targetTop = createResult.getBoundingClientRect().top + window.scrollY - headerHeight - 12;
-          window.scrollTo({ top: Math.max(0, targetTop), behavior: reduceMotion ? \"auto\" : \"smooth\" });
-        });
-"""
+          old = "        window.requestAnimationFrame(function () {\n          createResult.scrollIntoView({ behavior: reduceMotion ? \"auto\" : \"smooth\", block: \"start\" });\n        });\n"
+          new = "        window.requestAnimationFrame(function () {\n          var header = document.querySelector(\".site-header\");\n          var headerHeight = header ? header.getBoundingClientRect().height : 56;\n          var targetTop = createResult.getBoundingClientRect().top + window.scrollY - headerHeight - 12;\n          window.scrollTo({ top: Math.max(0, targetTop), behavior: reduceMotion ? \"auto\" : \"smooth\" });\n        });\n"
           if text.count(old) != 1:
               raise SystemExit(f'Expected one mobile preview scroll block, found {text.count(old)}')
           path.write_text(text.replace(old, new, 1))
