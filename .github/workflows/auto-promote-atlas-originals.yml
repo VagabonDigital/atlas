@@ -23,3 +23,5 @@ jobs:
           git diff --cached --check
           git commit -m "Auto-promote active Atlas Originals into session subjects"
           git push origin HEAD:main
+
+# retry after matcher fix
