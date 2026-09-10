@@ -14378,9 +14378,21 @@ function buildMyVersionUpgradeAuthoringControls(
 
     return `
         <div class="upgrade-author-actions">
-            <button class="upgrade-author-secondary"
+            <button class="upgrade-author-secondary atlas-my-version-ai"
                 type="button"
                 onclick="generateMyVersionLanguageSupport(${jsArg(contextId)}, true, this)">
+                <svg width="14" height="14"
+                    viewBox="0 0 15 15"
+                    fill="none" aria-hidden="true">
+                    <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                        stroke="currentColor"
+                        stroke-width="1.15"
+                        stroke-linejoin="round"/>
+                    <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                        stroke="currentColor"
+                        stroke-width="0.95"
+                        stroke-linejoin="round"/>
+                </svg>
                 Regenerate
             </button>
 
@@ -14491,10 +14503,21 @@ function buildAddUpgradeControl(contextId) {
 
     return `
         <div class="upgrade-author-actions">
-            <button class="upgrade-author-add"
+            <button class="upgrade-author-secondary atlas-my-version-ai"
                 type="button"
                 onclick="generateMyVersionLanguageSupport(${jsArg(contextId)}, false, this)">
-                ${UPGRADE_ICON_SVG}
+                <svg width="14" height="14"
+                    viewBox="0 0 15 15"
+                    fill="none" aria-hidden="true">
+                    <path d="M7.5 1.75L8.15 5.35L11.75 6L8.15 6.65L7.5 10.25L6.85 6.65L3.25 6L6.85 5.35L7.5 1.75Z"
+                        stroke="currentColor"
+                        stroke-width="1.15"
+                        stroke-linejoin="round"/>
+                    <path d="M11.5 9.5L11.82 11.18L13.5 11.5L11.82 11.82L11.5 13.5L11.18 11.82L9.5 11.5L11.18 11.18L11.5 9.5Z"
+                        stroke="currentColor"
+                        stroke-width="0.95"
+                        stroke-linejoin="round"/>
+                </svg>
                 Generate language support
             </button>
 
