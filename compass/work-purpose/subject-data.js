@@ -23,7 +23,7 @@ const MODULE = {
     title: 'Work & Purpose',
     titleHtml: 'Work &amp; <em>Purpose</em>',
     navTitle: 'Work',
-    bgImage: 'https://images.aeonmedia.co/images/320f9f78-678b-476d-be7e-9d977b7e6ead/essay-gettyimages-1142223181.jpg?width=3840&quality=75&format=auto'
+    bgImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhFkB7MkDcQS5edh6lz8gV33trxD9uWQ2_uiEwRevOErKxW6sFHoRo-FA&s=10'
 };
 
 const subjectCopy = {
