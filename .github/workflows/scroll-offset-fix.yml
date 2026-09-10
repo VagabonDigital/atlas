@@ -1,0 +1,45 @@
+name: One-time Tutor Layer scroll offset fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/scroll-offset-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-tutor-layer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix mobile preview scroll offset
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('tutors/index.html')
+          text = path.read_text()
+          old = """        window.requestAnimationFrame(function () {
+          createResult.scrollIntoView({ behavior: reduceMotion ? \"auto\" : \"smooth\", block: \"start\" });
+        });
+"""
+          new = """        window.requestAnimationFrame(function () {
+          var header = document.querySelector(\".site-header\");
+          var headerHeight = header ? header.getBoundingClientRect().height : 56;
+          var targetTop = createResult.getBoundingClientRect().top + window.scrollY - headerHeight - 12;
+          window.scrollTo({ top: Math.max(0, targetTop), behavior: reduceMotion ? \"auto\" : \"smooth\" });
+        });
+"""
+          if text.count(old) != 1:
+              raise SystemExit(f'Expected one mobile preview scroll block, found {text.count(old)}')
+          path.write_text(text.replace(old, new, 1))
+          PY
+      - name: Validate and commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tutors/index.html
+          git diff --cached --check
+          git commit -m "Fix Tutor Layer mobile preview scroll offset"
+          git push origin HEAD:main
