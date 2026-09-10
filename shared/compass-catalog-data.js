@@ -31,6 +31,7 @@
         'odyssey-worth-the-hype',
         'stories-screen',
         'work-purpose',
+        'business-meetings-clear-updates',
         'food-table',
         'technology-innovation',
         'modal-verbs-real-situations',
@@ -793,6 +794,68 @@
                     stroke-width="1.9"
                     stroke-linejoin="round"/>
             </svg>
+        `,
+
+        'meeting-decisions': `
+            <svg class="subject-artwork subject-artwork--meeting"
+                viewBox="0 0 180 140"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <circle cx="46" cy="48" r="10"
+                    stroke="currentColor"
+                    stroke-width="2"/>
+
+                <circle cx="90" cy="38" r="10"
+                    stroke="currentColor"
+                    stroke-width="2"/>
+
+                <circle cx="134" cy="48" r="10"
+                    stroke="currentColor"
+                    stroke-width="2"/>
+
+                <path
+                    d="M29 79C31 66 37 59 46 59C55 59 61 66 63 79"
+                    stroke="currentColor"
+                    stroke-width="2.1"
+                    stroke-linecap="round"/>
+
+                <path
+                    d="M73 72C75 59 81 52 90 52C99 52 105 59 107 72"
+                    stroke="currentColor"
+                    stroke-width="2.1"
+                    stroke-linecap="round"/>
+
+                <path
+                    d="M117 79C119 66 125 59 134 59C143 59 149 66 151 79"
+                    stroke="currentColor"
+                    stroke-width="2.1"
+                    stroke-linecap="round"/>
+
+                <path
+                    d="M35 84H145L132 116H48L35 84Z"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linejoin="round"/>
+
+                <path
+                    d="M73 96H107"
+                    stroke="currentColor"
+                    stroke-width="1.9"
+                    stroke-linecap="round"/>
+
+                <path
+                    d="M78 105H101"
+                    stroke="currentColor"
+                    stroke-width="1.9"
+                    stroke-linecap="round"/>
+
+                <path
+                    d="M118 26H151C155 26 158 29 158 33V45C158 49 155 52 151 52H140L134 58V52H118C114 52 111 49 111 45V33C111 29 114 26 118 26Z"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linejoin="round"/>
+            </svg>
         `
     };
 
@@ -1044,6 +1107,16 @@
             available: true,
             artId: 'interview-answers',
             hook: 'The choices, examples and speaking strategies that help candidates give clear, concise answers, stay composed, and respond effectively when interviewers ask difficult follow-up questions.'
+        },
+        {
+            id: 'business-meetings-clear-updates',
+            title: 'Business Meetings: Clear Updates, Questions & Decisions',
+            navTitle: 'Business Meetings',
+            categoryId: 'work-time',
+            order: 60,
+            available: true,
+            artId: 'meeting-decisions',
+            hook: 'The language and judgement behind effective meetings: giving concise updates, asking clarifying questions, challenging ideas professionally, and helping a group reach clear decisions.'
         },
 
         {
