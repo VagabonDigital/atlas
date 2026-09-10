@@ -6266,6 +6266,7 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
 
 .upgrade-author-actions {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem;
     margin-top: 0.85rem;

@@ -14380,6 +14380,12 @@ function buildMyVersionUpgradeAuthoringControls(
         <div class="upgrade-author-actions">
             <button class="upgrade-author-secondary"
                 type="button"
+                onclick="generateMyVersionLanguageSupport(${jsArg(contextId)}, true, this)">
+                Regenerate
+            </button>
+
+            <button class="upgrade-author-secondary"
+                type="button"
                 onclick="${hasExamples
                     ? `removeMyVersionUpgradeExamples(${jsArg(contextId)})`
                     : `addMyVersionUpgradeExamples(${jsArg(contextId)})`}">
@@ -14484,19 +14490,20 @@ function buildAddUpgradeControl(contextId) {
     if (!myVersionAuthoringOpen) return '';
 
     return `
-        <button class="upgrade-author-add"
-            type="button"
-            onclick="addMyVersionUpgrade(${jsArg(contextId)})">
-            <svg width="14" height="14" viewBox="0 0 14 14"
-                fill="none" aria-hidden="true">
-                <path d="M7 2.5v9M2.5 7h9"
-                    stroke="currentColor"
-                    stroke-width="1.35"
-                    stroke-linecap="round"/>
-            </svg>
+        <div class="upgrade-author-actions">
+            <button class="upgrade-author-add"
+                type="button"
+                onclick="generateMyVersionLanguageSupport(${jsArg(contextId)}, false, this)">
+                ${UPGRADE_ICON_SVG}
+                Generate language support
+            </button>
 
-            Add language support
-        </button>
+            <button class="upgrade-author-secondary"
+                type="button"
+                onclick="addMyVersionUpgrade(${jsArg(contextId)})">
+                Add manually
+            </button>
+        </div>
     `;
 }
 
