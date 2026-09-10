@@ -14,76 +14,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch mobile subject/category interactions
+      - name: Patch mobile subject and category interactions
         run: |
           python - <<'PY'
           from pathlib import Path
           path = Path('tutors/index.html')
           text = path.read_text()
-
-          old_css = """      .direction-list {
-        grid-template-columns: 1fr;
-      }
-"""
-          new_css = """      .direction-list {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-"""
+          old_css = "      .direction-list {\n        grid-template-columns: 1fr;\n      }\n"
+          new_css = "      .direction-list {\n        grid-template-columns: repeat(2, minmax(0, 1fr));\n      }\n"
           if text.count(old_css) != 1:
               raise SystemExit(f'Expected one mobile direction-list override, found {text.count(old_css)}')
           text = text.replace(old_css, new_css, 1)
-
-          old_choose = """      function chooseSubject(button) {
-        var title = button.getAttribute(\"data-title\");
-        var seed = curatedSubjectSeeds[title] || null;
-        fillSubject(title, null, null, true, seed);
-        showCuratedSubjectInCard(seed);
-      }
-"""
-          new_choose = """      function scrollToCreateResult() {
-        if (!(window.matchMedia && window.matchMedia(\"(max-width: 720px)\").matches)) return;
-        var createResult = document.querySelector(\".create-result\");
-        if (!createResult) return;
-        window.requestAnimationFrame(function () {
-          createResult.scrollIntoView({ behavior: reduceMotion ? \"auto\" : \"smooth\", block: \"start\" });
-        });
-      }
-
-      function chooseSubject(button) {
-        var title = button.getAttribute(\"data-title\");
-        var seed = curatedSubjectSeeds[title] || null;
-        fillSubject(title, null, null, false, seed);
-        showCuratedSubjectInCard(seed);
-        scrollToCreateResult();
-      }
-"""
+          old_choose = "      function chooseSubject(button) {\n        var title = button.getAttribute(\"data-title\");\n        var seed = curatedSubjectSeeds[title] || null;\n        fillSubject(title, null, null, true, seed);\n        showCuratedSubjectInCard(seed);\n      }\n"
+          new_choose = "      function scrollToCreateResult() {\n        if (!(window.matchMedia && window.matchMedia(\"(max-width: 720px)\").matches)) return;\n        var createResult = document.querySelector(\".create-result\");\n        if (!createResult) return;\n        window.requestAnimationFrame(function () {\n          createResult.scrollIntoView({ behavior: reduceMotion ? \"auto\" : \"smooth\", block: \"start\" });\n        });\n      }\n\n      function chooseSubject(button) {\n        var title = button.getAttribute(\"data-title\");\n        var seed = curatedSubjectSeeds[title] || null;\n        fillSubject(title, null, null, false, seed);\n        showCuratedSubjectInCard(seed);\n        scrollToCreateResult();\n      }\n"
           if text.count(old_choose) != 1:
               raise SystemExit(f'Expected one chooseSubject block, found {text.count(old_choose)}')
           text = text.replace(old_choose, new_choose, 1)
-
-          old_status = """        setResultCardStatus(
-          category.mode === \"current-affairs\"
-            ? \"Checking what’s current… Usually about 15 seconds\"
-            : \"Finding a \" + category.label.toLowerCase() + \" idea…\",
-          true
-        );
-
-        setDirectionDemoStatus(\"Working…\");
-"""
-          new_status = """        setResultCardStatus(
-          category.mode === \"current-affairs\"
-            ? \"Checking what’s current… Usually about 15 seconds\"
-            : \"Finding a \" + category.label.toLowerCase() + \" idea…\",
-          true
-        );
-
-        setDirectionDemoStatus(\"Working…\");
-        scrollToCreateResult();
-"""
+          old_status = "        setDirectionDemoStatus(\"Working…\");\n\n        try {\n"
+          new_status = "        setDirectionDemoStatus(\"Working…\");\n        scrollToCreateResult();\n\n        try {\n"
           if text.count(old_status) != 1:
               raise SystemExit(f'Expected one category loading block, found {text.count(old_status)}')
           text = text.replace(old_status, new_status, 1)
-
           path.write_text(text)
           PY
       - name: Validate and commit
