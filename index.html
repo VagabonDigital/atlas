@@ -161,6 +161,8 @@
       /* World navigation cards */
       --world-card-surface: rgba(255, 253, 249, 0.96);
       --world-card-border: rgba(49, 45, 38, 0.11);
+      --tutor-card-start: rgba(255, 253, 249, 1);
+      --tutor-card-end: rgba(77, 113, 132, 0.010);
       --compass-card-start: rgba(255, 253, 249, 1);
       --compass-card-end: rgba(92, 122, 110, 0.012);
       --compass-mark-start: #5c7a6e;
@@ -258,6 +260,8 @@
       /* World navigation cards */
       --world-card-surface: rgba(37, 40, 38, 0.96);
       --world-card-border: var(--border-faint);
+      --tutor-card-start: rgba(37, 40, 38, 0.98);
+      --tutor-card-end: rgba(143, 178, 194, 0.016);
       --compass-card-start: rgba(37, 40, 38, 0.98);
       --compass-card-end: rgba(127, 168, 150, 0.018);
       --compass-mark-start: #8db7a7;
@@ -1521,7 +1525,11 @@
       padding: 1.45rem 1.55rem 1.5rem;
       border: 1.5px solid var(--world-card-border);
       border-radius: 20px;
-      background: var(--world-card-surface);
+      --door-c1: var(--tutor-card-start);
+      --door-c2: var(--tutor-card-end);
+      background: linear-gradient(145deg,
+          var(--door-c1),
+          var(--door-c2));
       box-shadow: var(--shadow-sm);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
@@ -1692,6 +1700,18 @@
           var(--rail-1),
           var(--rail-2));
       opacity: 0.40;
+    }
+
+    html[data-theme="night"] .tutor-entry::before {
+      opacity: 0.76;
+    }
+
+    html[data-theme="night"] .door-compass::before {
+      opacity: 0.68;
+    }
+
+    html[data-theme="night"] .door-arcade::before {
+      opacity: 0.62;
     }
 
     .door:hover {
