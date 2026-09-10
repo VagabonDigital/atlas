@@ -1,3 +1,4 @@
+# Triggered one-time patch for Atlas Original session placement.
 name: One-time Atlas Original session action
 
 'on':
