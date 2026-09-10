@@ -20,45 +20,10 @@ jobs:
           from pathlib import Path
           path = Path('tutors/index.html')
           text = path.read_text()
-          old = '''      .header-inner {
-        min-height: 60px;
-        flex-wrap: wrap;
-        padding: 10px 15px 8px;
-      }
-
-      .nav {
-        order: 3;
-        width: 100%;
-        margin-left: 0;
-      }
-
-      .theme-toggle {
-        margin-left: auto;
-      }
-'''
-          new = '''      .header-inner {
-        height: 56px;
-        min-height: 0;
-        flex-wrap: nowrap;
-        padding: 0 15px;
-      }
-
-      .nav {
-        order: initial;
-        width: auto;
-        min-width: 0;
-        flex: 1 1 auto;
-        margin-left: .5rem;
-      }
-
-      .theme-toggle {
-        margin-left: .25rem;
-      }
-'''
-          if old not in text:
-              raise SystemExit('Expected mobile header block not found; refusing to modify file.')
+          old = "      .header-inner {\n        min-height: 60px;\n        flex-wrap: wrap;\n        padding: 10px 15px 8px;\n      }\n\n      .nav {\n        order: 3;\n        width: 100%;\n        margin-left: 0;\n      }\n\n      .theme-toggle {\n        margin-left: auto;\n      }\n"
+          new = "      .header-inner {\n        height: 56px;\n        min-height: 0;\n        flex-wrap: nowrap;\n        padding: 0 15px;\n      }\n\n      .nav {\n        order: initial;\n        width: auto;\n        min-width: 0;\n        flex: 1 1 auto;\n        margin-left: .5rem;\n      }\n\n      .theme-toggle {\n        margin-left: .25rem;\n      }\n"
           if text.count(old) != 1:
-              raise SystemExit('Expected exactly one mobile header block; refusing to modify file.')
+              raise SystemExit(f'Expected one mobile header block, found {text.count(old)}; refusing to modify file.')
           path.write_text(text.replace(old, new, 1))
           PY
       - name: Commit fix
