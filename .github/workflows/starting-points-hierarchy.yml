@@ -1,6 +1,6 @@
 name: One-time Tutor Layer starting points hierarchy
 
-on:
+'on':
   push:
     branches: [main]
     paths:
