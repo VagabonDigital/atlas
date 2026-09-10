@@ -28,14 +28,16 @@
     ];
 
     const COMPASS_PILOT_ORDER = [
-        'travel-exploration',
-        'food-table',
-        'humour-wit',
-        'work-purpose',
-        'technology-innovation',
-        'stories-screen',
         'odyssey-worth-the-hype',
-        'modal-verbs-real-situations'
+        'stories-screen',
+        'work-purpose',
+        'food-table',
+        'technology-innovation',
+        'modal-verbs-real-situations',
+        'travel-exploration',
+        'humour-wit',
+        'job-interviews-clear-answers',
+        'octopuses-change-colour'
     ];
 
     const COMPASS_SUBJECT_ART = {
@@ -667,6 +669,130 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"/>
             </svg>
+        `,
+
+        'octopus-signals': `
+            <svg class="subject-artwork subject-artwork--octopus"
+                viewBox="0 0 180 140"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <path
+                    d="M58 67C58 43 71 26 90 26C109 26 122 43 122 67C122 78 118 86 112 91H68C62 86 58 78 58 67Z"
+                    stroke="currentColor"
+                    stroke-width="2.3"
+                    stroke-linejoin="round"/>
+
+                <circle
+                    cx="80"
+                    cy="61"
+                    r="3.5"
+                    stroke="currentColor"
+                    stroke-width="1.9"/>
+
+                <circle
+                    cx="100"
+                    cy="61"
+                    r="3.5"
+                    stroke="currentColor"
+                    stroke-width="1.9"/>
+
+                <path
+                    d="M69 88C60 99 58 110 65 120"
+                    stroke="currentColor"
+                    stroke-width="2.1"
+                    stroke-linecap="round"/>
+
+                <path
+                    d="M80 90C73 103 77 116 87 122"
+                    stroke="currentColor"
+                    stroke-width="2.1"
+                    stroke-linecap="round"/>
+
+                <path
+                    d="M91 91C88 105 92 117 101 122"
+                    stroke="currentColor"
+                    stroke-width="2.1"
+                    stroke-linecap="round"/>
+
+                <path
+                    d="M102 90C111 101 112 114 105 123"
+                    stroke="currentColor"
+                    stroke-width="2.1"
+                    stroke-linecap="round"/>
+
+                <path
+                    d="M111 87C124 94 130 106 124 118"
+                    stroke="currentColor"
+                    stroke-width="2.1"
+                    stroke-linecap="round"/>
+
+                <circle cx="70" cy="48" r="2" fill="currentColor"/>
+                <circle cx="88" cy="38" r="2.5" fill="currentColor"/>
+                <circle cx="107" cy="49" r="2" fill="currentColor"/>
+                <circle cx="76" cy="75" r="1.8" fill="currentColor"/>
+                <circle cx="104" cy="76" r="1.8" fill="currentColor"/>
+            </svg>
+        `,
+
+        'interview-answers': `
+            <svg class="subject-artwork subject-artwork--interview"
+                viewBox="0 0 180 140"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <g>
+                    <path
+                        d="M67 18H126C133 18 138 23 138 30V52C138 59 133 64 126 64H103L92 74V64H67C60 64 55 59 55 52V30C55 23 60 18 67 18Z"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linejoin="round"/>
+
+                    <path
+                        d="M72 34H120M72 45H108"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"/>
+                </g>
+
+                <circle
+                    cx="48"
+                    cy="76"
+                    r="11"
+                    stroke="currentColor"
+                    stroke-width="2.1"/>
+
+                <path
+                    d="M27 111C29 94 37 86 48 86C59 86 67 94 69 111"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"/>
+
+                <circle
+                    cx="128"
+                    cy="76"
+                    r="11"
+                    stroke="currentColor"
+                    stroke-width="2.1"/>
+
+                <path
+                    d="M107 111C109 94 117 86 128 86C139 86 147 94 149 111"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"/>
+
+                <path
+                    d="M20 111H160"
+                    stroke="currentColor"
+                    stroke-width="2.1"
+                    stroke-linecap="round"/>
+
+                <path
+                    d="M76 99H100L106 111H70L76 99Z"
+                    stroke="currentColor"
+                    stroke-width="1.9"
+                    stroke-linejoin="round"/>
+            </svg>
         `
     };
 
@@ -868,6 +994,16 @@
             order: 90,
             hook: 'Talk about what makes somewhere home — neighbourhoods, roots and restlessness, the place you’d never leave and the one you’d never return to.'
         },
+        {
+            id: 'octopuses-change-colour',
+            title: 'How Octopuses Change Colour',
+            navTitle: 'Octopuses',
+            categoryId: 'society-the-world',
+            order: 100,
+            available: true,
+            artId: 'octopus-signals',
+            hook: 'Explore how octopuses use colour, patterns, and skin texture to hide, communicate, and react to danger — and what their transformations reveal about intelligence and perception.'
+        },
 
         {
             id: 'work-purpose',
@@ -898,6 +1034,16 @@
             categoryId: 'work-time',
             order: 40,
             hook: 'Talk about the texture of an ordinary day — the rituals you’d defend, the routine you didn’t know you had, how days differ across people and eras.'
+        },
+        {
+            id: 'job-interviews-clear-answers',
+            title: 'Job Interviews: Clear Answers Under Pressure',
+            navTitle: 'Job Interviews',
+            categoryId: 'work-time',
+            order: 50,
+            available: true,
+            artId: 'interview-answers',
+            hook: 'The choices, examples and speaking strategies that help candidates give clear, concise answers, stay composed, and respond effectively when interviewers ask difficult follow-up questions.'
         },
 
         {
