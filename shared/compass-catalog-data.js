@@ -23,7 +23,8 @@
         { id: 'people-relationships', title: 'People & Relationships', order: 20 },
         { id: 'society-the-world', title: 'Society & the World', order: 30 },
         { id: 'work-time', title: 'Work & Time', order: 40 },
-        { id: 'culture-life', title: 'Culture & Life', order: 50 }
+        { id: 'culture-life', title: 'Culture & Life', order: 50 },
+        { id: 'language-communication', title: 'Language & Communication', order: 60 }
     ];
 
     const COMPASS_PILOT_ORDER = [
@@ -32,7 +33,9 @@
         'humour-wit',
         'work-purpose',
         'technology-innovation',
-        'stories-screen'
+        'stories-screen',
+        'odyssey-worth-the-hype',
+        'modal-verbs-real-situations'
     ];
 
     const COMPASS_SUBJECT_ART = {
@@ -545,6 +548,125 @@
                     stroke-width="1.9"
                     stroke-linecap="round"/>
             </svg>
+        `,
+
+        'odyssey-voyage': `
+            <svg class="subject-artwork subject-artwork--odyssey"
+                viewBox="0 0 180 140"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <g class="odyssey-ship">
+                    <path
+                        d="M38 91H143L128 108H57L38 91Z"
+                        stroke="currentColor"
+                        stroke-width="2.3"
+                        stroke-linejoin="round"/>
+
+                    <path
+                        d="M89 35V91"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linecap="round"/>
+
+                    <path
+                        d="M92 41C108 47 120 59 125 77H92V41Z"
+                        stroke="currentColor"
+                        stroke-width="2.1"
+                        stroke-linejoin="round"/>
+
+                    <path
+                        d="M86 49C74 54 64 64 59 76H86V49Z"
+                        stroke="currentColor"
+                        stroke-width="1.9"
+                        stroke-linejoin="round"/>
+
+                    <path
+                        d="M48 91C58 83 69 82 79 88"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"/>
+                </g>
+
+                <path class="odyssey-wave odyssey-wave--one"
+                    d="M24 116C37 108 48 108 60 116C72 124 84 124 96 116C108 108 120 108 132 116C143 123 153 123 161 118"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"/>
+
+                <path class="odyssey-wave odyssey-wave--two"
+                    d="M32 126C44 120 55 120 66 126C78 132 90 132 102 126C114 120 126 120 138 126"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"/>
+
+                <path class="odyssey-star"
+                    d="M145 24L148 33L157 36L148 39L145 48L142 39L133 36L142 33L145 24Z"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linejoin="round"/>
+            </svg>
+        `,
+
+        'modal-language': `
+            <svg class="subject-artwork subject-artwork--modal"
+                viewBox="0 0 180 140"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <g class="modal-bubble modal-bubble--question">
+                    <path
+                        d="M28 35H95C103 35 109 41 109 49V73C109 81 103 87 95 87H63L47 100V87H28C20 87 14 81 14 73V49C14 41 20 35 28 35Z"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linejoin="round"/>
+
+                    <path
+                        d="M53 54C54 47 60 44 67 44C75 44 80 48 80 54C80 62 70 63 68 69"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"/>
+
+                    <circle
+                        cx="68"
+                        cy="76"
+                        r="1.8"
+                        fill="currentColor"/>
+                </g>
+
+                <g class="modal-bubble modal-bubble--rule">
+                    <path
+                        d="M103 64H151C159 64 165 70 165 78V99C165 107 159 113 151 113H134L122 123V113H103C95 113 89 107 89 99V78C89 70 95 64 103 64Z"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linejoin="round"/>
+
+                    <path
+                        d="M127 76V94"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        stroke-linecap="round"/>
+
+                    <circle
+                        cx="127"
+                        cy="102"
+                        r="1.8"
+                        fill="currentColor"/>
+                </g>
+
+                <path class="modal-shift"
+                    d="M104 43C121 42 133 48 140 58"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"/>
+
+                <path
+                    d="M135 52L141 59L132 60"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+            </svg>
         `
     };
 
@@ -823,6 +945,27 @@
             categoryId: 'culture-life',
             order: 60,
             hook: 'Explore how people face what they can’t know — attitudes to death across cultures, superstition and ritual, and the appeal of the unexplained.'
+        },
+        {
+            id: 'odyssey-worth-the-hype',
+            title: 'The Odyssey: Worth the Hype?',
+            navTitle: 'The Odyssey',
+            categoryId: 'culture-life',
+            order: 70,
+            available: true,
+            artId: 'odyssey-voyage',
+            hook: 'Explore why a film adaptation of The Odyssey might capture our imagination — through epic journeys, unforgettable characters, and timeless questions about home, loyalty, temptation, and survival.'
+        },
+
+        {
+            id: 'modal-verbs-real-situations',
+            title: 'Using Modal Verbs in Real Situations',
+            navTitle: 'Modal Verbs',
+            categoryId: 'language-communication',
+            order: 10,
+            available: true,
+            artId: 'modal-language',
+            hook: 'Designed for A2 learners, with everyday situations where modal verbs change meaning and tone: asking for help, giving advice, talking about rules, and expressing ability, possibility, or obligation.'
         }
     ];
 
