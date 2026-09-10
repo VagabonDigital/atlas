@@ -23,7 +23,7 @@ const MODULE = {
     title: 'Food & The Table',
     titleHtml: 'Food &amp; <em>The Table</em>',
     navTitle: 'Food',
-    bgImage: 'https://images.unsplash.com/photo-1606787366850-de6330128bfc?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Zm9vZCUyMHdhbGxwYXBlcnxlbnwwfHwwfHx8MA%3D%3D'
+    bgImage: 'https://cdn.babyseo.ai/images/foodshot.ai/food-background-wallpaper/food-background-wallpaper-texture-samples-hero.webp'
 };
 
 const subjectCopy = {

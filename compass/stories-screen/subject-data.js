@@ -23,7 +23,7 @@ const MODULE = {
     title: 'Stories & Screen',
     titleHtml: 'Stories &amp; <em>Screen</em>',
     navTitle: 'Stories',
-    bgImage: 'https://media.istockphoto.com/id/1207065646/photo/happy-audience-applauding-in-the-theater.jpg?s=612x612&w=0&k=20&c=jan59CA1SD4JMTww7ixt7xbyp4TOmp15JtqSb839kO4='
+    bgImage: 'https://images5.alphacoders.com/376/thumb-1920-376565.jpg'
 };
 
 const subjectCopy = {
