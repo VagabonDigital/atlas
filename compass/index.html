@@ -6780,6 +6780,54 @@
       }
     }
 
+    async function addAtlasSubjectToActiveSession(
+      registryId,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+      const session = getActiveSession();
+
+      if (
+        !Subjects ||
+        typeof Subjects.addSessionSubject !== 'function'
+      ) {
+        showToast('Session subjects are unavailable.');
+        return;
+      }
+
+      try {
+        const saved =
+          await Subjects.addSessionSubject(
+            session.id,
+            {
+              kind: 'atlas-subject',
+              id: registryId
+            }
+          );
+
+        if (!saved) {
+          throw new Error(
+            'Session subject assignment failed.'
+          );
+        }
+
+        await renderHub();
+
+        showToast(
+          'Added to ' +
+          getActiveSessionSubjectCollectionTitle() +
+          '.'
+        );
+      } catch {
+        showToast('Couldn’t add this subject.');
+      }
+    }
+
     async function removeAtlasSubjectFromActiveSession(
       registryId,
       event
@@ -8661,7 +8709,6 @@
       }
 
       if (
-        subject.isSessionRelevant &&
         !subject.isOwned &&
         subject.registryId
       ) {
@@ -8686,15 +8733,31 @@
 
           '<div class="subject-card-menu" role="menu" hidden>' +
 
-          '<button type="button" role="menuitem" ' +
-          'onclick="removeAtlasSubjectFromActiveSession(' +
-          jsArg(subject.registryId) +
-          ', event)">' +
-          'Remove from ' +
-          escHtml(
-            getActiveSessionSubjectCollectionTitle()
+          (
+            subject.isSessionRelevant
+              ? (
+                '<button type="button" role="menuitem" ' +
+                'onclick="removeAtlasSubjectFromActiveSession(' +
+                jsArg(subject.registryId) +
+                ', event)">' +
+                'Remove from ' +
+                escHtml(
+                  getActiveSessionSubjectCollectionTitle()
+                ) +
+                '</button>'
+              )
+              : (
+                '<button type="button" role="menuitem" ' +
+                'onclick="addAtlasSubjectToActiveSession(' +
+                jsArg(subject.registryId) +
+                ', event)">' +
+                'Add to ' +
+                escHtml(
+                  getActiveSessionSubjectCollectionTitle()
+                ) +
+                '</button>'
+              )
           ) +
-          '</button>' +
           '</div>' +
           '</div>';
 
