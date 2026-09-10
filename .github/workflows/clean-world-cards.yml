@@ -20,94 +20,28 @@ jobs:
           from pathlib import Path
           path = Path('index.html')
           text = path.read_text()
-
-          old_day = """      /* World navigation cards */
-      --world-card-surface: rgba(255, 253, 249, 0.74);
-      --world-card-border: rgba(49, 45, 38, 0.11);
-      --compass-card-start: rgba(255, 253, 249, 0.90);
-      --compass-card-end: rgba(92, 122, 110, 0.075);
-      --compass-mark-start: #5c7a6e;
-      --compass-mark-end: #7fa898;
-      --compass-icon-surface: rgba(92, 122, 110, 0.12);
-      --compass-text: #5c7a6e;
-      --arcade-card-start: rgba(255, 253, 249, 0.92);
-      --arcade-card-end: rgba(223, 87, 47, 0.035);
-      --arcade-mark-start: #df572f;
-      --arcade-mark-end: #ef7652;
-      --arcade-icon-surface: rgba(223, 87, 47, 0.09);
-      --arcade-text: #df572f;
-"""
-          new_day = """      /* World navigation cards */
-      --world-card-surface: rgba(255, 253, 249, 0.96);
-      --world-card-border: rgba(49, 45, 38, 0.11);
-      --compass-card-start: rgba(255, 253, 249, 1);
-      --compass-card-end: rgba(92, 122, 110, 0.012);
-      --compass-mark-start: #5c7a6e;
-      --compass-mark-end: #7fa898;
-      --compass-icon-surface: rgba(92, 122, 110, 0.045);
-      --compass-text: #5c7a6e;
-      --arcade-card-start: rgba(255, 253, 249, 1);
-      --arcade-card-end: rgba(223, 87, 47, 0.010);
-      --arcade-mark-start: #df572f;
-      --arcade-mark-end: #ef7652;
-      --arcade-icon-surface: rgba(223, 87, 47, 0.040);
-      --arcade-text: #df572f;
-"""
-
-          old_night = """      /* World navigation cards */
-      --world-card-border: var(--border-faint);
-      --compass-card-start: rgba(37, 40, 38, 0.90);
-      --compass-card-end: rgba(127, 168, 150, 0.085);
-      --compass-mark-start: #8db7a7;
-      --compass-mark-end: #b0d0c4;
-      --compass-icon-surface: rgba(141, 183, 167, 0.17);
-      --compass-text: #8db7a7;
-      --arcade-card-start: rgba(37, 40, 38, 0.92);
-      --arcade-card-end: rgba(255, 129, 93, 0.045);
-      --arcade-mark-start: #ff815d;
-      --arcade-mark-end: #ff9a7a;
-      --arcade-icon-surface: rgba(255, 129, 93, 0.11);
-      --arcade-text: #ff815d;
-"""
-          new_night = """      /* World navigation cards */
-      --world-card-surface: rgba(37, 40, 38, 0.96);
-      --world-card-border: var(--border-faint);
-      --compass-card-start: rgba(37, 40, 38, 0.98);
-      --compass-card-end: rgba(127, 168, 150, 0.018);
-      --compass-mark-start: #8db7a7;
-      --compass-mark-end: #b0d0c4;
-      --compass-icon-surface: rgba(141, 183, 167, 0.070);
-      --compass-text: #8db7a7;
-      --arcade-card-start: rgba(37, 40, 38, 0.98);
-      --arcade-card-end: rgba(255, 129, 93, 0.016);
-      --arcade-mark-start: #ff815d;
-      --arcade-mark-end: #ff9a7a;
-      --arcade-icon-surface: rgba(255, 129, 93, 0.065);
-      --arcade-text: #ff815d;
-"""
-
-          old_tutor = """      --door-c1: var(--surface-raised);
-      --door-c2: var(--surface-muted);
-      background:
-        linear-gradient(145deg,
-          var(--door-c1),
-          var(--door-c2));
-"""
-          new_tutor = """      background: var(--world-card-surface);
-"""
-
           replacements = [
-              (old_day, new_day, 'day world card tokens'),
-              (old_night, new_night, 'night world card tokens'),
-              (old_tutor, new_tutor, 'Inside Atlas card surface'),
+              ('--world-card-surface: rgba(255, 253, 249, 0.74);', '--world-card-surface: rgba(255, 253, 249, 0.96);', 'day world surface'),
+              ('--compass-card-start: rgba(255, 253, 249, 0.90);', '--compass-card-start: rgba(255, 253, 249, 1);', 'day compass start'),
+              ('--compass-card-end: rgba(92, 122, 110, 0.075);', '--compass-card-end: rgba(92, 122, 110, 0.012);', 'day compass wash'),
+              ('--compass-icon-surface: rgba(92, 122, 110, 0.12);', '--compass-icon-surface: rgba(92, 122, 110, 0.045);', 'day compass icon'),
+              ('--arcade-card-start: rgba(255, 253, 249, 0.92);', '--arcade-card-start: rgba(255, 253, 249, 1);', 'day arcade start'),
+              ('--arcade-card-end: rgba(223, 87, 47, 0.035);', '--arcade-card-end: rgba(223, 87, 47, 0.010);', 'day arcade wash'),
+              ('--arcade-icon-surface: rgba(223, 87, 47, 0.09);', '--arcade-icon-surface: rgba(223, 87, 47, 0.040);', 'day arcade icon'),
+              ('      /* World navigation cards */\n      --world-card-border: var(--border-faint);', '      /* World navigation cards */\n      --world-card-surface: rgba(37, 40, 38, 0.96);\n      --world-card-border: var(--border-faint);', 'night world surface'),
+              ('--compass-card-start: rgba(37, 40, 38, 0.90);', '--compass-card-start: rgba(37, 40, 38, 0.98);', 'night compass start'),
+              ('--compass-card-end: rgba(127, 168, 150, 0.085);', '--compass-card-end: rgba(127, 168, 150, 0.018);', 'night compass wash'),
+              ('--compass-icon-surface: rgba(141, 183, 167, 0.17);', '--compass-icon-surface: rgba(141, 183, 167, 0.070);', 'night compass icon'),
+              ('--arcade-card-start: rgba(37, 40, 38, 0.92);', '--arcade-card-start: rgba(37, 40, 38, 0.98);', 'night arcade start'),
+              ('--arcade-card-end: rgba(255, 129, 93, 0.045);', '--arcade-card-end: rgba(255, 129, 93, 0.016);', 'night arcade wash'),
+              ('--arcade-icon-surface: rgba(255, 129, 93, 0.11);', '--arcade-icon-surface: rgba(255, 129, 93, 0.065);', 'night arcade icon'),
+              ('      --door-c1: var(--surface-raised);\n      --door-c2: var(--surface-muted);\n      background:\n        linear-gradient(145deg,\n          var(--door-c1),\n          var(--door-c2));', '      background: var(--world-card-surface);', 'Inside Atlas surface')
           ]
-
           for old, new, label in replacements:
               count = text.count(old)
               if count != 1:
-                  raise SystemExit(f'Expected one {label} block, found {count}')
+                  raise SystemExit(f'Expected one {label}, found {count}')
               text = text.replace(old, new, 1)
-
           path.write_text(text)
           PY
       - name: Validate and commit
