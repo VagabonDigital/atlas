@@ -1433,7 +1433,7 @@
       }
 
       .direction-list {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .direction-head {
@@ -2099,11 +2099,21 @@
         resultIntro.textContent = seed.overview.intro;
       }
 
+      function scrollToCreateResult() {
+        if (!(window.matchMedia && window.matchMedia("(max-width: 720px)").matches)) return;
+        var createResult = document.querySelector(".create-result");
+        if (!createResult) return;
+        window.requestAnimationFrame(function () {
+          createResult.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+        });
+      }
+
       function chooseSubject(button) {
         var title = button.getAttribute("data-title");
         var seed = curatedSubjectSeeds[title] || null;
-        fillSubject(title, null, null, true, seed);
+        fillSubject(title, null, null, false, seed);
         showCuratedSubjectInCard(seed);
+        scrollToCreateResult();
       }
 
       subjectButtons.forEach(function (button) { button.addEventListener("click", function () { chooseSubject(button); }); });
@@ -2185,6 +2195,7 @@
         );
 
         setDirectionDemoStatus("Working…");
+        scrollToCreateResult();
 
         try {
           var response = await window.AtlasAI.suggestSubjectIdeas({
