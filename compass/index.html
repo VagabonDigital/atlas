@@ -1558,7 +1558,7 @@
       display: flex;
       flex-direction: column;
       min-width: 0;
-      min-height: 200px;
+      min-height: 230px;
       padding: 1.4rem 1.4rem 1.35rem;
       overflow: hidden;
       border: var(--card-border-width) solid var(--card-border);
@@ -1744,7 +1744,7 @@
     }
 
     .subject-card-hook {
-      margin-bottom: 0.85rem;
+      margin-bottom: 0;
       color: var(--text-muted);
       font-size: 0.82rem;
       line-height: 1.58;
@@ -1760,6 +1760,15 @@
     .subject-card--has-art .subject-card-header,
     .subject-card--has-art .subject-card-hook {
       max-width: 68%;
+    }
+
+    .subject-card--new:not(.subject-card--has-art) .subject-card-hook {
+      max-width: calc(100% - 7.2rem);
+    }
+
+    .subject-card--inprogress .subject-card-hook,
+    .subject-card--explored .subject-card-hook {
+      padding-bottom: 1.5rem;
     }
 
     .subject-card-art {
@@ -2158,11 +2167,15 @@
     }
 
     .subject-card-footer {
+      position: absolute;
+      left: 1.4rem;
+      right: 1.4rem;
+      bottom: 1.35rem;
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
       gap: 0.8rem;
-      margin-top: auto;
+      margin-top: 0;
     }
 
     .subject-card-meta {
@@ -2677,9 +2690,12 @@
     }
 
     @media (hover: none) and (pointer: coarse) {
-      .subject-card--has-art .subject-card-header,
-      .subject-card--has-art .subject-card-hook {
+      .subject-card--has-art .subject-card-header {
         max-width: none;
+      }
+
+      .subject-card--has-art .subject-card-hook {
+        max-width: calc(100% - 7.2rem);
       }
 
       .subject-card-art {
@@ -2758,6 +2774,28 @@
       .subject-card {
         min-height: 0;
         padding: 1.3rem 1.25rem 1.35rem;
+      }
+
+      .subject-card--has-art .subject-card-hook,
+      .subject-card--new:not(.subject-card--has-art) .subject-card-hook {
+        max-width: none;
+      }
+
+      .subject-card--inprogress .subject-card-hook,
+      .subject-card--explored .subject-card-hook {
+        padding-bottom: 0;
+      }
+
+      .subject-card-hook {
+        margin-bottom: 0.85rem;
+      }
+
+      .subject-card-footer {
+        position: relative;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        margin-top: auto;
       }
 
       .subject-card-menu button {
