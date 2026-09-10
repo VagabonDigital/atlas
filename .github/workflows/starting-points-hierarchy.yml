@@ -20,21 +20,8 @@ jobs:
           from pathlib import Path
           path = Path('tutors/index.html')
           text = path.read_text()
-          old = """    .direction-head strong {
-      color: var(--text-heading);
-      font-family: var(--font-display);
-      font-size: 18px;
-      font-weight: 400;
-    }
-"""
-          new = """    .direction-head strong {
-      color: var(--text-body);
-      font-family: var(--font-display);
-      font-size: 16px;
-      font-weight: 400;
-      line-height: 1.25;
-    }
-"""
+          old = "    .direction-head strong {\n      color: var(--text-heading);\n      font-family: var(--font-display);\n      font-size: 18px;\n      font-weight: 400;\n    }\n"
+          new = "    .direction-head strong {\n      color: var(--text-body);\n      font-family: var(--font-display);\n      font-size: 16px;\n      font-weight: 400;\n      line-height: 1.25;\n    }\n"
           if text.count(old) != 1:
               raise SystemExit(f'Expected one direction-head strong block, found {text.count(old)}')
           path.write_text(text.replace(old, new, 1))
