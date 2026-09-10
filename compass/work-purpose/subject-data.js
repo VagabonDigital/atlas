@@ -28,7 +28,7 @@ const MODULE = {
 
 const subjectCopy = {
     cover: {
-        hook: `Work takes a large part of life. What should it give back?`
+        hook: `Work takes up much of life. What should it give back?`
     },
 
     overview: {
