@@ -4479,10 +4479,23 @@ async function generateMyVersionLanguageSupport(
 
     if (button) {
         button.disabled = true;
-        button.textContent =
-            replace
+        button.classList.add('is-generating');
+        button.setAttribute('aria-busy', 'true');
+        button.innerHTML = `
+            <svg class="moment-author-generate-spinner"
+                width="14" height="14"
+                viewBox="0 0 15 15"
+                fill="none" aria-hidden="true">
+                <circle cx="7.5" cy="7.5" r="5"
+                    stroke="currentColor"
+                    stroke-width="1.45"
+                    stroke-linecap="round"
+                    stroke-dasharray="20 12"/>
+            </svg>
+            ${replace
                 ? 'Regenerating…'
-                : 'Generating…';
+                : 'Generating…'}
+        `;
     }
 
     try {
@@ -4507,6 +4520,8 @@ async function generateMyVersionLanguageSupport(
     } finally {
         if (button?.isConnected) {
             button.disabled = false;
+            button.classList.remove('is-generating');
+            button.setAttribute('aria-busy', 'false');
             button.innerHTML = originalHtml;
         }
     }

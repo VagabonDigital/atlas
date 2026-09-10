@@ -6292,10 +6292,22 @@ html[data-theme="night"] .atlas-my-version-dialog-panel {
     color: var(--text-muted);
 }
 
+.upgrade-author-secondary.atlas-my-version-ai {
+    border-color: rgba(var(--accent-rgb), 0.42);
+    background: rgba(var(--accent-rgb), 0.085);
+    color: var(--accent);
+}
+
 .upgrade-author-secondary:hover,
 .upgrade-author-add-review:hover {
     border-color: rgba(var(--accent-rgb), 0.42);
     background: var(--accent-dim);
+    color: var(--accent);
+}
+
+.upgrade-author-secondary.atlas-my-version-ai:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.14);
     color: var(--accent);
 }
 
