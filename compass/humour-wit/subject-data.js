@@ -27,7 +27,7 @@ const MODULE = {
 
 const subjectCopy = {
     cover: {
-        hook: `The laugh is only part of it.`
+        hook: `A joke can open a room — or close it.`
     },
 
     overview: {
