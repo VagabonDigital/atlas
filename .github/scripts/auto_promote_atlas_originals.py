@@ -247,7 +247,6 @@ replacement = """        if (!saved) {
 
         await renderHub();
 """
-# There are removal blocks for owned subjects too; constrain to the Atlas function slice.
 start = text.index("    async function removeAtlasSubjectFromActiveSession(")
 end = text.index("    async function removeOwnedSubjectFromActiveSession(", start)
 atlas_remove = text[start:end]
@@ -301,14 +300,33 @@ if text.count(old_condition) != 1:
 text = text.replace(old_condition, new_condition, 1)
 
 # 6) Session Atlas menu: provenance plus the one valid management action.
-conditional_menu = re.compile(
-    r"          \(\n            subject\.isSessionRelevant\n              \? \(\n                '<button type=\\\"button\\\" role=\\\"menuitem\\\" ' \+\n                'onclick=\\\"removeAtlasSubjectFromActiveSession\(' \+.*?          \) \+\n",
-    re.S,
-)
-menu_match = conditional_menu.search(text)
-if not menu_match:
-    raise SystemExit('Could not find conditional Atlas Original menu block')
-menu_replacement = r'''          '<div class="subject-card-menu-meta">Atlas Original</div>' +
+old_menu = r'''          (
+            subject.isSessionRelevant
+              ? (
+                '<button type="button" role="menuitem" ' +
+                'onclick="removeAtlasSubjectFromActiveSession(' +
+                jsArg(subject.registryId) +
+                ', event)">' +
+                'Remove from ' +
+                escHtml(
+                  getActiveSessionSubjectCollectionTitle()
+                ) +
+                '</button>'
+              )
+              : (
+                '<button type="button" role="menuitem" ' +
+                'onclick="addAtlasSubjectToActiveSession(' +
+                jsArg(subject.registryId) +
+                ', event)">' +
+                'Add to ' +
+                escHtml(
+                  getActiveSessionSubjectCollectionTitle()
+                ) +
+                '</button>'
+              )
+          ) +
+'''
+new_menu = r'''          '<div class="subject-card-menu-meta">Atlas Original</div>' +
 
           '<button type="button" role="menuitem" ' +
           'onclick="removeAtlasSubjectFromActiveSession(' +
@@ -320,7 +338,9 @@ menu_replacement = r'''          '<div class="subject-card-menu-meta">Atlas Orig
           ) +
           '</button>' +
 '''
-text = text[:menu_match.start()] + menu_replacement + text[menu_match.end():]
+if text.count(old_menu) != 1:
+    raise SystemExit(f'Expected one conditional Atlas Original menu, found {text.count(old_menu)}')
+text = text.replace(old_menu, new_menu, 1)
 
 # 7) Quiet provenance styling inside menus, not on the card face.
 css_anchor = "    .subject-card-menu button {\n"
