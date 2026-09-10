@@ -4,8 +4,6 @@ import re
 path = Path('compass/index.html')
 text = path.read_text()
 
-# 1) Remove the explicit add-to-session action. Atlas Originals should stay clean
-# until meaningful progress makes them session-relevant.
 pattern = re.compile(
     r"\n    async function addAtlasSubjectToActiveSession\(.*?\n    async function removeAtlasSubjectFromActiveSession\(",
     re.S,
@@ -15,7 +13,6 @@ if not match:
     raise SystemExit('Could not find Atlas add/remove function boundary')
 text = text[:match.start()] + "\n    async function removeAtlasSubjectFromActiveSession(" + text[match.end():]
 
-# 2) Add progress-dismissal helpers immediately before the remove action.
 anchor = "    async function removeAtlasSubjectFromActiveSession(\n"
 if text.count(anchor) != 1:
     raise SystemExit(f'Expected one Atlas remove function anchor, found {text.count(anchor)}')
@@ -219,7 +216,6 @@ helpers = r'''    const ATLAS_SESSION_DISMISSALS_KEY =
 '''
 text = text.replace(anchor, helpers + anchor, 1)
 
-# 3) When the tutor removes an Atlas Original, remember the exact progress level.
 remove_saved_anchor = """        if (!saved) {
           throw new Error(
             'Session subject removal failed.'
@@ -255,7 +251,6 @@ if remove_saved_anchor not in atlas_remove:
 atlas_remove = atlas_remove.replace(remove_saved_anchor, replacement, 1)
 text = text[:start] + atlas_remove + text[end:]
 
-# 4) Auto-promote meaningful Atlas progress before the hub builds its shelves.
 render_anchor = """      if (renderRevision !== hubRenderRevision) {
         return;
       }
@@ -283,7 +278,6 @@ if text.count(render_anchor) != 1:
     raise SystemExit(f'Expected one render sync anchor, found {text.count(render_anchor)}')
 text = text.replace(render_anchor, render_replacement, 1)
 
-# 5) Restore clean Atlas cards: management only appears once an Original is in Session Subjects.
 old_condition = """      if (
         !subject.isOwned &&
         subject.registryId
@@ -299,7 +293,6 @@ if text.count(old_condition) != 1:
     raise SystemExit(f'Expected one broad Atlas management condition, found {text.count(old_condition)}')
 text = text.replace(old_condition, new_condition, 1)
 
-# 6) Session Atlas menu: provenance plus the one valid management action.
 old_menu = r'''          (
             subject.isSessionRelevant
               ? (
@@ -342,10 +335,9 @@ if text.count(old_menu) != 1:
     raise SystemExit(f'Expected one conditional Atlas Original menu, found {text.count(old_menu)}')
 text = text.replace(old_menu, new_menu, 1)
 
-# 7) Quiet provenance styling inside menus, not on the card face.
 css_anchor = "    .subject-card-menu button {\n"
-if text.count(css_anchor) != 1:
-    raise SystemExit(f'Expected one subject-card-menu button rule, found {text.count(css_anchor)}')
+if css_anchor not in text:
+    raise SystemExit('Could not find subject-card-menu button rule')
 css = """    .subject-card-menu-meta {
       padding: 0.58rem 0.72rem 0.38rem;
       color: var(--text-subtle);
