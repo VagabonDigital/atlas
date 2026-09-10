@@ -1,0 +1,114 @@
+name: One-time night world card parity
+
+'on':
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/night-world-card-parity.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-hub:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Match Inside Atlas surface and lift night rails
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('index.html')
+          text = path.read_text()
+
+          old_day = """      --world-card-surface: rgba(255, 253, 249, 0.96);
+      --world-card-border: rgba(49, 45, 38, 0.11);
+      --compass-card-start: rgba(255, 253, 249, 1);
+"""
+          new_day = """      --world-card-surface: rgba(255, 253, 249, 0.96);
+      --world-card-border: rgba(49, 45, 38, 0.11);
+      --tutor-card-start: rgba(255, 253, 249, 1);
+      --tutor-card-end: rgba(77, 113, 132, 0.010);
+      --compass-card-start: rgba(255, 253, 249, 1);
+"""
+
+          old_night = """      --world-card-surface: rgba(37, 40, 38, 0.96);
+      --world-card-border: var(--border-faint);
+      --compass-card-start: rgba(37, 40, 38, 0.98);
+"""
+          new_night = """      --world-card-surface: rgba(37, 40, 38, 0.96);
+      --world-card-border: var(--border-faint);
+      --tutor-card-start: rgba(37, 40, 38, 0.98);
+      --tutor-card-end: rgba(143, 178, 194, 0.016);
+      --compass-card-start: rgba(37, 40, 38, 0.98);
+"""
+
+          old_tutor = """      background: var(--world-card-surface);
+      box-shadow: var(--shadow-sm);
+"""
+          new_tutor = """      --door-c1: var(--tutor-card-start);
+      --door-c2: var(--tutor-card-end);
+      background: linear-gradient(145deg,
+          var(--door-c1),
+          var(--door-c2));
+      box-shadow: var(--shadow-sm);
+"""
+
+          old_arcade_before = """    .door-arcade::before {
+      --rail-1: var(--arcade-mark-start);
+      --rail-2: var(--arcade-mark-end);
+      background: linear-gradient(90deg,
+          var(--rail-1),
+          var(--rail-2));
+      opacity: 0.40;
+    }
+
+    .door:hover {
+"""
+          new_arcade_before = """    .door-arcade::before {
+      --rail-1: var(--arcade-mark-start);
+      --rail-2: var(--arcade-mark-end);
+      background: linear-gradient(90deg,
+          var(--rail-1),
+          var(--rail-2));
+      opacity: 0.40;
+    }
+
+    html[data-theme=\"night\"] .tutor-entry::before {
+      opacity: 0.76;
+    }
+
+    html[data-theme=\"night\"] .door-compass::before {
+      opacity: 0.68;
+    }
+
+    html[data-theme=\"night\"] .door-arcade::before {
+      opacity: 0.62;
+    }
+
+    .door:hover {
+"""
+
+          replacements = [
+              (old_day, new_day, 'day tutor tokens'),
+              (old_night, new_night, 'night tutor tokens'),
+              (old_tutor, new_tutor, 'Inside Atlas surface'),
+              (old_arcade_before, new_arcade_before, 'night rail overrides'),
+          ]
+
+          for old, new, label in replacements:
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'Expected one {label} block, found {count}')
+              text = text.replace(old, new, 1)
+
+          path.write_text(text)
+          PY
+      - name: Validate and commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --check
+          git commit -m "Tune Atlas Hub night card parity and rails"
+          git push origin HEAD:main
