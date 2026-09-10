@@ -4406,6 +4406,112 @@ function refreshMyVersionUpgradeFocus(
     });
 }
 
+async function generateMyVersionLanguageSupport(
+    contextId,
+    replace = false,
+    button = null
+) {
+    if (
+        !myVersionAuthoringOpen ||
+        myVersionSaving ||
+        !isOwnedSubjectRuntime()
+    ) {
+        return null;
+    }
+
+    const value =
+        String(contextId || '').trim();
+
+    const isMoment =
+        value.startsWith('moment-');
+
+    const isCulturalLens =
+        value.startsWith('cl-');
+
+    if (
+        !isMoment &&
+        !isCulturalLens
+    ) {
+        return null;
+    }
+
+    const sourceElementId =
+        getSourceElementIdFromUpgradeContextId(
+            value
+        );
+
+    const currentUpgrade =
+        getEffectiveUpgradeSourceFromContextId(
+            value
+        )?.upgrade || null;
+
+    if (
+        (replace && !currentUpgrade) ||
+        (!replace && currentUpgrade)
+    ) {
+        return null;
+    }
+
+    const brief =
+        replace
+            ? [
+                'REGENERATION: Replace the current Language Support with a meaningfully different alternative.',
+                `CURRENT RESULT TO REPLACE: ${JSON.stringify({
+                    term:
+                        currentUpgrade.term,
+                    type:
+                        currentUpgrade.type,
+                    definition:
+                        currentUpgrade.definition,
+                    ordinary:
+                        currentUpgrade.ordinary,
+                    upgraded:
+                        currentUpgrade.upgraded,
+                    atlasPrompt:
+                        currentUpgrade.atlasPrompt
+                })}`,
+                'Choose a different target expression or language item. Do not simply paraphrase or reuse the current result. Keep the replacement tightly matched to this content and appropriate for the learner level.'
+            ].join('\n')
+            : '';
+
+    const originalHtml =
+        button?.innerHTML || '';
+
+    if (button) {
+        button.disabled = true;
+        button.textContent =
+            replace
+                ? 'Regenerating…'
+                : 'Generating…';
+    }
+
+    try {
+        return isMoment
+            ? await generateMyVersionMomentUpgrade(
+                sourceElementId,
+                brief,
+                { replace }
+            )
+            : await generateMyVersionCulturalLensUpgrade(
+                sourceElementId,
+                brief,
+                { replace }
+            );
+    } catch (error) {
+        console.error(
+            '[Compass] Language Support generation failed:',
+            error
+        );
+
+        return null;
+    } finally {
+        if (button?.isConnected) {
+            button.disabled = false;
+            button.innerHTML = originalHtml;
+        }
+    }
+}
+
 function addMyVersionUpgrade(contextId) {
     const added = commitMyVersionDocumentMutation(
         document => {
@@ -8299,7 +8405,7 @@ async function generateMyVersionMomentUpgrade(
     if (
         !contextSet ||
         !contextMoment ||
-        contextMoment.upgrade
+        (contextMoment.upgrade && options?.replace !== true)
     ) {
         return null;
     }
@@ -8371,7 +8477,7 @@ async function generateMyVersionMomentUpgrade(
 
                 if (
                     !target ||
-                    target.upgrade
+                    (target.upgrade && options?.replace !== true)
                 ) {
                     return null;
                 }
@@ -8851,7 +8957,7 @@ async function generateMyVersionCulturalLensUpgrade(
 
     if (
         !contextCard ||
-        contextCard.upgrade
+        (contextCard.upgrade && options?.replace !== true)
     ) {
         return null;
     }
@@ -8948,7 +9054,7 @@ async function generateMyVersionCulturalLensUpgrade(
 
                 if (
                     !target ||
-                    target.upgrade
+                    (target.upgrade && options?.replace !== true)
                 ) {
                     return null;
                 }
