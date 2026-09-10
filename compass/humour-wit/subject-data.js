@@ -22,7 +22,7 @@ const MODULE = {
     title: 'Humour & Wit',
     titleHtml: 'Humour &amp; <em>Wit</em>',
     navTitle: 'Humour',
-    bgImage: 'https://pub-13d93423376c4822820635b75cfbea29.r2.dev/humor-cover.png'
+    bgImage: 'https://pub-13d93423376c4822820635b75cfbea29.r2.dev/images/humor-cover.png'
 };
 
 const subjectCopy = {
