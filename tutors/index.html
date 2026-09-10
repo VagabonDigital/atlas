@@ -738,10 +738,11 @@
     }
 
     .direction-head strong {
-      color: var(--text-heading);
+      color: var(--text-body);
       font-family: var(--font-display);
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 400;
+      line-height: 1.25;
     }
 
     .direction-head span {
@@ -1392,23 +1393,27 @@
       }
 
       .site-header {
-        position: relative;
+        position: sticky;
+        top: 0;
       }
 
       .header-inner {
-        min-height: 60px;
-        flex-wrap: wrap;
-        padding: 10px 15px 8px;
+        height: 56px;
+        min-height: 0;
+        flex-wrap: nowrap;
+        padding: 0 15px;
       }
 
       .nav {
-        order: 3;
-        width: 100%;
-        margin-left: 0;
+        order: initial;
+        width: auto;
+        min-width: 0;
+        flex: 1 1 auto;
+        margin-left: .5rem;
       }
 
       .theme-toggle {
-        margin-left: auto;
+        margin-left: .25rem;
       }
 
       .hero {
@@ -1429,7 +1434,7 @@
       }
 
       .direction-list {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .direction-head {
@@ -1456,6 +1461,31 @@
 
       .compass-nav {
         grid-template-columns: 1fr 1fr;
+      }
+
+      .stage-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .stage-tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .stage-tabs button {
+        flex: 0 0 auto;
+      }
+
+      .pilot-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .pilot-actions a {
+        width: 100%;
+        text-align: center;
       }
 
       .learner-board {
@@ -2070,11 +2100,24 @@
         resultIntro.textContent = seed.overview.intro;
       }
 
+      function scrollToCreateResult() {
+        if (!(window.matchMedia && window.matchMedia("(max-width: 720px)").matches)) return;
+        var createResult = document.querySelector(".create-result");
+        if (!createResult) return;
+        window.requestAnimationFrame(function () {
+          var header = document.querySelector(".site-header");
+          var headerHeight = header ? header.getBoundingClientRect().height : 56;
+          var targetTop = createResult.getBoundingClientRect().top + window.scrollY - headerHeight - 12;
+          window.scrollTo({ top: Math.max(0, targetTop), behavior: reduceMotion ? "auto" : "smooth" });
+        });
+      }
+
       function chooseSubject(button) {
         var title = button.getAttribute("data-title");
         var seed = curatedSubjectSeeds[title] || null;
-        fillSubject(title, null, null, true, seed);
+        fillSubject(title, null, null, false, seed);
         showCuratedSubjectInCard(seed);
+        scrollToCreateResult();
       }
 
       subjectButtons.forEach(function (button) { button.addEventListener("click", function () { chooseSubject(button); }); });
@@ -2156,6 +2199,7 @@
         );
 
         setDirectionDemoStatus("Working…");
+        scrollToCreateResult();
 
         try {
           var response = await window.AtlasAI.suggestSubjectIdeas({
