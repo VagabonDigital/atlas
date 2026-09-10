@@ -791,7 +791,7 @@
             order: 90,
             available: true,
             artId: 'humour-reactions',
-            hook: 'Explore what makes people laugh, why the same joke can feel friendly or hurtful, and how humour changes depending on who tells it and who hears it.'
+            hook: 'What makes something funny can change from one room to another — timing, trust, culture, power, and personality can turn the same joke into something brilliant, awkward, kind, cruel, or pointless.'
         },
         {
             id: 'family-belonging',
@@ -843,7 +843,7 @@
             order: 60,
             available: true,
             artId: 'technology-circuit',
-            hook: 'Explore the technology people use every day — what it makes easier, what it changes, and what we gain, lose, depend on, or refuse.'
+            hook: 'Everyday technology solves problems while creating new habits, dependencies, boundaries, and trade-offs — changing what feels easy, what we rely on, and what we are willing to give up in return.'
         },
         {
             id: 'education-learning',
@@ -859,7 +859,7 @@
             order: 80,
             available: true,
             artId: 'travel-route',
-            hook: 'Explore what travel is really like — the surprises, problems, habits, people, and choices that can change a trip and stay with us afterwards.'
+            hook: 'A journey is shaped by more than a destination — surprises, problems, habits, people, and choices can challenge expectations, change a trip, and stay with us long after we return home.'
         },
         {
             id: 'home-place',
@@ -876,7 +876,7 @@
             order: 10,
             available: true,
             artId: 'work-toolkit',
-            hook: 'Talk about the work people really do — hidden skills, fair pay, everyday effort, and what makes a job feel worth doing.'
+            hook: 'A working life is built from more than a job title — hidden skills, fair pay, everyday effort, status, purpose, and trade-offs all shape whether work feels worthwhile, tolerable, or simply necessary.'
         },
         {
             id: 'workplace-dynamics-professionalism',
@@ -914,7 +914,7 @@
             order: 20,
             available: true,
             artId: 'shared-pot',
-            hook: 'Explore food, sharing, table rules, and who does the work — plus how meals can show care and become part of family and memory.'
+            hook: 'Meals carry more than food: sharing, table rules, hospitality, and who does the work can reveal care, status, belonging, family habits, generosity, and the memories people keep long afterwards.'
         },
         {
             id: 'music-what-it-means',
@@ -930,7 +930,7 @@
             order: 40,
             available: true,
             artId: 'stories-book-screen',
-            hook: 'Explore why stories stay with us — what pulls us in, what makes us stop, the endings we judge, and the characters and moments we remember.'
+            hook: 'Some stories disappear quickly; others stay vivid for years. Characters, choices, endings, images, and tiny moments can pull us in, divide us, and keep changing meaning long after the story ends.'
         },
         {
             id: 'sport-play-competition',
