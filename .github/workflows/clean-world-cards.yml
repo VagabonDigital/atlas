@@ -1,0 +1,120 @@
+name: One-time clean world card treatment
+
+'on':
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/clean-world-cards.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-hub:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply cleaner world card system
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('index.html')
+          text = path.read_text()
+
+          old_day = """      /* World navigation cards */
+      --world-card-surface: rgba(255, 253, 249, 0.74);
+      --world-card-border: rgba(49, 45, 38, 0.11);
+      --compass-card-start: rgba(255, 253, 249, 0.90);
+      --compass-card-end: rgba(92, 122, 110, 0.075);
+      --compass-mark-start: #5c7a6e;
+      --compass-mark-end: #7fa898;
+      --compass-icon-surface: rgba(92, 122, 110, 0.12);
+      --compass-text: #5c7a6e;
+      --arcade-card-start: rgba(255, 253, 249, 0.92);
+      --arcade-card-end: rgba(223, 87, 47, 0.035);
+      --arcade-mark-start: #df572f;
+      --arcade-mark-end: #ef7652;
+      --arcade-icon-surface: rgba(223, 87, 47, 0.09);
+      --arcade-text: #df572f;
+"""
+          new_day = """      /* World navigation cards */
+      --world-card-surface: rgba(255, 253, 249, 0.96);
+      --world-card-border: rgba(49, 45, 38, 0.11);
+      --compass-card-start: rgba(255, 253, 249, 1);
+      --compass-card-end: rgba(92, 122, 110, 0.012);
+      --compass-mark-start: #5c7a6e;
+      --compass-mark-end: #7fa898;
+      --compass-icon-surface: rgba(92, 122, 110, 0.045);
+      --compass-text: #5c7a6e;
+      --arcade-card-start: rgba(255, 253, 249, 1);
+      --arcade-card-end: rgba(223, 87, 47, 0.010);
+      --arcade-mark-start: #df572f;
+      --arcade-mark-end: #ef7652;
+      --arcade-icon-surface: rgba(223, 87, 47, 0.040);
+      --arcade-text: #df572f;
+"""
+
+          old_night = """      /* World navigation cards */
+      --world-card-border: var(--border-faint);
+      --compass-card-start: rgba(37, 40, 38, 0.90);
+      --compass-card-end: rgba(127, 168, 150, 0.085);
+      --compass-mark-start: #8db7a7;
+      --compass-mark-end: #b0d0c4;
+      --compass-icon-surface: rgba(141, 183, 167, 0.17);
+      --compass-text: #8db7a7;
+      --arcade-card-start: rgba(37, 40, 38, 0.92);
+      --arcade-card-end: rgba(255, 129, 93, 0.045);
+      --arcade-mark-start: #ff815d;
+      --arcade-mark-end: #ff9a7a;
+      --arcade-icon-surface: rgba(255, 129, 93, 0.11);
+      --arcade-text: #ff815d;
+"""
+          new_night = """      /* World navigation cards */
+      --world-card-surface: rgba(37, 40, 38, 0.96);
+      --world-card-border: var(--border-faint);
+      --compass-card-start: rgba(37, 40, 38, 0.98);
+      --compass-card-end: rgba(127, 168, 150, 0.018);
+      --compass-mark-start: #8db7a7;
+      --compass-mark-end: #b0d0c4;
+      --compass-icon-surface: rgba(141, 183, 167, 0.070);
+      --compass-text: #8db7a7;
+      --arcade-card-start: rgba(37, 40, 38, 0.98);
+      --arcade-card-end: rgba(255, 129, 93, 0.016);
+      --arcade-mark-start: #ff815d;
+      --arcade-mark-end: #ff9a7a;
+      --arcade-icon-surface: rgba(255, 129, 93, 0.065);
+      --arcade-text: #ff815d;
+"""
+
+          old_tutor = """      --door-c1: var(--surface-raised);
+      --door-c2: var(--surface-muted);
+      background:
+        linear-gradient(145deg,
+          var(--door-c1),
+          var(--door-c2));
+"""
+          new_tutor = """      background: var(--world-card-surface);
+"""
+
+          replacements = [
+              (old_day, new_day, 'day world card tokens'),
+              (old_night, new_night, 'night world card tokens'),
+              (old_tutor, new_tutor, 'Inside Atlas card surface'),
+          ]
+
+          for old, new, label in replacements:
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'Expected one {label} block, found {count}')
+              text = text.replace(old, new, 1)
+
+          path.write_text(text)
+          PY
+      - name: Validate and commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --check
+          git commit -m "Clean up Atlas Hub world card surfaces"
+          git push origin HEAD:main
