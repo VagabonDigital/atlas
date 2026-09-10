@@ -1672,6 +1672,16 @@
       display: none;
     }
 
+    .subject-card-menu-meta {
+      padding: 0.58rem 0.72rem 0.38rem;
+      color: var(--text-subtle);
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.085em;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
     .subject-card-menu button {
       display: flex;
       align-items: center;
@@ -6782,52 +6792,200 @@
       }
     }
 
-    async function addAtlasSubjectToActiveSession(
+    const ATLAS_SESSION_DISMISSALS_KEY =
+      'atlas::compass::atlasSessionDismissals';
+
+    function getAtlasSubjectProgressCount(subject) {
+      const progress = subject?.state?.progress || {};
+      const raw = subject?.state?.progressRaw || {};
+
+      return Math.max(
+        Math.max(0, Number(progress.explored) || 0),
+        Array.isArray(raw.exploredIds)
+          ? raw.exploredIds.length
+          : 0
+      );
+    }
+
+    function readAtlasSessionDismissals() {
+      try {
+        const parsed = JSON.parse(
+          localStorage.getItem(
+            ATLAS_SESSION_DISMISSALS_KEY
+          ) || '{}'
+        );
+
+        return parsed &&
+          typeof parsed === 'object' &&
+          !Array.isArray(parsed)
+            ? parsed
+            : {};
+      } catch {
+        return {};
+      }
+    }
+
+    function writeAtlasSessionDismissal(
+      sessionId,
       registryId,
-      event
+      progressCount
     ) {
-      event?.preventDefault();
-      event?.stopPropagation();
+      try {
+        const store = readAtlasSessionDismissals();
+        const sessionKey = String(sessionId || '').trim();
+        const subjectKey = String(registryId || '').trim();
 
-      closeOwnedSubjectMenus();
+        if (!sessionKey || !subjectKey) return false;
 
+        store[sessionKey] =
+          store[sessionKey] &&
+          typeof store[sessionKey] === 'object' &&
+          !Array.isArray(store[sessionKey])
+            ? store[sessionKey]
+            : {};
+
+        store[sessionKey][subjectKey] = {
+          progressCount: Math.max(
+            0,
+            Number(progressCount) || 0
+          )
+        };
+
+        localStorage.setItem(
+          ATLAS_SESSION_DISMISSALS_KEY,
+          JSON.stringify(store)
+        );
+
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    function clearAtlasSessionDismissal(
+      sessionId,
+      registryId
+    ) {
+      try {
+        const store = readAtlasSessionDismissals();
+        const sessionKey = String(sessionId || '').trim();
+        const subjectKey = String(registryId || '').trim();
+
+        if (!store[sessionKey]?.[subjectKey]) {
+          return;
+        }
+
+        delete store[sessionKey][subjectKey];
+
+        if (!Object.keys(store[sessionKey]).length) {
+          delete store[sessionKey];
+        }
+
+        localStorage.setItem(
+          ATLAS_SESSION_DISMISSALS_KEY,
+          JSON.stringify(store)
+        );
+      } catch { }
+    }
+
+    function getAtlasSessionDismissal(
+      sessionId,
+      registryId
+    ) {
+      const record =
+        readAtlasSessionDismissals()
+          ?.[String(sessionId || '').trim()]
+          ?.[String(registryId || '').trim()];
+
+      return record && typeof record === 'object'
+        ? record
+        : null;
+    }
+
+    async function syncAtlasOriginalSessionSubjects(
+      session,
+      atlasSubjects,
+      sessionSubjectRefs
+    ) {
       const Subjects = window.AtlasTutorSubjects;
-      const session = getActiveSession();
 
       if (
         !Subjects ||
         typeof Subjects.addSessionSubject !== 'function'
       ) {
-        showToast('Session subjects are unavailable.');
-        return;
+        return sessionSubjectRefs;
       }
 
-      try {
-        const saved =
-          await Subjects.addSessionSubject(
-            session.id,
-            {
-              kind: 'atlas-subject',
-              id: registryId
-            }
-          );
+      let refs = Array.isArray(sessionSubjectRefs)
+        ? [...sessionSubjectRefs]
+        : [];
 
-        if (!saved) {
-          throw new Error(
-            'Session subject assignment failed.'
-          );
+      const activeAtlasIds = new Set(
+        refs
+          .filter(ref => ref.kind === 'atlas-subject')
+          .map(ref => ref.id)
+      );
+
+      for (const subject of atlasSubjects) {
+        if (
+          !subject?.registryId ||
+          activeAtlasIds.has(subject.registryId)
+        ) {
+          continue;
         }
 
-        await renderHub();
+        const progressCount =
+          getAtlasSubjectProgressCount(subject);
 
-        showToast(
-          'Added to ' +
-          getActiveSessionSubjectCollectionTitle() +
-          '.'
+        const dismissal =
+          getAtlasSessionDismissal(
+            session.id,
+            subject.registryId
+          );
+
+        const dismissedAt = Math.max(
+          0,
+          Number(dismissal?.progressCount) || 0
         );
-      } catch {
-        showToast('Couldn’t add this subject.');
+
+        if (dismissal && progressCount < dismissedAt) {
+          writeAtlasSessionDismissal(
+            session.id,
+            subject.registryId,
+            progressCount
+          );
+          continue;
+        }
+
+        if (
+          progressCount <= 0 ||
+          (dismissal && progressCount <= dismissedAt)
+        ) {
+          continue;
+        }
+
+        try {
+          const saved =
+            await Subjects.addSessionSubject(
+              session.id,
+              {
+                kind: 'atlas-subject',
+                id: subject.registryId
+              }
+            );
+
+          if (Array.isArray(saved)) {
+            refs = saved;
+            activeAtlasIds.add(subject.registryId);
+            clearAtlasSessionDismissal(
+              session.id,
+              subject.registryId
+            );
+          }
+        } catch { }
       }
+
+      return refs;
     }
 
     async function removeAtlasSubjectFromActiveSession(
@@ -6865,6 +7023,17 @@
             'Session subject removal failed.'
           );
         }
+
+        const atlasSubject =
+          getAtlasSubjects().find(subject =>
+            subject.registryId === registryId
+          );
+
+        writeAtlasSessionDismissal(
+          session.id,
+          registryId,
+          getAtlasSubjectProgressCount(atlasSubject)
+        );
 
         await renderHub();
 
@@ -7977,6 +8146,17 @@
         return;
       }
 
+      sessionSubjectRefs =
+        await syncAtlasOriginalSessionSubjects(
+          session,
+          atlasSubjects,
+          sessionSubjectRefs
+        );
+
+      if (renderRevision !== hubRenderRevision) {
+        return;
+      }
+
       const ownedById = new Map(
         ownedSubjects.map(subject => [
           subject.subjectId,
@@ -8711,6 +8891,7 @@
       }
 
       if (
+        subject.isSessionRelevant &&
         !subject.isOwned &&
         subject.registryId
       ) {
@@ -8735,31 +8916,17 @@
 
           '<div class="subject-card-menu" role="menu" hidden>' +
 
-          (
-            subject.isSessionRelevant
-              ? (
-                '<button type="button" role="menuitem" ' +
-                'onclick="removeAtlasSubjectFromActiveSession(' +
-                jsArg(subject.registryId) +
-                ', event)">' +
-                'Remove from ' +
-                escHtml(
-                  getActiveSessionSubjectCollectionTitle()
-                ) +
-                '</button>'
-              )
-              : (
-                '<button type="button" role="menuitem" ' +
-                'onclick="addAtlasSubjectToActiveSession(' +
-                jsArg(subject.registryId) +
-                ', event)">' +
-                'Add to ' +
-                escHtml(
-                  getActiveSessionSubjectCollectionTitle()
-                ) +
-                '</button>'
-              )
+          '<div class="subject-card-menu-meta">Atlas Original</div>' +
+
+          '<button type="button" role="menuitem" ' +
+          'onclick="removeAtlasSubjectFromActiveSession(' +
+          jsArg(subject.registryId) +
+          ', event)">' +
+          'Remove from ' +
+          escHtml(
+            getActiveSessionSubjectCollectionTitle()
           ) +
+          '</button>' +
           '</div>' +
           '</div>';
 
