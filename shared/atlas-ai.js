@@ -27,6 +27,33 @@
         return String(value ?? '').trim();
     }
 
+    function buildLanguageUpgradeBrief(
+        localBrief = '',
+        existingLanguage = []
+    ) {
+        const existingTypes =
+            Array.isArray(existingLanguage)
+                ? existingLanguage
+                    .map(item =>
+                        cleanString(item?.type)
+                    )
+                    .filter(Boolean)
+                : [];
+
+        const diversityGuidance =
+            existingTypes.length
+                ? `EXISTING LANGUAGE TYPES: ${existingTypes.join(', ')}. Use this only as a soft diversity signal. If another language form is equally strong, prefer variety; never sacrifice quality to satisfy variety.`
+                : '';
+
+        return [
+            cleanString(localBrief),
+            'LANGUAGE UPGRADE SELECTION: Choose the strongest teachable language item for this exact context. It may be a single word (noun, verb, or adjective) or a multi-word item (collocation, phrasal verb, idiom, phrase, or expression). Give single-word and multi-word items equal status. Do not default to multi-word expressions. Do not choose a longer phrase when a natural single word is stronger, and do not choose an obscure or overly sophisticated single-word synonym merely for variety.',
+            diversityGuidance
+        ]
+            .filter(Boolean)
+            .join('\n');
+    }
+
     function buildGenerationBrief(localBrief = '') {
         const context =
             window.AtlasGenerationContext &&
@@ -1068,8 +1095,9 @@
                             : [],
 
                     brief:
-                        cleanString(
-                            candidate.brief
+                        buildLanguageUpgradeBrief(
+                            candidate.brief,
+                            candidate.existingLanguage
                         )
                 })
             }
@@ -1209,8 +1237,9 @@
                             : [],
 
                     brief:
-                        cleanString(
-                            candidate.brief
+                        buildLanguageUpgradeBrief(
+                            candidate.brief,
+                            candidate.existingLanguage
                         )
                 })
             }
