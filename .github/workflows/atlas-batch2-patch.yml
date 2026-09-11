@@ -1,0 +1,45 @@
+name: Atlas Batch 2 Patch
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/atlas-batch2-patch.py'
+      - '.github/workflows/atlas-batch2-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply Batch 2
+        run: python .github/atlas-batch2-patch.py
+
+      - name: Validate JavaScript syntax
+        run: |
+          node --check compass/shared/compass-engine.js
+          python - <<'PY'
+          from pathlib import Path
+          html = Path('compass/index.html').read_text()
+          start = html.index("  <script>\n    'use strict';")
+          start = html.index('\n', start) + 1
+          end = html.index('\n  </script>', start)
+          js = html[start:end]
+          Path('/tmp/compass-hub-inline.js').write_text(js)
+          PY
+          node --check /tmp/compass-hub-inline.js
+
+      - name: Commit Batch 2
+        run: |
+          git config user.name 'Atlas Architecture Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add compass/index.html compass/shared/compass-engine.js
+          git rm .github/atlas-batch2-patch.py .github/workflows/atlas-batch2-patch.yml
+          git commit -m 'feat: refine Atlas subject edit intent and provenance'
+          git push
