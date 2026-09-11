@@ -1,7 +1,10 @@
 /* ============================================================
    COMPASS GENERATION AUTHORITY
-   Human actions stay authoritative while owned subjects continue
-   generating in the background.
+   Already-rendered tutor content behaves the same while an owned
+   subject is still generating as it does after generation finishes.
+
+   Expanded subject tools = reusable My Subject edits.
+   Minimized subject tools = temporary Live Changes.
 
    Loaded only by the dynamic owned-subject loader, after the
    shared Compass engine has established its canonical runtime.
@@ -23,15 +26,27 @@
         setMyVersionAuthorBarMinimized;
     const originalBeginMyVersionEditing =
         beginMyVersionEditing;
-    const originalInsertMyVersionDiscussionSet =
-        insertMyVersionDiscussionSet;
-    const originalInsertMyVersionMoment =
-        insertMyVersionMoment;
-    const originalInsertMyVersionCulturalLensCard =
-        insertMyVersionCulturalLensCard;
+    const originalNormalizeMyVersionQuestionCollectionsForSave =
+        normalizeMyVersionQuestionCollectionsForSave;
+
+    const reusableGenerationReaders = [
+        'generateMyVersionSubjectFraming',
+        'generateMyVersionOverview',
+        'generateMyVersionDiscussionFraming',
+        'generateMyVersionDiscussionSet',
+        'generateMyVersionMoment',
+        'generateMyVersionMomentPathway',
+        'generateMyVersionMomentUpgrade',
+        'generateMyVersionMakeItReal',
+        'generateMyVersionCulturalLensFraming',
+        'generateMyVersionCulturalLensCard',
+        'generateMyVersionCulturalLensUpgrade',
+        'generateMyVersionReflection'
+    ];
 
     let allowAuthoringOpenWithLiveChanges = false;
     let tutorRenderAuthorityDepth = 0;
+    let suppressLiveResolutionDepth = 0;
 
     function isAuthoring() {
         return Boolean(
@@ -84,8 +99,6 @@
 
     // ------------------------------------------------------------
     // EDIT AUTHORITY
-    // Expanded subject tools edit the reusable subject.
-    // Minimized subject tools edit the current lesson temporarily.
     // ------------------------------------------------------------
 
     resolveTutorContentValue = function (originalValue, fieldKey) {
@@ -98,6 +111,7 @@
 
             if (
                 !myVersionAuthoringOpen &&
+                suppressLiveResolutionDepth === 0 &&
                 hasTutorContentOverride(tutorContentLiveDraft, fieldKey)
             ) {
                 return String(
@@ -138,9 +152,9 @@
         }
 
         /*
-         * Reuse the engine's canonical native-edit setup while bypassing
-         * its old "editing session means authoring" gate. The authority-
-         * sensitive handlers are replaced immediately afterwards.
+         * Reuse the engine's finished-subject Live Change editor while
+         * bypassing only its old "any active My Subject build disables
+         * live editing" gate.
          */
         const editingState = myVersionEditing;
         myVersionEditing = false;
@@ -270,6 +284,8 @@
 
     // ------------------------------------------------------------
     // LIVE CHANGES -> SUBJECT AUTHORING TRANSITION
+    // Match the finished-subject choice instead of silently promoting
+    // temporary lesson changes when the tutor expands subject tools.
     // ------------------------------------------------------------
 
     function liveChangesMatchDraft(overrides) {
@@ -366,8 +382,9 @@
     };
 
     // ------------------------------------------------------------
-    // DIRTY NATIVE EDIT PRESERVATION
-    // Generation rerenders must not erase text or steal the caret.
+    // DIRTY EDIT PRESERVATION
+    // A background render may rebuild the element before blur. Preserve
+    // the unfinished text, focus and caret on the same rendered surface.
     // ------------------------------------------------------------
 
     function getFieldCandidates(fieldKey) {
@@ -535,8 +552,7 @@
         if (!snapshot) return null;
 
         const matchesField = element =>
-            element?.dataset?.atlasTutorFieldKey ===
-                snapshot.fieldKey;
+            element?.dataset?.atlasTutorFieldKey === snapshot.fieldKey;
 
         if (snapshot.locator?.elementId) {
             const exact = document.getElementById(
@@ -593,7 +609,7 @@
             element.focus();
         }
 
-        // Focus initializes a new transaction; restore the interrupted one.
+        // Focus creates a new transaction; restore the interrupted one.
         element.dataset.atlasTutorStartValue = snapshot.startValue;
         element.dataset.atlasTutorNativeDirty = 'true';
 
@@ -604,23 +620,6 @@
         }
 
         restoreSelectionOffsets(element, snapshot.selection);
-    }
-
-    function restoreCommittedTutorFocus(snapshot) {
-        if (!snapshot) return;
-
-        window.requestAnimationFrame(() => {
-            const element = findEditableForSnapshot(snapshot);
-            if (!element) return;
-
-            try {
-                element.focus({ preventScroll: true });
-            } catch {
-                element.focus();
-            }
-
-            restoreSelectionOffsets(element, snapshot.selection);
-        });
     }
 
     function wrapTutorRender(renderer) {
@@ -660,820 +659,41 @@
         renderReflectionQuestions
     );
 
-    /*
-     * A pristine starter can otherwise be structurally replaced while a
-     * tutor is still typing into it. Commit only that threatened dirty
-     * edit first, then let the normal insert logic re-check pristineness.
-     * The starter will remain and the generated item will be appended.
-     */
-    function settleDirtyStarterEdit(matchesStarterField) {
-        const snapshot = captureDirtyTutorEdit();
-
-        if (
-            !snapshot ||
-            typeof matchesStarterField !== 'function' ||
-            !matchesStarterField(snapshot.fieldKey)
-        ) {
-            return null;
-        }
-
-        const element = document.activeElement;
-        if (element instanceof HTMLElement) {
-            element.blur();
-        }
-
-        return snapshot;
-    }
-
-    insertMyVersionDiscussionSet = function (set, options = {}) {
-        const starter = options?.replaceStarter
-            ? getPristineMyVersionDiscussionStarter()
-            : null;
-
-        const momentIds = new Set(
-            (starter?.moments || []).map(moment => moment.id)
-        );
-
-        const snapshot = starter
-            ? settleDirtyStarterEdit(fieldKey =>
-                fieldKey.startsWith(`discussion.set.${starter.id}.`) ||
-                Array.from(momentIds).some(momentId =>
-                    fieldKey.startsWith(`discussion.${momentId}.`) ||
-                    fieldKey.startsWith(`upgrade.moment.${momentId}.`)
-                )
-            )
-            : null;
-
-        const result = originalInsertMyVersionDiscussionSet(
-            set,
-            options
-        );
-
-        restoreCommittedTutorFocus(snapshot);
-        return result;
-    };
-
-    insertMyVersionMoment = function (setId, moment, options = {}) {
-        const starter = options?.replaceStarter
-            ? getPristineMyVersionMomentStarter(setId)
-            : null;
-
-        const snapshot = starter
-            ? settleDirtyStarterEdit(fieldKey =>
-                fieldKey.startsWith(`discussion.${starter.id}.`) ||
-                fieldKey.startsWith(`upgrade.moment.${starter.id}.`)
-            )
-            : null;
-
-        const result = originalInsertMyVersionMoment(
-            setId,
-            moment,
-            options
-        );
-
-        restoreCommittedTutorFocus(snapshot);
-        return result;
-    };
-
-    insertMyVersionCulturalLensCard = function (card, options = {}) {
-        const starter = options?.replaceStarter
-            ? getPristineMyVersionCulturalLensStarter()
-            : null;
-
-        const snapshot = starter
-            ? settleDirtyStarterEdit(fieldKey =>
-                fieldKey.startsWith(`culturalLens.${starter.id}.`) ||
-                fieldKey.startsWith(
-                    `upgrade.cultural-lens.${starter.id}.`
-                )
-            )
-            : null;
-
-        const result = originalInsertMyVersionCulturalLensCard(
-            card,
-            options
-        );
-
-        restoreCommittedTutorFocus(snapshot);
-        return result;
-    };
-
     // ------------------------------------------------------------
-    // GENERATION AUTHORITY
-    // During the automatic full build, an existing tutor override is
-    // already authoritative even if it predates the current AI request.
-    // For explicit manual regeneration, only edits made while the request
-    // is in flight are protected; the user's regenerate action may replace
-    // the section they explicitly asked Atlas to regenerate.
+    // KEEP LIVE CHANGES TEMPORARY
+    // Live Changes may be visible while the reusable subject continues
+    // building, but they must not be materialized into the saved subject
+    // or used as prompt context for later permanent generation.
     // ------------------------------------------------------------
 
-    function overrideChangedSince(
-        startingOverrides,
-        currentOverrides,
-        fieldKey
-    ) {
-        const existedAtStart = hasOwn(startingOverrides, fieldKey);
-        const existsNow = hasOwn(currentOverrides, fieldKey);
+    function withReusableSubjectReads(operation) {
+        suppressLiveResolutionDepth += 1;
 
-        if (existedAtStart !== existsNow) return true;
-
-        return (
-            existsNow &&
-            currentOverrides[fieldKey] !==
-                startingOverrides[fieldKey]
-        );
-    }
-
-    function fieldIsHumanAuthoritative(
-        startingOverrides,
-        currentOverrides,
-        fieldKey
-    ) {
-        return (
-            overrideChangedSince(
-                startingOverrides,
-                currentOverrides,
-                fieldKey
-            ) ||
-            (
-                myVersionGeneratingFullSubject &&
-                hasOwn(startingOverrides, fieldKey)
-            )
-        );
-    }
-
-    function prefixIsHumanAuthoritative(
-        startingOverrides,
-        currentOverrides,
-        prefix
-    ) {
-        const keys = new Set([
-            ...Object.keys(startingOverrides || {}),
-            ...Object.keys(currentOverrides || {})
-        ]);
-
-        for (const fieldKey of keys) {
-            if (!fieldKey.startsWith(prefix)) continue;
-
-            if (
-                fieldIsHumanAuthoritative(
-                    startingOverrides,
-                    currentOverrides,
-                    fieldKey
-                )
-            ) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    function clearOverridePrefix(overrides, prefix) {
-        Object.keys(overrides).forEach(fieldKey => {
-            if (fieldKey.startsWith(prefix)) {
-                delete overrides[fieldKey];
-            }
-        });
-    }
-
-    function jsonMatches(left, right) {
         try {
-            return JSON.stringify(left) === JSON.stringify(right);
-        } catch {
-            return false;
+            return operation();
+        } finally {
+            suppressLiveResolutionDepth -= 1;
         }
     }
 
-    function canGenerateOwnedSubject() {
-        return Boolean(
-            myVersionEditing &&
-            !myVersionSaving &&
-            isOwnedSubjectRuntime()
+    normalizeMyVersionQuestionCollectionsForSave = function (...args) {
+        return withReusableSubjectReads(() =>
+            originalNormalizeMyVersionQuestionCollectionsForSave
+                .apply(this, args)
         );
-    }
+    };
 
-    function authorityTargetIsValid(kind) {
-        const document = myVersionDraftDocument;
+    reusableGenerationReaders.forEach(functionName => {
+        const original = window[functionName];
 
-        if (
-            !myVersionEditing ||
-            !isOwnedSubjectRuntime() ||
-            !document ||
-            typeof document !== 'object'
-        ) {
-            return false;
-        }
+        if (typeof original !== 'function') return;
 
-        if (kind === 'subject-framing') {
-            return Boolean(
-                document.module &&
-                typeof document.module === 'object' &&
-                document.subjectCopy &&
-                typeof document.subjectCopy === 'object'
+        window[functionName] = function (...args) {
+            return withReusableSubjectReads(() =>
+                original.apply(this, args)
             );
-        }
-
-        const copy = document.subjectCopy;
-        if (!copy || typeof copy !== 'object') return false;
-
-        if (kind === 'overview') {
-            return Boolean(copy.overview);
-        }
-
-        if (kind === 'discussion-framing') {
-            return Boolean(copy.discussion && copy.paths);
-        }
-
-        if (kind === 'cultural-lens-framing') {
-            return Boolean(copy.culturalLens && copy.paths);
-        }
-
-        if (kind === 'reflection') {
-            return Boolean(copy.reflection && copy.paths);
-        }
-
-        return false;
-    }
-
-    function commitGeneratedAuthorityStage(kind, mutator) {
-        const result = commitMyVersionDocumentMutation(mutator);
-
-        if (result) return result;
-
-        return (
-            myVersionGeneratingFullSubject &&
-            authorityTargetIsValid(kind)
-        )
-            ? { authoritySatisfied: true }
-            : null;
-    }
-
-    generateMyVersionSubjectFraming = async function (brief = '') {
-        if (!canGenerateOwnedSubject()) return null;
-
-        const startingOverrides = cloneTutorContentOverrides(
-            myVersionDraftOverrides
-        );
-
-        const generated = await requireAtlasAI()
-            .generateSubjectFraming({
-                subject: {
-                    title: getEffectiveSubjectTitle()
-                },
-                brief: String(brief || '').trim()
-            });
-
-        return commitGeneratedAuthorityStage(
-            'subject-framing',
-            (document, overrides) => {
-                if (
-                    !document.module ||
-                    typeof document.module !== 'object' ||
-                    Array.isArray(document.module) ||
-                    !document.subjectCopy ||
-                    typeof document.subjectCopy !== 'object' ||
-                    Array.isArray(document.subjectCopy)
-                ) {
-                    return null;
-                }
-
-                document.subjectCopy.cover =
-                    document.subjectCopy.cover &&
-                    typeof document.subjectCopy.cover === 'object' &&
-                    !Array.isArray(document.subjectCopy.cover)
-                        ? document.subjectCopy.cover
-                        : {};
-
-                if (
-                    !fieldIsHumanAuthoritative(
-                        startingOverrides,
-                        overrides,
-                        'module.catalogDescription'
-                    )
-                ) {
-                    document.module.catalogDescription =
-                        generated.catalogDescription;
-                    delete overrides['module.catalogDescription'];
-                }
-
-                if (
-                    !fieldIsHumanAuthoritative(
-                        startingOverrides,
-                        overrides,
-                        'cover.hook'
-                    )
-                ) {
-                    document.subjectCopy.cover.hook = generated.hook;
-                    delete overrides['cover.hook'];
-                }
-
-                return {
-                    catalogDescription: generated.catalogDescription,
-                    hook: generated.hook
-                };
-            }
-        );
-    };
-
-    generateMyVersionOverview = async function (brief = '') {
-        if (!canGenerateOwnedSubject()) return null;
-
-        const startingOverrides = cloneTutorContentOverrides(
-            myVersionDraftOverrides
-        );
-        const generated = await requireAtlasAI().generateOverview({
-            subject: {
-                title: getEffectiveSubjectTitle(),
-                description: getEffectiveSubjectCatalogDescription(),
-                hook: resolveTutorContentValue(
-                    subjectCopy.cover?.hook || '',
-                    'cover.hook'
-                ).trim()
-            },
-            brief: String(brief || '').trim()
-        });
-
-        return commitGeneratedAuthorityStage(
-            'overview',
-            (document, overrides) => {
-                if (
-                    !document.subjectCopy ||
-                    typeof document.subjectCopy !== 'object' ||
-                    Array.isArray(document.subjectCopy)
-                ) {
-                    return null;
-                }
-
-                document.subjectCopy.overview =
-                    document.subjectCopy.overview &&
-                    typeof document.subjectCopy.overview === 'object' &&
-                    !Array.isArray(document.subjectCopy.overview)
-                        ? document.subjectCopy.overview
-                        : {};
-
-                if (
-                    !fieldIsHumanAuthoritative(
-                        startingOverrides,
-                        overrides,
-                        'overview.heading'
-                    )
-                ) {
-                    document.subjectCopy.overview.heading =
-                        generated.heading;
-                    delete overrides['overview.heading'];
-                }
-
-                if (
-                    !prefixIsHumanAuthoritative(
-                        startingOverrides,
-                        overrides,
-                        'overview.intro.'
-                    )
-                ) {
-                    document.subjectCopy.overview.intro = [generated.intro];
-                    clearOverridePrefix(overrides, 'overview.intro.');
-                }
-
-                if (
-                    !fieldIsHumanAuthoritative(
-                        startingOverrides,
-                        overrides,
-                        'overview.question'
-                    )
-                ) {
-                    document.subjectCopy.overview.question =
-                        generated.question;
-                    delete overrides['overview.question'];
-                }
-
-                return {
-                    heading: generated.heading,
-                    intro: generated.intro,
-                    question: generated.question
-                };
-            }
-        );
-    };
-
-    function getOverviewGenerationContext() {
-        const overview = subjectCopy.overview || {};
-        const intro = Array.isArray(overview.intro)
-            ? overview.intro
-                .map((paragraph, index) =>
-                    resolveTutorContentValue(
-                        paragraph,
-                        `overview.intro.${index}`
-                    ).trim()
-                )
-                .filter(Boolean)
-                .join('\n\n')
-            : '';
-
-        return {
-            overview,
-            intro
         };
-    }
-
-    generateMyVersionDiscussionFraming = async function (brief = '') {
-        if (!canGenerateOwnedSubject()) return null;
-
-        const startingOverrides = cloneTutorContentOverrides(
-            myVersionDraftOverrides
-        );
-        const { overview, intro } = getOverviewGenerationContext();
-        const generated = await requireAtlasAI()
-            .generateDiscussionFraming({
-                subject: {
-                    title: getEffectiveSubjectTitle(),
-                    description: getEffectiveSubjectCatalogDescription(),
-                    hook: resolveTutorContentValue(
-                        subjectCopy.cover?.hook || '',
-                        'cover.hook'
-                    ).trim()
-                },
-                overview: {
-                    heading: resolveTutorContentValue(
-                        overview.heading || '',
-                        'overview.heading'
-                    ).trim(),
-                    intro,
-                    question: resolveTutorContentValue(
-                        overview.question || '',
-                        'overview.question'
-                    ).trim()
-                },
-                brief: String(brief || '').trim()
-            });
-
-        return commitGeneratedAuthorityStage(
-            'discussion-framing',
-            (document, overrides) => {
-                if (
-                    !document.subjectCopy ||
-                    typeof document.subjectCopy !== 'object' ||
-                    Array.isArray(document.subjectCopy)
-                ) {
-                    return null;
-                }
-
-                document.subjectCopy.discussion =
-                    document.subjectCopy.discussion &&
-                    typeof document.subjectCopy.discussion === 'object' &&
-                    !Array.isArray(document.subjectCopy.discussion)
-                        ? document.subjectCopy.discussion
-                        : {};
-                document.subjectCopy.paths =
-                    document.subjectCopy.paths &&
-                    typeof document.subjectCopy.paths === 'object' &&
-                    !Array.isArray(document.subjectCopy.paths)
-                        ? document.subjectCopy.paths
-                        : {};
-
-                if (
-                    !fieldIsHumanAuthoritative(
-                        startingOverrides,
-                        overrides,
-                        'discussion.heading'
-                    )
-                ) {
-                    document.subjectCopy.discussion.heading =
-                        generated.heading;
-                    delete overrides['discussion.heading'];
-                }
-
-                if (
-                    !fieldIsHumanAuthoritative(
-                        startingOverrides,
-                        overrides,
-                        'discussion.intro'
-                    )
-                ) {
-                    document.subjectCopy.discussion.intro =
-                        generated.intro;
-                    delete overrides['discussion.intro'];
-                }
-
-                if (
-                    !fieldIsHumanAuthoritative(
-                        startingOverrides,
-                        overrides,
-                        'paths.discussionDescription'
-                    )
-                ) {
-                    document.subjectCopy.paths.discussionDescription =
-                        generated.pathDescription;
-                    delete overrides['paths.discussionDescription'];
-                }
-
-                return {
-                    heading: generated.heading,
-                    intro: generated.intro,
-                    pathDescription: generated.pathDescription
-                };
-            }
-        );
-    };
-
-    generateMyVersionCulturalLensFraming = async function (brief = '') {
-        if (!canGenerateOwnedSubject()) return null;
-
-        const startingOverrides = cloneTutorContentOverrides(
-            myVersionDraftOverrides
-        );
-        const { overview, intro } = getOverviewGenerationContext();
-        const generated = await requireAtlasAI()
-            .generateCulturalLensFraming({
-                subject: {
-                    title: getEffectiveSubjectTitle(),
-                    description: getEffectiveSubjectCatalogDescription(),
-                    hook: resolveTutorContentValue(
-                        subjectCopy.cover?.hook || '',
-                        'cover.hook'
-                    ).trim()
-                },
-                overview: {
-                    heading: resolveTutorContentValue(
-                        overview.heading || '',
-                        'overview.heading'
-                    ).trim(),
-                    intro,
-                    question: resolveTutorContentValue(
-                        overview.question || '',
-                        'overview.question'
-                    ).trim()
-                },
-                brief: String(brief || '').trim()
-            });
-
-        return commitGeneratedAuthorityStage(
-            'cultural-lens-framing',
-            (document, overrides) => {
-                if (
-                    !document.subjectCopy ||
-                    typeof document.subjectCopy !== 'object' ||
-                    Array.isArray(document.subjectCopy)
-                ) {
-                    return null;
-                }
-
-                document.subjectCopy.culturalLens =
-                    document.subjectCopy.culturalLens &&
-                    typeof document.subjectCopy.culturalLens === 'object' &&
-                    !Array.isArray(document.subjectCopy.culturalLens)
-                        ? document.subjectCopy.culturalLens
-                        : {};
-                document.subjectCopy.paths =
-                    document.subjectCopy.paths &&
-                    typeof document.subjectCopy.paths === 'object' &&
-                    !Array.isArray(document.subjectCopy.paths)
-                        ? document.subjectCopy.paths
-                        : {};
-
-                if (
-                    !fieldIsHumanAuthoritative(
-                        startingOverrides,
-                        overrides,
-                        'culturalLens.heading'
-                    )
-                ) {
-                    document.subjectCopy.culturalLens.heading =
-                        generated.heading;
-                    delete overrides['culturalLens.heading'];
-                }
-
-                if (
-                    !fieldIsHumanAuthoritative(
-                        startingOverrides,
-                        overrides,
-                        'culturalLens.intro'
-                    )
-                ) {
-                    document.subjectCopy.culturalLens.intro =
-                        generated.intro;
-                    delete overrides['culturalLens.intro'];
-                }
-
-                if (
-                    !fieldIsHumanAuthoritative(
-                        startingOverrides,
-                        overrides,
-                        'paths.culturalLensDescription'
-                    )
-                ) {
-                    document.subjectCopy.paths.culturalLensDescription =
-                        generated.pathDescription;
-                    delete overrides['paths.culturalLensDescription'];
-                }
-
-                return {
-                    heading: generated.heading,
-                    intro: generated.intro,
-                    pathDescription: generated.pathDescription
-                };
-            }
-        );
-    };
-
-    generateMyVersionReflection = async function (brief = '') {
-        if (!canGenerateOwnedSubject()) return null;
-
-        const startingOverrides = cloneTutorContentOverrides(
-            myVersionDraftOverrides
-        );
-        const startingQuestions = cloneTutorSubjectDocument(
-            myVersionDraftDocument
-                ?.subjectCopy
-                ?.reflection
-                ?.questions ||
-            subjectCopy.reflection?.questions ||
-            []
-        ) || [];
-        const originalQuestions = cloneTutorSubjectDocument(
-            myVersionOriginalDocument
-                ?.subjectCopy
-                ?.reflection
-                ?.questions ||
-            []
-        ) || [];
-        const startingStructureIsHuman = Boolean(
-            myVersionGeneratingFullSubject &&
-            !jsonMatches(startingQuestions, originalQuestions)
-        );
-
-        const overview = subjectCopy.overview || {};
-        const discussion = subjectCopy.discussion || {};
-        const culturalLens = subjectCopy.culturalLens || {};
-        const { intro: overviewIntro } = getOverviewGenerationContext();
-
-        const starterSet = getPristineMyVersionDiscussionStarter();
-        const existingSets = discussionSets
-            .map(set => materializeMyVersionDiscussionSet(set))
-            .filter(Boolean)
-            .filter(set => !starterSet || set.id !== starterSet.id)
-            .map(set => ({
-                title: String(set.title || '').trim(),
-                stage: String(set.stage || '').trim(),
-                description: String(set.description || '').trim(),
-                moments: Array.isArray(set.moments)
-                    ? set.moments.map(moment => ({
-                        preview: String(moment.preview || '').trim(),
-                        question: String(moment.question || '').trim()
-                    }))
-                    : []
-            }));
-
-        const starterCard = getPristineMyVersionCulturalLensStarter();
-        const existingCards = clCards
-            .map(card => materializeMyVersionCulturalLensCard(card))
-            .filter(Boolean)
-            .filter(card => !starterCard || card.id !== starterCard.id)
-            .map(card => ({
-                title: String(card.title || '').trim(),
-                contextLine: String(card.contextLine || '').trim(),
-                teaser: String(card.teaser || '').trim(),
-                questions: Array.isArray(card.questions)
-                    ? card.questions
-                        .map(question => String(question || '').trim())
-                        .filter(Boolean)
-                    : []
-            }));
-
-        const generated = await requireAtlasAI().generateReflection({
-            subject: {
-                title: getEffectiveSubjectTitle(),
-                description: getEffectiveSubjectCatalogDescription(),
-                hook: resolveTutorContentValue(
-                    subjectCopy.cover?.hook || '',
-                    'cover.hook'
-                ).trim()
-            },
-            overview: {
-                heading: resolveTutorContentValue(
-                    overview.heading || '',
-                    'overview.heading'
-                ).trim(),
-                intro: overviewIntro,
-                question: resolveTutorContentValue(
-                    overview.question || '',
-                    'overview.question'
-                ).trim()
-            },
-            discussion: {
-                heading: resolveTutorContentValue(
-                    discussion.heading || '',
-                    'discussion.heading'
-                ).trim(),
-                intro: resolveTutorContentValue(
-                    discussion.intro || '',
-                    'discussion.intro'
-                ).trim(),
-                sets: existingSets
-            },
-            culturalLens: {
-                heading: resolveTutorContentValue(
-                    culturalLens.heading || '',
-                    'culturalLens.heading'
-                ).trim(),
-                intro: resolveTutorContentValue(
-                    culturalLens.intro || '',
-                    'culturalLens.intro'
-                ).trim(),
-                cards: existingCards
-            },
-            brief: String(brief || '').trim()
-        });
-
-        return commitGeneratedAuthorityStage(
-            'reflection',
-            (document, overrides) => {
-                if (
-                    !document.subjectCopy ||
-                    typeof document.subjectCopy !== 'object' ||
-                    Array.isArray(document.subjectCopy)
-                ) {
-                    return null;
-                }
-
-                document.subjectCopy.reflection =
-                    document.subjectCopy.reflection &&
-                    typeof document.subjectCopy.reflection === 'object' &&
-                    !Array.isArray(document.subjectCopy.reflection)
-                        ? document.subjectCopy.reflection
-                        : {};
-                document.subjectCopy.paths =
-                    document.subjectCopy.paths &&
-                    typeof document.subjectCopy.paths === 'object' &&
-                    !Array.isArray(document.subjectCopy.paths)
-                        ? document.subjectCopy.paths
-                        : {};
-
-                if (
-                    !fieldIsHumanAuthoritative(
-                        startingOverrides,
-                        overrides,
-                        'reflection.title'
-                    )
-                ) {
-                    document.subjectCopy.reflection.title = generated.title;
-                    delete overrides['reflection.title'];
-                }
-
-                if (
-                    !fieldIsHumanAuthoritative(
-                        startingOverrides,
-                        overrides,
-                        'reflection.summary'
-                    )
-                ) {
-                    document.subjectCopy.reflection.summary =
-                        generated.summary;
-                    delete overrides['reflection.summary'];
-                }
-
-                const currentQuestions = cloneTutorSubjectDocument(
-                    document.subjectCopy.reflection.questions || []
-                ) || [];
-                const questionsAreHumanAuthoritative =
-                    startingStructureIsHuman ||
-                    prefixIsHumanAuthoritative(
-                        startingOverrides,
-                        overrides,
-                        'reflection.questions.'
-                    ) ||
-                    !jsonMatches(startingQuestions, currentQuestions);
-
-                if (!questionsAreHumanAuthoritative) {
-                    document.subjectCopy.reflection.questions =
-                        generated.questions.slice();
-                    clearOverridePrefix(
-                        overrides,
-                        'reflection.questions.'
-                    );
-                }
-
-                if (
-                    !fieldIsHumanAuthoritative(
-                        startingOverrides,
-                        overrides,
-                        'paths.reflectionDescription'
-                    )
-                ) {
-                    document.subjectCopy.paths.reflectionDescription =
-                        generated.pathDescription;
-                    delete overrides['paths.reflectionDescription'];
-                }
-
-                return {
-                    title: generated.title,
-                    summary: generated.summary,
-                    questions: generated.questions.slice(),
-                    pathDescription: generated.pathDescription
-                };
-            }
-        );
-    };
+    });
 
     installMobileLiveChangesOffset();
 
