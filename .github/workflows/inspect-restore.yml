@@ -10,13 +10,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Show restore functions
+      - name: Show hub dialog and menu code
         run: |
           python - <<'PY'
           from pathlib import Path
-          text=Path('compass/shared/compass-engine.js').read_text()
-          for needle in ['function requestMyVersionEditing', 'function beginMyVersionEditing', 'async function restoreAtlasOriginal']:
+          text=Path('compass/index.html').read_text()
+          for needle, span in [
+              ('async function confirmOwnedSubjectDialog', 6500),
+              ('function ensureOwnedSubjectDialog', 7000),
+              ('if (subject.isOwned && subject.subjectId)', 7000),
+              ('if (!subject.isOwned && subject.registryId)', 5500),
+              ('const atlasOriginalActionRequests = new Map();', 7000),
+          ]:
               i=text.index(needle)
               print('\n===== '+needle+' =====\n')
-              print(text[i:i+3500])
+              print(text[i:i+span])
           PY
