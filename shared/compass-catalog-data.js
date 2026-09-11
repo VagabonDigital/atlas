@@ -999,8 +999,8 @@
                     <circle cx="105" cy="78" r="3" fill="currentColor"/>
                     <circle cx="121" cy="82" r="3" fill="currentColor"/>
                     <circle cx="105" cy="94" r="3" fill="currentColor"/>
-                    <circle cx="121" cy="99" r="3" fill="currentColor"/>
-                    <circle cx="105" cy="110" r="3" fill="currentColor"/>
+                    <circle cx="121" cy="95" r="3" fill="currentColor"/>
+                    <circle cx="105" cy="105" r="3" fill="currentColor"/>
                 </g>
 
                 <path
