@@ -20963,6 +20963,13 @@ async function init() {
         );
     }
 
+    if (
+        ownedSubjectAuthoringIntent === 'edit' &&
+        myVersionEditing
+    ) {
+        setMyVersionAuthorBarMinimized(false);
+    }
+
     const resumableFullSubjectBuild =
         ownedSubjectBuildState?.kind ===
             'full-subject'
@@ -21053,3 +21060,230 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
+
+// ============================================================
+// COMPASS HUB · ATLAS ORIGINAL ACTION BRIDGE
+// Hub controls are alternate entrances into the existing authorship model.
+// ============================================================
+
+async function createOwnedSubjectFromAtlasHub(action) {
+    await loadTutorContentState();
+
+    const publishedVersion = tutorContentVersion;
+
+    const document = publishedVersion
+        ? materializePublishedMyVersionDocument()
+        : createAtlasSubjectDocument();
+
+    if (!document) {
+        throw new Error(
+            '[Compass] Atlas source could not be materialized.'
+        );
+    }
+
+    const Subjects = requireAtlasTutorSubjects();
+    const sourceContentId = getTutorContentId();
+    const ownershipAction = action === 'own';
+
+    const subject = await Subjects.createSubject({
+        format: 'structured',
+        metadata: {
+            title:
+                String(
+                    document.module?.title || MODULE.title
+                ).trim() || MODULE.title,
+            navTitle:
+                String(
+                    document.module?.navTitle ||
+                    document.module?.title ||
+                    MODULE.navTitle ||
+                    MODULE.title
+                ).trim(),
+            description:
+                String(
+                    document.module?.catalogDescription || ''
+                ).trim(),
+            coverImage:
+                String(
+                    document.module?.bgImage || ''
+                ).trim()
+        },
+        document,
+        provenance: {
+            kind: ownershipAction
+                ? (
+                    publishedVersion
+                        ? 'atlas-my-version'
+                        : 'atlas-original-owned'
+                )
+                : 'atlas-duplicate',
+            sourceWorld: COMPASS_WORLD_ID,
+            sourceSubjectId: MODULE.id,
+            sourceContentId,
+            sourceContentVersion:
+                typeof MODULE.contentVersion === 'string'
+                    ? MODULE.contentVersion
+                    : '',
+            sourceVersionRevision:
+                publishedVersion
+                    ? Math.max(
+                        0,
+                        Math.floor(
+                            Number(publishedVersion.revision) || 0
+                        )
+                    )
+                    : 0
+        }
+    });
+
+    if (!subject) {
+        throw new Error(
+            '[Compass] AtlasTutorSubjects failed to create the owned subject.'
+        );
+    }
+
+    return subject;
+}
+
+function consumeCompassHubAtlasAction() {
+    let url;
+
+    try {
+        url = new URL(window.location.href);
+    } catch {
+        return;
+    }
+
+    const hubAction = String(
+        url.searchParams.get('atlasHubAction') || ''
+    ).trim();
+    const requestId = String(
+        url.searchParams.get('atlasHubRequest') || ''
+    ).trim();
+    const authorIntent = String(
+        url.searchParams.get('author') || ''
+    ).trim();
+
+    if (!hubAction && authorIntent !== 'edit') return;
+
+    if (
+        hubAction &&
+        !['own', 'duplicate', 'restore-version'].includes(hubAction)
+    ) {
+        return;
+    }
+
+    url.searchParams.delete('atlasHubAction');
+    url.searchParams.delete('atlasHubRequest');
+
+    if (!isOwnedSubjectRuntime()) {
+        url.searchParams.delete('author');
+    }
+
+    try {
+        window.history.replaceState(
+            window.history.state,
+            '',
+            url.href
+        );
+    } catch { }
+
+    if (
+        !hubAction &&
+        authorIntent === 'edit' &&
+        !isOwnedSubjectRuntime()
+    ) {
+        requestMyVersionEditing({
+            expandAuthorBar: true
+        });
+        return;
+    }
+
+    if (!hubAction || !requestId) return;
+
+    (async () => {
+        try {
+            if (hubAction === 'restore-version') {
+                if (
+                    isOwnedSubjectRuntime() ||
+                    !hasSavedMyVersion()
+                ) {
+                    throw new Error(
+                        '[Compass] There is no canonical My Version to restore.'
+                    );
+                }
+
+                if (!myVersionEditing) {
+                    beginMyVersionEditing(false);
+                }
+
+                await restoreAtlasOriginal();
+
+                if (hasSavedMyVersion()) {
+                    throw new Error(
+                        '[Compass] Atlas Original restore did not complete.'
+                    );
+                }
+
+                window.parent.postMessage(
+                    {
+                        type:
+                            'atlas:hub-subject-action-complete',
+                        requestId,
+                        action: hubAction,
+                        ok: true
+                    },
+                    window.location.origin
+                );
+
+                return;
+            }
+
+            const subject =
+                await createOwnedSubjectFromAtlasHub(
+                    hubAction
+                );
+
+            window.parent.postMessage(
+                {
+                    type:
+                        'atlas:hub-subject-action-complete',
+                    requestId,
+                    action: hubAction,
+                    ok: true,
+                    subjectId: subject.id
+                },
+                window.location.origin
+            );
+        } catch (error) {
+            console.error(
+                '[Compass] Hub Atlas action failed:',
+                error
+            );
+
+            window.parent.postMessage(
+                {
+                    type:
+                        'atlas:hub-subject-action-complete',
+                    requestId,
+                    action: hubAction,
+                    ok: false,
+                    message:
+                        'Couldn’t prepare this subject.'
+                },
+                window.location.origin
+            );
+        }
+    })();
+}
+
+window.addEventListener(
+    'load',
+    () => {
+        window.setTimeout(
+            consumeCompassHubAtlasAction,
+            0
+        );
+    }
+);
+

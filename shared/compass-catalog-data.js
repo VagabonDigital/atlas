@@ -995,11 +995,12 @@
                     <circle cx="59" cy="90" r="3" fill="currentColor"/>
                     <circle cx="74" cy="104" r="3" fill="currentColor"/>
 
-                    <circle cx="121" cy="64" r="3" fill="currentColor"/>
-                    <circle cx="105" cy="77" r="3" fill="currentColor"/>
-                    <circle cx="121" cy="83" r="3" fill="currentColor"/>
-                    <circle cx="105" cy="96" r="3" fill="currentColor"/>
-                    <circle cx="121" cy="102" r="3" fill="currentColor"/>
+                    <circle cx="121" cy="65" r="3" fill="currentColor"/>
+                    <circle cx="105" cy="78" r="3" fill="currentColor"/>
+                    <circle cx="121" cy="82" r="3" fill="currentColor"/>
+                    <circle cx="105" cy="94" r="3" fill="currentColor"/>
+                    <circle cx="121" cy="95" r="3" fill="currentColor"/>
+                    <circle cx="105" cy="105" r="3" fill="currentColor"/>
                 </g>
 
                 <path

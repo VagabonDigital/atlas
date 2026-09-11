@@ -3193,6 +3193,16 @@
           </div>
 
           <div class="archived-subjects-list" id="archived-subjects-list" hidden></div>
+
+          <div class="settings-utility-row" id="restore-atlas-originals-row" hidden>
+            <div class="settings-utility-copy">
+              <span class="settings-utility-title">Restore all Atlas Subjects</span>
+              <span class="settings-utility-meta">Bring back archived and deleted Atlas Original subjects.</span>
+            </div>
+
+            <button class="btn-ghost" id="restore-atlas-originals-button" type="button"
+              onclick="restoreAllAtlasOriginals(this)">Restore</button>
+          </div>
         </section>
 
         <section class="data-backup-section" aria-labelledby="data-backup-title">
@@ -3233,6 +3243,7 @@
   <script src="./shared/atlas-structured-subject.js"></script>
   <script src="./shared/atlas-tutor-content.js"></script>
   <script src="./shared/atlas-tutor-subjects.js"></script>
+  <script src="./shared/atlas-original-curation.js"></script>
   <script src="./shared/atlas-portable-data.js"></script>
   <script src="./shared/atlas-content-registry.js"></script>
   <script src="./shared/atlas-session-panel.js"></script>
@@ -4509,38 +4520,65 @@
 
     async function readArchivedSubjectsForSettings() {
       const Subjects = window.AtlasTutorSubjects;
+      const Curation = window.AtlasOriginalCuration;
+      const archived = [];
 
       if (
-        !Subjects ||
-        typeof Subjects.listSubjects !== 'function' ||
-        typeof Subjects.getLibraryState !== 'function'
+        Subjects &&
+        typeof Subjects.listSubjects === 'function' &&
+        typeof Subjects.getLibraryState === 'function'
       ) {
-        return [];
+        const [subjects, library] = await Promise.all([
+          Subjects.listSubjects(),
+          Subjects.getLibraryState()
+        ]);
+
+        const placements = library?.subjects || {};
+
+        subjects
+          .filter(subject =>
+            subject?.id &&
+            placements[subject.id]?.archived === true
+          )
+          .forEach(subject => {
+            archived.push({
+              id: subject.id,
+              kind: 'my-subject',
+              title:
+                subject.metadata?.title ||
+                subject.document?.module?.title ||
+                'Untitled Subject'
+            });
+          });
       }
 
-      const [
-        subjects,
-        library
-      ] = await Promise.all([
-        Subjects.listSubjects(),
-        Subjects.getLibraryState()
-      ]);
+      if (Curation && typeof Curation.listArchived === 'function') {
+        const catalog =
+          CompassCatalog &&
+          typeof CompassCatalog.getCompassCatalogMap === 'function'
+            ? CompassCatalog.getCompassCatalogMap()
+            : {};
 
-      const placements =
-        library?.subjects || {};
+        const catalogItems = Object.values(catalog || {});
 
-      return subjects
-        .filter(subject =>
-          subject?.id &&
-          placements[subject.id]?.archived === true
-        )
-        .map(subject => ({
-          id: subject.id,
-          title:
-            subject.metadata?.title ||
-            subject.document?.module?.title ||
-            'Untitled Subject'
-        }));
+        Curation.listArchived().forEach(item => {
+          const source = catalogItems.find(subject =>
+            subject?.registryId === item.registryId
+          );
+
+          if (!source) return;
+
+          archived.push({
+            id: item.registryId,
+            kind: 'atlas-original',
+            title: source.title || 'Atlas Original'
+          });
+        });
+      }
+
+      return archived.sort((a, b) =>
+        String(a.title || '').localeCompare(String(b.title || ''))
+      );
     }
 
     async function renderArchivedSubjectsSettings() {
@@ -4594,7 +4632,10 @@
             'data-archived-subject-id="' +
             escAttr(subject.id) +
             '" ' +
-            'onclick="restoreArchivedSubjectFromSettings(this.dataset.archivedSubjectId, this)">' +
+            'data-archived-subject-kind="' +
+            escAttr(subject.kind || 'my-subject') +
+            '" ' +
+            'onclick="restoreArchivedSubjectFromSettings(this.dataset.archivedSubjectId, this.dataset.archivedSubjectKind, this)">' +
             'Restore' +
             '</button>' +
             '</div>'
@@ -4606,6 +4647,78 @@
         toggle.disabled = true;
         list.hidden = true;
         list.innerHTML = '';
+      }
+    }
+
+    function renderRestoreAllAtlasOriginalsSetting() {
+      const row = document.getElementById(
+        'restore-atlas-originals-row'
+      );
+
+      const button = document.getElementById(
+        'restore-atlas-originals-button'
+      );
+
+      const Curation = window.AtlasOriginalCuration;
+
+      if (!row || !button) {
+        return;
+      }
+
+      const states =
+        Curation && typeof Curation.listStates === 'function'
+          ? Curation.listStates()
+          : [];
+
+      const applicable = states.length > 0;
+
+      row.hidden = !applicable;
+      row.style.display = applicable ? '' : 'none';
+      button.disabled = !applicable;
+      button.textContent = 'Restore';
+    }
+
+    async function restoreAllAtlasOriginals(button) {
+      const Curation = window.AtlasOriginalCuration;
+
+      if (
+        !Curation ||
+        typeof Curation.listStates !== 'function' ||
+        typeof Curation.restore !== 'function'
+      ) {
+        showToast('Atlas Subjects recovery is unavailable.');
+        return;
+      }
+
+      const states = Curation.listStates();
+
+      if (!states.length) {
+        renderRestoreAllAtlasOriginalsSetting();
+        return;
+      }
+
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Restoring…';
+      }
+
+      try {
+        for (const state of states) {
+          if (!Curation.restore(state.registryId)) {
+            throw new Error('Atlas Subject restoration failed.');
+          }
+        }
+
+        await renderArchivedSubjectsSettings();
+        renderRestoreAllAtlasOriginalsSetting();
+        showToast('Atlas Subjects restored.');
+      } catch {
+        showToast('Couldn’t restore Atlas Subjects.');
+
+        if (button) {
+          button.disabled = false;
+          button.textContent = 'Restore';
+        }
       }
     }
 
@@ -4632,16 +4745,15 @@
 
     async function restoreArchivedSubjectFromSettings(
       subjectId,
+      subjectKind,
       button
     ) {
       const Subjects = window.AtlasTutorSubjects;
+      const Curation = window.AtlasOriginalCuration;
       const id = String(subjectId || '').trim();
+      const kind = String(subjectKind || 'my-subject').trim();
 
-      if (
-        !id ||
-        !Subjects ||
-        typeof Subjects.setSubjectLibraryPlacement !== 'function'
-      ) {
+      if (!id) {
         showToast('Archived subjects are unavailable.');
         return;
       }
@@ -4652,41 +4764,51 @@
       }
 
       try {
-        const restored =
-          await Subjects.setSubjectLibraryPlacement(
-            id,
-            {
+        if (kind === 'atlas-original') {
+          if (!Curation || typeof Curation.restore !== 'function') {
+            throw new Error('Atlas Original curation is unavailable.');
+          }
+
+          if (!Curation.restore(id)) {
+            throw new Error('Restore operation failed.');
+          }
+        } else {
+          if (
+            !Subjects ||
+            typeof Subjects.setSubjectLibraryPlacement !== 'function'
+          ) {
+            throw new Error('My Subjects archive is unavailable.');
+          }
+
+          const restored =
+            await Subjects.setSubjectLibraryPlacement(
+              id,
+              {
+                archived: false
+              }
+            );
+
+          if (!restored) {
+            throw new Error('Restore operation failed.');
+          }
+
+          const registryId = 'compass:' + id;
+          const registry = getRegistry();
+          const existing = registry?.items?.[registryId];
+
+          if (
+            existing &&
+            typeof Bridge.upsertItem === 'function'
+          ) {
+            Bridge.upsertItem({
+              ...existing,
               archived: false
-            }
-          );
-
-        if (!restored) {
-          throw new Error(
-            'Restore operation failed.'
-          );
-        }
-
-        const registryId =
-          'compass:' + id;
-
-        const registry =
-          getRegistry();
-
-        const existing =
-          registry?.items?.[registryId];
-
-        if (
-          existing &&
-          typeof Bridge.upsertItem === 'function'
-        ) {
-          Bridge.upsertItem({
-            ...existing,
-            archived: false
-          });
+            });
+          }
         }
 
         await renderArchivedSubjectsSettings();
-
+        renderRestoreAllAtlasOriginalsSetting();
         showToast('Subject restored.');
       } catch {
         showToast('Couldn’t restore this subject.');
@@ -4703,6 +4825,7 @@
       const currentUrl = readSessionAtmosphereImage(session.id);
 
       renderArchivedSubjectsSettings();
+      renderRestoreAllAtlasOriginalsSetting();
 
       const input = document.getElementById('atmosphere-input');
       if (input) input.value = currentUrl;
@@ -4714,8 +4837,8 @@
       document.body.style.overflow = 'hidden';
 
       setTimeout(() => {
-        const el = document.getElementById('atmosphere-input');
-        if (el) el.focus();
+        const el = document.querySelector('#settings-modal .modal-close');
+        if (el) el.focus({ preventScroll: true });
       }, 50);
     }
 
