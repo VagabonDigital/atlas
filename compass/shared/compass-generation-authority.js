@@ -28,6 +28,23 @@
         beginMyVersionEditing;
     const originalNormalizeMyVersionQuestionCollectionsForSave =
         normalizeMyVersionQuestionCollectionsForSave;
+    const originalRecordMyVersionHistory =
+        recordMyVersionHistory;
+    const originalCommitMyVersionDraftContent =
+        commitMyVersionDraftContent;
+
+    const originalRenderAllTutorContentSurfaces =
+        renderAllTutorContentSurfaces;
+    const originalApplyCoverConfig = applyCoverConfig;
+    const originalApplySubjectCopy = applySubjectCopy;
+    const originalRenderDiscussionSets = renderDiscussionSets;
+    const originalRenderMoments = renderMoments;
+    const originalRenderDiscussionFocus = renderDiscussionFocus;
+    const originalRenderCLGrid = renderCLGrid;
+    const originalRenderCulturalLensFocus =
+        renderCulturalLensFocus;
+    const originalRenderReflectionQuestions =
+        renderReflectionQuestions;
 
     const reusableGenerationReaders = [
         'generateMyVersionSubjectFraming',
@@ -45,8 +62,10 @@
     ];
 
     let allowAuthoringOpenWithLiveChanges = false;
-    let tutorRenderAuthorityDepth = 0;
     let suppressLiveResolutionDepth = 0;
+    let deferredTutorContentRender = false;
+    let foregroundHistoryEvent = false;
+    let foregroundMutationDepth = 0;
 
     function isAuthoring() {
         return Boolean(
@@ -98,6 +117,155 @@
     }
 
     // ------------------------------------------------------------
+    // HISTORY AUTHORITY
+    // Full-subject generation is background model evolution, not tutor
+    // undo history. Direct tutor interactions remain foreground history,
+    // including while the automatic build is still running.
+    // ------------------------------------------------------------
+
+    function markForegroundHistoryEvent() {
+        foregroundHistoryEvent = true;
+
+        queueMicrotask(() => {
+            foregroundHistoryEvent = false;
+        });
+    }
+
+    [
+        'click',
+        'change',
+        'input',
+        'paste',
+        'keydown'
+    ].forEach(eventName => {
+        document.addEventListener(
+            eventName,
+            markForegroundHistoryEvent,
+            true
+        );
+    });
+
+    commitMyVersionDraftContent = function (...args) {
+        foregroundMutationDepth += 1;
+
+        try {
+            return originalCommitMyVersionDraftContent
+                .apply(this, args);
+        } finally {
+            foregroundMutationDepth -= 1;
+        }
+    };
+
+    recordMyVersionHistory = function (before, after) {
+        const automaticBuildMutation =
+            myVersionGeneratingFullSubject &&
+            foregroundMutationDepth === 0 &&
+            !foregroundHistoryEvent;
+
+        if (automaticBuildMutation) {
+            return;
+        }
+
+        return originalRecordMyVersionHistory(
+            before,
+            after
+        );
+    };
+
+    // ------------------------------------------------------------
+    // ACTIVE EDIT AUTHORITY
+    // The browser owns an active text-edit transaction. Background
+    // generation may update the model, but it may not replace that DOM
+    // editor. One canonical render is flushed after blur / Escape.
+    // ------------------------------------------------------------
+
+    function getActiveTutorTextEditor() {
+        const element = document.activeElement;
+
+        if (
+            !(element instanceof Element) ||
+            element.getAttribute('data-atlas-live-editable') !== 'true' ||
+            !hasOwn(element.dataset, 'atlasTutorStartValue')
+        ) {
+            return null;
+        }
+
+        return element;
+    }
+
+    function flushDeferredTutorContentRender() {
+        if (
+            !deferredTutorContentRender ||
+            getActiveTutorTextEditor()
+        ) {
+            return;
+        }
+
+        deferredTutorContentRender = false;
+        originalRenderAllTutorContentSurfaces();
+    }
+
+    function wrapTutorContentRender(renderer, fullRender = false) {
+        return function (...args) {
+            if (getActiveTutorTextEditor()) {
+                deferredTutorContentRender = true;
+                return;
+            }
+
+            if (fullRender) {
+                deferredTutorContentRender = false;
+            }
+
+            return renderer.apply(this, args);
+        };
+    }
+
+    function installEditTransactionFlush(element) {
+        if (!element || typeof element.onblur !== 'function') {
+            return;
+        }
+
+        const originalBlur = element.onblur;
+
+        element.onblur = function (...args) {
+            try {
+                return originalBlur.apply(this, args);
+            } finally {
+                flushDeferredTutorContentRender();
+            }
+        };
+    }
+
+    renderAllTutorContentSurfaces = wrapTutorContentRender(
+        originalRenderAllTutorContentSurfaces,
+        true
+    );
+    applyCoverConfig = wrapTutorContentRender(
+        originalApplyCoverConfig
+    );
+    applySubjectCopy = wrapTutorContentRender(
+        originalApplySubjectCopy
+    );
+    renderDiscussionSets = wrapTutorContentRender(
+        originalRenderDiscussionSets
+    );
+    renderMoments = wrapTutorContentRender(
+        originalRenderMoments
+    );
+    renderDiscussionFocus = wrapTutorContentRender(
+        originalRenderDiscussionFocus
+    );
+    renderCLGrid = wrapTutorContentRender(
+        originalRenderCLGrid
+    );
+    renderCulturalLensFocus = wrapTutorContentRender(
+        originalRenderCulturalLensFocus
+    );
+    renderReflectionQuestions = wrapTutorContentRender(
+        originalRenderReflectionQuestions
+    );
+
+    // ------------------------------------------------------------
     // EDIT AUTHORITY
     // ------------------------------------------------------------
 
@@ -132,10 +300,14 @@
         const fieldKey = options?.fieldKey;
 
         if (!myVersionEditing || myVersionAuthoringOpen) {
-            return originalConfigureLiveTutorContentElement(
-                element,
-                options
-            );
+            const result =
+                originalConfigureLiveTutorContentElement(
+                    element,
+                    options
+                );
+
+            installEditTransactionFlush(element);
+            return result;
         }
 
         if (
@@ -177,26 +349,30 @@
         };
 
         element.onblur = () => {
-            const cancelled =
-                element.dataset.atlasTutorCancel === 'true';
-            const startValue =
-                element.dataset.atlasTutorStartValue || '';
-            const nextValue = readLiveEditableText(
-                element,
-                multiline
-            );
+            try {
+                const cancelled =
+                    element.dataset.atlasTutorCancel === 'true';
+                const startValue =
+                    element.dataset.atlasTutorStartValue || '';
+                const nextValue = readLiveEditableText(
+                    element,
+                    multiline
+                );
 
-            writeLiveEditableText(element, nextValue);
+                writeLiveEditableText(element, nextValue);
 
-            delete element.dataset.atlasTutorStartValue;
-            delete element.dataset.atlasTutorCancel;
-            delete element.dataset.atlasTutorNativeDirty;
+                delete element.dataset.atlasTutorStartValue;
+                delete element.dataset.atlasTutorCancel;
+                delete element.dataset.atlasTutorNativeDirty;
 
-            if (cancelled || nextValue === startValue) {
-                return;
+                if (cancelled || nextValue === startValue) {
+                    return;
+                }
+
+                commitLiveTutorContent(fieldKey, nextValue);
+            } finally {
+                flushDeferredTutorContentRender();
             }
-
-            commitLiveTutorContent(fieldKey, nextValue);
         };
     };
 
@@ -229,6 +405,22 @@
         }
     };
 
+    function isNativeUndoTarget(target) {
+        if (!(target instanceof Element)) {
+            return false;
+        }
+
+        return Boolean(
+            target.closest(`
+                input,
+                textarea,
+                select,
+                [contenteditable="true"],
+                [contenteditable="plaintext-only"]
+            `)
+        );
+    }
+
     handleLiveTutorHistoryShortcut = function (event) {
         if (
             !(event.ctrlKey || event.metaKey) ||
@@ -237,11 +429,12 @@
             return;
         }
 
-        const liveTarget = event.target instanceof Element
-            ? event.target.closest('[data-atlas-live-editable="true"]')
-            : null;
-
-        if (liveTarget?.dataset.atlasTutorNativeDirty === 'true') {
+        /*
+         * While a text/control editor owns focus, native undo/redo owns
+         * the shortcut for the entire focus transaction. Application
+         * history resumes after the editor blurs.
+         */
+        if (isNativeUndoTarget(event.target)) {
             return;
         }
 
@@ -380,284 +573,6 @@
         updateLiveTutorContentControl();
         return result;
     };
-
-    // ------------------------------------------------------------
-    // DIRTY EDIT PRESERVATION
-    // A background render may rebuild the element before blur. Preserve
-    // the unfinished text, focus and caret on the same rendered surface.
-    // ------------------------------------------------------------
-
-    function getFieldCandidates(fieldKey) {
-        return Array.from(
-            document.querySelectorAll(
-                '[data-atlas-tutor-field-key]'
-            )
-        ).filter(element =>
-            element.dataset.atlasTutorFieldKey === fieldKey
-        );
-    }
-
-    function getEditableLocator(element) {
-        if (!element) return null;
-
-        const elementId = String(element.id || '');
-        const fieldKey = element.dataset?.atlasTutorFieldKey || '';
-        const candidates = fieldKey
-            ? getFieldCandidates(fieldKey)
-            : [];
-        let ancestor = element.parentElement;
-        let ancestorId = '';
-
-        while (ancestor && ancestor !== document.body) {
-            if (ancestor.id) {
-                ancestorId = ancestor.id;
-                break;
-            }
-            ancestor = ancestor.parentElement;
-        }
-
-        return {
-            elementId,
-            ancestorId,
-            candidateIndex: Math.max(0, candidates.indexOf(element))
-        };
-    }
-
-    function captureSelectionOffsets(element) {
-        const selection = window.getSelection();
-
-        if (
-            !selection ||
-            !selection.rangeCount ||
-            !selection.anchorNode ||
-            !selection.focusNode ||
-            !element.contains(selection.anchorNode) ||
-            !element.contains(selection.focusNode)
-        ) {
-            return null;
-        }
-
-        function getOffset(node, offset) {
-            const range = document.createRange();
-            range.selectNodeContents(element);
-
-            try {
-                range.setEnd(node, offset);
-                return range.toString().length;
-            } catch {
-                return null;
-            }
-        }
-
-        const anchor = getOffset(
-            selection.anchorNode,
-            selection.anchorOffset
-        );
-        const focus = getOffset(
-            selection.focusNode,
-            selection.focusOffset
-        );
-
-        if (anchor === null || focus === null) return null;
-        return { anchor, focus };
-    }
-
-    function findTextPosition(element, targetOffset) {
-        const walker = document.createTreeWalker(
-            element,
-            NodeFilter.SHOW_TEXT
-        );
-        let remaining = Math.max(0, Number(targetOffset) || 0);
-        let node = walker.nextNode();
-        let lastNode = null;
-
-        while (node) {
-            lastNode = node;
-            const length = node.nodeValue?.length || 0;
-
-            if (remaining <= length) {
-                return { node, offset: remaining };
-            }
-
-            remaining -= length;
-            node = walker.nextNode();
-        }
-
-        if (lastNode) {
-            return {
-                node: lastNode,
-                offset: lastNode.nodeValue?.length || 0
-            };
-        }
-
-        return { node: element, offset: 0 };
-    }
-
-    function restoreSelectionOffsets(element, snapshot) {
-        if (!snapshot) return;
-
-        const selection = window.getSelection();
-        if (!selection) return;
-
-        const anchor = findTextPosition(element, snapshot.anchor);
-        const focus = findTextPosition(element, snapshot.focus);
-
-        try {
-            selection.setBaseAndExtent(
-                anchor.node,
-                anchor.offset,
-                focus.node,
-                focus.offset
-            );
-        } catch {
-            const range = document.createRange();
-            range.setStart(anchor.node, anchor.offset);
-            range.collapse(true);
-            selection.removeAllRanges();
-            selection.addRange(range);
-        }
-    }
-
-    function captureDirtyTutorEdit() {
-        const element = document.activeElement;
-
-        if (
-            !element ||
-            element.dataset?.atlasTutorNativeDirty !== 'true' ||
-            element.getAttribute?.('data-atlas-live-editable') !== 'true'
-        ) {
-            return null;
-        }
-
-        const fieldKey = element.dataset.atlasTutorFieldKey;
-        if (!fieldKey) return null;
-
-        const multiline =
-            element.dataset.atlasTutorMultiline !== 'false';
-
-        return {
-            fieldKey,
-            multiline,
-            locator: getEditableLocator(element),
-            value: readLiveEditableText(element, multiline),
-            startValue:
-                element.dataset.atlasTutorStartValue || '',
-            cancelled:
-                element.dataset.atlasTutorCancel === 'true',
-            selection: captureSelectionOffsets(element)
-        };
-    }
-
-    function findEditableForSnapshot(snapshot) {
-        if (!snapshot) return null;
-
-        const matchesField = element =>
-            element?.dataset?.atlasTutorFieldKey === snapshot.fieldKey;
-
-        if (snapshot.locator?.elementId) {
-            const exact = document.getElementById(
-                snapshot.locator.elementId
-            );
-            if (matchesField(exact)) return exact;
-        }
-
-        if (snapshot.locator?.ancestorId) {
-            const root = document.getElementById(
-                snapshot.locator.ancestorId
-            );
-            const scoped = root
-                ? Array.from(
-                    root.querySelectorAll(
-                        '[data-atlas-tutor-field-key]'
-                    )
-                ).find(matchesField)
-                : null;
-            if (scoped) return scoped;
-        }
-
-        const candidates = getFieldCandidates(snapshot.fieldKey);
-        const candidateIndex = Math.min(
-            snapshot.locator?.candidateIndex || 0,
-            Math.max(0, candidates.length - 1)
-        );
-
-        return candidates[candidateIndex] || null;
-    }
-
-    function restoreDirtyTutorEdit(snapshot) {
-        if (!snapshot) return;
-
-        const element = findEditableForSnapshot(snapshot);
-        if (!element) return;
-
-        const activeElement = document.activeElement;
-
-        if (
-            activeElement &&
-            activeElement !== element &&
-            activeElement.dataset?.atlasTutorFieldKey === snapshot.fieldKey &&
-            activeElement.getAttribute?.('data-atlas-live-editable') === 'true'
-        ) {
-            activeElement.dataset.atlasTutorCancel = 'true';
-        }
-
-        writeLiveEditableText(element, snapshot.value);
-
-        try {
-            element.focus({ preventScroll: true });
-        } catch {
-            element.focus();
-        }
-
-        // Focus creates a new transaction; restore the interrupted one.
-        element.dataset.atlasTutorStartValue = snapshot.startValue;
-        element.dataset.atlasTutorNativeDirty = 'true';
-
-        if (snapshot.cancelled) {
-            element.dataset.atlasTutorCancel = 'true';
-        } else {
-            delete element.dataset.atlasTutorCancel;
-        }
-
-        restoreSelectionOffsets(element, snapshot.selection);
-    }
-
-    function wrapTutorRender(renderer) {
-        return function (...args) {
-            const outermost = tutorRenderAuthorityDepth === 0;
-            const snapshot = outermost
-                ? captureDirtyTutorEdit()
-                : null;
-
-            tutorRenderAuthorityDepth += 1;
-
-            try {
-                return renderer.apply(this, args);
-            } finally {
-                tutorRenderAuthorityDepth -= 1;
-
-                if (outermost) {
-                    restoreDirtyTutorEdit(snapshot);
-                }
-            }
-        };
-    }
-
-    renderAllTutorContentSurfaces = wrapTutorRender(
-        renderAllTutorContentSurfaces
-    );
-    applyCoverConfig = wrapTutorRender(applyCoverConfig);
-    applySubjectCopy = wrapTutorRender(applySubjectCopy);
-    renderDiscussionSets = wrapTutorRender(renderDiscussionSets);
-    renderMoments = wrapTutorRender(renderMoments);
-    renderDiscussionFocus = wrapTutorRender(renderDiscussionFocus);
-    renderCLGrid = wrapTutorRender(renderCLGrid);
-    renderCulturalLensFocus = wrapTutorRender(
-        renderCulturalLensFocus
-    );
-    renderReflectionQuestions = wrapTutorRender(
-        renderReflectionQuestions
-    );
 
     // ------------------------------------------------------------
     // KEEP LIVE CHANGES TEMPORARY
