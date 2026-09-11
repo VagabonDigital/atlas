@@ -4673,6 +4673,7 @@
       const applicable = states.length > 0;
 
       row.hidden = !applicable;
+      row.style.display = applicable ? '' : 'none';
       button.disabled = !applicable;
       button.textContent = 'Restore';
     }

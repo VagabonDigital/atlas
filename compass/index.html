@@ -9293,25 +9293,14 @@
       renderSpineHubNav();
       renderDrawerHubNav();
 
-      if (
-        !atlasSubjects.length &&
-        !ownedSubjects.length
-      ) {
-        main.innerHTML =
-          renderIntro(session) +
-          ownedLibraryHtml +
-          renderEmptyLibrary();
-
-        return;
-      }
-
       main.innerHTML =
         renderIntro(session) +
         renderSubjectCollection(
           sessionSubjects,
           getActiveSessionSubjectCollectionTitle(),
           {
-            canAdd: true
+            canAdd: true,
+            canCreate: true
           }
         ) +
         ownedLibraryHtml +
@@ -9590,27 +9579,31 @@
           )
           : '';
 
-      const headerAction = canAdd
-        ? (
-          '<button class="subject-library-create-btn" ' +
-          'type="button" ' +
-          'onclick="openAddSessionSubjectDialog(event)">' +
-          '<span class="subject-library-create-plus" aria-hidden="true">+</span>' +
-          'Add' +
-          '</button>'
-        )
-        : canCreate
+      const headerAction =
+        (canAdd
           ? (
             '<button class="subject-library-create-btn" ' +
             'type="button" ' +
-            'onclick="openCreateSubjectDialog(event, \'\', null, ' +
-            jsArg(categoryId) +
-            ')">' +
+            'onclick="openAddSessionSubjectDialog(event)">' +
+            '<span class="subject-library-create-plus" aria-hidden="true">+</span>' +
+            'Add' +
+            '</button>'
+          )
+          : '') +
+        (canCreate
+          ? (
+            '<button class="subject-library-create-btn" ' +
+            'type="button" ' +
+            (canAdd
+              ? 'onclick="openCreateSubjectDialog(event, getActiveSession().id)">'
+              : 'onclick="openCreateSubjectDialog(event, \'\', null, ' +
+                jsArg(categoryId) +
+                ')">') +
             '<span class="subject-library-create-plus" aria-hidden="true">+</span>' +
             'Create' +
             '</button>'
           )
-          : '';
+          : '');
 
       const headerActions =
         categoryManagement || headerAction
