@@ -32,6 +32,32 @@
         );
     }
 
+    function clearRegistryMyVersionFlag(Host, sourceContentId) {
+        const Bridge = Host.AtlasBridge;
+
+        if (
+            !Bridge ||
+            typeof Bridge.readRegistry !== 'function' ||
+            typeof Bridge.upsertItem !== 'function'
+        ) {
+            return;
+        }
+
+        try {
+            const registry = Bridge.readRegistry();
+            const existing = registry?.items?.[sourceContentId];
+
+            if (!existing || existing.hasMyVersion !== true) {
+                return;
+            }
+
+            Bridge.upsertItem({
+                ...existing,
+                hasMyVersion: false
+            });
+        } catch { }
+    }
+
     async function run() {
         let url;
 
@@ -84,14 +110,10 @@
                 sourceContentId
             );
 
-            if (!version) {
-                throw new Error(
-                    'There is no canonical My Version to restore.'
-                );
-            }
-
             const [versionDeleted] = await Promise.all([
-                Content.deleteVersion(sourceContentId),
+                version
+                    ? Content.deleteVersion(sourceContentId)
+                    : Promise.resolve(true),
                 Content.clearWorkingDraft(sourceContentId)
             ]);
 
@@ -100,6 +122,15 @@
                     'Atlas Original restore persistence failed.'
                 );
             }
+
+            // Restore is intentionally idempotent. The Hub can legitimately
+            // still carry hasMyVersion=true for one render after the saved
+            // version has already been removed. Treat that as already restored
+            // and repair the registry projection instead of failing the action.
+            clearRegistryMyVersionFlag(
+                Host,
+                sourceContentId
+            );
 
             postResult(requestId, true);
         } catch (error) {
