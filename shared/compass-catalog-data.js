@@ -36,6 +36,7 @@
         'technology-innovation',
         'modal-verbs-real-situations',
         'toefl-writing',
+        'words-that-stick',
         'travel-exploration',
         'humour-wit',
         'job-interviews-clear-answers',
@@ -912,6 +913,51 @@
                     stroke-width="2"
                     stroke-linecap="round"/>
             </svg>
+        `,
+
+        'words-that-stick': `
+            <svg class="subject-artwork subject-artwork--vocabulary"
+                viewBox="0 0 180 140"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <path
+                    d="M42 35C58 29 75 31 90 40V112C74 102 58 100 42 106V35Z"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linejoin="round"/>
+
+                <path
+                    d="M138 35C122 29 105 31 90 40V112C106 102 122 100 138 106V35Z"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linejoin="round"/>
+
+                <path
+                    d="M90 40V112"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"/>
+
+                <circle
+                    cx="90"
+                    cy="66"
+                    r="7"
+                    stroke="currentColor"
+                    stroke-width="2"/>
+
+                <path
+                    d="M83 66H66L57 55M97 66H114L123 55M83 70H67L57 82M97 70H113L123 82"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+
+                <circle cx="55" cy="53" r="3" fill="currentColor"/>
+                <circle cx="125" cy="53" r="3" fill="currentColor"/>
+                <circle cx="55" cy="84" r="3" fill="currentColor"/>
+                <circle cx="125" cy="84" r="3" fill="currentColor"/>
+            </svg>
         `
     };
 
@@ -1251,6 +1297,16 @@
             available: true,
             artId: 'toefl-writing',
             hook: 'A practical look at turning clear sentences into organised, developed responses, with attention to tone, accuracy, structure and the decisions strong timed writing demands.'
+        },
+        {
+            id: 'words-that-stick',
+            title: 'Words That Stick: Advanced Vocabulary Through Roots & Stories',
+            navTitle: 'Words That Stick',
+            categoryId: 'language-communication',
+            order: 30,
+            available: true,
+            artId: 'words-that-stick',
+            hook: 'The origins, patterns and stories behind ambitious English words, with a focus on precise meaning, memorable connections and using new vocabulary naturally in real conversations.'
         }
     ];
 
