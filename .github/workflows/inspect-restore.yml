@@ -10,19 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Show hub dialog and menu code
+      - name: Show delete integration
         run: |
           python - <<'PY'
           from pathlib import Path
           text=Path('compass/index.html').read_text()
-          for needle, span in [
-              ('async function confirmOwnedSubjectDialog', 6500),
-              ('function ensureOwnedSubjectDialog', 7000),
-              ('if (subject.isOwned && subject.subjectId)', 7000),
-              ('if (!subject.isOwned && subject.registryId)', 5500),
-              ('const atlasOriginalActionRequests = new Map();', 7000),
-          ]:
-              i=text.index(needle)
-              print('\n===== '+needle+' =====\n')
-              print(text[i:i+span])
+          needle='const registryId =\n            getOwnedSubjectRegistryId(\n              state.subjectId\n            );'
+          i=text.index(needle)
+          print(text[i-900:i+3400])
           PY
