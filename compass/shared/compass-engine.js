@@ -21168,7 +21168,7 @@ function consumeCompassHubAtlasAction() {
 
     if (
         hubAction &&
-        !['own', 'duplicate'].includes(hubAction)
+        !['own', 'duplicate', 'restore-version'].includes(hubAction)
     ) {
         return;
     }
@@ -21203,6 +21203,42 @@ function consumeCompassHubAtlasAction() {
 
     (async () => {
         try {
+            if (hubAction === 'restore-version') {
+                if (
+                    isOwnedSubjectRuntime() ||
+                    !hasSavedMyVersion()
+                ) {
+                    throw new Error(
+                        '[Compass] There is no canonical My Version to restore.'
+                    );
+                }
+
+                if (!myVersionEditing) {
+                    beginMyVersionEditing(false);
+                }
+
+                await restoreAtlasOriginal();
+
+                if (hasSavedMyVersion()) {
+                    throw new Error(
+                        '[Compass] Atlas Original restore did not complete.'
+                    );
+                }
+
+                window.parent.postMessage(
+                    {
+                        type:
+                            'atlas:hub-subject-action-complete',
+                        requestId,
+                        action: hubAction,
+                        ok: true
+                    },
+                    window.location.origin
+                );
+
+                return;
+            }
+
             const subject =
                 await createOwnedSubjectFromAtlasHub(
                     hubAction

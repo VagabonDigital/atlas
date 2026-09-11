@@ -5021,6 +5021,105 @@
 
       if (!Subjects || !confirm) return;
 
+      if (state.mode === 'atlas-restore-original') {
+        confirm.disabled = true;
+        confirm.textContent = 'Restoring…';
+
+        try {
+          const expectedRegistryId =
+            String(state.registryId || '').trim();
+
+          if (!expectedRegistryId) {
+            throw new Error('Missing Atlas source identity.');
+          }
+
+          if (state.subjectId) {
+            const record =
+              typeof Subjects.getSubject === 'function'
+                ? await Subjects.getSubject(state.subjectId)
+                : null;
+
+            const actualRegistryId =
+              getOwnedAtlasSourceRegistryId(record);
+
+            if (
+              !record ||
+              !actualRegistryId ||
+              actualRegistryId !== expectedRegistryId
+            ) {
+              throw new Error('Atlas provenance could not be verified.');
+            }
+
+            const source =
+              getAtlasOriginalSubject(actualRegistryId);
+
+            if (!source) {
+              throw new Error('The Atlas source is unavailable.');
+            }
+
+            if (source.hasMyVersion) {
+              await restoreAtlasVersionFromHub(
+                actualRegistryId
+              );
+            }
+
+            await migrateOwnedSubjectSessionHomesToAtlas(
+              state.subjectId,
+              actualRegistryId
+            );
+
+            const ownedRegistryId =
+              getOwnedSubjectRegistryId(state.subjectId);
+
+            const deleted =
+              await Subjects.deleteSubject(state.subjectId);
+
+            if (!deleted) {
+              throw new Error(
+                'The owned subject could not be removed.'
+              );
+            }
+
+            try {
+              if (
+                ownedRegistryId &&
+                typeof Bridge.removeItem === 'function'
+              ) {
+                Bridge.removeItem(ownedRegistryId);
+              }
+            } catch { }
+          } else {
+            const source =
+              getAtlasOriginalSubject(expectedRegistryId);
+
+            if (!source || !source.hasMyVersion) {
+              throw new Error('There is no My Version to restore.');
+            }
+
+            await restoreAtlasVersionFromHub(
+              expectedRegistryId
+            );
+          }
+
+          closeOwnedSubjectDialog(false);
+          await renderHub();
+          showToast('Atlas Original restored.');
+        } catch (restoreError) {
+          console.error(
+            '[Compass Hub] Restore Atlas Original failed:',
+            restoreError
+          );
+
+          error.hidden = false;
+          error.textContent =
+            'Couldn’t restore the Atlas Original.';
+          confirm.disabled = false;
+          confirm.textContent = 'Restore original';
+        }
+
+        return;
+      }
+
       if (state.mode === 'atlas-rename') {
         const nextTitle = String(input?.value || '').trim();
 
@@ -7253,6 +7352,203 @@
       }
     }
 
+    async function migrateOwnedSubjectSessionHomesToAtlas(
+      subjectId,
+      registryId
+    ) {
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.getSessionSubjects !== 'function' ||
+        typeof Subjects.setSessionSubjects !== 'function'
+      ) {
+        return;
+      }
+
+      for (const session of getSessions()) {
+        try {
+          const refs = await Subjects.getSessionSubjects(session.id);
+          let changed = false;
+
+          const next = (Array.isArray(refs) ? refs : []).map(ref => {
+            if (
+              ref.kind === 'my-subject' &&
+              ref.id === subjectId
+            ) {
+              changed = true;
+              return {
+                kind: 'atlas-subject',
+                id: registryId
+              };
+            }
+
+            return ref;
+          });
+
+          if (changed) {
+            await Subjects.setSessionSubjects(session.id, next);
+            clearAtlasSessionDismissal(session.id, registryId);
+          }
+        } catch { }
+      }
+    }
+
+    function restoreAtlasVersionFromHub(registryId) {
+      const subject = getAtlasOriginalSubject(registryId);
+
+      if (!subject?.launchUrl) {
+        return Promise.reject(
+          new Error('The Atlas source could not be opened.')
+        );
+      }
+
+      return new Promise((resolve, reject) => {
+        const requestId =
+          'atlas-hub-restore-' +
+          Date.now().toString(36) +
+          '-' +
+          Math.random().toString(36).slice(2, 8);
+
+        const actionUrl = getAtlasOriginalActionUrl(
+          subject,
+          'restore-version',
+          requestId
+        );
+
+        if (!actionUrl) {
+          reject(new Error('The Atlas source could not be prepared.'));
+          return;
+        }
+
+        const frame = document.createElement('iframe');
+        frame.hidden = true;
+        frame.setAttribute('aria-hidden', 'true');
+        frame.src = actionUrl;
+
+        const timeout = window.setTimeout(() => {
+          const pending = atlasOriginalActionRequests.get(requestId);
+
+          if (!pending) return;
+
+          atlasOriginalActionRequests.delete(requestId);
+          pending.frame.remove();
+          pending.reject?.(
+            new Error('Restoring the Atlas source timed out.')
+          );
+        }, 20000);
+
+        atlasOriginalActionRequests.set(requestId, {
+          frame,
+          timeout,
+          registryId,
+          action: 'restore-version',
+          resolve,
+          reject
+        });
+
+        document.body.appendChild(frame);
+      });
+    }
+
+    function getOwnedAtlasSourceRegistryId(record) {
+      const provenance =
+        record?.provenance &&
+        typeof record.provenance === 'object' &&
+        !Array.isArray(record.provenance)
+          ? record.provenance
+          : null;
+
+      if (
+        !provenance ||
+        provenance.sourceWorld !== COMPASS_ID ||
+        !String(provenance.sourceSubjectId || '').trim()
+      ) {
+        return '';
+      }
+
+      return String(
+        provenance.sourceContentId ||
+        (
+          COMPASS_ID + ':' +
+          String(provenance.sourceSubjectId).trim()
+        )
+      ).trim();
+    }
+
+    function openRestoreAtlasOriginalHubDialog({
+      registryId,
+      subjectId = '',
+      event = null
+    } = {}) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      const sourceRegistryId = String(registryId || '').trim();
+      const ownedSubjectId = String(subjectId || '').trim();
+
+      if (!sourceRegistryId) {
+        showToast('The Atlas source could not be found.');
+        return;
+      }
+
+      ownedSubjectDialogReturnFocus =
+        event?.currentTarget
+          ?.closest('.subject-card-management')
+          ?.querySelector('.subject-card-manage-btn') ||
+        document.activeElement;
+
+      closeOwnedSubjectMenus();
+
+      const dialog = ensureOwnedSubjectDialog();
+      const kicker = dialog.querySelector('#owned-subject-dialog-kicker');
+      const title = dialog.querySelector('#owned-subject-dialog-title');
+      const copy = dialog.querySelector('#owned-subject-dialog-copy');
+      const field = dialog.querySelector('#owned-subject-dialog-field');
+      const createFields = dialog.querySelector('#owned-subject-dialog-create-fields');
+      const sessionFields = dialog.querySelector('#owned-subject-dialog-session-fields');
+      const choiceFields = dialog.querySelector('#owned-subject-dialog-choice-fields');
+      const error = dialog.querySelector('#owned-subject-dialog-error');
+      const secondary = dialog.querySelector('#owned-subject-dialog-secondary');
+      const confirm = dialog.querySelector('#owned-subject-dialog-confirm');
+
+      ownedSubjectDialogState = {
+        mode: 'atlas-restore-original',
+        registryId: sourceRegistryId,
+        subjectId: ownedSubjectId
+      };
+
+      kicker.textContent = ownedSubjectId
+        ? 'Originally from Atlas'
+        : 'My Version';
+      title.textContent = 'Restore Atlas Original?';
+      copy.textContent =
+        'This will discard your changes to this subject and return the original Atlas version to Atlas Originals.';
+
+      field.hidden = true;
+      createFields.hidden = true;
+      sessionFields.hidden = true;
+      choiceFields.hidden = true;
+      error.hidden = true;
+      error.textContent = '';
+      secondary.hidden = true;
+      secondary.textContent = '';
+
+      confirm.hidden = false;
+      confirm.className = 'btn-primary';
+      confirm.textContent = 'Restore original';
+      confirm.disabled = false;
+
+      ownedSubjectDialogPreviousBodyOverflow =
+        document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      dialog.hidden = false;
+
+      requestAnimationFrame(() => {
+        confirm.focus();
+      });
+    }
+
     function runAtlasOriginalOwnershipAction(
       registryId,
       action,
@@ -7340,6 +7636,21 @@
       window.clearTimeout(pending.timeout);
       atlasOriginalActionRequests.delete(data.requestId);
       pending.frame.remove();
+
+      if (pending.action === 'restore-version') {
+        if (!data.ok) {
+          pending.reject?.(
+            new Error(
+              data.message ||
+              'Couldn’t restore the Atlas source.'
+            )
+          );
+          return;
+        }
+
+        pending.resolve?.(true);
+        return;
+      }
 
       if (!data.ok || !data.subjectId) {
         showToast(data.message || 'Couldn’t prepare this subject.');
@@ -9386,6 +9697,22 @@
               '</button>'
             )) +
 
+          (subject.provenance &&
+            subject.provenance.sourceWorld === COMPASS_ID &&
+            subject.provenance.sourceSubjectId
+              ? (
+                '<button type="button" role="menuitem" ' +
+                'onclick="openRestoreAtlasOriginalHubDialog({registryId:' +
+                jsArg(
+                  subject.provenance.sourceContentId ||
+                  (COMPASS_ID + ':' + subject.provenance.sourceSubjectId)
+                ) +
+                ',subjectId:' +
+                jsArg(subject.subjectId) +
+                ',event:event})">Restore Atlas Original</button>'
+              )
+              : '') +
+
 
           '<button type="button" role="menuitem" ' +
           'onclick="archiveOwnedSubject(' +
@@ -9508,6 +9835,14 @@
               escHtml(getActiveSessionSubjectCollectionTitle()) +
               '</button>'
             )) +
+
+          (subject.hasMyVersion
+            ? (
+              '<button type="button" role="menuitem" onclick="openRestoreAtlasOriginalHubDialog({registryId:' +
+              jsArg(subject.registryId) +
+              ',event:event})">Restore Atlas Original</button>'
+            )
+            : '') +
 
           '</div>' +
           '</div>';
