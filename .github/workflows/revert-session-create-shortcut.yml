@@ -1,113 +1,35 @@
 name: Revert Session Subjects Create Shortcut
-
 on:
   push:
-    paths:
-      - '.github/workflows/revert-session-create-shortcut.yml'
-
+    branches: [main]
+    paths: ['.github/workflows/revert-session-create-shortcut.yml']
 permissions:
   contents: write
-
 jobs:
   patch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Restore single Add action
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          path = Path('compass/index.html')
-          text = path.read_text()
-
-          old_call = """          {
-            canAdd: true,
-            canCreate: true
-          }
-"""
-          new_call = """          {
-            canAdd: true
-          }
-"""
-          if old_call not in text:
-              raise SystemExit('Session Subjects dual-action call not found')
-          text = text.replace(old_call, new_call, 1)
-
-          old_action = """      const headerAction =
-        (canAdd
-          ? (
-            '<button class=\"subject-library-create-btn\" ' +
-            'type=\"button\" ' +
-            'onclick=\"openAddSessionSubjectDialog(event)\">' +
-            '<span class=\"subject-library-create-plus\" aria-hidden=\"true\">+</span>' +
-            'Add' +
-            '</button>'
-          )
-          : '') +
-        (canCreate
-          ? (
-            '<button class=\"subject-library-create-btn\" ' +
-            'type=\"button\" ' +
-            (canAdd
-              ? 'onclick=\"openCreateSubjectDialog(event, getActiveSession().id)\">'
-              : 'onclick=\"openCreateSubjectDialog(event, \\\'\\\', null, ' +
-                jsArg(categoryId) +
-                ')\">') +
-            '<span class=\"subject-library-create-plus\" aria-hidden=\"true\">+</span>' +
-            'Create' +
-            '</button>'
-          )
-          : '');
-"""
-          new_action = """      const headerAction = canAdd
-        ? (
-          '<button class=\"subject-library-create-btn\" ' +
-          'type=\"button\" ' +
-          'onclick=\"openAddSessionSubjectDialog(event)\">' +
-          '<span class=\"subject-library-create-plus\" aria-hidden=\"true\">+</span>' +
-          'Add' +
-          '</button>'
-        )
-        : canCreate
-          ? (
-            '<button class=\"subject-library-create-btn\" ' +
-            'type=\"button\" ' +
-            'onclick=\"openCreateSubjectDialog(event, \\\'\\\', null, ' +
-            jsArg(categoryId) +
-            ')\">' +
-            '<span class=\"subject-library-create-plus\" aria-hidden=\"true\">+</span>' +
-            'Create' +
-            '</button>'
-          )
-          : '';
-"""
-          if old_action not in text:
-              raise SystemExit('Dual header action implementation not found')
-          text = text.replace(old_action, new_action, 1)
-          path.write_text(text)
-          PY
-
+      - name: Apply cleanup
+        run: python .github/revert-session-create-shortcut.py
       - name: Validate targeted behavior
         run: |
           python - <<'PY'
           from pathlib import Path
           text = Path('compass/index.html').read_text()
-          assert 'canAdd: true,\n            canCreate: true' not in text
-          assert 'openCreateSubjectDialog(event, getActiveSession().id)' not in text
+          assert "canAdd: true,\n            canCreate: true" not in text
+          assert "openCreateSubjectDialog(event, getActiveSession().id)" not in text
           assert "onclick=\"openAddSessionSubjectDialog(event)\"" in text
           assert "Create new subject" in text
           assert "Choose existing subject" in text
           print('Session Subjects restored to single Add gateway.')
           PY
-
       - name: Commit cleanup
         run: |
-          git config user.name "VagabonDigital"
-          git config user.email "110306810+VagabonDigital@users.noreply.github.com"
-          git rm .github/workflows/revert-session-create-shortcut.yml
-          git add compass/index.html
+          git config user.name "Atlas Architecture Bot"
+          git config user.email "actions@users.noreply.github.com"
+          rm .github/revert-session-create-shortcut.py
+          rm .github/workflows/revert-session-create-shortcut.yml
+          git add compass/index.html .github/revert-session-create-shortcut.py .github/workflows/revert-session-create-shortcut.yml
           git commit -m "fix: restore single Session Subjects add action"
-          git push origin main
+          git push
