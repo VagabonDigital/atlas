@@ -1,0 +1,22 @@
+name: Inspect Restore
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-restore.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show restore functions
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text=Path('compass/shared/compass-engine.js').read_text()
+          for needle in ['function openRestoreAtlasOriginalDialog', 'async function restoreAtlasOriginal']:
+              i=text.index(needle)
+              print('\n===== '+needle+' =====\n')
+              print(text[i:i+7000])
+          PY
