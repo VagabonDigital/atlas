@@ -5328,6 +5328,16 @@ async function generateMyVersionSubjectFraming(
         return null;
     }
 
+    /*
+     * Generation may still be in flight while the tutor edits the
+     * subject. Snapshot the relevant overrides now so a later AI
+     * response can never erase a newer human edit.
+     */
+    const startingOverrides =
+        cloneTutorContentOverrides(
+            myVersionDraftOverrides
+        );
+
     const generated =
         await requireAtlasAI()
             .generateSubjectFraming({
@@ -5355,6 +5365,31 @@ async function generateMyVersionSubjectFraming(
                 return null;
             }
 
+            const wasEditedWhileGenerating =
+                fieldKey => {
+                    const existedAtStart =
+                        Object.prototype.hasOwnProperty.call(
+                            startingOverrides,
+                            fieldKey
+                        );
+
+                    const existsNow =
+                        Object.prototype.hasOwnProperty.call(
+                            overrides,
+                            fieldKey
+                        );
+
+                    if (existedAtStart !== existsNow) {
+                        return true;
+                    }
+
+                    return (
+                        existsNow &&
+                        overrides[fieldKey] !==
+                            startingOverrides[fieldKey]
+                    );
+                };
+
             document.subjectCopy.cover =
                 document.subjectCopy.cover &&
                 typeof document.subjectCopy.cover === 'object' &&
@@ -5370,13 +5405,25 @@ async function generateMyVersionSubjectFraming(
             document.subjectCopy.cover.hook =
                 generated.hook;
 
-            delete overrides[
-                'module.catalogDescription'
-            ];
+            if (
+                !wasEditedWhileGenerating(
+                    'module.catalogDescription'
+                )
+            ) {
+                delete overrides[
+                    'module.catalogDescription'
+                ];
+            }
 
-            delete overrides[
-                'cover.hook'
-            ];
+            if (
+                !wasEditedWhileGenerating(
+                    'cover.hook'
+                )
+            ) {
+                delete overrides[
+                    'cover.hook'
+                ];
+            }
 
             return {
                 catalogDescription:
