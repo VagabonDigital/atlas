@@ -1,0 +1,28 @@
+name: Inspect Batch 4
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-batch4.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect archive and script integration
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          for path in ['compass/index.html','index.html']:
+              text=Path(path).read_text()
+              print('\n###', path)
+              for needle in ['Archived Subjects','archiveOwnedSubject','atlas-tutor-subjects.js','AtlasTutorSubjects','renderHub','getAtlasSubjects']:
+                  if needle in text:
+                      i=text.index(needle)
+                      print('\n---', needle, '---\n')
+                      print(text[max(0,i-1800):i+4200])
+          print('\n### grep archived')
+          import subprocess
+          subprocess.run(['bash','-lc',"grep -Rni --exclude-dir=.git -E 'Archived Subjects|archiveOwnedSubject|archived subject|settings.*compass|atlas-tutor-subjects.js' . | head -200"])
+          PY
