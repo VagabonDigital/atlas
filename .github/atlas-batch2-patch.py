@@ -75,8 +75,8 @@ engine = replace_once(
 engine_path.write_text(engine)
 
 # Lightweight invariants for Batch 2.
-assert 'subject-card-version-badge' not in hub
 assert 'ownershipLabel: hasMyVersion' not in hub
+assert "(subject.ownershipLabel" not in hub
 assert 'Originally from Atlas</div>' in hub
 assert 'subject.hasMyVersion' in hub and 'My Version</div>' in hub
 assert 'expandAuthorBar: false' not in engine
