@@ -28,6 +28,7 @@
     ];
 
     const COMPASS_PILOT_ORDER = [
+        'game-theory',
         'odyssey-worth-the-hype',
         'stories-screen',
         'work-purpose',
@@ -958,6 +959,55 @@
                 <circle cx="55" cy="84" r="3" fill="currentColor"/>
                 <circle cx="125" cy="84" r="3" fill="currentColor"/>
             </svg>
+        `,
+
+        'game-theory': `
+            <svg class="subject-artwork subject-artwork--game-theory"
+                viewBox="0 0 180 140"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <rect
+                    x="55"
+                    y="34"
+                    width="70"
+                    height="70"
+                    rx="8"
+                    stroke="currentColor"
+                    stroke-width="2.2"/>
+
+                <path
+                    d="M90 34V104M55 69H125"
+                    stroke="currentColor"
+                    stroke-width="1.8"/>
+
+                <circle cx="72" cy="51" r="5" stroke="currentColor" stroke-width="2"/>
+                <circle cx="108" cy="51" r="5" stroke="currentColor" stroke-width="2"/>
+                <circle cx="72" cy="86" r="5" stroke="currentColor" stroke-width="2"/>
+                <circle cx="108" cy="86" r="5" stroke="currentColor" stroke-width="2"/>
+
+                <path
+                    d="M29 69H45M135 69H151"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"/>
+
+                <path
+                    d="M39 63L45 69L39 75M141 63L135 69L141 75"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+
+                <path
+                    d="M90 17V26M90 112V121"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"/>
+
+                <circle cx="90" cy="14" r="3" fill="currentColor"/>
+                <circle cx="90" cy="124" r="3" fill="currentColor"/>
+            </svg>
         `
     };
 
@@ -1135,6 +1185,16 @@
             available: true,
             artId: 'technology-circuit',
             hook: 'Everyday technology solves problems while creating new habits, dependencies, boundaries, and trade-offs — changing what feels easy, what we rely on, and what we are willing to give up in return.'
+        },
+        {
+            id: 'game-theory',
+            title: 'Understanding Game Theory: Strategy, Trust & Choice',
+            navTitle: 'Game Theory',
+            categoryId: 'society-the-world',
+            order: 65,
+            available: true,
+            artId: 'game-theory',
+            hook: 'Game theory reveals how incentives, trust, cooperation and competition shape choices in everyday relationships, business and society—and why the best strategy is not always obvious.'
         },
         {
             id: 'education-learning',
