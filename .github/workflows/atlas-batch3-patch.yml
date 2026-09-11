@@ -1,0 +1,60 @@
+name: Atlas Batch 3 Patch
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/atlas-batch3-patch.py'
+      - '.github/workflows/atlas-batch3-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply Batch 3
+        run: python .github/atlas-batch3-patch.py
+
+      - name: Validate JavaScript syntax
+        run: |
+          node --check compass/shared/compass-engine.js
+          python - <<'PY'
+          from pathlib import Path
+          html = Path('compass/index.html').read_text()
+          start = html.index("  <script>\n    'use strict';")
+          start = html.index('\n', start) + 1
+          end = html.index('\n  </script>', start)
+          Path('/tmp/compass-hub-inline.js').write_text(html[start:end])
+          PY
+          node --check /tmp/compass-hub-inline.js
+
+      - name: Validate Batch 3 boundaries
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          hub = Path('compass/index.html').read_text()
+          engine = Path('compass/shared/compass-engine.js').read_text()
+          assert hub.count('Restore Atlas Original</button>') >= 2
+          assert "mode: 'atlas-restore-original'" in hub
+          assert 'Originally from Atlas</div>' in hub
+          assert 'My Version</div>' in hub
+          assert "hubAction === 'restore-version'" in engine
+          assert 'await restoreAtlasOriginal();' in engine
+          # Batch 4/5 must remain out of this change.
+          assert 'Restore all Atlas Originals' not in hub
+          PY
+
+      - name: Commit Batch 3
+        run: |
+          git config user.name 'Atlas Architecture Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add compass/index.html compass/shared/compass-engine.js
+          git rm .github/atlas-batch3-patch.py .github/workflows/atlas-batch3-patch.yml .github/workflows/inspect-restore.yml
+          git commit -m 'feat: restore individual Atlas originals from hub'
+          git push
