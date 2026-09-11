@@ -465,8 +465,9 @@
     }
 
     .quiet-thesis {
-      margin-top: 22px;
-      padding-left: 18px;
+      max-width: 1040px;
+      margin-top: 38px;
+      padding-left: 24px;
       border-left: 2px solid var(--accent);
       color: var(--text-heading);
       font-family: var(--font-display);
@@ -693,37 +694,53 @@
       margin-top: 46px;
       padding-top: 30px;
       border-top: 1px solid var(--border-subtle);
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 20px 56px;
-      align-items: start;
     }
 
-    .create-copy h3 {
-      grid-column: 1 / -1;
+    .create-copy-text {
+      width: min(100%, 720px);
+      margin: 0 auto 0 0;
+    }
+
+    .create-copy-text h3 {
+      margin-bottom: 22px;
       font-size: 30px;
     }
 
-    .create-copy p {
-      margin-top: 0;
-      max-width: none;
+    .create-copy-text p {
+      margin: 0;
+    }
+
+    .create-copy-text p + p {
+      margin-top: 14px;
     }
 
     .at-fingertips {
-      grid-column: 1 / -1;
-      margin-top: 4px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+      margin-top: 38px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 28px 36px;
     }
 
-    .at-fingertips span {
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border-faint);
-      color: var(--text-muted);
-      background: var(--surface-panel);
+    .starting-point {
+      min-width: 0;
+      padding-top: 13px;
+      border-top: 1px solid var(--border-faint);
+    }
+
+    .starting-point strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text-heading);
       font-size: 12px;
+      font-weight: 600;
+    }
+
+    .starting-point span {
+      display: block;
+      max-width: 220px;
+      color: var(--text-muted);
+      font-size: 11px;
+      line-height: 1.45;
     }
 
     .direction-picker {
@@ -1362,15 +1379,6 @@
       }
 
       .create-copy {
-        grid-template-columns: 1fr;
-        gap: 18px;
-      }
-
-      .at-fingertips {
-        grid-column: auto;
-      }
-
-      .create-copy {
         order: -1;
       }
 
@@ -1431,6 +1439,16 @@
       .power:last-child {
         grid-column: 1 / -1;
         border-top: 1px solid var(--border-faint);
+      }
+
+      .create-copy-text {
+        max-width: none;
+        margin-left: 0;
+      }
+
+      .at-fingertips {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
       }
 
       .direction-list {
@@ -1573,8 +1591,8 @@
         <p class="hero-lede">A creative teaching workspace for recurring one-to-one English lessons. Create or choose
           material, shape it around the learner, and return with context, language and momentum already there.</p>
         <div class="power-rail" aria-label="Core Atlas capabilities">
-          <div class="power"><strong>Create</strong><span>Turn any topic, question, goal or spark into material you can
-              take straight into a real lesson.</span></div>
+          <div class="power"><strong>Create</strong><span>Turn any topic, question, goal or spark into lesson-ready material in
+              seconds.</span></div>
           <div class="power"><strong>Teach</strong><span>Go deep with structured material or change the energy with a
               conversation game.</span></div>
           <div class="power"><strong>Shape</strong><span>Rewrite questions, change direction and adapt the lesson as it
@@ -1613,17 +1631,20 @@
             <div class="problem-line">Material gets scattered across documents, websites and notes.</div>
             <div class="problem-line">Learner context lives mostly in the tutor’s memory.</div>
             <div class="problem-line">Good language appears in conversation, then disappears.</div>
-            <div class="problem-line">Strong material gets adapted, copied and eventually lost.</div>
+            <div class="problem-line">Preparation time disappears into searching, adapting and rebuilding material.</div>
           </div>
           <div class="why-copy">
             <p class="why-column-label">What Atlas changes</p>
             <p>Atlas brings the material, the learner and the teaching history into one workspace.</p>
-            <p>Instead of treating lessons as isolated sessions, it lets useful material, adaptations and learner context
-              carry forward — while giving the tutor control over what happens next.</p>
-            <div class="quiet-thesis">Atlas is not a bigger lesson library. It is a teaching environment the tutor can
-              actively shape.</div>
+            <p>Instead of searching and rebuilding before each lesson, tutors can create or adapt what they need in
+              seconds, then carry material, adaptations and learner context forward. Less of the tutor’s work disappears
+              when the lesson ends.</p>
           </div>
         </div>
+
+        <div class="quiet-thesis">Preparation should compound, not reset. Atlas keeps the material you create, the changes you
+          make and the context you learn about each student connected, so every lesson gives you more to work with
+          and less to rebuild next time.</div>
       </div>
     </section>
 
@@ -1688,14 +1709,40 @@
         </div>
 
         <div class="create-copy">
-          <h3>The creative range is the point.</h3>
-          <p>Atlas is not asking you to work inside a fixed syllabus. You can build around exactly what your learner needs,
-            cares about, is studying, is curious about, or simply wants to talk about.</p>
-          <p>You can also open something already ready, continue previous material, search, ask for an idea, or return
-            to your own library. It is all in the same environment.</p>
+          <div class="create-copy-text">
+            <h3>The creative range is the point.</h3>
+            <p>Atlas is not asking you to work inside a fixed syllabus. You can build around exactly what your learner needs,
+              cares about, is studying, is curious about, or simply wants to talk about.</p>
+            <p>You can also open something already ready, continue previous material, search, ask for an idea, or return
+              to your own library. It is all in the same environment.</p>
+          </div>
+
           <div class="at-fingertips" aria-label="Other Atlas starting points">
-            <span>Continue</span><span>Browse</span><span>Search</span><span>Give me an idea</span><span>My
-              Versions</span><span>My Subjects</span></div>
+            <div class="starting-point">
+              <strong>Continue</strong>
+              <span>Pick up where you left off.</span>
+            </div>
+            <div class="starting-point">
+              <strong>Browse</strong>
+              <span>Open something ready to teach.</span>
+            </div>
+            <div class="starting-point">
+              <strong>Search</strong>
+              <span>Find material for a topic, goal or moment.</span>
+            </div>
+            <div class="starting-point">
+              <strong>Give me an idea</strong>
+              <span>Let Atlas suggest a fresh direction.</span>
+            </div>
+            <div class="starting-point">
+              <strong>My Versions</strong>
+              <span>Return to material you’ve shaped.</span>
+            </div>
+            <div class="starting-point">
+              <strong>My Subjects</strong>
+              <span>Open material you created yourself.</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1789,9 +1836,9 @@
       <div class="frame">
         <p class="kicker">Continuity</p>
         <h2>The learner doesn’t reset between lessons.</h2>
-        <p class="lede">Atlas carries the learner context forward: About, interests and notes, explored material, saved
-          language, recent activity, Continue, Review and Arcade progress. Session Subjects give each learner their own
-          custom material; My Subjects is your reusable teaching library.</p>
+        <p class="lede">Neither does your preparation. Atlas carries the learner context forward: About, interests and notes,
+          explored material, saved language, recent activity, Continue, Review and Arcade progress. Session Subjects give
+          each learner their own custom material; My Subjects is your reusable teaching library.</p>
         <div class="learner-board">
           <div class="learner-card"><strong>Maya</strong><span>From Istanbul, Türkiye · studying urban design · moving to
               Berlin later this year.</span>
