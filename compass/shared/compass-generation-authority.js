@@ -370,10 +370,24 @@
     // Generation rerenders must not erase text or steal the caret.
     // ------------------------------------------------------------
 
+    function getFieldCandidates(fieldKey) {
+        return Array.from(
+            document.querySelectorAll(
+                '[data-atlas-tutor-field-key]'
+            )
+        ).filter(element =>
+            element.dataset.atlasTutorFieldKey === fieldKey
+        );
+    }
+
     function getEditableLocator(element) {
         if (!element) return null;
 
         const elementId = String(element.id || '');
+        const fieldKey = element.dataset?.atlasTutorFieldKey || '';
+        const candidates = fieldKey
+            ? getFieldCandidates(fieldKey)
+            : [];
         let ancestor = element.parentElement;
         let ancestorId = '';
 
@@ -385,7 +399,11 @@
             ancestor = ancestor.parentElement;
         }
 
-        return { elementId, ancestorId };
+        return {
+            elementId,
+            ancestorId,
+            candidateIndex: Math.max(0, candidates.indexOf(element))
+        };
     }
 
     function captureSelectionOffsets(element) {
@@ -541,11 +559,13 @@
             if (scoped) return scoped;
         }
 
-        return Array.from(
-            document.querySelectorAll(
-                '[data-atlas-tutor-field-key]'
-            )
-        ).find(matchesField) || null;
+        const candidates = getFieldCandidates(snapshot.fieldKey);
+        const candidateIndex = Math.min(
+            snapshot.locator?.candidateIndex || 0,
+            Math.max(0, candidates.length - 1)
+        );
+
+        return candidates[candidateIndex] || null;
     }
 
     function restoreDirtyTutorEdit(snapshot) {
@@ -553,6 +573,17 @@
 
         const element = findEditableForSnapshot(snapshot);
         if (!element) return;
+
+        const activeElement = document.activeElement;
+
+        if (
+            activeElement &&
+            activeElement !== element &&
+            activeElement.dataset?.atlasTutorFieldKey === snapshot.fieldKey &&
+            activeElement.getAttribute?.('data-atlas-live-editable') === 'true'
+        ) {
+            activeElement.dataset.atlasTutorCancel = 'true';
+        }
 
         writeLiveEditableText(element, snapshot.value);
 
@@ -822,6 +853,62 @@
         );
     }
 
+    function authorityTargetIsValid(kind) {
+        const document = myVersionDraftDocument;
+
+        if (
+            !myVersionEditing ||
+            !isOwnedSubjectRuntime() ||
+            !document ||
+            typeof document !== 'object'
+        ) {
+            return false;
+        }
+
+        if (kind === 'subject-framing') {
+            return Boolean(
+                document.module &&
+                typeof document.module === 'object' &&
+                document.subjectCopy &&
+                typeof document.subjectCopy === 'object'
+            );
+        }
+
+        const copy = document.subjectCopy;
+        if (!copy || typeof copy !== 'object') return false;
+
+        if (kind === 'overview') {
+            return Boolean(copy.overview);
+        }
+
+        if (kind === 'discussion-framing') {
+            return Boolean(copy.discussion && copy.paths);
+        }
+
+        if (kind === 'cultural-lens-framing') {
+            return Boolean(copy.culturalLens && copy.paths);
+        }
+
+        if (kind === 'reflection') {
+            return Boolean(copy.reflection && copy.paths);
+        }
+
+        return false;
+    }
+
+    function commitGeneratedAuthorityStage(kind, mutator) {
+        const result = commitMyVersionDocumentMutation(mutator);
+
+        if (result) return result;
+
+        return (
+            myVersionGeneratingFullSubject &&
+            authorityTargetIsValid(kind)
+        )
+            ? { authoritySatisfied: true }
+            : null;
+    }
+
     generateMyVersionSubjectFraming = async function (brief = '') {
         if (!canGenerateOwnedSubject()) return null;
 
@@ -837,7 +924,8 @@
                 brief: String(brief || '').trim()
             });
 
-        return commitMyVersionDocumentMutation(
+        return commitGeneratedAuthorityStage(
+            'subject-framing',
             (document, overrides) => {
                 if (
                     !document.module ||
@@ -906,7 +994,8 @@
             brief: String(brief || '').trim()
         });
 
-        return commitMyVersionDocumentMutation(
+        return commitGeneratedAuthorityStage(
+            'overview',
             (document, overrides) => {
                 if (
                     !document.subjectCopy ||
@@ -1018,7 +1107,8 @@
                 brief: String(brief || '').trim()
             });
 
-        return commitMyVersionDocumentMutation(
+        return commitGeneratedAuthorityStage(
+            'discussion-framing',
             (document, overrides) => {
                 if (
                     !document.subjectCopy ||
@@ -1117,7 +1207,8 @@
                 brief: String(brief || '').trim()
             });
 
-        return commitMyVersionDocumentMutation(
+        return commitGeneratedAuthorityStage(
+            'cultural-lens-framing',
             (document, overrides) => {
                 if (
                     !document.subjectCopy ||
@@ -1294,7 +1385,8 @@
             brief: String(brief || '').trim()
         });
 
-        return commitMyVersionDocumentMutation(
+        return commitGeneratedAuthorityStage(
+            'reflection',
             (document, overrides) => {
                 if (
                     !document.subjectCopy ||
