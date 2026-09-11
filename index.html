@@ -3193,6 +3193,16 @@
           </div>
 
           <div class="archived-subjects-list" id="archived-subjects-list" hidden></div>
+
+          <div class="settings-utility-row" id="restore-atlas-originals-row" hidden>
+            <div class="settings-utility-copy">
+              <span class="settings-utility-title">Restore all Atlas Originals</span>
+              <span class="settings-utility-meta">Bring back archived and deleted Atlas Originals.</span>
+            </div>
+
+            <button class="btn-ghost" id="restore-atlas-originals-button"
+              onclick="restoreAllAtlasOriginals(this)">Restore</button>
+          </div>
         </section>
 
         <section class="data-backup-section" aria-labelledby="data-backup-title">
@@ -4640,6 +4650,75 @@
       }
     }
 
+    function renderRestoreAllAtlasOriginalsSetting() {
+      const row = document.getElementById(
+        'restore-atlas-originals-row'
+      );
+
+      const button = document.getElementById(
+        'restore-atlas-originals-button'
+      );
+
+      const Curation = window.AtlasOriginalCuration;
+
+      if (!row || !button) {
+        return;
+      }
+
+      const states =
+        Curation && typeof Curation.listStates === 'function'
+          ? Curation.listStates()
+          : [];
+
+      const applicable = states.length > 0;
+
+      row.hidden = !applicable;
+      button.disabled = !applicable;
+      button.textContent = 'Restore';
+    }
+
+    async function restoreAllAtlasOriginals(button) {
+      const Curation = window.AtlasOriginalCuration;
+
+      if (
+        !Curation ||
+        typeof Curation.listStates !== 'function' ||
+        typeof Curation.restoreAll !== 'function'
+      ) {
+        showToast('Atlas Originals recovery is unavailable.');
+        return;
+      }
+
+      const states = Curation.listStates();
+
+      if (!states.length) {
+        renderRestoreAllAtlasOriginalsSetting();
+        return;
+      }
+
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Restoring…';
+      }
+
+      try {
+        if (!Curation.restoreAll()) {
+          throw new Error('Atlas Original restoration failed.');
+        }
+
+        await renderArchivedSubjectsSettings();
+        renderRestoreAllAtlasOriginalsSetting();
+        showToast('Atlas Originals restored.');
+      } catch {
+        showToast('Couldn’t restore Atlas Originals.');
+
+        if (button) {
+          button.disabled = false;
+          button.textContent = 'Restore';
+        }
+      }
+    }
+
     function toggleArchivedSubjectsSettings() {
       const toggle = document.getElementById(
         'archived-subjects-toggle'
@@ -4726,6 +4805,7 @@
         }
 
         await renderArchivedSubjectsSettings();
+        renderRestoreAllAtlasOriginalsSetting();
         showToast('Subject restored.');
       } catch {
         showToast('Couldn’t restore this subject.');
@@ -4742,6 +4822,7 @@
       const currentUrl = readSessionAtmosphereImage(session.id);
 
       renderArchivedSubjectsSettings();
+      renderRestoreAllAtlasOriginalsSetting();
 
       const input = document.getElementById('atmosphere-input');
       if (input) input.value = currentUrl;
