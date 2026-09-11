@@ -1,0 +1,34 @@
+name: Fix Compass Structured Dependency
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/fix-compass-structured-dependency.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply dependency refresh
+        run: python .github/fix-compass-structured-dependency.py
+      - name: Validate dependency order and cache bust
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('compass/index.html').read_text()
+          structured = '<script src="../shared/atlas-structured-subject.js?v=20260911-1"></script>'
+          subjects = '<script src="../shared/atlas-tutor-subjects.js?v=20260911-1"></script>'
+          assert structured in text
+          assert subjects in text
+          assert text.index(structured) < text.index(subjects)
+          PY
+      - name: Commit fix
+        run: |
+          git config user.name "Atlas Architecture Bot"
+          git config user.email "actions@users.noreply.github.com"
+          rm .github/fix-compass-structured-dependency.py
+          rm .github/workflows/fix-compass-structured-dependency.yml
+          git add compass/index.html .github/fix-compass-structured-dependency.py .github/workflows/fix-compass-structured-dependency.yml
+          git commit -m "fix: refresh Compass structured subject dependency"
+          git push
