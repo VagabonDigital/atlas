@@ -148,6 +148,13 @@
         return writeStore(store);
     }
 
+    function restoreAll() {
+        return writeStore({
+            schemaVersion: SCHEMA_VERSION,
+            items: {}
+        });
+    }
+
     function isHidden(registryId) {
         const state = getState(registryId)?.state;
         return state === STATE_ARCHIVED || state === STATE_DELETED;
@@ -172,6 +179,7 @@
         archive,
         deleteOriginal,
         restore,
+        restoreAll,
         isHidden,
         listArchived,
         listDeleted
