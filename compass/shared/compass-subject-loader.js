@@ -212,6 +212,24 @@
             '../shared/compass-generation-authority.js',
             'Compass generation authority layer could not be loaded.'
         );
+
+        await loadScript(
+            '../shared/compass-generation-recovery.js',
+            'Compass generation recovery layer could not be loaded.'
+        );
+
+        const Recovery =
+            window.AtlasCompassGenerationRecovery;
+
+        if (
+            !Recovery ||
+            typeof Recovery.installRuntime !== 'function' ||
+            !Recovery.installRuntime()
+        ) {
+            throw new Error(
+                'Compass generation recovery could not initialize.'
+            );
+        }
     }
 
     async function bootstrap() {
