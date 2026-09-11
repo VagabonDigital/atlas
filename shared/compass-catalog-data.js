@@ -990,10 +990,12 @@
                     <circle cx="107" cy="39" r="3" fill="currentColor"/>
                     <circle cx="90" cy="55" r="3" fill="currentColor"/>
 
-                    <circle cx="59" cy="65" r="3" fill="currentColor"/>
-                    <circle cx="74" cy="79" r="3" fill="currentColor"/>
-                    <circle cx="59" cy="90" r="3" fill="currentColor"/>
-                    <circle cx="74" cy="104" r="3" fill="currentColor"/>
+                    <circle cx="58" cy="64" r="3" fill="currentColor"/>
+                    <circle cx="75" cy="74" r="3" fill="currentColor"/>
+                    <circle cx="58" cy="80" r="3" fill="currentColor"/>
+                    <circle cx="75" cy="90" r="3" fill="currentColor"/>
+                    <circle cx="58" cy="96" r="3" fill="currentColor"/>
+                    <circle cx="75" cy="106" r="3" fill="currentColor"/>
 
                     <circle cx="121" cy="64" r="3" fill="currentColor"/>
                     <circle cx="105" cy="77" r="3" fill="currentColor"/>
