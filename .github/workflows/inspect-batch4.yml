@@ -10,19 +10,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect archive and script integration
+      - name: Inspect exact Batch 4 blocks
         run: |
           python - <<'PY'
           from pathlib import Path
-          for path in ['compass/index.html','index.html']:
+          specs = {
+            'compass/index.html': [
+              ('function getAtlasSubjects()', 5200),
+              ('if (!subject.isOwned && subject.registryId)', 6500),
+              ('async function openArchivedSubjectsDialog', 6200),
+              ("if (state.mode === 'atlas-restore-original')", 5200),
+              ('async function confirmOwnedSubjectDialog', 4200),
+            ],
+            'index.html': [
+              ('<section class="compass-settings-section"', 2700),
+              ('async function readArchivedSubjectsForSettings()', 6500),
+              ('async function restoreArchivedSubjectFromSettings', 4500),
+              ('function openSettingsModal', 3000),
+            ]
+          }
+          for path, items in specs.items():
               text=Path(path).read_text()
               print('\n###', path)
-              for needle in ['Archived Subjects','archiveOwnedSubject','atlas-tutor-subjects.js','AtlasTutorSubjects','renderHub','getAtlasSubjects']:
-                  if needle in text:
-                      i=text.index(needle)
-                      print('\n---', needle, '---\n')
-                      print(text[max(0,i-1800):i+4200])
-          print('\n### grep archived')
-          import subprocess
-          subprocess.run(['bash','-lc',"grep -Rni --exclude-dir=.git -E 'Archived Subjects|archiveOwnedSubject|archived subject|settings.*compass|atlas-tutor-subjects.js' . | head -200"])
+              for needle, span in items:
+                  i=text.index(needle)
+                  print('\n---', needle, '---\n')
+                  print(text[i:i+span])
           PY
