@@ -184,22 +184,34 @@
         window.clCards = subject.culturalLensCards;
     }
 
-    function loadCompassEngine() {
+    function loadScript(relativePath, errorMessage) {
         return new Promise((resolve, reject) => {
             const script = document.createElement('script');
 
             script.src = new URL(
-                '../shared/compass-engine.js',
+                relativePath,
                 window.location.href
             ).href;
 
             script.onload = resolve;
             script.onerror = () => reject(
-                new Error('Compass engine could not be loaded.')
+                new Error(errorMessage)
             );
 
             document.body.appendChild(script);
         });
+    }
+
+    async function loadCompassEngine() {
+        await loadScript(
+            '../shared/compass-engine.js',
+            'Compass engine could not be loaded.'
+        );
+
+        await loadScript(
+            '../shared/compass-generation-authority.js',
+            'Compass generation authority layer could not be loaded.'
+        );
     }
 
     async function bootstrap() {
