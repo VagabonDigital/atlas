@@ -20963,6 +20963,13 @@ async function init() {
         );
     }
 
+    if (
+        ownedSubjectAuthoringIntent === 'edit' &&
+        myVersionEditing
+    ) {
+        setMyVersionAuthorBarMinimized(false);
+    }
+
     const resumableFullSubjectBuild =
         ownedSubjectBuildState?.kind ===
             'full-subject'
@@ -21187,7 +21194,7 @@ function consumeCompassHubAtlasAction() {
         !isOwnedSubjectRuntime()
     ) {
         requestMyVersionEditing({
-            expandAuthorBar: false
+            expandAuthorBar: true
         });
         return;
     }

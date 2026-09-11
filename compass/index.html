@@ -1739,20 +1739,6 @@
       min-width: 0;
     }
 
-    .subject-card-version-badge {
-      width: max-content;
-      padding: 0.24rem 0.42rem;
-      border: 1px solid rgba(var(--accent-rgb), 0.24);
-      border-radius: 999px;
-      background: rgba(var(--accent-rgb), 0.08);
-      color: var(--accent);
-      font-size: 0.6rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      line-height: 1;
-      text-transform: uppercase;
-    }
-
     .subject-card-hook {
       margin-bottom: 0;
       color: var(--text-muted);
@@ -3276,9 +3262,6 @@
               )
                 ? item.description || ''
                 : subject.hook || '',
-            ownershipLabel: hasMyVersion
-              ? 'My Version'
-              : '',
             hasMyVersion,
             status: resolveStatus(state),
             state,
@@ -9218,11 +9201,6 @@
 
         '<div class="subject-card-header">' +
         '<div class="subject-card-title-block">' +
-        (subject.ownershipLabel
-          ? '<span class="subject-card-version-badge">' +
-            escHtml(subject.ownershipLabel) +
-            '</span>'
-          : '') +
         '<h3 class="subject-card-title">' +
         escHtml(subject.title) +
         '</h3>' +
@@ -9293,6 +9271,12 @@
           '</button>' +
 
           '<div class="subject-card-menu" role="menu" hidden>' +
+
+          (subject.provenance &&
+            subject.provenance.sourceWorld === COMPASS_ID &&
+            subject.provenance.sourceSubjectId
+              ? '<div class="subject-card-menu-meta">Originally from Atlas</div>'
+              : '') +
 
           '<button type="button" role="menuitem" ' +
           'onclick="editOwnedSubject(' +
@@ -9456,6 +9440,10 @@
           '</button>' +
 
           '<div class="subject-card-menu" role="menu" hidden>' +
+
+          (subject.hasMyVersion
+            ? '<div class="subject-card-menu-meta">My Version</div>'
+            : '') +
 
           '<button type="button" role="menuitem" onclick="editAtlasOriginal(' +
           jsArg(subject.registryId) +
