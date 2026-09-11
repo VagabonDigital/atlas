@@ -23,12 +23,6 @@
             window.__atlasOwnershipAction = ownershipAction;
 
             if (ownershipAction) {
-                document.write(
-                    '<script src="../../shared/atlas-tutor-content.js"><\/script>' +
-                    '<script src="../../shared/atlas-tutor-subjects.js"><\/script>' +
-                    '<script src="../../shared/atlas-structured-subject.js"><\/script>' +
-                    '<script src="../../shared/compass-catalog-data.js"><\/script>'
-                );
                 return;
             }
 
@@ -55,7 +49,6 @@
         (function () {
             if (window.__atlasOwnershipAction) {
                 document.write(
-                    '<script src="../shared/atlas-hub-action-render-stabilizer.js"><\/script>' +
                     '<script src="../shared/atlas-original-action-worker.js"><\/script>'
                 );
                 return;

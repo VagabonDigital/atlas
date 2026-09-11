@@ -4,6 +4,9 @@
 //
 // Runs only for atlasHubAction=own|duplicate after subject-data.js.
 // It deliberately avoids mounting the full Compass lesson runtime.
+// Ownership persistence is executed through the parent Compass Hub so
+// local storage writes originate from the visible document rather than
+// a hidden frame, avoiding storage-event rerender churn in the Hub.
 // ============================================================
 
 (function () {
@@ -27,9 +30,23 @@
         };
     }
 
+    function getHostWindow() {
+        try {
+            if (window.parent && window.parent !== window) {
+                void window.parent.location.href;
+                return window.parent;
+            }
+        } catch { }
+
+        return window;
+    }
+
     function getCatalogDescription() {
         try {
-            const Catalog = window.CompassCatalogData;
+            const Host = getHostWindow();
+            const Catalog =
+                Host.CompassCatalogData ||
+                window.CompassCatalogData;
 
             if (!Catalog) return '';
 
@@ -512,8 +529,13 @@
         }
 
         try {
-            const Content = window.AtlasTutorContent;
-            const Subjects = window.AtlasTutorSubjects;
+            const Host = getHostWindow();
+            const Content =
+                Host.AtlasTutorContent ||
+                window.AtlasTutorContent;
+            const Subjects =
+                Host.AtlasTutorSubjects ||
+                window.AtlasTutorSubjects;
 
             if (
                 !Content ||
