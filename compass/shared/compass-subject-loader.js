@@ -212,6 +212,11 @@
             '../shared/compass-generation-authority.js',
             'Compass generation authority layer could not be loaded.'
         );
+
+        await loadScript(
+            '../shared/compass-generation-authority-hardening.js',
+            'Compass generation authority hardening could not be loaded.'
+        );
     }
 
     async function bootstrap() {
