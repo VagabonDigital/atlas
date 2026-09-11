@@ -15,8 +15,8 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           text=Path('compass/shared/compass-engine.js').read_text()
-          for needle in ['function openRestoreAtlasOriginalDialog', 'async function restoreAtlasOriginal']:
+          for needle in ['function requestMyVersionEditing', 'function beginMyVersionEditing', 'async function restoreAtlasOriginal']:
               i=text.index(needle)
               print('\n===== '+needle+' =====\n')
-              print(text[i:i+7000])
+              print(text[i:i+3500])
           PY
