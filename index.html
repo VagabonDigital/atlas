@@ -3196,11 +3196,11 @@
 
           <div class="settings-utility-row" id="restore-atlas-originals-row" hidden>
             <div class="settings-utility-copy">
-              <span class="settings-utility-title">Restore all Atlas Originals</span>
-              <span class="settings-utility-meta">Bring back archived and deleted Atlas Originals.</span>
+              <span class="settings-utility-title">Restore all Atlas Subjects</span>
+              <span class="settings-utility-meta">Bring back archived and deleted Atlas Original subjects.</span>
             </div>
 
-            <button class="btn-ghost" id="restore-atlas-originals-button"
+            <button class="btn-ghost" id="restore-atlas-originals-button" type="button"
               onclick="restoreAllAtlasOriginals(this)">Restore</button>
           </div>
         </section>
@@ -4683,9 +4683,9 @@
       if (
         !Curation ||
         typeof Curation.listStates !== 'function' ||
-        typeof Curation.restoreAll !== 'function'
+        typeof Curation.restore !== 'function'
       ) {
-        showToast('Atlas Originals recovery is unavailable.');
+        showToast('Atlas Subjects recovery is unavailable.');
         return;
       }
 
@@ -4702,15 +4702,17 @@
       }
 
       try {
-        if (!Curation.restoreAll()) {
-          throw new Error('Atlas Original restoration failed.');
+        for (const state of states) {
+          if (!Curation.restore(state.registryId)) {
+            throw new Error('Atlas Subject restoration failed.');
+          }
         }
 
         await renderArchivedSubjectsSettings();
         renderRestoreAllAtlasOriginalsSetting();
-        showToast('Atlas Originals restored.');
+        showToast('Atlas Subjects restored.');
       } catch {
-        showToast('Couldn’t restore Atlas Originals.');
+        showToast('Couldn’t restore Atlas Subjects.');
 
         if (button) {
           button.disabled = false;
@@ -4834,8 +4836,8 @@
       document.body.style.overflow = 'hidden';
 
       setTimeout(() => {
-        const el = document.getElementById('atmosphere-input');
-        if (el) el.focus();
+        const el = document.querySelector('#settings-modal .modal-close');
+        if (el) el.focus({ preventScroll: true });
       }, 50);
     }
 
