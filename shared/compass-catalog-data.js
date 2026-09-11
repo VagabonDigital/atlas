@@ -967,46 +967,66 @@
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg">
 
-                <rect
-                    x="55"
-                    y="34"
-                    width="70"
-                    height="70"
-                    rx="8"
-                    stroke="currentColor"
-                    stroke-width="2.2"/>
+                <g class="game-theory-die">
+                    <path
+                        d="M90 19L137 45L90 72L43 45L90 19Z"
+                        stroke="currentColor"
+                        stroke-width="2.3"
+                        stroke-linejoin="round"/>
+
+                    <path
+                        d="M43 45L90 72V121L43 95V45Z"
+                        stroke="currentColor"
+                        stroke-width="2.3"
+                        stroke-linejoin="round"/>
+
+                    <path
+                        d="M137 45L90 72V121L137 95V45Z"
+                        stroke="currentColor"
+                        stroke-width="2.3"
+                        stroke-linejoin="round"/>
+
+                    <circle cx="73" cy="39" r="3" fill="currentColor"/>
+                    <circle cx="107" cy="39" r="3" fill="currentColor"/>
+                    <circle cx="90" cy="55" r="3" fill="currentColor"/>
+
+                    <circle cx="59" cy="65" r="3" fill="currentColor"/>
+                    <circle cx="74" cy="79" r="3" fill="currentColor"/>
+                    <circle cx="59" cy="90" r="3" fill="currentColor"/>
+                    <circle cx="74" cy="104" r="3" fill="currentColor"/>
+
+                    <circle cx="121" cy="64" r="3" fill="currentColor"/>
+                    <circle cx="105" cy="77" r="3" fill="currentColor"/>
+                    <circle cx="121" cy="83" r="3" fill="currentColor"/>
+                    <circle cx="105" cy="96" r="3" fill="currentColor"/>
+                    <circle cx="121" cy="102" r="3" fill="currentColor"/>
+                </g>
 
                 <path
-                    d="M90 34V104M55 69H125"
+                    d="M28 82C20 69 22 54 33 43"
                     stroke="currentColor"
-                    stroke-width="1.8"/>
-
-                <circle cx="72" cy="51" r="5" stroke="currentColor" stroke-width="2"/>
-                <circle cx="108" cy="51" r="5" stroke="currentColor" stroke-width="2"/>
-                <circle cx="72" cy="86" r="5" stroke="currentColor" stroke-width="2"/>
-                <circle cx="108" cy="86" r="5" stroke="currentColor" stroke-width="2"/>
-
-                <path
-                    d="M29 69H45M135 69H151"
-                    stroke="currentColor"
-                    stroke-width="2"
+                    stroke-width="1.8"
                     stroke-linecap="round"/>
 
                 <path
-                    d="M39 63L45 69L39 75M141 63L135 69L141 75"
+                    d="M27 43H34V50"
                     stroke="currentColor"
-                    stroke-width="2"
+                    stroke-width="1.8"
                     stroke-linecap="round"
                     stroke-linejoin="round"/>
 
                 <path
-                    d="M90 17V26M90 112V121"
+                    d="M152 58C160 71 158 86 147 97"
                     stroke="currentColor"
-                    stroke-width="2"
+                    stroke-width="1.8"
                     stroke-linecap="round"/>
 
-                <circle cx="90" cy="14" r="3" fill="currentColor"/>
-                <circle cx="90" cy="124" r="3" fill="currentColor"/>
+                <path
+                    d="M153 97H146V90"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
             </svg>
         `
     };
