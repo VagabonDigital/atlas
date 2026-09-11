@@ -35,6 +35,7 @@
         'food-table',
         'technology-innovation',
         'modal-verbs-real-situations',
+        'toefl-writing',
         'travel-exploration',
         'humour-wit',
         'job-interviews-clear-answers',
@@ -856,6 +857,61 @@
                     stroke-width="1.8"
                     stroke-linejoin="round"/>
             </svg>
+        `,
+
+        'toefl-writing': `
+            <svg class="subject-artwork subject-artwork--toefl"
+                viewBox="0 0 180 140"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+
+                <rect
+                    x="43"
+                    y="23"
+                    width="94"
+                    height="67"
+                    rx="6"
+                    stroke="currentColor"
+                    stroke-width="2.2"/>
+
+                <path
+                    d="M57 40H105M57 51H116M57 62H101M57 73H110"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"/>
+
+                <circle
+                    cx="121"
+                    cy="39"
+                    r="9"
+                    stroke="currentColor"
+                    stroke-width="1.8"/>
+
+                <path
+                    d="M121 34V39L125 42"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+
+                <path
+                    d="M34 99H146L157 116H23L34 99Z"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linejoin="round"/>
+
+                <path
+                    d="M52 106H128M66 112H114"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"/>
+
+                <path
+                    d="M43 90H137"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"/>
+            </svg>
         `
     };
 
@@ -1185,6 +1241,16 @@
             available: true,
             artId: 'modal-language',
             hook: 'Designed for A2 learners, with everyday situations where modal verbs change meaning and tone: asking for help, giving advice, talking about rules, and expressing ability, possibility, or obligation.'
+        },
+        {
+            id: 'toefl-writing',
+            title: 'TOEFL Writing: From Sentence to Argument',
+            navTitle: 'TOEFL Writing',
+            categoryId: 'language-communication',
+            order: 20,
+            available: true,
+            artId: 'toefl-writing',
+            hook: 'A practical look at turning clear sentences into organised, developed responses, with attention to tone, accuracy, structure and the decisions strong timed writing demands.'
         }
     ];
 
