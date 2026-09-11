@@ -9299,8 +9299,7 @@
           sessionSubjects,
           getActiveSessionSubjectCollectionTitle(),
           {
-            canAdd: true,
-            canCreate: true
+            canAdd: true
           }
         ) +
         ownedLibraryHtml +
@@ -9579,31 +9578,27 @@
           )
           : '';
 
-      const headerAction =
-        (canAdd
+      const headerAction = canAdd
+        ? (
+          '<button class="subject-library-create-btn" ' +
+          'type="button" ' +
+          'onclick="openAddSessionSubjectDialog(event)">' +
+          '<span class="subject-library-create-plus" aria-hidden="true">+</span>' +
+          'Add' +
+          '</button>'
+        )
+        : canCreate
           ? (
             '<button class="subject-library-create-btn" ' +
             'type="button" ' +
-            'onclick="openAddSessionSubjectDialog(event)">' +
-            '<span class="subject-library-create-plus" aria-hidden="true">+</span>' +
-            'Add' +
-            '</button>'
-          )
-          : '') +
-        (canCreate
-          ? (
-            '<button class="subject-library-create-btn" ' +
-            'type="button" ' +
-            (canAdd
-              ? 'onclick="openCreateSubjectDialog(event, getActiveSession().id)">'
-              : 'onclick="openCreateSubjectDialog(event, \'\', null, ' +
-                jsArg(categoryId) +
-                ')">') +
+            'onclick="openCreateSubjectDialog(event, \'\', null, ' +
+            jsArg(categoryId) +
+            ')">' +
             '<span class="subject-library-create-plus" aria-hidden="true">+</span>' +
             'Create' +
             '</button>'
           )
-          : '');
+          : '';
 
       const headerActions =
         categoryManagement || headerAction
