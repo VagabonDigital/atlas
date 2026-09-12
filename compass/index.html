@@ -2700,7 +2700,7 @@
       display: grid;
       grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
       gap: 1.8rem;
-      padding: 1.55rem 1.7rem 1.7rem;
+      padding: 1.4rem 1.7rem 1.25rem;
     }
 
     .subject-artwork-studio-controls {
@@ -2804,10 +2804,6 @@
       cursor: pointer;
     }
 
-    .subject-artwork-generate-btn {
-      align-self: flex-start;
-    }
-
     .subject-artwork-studio-error {
       margin: -0.3rem 0 0;
       color: var(--danger-text);
@@ -2855,6 +2851,7 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
+      flex-wrap: wrap;
       gap: 0.6rem;
       padding: 0.9rem 1.7rem 1.25rem;
       border-top: 1px solid var(--border-subtle);
@@ -6397,14 +6394,6 @@
                 </label>
               </div>
 
-              <button
-                class="btn-primary subject-artwork-generate-btn"
-                id="subject-artwork-generate"
-                type="button"
-                onclick="generateSubjectArtworkStudioPreview()">
-                Generate artwork
-              </button>
-
               <p
                 class="subject-artwork-studio-error"
                 id="subject-artwork-studio-error"
@@ -6430,6 +6419,14 @@
               onclick="removeSubjectArtworkStudio()"
               hidden>
               Remove artwork
+            </button>
+
+            <button
+              class="btn-primary"
+              id="subject-artwork-generate"
+              type="button"
+              onclick="generateSubjectArtworkStudioPreview()">
+              Generate artwork
             </button>
 
             <div class="subject-artwork-studio-actions-spacer"></div>
