@@ -20,70 +20,16 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-
           path = Path('compass/shared/compass-engine.js')
           text = path.read_text()
-
-          old_cancel_ui = """    if (cancelButton) {
-        cancelButton.disabled =
-            myVersionSaving ||
-            enrichmentActive;
-    }
-"""
-          new_cancel_ui = """    if (cancelButton) {
-        cancelButton.disabled =
-            enrichmentActive
-                ? false
-                : myVersionSaving;
-
-        const cancelDesktopLabel = cancelButton.querySelector(
-            '.atlas-my-version-cancel-desktop'
-        );
-        const cancelMobileLabel = cancelButton.querySelector(
-            '.atlas-my-version-cancel-mobile'
-        );
-
-        if (cancelDesktopLabel) {
-            cancelDesktopLabel.textContent =
-                enrichmentActive ? 'Close' : 'Cancel';
-        }
-
-        if (cancelMobileLabel) {
-            cancelMobileLabel.textContent =
-                enrichmentActive ? 'Close' : 'Exit editing';
-        }
-    }
-"""
-
-          old_cancel_handler = """async function cancelMyVersionEditing() {
-    if (!myVersionEditing || myVersionSaving) return;
-
-    clearMyVersionWorkingDraftSaveTimer();
-"""
-          new_cancel_handler = """async function cancelMyVersionEditing() {
-    if (!myVersionEditing) return;
-
-    const enrichmentActive =
-        myVersionEnrichingDiscussion ||
-        myVersionEnrichingCulturalLens ||
-        myVersionGeneratingFullSubject;
-
-    if (enrichmentActive) {
-        setMyVersionAuthorBarMinimized(true);
-        updateMyVersionAuthorBar();
-        return;
-    }
-
-    if (myVersionSaving) return;
-
-    clearMyVersionWorkingDraftSaveTimer();
-"""
-
+          old_cancel_ui = "    if (cancelButton) {\n        cancelButton.disabled =\n            myVersionSaving ||\n            enrichmentActive;\n    }\n"
+          new_cancel_ui = "    if (cancelButton) {\n        cancelButton.disabled =\n            enrichmentActive\n                ? false\n                : myVersionSaving;\n\n        const cancelDesktopLabel = cancelButton.querySelector(\n            '.atlas-my-version-cancel-desktop'\n        );\n        const cancelMobileLabel = cancelButton.querySelector(\n            '.atlas-my-version-cancel-mobile'\n        );\n\n        if (cancelDesktopLabel) {\n            cancelDesktopLabel.textContent =\n                enrichmentActive ? 'Close' : 'Cancel';\n        }\n\n        if (cancelMobileLabel) {\n            cancelMobileLabel.textContent =\n                enrichmentActive ? 'Close' : 'Exit editing';\n        }\n    }\n"
+          old_cancel_handler = "async function cancelMyVersionEditing() {\n    if (!myVersionEditing || myVersionSaving) return;\n\n    clearMyVersionWorkingDraftSaveTimer();\n"
+          new_cancel_handler = "async function cancelMyVersionEditing() {\n    if (!myVersionEditing) return;\n\n    const enrichmentActive =\n        myVersionEnrichingDiscussion ||\n        myVersionEnrichingCulturalLens ||\n        myVersionGeneratingFullSubject;\n\n    if (enrichmentActive) {\n        setMyVersionAuthorBarMinimized(true);\n        updateMyVersionAuthorBar();\n        return;\n    }\n\n    if (myVersionSaving) return;\n\n    clearMyVersionWorkingDraftSaveTimer();\n"
           if text.count(old_cancel_ui) != 1:
               raise SystemExit(f'Expected one cancel UI block, found {text.count(old_cancel_ui)}')
           if text.count(old_cancel_handler) != 1:
               raise SystemExit(f'Expected one cancel handler block, found {text.count(old_cancel_handler)}')
-
           text = text.replace(old_cancel_ui, new_cancel_ui, 1)
           text = text.replace(old_cancel_handler, new_cancel_handler, 1)
           path.write_text(text)
@@ -97,5 +43,3 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m "Fix generation toolbar close behavior"
           git push origin HEAD:main
-
-# trigger
