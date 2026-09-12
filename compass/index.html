@@ -2488,6 +2488,26 @@
       box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.10);
     }
 
+    .owned-subject-dialog-compact-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: fit-content;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .owned-subject-dialog-compact-option input {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
     .owned-subject-dialog-error {
       margin: -0.55rem 0 1rem;
       color: var(--danger-text);
@@ -4071,12 +4091,9 @@
 
         '</div>' +
 
-        '<label class="owned-subject-dialog-create-field">' +
-        '<span>Subject size</span>' +
-        '<select id="owned-subject-dialog-size">' +
-        '<option value="standard" selected>Standard · 3 sets + 6 cards</option>' +
-        '<option value="compact">Compact · 2 sets + 3 cards</option>' +
-        '</select>' +
+        '<label class="owned-subject-dialog-compact-option">' +
+        '<input id="owned-subject-dialog-size" type="checkbox" value="compact">' +
+        '<span>Shorter lesson</span>' +
         '</label>' +
 
         '<label class="owned-subject-dialog-create-field">' +
@@ -4796,7 +4813,7 @@
 
       levelSelect.value = 'b2';
       styleSelect.value = 'balanced';
-      sizeSelect.value = 'standard';
+      sizeSelect.checked = false;
       briefInput.value = '';
 
       error.hidden = true;
@@ -5025,6 +5042,10 @@
 
       const styleSelect = dialog.querySelector(
         '#owned-subject-dialog-style'
+      );
+
+      const sizeSelect = dialog.querySelector(
+        '#owned-subject-dialog-size'
       );
 
       const briefInput = dialog.querySelector(
@@ -5658,7 +5679,7 @@
               : 'b2',
 
           subjectSize:
-            sizeSelect?.value === 'compact'
+            sizeSelect?.checked
               ? 'compact'
               : 'standard',
 

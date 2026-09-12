@@ -6678,7 +6678,7 @@ async function generateMyVersionFullSubject({
 
         for (
             let index = 0;
-            index < FULL_SUBJECT_DISCUSSION_STAGES.length;
+            index < discussionStages.length;
             index += 1
         ) {
             const step = 4 + index;
@@ -6688,11 +6688,11 @@ async function generateMyVersionFullSubject({
             }
 
             const stage =
-                FULL_SUBJECT_DISCUSSION_STAGES[index];
+                discussionStages[index];
 
             setMyVersionFullSubjectGenerationProgress(
                 4,
-                `${stage} · ${index + 1} of ${FULL_SUBJECT_DISCUSSION_STAGES.length}`
+                `${stage} · ${index + 1} of ${discussionStages.length}`
             );
 
             const set =
