@@ -19,6 +19,14 @@
     <link rel="stylesheet" href="../../shared/atlas-modal-theme.css?v=20260721-world-modals">
     <link rel="stylesheet" href="../../shared/atlas-search.css?v=20260721-world-modals">
     <link rel="stylesheet" href="../../shared/atlas-session-panel.css?v=20260721-world-modals">
+
+    <style>
+        @media (min-width: 600px) {
+            .discussion-sets:has(> .set-card + .set-card):not(:has(> .set-card + .set-card + .set-card)) {
+                grid-template-columns: repeat(2, minmax(240px, 1fr));
+            }
+        }
+    </style>
 </head>
 
 <body data-atlas-world="compass" data-atlas-surface="content">
