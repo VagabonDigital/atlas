@@ -10750,6 +10750,15 @@
           ', event)">Rename</button>' +
 
           '<button type="button" role="menuitem" ' +
+          'onclick="openSubjectArtworkStudio(' +
+          jsArg(subject.subjectId) +
+          ', event)">' +
+          (subject.artwork
+            ? 'Change artwork'
+            : 'Add artwork') +
+          '</button>' +
+
+          '<button type="button" role="menuitem" ' +
           'onclick="duplicateOwnedSubject(' +
           jsArg(subject.subjectId) +
           ', event)">Duplicate</button>' +
