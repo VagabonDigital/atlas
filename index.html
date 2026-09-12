@@ -3224,6 +3224,116 @@
         transition: none;
       }
     }
+    /* ATLAS WELCOME COMPOSITION OVERRIDE START */
+    .atlas-welcome-art--travel {
+      width: clamp(250px, 23vw, 360px);
+      left: clamp(-165px, -7vw, -92px);
+      top: 17%;
+      color: var(--compass-text);
+      opacity: 0.26;
+      animation: atlasWelcomeDriftTravel 17s ease-in-out infinite alternate;
+    }
+
+    .atlas-welcome-art--odyssey {
+      width: clamp(235px, 21vw, 330px);
+      right: clamp(-138px, -5.5vw, -74px);
+      top: 8%;
+      color: #b77b68;
+      opacity: 0.23;
+      animation: atlasWelcomeDriftOdyssey 19s ease-in-out infinite alternate;
+    }
+
+    .atlas-welcome-art--game-theory {
+      width: clamp(175px, 15vw, 235px);
+      left: clamp(-38px, -1.4vw, -14px);
+      bottom: -16px;
+      color: #7e7898;
+      opacity: 0.19;
+      animation: atlasWelcomeDriftGameTheory 16s ease-in-out infinite alternate;
+    }
+
+    .atlas-welcome-art--mars {
+      width: clamp(190px, 17vw, 265px);
+      right: clamp(-32px, 1vw, 20px);
+      bottom: -18px;
+      color: #718f9f;
+      opacity: 0.21;
+      animation: atlasWelcomeDriftMars 18s ease-in-out infinite alternate;
+    }
+
+    .atlas-welcome-art--odyssey .odyssey-ship {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: atlasWelcomeBoat 7.5s ease-in-out infinite alternate;
+    }
+
+    .atlas-welcome-art--odyssey .odyssey-star {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: atlasWelcomeSpark 5.5s ease-in-out infinite alternate;
+    }
+
+    .atlas-welcome-art--game-theory .game-theory-die {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: atlasWelcomeDie 8.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes atlasWelcomeDriftOdyssey {
+      from { transform: translate3d(5px, -4px, 0) rotate(4deg); }
+      to { transform: translate3d(-8px, 7px, 0) rotate(1deg); }
+    }
+
+    @keyframes atlasWelcomeDriftGameTheory {
+      from { transform: translate3d(-3px, 4px, 0) rotate(-4deg); }
+      to { transform: translate3d(6px, -5px, 0) rotate(-1deg); }
+    }
+
+    @keyframes atlasWelcomeDriftMars {
+      from { transform: translate3d(3px, 4px, 0) rotate(2deg); }
+      to { transform: translate3d(-7px, -6px, 0) rotate(-1deg); }
+    }
+
+    @keyframes atlasWelcomeBoat {
+      from { transform: translateY(2px) rotate(-1deg); }
+      to { transform: translateY(-4px) rotate(1deg); }
+    }
+
+    @keyframes atlasWelcomeDie {
+      from { transform: rotate(-2deg) translateY(1px); }
+      to { transform: rotate(3deg) translateY(-3px); }
+    }
+
+    @media (max-width: 700px) {
+      .atlas-welcome-art--travel {
+        width: 205px;
+        left: -118px;
+        top: 13%;
+        opacity: 0.20;
+      }
+
+      .atlas-welcome-art--odyssey {
+        width: 185px;
+        right: -94px;
+        top: 12%;
+        opacity: 0.18;
+      }
+
+      .atlas-welcome-art--game-theory {
+        width: 138px;
+        left: -38px;
+        bottom: -10px;
+        opacity: 0.16;
+      }
+
+      .atlas-welcome-art--mars {
+        width: 150px;
+        right: -30px;
+        bottom: -9px;
+        opacity: 0.18;
+      }
+    }
+    /* ATLAS WELCOME COMPOSITION OVERRIDE END */
   </style>
 
   <!-- Shared, fixed geometry for the Atlas / Compass / Arcade rail -->
@@ -3233,186 +3343,28 @@
 <body data-atlas-world="atlas" data-atlas-surface="hub">
   <section class="atlas-welcome-screen" id="atlas-welcome-screen" role="dialog" aria-modal="true"
     aria-labelledby="atlas-welcome-title" aria-describedby="atlas-welcome-copy">
+    <div class="atlas-welcome-art atlas-welcome-art--travel" data-compass-art="travel-route" aria-hidden="true"></div>
 
-    <div class="atlas-welcome-art atlas-welcome-art--travel" aria-hidden="true">
-      <svg viewBox="0 0 180 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g class="travel-map">
-          <path
-            d="M20 35L63 24L107 38L160 25V107L111 120L66 106L20 119V35Z"
-            stroke="currentColor"
-            stroke-width="2.1"
-            stroke-linecap="round"
-            stroke-linejoin="round" />
-          <path
-            d="M63 24L66 106M107 38L111 120"
-            stroke="currentColor"
-            stroke-width="1.75"
-            stroke-linecap="round" />
+    <div class="atlas-welcome-art atlas-welcome-art--odyssey" data-compass-art="odyssey-voyage" aria-hidden="true"></div>
+
+    <div class="atlas-welcome-art atlas-welcome-art--game-theory" data-compass-art="game-theory" aria-hidden="true"></div>
+
+    <div class="atlas-welcome-art atlas-welcome-art--mars" aria-hidden="true">
+      <svg class="welcome-mars-child" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 140">
+        <g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M43 92V62c0-27 20-45 47-45s47 18 47 45v30"/>
+          <path d="M36 91c0-5 4-9 9-9h90c5 0 9 4 9 9v10c0 5-4 9-9 9H45c-5 0-9-4-9-9z"/>
+          <path d="M51 60c0-20 16-34 39-34s39 14 39 34v26H51z"/>
+          <path d="M61 61c0-14 12-24 29-24s29 10 29 24v12c0 16-12 28-29 28S61 89 61 73z"/>
+          <path d="M70 68c4-3 8-4 12-4"/>
+          <path d="M98 64c4 0 8 1 12 4"/>
+          <path d="M82 78c3 2 7 2 10 0"/>
+          <path d="M77 91c8 4 18 4 26 0"/>
+          <path d="M51 60h10M119 60h10"/>
+          <circle cx="43" cy="91" r="7"/>
+          <circle cx="137" cy="91" r="7"/>
+          <path d="M54 110v10M126 110v10M67 120h46"/>
         </g>
-
-        <path class="travel-route"
-          d="M34 101C49 90 50 75 67 69C84 63 89 86 107 81C124 77 126 66 144 69"
-          pathLength="1"
-          stroke="currentColor"
-          stroke-width="2.7"
-          stroke-linecap="round" />
-
-        <circle cx="34" cy="101" r="4" fill="currentColor" />
-
-        <g>
-          <path
-            d="M144 30C136.3 30 130 35.8 130 43.3C130 53.1 144 69 144 69C144 69 158 53.1 158 43.3C158 35.8 151.7 30 144 30Z"
-            stroke="currentColor"
-            stroke-width="2.2"
-            stroke-linejoin="round" />
-          <circle
-            cx="144"
-            cy="43"
-            r="4.5"
-            stroke="currentColor"
-            stroke-width="2" />
-        </g>
-      </svg>
-    </div>
-
-    <div class="atlas-welcome-art atlas-welcome-art--humour" aria-hidden="true">
-      <svg viewBox="0 0 180 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g class="humour-jester">
-          <g>
-            <path
-              d="M65 91C52 78 40 61 38 42C53 48 68 63 77 84"
-              stroke="currentColor"
-              stroke-width="2.2"
-              stroke-linecap="round"
-              stroke-linejoin="round" />
-            <circle cx="38" cy="42" r="5.5" stroke="currentColor" stroke-width="2" />
-            <circle cx="38" cy="42" r="1.5" fill="currentColor" />
-          </g>
-
-          <g>
-            <path
-              d="M76 84C77 62 84 38 94 20C106 40 112 63 108 86"
-              stroke="currentColor"
-              stroke-width="2.2"
-              stroke-linecap="round"
-              stroke-linejoin="round" />
-            <circle cx="94" cy="20" r="5.5" stroke="currentColor" stroke-width="2" />
-            <circle cx="94" cy="20" r="1.5" fill="currentColor" />
-          </g>
-
-          <g>
-            <path
-              d="M106 86C121 70 139 58 154 56C150 75 139 91 121 98"
-              stroke="currentColor"
-              stroke-width="2.2"
-              stroke-linecap="round"
-              stroke-linejoin="round" />
-            <circle cx="154" cy="56" r="5.5" stroke="currentColor" stroke-width="2" />
-            <circle cx="154" cy="56" r="1.5" fill="currentColor" />
-          </g>
-
-          <path
-            d="M54 87C73 81 103 82 126 92L120 110C100 118 75 116 54 107L54 87Z"
-            stroke="currentColor"
-            stroke-width="2.3"
-            stroke-linejoin="round" />
-
-          <path
-            d="M59 98C77 104 101 105 120 99"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linecap="round" />
-
-          <path class="humour-jester-spark"
-            d="M143 21L146 30L155 33L146 36L143 45L140 36L131 33L140 30L143 21Z"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linejoin="round" />
-        </g>
-      </svg>
-    </div>
-
-    <div class="atlas-welcome-art atlas-welcome-art--food" aria-hidden="true">
-      <svg viewBox="0 0 180 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M54 70C55 93 66 111 90 111C114 111 125 93 126 70"
-          stroke="currentColor"
-          stroke-width="2.3"
-          stroke-linecap="round"
-          stroke-linejoin="round" />
-
-        <ellipse
-          cx="90"
-          cy="70"
-          rx="36"
-          ry="10"
-          stroke="currentColor"
-          stroke-width="2.3" />
-
-        <path
-          d="M61 56C67 43 78 36 90 36C102 36 113 43 119 56C104 62 76 62 61 56Z"
-          stroke="currentColor"
-          stroke-width="2.2"
-          stroke-linejoin="round" />
-
-        <g class="food-steam">
-          <path
-            d="M72 49C66 42 75 37 70 29"
-            stroke="currentColor"
-            stroke-width="1.9"
-            stroke-linecap="round" />
-          <path
-            d="M89 46C83 39 93 34 88 24"
-            stroke="currentColor"
-            stroke-width="1.9"
-            stroke-linecap="round" />
-          <path
-            d="M106 49C100 42 110 37 105 29"
-            stroke="currentColor"
-            stroke-width="1.9"
-            stroke-linecap="round" />
-        </g>
-      </svg>
-    </div>
-
-    <div class="atlas-welcome-art atlas-welcome-art--truth" aria-hidden="true">
-      <svg viewBox="0 0 180 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g class="truth-card truth-card--one">
-          <rect x="38" y="25" width="99" height="29" rx="9"
-            stroke="currentColor" stroke-width="2.3" />
-          <circle cx="54" cy="39.5" r="4" fill="currentColor" />
-          <path d="M67 39.5H119"
-            stroke="currentColor" stroke-width="2.3" stroke-linecap="round" />
-        </g>
-
-        <g class="truth-card truth-card--two">
-          <rect x="48" y="63" width="99" height="29" rx="9"
-            stroke="currentColor" stroke-width="2.3" />
-          <circle cx="64" cy="77.5" r="4" fill="currentColor" />
-          <path d="M77 77.5H129"
-            stroke="currentColor" stroke-width="2.3" stroke-linecap="round" />
-        </g>
-
-        <g class="truth-card truth-card--lie">
-          <rect x="59" y="101" width="85" height="28" rx="9"
-            stroke="currentColor" stroke-width="2.3" />
-          <path d="M75 111L84 120M84 111L75 120"
-            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
-          <path d="M96 115.5H128"
-            stroke="currentColor" stroke-width="2.3" stroke-linecap="round" />
-        </g>
-
-        <path
-          d="M54 136H95L85 144H43L54 136Z"
-          stroke="currentColor"
-          stroke-width="2.1"
-          stroke-linejoin="round" />
-
-        <path
-          d="M100 136H141L151 144H109L100 136Z"
-          stroke="currentColor"
-          stroke-width="2.1"
-          stroke-linejoin="round" />
       </svg>
     </div>
 
@@ -3724,6 +3676,24 @@
 
   <!-- ============================================================ SCRIPTS -->
   <script src="./shared/compass-catalog-data.js"></script>
+
+  <!-- ATLAS WELCOME ART HYDRATOR START -->
+  <script>
+    (function hydrateAtlasWelcomeArtwork() {
+      document.querySelectorAll('.atlas-welcome-art[data-compass-art]').forEach(function (node) {
+        var artId = node.getAttribute('data-compass-art');
+
+        if (
+          window.CompassCatalogData &&
+          typeof CompassCatalogData.getCompassSubjectArt === 'function'
+        ) {
+          var artwork = CompassCatalogData.getCompassSubjectArt(artId);
+          if (artwork) node.innerHTML = artwork;
+        }
+      });
+    })();
+  </script>
+  <!-- ATLAS WELCOME ART HYDRATOR END -->
   <script src="./shared/arcade-catalog-data.js"></script>
   <script src="./shared/atlas-structured-subject.js"></script>
   <script src="./shared/atlas-tutor-content.js"></script>
