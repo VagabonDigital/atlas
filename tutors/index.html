@@ -1368,16 +1368,18 @@
       }
 
       .library-demo-row {
-        grid-auto-columns: min(84vw, 350px);
-        gap: 12px;
+        grid-auto-columns: 446px;
+        gap: 16px;
         margin-inline: -15px;
         padding-inline: 15px;
         padding-bottom: 8px;
-        scroll-padding-inline: 15px;
+        scroll-padding-inline: 0;
+        scroll-snap-type: none;
       }
 
       .library-demo-card {
         min-height: 230px;
+        scroll-snap-align: none;
       }
     }
 
