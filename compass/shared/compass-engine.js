@@ -6563,6 +6563,20 @@ async function generateMyVersionFullSubject({
         return null;
     }
 
+    const subjectSize = String(
+        window.AtlasGenerationContext?.subjectSize || 'standard'
+    ).trim();
+
+    const discussionStages =
+        subjectSize === 'compact'
+            ? FULL_SUBJECT_DISCUSSION_STAGES.slice(0, 2)
+            : FULL_SUBJECT_DISCUSSION_STAGES;
+
+    const culturalLensCardCount =
+        subjectSize === 'compact'
+            ? 3
+            : FULL_SUBJECT_CULTURAL_LENS_CARD_COUNT;
+
     let completedStep = Math.min(
         18,
         Math.max(
@@ -6728,7 +6742,7 @@ async function generateMyVersionFullSubject({
 
         for (
             let index = 0;
-            index < FULL_SUBJECT_CULTURAL_LENS_CARD_COUNT;
+            index < culturalLensCardCount;
             index += 1
         ) {
             const step = 8 + index;
@@ -6739,7 +6753,7 @@ async function generateMyVersionFullSubject({
 
             setMyVersionFullSubjectGenerationProgress(
                 6,
-                `Cultural Lens card ${index + 1} of ${FULL_SUBJECT_CULTURAL_LENS_CARD_COUNT}`
+                `Cultural Lens card ${index + 1} of ${culturalLensCardCount}`
             );
 
             const card =

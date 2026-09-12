@@ -4072,6 +4072,14 @@
         '</div>' +
 
         '<label class="owned-subject-dialog-create-field">' +
+        '<span>Subject size</span>' +
+        '<select id="owned-subject-dialog-size">' +
+        '<option value="standard" selected>Standard · 3 sets + 6 cards</option>' +
+        '<option value="compact">Compact · 2 sets + 3 cards</option>' +
+        '</select>' +
+        '</label>' +
+
+        '<label class="owned-subject-dialog-create-field">' +
         '<span>Anything Atlas should know? — optional</span>' +
         '<textarea id="owned-subject-dialog-brief" maxlength="2400" placeholder="Add any useful direction for this subject."></textarea>' +
         '</label>' +
@@ -4726,6 +4734,10 @@
         '#owned-subject-dialog-style'
       );
 
+      const sizeSelect = dialog.querySelector(
+        '#owned-subject-dialog-size'
+      );
+
       const briefInput = dialog.querySelector(
         '#owned-subject-dialog-brief'
       );
@@ -4784,6 +4796,7 @@
 
       levelSelect.value = 'b2';
       styleSelect.value = 'balanced';
+      sizeSelect.value = 'standard';
       briefInput.value = '';
 
       error.hidden = true;
@@ -5643,6 +5656,11 @@
             allowedLevels.has(levelSelect?.value)
               ? levelSelect.value
               : 'b2',
+
+          subjectSize:
+            sizeSelect?.value === 'compact'
+              ? 'compact'
+              : 'standard',
 
           style:
             allowedStyles.has(styleSelect?.value)
