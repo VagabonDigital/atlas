@@ -1,16 +1,19 @@
 /* ============================================================
    ATLAS SUBJECT ARTWORK
-   Shared contract for tutor-owned Compass card artwork.
+   Shared contract and generation runtime for tutor-owned Compass
+   card artwork.
 
    Owns:
    - artwork metadata normalization
    - SVG allow-list validation / sanitization
    - artwork color normalization
+   - narrow browser call for subject artwork generation
+   - Compass Artwork Studio generation wiring
 
    Does NOT own:
-   - AI generation
+   - provider credentials
    - subject persistence
-   - Compass UI
+   - canonical Atlas artwork
    ============================================================ */
 
 (function () {
@@ -24,6 +27,8 @@
     const MAX_SVG_LENGTH = 16000;
     const MAX_ELEMENTS = 90;
     const MAX_IDEA_LENGTH = 240;
+    const AI_BASE_URL =
+        'https://atlas-ai.savvy989.workers.dev';
 
     const ALLOWED_TAGS = new Set([
         'svg',
@@ -264,6 +269,86 @@
             : color;
     }
 
+    async function generateSubjectArtwork(
+        input = {}
+    ) {
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const subject = {
+            title:
+                cleanString(
+                    candidate.subject?.title
+                ),
+
+            description:
+                cleanString(
+                    candidate.subject?.description
+                )
+        };
+
+        if (!subject.title) {
+            throw new Error(
+                'A subject title is required.'
+            );
+        }
+
+        const response = await fetch(
+            `${AI_BASE_URL}/generate-subject-artwork`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json'
+                },
+
+                body: JSON.stringify({
+                    subject,
+                    idea:
+                        cleanString(
+                            candidate.idea
+                        ).slice(
+                            0,
+                            MAX_IDEA_LENGTH
+                        )
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result = await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+        }
+
+        const svg = sanitizeSvg(
+            result.payload?.svg
+        );
+
+        if (!svg) {
+            throw new Error(
+                'Atlas AI returned invalid subject artwork.'
+            );
+        }
+
+        return { svg };
+    }
+
     window.AtlasSubjectArtwork =
         Object.freeze({
             schemaVersion: SCHEMA_VERSION,
@@ -272,6 +357,174 @@
             normalize,
             sanitizeSvg,
             normalizeColor,
-            resolveColor
+            resolveColor,
+            generateSubjectArtwork
         });
+
+    function installCompassArtworkGeneration() {
+        const Artwork =
+            window.AtlasSubjectArtwork;
+
+        const AI =
+            window.AtlasAI;
+
+        if (
+            AI &&
+            typeof AI.generateSubjectArtwork !==
+                'function'
+        ) {
+            AI.generateSubjectArtwork =
+                generateSubjectArtwork;
+        }
+
+        if (
+            typeof window
+                .generateSubjectArtworkStudioPreview !==
+                'function' ||
+            typeof subjectArtworkStudioState ===
+                'undefined' ||
+            typeof renderSubjectArtworkStudioPreview ===
+                'undefined'
+        ) {
+            return;
+        }
+
+        window.generateSubjectArtworkStudioPreview =
+            async function () {
+                const state =
+                    subjectArtworkStudioState;
+
+                if (!state) return;
+
+                const idea =
+                    cleanString(
+                        document.getElementById(
+                            'subject-artwork-idea'
+                        )?.value
+                    ).slice(
+                        0,
+                        MAX_IDEA_LENGTH
+                    );
+
+                const error =
+                    document.getElementById(
+                        'subject-artwork-studio-error'
+                    );
+
+                const useButton =
+                    document.getElementById(
+                        'subject-artwork-use'
+                    );
+
+                const generateButton =
+                    document.getElementById(
+                        'subject-artwork-generate'
+                    );
+
+                const previousSvg =
+                    state.svg;
+
+                state.idea = idea;
+
+                if (error) {
+                    error.hidden = true;
+                    error.textContent = '';
+                }
+
+                if (generateButton) {
+                    generateButton.disabled = true;
+                    generateButton.textContent =
+                        'Generating…';
+                }
+
+                if (useButton) {
+                    useButton.disabled = true;
+                }
+
+                try {
+                    const generated =
+                        await generateSubjectArtwork({
+                            subject: {
+                                title:
+                                    state.subject?.title || '',
+
+                                description:
+                                    state.subject?.hook || ''
+                            },
+
+                            idea
+                        });
+
+                    const normalized =
+                        Artwork.normalize({
+                            type: TYPE,
+                            version: SCHEMA_VERSION,
+                            svg: generated.svg,
+                            color: state.color,
+                            idea
+                        });
+
+                    if (!normalized) {
+                        throw new Error(
+                            'Generated artwork failed validation.'
+                        );
+                    }
+
+                    state.svg = normalized.svg;
+                    state.idea = idea;
+
+                    renderSubjectArtworkStudioPreview();
+
+                    if (useButton) {
+                        useButton.disabled = false;
+                    }
+
+                    if (generateButton) {
+                        generateButton.textContent =
+                            'Try another';
+                    }
+                } catch (generationError) {
+                    console.error(
+                        '[Compass] Subject artwork generation failed:',
+                        generationError
+                    );
+
+                    state.svg = previousSvg;
+
+                    if (error) {
+                        error.hidden = false;
+                        error.textContent =
+                            'Couldn’t generate artwork just now. Try again.';
+                    }
+
+                    if (useButton) {
+                        useButton.disabled =
+                            !state.svg;
+                    }
+
+                    if (generateButton) {
+                        generateButton.textContent =
+                            state.svg
+                                ? 'Try another'
+                                : 'Generate artwork';
+                    }
+                } finally {
+                    if (generateButton) {
+                        generateButton.disabled = false;
+                    }
+                }
+            };
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener(
+            'DOMContentLoaded',
+            installCompassArtworkGeneration,
+            { once: true }
+        );
+    } else {
+        queueMicrotask(
+            installCompassArtworkGeneration
+        );
+    }
 })();
