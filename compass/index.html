@@ -6702,16 +6702,39 @@
       const title =
         getOwnedSubjectRecordTitle(record);
 
-      const subject = {
-        subjectId: record.id,
-        isOwned: true,
-        title,
-        hook: String(
+      let previewDescription =
+        String(
           metadata.description ||
           record.document?.module
             ?.catalogDescription ||
           ''
-        ).trim(),
+        ).trim();
+
+      if (
+        !previewDescription &&
+        typeof Subjects.getWorkingDraft ===
+          'function'
+      ) {
+        try {
+          const draft =
+            await Subjects.getWorkingDraft(
+              record.id
+            );
+
+          previewDescription =
+            String(
+              draft?.document?.module
+                ?.catalogDescription ||
+              ''
+            ).trim();
+        } catch { }
+      }
+
+      const subject = {
+        subjectId: record.id,
+        isOwned: true,
+        title,
+        hook: previewDescription,
         artwork: existing,
         artId: '',
         launchUrl:
