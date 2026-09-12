@@ -22,6 +22,9 @@ jobs:
           python - <<'PY'
           from pathlib import Path
 
+          def block(lines):
+              return '\n'.join(lines)
+
           def replace_once(path_str, old, new):
               path = Path(path_str)
               data = path.read_bytes()
@@ -33,94 +36,104 @@ jobs:
                   raise SystemExit(f'{path_str}: expected one match, found {count}')
               path.write_bytes(data.replace(old_bytes, new_bytes, 1))
 
-          replace_once(
-              'compass/shared/compass-subject-shell.js',
-              '''            <button class="atlas-my-version-secondary"
-                id="atlas-my-version-cover-action"
-                type="button"
-                onclick="handleMyVersionCoverAction()">
-                Change cover
-            </button>''',
-              '''            <button class="atlas-my-version-secondary atlas-my-version-cover-action"
-                id="atlas-my-version-cover-action"
-                type="button"
-                onclick="handleMyVersionCoverAction()">
-                <svg class="atlas-my-version-cover-icon"
-                    width="14" height="14"
-                    viewBox="0 0 14 14"
-                    fill="none" aria-hidden="true">
-                    <rect x="1.6" y="2.2" width="10.8" height="9.1" rx="1.7"
-                        stroke="currentColor" stroke-width="1.2"/>
-                    <circle cx="4.6" cy="5.1" r="1.15"
-                        stroke="currentColor" stroke-width="1.05"/>
-                    <path d="M3.15 9.7L5.7 7.25L7.45 8.9L8.85 7.55L11.15 9.7"
-                        stroke="currentColor" stroke-width="1.05"
-                        stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span class="atlas-my-version-cover-label">Change cover</span>
-            </button>'''
-          )
+          shell_old = block([
+              '            <button class="atlas-my-version-secondary"',
+              '                id="atlas-my-version-cover-action"',
+              '                type="button"',
+              '                onclick="handleMyVersionCoverAction()">',
+              '                Change cover',
+              '            </button>',
+          ])
 
-          replace_once(
-              'compass/shared/compass-engine.js',
-              '''    if (coverActionButton) {
-        coverActionButton.disabled =
-            myVersionSaving;
+          shell_new = block([
+              '            <button class="atlas-my-version-secondary atlas-my-version-cover-action"',
+              '                id="atlas-my-version-cover-action"',
+              '                type="button"',
+              '                onclick="handleMyVersionCoverAction()">',
+              '                <svg class="atlas-my-version-cover-icon"',
+              '                    width="14" height="14"',
+              '                    viewBox="0 0 14 14"',
+              '                    fill="none" aria-hidden="true">',
+              '                    <rect x="1.6" y="2.2" width="10.8" height="9.1" rx="1.7"',
+              '                        stroke="currentColor" stroke-width="1.2"/>',
+              '                    <circle cx="4.6" cy="5.1" r="1.15"',
+              '                        stroke="currentColor" stroke-width="1.05"/>',
+              '                    <path d="M3.15 9.7L5.7 7.25L7.45 8.9L8.85 7.55L11.15 9.7"',
+              '                        stroke="currentColor" stroke-width="1.05"',
+              '                        stroke-linecap="round" stroke-linejoin="round"/>',
+              '                </svg>',
+              '                <span class="atlas-my-version-cover-label">Change cover</span>',
+              '            </button>',
+          ])
 
-        coverActionButton.textContent =
-            'Change cover';
-    }''',
-              '''    if (coverActionButton) {
-        coverActionButton.disabled =
-            myVersionSaving;
+          engine_old = block([
+              '    if (coverActionButton) {',
+              '        coverActionButton.disabled =',
+              '            myVersionSaving;',
+              '',
+              '        coverActionButton.textContent =',
+              "            'Change cover';",
+              '    }',
+          ])
 
-        const coverActionLabel =
-            coverActionButton.querySelector(
-                '.atlas-my-version-cover-label'
-            );
+          engine_new = block([
+              '    if (coverActionButton) {',
+              '        coverActionButton.disabled =',
+              '            myVersionSaving;',
+              '',
+              '        const coverActionLabel =',
+              '            coverActionButton.querySelector(',
+              "                '.atlas-my-version-cover-label'",
+              '            );',
+              '',
+              '        if (coverActionLabel) {',
+              '            coverActionLabel.textContent =',
+              "                'Change cover';",
+              '        }',
+              '    }',
+          ])
 
-        if (coverActionLabel) {
-            coverActionLabel.textContent =
-                'Change cover';
-        }
-    }'''
-          )
+          css_old = block([
+              '.atlas-my-version-secondary:hover:not(:disabled) {',
+              '    border-color: rgba(var(--accent-rgb), 0.38);',
+              '    color: var(--accent);',
+              '}',
+              '',
+              '.atlas-my-version-ai {',
+          ])
 
-          replace_once(
-              'compass/shared/compass-subject.css',
-              '''.atlas-my-version-secondary:hover:not(:disabled) {
-    border-color: rgba(var(--accent-rgb), 0.38);
-    color: var(--accent);
-}
+          css_new = block([
+              '.atlas-my-version-secondary:hover:not(:disabled) {',
+              '    border-color: rgba(var(--accent-rgb), 0.38);',
+              '    color: var(--accent);',
+              '}',
+              '',
+              '.atlas-my-version-cover-action {',
+              '    display: inline-flex;',
+              '    align-items: center;',
+              '    justify-content: center;',
+              '    gap: 0.38rem;',
+              '    border-color: rgba(var(--accent-rgb), 0.42);',
+              '    background: rgba(var(--accent-rgb), 0.085);',
+              '    color: var(--accent);',
+              '}',
+              '',
+              '.atlas-my-version-cover-action:hover:not(:disabled) {',
+              '    border-color: var(--accent);',
+              '    background: rgba(var(--accent-rgb), 0.14);',
+              '    color: var(--accent);',
+              '}',
+              '',
+              '.atlas-my-version-cover-icon {',
+              '    flex: 0 0 auto;',
+              '}',
+              '',
+              '.atlas-my-version-ai {',
+          ])
 
-.atlas-my-version-ai {''',
-              '''.atlas-my-version-secondary:hover:not(:disabled) {
-    border-color: rgba(var(--accent-rgb), 0.38);
-    color: var(--accent);
-}
-
-.atlas-my-version-cover-action {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.38rem;
-    border-color: rgba(var(--accent-rgb), 0.42);
-    background: rgba(var(--accent-rgb), 0.085);
-    color: var(--accent);
-}
-
-.atlas-my-version-cover-action:hover:not(:disabled) {
-    border-color: var(--accent);
-    background: rgba(var(--accent-rgb), 0.14);
-    color: var(--accent);
-}
-
-.atlas-my-version-cover-icon {
-    flex: 0 0 auto;
-}
-
-.atlas-my-version-ai {'''
-          )
+          replace_once('compass/shared/compass-subject-shell.js', shell_old, shell_new)
+          replace_once('compass/shared/compass-engine.js', engine_old, engine_new)
+          replace_once('compass/shared/compass-subject.css', css_old, css_new)
           PY
 
       - name: Validate and commit
