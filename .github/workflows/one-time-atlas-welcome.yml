@@ -16,179 +16,27 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Add first-visit welcome screen
         run: |
           python - <<'PY'
           from pathlib import Path
-
+          import base64
           path = Path('index.html')
           text = path.read_text(encoding='utf-8')
-
-          def replace_once(old, new, label):
-              global text
+          pairs = [
+              ('welcome anti-flash state', 'ICAgICAgZG9jdW1lbnQuZG9jdW1lbnRFbGVtZW50LmRhdGFzZXQudGhlbWUgPSAobSA9PT0gJ25pZ2h0JykgPyAnbmlnaHQnIDogJ2xpZ2h0JzsKCi8vIFJlZ2lzdGVyIGFuaW1hdGFibGUgY3VzdG9tIGNvbG9ycyBpbiBKUyByYXRoZXIgdGhhbiBpbmxpbmUgQHByb3BlcnR5Lg==', 'ICAgICAgZG9jdW1lbnQuZG9jdW1lbnRFbGVtZW50LmRhdGFzZXQudGhlbWUgPSAobSA9PT0gJ25pZ2h0JykgPyAnbmlnaHQnIDogJ2xpZ2h0JzsKCiAgICAgIHRyeSB7CiAgICAgICAgaWYgKGxvY2FsU3RvcmFnZS5nZXRJdGVtKCdhdGxhczo6d2VsY29tZVNlZW46djEnKSA9PT0gJzEnKSB7CiAgICAgICAgICBkb2N1bWVudC5kb2N1bWVudEVsZW1lbnQuZGF0YXNldC5hdGxhc1dlbGNvbWUgPSAnc2Vlbic7CiAgICAgICAgfQogICAgICB9IGNhdGNoIChlKSB7IH0KCiAgICAgIC8vIFJlZ2lzdGVyIGFuaW1hdGFibGUgY3VzdG9tIGNvbG9ycyBpbiBKUyByYXRoZXIgdGhhbiBpbmxpbmUgQHByb3BlcnR5Lg=='),
+              ('welcome styles', 'ICA8L3N0eWxlPgoKICA8IS0tIFNoYXJlZCwgZml4ZWQgZ2VvbWV0cnkgZm9yIHRoZSBBdGxhcyAvIENvbXBhc3MgLyBBcmNhZGUgcmFpbCAtLT4=', 'CgogICAgLyogPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09CiAgICAgICBGSVJTVC1WSVNJVCBXRUxDT01FCiAgICAgICA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gKi8KICAgIGh0bWw6bm90KFtkYXRhLWF0bGFzLXdlbGNvbWU9InNlZW4iXSkgYm9keSB7CiAgICAgIG92ZXJmbG93OiBoaWRkZW47CiAgICB9CgogICAgLmF0bGFzLXdlbGNvbWUtc2NyZWVuIHsKICAgICAgcG9zaXRpb246IGZpeGVkOwogICAgICBpbnNldDogMDsKICAgICAgei1pbmRleDogNTAwMDsKICAgICAgZGlzcGxheTogZ3JpZDsKICAgICAgcGxhY2UtaXRlbXM6IGNlbnRlcjsKICAgICAgcGFkZGluZzogMS41cmVtOwogICAgICBiYWNrZ3JvdW5kOgogICAgICAgIHJhZGlhbC1ncmFkaWVudChjaXJjbGUgYXQgNTAlIDI0JSwgcmdiYSh2YXIoLS1hY2NlbnQtcmdiKSwgMC4xMiksIHRyYW5zcGFyZW50IDI1cmVtKSwKICAgICAgICByYWRpYWwtZ3JhZGllbnQoY2lyY2xlIGF0IDgyJSA3OCUsIHJnYmEoMTIyLCAxMTAsIDE1NCwgMC4wNSksIHRyYW5zcGFyZW50IDI4cmVtKSwKICAgICAgICB2YXIoLS1zdXJmYWNlLWNhbnZhcyk7CiAgICAgIGNvbG9yOiB2YXIoLS10ZXh0LWJvZHkpOwogICAgICB0cmFuc2l0aW9uOgogICAgICAgIG9wYWNpdHkgMjYwbXMgY3ViaWMtYmV6aWVyKDAuNCwgMCwgMC4yLCAxKSwKICAgICAgICB2aXNpYmlsaXR5IDI2MG1zIGN1YmljLWJlemllcigwLjQsIDAsIDAuMiwgMSk7CiAgICB9CgogICAgaHRtbFtkYXRhLWF0bGFzLXdlbGNvbWU9InNlZW4iXSAuYXRsYXMtd2VsY29tZS1zY3JlZW4gewogICAgICBvcGFjaXR5OiAwOwogICAgICB2aXNpYmlsaXR5OiBoaWRkZW47CiAgICAgIHBvaW50ZXItZXZlbnRzOiBub25lOwogICAgfQoKICAgIC5hdGxhcy13ZWxjb21lLWlubmVyIHsKICAgICAgd2lkdGg6IG1pbig1NjBweCwgMTAwJSk7CiAgICAgIHRleHQtYWxpZ246IGNlbnRlcjsKICAgICAgdHJhbnNmb3JtOiB0cmFuc2xhdGVZKC0ydmgpOwogICAgfQoKICAgIC5hdGxhcy13ZWxjb21lLXRpdGxlIHsKICAgICAgbWFyZ2luOiAwOwogICAgICBmb250LWZhbWlseTogdmFyKC0tZm9udC1kaXNwbGF5KTsKICAgICAgZm9udC1zaXplOiBjbGFtcCgyLjY1cmVtLCA3dncsIDQuNjVyZW0pOwogICAgICBmb250LXdlaWdodDogNDAwOwogICAgICBsaW5lLWhlaWdodDogMS4wMjsKICAgICAgbGV0dGVyLXNwYWNpbmc6IC0wLjAyNWVtOwogICAgICBjb2xvcjogdmFyKC0tdGV4dC1oZWFkaW5nKTsKICAgIH0KCiAgICAuYXRsYXMtd2VsY29tZS1jb3B5IHsKICAgICAgbWF4LXdpZHRoOiAzNHJlbTsKICAgICAgbWFyZ2luOiAxLjE1cmVtIGF1dG8gMDsKICAgICAgZm9udC1zaXplOiBjbGFtcCgxcmVtLCAyLjF2dywgMS4xMnJlbSk7CiAgICAgIGxpbmUtaGVpZ2h0OiAxLjY1OwogICAgICBjb2xvcjogdmFyKC0tdGV4dC1tdXRlZCk7CiAgICB9CgogICAgLmF0bGFzLXdlbGNvbWUtZW50ZXIgewogICAgICBkaXNwbGF5OiBpbmxpbmUtZmxleDsKICAgICAgYWxpZ24taXRlbXM6IGNlbnRlcjsKICAgICAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7CiAgICAgIG1pbi1oZWlnaHQ6IDQ2cHg7CiAgICAgIG1hcmdpbi10b3A6IDJyZW07CiAgICAgIHBhZGRpbmc6IDAuN3JlbSAxLjI1cmVtOwogICAgICBib3JkZXI6IDFweCBzb2xpZCB2YXIoLS1hY2NlbnQpOwogICAgICBib3JkZXItcmFkaXVzOiAxMHB4OwogICAgICBiYWNrZ3JvdW5kOiB2YXIoLS1hY2NlbnQpOwogICAgICBjb2xvcjogdmFyKC0tYWNjZW50LWluayk7CiAgICAgIGZvbnQtZmFtaWx5OiB2YXIoLS1mb250LWJvZHkpOwogICAgICBmb250LXNpemU6IDAuODhyZW07CiAgICAgIGZvbnQtd2VpZ2h0OiA2MDA7CiAgICAgIGxldHRlci1zcGFjaW5nOiAwLjAxZW07CiAgICAgIGN1cnNvcjogcG9pbnRlcjsKICAgICAgYm94LXNoYWRvdzogMCA4cHggMjJweCByZ2JhKHZhcigtLWFjY2VudC1yZ2IpLCAwLjE2KTsKICAgICAgdHJhbnNpdGlvbjoKICAgICAgICB0cmFuc2Zvcm0gdmFyKC0tbW90aW9uLXN0YW5kYXJkKSwKICAgICAgICBiYWNrZ3JvdW5kIHZhcigtLW1vdGlvbi1zdGFuZGFyZCksCiAgICAgICAgYm9yZGVyLWNvbG9yIHZhcigtLW1vdGlvbi1zdGFuZGFyZCksCiAgICAgICAgYm94LXNoYWRvdyB2YXIoLS1tb3Rpb24tc3RhbmRhcmQpOwogICAgfQoKICAgIC5hdGxhcy13ZWxjb21lLWVudGVyOmhvdmVyIHsKICAgICAgdHJhbnNmb3JtOiB0cmFuc2xhdGVZKC0xcHgpOwogICAgICBiYWNrZ3JvdW5kOiB2YXIoLS1hY2NlbnQtc29mdCk7CiAgICAgIGJvcmRlci1jb2xvcjogdmFyKC0tYWNjZW50LXNvZnQpOwogICAgICBib3gtc2hhZG93OiAwIDEwcHggMjZweCByZ2JhKHZhcigtLWFjY2VudC1yZ2IpLCAwLjIpOwogICAgfQoKICAgIC5hdGxhcy13ZWxjb21lLWVudGVyOmZvY3VzLXZpc2libGUgewogICAgICBvdXRsaW5lOiAycHggc29saWQgdmFyKC0tYWNjZW50KTsKICAgICAgb3V0bGluZS1vZmZzZXQ6IDRweDsKICAgIH0KCiAgICBAbWVkaWEgKHByZWZlcnMtcmVkdWNlZC1tb3Rpb246IHJlZHVjZSkgewogICAgICAuYXRsYXMtd2VsY29tZS1zY3JlZW4sCiAgICAgIC5hdGxhcy13ZWxjb21lLWVudGVyIHsKICAgICAgICB0cmFuc2l0aW9uOiBub25lOwogICAgICB9CiAgICB9CiAgPC9zdHlsZT4KCiAgPCEtLSBTaGFyZWQsIGZpeGVkIGdlb21ldHJ5IGZvciB0aGUgQXRsYXMgLyBDb21wYXNzIC8gQXJjYWRlIHJhaWwgLS0+'),
+              ('welcome markup', 'PGJvZHkgZGF0YS1hdGxhcy13b3JsZD0iYXRsYXMiIGRhdGEtYXRsYXMtc3VyZmFjZT0iaHViIj4KICA8ZGl2IGNsYXNzPSJhdG1vc3BoZXJlLWxheWVyIiBpZD0iYXRtb3NwaGVyZS1sYXllciIgYXJpYS1oaWRkZW49InRydWUiPjwvZGl2Pg==', 'PGJvZHkgZGF0YS1hdGxhcy13b3JsZD0iYXRsYXMiIGRhdGEtYXRsYXMtc3VyZmFjZT0iaHViIj4KICA8c2VjdGlvbiBjbGFzcz0iYXRsYXMtd2VsY29tZS1zY3JlZW4iIGlkPSJhdGxhcy13ZWxjb21lLXNjcmVlbiIgcm9sZT0iZGlhbG9nIiBhcmlhLW1vZGFsPSJ0cnVlIgogICAgYXJpYS1sYWJlbGxlZGJ5PSJhdGxhcy13ZWxjb21lLXRpdGxlIiBhcmlhLWRlc2NyaWJlZGJ5PSJhdGxhcy13ZWxjb21lLWNvcHkiPgogICAgPGRpdiBjbGFzcz0iYXRsYXMtd2VsY29tZS1pbm5lciI+CiAgICAgIDxoMSBjbGFzcz0iYXRsYXMtd2VsY29tZS10aXRsZSIgaWQ9ImF0bGFzLXdlbGNvbWUtdGl0bGUiPldlbGNvbWUgdG8gQXRsYXM8L2gxPgogICAgICA8cCBjbGFzcz0iYXRsYXMtd2VsY29tZS1jb3B5IiBpZD0iYXRsYXMtd2VsY29tZS1jb3B5Ij5BIGNyZWF0aXZlIHRlYWNoaW5nIHdvcmtzcGFjZSBmb3Igb25lLXRvLW9uZSBFbmdsaXNoIHR1dG9ycy48L3A+CiAgICAgIDxidXR0b24gY2xhc3M9ImF0bGFzLXdlbGNvbWUtZW50ZXIiIHR5cGU9ImJ1dHRvbiIgb25jbGljaz0iZW50ZXJBdGxhc0Zyb21XZWxjb21lKCkiPkVudGVyIEF0bGFzPC9idXR0b24+CiAgICA8L2Rpdj4KICA8L3NlY3Rpb24+CgogIDxzY3JpcHQ+CiAgICBmdW5jdGlvbiBlbnRlckF0bGFzRnJvbVdlbGNvbWUoKSB7CiAgICAgIHRyeSB7CiAgICAgICAgbG9jYWxTdG9yYWdlLnNldEl0ZW0oJ2F0bGFzOjp3ZWxjb21lU2Vlbjp2MScsICcxJyk7CiAgICAgIH0gY2F0Y2ggKGUpIHsgfQogICAgICBkb2N1bWVudC5kb2N1bWVudEVsZW1lbnQuZGF0YXNldC5hdGxhc1dlbGNvbWUgPSAnc2Vlbic7CiAgICB9CiAgPC9zY3JpcHQ+CgogIDxkaXYgY2xhc3M9ImF0bW9zcGhlcmUtbGF5ZXIiIGlkPSJhdG1vc3BoZXJlLWxheWVyIiBhcmlhLWhpZGRlbj0idHJ1ZSI+PC9kaXY+')
+          ]
+          for label, old64, new64 in pairs:
+              old = base64.b64decode(old64).decode('utf-8')
+              new = base64.b64decode(new64).decode('utf-8')
               count = text.count(old)
               if count != 1:
                   raise SystemExit(f'{label}: expected one match, found {count}')
               text = text.replace(old, new, 1)
-
-          replace_once(
-              """      document.documentElement.dataset.theme = (m === 'night') ? 'night' : 'light';
-
-      // Register animatable custom colors in JS rather than inline @property.""",
-              """      document.documentElement.dataset.theme = (m === 'night') ? 'night' : 'light';
-
-      try {
-        if (localStorage.getItem('atlas::welcomeSeen:v1') === '1') {
-          document.documentElement.dataset.atlasWelcome = 'seen';
-        }
-      } catch (e) { }
-
-      // Register animatable custom colors in JS rather than inline @property.""",
-              'welcome anti-flash state'
-          )
-
-          welcome_css = """
-
-    /* ============================================================
-       FIRST-VISIT WELCOME
-       ============================================================ */
-    html:not([data-atlas-welcome="seen"]) body {
-      overflow: hidden;
-    }
-
-    .atlas-welcome-screen {
-      position: fixed;
-      inset: 0;
-      z-index: 5000;
-      display: grid;
-      place-items: center;
-      padding: 1.5rem;
-      background:
-        radial-gradient(circle at 50% 24%, rgba(var(--accent-rgb), 0.12), transparent 25rem),
-        radial-gradient(circle at 82% 78%, rgba(122, 110, 154, 0.05), transparent 28rem),
-        var(--surface-canvas);
-      color: var(--text-body);
-      transition:
-        opacity 260ms cubic-bezier(0.4, 0, 0.2, 1),
-        visibility 260ms cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    html[data-atlas-welcome="seen"] .atlas-welcome-screen {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .atlas-welcome-inner {
-      width: min(560px, 100%);
-      text-align: center;
-      transform: translateY(-2vh);
-    }
-
-    .atlas-welcome-title {
-      margin: 0;
-      font-family: var(--font-display);
-      font-size: clamp(2.65rem, 7vw, 4.65rem);
-      font-weight: 400;
-      line-height: 1.02;
-      letter-spacing: -0.025em;
-      color: var(--text-heading);
-    }
-
-    .atlas-welcome-copy {
-      max-width: 34rem;
-      margin: 1.15rem auto 0;
-      font-size: clamp(1rem, 2.1vw, 1.12rem);
-      line-height: 1.65;
-      color: var(--text-muted);
-    }
-
-    .atlas-welcome-enter {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 46px;
-      margin-top: 2rem;
-      padding: 0.7rem 1.25rem;
-      border: 1px solid var(--accent);
-      border-radius: 10px;
-      background: var(--accent);
-      color: var(--accent-ink);
-      font-family: var(--font-body);
-      font-size: 0.88rem;
-      font-weight: 600;
-      letter-spacing: 0.01em;
-      cursor: pointer;
-      box-shadow: 0 8px 22px rgba(var(--accent-rgb), 0.16);
-      transition:
-        transform var(--motion-standard),
-        background var(--motion-standard),
-        border-color var(--motion-standard),
-        box-shadow var(--motion-standard);
-    }
-
-    .atlas-welcome-enter:hover {
-      transform: translateY(-1px);
-      background: var(--accent-soft);
-      border-color: var(--accent-soft);
-      box-shadow: 0 10px 26px rgba(var(--accent-rgb), 0.2);
-    }
-
-    .atlas-welcome-enter:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 4px;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .atlas-welcome-screen,
-      .atlas-welcome-enter {
-        transition: none;
-      }
-    }
-"""
-
-          replace_once(
-              """  </style>
-
-  <!-- Shared, fixed geometry for the Atlas / Compass / Arcade rail -->""",
-              welcome_css + """  </style>
-
-  <!-- Shared, fixed geometry for the Atlas / Compass / Arcade rail -->""",
-              'welcome styles'
-          )
-
-          welcome_markup = """<body data-atlas-world="atlas" data-atlas-surface="hub">
-  <section class="atlas-welcome-screen" id="atlas-welcome-screen" role="dialog" aria-modal="true"
-    aria-labelledby="atlas-welcome-title" aria-describedby="atlas-welcome-copy">
-    <div class="atlas-welcome-inner">
-      <h1 class="atlas-welcome-title" id="atlas-welcome-title">Welcome to Atlas</h1>
-      <p class="atlas-welcome-copy" id="atlas-welcome-copy">A creative teaching workspace for one-to-one English tutors.</p>
-      <button class="atlas-welcome-enter" type="button" onclick="enterAtlasFromWelcome()">Enter Atlas</button>
-    </div>
-  </section>
-
-  <script>
-    function enterAtlasFromWelcome() {
-      try {
-        localStorage.setItem('atlas::welcomeSeen:v1', '1');
-      } catch (e) { }
-      document.documentElement.dataset.atlasWelcome = 'seen';
-    }
-  </script>
-
-  <div class="atmosphere-layer" id="atmosphere-layer" aria-hidden="true"></div>"""
-
-          replace_once(
-              """<body data-atlas-world="atlas" data-atlas-surface="hub">
-  <div class="atmosphere-layer" id="atmosphere-layer" aria-hidden="true"></div>""",
-              welcome_markup,
-              'welcome markup'
-          )
-
           path.write_text(text, encoding='utf-8')
           PY
-
       - name: Validate and commit
         run: |
           git config user.name "github-actions[bot]"
