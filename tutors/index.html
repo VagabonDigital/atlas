@@ -2510,12 +2510,12 @@
 
       function scrollToCreateResult() {
         if (!(window.matchMedia && window.matchMedia("(max-width: 720px)").matches)) return;
-        var createResult = document.querySelector(".create-result");
-        if (!createResult) return;
+        var createCard = document.querySelector(".create-console");
+        if (!createCard) return;
         window.requestAnimationFrame(function () {
           var header = document.querySelector(".site-header");
           var headerHeight = header ? header.getBoundingClientRect().height : 56;
-          var targetTop = createResult.getBoundingClientRect().top + window.scrollY - headerHeight - 12;
+          var targetTop = createCard.getBoundingClientRect().top + window.scrollY - headerHeight - 20;
           window.scrollTo({ top: Math.max(0, targetTop), behavior: reduceMotion ? "auto" : "smooth" });
         });
       }
