@@ -1,10 +1,8 @@
 name: Patch tutor mobile scroll
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/patch-tutor-scroll.yml'
+  pull_request:
+    types: [opened]
 
 permissions:
   contents: write
@@ -15,6 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
       - name: Update tutor mobile scroll target
         shell: python
@@ -57,6 +56,4 @@ jobs:
           git add tutors/index.html
           git diff --cached --quiet && exit 0
           git commit -m "Fix mobile tutor demo scroll position"
-          git push
-
-# one-shot trigger
+          git push origin main
