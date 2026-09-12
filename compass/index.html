@@ -2843,10 +2843,24 @@
     }
 
     .subject-artwork-studio-actions {
+      position: sticky;
+      bottom: 0;
+      z-index: 4;
       display: flex;
+      align-items: center;
       justify-content: flex-end;
       gap: 0.6rem;
-      padding: 0 1.7rem 1.6rem;
+      padding: 0.9rem 1.7rem 1.25rem;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--surface-panel);
+    }
+
+    .subject-artwork-studio-actions-spacer {
+      flex: 1;
+    }
+
+    .subject-artwork-remove-btn {
+      color: var(--danger-text);
     }
 
     @media (max-width: 760px) {
@@ -6346,7 +6360,7 @@
 
               <label class="subject-artwork-field">
                 <span class="subject-artwork-field-label">
-                  Artwork idea
+                  Artwork idea · Optional
                 </span>
 
                 <textarea
@@ -6354,6 +6368,10 @@
                   id="subject-artwork-idea"
                   maxlength="240"
                   placeholder="e.g. An apple wearing a tiny crown"></textarea>
+
+                <span class="subject-artwork-field-help">
+                  Leave it blank and Atlas will choose.
+                </span>
               </label>
 
               <div class="subject-artwork-field">
@@ -6403,6 +6421,18 @@
           </div>
 
           <div class="subject-artwork-studio-actions">
+
+            <button
+              class="btn-ghost subject-artwork-remove-btn"
+              id="subject-artwork-remove"
+              type="button"
+              onclick="removeSubjectArtworkStudio()"
+              hidden>
+              Remove artwork
+            </button>
+
+            <div class="subject-artwork-studio-actions-spacer"></div>
+
             <button
               class="btn-ghost"
               type="button"
@@ -6704,6 +6734,11 @@
           '#subject-artwork-use'
         );
 
+      const removeButton =
+        backdrop.querySelector(
+          '#subject-artwork-remove'
+        );
+
       const error =
         backdrop.querySelector(
           '#subject-artwork-studio-error'
@@ -6726,6 +6761,11 @@
           !existing?.svg;
       }
 
+      if (removeButton) {
+        removeButton.hidden =
+          !existing?.svg;
+      }
+
       if (error) {
         error.hidden = true;
         error.textContent = '';
@@ -6743,7 +6783,11 @@
       backdrop.hidden = false;
 
       requestAnimationFrame(() => {
-        ideaInput?.focus();
+        backdrop
+          .querySelector(
+            '.subject-artwork-studio-close'
+          )
+          ?.focus();
       });
     }
 
