@@ -230,6 +230,7 @@ export default {
                 '/generate-cultural-lens-upgrade',
                 '/generate-make-it-real',
                 '/generate-discussion-pathway',
+                '/generate-subject-artwork',
                 '/generate-current-affairs-reading',
                 '/search-covers',
                 '/suggest-subject-ideas',
@@ -341,6 +342,369 @@ export default {
 
                 return json({
                     ok: true
+                });
+            }
+
+            if (
+                url.pathname ===
+                '/generate-subject-artwork'
+            ) {
+                const subjectCandidate =
+                    body?.subject &&
+                    typeof body.subject === 'object' &&
+                    !Array.isArray(body.subject)
+                        ? body.subject
+                        : {};
+
+                const subject = {
+                    title:
+                        String(
+                            subjectCandidate.title || ''
+                        )
+                            .trim()
+                            .slice(0, 240),
+
+                    description:
+                        String(
+                            subjectCandidate.description || ''
+                        )
+                            .trim()
+                            .slice(0, 1200)
+                };
+
+                const idea =
+                    String(
+                        body?.idea || ''
+                    )
+                        .trim()
+                        .slice(0, 240);
+
+                if (!subject.title) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'A subject title is required.'
+                        },
+                        400
+                    );
+                }
+
+                const openaiResponse =
+                    await fetch(
+                        'https://api.openai.com/v1/responses',
+                        {
+                            method: 'POST',
+
+                            headers: {
+                                'Authorization':
+                                    `Bearer ${env.OPENAI_API_KEY}`,
+
+                                'Content-Type':
+                                    'application/json'
+                            },
+
+                            body: JSON.stringify({
+                                model:
+                                    env.ATLAS_AI_MODEL ||
+                                    'gpt-5.6-luna',
+
+                                reasoning: {
+                                    effort: 'low'
+                                },
+
+                                instructions: [
+                                    'You create small decorative SVG artwork for subject cards in Atlas, an adult English tutoring product.',
+                                    '',
+                                    'The artwork should feel elegant, playful, minimal and editorial rather than like a generic software icon.',
+                                    'Create one clear visual idea that reads quickly at small size.',
+                                    '',
+                                    'TUTOR IDEA RULE:',
+                                    'If artworkIdea is non-empty, it is the primary visual brief and takes precedence over the subject title and description.',
+                                    'Use subject context only to interpret genuine ambiguity in the tutor idea.',
+                                    'Do not add subject-related objects, symbols or concepts merely because they appear in the subject context.',
+                                    'For example, if the tutor asks for "a heart", create artwork centred on a heart. Do not also add trees, books, speech bubbles or other subject imagery unless the tutor asked for them.',
+                                    '',
+                                    'If artworkIdea is empty, choose a strong visual concept yourself from the subject title and description.',
+                                    '',
+                                    'SVG CONTRACT:',
+                                    'Return one complete SVG string.',
+                                    'The root must be exactly an svg element with xmlns="http://www.w3.org/2000/svg" and viewBox="0 0 180 140".',
+                                    'Use only these SVG elements: svg, g, path, circle, ellipse, rect, line, polyline, polygon.',
+                                    'Do not use text, image, foreignObject, defs, use, style, mask, clipPath, gradients, filters, animation or embedded content.',
+                                    'Do not use href, URLs, data URLs, CSS, scripts or event attributes.',
+                                    'Do not include raster imagery.',
+                                    'Do not include any visible words, letters, numbers or typography.',
+                                    '',
+                                    'COLOR CONTRACT:',
+                                    'The artwork color is controlled elsewhere by Atlas.',
+                                    'Use only currentColor and none for fill or stroke.',
+                                    'Never return a literal hex, rgb, hsl or named color.',
+                                    '',
+                                    'VISUAL STYLE:',
+                                    'Prefer clean line artwork with restrained geometry.',
+                                    'Aim for roughly 3 to 10 meaningful visual elements rather than excessive detail.',
+                                    'Use rounded linecaps and linejoins where suitable.',
+                                    'Typical stroke widths should be around 1.6 to 3.2.',
+                                    'Keep the composition comfortably inside the 180 by 140 viewBox with breathing room around the edges.',
+                                    'Avoid generic UI symbols such as checkmarks, settings gears, document icons or dashboard graphics unless explicitly requested.',
+                                    'Avoid overly literal clip-art compositions.',
+                                    '',
+                                    'Return only the requested structured payload.'
+                                ].join('\n'),
+
+                                input:
+                                    JSON.stringify(
+                                        {
+                                            subject,
+                                            artworkIdea:
+                                                idea
+                                        },
+                                        null,
+                                        2
+                                    ),
+
+                                max_output_tokens:
+                                    1800,
+
+                                text: {
+                                    format: {
+                                        type:
+                                            'json_schema',
+
+                                        name:
+                                            'atlas_subject_artwork',
+
+                                        strict: true,
+
+                                        schema: {
+                                            type:
+                                                'object',
+
+                                            properties: {
+                                                svg: {
+                                                    type:
+                                                        'string'
+                                                }
+                                            },
+
+                                            required: [
+                                                'svg'
+                                            ],
+
+                                            additionalProperties:
+                                                false
+                                        }
+                                    }
+                                }
+                            })
+                        }
+                    );
+
+                const result =
+                    await openaiResponse.json();
+
+                if (!openaiResponse.ok) {
+                    console.error(
+                        '[Atlas AI] Subject artwork error:',
+                        result
+                    );
+
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                String(
+                                    result?.error?.message ||
+                                    'Subject artwork generation failed.'
+                                ).trim(),
+
+                            providerStatus:
+                                openaiResponse.status
+                        },
+                        502
+                    );
+                }
+
+                let outputText = '';
+                let refusal = '';
+
+                for (
+                    const item of
+                    result.output || []
+                ) {
+                    if (
+                        item?.type !== 'message'
+                    ) {
+                        continue;
+                    }
+
+                    for (
+                        const content of
+                        item.content || []
+                    ) {
+                        if (
+                            content?.type ===
+                            'output_text'
+                        ) {
+                            outputText =
+                                String(
+                                    content.text || ''
+                                ).trim();
+                        }
+
+                        if (
+                            content?.type ===
+                            'refusal'
+                        ) {
+                            refusal =
+                                String(
+                                    content.refusal || ''
+                                ).trim();
+                        }
+                    }
+                }
+
+                if (refusal) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Subject artwork generation was refused.'
+                        },
+                        400
+                    );
+                }
+
+                if (!outputText) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'No subject artwork was returned.'
+                        },
+                        502
+                    );
+                }
+
+                let generated = null;
+
+                try {
+                    generated =
+                        JSON.parse(outputText);
+                } catch {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Atlas returned invalid artwork data.'
+                        },
+                        502
+                    );
+                }
+
+                const svg =
+                    String(
+                        generated?.svg || ''
+                    ).trim();
+
+                if (
+                    !svg ||
+                    svg.length > 16000 ||
+                    !/^<svg\b/i.test(svg) ||
+                    !/<\/svg>\s*$/i.test(svg) ||
+                    !/\bviewBox\s*=\s*["']0 0 180 140["']/i.test(svg) ||
+                    /<(?:script|style|image|foreignObject|defs|use|mask|clipPath|filter|animate|animateTransform|set)\b/i.test(svg) ||
+                    /\bon[a-z]+\s*=/i.test(svg) ||
+                    /\b(?:href|xlink:href)\s*=/i.test(svg) ||
+                    /javascript:|data:|url\s*\(/i.test(svg)
+                ) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Atlas returned artwork outside the supported SVG contract.'
+                        },
+                        502
+                    );
+                }
+
+                const tags =
+                    [
+                        ...svg.matchAll(
+                            /<\/?([a-zA-Z][\w:-]*)\b/g
+                        )
+                    ]
+                        .map(match =>
+                            String(
+                                match[1] || ''
+                            ).toLowerCase()
+                        );
+
+                const allowedTags =
+                    new Set([
+                        'svg',
+                        'g',
+                        'path',
+                        'circle',
+                        'ellipse',
+                        'rect',
+                        'line',
+                        'polyline',
+                        'polygon'
+                    ]);
+
+                if (
+                    tags.some(tag =>
+                        !allowedTags.has(tag)
+                    )
+                ) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Atlas returned unsupported SVG elements.'
+                        },
+                        502
+                    );
+                }
+
+                const paintAttributes =
+                    [
+                        ...svg.matchAll(
+                            /\b(fill|stroke)\s*=\s*["']([^"']*)["']/gi
+                        )
+                    ];
+
+                if (
+                    paintAttributes.some(match => {
+                        const value =
+                            String(
+                                match[2] || ''
+                            ).trim();
+
+                        return (
+                            value !== 'none' &&
+                            value !== 'currentColor'
+                        );
+                    })
+                ) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Atlas returned unsupported artwork colors.'
+                        },
+                        502
+                    );
+                }
+
+                return json({
+                    ok: true,
+
+                    payload: {
+                        svg
+                    }
                 });
             }
 
