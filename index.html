@@ -52,6 +52,12 @@
       } catch (e) { m = null; }
       document.documentElement.dataset.theme = (m === 'night') ? 'night' : 'light';
 
+      try {
+        if (localStorage.getItem('atlas::welcomeSeen:v1') === '1') {
+          document.documentElement.dataset.atlasWelcome = 'seen';
+        }
+      } catch (e) { }
+
       // Register animatable custom colors in JS rather than inline @property.
       // This preserves the theme transitions without confusing VS Code's
       // HTML/TextMate syntax highlighter.
@@ -2940,6 +2946,104 @@
         display: none !important;
       }
     }
+
+
+    /* ============================================================
+       FIRST-VISIT WELCOME
+       ============================================================ */
+    html:not([data-atlas-welcome="seen"]) body {
+      overflow: hidden;
+    }
+
+    .atlas-welcome-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 5000;
+      display: grid;
+      place-items: center;
+      padding: 1.5rem;
+      background:
+        radial-gradient(circle at 50% 24%, rgba(var(--accent-rgb), 0.12), transparent 25rem),
+        radial-gradient(circle at 82% 78%, rgba(122, 110, 154, 0.05), transparent 28rem),
+        var(--surface-canvas);
+      color: var(--text-body);
+      transition:
+        opacity 260ms cubic-bezier(0.4, 0, 0.2, 1),
+        visibility 260ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html[data-atlas-welcome="seen"] .atlas-welcome-screen {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .atlas-welcome-inner {
+      width: min(560px, 100%);
+      text-align: center;
+      transform: translateY(-2vh);
+    }
+
+    .atlas-welcome-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(2.65rem, 7vw, 4.65rem);
+      font-weight: 400;
+      line-height: 1.02;
+      letter-spacing: -0.025em;
+      color: var(--text-heading);
+    }
+
+    .atlas-welcome-copy {
+      max-width: 34rem;
+      margin: 1.15rem auto 0;
+      font-size: clamp(1rem, 2.1vw, 1.12rem);
+      line-height: 1.65;
+      color: var(--text-muted);
+    }
+
+    .atlas-welcome-enter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      margin-top: 2rem;
+      padding: 0.7rem 1.25rem;
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      background: var(--accent);
+      color: var(--accent-ink);
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      box-shadow: 0 8px 22px rgba(var(--accent-rgb), 0.16);
+      transition:
+        transform var(--motion-standard),
+        background var(--motion-standard),
+        border-color var(--motion-standard),
+        box-shadow var(--motion-standard);
+    }
+
+    .atlas-welcome-enter:hover {
+      transform: translateY(-1px);
+      background: var(--accent-soft);
+      border-color: var(--accent-soft);
+      box-shadow: 0 10px 26px rgba(var(--accent-rgb), 0.2);
+    }
+
+    .atlas-welcome-enter:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .atlas-welcome-screen,
+      .atlas-welcome-enter {
+        transition: none;
+      }
+    }
   </style>
 
   <!-- Shared, fixed geometry for the Atlas / Compass / Arcade rail -->
@@ -2947,6 +3051,24 @@
 </head>
 
 <body data-atlas-world="atlas" data-atlas-surface="hub">
+  <section class="atlas-welcome-screen" id="atlas-welcome-screen" role="dialog" aria-modal="true"
+    aria-labelledby="atlas-welcome-title" aria-describedby="atlas-welcome-copy">
+    <div class="atlas-welcome-inner">
+      <h1 class="atlas-welcome-title" id="atlas-welcome-title">Welcome to Atlas</h1>
+      <p class="atlas-welcome-copy" id="atlas-welcome-copy">A creative teaching workspace for one-to-one English tutors.</p>
+      <button class="atlas-welcome-enter" type="button" onclick="enterAtlasFromWelcome()">Enter Atlas</button>
+    </div>
+  </section>
+
+  <script>
+    function enterAtlasFromWelcome() {
+      try {
+        localStorage.setItem('atlas::welcomeSeen:v1', '1');
+      } catch (e) { }
+      document.documentElement.dataset.atlasWelcome = 'seen';
+    }
+  </script>
+
   <div class="atmosphere-layer" id="atmosphere-layer" aria-hidden="true"></div>
   <!-- ============================================================ SPINE (desktop) -->
   <header class="spine" role="banner">
