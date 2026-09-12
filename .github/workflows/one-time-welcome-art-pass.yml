@@ -1,0 +1,93 @@
+name: One-time welcome artwork pass
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-welcome-art-pass.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Refine welcome artwork composition
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+          import re
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+
+          markup = base64.b64decode('ICA8c2VjdGlvbiBjbGFzcz0iYXRsYXMtd2VsY29tZS1zY3JlZW4iIGlkPSJhdGxhcy13ZWxjb21lLXNjcmVlbiIgcm9sZT0iZGlhbG9nIiBhcmlhLW1vZGFsPSJ0cnVlIgogICAgYXJpYS1sYWJlbGxlZGJ5PSJhdGxhcy13ZWxjb21lLXRpdGxlIiBhcmlhLWRlc2NyaWJlZGJ5PSJhdGxhcy13ZWxjb21lLWNvcHkiPgogICAgPGRpdiBjbGFzcz0iYXRsYXMtd2VsY29tZS1hcnQgYXRsYXMtd2VsY29tZS1hcnQtLXRyYXZlbCIgZGF0YS1jb21wYXNzLWFydD0idHJhdmVsLXJvdXRlIiBhcmlhLWhpZGRlbj0idHJ1ZSI+PC9kaXY+CgogICAgPGRpdiBjbGFzcz0iYXRsYXMtd2VsY29tZS1hcnQgYXRsYXMtd2VsY29tZS1hcnQtLW9keXNzZXkiIGRhdGEtY29tcGFzcy1hcnQ9Im9keXNzZXktdm95YWdlIiBhcmlhLWhpZGRlbj0idHJ1ZSI+PC9kaXY+CgogICAgPGRpdiBjbGFzcz0iYXRsYXMtd2VsY29tZS1hcnQgYXRsYXMtd2VsY29tZS1hcnQtLWdhbWUtdGhlb3J5IiBkYXRhLWNvbXBhc3MtYXJ0PSJnYW1lLXRoZW9yeSIgYXJpYS1oaWRkZW49InRydWUiPjwvZGl2PgoKICAgIDxkaXYgY2xhc3M9ImF0bGFzLXdlbGNvbWUtYXJ0IGF0bGFzLXdlbGNvbWUtYXJ0LS1tYXJzIiBhcmlhLWhpZGRlbj0idHJ1ZSI+CiAgICAgIDxzdmcgY2xhc3M9IndlbGNvbWUtbWFycy1jaGlsZCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMTgwIDE0MCI+CiAgICAgICAgPGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIHN0cm9rZS13aWR0aD0iMi42IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPgogICAgICAgICAgPHBhdGggZD0iTTQzIDkyVjYyYzAtMjcgMjAtNDUgNDctNDVzNDcgMTggNDcgNDV2MzAiLz4KICAgICAgICAgIDxwYXRoIGQ9Ik0zNiA5MWMwLTUgNC05IDktOWg5MGM1IDAgOSA0IDkgOXYxMGMwIDUtNCA5LTkgOUg0NWMtNSAwLTktNC05LTl6Ii8+CiAgICAgICAgICA8cGF0aCBkPSJNNTEgNjBjMC0yMCAxNi0zNCAzOS0zNHMzOSAxNCAzOSAzNHYyNkg1MXoiLz4KICAgICAgICAgIDxwYXRoIGQ9Ik02MSA2MWMwLTE0IDEyLTI0IDI5LTI0czI5IDEwIDI5IDI0djEyYzAgMTYtMTIgMjgtMjkgMjhTNjEgODkgNjEgNzN6Ii8+CiAgICAgICAgICA8cGF0aCBkPSJNNzAgNjhjNC0zIDgtNCAxMi00Ii8+CiAgICAgICAgICA8cGF0aCBkPSJNOTggNjRjNCAwIDggMSAxMiA0Ii8+CiAgICAgICAgICA8cGF0aCBkPSJNODIgNzhjMyAyIDcgMiAxMCAwIi8+CiAgICAgICAgICA8cGF0aCBkPSJNNzcgOTFjOCA0IDE4IDQgMjYgMCIvPgogICAgICAgICAgPHBhdGggZD0iTTUxIDYwaDEwTTExOSA2MGgxMCIvPgogICAgICAgICAgPGNpcmNsZSBjeD0iNDMiIGN5PSI5MSIgcj0iNyIvPgogICAgICAgICAgPGNpcmNsZSBjeD0iMTM3IiBjeT0iOTEiIHI9IjciLz4KICAgICAgICAgIDxwYXRoIGQ9Ik01NCAxMTB2MTBNMTI2IDExMHYxME02NyAxMjBoNDYiLz4KICAgICAgICA8L2c+CiAgICAgIDwvc3ZnPgogICAgPC9kaXY+CgogICAgPGRpdiBjbGFzcz0iYXRsYXMtd2VsY29tZS1pbm5lciI+CiAgICAgIDxoMSBjbGFzcz0iYXRsYXMtd2VsY29tZS10aXRsZSIgaWQ9ImF0bGFzLXdlbGNvbWUtdGl0bGUiPldlbGNvbWUgdG8gQXRsYXM8L2gxPgogICAgICA8cCBjbGFzcz0iYXRsYXMtd2VsY29tZS1jb3B5IiBpZD0iYXRsYXMtd2VsY29tZS1jb3B5Ij5BIGNyZWF0aXZlIHRlYWNoaW5nIHdvcmtzcGFjZSBmb3Igb25lLXRvLW9uZSBFbmdsaXNoIHR1dG9ycy48L3A+CiAgICAgIDxidXR0b24gY2xhc3M9ImF0bGFzLXdlbGNvbWUtZW50ZXIiIHR5cGU9ImJ1dHRvbiIgb25jbGljaz0iZW50ZXJBdGxhc0Zyb21XZWxjb21lKCkiPkVudGVyIEF0bGFzPC9idXR0b24+CiAgICA8L2Rpdj4KICA8L3NlY3Rpb24+').decode('utf-8')
+          override = base64.b64decode('ICAgIC8qIEFUTEFTIFdFTENPTUUgQ09NUE9TSVRJT04gT1ZFUlJJREUgU1RBUlQgKi8KICAgIC5hdGxhcy13ZWxjb21lLWFydC0tdHJhdmVsIHsKICAgICAgd2lkdGg6IGNsYW1wKDI1MHB4LCAyM3Z3LCAzNjBweCk7CiAgICAgIGxlZnQ6IGNsYW1wKC0xNjVweCwgLTd2dywgLTkycHgpOwogICAgICB0b3A6IDE3JTsKICAgICAgY29sb3I6IHZhcigtLWNvbXBhc3MtdGV4dCk7CiAgICAgIG9wYWNpdHk6IDAuMjY7CiAgICAgIGFuaW1hdGlvbjogYXRsYXNXZWxjb21lRHJpZnRUcmF2ZWwgMTdzIGVhc2UtaW4tb3V0IGluZmluaXRlIGFsdGVybmF0ZTsKICAgIH0KCiAgICAuYXRsYXMtd2VsY29tZS1hcnQtLW9keXNzZXkgewogICAgICB3aWR0aDogY2xhbXAoMjM1cHgsIDIxdncsIDMzMHB4KTsKICAgICAgcmlnaHQ6IGNsYW1wKC0xMzhweCwgLTUuNXZ3LCAtNzRweCk7CiAgICAgIHRvcDogOCU7CiAgICAgIGNvbG9yOiAjYjc3YjY4OwogICAgICBvcGFjaXR5OiAwLjIzOwogICAgICBhbmltYXRpb246IGF0bGFzV2VsY29tZURyaWZ0T2R5c3NleSAxOXMgZWFzZS1pbi1vdXQgaW5maW5pdGUgYWx0ZXJuYXRlOwogICAgfQoKICAgIC5hdGxhcy13ZWxjb21lLWFydC0tZ2FtZS10aGVvcnkgewogICAgICB3aWR0aDogY2xhbXAoMTc1cHgsIDE1dncsIDIzNXB4KTsKICAgICAgbGVmdDogY2xhbXAoLTM4cHgsIC0xLjR2dywgLTE0cHgpOwogICAgICBib3R0b206IC0xNnB4OwogICAgICBjb2xvcjogIzdlNzg5ODsKICAgICAgb3BhY2l0eTogMC4xOTsKICAgICAgYW5pbWF0aW9uOiBhdGxhc1dlbGNvbWVEcmlmdEdhbWVUaGVvcnkgMTZzIGVhc2UtaW4tb3V0IGluZmluaXRlIGFsdGVybmF0ZTsKICAgIH0KCiAgICAuYXRsYXMtd2VsY29tZS1hcnQtLW1hcnMgewogICAgICB3aWR0aDogY2xhbXAoMTkwcHgsIDE3dncsIDI2NXB4KTsKICAgICAgcmlnaHQ6IGNsYW1wKC0zMnB4LCAxdncsIDIwcHgpOwogICAgICBib3R0b206IC0xOHB4OwogICAgICBjb2xvcjogIzcxOGY5ZjsKICAgICAgb3BhY2l0eTogMC4yMTsKICAgICAgYW5pbWF0aW9uOiBhdGxhc1dlbGNvbWVEcmlmdE1hcnMgMThzIGVhc2UtaW4tb3V0IGluZmluaXRlIGFsdGVybmF0ZTsKICAgIH0KCiAgICAuYXRsYXMtd2VsY29tZS1hcnQtLW9keXNzZXkgLm9keXNzZXktc2hpcCB7CiAgICAgIHRyYW5zZm9ybS1ib3g6IGZpbGwtYm94OwogICAgICB0cmFuc2Zvcm0tb3JpZ2luOiBjZW50ZXI7CiAgICAgIGFuaW1hdGlvbjogYXRsYXNXZWxjb21lQm9hdCA3LjVzIGVhc2UtaW4tb3V0IGluZmluaXRlIGFsdGVybmF0ZTsKICAgIH0KCiAgICAuYXRsYXMtd2VsY29tZS1hcnQtLW9keXNzZXkgLm9keXNzZXktc3RhciB7CiAgICAgIHRyYW5zZm9ybS1ib3g6IGZpbGwtYm94OwogICAgICB0cmFuc2Zvcm0tb3JpZ2luOiBjZW50ZXI7CiAgICAgIGFuaW1hdGlvbjogYXRsYXNXZWxjb21lU3BhcmsgNS41cyBlYXNlLWluLW91dCBpbmZpbml0ZSBhbHRlcm5hdGU7CiAgICB9CgogICAgLmF0bGFzLXdlbGNvbWUtYXJ0LS1nYW1lLXRoZW9yeSAuZ2FtZS10aGVvcnktZGllIHsKICAgICAgdHJhbnNmb3JtLWJveDogZmlsbC1ib3g7CiAgICAgIHRyYW5zZm9ybS1vcmlnaW46IGNlbnRlcjsKICAgICAgYW5pbWF0aW9uOiBhdGxhc1dlbGNvbWVEaWUgOC41cyBlYXNlLWluLW91dCBpbmZpbml0ZSBhbHRlcm5hdGU7CiAgICB9CgogICAgQGtleWZyYW1lcyBhdGxhc1dlbGNvbWVEcmlmdE9keXNzZXkgewogICAgICBmcm9tIHsgdHJhbnNmb3JtOiB0cmFuc2xhdGUzZCg1cHgsIC00cHgsIDApIHJvdGF0ZSg0ZGVnKTsgfQogICAgICB0byB7IHRyYW5zZm9ybTogdHJhbnNsYXRlM2QoLThweCwgN3B4LCAwKSByb3RhdGUoMWRlZyk7IH0KICAgIH0KCiAgICBAa2V5ZnJhbWVzIGF0bGFzV2VsY29tZURyaWZ0R2FtZVRoZW9yeSB7CiAgICAgIGZyb20geyB0cmFuc2Zvcm06IHRyYW5zbGF0ZTNkKC0zcHgsIDRweCwgMCkgcm90YXRlKC00ZGVnKTsgfQogICAgICB0byB7IHRyYW5zZm9ybTogdHJhbnNsYXRlM2QoNnB4LCAtNXB4LCAwKSByb3RhdGUoLTFkZWcpOyB9CiAgICB9CgogICAgQGtleWZyYW1lcyBhdGxhc1dlbGNvbWVEcmlmdE1hcnMgewogICAgICBmcm9tIHsgdHJhbnNmb3JtOiB0cmFuc2xhdGUzZCgzcHgsIDRweCwgMCkgcm90YXRlKDJkZWcpOyB9CiAgICAgIHRvIHsgdHJhbnNmb3JtOiB0cmFuc2xhdGUzZCgtN3B4LCAtNnB4LCAwKSByb3RhdGUoLTFkZWcpOyB9CiAgICB9CgogICAgQGtleWZyYW1lcyBhdGxhc1dlbGNvbWVCb2F0IHsKICAgICAgZnJvbSB7IHRyYW5zZm9ybTogdHJhbnNsYXRlWSgycHgpIHJvdGF0ZSgtMWRlZyk7IH0KICAgICAgdG8geyB0cmFuc2Zvcm06IHRyYW5zbGF0ZVkoLTRweCkgcm90YXRlKDFkZWcpOyB9CiAgICB9CgogICAgQGtleWZyYW1lcyBhdGxhc1dlbGNvbWVEaWUgewogICAgICBmcm9tIHsgdHJhbnNmb3JtOiByb3RhdGUoLTJkZWcpIHRyYW5zbGF0ZVkoMXB4KTsgfQogICAgICB0byB7IHRyYW5zZm9ybTogcm90YXRlKDNkZWcpIHRyYW5zbGF0ZVkoLTNweCk7IH0KICAgIH0KCiAgICBAbWVkaWEgKG1heC13aWR0aDogNzAwcHgpIHsKICAgICAgLmF0bGFzLXdlbGNvbWUtYXJ0LS10cmF2ZWwgewogICAgICAgIHdpZHRoOiAyMDVweDsKICAgICAgICBsZWZ0OiAtMTE4cHg7CiAgICAgICAgdG9wOiAxMyU7CiAgICAgICAgb3BhY2l0eTogMC4yMDsKICAgICAgfQoKICAgICAgLmF0bGFzLXdlbGNvbWUtYXJ0LS1vZHlzc2V5IHsKICAgICAgICB3aWR0aDogMTg1cHg7CiAgICAgICAgcmlnaHQ6IC05NHB4OwogICAgICAgIHRvcDogMTIlOwogICAgICAgIG9wYWNpdHk6IDAuMTg7CiAgICAgIH0KCiAgICAgIC5hdGxhcy13ZWxjb21lLWFydC0tZ2FtZS10aGVvcnkgewogICAgICAgIHdpZHRoOiAxMzhweDsKICAgICAgICBsZWZ0OiAtMzhweDsKICAgICAgICBib3R0b206IC0xMHB4OwogICAgICAgIG9wYWNpdHk6IDAuMTY7CiAgICAgIH0KCiAgICAgIC5hdGxhcy13ZWxjb21lLWFydC0tbWFycyB7CiAgICAgICAgd2lkdGg6IDE1MHB4OwogICAgICAgIHJpZ2h0OiAtMzBweDsKICAgICAgICBib3R0b206IC05cHg7CiAgICAgICAgb3BhY2l0eTogMC4xODsKICAgICAgfQogICAgfQogICAgLyogQVRMQVMgV0VMQ09NRSBDT01QT1NJVElPTiBPVkVSUklERSBFTkQgKi8=').decode('utf-8')
+          hydrator = base64.b64decode('ICA8IS0tIEFUTEFTIFdFTENPTUUgQVJUIEhZRFJBVE9SIFNUQVJUIC0tPgogIDxzY3JpcHQ+CiAgICAoZnVuY3Rpb24gaHlkcmF0ZUF0bGFzV2VsY29tZUFydHdvcmsoKSB7CiAgICAgIGRvY3VtZW50LnF1ZXJ5U2VsZWN0b3JBbGwoJy5hdGxhcy13ZWxjb21lLWFydFtkYXRhLWNvbXBhc3MtYXJ0XScpLmZvckVhY2goZnVuY3Rpb24gKG5vZGUpIHsKICAgICAgICB2YXIgYXJ0SWQgPSBub2RlLmdldEF0dHJpYnV0ZSgnZGF0YS1jb21wYXNzLWFydCcpOwoKICAgICAgICBpZiAoCiAgICAgICAgICB3aW5kb3cuQ29tcGFzc0NhdGFsb2dEYXRhICYmCiAgICAgICAgICB0eXBlb2YgQ29tcGFzc0NhdGFsb2dEYXRhLmdldENvbXBhc3NTdWJqZWN0QXJ0ID09PSAnZnVuY3Rpb24nCiAgICAgICAgKSB7CiAgICAgICAgICB2YXIgYXJ0d29yayA9IENvbXBhc3NDYXRhbG9nRGF0YS5nZXRDb21wYXNzU3ViamVjdEFydChhcnRJZCk7CiAgICAgICAgICBpZiAoYXJ0d29yaykgbm9kZS5pbm5lckhUTUwgPSBhcnR3b3JrOwogICAgICAgIH0KICAgICAgfSk7CiAgICB9KSgpOwogIDwvc2NyaXB0PgogIDwhLS0gQVRMQVMgV0VMQ09NRSBBUlQgSFlEUkFUT1IgRU5EIC0tPg==').decode('utf-8')
+
+          section_pattern = re.compile(r'  <section class="atlas-welcome-screen".*?</section>', re.S)
+          text, count = section_pattern.subn(markup, text, count=1)
+          if count != 1:
+              raise SystemExit(f'welcome section: expected 1 match, found {count}')
+
+          text = re.sub(
+              r'\n    /\* ATLAS WELCOME COMPOSITION OVERRIDE START \*/.*?'
+              r'/\* ATLAS WELCOME COMPOSITION OVERRIDE END \*/\n?',
+              '\n', text, flags=re.S
+          )
+          style_anchor = '  </style>\n\n  <!-- Shared, fixed geometry for the Atlas / Compass / Arcade rail -->'
+          if text.count(style_anchor) != 1:
+              raise SystemExit(f'style anchor: expected 1 match, found {text.count(style_anchor)}')
+          text = text.replace(style_anchor, override + '\n  </style>\n\n  <!-- Shared, fixed geometry for the Atlas / Compass / Arcade rail -->', 1)
+
+          text = re.sub(
+              r'\n  <!-- ATLAS WELCOME ART HYDRATOR START -->.*?'
+              r'<!-- ATLAS WELCOME ART HYDRATOR END -->\n?',
+              '\n', text, flags=re.S
+          )
+          catalog_script = '  <script src="./shared/compass-catalog-data.js"></script>'
+          if text.count(catalog_script) != 1:
+              raise SystemExit(f'catalog script: expected 1 match, found {text.count(catalog_script)}')
+          text = text.replace(catalog_script, catalog_script + '\n\n' + hydrator, 1)
+
+          for required in [
+              'data-compass-art="travel-route"',
+              'data-compass-art="odyssey-voyage"',
+              'data-compass-art="game-theory"',
+              'class="welcome-mars-child"',
+              'atlasWelcomeDriftOdyssey',
+              'atlasWelcomeDriftGameTheory',
+              'atlasWelcomeDriftMars'
+          ]:
+              if required not in text:
+                  raise SystemExit('missing expected welcome element: ' + required)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Validate and commit
+        run: |
+          git diff --check
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          text = Path('index.html').read_text(encoding='utf-8')
+          assert text.count('id="atlas-welcome-screen"') == 1
+          assert text.count('ATLAS WELCOME ART HYDRATOR START') == 1
+          section = re.search(r'<section class="atlas-welcome-screen".*?</section>', text, re.S).group(0)
+          assert 'atlas-welcome-art--humour' not in section
+          assert 'atlas-welcome-art--truth' not in section
+          assert 'atlas-welcome-art--food' not in section
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Refine Atlas welcome artwork composition"
+          git push origin HEAD:main
