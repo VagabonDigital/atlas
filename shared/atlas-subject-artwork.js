@@ -28,6 +28,8 @@
     const MAX_IDEA_LENGTH = 240;
     const AI_BASE_URL =
         'https://atlas-ai.savvy989.workers.dev';
+    const ARTWORK_DISPLAY_KEY =
+        'atlas::compass::artworkDisplay';
 
     const ALLOWED_TAGS = new Set([
         'svg',
@@ -272,6 +274,68 @@
             : color;
     }
 
+    function readArtworkDisplayPreference() {
+        try {
+            return localStorage.getItem(
+                ARTWORK_DISPLAY_KEY
+            ) === 'always'
+                ? 'always'
+                : 'hover';
+        } catch {
+            return 'hover';
+        }
+    }
+
+    function applyArtworkDisplayPreference(
+        value = readArtworkDisplayPreference()
+    ) {
+        const mode =
+            value === 'always'
+                ? 'always'
+                : 'hover';
+
+        document.documentElement.dataset
+            .subjectArtworkDisplay = mode;
+
+        document
+            .querySelectorAll(
+                '[data-artwork-display-mode]'
+            )
+            .forEach(button => {
+                const active =
+                    button.dataset
+                        .artworkDisplayMode === mode;
+
+                button.classList.toggle(
+                    'is-selected',
+                    active
+                );
+
+                button.setAttribute(
+                    'aria-pressed',
+                    String(active)
+                );
+            });
+
+        return mode;
+    }
+
+    function setArtworkDisplayPreference(value) {
+        const mode =
+            value === 'always'
+                ? 'always'
+                : 'hover';
+
+        try {
+            localStorage.setItem(
+                ARTWORK_DISPLAY_KEY,
+                mode
+            );
+        } catch { }
+
+        applyArtworkDisplayPreference(mode);
+    }
+
     async function generateSubjectArtwork(
         input = {}
     ) {
@@ -392,6 +456,88 @@
             .subject-artwork-preview-card {
                 max-width: none !important;
                 flex: 0 0 auto;
+            }
+
+            .subject-artwork-studio-head-actions {
+                display: flex;
+                align-items: center;
+                gap: 0.7rem;
+                flex: 0 0 auto;
+            }
+
+            .subject-artwork-display-control {
+                display: flex;
+                align-items: center;
+                gap: 0.48rem;
+                color: var(--text-subtle);
+                font-size: 0.69rem;
+                font-weight: 600;
+                white-space: nowrap;
+            }
+
+            .subject-artwork-display-options {
+                display: inline-flex;
+                align-items: center;
+                gap: 2px;
+                padding: 2px;
+                border: 1px solid var(--border-subtle);
+                border-radius: 999px;
+                background: var(--surface-muted);
+            }
+
+            .subject-artwork-display-btn {
+                min-height: 28px;
+                padding: 0.3rem 0.58rem;
+                border: 0;
+                border-radius: 999px;
+                background: transparent;
+                color: var(--text-muted);
+                font: inherit;
+                font-size: 0.68rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: var(--t);
+            }
+
+            .subject-artwork-display-btn:hover,
+            .subject-artwork-display-btn:focus-visible {
+                color: var(--text-heading);
+                outline: none;
+            }
+
+            .subject-artwork-display-btn.is-selected {
+                background: var(--surface-raised);
+                color: var(--accent);
+                box-shadow: var(--shadow-xs);
+            }
+
+            html[data-subject-artwork-display="always"]
+            .hub-main
+            .subject-card--has-art
+            .subject-card-art {
+                opacity: 0.16;
+            }
+
+            html[data-theme="night"]
+            [data-subject-artwork-display="always"]
+            .hub-main
+            .subject-card--has-art
+            .subject-card-art,
+            html[data-theme="night"][data-subject-artwork-display="always"]
+            .hub-main
+            .subject-card--has-art
+            .subject-card-art {
+                opacity: 0.23;
+            }
+
+            @media (max-width: 640px) {
+                .subject-artwork-display-control-label {
+                    display: none;
+                }
+
+                .subject-artwork-studio-head-actions {
+                    gap: 0.45rem;
+                }
             }
         `;
 
@@ -588,6 +734,105 @@
         }
     }
 
+    function ensureArtworkDisplayControl() {
+        const head =
+            document.querySelector(
+                '.subject-artwork-studio-head'
+            );
+
+        const closeButton =
+            head?.querySelector(
+                '.subject-artwork-studio-close'
+            );
+
+        if (!head || !closeButton) return;
+
+        let actions =
+            head.querySelector(
+                '.subject-artwork-studio-head-actions'
+            );
+
+        if (!actions) {
+            actions = document.createElement('div');
+            actions.className =
+                'subject-artwork-studio-head-actions';
+
+            head.insertBefore(
+                actions,
+                closeButton
+            );
+
+            actions.appendChild(closeButton);
+        }
+
+        let control =
+            actions.querySelector(
+                '.subject-artwork-display-control'
+            );
+
+        if (!control) {
+            control = document.createElement('div');
+            control.className =
+                'subject-artwork-display-control';
+            control.setAttribute(
+                'role',
+                'group'
+            );
+            control.setAttribute(
+                'aria-label',
+                'Artwork display on Compass cards'
+            );
+
+            const label =
+                document.createElement('span');
+            label.className =
+                'subject-artwork-display-control-label';
+            label.textContent = 'Artwork';
+
+            const options =
+                document.createElement('span');
+            options.className =
+                'subject-artwork-display-options';
+
+            [
+                ['hover', 'On hover'],
+                ['always', 'Always']
+            ].forEach(([mode, text]) => {
+                const button =
+                    document.createElement('button');
+
+                button.type = 'button';
+                button.className =
+                    'subject-artwork-display-btn';
+                button.dataset.artworkDisplayMode =
+                    mode;
+                button.textContent = text;
+                button.addEventListener(
+                    'click',
+                    () => {
+                        setArtworkDisplayPreference(
+                            mode
+                        );
+                    }
+                );
+
+                options.appendChild(button);
+            });
+
+            control.append(
+                label,
+                options
+            );
+
+            actions.insertBefore(
+                control,
+                closeButton
+            );
+        }
+
+        applyArtworkDisplayPreference();
+    }
+
     function installCompassArtworkRuntime() {
         const Artwork =
             window.AtlasSubjectArtwork;
@@ -626,6 +871,19 @@
 
         compassRuntimeInstalled = true;
         ensureStudioRuntimeStyles();
+        applyArtworkDisplayPreference();
+
+        window.addEventListener(
+            'storage',
+            event => {
+                if (
+                    event.key ===
+                    ARTWORK_DISPLAY_KEY
+                ) {
+                    applyArtworkDisplayPreference();
+                }
+            }
+        );
 
         const originalRender =
             window.renderSubjectArtworkStudioPreview;
@@ -685,6 +943,7 @@
                     return result;
                 }
 
+                ensureArtworkDisplayControl();
                 resetStudioUseButton();
                 lockStudioPage(scrollSnapshot);
 
