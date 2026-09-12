@@ -4693,6 +4693,26 @@ MY VERSION AUTHORING
     color: var(--accent);
 }
 
+.atlas-my-version-cover-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.38rem;
+    border-color: rgba(var(--accent-rgb), 0.42);
+    background: rgba(var(--accent-rgb), 0.085);
+    color: var(--accent);
+}
+
+.atlas-my-version-cover-action:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.14);
+    color: var(--accent);
+}
+
+.atlas-my-version-cover-icon {
+    flex: 0 0 auto;
+}
+
 .atlas-my-version-ai {
     display: inline-flex;
     align-items: center;

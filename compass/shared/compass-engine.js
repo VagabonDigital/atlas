@@ -1485,8 +1485,15 @@ function updateMyVersionAuthorBar() {
         coverActionButton.disabled =
             myVersionSaving;
 
-        coverActionButton.textContent =
-            'Change cover';
+        const coverActionLabel =
+            coverActionButton.querySelector(
+                '.atlas-my-version-cover-label'
+            );
+
+        if (coverActionLabel) {
+            coverActionLabel.textContent =
+                'Change cover';
+        }
     }
 
     if (libraryIntroButton) {

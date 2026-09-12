@@ -806,11 +806,23 @@ function mountCompassSubjectShell() {
                 </button>
             </div>
 
-            <button class="atlas-my-version-secondary"
+            <button class="atlas-my-version-secondary atlas-my-version-cover-action"
                 id="atlas-my-version-cover-action"
                 type="button"
                 onclick="handleMyVersionCoverAction()">
-                Change cover
+                <svg class="atlas-my-version-cover-icon"
+                    width="14" height="14"
+                    viewBox="0 0 14 14"
+                    fill="none" aria-hidden="true">
+                    <rect x="1.6" y="2.2" width="10.8" height="9.1" rx="1.7"
+                        stroke="currentColor" stroke-width="1.2"/>
+                    <circle cx="4.6" cy="5.1" r="1.15"
+                        stroke="currentColor" stroke-width="1.05"/>
+                    <path d="M3.15 9.7L5.7 7.25L7.45 8.9L8.85 7.55L11.15 9.7"
+                        stroke="currentColor" stroke-width="1.05"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="atlas-my-version-cover-label">Change cover</span>
             </button>
 
             <button class="atlas-my-version-secondary"
