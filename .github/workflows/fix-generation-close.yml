@@ -1,0 +1,99 @@
+name: One-time generation toolbar close fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-generation-close.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Make generation toolbar closable without cancelling edits
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('compass/shared/compass-engine.js')
+          text = path.read_text()
+
+          old_cancel_ui = """    if (cancelButton) {
+        cancelButton.disabled =
+            myVersionSaving ||
+            enrichmentActive;
+    }
+"""
+          new_cancel_ui = """    if (cancelButton) {
+        cancelButton.disabled =
+            enrichmentActive
+                ? false
+                : myVersionSaving;
+
+        const cancelDesktopLabel = cancelButton.querySelector(
+            '.atlas-my-version-cancel-desktop'
+        );
+        const cancelMobileLabel = cancelButton.querySelector(
+            '.atlas-my-version-cancel-mobile'
+        );
+
+        if (cancelDesktopLabel) {
+            cancelDesktopLabel.textContent =
+                enrichmentActive ? 'Close' : 'Cancel';
+        }
+
+        if (cancelMobileLabel) {
+            cancelMobileLabel.textContent =
+                enrichmentActive ? 'Close' : 'Exit editing';
+        }
+    }
+"""
+
+          old_cancel_handler = """async function cancelMyVersionEditing() {
+    if (!myVersionEditing || myVersionSaving) return;
+
+    clearMyVersionWorkingDraftSaveTimer();
+"""
+          new_cancel_handler = """async function cancelMyVersionEditing() {
+    if (!myVersionEditing) return;
+
+    const enrichmentActive =
+        myVersionEnrichingDiscussion ||
+        myVersionEnrichingCulturalLens ||
+        myVersionGeneratingFullSubject;
+
+    if (enrichmentActive) {
+        setMyVersionAuthorBarMinimized(true);
+        updateMyVersionAuthorBar();
+        return;
+    }
+
+    if (myVersionSaving) return;
+
+    clearMyVersionWorkingDraftSaveTimer();
+"""
+
+          if text.count(old_cancel_ui) != 1:
+              raise SystemExit(f'Expected one cancel UI block, found {text.count(old_cancel_ui)}')
+          if text.count(old_cancel_handler) != 1:
+              raise SystemExit(f'Expected one cancel handler block, found {text.count(old_cancel_handler)}')
+
+          text = text.replace(old_cancel_ui, new_cancel_ui, 1)
+          text = text.replace(old_cancel_handler, new_cancel_handler, 1)
+          path.write_text(text)
+          PY
+      - name: Validate and commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add compass/shared/compass-engine.js
+          git diff --cached --check
+          git diff --cached --quiet && exit 0
+          git commit -m "Fix generation toolbar close behavior"
+          git push origin HEAD:main
