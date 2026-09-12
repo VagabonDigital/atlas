@@ -2621,6 +2621,254 @@
     }
 
     /* ============================================================
+       SUBJECT ARTWORK STUDIO
+       ============================================================ */
+
+    .subject-artwork-studio-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      display: grid;
+      place-items: center;
+      padding: 1.5rem;
+      background: rgba(20, 23, 22, 0.46);
+      backdrop-filter: blur(10px);
+    }
+
+    .subject-artwork-studio-backdrop[hidden] {
+      display: none;
+    }
+
+    .subject-artwork-studio {
+      width: min(1040px, calc(100vw - 3rem));
+      max-height: calc(100vh - 3rem);
+      overflow: auto;
+      border: 1px solid var(--border-subtle);
+      border-radius: 24px;
+      background: var(--surface-panel);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .subject-artwork-studio-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.6rem 1.7rem 0;
+    }
+
+    .subject-artwork-studio-kicker {
+      margin-bottom: 0.42rem;
+      color: var(--accent);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .subject-artwork-studio-title {
+      margin: 0;
+      color: var(--text-heading);
+      font-family: var(--font-display);
+      font-size: 1.7rem;
+      font-weight: 400;
+      line-height: 1.15;
+    }
+
+    .subject-artwork-studio-close {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      flex: 0 0 auto;
+      border: 1px solid var(--border-subtle);
+      border-radius: 50%;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+
+    .subject-artwork-studio-close:hover,
+    .subject-artwork-studio-close:focus-visible {
+      background: var(--surface-muted);
+      color: var(--text-heading);
+      outline: none;
+    }
+
+    .subject-artwork-studio-body {
+      display: grid;
+      grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+      gap: 1.8rem;
+      padding: 1.55rem 1.7rem 1.7rem;
+    }
+
+    .subject-artwork-studio-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      min-width: 0;
+    }
+
+    .subject-artwork-studio-copy {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.86rem;
+      line-height: 1.65;
+    }
+
+    .subject-artwork-field {
+      display: grid;
+      gap: 0.48rem;
+    }
+
+    .subject-artwork-field-label {
+      color: var(--text-heading);
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .subject-artwork-idea-input {
+      width: 100%;
+      min-height: 92px;
+      resize: vertical;
+      padding: 0.8rem 0.9rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      background: var(--surface-raised);
+      color: var(--text-body);
+      font: inherit;
+      line-height: 1.5;
+    }
+
+    .subject-artwork-idea-input:focus {
+      border-color: rgba(var(--accent-rgb), 0.55);
+      outline: 3px solid rgba(var(--accent-rgb), 0.12);
+    }
+
+    .subject-artwork-color-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .subject-artwork-color-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.42rem;
+      min-height: 38px;
+      padding: 0.42rem 0.68rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      background: var(--surface-raised);
+      color: var(--text-muted);
+      font: inherit;
+      font-size: 0.76rem;
+      cursor: pointer;
+    }
+
+    .subject-artwork-color-btn:hover,
+    .subject-artwork-color-btn.is-selected {
+      border-color: rgba(var(--accent-rgb), 0.46);
+      background: var(--accent-dim);
+      color: var(--text-heading);
+    }
+
+    .subject-artwork-color-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--subject-artwork-swatch, var(--accent));
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+    }
+
+    .subject-artwork-custom-color {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .subject-artwork-custom-color input[type="color"] {
+      width: 42px;
+      height: 36px;
+      padding: 2px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 9px;
+      background: var(--surface-raised);
+      cursor: pointer;
+    }
+
+    .subject-artwork-generate-btn {
+      align-self: flex-start;
+    }
+
+    .subject-artwork-studio-error {
+      margin: -0.3rem 0 0;
+      color: var(--danger-text);
+      font-size: 0.76rem;
+    }
+
+    .subject-artwork-studio-preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      padding: 1.35rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      background: var(--library-surface);
+    }
+
+    .subject-artwork-preview-card {
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .subject-artwork-preview-card .subject-card {
+      width: 100%;
+      min-height: 270px;
+      pointer-events: none;
+      transform: none !important;
+    }
+
+    .subject-artwork-preview-card .subject-card-art {
+      opacity: 0.18;
+      transform: none;
+    }
+
+    html[data-theme="night"]
+    .subject-artwork-preview-card
+    .subject-card-art {
+      opacity: 0.25;
+    }
+
+    .subject-artwork-studio-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.6rem;
+      padding: 0 1.7rem 1.6rem;
+    }
+
+    @media (max-width: 760px) {
+      .subject-artwork-studio-backdrop {
+        padding: 0.75rem;
+      }
+
+      .subject-artwork-studio {
+        width: calc(100vw - 1.5rem);
+        max-height: calc(100vh - 1.5rem);
+      }
+
+      .subject-artwork-studio-body {
+        grid-template-columns: 1fr;
+      }
+
+      .subject-artwork-studio-preview {
+        order: -1;
+      }
+    }
+
+    /* ============================================================
        HUB TOAST
        ============================================================ */
     .hub-toast {
@@ -5980,6 +6228,658 @@
             'Couldn’t delete this subject.';
           confirm.disabled = false;
           confirm.textContent = 'Delete subject';
+        }
+      }
+    }
+
+    let subjectArtworkStudioState = null;
+    let subjectArtworkStudioReturnFocus = null;
+    let subjectArtworkStudioPreviousBodyOverflow = '';
+
+    const SUBJECT_ARTWORK_COLORS = [
+      {
+        id: 'atlas',
+        label: 'Atlas',
+        value: 'atlas'
+      },
+      {
+        id: 'teal',
+        label: 'Teal',
+        value: '#4f847c'
+      },
+      {
+        id: 'blue',
+        label: 'Blue',
+        value: '#557ca6'
+      },
+      {
+        id: 'coral',
+        label: 'Coral',
+        value: '#d87763'
+      },
+      {
+        id: 'gold',
+        label: 'Gold',
+        value: '#ba8d45'
+      },
+      {
+        id: 'violet',
+        label: 'Violet',
+        value: '#806ea8'
+      }
+    ];
+
+    const SUBJECT_ARTWORK_TEST_SVG = `
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 180 140"
+        fill="none">
+        <path
+          d="M42 93C58 80 64 56 83 46C102 36 126 45 137 64C148 83 140 105 120 113C100 121 77 113 68 95"
+          stroke="currentColor"
+          stroke-width="2.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+        <circle
+          cx="58"
+          cy="82"
+          r="10"
+          stroke="currentColor"
+          stroke-width="2.2"/>
+        <path
+          d="M124 31L127 40L136 43L127 46L124 55L121 46L112 43L121 40L124 31Z"
+          stroke="currentColor"
+          stroke-width="1.9"
+          stroke-linejoin="round"/>
+      </svg>
+    `;
+
+    function ensureSubjectArtworkStudio() {
+      let backdrop =
+        document.getElementById(
+          'subject-artwork-studio-backdrop'
+        );
+
+      if (backdrop) return backdrop;
+
+      backdrop = document.createElement('div');
+      backdrop.id = 'subject-artwork-studio-backdrop';
+      backdrop.className =
+        'subject-artwork-studio-backdrop';
+      backdrop.hidden = true;
+
+      backdrop.innerHTML = `
+        <section
+          class="subject-artwork-studio"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="subject-artwork-studio-title">
+
+          <div class="subject-artwork-studio-head">
+            <div>
+              <div class="subject-artwork-studio-kicker">
+                Subject artwork
+              </div>
+              <h2
+                class="subject-artwork-studio-title"
+                id="subject-artwork-studio-title">
+                Create artwork
+              </h2>
+            </div>
+
+            <button
+              class="subject-artwork-studio-close"
+              type="button"
+              aria-label="Close artwork studio"
+              onclick="closeSubjectArtworkStudio()">
+              ×
+            </button>
+          </div>
+
+          <div class="subject-artwork-studio-body">
+            <div class="subject-artwork-studio-controls">
+
+              <p class="subject-artwork-studio-copy">
+                Give this subject a visual identity. Tell Atlas what
+                you want the artwork to feature, or leave it open.
+              </p>
+
+              <label class="subject-artwork-field">
+                <span class="subject-artwork-field-label">
+                  Artwork idea
+                </span>
+
+                <textarea
+                  class="subject-artwork-idea-input"
+                  id="subject-artwork-idea"
+                  maxlength="240"
+                  placeholder="e.g. An apple wearing a tiny crown"></textarea>
+              </label>
+
+              <div class="subject-artwork-field">
+                <span class="subject-artwork-field-label">
+                  Color
+                </span>
+
+                <div
+                  class="subject-artwork-color-options"
+                  id="subject-artwork-color-options">
+                </div>
+
+                <label class="subject-artwork-custom-color">
+                  <input
+                    type="color"
+                    id="subject-artwork-custom-color"
+                    value="#4f847c"
+                    oninput="setSubjectArtworkStudioCustomColor(this.value)">
+                  <span class="subject-artwork-field-label">
+                    Custom
+                  </span>
+                </label>
+              </div>
+
+              <button
+                class="btn-primary subject-artwork-generate-btn"
+                id="subject-artwork-generate"
+                type="button"
+                onclick="generateSubjectArtworkStudioPreview()">
+                Generate artwork
+              </button>
+
+              <p
+                class="subject-artwork-studio-error"
+                id="subject-artwork-studio-error"
+                hidden>
+              </p>
+
+            </div>
+
+            <div class="subject-artwork-studio-preview">
+              <div
+                class="subject-artwork-preview-card"
+                id="subject-artwork-preview-card">
+              </div>
+            </div>
+          </div>
+
+          <div class="subject-artwork-studio-actions">
+            <button
+              class="btn-ghost"
+              type="button"
+              onclick="closeSubjectArtworkStudio()">
+              Cancel
+            </button>
+
+            <button
+              class="btn-primary"
+              id="subject-artwork-use"
+              type="button"
+              onclick="saveSubjectArtworkStudio()">
+              Use artwork
+            </button>
+          </div>
+        </section>
+      `;
+
+      backdrop.addEventListener(
+        'mousedown',
+        event => {
+          if (event.target === backdrop) {
+            closeSubjectArtworkStudio();
+          }
+        }
+      );
+
+      document.body.appendChild(backdrop);
+
+      return backdrop;
+    }
+
+    function getSubjectArtworkStudioColor() {
+      return (
+        subjectArtworkStudioState?.color ||
+        'atlas'
+      );
+    }
+
+    function renderSubjectArtworkStudioColors() {
+      const host =
+        document.getElementById(
+          'subject-artwork-color-options'
+        );
+
+      if (!host) return;
+
+      const selected =
+        getSubjectArtworkStudioColor();
+
+      host.innerHTML =
+        SUBJECT_ARTWORK_COLORS
+          .map(color => {
+            const active =
+              selected === color.value;
+
+            const swatch =
+              color.value === 'atlas'
+                ? 'var(--accent)'
+                : color.value;
+
+            return (
+              '<button ' +
+              'class="subject-artwork-color-btn' +
+              (active ? ' is-selected' : '') +
+              '" type="button" ' +
+              'style="--subject-artwork-swatch:' +
+              escHtml(swatch) +
+              ';" ' +
+              'onclick="setSubjectArtworkStudioColor(' +
+              jsArg(color.value) +
+              ')">' +
+              '<span class="subject-artwork-color-dot" aria-hidden="true"></span>' +
+              escHtml(color.label) +
+              '</button>'
+            );
+          })
+          .join('');
+    }
+
+    function setSubjectArtworkStudioColor(color) {
+      if (!subjectArtworkStudioState) return;
+
+      const Artwork =
+        window.AtlasSubjectArtwork;
+
+      subjectArtworkStudioState.color =
+        Artwork &&
+        typeof Artwork.normalizeColor === 'function'
+          ? Artwork.normalizeColor(color)
+          : 'atlas';
+
+      renderSubjectArtworkStudioColors();
+      renderSubjectArtworkStudioPreview();
+    }
+
+    function setSubjectArtworkStudioCustomColor(
+      color
+    ) {
+      if (!subjectArtworkStudioState) return;
+
+      subjectArtworkStudioState.color =
+        String(color || '').trim();
+
+      renderSubjectArtworkStudioColors();
+      renderSubjectArtworkStudioPreview();
+    }
+
+    function renderSubjectArtworkStudioPreview() {
+      const state =
+        subjectArtworkStudioState;
+
+      const host =
+        document.getElementById(
+          'subject-artwork-preview-card'
+        );
+
+      if (!state || !host) return;
+
+      const Artwork =
+        window.AtlasSubjectArtwork;
+
+      const normalized =
+        state.svg &&
+        Artwork &&
+        typeof Artwork.normalize === 'function'
+          ? Artwork.normalize({
+              type: 'atlas-svg',
+              version: 1,
+              svg: state.svg,
+              color: state.color,
+              idea: state.idea
+            })
+          : null;
+
+      const previewSubject = {
+        ...state.subject,
+        artwork: normalized,
+        artId: ''
+      };
+
+      host.innerHTML =
+        renderSubjectCard(previewSubject);
+
+      const openLayer =
+        host.querySelector(
+          '.subject-card-open-layer'
+        );
+
+      if (openLayer) {
+        openLayer.removeAttribute('href');
+        openLayer.setAttribute(
+          'tabindex',
+          '-1'
+        );
+      }
+
+      host
+        .querySelectorAll(
+          '.subject-card-management'
+        )
+        .forEach(element => element.remove());
+    }
+
+    function generateSubjectArtworkStudioPreview() {
+      if (!subjectArtworkStudioState) return;
+
+      const idea =
+        String(
+          document.getElementById(
+            'subject-artwork-idea'
+          )?.value || ''
+        ).trim();
+
+      const error =
+        document.getElementById(
+          'subject-artwork-studio-error'
+        );
+
+      subjectArtworkStudioState.idea = idea;
+      subjectArtworkStudioState.svg =
+        SUBJECT_ARTWORK_TEST_SVG;
+
+      if (error) {
+        error.hidden = true;
+        error.textContent = '';
+      }
+
+      renderSubjectArtworkStudioPreview();
+    }
+
+    async function openSubjectArtworkStudio(
+      subjectId,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      subjectArtworkStudioReturnFocus =
+        event?.currentTarget
+          ?.closest('.subject-card-management')
+          ?.querySelector(
+            '.subject-card-manage-btn'
+          ) ||
+        document.activeElement;
+
+      closeOwnedSubjectMenus();
+
+      const Subjects =
+        window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.getSubject !== 'function'
+      ) {
+        showToast(
+          'Subject artwork is unavailable.'
+        );
+        return;
+      }
+
+      let record = null;
+
+      try {
+        record =
+          await Subjects.getSubject(subjectId);
+      } catch { }
+
+      if (!record) {
+        showToast(
+          'That subject could not be loaded.'
+        );
+        return;
+      }
+
+      const metadata =
+        record.metadata || {};
+
+      const Artwork =
+        window.AtlasSubjectArtwork;
+
+      const existing =
+        Artwork &&
+        typeof Artwork.normalize === 'function'
+          ? Artwork.normalize(
+              metadata.artwork
+            )
+          : null;
+
+      const title =
+        getOwnedSubjectRecordTitle(record);
+
+      const subject = {
+        subjectId: record.id,
+        isOwned: true,
+        title,
+        hook: String(
+          metadata.description ||
+          record.document?.module
+            ?.catalogDescription ||
+          ''
+        ).trim(),
+        artwork: existing,
+        artId: '',
+        launchUrl:
+          getOwnedSubjectLaunchUrl(record.id),
+        status: 'new',
+        state: null,
+        provenance:
+          record.provenance || {}
+      };
+
+      subjectArtworkStudioState = {
+        subjectId: record.id,
+        record,
+        subject,
+        svg: existing?.svg || '',
+        color:
+          existing?.color || 'atlas',
+        idea:
+          existing?.idea || ''
+      };
+
+      const backdrop =
+        ensureSubjectArtworkStudio();
+
+      const heading =
+        backdrop.querySelector(
+          '#subject-artwork-studio-title'
+        );
+
+      const ideaInput =
+        backdrop.querySelector(
+          '#subject-artwork-idea'
+        );
+
+      const useButton =
+        backdrop.querySelector(
+          '#subject-artwork-use'
+        );
+
+      const error =
+        backdrop.querySelector(
+          '#subject-artwork-studio-error'
+        );
+
+      if (heading) {
+        heading.textContent =
+          existing
+            ? 'Change artwork'
+            : 'Create artwork';
+      }
+
+      if (ideaInput) {
+        ideaInput.value =
+          existing?.idea || '';
+      }
+
+      if (useButton) {
+        useButton.disabled =
+          !existing?.svg;
+      }
+
+      if (error) {
+        error.hidden = true;
+        error.textContent = '';
+      }
+
+      renderSubjectArtworkStudioColors();
+      renderSubjectArtworkStudioPreview();
+
+      subjectArtworkStudioPreviousBodyOverflow =
+        document.body.style.overflow;
+
+      document.body.style.overflow =
+        'hidden';
+
+      backdrop.hidden = false;
+
+      requestAnimationFrame(() => {
+        ideaInput?.focus();
+      });
+    }
+
+    function closeSubjectArtworkStudio() {
+      const backdrop =
+        document.getElementById(
+          'subject-artwork-studio-backdrop'
+        );
+
+      if (backdrop) {
+        backdrop.hidden = true;
+      }
+
+      document.body.style.overflow =
+        subjectArtworkStudioPreviousBodyOverflow;
+
+      const returnFocus =
+        subjectArtworkStudioReturnFocus;
+
+      subjectArtworkStudioState = null;
+      subjectArtworkStudioReturnFocus = null;
+
+      returnFocus?.focus?.();
+    }
+
+    async function saveSubjectArtworkStudio() {
+      const state =
+        subjectArtworkStudioState;
+
+      const backdrop =
+        document.getElementById(
+          'subject-artwork-studio-backdrop'
+        );
+
+      const useButton =
+        backdrop?.querySelector(
+          '#subject-artwork-use'
+        );
+
+      const error =
+        backdrop?.querySelector(
+          '#subject-artwork-studio-error'
+        );
+
+      const idea =
+        String(
+          backdrop?.querySelector(
+            '#subject-artwork-idea'
+          )?.value || ''
+        ).trim();
+
+      const Subjects =
+        window.AtlasTutorSubjects;
+
+      const Artwork =
+        window.AtlasSubjectArtwork;
+
+      if (
+        !state ||
+        !Subjects ||
+        typeof Subjects.updateSubject !==
+          'function' ||
+        !Artwork ||
+        typeof Artwork.normalize !==
+          'function'
+      ) {
+        return;
+      }
+
+      const artwork =
+        Artwork.normalize({
+          type: 'atlas-svg',
+          version: 1,
+          svg: state.svg,
+          color: state.color,
+          idea
+        });
+
+      if (!artwork) {
+        if (error) {
+          error.hidden = false;
+          error.textContent =
+            'Generate artwork before saving.';
+        }
+
+        return;
+      }
+
+      if (useButton) {
+        useButton.disabled = true;
+        useButton.textContent = 'Saving…';
+      }
+
+      try {
+        const latest =
+          await Subjects.getSubject(
+            state.subjectId
+          );
+
+        if (!latest) {
+          throw new Error(
+            'Subject unavailable.'
+          );
+        }
+
+        const saved =
+          await Subjects.updateSubject(
+            state.subjectId,
+            {
+              metadata: {
+                ...latest.metadata,
+                artwork
+              }
+            }
+          );
+
+        if (!saved) {
+          throw new Error(
+            'Artwork save failed.'
+          );
+        }
+
+        closeSubjectArtworkStudio();
+        await renderHub();
+        showToast('Artwork saved.');
+      } catch {
+        if (error) {
+          error.hidden = false;
+          error.textContent =
+            'Couldn’t save this artwork.';
+        }
+
+        if (useButton) {
+          useButton.disabled = false;
+          useButton.textContent =
+            'Use artwork';
         }
       }
     }
@@ -10197,6 +11097,19 @@
       if (e.defaultPrevented) return;
 
       if (e.key === 'Escape') {
+        const artworkStudio =
+          document.getElementById(
+            'subject-artwork-studio-backdrop'
+          );
+
+        if (
+          artworkStudio &&
+          !artworkStudio.hidden
+        ) {
+          closeSubjectArtworkStudio();
+          return;
+        }
+
         const ownedDialog =
           document.getElementById(
             'owned-subject-dialog'
