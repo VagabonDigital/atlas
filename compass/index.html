@@ -2419,7 +2419,7 @@
 
     .owned-subject-dialog-create-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 0.8rem;
     }
 
@@ -4089,12 +4089,15 @@
         '</select>' +
         '</label>' +
 
-        '</div>' +
-
-        '<label class="owned-subject-dialog-compact-option">' +
-        '<input id="owned-subject-dialog-size" type="checkbox" value="compact">' +
-        '<span>Shorter lesson</span>' +
+        '<label class="owned-subject-dialog-create-field">' +
+        '<span>Lesson size</span>' +
+        '<select id="owned-subject-dialog-size">' +
+        '<option value="standard" selected>Standard</option>' +
+        '<option value="compact">Shorter</option>' +
+        '</select>' +
         '</label>' +
+
+        '</div>' +
 
         '<label class="owned-subject-dialog-create-field">' +
         '<span>Anything Atlas should know? — optional</span>' +
@@ -4813,7 +4816,7 @@
 
       levelSelect.value = 'b2';
       styleSelect.value = 'balanced';
-      sizeSelect.checked = false;
+      sizeSelect.value = 'standard';
       briefInput.value = '';
 
       error.hidden = true;
