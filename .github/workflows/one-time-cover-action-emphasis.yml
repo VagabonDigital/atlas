@@ -138,9 +138,10 @@ jobs:
 
       - name: Validate and commit
         run: |
+          node --check compass/shared/compass-subject-shell.js
+          node --check compass/shared/compass-engine.js
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git diff --check
           git add compass/shared/compass-subject-shell.js compass/shared/compass-engine.js compass/shared/compass-subject.css
           git diff --cached --quiet && exit 0
           git commit -m "Emphasize cover customization action"
