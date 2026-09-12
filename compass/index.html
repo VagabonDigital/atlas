@@ -3009,6 +3009,7 @@
   <script src="../shared/atlas-structured-subject.js?v=20260911-1"></script>
   <script src="../shared/atlas-tutor-content.js"></script>
   <script src="../shared/atlas-tutor-subjects.js?v=20260911-1"></script>
+  <script src="../shared/atlas-subject-artwork.js"></script>
   <script src="../shared/atlas-original-curation.js"></script>
   <script src="../shared/atlas-ai.js"></script>
   <script src="../shared/compass-catalog-data.js?v=4"></script>
@@ -3479,6 +3480,14 @@
               archived: false
             };
 
+          const artwork =
+            window.AtlasSubjectArtwork &&
+            typeof AtlasSubjectArtwork.normalize === 'function'
+              ? AtlasSubjectArtwork.normalize(
+                  metadata.artwork
+                )
+              : null;
+
           return {
             subjectId: id,
             isOwned: true,
@@ -3488,6 +3497,7 @@
               !Array.isArray(record.provenance)
                 ? record.provenance
                 : {},
+            artwork,
             registryId,
             libraryIncluded:
               placement.libraryIncluded !== false,
@@ -9686,11 +9696,33 @@
     function renderSubjectCard(subject) {
       const cardState = getSubjectCardState(subject);
 
-      const artwork =
+      const ownedArtwork =
+        subject.isOwned &&
+        subject.artwork &&
+        window.AtlasSubjectArtwork
+          ? AtlasSubjectArtwork.normalize(
+              subject.artwork
+            )
+          : null;
+
+      const atlasArtwork =
         subject.artId &&
         COMPASS_CATALOG_DATA &&
         typeof COMPASS_CATALOG_DATA.getCompassSubjectArt === 'function'
           ? COMPASS_CATALOG_DATA.getCompassSubjectArt(subject.artId)
+          : '';
+
+      const artwork =
+        ownedArtwork?.svg ||
+        atlasArtwork ||
+        '';
+
+      const artworkColor =
+        ownedArtwork &&
+        typeof AtlasSubjectArtwork.resolveColor === 'function'
+          ? AtlasSubjectArtwork.resolveColor(
+              ownedArtwork.color
+            )
           : '';
 
       const artworkClass =
@@ -9700,7 +9732,15 @@
 
       const artworkHtml =
         artwork
-          ? '<span class="subject-card-art" aria-hidden="true">' +
+          ? '<span class="subject-card-art" aria-hidden="true"' +
+            (
+              artworkColor
+                ? ' style="color:' +
+                  escHtml(artworkColor) +
+                  ';"'
+                : ''
+            ) +
+            '>' +
             artwork +
             '</span>'
           : '';
