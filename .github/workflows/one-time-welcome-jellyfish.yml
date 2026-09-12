@@ -1,0 +1,159 @@
+name: One-time welcome jellyfish refinement
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-welcome-jellyfish.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Refine welcome artwork
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+          original = text
+
+          old_game = '''    .atlas-welcome-art--game-theory {
+      width: clamp(175px, 15vw, 235px);
+      left: clamp(-38px, -1.4vw, -14px);
+      bottom: -16px;
+      color: #7e7898;
+      opacity: 0.19;
+      animation: atlasWelcomeDriftGameTheory 16s ease-in-out infinite alternate;
+    }'''
+          new_game = '''    .atlas-welcome-art--game-theory {
+      width: clamp(175px, 15vw, 235px);
+      left: clamp(-38px, -1.4vw, -14px);
+      bottom: -16px;
+      color: #b58a54;
+      opacity: 0.22;
+      animation: atlasWelcomeDriftGameTheory 16s ease-in-out infinite alternate;
+    }'''
+          if old_game not in text:
+              raise SystemExit('game theory welcome block not found')
+          text = text.replace(old_game, new_game, 1)
+
+          old_mars = '''    .atlas-welcome-art--mars {
+      width: clamp(190px, 17vw, 265px);
+      right: clamp(-32px, 1vw, 20px);
+      bottom: -18px;
+      color: #718f9f;
+      opacity: 0.21;
+      animation: atlasWelcomeDriftMars 18s ease-in-out infinite alternate;
+    }'''
+          new_jelly = '''    .atlas-welcome-art--jellyfish {
+      width: clamp(195px, 17vw, 265px);
+      right: clamp(-34px, 0.8vw, 18px);
+      bottom: -18px;
+      color: #7185a3;
+      opacity: 0.21;
+      animation: atlasWelcomeDriftJellyfish 18s ease-in-out infinite alternate;
+    }
+
+    .atlas-welcome-art--jellyfish .welcome-jellyfish-tentacles {
+      transform-box: fill-box;
+      transform-origin: top center;
+      animation: atlasWelcomeJellyfishTentacles 6.5s ease-in-out infinite alternate;
+    }'''
+          if old_mars not in text:
+              raise SystemExit('mars welcome block not found')
+          text = text.replace(old_mars, new_jelly, 1)
+
+          old_keyframe = '''    @keyframes atlasWelcomeDriftMars {
+      from { transform: translate3d(3px, 4px, 0) rotate(2deg); }
+      to { transform: translate3d(-7px, -6px, 0) rotate(-1deg); }
+    }'''
+          new_keyframe = '''    @keyframes atlasWelcomeDriftJellyfish {
+      from { transform: translate3d(3px, 4px, 0) rotate(2deg); }
+      to { transform: translate3d(-7px, -6px, 0) rotate(-1deg); }
+    }
+
+    @keyframes atlasWelcomeJellyfishTentacles {
+      from { transform: translateY(0) scaleY(0.98); }
+      to { transform: translateY(3px) scaleY(1.025); }
+    }'''
+          if old_keyframe not in text:
+              raise SystemExit('mars drift keyframe not found')
+          text = text.replace(old_keyframe, new_keyframe, 1)
+
+          old_mobile = '''      .atlas-welcome-art--mars {
+        width: 150px;
+        right: -30px;
+        bottom: -9px;
+        opacity: 0.18;
+      }'''
+          new_mobile = '''      .atlas-welcome-art--jellyfish {
+        width: 154px;
+        right: -30px;
+        bottom: -8px;
+        opacity: 0.19;
+      }'''
+          if old_mobile not in text:
+              raise SystemExit('mobile mars block not found')
+          text = text.replace(old_mobile, new_mobile, 1)
+
+          jellyfish_markup = '''    <div class="atlas-welcome-art atlas-welcome-art--jellyfish" aria-hidden="true">
+      <svg class="welcome-jellyfish" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 140" fill="none">
+        <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M43 68C43 38 63 19 90 19C117 19 137 38 137 68" stroke-width="2.5"/>
+          <path d="M43 68C51 62 58 62 66 68C74 74 82 74 90 68C98 62 106 62 114 68C122 74 129 74 137 68" stroke-width="2.3"/>
+          <path d="M61 49C69 38 79 33 90 33C101 33 111 38 119 49" stroke-width="1.8" opacity="0.75"/>
+          <g class="welcome-jellyfish-tentacles" stroke-width="2.1">
+            <path d="M58 70C54 82 64 88 59 100C55 110 48 113 51 124"/>
+            <path d="M75 72C72 84 80 91 76 104C73 113 68 118 70 129"/>
+            <path d="M91 71C87 85 95 92 91 105C88 116 84 120 87 132"/>
+            <path d="M107 72C103 84 112 92 108 103C104 114 100 119 103 129"/>
+            <path d="M123 70C119 82 128 89 124 100C121 110 115 116 118 125"/>
+          </g>
+          <circle cx="72" cy="52" r="2.2" fill="currentColor" stroke="none" opacity="0.7"/>
+          <circle cx="108" cy="47" r="1.7" fill="currentColor" stroke="none" opacity="0.55"/>
+        </g>
+      </svg>
+    </div>'''
+
+          pattern = re.compile(
+              r'    <div class="atlas-welcome-art atlas-welcome-art--mars" aria-hidden="true">\n.*?\n    </div>\n\n    <div class="atlas-welcome-inner">',
+              re.S
+          )
+          text, count = pattern.subn(jellyfish_markup + '\n\n    <div class="atlas-welcome-inner">', text, count=1)
+          if count != 1:
+              raise SystemExit(f'expected one Mars artwork block, replaced {count}')
+
+          if text == original:
+              raise SystemExit('no changes made')
+          if 'atlas-welcome-art--mars' in text or 'welcome-mars-child' in text:
+              raise SystemExit('stale Mars welcome artwork remains')
+          for required in [
+              'atlas-welcome-art--jellyfish',
+              'welcome-jellyfish-tentacles',
+              'color: #b58a54;',
+              'data-compass-art="odyssey-voyage"',
+              'data-compass-art="travel-route"',
+              'data-compass-art="game-theory"'
+          ]:
+              if required not in text:
+                  raise SystemExit(f'missing expected marker: {required}')
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+          git config user.name "Atlas Architecture Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git diff --cached --check
+          git commit -m "Polish welcome artwork palette and jellyfish"
+          git push
