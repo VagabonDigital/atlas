@@ -58,3 +58,5 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m "Fix mobile tutor demo scroll position"
           git push
+
+# one-shot trigger
