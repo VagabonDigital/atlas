@@ -24,43 +24,51 @@ jobs:
           path = Path('tutors/index.html')
           text = path.read_text()
 
-          old_categories = '''      var demoCategories = [
-        { label: "Current affairs", cue: "Live web · ~15 sec", mode: "current-affairs" },
-        { label: "Science & Nature", cue: "Real phenomena", mode: "science-nature" },
-        { label: "Technology & Future", cue: "What’s coming next", mode: "technology-future" },
-        { label: "Culture & Society", cue: "How people live", mode: "culture-society" },
-        { label: "History & Civilization", cue: "Specific past worlds", mode: "history-civilization" },
-        { label: "Business & Politics", cue: "Power, markets, systems", mode: "business-politics" },
-        { label: "Travel & Experiences", cue: "Places and encounters", mode: "travel-experiences" },
-        { label: "Language & Communication", cue: "How we use language", mode: "culture-society", topicFocus: "language, communication, linguistics and practical English learning" }
-      ];'''
+          old_categories = (
+              '      var demoCategories = [\n'
+              '        { label: "Current affairs", cue: "Live web · ~15 sec", mode: "current-affairs" },\n'
+              '        { label: "Science & Nature", cue: "Real phenomena", mode: "science-nature" },\n'
+              '        { label: "Technology & Future", cue: "What’s coming next", mode: "technology-future" },\n'
+              '        { label: "Culture & Society", cue: "How people live", mode: "culture-society" },\n'
+              '        { label: "History & Civilization", cue: "Specific past worlds", mode: "history-civilization" },\n'
+              '        { label: "Business & Politics", cue: "Power, markets, systems", mode: "business-politics" },\n'
+              '        { label: "Travel & Experiences", cue: "Places and encounters", mode: "travel-experiences" },\n'
+              '        { label: "Language & Communication", cue: "How we use language", mode: "culture-society", topicFocus: "language, communication, linguistics and practical English learning" }\n'
+              '      ];'
+          )
 
-          new_categories = '''      var demoCategories = [
-        { label: "Surprise me", cue: "Something unexpected", mode: "surprise" },
-        { label: "Current affairs", cue: "Live web · ~15 sec", mode: "current-affairs" },
-        { label: "Science & Nature", cue: "Real phenomena", mode: "science-nature" },
-        { label: "Technology & Future", cue: "What’s coming next", mode: "technology-future" },
-        { label: "Culture & Society", cue: "How people live", mode: "culture-society" },
-        { label: "History & Civilization", cue: "Specific past worlds", mode: "history-civilization" },
-        { label: "Business & Politics", cue: "Power, markets, systems", mode: "business-politics" },
-        { label: "Travel & Experiences", cue: "Places and encounters", mode: "travel-experiences" }
-      ];'''
+          new_categories = (
+              '      var demoCategories = [\n'
+              '        { label: "Surprise me", cue: "Something unexpected", mode: "surprise" },\n'
+              '        { label: "Current affairs", cue: "Live web · ~15 sec", mode: "current-affairs" },\n'
+              '        { label: "Science & Nature", cue: "Real phenomena", mode: "science-nature" },\n'
+              '        { label: "Technology & Future", cue: "What’s coming next", mode: "technology-future" },\n'
+              '        { label: "Culture & Society", cue: "How people live", mode: "culture-society" },\n'
+              '        { label: "History & Civilization", cue: "Specific past worlds", mode: "history-civilization" },\n'
+              '        { label: "Business & Politics", cue: "Power, markets, systems", mode: "business-politics" },\n'
+              '        { label: "Travel & Experiences", cue: "Places and encounters", mode: "travel-experiences" }\n'
+              '      ];'
+          )
 
-          old_status = '''        setResultCardStatus(
-          category.mode === "current-affairs"
-            ? "Checking what’s current… Usually about 15 seconds"
-            : "Finding a " + category.label.toLowerCase() + " idea…",
-          true
-        );'''
+          old_status = (
+              '        setResultCardStatus(\n'
+              '          category.mode === "current-affairs"\n'
+              '            ? "Checking what’s current… Usually about 15 seconds"\n'
+              '            : "Finding a " + category.label.toLowerCase() + " idea…",\n'
+              '          true\n'
+              '        );'
+          )
 
-          new_status = '''        setResultCardStatus(
-          category.mode === "current-affairs"
-            ? "Checking what’s current… Usually about 15 seconds"
-            : category.mode === "surprise"
-              ? "Finding something unexpected…"
-              : "Finding a " + category.label.toLowerCase() + " idea…",
-          true
-        );'''
+          new_status = (
+              '        setResultCardStatus(\n'
+              '          category.mode === "current-affairs"\n'
+              '            ? "Checking what’s current… Usually about 15 seconds"\n'
+              '            : category.mode === "surprise"\n'
+              '              ? "Finding something unexpected…"\n'
+              '              : "Finding a " + category.label.toLowerCase() + " idea…",\n'
+              '          true\n'
+              '        );'
+          )
 
           if text.count(old_categories) != 1:
               raise SystemExit(f'Expected one Tutor Layer category array, found {text.count(old_categories)}')
