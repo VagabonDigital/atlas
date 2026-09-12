@@ -2434,14 +2434,14 @@
       var demoIdeaRequestId = 0;
 
       var demoCategories = [
+        { label: "Surprise me", cue: "Something unexpected", mode: "surprise" },
         { label: "Current affairs", cue: "Live web · ~15 sec", mode: "current-affairs" },
         { label: "Science & Nature", cue: "Real phenomena", mode: "science-nature" },
         { label: "Technology & Future", cue: "What’s coming next", mode: "technology-future" },
         { label: "Culture & Society", cue: "How people live", mode: "culture-society" },
         { label: "History & Civilization", cue: "Specific past worlds", mode: "history-civilization" },
         { label: "Business & Politics", cue: "Power, markets, systems", mode: "business-politics" },
-        { label: "Travel & Experiences", cue: "Places and encounters", mode: "travel-experiences" },
-        { label: "Language & Communication", cue: "How we use language", mode: "culture-society", topicFocus: "language, communication, linguistics and practical English learning" }
+        { label: "Travel & Experiences", cue: "Places and encounters", mode: "travel-experiences" }
       ];
 
       if (subjectButtons.length > 8) {
@@ -2604,7 +2604,9 @@
         setResultCardStatus(
           category.mode === "current-affairs"
             ? "Checking what’s current… Usually about 15 seconds"
-            : "Finding a " + category.label.toLowerCase() + " idea…",
+            : category.mode === "surprise"
+              ? "Finding something unexpected…"
+              : "Finding a " + category.label.toLowerCase() + " idea…",
           true
         );
 
