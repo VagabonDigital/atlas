@@ -3344,6 +3344,85 @@
         opacity: 0.19;
       }
     }
+
+    /* ATLAS WELCOME HOVER EASTER EGGS START */
+    .atlas-welcome-hidden {
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 420ms cubic-bezier(0.2, 0.75, 0.2, 1), translate 520ms cubic-bezier(0.2, 0.75, 0.2, 1);
+    }
+
+    .atlas-welcome-hidden--technology {
+      width: clamp(150px, 13vw, 205px);
+      left: clamp(-92px, -5vw, -54px);
+      top: 43%;
+      color: #789996;
+      translate: -18px 5px;
+    }
+
+    .atlas-welcome-hidden--stories {
+      width: clamp(150px, 13vw, 205px);
+      right: clamp(-88px, -4.6vw, -48px);
+      top: 35%;
+      color: #9a806f;
+      translate: 18px 4px;
+    }
+
+    .atlas-welcome-hidden--humour {
+      width: clamp(150px, 13vw, 205px);
+      left: clamp(-78px, -4vw, -42px);
+      bottom: 13%;
+      color: #b47b75;
+      translate: -18px 8px;
+    }
+
+    .atlas-welcome-hidden--octopus {
+      width: clamp(155px, 13.5vw, 210px);
+      right: clamp(-82px, -4.2vw, -44px);
+      bottom: 13%;
+      color: #6f9b94;
+      translate: 18px 8px;
+    }
+
+    @media (hover: hover) and (pointer: fine) and (min-width: 701px) {
+      .atlas-welcome-art--travel,
+      .atlas-welcome-art--odyssey,
+      .atlas-welcome-art--game-theory,
+      .atlas-welcome-art--jellyfish {
+        pointer-events: auto;
+        cursor: default;
+        transition: opacity 360ms ease, translate 480ms cubic-bezier(0.2, 0.75, 0.2, 1);
+      }
+
+      .atlas-welcome-art--travel:hover { translate: 14px -4px; opacity: 0.32; }
+      .atlas-welcome-art--odyssey:hover { translate: -14px 5px; opacity: 0.29; }
+      .atlas-welcome-art--game-theory:hover { translate: 13px -9px; opacity: 0.28; }
+      .atlas-welcome-art--jellyfish:hover { translate: -13px -8px; opacity: 0.27; }
+
+      .atlas-welcome-screen:has(.atlas-welcome-art--travel:hover) .atlas-welcome-hidden--technology { opacity: 0.14; translate: 0 0; }
+      .atlas-welcome-screen:has(.atlas-welcome-art--odyssey:hover) .atlas-welcome-hidden--stories { opacity: 0.13; translate: 0 0; }
+      .atlas-welcome-screen:has(.atlas-welcome-art--game-theory:hover) .atlas-welcome-hidden--humour { opacity: 0.14; translate: 0 0; }
+      .atlas-welcome-screen:has(.atlas-welcome-art--jellyfish:hover) .atlas-welcome-hidden--octopus { opacity: 0.14; translate: 0 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .atlas-welcome-hidden,
+      .atlas-welcome-art--travel,
+      .atlas-welcome-art--odyssey,
+      .atlas-welcome-art--game-theory,
+      .atlas-welcome-art--jellyfish {
+        transition: opacity 160ms ease;
+      }
+      .atlas-welcome-art--travel:hover,
+      .atlas-welcome-art--odyssey:hover,
+      .atlas-welcome-art--game-theory:hover,
+      .atlas-welcome-art--jellyfish:hover {
+        translate: none;
+      }
+    }
+    /* ATLAS WELCOME HOVER EASTER EGGS END */
+
     /* ATLAS WELCOME COMPOSITION OVERRIDE END */
   </style>
 
@@ -3355,10 +3434,13 @@
   <section class="atlas-welcome-screen" id="atlas-welcome-screen" role="dialog" aria-modal="true"
     aria-labelledby="atlas-welcome-title" aria-describedby="atlas-welcome-copy">
     <div class="atlas-welcome-art atlas-welcome-art--travel" data-compass-art="travel-route" aria-hidden="true"></div>
+    <div class="atlas-welcome-art atlas-welcome-hidden atlas-welcome-hidden--technology" data-compass-art="technology-circuit" aria-hidden="true"></div>
 
     <div class="atlas-welcome-art atlas-welcome-art--odyssey" data-compass-art="odyssey-voyage" aria-hidden="true"></div>
+    <div class="atlas-welcome-art atlas-welcome-hidden atlas-welcome-hidden--stories" data-compass-art="stories-book-screen" aria-hidden="true"></div>
 
     <div class="atlas-welcome-art atlas-welcome-art--game-theory" data-compass-art="game-theory" aria-hidden="true"></div>
+    <div class="atlas-welcome-art atlas-welcome-hidden atlas-welcome-hidden--humour" data-compass-art="humour-reactions" aria-hidden="true"></div>
 
     <div class="atlas-welcome-art atlas-welcome-art--jellyfish" aria-hidden="true">
       <svg class="welcome-jellyfish" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 140" fill="none">
@@ -3378,6 +3460,7 @@
         </g>
       </svg>
     </div>
+    <div class="atlas-welcome-art atlas-welcome-hidden atlas-welcome-hidden--octopus" data-compass-art="octopus-signals" aria-hidden="true"></div>
 
     <div class="atlas-welcome-inner">
       <h1 class="atlas-welcome-title" id="atlas-welcome-title">Welcome to Atlas</h1>
