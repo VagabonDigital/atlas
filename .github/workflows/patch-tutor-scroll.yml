@@ -1,0 +1,60 @@
+name: Patch tutor mobile scroll
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/patch-tutor-scroll.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Update tutor mobile scroll target
+        shell: python
+        run: |
+          from pathlib import Path
+          path = Path('tutors/index.html')
+          text = path.read_text()
+          old = '''      function scrollToCreateResult() {
+        if (!(window.matchMedia && window.matchMedia("(max-width: 720px)").matches)) return;
+        var createResult = document.querySelector(".create-result");
+        if (!createResult) return;
+        window.requestAnimationFrame(function () {
+          var header = document.querySelector(".site-header");
+          var headerHeight = header ? header.getBoundingClientRect().height : 56;
+          var targetTop = createResult.getBoundingClientRect().top + window.scrollY - headerHeight - 12;
+          window.scrollTo({ top: Math.max(0, targetTop), behavior: reduceMotion ? "auto" : "smooth" });
+        });
+      }
+'''
+          new = '''      function scrollToCreateResult() {
+        if (!(window.matchMedia && window.matchMedia("(max-width: 720px)").matches)) return;
+        var createCard = document.querySelector(".create-console");
+        if (!createCard) return;
+        window.requestAnimationFrame(function () {
+          var header = document.querySelector(".site-header");
+          var headerHeight = header ? header.getBoundingClientRect().height : 56;
+          var targetTop = createCard.getBoundingClientRect().top + window.scrollY - headerHeight - 20;
+          window.scrollTo({ top: Math.max(0, targetTop), behavior: reduceMotion ? "auto" : "smooth" });
+        });
+      }
+'''
+          count = text.count(old)
+          if count != 1:
+              raise SystemExit(f'Expected exactly one scroll helper match, found {count}')
+          path.write_text(text.replace(old, new, 1))
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tutors/index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Fix mobile tutor demo scroll position"
+          git push
