@@ -1142,6 +1142,261 @@
       font-size: 13px;
     }
 
+    .library-authorship-demo {
+      margin-top: 54px;
+      padding-top: 34px;
+      border-top: 1px solid var(--border-faint);
+    }
+
+    .library-authorship-top {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .library-authorship-head {
+      max-width: 620px;
+    }
+
+    .library-demo-controls {
+      display: flex;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .library-demo-nav {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border-subtle);
+      border-radius: 50%;
+      background: var(--surface-panel);
+      color: var(--compass);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition:
+        border-color var(--motion),
+        background var(--motion),
+        color var(--motion),
+        opacity var(--motion),
+        transform var(--motion);
+    }
+
+    .library-demo-nav:hover:not(:disabled) {
+      border-color: rgba(var(--compass-rgb), .35);
+      background: var(--compass-soft);
+      transform: translateY(-1px);
+    }
+
+    .library-demo-nav:disabled {
+      opacity: .28;
+      cursor: default;
+    }
+
+    .library-authorship-label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--compass);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    .library-authorship-head h3 {
+      font-size: 28px;
+    }
+
+    .library-demo-row {
+      margin-top: 24px;
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 446px;
+      gap: 16px;
+      padding: 4px 2px 14px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-snap-stop: always;
+      overscroll-behavior-inline: contain;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .library-demo-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .library-demo-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 230px;
+      padding: 1.4rem 1.4rem 1.35rem;
+      overflow: hidden;
+      border: 1px solid var(--border-faint);
+      border-radius: 20px;
+      background: var(--surface-panel);
+      box-shadow: var(--shadow-sm);
+      scroll-snap-align: start;
+      transition:
+        border-color var(--motion),
+        background var(--motion),
+        box-shadow var(--motion),
+        transform var(--motion);
+    }
+
+    .library-demo-card:is(:hover, :focus-visible) {
+      border-color: rgba(var(--compass-rgb), .25);
+      background: var(--surface-raised);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .library-demo-card:focus-visible {
+      outline: 3px solid rgba(var(--compass-rgb), .28);
+      outline-offset: 3px;
+    }
+
+    .library-demo-title,
+    .library-demo-copy,
+    .library-demo-footer {
+      position: relative;
+      z-index: 2;
+    }
+
+    .library-demo-title {
+      max-width: 68%;
+      color: var(--text-heading);
+      font-family: var(--font-display);
+      font-size: 1.16rem;
+      font-weight: 400;
+      line-height: 1.28;
+    }
+
+    .library-demo-copy {
+      max-width: 68%;
+      margin-top: .72rem;
+      margin-bottom: 0;
+      color: var(--text-muted);
+      font-size: .82rem;
+      line-height: 1.58;
+    }
+
+    .library-demo-footer {
+      position: absolute;
+      left: 1.4rem;
+      right: 1.4rem;
+      bottom: 1.35rem;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .library-demo-explore {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .3rem;
+      min-width: 100px;
+      min-height: 38px;
+      padding: .44rem .9rem;
+      border: 1px solid rgba(var(--compass-rgb), .27);
+      border-radius: 999px;
+      background: var(--compass-soft);
+      color: var(--compass);
+      font-size: .76rem;
+      font-weight: 600;
+    }
+
+    .library-demo-art {
+      position: absolute;
+      z-index: 1;
+      top: 1.05rem;
+      right: 1.05rem;
+      bottom: 4.15rem;
+      width: 31%;
+      max-width: 10.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      color: var(--compass);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate3d(9px, 1px, 0) scale(.96);
+      transform-origin: center right;
+      transition:
+        opacity .32s ease,
+        transform .5s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    .library-demo-art svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      max-height: 7.6rem;
+      overflow: visible;
+    }
+
+    .library-demo-art path,
+    .library-demo-art circle,
+    .library-demo-art ellipse,
+    .library-demo-art rect,
+    .library-demo-art line,
+    .library-demo-art polyline,
+    .library-demo-art polygon {
+      vector-effect: non-scaling-stroke;
+    }
+
+    .library-demo-card:is(:hover, :focus-visible) .library-demo-art {
+      opacity: .16;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    html[data-theme="dark"] .library-demo-card:is(:hover, :focus-visible) .library-demo-art {
+      opacity: .23;
+    }
+
+    @media (max-width: 720px) {
+      .library-authorship-demo {
+        margin-top: 44px;
+      }
+
+      .library-demo-controls {
+        display: none;
+      }
+
+      .library-demo-row {
+        grid-auto-columns: min(84vw, 350px);
+        gap: 12px;
+        margin-inline: -15px;
+        padding-inline: 15px;
+        padding-bottom: 8px;
+        scroll-padding-inline: 15px;
+      }
+
+      .library-demo-card {
+        min-height: 230px;
+      }
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      .library-demo-title,
+      .library-demo-copy {
+        max-width: calc(100% - 7.2rem);
+      }
+
+      .library-demo-art {
+        opacity: .14;
+        transform: none;
+      }
+
+      html[data-theme="dark"] .library-demo-art {
+        opacity: .22;
+      }
+    }
+
     #keep h2 {
       max-width: none;
       margin-bottom: 34px;
@@ -1803,20 +2058,23 @@
         <h2>Create it. Change it. Keep it. Build your library.</h2>
         <p class="lede">Start with an Atlas Original, save your own version of it, create a subject yourself, or build a
           custom Session Subject for one learner.</p>
+
         <div class="ownership-layout">
           <div class="ownership-copy">
             <h3>The material answers to the tutor.</h3>
             <p>Make the material sound, feel and work like you. Rewrite questions, change the framing, swap the cover,
-              save your own version of an Atlas Original, create material for your teaching library, and build custom Session
-              Subjects for any of your learners in seconds.</p>
+              add artwork, save your own version of an Atlas Original, create material for your teaching library, and build
+              custom Session Subjects for any of your learners in seconds.</p>
             <div class="library-line">Atlas is your personal teaching library to create, shape and share with learners.</div>
           </div>
+
           <div>
             <div class="stage-tabs" aria-label="Material state"><button type="button" aria-pressed="true"
                 data-stage="original">Atlas Original</button><button type="button" aria-pressed="false"
                 data-stage="version">My Version</button><button type="button" aria-pressed="false"
                 data-stage="subject">My Subject</button><button type="button" aria-pressed="false"
                 data-stage="session">Session Subject</button></div>
+
             <div class="material-sheet" id="materialSheet" data-stage="original" aria-live="polite">
               <div class="material-head"><span id="materialState">Atlas Original</span><span
                   id="materialMeta">created by Atlas</span></div>
@@ -1827,6 +2085,108 @@
                 <div class="material-note" id="materialNote">A subject created by Atlas.</div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div class="library-authorship-demo">
+          <div class="library-authorship-top">
+            <div class="library-authorship-head">
+              <span class="library-authorship-label">Your teaching library</span>
+              <h3>Give each subject its own identity.</h3>
+            </div>
+
+            <div class="library-demo-controls" aria-label="Browse example subjects">
+              <button class="library-demo-nav" id="libraryDemoPrev" type="button"
+                aria-label="Previous subjects">←</button>
+              <button class="library-demo-nav" id="libraryDemoNext" type="button"
+                aria-label="Next subjects">→</button>
+            </div>
+          </div>
+
+          <div class="library-demo-row" aria-label="Example Compass subjects">
+
+            <article class="library-demo-card" tabindex="0">
+              <div class="library-demo-art" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 140">
+                  <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M48 78V65c0-24 19-43 42-43s42 19 42 43v13"/>
+                    <path d="M48 72c-7 0-12 5-12 12v20c0 7 5 12 12 12h8V72h-8z" fill="currentColor" stroke="none"/>
+                    <path d="M132 72c7 0 12 5 12 12v20c0 7-5 12-12 12h-8V72h8z" fill="currentColor" stroke="none"/>
+                    <rect x="45" y="76" width="16" height="35" rx="8"/>
+                    <rect x="119" y="76" width="16" height="35" rx="8"/>
+                    <path d="M67 121c7 5 15 7 23 7s16-2 23-7"/>
+                    <path d="M28 58c3-9 8-16 15-22" stroke-width="2"/>
+                    <path d="M152 58c-3-9-8-16-15-22" stroke-width="2"/>
+                  </g>
+                </svg>
+              </div>
+
+              <h3 class="library-demo-title">Why Certain Songs Give Us Chills</h3>
+              <p class="library-demo-copy">Explore the moments when music gives us goosebumps, unlocks memories, or hits unexpectedly hard — and what makes certain songs and experiences feel so intense.</p>
+
+              <div class="library-demo-footer">
+                <span class="library-demo-explore">Explore <span aria-hidden="true">→</span></span>
+              </div>
+            </article>
+
+            <article class="library-demo-card" tabindex="0">
+              <div class="library-demo-art" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 140">
+                  <g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 38c12-8 24-8 36 0s24 8 36 0 24-8 36 0 24 8 36 0"/>
+                    <path d="M25 51c10-6 20-6 30 0s20 6 30 0 20-6 30 0 20 6 30 0"/>
+                    <path d="M46 92h88"/>
+                    <path d="M54 92V72l9-9h54l9 9v20"/>
+                    <path d="M56 63l9-13 9 13 9-13 9 13 9-13 9 13"/>
+                    <path d="M65 73v19M81 73v19M99 73v19M115 73v19"/>
+                    <path d="M50 101c14 7 27 7 40 0s26-7 40 0 27 7 40 0"/>
+                    <path d="M31 116c13-6 26-6 39 0s26 6 39 0 26-6 39 0"/>
+                  </g>
+                  <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <circle cx="42" cy="72" r="2.5"/>
+                    <circle cx="139" cy="61" r="3"/>
+                    <circle cx="34" cy="94" r="1.8"/>
+                    <circle cx="148" cy="104" r="2.2"/>
+                  </g>
+                </svg>
+              </div>
+
+              <h3 class="library-demo-title">The City That Vanished Into Myth</h3>
+              <p class="library-demo-copy">Atlantis may never have existed — which only makes the mystery harder to let go. Follow the clues, theories and centuries of searching behind the world’s famous lost city, and explore why the story refuses to disappear.</p>
+
+              <div class="library-demo-footer">
+                <span class="library-demo-explore">Explore <span aria-hidden="true">→</span></span>
+              </div>
+            </article>
+
+            <article class="library-demo-card" tabindex="0">
+              <div class="library-demo-art" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 140">
+                  <g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M43 92V62c0-27 20-45 47-45s47 18 47 45v30"/>
+                    <path d="M36 91c0-5 4-9 9-9h90c5 0 9 4 9 9v10c0 5-4 9-9 9H45c-5 0-9-4-9-9z"/>
+                    <path d="M51 60c0-20 16-34 39-34s39 14 39 34v26H51z"/>
+                    <path d="M61 61c0-14 12-24 29-24s29 10 29 24v12c0 16-12 28-29 28S61 89 61 73z"/>
+                    <path d="M70 68c4-3 8-4 12-4"/>
+                    <path d="M98 64c4 0 8 1 12 4"/>
+                    <path d="M82 78c3 2 7 2 10 0"/>
+                    <path d="M77 91c8 4 18 4 26 0"/>
+                    <path d="M51 60h10M119 60h10"/>
+                    <circle cx="43" cy="91" r="7"/>
+                    <circle cx="137" cy="91" r="7"/>
+                    <path d="M54 110v10M126 110v10M67 120h46"/>
+                  </g>
+                </svg>
+              </div>
+
+              <h3 class="library-demo-title">The First Human Born on Mars</h3>
+              <p class="library-demo-copy">The first person born on Mars would grow up in a world no human has called home. Lower gravity, another sky, and Earth known only through stories could shape everything from their body to their identity.</p>
+
+              <div class="library-demo-footer">
+                <span class="library-demo-explore">Explore <span aria-hidden="true">→</span></span>
+              </div>
+            </article>
+
           </div>
         </div>
       </div>
@@ -2381,6 +2741,60 @@
       });
 
       renderOwnershipStage("original");
+
+      var libraryDemoRow = document.querySelector(".library-demo-row");
+      var libraryDemoPrev = document.getElementById("libraryDemoPrev");
+      var libraryDemoNext = document.getElementById("libraryDemoNext");
+
+      function libraryDemoStep() {
+        if (!libraryDemoRow) return 0;
+
+        var card = libraryDemoRow.querySelector(".library-demo-card");
+        if (!card) return 0;
+
+        var styles = window.getComputedStyle(libraryDemoRow);
+        var gap = parseFloat(styles.columnGap || styles.gap) || 0;
+
+        return card.getBoundingClientRect().width + gap;
+      }
+
+      function syncLibraryDemoControls() {
+        if (!libraryDemoRow || !libraryDemoPrev || !libraryDemoNext) return;
+
+        var maxScroll = Math.max(
+          0,
+          libraryDemoRow.scrollWidth - libraryDemoRow.clientWidth
+        );
+
+        libraryDemoPrev.disabled = libraryDemoRow.scrollLeft <= 4;
+        libraryDemoNext.disabled = libraryDemoRow.scrollLeft >= maxScroll - 4;
+      }
+
+      function moveLibraryDemo(direction) {
+        if (!libraryDemoRow) return;
+
+        libraryDemoRow.scrollBy({
+          left: libraryDemoStep() * direction,
+          behavior: reduceMotion ? "auto" : "smooth"
+        });
+      }
+
+      if (libraryDemoRow && libraryDemoPrev && libraryDemoNext) {
+        libraryDemoPrev.addEventListener("click", function () {
+          moveLibraryDemo(-1);
+        });
+
+        libraryDemoNext.addEventListener("click", function () {
+          moveLibraryDemo(1);
+        });
+
+        libraryDemoRow.addEventListener("scroll", syncLibraryDemoControls, {
+          passive: true
+        });
+
+        window.addEventListener("resize", syncLibraryDemoControls);
+        syncLibraryDemoControls();
+      }
 
       var revealSections = Array.prototype.slice.call(
         document.querySelectorAll(".section > .frame")
