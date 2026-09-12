@@ -18582,6 +18582,11 @@ function renderDiscussionSets() {
 
     container.innerHTML = '';
 
+    container.classList.toggle(
+        'discussion-sets--two',
+        discussionSets.length === 2
+    );
+
     discussionSets.forEach((set, index) => {
         const stage = resolveTutorContentValue(
             set.stage,

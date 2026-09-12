@@ -7006,6 +7006,12 @@ DISCUSSION SETS AND MOMENTS
     margin-bottom: 0;
 }
 
+@media (min-width: 769px) {
+    .discussion-sets.discussion-sets--two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
 .set-card {
     position: relative;
     display: flex;
