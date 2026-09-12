@@ -2728,6 +2728,12 @@
       font-weight: 600;
     }
 
+    .subject-artwork-field-help {
+      color: var(--text-subtle);
+      font-size: 0.72rem;
+      line-height: 1.45;
+    }
+
     .subject-artwork-idea-input {
       width: 100%;
       min-height: 92px;
@@ -6275,11 +6281,6 @@
         id: 'gold',
         label: 'Gold',
         value: '#ba8d45'
-      },
-      {
-        id: 'violet',
-        label: 'Violet',
-        value: '#806ea8'
       }
     ];
 
@@ -6612,6 +6613,16 @@
           'subject-artwork-studio-error'
         );
 
+      const useButton =
+        document.getElementById(
+          'subject-artwork-use'
+        );
+
+      const generateButton =
+        document.getElementById(
+          'subject-artwork-generate'
+        );
+
       subjectArtworkStudioState.idea = idea;
       subjectArtworkStudioState.svg =
         SUBJECT_ARTWORK_TEST_SVG;
@@ -6622,6 +6633,15 @@
       }
 
       renderSubjectArtworkStudioPreview();
+
+      if (useButton) {
+        useButton.disabled = false;
+      }
+
+      if (generateButton) {
+        generateButton.textContent =
+          'Try another';
+      }
     }
 
     async function openSubjectArtworkStudio(
@@ -6734,6 +6754,11 @@
           '#subject-artwork-use'
         );
 
+      const generateButton =
+        backdrop.querySelector(
+          '#subject-artwork-generate'
+        );
+
       const removeButton =
         backdrop.querySelector(
           '#subject-artwork-remove'
@@ -6759,6 +6784,13 @@
       if (useButton) {
         useButton.disabled =
           !existing?.svg;
+      }
+
+      if (generateButton) {
+        generateButton.textContent =
+          existing?.svg
+            ? 'Try another'
+            : 'Generate artwork';
       }
 
       if (removeButton) {
@@ -6811,6 +6843,73 @@
       subjectArtworkStudioReturnFocus = null;
 
       returnFocus?.focus?.();
+    }
+
+    async function removeSubjectArtworkStudio() {
+      const state =
+        subjectArtworkStudioState;
+
+      const Subjects =
+        window.AtlasTutorSubjects;
+
+      if (
+        !state ||
+        !Subjects ||
+        typeof Subjects.updateSubject !==
+          'function'
+      ) {
+        return;
+      }
+
+      const removeButton =
+        document.getElementById(
+          'subject-artwork-remove'
+        );
+
+      const error =
+        document.getElementById(
+          'subject-artwork-studio-error'
+        );
+
+      if (removeButton) {
+        removeButton.disabled = true;
+        removeButton.textContent =
+          'Removing…';
+      }
+
+      try {
+        const saved =
+          await Subjects.updateSubject(
+            state.subjectId,
+            {
+              metadata: {
+                artwork: null
+              }
+            }
+          );
+
+        if (!saved) {
+          throw new Error(
+            'Artwork removal failed.'
+          );
+        }
+
+        closeSubjectArtworkStudio();
+        await renderHub();
+        showToast('Artwork removed.');
+      } catch {
+        if (error) {
+          error.hidden = false;
+          error.textContent =
+            'Couldn’t remove this artwork.';
+        }
+
+        if (removeButton) {
+          removeButton.disabled = false;
+          removeButton.textContent =
+            'Remove artwork';
+        }
+      }
     }
 
     async function saveSubjectArtworkStudio() {
