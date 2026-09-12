@@ -1,0 +1,78 @@
+name: One-time Tutor Layer mobile carousel fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/patch-tutor-carousel.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-tutor-layer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Make mobile teaching-library carousel free-scroll at Compass card size
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('tutors/index.html')
+          text = path.read_text()
+
+          old = '''      .library-demo-row {
+                grid-auto-columns: min(84vw, 350px);
+                gap: 12px;
+                margin-inline: -15px;
+                padding-inline: 15px;
+                padding-bottom: 8px;
+                scroll-padding-inline: 15px;
+              }
+
+              .library-demo-card {
+                min-height: 230px;
+              }
+          '''
+
+          new = '''      .library-demo-row {
+                grid-auto-columns: 446px;
+                gap: 16px;
+                margin-inline: -15px;
+                padding-inline: 15px;
+                padding-bottom: 8px;
+                scroll-padding-inline: 0;
+                scroll-snap-type: none;
+              }
+
+              .library-demo-card {
+                min-height: 230px;
+                scroll-snap-align: none;
+              }
+          '''
+
+          if text.count(old) == 1:
+              path.write_text(text.replace(old, new, 1))
+          elif text.count(new) == 1:
+              print('Tutor Layer mobile carousel already patched.')
+          else:
+              raise SystemExit(
+                  f'Expected one current or patched mobile carousel block; '
+                  f'found old={text.count(old)}, new={text.count(new)}'
+              )
+          PY
+      - name: Validate and commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tutors/index.html
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo "No Tutor Layer change needed."
+            exit 0
+          fi
+          git commit -m "Fix Tutor Layer mobile library carousel"
+          git push origin HEAD:main
