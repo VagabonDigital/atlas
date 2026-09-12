@@ -1924,8 +1924,26 @@ function updateMyVersionAuthorBar() {
 
     if (cancelButton) {
         cancelButton.disabled =
-            myVersionSaving ||
-            enrichmentActive;
+            enrichmentActive
+                ? false
+                : myVersionSaving;
+
+        const cancelDesktopLabel = cancelButton.querySelector(
+            '.atlas-my-version-cancel-desktop'
+        );
+        const cancelMobileLabel = cancelButton.querySelector(
+            '.atlas-my-version-cancel-mobile'
+        );
+
+        if (cancelDesktopLabel) {
+            cancelDesktopLabel.textContent =
+                enrichmentActive ? 'Close' : 'Cancel';
+        }
+
+        if (cancelMobileLabel) {
+            cancelMobileLabel.textContent =
+                enrichmentActive ? 'Close' : 'Exit editing';
+        }
     }
 
     updateCoverActionUI();
@@ -2269,7 +2287,20 @@ function finishMyVersionEditingState() {
 }
 
 async function cancelMyVersionEditing() {
-    if (!myVersionEditing || myVersionSaving) return;
+    if (!myVersionEditing) return;
+
+    const enrichmentActive =
+        myVersionEnrichingDiscussion ||
+        myVersionEnrichingCulturalLens ||
+        myVersionGeneratingFullSubject;
+
+    if (enrichmentActive) {
+        setMyVersionAuthorBarMinimized(true);
+        updateMyVersionAuthorBar();
+        return;
+    }
+
+    if (myVersionSaving) return;
 
     clearMyVersionWorkingDraftSaveTimer();
     myVersionPendingWorkingDraftOverrides = null;
