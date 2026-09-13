@@ -112,7 +112,7 @@ export default {
         ) {
             if (
                 !env.ATLAS_FEEDBACK ||
-                !env.FEEDBACK_ADMIN_KEY
+                !env.ATLAS_ADMIN_PASSWORD
             ) {
                 return json(
                     {
@@ -133,7 +133,7 @@ export default {
 
             if (
                 authorization !==
-                `Bearer ${env.FEEDBACK_ADMIN_KEY}`
+                `Bearer ${env.ATLAS_ADMIN_PASSWORD}`
             ) {
                 return json(
                     {
@@ -226,7 +226,7 @@ export default {
         ) {
             if (
                 !env.ATLAS_FEEDBACK ||
-                !env.FEEDBACK_ADMIN_KEY
+                !env.ATLAS_ADMIN_PASSWORD
             ) {
                 return json(
                     {
@@ -247,7 +247,7 @@ export default {
 
             if (
                 authorization !==
-                `Bearer ${env.FEEDBACK_ADMIN_KEY}`
+                `Bearer ${env.ATLAS_ADMIN_PASSWORD}`
             ) {
                 return json(
                     {
