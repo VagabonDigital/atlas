@@ -1,0 +1,129 @@
+name: Atlas admin batch 2
+
+on:
+  push:
+    branches:
+      - atlas-admin-batch2
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: atlas-admin-batch2
+          fetch-depth: 0
+
+      - name: Require tutor name in feedback
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          path = Path('shared/atlas-feedback.js')
+          source = path.read_text()
+
+          old = '''                        Name (optional)'''
+          if old not in source:
+              raise SystemExit('Feedback name label marker not found.')
+          source = source.replace(old, '''                        Name''', 1)
+
+          old = '''                        autocomplete="name"
+                        placeholder="Your name"
+                    >'''
+          if old not in source:
+              raise SystemExit('Feedback name input marker not found.')
+          source = source.replace(
+              old,
+              '''                        autocomplete="name"
+                        placeholder="Your name"
+                        required
+                    >''',
+              1
+          )
+
+          marker = '''        if (
+            replyEmail &&
+            emailInput &&
+            !emailInput.checkValidity()
+        ) {'''
+          if marker not in source:
+              raise SystemExit('Feedback validation marker not found.')
+
+          validation = '''        if (!replyName) {
+            if (status) {
+                status.textContent =
+                    'Enter your name.';
+            }
+
+            nameInput?.focus();
+            return;
+        }
+
+'''
+          source = source.replace(marker, validation + marker, 1)
+          path.write_text(source)
+          PY
+
+      - name: Require tutor name in worker
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          path = Path('shared/worker.js')
+          source = path.read_text()
+
+          marker = '''                if (
+                    replyEmail &&
+                    !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(
+                        replyEmail
+                    )
+                ) {'''
+          if marker not in source:
+              raise SystemExit('Worker feedback validation marker not found.')
+
+          validation = '''                if (!replyName) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Name is required.'
+                        },
+                        400
+                    );
+                }
+
+'''
+          source = source.replace(marker, validation + marker, 1)
+          path.write_text(source)
+          PY
+
+      - name: Check JavaScript syntax
+        shell: bash
+        run: |
+          node --check shared/atlas-feedback.js
+          node --check shared/worker.js
+          python <<'PY'
+          from pathlib import Path
+          import re
+          html = Path('tutors/admin.html').read_text()
+          match = re.search(r'<script>([\s\S]*?)</script>', html)
+          if not match:
+              raise SystemExit('Admin script not found.')
+          Path('/tmp/admin.js').write_text(match.group(1))
+          PY
+          node --check /tmp/admin.js
+
+      - name: Commit patches
+        shell: bash
+        run: |
+          git config user.name "VagabonDigital"
+          git config user.email "110306810+VagabonDigital@users.noreply.github.com"
+          git add shared/atlas-feedback.js shared/worker.js
+          git diff --cached --quiet && exit 0
+          git commit -m "Complete Atlas admin feedback integration"
+          git push origin HEAD:atlas-admin-batch2
