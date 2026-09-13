@@ -1,0 +1,64 @@
+name: Admin polish
+
+on:
+  push:
+    branches:
+      - admin-polish
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: admin-polish
+          fetch-depth: 0
+
+      - name: Add Atlas favicon and backdrop close
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('tutors/admin.html')
+          source = path.read_text()
+
+          favicon = '''  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20x%3D%275%27%20y%3D%275%27%20width%3D%2790%27%20height%3D%2790%27%20rx%3D%2724%27%20fill%3D%27%233F7FA3%27%2F%3E%3Cpath%20d%3D%27M20%2080V48C20%2028%2033%2015%2050%2015S80%2028%2080%2048V80H65V49C65%2039%2059%2033%2050%2033S35%2039%2035%2049V80Z%27%20fill%3D%27%23FFFFFF%27%2F%3E%3Cpath%20d%3D%27M16%2080H84%27%20stroke%3D%27%23DFF4FC%27%20stroke-width%3D%278%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E">'''
+
+          if 'rel="icon"' not in source:
+              marker = '  <title>Atlas Admin</title>\n'
+              if marker not in source:
+                  raise SystemExit('Admin title marker not found.')
+              source = source.replace(marker, marker + favicon + '\n', 1)
+
+          marker = "    addPilot.addEventListener('click',()=>openPilotDialog(null));pilotForm.addEventListener('submit',savePilot);pilotCancel.addEventListener('click',()=>{pilotDialog.close();editingId=''});pilotDialog.addEventListener('cancel',()=>{editingId=''});\n"
+          if marker not in source:
+              raise SystemExit('Pilot dialog event marker not found.')
+
+          replacement = marker.rstrip('\n') + "pilotDialog.addEventListener('click',e=>{const r=pilotDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom){pilotDialog.close();editingId=''}});\n"
+          source = source.replace(marker, replacement, 1)
+
+          path.write_text(source)
+
+          match = re.search(r'<script>([\\s\\S]*?)</script>', source)
+          if not match:
+              raise SystemExit('Admin script not found.')
+          Path('/tmp/admin.js').write_text(match.group(1))
+          PY
+
+          node --check /tmp/admin.js
+
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "VagabonDigital"
+          git config user.email "110306810+VagabonDigital@users.noreply.github.com"
+          git add tutors/admin.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Polish Atlas admin chrome and modal behavior"
+          git push origin HEAD:admin-polish
