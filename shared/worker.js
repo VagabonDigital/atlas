@@ -676,6 +676,17 @@ export default {
                     );
                 }
 
+                if (!replyName) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Name is required.'
+                        },
+                        400
+                    );
+                }
+
                 if (
                     replyEmail &&
                     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(

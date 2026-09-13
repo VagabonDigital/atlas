@@ -383,7 +383,7 @@
                         class="atlas-feedback-contact-label"
                         for="${IDS.name}"
                     >
-                        Name (optional)
+                        Name
                     </label>
 
                     <input
@@ -393,6 +393,7 @@
                         maxlength="120"
                         autocomplete="name"
                         placeholder="Your name"
+                        required
                     >
                 </div>
 
@@ -591,6 +592,16 @@
             }
 
             textarea?.focus();
+            return;
+        }
+
+        if (!replyName) {
+            if (status) {
+                status.textContent =
+                    'Enter your name.';
+            }
+
+            nameInput?.focus();
             return;
         }
 
