@@ -22,6 +22,12 @@
     const ENDPOINT =
         'https://atlas-ai.savvy989.workers.dev/submit-feedback';
 
+    const OWNER_MODE_KEY =
+        'atlas::ownerMode';
+
+    const ADMIN_URL =
+        './tutors/admin.html';
+
     const IDS = {
         overlay: 'atlas-feedback-overlay',
         textarea: 'atlas-feedback-message',
@@ -707,6 +713,79 @@
         }
     }
 
+    function bindOwnerAdminEntry() {
+        if (
+            document.body?.dataset?.atlasWorld !==
+            'atlas'
+        ) {
+            return;
+        }
+
+        let ownerMode = false;
+
+        try {
+            const value =
+                localStorage.getItem(
+                    OWNER_MODE_KEY
+                );
+
+            ownerMode =
+                value === 'true' ||
+                value === '1';
+        } catch {
+            ownerMode = false;
+        }
+
+        if (!ownerMode) return;
+
+        document
+            .querySelectorAll(
+                '.spine-mark, .mobile-header-mark'
+            )
+            .forEach(mark => {
+                mark.style.cursor = 'pointer';
+                mark.setAttribute(
+                    'role',
+                    'link'
+                );
+                mark.setAttribute(
+                    'tabindex',
+                    '0'
+                );
+                mark.setAttribute(
+                    'aria-label',
+                    'Open Atlas Admin'
+                );
+                mark.setAttribute(
+                    'title',
+                    'Atlas Admin'
+                );
+
+                const openAdmin = () => {
+                    window.location.href =
+                        ADMIN_URL;
+                };
+
+                mark.addEventListener(
+                    'click',
+                    openAdmin
+                );
+
+                mark.addEventListener(
+                    'keydown',
+                    event => {
+                        if (
+                            event.key === 'Enter' ||
+                            event.key === ' '
+                        ) {
+                            event.preventDefault();
+                            openAdmin();
+                        }
+                    }
+                );
+            });
+    }
+
     function bindFeedbackButtons() {
         document.addEventListener(
             'click',
@@ -747,6 +826,7 @@
     function start() {
         installStyles();
         mountOverlay();
+        bindOwnerAdminEntry();
         bindFeedbackButtons();
 
         document.addEventListener(
