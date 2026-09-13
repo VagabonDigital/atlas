@@ -1,0 +1,423 @@
+name: Pilot worker batch 1
+
+on:
+  push:
+    branches:
+      - pilot-worker-batch1
+
+permissions:
+  contents: write
+
+jobs:
+  patch-worker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: pilot-worker-batch1
+
+      - name: Add persistent pilot API
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          path = Path('shared/worker.js')
+          source = path.read_text()
+
+          if "url.pathname === '/pilot'" in source:
+              raise SystemExit('Pilot route already exists; refusing to patch twice.')
+
+          marker = "        const supportedPostPaths =\n"
+          if marker not in source:
+              raise SystemExit('Worker insertion marker not found.')
+
+          block = r'''        if (
+            [
+                'GET',
+                'POST',
+                'DELETE'
+            ].includes(request.method) &&
+            url.pathname === '/pilot'
+        ) {
+            if (
+                !env.ATLAS_FEEDBACK ||
+                !env.FEEDBACK_ADMIN_KEY
+            ) {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'Pilot admin access is not configured.'
+                    },
+                    503
+                );
+            }
+
+            const authorization =
+                String(
+                    request.headers.get(
+                        'Authorization'
+                    ) || ''
+                ).trim();
+
+            if (
+                authorization !==
+                `Bearer ${env.FEEDBACK_ADMIN_KEY}`
+            ) {
+                return json(
+                    {
+                        ok: false,
+                        error: 'Unauthorized.'
+                    },
+                    401
+                );
+            }
+
+            const allowedPilotStatuses =
+                new Set([
+                    'Candidate',
+                    'Contacted',
+                    'Replied',
+                    'Interested',
+                    'Confirmed',
+                    'Archived'
+                ]);
+
+            const cleanPilotText =
+                (
+                    value,
+                    maxLength
+                ) =>
+                    String(value || '')
+                        .trim()
+                        .slice(0, maxLength);
+
+            const cleanPilotDate =
+                value => {
+                    const candidate =
+                        cleanPilotText(
+                            value,
+                            10
+                        );
+
+                    return /^\d{4}-\d{2}-\d{2}$/.test(
+                        candidate
+                    )
+                        ? candidate
+                        : '';
+                };
+
+            if (request.method === 'DELETE') {
+                const id =
+                    cleanPilotText(
+                        url.searchParams.get('id'),
+                        160
+                    );
+
+                if (
+                    !id ||
+                    !/^[A-Za-z0-9_-]+$/.test(id)
+                ) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Pilot record identifier is required.'
+                        },
+                        400
+                    );
+                }
+
+                await env.ATLAS_FEEDBACK.delete(
+                    `pilot:${id}`
+                );
+
+                return json({
+                    ok: true
+                });
+            }
+
+            if (request.method === 'GET') {
+                const listed =
+                    await env.ATLAS_FEEDBACK.list({
+                        prefix: 'pilot:',
+                        limit: 1000
+                    });
+
+                const pilot =
+                    (
+                        await Promise.all(
+                            (listed.keys || [])
+                                .map(item =>
+                                    env.ATLAS_FEEDBACK.get(
+                                        item.name,
+                                        'json'
+                                    )
+                                )
+                        )
+                    )
+                        .filter(Boolean)
+                        .sort((a, b) =>
+                            String(
+                                b?.updatedAt ||
+                                b?.createdAt ||
+                                ''
+                            ).localeCompare(
+                                String(
+                                    a?.updatedAt ||
+                                    a?.createdAt ||
+                                    ''
+                                )
+                            )
+                        );
+
+                return json({
+                    ok: true,
+                    pilot
+                });
+            }
+
+            let body = null;
+
+            try {
+                body = await request.json();
+            } catch {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'A valid pilot record is required.'
+                    },
+                    400
+                );
+            }
+
+            const requestedId =
+                cleanPilotText(
+                    body?.id,
+                    160
+                );
+
+            if (
+                requestedId &&
+                !/^[A-Za-z0-9_-]+$/.test(
+                    requestedId
+                )
+            ) {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'Pilot record identifier is invalid.'
+                    },
+                    400
+                );
+            }
+
+            const id =
+                requestedId ||
+                (
+                    typeof crypto.randomUUID ===
+                        'function'
+                        ? crypto.randomUUID()
+                        : `${Date.now()}-${Math.random()
+                            .toString(36)
+                            .slice(2, 10)}`
+                );
+
+            const key =
+                `pilot:${id}`;
+
+            const existing =
+                await env.ATLAS_FEEDBACK.get(
+                    key,
+                    'json'
+                );
+
+            const name =
+                cleanPilotText(
+                    body?.name,
+                    160
+                );
+
+            if (!name) {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'Candidate name is required.'
+                    },
+                    400
+                );
+            }
+
+            const requestedStatus =
+                cleanPilotText(
+                    body?.status,
+                    40
+                );
+
+            const pilotStatus =
+                allowedPilotStatuses.has(
+                    requestedStatus
+                )
+                    ? requestedStatus
+                    : 'Candidate';
+
+            const email =
+                cleanPilotText(
+                    body?.email,
+                    320
+                );
+
+            if (
+                email &&
+                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                    email
+                )
+            ) {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'Candidate email is invalid.'
+                    },
+                    400
+                );
+            }
+
+            const websiteCandidate =
+                cleanPilotText(
+                    body?.website,
+                    2000
+                );
+
+            let website = '';
+
+            if (websiteCandidate) {
+                try {
+                    const parsedWebsite =
+                        new URL(
+                            websiteCandidate
+                        );
+
+                    if (
+                        parsedWebsite.protocol !== 'https:' &&
+                        parsedWebsite.protocol !== 'http:'
+                    ) {
+                        throw new Error(
+                            'Unsupported protocol.'
+                        );
+                    }
+
+                    website =
+                        parsedWebsite.href;
+                } catch {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Candidate website is invalid.'
+                        },
+                        400
+                    );
+                }
+            }
+
+            const now =
+                new Date().toISOString();
+
+            const record = {
+                id,
+                name,
+                status:
+                    pilotStatus,
+                website,
+                email,
+
+                location:
+                    cleanPilotText(
+                        body?.location,
+                        160
+                    ),
+
+                source:
+                    cleanPilotText(
+                        body?.source,
+                        120
+                    ),
+
+                why:
+                    cleanPilotText(
+                        body?.why,
+                        3000
+                    ),
+
+                lastContact:
+                    cleanPilotDate(
+                        body?.lastContact
+                    ),
+
+                nextAction:
+                    cleanPilotText(
+                        body?.nextAction,
+                        500
+                    ),
+
+                nextActionDate:
+                    cleanPilotDate(
+                        body?.nextActionDate
+                    ),
+
+                notes:
+                    cleanPilotText(
+                        body?.notes,
+                        8000
+                    ),
+
+                usedInRealLesson:
+                    body?.usedInRealLesson ===
+                    true,
+
+                feedbackReceived:
+                    body?.feedbackReceived ===
+                    true,
+
+                createdAt:
+                    String(
+                        existing?.createdAt ||
+                        now
+                    ),
+
+                updatedAt:
+                    now
+            };
+
+            await env.ATLAS_FEEDBACK.put(
+                key,
+                JSON.stringify(record)
+            );
+
+            return json({
+                ok: true,
+                pilot: record
+            });
+        }'''
+
+          source = source.replace(marker, block + "\n\n" + marker, 1)
+          path.write_text(source)
+          PY
+
+      - name: Check worker syntax
+        run: node --check shared/worker.js
+
+      - name: Commit worker patch
+        shell: bash
+        run: |
+          git config user.name "Atlas automation"
+          git config user.email "actions@users.noreply.github.com"
+          git rm .github/workflows/pilot-worker-batch1.yml
+          git add shared/worker.js
+          git commit -m "Add persistent pilot admin API"
+          git push origin HEAD:pilot-worker-batch1
