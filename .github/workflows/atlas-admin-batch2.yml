@@ -17,97 +17,18 @@ jobs:
           ref: atlas-admin-batch2
           fetch-depth: 0
 
-      - name: Require tutor name in feedback
+      - name: Patch feedback and worker
         shell: bash
         run: |
-          python <<'PY'
-          from pathlib import Path
-
-          path = Path('shared/atlas-feedback.js')
-          source = path.read_text()
-
-          old = '''                        Name (optional)'''
-          if old not in source:
-              raise SystemExit('Feedback name label marker not found.')
-          source = source.replace(old, '''                        Name''', 1)
-
-          old = '''                        autocomplete="name"
-                        placeholder="Your name"
-                    >'''
-          if old not in source:
-              raise SystemExit('Feedback name input marker not found.')
-          source = source.replace(
-              old,
-              '''                        autocomplete="name"
-                        placeholder="Your name"
-                        required
-                    >''',
-              1
-          )
-
-          marker = '''        if (
-            replyEmail &&
-            emailInput &&
-            !emailInput.checkValidity()
-        ) {'''
-          if marker not in source:
-              raise SystemExit('Feedback validation marker not found.')
-
-          validation = '''        if (!replyName) {
-            if (status) {
-                status.textContent =
-                    'Enter your name.';
-            }
-
-            nameInput?.focus();
-            return;
-        }
-
-'''
-          source = source.replace(marker, validation + marker, 1)
-          path.write_text(source)
-          PY
-
-      - name: Require tutor name in worker
-        shell: bash
-        run: |
-          python <<'PY'
-          from pathlib import Path
-
-          path = Path('shared/worker.js')
-          source = path.read_text()
-
-          marker = '''                if (
-                    replyEmail &&
-                    !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(
-                        replyEmail
-                    )
-                ) {'''
-          if marker not in source:
-              raise SystemExit('Worker feedback validation marker not found.')
-
-          validation = '''                if (!replyName) {
-                    return json(
-                        {
-                            ok: false,
-                            error:
-                                'Name is required.'
-                        },
-                        400
-                    );
-                }
-
-'''
-          source = source.replace(marker, validation + marker, 1)
-          path.write_text(source)
-          PY
+          echo 'ZnJvbSBwYXRobGliIGltcG9ydCBQYXRoCgpmZWVkYmFjayA9IFBhdGgoJ3NoYXJlZC9hdGxhcy1mZWVkYmFjay5qcycpCnNvdXJjZSA9IGZlZWRiYWNrLnJlYWRfdGV4dCgpCm9sZCA9ICcgICAgICAgICAgICAgICAgICAgICAgICBOYW1lIChvcHRpb25hbCknCmlmIG9sZCBub3QgaW4gc291cmNlOgogICAgcmFpc2UgU3lzdGVtRXhpdCgnRmVlZGJhY2sgbmFtZSBsYWJlbCBtYXJrZXIgbm90IGZvdW5kLicpCnNvdXJjZSA9IHNvdXJjZS5yZXBsYWNlKG9sZCwgJyAgICAgICAgICAgICAgICAgICAgICAgIE5hbWUnLCAxKQpvbGQgPSAiIiIgICAgICAgICAgICAgICAgICAgICAgICBhdXRvY29tcGxldGU9Im5hbWUiCiAgICAgICAgICAgICAgICAgICAgICAgIHBsYWNlaG9sZGVyPSJZb3VyIG5hbWUiCiAgICAgICAgICAgICAgICAgICAgPiIiIgppZiBvbGQgbm90IGluIHNvdXJjZToKICAgIHJhaXNlIFN5c3RlbUV4aXQoJ0ZlZWRiYWNrIG5hbWUgaW5wdXQgbWFya2VyIG5vdCBmb3VuZC4nKQpzb3VyY2UgPSBzb3VyY2UucmVwbGFjZShvbGQsICIiIiAgICAgICAgICAgICAgICAgICAgICAgIGF1dG9jb21wbGV0ZT0ibmFtZSIKICAgICAgICAgICAgICAgICAgICAgICAgcGxhY2Vob2xkZXI9IllvdXIgbmFtZSIKICAgICAgICAgICAgICAgICAgICAgICAgcmVxdWlyZWQKICAgICAgICAgICAgICAgICAgICA+IiIiLCAxKQptYXJrZXIgPSAiIiIgICAgICAgIGlmICgKICAgICAgICAgICAgcmVwbHlFbWFpbCAmJgogICAgICAgICAgICBlbWFpbElucHV0ICYmCiAgICAgICAgICAgICFlbWFpbElucHV0LmNoZWNrVmFsaWRpdHkoKQogICAgICAgICkgeyIiIgppZiBtYXJrZXIgbm90IGluIHNvdXJjZToKICAgIHJhaXNlIFN5c3RlbUV4aXQoJ0ZlZWRiYWNrIHZhbGlkYXRpb24gbWFya2VyIG5vdCBmb3VuZC4nKQp2YWxpZGF0aW9uID0gIiIiICAgICAgICBpZiAoIXJlcGx5TmFtZSkgewogICAgICAgICAgICBpZiAoc3RhdHVzKSB7CiAgICAgICAgICAgICAgICBzdGF0dXMudGV4dENvbnRlbnQgPQogICAgICAgICAgICAgICAgICAgICdFbnRlciB5b3VyIG5hbWUuJzsKICAgICAgICAgICAgfQoKICAgICAgICAgICAgbmFtZUlucHV0Py5mb2N1cygpOwogICAgICAgICAgICByZXR1cm47CiAgICAgICAgfQoKIiIiCnNvdXJjZSA9IHNvdXJjZS5yZXBsYWNlKG1hcmtlciwgdmFsaWRhdGlvbiArIG1hcmtlciwgMSkKZmVlZGJhY2sud3JpdGVfdGV4dChzb3VyY2UpCgp3b3JrZXIgPSBQYXRoKCdzaGFyZWQvd29ya2VyLmpzJykKc291cmNlID0gd29ya2VyLnJlYWRfdGV4dCgpCm1hcmtlciA9ICIiIiAgICAgICAgICAgICAgICBpZiAoCiAgICAgICAgICAgICAgICAgICAgcmVwbHlFbWFpbCAmJgogICAgICAgICAgICAgICAgICAgICEvXlteXHNAXStAW15cc0BdK1wuW15cc0BdKyQvLnRlc3QoCiAgICAgICAgICAgICAgICAgICAgICAgIHJlcGx5RW1haWwKICAgICAgICAgICAgICAgICAgICApCiAgICAgICAgICAgICAgICApIHsiIiIKaWYgbWFya2VyIG5vdCBpbiBzb3VyY2U6CiAgICByYWlzZSBTeXN0ZW1FeGl0KCdXb3JrZXIgZmVlZGJhY2sgdmFsaWRhdGlvbiBtYXJrZXIgbm90IGZvdW5kLicpCnZhbGlkYXRpb24gPSAiIiIgICAgICAgICAgICAgICAgaWYgKCFyZXBseU5hbWUpIHsKICAgICAgICAgICAgICAgICAgICByZXR1cm4ganNvbigKICAgICAgICAgICAgICAgICAgICAgICAgewogICAgICAgICAgICAgICAgICAgICAgICAgICAgb2s6IGZhbHNlLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgZXJyb3I6CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJ05hbWUgaXMgcmVxdWlyZWQuJwogICAgICAgICAgICAgICAgICAgICAgICB9LAogICAgICAgICAgICAgICAgICAgICAgICA0MDAKICAgICAgICAgICAgICAgICAgICApOwogICAgICAgICAgICAgICAgfQoKIiIiCnNvdXJjZSA9IHNvdXJjZS5yZXBsYWNlKG1hcmtlciwgdmFsaWRhdGlvbiArIG1hcmtlciwgMSkKd29ya2VyLndyaXRlX3RleHQoc291cmNlKQo=' | base64 -d > /tmp/patch.py
+          python /tmp/patch.py
 
       - name: Check JavaScript syntax
         shell: bash
         run: |
           node --check shared/atlas-feedback.js
           node --check shared/worker.js
-          python <<'PY'
+          python - <<'PY'
           from pathlib import Path
           import re
           html = Path('tutors/admin.html').read_text()
