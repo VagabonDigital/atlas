@@ -22,159 +22,11 @@
         'atlas-undo-toast-style';
     const ARCHIVE_UNDO_DURATION = 7000;
     const DELETE_UNDO_DURATION = 7000;
-    const PENDING_DELETE_PREFIX =
-        'atlas::tutorSubjects::pendingDelete::';
     let hubToastTimer = null;
-    const pendingDeleteTimers = new Map();
 
     function normalizeRegistryId(value) {
         const id = String(value || '').trim();
         return id.startsWith('compass:') ? id : '';
-    }
-
-    function pendingDeleteStorageKey(subjectId) {
-        return `${PENDING_DELETE_PREFIX}${encodeURIComponent(
-            String(subjectId || '').trim()
-        )}`;
-    }
-
-    function normalizePendingDeleteRecord(value) {
-        if (
-            !value ||
-            typeof value !== 'object' ||
-            Array.isArray(value)
-        ) {
-            return null;
-        }
-
-        const subjectId = String(
-            value.subjectId || ''
-        ).trim();
-        const createdAt = Number(value.createdAt);
-        const deleteAt = Number(value.deleteAt);
-
-        if (
-            !subjectId ||
-            !Number.isFinite(createdAt) ||
-            !Number.isFinite(deleteAt) ||
-            deleteAt < createdAt
-        ) {
-            return null;
-        }
-
-        return {
-            subjectId,
-            createdAt,
-            deleteAt
-        };
-    }
-
-    function readPendingDeleteRecord(subjectId) {
-        const id = String(subjectId || '').trim();
-        if (!id) return null;
-
-        try {
-            const raw = localStorage.getItem(
-                pendingDeleteStorageKey(id)
-            );
-
-            if (!raw) return null;
-
-            const record = normalizePendingDeleteRecord(
-                JSON.parse(raw)
-            );
-
-            if (!record || record.subjectId !== id) {
-                localStorage.removeItem(
-                    pendingDeleteStorageKey(id)
-                );
-                return null;
-            }
-
-            return record;
-        } catch {
-            return null;
-        }
-    }
-
-    function listPendingDeleteRecords() {
-        const records = [];
-
-        try {
-            for (
-                let index = 0;
-                index < localStorage.length;
-                index += 1
-            ) {
-                const key = localStorage.key(index);
-
-                if (
-                    !key ||
-                    !key.startsWith(PENDING_DELETE_PREFIX)
-                ) {
-                    continue;
-                }
-
-                const raw = localStorage.getItem(key);
-                let record = null;
-
-                try {
-                    record = normalizePendingDeleteRecord(
-                        raw ? JSON.parse(raw) : null
-                    );
-                } catch { }
-
-                if (!record) {
-                    localStorage.removeItem(key);
-                    index -= 1;
-                    continue;
-                }
-
-                records.push(record);
-            }
-        } catch { }
-
-        return records.sort(
-            (left, right) =>
-                left.createdAt - right.createdAt
-        );
-    }
-
-    function writePendingDeleteRecord(subjectId) {
-        const id = String(subjectId || '').trim();
-        if (!id) return null;
-
-        const createdAt = Date.now();
-        const record = {
-            subjectId: id,
-            createdAt,
-            deleteAt:
-                createdAt + DELETE_UNDO_DURATION
-        };
-
-        try {
-            localStorage.setItem(
-                pendingDeleteStorageKey(id),
-                JSON.stringify(record)
-            );
-            return record;
-        } catch {
-            return null;
-        }
-    }
-
-    function clearPendingDeleteRecord(subjectId) {
-        const id = String(subjectId || '').trim();
-        if (!id) return false;
-
-        try {
-            localStorage.removeItem(
-                pendingDeleteStorageKey(id)
-            );
-            return true;
-        } catch {
-            return false;
-        }
     }
 
     function normalizeOrder(value) {
@@ -791,16 +643,8 @@
         const originalOpenAtlasOriginalDeleteDialog =
             window.openAtlasOriginalDeleteDialog;
         const Subjects = window.AtlasTutorSubjects;
-        const originalGetSubject =
-            Subjects?.getSubject?.bind(Subjects);
-        const originalListSubjects =
-            Subjects?.listSubjects?.bind(Subjects);
         const originalDeleteSubject =
             Subjects?.deleteSubject?.bind(Subjects);
-        const originalExportPortableData =
-            Subjects?.exportPortableData?.bind(Subjects);
-        const originalRestorePortableData =
-            Subjects?.restorePortableData?.bind(Subjects);
         let pendingOwnedArchiveId = '';
         let pendingAtlasArchive = null;
         let openedOwnedDeleteSubjectId = '';
@@ -825,140 +669,44 @@
             } catch { }
         }
 
-        function clearPendingDeleteTimer(subjectId) {
-            const id = String(subjectId || '').trim();
-            const timer = pendingDeleteTimers.get(id);
-
-            if (timer) {
-                clearTimeout(timer);
-            }
-
-            pendingDeleteTimers.delete(id);
-        }
-
-        async function finalizeOwnedSubjectDelete(subjectId) {
-            const id = String(subjectId || '').trim();
-            const record = readPendingDeleteRecord(id);
-
-            if (!id || !record || !originalDeleteSubject) {
-                clearPendingDeleteTimer(id);
-                return false;
-            }
-
-            const remaining =
-                record.deleteAt - Date.now();
-
-            if (remaining > 0) {
-                schedulePendingDelete(record);
-                return false;
-            }
-
-            clearPendingDeleteTimer(id);
-
-            try {
-                const deleted =
-                    await originalDeleteSubject(id);
-
-                if (!deleted) {
-                    const stillExists = originalGetSubject
-                        ? await originalGetSubject(id)
-                        : null;
-
-                    if (stillExists) {
-                        schedulePendingDelete({
-                            ...record,
-                            deleteAt: Date.now() + 1000
-                        });
-                        return false;
-                    }
-                }
-
-                clearPendingDeleteRecord(id);
-                removeOwnedSubjectRegistryProjection(id);
-                await window.renderHub();
-                return true;
-            } catch (error) {
-                console.error(
-                    '[Compass Hub] Pending subject deletion failed:',
-                    error
-                );
-
-                schedulePendingDelete({
-                    ...record,
-                    deleteAt: Date.now() + 1000
-                });
-                return false;
-            }
-        }
-
-        function schedulePendingDelete(record) {
-            const normalized =
-                normalizePendingDeleteRecord(record);
-
-            if (!normalized) return;
-
-            clearPendingDeleteTimer(
-                normalized.subjectId
-            );
-
-            const delay = Math.max(
-                0,
-                normalized.deleteAt - Date.now()
-            );
-
-            const timer = setTimeout(
-                () => {
-                    void finalizeOwnedSubjectDelete(
-                        normalized.subjectId
-                    );
-                },
-                delay
-            );
-
-            pendingDeleteTimers.set(
-                normalized.subjectId,
-                timer
-            );
-        }
-
         async function beginOwnedSubjectDelete(subjectId) {
             const id = String(subjectId || '').trim();
 
-            if (!id || !originalGetSubject) {
+            if (
+                !id ||
+                !Subjects ||
+                typeof Subjects.beginPendingDelete !== 'function'
+            ) {
                 return false;
             }
 
-            const subject = await originalGetSubject(id);
-            if (!subject) return false;
+            const record =
+                await Subjects.beginPendingDelete(
+                    id,
+                    DELETE_UNDO_DURATION
+                );
 
-            const record = writePendingDeleteRecord(id);
             if (!record) return false;
 
             pendingOwnedDeleteToastId = id;
             removeOwnedSubjectRegistryProjection(id);
-            schedulePendingDelete(record);
             return true;
         }
 
         async function undoOwnedSubjectDelete(subjectId) {
-            const id = String(subjectId || '').trim();
-            const record = readPendingDeleteRecord(id);
-
-            if (!id || !record || !originalGetSubject) {
+            if (
+                !Subjects ||
+                typeof Subjects.cancelPendingDelete !== 'function'
+            ) {
                 throw new Error(
                     'Subject deletion can no longer be undone.'
                 );
             }
 
-            clearPendingDeleteTimer(id);
-
-            if (!clearPendingDeleteRecord(id)) {
-                throw new Error(
-                    'Couldn’t clear the pending deletion.'
+            const subject =
+                await Subjects.cancelPendingDelete(
+                    subjectId
                 );
-            }
-
-            const subject = await originalGetSubject(id);
 
             if (!subject) {
                 throw new Error(
@@ -975,55 +723,48 @@
         }
 
         async function reconcilePendingDeletes() {
-            if (!originalGetSubject) return;
-
-            const active = [];
-
-            for (
-                const record of listPendingDeleteRecords()
+            if (
+                !Subjects ||
+                typeof Subjects.reconcilePendingDeletes !== 'function'
             ) {
-                const subject =
-                    await originalGetSubject(
-                        record.subjectId
-                    );
-
-                if (!subject) {
-                    clearPendingDeleteRecord(
-                        record.subjectId
-                    );
-                    clearPendingDeleteTimer(
-                        record.subjectId
-                    );
-                    continue;
-                }
-
-                removeOwnedSubjectRegistryProjection(
-                    record.subjectId
-                );
-
-                if (record.deleteAt <= Date.now()) {
-                    await finalizeOwnedSubjectDelete(
-                        record.subjectId
-                    );
-                    continue;
-                }
-
-                active.push(record);
-                schedulePendingDelete(record);
+                return;
             }
 
-            if (!active.length) return;
+            const result =
+                await Subjects.reconcilePendingDeletes();
+            const pending =
+                Array.isArray(result?.pending)
+                    ? result.pending
+                    : [];
+            const finalized =
+                Array.isArray(result?.finalized)
+                    ? result.finalized
+                    : [];
 
-            const latest = active
+            finalized.forEach(subjectId =>
+                removeOwnedSubjectRegistryProjection(
+                    subjectId
+                )
+            );
+
+            pending.forEach(record =>
+                removeOwnedSubjectRegistryProjection(
+                    record.subjectId
+                )
+            );
+
+            if (!pending.length) return;
+
+            const latest = pending
                 .slice()
                 .sort(
                     (left, right) =>
-                        right.createdAt - left.createdAt
+                        Number(right.createdAt || 0) -
+                        Number(left.createdAt || 0)
                 )[0];
-
             const remaining = Math.max(
                 1000,
-                latest.deleteAt - Date.now()
+                Number(latest.deleteAt || 0) - Date.now()
             );
 
             showHubToast(
@@ -1041,39 +782,8 @@
 
         if (
             Subjects &&
-            originalGetSubject &&
-            originalListSubjects &&
             originalDeleteSubject
         ) {
-            Subjects.getSubject = async function (
-                subjectId,
-                ...args
-            ) {
-                const id = String(subjectId || '').trim();
-
-                if (id && readPendingDeleteRecord(id)) {
-                    return null;
-                }
-
-                return originalGetSubject(
-                    subjectId,
-                    ...args
-                );
-            };
-
-            Subjects.listSubjects = async function (...args) {
-                const subjects =
-                    await originalListSubjects(...args);
-                const pendingIds = new Set(
-                    listPendingDeleteRecords()
-                        .map(record => record.subjectId)
-                );
-
-                return subjects.filter(subject =>
-                    !pendingIds.has(subject?.id)
-                );
-            };
-
             Subjects.deleteSubject = async function (
                 subjectId,
                 ...args
@@ -1093,100 +803,6 @@
                     ...args
                 );
             };
-        }
-
-        if (
-            Subjects &&
-            originalExportPortableData
-        ) {
-            Subjects.exportPortableData =
-                async function (...args) {
-                    const data =
-                        await originalExportPortableData(
-                            ...args
-                        );
-                    const pendingIds = new Set(
-                        listPendingDeleteRecords()
-                            .map(record => record.subjectId)
-                    );
-
-                    if (!pendingIds.size) {
-                        return data;
-                    }
-
-                    const sessionSubjects =
-                        Object.fromEntries(
-                            Object.entries(
-                                data.sessionSubjects || {}
-                            ).map(([sessionId, refs]) => [
-                                sessionId,
-                                (Array.isArray(refs) ? refs : [])
-                                    .filter(ref =>
-                                        !(
-                                            ref?.kind === 'my-subject' &&
-                                            pendingIds.has(ref.id)
-                                        )
-                                    )
-                            ])
-                        );
-
-                    const librarySubjects =
-                        Object.fromEntries(
-                            Object.entries(
-                                data.library?.subjects || {}
-                            ).filter(([subjectId]) =>
-                                !pendingIds.has(subjectId)
-                            )
-                        );
-
-                    return {
-                        ...data,
-                        subjects:
-                            (data.subjects || [])
-                                .filter(subject =>
-                                    !pendingIds.has(subject?.id)
-                                ),
-                        workingDrafts:
-                            (data.workingDrafts || [])
-                                .filter(draft =>
-                                    !pendingIds.has(
-                                        draft?.subjectId
-                                    )
-                                ),
-                        order:
-                            (data.order || [])
-                                .filter(subjectId =>
-                                    !pendingIds.has(subjectId)
-                                ),
-                        sessionSubjects,
-                        library: {
-                            ...data.library,
-                            subjects: librarySubjects
-                        }
-                    };
-                };
-        }
-
-        if (
-            Subjects &&
-            originalRestorePortableData
-        ) {
-            Subjects.restorePortableData =
-                async function (...args) {
-                    listPendingDeleteRecords()
-                        .forEach(record => {
-                            clearPendingDeleteTimer(
-                                record.subjectId
-                            );
-                            clearPendingDeleteRecord(
-                                record.subjectId
-                            );
-                        });
-
-                    return originalRestorePortableData(
-                        ...args
-                    );
-                };
         }
 
         if (
@@ -1407,28 +1023,31 @@
                 const subjectId =
                     pendingOwnedDeleteToastId;
                 pendingOwnedDeleteToastId = '';
-                const record =
-                    readPendingDeleteRecord(subjectId);
 
-                if (!record) {
-                    showHubToast(message, options);
-                    return;
-                }
-
-                showHubToast(
-                    'Subject deleted.',
-                    {
-                        duration: Math.max(
-                            1000,
-                            record.deleteAt - Date.now()
-                        ),
-                        actionLabel: 'Undo',
-                        action: () =>
-                            undoOwnedSubjectDelete(
-                                subjectId
-                            )
+                Promise.resolve(
+                    Subjects?.getPendingDelete?.(subjectId)
+                ).then(record => {
+                    if (!record) {
+                        showHubToast(message, options);
+                        return;
                     }
-                );
+
+                    showHubToast(
+                        'Subject deleted.',
+                        {
+                            duration: Math.max(
+                                1000,
+                                Number(record.deleteAt || 0) -
+                                    Date.now()
+                            ),
+                            actionLabel: 'Undo',
+                            action: () =>
+                                undoOwnedSubjectDelete(
+                                    subjectId
+                                )
+                        }
+                    );
+                });
                 return;
             }
 
