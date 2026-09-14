@@ -2,9 +2,10 @@
    COMPASS GENERATION RECOVERY
    Bounded self-healing for owned-subject background generation.
 
-   Full-subject construction already checkpoints each completed step.
-   This layer turns those checkpoints into in-page recovery so a
-   transient generation failure does not become a tutor problem.
+   Full-subject construction checkpoints each completed step. This layer
+   treats the persisted checkpoint itself as the recovery signal: if a
+   build exists and no generator is active, Compass can continue it
+   without waiting for an error string to appear first.
 
    Does NOT own:
    - generated content
@@ -24,6 +25,7 @@
     let runtimeInstalled = false;
     let recoveryTimer = null;
     let recoveryCheckQueued = false;
+    let recoveryWakeRequested = false;
     let recoveryStepKey = '';
     let recoveryAttemptsAtStep = 0;
     let recoveryPending = false;
@@ -122,6 +124,7 @@
 
     function resetRecoveryState() {
         clearRecoveryTimer();
+        recoveryWakeRequested = false;
         recoveryStepKey = '';
         recoveryAttemptsAtStep = 0;
         recoveryPending = false;
@@ -179,10 +182,9 @@
     }
 
     /*
-     * A generated section is applied before its checkpoint is saved.
-     * If persistence itself was the thing that failed, retrying the
-     * section could duplicate structural content. Re-attempt that latest
-     * checkpoint first so recovery resumes after the already-applied work.
+     * A generated mutation can land in memory immediately before a storage
+     * failure. Retry that exact checkpoint before regenerating the step so
+     * structural content cannot be duplicated.
      */
     async function repairLatestCheckpoint(state) {
         if (
@@ -233,7 +235,11 @@
         );
     }
 
-    function queueRecoveryCheck() {
+    function queueRecoveryCheck({ wake = false } = {}) {
+        if (wake) {
+            recoveryWakeRequested = true;
+        }
+
         if (recoveryCheckQueued) return;
 
         recoveryCheckQueued = true;
@@ -263,31 +269,16 @@
 
         if (!isRecoveryEligible()) return;
 
-        const failedAt = getFailedStageLabel();
+        let state = await readBuildState();
+        state = await repairLatestCheckpoint(state);
 
-        if (!failedAt) {
-            if (
-                !myVersionGeneratingFullSubject &&
-                !myVersionFullSubjectGenerationError &&
-                recoveryTimer === null
-            ) {
-                resetRecoveryState();
-            }
+        if (!state) {
+            resetRecoveryState();
             return;
         }
 
         recoveryPending = true;
         showRetryButton(false);
-
-        if (recoveryTimer !== null) return;
-
-        let state = await readBuildState();
-        state = await repairLatestCheckpoint(state);
-
-        if (!state) {
-            showRetryButton(true);
-            return;
-        }
 
         const completedStep = Math.max(
             0,
@@ -307,10 +298,17 @@
             return;
         }
 
+        if (recoveryTimer !== null) return;
+
+        const failedAt =
+            getFailedStageLabel() ||
+            'this step';
+
         if (
             recoveryAttemptsAtStep >=
             FULL_SUBJECT_RECOVERY_DELAYS_MS.length
         ) {
+            recoveryWakeRequested = false;
             recoveryPending = false;
             setRecoveryStatus(
                 `Generation paused at ${failedAt}. Your work is saved — Atlas already retried automatically.`
@@ -320,9 +318,13 @@
         }
 
         const delayMs =
-            FULL_SUBJECT_RECOVERY_DELAYS_MS[
-                recoveryAttemptsAtStep
-            ];
+            recoveryWakeRequested
+                ? 500
+                : FULL_SUBJECT_RECOVERY_DELAYS_MS[
+                    recoveryAttemptsAtStep
+                ];
+
+        recoveryWakeRequested = false;
 
         setRecoveryStatus(
             'Generation interrupted · continuing…'
@@ -351,7 +353,9 @@
         state = await repairLatestCheckpoint(state);
 
         if (!state || !isRecoveryEligible()) {
-            showRetryButton(true);
+            if (!state) {
+                resetRecoveryState();
+            }
             return false;
         }
 
@@ -441,14 +445,47 @@
             return result;
         };
 
-        window.addEventListener('online', () => {
-            if (!recoveryPending || !isRecoveryEligible()) return;
+        const wakeRecovery = () => {
+            if (
+                !runtimeInstalled ||
+                document.hidden
+            ) {
+                return;
+            }
 
-            setRecoveryStatus(
-                'Connection restored · continuing generation…'
-            );
-            scheduleRetry(500);
+            queueRecoveryCheck({ wake: true });
+        };
+
+        window.addEventListener('online', () => {
+            if (!isOwnedSubjectRuntime()) return;
+
+            if (myVersionEditing) {
+                setRecoveryStatus(
+                    'Connection restored · checking generation…'
+                );
+            }
+
+            wakeRecovery();
         });
+
+        window.addEventListener(
+            'focus',
+            wakeRecovery
+        );
+
+        window.addEventListener(
+            'pageshow',
+            wakeRecovery
+        );
+
+        document.addEventListener(
+            'visibilitychange',
+            () => {
+                if (!document.hidden) {
+                    wakeRecovery();
+                }
+            }
+        );
 
         runtimeInstalled = true;
         ensureRetryButton();

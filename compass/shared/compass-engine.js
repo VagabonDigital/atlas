@@ -947,7 +947,7 @@ function getMyVersionWorkingDraftPatch(overrides) {
     };
 }
 
-async function saveMyVersionFullSubjectBuildState(
+async function checkpointMyVersionFullSubjectGeneration(
     completedStep,
     autoSaveOnComplete
 ) {
@@ -955,39 +955,64 @@ async function saveMyVersionFullSubjectBuildState(
         return null;
     }
 
-    return requireAtlasTutorSubjects()
-        .saveBuildState(
-            MODULE.id,
-            {
-                kind: 'full-subject',
-                completedStep,
-                autoSaveOnComplete
+    clearMyVersionWorkingDraftSaveTimer();
+
+    const pending =
+        myVersionPendingWorkingDraftOverrides;
+
+    myVersionPendingWorkingDraftOverrides = null;
+
+    const workingDraft =
+        getMyVersionWorkingDraftPatch(
+            pending || myVersionDraftOverrides
+        );
+
+    const checkpoint =
+        await queueTutorContentWrite(
+            async () => {
+                const Subjects =
+                    requireAtlasTutorSubjects();
+
+                if (
+                    typeof Subjects.saveBuildCheckpoint !==
+                    'function'
+                ) {
+                    throw new Error(
+                        'Atomic subject construction checkpoints are unavailable.'
+                    );
+                }
+
+                const saved =
+                    await Subjects.saveBuildCheckpoint(
+                        MODULE.id,
+                        {
+                            workingDraft,
+                            buildState: {
+                                kind: 'full-subject',
+                                completedStep,
+                                autoSaveOnComplete
+                            }
+                        }
+                    );
+
+                if (
+                    saved?.workingDraft &&
+                    myVersionEditing
+                ) {
+                    tutorContentWorkingDraft =
+                        saved.workingDraft;
+                }
+
+                return saved;
             }
         );
-}
-
-async function checkpointMyVersionFullSubjectGeneration(
-    completedStep,
-    autoSaveOnComplete
-) {
-    const savedDraft =
-        await flushMyVersionWorkingDraftSave();
-
-    if (!savedDraft) {
-        throw new Error(
-            'Could not autosave subject construction progress.'
-        );
-    }
 
     const savedState =
-        await saveMyVersionFullSubjectBuildState(
-            completedStep,
-            autoSaveOnComplete
-        );
+        checkpoint?.buildState || null;
 
     if (!savedState) {
         throw new Error(
-            'Could not save subject construction state.'
+            'Could not save subject construction checkpoint.'
         );
     }
 

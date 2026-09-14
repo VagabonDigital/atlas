@@ -19,6 +19,7 @@
     const SUBJECT_PREFIX = 'atlas::tutorSubjects::subject::';
     const WORKING_DRAFT_PREFIX = 'atlas::tutorSubjects::workingDraft::';
     const BUILD_STATE_PREFIX = 'atlas::tutorSubjects::buildState::';
+    const BUILD_CHECKPOINT_PREFIX = 'atlas::tutorSubjects::buildCheckpoint::';
     const SESSION_SUBJECTS_PREFIX = 'atlas::tutorSubjects::sessionSubjects::';
     const ORDER_KEY = 'atlas::tutorSubjects::order';
     const LIBRARY_KEY = 'atlas::tutorSubjects::library';
@@ -41,6 +42,10 @@
 
     function buildStateStorageKey(subjectId) {
         return `${BUILD_STATE_PREFIX}${encodePart(subjectId)}`;
+    }
+
+    function buildCheckpointStorageKey(subjectId) {
+        return `${BUILD_CHECKPOINT_PREFIX}${encodePart(subjectId)}`;
     }
 
     function sessionSubjectsStorageKey(sessionId) {
@@ -871,6 +876,43 @@
             updatedAt: Math.max(
                 0,
                 Number(record.updatedAt) || 0
+            )
+        };
+    }
+
+
+    function normalizeBuildCheckpoint(record, subjectId) {
+        if (
+            !record ||
+            typeof record !== 'object' ||
+            Array.isArray(record)
+        ) {
+            return null;
+        }
+
+        const id = String(subjectId || '').trim();
+        const workingDraft = normalizeWorkingDraft(
+            record.workingDraft,
+            id
+        );
+        const buildState = normalizeBuildState(
+            record.buildState,
+            id
+        );
+
+        if (!id || !workingDraft || !buildState) {
+            return null;
+        }
+
+        return {
+            schemaVersion: SCHEMA_VERSION,
+            subjectId: id,
+            workingDraft,
+            buildState,
+            updatedAt: Math.max(
+                Number(record.updatedAt) || 0,
+                Number(workingDraft.updatedAt) || 0,
+                Number(buildState.updatedAt) || 0
             )
         };
     }
@@ -1847,10 +1889,41 @@
 
         if (!subject) return null;
 
-        return normalizeWorkingDraft(
+        const storedDraft = normalizeWorkingDraft(
             readJson(workingDraftStorageKey(subject.id)),
             subject.id
         );
+
+        const checkpoint = normalizeBuildCheckpoint(
+            readJson(buildCheckpointStorageKey(subject.id)),
+            subject.id
+        );
+
+        if (
+            checkpoint &&
+            (
+                !storedDraft ||
+                checkpoint.workingDraft.updatedAt >=
+                    storedDraft.updatedAt
+            )
+        ) {
+            if (
+                !storedDraft ||
+                JSON.stringify(storedDraft) !==
+                    JSON.stringify(checkpoint.workingDraft)
+            ) {
+                writeJson(
+                    workingDraftStorageKey(subject.id),
+                    checkpoint.workingDraft
+                );
+            }
+
+            return cloneJson(
+                checkpoint.workingDraft
+            );
+        }
+
+        return cloneJson(storedDraft);
     }
 
     async function saveWorkingDraft(
@@ -1926,12 +1999,45 @@
 
         if (!subject) return null;
 
-        return normalizeBuildState(
+        const storedState = normalizeBuildState(
             readJson(
                 buildStateStorageKey(subject.id)
             ),
             subject.id
         );
+
+        const checkpoint = normalizeBuildCheckpoint(
+            readJson(
+                buildCheckpointStorageKey(subject.id)
+            ),
+            subject.id
+        );
+
+        if (
+            checkpoint &&
+            (
+                !storedState ||
+                checkpoint.buildState.updatedAt >=
+                    storedState.updatedAt
+            )
+        ) {
+            if (
+                !storedState ||
+                JSON.stringify(storedState) !==
+                    JSON.stringify(checkpoint.buildState)
+            ) {
+                writeJson(
+                    buildStateStorageKey(subject.id),
+                    checkpoint.buildState
+                );
+            }
+
+            return cloneJson(
+                checkpoint.buildState
+            );
+        }
+
+        return cloneJson(storedState);
     }
 
     async function saveBuildState(
@@ -1981,14 +2087,164 @@
             : null;
     }
 
+
+    async function saveBuildCheckpoint(
+        subjectId,
+        checkpoint = {}
+    ) {
+        const subject = await getSubject(subjectId);
+
+        if (!subject) return null;
+
+        const candidate =
+            checkpoint &&
+            typeof checkpoint === 'object' &&
+            !Array.isArray(checkpoint)
+                ? checkpoint
+                : {};
+
+        const workingPatch =
+            candidate.workingDraft &&
+            typeof candidate.workingDraft === 'object' &&
+            !Array.isArray(candidate.workingDraft)
+                ? candidate.workingDraft
+                : {};
+
+        const buildPatch =
+            candidate.buildState &&
+            typeof candidate.buildState === 'object' &&
+            !Array.isArray(candidate.buildState)
+                ? candidate.buildState
+                : {};
+
+        const document = normalizeDocument(
+            workingPatch.document
+        );
+
+        if (
+            !document ||
+            !validateStructuredDocument(
+                document,
+                'build checkpoint'
+            )
+        ) {
+            return null;
+        }
+
+        const currentDraft =
+            await getWorkingDraft(subject.id);
+
+        const currentState =
+            await getBuildState(subject.id);
+
+        const timestamp = Date.now();
+
+        const workingDraft = {
+            schemaVersion: SCHEMA_VERSION,
+            subjectId: subject.id,
+            ownerId: LOCAL_OWNER_ID,
+            format: STRUCTURED_FORMAT,
+            baseRevision: Math.max(
+                1,
+                Math.floor(
+                    Number(workingPatch.baseRevision) ||
+                    Number(currentDraft?.baseRevision) ||
+                    subject.revision
+                )
+            ),
+            document,
+            includedLiveSessionId:
+                typeof workingPatch.includedLiveSessionId === 'string' &&
+                workingPatch.includedLiveSessionId.trim()
+                    ? workingPatch.includedLiveSessionId.trim()
+                    : null,
+            activeViewId:
+                typeof workingPatch.activeViewId === 'string' &&
+                workingPatch.activeViewId.trim()
+                    ? workingPatch.activeViewId.trim()
+                    : currentDraft?.activeViewId || 'view-cover',
+            startedAt:
+                currentDraft?.startedAt ||
+                timestamp,
+            updatedAt:
+                timestamp
+        };
+
+        const buildState = normalizeBuildState(
+            {
+                ...currentState,
+                ...buildPatch,
+                kind:
+                    buildPatch.kind ||
+                    currentState?.kind ||
+                    'full-subject',
+                startedAt:
+                    currentState?.startedAt ||
+                    timestamp,
+                updatedAt:
+                    timestamp
+            },
+            subject.id
+        );
+
+        if (!buildState) return null;
+
+        const next = {
+            schemaVersion: SCHEMA_VERSION,
+            subjectId: subject.id,
+            workingDraft,
+            buildState,
+            updatedAt: timestamp
+        };
+
+        /*
+         * One localStorage write owns the durable generation checkpoint.
+         * The old draft/state records remain mirrored for compatibility,
+         * but either mirror can be reconstructed from this journal after
+         * interrupted navigation.
+         */
+        if (
+            !writeJson(
+                buildCheckpointStorageKey(subject.id),
+                next
+            )
+        ) {
+            return null;
+        }
+
+        const draftMirrored = writeJson(
+            workingDraftStorageKey(subject.id),
+            workingDraft
+        );
+
+        const stateMirrored = writeJson(
+            buildStateStorageKey(subject.id),
+            buildState
+        );
+
+        if (!draftMirrored || !stateMirrored) {
+            console.warn(
+                '[AtlasTutorSubjects] Generation checkpoint mirror write failed; the atomic checkpoint journal remains authoritative.'
+            );
+        }
+
+        return cloneJson(next);
+    }
+
     async function clearBuildState(subjectId) {
         const id = String(subjectId || '').trim();
 
         if (!id) return false;
 
-        return removeValue(
+        const stateRemoved = removeValue(
             buildStateStorageKey(id)
         );
+
+        const checkpointRemoved = removeValue(
+            buildCheckpointStorageKey(id)
+        );
+
+        return stateRemoved && checkpointRemoved;
     }
 
     async function clearWorkingDraft(subjectId) {
@@ -2356,6 +2612,10 @@
 
             removeValue(
                 buildStateStorageKey(current.id)
+            );
+
+            removeValue(
+                buildCheckpointStorageKey(current.id)
             );
 
             removeMySubjectFromSessionSubjects(
@@ -2819,6 +3079,7 @@
 
         getBuildState,
         saveBuildState,
+        saveBuildCheckpoint,
         clearBuildState,
 
         updateSubject,
