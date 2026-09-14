@@ -1903,7 +1903,7 @@
             checkpoint &&
             (
                 !storedDraft ||
-                checkpoint.workingDraft.updatedAt >=
+                checkpoint.workingDraft.updatedAt >
                     storedDraft.updatedAt
             )
         ) {
@@ -2017,7 +2017,7 @@
             checkpoint &&
             (
                 !storedState ||
-                checkpoint.buildState.updatedAt >=
+                checkpoint.buildState.updatedAt >
                     storedState.updatedAt
             )
         ) {

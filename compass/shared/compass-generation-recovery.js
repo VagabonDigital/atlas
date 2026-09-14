@@ -453,6 +453,7 @@
                 return;
             }
 
+            clearRecoveryTimer();
             queueRecoveryCheck({ wake: true });
         };
 
