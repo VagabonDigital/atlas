@@ -21,6 +21,7 @@
     const UNDO_TOAST_STYLE_ID =
         'atlas-undo-toast-style';
     const ARCHIVE_UNDO_DURATION = 7000;
+    const DELETE_UNDO_DURATION = 7000;
     let hubToastTimer = null;
 
     function normalizeRegistryId(value) {
@@ -635,9 +636,174 @@
             window.duplicateOwnedSubject;
         const originalArchiveAtlasOriginal =
             window.archiveAtlasOriginal;
+        const originalOpenOwnedSubjectDeleteDialog =
+            window.openOwnedSubjectDeleteDialog;
+        const originalConfirmOwnedSubjectDialog =
+            window.confirmOwnedSubjectDialog;
+        const originalOpenAtlasOriginalDeleteDialog =
+            window.openAtlasOriginalDeleteDialog;
         const Subjects = window.AtlasTutorSubjects;
+        const originalDeleteSubject =
+            Subjects?.deleteSubject?.bind(Subjects);
         let pendingOwnedArchiveId = '';
         let pendingAtlasArchive = null;
+        let openedOwnedDeleteSubjectId = '';
+        let ownedDeleteInterceptId = '';
+        let pendingOwnedDeleteToastId = '';
+        let pendingAtlasDelete = null;
+
+        function removeOwnedSubjectRegistryProjection(subjectId) {
+            try {
+                const registryId =
+                    window.getOwnedSubjectRegistryId?.(
+                        subjectId
+                    ) || '';
+
+                if (
+                    registryId &&
+                    typeof window.AtlasBridge?.removeItem ===
+                        'function'
+                ) {
+                    window.AtlasBridge.removeItem(registryId);
+                }
+            } catch { }
+        }
+
+        async function beginOwnedSubjectDelete(subjectId) {
+            const id = String(subjectId || '').trim();
+
+            if (
+                !id ||
+                !Subjects ||
+                typeof Subjects.beginPendingDelete !== 'function'
+            ) {
+                return false;
+            }
+
+            const record =
+                await Subjects.beginPendingDelete(
+                    id,
+                    DELETE_UNDO_DURATION
+                );
+
+            if (!record) return false;
+
+            pendingOwnedDeleteToastId = id;
+            removeOwnedSubjectRegistryProjection(id);
+            return true;
+        }
+
+        async function undoOwnedSubjectDelete(subjectId) {
+            if (
+                !Subjects ||
+                typeof Subjects.cancelPendingDelete !== 'function'
+            ) {
+                throw new Error(
+                    'Subject deletion can no longer be undone.'
+                );
+            }
+
+            const subject =
+                await Subjects.cancelPendingDelete(
+                    subjectId
+                );
+
+            if (!subject) {
+                throw new Error(
+                    'The subject has already been permanently deleted.'
+                );
+            }
+
+            window.syncOwnedSubjectRegistryProjection?.(
+                subject
+            );
+
+            await window.renderHub();
+            showHubToast('Subject restored.');
+        }
+
+        async function reconcilePendingDeletes() {
+            if (
+                !Subjects ||
+                typeof Subjects.reconcilePendingDeletes !== 'function'
+            ) {
+                return;
+            }
+
+            const result =
+                await Subjects.reconcilePendingDeletes();
+            const pending =
+                Array.isArray(result?.pending)
+                    ? result.pending
+                    : [];
+            const finalized =
+                Array.isArray(result?.finalized)
+                    ? result.finalized
+                    : [];
+
+            finalized.forEach(subjectId =>
+                removeOwnedSubjectRegistryProjection(
+                    subjectId
+                )
+            );
+
+            pending.forEach(record =>
+                removeOwnedSubjectRegistryProjection(
+                    record.subjectId
+                )
+            );
+
+            if (!pending.length) return;
+
+            const latest = pending
+                .slice()
+                .sort(
+                    (left, right) =>
+                        Number(right.createdAt || 0) -
+                        Number(left.createdAt || 0)
+                )[0];
+            const remaining = Math.max(
+                1000,
+                Number(latest.deleteAt || 0) - Date.now()
+            );
+
+            showHubToast(
+                'Subject deleted.',
+                {
+                    duration: remaining,
+                    actionLabel: 'Undo',
+                    action: () =>
+                        undoOwnedSubjectDelete(
+                            latest.subjectId
+                        )
+                }
+            );
+        }
+
+        if (
+            Subjects &&
+            originalDeleteSubject
+        ) {
+            Subjects.deleteSubject = async function (
+                subjectId,
+                ...args
+            ) {
+                const id = String(subjectId || '').trim();
+
+                if (
+                    id &&
+                    ownedDeleteInterceptId === id
+                ) {
+                    ownedDeleteInterceptId = '';
+                    return beginOwnedSubjectDelete(id);
+                }
+
+                return originalDeleteSubject(
+                    subjectId,
+                    ...args
+                );
+            };
+        }
 
         if (
             Subjects &&
@@ -851,6 +1017,41 @@
             }
 
             if (
+                pendingOwnedDeleteToastId &&
+                message === 'Subject deleted.'
+            ) {
+                const subjectId =
+                    pendingOwnedDeleteToastId;
+                pendingOwnedDeleteToastId = '';
+
+                Promise.resolve(
+                    Subjects?.getPendingDelete?.(subjectId)
+                ).then(record => {
+                    if (!record) {
+                        showHubToast(message, options);
+                        return;
+                    }
+
+                    showHubToast(
+                        'Subject deleted.',
+                        {
+                            duration: Math.max(
+                                1000,
+                                Number(record.deleteAt || 0) -
+                                    Date.now()
+                            ),
+                            actionLabel: 'Undo',
+                            action: () =>
+                                undoOwnedSubjectDelete(
+                                    subjectId
+                                )
+                        }
+                    );
+                });
+                return;
+            }
+
+            if (
                 pendingAtlasArchive &&
                 message.startsWith(
                     'Atlas Original archived.'
@@ -863,6 +1064,29 @@
                     'Atlas Original archived.',
                     {
                         duration: ARCHIVE_UNDO_DURATION,
+                        actionLabel: 'Undo',
+                        action: () =>
+                            undoAtlasOriginalArchive(
+                                context
+                            )
+                    }
+                );
+                return;
+            }
+
+            if (
+                pendingAtlasDelete &&
+                message.startsWith(
+                    'Atlas Original deleted'
+                )
+            ) {
+                const context = pendingAtlasDelete;
+                pendingAtlasDelete = null;
+
+                showHubToast(
+                    'Atlas Original deleted.',
+                    {
+                        duration: DELETE_UNDO_DURATION,
                         actionLabel: 'Undo',
                         action: () =>
                             undoAtlasOriginalArchive(
@@ -891,6 +1115,92 @@
 
             showHubToast(message, options);
         };
+
+        if (
+            typeof originalOpenOwnedSubjectDeleteDialog ===
+                'function'
+        ) {
+            window.openOwnedSubjectDeleteDialog =
+                async function (
+                    subjectId,
+                    event
+                ) {
+                    openedOwnedDeleteSubjectId =
+                        String(subjectId || '').trim();
+
+                    return originalOpenOwnedSubjectDeleteDialog.call(
+                        this,
+                        subjectId,
+                        event
+                    );
+                };
+        }
+
+        if (
+            typeof originalConfirmOwnedSubjectDialog ===
+                'function'
+        ) {
+            window.confirmOwnedSubjectDialog =
+                async function (...args) {
+                    const dialogTitle = String(
+                        document.getElementById(
+                            'owned-subject-dialog-title'
+                        )?.textContent || ''
+                    ).trim();
+                    const isOwnedDelete =
+                        dialogTitle === 'Delete subject?' &&
+                        !!openedOwnedDeleteSubjectId;
+
+                    if (isOwnedDelete) {
+                        ownedDeleteInterceptId =
+                            openedOwnedDeleteSubjectId;
+                    }
+
+                    try {
+                        return await originalConfirmOwnedSubjectDialog.call(
+                            this,
+                            ...args
+                        );
+                    } finally {
+                        ownedDeleteInterceptId = '';
+
+                        if (isOwnedDelete) {
+                            openedOwnedDeleteSubjectId = '';
+                        }
+                    }
+                };
+        }
+
+        if (
+            typeof originalOpenAtlasOriginalDeleteDialog ===
+                'function'
+        ) {
+            window.openAtlasOriginalDeleteDialog =
+                async function (
+                    registryId,
+                    event
+                ) {
+                    const id = normalizeRegistryId(
+                        registryId
+                    );
+
+                    pendingAtlasDelete = id
+                        ? {
+                            registryId: id,
+                            sessionPositions:
+                                await captureAtlasOriginalSessionPositions(
+                                    id
+                                )
+                        }
+                        : null;
+
+                    return originalOpenAtlasOriginalDeleteDialog.call(
+                        this,
+                        registryId,
+                        event
+                    );
+                };
+        }
 
         if (typeof originalArchiveAtlasOriginal === 'function') {
             window.archiveAtlasOriginal = async function (
@@ -1262,6 +1572,8 @@
             'focus',
             decorateAtlasSubjectMenus
         );
+
+        void reconcilePendingDeletes();
 
         Promise.resolve(window.renderHub())
             .then(decorateAtlasSubjectMenus)
