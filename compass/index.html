@@ -3041,6 +3041,45 @@
         box-shadow: none;
       }
 
+      .owned-subject-dialog-panel {
+        position: relative;
+      }
+
+      .owned-subject-dialog-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 5;
+        display: grid;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        border: 1px solid var(--border-subtle);
+        border-radius: 50%;
+        background: var(--surface-panel);
+        color: var(--text-muted);
+        font-family: var(--font-body);
+        font-size: 1.4rem;
+        line-height: 1;
+        cursor: pointer;
+        box-shadow: var(--shadow-xs);
+      }
+
+      .subject-library:has(button[onclick*="openAddSessionSubjectDialog"]):not(:has(.subject-grid)),
+      .subject-library:has(button[onclick*="openCreateSubjectDialog"]):not(:has(.subject-grid)) {
+        margin-top: 1.25rem;
+        padding: 1rem 1rem 1.05rem;
+        border: var(--library-border-width) solid var(--library-border);
+        border-radius: var(--radius-lg);
+        background: var(--library-surface);
+        box-shadow: var(--library-shadow);
+      }
+
+      .subject-library:has(button[onclick*="openAddSessionSubjectDialog"]):not(:has(.subject-grid)) .subject-library-header,
+      .subject-library:has(button[onclick*="openCreateSubjectDialog"]):not(:has(.subject-grid)) .subject-library-header {
+        margin-bottom: 0.6rem;
+      }
+
       .subject-grid {
         grid-template-columns: 1fr;
       }
@@ -4289,6 +4328,7 @@
 
       dialog.innerHTML =
         '<div class="owned-subject-dialog-panel">' +
+        '<button class="owned-subject-dialog-close" type="button" aria-label="Close" onclick="closeOwnedSubjectDialog()">×</button>' +
         '<p class="owned-subject-dialog-kicker" id="owned-subject-dialog-kicker">My Subject</p>' +
         '<h2 class="owned-subject-dialog-title" id="owned-subject-dialog-title"></h2>' +
         '<p class="owned-subject-dialog-copy" id="owned-subject-dialog-copy"></p>' +
