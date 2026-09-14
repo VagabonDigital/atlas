@@ -6036,8 +6036,7 @@
         };
 
         const targetSessionId =
-          state.sessionId ||
-          getActiveSession().id;
+          String(state.sessionId || '').trim();
 
         const Structured =
           window.AtlasStructuredSubject;
@@ -6132,23 +6131,25 @@
             );
           }
 
-          const promoted =
-            await Subjects.addSessionSubject(
-              targetSessionId,
-              {
-                kind: 'my-subject',
-                id: created.id
-              }
-            );
+          if (targetSessionId) {
+            const promoted =
+              await Subjects.addSessionSubject(
+                targetSessionId,
+                {
+                  kind: 'my-subject',
+                  id: created.id
+                }
+              );
 
-          if (!promoted) {
-            await Subjects.deleteSubject(
-              created.id
-            );
+            if (!promoted) {
+              await Subjects.deleteSubject(
+                created.id
+              );
 
-            throw new Error(
-              'Created subject could not be added to the session.'
-            );
+              throw new Error(
+                'Created subject could not be added to the session.'
+              );
+            }
           }
 
           syncOwnedSubjectRegistryProjection(
@@ -10775,9 +10776,9 @@
           '<p class="subject-library-empty-note">' +
           (
             canAdd
-              ? 'Add the subjects you want close at hand for this session.'
+              ? 'Add subjects you want close at hand for this session.'
               : canManageCategory
-                ? 'Create a subject here.'
+                ? 'Create subjects you want to keep in your teaching library.'
                 : 'Create your first subject and build it directly inside Compass.'
           ) +
           '</p>'
