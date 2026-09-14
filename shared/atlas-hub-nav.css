@@ -56,3 +56,29 @@
   min-block-size: 13px;
   flex: 0 0 13px;
 }
+
+/*
+ * Atlas first-visit welcome owns the viewport completely.
+ * The Atlas page normally forces a vertical scrollbar for layout stability;
+ * while the welcome gate is visible that scrollbar must disappear and the
+ * underlying hub must not be scrollable.
+ */
+html:has(body[data-atlas-world="atlas"]):not([data-atlas-welcome="seen"]) {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+html:not([data-atlas-welcome="seen"]) body[data-atlas-world="atlas"] {
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+html:not([data-atlas-welcome="seen"]) body[data-atlas-world="atlas"] .atlas-welcome-screen {
+  width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
