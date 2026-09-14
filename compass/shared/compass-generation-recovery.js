@@ -458,13 +458,6 @@
 
         window.addEventListener('online', () => {
             if (!isOwnedSubjectRuntime()) return;
-
-            if (myVersionEditing) {
-                setRecoveryStatus(
-                    'Connection restored · checking generation…'
-                );
-            }
-
             wakeRecovery();
         });
 
