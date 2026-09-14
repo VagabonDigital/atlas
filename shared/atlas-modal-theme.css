@@ -288,3 +288,89 @@ html[data-theme="night"] body[data-atlas-world="arcade"] {
     --atlas-modal-scrollbar: rgba(176, 164, 175, 0.32);
     --atlas-modal-scrollbar-hover: rgba(176, 164, 175, 0.50);
 }
+
+/* ============================================================
+   MODAL DISMISSAL CONTROLS
+   Quiet close treatment aligned with the Session panel.
+   ============================================================ */
+
+.atlas-search-close,
+body[data-atlas-world="atlas"] #settings-modal .modal-close,
+body[data-atlas-world] .atlas-feedback-close,
+body[data-atlas-world="compass"] .owned-subject-dialog-close {
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--atlas-modal-muted);
+    cursor: pointer;
+    font: inherit;
+    font-size: 1.35rem;
+    line-height: 1;
+    box-shadow: none;
+}
+
+.atlas-search-close,
+body[data-atlas-world="atlas"] #settings-modal .modal-close,
+body[data-atlas-world] .atlas-feedback-close {
+    display: inline-flex;
+}
+
+.atlas-search-close:hover,
+.atlas-search-close:focus-visible,
+body[data-atlas-world="atlas"] #settings-modal .modal-close:hover,
+body[data-atlas-world="atlas"] #settings-modal .modal-close:focus-visible,
+body[data-atlas-world] .atlas-feedback-close:hover,
+body[data-atlas-world] .atlas-feedback-close:focus-visible,
+body[data-atlas-world="compass"] .owned-subject-dialog-close:hover,
+body[data-atlas-world="compass"] .owned-subject-dialog-close:focus-visible {
+    border-color: var(--atlas-modal-border-strong);
+    background: var(--atlas-modal-control-hover);
+    color: var(--atlas-modal-heading);
+}
+
+.atlas-search-close:focus-visible,
+body[data-atlas-world="atlas"] #settings-modal .modal-close:focus-visible,
+body[data-atlas-world] .atlas-feedback-close:focus-visible,
+body[data-atlas-world="compass"] .owned-subject-dialog-close:focus-visible {
+    outline: 2px solid var(--atlas-modal-accent);
+    outline-offset: 2px;
+}
+
+.atlas-search-close svg,
+body[data-atlas-world="atlas"] #settings-modal .modal-close svg,
+body[data-atlas-world] .atlas-feedback-close svg {
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+}
+
+/* Compact My Subject dialogs already expose Cancel in view. */
+body[data-atlas-world="compass"] .owned-subject-dialog-close {
+    display: none;
+}
+
+/* The artwork studio keeps its Cancel action sticky and visible. */
+body[data-atlas-world="compass"] .subject-artwork-studio-close {
+    display: none;
+}
+
+@media (max-width: 680px) {
+    /* Create Subject can scroll far enough to hide its bottom Cancel. */
+    body[data-atlas-world="compass"]
+    .owned-subject-dialog:has(
+        #owned-subject-dialog-create-fields:not([hidden])
+    )
+    .owned-subject-dialog-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        z-index: 5;
+        display: inline-flex;
+    }
+}
