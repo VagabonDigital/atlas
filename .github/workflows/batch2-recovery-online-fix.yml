@@ -1,0 +1,45 @@
+name: Batch 2 reconnect recovery guard
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/batch2-recovery-online-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Remove false reconnect status
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('compass/shared/compass-generation-recovery.js')
+          text = path.read_text(encoding='utf-8')
+          old = """        window.addEventListener('online', () => {\n            if (!isOwnedSubjectRuntime()) return;\n\n            if (myVersionEditing) {\n                setRecoveryStatus(\n                    'Connection restored · checking generation…'\n                );\n            }\n\n            wakeRecovery();\n        });"""
+          new = """        window.addEventListener('online', () => {\n            if (!isOwnedSubjectRuntime()) return;\n            wakeRecovery();\n        });"""
+          if text.count(old) != 1:
+              raise SystemExit(f'Expected one reconnect handler, found {text.count(old)}')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+
+      - name: Validate
+        run: |
+          node --check compass/shared/compass-generation-recovery.js
+          git diff --check
+
+      - name: Commit guard
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add compass/shared/compass-generation-recovery.js
+          git commit -m "🛡️ GUARD COMPASS RECONNECT RECOVERY STATUS"
+          git push origin HEAD:main
