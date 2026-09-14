@@ -18,6 +18,10 @@
         'is-duplicate-unavailable';
     const OWNED_DUPLICATE_STYLE_ID =
         'atlas-owned-duplicate-availability-style';
+    const UNDO_TOAST_STYLE_ID =
+        'atlas-undo-toast-style';
+    const ARCHIVE_UNDO_DURATION = 7000;
+    let hubToastTimer = null;
 
     function normalizeRegistryId(value) {
         const id = String(value || '').trim();
@@ -432,6 +436,143 @@
         document.head.appendChild(style);
     }
 
+    function ensureUndoToastStyles() {
+        if (document.getElementById(UNDO_TOAST_STYLE_ID)) {
+            return;
+        }
+
+        const style = document.createElement('style');
+        style.id = UNDO_TOAST_STYLE_ID;
+        style.textContent = `
+            .hub-toast.has-action {
+                display: flex;
+                align-items: center;
+                gap: 0.85rem;
+            }
+
+            .hub-toast-message {
+                min-width: 0;
+            }
+
+            .hub-toast-action {
+                flex: 0 0 auto;
+                border: 0;
+                padding: 0;
+                background: transparent;
+                color: var(--accent);
+                font: inherit;
+                font-weight: 600;
+                cursor: pointer;
+            }
+
+            .hub-toast-action:hover,
+            .hub-toast-action:focus-visible {
+                text-decoration: underline;
+                text-underline-offset: 0.18em;
+            }
+
+            .hub-toast-action:disabled {
+                opacity: 0.55;
+                cursor: default;
+                text-decoration: none;
+            }
+        `;
+
+        document.head.appendChild(style);
+    }
+
+    function showHubToast(text, options = {}) {
+        let el = document.getElementById('hub-toast');
+
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'hub-toast';
+            el.className = 'hub-toast';
+            el.setAttribute('role', 'status');
+            document.body.appendChild(el);
+        }
+
+        const config =
+            options &&
+            typeof options === 'object' &&
+            !Array.isArray(options)
+                ? options
+                : {};
+
+        const message = String(text || '');
+        const actionLabel = String(
+            config.actionLabel || ''
+        ).trim();
+        const action =
+            typeof config.action === 'function'
+                ? config.action
+                : null;
+        const hasAction = !!actionLabel && !!action;
+        const requestedDuration = Number(config.duration);
+        const duration =
+            Number.isFinite(requestedDuration) &&
+            requestedDuration >= 1000
+                ? requestedDuration
+                : 3200;
+
+        if (hubToastTimer) {
+            clearTimeout(hubToastTimer);
+            hubToastTimer = null;
+        }
+
+        el.classList.remove('visible');
+        el.classList.toggle('has-action', hasAction);
+        el.textContent = '';
+
+        if (hasAction) {
+            const messageEl = document.createElement('span');
+            messageEl.className = 'hub-toast-message';
+            messageEl.textContent = message;
+            el.appendChild(messageEl);
+
+            const actionButton = document.createElement('button');
+            actionButton.type = 'button';
+            actionButton.className = 'hub-toast-action';
+            actionButton.textContent = actionLabel;
+            actionButton.addEventListener(
+                'click',
+                async () => {
+                    if (hubToastTimer) {
+                        clearTimeout(hubToastTimer);
+                        hubToastTimer = null;
+                    }
+
+                    actionButton.disabled = true;
+                    el.classList.remove('visible');
+
+                    try {
+                        await action();
+                    } catch (error) {
+                        console.error(
+                            '[Compass Hub] Undo action failed:',
+                            error
+                        );
+                        showHubToast(
+                            'Couldn’t undo that action.'
+                        );
+                    }
+                }
+            );
+            el.appendChild(actionButton);
+        } else {
+            el.textContent = message;
+        }
+
+        requestAnimationFrame(() =>
+            el.classList.add('visible')
+        );
+
+        hubToastTimer = setTimeout(() => {
+            el.classList.remove('visible');
+            hubToastTimer = null;
+        }, duration);
+    }
+
     async function decorateOwnedSubjectDuplicate(menu) {
         const subjectId = parseOwnedSubjectIdFromMenu(menu);
 
@@ -484,6 +625,7 @@
 
         window.__atlasOriginalCurationHubInstalled = true;
         ensureOwnedDuplicateAvailabilityStyles();
+        ensureUndoToastStyles();
 
         const originalGetAtlasSubjects =
             window.getAtlasSubjects;
@@ -491,6 +633,300 @@
             window.openRestoreAtlasOriginalHubDialog;
         const originalDuplicateOwnedSubject =
             window.duplicateOwnedSubject;
+        const originalArchiveAtlasOriginal =
+            window.archiveAtlasOriginal;
+        const Subjects = window.AtlasTutorSubjects;
+        let pendingOwnedArchiveId = '';
+        let pendingAtlasArchive = null;
+
+        if (
+            Subjects &&
+            typeof Subjects.setSubjectLibraryPlacement === 'function'
+        ) {
+            const originalSetSubjectLibraryPlacement =
+                Subjects.setSubjectLibraryPlacement;
+
+            Subjects.setSubjectLibraryPlacement =
+                async function (
+                    subjectId,
+                    patch = {}
+                ) {
+                    const id = String(subjectId || '').trim();
+                    const candidate =
+                        patch &&
+                        typeof patch === 'object' &&
+                        !Array.isArray(patch)
+                            ? patch
+                            : {};
+                    const isArchive =
+                        id &&
+                        Object.prototype.hasOwnProperty.call(
+                            candidate,
+                            'archived'
+                        ) &&
+                        candidate.archived === true;
+
+                    const result =
+                        await originalSetSubjectLibraryPlacement.call(
+                            this,
+                            subjectId,
+                            patch
+                        );
+
+                    if (result && isArchive) {
+                        pendingOwnedArchiveId = id;
+                    }
+
+                    return result;
+                };
+        }
+
+        async function captureAtlasOriginalSessionPositions(
+            registryId
+        ) {
+            if (
+                !Subjects ||
+                typeof Subjects.getSubjectSessionIds !== 'function' ||
+                typeof Subjects.getSessionSubjects !== 'function'
+            ) {
+                return [];
+            }
+
+            try {
+                const sessionIds =
+                    await Subjects.getSubjectSessionIds({
+                        kind: 'atlas-subject',
+                        id: registryId
+                    });
+
+                return Promise.all(
+                    sessionIds.map(async sessionId => {
+                        const refs =
+                            await Subjects.getSessionSubjects(
+                                sessionId
+                            );
+
+                        return {
+                            sessionId,
+                            index: Math.max(
+                                0,
+                                refs.findIndex(ref =>
+                                    ref.kind === 'atlas-subject' &&
+                                    ref.id === registryId
+                                )
+                            )
+                        };
+                    })
+                );
+            } catch {
+                return [];
+            }
+        }
+
+        async function undoOwnedSubjectArchive(subjectId) {
+            if (
+                !Subjects ||
+                typeof Subjects.setSubjectLibraryPlacement !== 'function'
+            ) {
+                throw new Error(
+                    'Owned subject restore is unavailable.'
+                );
+            }
+
+            const restored =
+                await Subjects.setSubjectLibraryPlacement(
+                    subjectId,
+                    {
+                        archived: false
+                    }
+                );
+
+            if (!restored) {
+                throw new Error(
+                    'Owned subject restore failed.'
+                );
+            }
+
+            window.setOwnedSubjectRegistryArchived?.(
+                subjectId,
+                false
+            );
+
+            await window.renderHub();
+            showHubToast('Subject restored.');
+        }
+
+        async function undoAtlasOriginalArchive(context) {
+            if (!context?.registryId) {
+                throw new Error(
+                    'Atlas Original restore context is missing.'
+                );
+            }
+
+            if (
+                Subjects &&
+                typeof Subjects.getSessionSubjects === 'function' &&
+                typeof Subjects.setSessionSubjects === 'function'
+            ) {
+                for (const placement of context.sessionPositions) {
+                    const refs =
+                        await Subjects.getSessionSubjects(
+                            placement.sessionId
+                        );
+
+                    const alreadyPresent = refs.some(ref =>
+                        ref.kind === 'atlas-subject' &&
+                        ref.id === context.registryId
+                    );
+
+                    if (alreadyPresent) continue;
+
+                    const next = [...refs];
+                    const index = Math.min(
+                        Math.max(
+                            Number(placement.index) || 0,
+                            0
+                        ),
+                        next.length
+                    );
+
+                    next.splice(
+                        index,
+                        0,
+                        {
+                            kind: 'atlas-subject',
+                            id: context.registryId
+                        }
+                    );
+
+                    const saved =
+                        await Subjects.setSessionSubjects(
+                            placement.sessionId,
+                            next
+                        );
+
+                    if (!saved) {
+                        throw new Error(
+                            'Atlas Original session restore failed.'
+                        );
+                    }
+                }
+            }
+
+            if (!restore(context.registryId)) {
+                throw new Error(
+                    'Atlas Original restore failed.'
+                );
+            }
+
+            await window.renderHub();
+            showHubToast('Atlas Original restored.');
+        }
+
+        window.showToast = function (
+            text,
+            options = {}
+        ) {
+            const message = String(text || '');
+
+            if (
+                pendingOwnedArchiveId &&
+                message.startsWith('Subject archived.')
+            ) {
+                const subjectId = pendingOwnedArchiveId;
+                pendingOwnedArchiveId = '';
+
+                showHubToast(
+                    'Subject archived.',
+                    {
+                        duration: ARCHIVE_UNDO_DURATION,
+                        actionLabel: 'Undo',
+                        action: () =>
+                            undoOwnedSubjectArchive(
+                                subjectId
+                            )
+                    }
+                );
+                return;
+            }
+
+            if (
+                pendingAtlasArchive &&
+                message.startsWith(
+                    'Atlas Original archived.'
+                )
+            ) {
+                const context = pendingAtlasArchive;
+                pendingAtlasArchive = null;
+
+                showHubToast(
+                    'Atlas Original archived.',
+                    {
+                        duration: ARCHIVE_UNDO_DURATION,
+                        actionLabel: 'Undo',
+                        action: () =>
+                            undoAtlasOriginalArchive(
+                                context
+                            )
+                    }
+                );
+                return;
+            }
+
+            if (
+                message.startsWith(
+                    'Couldn’t archive this subject.'
+                )
+            ) {
+                pendingOwnedArchiveId = '';
+            }
+
+            if (
+                message.startsWith(
+                    'Couldn’t archive this Atlas Original.'
+                )
+            ) {
+                pendingAtlasArchive = null;
+            }
+
+            showHubToast(message, options);
+        };
+
+        if (typeof originalArchiveAtlasOriginal === 'function') {
+            window.archiveAtlasOriginal = async function (
+                registryId,
+                event
+            ) {
+                event?.preventDefault?.();
+                event?.stopPropagation?.();
+
+                const id = normalizeRegistryId(registryId);
+
+                pendingAtlasArchive = id
+                    ? {
+                        registryId: id,
+                        sessionPositions:
+                            await captureAtlasOriginalSessionPositions(
+                                id
+                            )
+                    }
+                    : null;
+
+                try {
+                    return await originalArchiveAtlasOriginal.call(
+                        this,
+                        registryId,
+                        event
+                    );
+                } finally {
+                    if (
+                        pendingAtlasArchive?.registryId === id
+                    ) {
+                        pendingAtlasArchive = null;
+                    }
+                }
+            };
+        }
 
         window.getAtlasSubjects = function (options) {
             return sortSubjects(
