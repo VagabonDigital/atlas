@@ -23,6 +23,191 @@
     const BASE_URL =
         'https://atlas-ai.savvy989.workers.dev';
 
+    const REQUEST_TIMEOUT_MS = 45000;
+    const REQUEST_RETRY_DELAYS_MS = [750, 2000];
+    const nativeFetch = window.fetch.bind(window);
+
+    function isTransientAtlasAIStatus(status) {
+        const code = Number(status) || 0;
+
+        return (
+            code === 408 ||
+            code === 429 ||
+            (code >= 500 && code <= 599)
+        );
+    }
+
+    function waitForAtlasAIRetry(delayMs) {
+        return new Promise(resolve => {
+            window.setTimeout(
+                resolve,
+                Math.max(0, Number(delayMs) || 0)
+            );
+        });
+    }
+
+    function createAtlasAITimeoutError() {
+        const error = new Error(
+            `Atlas AI request timed out after ${REQUEST_TIMEOUT_MS}ms.`
+        );
+
+        error.name = 'AtlasAIRequestTimeoutError';
+        return error;
+    }
+
+    function createAtlasAIAbortError(signal) {
+        if (signal?.reason instanceof Error) {
+            return signal.reason;
+        }
+
+        const error = new Error(
+            'Atlas AI request was aborted.'
+        );
+
+        error.name = 'AbortError';
+        return error;
+    }
+
+    async function requestAtlasAI(
+        input,
+        init = {}
+    ) {
+        const requestInit =
+            init &&
+            typeof init === 'object'
+                ? init
+                : {};
+
+        const callerSignal =
+            requestInit.signal || null;
+
+        let lastTransientError = null;
+
+        for (
+            let attempt = 0;
+            attempt <= REQUEST_RETRY_DELAYS_MS.length;
+            attempt += 1
+        ) {
+            if (callerSignal?.aborted) {
+                throw createAtlasAIAbortError(
+                    callerSignal
+                );
+            }
+
+            const controller =
+                new AbortController();
+
+            let timedOut = false;
+            let callerAborted = false;
+
+            const handleCallerAbort = () => {
+                callerAborted = true;
+                controller.abort();
+            };
+
+            if (callerSignal) {
+                callerSignal.addEventListener(
+                    'abort',
+                    handleCallerAbort,
+                    { once: true }
+                );
+            }
+
+            const timeoutId =
+                window.setTimeout(
+                    () => {
+                        timedOut = true;
+                        controller.abort();
+                    },
+                    REQUEST_TIMEOUT_MS
+                );
+
+            let response = null;
+            let requestError = null;
+
+            try {
+                response = await nativeFetch(
+                    input,
+                    {
+                        ...requestInit,
+                        signal: controller.signal
+                    }
+                );
+            } catch (error) {
+                requestError = error;
+            } finally {
+                window.clearTimeout(timeoutId);
+
+                if (callerSignal) {
+                    callerSignal.removeEventListener(
+                        'abort',
+                        handleCallerAbort
+                    );
+                }
+            }
+
+            if (
+                callerAborted ||
+                callerSignal?.aborted
+            ) {
+                throw createAtlasAIAbortError(
+                    callerSignal
+                );
+            }
+
+            if (response) {
+                if (
+                    !isTransientAtlasAIStatus(
+                        response.status
+                    ) ||
+                    attempt >=
+                        REQUEST_RETRY_DELAYS_MS.length
+                ) {
+                    return response;
+                }
+
+                await waitForAtlasAIRetry(
+                    REQUEST_RETRY_DELAYS_MS[
+                        attempt
+                    ]
+                );
+
+                continue;
+            }
+
+            const transientNetworkFailure =
+                timedOut ||
+                requestError?.name === 'TypeError';
+
+            if (!transientNetworkFailure) {
+                throw requestError || new Error(
+                    'Atlas AI request failed.'
+                );
+            }
+
+            lastTransientError = timedOut
+                ? createAtlasAITimeoutError()
+                : requestError;
+
+            if (
+                attempt >=
+                REQUEST_RETRY_DELAYS_MS.length
+            ) {
+                throw lastTransientError;
+            }
+
+            await waitForAtlasAIRetry(
+                REQUEST_RETRY_DELAYS_MS[
+                    attempt
+                ]
+            );
+        }
+
+        throw lastTransientError || new Error(
+            'Atlas AI request failed.'
+        );
+    }
+
     function cleanString(value) {
         return String(value ?? '').trim();
     }
@@ -227,7 +412,7 @@
                 ? input
                 : {};
 
-        const response = await fetch(
+        const response = await requestAtlasAI(
             `${BASE_URL}/generate-moment`,
             {
                 method: 'POST',
@@ -302,7 +487,7 @@
                 ? input
                 : {};
 
-        const response = await fetch(
+        const response = await requestAtlasAI(
             `${BASE_URL}/generate-cultural-lens-card`,
             {
                 method: 'POST',
@@ -416,7 +601,7 @@
                 ? input
                 : {};
 
-        const response = await fetch(
+        const response = await requestAtlasAI(
             `${BASE_URL}/generate-discussion-set`,
             {
                 method: 'POST',
@@ -532,7 +717,7 @@
                 ? input
                 : {};
 
-        const response = await fetch(
+        const response = await requestAtlasAI(
             `${BASE_URL}/generate-subject-framing`,
             {
                 method: 'POST',
@@ -594,7 +779,7 @@
         if (
             catalogDescription.length > 220
         ) {
-            const retryResponse = await fetch(
+            const retryResponse = await requestAtlasAI(
                 `${BASE_URL}/generate-subject-framing`,
                 {
                     method: 'POST',
@@ -681,7 +866,7 @@
                 ? input
                 : {};
 
-        const response = await fetch(
+        const response = await requestAtlasAI(
             `${BASE_URL}/generate-overview`,
             {
                 method: 'POST',
@@ -777,7 +962,7 @@
                 ? input
                 : {};
 
-        const response = await fetch(
+        const response = await requestAtlasAI(
             `${BASE_URL}/generate-cultural-lens-framing`,
             {
                 method: 'POST',
@@ -890,7 +1075,7 @@
                 ? input
                 : {};
 
-        const response = await fetch(
+        const response = await requestAtlasAI(
             `${BASE_URL}/generate-discussion-pathway`,
             {
                 method: 'POST',
@@ -985,7 +1170,7 @@
                 ? input
                 : {};
 
-        const response = await fetch(
+        const response = await requestAtlasAI(
             `${BASE_URL}/generate-make-it-real`,
             {
                 method: 'POST',
@@ -1067,7 +1252,7 @@
                 ? input
                 : {};
 
-        const response = await fetch(
+        const response = await requestAtlasAI(
             `${BASE_URL}/generate-cultural-lens-upgrade`,
             {
                 method: 'POST',
@@ -1209,7 +1394,7 @@
                 ? input
                 : {};
 
-        const response = await fetch(
+        const response = await requestAtlasAI(
             `${BASE_URL}/generate-moment-upgrade`,
             {
                 method: 'POST',
@@ -1395,7 +1580,7 @@
                     )
                 : [];
 
-        const response = await fetch(
+        const response = await requestAtlasAI(
             `${BASE_URL}/recommend-subjects`,
             {
                 method: 'POST',
@@ -1559,7 +1744,7 @@
                     )
                 : [];
 
-        const response = await fetch(
+        const response = await requestAtlasAI(
             `${BASE_URL}/suggest-subject-ideas`,
             {
                 method: 'POST',
@@ -1727,7 +1912,7 @@
                 ? input
                 : {};
 
-        const response = await fetch(
+        const response = await requestAtlasAI(
             `${BASE_URL}/generate-reflection`,
             {
                 method: 'POST',
@@ -1829,7 +2014,7 @@
                 ? input
                 : {};
 
-        const response = await fetch(
+        const response = await requestAtlasAI(
             `${BASE_URL}/generate-discussion-framing`,
             {
                 method: 'POST',
@@ -1989,7 +2174,7 @@
             );
         }
 
-        const response = await fetch(
+        const response = await requestAtlasAI(
             `${BASE_URL}/generate-current-affairs-reading`,
             {
                 method: 'POST',
@@ -2104,7 +2289,7 @@
             );
         }
 
-        const response = await fetch(
+        const response = await requestAtlasAI(
             `${BASE_URL}/search-covers`,
             {
                 method: 'POST',
