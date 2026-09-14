@@ -21,12 +21,14 @@
     const BUILD_STATE_PREFIX = 'atlas::tutorSubjects::buildState::';
     const BUILD_CHECKPOINT_PREFIX = 'atlas::tutorSubjects::buildCheckpoint::';
     const SESSION_SUBJECTS_PREFIX = 'atlas::tutorSubjects::sessionSubjects::';
+    const PENDING_DELETE_PREFIX = 'atlas::tutorSubjects::pendingDelete::';
     const ORDER_KEY = 'atlas::tutorSubjects::order';
     const LIBRARY_KEY = 'atlas::tutorSubjects::library';
     const LIBRARY_SCHEMA_VERSION = 1;
     const DEFAULT_CATEGORY_ID = 'default';
     const DEFAULT_CATEGORY_NAME = 'My Subjects';
     const STRUCTURED_FORMAT = 'structured';
+    const pendingDeleteTimers = new Map();
 
     function encodePart(value) {
         return encodeURIComponent(String(value || ''));
@@ -50,6 +52,10 @@
 
     function sessionSubjectsStorageKey(sessionId) {
         return `${SESSION_SUBJECTS_PREFIX}${encodePart(sessionId)}`;
+    }
+
+    function pendingDeleteStorageKey(subjectId) {
+        return `${PENDING_DELETE_PREFIX}${encodePart(subjectId)}`;
     }
 
     function readJson(key) {
@@ -202,6 +208,99 @@
                 seen.add(key);
                 return true;
             });
+    }
+
+    function normalizePendingDelete(record, subjectId = '') {
+        if (
+            !record ||
+            typeof record !== 'object' ||
+            Array.isArray(record)
+        ) {
+            return null;
+        }
+
+        const requestedId = String(subjectId || '').trim();
+        const id = String(record.subjectId || '').trim();
+        const createdAt = Number(record.createdAt);
+        const deleteAt = Number(record.deleteAt);
+
+        if (
+            !id ||
+            (requestedId && id !== requestedId) ||
+            !Number.isFinite(createdAt) ||
+            !Number.isFinite(deleteAt) ||
+            deleteAt < createdAt
+        ) {
+            return null;
+        }
+
+        return {
+            schemaVersion: SCHEMA_VERSION,
+            subjectId: id,
+            createdAt,
+            deleteAt
+        };
+    }
+
+    function readPendingDelete(subjectId) {
+        const id = String(subjectId || '').trim();
+        if (!id) return null;
+
+        const record = normalizePendingDelete(
+            readJson(pendingDeleteStorageKey(id)),
+            id
+        );
+
+        if (!record) {
+            removeValue(pendingDeleteStorageKey(id));
+            return null;
+        }
+
+        return record;
+    }
+
+    function listPendingDeleteRecords() {
+        return listKeysWithPrefix(PENDING_DELETE_PREFIX)
+            .map(key => {
+                let id = '';
+
+                try {
+                    id = decodeURIComponent(
+                        key.slice(PENDING_DELETE_PREFIX.length)
+                    );
+                } catch {
+                    removeValue(key);
+                    return null;
+                }
+
+                const record = normalizePendingDelete(
+                    readJson(key),
+                    id
+                );
+
+                if (!record) {
+                    removeValue(key);
+                    return null;
+                }
+
+                return record;
+            })
+            .filter(Boolean)
+            .sort(
+                (left, right) =>
+                    left.createdAt - right.createdAt
+            );
+    }
+
+    function clearPendingDeleteTimer(subjectId) {
+        const id = String(subjectId || '').trim();
+        const timer = pendingDeleteTimers.get(id);
+
+        if (timer) {
+            clearTimeout(timer);
+        }
+
+        pendingDeleteTimers.delete(id);
     }
 
     function listStoredSubjectIds() {
@@ -786,6 +885,25 @@
         };
     }
 
+    function readStoredSubject(subjectId) {
+        const id = String(subjectId || '').trim();
+
+        if (!id) return null;
+
+        const record = normalizeRecord(
+            readJson(subjectStorageKey(id))
+        );
+
+        if (
+            !record ||
+            record.ownerId !== LOCAL_OWNER_ID
+        ) {
+            return null;
+        }
+
+        return record;
+    }
+
     function normalizeWorkingDraft(record, subjectId) {
         if (
             !record ||
@@ -1331,24 +1449,19 @@
     async function getSubject(subjectId) {
         const id = String(subjectId || '').trim();
 
-        if (!id) return null;
+        if (!id || readPendingDelete(id)) return null;
 
-        const record = normalizeRecord(
-            readJson(subjectStorageKey(id))
-        );
-
-        if (
-            !record ||
-            record.ownerId !== LOCAL_OWNER_ID
-        ) {
-            return null;
-        }
+        const record = readStoredSubject(id);
 
         return cloneJson(record);
     }
 
     async function listSubjects() {
         const subjects = [];
+        const pendingIds = new Set(
+            listPendingDeleteRecords()
+                .map(record => record.subjectId)
+        );
 
         try {
             for (
@@ -1371,7 +1484,8 @@
 
                 if (
                     record &&
-                    record.ownerId === LOCAL_OWNER_ID
+                    record.ownerId === LOCAL_OWNER_ID &&
+                    !pendingIds.has(record.id)
                 ) {
                     subjects.push(record);
                 }
@@ -1412,18 +1526,6 @@
             ...unlistedSubjects,
             ...storedSubjects
         ];
-
-        const normalizedOrder =
-            orderedSubjects.map(subject =>
-                subject.id
-            );
-
-        if (
-            JSON.stringify(normalizedOrder) !==
-            JSON.stringify(storedOrder)
-        ) {
-            writeSubjectOrder(normalizedOrder);
-        }
 
         return cloneJson(orderedSubjects) || [];
     }
@@ -1779,8 +1881,19 @@
     }
 
     async function getSessionSubjects(sessionId) {
+        const pendingIds = new Set(
+            listPendingDeleteRecords()
+                .map(record => record.subjectId)
+        );
+
         return cloneJson(
             readSessionSubjects(sessionId)
+                .filter(ref =>
+                    !(
+                        ref.kind === 'my-subject' &&
+                        pendingIds.has(ref.id)
+                    )
+                )
         ) || [];
     }
 
@@ -1810,6 +1923,13 @@
 
         if (!ref) return null;
 
+        if (
+            ref.kind === 'my-subject' &&
+            readPendingDelete(ref.id)
+        ) {
+            return null;
+        }
+
         const current =
             readSessionSubjects(sessionId);
 
@@ -1837,7 +1957,7 @@
         if (!ref || !id) return null;
 
         if (ref.kind === 'my-subject') {
-            const subject = await getSubject(ref.id);
+            const subject = readStoredSubject(ref.id);
 
             if (!subject) return null;
 
@@ -2364,9 +2484,7 @@
         }
 
         const subjects = await listSubjects();
-        const order = subjects.map(subject =>
-            subject.id
-        );
+        const order = readSubjectOrder();
 
         const library =
             readLibraryState();
@@ -2383,8 +2501,15 @@
             return false;
         }
 
+        const visibleIds = new Set(
+            subjects.map(subject => subject.id)
+        );
         const categoryIds =
             order.filter(candidateId => {
+                if (!visibleIds.has(candidateId)) {
+                    return false;
+                }
+
                 const candidatePlacement =
                     library.subjects[candidateId];
 
@@ -2597,9 +2722,11 @@
     }
 
     async function deleteSubject(subjectId) {
-        const current = await getSubject(subjectId);
+        const current = readStoredSubject(subjectId);
 
         if (!current) return false;
+
+        clearPendingDeleteTimer(current.id);
 
         const deleted = removeValue(
             subjectStorageKey(current.id)
@@ -2618,6 +2745,10 @@
                 buildCheckpointStorageKey(current.id)
             );
 
+            removeValue(
+                pendingDeleteStorageKey(current.id)
+            );
+
             removeMySubjectFromSessionSubjects(
                 current.id
             );
@@ -2632,6 +2763,157 @@
         }
 
         return deleted;
+    }
+
+    async function beginPendingDelete(
+        subjectId,
+        graceMs = 7000
+    ) {
+        const current = readStoredSubject(subjectId);
+
+        if (!current) return null;
+
+        const existing = readPendingDelete(current.id);
+        if (existing) {
+            schedulePendingDelete(existing);
+            return cloneJson(existing);
+        }
+
+        const now = Date.now();
+        const duration = Math.max(
+            1000,
+            Number(graceMs) || 7000
+        );
+        const record = {
+            schemaVersion: SCHEMA_VERSION,
+            subjectId: current.id,
+            createdAt: now,
+            deleteAt: now + duration
+        };
+
+        if (
+            !writeJson(
+                pendingDeleteStorageKey(current.id),
+                record
+            )
+        ) {
+            return null;
+        }
+
+        schedulePendingDelete(record);
+        return cloneJson(record);
+    }
+
+    async function cancelPendingDelete(subjectId) {
+        const id = String(subjectId || '').trim();
+        const record = readPendingDelete(id);
+
+        if (!id || !record) return null;
+
+        clearPendingDeleteTimer(id);
+
+        if (!removeValue(pendingDeleteStorageKey(id))) {
+            return null;
+        }
+
+        return cloneJson(readStoredSubject(id));
+    }
+
+    async function getPendingDelete(subjectId) {
+        return cloneJson(
+            readPendingDelete(subjectId)
+        );
+    }
+
+    async function listPendingDeletes() {
+        return cloneJson(
+            listPendingDeleteRecords()
+        ) || [];
+    }
+
+    async function finalizePendingDelete(subjectId) {
+        const id = String(subjectId || '').trim();
+        const record = readPendingDelete(id);
+
+        if (!id || !record) return false;
+
+        if (record.deleteAt > Date.now()) {
+            schedulePendingDelete(record);
+            return false;
+        }
+
+        const deleted = await deleteSubject(id);
+
+        if (deleted) return true;
+
+        if (!readStoredSubject(id)) {
+            clearPendingDeleteTimer(id);
+            removeValue(pendingDeleteStorageKey(id));
+            return true;
+        }
+
+        return false;
+    }
+
+    function schedulePendingDelete(record) {
+        const normalized = normalizePendingDelete(record);
+        if (!normalized) return;
+
+        clearPendingDeleteTimer(normalized.subjectId);
+
+        const delay = Math.max(
+            0,
+            normalized.deleteAt - Date.now()
+        );
+
+        const timer = setTimeout(
+            () => {
+                void finalizePendingDelete(
+                    normalized.subjectId
+                );
+            },
+            delay
+        );
+
+        pendingDeleteTimers.set(
+            normalized.subjectId,
+            timer
+        );
+    }
+
+    async function reconcilePendingDeletes() {
+        const pending = [];
+        const finalized = [];
+
+        for (const record of listPendingDeleteRecords()) {
+            if (!readStoredSubject(record.subjectId)) {
+                clearPendingDeleteTimer(record.subjectId);
+                removeValue(
+                    pendingDeleteStorageKey(record.subjectId)
+                );
+                continue;
+            }
+
+            if (record.deleteAt <= Date.now()) {
+                const deleted =
+                    await finalizePendingDelete(
+                        record.subjectId
+                    );
+
+                if (deleted) {
+                    finalized.push(record.subjectId);
+                    continue;
+                }
+            }
+
+            schedulePendingDelete(record);
+            pending.push(record);
+        }
+
+        return cloneJson({
+            pending,
+            finalized
+        });
     }
 
     function validatePortableData(payload) {
@@ -2890,12 +3172,21 @@
     }
 
     async function exportPortableData() {
+        await reconcilePendingDeletes();
+
+        const pendingIds = new Set(
+            listPendingDeleteRecords()
+                .map(record => record.subjectId)
+        );
         const subjects = listKeysWithPrefix(SUBJECT_PREFIX)
             .map(key => readPortableRecord(
                 key,
                 SUBJECT_PREFIX,
                 'id'
-            ));
+            ))
+            .filter(record =>
+                !pendingIds.has(record.id)
+            );
         const subjectIds = new Set(
             subjects
                 .map(record =>
@@ -2967,7 +3258,14 @@
             }
 
             sessionSubjects[sessionId] =
-                readJsonStrict(key);
+                normalizeSessionSubjectRefs(
+                    readJsonStrict(key)
+                ).filter(ref =>
+                    !(
+                        ref.kind === 'my-subject' &&
+                        pendingIds.has(ref.id)
+                    )
+                );
         });
 
         const library =
@@ -2999,11 +3297,17 @@
             throw new Error(validation.errors.join(' '));
         }
 
+        pendingDeleteTimers.forEach(timer =>
+            clearTimeout(timer)
+        );
+        pendingDeleteTimers.clear();
+
         const existingKeys = [
             ...listKeysWithPrefix(SUBJECT_PREFIX),
             ...listKeysWithPrefix(WORKING_DRAFT_PREFIX),
             ...listKeysWithPrefix(BUILD_STATE_PREFIX),
-            ...listKeysWithPrefix(SESSION_SUBJECTS_PREFIX)
+            ...listKeysWithPrefix(SESSION_SUBJECTS_PREFIX),
+            ...listKeysWithPrefix(PENDING_DELETE_PREFIX)
         ];
 
         existingKeys.forEach(key => {
@@ -3088,8 +3392,17 @@
         duplicateSubject,
         deleteSubject,
 
+        beginPendingDelete,
+        cancelPendingDelete,
+        getPendingDelete,
+        listPendingDeletes,
+        finalizePendingDelete,
+        reconcilePendingDeletes,
+
         exportPortableData,
         validatePortableData,
         restorePortableData
     };
+
+    void reconcilePendingDeletes();
 })();
