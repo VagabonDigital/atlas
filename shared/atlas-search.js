@@ -413,6 +413,7 @@
                 <div class="atlas-search-input-row">
                     ${SEARCH_ICON}
                     <input class="atlas-search-input" id="${IDS.input}" placeholder="Search subjects, games, and worlds…" autocomplete="off" autocorrect="off" spellcheck="false">
+                    <button class="atlas-search-close" type="button" aria-label="Close search">×</button>
                 </div>
                 <div class="atlas-search-results" id="${IDS.results}"></div>
             </div>
@@ -423,6 +424,7 @@
                 close();
             }
         });
+        overlay.querySelector('.atlas-search-close')?.addEventListener('click', close);
         const input = document.getElementById(IDS.input);
         input.addEventListener('input', event => {
             focusIdx = -1;
