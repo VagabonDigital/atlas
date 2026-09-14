@@ -14,6 +14,10 @@
     const STORAGE_KEY = 'atlas::originalCuration';
     const STATE_ARCHIVED = 'archived';
     const STATE_DELETED = 'deleted';
+    const OWNED_DUPLICATE_DISABLED_CLASS =
+        'is-duplicate-unavailable';
+    const OWNED_DUPLICATE_STYLE_ID =
+        'atlas-owned-duplicate-availability-style';
 
     function normalizeRegistryId(value) {
         const id = String(value || '').trim();
@@ -337,6 +341,138 @@
         }
     }
 
+    function parseOwnedSubjectIdFromMenu(menu) {
+        const duplicateButton = menu?.querySelector(
+            'button[onclick^="duplicateOwnedSubject("]'
+        );
+
+        const code = String(
+            duplicateButton?.getAttribute('onclick') || ''
+        );
+
+        const match = code.match(
+            /^duplicateOwnedSubject\((.+?),\s*event\)/
+        );
+
+        if (!match) return '';
+
+        try {
+            return String(JSON.parse(match[1]) || '').trim();
+        } catch {
+            return '';
+        }
+    }
+
+    async function getOwnedSubjectDuplicateAvailability(subjectId) {
+        const id = String(subjectId || '').trim();
+        const Subjects = window.AtlasTutorSubjects;
+
+        if (
+            !id ||
+            !Subjects ||
+            typeof Subjects.getBuildState !== 'function' ||
+            typeof Subjects.getWorkingDraft !== 'function'
+        ) {
+            return {
+                available: false,
+                reason: 'Duplicate is temporarily unavailable.'
+            };
+        }
+
+        try {
+            const [buildState, workingDraft] = await Promise.all([
+                Subjects.getBuildState(id),
+                Subjects.getWorkingDraft(id)
+            ]);
+
+            if (
+                buildState &&
+                Number(buildState.completedStep || 0) < 18
+            ) {
+                return {
+                    available: false,
+                    reason: 'Available when generation finishes.'
+                };
+            }
+
+            if (workingDraft || buildState) {
+                return {
+                    available: false,
+                    reason: 'Save changes before duplicating.'
+                };
+            }
+
+            return {
+                available: true,
+                reason: ''
+            };
+        } catch {
+            return {
+                available: false,
+                reason: 'Duplicate is temporarily unavailable.'
+            };
+        }
+    }
+
+    function ensureOwnedDuplicateAvailabilityStyles() {
+        if (document.getElementById(OWNED_DUPLICATE_STYLE_ID)) {
+            return;
+        }
+
+        const style = document.createElement('style');
+        style.id = OWNED_DUPLICATE_STYLE_ID;
+        style.textContent = `
+            .subject-card-menu button.${OWNED_DUPLICATE_DISABLED_CLASS} {
+                opacity: 0.48;
+                cursor: not-allowed;
+                color: var(--text-muted);
+            }
+        `;
+
+        document.head.appendChild(style);
+    }
+
+    async function decorateOwnedSubjectDuplicate(menu) {
+        const subjectId = parseOwnedSubjectIdFromMenu(menu);
+
+        if (!subjectId) return;
+
+        const button = menu.querySelector(
+            'button[onclick^="duplicateOwnedSubject("]'
+        );
+
+        if (!button) return;
+
+        const availability =
+            await getOwnedSubjectDuplicateAvailability(subjectId);
+
+        if (!button.isConnected) return;
+
+        button.classList.toggle(
+            OWNED_DUPLICATE_DISABLED_CLASS,
+            !availability.available
+        );
+        button.setAttribute(
+            'aria-disabled',
+            availability.available ? 'false' : 'true'
+        );
+
+        if (availability.available) {
+            button.removeAttribute('title');
+            button.setAttribute('aria-label', 'Duplicate');
+            delete button.dataset.atlasDuplicateUnavailableReason;
+            return;
+        }
+
+        button.title = availability.reason;
+        button.setAttribute(
+            'aria-label',
+            `Duplicate. ${availability.reason}`
+        );
+        button.dataset.atlasDuplicateUnavailableReason =
+            availability.reason;
+    }
+
     function installCompassHubIntegration() {
         if (
             window.__atlasOriginalCurationHubInstalled ||
@@ -347,17 +483,45 @@
         }
 
         window.__atlasOriginalCurationHubInstalled = true;
+        ensureOwnedDuplicateAvailabilityStyles();
 
         const originalGetAtlasSubjects =
             window.getAtlasSubjects;
         const originalRestoreDialog =
             window.openRestoreAtlasOriginalHubDialog;
+        const originalDuplicateOwnedSubject =
+            window.duplicateOwnedSubject;
 
         window.getAtlasSubjects = function (options) {
             return sortSubjects(
                 originalGetAtlasSubjects(options)
             );
         };
+
+        if (typeof originalDuplicateOwnedSubject === 'function') {
+            window.duplicateOwnedSubject = async function (
+                subjectId,
+                event
+            ) {
+                const availability =
+                    await getOwnedSubjectDuplicateAvailability(
+                        subjectId
+                    );
+
+                if (!availability.available) {
+                    event?.preventDefault?.();
+                    event?.stopPropagation?.();
+                    window.showToast?.(availability.reason);
+                    return null;
+                }
+
+                return originalDuplicateOwnedSubject.call(
+                    this,
+                    subjectId,
+                    event
+                );
+            };
+        }
 
         async function moveAtlasOriginalFromHub(
             registryId,
@@ -405,6 +569,8 @@
             document
                 .querySelectorAll('.subject-card-menu')
                 .forEach(menu => {
+                    void decorateOwnedSubjectDuplicate(menu);
+
                     const registryId =
                         parseAtlasRegistryIdFromMenu(menu);
 
@@ -655,6 +821,11 @@
                 subtree: true
             });
         }
+
+        window.addEventListener(
+            'focus',
+            decorateAtlasSubjectMenus
+        );
 
         Promise.resolve(window.renderHub())
             .then(decorateAtlasSubjectMenus)
