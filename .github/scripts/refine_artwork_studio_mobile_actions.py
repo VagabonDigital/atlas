@@ -1,0 +1,215 @@
+from pathlib import Path
+
+path = Path('compass/index.html')
+text = path.read_text()
+
+old_markup = '''              <p
+                class="subject-artwork-studio-error"
+                id="subject-artwork-studio-error"
+                hidden>
+              </p>
+
+            </div>
+
+            <div class="subject-artwork-studio-preview">
+              <div
+                class="subject-artwork-preview-card"
+                id="subject-artwork-preview-card">
+              </div>
+            </div>
+          </div>
+
+          <div class="subject-artwork-studio-actions">
+
+            <button
+              class="btn-ghost subject-artwork-remove-btn"
+              id="subject-artwork-remove"
+              type="button"
+              onclick="removeSubjectArtworkStudio()"
+              hidden>
+              Remove artwork
+            </button>
+
+            <button
+              class="btn-primary"
+              id="subject-artwork-generate"
+              type="button"
+              onclick="generateSubjectArtworkStudioPreview()">
+              Generate artwork
+            </button>
+
+            <div class="subject-artwork-studio-actions-spacer"></div>
+
+            <button
+              class="btn-ghost"
+              type="button"
+              onclick="closeSubjectArtworkStudio()">
+              Cancel
+            </button>
+
+            <button
+              class="btn-primary"
+              id="subject-artwork-use"
+              type="button"
+              onclick="saveSubjectArtworkStudio()">
+              Use artwork
+            </button>
+          </div>'''
+
+new_markup = '''              <p
+                class="subject-artwork-studio-error"
+                id="subject-artwork-studio-error"
+                hidden>
+              </p>
+
+              <div class="subject-artwork-studio-edit-actions">
+                <button
+                  class="btn-primary"
+                  id="subject-artwork-generate"
+                  type="button"
+                  onclick="generateSubjectArtworkStudioPreview()">
+                  Generate artwork
+                </button>
+
+                <button
+                  class="btn-ghost subject-artwork-remove-btn"
+                  id="subject-artwork-remove"
+                  type="button"
+                  onclick="removeSubjectArtworkStudio()"
+                  hidden>
+                  Remove artwork
+                </button>
+              </div>
+
+            </div>
+
+            <div class="subject-artwork-studio-preview">
+              <div
+                class="subject-artwork-preview-card"
+                id="subject-artwork-preview-card">
+              </div>
+            </div>
+          </div>
+
+          <div class="subject-artwork-studio-actions">
+            <button
+              class="btn-ghost"
+              type="button"
+              onclick="closeSubjectArtworkStudio()">
+              Cancel
+            </button>
+
+            <button
+              class="btn-primary"
+              id="subject-artwork-use"
+              type="button"
+              onclick="saveSubjectArtworkStudio()">
+              Use artwork
+            </button>
+          </div>'''
+
+if text.count(old_markup) != 1:
+    raise SystemExit(
+        f'Expected exactly one Artwork Studio action markup block, found {text.count(old_markup)}.'
+    )
+text = text.replace(old_markup, new_markup, 1)
+
+old_css = '''    .subject-artwork-studio-actions-spacer {
+      flex: 1;
+    }
+
+    .subject-artwork-remove-btn {
+      color: var(--danger-text);
+    }
+
+    @media (max-width: 760px) {
+      .subject-artwork-studio-backdrop {
+        padding: 0.75rem;
+      }
+
+      .subject-artwork-studio {
+        width: calc(100vw - 1.5rem);
+        max-height: calc(100vh - 1.5rem);
+      }
+
+      .subject-artwork-studio-body {
+        grid-template-columns: 1fr;
+        padding-bottom: 5.5rem;
+      }
+
+      .subject-artwork-studio:has(
+        .subject-artwork-remove-btn:not([hidden])
+      ) .subject-artwork-studio-body {
+        padding-bottom: 9rem;
+      }
+
+      .subject-artwork-studio-preview {
+        order: -1;
+      }
+    }'''
+
+new_css = '''    .subject-artwork-studio-edit-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.15rem;
+    }
+
+    .subject-artwork-remove-btn {
+      color: var(--danger-text);
+    }
+
+    @media (max-width: 760px) {
+      .subject-artwork-studio-backdrop {
+        padding: 0.75rem;
+      }
+
+      .subject-artwork-studio {
+        width: calc(100vw - 1.5rem);
+        max-height: calc(100vh - 1.5rem);
+      }
+
+      .subject-artwork-studio-body {
+        grid-template-columns: 1fr;
+        padding-bottom: 5.25rem;
+      }
+
+      .subject-artwork-studio-preview {
+        order: -1;
+      }
+
+      .subject-artwork-studio-edit-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.55rem;
+      }
+
+      .subject-artwork-studio-edit-actions .btn-primary,
+      .subject-artwork-studio-edit-actions .btn-ghost {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .subject-artwork-studio-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+        gap: 0.6rem;
+        padding: 0.75rem 1rem calc(0.85rem + env(safe-area-inset-bottom, 0px));
+      }
+
+      .subject-artwork-studio-actions .btn-primary,
+      .subject-artwork-studio-actions .btn-ghost {
+        width: 100%;
+        min-width: 0;
+        justify-content: center;
+      }
+    }'''
+
+if text.count(old_css) != 1:
+    raise SystemExit(
+        f'Expected exactly one Artwork Studio mobile CSS block, found {text.count(old_css)}.'
+    )
+text = text.replace(old_css, new_css, 1)
+
+path.write_text(text)
