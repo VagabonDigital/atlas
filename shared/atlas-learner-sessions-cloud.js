@@ -71,6 +71,48 @@
         };
     }
 
+    function normalizeSubjectRef(value) {
+        if (
+            !value ||
+            typeof value !== 'object' ||
+            Array.isArray(value)
+        ) {
+            return null;
+        }
+
+        const kind = String(value.kind || '').trim();
+        const id = String(value.id || '').trim();
+
+        if (
+            !id ||
+            (
+                kind !== 'my-subject' &&
+                kind !== 'atlas-subject'
+            )
+        ) {
+            return null;
+        }
+
+        return { kind, id };
+    }
+
+    function normalizeSubjectRefs(value) {
+        const seen = new Set();
+
+        return (Array.isArray(value) ? value : [])
+            .map(normalizeSubjectRef)
+            .filter(ref => {
+                if (!ref) return false;
+
+                const key = `${ref.kind}:${ref.id}`;
+
+                if (seen.has(key)) return false;
+
+                seen.add(key);
+                return true;
+            });
+    }
+
     function normalizeRecord(record) {
         if (
             !record ||
@@ -96,6 +138,12 @@
                 Math.floor(Number(record.revision) || 1)
             ),
             memory: normalizeMemory(record.memory, id),
+            subjectRefsSupported:
+                record.subjectRefsSupported === true,
+            subjectRefs:
+                normalizeSubjectRefs(record.subjectRefs),
+            subjectRefsMigrated:
+                record.subjectRefsMigrated === true,
             createdAt: Math.max(
                 0,
                 Number(record.createdAt) || timestamp
@@ -120,7 +168,7 @@
             );
         }
 
-        return {
+        const row = {
             owner_user_id: ownerUserId,
             id: normalized.id,
             schema_version: normalized.schemaVersion,
@@ -131,6 +179,15 @@
             updated_at: new Date(normalized.updatedAt).toISOString(),
             last_active_at: new Date(normalized.lastActiveAt).toISOString()
         };
+
+        if (normalized.subjectRefsSupported) {
+            row.subject_refs =
+                cloneJson(normalized.subjectRefs);
+            row.subject_refs_migrated =
+                normalized.subjectRefsMigrated;
+        }
+
+        return row;
     }
 
     function rowToRecord(row) {
@@ -141,16 +198,57 @@
 
         if (!id || !name) return null;
 
+        const subjectRefsSupported =
+            Object.prototype.hasOwnProperty.call(
+                row,
+                'subject_refs'
+            ) &&
+            Object.prototype.hasOwnProperty.call(
+                row,
+                'subject_refs_migrated'
+            );
+
         return normalizeRecord({
             schemaVersion: row.schema_version,
             id,
             name,
             revision: row.revision,
             memory: row.memory,
+            subjectRefsSupported,
+            subjectRefs:
+                subjectRefsSupported
+                    ? row.subject_refs
+                    : [],
+            subjectRefsMigrated:
+                subjectRefsSupported &&
+                row.subject_refs_migrated === true,
             createdAt: Date.parse(row.created_at) || 0,
             updatedAt: Date.parse(row.updated_at) || 0,
             lastActiveAt: Date.parse(row.last_active_at) || 0
         });
+    }
+
+    function isSubjectRefsSchemaError(error) {
+        const code = String(error?.code || '').trim();
+        const message = String(error?.message || '').toLowerCase();
+
+        return (
+            (
+                code === 'PGRST204' ||
+                code === '42703'
+            ) &&
+            (
+                message.includes('subject_refs') ||
+                message.includes('subject_refs_migrated')
+            )
+        );
+    }
+
+    function withoutSubjectRefColumns(row) {
+        const legacy = { ...row };
+        delete legacy.subject_refs;
+        delete legacy.subject_refs_migrated;
+        return legacy;
     }
 
     async function createLearnerSession(record) {
@@ -159,14 +257,31 @@
         const user = await requireUser();
         const row = recordToRow(record, user.id);
 
-        const { data, error } = await client
+        let response = await client
             .from('learner_sessions')
             .insert(row)
             .select('*')
             .single();
 
-        if (error) throw error;
-        return rowToRecord(data);
+        if (
+            response.error &&
+            Object.prototype.hasOwnProperty.call(
+                row,
+                'subject_refs'
+            ) &&
+            isSubjectRefsSchemaError(response.error)
+        ) {
+            response = await client
+                .from('learner_sessions')
+                .insert(
+                    withoutSubjectRefColumns(row)
+                )
+                .select('*')
+                .single();
+        }
+
+        if (response.error) throw response.error;
+        return rowToRecord(response.data);
     }
 
     async function getLearnerSession(sessionId) {
@@ -233,24 +348,54 @@
             user.id
         );
 
-        const { data, error } = await client
-            .from('learner_sessions')
-            .update({
-                schema_version: row.schema_version,
-                name: row.name,
-                revision: row.revision,
-                memory: row.memory,
-                last_active_at: row.last_active_at
-            })
-            .eq('owner_user_id', user.id)
-            .eq('id', row.id)
-            .eq('revision', previousRevision)
-            .select('*')
-            .maybeSingle();
+        const buildMutation = payload =>
+            client
+                .from('learner_sessions')
+                .update(payload)
+                .eq('owner_user_id', user.id)
+                .eq('id', row.id)
+                .eq('revision', previousRevision)
+                .select('*')
+                .maybeSingle();
 
-        if (error) throw error;
+        const payload = {
+            schema_version: row.schema_version,
+            name: row.name,
+            revision: row.revision,
+            memory: row.memory,
+            last_active_at: row.last_active_at
+        };
 
-        if (!data) {
+        if (
+            Object.prototype.hasOwnProperty.call(
+                row,
+                'subject_refs'
+            )
+        ) {
+            payload.subject_refs = row.subject_refs;
+            payload.subject_refs_migrated =
+                row.subject_refs_migrated;
+        }
+
+        let response = await buildMutation(payload);
+
+        if (
+            response.error &&
+            Object.prototype.hasOwnProperty.call(
+                payload,
+                'subject_refs'
+            ) &&
+            isSubjectRefsSchemaError(response.error)
+        ) {
+            const legacyPayload = { ...payload };
+            delete legacyPayload.subject_refs;
+            delete legacyPayload.subject_refs_migrated;
+            response = await buildMutation(legacyPayload);
+        }
+
+        if (response.error) throw response.error;
+
+        if (!response.data) {
             const conflict = new Error(
                 'This learner changed elsewhere before your save completed.'
             );
@@ -258,7 +403,7 @@
             throw conflict;
         }
 
-        return rowToRecord(data);
+        return rowToRecord(response.data);
     }
 
     async function deleteLearnerSession(
@@ -298,6 +443,7 @@
 
     window.AtlasLearnerSessionsCloud = Object.freeze({
         normalizeMemory,
+        normalizeSubjectRefs,
         normalizeRecord,
         createLearnerSession,
         getLearnerSession,
