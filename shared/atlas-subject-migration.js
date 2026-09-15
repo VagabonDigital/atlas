@@ -132,7 +132,11 @@
             conflictCount: 0,
             cloudOnlyCount: cloudOnly.length,
             conflicts: [],
-            missingIds: missing.map(subject => subject.id)
+            missingIds: missing.map(subject => subject.id),
+            missingSubjects: missing.map(subject => ({
+                id: subject.id,
+                title: subject.metadata?.title || subject.id
+            }))
         });
     }
 
