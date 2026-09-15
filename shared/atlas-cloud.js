@@ -112,7 +112,15 @@
     }
 
     async function requireUser() {
-        const user = await getUser();
+        /*
+         * Data operations use the restored Supabase session instead of making
+         * an auth.getUser() network request before every database request.
+         * PostgREST/RLS still validates the access token server-side on the
+         * actual query, so this removes redundant latency without weakening
+         * the ownership boundary.
+         */
+        const session = await getSession();
+        const user = session?.user || null;
 
         if (!user) {
             throw new Error('Atlas cloud access requires a signed-in user.');
