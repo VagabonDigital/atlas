@@ -3,8 +3,9 @@
    Versioned Backup & Restore boundary for browser-local Atlas data.
 
    This module coordinates existing persistence owners. It deliberately
-   excludes tab/session state, live manipulation, wrap-up drafts, catalog
-   projections, launch URLs, legacy keys, and unrelated browser storage.
+   excludes active tab/session selection, live manipulation, wrap-up drafts,
+   catalog projections, launch URLs, legacy keys, and unrelated browser
+   storage. Durable learner memory and Atlas Original curation are included.
    ============================================================ */
 
 (function () {
@@ -13,19 +14,23 @@
     if (window.AtlasPortableData) return;
 
     const FORMAT = 'atlas-backup';
-    const VERSION = 1;
+    const VERSION = 2;
+    const LEGACY_VERSION = 1;
     const DEFAULT_SESSION_ID = 'default';
     const SESSION_ATMOSPHERE_KEY =
         'atlas::sessionAtmosphereImages';
     const WELCOME_FAVORITES_KEY =
         'atlas::welcomeImageFavorites';
+    const ORIGINAL_CURATION_KEY =
+        'atlas::originalCuration';
     const MAX_WELCOME_FAVORITES = 12;
     const TRANSIENT_PREFIXES = [
         'atlas::tutorContent::live::',
         'atlas::compassWrapUpDraft::',
         'atlas::activeCompassWrapUpDraft::'
     ];
-    const BACKUP_DATA_KEYS = [
+
+    const BACKUP_DATA_KEYS_V1 = [
         'sessions',
         'sessionStates',
         'ledger',
@@ -37,6 +42,29 @@
         'tutorContent',
         'tutorSubjects'
     ];
+
+    const BACKUP_DATA_KEYS = [
+        'sessions',
+        'learnerMemory',
+        'sessionStates',
+        'ledger',
+        'handoffs',
+        'preferences',
+        'appearanceBySession',
+        'sessionAtmosphereImages',
+        'welcomeImageFavorites',
+        'originalCuration',
+        'tutorContent',
+        'tutorSubjects'
+    ];
+
+    function emptyOriginalCuration() {
+        return {
+            schemaVersion: 2,
+            items: {},
+            order: []
+        };
+    }
 
     function isPlainObject(value) {
         if (!value || typeof value !== 'object') return false;
@@ -203,6 +231,26 @@
         }));
     }
 
+    function selectLearnerMemory(Bridge, sessions) {
+        return sessions.reduce((result, session) => {
+            const memory = Bridge.readLearnerMemory(session.id);
+
+            if (
+                memory &&
+                (
+                    memory.about.trim() ||
+                    memory.interests.trim() ||
+                    memory.notes.trim() ||
+                    memory.nextTime.trim()
+                )
+            ) {
+                result[session.id] = cloneJson(memory);
+            }
+
+            return result;
+        }, {});
+    }
+
     function selectSessionMap(value, sessionIds, transform) {
         if (!isPlainObject(value)) return {};
 
@@ -298,6 +346,54 @@
         )).slice(0, MAX_WELCOME_FAVORITES);
     }
 
+    function selectOriginalCuration(value) {
+        const candidate = isPlainObject(value)
+            ? value
+            : {};
+        const rawItems = isPlainObject(candidate.items)
+            ? candidate.items
+            : {};
+        const items = {};
+
+        Object.entries(rawItems).forEach(([registryId, record]) => {
+            if (
+                !registryId.startsWith('compass:') ||
+                !isPlainObject(record) ||
+                !['archived', 'deleted'].includes(record.state)
+            ) {
+                return;
+            }
+
+            items[registryId] = {
+                state: record.state,
+                updatedAt: Number.isFinite(Number(record.updatedAt))
+                    ? Number(record.updatedAt)
+                    : Date.now()
+            };
+        });
+
+        const seen = new Set();
+        const order = (Array.isArray(candidate.order) ? candidate.order : [])
+            .map(item => String(item || '').trim())
+            .filter(registryId => {
+                if (
+                    !registryId.startsWith('compass:') ||
+                    seen.has(registryId)
+                ) {
+                    return false;
+                }
+
+                seen.add(registryId);
+                return true;
+            });
+
+        return {
+            schemaVersion: 2,
+            items,
+            order
+        };
+    }
+
     async function exportBackup() {
         const {
             Bridge,
@@ -329,6 +425,12 @@
             WELCOME_FAVORITES_KEY,
             []
         );
+        const originalCuration = selectOriginalCuration(
+            readStoredJson(
+                ORIGINAL_CURATION_KEY,
+                emptyOriginalCuration()
+            )
+        );
         const [tutorContent, tutorSubjects] = await Promise.all([
             TutorContent.exportPortableData(),
             TutorSubjects.exportPortableData()
@@ -340,6 +442,10 @@
             exportedAt: new Date().toISOString(),
             data: {
                 sessions,
+                learnerMemory: selectLearnerMemory(
+                    Bridge,
+                    sessions
+                ),
                 sessionStates: selectSessionMap(
                     registry.sessionStates,
                     sessionIds,
@@ -360,6 +466,7 @@
                 ),
                 welcomeImageFavorites:
                     selectWelcomeFavorites(favorites),
+                originalCuration,
                 tutorContent,
                 tutorSubjects
             }
@@ -442,6 +549,62 @@
         }
 
         return { sessions, sessionIds };
+    }
+
+    function validateLearnerMemory(value, sessionIds, errors) {
+        if (!isPlainObject(value)) {
+            errors.push('data.learnerMemory must be an object.');
+            return {};
+        }
+
+        Object.entries(value).forEach(([sessionId, record]) => {
+            const label = `data.learnerMemory.${sessionId}`;
+
+            if (!sessionIds.has(sessionId)) {
+                errors.push(`${label} refers to an unknown session.`);
+            }
+
+            if (
+                !hasExactKeys(record, [
+                    'schemaVersion',
+                    'sessionId',
+                    'about',
+                    'interests',
+                    'notes',
+                    'nextTime',
+                    'updatedAt'
+                ])
+            ) {
+                errors.push(`${label} has an invalid shape.`);
+                return;
+            }
+
+            if (record.schemaVersion !== 1) {
+                errors.push(`${label}.schemaVersion must be 1.`);
+            }
+
+            if (record.sessionId !== sessionId) {
+                errors.push(`${label}.sessionId does not match.`);
+            }
+
+            ['about', 'interests', 'notes', 'nextTime']
+                .forEach(field => {
+                    if (typeof record[field] !== 'string') {
+                        errors.push(`${label}.${field} must be a string.`);
+                    }
+                });
+
+            if (
+                !Number.isFinite(record.updatedAt) ||
+                record.updatedAt < 0
+            ) {
+                errors.push(
+                    `${label}.updatedAt must be a non-negative number.`
+                );
+            }
+        });
+
+        return cloneJson(value);
     }
 
     function validateSessionStates(value, sessionIds, errors) {
@@ -810,6 +973,81 @@
         return [...value];
     }
 
+    function validateOriginalCuration(value, errors) {
+        if (
+            !hasExactKeys(value, [
+                'schemaVersion',
+                'items',
+                'order'
+            ])
+        ) {
+            errors.push('data.originalCuration has an invalid shape.');
+            return emptyOriginalCuration();
+        }
+
+        if (value.schemaVersion !== 2) {
+            errors.push('data.originalCuration.schemaVersion must be 2.');
+        }
+
+        if (!isPlainObject(value.items)) {
+            errors.push('data.originalCuration.items must be an object.');
+        } else {
+            Object.entries(value.items).forEach(([registryId, record]) => {
+                const label = `data.originalCuration.items.${registryId}`;
+
+                if (!registryId.startsWith('compass:')) {
+                    errors.push(`${label} has an invalid registry ID.`);
+                }
+
+                if (
+                    !hasExactKeys(record, ['state', 'updatedAt'])
+                ) {
+                    errors.push(`${label} has an invalid shape.`);
+                    return;
+                }
+
+                if (!['archived', 'deleted'].includes(record.state)) {
+                    errors.push(`${label}.state is invalid.`);
+                }
+
+                if (
+                    !Number.isFinite(record.updatedAt) ||
+                    record.updatedAt < 0
+                ) {
+                    errors.push(
+                        `${label}.updatedAt must be a non-negative number.`
+                    );
+                }
+            });
+        }
+
+        if (!Array.isArray(value.order)) {
+            errors.push('data.originalCuration.order must be an array.');
+        } else {
+            const seen = new Set();
+
+            value.order.forEach((registryId, index) => {
+                const label = `data.originalCuration.order[${index}]`;
+
+                if (
+                    typeof registryId !== 'string' ||
+                    !registryId.startsWith('compass:')
+                ) {
+                    errors.push(`${label} is invalid.`);
+                    return;
+                }
+
+                if (seen.has(registryId)) {
+                    errors.push(`${label} is duplicated.`);
+                }
+
+                seen.add(registryId);
+            });
+        }
+
+        return cloneJson(value);
+    }
+
     function validateBackup(candidate) {
         const errors = [];
 
@@ -831,8 +1069,13 @@
                 errors.push(`Backup format must be ${FORMAT}.`);
             }
 
-            if (candidate?.version !== VERSION) {
-                errors.push(`Backup version must be ${VERSION}.`);
+            const sourceVersion = Number(candidate?.version);
+            const isLegacy = sourceVersion === LEGACY_VERSION;
+
+            if (!isLegacy && sourceVersion !== VERSION) {
+                errors.push(
+                    `Backup version must be ${LEGACY_VERSION} or ${VERSION}.`
+                );
             }
 
             if (
@@ -844,7 +1087,11 @@
                 errors.push('Backup exportedAt must be an ISO timestamp.');
             }
 
-            if (!hasExactKeys(candidate?.data, BACKUP_DATA_KEYS)) {
+            const expectedDataKeys = isLegacy
+                ? BACKUP_DATA_KEYS_V1
+                : BACKUP_DATA_KEYS;
+
+            if (!hasExactKeys(candidate?.data, expectedDataKeys)) {
                 errors.push('Backup data has an invalid or incomplete shape.');
             }
 
@@ -855,6 +1102,13 @@
                 data.sessions,
                 errors
             );
+            const learnerMemory = isLegacy
+                ? {}
+                : validateLearnerMemory(
+                    data.learnerMemory,
+                    sessionIds,
+                    errors
+                );
             const sessionStates = validateSessionStates(
                 data.sessionStates,
                 sessionIds,
@@ -892,6 +1146,12 @@
                 data.welcomeImageFavorites,
                 errors
             );
+            const originalCuration = isLegacy
+                ? emptyOriginalCuration()
+                : validateOriginalCuration(
+                    data.originalCuration,
+                    errors
+                );
 
             const { TutorContent, TutorSubjects } = requireOwners();
             const tutorContentValidation =
@@ -918,6 +1178,7 @@
                             exportedAt: candidate.exportedAt,
                             data: {
                                 sessions,
+                                learnerMemory,
                                 sessionStates,
                                 ledger,
                                 handoffs,
@@ -925,6 +1186,7 @@
                                 appearanceBySession,
                                 sessionAtmosphereImages,
                                 welcomeImageFavorites,
+                                originalCuration,
                                 tutorContent: tutorContentValidation.data,
                                 tutorSubjects: tutorSubjectsValidation.data
                             }
@@ -978,6 +1240,7 @@
             session => session.id !== DEFAULT_SESSION_ID
         ) ||
             Boolean(defaultSession && defaultSession.name !== 'Default') ||
+            Object.keys(data.learnerMemory).length > 0 ||
             Object.values(data.sessionStates).some(states =>
                 Object.keys(states).length > 0
             ) ||
@@ -987,6 +1250,8 @@
             Object.keys(data.appearanceBySession).length > 0 ||
             Object.keys(data.sessionAtmosphereImages).length > 0 ||
             data.welcomeImageFavorites.length > 0 ||
+            Object.keys(data.originalCuration.items).length > 0 ||
+            data.originalCuration.order.length > 0 ||
             data.tutorContent.versions.length > 0 ||
             data.tutorContent.workingDrafts.length > 0 ||
             data.tutorSubjects.subjects.length > 0 ||
@@ -1130,6 +1395,13 @@
             throw new Error('Atlas could not restore students.');
         }
 
+        writeBridgeJson(
+            Bridge,
+            Bridge.keys.learnerMemory,
+            data.learnerMemory,
+            'learner memory'
+        );
+
         if (!Bridge.writeRegistry({
             schemaVersion: 2,
             updatedAt: Date.now(),
@@ -1173,6 +1445,12 @@
             WELCOME_FAVORITES_KEY,
             data.welcomeImageFavorites,
             data.welcomeImageFavorites.length === 0
+        );
+        replaceOptionalJson(
+            ORIGINAL_CURATION_KEY,
+            data.originalCuration,
+            Object.keys(data.originalCuration.items).length === 0 &&
+                data.originalCuration.order.length === 0
         );
 
         await TutorContent.restorePortableData(data.tutorContent);
