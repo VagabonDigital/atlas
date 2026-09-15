@@ -6,6 +6,7 @@
    - returning authenticated entry behavior on the Atlas root
    - saved-language review completion watermark
    - root refresh after learner-cloud hydration
+   - account-owned subject/archive authorities needed by root settings
 
    Does NOT own:
    - learner/session persistence
@@ -103,6 +104,146 @@
         window.requestAnimationFrame(() => {
             document.documentElement.dataset
                 .atlasRootEntryReady = 'true';
+        });
+    }
+
+    function ensurePreconnect(href) {
+        if (
+            !href ||
+            document.querySelector(
+                `link[rel="preconnect"][href="${href}"]`
+            )
+        ) {
+            return;
+        }
+
+        const link = document.createElement('link');
+        link.rel = 'preconnect';
+        link.href = href;
+        link.crossOrigin = 'anonymous';
+        document.head.appendChild(link);
+    }
+
+    function loadScriptSequentially(src) {
+        return new Promise((resolve, reject) => {
+            const existing = document.querySelector(
+                `script[src^="${src.split('?')[0]}"]`
+            );
+
+            if (existing) {
+                if (
+                    existing.dataset.atlasLoaded === 'true' ||
+                    !existing.hasAttribute('async')
+                ) {
+                    resolve();
+                    return;
+                }
+
+                existing.addEventListener('load', resolve, {
+                    once: true
+                });
+                existing.addEventListener('error', reject, {
+                    once: true
+                });
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = false;
+            script.addEventListener(
+                'load',
+                () => {
+                    script.dataset.atlasLoaded = 'true';
+                    resolve();
+                },
+                { once: true }
+            );
+            script.addEventListener('error', reject, {
+                once: true
+            });
+            document.head.appendChild(script);
+        });
+    }
+
+    function writeRootCloudAuthorityScripts() {
+        if (
+            !isAtlasRoot() ||
+            !hasStoredAccountSession()
+        ) {
+            return;
+        }
+
+        ensurePreconnect(
+            'https://jnhjfpagectprceswvqn.supabase.co'
+        );
+        ensurePreconnect('https://cdn.jsdelivr.net');
+
+        const scripts = [];
+
+        if (!window.AtlasCloud) {
+            scripts.push(
+                '/shared/atlas-cloud.js?v=20260915-production2'
+            );
+        }
+
+        if (!window.AtlasAccount) {
+            scripts.push(
+                '/shared/atlas-account.js?v=20260915-production2'
+            );
+        }
+
+        if (
+            window.AtlasTutorSubjects &&
+            !window.AtlasCloudCache
+        ) {
+            scripts.push(
+                '/shared/atlas-cloud-cache.js?v=20260915-performance2'
+            );
+        }
+
+        if (
+            window.AtlasTutorSubjects &&
+            !window.AtlasTutorSubjectsCloudAuthority
+        ) {
+            scripts.push(
+                '/shared/atlas-tutor-subjects-cloud-authority.js?v=20260915-archive1'
+            );
+        }
+
+        if (
+            window.AtlasOriginalCuration &&
+            !window.AtlasOriginalCurationCloudAuthority
+        ) {
+            scripts.push(
+                '/shared/atlas-original-curation-cloud-authority.js?v=20260915-archive1'
+            );
+        }
+
+        if (!scripts.length) return;
+
+        if (document.readyState === 'loading') {
+            document.write(
+                scripts
+                    .map(src =>
+                        `<script src="${src}"><\/script>`
+                    )
+                    .join('')
+            );
+            return;
+        }
+
+        scripts.reduce(
+            (chain, src) =>
+                chain.then(() =>
+                    loadScriptSequentially(src)
+                ),
+            Promise.resolve()
+        ).catch(error => {
+            console.error(
+                '[AtlasRootRuntime] Account persistence bootstrap failed:',
+                error
+            );
         });
     }
 
@@ -372,6 +513,24 @@
         window.renderHome();
     }
 
+    function refreshRootSettingsAfterCurationHydration() {
+        if (!isAtlasRoot()) return;
+
+        if (
+            typeof window.renderArchivedSubjectsSettings ===
+            'function'
+        ) {
+            void window.renderArchivedSubjectsSettings();
+        }
+
+        if (
+            typeof window.renderRestoreAllAtlasOriginalsSetting ===
+            'function'
+        ) {
+            window.renderRestoreAllAtlasOriginalsSetting();
+        }
+    }
+
     function install() {
         if (!isAtlasRoot()) return;
 
@@ -396,7 +555,15 @@
     if (isAtlasRoot()) {
         /*
          * This runtime is injected synchronously while Atlas root is still
-         * parsing. Mark authenticated entry as soon as the account token is
+         * parsing. Load the account-owned subject and Atlas Original
+         * authorities here as well as in Compass: root Settings reads and
+         * restores those same durable objects and must never fall back to a
+         * browser-only archive for signed-in tutors.
+         */
+        writeRootCloudAuthorityScripts();
+
+        /*
+         * Mark authenticated entry as soon as the account token is
          * available; the shared prepaint gate keeps the root invisible until
          * DOMContentLoaded resolves the complete entry state.
          */
@@ -422,6 +589,11 @@
         window.addEventListener(
             'atlas:learner-cloud-ready',
             refreshRootAfterLearnerHydration
+        );
+
+        window.addEventListener(
+            'atlas:original-curation-cloud-ready',
+            refreshRootSettingsAfterCurationHydration
         );
     }
 
