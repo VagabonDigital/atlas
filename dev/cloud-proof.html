@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atlas Cloud Proof</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: system-ui, sans-serif;
+    }
+    body {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+      line-height: 1.5;
+    }
+    h1 { margin-bottom: 4px; }
+    .sub { opacity: .7; margin-top: 0; }
+    section {
+      border: 1px solid rgba(127,127,127,.35);
+      border-radius: 14px;
+      padding: 18px;
+      margin-top: 18px;
+    }
+    label { display: block; margin: 10px 0 4px; font-weight: 600; }
+    input, select, button {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      font: inherit;
+      border-radius: 8px;
+      border: 1px solid rgba(127,127,127,.45);
+    }
+    button { cursor: pointer; margin-top: 10px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .status {
+      white-space: pre-wrap;
+      word-break: break-word;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(127,127,127,.12);
+      min-height: 24px;
+    }
+    .good { border-left: 4px solid #39a96b; }
+    .bad { border-left: 4px solid #d45b52; }
+    code { font-size: .9em; }
+    ul { padding-left: 22px; }
+    @media (max-width: 620px) {
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <script src="../shared/atlas-structured-subject.js"></script>
+  <script src="../shared/atlas-tutor-subjects.js"></script>
+  <script src="../shared/atlas-cloud.js"></script>
+</head>
+<body>
+  <h1>Atlas Cloud Proof</h1>
+  <p class="sub">Development-only vertical-slice check for Supabase Auth + My Subjects + RLS.</p>
+
+  <section>
+    <h2>1. Test account</h2>
+    <div id="auth-status" class="status">Checking session…</div>
+
+    <label for="email">Email</label>
+    <input id="email" type="email" autocomplete="username">
+
+    <label for="password">Password</label>
+    <input id="password" type="password" autocomplete="current-password">
+
+    <div class="row">
+      <button id="sign-in">Sign in</button>
+      <button id="sign-out">Sign out</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Choose a real local My Subject</h2>
+    <p>This reads the same <code>AtlasTutorSubjects</code> data used by Compass.</p>
+    <select id="local-subjects"></select>
+    <button id="refresh-local">Refresh local subjects</button>
+    <div id="local-status" class="status"></div>
+  </section>
+
+  <section>
+    <h2>3. Cloud round trip</h2>
+    <button id="upload">Send selected subject to cloud</button>
+    <button id="verify">Read selected subject back from cloud</button>
+    <button id="list-cloud">List my cloud subjects</button>
+    <div id="cloud-status" class="status"></div>
+    <ul id="cloud-list"></ul>
+  </section>
+
+  <script>
+    'use strict';
+
+    const AuthStatus = document.getElementById('auth-status');
+    const LocalStatus = document.getElementById('local-status');
+    const CloudStatus = document.getElementById('cloud-status');
+    const LocalSubjects = document.getElementById('local-subjects');
+    const CloudList = document.getElementById('cloud-list');
+
+    function show(node, text, ok = null) {
+      node.textContent = text;
+      node.classList.remove('good', 'bad');
+      if (ok === true) node.classList.add('good');
+      if (ok === false) node.classList.add('bad');
+    }
+
+    function selectedSubjectId() {
+      return LocalSubjects.value || '';
+    }
+
+    async function refreshAuth() {
+      try {
+        const status = await AtlasCloud.status();
+        if (status.authenticated) {
+          show(
+            AuthStatus,
+            `Signed in as ${status.email}\nUser ID: ${status.userId}`,
+            true
+          );
+        } else {
+          show(AuthStatus, 'Not signed in.', null);
+        }
+      } catch (error) {
+        show(AuthStatus, error.message || String(error), false);
+      }
+    }
+
+    async function refreshLocalSubjects() {
+      try {
+        const subjects = await AtlasTutorSubjects.listSubjects();
+        LocalSubjects.innerHTML = '';
+
+        if (!subjects.length) {
+          const option = document.createElement('option');
+          option.value = '';
+          option.textContent = 'No local My Subjects found';
+          LocalSubjects.appendChild(option);
+          show(LocalStatus, 'No local My Subjects found in this browser.', false);
+          return;
+        }
+
+        subjects.forEach(subject => {
+          const option = document.createElement('option');
+          option.value = subject.id;
+          option.textContent = `${subject.metadata?.title || subject.id} · r${subject.revision}`;
+          LocalSubjects.appendChild(option);
+        });
+
+        show(
+          LocalStatus,
+          `${subjects.length} local My Subject${subjects.length === 1 ? '' : 's'} available.`,
+          true
+        );
+      } catch (error) {
+        show(LocalStatus, error.message || String(error), false);
+      }
+    }
+
+    async function listCloudSubjects() {
+      try {
+        const subjects = await AtlasCloud.listOwnedSubjects();
+        CloudList.innerHTML = '';
+
+        subjects.forEach(subject => {
+          const item = document.createElement('li');
+          item.textContent = `${subject.metadata?.title || subject.id} · ${subject.id} · r${subject.revision}`;
+          CloudList.appendChild(item);
+        });
+
+        show(
+          CloudStatus,
+          `${subjects.length} cloud My Subject${subjects.length === 1 ? '' : 's'} visible to this account.`,
+          true
+        );
+        return subjects;
+      } catch (error) {
+        show(CloudStatus, error.message || String(error), false);
+        throw error;
+      }
+    }
+
+    document.getElementById('sign-in').addEventListener('click', async () => {
+      try {
+        await AtlasCloud.signInWithPassword(
+          document.getElementById('email').value,
+          document.getElementById('password').value
+        );
+        document.getElementById('password').value = '';
+        await refreshAuth();
+        await listCloudSubjects();
+      } catch (error) {
+        show(AuthStatus, error.message || String(error), false);
+      }
+    });
+
+    document.getElementById('sign-out').addEventListener('click', async () => {
+      try {
+        await AtlasCloud.signOut();
+        CloudList.innerHTML = '';
+        show(CloudStatus, 'Cloud list cleared.', null);
+        await refreshAuth();
+      } catch (error) {
+        show(AuthStatus, error.message || String(error), false);
+      }
+    });
+
+    document.getElementById('refresh-local').addEventListener(
+      'click',
+      refreshLocalSubjects
+    );
+
+    document.getElementById('upload').addEventListener('click', async () => {
+      try {
+        const id = selectedSubjectId();
+        if (!id) throw new Error('Choose a local My Subject first.');
+
+        const subject = await AtlasTutorSubjects.getSubject(id);
+        if (!subject) throw new Error('The selected local My Subject is unavailable.');
+
+        const saved = await AtlasCloud.createOwnedSubject(subject);
+        show(
+          CloudStatus,
+          `Cloud insert succeeded.\n${saved.metadata?.title || saved.id}\n${saved.id}\nrevision ${saved.revision}`,
+          true
+        );
+        await listCloudSubjects();
+      } catch (error) {
+        const duplicate = error && error.code === '23505';
+        show(
+          CloudStatus,
+          duplicate
+            ? 'That subject ID already exists in this account. Use “Read selected subject back from cloud” to verify it.'
+            : (error.message || String(error)),
+          duplicate ? null : false
+        );
+      }
+    });
+
+    document.getElementById('verify').addEventListener('click', async () => {
+      try {
+        const id = selectedSubjectId();
+        if (!id) throw new Error('Choose a local My Subject first.');
+
+        const local = await AtlasTutorSubjects.getSubject(id);
+        const cloud = await AtlasCloud.getOwnedSubject(id);
+
+        if (!cloud) {
+          throw new Error('No cloud row is visible for that subject ID.');
+        }
+
+        const sameIdentity = cloud.id === local?.id;
+        const sameDocument = JSON.stringify(cloud.document) === JSON.stringify(local?.document);
+        const sameMetadata = JSON.stringify(cloud.metadata) === JSON.stringify(local?.metadata);
+        const sameRevision = cloud.revision === local?.revision;
+        const passed = sameIdentity && sameDocument && sameMetadata && sameRevision;
+
+        show(
+          CloudStatus,
+          [
+            passed ? 'ROUND TRIP PASSED' : 'ROUND TRIP MISMATCH',
+            `identity: ${sameIdentity}`,
+            `document: ${sameDocument}`,
+            `metadata: ${sameMetadata}`,
+            `revision: ${sameRevision}`,
+            `cloud updatedAt: ${new Date(cloud.updatedAt).toISOString()}`
+          ].join('\n'),
+          passed
+        );
+      } catch (error) {
+        show(CloudStatus, error.message || String(error), false);
+      }
+    });
+
+    document.getElementById('list-cloud').addEventListener(
+      'click',
+      () => void listCloudSubjects()
+    );
+
+    void refreshAuth();
+    void refreshLocalSubjects();
+  </script>
+</body>
+</html>
