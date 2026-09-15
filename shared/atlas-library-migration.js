@@ -3,7 +3,8 @@
    One-time claim path for pre-account My Subjects library organisation.
 
    Conservative rules:
-   - the subject migration must already be complete;
+   - the subject migration must already be resolved;
+   - local-only subjects intentionally left in this browser are excluded;
    - an existing exact cloud match is accepted;
    - no cloud row is created until the local snapshot is validated;
    - any conflicting cloud row blocks migration;
@@ -98,7 +99,40 @@
         return firstJsonDifference(left, right) === null;
     }
 
-    async function getLocalSnapshot() {
+    function filterDismissedSubjects(library, order, subjectPreview) {
+        const dismissedIds = new Set(
+            (subjectPreview?.dismissedSubjects || [])
+                .map(subject => String(subject?.id || '').trim())
+                .filter(Boolean)
+        );
+
+        if (!dismissedIds.size) {
+            return {
+                library: cloneJson(library),
+                order: cloneJson(order)
+            };
+        }
+
+        const nextLibrary = cloneJson(library);
+        const nextOrder = order.filter(id => !dismissedIds.has(id));
+
+        if (
+            nextLibrary.subjects &&
+            typeof nextLibrary.subjects === 'object' &&
+            !Array.isArray(nextLibrary.subjects)
+        ) {
+            dismissedIds.forEach(id => {
+                delete nextLibrary.subjects[id];
+            });
+        }
+
+        return {
+            library: nextLibrary,
+            order: nextOrder
+        };
+    }
+
+    async function getLocalSnapshot(subjectPreview) {
         if (!window.AtlasTutorSubjects) {
             throw new Error('Atlas Tutor Subjects is unavailable.');
         }
@@ -116,16 +150,20 @@
             throw new Error('Atlas could not build a valid local My Subjects library snapshot.');
         }
 
+        const filtered = filterDismissedSubjects(
+            library,
+            order,
+            subjectPreview
+        );
+
         return {
             schemaVersion: 1,
-            state: cloneJson({
-                library,
-                order
-            }),
-            subjectCount: order.length,
-            categoryCount: Array.isArray(library.categories)
-                ? library.categories.length
-                : 0
+            state: cloneJson(filtered),
+            subjectCount: filtered.order.length,
+            categoryCount: Array.isArray(filtered.library.categories)
+                ? filtered.library.categories.length
+                : 0,
+            dismissedCount: Number(subjectPreview?.dismissedCount || 0)
         };
     }
 
@@ -139,10 +177,10 @@
         if (
             preview.conflictCount > 0 ||
             preview.missingCount > 0 ||
-            preview.matchingCount !== preview.localCount
+            preview.resolvedCount !== preview.localCount
         ) {
             const error = new Error(
-                'Connect and verify every local My Subject before connecting library organisation.'
+                'Resolve the remaining local My Subjects before connecting library organisation.'
             );
             error.code = 'ATLAS_LIBRARY_SUBJECTS_INCOMPLETE';
             error.subjectPreview = preview;
@@ -158,7 +196,7 @@
         }
 
         const subjectPreview = await requireSubjectsConnected();
-        const local = await getLocalSnapshot();
+        const local = await getLocalSnapshot(subjectPreview);
         const cloud = await AtlasCloud.getSubjectLibraryState();
 
         if (!cloud) {
@@ -168,6 +206,7 @@
                 conflict: false,
                 subjectCount: local.subjectCount,
                 categoryCount: local.categoryCount,
+                dismissedCount: local.dismissedCount,
                 cloudRevision: null,
                 difference: null,
                 subjectsVerified: subjectPreview.matchingCount
@@ -187,6 +226,7 @@
             conflict: !matching,
             subjectCount: local.subjectCount,
             categoryCount: local.categoryCount,
+            dismissedCount: local.dismissedCount,
             cloudRevision: cloud.revision,
             difference: !schemaMatches
                 ? 'schema version differs'
@@ -215,11 +255,13 @@
                 verified: true,
                 subjectCount: initial.subjectCount,
                 categoryCount: initial.categoryCount,
+                dismissedCount: initial.dismissedCount,
                 revision: initial.cloudRevision
             });
         }
 
-        const local = await getLocalSnapshot();
+        const subjectPreview = await requireSubjectsConnected();
+        const local = await getLocalSnapshot(subjectPreview);
 
         try {
             await AtlasCloud.createSubjectLibraryState(
@@ -259,6 +301,7 @@
             verified: true,
             subjectCount: verification.subjectCount,
             categoryCount: verification.categoryCount,
+            dismissedCount: verification.dismissedCount,
             revision: verification.cloudRevision
         });
     }
