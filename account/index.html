@@ -203,6 +203,7 @@
   <script src="../shared/atlas-cloud.js"></script>
   <script src="../shared/atlas-account.js"></script>
   <script src="../shared/atlas-subject-migration.js"></script>
+  <script src="../shared/atlas-library-migration.js"></script>
 </head>
 <body>
   <main class="shell">
@@ -236,6 +237,14 @@
           <button id="migrate-subjects" class="primary" hidden>Connect My Subjects</button>
         </div>
 
+        <div id="library-migration-panel" class="migration-panel" hidden>
+          <h2 class="migration-title">Connect My Subjects library</h2>
+          <p class="migration-copy">Connect your categories, ordering and archive placement to your Atlas account.</p>
+          <div id="library-migration-status" class="migration-status">Checking your library…</div>
+          <div id="library-migration-details" class="migration-details"></div>
+          <button id="migrate-library" class="primary" hidden>Connect library organisation</button>
+        </div>
+
         <div class="actions">
           <button id="return" class="primary">Return to Atlas</button>
           <button id="sign-out" class="secondary">Sign out</button>
@@ -261,6 +270,10 @@
     const MigrationStatus = document.getElementById('migration-status');
     const MigrationDetails = document.getElementById('migration-details');
     const MigrateSubjects = document.getElementById('migrate-subjects');
+    const LibraryMigrationPanel = document.getElementById('library-migration-panel');
+    const LibraryMigrationStatus = document.getElementById('library-migration-status');
+    const LibraryMigrationDetails = document.getElementById('library-migration-details');
+    const MigrateLibrary = document.getElementById('migrate-library');
 
     let migrationCheckToken = 0;
 
@@ -269,31 +282,81 @@
       Status.classList.toggle('error', error);
     }
 
-    function setMigrationStatus(message, state = '') {
-      MigrationStatus.textContent = message;
-      MigrationStatus.classList.toggle('error', state === 'error');
-      MigrationStatus.classList.toggle('success', state === 'success');
+    function setMigrationStatus(node, message, state = '') {
+      node.textContent = message;
+      node.classList.toggle('error', state === 'error');
+      node.classList.toggle('success', state === 'success');
     }
 
-    async function refreshMigrationPreview() {
+    async function refreshLibraryPreview(token) {
+      LibraryMigrationPanel.hidden = false;
+      MigrateLibrary.hidden = true;
+      LibraryMigrationDetails.textContent = '';
+      setMigrationStatus(LibraryMigrationStatus, 'Checking your library…');
+
+      try {
+        const preview = await AtlasLibraryMigration.preview();
+        if (token !== migrationCheckToken) return;
+
+        if (preview.conflict) {
+          setMigrationStatus(
+            LibraryMigrationStatus,
+            'Different My Subjects library organisation is already stored in this account. Migration is paused.',
+            'error'
+          );
+          LibraryMigrationDetails.textContent = preview.difference || 'Cloud and local library state differ.';
+          return;
+        }
+
+        if (preview.matching) {
+          setMigrationStatus(
+            LibraryMigrationStatus,
+            'My Subjects library verified in your account.',
+            'success'
+          );
+          LibraryMigrationDetails.textContent = `${preview.subjectCount} subjects · ${preview.categoryCount} categories · cloud revision ${preview.cloudRevision}.`;
+          return;
+        }
+
+        setMigrationStatus(
+          LibraryMigrationStatus,
+          `${preview.subjectCount} subjects and ${preview.categoryCount} categories are ready to connect.`
+        );
+        LibraryMigrationDetails.textContent = 'Atlas will verify the complete library snapshot after migration.';
+        MigrateLibrary.hidden = false;
+      } catch (error) {
+        if (token !== migrationCheckToken) return;
+        setMigrationStatus(
+          LibraryMigrationStatus,
+          `${error.code ? `${error.code}\n` : ''}${error.message || String(error)}`,
+          'error'
+        );
+      }
+    }
+
+    async function refreshMigrationPreviews() {
       const token = ++migrationCheckToken;
       MigrationPanel.hidden = false;
+      LibraryMigrationPanel.hidden = true;
       MigrateSubjects.hidden = true;
+      MigrateLibrary.hidden = true;
       MigrationDetails.textContent = '';
-      setMigrationStatus('Checking your My Subjects…');
+      LibraryMigrationDetails.textContent = '';
+      setMigrationStatus(MigrationStatus, 'Checking your My Subjects…');
 
       try {
         const preview = await AtlasSubjectMigration.preview();
         if (token !== migrationCheckToken) return;
 
         if (preview.localCount === 0) {
-          setMigrationStatus('No local My Subjects were found in this browser.');
+          setMigrationStatus(MigrationStatus, 'No local My Subjects were found in this browser.');
           MigrationDetails.textContent = 'There is nothing to migrate from this browser.';
           return;
         }
 
         if (preview.conflictCount > 0) {
           setMigrationStatus(
+            MigrationStatus,
             `${preview.conflictCount} conflicting My Subject${preview.conflictCount === 1 ? '' : 's'} found. Migration is paused.`,
             'error'
           );
@@ -306,14 +369,17 @@
 
         if (preview.missingCount === 0) {
           setMigrationStatus(
+            MigrationStatus,
             `${preview.matchingCount}/${preview.localCount} My Subjects verified in your account.`,
             'success'
           );
-          MigrationDetails.textContent = 'Committed My Subjects are connected. Library organisation will be connected next.';
+          MigrationDetails.textContent = 'Committed My Subjects are connected.';
+          await refreshLibraryPreview(token);
           return;
         }
 
         setMigrationStatus(
+          MigrationStatus,
           `${preview.localCount} local My Subjects found. ${preview.matchingCount} already connected; ${preview.missingCount} ready to connect.`
         );
         MigrationDetails.textContent = 'Atlas will verify every subject after the migration finishes.';
@@ -321,7 +387,11 @@
         MigrateSubjects.hidden = false;
       } catch (error) {
         if (token !== migrationCheckToken) return;
-        setMigrationStatus(error.message || String(error), 'error');
+        setMigrationStatus(
+          MigrationStatus,
+          `${error.code ? `${error.code}\n` : ''}${error.message || String(error)}`,
+          'error'
+        );
       }
     }
 
@@ -332,11 +402,13 @@
       if (state.authenticated) {
         AccountEmail.textContent = state.email || state.userId || 'Atlas account';
         setStatus('Your Atlas account is connected.');
-        void refreshMigrationPreview();
+        void refreshMigrationPreviews();
       } else if (state.ready) {
         migrationCheckToken += 1;
         MigrationPanel.hidden = true;
+        LibraryMigrationPanel.hidden = true;
         MigrateSubjects.hidden = true;
+        MigrateLibrary.hidden = true;
         AccountEmail.textContent = '';
         setStatus('Sign in to connect your Atlas work to your account.');
       }
@@ -388,25 +460,29 @@
         const result = await AtlasSubjectMigration.claim({
           onProgress(progress) {
             if (progress.phase === 'verify') {
-              setMigrationStatus('All uploads completed. Verifying every My Subject…');
+              setMigrationStatus(MigrationStatus, 'All uploads completed. Verifying every My Subject…');
               return;
             }
 
             const nextNumber = Math.min(progress.completed + 1, progress.total);
             setMigrationStatus(
+              MigrationStatus,
               `Connecting My Subjects… ${nextNumber}/${progress.total}\n${progress.title || ''}`
             );
           }
         });
 
         setMigrationStatus(
+          MigrationStatus,
           `${result.verified}/${result.localCount} My Subjects verified in your account.`,
           'success'
         );
-        MigrationDetails.textContent = `${result.inserted} connected now; ${result.alreadyPresent} were already connected. Library organisation will be connected next.`;
+        MigrationDetails.textContent = `${result.inserted} connected now; ${result.alreadyPresent} were already connected.`;
         MigrateSubjects.hidden = true;
+        await refreshMigrationPreviews();
       } catch (error) {
         setMigrationStatus(
+          MigrationStatus,
           `${error.code ? `${error.code}\n` : ''}${error.message || String(error)}`,
           'error'
         );
@@ -414,6 +490,34 @@
         MigrateSubjects.hidden = false;
       } finally {
         MigrateSubjects.disabled = false;
+        SignOut.disabled = false;
+      }
+    });
+
+    MigrateLibrary.addEventListener('click', async () => {
+      MigrateLibrary.disabled = true;
+      SignOut.disabled = true;
+      setMigrationStatus(LibraryMigrationStatus, 'Connecting and verifying your My Subjects library…');
+
+      try {
+        const result = await AtlasLibraryMigration.claim();
+        setMigrationStatus(
+          LibraryMigrationStatus,
+          'My Subjects library verified in your account.',
+          'success'
+        );
+        LibraryMigrationDetails.textContent = `${result.subjectCount} subjects · ${result.categoryCount} categories · cloud revision ${result.revision}.`;
+        MigrateLibrary.hidden = true;
+      } catch (error) {
+        setMigrationStatus(
+          LibraryMigrationStatus,
+          `${error.code ? `${error.code}\n` : ''}${error.message || String(error)}`,
+          'error'
+        );
+        LibraryMigrationDetails.textContent = 'Nothing was overwritten. We can inspect the mismatch safely.';
+        MigrateLibrary.hidden = false;
+      } finally {
+        MigrateLibrary.disabled = false;
         SignOut.disabled = false;
       }
     });
