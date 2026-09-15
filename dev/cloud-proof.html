@@ -17,6 +17,7 @@
     }
     h1 { margin-bottom: 4px; }
     .sub { opacity: .7; margin-top: 0; }
+    .build { font-size: .9rem; opacity: .75; }
     section {
       border: 1px solid rgba(127,127,127,.35);
       border-radius: 14px;
@@ -58,6 +59,7 @@
 <body>
   <h1>Atlas Cloud Proof</h1>
   <p class="sub">Development-only vertical-slice check for Supabase Auth + My Subjects + RLS.</p>
+  <p id="proof-build" class="build"></p>
 
   <section>
     <h2>1. Test account</h2>
@@ -95,11 +97,16 @@
   <script>
     'use strict';
 
+    const PROOF_BUILD = '2026-09-14.2';
+
     const AuthStatus = document.getElementById('auth-status');
     const LocalStatus = document.getElementById('local-status');
     const CloudStatus = document.getElementById('cloud-status');
     const LocalSubjects = document.getElementById('local-subjects');
     const CloudList = document.getElementById('cloud-list');
+
+    document.getElementById('proof-build').textContent =
+      `Proof build ${PROOF_BUILD}`;
 
     function show(node, text, ok = null) {
       node.textContent = text;
@@ -108,26 +115,103 @@
       if (ok === false) node.classList.add('bad');
     }
 
-    function canonicalJson(value) {
-      if (Array.isArray(value)) {
-        return value.map(canonicalJson);
+    function firstJsonDifference(left, right, path = '$') {
+      if (Object.is(left, right)) return null;
+
+      if (left === null || right === null) {
+        return { path, reason: 'value', left, right };
       }
 
-      if (value && typeof value === 'object') {
-        return Object.keys(value)
-          .sort()
-          .reduce((result, key) => {
-            result[key] = canonicalJson(value[key]);
-            return result;
-          }, {});
+      const leftIsArray = Array.isArray(left);
+      const rightIsArray = Array.isArray(right);
+
+      if (leftIsArray !== rightIsArray) {
+        return { path, reason: 'type', left, right };
       }
 
-      return value;
+      if (leftIsArray) {
+        if (left.length !== right.length) {
+          return {
+            path,
+            reason: `array length ${left.length} !== ${right.length}`,
+            left,
+            right
+          };
+        }
+
+        for (let index = 0; index < left.length; index += 1) {
+          const difference = firstJsonDifference(
+            left[index],
+            right[index],
+            `${path}[${index}]`
+          );
+          if (difference) return difference;
+        }
+
+        return null;
+      }
+
+      const leftType = typeof left;
+      const rightType = typeof right;
+
+      if (leftType !== rightType) {
+        return { path, reason: 'type', left, right };
+      }
+
+      if (leftType !== 'object') {
+        return { path, reason: 'value', left, right };
+      }
+
+      const leftKeys = Object.keys(left).sort();
+      const rightKeys = Object.keys(right).sort();
+
+      if (
+        leftKeys.length !== rightKeys.length ||
+        leftKeys.some((key, index) => key !== rightKeys[index])
+      ) {
+        const leftOnly = leftKeys.filter(key => !rightKeys.includes(key));
+        const rightOnly = rightKeys.filter(key => !leftKeys.includes(key));
+        return {
+          path,
+          reason: `object keys differ; cloud-only=[${leftOnly.join(', ')}], local-only=[${rightOnly.join(', ')}]`,
+          left: leftKeys,
+          right: rightKeys
+        };
+      }
+
+      for (const key of leftKeys) {
+        const difference = firstJsonDifference(
+          left[key],
+          right[key],
+          `${path}.${key}`
+        );
+        if (difference) return difference;
+      }
+
+      return null;
     }
 
     function sameJson(left, right) {
-      return JSON.stringify(canonicalJson(left)) ===
-        JSON.stringify(canonicalJson(right));
+      return firstJsonDifference(left, right) === null;
+    }
+
+    function previewValue(value) {
+      const serialized = JSON.stringify(value);
+      if (serialized === undefined) return String(value);
+      return serialized.length > 240
+        ? `${serialized.slice(0, 240)}…`
+        : serialized;
+    }
+
+    function describeDifference(label, difference) {
+      if (!difference) return `${label} diff: none`;
+
+      return [
+        `${label} first diff: ${difference.path}`,
+        `${label} reason: ${difference.reason}`,
+        `${label} cloud: ${previewValue(difference.left)}`,
+        `${label} local: ${previewValue(difference.right)}`
+      ].join('\n');
     }
 
     function selectedSubjectId() {
@@ -274,24 +358,41 @@
           throw new Error('No cloud row is visible for that subject ID.');
         }
 
+        const documentDifference = firstJsonDifference(
+          cloud.document,
+          local?.document
+        );
+        const metadataDifference = firstJsonDifference(
+          cloud.metadata,
+          local?.metadata
+        );
+
         const sameIdentity = cloud.id === local?.id;
         const sameDocument = sameJson(cloud.document, local?.document);
         const sameMetadata = sameJson(cloud.metadata, local?.metadata);
         const sameRevision = cloud.revision === local?.revision;
         const passed = sameIdentity && sameDocument && sameMetadata && sameRevision;
 
-        show(
-          CloudStatus,
-          [
-            passed ? 'ROUND TRIP PASSED' : 'ROUND TRIP MISMATCH',
-            `identity: ${sameIdentity}`,
-            `document: ${sameDocument}`,
-            `metadata: ${sameMetadata}`,
-            `revision: ${sameRevision}`,
-            `cloud updatedAt: ${new Date(cloud.updatedAt).toISOString()}`
-          ].join('\n'),
-          passed
-        );
+        const lines = [
+          `proof build: ${PROOF_BUILD}`,
+          passed ? 'ROUND TRIP PASSED' : 'ROUND TRIP MISMATCH',
+          `identity: ${sameIdentity}`,
+          `document: ${sameDocument}`,
+          `metadata: ${sameMetadata}`,
+          `revision: ${sameRevision}`,
+          `cloud updatedAt: ${new Date(cloud.updatedAt).toISOString()}`
+        ];
+
+        if (!passed) {
+          if (!sameDocument) {
+            lines.push(describeDifference('document', documentDifference));
+          }
+          if (!sameMetadata) {
+            lines.push(describeDifference('metadata', metadataDifference));
+          }
+        }
+
+        show(CloudStatus, lines.join('\n'), passed);
       } catch (error) {
         show(CloudStatus, error.message || String(error), false);
       }
