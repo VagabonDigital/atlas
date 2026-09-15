@@ -733,6 +733,45 @@
         document.head.appendChild(link);
     }
 
+    function writeAtlasRootRuntimeScript() {
+        const path = String(
+            window.location.pathname || '/'
+        );
+
+        if (
+            path !== '/' &&
+            path !== '/index.html'
+        ) {
+            return;
+        }
+
+        if (
+            window.AtlasRootRuntime ||
+            document.querySelector(
+                'script[data-atlas-root-runtime]'
+            )
+        ) {
+            return;
+        }
+
+        if (document.readyState === 'loading') {
+            document.write(
+                '<script data-atlas-root-runtime="true" src="/shared/atlas-root-runtime.js?v=20260915-root1"><\\/script>'
+            );
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src =
+            '/shared/atlas-root-runtime.js?v=20260915-root1';
+        script.async = false;
+        script.setAttribute(
+            'data-atlas-root-runtime',
+            'true'
+        );
+        document.head.appendChild(script);
+    }
+
     function writeCloudAuthorityScripts() {
         if (
             !window.location.pathname.startsWith('/compass/') ||
@@ -803,6 +842,7 @@
         registerCompass
     };
 
+    writeAtlasRootRuntimeScript();
     writeCloudAuthorityScripts();
     installTutorCreateHandoff();
     registerAll();
