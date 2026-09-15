@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Compass Cloud Read Canary</title>
+  <title>Compass Cloud Authority Canary</title>
 </head>
 <body>
-  <p style="font-family:system-ui,sans-serif;padding:24px">Opening Compass cloud-read canary…</p>
+  <p style="font-family:system-ui,sans-serif;padding:24px">Opening Compass cloud-authority canary…</p>
 
   <script>
     'use strict';
@@ -29,9 +29,9 @@
 
         const injection = [
           tutorSubjectsScript,
-          '<script src="../shared/atlas-cloud.js?v=20260914-cloudhub2">' + closeScript,
-          '<script src="../shared/atlas-account.js?v=20260914-cloudhub2">' + closeScript,
-          '<script src="../shared/atlas-tutor-subjects-cloud-hub-canary.js?v=20260914-cloudhub2">' + closeScript
+          '<script src="../shared/atlas-cloud.js?v=20260914-cloudwrite1">' + closeScript,
+          '<script src="../shared/atlas-account.js?v=20260914-cloudwrite1">' + closeScript,
+          '<script src="../shared/atlas-tutor-subjects-cloud-authority.js?v=20260914-cloudwrite1">' + closeScript
         ].join('');
 
         if (!html.includes(tutorSubjectsScript)) {
@@ -55,7 +55,7 @@
         document.body.innerHTML = '';
         const pre = document.createElement('pre');
         pre.style.cssText = 'white-space:pre-wrap;padding:24px;font:14px/1.5 ui-monospace,monospace;color:#8b1e16';
-        pre.textContent = `Compass cloud-read canary failed:\n${error.message || String(error)}`;
+        pre.textContent = `Compass cloud-authority canary failed:\n${error.message || String(error)}`;
         document.body.appendChild(pre);
       }
     })();
