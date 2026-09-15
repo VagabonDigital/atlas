@@ -724,9 +724,22 @@
     function writeCloudAuthorityScripts() {
         if (
             !window.location.pathname.startsWith('/compass/') ||
-            !hasStoredAtlasAccountSession() ||
-            window.AtlasTutorSubjectsCloudAuthority
+            !hasStoredAtlasAccountSession()
         ) {
+            return;
+        }
+
+        const needsSubjects = Boolean(
+            window.AtlasTutorSubjects &&
+            !window.AtlasTutorSubjectsCloudAuthority
+        );
+
+        const needsTutorContent = Boolean(
+            window.AtlasTutorContent &&
+            !window.AtlasTutorContentCloudAuthority
+        );
+
+        if (!needsSubjects && !needsTutorContent) {
             return;
         }
 
@@ -734,19 +747,27 @@
 
         if (!window.AtlasCloud) {
             scripts.push(
-                '<script src="/shared/atlas-cloud.js?v=20260915-production1"><\/script>'
+                '<script src="/shared/atlas-cloud.js?v=20260915-production2"><\/script>'
             );
         }
 
         if (!window.AtlasAccount) {
             scripts.push(
-                '<script src="/shared/atlas-account.js?v=20260915-production1"><\/script>'
+                '<script src="/shared/atlas-account.js?v=20260915-production2"><\/script>'
             );
         }
 
-        scripts.push(
-            '<script src="/shared/atlas-tutor-subjects-cloud-authority.js?v=20260915-production1"><\/script>'
-        );
+        if (needsSubjects) {
+            scripts.push(
+                '<script src="/shared/atlas-tutor-subjects-cloud-authority.js?v=20260915-production2"><\/script>'
+            );
+        }
+
+        if (needsTutorContent) {
+            scripts.push(
+                '<script src="/shared/atlas-tutor-content-cloud-authority.js?v=20260915-production2"><\/script>'
+            );
+        }
 
         if (
             document.readyState === 'loading' &&
