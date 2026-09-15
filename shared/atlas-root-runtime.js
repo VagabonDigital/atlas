@@ -7,6 +7,7 @@
    - saved-language review completion watermark
    - root refresh after learner-cloud hydration
    - account-owned subject/archive authorities needed by root settings
+   - account-owned Atlas Hub image personalization hydration
 
    Does NOT own:
    - learner/session persistence
@@ -217,6 +218,12 @@
         ) {
             scripts.push(
                 '/shared/atlas-original-curation-cloud-authority.js?v=20260915-archive1'
+            );
+        }
+
+        if (!window.AtlasHubPersonalizationCloudAuthority) {
+            scripts.push(
+                '/shared/atlas-hub-personalization-cloud-authority.js?v=20260915-personalization1'
             );
         }
 
@@ -531,6 +538,56 @@
         }
     }
 
+    function refreshRootAfterPersonalizationHydration() {
+        if (!isAtlasRoot()) return;
+
+        if (
+            typeof window.applyEffectiveAtmosphereImage ===
+            'function'
+        ) {
+            window.applyEffectiveAtmosphereImage();
+        }
+
+        if (
+            typeof window.renderAtmosphereFavorites ===
+            'function'
+        ) {
+            window.renderAtmosphereFavorites();
+        }
+
+        const modal = document.getElementById('settings-modal');
+
+        if (!modal?.classList.contains('open')) {
+            return;
+        }
+
+        try {
+            const session =
+                typeof window.getActiveSession === 'function'
+                    ? window.getActiveSession()
+                    : null;
+
+            const url =
+                session &&
+                typeof window.readSessionAtmosphereImage === 'function'
+                    ? window.readSessionAtmosphereImage(session.id)
+                    : '';
+
+            const input = document.getElementById(
+                'atmosphere-input'
+            );
+
+            if (input) input.value = url;
+
+            if (
+                typeof window.updateAtmospherePreview ===
+                'function'
+            ) {
+                window.updateAtmospherePreview(url);
+            }
+        } catch { }
+    }
+
     function install() {
         if (!isAtlasRoot()) return;
 
@@ -555,10 +612,10 @@
     if (isAtlasRoot()) {
         /*
          * This runtime is injected synchronously while Atlas root is still
-         * parsing. Load the account-owned subject and Atlas Original
-         * authorities here as well as in Compass: root Settings reads and
-         * restores those same durable objects and must never fall back to a
-         * browser-only archive for signed-in tutors.
+         * parsing. Load the account-owned subject, Atlas Original, and Hub
+         * personalization authorities here: root Settings reads and restores
+         * all three durable objects and must not fall back to browser-only
+         * state for signed-in tutors.
          */
         writeRootCloudAuthorityScripts();
 
@@ -594,6 +651,11 @@
         window.addEventListener(
             'atlas:original-curation-cloud-ready',
             refreshRootSettingsAfterCurationHydration
+        );
+
+        window.addEventListener(
+            'atlas:hub-personalization-cloud-ready',
+            refreshRootAfterPersonalizationHydration
         );
     }
 
