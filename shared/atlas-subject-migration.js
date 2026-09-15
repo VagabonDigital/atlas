@@ -7,13 +7,18 @@
      already connected and the cloud record wins;
    - only local subject IDs missing from the account are inserted;
    - migration never overwrites an existing cloud subject;
-   - verification confirms that every local ID now exists remotely.
+   - local-only remnants can be left in this browser without deleting
+     them or offering them for migration again;
+   - dismissal choices are scoped to the signed-in account.
    ============================================================ */
 
 (function () {
     'use strict';
 
     if (window.AtlasSubjectMigration) return;
+
+    const DISMISSED_KEY_PREFIX =
+        'atlas::migration::dismissedSubjectIds::';
 
     function cloneJson(value) {
         if (value === null || value === undefined) return value;
@@ -98,6 +103,60 @@
         return firstJsonDifference(left, right) === null;
     }
 
+    async function dismissedStorageKey() {
+        const session = await AtlasCloud.getSession();
+        const userId = String(session?.user?.id || '').trim();
+
+        if (!userId) {
+            throw new Error(
+                'Subject migration dismissals require a signed-in Atlas account.'
+            );
+        }
+
+        return `${DISMISSED_KEY_PREFIX}${userId}`;
+    }
+
+    async function readDismissedIds() {
+        const key = await dismissedStorageKey();
+
+        try {
+            const parsed = JSON.parse(
+                localStorage.getItem(key) || '[]'
+            );
+
+            if (!Array.isArray(parsed)) return new Set();
+
+            return new Set(
+                parsed
+                    .map(value => String(value || '').trim())
+                    .filter(Boolean)
+            );
+        } catch {
+            return new Set();
+        }
+    }
+
+    async function writeDismissedIds(ids) {
+        const key = await dismissedStorageKey();
+        const values = Array.from(ids)
+            .map(value => String(value || '').trim())
+            .filter(Boolean)
+            .sort();
+
+        if (values.length) {
+            localStorage.setItem(key, JSON.stringify(values));
+        } else {
+            localStorage.removeItem(key);
+        }
+    }
+
+    function portableSubject(subject) {
+        return {
+            id: subject.id,
+            title: subject.metadata?.title || subject.id
+        };
+    }
+
     async function preview() {
         if (!window.AtlasTutorSubjects || !window.AtlasCloud) {
             throw new Error('Atlas subject migration dependencies are unavailable.');
@@ -109,8 +168,8 @@
             cloudSubjects.map(subject => [subject.id, subject])
         );
 
-        const missing = [];
         const connected = [];
+        const localOnly = [];
 
         localSubjects.forEach(local => {
             if (cloudById.has(local.id)) {
@@ -118,8 +177,32 @@
                 return;
             }
 
-            missing.push(local);
+            localOnly.push(local);
         });
+
+        const validLocalOnlyIds = new Set(
+            localOnly.map(subject => subject.id)
+        );
+        const dismissedIds = await readDismissedIds();
+        let dismissalChanged = false;
+
+        Array.from(dismissedIds).forEach(id => {
+            if (!validLocalOnlyIds.has(id)) {
+                dismissedIds.delete(id);
+                dismissalChanged = true;
+            }
+        });
+
+        if (dismissalChanged) {
+            await writeDismissedIds(dismissedIds);
+        }
+
+        const dismissed = localOnly.filter(subject =>
+            dismissedIds.has(subject.id)
+        );
+        const missing = localOnly.filter(subject =>
+            !dismissedIds.has(subject.id)
+        );
 
         const localIds = new Set(localSubjects.map(subject => subject.id));
         const cloudOnly = cloudSubjects.filter(subject => !localIds.has(subject.id));
@@ -129,15 +212,50 @@
             cloudCount: cloudSubjects.length,
             missingCount: missing.length,
             matchingCount: connected.length,
+            dismissedCount: dismissed.length,
+            resolvedCount: connected.length + dismissed.length,
             conflictCount: 0,
             cloudOnlyCount: cloudOnly.length,
             conflicts: [],
             missingIds: missing.map(subject => subject.id),
-            missingSubjects: missing.map(subject => ({
-                id: subject.id,
-                title: subject.metadata?.title || subject.id
-            }))
+            missingSubjects: missing.map(portableSubject),
+            dismissedSubjects: dismissed.map(portableSubject)
         });
+    }
+
+    async function dismissMissing(subjectIds) {
+        const requested = new Set(
+            (Array.isArray(subjectIds) ? subjectIds : [subjectIds])
+                .map(value => String(value || '').trim())
+                .filter(Boolean)
+        );
+
+        if (!requested.size) return preview();
+
+        const current = await preview();
+        const available = new Set(current.missingIds || []);
+        const dismissed = await readDismissedIds();
+
+        requested.forEach(id => {
+            if (available.has(id)) dismissed.add(id);
+        });
+
+        await writeDismissedIds(dismissed);
+        return preview();
+    }
+
+    async function restoreDismissed(subjectIds) {
+        const requested = new Set(
+            (Array.isArray(subjectIds) ? subjectIds : [subjectIds])
+                .map(value => String(value || '').trim())
+                .filter(Boolean)
+        );
+        const dismissed = await readDismissedIds();
+
+        requested.forEach(id => dismissed.delete(id));
+        await writeDismissedIds(dismissed);
+
+        return preview();
     }
 
     async function claim({ onProgress } = {}) {
@@ -193,7 +311,7 @@
 
         if (
             verification.missingCount > 0 ||
-            verification.matchingCount !== verification.localCount
+            verification.resolvedCount !== verification.localCount
         ) {
             const error = new Error(
                 'Atlas could not verify every local My Subject after migration.'
@@ -207,6 +325,8 @@
             inserted,
             alreadyPresent: initial.matchingCount,
             verified: verification.matchingCount,
+            dismissed: verification.dismissedCount,
+            resolved: verification.resolvedCount,
             localCount: verification.localCount,
             cloudCount: verification.cloudCount,
             cloudOnlyCount: verification.cloudOnlyCount
@@ -216,6 +336,8 @@
     window.AtlasSubjectMigration = Object.freeze({
         preview,
         claim,
+        dismissMissing,
+        restoreDismissed,
         sameJson
     });
 })();
