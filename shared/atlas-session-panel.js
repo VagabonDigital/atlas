@@ -1107,6 +1107,9 @@
                     return null;
                 })
                 .catch(() => undefined);
+
+            close();
+            return;
         } else if (action === 'rename') {
             if (
                 typeof options.onRenameSession ===
