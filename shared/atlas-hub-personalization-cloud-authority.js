@@ -9,6 +9,7 @@
    - existing localStorage keys remain the synchronous rendering cache
    - a legacy browser may claim pre-account local state once when the
      account has no cloud row yet
+   - cached state is explicitly scoped to its owning account
 
    Browser-local active-session selection remains unchanged. This module
    persists only the image preferences keyed by stable session ids.
@@ -30,6 +31,8 @@
         'atlas::sessionAtmosphereImages';
     const FAVORITES_KEY =
         'atlas::welcomeImageFavorites';
+    const CACHE_OWNER_KEY =
+        'atlas::hubPersonalizationCloudOwner::v1';
     const AUTH_STORAGE_KEY =
         'sb-jnhjfpagectprceswvqn-auth-token';
 
@@ -122,6 +125,32 @@
             Object.keys(state.sessionImages).length > 0 ||
             state.favoriteImages.length > 0
         );
+    }
+
+    function readCacheOwner() {
+        try {
+            return String(
+                localStorage.getItem(CACHE_OWNER_KEY) || ''
+            ).trim();
+        } catch {
+            return '';
+        }
+    }
+
+    function writeCacheOwner(userId) {
+        try {
+            const id = String(userId || '').trim();
+
+            if (id) {
+                localStorage.setItem(CACHE_OWNER_KEY, id);
+            } else {
+                localStorage.removeItem(CACHE_OWNER_KEY);
+            }
+
+            return true;
+        } catch {
+            return false;
+        }
     }
 
     function readJson(key, fallback) {
@@ -359,6 +388,7 @@
 
                     remoteRecord = existing;
                     writeLocalState(existing.state);
+                    writeCacheOwner(currentUserId);
                     refreshRoot();
                     return existing;
                 }
@@ -370,6 +400,7 @@
                 );
             }
 
+            writeCacheOwner(currentUserId);
             return remoteRecord;
         } catch (error) {
             dispatchError(error, 'save');
@@ -383,6 +414,7 @@
                 writeLocalState(
                     latest?.state || emptyState()
                 );
+                writeCacheOwner(currentUserId);
                 refreshRoot();
             } catch (recoveryError) {
                 dispatchError(recoveryError, 'recover');
@@ -519,6 +551,7 @@
                 if (previousUserId) {
                     // Never expose Account A personalization after sign-out.
                     writeLocalState(emptyState());
+                    writeCacheOwner('');
                     refreshRoot();
                 }
 
@@ -528,11 +561,19 @@
 
             authenticated = true;
 
+            const cacheOwner = readCacheOwner();
+            const belongsToDifferentAccount = Boolean(
+                cacheOwner && cacheOwner !== userId
+            );
+
             if (
-                previousUserId &&
-                previousUserId !== userId
+                belongsToDifferentAccount ||
+                (
+                    previousUserId &&
+                    previousUserId !== userId
+                )
             ) {
-                // Never expose Account A state while Account B hydrates.
+                // Never expose or migrate Account A state into Account B.
                 writeLocalState(emptyState());
             }
 
@@ -544,18 +585,22 @@
             if (remote) {
                 remoteRecord = remote;
                 writeLocalState(remote.state);
+                writeCacheOwner(userId);
             } else if (
+                !belongsToDifferentAccount &&
                 !previousUserId &&
                 hasMeaningfulState(localBefore)
             ) {
-                // Legacy claim: a fresh empty browser never creates the first
-                // row, so an older browser can still contribute real state.
+                // Legacy claim: only unscoped pre-account state can seed the
+                // first row. A fresh browser, or another account's cache,
+                // never seals or contaminates this account.
                 try {
                     remoteRecord = await createRemote(
                         userId,
                         localBefore
                     );
                     writeLocalState(remoteRecord.state);
+                    writeCacheOwner(userId);
                 } catch (error) {
                     if (error?.code === '23505') {
                         remoteRecord = await fetchRemote(
@@ -564,19 +609,14 @@
                         writeLocalState(
                             remoteRecord?.state || emptyState()
                         );
+                        writeCacheOwner(userId);
                     } else {
                         throw error;
                     }
                 }
             } else {
                 remoteRecord = null;
-
-                if (
-                    previousUserId &&
-                    previousUserId !== userId
-                ) {
-                    writeLocalState(emptyState());
-                }
+                writeCacheOwner(userId);
             }
 
             initialized = true;
