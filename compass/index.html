@@ -2752,13 +2752,24 @@
       outline: 3px solid rgba(var(--accent-rgb), 0.12);
     }
 
-    .subject-artwork-color-options {
+    .subject-artwork-field:has(#subject-artwork-color-options) {
       display: flex;
       flex-wrap: wrap;
+      align-items: center;
       gap: 0.5rem;
     }
 
-    .subject-artwork-color-btn {
+    .subject-artwork-field:has(#subject-artwork-color-options)
+    > .subject-artwork-field-label {
+      flex: 0 0 100%;
+    }
+
+    .subject-artwork-color-options {
+      display: contents;
+    }
+
+    .subject-artwork-color-btn,
+    .subject-artwork-custom-color {
       display: inline-flex;
       align-items: center;
       gap: 0.42rem;
@@ -2770,14 +2781,23 @@
       color: var(--text-muted);
       font: inherit;
       font-size: 0.76rem;
+      font-weight: 400;
+      line-height: 1;
       cursor: pointer;
     }
 
     .subject-artwork-color-btn:hover,
-    .subject-artwork-color-btn.is-selected {
+    .subject-artwork-color-btn.is-selected,
+    .subject-artwork-custom-color:hover,
+    .subject-artwork-custom-color.is-selected {
       border-color: rgba(var(--accent-rgb), 0.46);
       background: var(--accent-dim);
       color: var(--text-heading);
+    }
+
+    .subject-artwork-custom-color:has(input:focus-visible) {
+      outline: 3px solid rgba(var(--accent-rgb), 0.22);
+      outline-offset: 2px;
     }
 
     .subject-artwork-color-dot {
@@ -2788,20 +2808,28 @@
       box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
     }
 
-    .subject-artwork-custom-color {
-      display: flex;
-      align-items: center;
-      gap: 0.55rem;
+    .subject-artwork-custom-color input[type="color"] {
+      width: 12px;
+      height: 12px;
+      flex: 0 0 12px;
+      padding: 0;
+      overflow: hidden;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
     }
 
-    .subject-artwork-custom-color input[type="color"] {
-      width: 42px;
-      height: 36px;
-      padding: 2px;
-      border: 1px solid var(--border-subtle);
-      border-radius: 9px;
-      background: var(--surface-raised);
-      cursor: pointer;
+    .subject-artwork-custom-color input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    .subject-artwork-custom-color input[type="color"]::-webkit-color-swatch,
+    .subject-artwork-custom-color input[type="color"]::-moz-color-swatch {
+      border: 0;
+      border-radius: 50%;
     }
 
     .subject-artwork-studio-error {
@@ -2913,6 +2941,97 @@
         width: 100%;
         min-width: 0;
         justify-content: center;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .subject-artwork-studio-backdrop {
+        display: block;
+        padding: 0;
+        background: var(--surface-panel);
+        backdrop-filter: none;
+      }
+
+      .subject-artwork-studio {
+        width: 100vw;
+        height: 100dvh;
+        max-height: 100dvvh;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      .subject-artwork-studio-head {
+        padding:
+          calc(0.95rem + env(safe-area-inset-top, 0px))
+          1rem
+          0;
+      }
+
+      .subject-artwork-studio-kicker {
+        margin-bottom: 0.28rem;
+      }
+
+      .subject-artwork-studio-title {
+        font-size: 1.5rem;
+      }
+
+      .subject-artwork-studio-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.72rem;
+        padding: 0.9rem 1rem 5.4rem;
+      }
+
+      .subject-artwork-studio-controls {
+        display: contents;
+      }
+
+      .subject-artwork-studio-copy {
+        display: none;
+      }
+
+      .subject-artwork-field:has(#subject-artwork-idea) {
+        order: 1;
+        gap: 0.4rem;
+      }
+
+      .subject-artwork-field:has(#subject-artwork-color-options) {
+        order: 2;
+      }
+
+      .subject-artwork-studio-preview {
+        order: 3;
+        padding: 0.75rem;
+        border-radius: 16px;
+      }
+
+      .subject-artwork-studio-edit-actions {
+        order: 4;
+        gap: 0.5rem;
+        margin-top: 0;
+      }
+
+      .subject-artwork-studio-error {
+        order: 5;
+        margin: 0;
+      }
+
+      .subject-artwork-field-help {
+        display: none;
+      }
+
+      .subject-artwork-idea-input {
+        min-height: 74px;
+        max-height: 120px;
+        resize: none;
+        padding: 0.7rem 0.8rem;
+      }
+
+      .subject-artwork-color-btn,
+      .subject-artwork-custom-color {
+        min-height: 36px;
+        padding: 0.38rem 0.62rem;
       }
     }
 
@@ -6478,7 +6597,7 @@
                     id="subject-artwork-custom-color"
                     value="#4f847c"
                     oninput="setSubjectArtworkStudioCustomColor(this.value)">
-                  <span class="subject-artwork-field-label">
+                  <span>
                     Custom
                   </span>
                 </label>
@@ -6570,6 +6689,11 @@
       const selected =
         getSubjectArtworkStudioColor();
 
+      const presetSelected =
+        SUBJECT_ARTWORK_COLORS.some(
+          color => selected === color.value
+        );
+
       host.innerHTML =
         SUBJECT_ARTWORK_COLORS
           .map(color => {
@@ -6598,6 +6722,33 @@
             );
           })
           .join('');
+
+      const customInput =
+        document.getElementById(
+          'subject-artwork-custom-color'
+        );
+
+      const customControl =
+        customInput?.closest(
+          '.subject-artwork-custom-color'
+        );
+
+      const customActive =
+        selected !== 'atlas' &&
+        !presetSelected;
+
+      if (
+        customInput &&
+        customActive &&
+        /^#[0-9a-f]{6}$/i.test(selected)
+      ) {
+        customInput.value = selected;
+      }
+
+      customControl?.classList.toggle(
+        'is-selected',
+        customActive
+      );
     }
 
     function setSubjectArtworkStudioColor(color) {
