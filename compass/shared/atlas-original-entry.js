@@ -29,6 +29,133 @@
         ].includes(action);
     }
 
+    function getHostWindow() {
+        try {
+            if (window.parent && window.parent !== window) {
+                void window.parent.location.href;
+                return window.parent;
+            }
+        } catch { }
+
+        return window;
+    }
+
+    function installAtlasOriginalArtworkPersistence() {
+        const Host = getHostWindow();
+        const Subjects = Host.AtlasTutorSubjects;
+        const Catalog = Host.CompassCatalogData;
+        const Artwork = Host.AtlasSubjectArtwork;
+
+        if (
+            !Subjects ||
+            Subjects.__atlasOriginalArtworkPersistencePatched ||
+            typeof Subjects.createSubject !== 'function' ||
+            !Catalog ||
+            typeof Catalog.getCompassCatalogMap !== 'function' ||
+            typeof Catalog.getCompassSubjectArt !== 'function' ||
+            !Artwork ||
+            typeof Artwork.normalize !== 'function'
+        ) {
+            return;
+        }
+
+        const originalCreateSubject = Subjects.createSubject;
+
+        Subjects.createSubject = async function (input = {}) {
+            const candidate =
+                input &&
+                typeof input === 'object' &&
+                !Array.isArray(input)
+                    ? input
+                    : {};
+
+            const provenance =
+                candidate.provenance &&
+                typeof candidate.provenance === 'object' &&
+                !Array.isArray(candidate.provenance)
+                    ? candidate.provenance
+                    : null;
+
+            const metadata =
+                candidate.metadata &&
+                typeof candidate.metadata === 'object' &&
+                !Array.isArray(candidate.metadata)
+                    ? candidate.metadata
+                    : {};
+
+            const sourceSubjectId = String(
+                provenance?.sourceSubjectId || ''
+            ).trim();
+
+            const isAtlasOriginalCopy = Boolean(
+                provenance?.sourceWorld === 'compass' &&
+                sourceSubjectId &&
+                [
+                    'atlas-original-owned',
+                    'atlas-my-version',
+                    'atlas-duplicate'
+                ].includes(String(provenance?.kind || ''))
+            );
+
+            if (
+                !isAtlasOriginalCopy ||
+                Artwork.normalize(metadata.artwork)
+            ) {
+                return originalCreateSubject.call(
+                    this,
+                    input
+                );
+            }
+
+            const catalog =
+                Catalog.getCompassCatalogMap();
+
+            const source =
+                catalog?.[`compass:${sourceSubjectId}`] ||
+                Object.values(catalog || {}).find(item =>
+                    item?.id === sourceSubjectId
+                );
+
+            const artId = String(
+                source?.artId || ''
+            ).trim();
+
+            const svg = artId
+                ? Catalog.getCompassSubjectArt(artId)
+                : '';
+
+            const artwork = svg
+                ? Artwork.normalize({
+                    type: 'atlas-svg',
+                    version: 1,
+                    svg,
+                    color: 'atlas',
+                    idea: ''
+                })
+                : null;
+
+            if (!artwork) {
+                return originalCreateSubject.call(
+                    this,
+                    input
+                );
+            }
+
+            return originalCreateSubject.call(
+                this,
+                {
+                    ...candidate,
+                    metadata: {
+                        ...metadata,
+                        artwork
+                    }
+                }
+            );
+        };
+
+        Subjects.__atlasOriginalArtworkPersistencePatched = true;
+    }
+
     function writeHead({ includeAI = true } = {}) {
         if (isLightweightAction()) return;
 
@@ -53,6 +180,10 @@
         const action = getAction();
 
         if (isLightweightAction(action)) {
+            if (action === 'own' || action === 'duplicate') {
+                installAtlasOriginalArtworkPersistence();
+            }
+
             document.write(
                 action === 'restore-version'
                     ? '<script src="../shared/atlas-original-restore-worker.js"><\/script>'
