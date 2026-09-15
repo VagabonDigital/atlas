@@ -31,6 +31,29 @@
 
     <script>
         (function () {
+            const sessionKey =
+                'sb-jnhjfpagectprceswvqn-auth-token';
+
+            let signedIn = false;
+
+            try {
+                signedIn = Boolean(
+                    localStorage.getItem(sessionKey)
+                );
+            } catch { }
+
+            if (!signedIn) return;
+
+            document.write(
+                '<script src="../shared/atlas-cloud.js?v=20260915-learner1"><\/script>' +
+                '<script src="../shared/atlas-learner-sessions-cloud.js?v=20260915-learner1"><\/script>' +
+                '<script src="../shared/atlas-learner-sessions-cloud-authority.js?v=20260915-learner1"><\/script>'
+            );
+        })();
+    </script>
+
+    <script>
+        (function () {
             if (!window.AtlasBridge) return;
 
             const mode = AtlasBridge.readAppearanceMode();
@@ -566,18 +589,6 @@
         const requestedSessionId =
             params.get('session');
 
-        const sessions =
-            Bridge?.readSessions?.() || [];
-
-        const session =
-            requestedSessionId
-                ? sessions.find(
-                    item =>
-                        item.id ===
-                        requestedSessionId
-                )
-                : Bridge?.readActiveSession?.();
-
         const content =
             document.getElementById(
                 'memory-content'
@@ -610,8 +621,10 @@
                 )
             );
 
+        let session = null;
         let saveTimer = null;
         let lastSavedValue = '';
+        let savingPromise = null;
 
         function setStatus(message) {
             statuses.forEach(status => {
@@ -631,7 +644,7 @@
             });
         }
 
-        function saveMemory() {
+        async function saveMemory() {
             if (
                 !Bridge ||
                 !session
@@ -663,33 +676,60 @@
                 return;
             }
 
-            Bridge.writeLearnerMemory(
-                session.id,
-                {
-                    about,
-                    interests,
-                    notes
+            setStatus('Saving…');
+
+            const Authority =
+                window.AtlasLearnerSessionsCloudAuthority ||
+                null;
+
+            savingPromise = (async () => {
+                if (
+                    Authority &&
+                    Authority.getState?.().active
+                ) {
+                    await Authority.saveLearnerMemory(
+                        session.id,
+                        {
+                            about,
+                            interests,
+                            notes
+                        }
+                    );
+                } else {
+                    Bridge.writeLearnerMemory(
+                        session.id,
+                        {
+                            about,
+                            interests,
+                            notes
+                        }
+                    );
                 }
-            );
+            })();
 
-            lastSavedValue =
-                nextSavedValue;
+            try {
+                await savingPromise;
+                lastSavedValue = nextSavedValue;
+                setStatus('Saved');
 
-            setStatus('Saved');
-
-            window.setTimeout(
-                () => {
-                    if (
-                        statuses.some(status =>
-                            status.textContent ===
-                            'Saved'
-                        )
-                    ) {
-                        setStatus('');
-                    }
-                },
-                1400
-            );
+                window.setTimeout(
+                    () => {
+                        if (
+                            statuses.some(status =>
+                                status.textContent ===
+                                'Saved'
+                            )
+                        ) {
+                            setStatus('');
+                        }
+                    },
+                    1400
+                );
+            } catch {
+                setStatus('Not saved');
+            } finally {
+                savingPromise = null;
+            }
         }
 
         function queueSave() {
@@ -706,7 +746,31 @@
                 );
         }
 
-        function init() {
+        async function init() {
+            const Authority =
+                window.AtlasLearnerSessionsCloudAuthority ||
+                null;
+
+            if (Authority) {
+                try {
+                    await Authority.initialize();
+                } catch {
+                    setStatus('Couldn’t connect to your Atlas account');
+                }
+            }
+
+            const sessions =
+                Bridge?.readSessions?.() || [];
+
+            session =
+                requestedSessionId
+                    ? sessions.find(
+                        item =>
+                            item.id ===
+                            requestedSessionId
+                    )
+                    : Bridge?.readActiveSession?.();
+
             if (
                 !Bridge ||
                 !session ||
@@ -763,12 +827,23 @@
             content.hidden = false;
         }
 
-        window.addEventListener(
-            'pagehide',
-            saveMemory
+        document.addEventListener(
+            'visibilitychange',
+            () => {
+                if (document.visibilityState === 'hidden') {
+                    void saveMemory();
+                }
+            }
         );
 
-        init();
+        window.addEventListener(
+            'pagehide',
+            () => {
+                void saveMemory();
+            }
+        );
+
+        void init();
     </script>
 </body>
 
