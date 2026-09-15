@@ -272,6 +272,32 @@
         return true;
     }
 
+    function patchGatewayCopy() {
+        const original = window.renderGateway;
+
+        if (
+            typeof original !== 'function' ||
+            original.__atlasGatewayCopyPatched
+        ) {
+            return false;
+        }
+
+        function patchedRenderGateway(...args) {
+            const html = original.apply(this, args);
+
+            return String(html || '').replace(
+                '<p class="welcome-sub">Choose a direction for today\u2019s lesson.</p>',
+                ''
+            );
+        }
+
+        patchedRenderGateway
+            .__atlasGatewayCopyPatched = true;
+
+        window.renderGateway = patchedRenderGateway;
+        return true;
+    }
+
     function installReviewCompletion() {
         if (reviewCompletionInstalled) {
             return;
@@ -343,6 +369,7 @@
         if (!isAtlasRoot()) return;
 
         patchReviewSet();
+        patchGatewayCopy();
         installReviewCompletion();
 
         if (hasStoredAccountSession()) {
@@ -352,6 +379,16 @@
     }
 
     if (isAtlasRoot()) {
+        /*
+         * This runtime is injected synchronously while Atlas root is still
+         * parsing. Mark authenticated entry before DOMContentLoaded so the
+         * first-visit Welcome screen is never eligible to paint for a
+         * returning signed-in tutor.
+         */
+        if (hasStoredAccountSession()) {
+            markWelcomeSeenForAuthenticatedUser();
+        }
+
         /*
          * Register this before the root gateway registers its own
          * DOMContentLoaded init. By the time this runs, the root inline
