@@ -40,6 +40,16 @@
         }
     }
 
+    function getBuildPresentationRequest() {
+        try {
+            return new URL(window.location.href)
+                .searchParams
+                .get('author') === 'generate';
+        } catch {
+            return false;
+        }
+    }
+
     function getStatusElement() {
         return document.getElementById(
             'compass-subject-load-status'
@@ -214,6 +224,11 @@
         );
 
         await loadScript(
+            '../shared/compass-build-presentation.js',
+            'Compass build presentation layer could not be loaded.'
+        );
+
+        await loadScript(
             '../shared/compass-generation-recovery.js',
             'Compass generation recovery layer could not be loaded.'
         );
@@ -262,6 +277,9 @@
                 );
                 return;
             }
+
+            window.AtlasSubjectBuildPresentationRequested =
+                getBuildPresentationRequest();
 
             installRuntimeSubject(subject);
             await loadCompassEngine();
