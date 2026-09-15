@@ -166,6 +166,76 @@
         };
     }
 
+    function isMobileSessionLayout() {
+        return window.matchMedia('(max-width: 680px)').matches;
+    }
+
+    function resetMobileVisualViewport() {
+        const elements = getElements();
+
+        if (elements.overlay) {
+            elements.overlay.style.removeProperty('top');
+            elements.overlay.style.removeProperty('bottom');
+            elements.overlay.style.removeProperty('height');
+        }
+
+        elements.dialog?.style.removeProperty('max-height');
+    }
+
+    function syncMobileVisualViewport() {
+        const elements = getElements();
+
+        if (
+            !elements.overlay ||
+            !elements.dialog ||
+            !isOpen() ||
+            !isMobileSessionLayout()
+        ) {
+            resetMobileVisualViewport();
+            return;
+        }
+
+        const viewport = window.visualViewport;
+        const height = Math.max(
+            0,
+            Number(viewport?.height) ||
+            Number(window.innerHeight) ||
+            Number(document.documentElement?.clientHeight) ||
+            0
+        );
+        const offsetTop = Math.max(
+            0,
+            Number(viewport?.offsetTop) || 0
+        );
+
+        if (!height) return;
+
+        elements.overlay.style.top = `${offsetTop}px`;
+        elements.overlay.style.bottom = 'auto';
+        elements.overlay.style.height = `${height}px`;
+        elements.dialog.style.maxHeight = `${Math.max(180, height - 8)}px`;
+    }
+
+    function focusTextControl(element) {
+        if (!element) return;
+
+        const mobile = isMobileSessionLayout();
+
+        element.focus({
+            preventScroll: !mobile
+        });
+
+        if (!mobile) return;
+
+        window.requestAnimationFrame(() => {
+            syncMobileVisualViewport();
+            element.scrollIntoView({
+                block: 'nearest',
+                inline: 'nearest'
+            });
+        });
+    }
+
     function setCreateExpanded(
         expanded,
         { focus = false, reset = false } = {}
@@ -190,7 +260,7 @@
 
         if (expanded && focus) {
             window.requestAnimationFrame(() => {
-                elements.createInput?.focus({ preventScroll: true });
+                focusTextControl(elements.createInput);
             });
         }
     }
@@ -367,10 +437,18 @@
             const row = root?.querySelector(
                 `.atlas-session-row[data-session-id="${CSS.escape(sessionId)}"]`
             );
+            const control = row?.querySelector(selector) || null;
 
-            row?.querySelector(selector)?.focus({
-                preventScroll: true
-            });
+            if (
+                control instanceof HTMLInputElement ||
+                control instanceof HTMLTextAreaElement
+            ) {
+                focusTextControl(control);
+            } else {
+                control?.focus({
+                    preventScroll: true
+                });
+            }
         });
     }
 
@@ -901,8 +979,20 @@
 
         if (!elements.overlay) return;
 
+        const focusedElement = document.activeElement;
+        if (
+            isMobileSessionLayout() &&
+            (
+                focusedElement instanceof HTMLInputElement ||
+                focusedElement instanceof HTMLTextAreaElement
+            )
+        ) {
+            focusedElement.blur();
+        }
+
         elements.overlay.classList.remove('is-open');
         elements.overlay.setAttribute('aria-hidden', 'true');
+        resetMobileVisualViewport();
         document.body.style.overflow = previousBodyOverflow;
 
         const trigger = lastTrigger;
@@ -972,6 +1062,7 @@
         );
 
         document.body.style.overflow = 'hidden';
+        syncMobileVisualViewport();
 
         window.requestAnimationFrame(() => {
             if (initialView === 'manage') {
@@ -1310,6 +1401,26 @@
         document.addEventListener('keydown', handleKeydown);
         window.addEventListener('atlas:session-change', refresh);
         window.addEventListener('atlas:learner-cloud-ready', refresh);
+        window.addEventListener('resize', syncMobileVisualViewport);
+        window.visualViewport?.addEventListener(
+            'resize',
+            syncMobileVisualViewport
+        );
+        window.visualViewport?.addEventListener(
+            'scroll',
+            syncMobileVisualViewport
+        );
+        root.addEventListener('focusin', event => {
+            if (
+                isMobileSessionLayout() &&
+                (
+                    event.target instanceof HTMLInputElement ||
+                    event.target instanceof HTMLTextAreaElement
+                )
+            ) {
+                window.requestAnimationFrame(syncMobileVisualViewport);
+            }
+        });
         window.addEventListener('storage', event => {
             if (event.key === 'atlas::sessions') {
                 refresh();
