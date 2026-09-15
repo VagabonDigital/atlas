@@ -99,6 +99,13 @@
         return true;
     }
 
+    function releaseRootEntryGate() {
+        window.requestAnimationFrame(() => {
+            document.documentElement.dataset
+                .atlasRootEntryReady = 'true';
+        });
+    }
+
     function reviewScope() {
         const userId = storedSessionUserId();
 
@@ -376,14 +383,22 @@
             markWelcomeSeenForAuthenticatedUser();
             bypassAuthenticatedEmptySetup();
         }
+
+        /*
+         * The main Atlas init listener runs in the same DOMContentLoaded
+         * turn after this listener. Reveal on the next frame so the first
+         * visible root frame is already the resolved authenticated or
+         * anonymous state, never the wrong state underneath it.
+         */
+        releaseRootEntryGate();
     }
 
     if (isAtlasRoot()) {
         /*
          * This runtime is injected synchronously while Atlas root is still
-         * parsing. Mark authenticated entry before DOMContentLoaded so the
-         * first-visit Welcome screen is never eligible to paint for a
-         * returning signed-in tutor.
+         * parsing. Mark authenticated entry as soon as the account token is
+         * available; the shared prepaint gate keeps the root invisible until
+         * DOMContentLoaded resolves the complete entry state.
          */
         if (hasStoredAccountSession()) {
             markWelcomeSeenForAuthenticatedUser();
