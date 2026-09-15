@@ -2,11 +2,12 @@
    ATLAS SUBJECT MIGRATION
    One-time claim path for pre-account local My Subjects.
 
-   This is deliberately conservative:
-   - existing exact cloud matches are accepted;
-   - missing local subjects are inserted;
-   - any conflicting same-ID subject blocks the migration;
-   - verification runs again after migration.
+   Cloud-authority rule:
+   - if a subject ID already exists in the signed-in account, it is
+     already connected and the cloud record wins;
+   - only local subject IDs missing from the account are inserted;
+   - migration never overwrites an existing cloud subject;
+   - verification confirms that every local ID now exists remotely.
    ============================================================ */
 
 (function () {
@@ -97,43 +98,6 @@
         return firstJsonDifference(left, right) === null;
     }
 
-    function subjectDifference(local, cloud) {
-        if (!local || !cloud) {
-            return 'subject record missing';
-        }
-
-        if (local.id !== cloud.id) return 'id differs';
-        if (local.schemaVersion !== cloud.schemaVersion) return 'schema version differs';
-        if (local.format !== cloud.format) return 'format differs';
-        if (local.revision !== cloud.revision) return 'revision differs';
-
-        const metadataDifference = firstJsonDifference(
-            local.metadata,
-            cloud.metadata
-        );
-        if (metadataDifference) {
-            return `metadata differs at ${metadataDifference.path}`;
-        }
-
-        const documentDifference = firstJsonDifference(
-            local.document,
-            cloud.document
-        );
-        if (documentDifference) {
-            return `document differs at ${documentDifference.path}`;
-        }
-
-        const provenanceDifference = firstJsonDifference(
-            local.provenance,
-            cloud.provenance
-        );
-        if (provenanceDifference) {
-            return `provenance differs at ${provenanceDifference.path}`;
-        }
-
-        return null;
-    }
-
     async function preview() {
         if (!window.AtlasTutorSubjects || !window.AtlasCloud) {
             throw new Error('Atlas subject migration dependencies are unavailable.');
@@ -146,29 +110,15 @@
         );
 
         const missing = [];
-        const matching = [];
-        const conflicts = [];
+        const connected = [];
 
         localSubjects.forEach(local => {
-            const cloud = cloudById.get(local.id);
-
-            if (!cloud) {
-                missing.push(local);
+            if (cloudById.has(local.id)) {
+                connected.push(local);
                 return;
             }
 
-            const difference = subjectDifference(local, cloud);
-
-            if (difference) {
-                conflicts.push({
-                    id: local.id,
-                    title: local.metadata?.title || local.id,
-                    difference
-                });
-                return;
-            }
-
-            matching.push(local);
+            missing.push(local);
         });
 
         const localIds = new Set(localSubjects.map(subject => subject.id));
@@ -178,26 +128,16 @@
             localCount: localSubjects.length,
             cloudCount: cloudSubjects.length,
             missingCount: missing.length,
-            matchingCount: matching.length,
-            conflictCount: conflicts.length,
+            matchingCount: connected.length,
+            conflictCount: 0,
             cloudOnlyCount: cloudOnly.length,
-            conflicts,
+            conflicts: [],
             missingIds: missing.map(subject => subject.id)
         });
     }
 
     async function claim({ onProgress } = {}) {
         const initial = await preview();
-
-        if (initial.conflictCount > 0) {
-            const error = new Error(
-                'Atlas found conflicting My Subjects with the same IDs in this account. Migration stopped before writing anything new.'
-            );
-            error.code = 'ATLAS_MIGRATION_CONFLICT';
-            error.preview = initial;
-            throw error;
-        }
-
         const localSubjects = await AtlasTutorSubjects.listSubjects();
         const missingIds = new Set(initial.missingIds);
         const missing = localSubjects.filter(subject => missingIds.has(subject.id));
@@ -221,7 +161,8 @@
             } catch (error) {
                 if (error?.code === '23505') {
                     const cloud = await AtlasCloud.getOwnedSubject(subject.id);
-                    if (cloud && !subjectDifference(subject, cloud)) {
+
+                    if (cloud) {
                         inserted += 1;
                         continue;
                     }
@@ -247,7 +188,6 @@
         const verification = await preview();
 
         if (
-            verification.conflictCount > 0 ||
             verification.missingCount > 0 ||
             verification.matchingCount !== verification.localCount
         ) {
