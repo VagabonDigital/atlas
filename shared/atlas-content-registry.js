@@ -721,6 +721,18 @@
         }
     }
 
+    function ensurePreconnect(href) {
+        if (!href || document.querySelector(`link[rel="preconnect"][href="${href}"]`)) {
+            return;
+        }
+
+        const link = document.createElement('link');
+        link.rel = 'preconnect';
+        link.href = href;
+        link.crossOrigin = 'anonymous';
+        document.head.appendChild(link);
+    }
+
     function writeCloudAuthorityScripts() {
         if (
             !window.location.pathname.startsWith('/compass/') ||
@@ -728,6 +740,9 @@
         ) {
             return;
         }
+
+        ensurePreconnect('https://jnhjfpagectprceswvqn.supabase.co');
+        ensurePreconnect('https://cdn.jsdelivr.net');
 
         const needsSubjects = Boolean(
             window.AtlasTutorSubjects &&
@@ -754,6 +769,12 @@
         if (!window.AtlasAccount) {
             scripts.push(
                 '<script src="/shared/atlas-account.js?v=20260915-production2"><\/script>'
+            );
+        }
+
+        if (needsSubjects && !window.AtlasCloudCache) {
+            scripts.push(
+                '<script src="/shared/atlas-cloud-cache.js?v=20260915-performance1"><\/script>'
             );
         }
 
