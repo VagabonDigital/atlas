@@ -2,10 +2,10 @@
    ATLAS CLOUD
    Browser-side Supabase foundation for authenticated Atlas data.
 
-   This module owns the vendor-specific connection/auth boundary and the
-   first durable Atlas objects: committed My Subjects and My Subjects library
-   organisation. Product surfaces should continue to talk to Atlas persistence
-   owners rather than Supabase directly; this adapter is the cloud seam.
+   This module owns the vendor-specific connection/auth boundary for
+   account-owned Atlas data. Product surfaces should continue to talk to
+   Atlas persistence owners rather than Supabase directly; this adapter is
+   the cloud seam.
    ============================================================ */
 
 (function () {
@@ -112,13 +112,6 @@
     }
 
     async function requireUser() {
-        /*
-         * Data operations use the restored Supabase session instead of making
-         * an auth.getUser() network request before every database request.
-         * PostgREST/RLS still validates the access token server-side on the
-         * actual query, so this removes redundant latency without weakening
-         * the ownership boundary.
-         */
         const session = await getSession();
         const user = session?.user || null;
 
@@ -472,6 +465,203 @@
         return rowToSubjectLibraryState(data);
     }
 
+    function tutorContentVersionToRow(record, ownerUserId) {
+        if (!record || typeof record !== 'object' || Array.isArray(record)) {
+            throw new Error('AtlasCloud requires a Tutor Content version.');
+        }
+
+        const contentId = String(record.contentId || '').trim();
+        if (!contentId) {
+            throw new Error('Tutor Content version requires contentId.');
+        }
+
+        if (
+            !record.document ||
+            typeof record.document !== 'object' ||
+            Array.isArray(record.document)
+        ) {
+            throw new Error('Tutor Content version requires a document.');
+        }
+
+        const overrides =
+            record.overrides &&
+            typeof record.overrides === 'object' &&
+            !Array.isArray(record.overrides)
+                ? cloneJson(record.overrides)
+                : {};
+
+        return {
+            owner_user_id: ownerUserId,
+            content_id: contentId,
+            schema_version: Math.max(
+                1,
+                Math.floor(Number(record.schemaVersion) || 2)
+            ),
+            base_content_version:
+                typeof record.baseContentVersion === 'string'
+                    ? record.baseContentVersion
+                    : '',
+            revision: Math.max(
+                0,
+                Math.floor(Number(record.revision) || 0)
+            ),
+            overrides,
+            document: cloneJson(record.document)
+        };
+    }
+
+    function rowToTutorContentVersion(row) {
+        if (!row || typeof row !== 'object') return null;
+
+        const contentId = String(row.content_id || '').trim();
+        if (!contentId) return null;
+
+        return {
+            schemaVersion: Math.max(
+                1,
+                Math.floor(Number(row.schema_version) || 2)
+            ),
+            ownerId: LOCAL_OWNER_ID,
+            contentId,
+            baseContentVersion:
+                typeof row.base_content_version === 'string'
+                    ? row.base_content_version
+                    : '',
+            revision: Math.max(
+                0,
+                Math.floor(Number(row.revision) || 0)
+            ),
+            updatedAt: Date.parse(row.updated_at) || 0,
+            overrides:
+                row.overrides &&
+                typeof row.overrides === 'object' &&
+                !Array.isArray(row.overrides)
+                    ? cloneJson(row.overrides)
+                    : {},
+            document: cloneJson(row.document || {})
+        };
+    }
+
+    async function createTutorContentVersion(record) {
+        const client = await getClient();
+        const user = await requireUser();
+        const row = tutorContentVersionToRow(record, user.id);
+
+        const { data, error } = await client
+            .from('tutor_content_versions')
+            .insert(row)
+            .select('*')
+            .single();
+
+        if (error) throw error;
+        return rowToTutorContentVersion(data);
+    }
+
+    async function getTutorContentVersion(contentId) {
+        const client = await getClient();
+        const user = await requireUser();
+        const id = String(contentId || '').trim();
+
+        if (!id) return null;
+
+        const { data, error } = await client
+            .from('tutor_content_versions')
+            .select('*')
+            .eq('owner_user_id', user.id)
+            .eq('content_id', id)
+            .maybeSingle();
+
+        if (error) throw error;
+        return rowToTutorContentVersion(data);
+    }
+
+    async function listTutorContentVersions() {
+        const client = await getClient();
+        const user = await requireUser();
+
+        const { data, error } = await client
+            .from('tutor_content_versions')
+            .select('*')
+            .eq('owner_user_id', user.id)
+            .order('updated_at', { ascending: false });
+
+        if (error) throw error;
+        return (data || [])
+            .map(rowToTutorContentVersion)
+            .filter(Boolean);
+    }
+
+    async function updateTutorContentVersion(record, expectedRevision) {
+        const client = await getClient();
+        const user = await requireUser();
+        const previousRevision = Math.max(
+            0,
+            Math.floor(Number(expectedRevision) || 0)
+        );
+        const row = tutorContentVersionToRow(
+            {
+                ...record,
+                revision: previousRevision + 1
+            },
+            user.id
+        );
+
+        const { data, error } = await client
+            .from('tutor_content_versions')
+            .update({
+                schema_version: row.schema_version,
+                base_content_version: row.base_content_version,
+                revision: row.revision,
+                overrides: row.overrides,
+                document: row.document
+            })
+            .eq('owner_user_id', user.id)
+            .eq('content_id', row.content_id)
+            .eq('revision', previousRevision)
+            .select('*')
+            .maybeSingle();
+
+        if (error) throw error;
+
+        if (!data) {
+            const conflict = new Error(
+                'This My Version changed elsewhere before your save completed.'
+            );
+            conflict.code = 'ATLAS_REVISION_CONFLICT';
+            throw conflict;
+        }
+
+        return rowToTutorContentVersion(data);
+    }
+
+    async function deleteTutorContentVersion(contentId, expectedRevision = null) {
+        const client = await getClient();
+        const user = await requireUser();
+        const id = String(contentId || '').trim();
+
+        if (!id) return false;
+
+        let query = client
+            .from('tutor_content_versions')
+            .delete()
+            .eq('owner_user_id', user.id)
+            .eq('content_id', id);
+
+        if (expectedRevision !== null) {
+            query = query.eq(
+                'revision',
+                Math.max(0, Math.floor(Number(expectedRevision) || 0))
+            );
+        }
+
+        const { data, error } = await query
+            .select('content_id')
+            .maybeSingle();
+
+        if (error) throw error;
+        return Boolean(data && data.content_id === id);
+    }
+
     async function status() {
         const session = await getSession();
 
@@ -497,6 +687,11 @@
         deleteOwnedSubject,
         getSubjectLibraryState,
         createSubjectLibraryState,
-        updateSubjectLibraryState
+        updateSubjectLibraryState,
+        createTutorContentVersion,
+        getTutorContentVersion,
+        listTutorContentVersions,
+        updateTutorContentVersion,
+        deleteTutorContentVersion
     });
 })();
