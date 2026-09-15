@@ -756,7 +756,7 @@
 
         if (document.readyState === 'loading') {
             document.write(
-                '<script data-atlas-root-runtime="true" src="/shared/atlas-root-runtime.js?v=20260915-root1"><\\/script>'
+                '<script data-atlas-root-runtime="true" src="/shared/atlas-root-runtime.js?v=20260915-root1"><\/script>'
             );
             return;
         }
