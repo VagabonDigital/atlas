@@ -9,6 +9,8 @@
    - an existing cloud library may be expanded when the local snapshot is
      an exact superset created only by newly connected subjects;
    - unrelated cloud/local differences still block migration;
+   - once verified, migration is complete for this account/browser and
+     normal cloud library changes are never compared to legacy local state;
    - cloud writes use optimistic revision checks and are verified.
    ============================================================ */
 
@@ -16,6 +18,9 @@
     'use strict';
 
     if (window.AtlasLibraryMigration) return;
+
+    const COMPLETE_KEY_PREFIX =
+        'atlas::migration::subjectLibraryComplete::';
 
     function cloneJson(value) {
         if (value === null || value === undefined) return value;
@@ -98,6 +103,61 @@
 
     function sameJson(left, right) {
         return firstJsonDifference(left, right) === null;
+    }
+
+    async function completionStorageKey() {
+        const session = await AtlasCloud.getSession();
+        const userId = String(session?.user?.id || '').trim();
+
+        if (!userId) {
+            throw new Error(
+                'Library migration state requires a signed-in Atlas account.'
+            );
+        }
+
+        return `${COMPLETE_KEY_PREFIX}${userId}`;
+    }
+
+    async function migrationComplete() {
+        const key = await completionStorageKey();
+        try {
+            return localStorage.getItem(key) === '1';
+        } catch {
+            return false;
+        }
+    }
+
+    async function markMigrationComplete() {
+        const key = await completionStorageKey();
+        try {
+            localStorage.setItem(key, '1');
+        } catch { }
+    }
+
+    function cloudSummary(cloud) {
+        const state =
+            cloud?.state &&
+            typeof cloud.state === 'object' &&
+            !Array.isArray(cloud.state)
+                ? cloud.state
+                : {};
+        const library =
+            state.library &&
+            typeof state.library === 'object' &&
+            !Array.isArray(state.library)
+                ? state.library
+                : {};
+        const order = Array.isArray(state.order)
+            ? state.order
+            : [];
+        const categories = Array.isArray(library.categories)
+            ? library.categories
+            : [];
+
+        return {
+            subjectCount: order.length,
+            categoryCount: categories.length
+        };
     }
 
     function filterDismissedSubjects(library, order, subjectPreview) {
@@ -281,9 +341,49 @@
             throw new Error('Atlas Cloud is unavailable.');
         }
 
+        const cloud = await AtlasCloud.getSubjectLibraryState();
+
+        // Once migration has been verified, the cloud library is the product.
+        // Do not keep comparing normal user changes against the old browser
+        // snapshot forever.
+        if (await migrationComplete()) {
+            if (!cloud) {
+                return cloneJson({
+                    status: 'missing',
+                    matching: false,
+                    expandable: false,
+                    conflict: true,
+                    completed: true,
+                    subjectCount: 0,
+                    categoryCount: 0,
+                    dismissedCount: 0,
+                    addedSubjectCount: 0,
+                    cloudRevision: null,
+                    difference: 'verified cloud library is missing',
+                    subjectsVerified: 0
+                });
+            }
+
+            const summary = cloudSummary(cloud);
+            return cloneJson({
+                status: 'matching',
+                matching: true,
+                expandable: false,
+                conflict: false,
+                completed: true,
+                subjectCount: summary.subjectCount,
+                categoryCount: summary.categoryCount,
+                dismissedCount: 0,
+                addedSubjectCount: 0,
+                addedSubjectIds: [],
+                cloudRevision: cloud.revision,
+                difference: null,
+                subjectsVerified: summary.subjectCount
+            });
+        }
+
         const subjectPreview = await requireSubjectsConnected();
         const local = await getLocalSnapshot(subjectPreview);
-        const cloud = await AtlasCloud.getSubjectLibraryState();
 
         if (!cloud) {
             return cloneJson({
@@ -291,6 +391,7 @@
                 matching: false,
                 expandable: false,
                 conflict: false,
+                completed: false,
                 subjectCount: local.subjectCount,
                 categoryCount: local.categoryCount,
                 dismissedCount: local.dismissedCount,
@@ -312,6 +413,10 @@
             : null;
         const expandable = Boolean(expansion);
 
+        if (matching) {
+            await markMigrationComplete();
+        }
+
         return cloneJson({
             status: matching
                 ? 'matching'
@@ -321,6 +426,7 @@
             matching,
             expandable,
             conflict: !matching && !expandable,
+            completed: matching,
             subjectCount: local.subjectCount,
             categoryCount: local.categoryCount,
             dismissedCount: local.dismissedCount,
@@ -349,6 +455,7 @@
         }
 
         if (initial.matching) {
+            await markMigrationComplete();
             return cloneJson({
                 created: false,
                 updated: false,
@@ -410,6 +517,8 @@
             error.preview = verification;
             throw error;
         }
+
+        await markMigrationComplete();
 
         return cloneJson({
             created: !initial.expandable,
