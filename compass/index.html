@@ -2999,16 +2999,31 @@
     }
 
     @media (hover: none) and (pointer: coarse) {
-      .subject-card--has-art .subject-card-header {
-        max-width: none;
-      }
-
+      .subject-card--has-art .subject-card-header,
       .subject-card--has-art .subject-card-hook {
         max-width: calc(100% - 7.2rem);
       }
 
+      .subject-card--has-art .subject-card-art {
+        display: flex;
+        opacity: 0.14;
+        transform: none;
+      }
+
+      html[data-theme="night"]
+      .subject-card--has-art
       .subject-card-art {
-        display: none;
+        opacity: 0.22;
+      }
+
+      .subject-artwork-preview-card .subject-card-art {
+        opacity: 0.18;
+      }
+
+      html[data-theme="night"]
+      .subject-artwork-preview-card
+      .subject-card-art {
+        opacity: 0.25;
       }
     }
 
@@ -3128,7 +3143,6 @@
         padding: 1.3rem 1.25rem 1.35rem;
       }
 
-      .subject-card--has-art .subject-card-hook,
       .subject-card--new:not(.subject-card--has-art) .subject-card-hook {
         max-width: none;
       }

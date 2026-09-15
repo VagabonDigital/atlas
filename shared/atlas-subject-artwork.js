@@ -530,6 +530,26 @@
                 opacity: 0.23;
             }
 
+            @media (hover: none) and (pointer: coarse) {
+                .subject-artwork-display-control {
+                    display: none;
+                }
+
+                html[data-subject-artwork-display]
+                .hub-main
+                .subject-card--has-art
+                .subject-card-art {
+                    opacity: 0.14;
+                }
+
+                html[data-theme="night"][data-subject-artwork-display]
+                .hub-main
+                .subject-card--has-art
+                .subject-card-art {
+                    opacity: 0.22;
+                }
+            }
+
             @media (max-width: 640px) {
                 .subject-artwork-display-control-label {
                     display: none;
