@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compass Cloud Read Canary</title>
+</head>
+<body>
+  <p style="font-family:system-ui,sans-serif;padding:24px">Opening Compass cloud-read canary…</p>
+
+  <script>
+    'use strict';
+
+    (async () => {
+      try {
+        const response = await fetch('./index.html?cloud-canary-source=1', {
+          cache: 'no-store'
+        });
+
+        if (!response.ok) {
+          throw new Error(`Compass source returned ${response.status}.`);
+        }
+
+        let html = await response.text();
+
+        const tutorSubjectsScript =
+          '<script src="../shared/atlas-tutor-subjects.js?v=20260911-1"><\\/script>';
+
+        const injection = [
+          tutorSubjectsScript,
+          '<script src="../shared/atlas-cloud.js?v=20260914-cloudhub1"><\\/script>',
+          '<script src="../shared/atlas-account.js?v=20260914-cloudhub1"><\\/script>',
+          '<script src="../shared/atlas-tutor-subjects-cloud-hub-canary.js?v=20260914-cloudhub1"><\\/script>'
+        ].join('');
+
+        if (!html.includes(tutorSubjectsScript)) {
+          throw new Error('Compass Tutor Subjects bootstrap marker was not found.');
+        }
+
+        html = html.replace(
+          '<head>',
+          '<head><base href="/compass/">'
+        );
+
+        html = html.replace(
+          tutorSubjectsScript,
+          injection
+        );
+
+        document.open();
+        document.write(html);
+        document.close();
+      } catch (error) {
+        document.body.innerHTML = '';
+        const pre = document.createElement('pre');
+        pre.style.cssText = 'white-space:pre-wrap;padding:24px;font:14px/1.5 ui-monospace,monospace;color:#8b1e16';
+        pre.textContent = `Compass cloud-read canary failed:\n${error.message || String(error)}`;
+        document.body.appendChild(pre);
+      }
+    })();
+  <\/script>
+</body>
+</html>
