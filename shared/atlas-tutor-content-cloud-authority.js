@@ -10,6 +10,10 @@
    - working drafts
    - Live Manipulation session drafts
 
+   Local working drafts may resume only when they are newer than the
+   committed cloud version. A stale browser draft must never mask a newer
+   account-owned My Version from another browser/device.
+
    Signed-out behavior remains on the existing AtlasTutorContent boundary.
    No authenticated cloud write silently falls back to localStorage.
    ============================================================ */
@@ -38,6 +42,8 @@
             typeof value === 'function' ? value.bind(Local) : value
         ])
     );
+
+    const cloudVersionReads = new Map();
 
     function cloneJson(value) {
         if (value === null || value === undefined) return value;
@@ -194,6 +200,26 @@
         return Boolean((await getAccountState()).authenticated);
     }
 
+    function readCloudVersion(contentId) {
+        const id = String(contentId || '').trim();
+        if (!id) return Promise.resolve(null);
+
+        const existing = cloudVersionReads.get(id);
+        if (existing) return existing;
+
+        const pending = AtlasCloud.getTutorContentVersion(id);
+        cloudVersionReads.set(id, pending);
+
+        const release = () => {
+            if (cloudVersionReads.get(id) === pending) {
+                cloudVersionReads.delete(id);
+            }
+        };
+
+        pending.then(release, release);
+        return pending;
+    }
+
     async function getVersion(contentId) {
         const id = String(contentId || '').trim();
         if (!id) return null;
@@ -202,7 +228,35 @@
             return original.getVersion(id);
         }
 
-        return AtlasCloud.getTutorContentVersion(id);
+        return readCloudVersion(id);
+    }
+
+    async function getWorkingDraft(contentId) {
+        const id = String(contentId || '').trim();
+        if (!id) return null;
+
+        const localDraft = await original.getWorkingDraft(id);
+        if (!localDraft) return null;
+
+        if (!(await useCloud())) {
+            return localDraft;
+        }
+
+        const committed = await readCloudVersion(id);
+        if (!committed) return localDraft;
+
+        const draftUpdatedAt = Math.max(
+            0,
+            Number(localDraft.updatedAt) || 0
+        );
+        const committedUpdatedAt = Math.max(
+            0,
+            Number(committed.updatedAt) || 0
+        );
+
+        return committedUpdatedAt >= draftUpdatedAt
+            ? null
+            : localDraft;
     }
 
     async function saveVersion(contentId, patch = {}) {
@@ -335,6 +389,7 @@
     }
 
     Local.getVersion = getVersion;
+    Local.getWorkingDraft = getWorkingDraft;
     Local.saveVersion = saveVersion;
     Local.deleteVersion = deleteVersion;
     Local.exportPortableData = exportPortableData;
