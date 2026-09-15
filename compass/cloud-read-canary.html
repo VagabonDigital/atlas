@@ -22,15 +22,16 @@
         }
 
         let html = await response.text();
+        const closeScript = '</scr' + 'ipt>';
 
         const tutorSubjectsScript =
-          '<script src="../shared/atlas-tutor-subjects.js?v=20260911-1"><\\/script>';
+          '<script src="../shared/atlas-tutor-subjects.js?v=20260911-1">' + closeScript;
 
         const injection = [
           tutorSubjectsScript,
-          '<script src="../shared/atlas-cloud.js?v=20260914-cloudhub1"><\\/script>',
-          '<script src="../shared/atlas-account.js?v=20260914-cloudhub1"><\\/script>',
-          '<script src="../shared/atlas-tutor-subjects-cloud-hub-canary.js?v=20260914-cloudhub1"><\\/script>'
+          '<script src="../shared/atlas-cloud.js?v=20260914-cloudhub2">' + closeScript,
+          '<script src="../shared/atlas-account.js?v=20260914-cloudhub2">' + closeScript,
+          '<script src="../shared/atlas-tutor-subjects-cloud-hub-canary.js?v=20260914-cloudhub2">' + closeScript
         ].join('');
 
         if (!html.includes(tutorSubjectsScript)) {
@@ -58,6 +59,6 @@
         document.body.appendChild(pre);
       }
     })();
-  <\/script>
+  </script>
 </body>
 </html>
