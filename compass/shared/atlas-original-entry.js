@@ -83,6 +83,54 @@
                     ? candidate.metadata
                     : {};
 
+            let preparedCandidate = candidate;
+            let preparedMetadata = metadata;
+
+            if (
+                provenance?.sourceWorld === 'compass' &&
+                provenance?.kind === 'atlas-duplicate'
+            ) {
+                const sourceTitle = String(
+                    metadata.title ||
+                    candidate.document?.module?.title ||
+                    'Untitled Subject'
+                ).trim() || 'Untitled Subject';
+
+                const duplicateTitle = `${sourceTitle} copy`;
+
+                const document =
+                    candidate.document &&
+                    typeof candidate.document === 'object' &&
+                    !Array.isArray(candidate.document)
+                        ? {
+                            ...candidate.document,
+                            module: {
+                                ...(
+                                    candidate.document.module &&
+                                    typeof candidate.document.module === 'object' &&
+                                    !Array.isArray(candidate.document.module)
+                                        ? candidate.document.module
+                                        : {}
+                                ),
+                                title: duplicateTitle,
+                                navTitle: duplicateTitle
+                            }
+                        }
+                        : candidate.document;
+
+                preparedMetadata = {
+                    ...metadata,
+                    title: duplicateTitle,
+                    navTitle: duplicateTitle
+                };
+
+                preparedCandidate = {
+                    ...candidate,
+                    metadata: preparedMetadata,
+                    document
+                };
+            }
+
             const sourceSubjectId = String(
                 provenance?.sourceSubjectId || ''
             ).trim();
@@ -99,11 +147,11 @@
 
             if (
                 !isAtlasOriginalCopy ||
-                Artwork.normalize(metadata.artwork)
+                Artwork.normalize(preparedMetadata.artwork)
             ) {
                 return originalCreateSubject.call(
                     this,
-                    input
+                    preparedCandidate
                 );
             }
 
@@ -137,16 +185,16 @@
             if (!artwork) {
                 return originalCreateSubject.call(
                     this,
-                    input
+                    preparedCandidate
                 );
             }
 
             return originalCreateSubject.call(
                 this,
                 {
-                    ...candidate,
+                    ...preparedCandidate,
                     metadata: {
-                        ...metadata,
+                        ...preparedMetadata,
                         artwork
                     }
                 }
