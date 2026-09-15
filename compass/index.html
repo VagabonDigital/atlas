@@ -2891,7 +2891,8 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 0.6rem;
-      margin-top: 0.15rem;
+      margin-top: 0;
+      margin-right: auto;
     }
 
     .subject-artwork-remove-btn {
@@ -2921,6 +2922,7 @@
         display: grid;
         grid-template-columns: 1fr;
         gap: 0.55rem;
+        margin-right: 0;
       }
 
       .subject-artwork-studio-edit-actions .btn-primary,
@@ -3118,8 +3120,10 @@
     }
 
     @media (hover: none) and (pointer: coarse) {
-      .subject-card--has-art .subject-card-header,
-      .subject-card--has-art .subject-card-hook {
+      .subject-card--has-art .subject-card-hook,
+      .subject-artwork-preview-card
+      .subject-card--has-art
+      .subject-card-header {
         max-width: calc(100% - 7.2rem);
       }
 
@@ -6515,13 +6519,85 @@
       </svg>
     `;
 
+    function syncSubjectArtworkStudioEditActions(
+      backdrop
+    ) {
+      if (!backdrop) return;
+
+      const editActions =
+        backdrop.querySelector(
+          '.subject-artwork-studio-edit-actions'
+        );
+
+      const controls =
+        backdrop.querySelector(
+          '.subject-artwork-studio-controls'
+        );
+
+      const footer =
+        backdrop.querySelector(
+          '.subject-artwork-studio-actions'
+        );
+
+      if (
+        !editActions ||
+        !controls ||
+        !footer
+      ) {
+        return;
+      }
+
+      const compactLayout =
+        window.matchMedia(
+          '(max-width: 760px)'
+        ).matches;
+
+      const target =
+        compactLayout
+          ? controls
+          : footer;
+
+      if (
+        editActions.parentElement === target
+      ) {
+        return;
+      }
+
+      if (compactLayout) {
+        const error =
+          controls.querySelector(
+            '.subject-artwork-studio-error'
+          );
+
+        if (error) {
+          error.insertAdjacentElement(
+            'afterend',
+            editActions
+          );
+        } else {
+          controls.appendChild(
+            editActions
+          );
+        }
+
+        return;
+      }
+
+      footer.prepend(editActions);
+    }
+
     function ensureSubjectArtworkStudio() {
       let backdrop =
         document.getElementById(
           'subject-artwork-studio-backdrop'
         );
 
-      if (backdrop) return backdrop;
+      if (backdrop) {
+        syncSubjectArtworkStudioEditActions(
+          backdrop
+        );
+        return backdrop;
+      }
 
       backdrop = document.createElement('div');
       backdrop.id = 'subject-artwork-studio-backdrop';
@@ -6667,6 +6743,24 @@
       );
 
       document.body.appendChild(backdrop);
+
+      syncSubjectArtworkStudioEditActions(
+        backdrop
+      );
+
+      const compactLayout =
+        window.matchMedia(
+          '(max-width: 760px)'
+        );
+
+      compactLayout.addEventListener?.(
+        'change',
+        () => {
+          syncSubjectArtworkStudioEditActions(
+            backdrop
+          );
+        }
+      );
 
       return backdrop;
     }
