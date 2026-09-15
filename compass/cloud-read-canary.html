@@ -29,9 +29,9 @@
 
         const injection = [
           tutorSubjectsScript,
-          '<script src="../shared/atlas-cloud.js?v=20260914-cloudwrite1">' + closeScript,
-          '<script src="../shared/atlas-account.js?v=20260914-cloudwrite1">' + closeScript,
-          '<script src="../shared/atlas-tutor-subjects-cloud-authority.js?v=20260914-cloudwrite1">' + closeScript
+          '<script src="../shared/atlas-cloud.js?v=20260914-cloudwrite2">' + closeScript,
+          '<script src="../shared/atlas-account.js?v=20260914-cloudwrite2">' + closeScript,
+          '<script src="../shared/atlas-tutor-subjects-cloud-authority.js?v=20260914-cloudwrite2">' + closeScript
         ].join('');
 
         if (!html.includes(tutorSubjectsScript)) {
@@ -43,9 +43,13 @@
           '<head><base href="/compass/">'
         );
 
-        html = html.replace(
-          tutorSubjectsScript,
-          injection
+        html = html.replace(tutorSubjectsScript, injection);
+
+        // Keep the write proof inside the canary. Any My Subject launch generated
+        // by the Hub now opens the matching subject-runtime authority canary.
+        html = html.replaceAll(
+          'subject/?id=',
+          'subject/cloud-authority-canary.html?id='
         );
 
         document.open();
