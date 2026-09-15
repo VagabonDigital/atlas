@@ -1,0 +1,63 @@
+name: Temporary mobile title 84 patch
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/tmp-mobile-title-84-trigger'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch current main
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+
+          python <<'PY'
+          from pathlib import Path
+
+          path = Path('compass/index.html')
+          text = path.read_text()
+          old = '''      .subject-grid
+      .subject-card--owned.subject-card--has-art
+      .subject-card-header {
+        max-width: 100%;
+      }
+'''
+          new = '''      .subject-grid
+      .subject-card--owned.subject-card--has-art
+      .subject-card-header {
+        max-width: 84%;
+      }
+'''
+
+          count = text.count(old)
+          if count != 1:
+              raise SystemExit(f'expected 1 exact match, found {count}')
+
+          path.write_text(text.replace(old, new, 1))
+          PY
+
+          rm .github/workflows/tmp-mobile-title-84.yml
+          rm .github/tmp-mobile-title-84-trigger
+
+          git config user.name "Atlas patch bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add compass/index.html .github/workflows/tmp-mobile-title-84.yml .github/tmp-mobile-title-84-trigger
+          git commit -m "Tune mobile artwork title width"
+          git push origin main
