@@ -396,7 +396,7 @@
             ) {
                 return {
                     available: false,
-                    reason: 'Available when generation finishes.'
+                    reason: 'Available when this subject is ready.'
                 };
             }
 
