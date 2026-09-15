@@ -3,9 +3,9 @@
    Browser-side Supabase foundation for authenticated Atlas data.
 
    This module owns the vendor-specific connection/auth boundary and the
-   first durable object: committed My Subjects. Product surfaces should
-   continue to talk to Atlas persistence owners rather than Supabase
-   directly; this adapter is the cloud implementation seam.
+   first durable Atlas objects: committed My Subjects and My Subjects library
+   organisation. Product surfaces should continue to talk to Atlas persistence
+   owners rather than Supabase directly; this adapter is the cloud seam.
    ============================================================ */
 
 (function () {
@@ -348,6 +348,122 @@
         return Boolean(data && data.id === id);
     }
 
+    function rowToSubjectLibraryState(row) {
+        if (!row || typeof row !== 'object') return null;
+
+        return {
+            schemaVersion: Math.max(
+                1,
+                Math.floor(Number(row.schema_version) || 1)
+            ),
+            revision: Math.max(
+                1,
+                Math.floor(Number(row.revision) || 1)
+            ),
+            state:
+                row.state &&
+                typeof row.state === 'object' &&
+                !Array.isArray(row.state)
+                    ? cloneJson(row.state)
+                    : {},
+            createdAt: Date.parse(row.created_at) || 0,
+            updatedAt: Date.parse(row.updated_at) || 0
+        };
+    }
+
+    async function getSubjectLibraryState() {
+        const client = await getClient();
+        const user = await requireUser();
+
+        const { data, error } = await client
+            .from('subject_library_state')
+            .select('*')
+            .eq('owner_user_id', user.id)
+            .maybeSingle();
+
+        if (error) throw error;
+        return rowToSubjectLibraryState(data);
+    }
+
+    async function createSubjectLibraryState(state, schemaVersion = 1) {
+        const client = await getClient();
+        const user = await requireUser();
+        const payload =
+            state &&
+            typeof state === 'object' &&
+            !Array.isArray(state)
+                ? cloneJson(state)
+                : {};
+
+        const { data, error } = await client
+            .from('subject_library_state')
+            .insert({
+                owner_user_id: user.id,
+                schema_version: Math.max(
+                    1,
+                    Math.floor(Number(schemaVersion) || 1)
+                ),
+                revision: 1,
+                state: payload
+            })
+            .select('*')
+            .single();
+
+        if (error) throw error;
+        return rowToSubjectLibraryState(data);
+    }
+
+    async function updateSubjectLibraryState(
+        state,
+        expectedRevision,
+        schemaVersion = 1
+    ) {
+        const client = await getClient();
+        const user = await requireUser();
+        const previousRevision = Math.max(
+            1,
+            Math.floor(Number(expectedRevision) || 0)
+        );
+
+        if (!previousRevision) {
+            throw new Error('Cloud library update requires the previous revision.');
+        }
+
+        const payload =
+            state &&
+            typeof state === 'object' &&
+            !Array.isArray(state)
+                ? cloneJson(state)
+                : {};
+
+        const { data, error } = await client
+            .from('subject_library_state')
+            .update({
+                schema_version: Math.max(
+                    1,
+                    Math.floor(Number(schemaVersion) || 1)
+                ),
+                revision: previousRevision + 1,
+                state: payload
+            })
+            .eq('owner_user_id', user.id)
+            .eq('revision', previousRevision)
+            .select('*')
+            .maybeSingle();
+
+        if (error) throw error;
+
+        if (!data) {
+            const conflict = new Error(
+                'Your My Subjects library changed elsewhere before this save completed.'
+            );
+            conflict.code = 'ATLAS_REVISION_CONFLICT';
+            throw conflict;
+        }
+
+        return rowToSubjectLibraryState(data);
+    }
+
     async function status() {
         const session = await getSession();
 
@@ -370,6 +486,9 @@
         getOwnedSubject,
         listOwnedSubjects,
         updateOwnedSubject,
-        deleteOwnedSubject
+        deleteOwnedSubject,
+        getSubjectLibraryState,
+        createSubjectLibraryState,
+        updateSubjectLibraryState
     });
 })();
