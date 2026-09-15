@@ -6,9 +6,10 @@
    - the subject migration must already be resolved;
    - local-only subjects intentionally left in this browser are excluded;
    - an existing exact cloud match is accepted;
-   - no cloud row is created until the local snapshot is validated;
-   - any conflicting cloud row blocks migration;
-   - the cloud snapshot is verified after creation.
+   - an existing cloud library may be expanded when the local snapshot is
+     an exact superset created only by newly connected subjects;
+   - unrelated cloud/local differences still block migration;
+   - cloud writes use optimistic revision checks and are verified.
    ============================================================ */
 
 (function () {
@@ -190,6 +191,91 @@
         return preview;
     }
 
+    function expansionDetails(cloudState, localState) {
+        if (
+            !cloudState ||
+            typeof cloudState !== 'object' ||
+            Array.isArray(cloudState) ||
+            !localState ||
+            typeof localState !== 'object' ||
+            Array.isArray(localState)
+        ) {
+            return null;
+        }
+
+        const cloudLibrary = cloudState.library;
+        const localLibrary = localState.library;
+        const cloudOrder = cloudState.order;
+        const localOrder = localState.order;
+
+        if (
+            !cloudLibrary ||
+            typeof cloudLibrary !== 'object' ||
+            Array.isArray(cloudLibrary) ||
+            !localLibrary ||
+            typeof localLibrary !== 'object' ||
+            Array.isArray(localLibrary) ||
+            !Array.isArray(cloudOrder) ||
+            !Array.isArray(localOrder)
+        ) {
+            return null;
+        }
+
+        const cloudSubjects =
+            cloudLibrary.subjects &&
+            typeof cloudLibrary.subjects === 'object' &&
+            !Array.isArray(cloudLibrary.subjects)
+                ? cloudLibrary.subjects
+                : {};
+        const localSubjects =
+            localLibrary.subjects &&
+            typeof localLibrary.subjects === 'object' &&
+            !Array.isArray(localLibrary.subjects)
+                ? localLibrary.subjects
+                : {};
+
+        const cloudLibraryMeta = cloneJson(cloudLibrary);
+        const localLibraryMeta = cloneJson(localLibrary);
+        delete cloudLibraryMeta.subjects;
+        delete localLibraryMeta.subjects;
+
+        if (!sameJson(cloudLibraryMeta, localLibraryMeta)) {
+            return null;
+        }
+
+        const cloudIds = Object.keys(cloudSubjects);
+        const localIds = Object.keys(localSubjects);
+        const cloudIdSet = new Set(cloudIds);
+        const localIdSet = new Set(localIds);
+
+        if (cloudIds.some(id => !localIdSet.has(id))) {
+            return null;
+        }
+
+        for (const id of cloudIds) {
+            if (!sameJson(cloudSubjects[id], localSubjects[id])) {
+                return null;
+            }
+        }
+
+        const addedIds = localIds.filter(id => !cloudIdSet.has(id));
+        if (!addedIds.length) return null;
+
+        const cloudOrderExpected = localOrder.filter(id => cloudIdSet.has(id));
+        if (!sameJson(cloudOrder, cloudOrderExpected)) {
+            return null;
+        }
+
+        if (addedIds.some(id => !localOrder.includes(id))) {
+            return null;
+        }
+
+        return {
+            addedIds,
+            addedCount: addedIds.length
+        };
+    }
+
     async function preview() {
         if (!window.AtlasCloud) {
             throw new Error('Atlas Cloud is unavailable.');
@@ -203,10 +289,12 @@
             return cloneJson({
                 status: 'missing',
                 matching: false,
+                expandable: false,
                 conflict: false,
                 subjectCount: local.subjectCount,
                 categoryCount: local.categoryCount,
                 dismissedCount: local.dismissedCount,
+                addedSubjectCount: 0,
                 cloudRevision: null,
                 difference: null,
                 subjectsVerified: subjectPreview.matchingCount
@@ -219,14 +307,25 @@
             local.state
         );
         const matching = schemaMatches && !difference;
+        const expansion = !matching && schemaMatches
+            ? expansionDetails(cloud.state, local.state)
+            : null;
+        const expandable = Boolean(expansion);
 
         return cloneJson({
-            status: matching ? 'matching' : 'conflict',
+            status: matching
+                ? 'matching'
+                : expandable
+                    ? 'expandable'
+                    : 'conflict',
             matching,
-            conflict: !matching,
+            expandable,
+            conflict: !matching && !expandable,
             subjectCount: local.subjectCount,
             categoryCount: local.categoryCount,
             dismissedCount: local.dismissedCount,
+            addedSubjectCount: expansion?.addedCount || 0,
+            addedSubjectIds: expansion?.addedIds || [],
             cloudRevision: cloud.revision,
             difference: !schemaMatches
                 ? 'schema version differs'
@@ -252,6 +351,7 @@
         if (initial.matching) {
             return cloneJson({
                 created: false,
+                updated: false,
                 verified: true,
                 subjectCount: initial.subjectCount,
                 categoryCount: initial.categoryCount,
@@ -263,25 +363,40 @@
         const subjectPreview = await requireSubjectsConnected();
         const local = await getLocalSnapshot(subjectPreview);
 
-        try {
-            await AtlasCloud.createSubjectLibraryState(
-                local.state,
-                local.schemaVersion
-            );
-        } catch (error) {
-            if (error?.code !== '23505') throw error;
-
-            const existing = await AtlasCloud.getSubjectLibraryState();
-            if (
-                !existing ||
-                existing.schemaVersion !== local.schemaVersion ||
-                !sameJson(existing.state, local.state)
-            ) {
-                const conflict = new Error(
-                    'A My Subjects library row appeared during migration and does not match this browser.'
+        if (initial.expandable) {
+            try {
+                await AtlasCloud.updateSubjectLibraryState(
+                    local.state,
+                    initial.cloudRevision,
+                    local.schemaVersion
                 );
-                conflict.code = 'ATLAS_LIBRARY_MIGRATION_CONFLICT';
-                throw conflict;
+            } catch (error) {
+                if (error?.code !== 'ATLAS_REVISION_CONFLICT') throw error;
+
+                const afterConflict = await preview();
+                if (!afterConflict.matching) throw error;
+            }
+        } else {
+            try {
+                await AtlasCloud.createSubjectLibraryState(
+                    local.state,
+                    local.schemaVersion
+                );
+            } catch (error) {
+                if (error?.code !== '23505') throw error;
+
+                const existing = await AtlasCloud.getSubjectLibraryState();
+                if (
+                    !existing ||
+                    existing.schemaVersion !== local.schemaVersion ||
+                    !sameJson(existing.state, local.state)
+                ) {
+                    const conflict = new Error(
+                        'A My Subjects library row appeared during migration and does not match this browser.'
+                    );
+                    conflict.code = 'ATLAS_LIBRARY_MIGRATION_CONFLICT';
+                    throw conflict;
+                }
             }
         }
 
@@ -297,7 +412,8 @@
         }
 
         return cloneJson({
-            created: true,
+            created: !initial.expandable,
+            updated: initial.expandable,
             verified: true,
             subjectCount: verification.subjectCount,
             categoryCount: verification.categoryCount,
