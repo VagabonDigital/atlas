@@ -1,0 +1,56 @@
+name: Fix artwork studio mobile
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-artwork-studio-mobile.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Fix artwork studio mobile footer clearance
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          modal_path = Path('shared/atlas-modal-theme.css')
+          modal_text = modal_path.read_text()
+          old_modal = '''/* Artwork Studio keeps both the persistent close control and footer Cancel. */\n@media (max-width: 680px) {'''
+          new_modal = '''/* Artwork Studio keeps its sticky footer Cancel visible, so no duplicate header close. */\nbody[data-atlas-world="compass"] .subject-artwork-studio-close {\n    display: none;\n}\n\n@media (max-width: 680px) {'''
+          if modal_text.count(old_modal) != 1:
+              raise SystemExit('Expected one Artwork Studio dismissal block.')
+          modal_path.write_text(modal_text.replace(old_modal, new_modal, 1))
+
+          compass_path = Path('compass/index.html')
+          compass_text = compass_path.read_text()
+          old_compass = '''      .subject-artwork-studio-body {\n        grid-template-columns: 1fr;\n      }\n\n      .subject-artwork-studio-preview {\n        order: -1;\n      }'''
+          new_compass = '''      .subject-artwork-studio-body {\n        grid-template-columns: 1fr;\n        padding-bottom: 5.5rem;\n      }\n\n      .subject-artwork-studio:has(\n        .subject-artwork-remove-btn:not([hidden])\n      ) .subject-artwork-studio-body {\n        padding-bottom: 9rem;\n      }\n\n      .subject-artwork-studio-preview {\n        order: -1;\n      }'''
+          if compass_text.count(old_compass) != 1:
+              raise SystemExit('Expected one mobile Artwork Studio body block.')
+          compass_path.write_text(compass_text.replace(old_compass, new_compass, 1))
+          PY
+
+          git diff --check
+          git diff -- shared/atlas-modal-theme.css compass/index.html
+
+      - name: Commit patch
+        run: |
+          if git diff --quiet; then
+            echo 'No changes needed.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add shared/atlas-modal-theme.css compass/index.html
+          git commit -m 'Fix artwork studio mobile footer clearance'
+          git push origin HEAD:main
