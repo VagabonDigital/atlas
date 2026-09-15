@@ -200,10 +200,13 @@
 
   <script src="../shared/atlas-structured-subject.js"></script>
   <script src="../shared/atlas-tutor-subjects.js"></script>
+  <script src="../shared/atlas-bridge.js"></script>
   <script src="../shared/atlas-cloud.js"></script>
   <script src="../shared/atlas-account.js"></script>
   <script src="../shared/atlas-subject-migration.js"></script>
   <script src="../shared/atlas-library-migration.js"></script>
+  <script src="../shared/atlas-learner-sessions-cloud.js?v=20260915-004"></script>
+  <script src="../shared/atlas-learner-session-migration.js?v=20260915-004"></script>
 </head>
 <body>
   <main class="shell">
@@ -245,6 +248,14 @@
           <button id="migrate-library" class="primary" hidden>Connect library organisation</button>
         </div>
 
+        <div id="learner-migration-panel" class="migration-panel" hidden>
+          <h2 class="migration-title">Connect Learners</h2>
+          <p class="migration-copy">Connect the named learner sessions and learner memory already stored in this browser to your Atlas account.</p>
+          <div id="learner-migration-status" class="migration-status">Checking your learners…</div>
+          <div id="learner-migration-details" class="migration-details"></div>
+          <button id="migrate-learners" class="primary" hidden>Connect Learners</button>
+        </div>
+
         <div class="actions">
           <button id="return" class="primary">Return to Atlas</button>
           <button id="sign-out" class="secondary">Sign out</button>
@@ -274,6 +285,10 @@
     const LibraryMigrationStatus = document.getElementById('library-migration-status');
     const LibraryMigrationDetails = document.getElementById('library-migration-details');
     const MigrateLibrary = document.getElementById('migrate-library');
+    const LearnerMigrationPanel = document.getElementById('learner-migration-panel');
+    const LearnerMigrationStatus = document.getElementById('learner-migration-status');
+    const LearnerMigrationDetails = document.getElementById('learner-migration-details');
+    const MigrateLearners = document.getElementById('migrate-learners');
 
     let migrationCheckToken = 0;
 
@@ -286,6 +301,71 @@
       node.textContent = message;
       node.classList.toggle('error', state === 'error');
       node.classList.toggle('success', state === 'success');
+    }
+
+    async function refreshLearnerPreview(token) {
+      LearnerMigrationPanel.hidden = false;
+      MigrateLearners.hidden = true;
+      LearnerMigrationDetails.textContent = '';
+      setMigrationStatus(LearnerMigrationStatus, 'Checking your learners…');
+
+      try {
+        const preview = await AtlasLearnerSessionMigration.preview();
+        if (token !== migrationCheckToken) return;
+
+        if (preview.localCount === 0) {
+          if (preview.cloudCount > 0) {
+            setMigrationStatus(
+              LearnerMigrationStatus,
+              `${preview.cloudCount} learner${preview.cloudCount === 1 ? '' : 's'} already stored in your account.`,
+              'success'
+            );
+            LearnerMigrationDetails.textContent = 'There are no additional local learners to connect from this browser.';
+          } else {
+            setMigrationStatus(LearnerMigrationStatus, 'No named learner sessions were found in this browser.');
+            LearnerMigrationDetails.textContent = 'Shared is not treated as a learner and is not migrated.';
+          }
+          return;
+        }
+
+        if (preview.conflictCount > 0) {
+          setMigrationStatus(
+            LearnerMigrationStatus,
+            `${preview.conflictCount} conflicting learner${preview.conflictCount === 1 ? '' : 's'} found. Migration is paused.`,
+            'error'
+          );
+          LearnerMigrationDetails.textContent = preview.conflicts
+            .slice(0, 3)
+            .map(item => `${item.name}: ${item.difference}`)
+            .join(' · ');
+          return;
+        }
+
+        if (preview.missingCount === 0) {
+          setMigrationStatus(
+            LearnerMigrationStatus,
+            `${preview.matchingCount}/${preview.localCount} learners verified in your account.`,
+            'success'
+          );
+          LearnerMigrationDetails.textContent = 'Named sessions and learner memory are connected.';
+          return;
+        }
+
+        setMigrationStatus(
+          LearnerMigrationStatus,
+          `${preview.localCount} local learner${preview.localCount === 1 ? '' : 's'} found. ${preview.matchingCount} already connected; ${preview.missingCount} ready to connect.`
+        );
+        LearnerMigrationDetails.textContent = 'Atlas will verify every learner and their memory after migration.';
+        MigrateLearners.textContent = `Connect ${preview.missingCount} learner${preview.missingCount === 1 ? '' : 's'}`;
+        MigrateLearners.hidden = false;
+      } catch (error) {
+        if (token !== migrationCheckToken) return;
+        setMigrationStatus(
+          LearnerMigrationStatus,
+          `${error.code ? `${error.code}\n` : ''}${error.message || String(error)}`,
+          'error'
+        );
+      }
     }
 
     async function refreshLibraryPreview(token) {
@@ -338,11 +418,15 @@
       const token = ++migrationCheckToken;
       MigrationPanel.hidden = false;
       LibraryMigrationPanel.hidden = true;
+      LearnerMigrationPanel.hidden = false;
       MigrateSubjects.hidden = true;
       MigrateLibrary.hidden = true;
+      MigrateLearners.hidden = true;
       MigrationDetails.textContent = '';
       LibraryMigrationDetails.textContent = '';
+      LearnerMigrationDetails.textContent = '';
       setMigrationStatus(MigrationStatus, 'Checking your My Subjects…');
+      void refreshLearnerPreview(token);
 
       try {
         const preview = await AtlasSubjectMigration.preview();
@@ -407,8 +491,10 @@
         migrationCheckToken += 1;
         MigrationPanel.hidden = true;
         LibraryMigrationPanel.hidden = true;
+        LearnerMigrationPanel.hidden = true;
         MigrateSubjects.hidden = true;
         MigrateLibrary.hidden = true;
+        MigrateLearners.hidden = true;
         AccountEmail.textContent = '';
         setStatus('Sign in to connect your Atlas work to your account.');
       }
@@ -518,6 +604,48 @@
         MigrateLibrary.hidden = false;
       } finally {
         MigrateLibrary.disabled = false;
+        SignOut.disabled = false;
+      }
+    });
+
+    MigrateLearners.addEventListener('click', async () => {
+      MigrateLearners.disabled = true;
+      SignOut.disabled = true;
+      setMigrationStatus(LearnerMigrationStatus, 'Connecting and verifying your learners…');
+
+      try {
+        const result = await AtlasLearnerSessionMigration.claim({
+          onProgress(progress) {
+            if (progress.phase === 'verify') {
+              setMigrationStatus(LearnerMigrationStatus, 'All uploads completed. Verifying every learner…');
+              return;
+            }
+
+            const nextNumber = Math.min(progress.completed + 1, progress.total);
+            setMigrationStatus(
+              LearnerMigrationStatus,
+              `Connecting learners… ${nextNumber}/${progress.total}\n${progress.name || ''}`
+            );
+          }
+        });
+
+        setMigrationStatus(
+          LearnerMigrationStatus,
+          `${result.verified}/${result.localCount} learners verified in your account.`,
+          'success'
+        );
+        LearnerMigrationDetails.textContent = `${result.uploaded} connected now · ${result.cloudCount} total learner records in this account.`;
+        MigrateLearners.hidden = true;
+      } catch (error) {
+        setMigrationStatus(
+          LearnerMigrationStatus,
+          `${error.code ? `${error.code}\n` : ''}${error.message || String(error)}`,
+          'error'
+        );
+        LearnerMigrationDetails.textContent = 'Nothing was overwritten. We can inspect the mismatch safely.';
+        MigrateLearners.hidden = false;
+      } finally {
+        MigrateLearners.disabled = false;
         SignOut.disabled = false;
       }
     });
