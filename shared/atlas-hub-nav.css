@@ -58,6 +58,24 @@
 }
 
 /*
+ * Atlas root resolves account-aware entry before its first visible frame.
+ * Keep the root hidden until that decision is complete so an authenticated
+ * tutor can never see the anonymous Welcome surface flash underneath it.
+ * The zero-duration fallback prevents a permanent blank page if the runtime
+ * fails before it can release the gate.
+ */
+@keyframes atlasRootEntryFallback {
+  to {
+    visibility: visible;
+  }
+}
+
+html:not([data-atlas-root-entry-ready]) body[data-atlas-world="atlas"][data-atlas-surface="hub"] {
+  visibility: hidden;
+  animation: atlasRootEntryFallback 0s linear 1.5s forwards;
+}
+
+/*
  * Atlas first-visit welcome owns the viewport completely.
  * The Atlas page normally forces a vertical scrollbar for layout stability;
  * while the welcome gate is visible that scrollbar must disappear and the
