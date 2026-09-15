@@ -257,11 +257,13 @@
 
         mutationQueues.set(id, next);
 
-        next.finally(() => {
+        const cleanup = () => {
             if (mutationQueues.get(id) === next) {
                 mutationQueues.delete(id);
             }
-        });
+        };
+
+        next.then(cleanup, cleanup);
 
         return next;
     }
