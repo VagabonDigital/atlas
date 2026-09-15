@@ -18664,6 +18664,11 @@ function renderDiscussionSets() {
         discussionSets.length === 2
     );
 
+    container.classList.toggle(
+        'discussion-sets--three',
+        discussionSets.length === 3
+    );
+
     discussionSets.forEach((set, index) => {
         const stage = resolveTutorContentValue(
             set.stage,
@@ -18856,15 +18861,16 @@ function openSet(setId) {
             return;
         }
 
-        const sets = document.getElementById('discussion-sets');
         const desktopNav = document.querySelector(
             '#nav-discussion .top-nav'
         );
 
-        if (sets) {
-            const setsRect = sets.getBoundingClientRect();
+        if (firstMoment) {
+            const momentRect =
+                firstMoment.getBoundingClientRect();
+
             const absoluteTop =
-                window.pageYOffset + setsRect.top;
+                window.pageYOffset + momentRect.top;
 
             const navHeight = Math.max(
                 desktopNav?.getBoundingClientRect().height || 0,
