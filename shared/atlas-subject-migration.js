@@ -259,18 +259,24 @@
             !excludedIds.has(subject.id)
         );
 
+        // Excluded legacy remnants are not part of the migration universe
+        // anymore. This keeps normal product deletions clean: 59 live subjects
+        // reads as 59/59, not 59/60 with a ghost record hanging around.
+        const migrationLocalCount = connected.length + missing.length;
+
         const localIds = new Set(localSubjects.map(subject => subject.id));
         const cloudOnly = cloudSubjects.filter(subject => !localIds.has(subject.id));
 
         return cloneJson({
-            localCount: localSubjects.length,
+            localCount: migrationLocalCount,
+            rawLocalCount: localSubjects.length,
             cloudCount: cloudSubjects.length,
             missingCount: missing.length,
             matchingCount: connected.length,
             dismissedCount: excluded.length,
             explicitlyDismissedCount: explicitlyDismissed.length,
             retiredCount: retired.length,
-            resolvedCount: connected.length + excluded.length,
+            resolvedCount: connected.length,
             conflictCount: 0,
             cloudOnlyCount: cloudOnly.length,
             conflicts: [],
@@ -388,6 +394,7 @@
             dismissed: verification.dismissedCount,
             resolved: verification.resolvedCount,
             localCount: verification.localCount,
+            rawLocalCount: verification.rawLocalCount,
             cloudCount: verification.cloudCount,
             cloudOnlyCount: verification.cloudOnlyCount
         });
