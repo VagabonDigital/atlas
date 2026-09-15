@@ -2878,6 +2878,13 @@
 
       .subject-artwork-studio-body {
         grid-template-columns: 1fr;
+        padding-bottom: 5.5rem;
+      }
+
+      .subject-artwork-studio:has(
+        .subject-artwork-remove-btn:not([hidden])
+      ) .subject-artwork-studio-body {
+        padding-bottom: 9rem;
       }
 
       .subject-artwork-studio-preview {

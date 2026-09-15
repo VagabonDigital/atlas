@@ -361,7 +361,11 @@ body[data-atlas-world="compass"] .owned-subject-dialog-close {
     display: none;
 }
 
-/* Artwork Studio keeps both the persistent close control and footer Cancel. */
+/* Artwork Studio keeps its sticky footer Cancel visible, so no duplicate header close. */
+body[data-atlas-world="compass"] .subject-artwork-studio-close {
+    display: none;
+}
+
 @media (max-width: 680px) {
     /* Create Subject can scroll far enough to hide its bottom Cancel. */
     body[data-atlas-world="compass"]
