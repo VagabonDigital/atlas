@@ -29,22 +29,13 @@ jobs:
           git reset --hard origin/main
 
           python <<'PY'
+          import base64
           from pathlib import Path
 
           path = Path('compass/index.html')
           text = path.read_text()
-          old = '''      .subject-grid
-      .subject-card--owned.subject-card--has-art
-      .subject-card-header {
-        max-width: 100%;
-      }
-'''
-          new = '''      .subject-grid
-      .subject-card--owned.subject-card--has-art
-      .subject-card-header {
-        max-width: 84%;
-      }
-'''
+          old = base64.b64decode('ICAgICAgLnN1YmplY3QtZ3JpZAogICAgICAuc3ViamVjdC1jYXJkLS1vd25lZC5zdWJqZWN0LWNhcmQtLWhhcy1hcnQKICAgICAgLnN1YmplY3QtY2FyZC1oZWFkZXIgewogICAgICAgIG1heC13aWR0aDogMTAwJTsKICAgICAgfQo=').decode('utf-8')
+          new = base64.b64decode('ICAgICAgLnN1YmplY3QtZ3JpZAogICAgICAuc3ViamVjdC1jYXJkLS1vd25lZC5zdWJqZWN0LWNhcmQtLWhhcy1hcnQKICAgICAgLnN1YmplY3QtY2FyZC1oZWFkZXIgewogICAgICAgIG1heC13aWR0aDogODQlOwogICAgICB9Cg==').decode('utf-8')
 
           count = text.count(old)
           if count != 1:
