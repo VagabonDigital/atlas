@@ -7,8 +7,10 @@
    Rules:
    - cloud hydrates the local bridge cache on entry
    - committed learner writes go to cloud before local cache mutation
+   - named-learner Session Subjects are account continuity when supported
    - Shared/default and active-tab selection remain browser-local
-   - legacy local-only named sessions are preserved until migrated
+   - legacy local-only named sessions and Session Subjects are preserved
+     until they have been safely claimed by the signed-in account
    ============================================================ */
 
 (function () {
@@ -19,9 +21,14 @@
     const SUPABASE_SESSION_KEY =
         'sb-jnhjfpagectprceswvqn-auth-token';
 
+    const SESSION_SUBJECTS_PREFIX =
+        'atlas::tutorSubjects::sessionSubjects::';
+
     let initializePromise = null;
     let authenticated = false;
     let initialized = false;
+    let subjectApiFallback = null;
+
     const recordsById = new Map();
     const mutationQueues = new Map();
 
@@ -81,6 +88,137 @@
         return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
     }
 
+    function encodePart(value) {
+        return encodeURIComponent(
+            String(value || '')
+        );
+    }
+
+    function sessionSubjectsStorageKey(sessionId) {
+        return (
+            SESSION_SUBJECTS_PREFIX +
+            encodePart(sessionId)
+        );
+    }
+
+    function normalizeSubjectRef(value) {
+        if (
+            !value ||
+            typeof value !== 'object' ||
+            Array.isArray(value)
+        ) {
+            return null;
+        }
+
+        const kind = String(value.kind || '').trim();
+        const id = String(value.id || '').trim();
+
+        if (
+            !id ||
+            (
+                kind !== 'my-subject' &&
+                kind !== 'atlas-subject'
+            )
+        ) {
+            return null;
+        }
+
+        return { kind, id };
+    }
+
+    function normalizeSubjectRefs(value) {
+        const LearnerCloud =
+            window.AtlasLearnerSessionsCloud;
+
+        if (
+            LearnerCloud &&
+            typeof LearnerCloud.normalizeSubjectRefs ===
+                'function'
+        ) {
+            return LearnerCloud.normalizeSubjectRefs(
+                value
+            );
+        }
+
+        const seen = new Set();
+
+        return (Array.isArray(value) ? value : [])
+            .map(normalizeSubjectRef)
+            .filter(ref => {
+                if (!ref) return false;
+
+                const key = `${ref.kind}:${ref.id}`;
+
+                if (seen.has(key)) return false;
+
+                seen.add(key);
+                return true;
+            });
+    }
+
+    function readLegacySessionSubjects(sessionId) {
+        const id = String(sessionId || '').trim();
+
+        if (!id) return [];
+
+        try {
+            return normalizeSubjectRefs(
+                JSON.parse(
+                    localStorage.getItem(
+                        sessionSubjectsStorageKey(id)
+                    ) || '[]'
+                )
+            );
+        } catch {
+            return [];
+        }
+    }
+
+    function writeLegacySessionSubjects(
+        sessionId,
+        subjectRefs
+    ) {
+        const id = String(sessionId || '').trim();
+
+        if (!id) return false;
+
+        const refs =
+            normalizeSubjectRefs(subjectRefs);
+
+        try {
+            const key =
+                sessionSubjectsStorageKey(id);
+
+            if (!refs.length) {
+                localStorage.removeItem(key);
+                return true;
+            }
+
+            localStorage.setItem(
+                key,
+                JSON.stringify(refs)
+            );
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    function clearLegacySessionSubjects(sessionId) {
+        const id = String(sessionId || '').trim();
+
+        if (!id) return false;
+
+        try {
+            localStorage.removeItem(
+                sessionSubjectsStorageKey(id)
+            );
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
     function bridgeSessionFromRecord(record) {
         return {
             id: record.id,
@@ -97,6 +235,15 @@
                 detail: getState()
             })
         );
+
+        window.requestAnimationFrame(() => {
+            if (
+                typeof window.renderHub ===
+                'function'
+            ) {
+                void window.renderHub();
+            }
+        });
     }
 
     function dispatchError(error, action, sessionId = '') {
@@ -112,6 +259,22 @@
                 }
             })
         );
+    }
+
+    function syncSessionSubjectCache(remoteRecords) {
+        remoteRecords.forEach(record => {
+            if (
+                !record?.subjectRefsSupported ||
+                !record.subjectRefsMigrated
+            ) {
+                return;
+            }
+
+            writeLegacySessionSubjects(
+                record.id,
+                record.subjectRefs
+            );
+        });
     }
 
     function hydrateBridge(remoteRecords) {
@@ -166,12 +329,126 @@
             Bridge.keys.learnerMemory,
             nextMemory
         );
+
+        /*
+         * Session Subjects still use the long-standing local cache contract
+         * inside Compass. Once a named learner has cloud-authoritative refs,
+         * mirror them into that cache so all existing read/guard paths see
+         * the same state. Cloud remains authoritative; the cache is replaced
+         * from cloud on every learner hydration.
+         */
+        syncSessionSubjectCache(remoteRecords);
+    }
+
+    async function claimLegacySubjectRefs(record) {
+        if (
+            !record ||
+            !record.subjectRefsSupported ||
+            record.subjectRefsMigrated
+        ) {
+            return record;
+        }
+
+        const localRefs =
+            readLegacySessionSubjects(record.id);
+
+        if (!localRefs.length) {
+            return record;
+        }
+
+        const saved =
+            await requireLearnerCloud()
+                .updateLearnerSession(
+                    {
+                        ...record,
+                        subjectRefs: localRefs,
+                        subjectRefsMigrated: true
+                    },
+                    record.revision
+                );
+
+        recordsById.set(saved.id, saved);
+
+        writeLegacySessionSubjects(
+            saved.id,
+            saved.subjectRefs
+        );
+
+        return saved;
+    }
+
+    function patchSubjectSessionApi() {
+        const Subjects =
+            window.AtlasTutorSubjects || null;
+
+        if (
+            !Subjects ||
+            Subjects.__atlasLearnerSessionSubjectsCloud ===
+                true
+        ) {
+            return false;
+        }
+
+        subjectApiFallback = {
+            getSubjectSessionIds:
+                typeof Subjects.getSubjectSessionIds ===
+                    'function'
+                    ? Subjects.getSubjectSessionIds.bind(
+                        Subjects
+                    )
+                    : null,
+            getSessionSubjects:
+                typeof Subjects.getSessionSubjects ===
+                    'function'
+                    ? Subjects.getSessionSubjects.bind(
+                        Subjects
+                    )
+                    : null,
+            setSessionSubjects:
+                typeof Subjects.setSessionSubjects ===
+                    'function'
+                    ? Subjects.setSessionSubjects.bind(
+                        Subjects
+                    )
+                    : null,
+            addSessionSubject:
+                typeof Subjects.addSessionSubject ===
+                    'function'
+                    ? Subjects.addSessionSubject.bind(
+                        Subjects
+                    )
+                    : null,
+            removeSessionSubject:
+                typeof Subjects.removeSessionSubject ===
+                    'function'
+                    ? Subjects.removeSessionSubject.bind(
+                        Subjects
+                    )
+                    : null
+        };
+
+        Subjects.getSubjectSessionIds =
+            getSubjectSessionIds;
+        Subjects.getSessionSubjects =
+            getSessionSubjects;
+        Subjects.setSessionSubjects =
+            setSessionSubjects;
+        Subjects.addSessionSubject =
+            addSessionSubject;
+        Subjects.removeSessionSubject =
+            removeSessionSubject;
+
+        Subjects.__atlasLearnerSessionSubjectsCloud =
+            true;
+
+        return true;
     }
 
     async function initialize({ force = false } = {}) {
         if (!hasStoredAccountSession()) {
             authenticated = false;
             initialized = true;
+            patchSubjectSessionApi();
             return getState();
         }
 
@@ -189,6 +466,7 @@
             if (!authenticated) {
                 recordsById.clear();
                 initialized = true;
+                patchSubjectSessionApi();
                 return getState();
             }
 
@@ -196,11 +474,37 @@
                 await LearnerCloud.listLearnerSessions();
 
             recordsById.clear();
-            remote.forEach(record => {
-                recordsById.set(record.id, record);
-            });
 
-            hydrateBridge(remote);
+            const resolved = [];
+
+            for (const record of remote) {
+                let next = record;
+
+                if (
+                    record.subjectRefsSupported &&
+                    !record.subjectRefsMigrated
+                ) {
+                    try {
+                        next =
+                            await claimLegacySubjectRefs(
+                                record
+                            );
+                    } catch (error) {
+                        dispatchError(
+                            error,
+                            'session-subject-migration',
+                            record.id
+                        );
+                    }
+                }
+
+                recordsById.set(next.id, next);
+                resolved.push(next);
+            }
+
+            hydrateBridge(resolved);
+            patchSubjectSessionApi();
+
             initialized = true;
             dispatchReady();
 
@@ -215,11 +519,19 @@
     }
 
     function getState() {
+        const records = Array.from(
+            recordsById.values()
+        );
+
         return {
             initialized,
             authenticated,
             active: initialized && authenticated,
-            cloudCount: recordsById.size
+            cloudCount: recordsById.size,
+            sessionSubjectsSupported:
+                records.some(record =>
+                    record.subjectRefsSupported === true
+                )
         };
     }
 
@@ -241,6 +553,16 @@
 
         if (record) {
             recordsById.set(id, record);
+
+            if (
+                record.subjectRefsSupported &&
+                record.subjectRefsMigrated
+            ) {
+                writeLegacySessionSubjects(
+                    id,
+                    record.subjectRefs
+                );
+            }
         }
 
         return record;
@@ -266,6 +588,370 @@
         next.then(cleanup, cleanup);
 
         return next;
+    }
+
+    function isSharedSession(sessionId) {
+        const id = String(sessionId || '').trim();
+
+        return (
+            !id ||
+            id === requireBridge().defaultSessionId
+        );
+    }
+
+    async function fallbackGetSessionSubjects(sessionId) {
+        if (
+            subjectApiFallback &&
+            typeof subjectApiFallback.getSessionSubjects ===
+                'function'
+        ) {
+            return (
+                await subjectApiFallback
+                    .getSessionSubjects(sessionId)
+            ) || [];
+        }
+
+        return readLegacySessionSubjects(sessionId);
+    }
+
+    async function fallbackSetSessionSubjects(
+        sessionId,
+        refs
+    ) {
+        if (
+            subjectApiFallback &&
+            typeof subjectApiFallback.setSessionSubjects ===
+                'function'
+        ) {
+            return subjectApiFallback
+                .setSessionSubjects(
+                    sessionId,
+                    refs
+                );
+        }
+
+        return writeLegacySessionSubjects(
+            sessionId,
+            refs
+        )
+            ? cloneJson(normalizeSubjectRefs(refs))
+            : null;
+    }
+
+    async function getSessionSubjects(sessionId) {
+        const id = String(sessionId || '').trim();
+
+        if (!id) return [];
+
+        await initialize();
+
+        if (
+            !authenticated ||
+            isSharedSession(id)
+        ) {
+            return cloneJson(
+                await fallbackGetSessionSubjects(id)
+            ) || [];
+        }
+
+        let current =
+            await getCloudRecord(id);
+
+        if (
+            !current ||
+            !current.subjectRefsSupported
+        ) {
+            return cloneJson(
+                await fallbackGetSessionSubjects(id)
+            ) || [];
+        }
+
+        if (!current.subjectRefsMigrated) {
+            try {
+                current =
+                    await claimLegacySubjectRefs(
+                        current
+                    );
+            } catch (error) {
+                dispatchError(
+                    error,
+                    'session-subject-migration',
+                    id
+                );
+            }
+        }
+
+        if (current.subjectRefsMigrated) {
+            writeLegacySessionSubjects(
+                id,
+                current.subjectRefs
+            );
+
+            return cloneJson(
+                current.subjectRefs
+            ) || [];
+        }
+
+        return cloneJson(
+            readLegacySessionSubjects(id)
+        ) || [];
+    }
+
+    async function getSubjectSessionIds(subjectRef) {
+        const ref = normalizeSubjectRef(subjectRef);
+
+        if (!ref) return [];
+
+        await initialize();
+
+        if (!authenticated) {
+            return subjectApiFallback
+                ?.getSubjectSessionIds
+                ? (
+                    await subjectApiFallback
+                        .getSubjectSessionIds(ref)
+                ) || []
+                : [];
+        }
+
+        const records =
+            Array.from(recordsById.values());
+
+        const cloudSupported =
+            records.some(record =>
+                record.subjectRefsSupported === true
+            );
+
+        if (!cloudSupported) {
+            return subjectApiFallback
+                ?.getSubjectSessionIds
+                ? (
+                    await subjectApiFallback
+                        .getSubjectSessionIds(ref)
+                ) || []
+                : [];
+        }
+
+        const sessionIds = new Set();
+
+        if (
+            subjectApiFallback &&
+            typeof subjectApiFallback.getSubjectSessionIds ===
+                'function'
+        ) {
+            const localIds =
+                await subjectApiFallback
+                    .getSubjectSessionIds(ref);
+
+            (Array.isArray(localIds) ? localIds : [])
+                .filter(id =>
+                    id === requireBridge().defaultSessionId
+                )
+                .forEach(id =>
+                    sessionIds.add(id)
+                );
+        }
+
+        records.forEach(record => {
+            const refs =
+                record.subjectRefsSupported &&
+                record.subjectRefsMigrated
+                    ? record.subjectRefs
+                    : readLegacySessionSubjects(
+                        record.id
+                    );
+
+            if (
+                normalizeSubjectRefs(refs)
+                    .some(item =>
+                        item.kind === ref.kind &&
+                        item.id === ref.id
+                    )
+            ) {
+                sessionIds.add(record.id);
+            }
+        });
+
+        return Array.from(sessionIds);
+    }
+
+    async function setSessionSubjects(
+        sessionId,
+        subjectRefs
+    ) {
+        const id = String(sessionId || '').trim();
+
+        if (!id || !Array.isArray(subjectRefs)) {
+            return null;
+        }
+
+        const refs =
+            normalizeSubjectRefs(subjectRefs);
+
+        await initialize();
+
+        if (
+            !authenticated ||
+            isSharedSession(id)
+        ) {
+            return fallbackSetSessionSubjects(
+                id,
+                refs
+            );
+        }
+
+        return runForSession(id, async () => {
+            const current =
+                await getCloudRecord(id);
+
+            if (
+                !current ||
+                !current.subjectRefsSupported
+            ) {
+                return fallbackSetSessionSubjects(
+                    id,
+                    refs
+                );
+            }
+
+            try {
+                const saved =
+                    await requireLearnerCloud()
+                        .updateLearnerSession(
+                            {
+                                ...current,
+                                subjectRefs: refs,
+                                subjectRefsMigrated: true
+                            },
+                            current.revision
+                        );
+
+                recordsById.set(id, saved);
+
+                writeLegacySessionSubjects(
+                    id,
+                    saved.subjectRefs
+                );
+
+                return cloneJson(
+                    saved.subjectRefs
+                ) || [];
+            } catch (error) {
+                dispatchError(
+                    error,
+                    'session-subjects',
+                    id
+                );
+                throw error;
+            }
+        });
+    }
+
+    async function addSessionSubject(
+        sessionId,
+        subjectRef
+    ) {
+        const ref = normalizeSubjectRef(subjectRef);
+        const id = String(sessionId || '').trim();
+
+        if (!ref || !id) return null;
+
+        const Subjects =
+            window.AtlasTutorSubjects || null;
+
+        if (
+            ref.kind === 'my-subject' &&
+            Subjects &&
+            typeof Subjects.getSubject === 'function'
+        ) {
+            const subject =
+                await Subjects.getSubject(ref.id);
+
+            if (!subject) return null;
+        }
+
+        const current =
+            await getSessionSubjects(id);
+
+        const next =
+            normalizeSubjectRefs([
+                ref,
+                ...current
+            ]);
+
+        return setSessionSubjects(
+            id,
+            next
+        );
+    }
+
+    async function removeSessionSubject(
+        sessionId,
+        subjectRef
+    ) {
+        const ref = normalizeSubjectRef(subjectRef);
+        const id = String(sessionId || '').trim();
+
+        if (!ref || !id) return null;
+
+        const Subjects =
+            window.AtlasTutorSubjects || null;
+
+        if (
+            ref.kind === 'my-subject' &&
+            Subjects
+        ) {
+            const subject =
+                typeof Subjects.getSubject === 'function'
+                    ? await Subjects.getSubject(ref.id)
+                    : null;
+
+            if (!subject) return null;
+
+            const placement =
+                typeof Subjects.getSubjectLibraryState ===
+                    'function'
+                    ? await Subjects
+                        .getSubjectLibraryState(
+                            ref.id
+                        )
+                    : null;
+
+            if (
+                placement &&
+                placement.libraryIncluded === false &&
+                placement.archived !== true
+            ) {
+                const sessionIds =
+                    await getSubjectSessionIds(ref);
+
+                const remainingHomes =
+                    sessionIds.filter(
+                        candidate =>
+                            candidate !== id
+                    );
+
+                if (!remainingHomes.length) {
+                    return null;
+                }
+            }
+        }
+
+        const current =
+            await getSessionSubjects(id);
+
+        const next =
+            current.filter(item =>
+                !(
+                    item.kind === ref.kind &&
+                    item.id === ref.id
+                )
+            );
+
+        return setSessionSubjects(
+            id,
+            next
+        );
     }
 
     async function createSession(name) {
@@ -299,6 +985,9 @@
                 null,
                 ''
             ),
+            subjectRefsSupported: true,
+            subjectRefs: [],
+            subjectRefsMigrated: true,
             createdAt: timestamp,
             updatedAt: timestamp,
             lastActiveAt: timestamp
@@ -310,6 +999,16 @@
                 await LearnerCloud.createLearnerSession(record);
 
             recordsById.set(saved.id, saved);
+
+            if (
+                saved.subjectRefsSupported &&
+                saved.subjectRefsMigrated
+            ) {
+                writeLegacySessionSubjects(
+                    saved.id,
+                    saved.subjectRefs
+                );
+            }
 
             const existing = Bridge.readSessions().filter(
                 session => session.id !== saved.id
@@ -408,6 +1107,7 @@
             if (!current) {
                 const deletedLocally = Bridge.deleteSession(id);
                 recordsById.delete(id);
+                clearLegacySessionSubjects(id);
                 return deletedLocally;
             }
 
@@ -434,6 +1134,7 @@
                 }
 
                 recordsById.delete(id);
+                clearLegacySessionSubjects(id);
                 return Bridge.deleteSession(id);
             } catch (error) {
                 dispatchError(error, 'delete', id);
@@ -545,6 +1246,11 @@
         renameSession,
         deleteSession,
         saveLearnerMemory,
-        touchSession
+        touchSession,
+        getSessionSubjects,
+        getSubjectSessionIds,
+        setSessionSubjects,
+        addSessionSubject,
+        removeSessionSubject
     });
 })();
