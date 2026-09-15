@@ -1,0 +1,78 @@
+name: Restore artwork studio close
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/restore-artwork-studio-close.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Restore standardized artwork studio close
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('shared/atlas-modal-theme.css')
+          text = path.read_text()
+
+          replacements = [
+              (
+                  '''body[data-atlas-world] .atlas-feedback-close,\nbody[data-atlas-world="compass"] .owned-subject-dialog-close {''',
+                  '''body[data-atlas-world] .atlas-feedback-close,\nbody[data-atlas-world="compass"] .owned-subject-dialog-close,\nbody[data-atlas-world="compass"] .subject-artwork-studio-close {'''
+              ),
+              (
+                  '''body[data-atlas-world="atlas"] #settings-modal .modal-close,\nbody[data-atlas-world] .atlas-feedback-close {\n    display: inline-flex;\n}''',
+                  '''body[data-atlas-world="atlas"] #settings-modal .modal-close,\nbody[data-atlas-world] .atlas-feedback-close,\nbody[data-atlas-world="compass"] .subject-artwork-studio-close {\n    display: inline-flex;\n}'''
+              ),
+              (
+                  '''body[data-atlas-world] .atlas-feedback-close:focus-visible,\nbody[data-atlas-world="compass"] .owned-subject-dialog-close:hover,\nbody[data-atlas-world="compass"] .owned-subject-dialog-close:focus-visible {''',
+                  '''body[data-atlas-world] .atlas-feedback-close:focus-visible,\nbody[data-atlas-world="compass"] .owned-subject-dialog-close:hover,\nbody[data-atlas-world="compass"] .owned-subject-dialog-close:focus-visible,\nbody[data-atlas-world="compass"] .subject-artwork-studio-close:hover,\nbody[data-atlas-world="compass"] .subject-artwork-studio-close:focus-visible {'''
+              ),
+              (
+                  '''body[data-atlas-world] .atlas-feedback-close:focus-visible,\nbody[data-atlas-world="compass"] .owned-subject-dialog-close:focus-visible {''',
+                  '''body[data-atlas-world] .atlas-feedback-close:focus-visible,\nbody[data-atlas-world="compass"] .owned-subject-dialog-close:focus-visible,\nbody[data-atlas-world="compass"] .subject-artwork-studio-close:focus-visible {'''
+              ),
+              (
+                  '''body[data-atlas-world="atlas"] #settings-modal .modal-close svg,\nbody[data-atlas-world] .atlas-feedback-close svg {''',
+                  '''body[data-atlas-world="atlas"] #settings-modal .modal-close svg,\nbody[data-atlas-world] .atlas-feedback-close svg,\nbody[data-atlas-world="compass"] .subject-artwork-studio-close svg {'''
+              ),
+              (
+                  '''/* The artwork studio keeps its Cancel action sticky and visible. */\nbody[data-atlas-world="compass"] .subject-artwork-studio-close {\n    display: none;\n}\n\n''',
+                  '''/* Artwork Studio keeps both the persistent close control and footer Cancel. */\n'''
+              )
+          ]
+
+          for old, new in replacements:
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'Expected exactly one match, found {count}: {old[:80]!r}')
+              text = text.replace(old, new, 1)
+
+          path.write_text(text)
+          PY
+
+          git diff --check
+          grep -n -A18 -B8 'subject-artwork-studio-close' shared/atlas-modal-theme.css
+
+      - name: Commit patch
+        run: |
+          if git diff --quiet; then
+            echo 'No changes needed.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add shared/atlas-modal-theme.css
+          git commit -m 'Restore artwork studio modal close'
+          git push origin HEAD:main
