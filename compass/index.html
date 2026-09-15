@@ -2858,8 +2858,12 @@
       background: var(--surface-panel);
     }
 
-    .subject-artwork-studio-actions-spacer {
-      flex: 1;
+    .subject-artwork-studio-edit-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.15rem;
     }
 
     .subject-artwork-remove-btn {
@@ -2878,17 +2882,37 @@
 
       .subject-artwork-studio-body {
         grid-template-columns: 1fr;
-        padding-bottom: 5.5rem;
-      }
-
-      .subject-artwork-studio:has(
-        .subject-artwork-remove-btn:not([hidden])
-      ) .subject-artwork-studio-body {
-        padding-bottom: 9rem;
+        padding-bottom: 5.25rem;
       }
 
       .subject-artwork-studio-preview {
         order: -1;
+      }
+
+      .subject-artwork-studio-edit-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.55rem;
+      }
+
+      .subject-artwork-studio-edit-actions .btn-primary,
+      .subject-artwork-studio-edit-actions .btn-ghost {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .subject-artwork-studio-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+        gap: 0.6rem;
+        padding: 0.75rem 1rem calc(0.85rem + env(safe-area-inset-bottom, 0px));
+      }
+
+      .subject-artwork-studio-actions .btn-primary,
+      .subject-artwork-studio-actions .btn-ghost {
+        width: 100%;
+        min-width: 0;
+        justify-content: center;
       }
     }
 
@@ -6452,6 +6476,25 @@
                 hidden>
               </p>
 
+              <div class="subject-artwork-studio-edit-actions">
+                <button
+                  class="btn-primary"
+                  id="subject-artwork-generate"
+                  type="button"
+                  onclick="generateSubjectArtworkStudioPreview()">
+                  Generate artwork
+                </button>
+
+                <button
+                  class="btn-ghost subject-artwork-remove-btn"
+                  id="subject-artwork-remove"
+                  type="button"
+                  onclick="removeSubjectArtworkStudio()"
+                  hidden>
+                  Remove artwork
+                </button>
+              </div>
+
             </div>
 
             <div class="subject-artwork-studio-preview">
@@ -6463,26 +6506,6 @@
           </div>
 
           <div class="subject-artwork-studio-actions">
-
-            <button
-              class="btn-ghost subject-artwork-remove-btn"
-              id="subject-artwork-remove"
-              type="button"
-              onclick="removeSubjectArtworkStudio()"
-              hidden>
-              Remove artwork
-            </button>
-
-            <button
-              class="btn-primary"
-              id="subject-artwork-generate"
-              type="button"
-              onclick="generateSubjectArtworkStudioPreview()">
-              Generate artwork
-            </button>
-
-            <div class="subject-artwork-studio-actions-spacer"></div>
-
             <button
               class="btn-ghost"
               type="button"
