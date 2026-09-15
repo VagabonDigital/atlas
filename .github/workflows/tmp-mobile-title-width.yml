@@ -1,0 +1,54 @@
+name: Temporary mobile title width patch
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/tmp-mobile-title-width-trigger'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch current main
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+
+          python <<'PY'
+          import base64
+          from pathlib import Path
+
+          path = Path('compass/index.html')
+          text = path.read_text()
+          old = base64.b64decode('ICAgIEBtZWRpYSAoaG92ZXI6IG5vbmUpIGFuZCAocG9pbnRlcjogY29hcnNlKSB7CiAgICAgIC5zdWJqZWN0LWNhcmQtLWhhcy1hcnQgLnN1YmplY3QtY2FyZC1ob29rLAogICAgICAuc3ViamVjdC1hcnR3b3JrLXByZXZpZXctY2FyZAogICAgICAuc3ViamVjdC1jYXJkLS1oYXMtYXJ0CiAgICAgIC5zdWJqZWN0LWNhcmQtaGVhZGVyIHsKICAgICAgICBtYXgtd2lkdGg6IGNhbGMoMTAwJSAtIDcuMnJlbSk7CiAgICAgIH0KCiAgICAgIC5zdWJqZWN0LWNhcmQtLWhhcy1hcnQgLnN1YmplY3QtY2FyZC1hcnQgewo=').decode('utf-8')
+          new = base64.b64decode('ICAgIEBtZWRpYSAoaG92ZXI6IG5vbmUpIGFuZCAocG9pbnRlcjogY29hcnNlKSB7CiAgICAgIC5zdWJqZWN0LWNhcmQtLWhhcy1hcnQgLnN1YmplY3QtY2FyZC1ob29rLAogICAgICAuc3ViamVjdC1hcnR3b3JrLXByZXZpZXctY2FyZAogICAgICAuc3ViamVjdC1jYXJkLS1oYXMtYXJ0CiAgICAgIC5zdWJqZWN0LWNhcmQtaGVhZGVyIHsKICAgICAgICBtYXgtd2lkdGg6IGNhbGMoMTAwJSAtIDcuMnJlbSk7CiAgICAgIH0KCiAgICAgIC5zdWJqZWN0LWdyaWQKICAgICAgLnN1YmplY3QtY2FyZC0tb3duZWQuc3ViamVjdC1jYXJkLS1oYXMtYXJ0CiAgICAgIC5zdWJqZWN0LWNhcmQtaGVhZGVyIHsKICAgICAgICBtYXgtd2lkdGg6IDEwMCU7CiAgICAgIH0KCiAgICAgIC5zdWJqZWN0LWNhcmQtLWhhcy1hcnQgLnN1YmplY3QtY2FyZC1hcnQgewo=').decode('utf-8')
+
+          count = text.count(old)
+          if count != 1:
+              raise SystemExit(f'expected 1 exact match, found {count}')
+
+          path.write_text(text.replace(old, new, 1))
+          PY
+
+          rm .github/workflows/tmp-mobile-title-width.yml
+          rm .github/tmp-mobile-title-width-trigger
+
+          git config user.name "Atlas patch bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add compass/index.html .github/workflows/tmp-mobile-title-width.yml .github/tmp-mobile-title-width-trigger
+          git commit -m "Expand mobile owned-card titles"
+          git push origin main
