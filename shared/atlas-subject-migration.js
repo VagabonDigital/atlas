@@ -7,9 +7,10 @@
      already connected and the cloud record wins;
    - only local subject IDs missing from the account are inserted;
    - migration never overwrites an existing cloud subject;
-   - local-only remnants can be left in this browser without deleting
-     them or offering them for migration again;
-   - dismissal choices are scoped to the signed-in account.
+   - once a legacy subject has been observed connected, a later cloud
+     deletion is treated as intentional and is never offered for migration;
+   - local-only remnants can also be left in this browser explicitly;
+   - migration memory is scoped to the signed-in account.
    ============================================================ */
 
 (function () {
@@ -19,6 +20,8 @@
 
     const DISMISSED_KEY_PREFIX =
         'atlas::migration::dismissedSubjectIds::';
+    const CONNECTED_KEY_PREFIX =
+        'atlas::migration::connectedSubjectIds::';
 
     function cloneJson(value) {
         if (value === null || value === undefined) return value;
@@ -103,21 +106,21 @@
         return firstJsonDifference(left, right) === null;
     }
 
-    async function dismissedStorageKey() {
+    async function accountStorageKey(prefix, purpose) {
         const session = await AtlasCloud.getSession();
         const userId = String(session?.user?.id || '').trim();
 
         if (!userId) {
             throw new Error(
-                'Subject migration dismissals require a signed-in Atlas account.'
+                `Subject migration ${purpose} requires a signed-in Atlas account.`
             );
         }
 
-        return `${DISMISSED_KEY_PREFIX}${userId}`;
+        return `${prefix}${userId}`;
     }
 
-    async function readDismissedIds() {
-        const key = await dismissedStorageKey();
+    async function readIdSet(prefix, purpose) {
+        const key = await accountStorageKey(prefix, purpose);
 
         try {
             const parsed = JSON.parse(
@@ -136,8 +139,8 @@
         }
     }
 
-    async function writeDismissedIds(ids) {
-        const key = await dismissedStorageKey();
+    async function writeIdSet(prefix, purpose, ids) {
+        const key = await accountStorageKey(prefix, purpose);
         const values = Array.from(ids)
             .map(value => String(value || '').trim())
             .filter(Boolean)
@@ -148,6 +151,30 @@
         } else {
             localStorage.removeItem(key);
         }
+    }
+
+    function readDismissedIds() {
+        return readIdSet(DISMISSED_KEY_PREFIX, 'dismissals');
+    }
+
+    function writeDismissedIds(ids) {
+        return writeIdSet(
+            DISMISSED_KEY_PREFIX,
+            'dismissals',
+            ids
+        );
+    }
+
+    function readConnectedIds() {
+        return readIdSet(CONNECTED_KEY_PREFIX, 'history');
+    }
+
+    function writeConnectedIds(ids) {
+        return writeIdSet(
+            CONNECTED_KEY_PREFIX,
+            'history',
+            ids
+        );
     }
 
     function portableSubject(subject) {
@@ -180,6 +207,23 @@
             localOnly.push(local);
         });
 
+        // Remember every legacy browser subject that has ever been seen in
+        // this account. If it disappears from cloud later, that is a normal
+        // product deletion — not an invitation to migrate the stale local copy.
+        const connectedIds = await readConnectedIds();
+        let connectedHistoryChanged = false;
+
+        connected.forEach(subject => {
+            if (!connectedIds.has(subject.id)) {
+                connectedIds.add(subject.id);
+                connectedHistoryChanged = true;
+            }
+        });
+
+        if (connectedHistoryChanged) {
+            await writeConnectedIds(connectedIds);
+        }
+
         const validLocalOnlyIds = new Set(
             localOnly.map(subject => subject.id)
         );
@@ -197,11 +241,22 @@
             await writeDismissedIds(dismissedIds);
         }
 
-        const dismissed = localOnly.filter(subject =>
+        const retired = localOnly.filter(subject =>
+            connectedIds.has(subject.id)
+        );
+        const explicitlyDismissed = localOnly.filter(subject =>
+            !connectedIds.has(subject.id) &&
             dismissedIds.has(subject.id)
         );
+        const excluded = [
+            ...retired,
+            ...explicitlyDismissed
+        ];
+        const excludedIds = new Set(
+            excluded.map(subject => subject.id)
+        );
         const missing = localOnly.filter(subject =>
-            !dismissedIds.has(subject.id)
+            !excludedIds.has(subject.id)
         );
 
         const localIds = new Set(localSubjects.map(subject => subject.id));
@@ -212,14 +267,19 @@
             cloudCount: cloudSubjects.length,
             missingCount: missing.length,
             matchingCount: connected.length,
-            dismissedCount: dismissed.length,
-            resolvedCount: connected.length + dismissed.length,
+            dismissedCount: excluded.length,
+            explicitlyDismissedCount: explicitlyDismissed.length,
+            retiredCount: retired.length,
+            resolvedCount: connected.length + excluded.length,
             conflictCount: 0,
             cloudOnlyCount: cloudOnly.length,
             conflicts: [],
             missingIds: missing.map(subject => subject.id),
             missingSubjects: missing.map(portableSubject),
-            dismissedSubjects: dismissed.map(portableSubject)
+            dismissedSubjects: excluded.map(portableSubject),
+            explicitlyDismissedSubjects:
+                explicitlyDismissed.map(portableSubject),
+            retiredSubjects: retired.map(portableSubject)
         });
     }
 
