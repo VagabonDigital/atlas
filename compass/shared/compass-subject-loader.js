@@ -212,11 +212,138 @@
         });
     }
 
+    function installOwnedSubjectSaveGuard() {
+        if (
+            typeof saveMyVersion !== 'function' ||
+            saveMyVersion.__atlasOwnedSubjectSaveGuard === true
+        ) {
+            return;
+        }
+
+        const originalSaveMyVersion = saveMyVersion;
+        let activeSavePromise = null;
+
+        const guardedSaveMyVersion = function (...args) {
+            if (activeSavePromise) {
+                return activeSavePromise;
+            }
+
+            activeSavePromise = (async () => {
+                try {
+                    return await originalSaveMyVersion.apply(
+                        this,
+                        args
+                    );
+                } catch (error) {
+                    if (
+                        error?.code !==
+                        'ATLAS_REVISION_CONFLICT'
+                    ) {
+                        throw error;
+                    }
+
+                    /*
+                     * A successful same-page write can advance the cloud
+                     * revision while an older cached read is still in flight.
+                     * AtlasCloudCache invalidates that stale read when the
+                     * conflict is raised, so the next getSubject() is fresh.
+                     *
+                     * Retry only when the live Compass runtime already knows
+                     * that exact cloud revision. If the cloud is newer than
+                     * this page, another tab/device really changed the subject
+                     * and the optimistic lock must remain authoritative.
+                     */
+                    myVersionSaving = false;
+                    updateMyVersionAuthorBar();
+
+                    let freshSubject = null;
+
+                    try {
+                        freshSubject =
+                            await requireAtlasTutorSubjects()
+                                .getSubject(MODULE.id);
+                    } catch {
+                        freshSubject = null;
+                    }
+
+                    const runtimeRevision = Math.max(
+                        0,
+                        Math.floor(
+                            Number(
+                                getCompassSubjectRuntime()
+                                    ?.revision
+                            ) || 0
+                        )
+                    );
+
+                    const freshRevision = Math.max(
+                        0,
+                        Math.floor(
+                            Number(
+                                freshSubject?.revision
+                            ) || 0
+                        )
+                    );
+
+                    if (
+                        myVersionEditing &&
+                        myVersionDirty &&
+                        freshSubject &&
+                        runtimeRevision > 0 &&
+                        freshRevision === runtimeRevision
+                    ) {
+                        return await originalSaveMyVersion.apply(
+                            this,
+                            args
+                        );
+                    }
+
+                    const status = document.getElementById(
+                        'atlas-my-version-status'
+                    );
+
+                    if (status) {
+                        status.textContent =
+                            'Changed elsewhere · reload latest';
+                    }
+
+                    throw error;
+                } finally {
+                    /*
+                     * The engine historically set myVersionSaving after an
+                     * awaited draft flush, leaving a re-entry window and also
+                     * leaving the bar stuck on "Saving…" when a cloud write
+                     * rejected. The outer guard closes both failure modes.
+                     */
+                    if (
+                        myVersionEditing &&
+                        myVersionSaving
+                    ) {
+                        myVersionSaving = false;
+                        updateMyVersionAuthorBar();
+                    }
+                }
+            })().finally(() => {
+                activeSavePromise = null;
+            });
+
+            return activeSavePromise;
+        };
+
+        guardedSaveMyVersion
+            .__atlasOwnedSubjectSaveGuard = true;
+
+        saveMyVersion = guardedSaveMyVersion;
+        window.saveMyVersion = guardedSaveMyVersion;
+    }
+
     async function loadCompassEngine() {
         await loadScript(
             '../shared/compass-engine.js',
             'Compass engine could not be loaded.'
         );
+
+        installOwnedSubjectSaveGuard();
 
         await loadScript(
             '../shared/compass-generation-authority.js',
