@@ -774,7 +774,7 @@
 
         if (needsSubjects && !window.AtlasCloudCache) {
             scripts.push(
-                '<script src="/shared/atlas-cloud-cache.js?v=20260915-performance1"><\/script>'
+                '<script src="/shared/atlas-cloud-cache.js?v=20260915-performance2"><\/script>'
             );
         }
 
