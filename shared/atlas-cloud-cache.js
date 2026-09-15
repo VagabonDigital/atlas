@@ -1,10 +1,14 @@
 /* ============================================================
    ATLAS CLOUD CACHE
-   Page-scoped read-through cache for authenticated subject data.
+   Fast authenticated read layer for Compass subject data.
 
-   Adds a lightweight My Subjects catalog projection for the Compass hub:
-   card metadata is fetched without full lesson documents, while opening or
-   editing a subject still reads the authoritative full record on demand.
+   Compass hub strategy:
+   - persist lightweight subject summaries + library state per account;
+   - paint the last-known hub immediately without waiting for Supabase JS;
+   - revalidate quietly against Supabase in the background;
+   - fetch full lesson documents only when a subject is opened/edited.
+
+   Full subject writes remain server-authoritative and revision checked.
    ============================================================ */
 
 (function () {
@@ -20,6 +24,9 @@
     }
 
     const LOCAL_OWNER_ID = 'local-tutor';
+    const AUTH_STORAGE_KEY = 'sb-jnhjfpagectprceswvqn-auth-token';
+    const HUB_CACHE_VERSION = 1;
+    const HUB_CACHE_PREFIX = 'atlas::compassHubCache::v1::';
     const WORKING_DRAFT_PREFIX = 'atlas::tutorSubjects::workingDraft::';
     const BUILD_CHECKPOINT_PREFIX = 'atlas::tutorSubjects::buildCheckpoint::';
 
@@ -37,10 +44,54 @@
 
     let activeUserId = null;
     let scopePromise = null;
+    let revalidationPromise = null;
+    let hydratedPersistentUserId = null;
 
     function cloneJson(value) {
         if (value === null || value === undefined) return value;
         return JSON.parse(JSON.stringify(value));
+    }
+
+    function readJson(storage, key) {
+        try {
+            const raw = storage.getItem(key);
+            return raw ? JSON.parse(raw) : null;
+        } catch {
+            return null;
+        }
+    }
+
+    function writeJson(storage, key, value) {
+        try {
+            storage.setItem(key, JSON.stringify(value));
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    function storedSessionUserId() {
+        const parsed = readJson(localStorage, AUTH_STORAGE_KEY);
+        if (!parsed || typeof parsed !== 'object') return null;
+
+        const candidates = [
+            parsed,
+            parsed.session,
+            parsed.currentSession,
+            parsed.data?.session
+        ];
+
+        for (const candidate of candidates) {
+            const id = String(candidate?.user?.id || '').trim();
+            if (id) return id;
+        }
+
+        return null;
+    }
+
+    function hubCacheKey(userId) {
+        const id = String(userId || '').trim();
+        return id ? `${HUB_CACHE_PREFIX}${id}` : '';
     }
 
     function clearSubjectCache() {
@@ -65,6 +116,8 @@
         clearSubjectCache();
         clearSummaryCache();
         clearLibraryCache();
+        revalidationPromise = null;
+        hydratedPersistentUserId = null;
     }
 
     function setUserScope(userId) {
@@ -78,11 +131,90 @@
         return activeUserId;
     }
 
+    function persistentSnapshot() {
+        if (!activeUserId) return null;
+
+        return {
+            version: HUB_CACHE_VERSION,
+            userId: activeUserId,
+            cachedAt: Date.now(),
+            summaries: cachedSummaryList(),
+            library: libraryLoaded ? cloneJson(libraryValue) : null
+        };
+    }
+
+    function persistHubCache() {
+        const snapshot = persistentSnapshot();
+        if (!snapshot) return false;
+
+        const key = hubCacheKey(activeUserId);
+        if (!key) return false;
+
+        return writeJson(localStorage, key, snapshot);
+    }
+
+    function hydratePersistentHubCache(userId) {
+        const id = String(userId || '').trim();
+        if (!id || hydratedPersistentUserId === id) return false;
+
+        hydratedPersistentUserId = id;
+        const cached = readJson(localStorage, hubCacheKey(id));
+
+        if (
+            !cached ||
+            cached.version !== HUB_CACHE_VERSION ||
+            String(cached.userId || '') !== id
+        ) {
+            return false;
+        }
+
+        if (Array.isArray(cached.summaries)) {
+            subjectSummaryById.clear();
+            cached.summaries.forEach(summary => {
+                const subjectId = String(summary?.id || '').trim();
+                if (subjectId) {
+                    subjectSummaryById.set(subjectId, cloneJson(summary));
+                }
+            });
+            summariesLoaded = true;
+        }
+
+        if (
+            cached.library &&
+            typeof cached.library === 'object' &&
+            !Array.isArray(cached.library)
+        ) {
+            libraryValue = cloneJson(cached.library);
+            libraryLoaded = true;
+        }
+
+        return summariesLoaded || libraryLoaded;
+    }
+
+    function fastStoredUserScope() {
+        const userId = storedSessionUserId();
+        if (!userId) return null;
+
+        setUserScope(userId);
+        hydratePersistentHubCache(userId);
+        return userId;
+    }
+
     async function syncUserScope() {
+        const fastUserId = fastStoredUserScope();
+
+        if (fastUserId && activeUserId === fastUserId) {
+            return fastUserId;
+        }
+
         if (!scopePromise) {
             scopePromise = Promise.resolve()
                 .then(() => Base.getSession())
-                .then(session => setUserScope(session?.user?.id || null))
+                .then(session => {
+                    const userId = setUserScope(session?.user?.id || null);
+                    if (userId) hydratePersistentHubCache(userId);
+                    return userId;
+                })
                 .finally(() => {
                     scopePromise = null;
                 });
@@ -136,8 +268,6 @@
             ownerId: LOCAL_OWNER_ID,
             format: format === 'structured' ? 'structured' : String(format || ''),
             metadata: safeMetadata,
-            // Compatibility projection for existing hub card code only.
-            // Full subject pages still fetch the real document on demand.
             document: {
                 module: {
                     title,
@@ -185,25 +315,81 @@
         });
     }
 
-    function storeSummary(subject) {
+    function storeSummary(subject, { persist = true } = {}) {
         const summary = subject?.__atlasSummary === true
             ? cloneJson(subject)
             : summaryFromSubject(subject);
         const id = String(summary?.id || '').trim();
         if (!id) return null;
+
         subjectSummaryById.set(id, summary);
+        if (persist) persistHubCache();
         return summary;
     }
 
-    function storeSummaryList(subjects) {
+    function storeSummaryList(subjects, { persist = true } = {}) {
         subjectSummaryById.clear();
-        (Array.isArray(subjects) ? subjects : []).forEach(storeSummary);
+        (Array.isArray(subjects) ? subjects : []).forEach(subject => {
+            storeSummary(subject, { persist: false });
+        });
         summariesLoaded = true;
-        return Array.from(subjectSummaryById.values()).map(cloneJson);
+        if (persist) persistHubCache();
+        return cachedSummaryList();
     }
 
     function cachedSummaryList() {
         return Array.from(subjectSummaryById.values()).map(cloneJson);
+    }
+
+    async function fetchFreshSummaries(userId) {
+        const client = await Base.getClient();
+        const { data, error } = await client
+            .from('owned_subjects')
+            .select('id,schema_version,format,metadata,revision,provenance,created_at,updated_at')
+            .eq('owner_user_id', userId)
+            .order('updated_at', { ascending: false });
+
+        if (error) throw error;
+
+        return (data || [])
+            .map(summaryFromRow)
+            .filter(Boolean);
+    }
+
+    function revalidateHubInBackground() {
+        const userId = activeUserId || fastStoredUserScope();
+        if (!userId || revalidationPromise) return revalidationPromise;
+
+        revalidationPromise = Promise.all([
+            fetchFreshSummaries(userId),
+            Base.getSubjectLibraryState()
+        ])
+            .then(([summaries, library]) => {
+                if (activeUserId !== userId) return false;
+
+                storeSummaryList(summaries, { persist: false });
+                storeLibrary(library, { persist: false });
+                persistHubCache();
+
+                try {
+                    window.dispatchEvent(
+                        new CustomEvent('atlas:compass-hub-cache-refreshed', {
+                            detail: { userId }
+                        })
+                    );
+                } catch { }
+
+                return true;
+            })
+            .catch(error => {
+                console.warn('[AtlasCloudCache] background hub refresh failed:', error);
+                return false;
+            })
+            .finally(() => {
+                revalidationPromise = null;
+            });
+
+        return revalidationPromise;
     }
 
     async function listOwnedSubjects() {
@@ -215,7 +401,10 @@
             subjectListPromise = Base.listOwnedSubjects()
                 .then(subjects => {
                     const stored = storeSubjectList(subjects);
-                    if (summariesLoaded) subjects.forEach(storeSummary);
+                    if (summariesLoaded) {
+                        subjects.forEach(subject => storeSummary(subject, { persist: false }));
+                        persistHubCache();
+                    }
                     return stored;
                 })
                 .catch(error => {
@@ -231,27 +420,24 @@
     }
 
     async function listOwnedSubjectSummaries() {
+        const fastUserId = fastStoredUserScope();
+
+        if (fastUserId && summariesLoaded) {
+            void revalidateHubInBackground();
+            return cachedSummaryList();
+        }
+
         const userId = await syncUserScope();
         if (!userId) return [];
 
-        if (summariesLoaded) return cachedSummaryList();
+        if (summariesLoaded) {
+            void revalidateHubInBackground();
+            return cachedSummaryList();
+        }
 
         if (!summaryListPromise) {
-            summaryListPromise = (async () => {
-                const client = await Base.getClient();
-                const { data, error } = await client
-                    .from('owned_subjects')
-                    .select('id,schema_version,format,metadata,revision,provenance,created_at,updated_at')
-                    .eq('owner_user_id', userId)
-                    .order('updated_at', { ascending: false });
-
-                if (error) throw error;
-
-                const summaries = (data || [])
-                    .map(summaryFromRow)
-                    .filter(Boolean);
-                return storeSummaryList(summaries);
-            })()
+            summaryListPromise = fetchFreshSummaries(userId)
+                .then(summaries => storeSummaryList(summaries))
                 .catch(error => {
                     clearSummaryCache();
                     throw error;
@@ -324,6 +510,7 @@
         if (deleted) {
             subjectById.delete(id);
             subjectSummaryById.delete(id);
+            persistHubCache();
         } else {
             clearSubjectCache();
             clearSummaryCache();
@@ -332,20 +519,31 @@
         return deleted;
     }
 
-    function storeLibrary(value) {
+    function storeLibrary(value, { persist = true } = {}) {
         libraryLoaded = true;
         libraryValue = cloneJson(value);
+        if (persist) persistHubCache();
         return cloneJson(libraryValue);
     }
 
     async function getSubjectLibraryState() {
+        const fastUserId = fastStoredUserScope();
+
+        if (fastUserId && libraryLoaded) {
+            void revalidateHubInBackground();
+            return cloneJson(libraryValue);
+        }
+
         await syncUserScope();
 
-        if (libraryLoaded) return cloneJson(libraryValue);
+        if (libraryLoaded) {
+            void revalidateHubInBackground();
+            return cloneJson(libraryValue);
+        }
 
         if (!libraryPromise) {
             libraryPromise = Base.getSubjectLibraryState()
-                .then(storeLibrary)
+                .then(value => storeLibrary(value))
                 .catch(error => {
                     clearLibraryCache();
                     throw error;
@@ -416,23 +614,8 @@
 
     window.AtlasCloud = api;
 
-    async function hubUsesCloud() {
-        if (!window.AtlasAccount) return false;
-        try {
-            await AtlasAccount.initialize();
-            return AtlasAccount.getState().authenticated === true;
-        } catch {
-            return false;
-        }
-    }
-
-    function readLocalJson(key) {
-        try {
-            const raw = localStorage.getItem(key);
-            return raw ? JSON.parse(raw) : null;
-        } catch {
-            return null;
-        }
+    function hubUsesCloud() {
+        return Boolean(fastStoredUserScope());
     }
 
     function readHubWorkingDraft(subjectId) {
@@ -440,8 +623,8 @@
         if (!id) return null;
 
         const encoded = encodeURIComponent(id);
-        const stored = readLocalJson(`${WORKING_DRAFT_PREFIX}${encoded}`);
-        const checkpoint = readLocalJson(`${BUILD_CHECKPOINT_PREFIX}${encoded}`);
+        const stored = readJson(localStorage, `${WORKING_DRAFT_PREFIX}${encoded}`);
+        const checkpoint = readJson(localStorage, `${BUILD_CHECKPOINT_PREFIX}${encoded}`);
         const checkpointDraft = checkpoint?.workingDraft || null;
 
         if (
@@ -471,13 +654,13 @@
         const projected = {
             ...Subjects,
             async listSubjects() {
-                if (!(await hubUsesCloud())) {
+                if (!hubUsesCloud()) {
                     return fallbackListSubjects ? fallbackListSubjects() : [];
                 }
                 return listOwnedSubjectSummaries();
             },
             async getLibraryState() {
-                if (!(await hubUsesCloud())) {
+                if (!hubUsesCloud()) {
                     return fallbackGetLibraryState ? fallbackGetLibraryState() : null;
                 }
 
@@ -495,7 +678,7 @@
                 return fallbackGetLibraryState ? fallbackGetLibraryState() : null;
             },
             async getSubjectLibraryState(subjectId) {
-                if (!(await hubUsesCloud())) {
+                if (!hubUsesCloud()) {
                     return fallbackGetSubjectLibraryState
                         ? fallbackGetSubjectLibraryState(subjectId)
                         : null;
@@ -505,7 +688,7 @@
                 return cloneJson(library?.subjects?.[String(subjectId || '').trim()] || null);
             },
             async getWorkingDraft(subjectId) {
-                if (!(await hubUsesCloud())) {
+                if (!hubUsesCloud()) {
                     return fallbackGetWorkingDraft
                         ? fallbackGetWorkingDraft(subjectId)
                         : null;
@@ -521,6 +704,8 @@
     function installCompassHubProjection() {
         const path = window.location.pathname;
         if (path !== '/compass/' && path !== '/compass/index.html') return;
+
+        fastStoredUserScope();
 
         const existing = window.AtlasTutorSubjects;
 
@@ -549,7 +734,7 @@
                 }
             });
         } catch {
-            // If the global cannot be trapped, existing behavior remains safe.
+            // Existing behavior remains safe if the global cannot be trapped.
         }
     }
 
@@ -559,23 +744,36 @@
         stats() {
             return {
                 userId: activeUserId,
+                persistentHubCache: Boolean(
+                    activeUserId &&
+                    readJson(localStorage, hubCacheKey(activeUserId))
+                ),
                 subjectsLoaded,
                 subjectCount: subjectById.size,
                 summariesLoaded,
                 summaryCount: subjectSummaryById.size,
-                libraryLoaded
+                libraryLoaded,
+                revalidating: Boolean(revalidationPromise)
             };
         }
     });
 
     installCompassHubProjection();
 
-    // Keep cache ownership aligned even if auth changes outside AtlasAccount.
+    // Revalidation is intentionally non-blocking. Cached hub state may paint
+    // before the Supabase client has even finished loading.
+    if (activeUserId && (summariesLoaded || libraryLoaded)) {
+        setTimeout(() => {
+            void revalidateHubInBackground();
+        }, 0);
+    }
+
     Promise.resolve()
         .then(() => Base.getClient())
         .then(client => {
             client?.auth?.onAuthStateChange?.((_event, session) => {
-                setUserScope(session?.user?.id || null);
+                const userId = setUserScope(session?.user?.id || null);
+                if (userId) hydratePersistentHubCache(userId);
             });
         })
         .catch(() => { });
