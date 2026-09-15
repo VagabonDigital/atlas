@@ -1,0 +1,55 @@
+name: Temporary session switch close patch
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/tmp-session-switch-close-trigger'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch current main
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+
+          python <<'PY'
+          import base64
+          from pathlib import Path
+
+          path = Path('shared/atlas-session-panel.js')
+          text = path.read_text()
+
+          old = base64.b64decode('ICAgICAgICBpZiAoYWN0aW9uID09PSAnc3dpdGNoJykgewogICAgICAgICAgICBCcmlkZ2Uuc2V0QWN0aXZlU2Vzc2lvbihzZXNzaW9uLmlkKTsKCiAgICAgICAgICAgIHZvaWQgZW5zdXJlTGVhcm5lckNsb3VkKCkKICAgICAgICAgICAgICAgIC50aGVuKEF1dGhvcml0eSA9PiB7CiAgICAgICAgICAgICAgICAgICAgaWYgKEF1dGhvcml0eT8uZ2V0U3RhdGU/LigpLmFjdGl2ZSkgewogICAgICAgICAgICAgICAgICAgICAgICByZXR1cm4gQXV0aG9yaXR5LnRvdWNoU2Vzc2lvbihzZXNzaW9uLmlkKTsKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAgICAgcmV0dXJuIG51bGw7CiAgICAgICAgICAgICAgICB9KQogICAgICAgICAgICAgICAgLmNhdGNoKCgpID0+IHVuZGVmaW5lZCk7CiAgICAgICAgfSBlbHNlIGlmIChhY3Rpb24gPT09ICdyZW5hbWUnKSB7Cg==').decode('utf-8')
+          new = base64.b64decode('ICAgICAgICBpZiAoYWN0aW9uID09PSAnc3dpdGNoJykgewogICAgICAgICAgICBCcmlkZ2Uuc2V0QWN0aXZlU2Vzc2lvbihzZXNzaW9uLmlkKTsKCiAgICAgICAgICAgIHZvaWQgZW5zdXJlTGVhcm5lckNsb3VkKCkKICAgICAgICAgICAgICAgIC50aGVuKEF1dGhvcml0eSA9PiB7CiAgICAgICAgICAgICAgICAgICAgaWYgKEF1dGhvcml0eT8uZ2V0U3RhdGU/LigpLmFjdGl2ZSkgewogICAgICAgICAgICAgICAgICAgICAgICByZXR1cm4gQXV0aG9yaXR5LnRvdWNoU2Vzc2lvbihzZXNzaW9uLmlkKTsKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAgICAgcmV0dXJuIG51bGw7CiAgICAgICAgICAgICAgICB9KQogICAgICAgICAgICAgICAgLmNhdGNoKCgpID0+IHVuZGVmaW5lZCk7CgogICAgICAgICAgICBjbG9zZSgpOwogICAgICAgICAgICByZXR1cm47CiAgICAgICAgfSBlbHNlIGlmIChhY3Rpb24gPT09ICdyZW5hbWUnKSB7Cg==').decode('utf-8')
+
+          count = text.count(old)
+          if count != 1:
+              raise SystemExit(f'expected 1 exact match, found {count}')
+
+          path.write_text(text.replace(old, new, 1))
+          PY
+
+          rm .github/workflows/tmp-session-switch-close.yml
+          rm .github/tmp-session-switch-close-trigger
+
+          git config user.name "Atlas patch bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add shared/atlas-session-panel.js .github/workflows/tmp-session-switch-close.yml .github/tmp-session-switch-close-trigger
+          git commit -m "Close session panel after switching"
+          git push origin main
