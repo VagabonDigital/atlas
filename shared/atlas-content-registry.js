@@ -30,6 +30,9 @@
     const TUTOR_CREATE_SOURCE_KIND =
         'tutor-layer-handoff';
 
+    const SUPABASE_SESSION_KEY =
+        'sb-jnhjfpagectprceswvqn-auth-token';
+
     const COMPASS_WORLD = {
         registryId: 'compass',
         id: 'compass',
@@ -706,11 +709,59 @@
         return ok;
     }
 
+    function hasStoredAtlasAccountSession() {
+        try {
+            return Boolean(
+                localStorage.getItem(
+                    SUPABASE_SESSION_KEY
+                )
+            );
+        } catch {
+            return false;
+        }
+    }
+
+    function writeCloudAuthorityScripts() {
+        if (
+            !window.location.pathname.startsWith('/compass/') ||
+            !hasStoredAtlasAccountSession() ||
+            window.AtlasTutorSubjectsCloudAuthority
+        ) {
+            return;
+        }
+
+        const scripts = [];
+
+        if (!window.AtlasCloud) {
+            scripts.push(
+                '<script src="/shared/atlas-cloud.js?v=20260915-production1"><\/script>'
+            );
+        }
+
+        if (!window.AtlasAccount) {
+            scripts.push(
+                '<script src="/shared/atlas-account.js?v=20260915-production1"><\/script>'
+            );
+        }
+
+        scripts.push(
+            '<script src="/shared/atlas-tutor-subjects-cloud-authority.js?v=20260915-production1"><\/script>'
+        );
+
+        if (
+            document.readyState === 'loading' &&
+            scripts.length
+        ) {
+            document.write(scripts.join(''));
+        }
+    }
+
     window.AtlasContentRegistry = {
         registerAll,
         registerCompass
     };
 
+    writeCloudAuthorityScripts();
     installTutorCreateHandoff();
     registerAll();
 })();
