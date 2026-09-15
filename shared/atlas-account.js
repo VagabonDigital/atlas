@@ -167,6 +167,29 @@
         initPromise = null;
     }
 
+    function loadCompassOriginalCurationCloudAuthority() {
+        if (
+            !window.location.pathname.startsWith('/compass/') ||
+            !window.AtlasOriginalCuration ||
+            window.AtlasOriginalCurationCloudAuthority ||
+            document.querySelector(
+                'script[data-atlas-original-curation-cloud-authority]'
+            )
+        ) {
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src =
+            '/shared/atlas-original-curation-cloud-authority.js?v=20260915-curation1';
+        script.async = false;
+        script.setAttribute(
+            'data-atlas-original-curation-cloud-authority',
+            'true'
+        );
+        document.head.appendChild(script);
+    }
+
     window.AtlasAccount = Object.freeze({
         initialize,
         getState,
@@ -176,4 +199,6 @@
         requireUser,
         destroy
     });
+
+    loadCompassOriginalCurationCloudAuthority();
 })();
