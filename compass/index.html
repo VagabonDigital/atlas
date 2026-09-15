@@ -2949,21 +2949,28 @@
     @media (max-width: 680px) {
       .subject-artwork-studio-backdrop {
         display: block;
+        overflow: hidden;
         padding: 0;
         background: var(--surface-panel);
         backdrop-filter: none;
+        overscroll-behavior: none;
       }
 
       .subject-artwork-studio {
+        display: flex;
+        flex-direction: column;
         width: 100vw;
         height: 100dvh;
         max-height: 100dvh;
+        overflow: hidden;
         border: 0;
         border-radius: 0;
         box-shadow: none;
+        overscroll-behavior: none;
       }
 
       .subject-artwork-studio-head {
+        flex: 0 0 auto;
         padding:
           calc(0.95rem + env(safe-area-inset-top, 0px))
           1rem
@@ -2980,13 +2987,23 @@
 
       .subject-artwork-studio-body {
         display: flex;
+        flex: 1 1 auto;
         flex-direction: column;
+        min-height: 0;
         gap: 0.72rem;
+        overflow-y: auto;
         padding: 0.9rem 1rem;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
       }
 
       .subject-artwork-studio-controls {
         display: contents;
+      }
+
+      .subject-artwork-studio-actions {
+        position: static;
+        flex: 0 0 auto;
       }
 
       .subject-artwork-studio-copy {
