@@ -14,6 +14,9 @@
         document.currentScript?.src ||
         window.location.href;
 
+    const SUPABASE_SESSION_KEY =
+        'sb-jnhjfpagectprceswvqn-auth-token';
+
     let root = null;
     let options = {};
     let panelView = 'safe';
@@ -23,6 +26,99 @@
     let lastTrigger = null;
     let previousBodyOverflow = '';
     let mounted = false;
+    let learnerCloudPromise = null;
+
+    function hasStoredAtlasAccountSession() {
+        try {
+            return Boolean(
+                localStorage.getItem(
+                    SUPABASE_SESSION_KEY
+                )
+            );
+        } catch {
+            return false;
+        }
+    }
+
+    function loadScript(src, marker) {
+        if (marker && document.querySelector(`script[${marker}]`)) {
+            return new Promise((resolve, reject) => {
+                const existing = document.querySelector(`script[${marker}]`);
+
+                if (existing.dataset.atlasLoaded === 'true') {
+                    resolve();
+                    return;
+                }
+
+                existing.addEventListener('load', resolve, { once: true });
+                existing.addEventListener('error', reject, { once: true });
+            });
+        }
+
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = false;
+
+            if (marker) {
+                script.setAttribute(marker, 'true');
+            }
+
+            script.addEventListener('load', () => {
+                script.dataset.atlasLoaded = 'true';
+                resolve();
+            }, { once: true });
+            script.addEventListener('error', reject, { once: true });
+            document.head.appendChild(script);
+        });
+    }
+
+    async function ensureLearnerCloud() {
+        if (!hasStoredAtlasAccountSession()) {
+            return null;
+        }
+
+        if (learnerCloudPromise) {
+            return learnerCloudPromise;
+        }
+
+        learnerCloudPromise = (async () => {
+            if (!window.AtlasCloud) {
+                await loadScript(
+                    '/shared/atlas-cloud.js?v=20260915-learner1',
+                    'data-atlas-learner-cloud-core'
+                );
+            }
+
+            if (!window.AtlasLearnerSessionsCloud) {
+                await loadScript(
+                    '/shared/atlas-learner-sessions-cloud.js?v=20260915-learner1',
+                    'data-atlas-learner-cloud-adapter'
+                );
+            }
+
+            if (!window.AtlasLearnerSessionsCloudAuthority) {
+                await loadScript(
+                    '/shared/atlas-learner-sessions-cloud-authority.js?v=20260915-learner1',
+                    'data-atlas-learner-cloud-authority'
+                );
+            }
+
+            const Authority =
+                window.AtlasLearnerSessionsCloudAuthority || null;
+
+            if (Authority) {
+                await Authority.initialize();
+            }
+
+            return Authority;
+        })().catch(error => {
+            learnerCloudPromise = null;
+            throw error;
+        });
+
+        return learnerCloudPromise;
+    }
 
     function getBridge() {
         if (!window.AtlasBridge) {
@@ -338,8 +434,36 @@
             return;
         }
 
-        const renamed =
-            Bridge.renameSession(sessionId, cleanName);
+        let renamed = null;
+
+        try {
+            const Authority = await ensureLearnerCloud();
+
+            renamed =
+                Authority?.getState?.().active
+                    ? await Authority.renameSession(
+                        sessionId,
+                        cleanName
+                    )
+                    : Bridge.renameSession(
+                        sessionId,
+                        cleanName
+                    );
+        } catch {
+            rowActionState = {
+                type: 'rename',
+                sessionId,
+                value: cleanName,
+                error: 'Couldn’t save this change.'
+            };
+
+            renderManageView();
+            focusRowActionControl(
+                sessionId,
+                '.atlas-session-row-editor-input'
+            );
+            return;
+        }
 
         if (!renamed) {
             rowActionState = {
@@ -378,8 +502,11 @@
                 await options.onBeforeDeleteSession(session);
             }
 
+            const Authority = await ensureLearnerCloud();
             const deleted =
-                Bridge.deleteSession(session.id);
+                Authority?.getState?.().active
+                    ? await Authority.deleteSession(session.id)
+                    : Bridge.deleteSession(session.id);
 
             if (!deleted) {
                 throw new Error(
@@ -529,7 +656,7 @@
             copy.className =
                 'atlas-session-row-confirm-copy';
             copy.textContent =
-                `Delete ${displayName}? This permanently removes this session and its saved activity from this device.`;
+                `Delete ${displayName}? This permanently removes this learner session and its saved activity.`;
 
             actions.className =
                 'atlas-session-row-editor-actions';
@@ -880,6 +1007,15 @@
 
         if (action === 'switch') {
             Bridge.setActiveSession(session.id);
+
+            void ensureLearnerCloud()
+                .then(Authority => {
+                    if (Authority?.getState?.().active) {
+                        return Authority.touchSession(session.id);
+                    }
+                    return null;
+                })
+                .catch(() => undefined);
         } else if (action === 'rename') {
             if (
                 typeof options.onRenameSession ===
@@ -984,7 +1120,7 @@
         }
     }
 
-    function handleCreate(event) {
+    async function handleCreate(event) {
         event.preventDefault();
 
         const elements = getElements();
@@ -992,7 +1128,22 @@
 
         if (!name) return;
 
-        const created = getBridge().createSession(name);
+        let created = null;
+
+        try {
+            const Authority = await ensureLearnerCloud();
+
+            created =
+                Authority?.getState?.().active
+                    ? await Authority.createSession(name)
+                    : getBridge().createSession(name);
+        } catch {
+            if (elements.createError) {
+                elements.createError.textContent =
+                    'Couldn’t save this session. Try again.';
+            }
+            return;
+        }
 
         if (!created) {
             if (elements.createError) {
@@ -1158,6 +1309,7 @@
         elements.createForm.addEventListener('submit', handleCreate);
         document.addEventListener('keydown', handleKeydown);
         window.addEventListener('atlas:session-change', refresh);
+        window.addEventListener('atlas:learner-cloud-ready', refresh);
         window.addEventListener('storage', event => {
             if (event.key === 'atlas::sessions') {
                 refresh();
@@ -1170,6 +1322,10 @@
         } else {
             showSafeView();
         }
+
+        void ensureLearnerCloud()
+            .then(() => refresh())
+            .catch(() => refresh());
 
         return window.AtlasSessionPanel;
     }
