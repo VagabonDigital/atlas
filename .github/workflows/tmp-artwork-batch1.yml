@@ -4,13 +4,14 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '.github/tmp-artwork-batch1-trigger'
 
 permissions:
   contents: write
 
 jobs:
   patch:
-    if: github.event.head_commit.message == 'Prepare artwork batch 1 patch'
     runs-on: ubuntu-latest
 
     steps:
@@ -28,11 +29,17 @@ jobs:
           git reset --hard origin/main
 
           python <<'PY'
+          import base64
           from pathlib import Path
 
-          def replace_once(path, old, new):
+          def decode(value):
+              return base64.b64decode(value).decode('utf-8')
+
+          def replace_once(path, old_value, new_value):
               target = Path(path)
               text = target.read_text()
+              old = decode(old_value)
+              new = decode(new_value)
               count = text.count(old)
               if count != 1:
                   raise SystemExit(f'{path}: expected 1 exact match, found {count}')
@@ -40,106 +47,20 @@ jobs:
 
           replace_once(
               'compass/index.html',
-              '''    @media (hover: none) and (pointer: coarse) {
-      .subject-card--has-art .subject-card-header {
-        max-width: none;
-      }
-
-      .subject-card--has-art .subject-card-hook {
-        max-width: calc(100% - 7.2rem);
-      }
-
-      .subject-card-art {
-        display: none;
-      }
-    }
-''',
-              '''    @media (hover: none) and (pointer: coarse) {
-      .subject-card--has-art .subject-card-header,
-      .subject-card--has-art .subject-card-hook {
-        max-width: calc(100% - 7.2rem);
-      }
-
-      .subject-card--has-art .subject-card-art {
-        display: flex;
-        opacity: 0.14;
-        transform: none;
-      }
-
-      html[data-theme="night"]
-      .subject-card--has-art
-      .subject-card-art {
-        opacity: 0.22;
-      }
-
-      .subject-artwork-preview-card .subject-card-art {
-        opacity: 0.18;
-      }
-
-      html[data-theme="night"]
-      .subject-artwork-preview-card
-      .subject-card-art {
-        opacity: 0.25;
-      }
-    }
-'''
+              'ICAgIEBtZWRpYSAoaG92ZXI6IG5vbmUpIGFuZCAocG9pbnRlcjogY29hcnNlKSB7CiAgICAgIC5zdWJqZWN0LWNhcmQtLWhhcy1hcnQgLnN1YmplY3QtY2FyZC1oZWFkZXIgewogICAgICAgIG1heC13aWR0aDogbm9uZTsKICAgICAgfQoKICAgICAgLnN1YmplY3QtY2FyZC0taGFzLWFydCAuc3ViamVjdC1jYXJkLWhvb2sgewogICAgICAgIG1heC13aWR0aDogY2FsYygxMDAlIC0gNy4ycmVtKTsKICAgICAgfQoKICAgICAgLnN1YmplY3QtY2FyZC1hcnQgewogICAgICAgIGRpc3BsYXk6IG5vbmU7CiAgICAgIH0KICAgIH0K',
+              'ICAgIEBtZWRpYSAoaG92ZXI6IG5vbmUpIGFuZCAocG9pbnRlcjogY29hcnNlKSB7CiAgICAgIC5zdWJqZWN0LWNhcmQtLWhhcy1hcnQgLnN1YmplY3QtY2FyZC1oZWFkZXIsCiAgICAgIC5zdWJqZWN0LWNhcmQtLWhhcy1hcnQgLnN1YmplY3QtY2FyZC1ob29rIHsKICAgICAgICBtYXgtd2lkdGg6IGNhbGMoMTAwJSAtIDcuMnJlbSk7CiAgICAgIH0KCiAgICAgIC5zdWJqZWN0LWNhcmQtLWhhcy1hcnQgLnN1YmplY3QtY2FyZC1hcnQgewogICAgICAgIGRpc3BsYXk6IGZsZXg7CiAgICAgICAgb3BhY2l0eTogMC4xNDsKICAgICAgICB0cmFuc2Zvcm06IG5vbmU7CiAgICAgIH0KCiAgICAgIGh0bWxbZGF0YS10aGVtZT0ibmlnaHQiXQogICAgICAuc3ViamVjdC1jYXJkLS1oYXMtYXJ0CiAgICAgIC5zdWJqZWN0LWNhcmQtYXJ0IHsKICAgICAgICBvcGFjaXR5OiAwLjIyOwogICAgICB9CgogICAgICAuc3ViamVjdC1hcnR3b3JrLXByZXZpZXctY2FyZCAuc3ViamVjdC1jYXJkLWFydCB7CiAgICAgICAgb3BhY2l0eTogMC4xODsKICAgICAgfQoKICAgICAgaHRtbFtkYXRhLXRoZW1lPSJuaWdodCJdCiAgICAgIC5zdWJqZWN0LWFydHdvcmstcHJldmlldy1jYXJkCiAgICAgIC5zdWJqZWN0LWNhcmQtYXJ0IHsKICAgICAgICBvcGFjaXR5OiAwLjI1OwogICAgICB9CiAgICB9Cg=='
           )
 
           replace_once(
               'compass/index.html',
-              '''      .subject-card--has-art .subject-card-hook,
-      .subject-card--new:not(.subject-card--has-art) .subject-card-hook {
-        max-width: none;
-      }
-''',
-              '''      .subject-card--new:not(.subject-card--has-art) .subject-card-hook {
-        max-width: none;
-      }
-'''
+              'ICAgICAgLnN1YmplY3QtY2FyZC0taGFzLWFydCAuc3ViamVjdC1jYXJkLWhvb2ssCiAgICAgIC5zdWJqZWN0LWNhcmQtLW5ldzpub3QoLnN1YmplY3QtY2FyZC0taGFzLWFydCkgLnN1YmplY3QtY2FyZC1ob29rIHsKICAgICAgICBtYXgtd2lkdGg6IG5vbmU7CiAgICAgIH0K',
+              'ICAgICAgLnN1YmplY3QtY2FyZC0tbmV3Om5vdCguc3ViamVjdC1jYXJkLS1oYXMtYXJ0KSAuc3ViamVjdC1jYXJkLWhvb2sgewogICAgICAgIG1heC13aWR0aDogbm9uZTsKICAgICAgfQo='
           )
 
           replace_once(
               'shared/atlas-subject-artwork.js',
-              '''            @media (max-width: 640px) {
-                .subject-artwork-display-control-label {
-                    display: none;
-                }
-
-                .subject-artwork-studio-head-actions {
-                    gap: 0.45rem;
-                }
-            }
-''',
-              '''            @media (hover: none) and (pointer: coarse) {
-                .subject-artwork-display-control {
-                    display: none;
-                }
-
-                html[data-subject-artwork-display]
-                .hub-main
-                .subject-card--has-art
-                .subject-card-art {
-                    opacity: 0.14;
-                }
-
-                html[data-theme="night"][data-subject-artwork-display]
-                .hub-main
-                .subject-card--has-art
-                .subject-card-art {
-                    opacity: 0.22;
-                }
-            }
-
-            @media (max-width: 640px) {
-                .subject-artwork-display-control-label {
-                    display: none;
-                }
-
-                .subject-artwork-studio-head-actions {
-                    gap: 0.45rem;
-                }
-            }
-'''
+              'ICAgICAgICAgICAgQG1lZGlhIChtYXgtd2lkdGg6IDY0MHB4KSB7CiAgICAgICAgICAgICAgICAuc3ViamVjdC1hcnR3b3JrLWRpc3BsYXktY29udHJvbC1sYWJlbCB7CiAgICAgICAgICAgICAgICAgICAgZGlzcGxheTogbm9uZTsKICAgICAgICAgICAgICAgIH0KCiAgICAgICAgICAgICAgICAuc3ViamVjdC1hcnR3b3JrLXN0dWRpby1oZWFkLWFjdGlvbnMgewogICAgICAgICAgICAgICAgICAgIGdhcDogMC40NXJlbTsKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQo=',
+              'ICAgICAgICAgICAgQG1lZGlhIChob3Zlcjogbm9uZSkgYW5kIChwb2ludGVyOiBjb2Fyc2UpIHsKICAgICAgICAgICAgICAgIC5zdWJqZWN0LWFydHdvcmstZGlzcGxheS1jb250cm9sIHsKICAgICAgICAgICAgICAgICAgICBkaXNwbGF5OiBub25lOwogICAgICAgICAgICAgICAgfQoKICAgICAgICAgICAgICAgIGh0bWxbZGF0YS1zdWJqZWN0LWFydHdvcmstZGlzcGxheV0KICAgICAgICAgICAgICAgIC5odWItbWFpbgogICAgICAgICAgICAgICAgLnN1YmplY3QtY2FyZC0taGFzLWFydAogICAgICAgICAgICAgICAgLnN1YmplY3QtY2FyZC1hcnQgewogICAgICAgICAgICAgICAgICAgIG9wYWNpdHk6IDAuMTQ7CiAgICAgICAgICAgICAgICB9CgogICAgICAgICAgICAgICAgaHRtbFtkYXRhLXRoZW1lPSJuaWdodCJdW2RhdGEtc3ViamVjdC1hcnR3b3JrLWRpc3BsYXldCiAgICAgICAgICAgICAgICAuaHViLW1haW4KICAgICAgICAgICAgICAgIC5zdWJqZWN0LWNhcmQtLWhhcy1hcnQKICAgICAgICAgICAgICAgIC5zdWJqZWN0LWNhcmQtYXJ0IHsKICAgICAgICAgICAgICAgICAgICBvcGFjaXR5OiAwLjIyOwogICAgICAgICAgICAgICAgfQogICAgICAgICAgICB9CgogICAgICAgICAgICBAbWVkaWEgKG1heC13aWR0aDogNjQwcHgpIHsKICAgICAgICAgICAgICAgIC5zdWJqZWN0LWFydHdvcmstZGlzcGxheS1jb250cm9sLWxhYmVsIHsKICAgICAgICAgICAgICAgICAgICBkaXNwbGF5OiBub25lOwogICAgICAgICAgICAgICAgfQoKICAgICAgICAgICAgICAgIC5zdWJqZWN0LWFydHdvcmstc3R1ZGlvLWhlYWQtYWN0aW9ucyB7CiAgICAgICAgICAgICAgICAgICAgZ2FwOiAwLjQ1cmVtOwogICAgICAgICAgICAgICAgfQogICAgICAgICAgICB9Cg=='
           )
           PY
 
