@@ -297,7 +297,8 @@ html[data-theme="night"] body[data-atlas-world="arcade"] {
 .atlas-search-close,
 body[data-atlas-world="atlas"] #settings-modal .modal-close,
 body[data-atlas-world] .atlas-feedback-close,
-body[data-atlas-world="compass"] .owned-subject-dialog-close {
+body[data-atlas-world="compass"] .owned-subject-dialog-close,
+body[data-atlas-world="compass"] .subject-artwork-studio-close {
     width: 2rem;
     height: 2rem;
     flex: 0 0 auto;
@@ -317,7 +318,8 @@ body[data-atlas-world="compass"] .owned-subject-dialog-close {
 
 .atlas-search-close,
 body[data-atlas-world="atlas"] #settings-modal .modal-close,
-body[data-atlas-world] .atlas-feedback-close {
+body[data-atlas-world] .atlas-feedback-close,
+body[data-atlas-world="compass"] .subject-artwork-studio-close {
     display: inline-flex;
 }
 
@@ -328,7 +330,9 @@ body[data-atlas-world="atlas"] #settings-modal .modal-close:focus-visible,
 body[data-atlas-world] .atlas-feedback-close:hover,
 body[data-atlas-world] .atlas-feedback-close:focus-visible,
 body[data-atlas-world="compass"] .owned-subject-dialog-close:hover,
-body[data-atlas-world="compass"] .owned-subject-dialog-close:focus-visible {
+body[data-atlas-world="compass"] .owned-subject-dialog-close:focus-visible,
+body[data-atlas-world="compass"] .subject-artwork-studio-close:hover,
+body[data-atlas-world="compass"] .subject-artwork-studio-close:focus-visible {
     border-color: var(--atlas-modal-border-strong);
     background: var(--atlas-modal-control-hover);
     color: var(--atlas-modal-heading);
@@ -337,14 +341,16 @@ body[data-atlas-world="compass"] .owned-subject-dialog-close:focus-visible {
 .atlas-search-close:focus-visible,
 body[data-atlas-world="atlas"] #settings-modal .modal-close:focus-visible,
 body[data-atlas-world] .atlas-feedback-close:focus-visible,
-body[data-atlas-world="compass"] .owned-subject-dialog-close:focus-visible {
+body[data-atlas-world="compass"] .owned-subject-dialog-close:focus-visible,
+body[data-atlas-world="compass"] .subject-artwork-studio-close:focus-visible {
     outline: 2px solid var(--atlas-modal-accent);
     outline-offset: 2px;
 }
 
 .atlas-search-close svg,
 body[data-atlas-world="atlas"] #settings-modal .modal-close svg,
-body[data-atlas-world] .atlas-feedback-close svg {
+body[data-atlas-world] .atlas-feedback-close svg,
+body[data-atlas-world="compass"] .subject-artwork-studio-close svg {
     width: 14px;
     height: 14px;
     pointer-events: none;
@@ -355,11 +361,7 @@ body[data-atlas-world="compass"] .owned-subject-dialog-close {
     display: none;
 }
 
-/* The artwork studio keeps its Cancel action sticky and visible. */
-body[data-atlas-world="compass"] .subject-artwork-studio-close {
-    display: none;
-}
-
+/* Artwork Studio keeps both the persistent close control and footer Cancel. */
 @media (max-width: 680px) {
     /* Create Subject can scroll far enough to hide its bottom Cancel. */
     body[data-atlas-world="compass"]
