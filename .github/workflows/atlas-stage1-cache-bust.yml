@@ -1,0 +1,41 @@
+name: Atlas Stage 1 closure cache bust
+
+on:
+  push:
+    paths:
+      - '.github/workflows/atlas-stage1-cache-bust.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync current main
+        run: |
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+
+      - name: Apply guarded Stage 1 cache-bust patch
+        run: python .github/atlas_patch_stage1_cache_bust.py
+
+      - name: Commit cache-key updates and remove runner
+        run: |
+          rm -f .github/workflows/atlas-stage1-cache-bust.yml
+          rm -f .github/atlas_patch_stage1_cache_bust.py
+          git config user.name "Atlas Patch Runner"
+          git config user.email "atlas-patch@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo "No product changes to commit."
+            exit 0
+          fi
+          git commit -m "Bust Stage 1 closure runtime caches"
+          git push origin main
