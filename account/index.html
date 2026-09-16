@@ -39,9 +39,30 @@
         #f3f0e9;
     }
 
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { opacity: .58; cursor: wait; }
+
     .shell {
-      width: min(500px, 100%);
+      width: min(520px, 100%);
     }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      min-height: 28px;
+    }
+
+    .back-link {
+      color: #625c53;
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 600;
+    }
+
+    .back-link:hover { color: var(--accent); }
 
     .brand {
       text-align: center;
@@ -51,7 +72,7 @@
     .brand h1 {
       margin: 0;
       font-family: 'DM Serif Display', Georgia, serif;
-      font-size: 2.3rem;
+      font-size: 2.45rem;
       font-weight: 400;
     }
 
@@ -84,6 +105,38 @@
       color: var(--danger);
     }
 
+    .status.success {
+      background: #eef6f1;
+      color: var(--success);
+    }
+
+    .view[hidden], .form-panel[hidden] { display: none; }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 4px;
+      margin-bottom: 18px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: rgba(49,45,38,.035);
+    }
+
+    .segmented button {
+      min-height: 40px;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .segmented button.active {
+      background: var(--surface);
+      color: #2b2926;
+      box-shadow: 0 1px 5px rgba(42,37,29,.08);
+    }
 
     label {
       display: block;
@@ -92,11 +145,10 @@
       font-size: .9rem;
     }
 
-    input, button {
+    input, .button {
       width: 100%;
       min-height: 46px;
       border-radius: 11px;
-      font: inherit;
     }
 
     input {
@@ -112,17 +164,11 @@
       box-shadow: 0 0 0 3px rgba(77,113,132,.10);
     }
 
-    button {
+    .button {
       margin-top: 16px;
       border: 0;
       padding: 0 16px;
-      cursor: pointer;
       font-weight: 600;
-    }
-
-    button:disabled {
-      opacity: .58;
-      cursor: wait;
     }
 
     .primary {
@@ -138,48 +184,187 @@
       border: 1px solid var(--border);
     }
 
-    .actions { display: grid; gap: 10px; }
+    .text-button {
+      display: inline-block;
+      width: auto;
+      min-height: 0;
+      margin-top: 14px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      font-weight: 600;
+    }
 
-    .account-view[hidden],
-    .login-view[hidden] { display: none; }
+    .text-button:hover { text-decoration: underline; }
+
+    .hint {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: .86rem;
+      line-height: 1.45;
+    }
+
+    .view-title {
+      margin: 0 0 6px;
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 1.65rem;
+      font-weight: 400;
+    }
+
+    .view-copy {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .identity {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(49,45,38,.025);
+    }
+
+    .identity-label {
+      margin: 0 0 4px;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
 
     .email {
+      margin: 0;
       font-weight: 600;
       overflow-wrap: anywhere;
     }
 
+    .plan-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .plan-label { color: var(--muted); font-size: .9rem; }
+
+    .plan-chip {
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(77,113,132,.10);
+      color: var(--accent);
+      font-size: .82rem;
+      font-weight: 600;
+    }
+
+    .actions { display: grid; gap: 10px; margin-top: 18px; }
+    .actions .button { margin-top: 0; }
+
+    @media (max-width: 560px) {
+      body { padding: 18px; align-items: start; }
+      .shell { padding-top: 20px; }
+      .card { padding: 20px; }
+    }
   </style>
 
-  <script src="../shared/atlas-cloud.js"></script>
-  <script src="../shared/atlas-account.js"></script>
+  <script src="../shared/atlas-cloud.js?v=20260916-account1"></script>
+  <script src="../shared/atlas-account.js?v=20260916-account1"></script>
 </head>
 <body>
   <main class="shell">
+    <div class="topline">
+      <a class="back-link" href="/">← Atlas</a>
+    </div>
+
     <div class="brand">
-      <h1>Atlas</h1>
-      <p>Save and access your Atlas work.</p>
+      <h1>Atlas Account</h1>
+      <p>Your identity, access and Atlas work.</p>
     </div>
 
     <section class="card">
-      <div id="status" class="status">Checking your Atlas account…</div>
-
-      <div id="login-view" class="login-view" hidden>
-        <label for="email">Email</label>
-        <input id="email" type="email" autocomplete="username">
-
-        <label for="password">Password</label>
-        <input id="password" type="password" autocomplete="current-password">
-
-        <button id="sign-in" class="primary">Sign in</button>
+      <div id="status" class="status" role="status" aria-live="polite">
+        Checking your Atlas account…
       </div>
 
-      <div id="account-view" class="account-view" hidden>
-        <p>Signed in as</p>
-        <p id="account-email" class="email"></p>
+      <div id="guest-view" class="view" hidden>
+        <div class="segmented" aria-label="Account action">
+          <button id="mode-sign-in" type="button" class="active">Sign in</button>
+          <button id="mode-create" type="button">Create account</button>
+        </div>
+
+        <form id="sign-in-form" class="form-panel">
+          <label for="sign-in-email">Email</label>
+          <input id="sign-in-email" type="email" autocomplete="username" required>
+
+          <label for="sign-in-password">Password</label>
+          <input id="sign-in-password" type="password" autocomplete="current-password" required>
+
+          <button id="sign-in" class="button primary" type="submit">Sign in</button>
+          <button id="show-forgot" class="text-button" type="button">Forgot password?</button>
+        </form>
+
+        <form id="create-form" class="form-panel" hidden>
+          <label for="create-email">Email</label>
+          <input id="create-email" type="email" autocomplete="username" required>
+
+          <label for="create-password">Password</label>
+          <input id="create-password" type="password" autocomplete="new-password" minlength="8" required>
+          <p class="hint">Use at least 8 characters.</p>
+
+          <label for="create-password-confirm">Confirm password</label>
+          <input id="create-password-confirm" type="password" autocomplete="new-password" minlength="8" required>
+
+          <button id="create-account" class="button primary" type="submit">Create account</button>
+        </form>
+      </div>
+
+      <div id="forgot-view" class="view" hidden>
+        <h2 class="view-title">Reset your password</h2>
+        <p class="view-copy">We’ll email you a secure link to choose a new password.</p>
+
+        <form id="forgot-form">
+          <label for="forgot-email">Email</label>
+          <input id="forgot-email" type="email" autocomplete="username" required>
+          <button id="send-reset" class="button primary" type="submit">Send reset link</button>
+        </form>
+
+        <button id="back-to-sign-in" class="text-button" type="button">Back to sign in</button>
+      </div>
+
+      <div id="recovery-view" class="view" hidden>
+        <h2 class="view-title">Choose a new password</h2>
+        <p class="view-copy">Your reset link is verified. Set a new password for this Atlas account.</p>
+
+        <form id="recovery-form">
+          <label for="recovery-password">New password</label>
+          <input id="recovery-password" type="password" autocomplete="new-password" minlength="8" required>
+
+          <label for="recovery-password-confirm">Confirm new password</label>
+          <input id="recovery-password-confirm" type="password" autocomplete="new-password" minlength="8" required>
+
+          <button id="update-password" class="button primary" type="submit">Update password</button>
+        </form>
+
+        <button id="cancel-recovery" class="text-button" type="button">Cancel and sign out</button>
+      </div>
+
+      <div id="account-view" class="view" hidden>
+        <div class="identity">
+          <p class="identity-label">Signed in as</p>
+          <p id="account-email" class="email"></p>
+          <div class="plan-row">
+            <span class="plan-label">Plan</span>
+            <span id="account-plan" class="plan-chip">Checking…</span>
+          </div>
+        </div>
 
         <div class="actions">
-          <button id="return" class="primary">Return to Atlas</button>
-          <button id="sign-out" class="secondary">Sign out</button>
+          <button id="return" class="button primary" type="button">Return to Atlas</button>
+          <button id="sign-out" class="button secondary" type="button">Sign out</button>
         </div>
       </div>
     </section>
@@ -189,29 +374,116 @@
     'use strict';
 
     const Status = document.getElementById('status');
-    const LoginView = document.getElementById('login-view');
+    const GuestView = document.getElementById('guest-view');
+    const ForgotView = document.getElementById('forgot-view');
+    const RecoveryView = document.getElementById('recovery-view');
     const AccountView = document.getElementById('account-view');
     const AccountEmail = document.getElementById('account-email');
-    const Email = document.getElementById('email');
-    const Password = document.getElementById('password');
-    const SignIn = document.getElementById('sign-in');
-    const SignOut = document.getElementById('sign-out');
+    const AccountPlan = document.getElementById('account-plan');
 
-    function setStatus(message, error = false) {
+    const ModeSignIn = document.getElementById('mode-sign-in');
+    const ModeCreate = document.getElementById('mode-create');
+    const SignInForm = document.getElementById('sign-in-form');
+    const CreateForm = document.getElementById('create-form');
+    const ForgotForm = document.getElementById('forgot-form');
+    const RecoveryForm = document.getElementById('recovery-form');
+
+    let guestMode = 'sign-in';
+    let transientStatus = false;
+
+    function setStatus(message, type = 'info', transient = true) {
       Status.textContent = message;
-      Status.classList.toggle('error', error);
+      Status.classList.toggle('error', type === 'error');
+      Status.classList.toggle('success', type === 'success');
+      transientStatus = transient;
+    }
+
+    function clearStatusStyle() {
+      Status.classList.remove('error', 'success');
+    }
+
+    function titleCasePlan(planCode) {
+      const value = String(planCode || '').trim();
+      if (!value) return 'Unavailable';
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+
+    function setGuestMode(mode) {
+      guestMode = mode === 'create' ? 'create' : 'sign-in';
+      ModeSignIn.classList.toggle('active', guestMode === 'sign-in');
+      ModeCreate.classList.toggle('active', guestMode === 'create');
+      SignInForm.hidden = guestMode !== 'sign-in';
+      CreateForm.hidden = guestMode !== 'create';
+
+      if (!transientStatus) {
+        setStatus(
+          guestMode === 'create'
+            ? 'Create a free Atlas account to keep your work across browsers and devices.'
+            : 'Sign in to access your Atlas account.',
+          'info',
+          false
+        );
+      }
+    }
+
+    function showOnly(view) {
+      [GuestView, ForgotView, RecoveryView, AccountView]
+        .forEach(item => { item.hidden = item !== view; });
     }
 
     function render(state) {
-      LoginView.hidden = state.authenticated;
-      AccountView.hidden = !state.authenticated;
+      if (!state.ready) return;
+
+      if (state.authenticated && state.recovery) {
+        showOnly(RecoveryView);
+        if (!transientStatus) {
+          setStatus('Password recovery is ready.', 'info', false);
+        }
+        return;
+      }
 
       if (state.authenticated) {
+        showOnly(AccountView);
         AccountEmail.textContent = state.email || state.userId || 'Atlas account';
-        setStatus('Your Atlas account is connected.');
-      } else if (state.ready) {
-        AccountEmail.textContent = '';
-        setStatus('Sign in to access your Atlas account.');
+
+        if (!state.entitlementReady) {
+          AccountPlan.textContent = 'Checking…';
+        } else if (state.entitlementError) {
+          AccountPlan.textContent = 'Unavailable';
+        } else {
+          AccountPlan.textContent = titleCasePlan(state.planCode || 'free');
+        }
+
+        if (!transientStatus) {
+          setStatus('Your Atlas account is connected.', 'success', false);
+        }
+        return;
+      }
+
+      AccountEmail.textContent = '';
+      showOnly(GuestView);
+      setGuestMode(guestMode);
+    }
+
+    function setButtonBusy(button, busy, busyText, idleText) {
+      button.disabled = busy;
+      button.textContent = busy ? busyText : idleText;
+    }
+
+    function scrubAuthFragment() {
+      const hash = String(window.location.hash || '');
+      if (!hash || !/(access_token|refresh_token|type=recovery|type=signup)/.test(hash)) {
+        return;
+      }
+
+      try {
+        history.replaceState(
+          null,
+          document.title,
+          window.location.pathname + window.location.search
+        );
+      } catch {
+        // The auth library has already consumed the fragment; leaving it is harmless.
       }
     }
 
@@ -220,35 +492,182 @@
     (async () => {
       try {
         await AtlasAccount.initialize();
+        scrubAuthFragment();
+        transientStatus = false;
+        render(AtlasAccount.getState());
       } catch (error) {
-        setStatus(error.message || String(error), true);
+        setStatus(error.message || String(error), 'error');
       }
     })();
 
-    SignIn.addEventListener('click', async () => {
-      SignIn.disabled = true;
+    ModeSignIn.addEventListener('click', () => {
+      transientStatus = false;
+      clearStatusStyle();
+      setGuestMode('sign-in');
+    });
+
+    ModeCreate.addEventListener('click', () => {
+      transientStatus = false;
+      clearStatusStyle();
+      setGuestMode('create');
+    });
+
+    document.getElementById('show-forgot').addEventListener('click', () => {
+      const signInEmail = document.getElementById('sign-in-email').value.trim();
+      if (signInEmail) document.getElementById('forgot-email').value = signInEmail;
+      showOnly(ForgotView);
+      setStatus('Enter your account email and we’ll send a reset link.', 'info', false);
+    });
+
+    document.getElementById('back-to-sign-in').addEventListener('click', () => {
+      transientStatus = false;
+      showOnly(GuestView);
+      setGuestMode('sign-in');
+    });
+
+    SignInForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const button = document.getElementById('sign-in');
+      setButtonBusy(button, true, 'Signing in…', 'Sign in');
       setStatus('Signing in…');
 
       try {
-        await AtlasAccount.signIn(Email.value, Password.value);
-        Password.value = '';
+        await AtlasAccount.signIn(
+          document.getElementById('sign-in-email').value,
+          document.getElementById('sign-in-password').value
+        );
+        document.getElementById('sign-in-password').value = '';
+        transientStatus = false;
+        render(AtlasAccount.getState());
       } catch (error) {
-        setStatus(error.message || String(error), true);
+        setStatus(error.message || String(error), 'error');
       } finally {
-        SignIn.disabled = false;
+        setButtonBusy(button, false, 'Signing in…', 'Sign in');
       }
     });
 
-    SignOut.addEventListener('click', async () => {
-      SignOut.disabled = true;
+    CreateForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const button = document.getElementById('create-account');
+      const email = document.getElementById('create-email').value.trim();
+      const password = document.getElementById('create-password').value;
+      const confirm = document.getElementById('create-password-confirm').value;
+
+      if (password.length < 8) {
+        setStatus('Use a password with at least 8 characters.', 'error');
+        return;
+      }
+
+      if (password !== confirm) {
+        setStatus('Those passwords do not match.', 'error');
+        return;
+      }
+
+      setButtonBusy(button, true, 'Creating account…', 'Create account');
+      setStatus('Creating your Atlas account…');
+
+      try {
+        const result = await AtlasAccount.createAccount(email, password);
+        document.getElementById('create-password').value = '';
+        document.getElementById('create-password-confirm').value = '';
+
+        if (result.confirmationRequired) {
+          setStatus(
+            'Check your email to confirm your Atlas account. After confirmation, you’ll return here.',
+            'success'
+          );
+        } else {
+          transientStatus = false;
+          render(AtlasAccount.getState());
+        }
+      } catch (error) {
+        setStatus(error.message || String(error), 'error');
+      } finally {
+        setButtonBusy(button, false, 'Creating account…', 'Create account');
+      }
+    });
+
+    ForgotForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const button = document.getElementById('send-reset');
+      const email = document.getElementById('forgot-email').value.trim();
+      setButtonBusy(button, true, 'Sending…', 'Send reset link');
+      setStatus('Sending password reset email…');
+
+      try {
+        await AtlasAccount.requestPasswordReset(email);
+        setStatus(
+          'If an Atlas account exists for that email, a password reset link is on its way.',
+          'success'
+        );
+      } catch (error) {
+        setStatus(error.message || String(error), 'error');
+      } finally {
+        setButtonBusy(button, false, 'Sending…', 'Send reset link');
+      }
+    });
+
+    RecoveryForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const button = document.getElementById('update-password');
+      const password = document.getElementById('recovery-password').value;
+      const confirm = document.getElementById('recovery-password-confirm').value;
+
+      if (password.length < 8) {
+        setStatus('Use a password with at least 8 characters.', 'error');
+        return;
+      }
+
+      if (password !== confirm) {
+        setStatus('Those passwords do not match.', 'error');
+        return;
+      }
+
+      setButtonBusy(button, true, 'Updating…', 'Update password');
+      setStatus('Updating your password…');
+
+      try {
+        await AtlasAccount.completePasswordRecovery(password);
+        document.getElementById('recovery-password').value = '';
+        document.getElementById('recovery-password-confirm').value = '';
+        setStatus('Password updated. Your Atlas account is ready.', 'success');
+        render(AtlasAccount.getState());
+      } catch (error) {
+        setStatus(error.message || String(error), 'error');
+      } finally {
+        setButtonBusy(button, false, 'Updating…', 'Update password');
+      }
+    });
+
+    document.getElementById('cancel-recovery').addEventListener('click', async () => {
+      const button = document.getElementById('cancel-recovery');
+      button.disabled = true;
       setStatus('Signing out…');
 
       try {
         await AtlasAccount.signOut();
+        transientStatus = false;
+        render(AtlasAccount.getState());
       } catch (error) {
-        setStatus(error.message || String(error), true);
+        setStatus(error.message || String(error), 'error');
       } finally {
-        SignOut.disabled = false;
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById('sign-out').addEventListener('click', async () => {
+      const button = document.getElementById('sign-out');
+      setButtonBusy(button, true, 'Signing out…', 'Sign out');
+      setStatus('Signing out…');
+
+      try {
+        await AtlasAccount.signOut();
+        transientStatus = false;
+        render(AtlasAccount.getState());
+      } catch (error) {
+        setStatus(error.message || String(error), 'error');
+      } finally {
+        setButtonBusy(button, false, 'Signing out…', 'Sign out');
       }
     });
 
