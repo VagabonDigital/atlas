@@ -26,8 +26,8 @@ replace_once(
     'account pending visual treatment'
 )
 
-# Roll the chrome cache key through every parent loader/surface so browsers
-# cannot retain the previous faded pending treatment.
+# Roll the chrome cache key through every parent loader/surface and the
+# permanent placement proof so browsers and tests agree on this rollout.
 for path in [
     'shared/atlas-account-chrome.js',
     'shared/atlas-content-registry.js',
@@ -35,6 +35,7 @@ for path in [
     'compass/index.html',
     'arcade/index.html',
     'tutors/index.html',
+    'tests/atlas-account-chrome-contract.test.js',
 ]:
     file_path = Path(path)
     text = file_path.read_text(encoding='utf-8')
