@@ -4150,6 +4150,8 @@
     const ATMOSPHERE_FAVORITES_KEY = 'atlas::welcomeImageFavorites';
     const MAX_ATMOSPHERE_FAVORITES = 12;
     let pendingRestoreBackup = null;
+    let settingsPreviousHtmlOverflow = '';
+    let settingsPreviousBodyOverflow = '';
 
     // ================================================================
     // SAFE BRIDGE READS
@@ -5561,6 +5563,15 @@
     function openSettingsModal() {
       const session = getActiveSession();
       const currentUrl = readSessionAtmosphereImage(session.id);
+      const archivedToggle = document.getElementById(
+        'archived-subjects-toggle'
+      );
+      const archivedList = document.getElementById(
+        'archived-subjects-list'
+      );
+
+      if (archivedList) archivedList.hidden = true;
+      if (archivedToggle) archivedToggle.textContent = 'View';
 
       renderArchivedSubjectsSettings();
       renderRestoreAllAtlasOriginalsSetting();
@@ -5572,6 +5583,13 @@
       renderAtmosphereFavorites();
 
       document.getElementById('settings-modal').classList.add('open');
+
+      settingsPreviousHtmlOverflow =
+        document.documentElement.style.overflow;
+      settingsPreviousBodyOverflow =
+        document.body.style.overflow;
+
+      document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
 
       setTimeout(() => {
@@ -5582,7 +5600,12 @@
 
     function closeSettingsModal() {
       document.getElementById('settings-modal').classList.remove('open');
-      document.body.style.overflow = '';
+
+      document.documentElement.style.overflow =
+        settingsPreviousHtmlOverflow;
+      document.body.style.overflow =
+        settingsPreviousBodyOverflow;
+
       cancelRestoreBackup();
       applyEffectiveAtmosphereImage();
     }
@@ -5673,6 +5696,36 @@
       status.hidden = !message;
     }
 
+    function scrollBackupStatusIntoView() {
+      const modal = document.getElementById('settings-modal');
+      const modalBody = modal?.querySelector('.modal-body');
+      const status = document.getElementById('data-backup-status');
+
+      if (
+        !modal?.classList.contains('open') ||
+        !modalBody ||
+        !status ||
+        status.hidden
+      ) {
+        return;
+      }
+
+      const behavior = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      ).matches
+        ? 'auto'
+        : 'smooth';
+
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          modalBody.scrollTo({
+            top: modalBody.scrollHeight,
+            behavior
+          });
+        });
+      });
+    }
+
     function setBackupBusy(busy) {
       [
         'download-backup-button',
@@ -5701,6 +5754,7 @@
     async function handleDownloadBackup() {
       setBackupBusy(true);
       setBackupStatus('Preparing backup…', false);
+      scrollBackupStatusIntoView();
 
       try {
         await requirePortableData().downloadBackup();
@@ -5713,6 +5767,7 @@
         );
       } finally {
         setBackupBusy(false);
+        scrollBackupStatusIntoView();
       }
     }
 

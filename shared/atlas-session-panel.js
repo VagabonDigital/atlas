@@ -468,7 +468,9 @@
             session.id,
             type === 'rename'
                 ? '.atlas-session-row-editor-input'
-                : '[data-action="confirm-delete"]'
+                : type === 'reset'
+                    ? '[data-action="confirm-reset"]'
+                    : '[data-action="confirm-delete"]'
         );
     }
 
@@ -555,6 +557,42 @@
             focusRowActionControl(
                 sessionId,
                 '.atlas-session-row-editor-input'
+            );
+            return;
+        }
+
+        rowActionState = null;
+        renderManageView();
+        focusSessionActionsToggle(sessionId);
+    }
+
+    async function commitSessionReset(sessionId) {
+        const Bridge = getBridge();
+        const session = Bridge.readSessions().find(
+            item => item.id === sessionId
+        );
+
+        if (
+            !session ||
+            typeof options.onResetSession !== 'function'
+        ) {
+            return;
+        }
+
+        try {
+            await options.onResetSession(session);
+        } catch {
+            rowActionState = {
+                type: 'reset',
+                sessionId,
+                value: '',
+                error: 'Couldn’t clear this subject activity.'
+            };
+
+            renderManageView();
+            focusRowActionControl(
+                sessionId,
+                '[data-action="confirm-reset"]'
             );
             return;
         }
@@ -700,6 +738,82 @@
             );
 
             container.appendChild(form);
+            return true;
+        }
+
+        if (state.type === 'reset') {
+            const confirmation =
+                document.createElement('div');
+            const title =
+                document.createElement('p');
+            const copy =
+                document.createElement('p');
+            const actions =
+                document.createElement('div');
+            const displaySession =
+                getDisplaySession(session);
+            const resetTitle =
+                resolveOption(
+                    options.resetTitle,
+                    displaySession
+                ) || 'Clear this subject?';
+            const resetMessage =
+                resolveOption(
+                    options.resetMessage,
+                    displaySession
+                ) ||
+                `This removes saved subject activity for ${displayName}.`;
+            const resetConfirmLabel =
+                resolveOption(
+                    options.resetConfirmLabel,
+                    displaySession
+                ) || 'Clear activity';
+            const confirm =
+                createActionButton({
+                    label: resetConfirmLabel,
+                    ariaLabel:
+                        `${resetConfirmLabel} for ${displayName}`,
+                    className: 'is-danger',
+                    action: 'confirm-reset',
+                    sessionId: session.id
+                });
+            const cancel =
+                createActionButton({
+                    label: 'Cancel',
+                    action: 'cancel-row-action',
+                    sessionId: session.id
+                });
+            const error =
+                document.createElement('p');
+
+            confirmation.className =
+                'atlas-session-row-confirm';
+
+            title.className =
+                'atlas-session-row-confirm-title';
+            title.textContent = resetTitle;
+
+            copy.className =
+                'atlas-session-row-confirm-copy';
+            copy.textContent = resetMessage;
+
+            actions.className =
+                'atlas-session-row-editor-actions';
+
+            error.className =
+                'atlas-session-row-editor-error';
+            error.textContent =
+                state.error || '';
+
+            actions.appendChild(confirm);
+            actions.appendChild(cancel);
+
+            confirmation.appendChild(title);
+            confirmation.appendChild(copy);
+            confirmation.appendChild(actions);
+            confirmation.appendChild(error);
+
+            container.appendChild(confirmation);
             return true;
         }
 
@@ -1121,7 +1235,11 @@
                 return;
             }
         } else if (action === 'reset') {
-            await options.onResetSession?.(session);
+            startRowAction('reset', session);
+            return;
+        } else if (action === 'confirm-reset') {
+            await commitSessionReset(session.id);
+            return;
         } else if (action === 'delete') {
             if (
                 typeof options.onDeleteSession ===

@@ -223,68 +223,6 @@
                     stroke-width="2.3"
                     stroke-linecap="round"/>
             </svg>
-        `,
-
-        twenty: `
-            <svg class="game-artwork game-artwork--twenty"
-                viewBox="0 0 180 150"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg">
-
-                <path
-                    d="M24 119L62 66L82 91L110 42L158 119"
-                    stroke="currentColor"
-                    stroke-width="2.4"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"/>
-
-                <path
-                    d="M97 57L110 42L122 60"
-                    stroke="currentColor"
-                    stroke-width="2.4"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"/>
-
-                <rect
-                    x="55"
-                    y="79"
-                    width="48"
-                    height="50"
-                    rx="13"
-                    stroke="currentColor"
-                    stroke-width="2.5"/>
-
-                <path
-                    d="M66 79V68C66 61.4 71.4 56 78 56H80C86.6 56 92 61.4 92 68V79"
-                    stroke="currentColor"
-                    stroke-width="2.4"
-                    stroke-linecap="round"/>
-
-                <path
-                    d="M68 98H90"
-                    stroke="currentColor"
-                    stroke-width="2.3"
-                    stroke-linecap="round"/>
-
-                <path
-                    d="M79 90V108"
-                    stroke="currentColor"
-                    stroke-width="2.3"
-                    stroke-linecap="round"/>
-
-                <circle
-                    cx="132"
-                    cy="88"
-                    r="17"
-                    stroke="currentColor"
-                    stroke-width="2.3"/>
-
-                <path
-                    d="M122 88H142M132 78V98"
-                    stroke="currentColor"
-                    stroke-width="2.1"
-                    stroke-linecap="round"/>
-            </svg>
         `
     };
 
@@ -321,18 +259,6 @@
             accent: '#e85d3f',
             order: 3,
             launchUrl: './would-you-rather/index.html'
-        },
-        {
-            registryId: 'arcade:twenty-kilos',
-            title: 'Twenty Kilos',
-            premise: 'Pack an expedition, commit to the plan, then adapt when the mountain changes the rules.',
-            unitLabel: 'Plan',
-            total: 1,
-            progressMode: 'state',
-            artId: 'twenty',
-            accent: '#c56b37',
-            order: 4,
-            launchUrl: './shared-plan-under-pressure/index.html?game=twenty-kilos'
         }
     ];
 
