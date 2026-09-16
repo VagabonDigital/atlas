@@ -43,7 +43,26 @@ Signed-in manual backups use **Atlas Backup v3**. Durable account-owned data is 
 
 Transient runtime state is intentionally excluded: active learner/tab selection, live manipulation, Wrap Up drafts, pending-delete undo journals, generation checkpoints/build state, catalog projections, launch URLs, auth tokens, entitlement/plan state and other server-controlled access data. The package is validated before download. Manual export is an account data-ownership feature and is not a Pro capability.
 
-Signed-out browser-local export remains on the legacy v2 path until the anonymous/public access architecture is rebuilt. Backup v3 restore is deliberately disabled until Stage 1.4 defines and tests ownership, merge/conflict, duplicate, preview and failure-recovery semantics; loading a v3 package cannot currently write account data.
+Signed-out browser-local export remains on the legacy v2 path until the anonymous/public access architecture is rebuilt.
+
+### Backup v3 restore
+
+Backup v3 restore is an authenticated recovery/import operation, not a database replacement tool. Atlas previews the package against the destination account first. Stable-ID conflicts are surfaced before write and block restore; Atlas never silently overwrites an existing learner, My Subject, My Version, continuity record, Shared state, library, curation state or Hub personalization state. Existing unrelated destination data is left untouched.
+
+A conflict-free durable restore is applied inside one `atlas_restore_v3` PostgreSQL transaction under the signed-in user's RLS identity. The backup source account is provenance only: data may be reconstructed into a different Atlas account, but auth identity, plan and entitlement state never transfer. My Subject identity is therefore account-scoped as `(owner_user_id, id)` rather than globally keyed by subject ID.
+
+Local working drafts and portable cosmetic preferences are staged separately. Their current values are conflict-checked before restore and rolled back if the durable transaction fails. If the destination already contains meaningful Atlas data, the client downloads a safety Backup v3 before applying the restore.
+
+## Stage 1 trust contract
+
+Stage 1 establishes the durable account boundary Atlas relies on before public access work begins:
+
+- Auth identity is centralized behind `AtlasAccount`; confirmation and recovery return to the permanent `/account/` route.
+- RLS protects every durable account-owned table, while the browser projection boundary prevents same-browser account leakage.
+- Durable write failures are observable and user-visible where the action matters; Atlas does not silently pretend an account save succeeded.
+- Manual Backup v3 export reads canonical cloud truth and remains available as a basic data-ownership feature.
+- Backup v3 restore is validated, previewed, conflict-blocking and transaction-scoped; it merges only into missing stable identities and never wipes an account.
+- Auth credentials, entitlement/plan state and transient lesson/runtime state are outside the backup/restore contract.
 
 ## Supabase migrations
 
@@ -54,6 +73,8 @@ Saved queries in the Supabase SQL Editor are optional convenience copies and are
 ## Database access boundary
 
 Durable account tables are RLS-protected. The ordinary Atlas product-state tables expose only `SELECT`, `INSERT`, `UPDATE` and `DELETE` to authenticated Atlas clients. `account_entitlements` is stricter: authenticated clients receive `SELECT` only, with server/admin infrastructure retaining mutation authority. Anonymous clients have no durable account-table access. Broad default browser-role table grants are disabled for future Atlas migrations, and the `rls_auto_enable` event-trigger helper remains only as an internal DDL safety net rather than an exposed RPC.
+
+The `atlas_restore_v3` recovery function is `SECURITY INVOKER`, executable only by authenticated clients, and writes only through the caller's normal RLS identity. It is not an admin bypass.
 
 ## Auth hardening
 
