@@ -1,0 +1,77 @@
+name: Atlas Batch 2.1B access wiring
+
+on:
+  push:
+    paths:
+      - '.github/workflows/atlas-access-wiring.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync current main
+        run: |
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+
+      - name: Apply guarded access wiring patch
+        run: python .github/atlas_patch_access_wiring.py
+
+      - name: Validate access runtime syntax
+        run: |
+          node --check shared/atlas-access.js
+          node --check shared/atlas-access-bootstrap.js
+          node --check shared/atlas-content-registry.js
+
+      - name: Validate anonymous bootstrap contract
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const vm = require('vm');
+
+          global.window = global;
+          global.CustomEvent = function CustomEvent(type, init = {}) {
+            this.type = type;
+            this.detail = init.detail;
+          };
+          window.dispatchEvent = () => true;
+          window.addEventListener = () => {};
+
+          vm.runInThisContext(
+            fs.readFileSync('shared/atlas-access.js', 'utf8'),
+            { filename: 'atlas-access.js' }
+          );
+
+          const state = window.AtlasAccess.bootstrapAnonymous();
+          if (!state.ready) throw new Error('anonymous access state is not ready');
+          if (state.tier !== 'anonymous') throw new Error('anonymous tier did not resolve');
+          if (state.authenticated) throw new Error('anonymous state is authenticated');
+          if (Object.values(state.capabilities).some(Boolean)) {
+            throw new Error('anonymous capability baseline is not blocked');
+          }
+
+          console.log('Anonymous AtlasAccess bootstrap contract passed.');
+          NODE
+
+      - name: Commit product wiring and remove runner
+        run: |
+          rm -f .github/workflows/atlas-access-wiring.yml
+          rm -f .github/atlas_patch_access_wiring.py
+          git config user.name "Atlas Patch Runner"
+          git config user.email "atlas-patch@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo "No product changes to commit."
+            exit 0
+          fi
+          git commit -m "Wire canonical access state across Atlas worlds"
+          git push origin main
