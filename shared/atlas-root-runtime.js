@@ -190,7 +190,7 @@
 
         if (!window.AtlasAccount) {
             scripts.push(
-                '/shared/atlas-account.js?v=20260915-production2'
+                '/shared/atlas-account.js?v=20260916-stage1close1'
             );
         }
 

@@ -785,14 +785,14 @@
 
         if (document.readyState === 'loading') {
             document.write(
-                '<script data-atlas-root-runtime="true" src="/shared/atlas-root-runtime.js?v=20260916-runtime3"><\/script>'
+                '<script data-atlas-root-runtime="true" src="/shared/atlas-root-runtime.js?v=20260916-stage1close1"><\/script>'
             );
             return;
         }
 
         const script = document.createElement('script');
         script.src =
-            '/shared/atlas-root-runtime.js?v=20260916-runtime3';
+            '/shared/atlas-root-runtime.js?v=20260916-stage1close1';
         script.async = false;
         script.setAttribute(
             'data-atlas-root-runtime',
@@ -836,7 +836,7 @@
 
         if (!window.AtlasAccount) {
             scripts.push(
-                '<script src="/shared/atlas-account.js?v=20260916-runtime3"><\/script>'
+                '<script src="/shared/atlas-account.js?v=20260916-stage1close1"><\/script>'
             );
         }
 
