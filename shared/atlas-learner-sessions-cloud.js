@@ -452,3 +452,30 @@
         deleteLearnerSession
     });
 })();
+
+/*
+ * Learner continuity is a separate account-owned object, but every Atlas
+ * teaching surface already loads the learner-session cloud adapter through
+ * AtlasSessionPanel. Bootstrap the continuity authority from this stable seam
+ * so root, Compass, and Arcade all receive the same persistence layer without
+ * product-specific wiring.
+ */
+(function bootstrapLearnerContinuityAuthority() {
+    'use strict';
+
+    if (
+        window.AtlasLearnerContinuityCloudAuthority ||
+        document.querySelector(
+            'script[data-atlas-learner-continuity-cloud]'
+        )
+    ) {
+        return;
+    }
+
+    const script = document.createElement('script');
+    script.src =
+        '/shared/atlas-learner-continuity-cloud-authority.js?v=20260915-continuity1';
+    script.async = false;
+    script.dataset.atlasLearnerContinuityCloud = 'true';
+    document.head.appendChild(script);
+})();
