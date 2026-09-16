@@ -35,14 +35,14 @@ jobs:
 
       - name: Verify first-paint boundaries
         run: |
-          grep -q 'atlas-account-chrome.css?v=20260916-accountchrome4' tutors/index.html
-          grep -q 'data-atlas-account-chrome-styles' tutors/index.html
-          grep -q 'data-atlas-account-entry data-account-state="pending"' tutors/index.html
-          grep -q 'atlas-account-chrome.js?v=20260916-accountchrome4' tutors/index.html
-          grep -q "if (!container.querySelector('[data-atlas-inside-account]'))" shared/atlas-account-chrome.js
-          grep -q "signIn.hidden = isAccount || isPending" shared/atlas-account-chrome.js
-          grep -q "account.hidden = presentation.kind === 'sign-in'" shared/atlas-account-chrome.js
-          ! grep -q 'visibility: hidden;' shared/atlas-account-chrome.css
+          grep -Fq 'atlas-account-chrome.css?v=20260916-accountchrome4' tutors/index.html
+          grep -Fq 'data-atlas-account-chrome-styles' tutors/index.html
+          grep -Fq 'data-atlas-account-entry data-account-state="pending"' tutors/index.html
+          grep -Fq 'atlas-account-chrome.js?v=20260916-accountchrome4' tutors/index.html
+          grep -Fq "if (!container.querySelector('[data-atlas-inside-account]'))" shared/atlas-account-chrome.js
+          grep -Fq "signIn.hidden = isAccount || isPending" shared/atlas-account-chrome.js
+          grep -Fq "account.hidden = presentation.kind === 'sign-in'" shared/atlas-account-chrome.js
+          ! grep -Fq 'visibility: hidden;' shared/atlas-account-chrome.css
 
       - name: Commit fix and remove runner
         run: |
