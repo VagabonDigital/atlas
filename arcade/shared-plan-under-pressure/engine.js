@@ -1,20 +1,6 @@
 /* ============================================================
    SHARED PLAN UNDER PRESSURE — ENGINE V1
-   Deterministic runtime for the first Arcade interaction engine.
-
-   V1 owns:
-   - Definition validation
-   - canonical Session state
-   - reducer/state transitions
-   - Rules / Goals / Stakes presentation
-   - authored perturbation beats
-   - rendering and persistence
-
-   V1 does not own:
-   - AI generation
-   - generic Arcade Core
-   - arbitrary expressions
-   - arbitrary generated layout or code
+   Definition-driven, deterministic Arcade runtime.
    ============================================================ */
 
 (function () {
@@ -25,20 +11,6 @@
     const ENGINE_ID = 'shared-plan-under-pressure';
     const ENGINE_VERSION = 1;
     const HISTORY_LIMIT = 20;
-    const SYSTEM_DESTINATIONS = ['pool', 'cut'];
-    const CARRIED_CONTAINER_IDS = ['pack', 'sled'];
-    const SUPPORTED_PREDICATES = [
-        'entity-carried',
-        'all-entities-carried',
-        'beat-fired'
-    ];
-    const SUPPORTED_EFFECTS = [
-        'set-container-availability',
-        'activate-goal'
-    ];
-    const SUPPORTED_RULES = [
-        'requires'
-    ];
     const PHASE_LABELS = {
         planning: 'Planning',
         committed: 'Committed',
@@ -46,68 +18,72 @@
         revising: 'Revising',
         resolved: 'Resolved'
     };
+    const PREDICATE_TYPES = new Set([
+        'entity-carried',
+        'all-entities-carried',
+        'beat-fired'
+    ]);
+    const EFFECT_TYPES = new Set([
+        'set-container-availability',
+        'activate-goal'
+    ]);
 
     let definition = null;
     let session = null;
     let state = null;
+    let wrapper = null;
     let selectedEntityId = null;
-    let gameStarted = false;
+    let started = false;
     let restoreBlocked = false;
-    let lastPersistedWrapper = null;
     let toastTimer = null;
 
     function clone(value) {
         return JSON.parse(JSON.stringify(value));
     }
 
+    function esc(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     function getDefinitionId() {
-        const requested = new URLSearchParams(
-            window.location.search
-        ).get('game');
-
-        return requested || 'twenty-kilos';
+        return new URLSearchParams(window.location.search).get('game') ||
+            'twenty-kilos';
     }
 
-    function getEntity(entityId) {
-        return definition.entities.find(
-            entity => entity.id === entityId
-        ) || null;
+    function getEntity(id) {
+        return definition.entities.find(item => item.id === id) || null;
     }
 
-    function getContainer(containerId) {
-        return definition.containers.find(
-            container => container.id === containerId
-        ) || null;
+    function getContainer(id) {
+        return definition.containers.find(item => item.id === id) || null;
     }
 
-    function getGoal(goalId) {
-        return definition.goals.find(
-            goal => goal.id === goalId
-        ) || null;
+    function getBeat(id) {
+        return definition.beats.find(item => item.id === id) || null;
     }
 
-    function getBeat(beatId) {
-        return definition.beats.find(
-            beat => beat.id === beatId
-        ) || null;
+    function hasResourceLimit(container) {
+        return container &&
+            container.resourceLimit !== null &&
+            container.resourceLimit !== undefined &&
+            Number.isFinite(Number(container.resourceLimit));
     }
 
-    function validatePredicate(predicate, context) {
-        if (!predicate || typeof predicate !== 'object') {
-            return context + ' has an invalid predicate.';
-        }
-
-        if (!SUPPORTED_PREDICATES.includes(predicate.type)) {
-            return context + ' uses unsupported predicate "' +
-                String(predicate.type || '') + '".';
+    function validatePredicate(predicate, context, entityIds, beatIds) {
+        if (!predicate || !PREDICATE_TYPES.has(predicate.type)) {
+            return context + ' uses an unsupported predicate.';
         }
 
         if (
             predicate.type === 'entity-carried' &&
-            !getEntity(predicate.entityId)
+            !entityIds.has(predicate.entityId)
         ) {
-            return context + ' references unknown entity "' +
-                String(predicate.entityId || '') + '".';
+            return context + ' references an unknown entity.';
         }
 
         if (predicate.type === 'all-entities-carried') {
@@ -115,31 +91,43 @@
                 ? predicate.entityIds
                 : [];
 
-            if (
-                !ids.length ||
-                ids.some(entityId => !getEntity(entityId))
-            ) {
+            if (!ids.length || ids.some(id => !entityIds.has(id))) {
                 return context + ' has invalid entity references.';
             }
         }
 
         if (
             predicate.type === 'beat-fired' &&
-            !getBeat(predicate.beatId)
+            !beatIds.has(predicate.beatId)
         ) {
-            return context + ' references unknown beat "' +
-                String(predicate.beatId || '') + '".';
+            return context + ' references an unknown beat.';
         }
 
         return null;
     }
 
     function validateDefinition(candidate) {
-        const errors = [];
-
         if (!candidate || typeof candidate !== 'object') {
             return ['Definition is missing.'];
         }
+
+        const errors = [];
+        const containers = Array.isArray(candidate.containers)
+            ? candidate.containers
+            : [];
+        const entities = Array.isArray(candidate.entities)
+            ? candidate.entities
+            : [];
+        const goals = Array.isArray(candidate.goals)
+            ? candidate.goals
+            : [];
+        const beats = Array.isArray(candidate.beats)
+            ? candidate.beats
+            : [];
+        const containerIds = new Set(containers.map(item => item.id));
+        const entityIds = new Set(entities.map(item => item.id));
+        const goalIds = new Set(goals.map(item => item.id));
+        const beatIds = new Set(beats.map(item => item.id));
 
         if (candidate.engineId !== ENGINE_ID) {
             errors.push('Definition targets the wrong engine.');
@@ -153,159 +141,101 @@
             errors.push('Definition identity is incomplete.');
         }
 
-        const containerIds = new Set();
-        const entityIds = new Set();
-        const goalIds = new Set();
-        const beatIds = new Set();
-
-        (candidate.containers || []).forEach(container => {
-            if (!container?.id || containerIds.has(container.id)) {
-                errors.push('Container IDs must be unique and non-empty.');
-                return;
-            }
-
-            containerIds.add(container.id);
-        });
-
-        (candidate.entities || []).forEach(entity => {
-            if (!entity?.id || entityIds.has(entity.id)) {
-                errors.push('Entity IDs must be unique and non-empty.');
-                return;
-            }
-
-            entityIds.add(entity.id);
-
-            if (!entity.name || Number(entity.resourceCost) < 0) {
-                errors.push(
-                    'Entity "' + entity.id + '" has invalid content.'
-                );
-            }
-        });
-
-        (candidate.goals || []).forEach(goal => {
-            if (!goal?.id || goalIds.has(goal.id)) {
-                errors.push('Goal IDs must be unique and non-empty.');
-                return;
-            }
-
-            goalIds.add(goal.id);
-        });
-
-        (candidate.beats || []).forEach(beat => {
-            if (!beat?.id || beatIds.has(beat.id)) {
-                errors.push('Beat IDs must be unique and non-empty.');
-                return;
-            }
-
-            beatIds.add(beat.id);
-        });
+        if (
+            containerIds.size !== containers.length ||
+            entityIds.size !== entities.length ||
+            goalIds.size !== goals.length ||
+            beatIds.size !== beats.length
+        ) {
+            errors.push('Definition IDs must be unique.');
+        }
 
         if (containerIds.has('pool') || containerIds.has('cut')) {
             errors.push('Pool and Cut are reserved engine destinations.');
         }
 
-        if (!entityIds.size || entityIds.size > 9) {
+        if (!entities.length || entities.length > 9) {
             errors.push('V1 requires between 1 and 9 entities.');
         }
 
-        (candidate.rules || []).forEach(rule => {
-            if (!SUPPORTED_RULES.includes(rule.type)) {
-                errors.push(
-                    'Rule "' + String(rule.id || '') +
-                    '" uses unsupported type "' +
-                    String(rule.type || '') + '".'
-                );
-                return;
-            }
-
+        entities.forEach(entity => {
             if (
-                rule.type === 'requires' &&
-                (
-                    !entityIds.has(rule.sourceEntityId) ||
-                    !entityIds.has(rule.requiredEntityId)
-                )
+                !entity.id ||
+                !entity.name ||
+                !Number.isFinite(Number(entity.resourceCost)) ||
+                Number(entity.resourceCost) < 0
+            ) {
+                errors.push('Every entity needs a valid ID, name and resource cost.');
+            }
+        });
+
+        (candidate.rules || []).forEach(rule => {
+            if (
+                rule.type !== 'requires' ||
+                !entityIds.has(rule.sourceEntityId) ||
+                !entityIds.has(rule.requiredEntityId)
             ) {
                 errors.push(
-                    'Rule "' + String(rule.id || '') +
-                    '" has broken entity references.'
+                    'Rule "' + String(rule.id || '') + '" is not valid for V1.'
                 );
             }
         });
 
-        (candidate.goals || []).forEach(goal => {
+        goals.forEach(goal => {
             const error = validatePredicate(
                 goal.predicate,
-                'Goal "' + String(goal.id || '') + '"'
+                'Goal "' + String(goal.id || '') + '"',
+                entityIds,
+                beatIds
             );
 
             if (error) errors.push(error);
         });
 
-        (candidate.beats || []).forEach(beat => {
+        beats.forEach(beat => {
             const variants = Array.isArray(beat.variants)
                 ? beat.variants
                 : [];
 
             if (!variants.length) {
-                errors.push(
-                    'Beat "' + beat.id + '" needs at least one variant.'
-                );
+                errors.push('Every beat needs at least one variant.');
                 return;
             }
 
             const fallback = variants[variants.length - 1];
-
-            if (
-                !Array.isArray(fallback.when) ||
-                fallback.when.length !== 0
-            ) {
-                errors.push(
-                    'Beat "' + beat.id +
-                    '" needs an unconditional final fallback.'
-                );
+            if (!Array.isArray(fallback.when) || fallback.when.length) {
+                errors.push('Every beat needs an unconditional final fallback.');
             }
 
             variants.forEach(variant => {
                 (variant.when || []).forEach(predicate => {
                     const error = validatePredicate(
                         predicate,
-                        'Beat "' + beat.id + '" variant "' +
-                            String(variant.id || '') + '"'
+                        'Beat "' + beat.id + '"',
+                        entityIds,
+                        beatIds
                     );
 
                     if (error) errors.push(error);
                 });
 
                 (variant.effects || []).forEach(effect => {
-                    if (!SUPPORTED_EFFECTS.includes(effect.type)) {
-                        errors.push(
-                            'Beat "' + beat.id +
-                            '" uses unsupported effect "' +
-                            String(effect.type || '') + '".'
-                        );
-                        return;
+                    if (!EFFECT_TYPES.has(effect.type)) {
+                        errors.push('Beat "' + beat.id + '" has an unsupported effect.');
                     }
 
                     if (
                         effect.type === 'set-container-availability' &&
                         !containerIds.has(effect.containerId)
                     ) {
-                        errors.push(
-                            'Beat "' + beat.id +
-                            '" references unknown container "' +
-                            String(effect.containerId || '') + '".'
-                        );
+                        errors.push('Beat "' + beat.id + '" references an unknown container.');
                     }
 
                     if (
                         effect.type === 'activate-goal' &&
                         !goalIds.has(effect.goalId)
                     ) {
-                        errors.push(
-                            'Beat "' + beat.id +
-                            '" references unknown goal "' +
-                            String(effect.goalId || '') + '".'
-                        );
+                        errors.push('Beat "' + beat.id + '" references an unknown goal.');
                     }
                 });
             });
@@ -316,7 +246,9 @@
                 (line.when || []).forEach(predicate => {
                     const error = validatePredicate(
                         predicate,
-                        'Outcome line ' + (index + 1)
+                        'Outcome line ' + (index + 1),
+                        entityIds,
+                        beatIds
                     );
 
                     if (error) errors.push(error);
@@ -364,32 +296,31 @@
 
         const next = {
             ...fallback,
-            ...clone(saved)
+            ...clone(saved),
+            placements: {
+                ...fallback.placements,
+                ...(saved.placements || {})
+            }
         };
 
-        if (!PHASE_LABELS[next.phase]) {
-            next.phase = 'planning';
-        }
+        if (!PHASE_LABELS[next.phase]) next.phase = 'planning';
 
         definition.entities.forEach(entity => {
-            const destination = next.placements?.[entity.id];
+            const destination = next.placements[entity.id];
             const valid =
-                SYSTEM_DESTINATIONS.includes(destination) ||
+                destination === 'pool' ||
+                destination === 'cut' ||
                 Boolean(getContainer(destination));
 
-            if (!valid) {
-                next.placements[entity.id] = 'pool';
-            }
+            if (!valid) next.placements[entity.id] = 'pool';
         });
 
         next.firedBeats = Array.isArray(next.firedBeats)
             ? next.firedBeats
             : [];
-
         next.commits = Array.isArray(next.commits)
             ? next.commits
             : [];
-
         next.history = Array.isArray(next.history)
             ? next.history.slice(-HISTORY_LIMIT)
             : [];
@@ -397,84 +328,68 @@
         return next;
     }
 
-    function getFiredBeatVariant(entry) {
+    function getVariant(entry) {
         const beat = getBeat(entry.beatId);
 
-        if (!beat) return null;
-
-        const variant = (beat.variants || []).find(
-            item => item.id === entry.variantId
-        );
-
-        return variant || null;
+        return beat?.variants?.find(
+            variant => variant.id === entry.variantId
+        ) || null;
     }
 
-    function deriveWorld(currentState) {
+    function deriveWorld(currentState = state) {
         const availability = {};
-        const activeGoalIds = new Set();
+        const activeGoals = new Set();
 
         definition.containers.forEach(container => {
             availability[container.id] = true;
         });
 
         definition.goals.forEach(goal => {
-            if (goal.status === 'active') {
-                activeGoalIds.add(goal.id);
-            }
+            if (goal.status === 'active') activeGoals.add(goal.id);
         });
 
         currentState.firedBeats.forEach(entry => {
-            const variant = getFiredBeatVariant(entry);
+            const variant = getVariant(entry);
 
-            if (!variant) return;
-
-            (variant.effects || []).forEach(effect => {
+            (variant?.effects || []).forEach(effect => {
                 if (effect.type === 'set-container-availability') {
-                    availability[effect.containerId] =
-                        Boolean(effect.available);
+                    availability[effect.containerId] = Boolean(effect.available);
                 }
 
                 if (effect.type === 'activate-goal') {
-                    activeGoalIds.add(effect.goalId);
+                    activeGoals.add(effect.goalId);
                 }
             });
         });
 
-        return {
-            availability,
-            activeGoalIds
-        };
+        return { availability, activeGoals };
     }
 
-    function isCarriedDestination(destinationId, world) {
-        return CARRIED_CONTAINER_IDS.includes(destinationId) &&
+    function isCarried(destinationId, currentState = state) {
+        const container = getContainer(destinationId);
+        const world = deriveWorld(currentState);
+
+        return Boolean(container?.carried) &&
             world.availability[destinationId] !== false;
     }
 
     function evaluatePredicate(
         predicate,
         currentState = state,
-        placementsOverride = null
+        placements = currentState.placements
     ) {
-        if (!predicate) return false;
-
-        const placements = placementsOverride || currentState.placements;
-        const world = deriveWorld(currentState);
         let result = false;
 
         if (predicate.type === 'entity-carried') {
-            result = isCarriedDestination(
+            result = isCarried(
                 placements[predicate.entityId],
-                world
+                currentState
             );
         }
 
         if (predicate.type === 'all-entities-carried') {
             result = (predicate.entityIds || []).every(entityId =>
-                isCarriedDestination(
-                    placements[entityId],
-                    world
-                )
+                isCarried(placements[entityId], currentState)
             );
         }
 
@@ -487,22 +402,17 @@
         return predicate.not ? !result : result;
     }
 
-    function getContainerWeight(
-        containerId,
-        placements = state.placements
-    ) {
-        return definition.entities.reduce((total, entity) => {
-            return placements[entity.id] === containerId
-                ? total + Number(entity.resourceCost || 0)
-                : total;
-        }, 0);
+    function getWeight(containerId, placements = state.placements) {
+        return definition.entities.reduce((total, entity) =>
+            placements[entity.id] === containerId
+                ? total + Number(entity.resourceCost)
+                : total,
+        0);
     }
 
     function deriveRuleViolations(currentState = state) {
-        const violations = [];
-
-        definition.rules.forEach(rule => {
-            if (rule.type !== 'requires') return;
+        return (definition.rules || []).flatMap(rule => {
+            if (rule.type !== 'requires') return [];
 
             const sourceCarried = evaluatePredicate(
                 {
@@ -511,7 +421,6 @@
                 },
                 currentState
             );
-
             const requiredCarried = evaluatePredicate(
                 {
                     type: 'entity-carried',
@@ -520,58 +429,48 @@
                 currentState
             );
 
-            if (sourceCarried && !requiredCarried) {
-                violations.push({
-                    ruleId: rule.id,
-                    label: rule.label
-                });
-            }
+            return sourceCarried && !requiredCarried
+                ? [{ ruleId: rule.id, label: rule.label }]
+                : [];
         });
-
-        return violations;
     }
 
     function deriveGoals(currentState = state) {
         const world = deriveWorld(currentState);
 
-        return definition.goals.map(goal => {
-            const active = world.activeGoalIds.has(goal.id);
-
-            return {
-                ...goal,
-                active,
-                met: active
-                    ? evaluatePredicate(goal.predicate, currentState)
-                    : null
-            };
-        });
+        return definition.goals.map(goal => ({
+            ...goal,
+            active: world.activeGoals.has(goal.id),
+            met: world.activeGoals.has(goal.id)
+                ? evaluatePredicate(goal.predicate, currentState)
+                : null
+        }));
     }
 
     function getLastCommit() {
-        if (!state.commits.length) return null;
-        return state.commits[state.commits.length - 1];
+        return state.commits[state.commits.length - 1] || null;
     }
 
     function getLastReveal() {
-        if (!state.firedBeats.length) return null;
-
         const entry = state.firedBeats[state.firedBeats.length - 1];
+        if (!entry) return null;
+
         const beat = getBeat(entry.beatId);
-        const variant = getFiredBeatVariant(entry);
+        const variant = getVariant(entry);
 
-        if (!beat || !variant) return null;
-
-        return {
-            ...entry,
-            beat,
-            variant
-        };
+        return beat && variant
+            ? { entry, beat, variant }
+            : null;
     }
 
-    function isSourceLocked(entityId, currentState = state) {
-        if (currentState.phase === 'planning') return false;
+    function canManipulate() {
+        return state.phase === 'planning' || state.phase === 'revising';
+    }
 
-        const source = currentState.placements[entityId];
+    function sourceLocked(entityId) {
+        if (state.phase === 'planning') return false;
+
+        const source = state.placements[entityId];
 
         if (
             source === 'cut' &&
@@ -580,78 +479,40 @@
             return true;
         }
 
-        const sourceContainer = getContainer(source);
-
-        return Boolean(
-            sourceContainer?.lockAfterCommit
-        );
+        return Boolean(getContainer(source)?.lockAfterCommit);
     }
 
-    function isDestinationAvailable(destinationId, currentState = state) {
+    function destinationAvailable(destinationId) {
         if (destinationId === 'cut') return true;
-
-        if (destinationId === 'pool') {
-            return currentState.phase === 'planning';
-        }
+        if (destinationId === 'pool') return state.phase === 'planning';
 
         const container = getContainer(destinationId);
         if (!container) return false;
 
-        const world = deriveWorld(currentState);
-
-        if (world.availability[destinationId] === false) {
+        if (deriveWorld().availability[destinationId] === false) {
             return false;
         }
 
-        if (
-            currentState.phase !== 'planning' &&
-            container.lockAfterCommit
-        ) {
+        if (state.phase !== 'planning' && container.lockAfterCommit) {
             return false;
         }
 
         return true;
     }
 
-    function canManipulate(currentState = state) {
-        return ['planning', 'revising'].includes(currentState.phase);
-    }
-
-    function getPlacementError(entityId, destinationId) {
-        if (!canManipulate()) {
-            return 'The board is locked in this phase.';
-        }
-
-        if (!getEntity(entityId)) {
-            return 'That item is not available.';
-        }
-
-        if (isSourceLocked(entityId)) {
-            return 'That item was left behind when the plan was committed.';
-        }
-
-        if (!isDestinationAvailable(destinationId)) {
-            return 'That destination is not available now.';
-        }
-
-        if (state.placements[entityId] === destinationId) {
-            return null;
-        }
+    function placementError(entityId, destinationId) {
+        if (!canManipulate()) return 'The board is locked in this phase.';
+        if (!getEntity(entityId)) return 'That item is not available.';
+        if (sourceLocked(entityId)) return 'That item is locked by the committed plan.';
+        if (!destinationAvailable(destinationId)) return 'That destination is not available now.';
+        if (state.placements[entityId] === destinationId) return null;
 
         const container = getContainer(destinationId);
 
-        if (
-            container &&
-            Number.isFinite(Number(container.resourceLimit))
-        ) {
-            const entity = getEntity(entityId);
-            const existingWeight = getContainerWeight(destinationId);
-            const alreadyThere =
-                state.placements[entityId] === destinationId;
-
-            const nextWeight = alreadyThere
-                ? existingWeight
-                : existingWeight + Number(entity.resourceCost || 0);
+        if (hasResourceLimit(container)) {
+            const nextWeight =
+                getWeight(destinationId) +
+                Number(getEntity(entityId).resourceCost);
 
             if (nextWeight > Number(container.resourceLimit) + 0.0001) {
                 return container.name + ' cannot carry that much weight.';
@@ -661,22 +522,16 @@
         return null;
     }
 
-    function chooseBeatVariant(beat, currentState, placements) {
-        return (beat.variants || []).find(variant => {
-            return (variant.when || []).every(predicate =>
-                evaluatePredicate(
-                    predicate,
-                    currentState,
-                    placements
-                )
-            );
-        }) || null;
+    function chooseVariant(beat, currentState, placements) {
+        return beat.variants.find(variant =>
+            (variant.when || []).every(predicate =>
+                evaluatePredicate(predicate, currentState, placements)
+            )
+        ) || null;
     }
 
     function reduce(currentState, action) {
-        if (action.type === 'RESTART') {
-            return createDefaultState();
-        }
+        if (action.type === 'RESTART') return createDefaultState();
 
         const next = clone(currentState);
 
@@ -684,20 +539,13 @@
             next.history.push({
                 placements: clone(currentState.placements)
             });
-
             next.history = next.history.slice(-HISTORY_LIMIT);
             next.placements[action.entityId] = action.destinationId;
-            return next;
         }
 
         if (action.type === 'UNDO') {
             const previous = next.history.pop();
-
-            if (previous?.placements) {
-                next.placements = previous.placements;
-            }
-
-            return next;
+            if (previous?.placements) next.placements = previous.placements;
         }
 
         if (action.type === 'COMMIT_PLAN') {
@@ -713,95 +561,64 @@
                 declaredStake: next.declaredStake,
                 committedAt: Date.now()
             });
-
             next.history = [];
             next.phase = 'committed';
-            return next;
         }
 
         if (action.type === 'REVEAL_BEAT') {
-            const firedIds = new Set(
-                next.firedBeats.map(entry => entry.beatId)
-            );
+            const fired = new Set(next.firedBeats.map(item => item.beatId));
+            const beat = definition.beats.find(item => !fired.has(item.id));
+            const commit = next.commits[next.commits.length - 1];
 
-            const beat = definition.beats.find(
-                candidate => !firedIds.has(candidate.id)
-            );
+            if (beat && commit) {
+                const variant = chooseVariant(
+                    beat,
+                    currentState,
+                    commit.placements
+                );
 
-            const lastCommit = next.commits[next.commits.length - 1];
-
-            if (!beat || !lastCommit) return next;
-
-            const variant = chooseBeatVariant(
-                beat,
-                currentState,
-                lastCommit.placements
-            );
-
-            if (!variant) return next;
-
-            next.firedBeats.push({
-                beatId: beat.id,
-                variantId: variant.id,
-                revealedAt: Date.now()
-            });
-
-            next.history = [];
-            next.phase = 'reacting';
-            return next;
+                if (variant) {
+                    next.firedBeats.push({
+                        beatId: beat.id,
+                        variantId: variant.id,
+                        revealedAt: Date.now()
+                    });
+                    next.history = [];
+                    next.phase = 'reacting';
+                }
+            }
         }
 
         if (action.type === 'OPEN_REVISION') {
             next.history = [];
             next.phase = 'revising';
-            return next;
         }
 
         if (action.type === 'RESOLVE_NOW') {
             next.history = [];
             next.phase = 'resolved';
-            next.completion = {
-                resolvedAt: Date.now()
-            };
-            return next;
+            next.completion = { resolvedAt: Date.now() };
         }
 
         return next;
     }
 
-    function getActionError(action) {
+    function actionError(action) {
         if (action.type === 'PLACE_ENTITY') {
-            return getPlacementError(
-                action.entityId,
-                action.destinationId
-            );
+            return placementError(action.entityId, action.destinationId);
         }
 
         if (action.type === 'UNDO') {
-            if (!canManipulate()) {
-                return 'Undo is not available in this phase.';
-            }
-
-            if (!state.history.length) {
-                return 'There is nothing to undo.';
-            }
+            if (!canManipulate()) return 'Undo is not available in this phase.';
+            if (!state.history.length) return 'There is nothing to undo.';
         }
 
         if (action.type === 'COMMIT_PLAN') {
-            if (state.phase !== 'planning') {
-                return 'This plan is already committed.';
-            }
+            if (state.phase !== 'planning') return 'This plan is already committed.';
 
-            const simulated = reduce(
-                state,
-                { type: 'COMMIT_PLAN' }
-            );
-
-            const violations = deriveRuleViolations(simulated);
-
-            if (violations.length) {
-                return violations[0].label;
-            }
+            const simulated = reduce(state, { type: 'COMMIT_PLAN' });
+            const violation = deriveRuleViolations(simulated)[0];
+            if (violation) return violation.label;
         }
 
         if (action.type === 'REVEAL_BEAT') {
@@ -809,11 +626,11 @@
                 return 'Commit the plan before revealing a change.';
             }
 
-            const remaining = definition.beats.some(beat =>
-                !state.firedBeats.some(entry => entry.beatId === beat.id)
-            );
-
-            if (!remaining) {
+            if (
+                !definition.beats.some(beat =>
+                    !state.firedBeats.some(item => item.beatId === beat.id)
+                )
+            ) {
                 return 'There are no more prepared changes.';
             }
         }
@@ -829,7 +646,6 @@
             if (state.phase === 'planning') {
                 return 'Commit the plan before resolving it.';
             }
-
             if (state.phase === 'resolved') {
                 return 'This run is already resolved.';
             }
@@ -839,46 +655,36 @@
     }
 
     function dispatch(action) {
-        const error = getActionError(action);
-
+        const error = actionError(action);
         if (error) {
-            showToast(error);
+            toast(error);
             return false;
         }
 
-        const previousPhase = state.phase;
-        const previousPlacements = JSON.stringify(state.placements);
-
+        const before = JSON.stringify(state);
         state = reduce(state, action);
 
-        if (
-            action.type === 'PLACE_ENTITY' ||
-            action.type === 'UNDO'
-        ) {
+        if (action.type === 'PLACE_ENTITY' || action.type === 'UNDO') {
             selectedEntityId = null;
         }
 
-        const changed =
-            previousPhase !== state.phase ||
-            previousPlacements !== JSON.stringify(state.placements) ||
-            ['REVEAL_BEAT', 'RESTART'].includes(action.type);
-
-        if (changed) {
-            gameStarted = true;
-            persistState();
-            touchActivity();
+        if (before === JSON.stringify(state)) {
+            render();
+            return false;
         }
 
+        started = true;
+        persist();
+        touchActivity();
         render();
-        return changed;
+        return true;
     }
 
-    function readBridgeWrapper() {
+    function readWrapper() {
         if (!Bridge || !session || !definition) return null;
 
         try {
             const registry = Bridge.readRegistry();
-
             return (
                 (registry.sessionStates || {})[session.id] || {}
             )[definition.registry.registryId] || null;
@@ -887,47 +693,38 @@
         }
     }
 
-    function getProgressState() {
+    function persist() {
+        if (!Bridge || !session || !state) return;
+
         const complete = state.phase === 'resolved';
+        const now = Date.now();
 
-        return {
-            covered: complete ? 1 : 0,
-            total: 1
-        };
-    }
-
-    function persistState() {
-        if (!Bridge || !session || !state || !definition) return;
-
-        const timestamp = Date.now();
-        const complete = state.phase === 'resolved';
-        const wrapper = {
-            status: complete ? 'complete' : 'in-progress',
-            completedAt: complete
-                ? (lastPersistedWrapper?.completedAt || timestamp)
-                : null,
-            currentLabel: PHASE_LABELS[state.phase],
-            progress: getProgressState(),
-            engineId: ENGINE_ID,
-            engineVersion: ENGINE_VERSION,
-            definitionId: definition.definitionId,
-            definitionHash: definition.definitionHash,
-            engineState: clone(state),
-            lastOpenedAt: timestamp,
-            lastTouchedAt: timestamp
-        };
-
-        lastPersistedWrapper = Bridge.upsertSessionState(
+        wrapper = Bridge.upsertSessionState(
             session.id,
             definition.registry.registryId,
-            wrapper
+            {
+                status: complete ? 'complete' : 'in-progress',
+                completedAt: complete
+                    ? (wrapper?.completedAt || now)
+                    : null,
+                currentLabel: PHASE_LABELS[state.phase],
+                progress: {
+                    covered: complete ? 1 : 0,
+                    total: 1
+                },
+                engineId: ENGINE_ID,
+                engineVersion: ENGINE_VERSION,
+                definitionId: definition.definitionId,
+                definitionHash: definition.definitionHash,
+                engineState: clone(state),
+                lastOpenedAt: now,
+                lastTouchedAt: now
+            }
         );
     }
 
     function touchActivity() {
-        if (!Bridge || !session || !definition) return;
-
-        Bridge.touchRecentActivity({
+        Bridge?.touchRecentActivity({
             sessionId: session.id,
             registryId: definition.registry.registryId,
             title: definition.registry.title,
@@ -936,435 +733,309 @@
     }
 
     function registerDefinition() {
-        if (!Bridge || !definition) return;
-
         Bridge.upsertItem({
             ...definition.registry,
-            launchUrl: window.location.href.split('?')[0] +
+            launchUrl:
+                window.location.href.split('?')[0] +
                 '?game=' +
                 encodeURIComponent(definition.definitionId)
         });
     }
 
-    function getEntityPreviousDestination(entityId) {
-        const commit = getLastCommit();
-
-        if (!commit) return null;
-
-        return commit.placements[entityId] || null;
+    function loadSessionState() {
+        wrapper = readWrapper();
+        restoreBlocked = false;
+        selectedEntityId = null;
+        state = normalizeState(wrapper?.engineState || null);
     }
 
-    function getDestinationName(destinationId) {
-        if (destinationId === 'pool') return 'Available';
-        if (destinationId === 'cut') return 'Cut';
-
-        return getContainer(destinationId)?.shortName ||
-            getContainer(destinationId)?.name ||
-            destinationId;
+    function resourceText(value) {
+        const decimals = Number(definition.resource?.decimals) || 0;
+        return Number(value).toFixed(decimals) +
+            (definition.resource?.unit || '');
     }
 
-    function getEntitiesAt(destinationId) {
+    function destinationName(id) {
+        if (id === 'pool') return 'Available';
+        if (id === 'cut') return 'Cut';
+        return getContainer(id)?.shortName || getContainer(id)?.name || id;
+    }
+
+    function entitiesAt(destinationId) {
         return definition.entities.filter(
             entity => state.placements[entity.id] === destinationId
         );
     }
 
-    function formatResource(value) {
-        const decimals = Number(definition.resource?.decimals) || 0;
-
-        return Number(value || 0).toFixed(decimals) +
-            (definition.resource?.unit || '');
-    }
-
     function renderEntity(entity) {
         const selected = selectedEntityId === entity.id;
-        const sourceLocked = isSourceLocked(entity.id);
-        const previous = getEntityPreviousDestination(entity.id);
-        const current = state.placements[entity.id];
-        const movedSinceCommit =
+        const locked = sourceLocked(entity.id);
+        const commit = getLastCommit();
+        const previous = commit?.placements?.[entity.id] || null;
+        const changed =
             state.phase === 'revising' &&
             previous &&
-            previous !== current;
+            previous !== state.placements[entity.id];
 
-        const classes = [
-            'spp-entity',
-            selected ? 'is-selected' : '',
-            sourceLocked ? 'is-locked' : '',
-            movedSinceCommit ? 'is-changed' : ''
-        ].filter(Boolean).join(' ');
-
-        const previousHtml = movedSinceCommit
-            ? '<span class="spp-entity-previous">was ' +
-                escapeHtml(getDestinationName(previous)) +
-                '</span>'
-            : '';
-
-        return '<button class="' + classes + '"' +
-            ' type="button"' +
-            ' data-entity-id="' + escapeAttr(entity.id) + '"' +
+        return '<button class="spp-entity' +
+            (selected ? ' is-selected' : '') +
+            (locked ? ' is-locked' : '') +
+            (changed ? ' is-changed' : '') +
+            '" type="button" data-entity-id="' + esc(entity.id) + '"' +
             ' aria-pressed="' + String(selected) + '"' +
-            (sourceLocked ? ' aria-disabled="true"' : '') +
-            '>' +
+            (locked ? ' aria-disabled="true"' : '') + '>' +
             '<span class="spp-entity-copy">' +
-            '<span class="spp-entity-name">' +
-            escapeHtml(entity.name) +
-            '</span>' +
+            '<span class="spp-entity-name">' + esc(entity.name) + '</span>' +
             '<span class="spp-entity-description">' +
-            escapeHtml(entity.description || '') +
+            esc(entity.description || '') +
             '</span>' +
-            previousHtml +
+            (changed
+                ? '<span class="spp-entity-previous">was ' +
+                    esc(destinationName(previous)) +
+                    '</span>'
+                : '') +
             '</span>' +
             '<span class="spp-entity-cost">' +
-            escapeHtml(formatResource(entity.resourceCost)) +
+            esc(resourceText(entity.resourceCost)) +
             '</span>' +
             '</button>';
     }
 
-    function renderDestination(container) {
-        const world = deriveWorld(state);
-        const entities = getEntitiesAt(container.id);
+    function renderContainer(container) {
+        const world = deriveWorld();
+        const items = entitiesAt(container.id);
         const unavailable = world.availability[container.id] === false;
-        const locked =
-            state.phase !== 'planning' &&
-            Boolean(container.lockAfterCommit);
+        const locked = state.phase !== 'planning' && container.lockAfterCommit;
         const canTarget =
             canManipulate() &&
-            Boolean(selectedEntityId) &&
-            isDestinationAvailable(container.id);
-        const weight = getContainerWeight(container.id);
-        const limit = Number(container.resourceLimit);
-        const limitHtml = Number.isFinite(limit)
-            ? '<span class="spp-zone-resource">' +
-                escapeHtml(formatResource(weight)) +
-                ' / ' +
-                escapeHtml(formatResource(limit)) +
-                '</span>'
-            : '<span class="spp-zone-resource">' +
-                entities.length +
-                (entities.length === 1 ? ' item' : ' items') +
-                '</span>';
+            selectedEntityId &&
+            destinationAvailable(container.id);
 
-        const statusHtml = unavailable
-            ? '<span class="spp-zone-status spp-zone-status--danger">Route closed</span>'
-            : locked
-                ? '<span class="spp-zone-status">Left behind</span>'
-                : '';
+        const capacity = hasResourceLimit(container)
+            ? resourceText(getWeight(container.id)) +
+                ' / ' + resourceText(container.resourceLimit)
+            : items.length + (items.length === 1 ? ' item' : ' items');
 
         return '<section class="spp-zone' +
             (unavailable ? ' is-unavailable' : '') +
-            (locked ? ' is-locked' : '') +
-            '" data-zone-id="' + escapeAttr(container.id) + '">' +
-            '<div class="spp-zone-header">' +
-            '<div>' +
-            '<h3>' + escapeHtml(container.name) + '</h3>' +
-            '<p>' + escapeHtml(container.description || '') + '</p>' +
-            '</div>' +
-            '<div class="spp-zone-meta">' +
-            limitHtml +
-            statusHtml +
-            '</div>' +
-            '</div>' +
+            (locked ? ' is-locked' : '') + '">' +
+            '<div class="spp-zone-header"><div>' +
+            '<h3>' + esc(container.name) + '</h3>' +
+            '<p>' + esc(container.description || '') + '</p>' +
+            '</div><div class="spp-zone-meta">' +
+            '<span class="spp-zone-resource">' + esc(capacity) + '</span>' +
+            (unavailable
+                ? '<span class="spp-zone-status spp-zone-status--danger">Unavailable</span>'
+                : locked
+                    ? '<span class="spp-zone-status">Locked</span>'
+                    : '') +
+            '</div></div>' +
             '<div class="spp-zone-items">' +
-            (entities.length
-                ? entities.map(renderEntity).join('')
+            (items.length
+                ? items.map(renderEntity).join('')
                 : '<div class="spp-zone-empty">Nothing here yet</div>') +
             '</div>' +
             '<button class="spp-target" type="button"' +
-            ' data-destination-id="' + escapeAttr(container.id) + '"' +
-            (canTarget ? '' : ' disabled') +
-            '>' +
-            (selectedEntityId
-                ? 'Move selected here'
-                : 'Select an item first') +
+            ' data-destination-id="' + esc(container.id) + '"' +
+            (canTarget ? '' : ' disabled') + '>' +
+            (selectedEntityId ? 'Move selected here' : 'Select an item first') +
             '</button>' +
             '</section>';
     }
 
-    function renderSystemRail(destinationId, title, description) {
-        const entities = getEntitiesAt(destinationId);
-        const cutLocked =
-            destinationId === 'cut' &&
+    function renderRail(id, title, description) {
+        const items = entitiesAt(id);
+        const canTarget =
+            canManipulate() &&
+            selectedEntityId &&
+            destinationAvailable(id);
+        const locked =
+            id === 'cut' &&
             state.phase !== 'planning' &&
             definition.commitment?.lockCutAfterCommit;
 
-        const canTarget =
-            canManipulate() &&
-            Boolean(selectedEntityId) &&
-            isDestinationAvailable(destinationId);
-
-        return '<section class="spp-rail' +
-            (cutLocked ? ' is-locked' : '') +
-            '">' +
-            '<div class="spp-rail-heading">' +
-            '<div>' +
-            '<h3>' + escapeHtml(title) + '</h3>' +
-            '<p>' + escapeHtml(description) + '</p>' +
-            '</div>' +
-            '<button class="spp-target spp-target--compact" type="button"' +
-            ' data-destination-id="' + escapeAttr(destinationId) + '"' +
-            (canTarget ? '' : ' disabled') +
-            '>' +
-            (destinationId === 'cut' ? 'Cut selected' : 'Return selected') +
-            '</button>' +
-            '</div>' +
+        return '<section class="spp-rail' + (locked ? ' is-locked' : '') + '">' +
+            '<div class="spp-rail-heading"><div>' +
+            '<h3>' + esc(title) + '</h3>' +
+            '<p>' + esc(description) + '</p>' +
+            '</div><button class="spp-target spp-target--compact" type="button"' +
+            ' data-destination-id="' + esc(id) + '"' +
+            (canTarget ? '' : ' disabled') + '>' +
+            (id === 'cut' ? 'Cut selected' : 'Return selected') +
+            '</button></div>' +
             '<div class="spp-rail-items">' +
-            (entities.length
-                ? entities.map(renderEntity).join('')
+            (items.length
+                ? items.map(renderEntity).join('')
                 : '<span class="spp-rail-empty">None</span>') +
-            '</div>' +
-            '</section>';
+            '</div></section>';
     }
 
     function renderBrief() {
         const violations = deriveRuleViolations();
         const goals = deriveGoals();
 
-        const rulesHtml = definition.rules.map(rule => {
-            const violated = violations.some(
-                item => item.ruleId === rule.id
-            );
-
+        const rules = (definition.rules || []).map(rule => {
+            const violated = violations.some(item => item.ruleId === rule.id);
             return '<li class="spp-brief-item' +
-                (violated ? ' is-violated' : '') +
-                '">' +
+                (violated ? ' is-violated' : '') + '">' +
                 '<span class="spp-brief-status">' +
                 (violated ? '!' : '•') +
-                '</span>' +
-                '<span>' + escapeHtml(rule.label) + '</span>' +
-                '</li>';
+                '</span><span>' + esc(rule.label) + '</span></li>';
         }).join('');
 
-        const goalsHtml = goals.map(goal => {
+        const goalRows = goals.map(goal => {
             const cls = !goal.active
                 ? ' is-inactive'
                 : goal.met
                     ? ' is-met'
                     : ' is-unmet';
-
-            const marker = !goal.active
-                ? '○'
-                : goal.met
-                    ? '✓'
-                    : '–';
+            const marker = !goal.active ? '○' : goal.met ? '✓' : '–';
 
             return '<li class="spp-brief-item' + cls + '">' +
                 '<span class="spp-brief-status">' + marker + '</span>' +
-                '<span>' + escapeHtml(goal.label) + '</span>' +
-                '</li>';
+                '<span>' + esc(goal.label) + '</span></li>';
         }).join('');
 
-        const stakesHtml = definition.stakes.map(stake =>
+        const stakes = (definition.stakes || []).map(stake =>
             '<article class="spp-stake">' +
-            '<span class="spp-stake-holder">' +
-            escapeHtml(stake.holder) +
-            '</span>' +
-            '<p>“' + escapeHtml(stake.claim) + '”</p>' +
-            '</article>'
+            '<span class="spp-stake-holder">' + esc(stake.holder) + '</span>' +
+            '<p>“' + esc(stake.claim) + '”</p></article>'
         ).join('');
 
         return '<aside class="spp-brief">' +
             '<div class="spp-brief-section">' +
-            '<span class="spp-brief-label">Rules</span>' +
-            '<ul>' + rulesHtml + '</ul>' +
-            '</div>' +
+            '<span class="spp-brief-label">Rules</span><ul>' + rules + '</ul></div>' +
             '<div class="spp-brief-section">' +
-            '<span class="spp-brief-label">Goals</span>' +
-            '<ul>' + goalsHtml + '</ul>' +
-            '</div>' +
+            '<span class="spp-brief-label">Goals</span><ul>' + goalRows + '</ul></div>' +
             '<div class="spp-brief-section">' +
-            '<span class="spp-brief-label">Stake</span>' +
-            stakesHtml +
-            '</div>' +
+            '<span class="spp-brief-label">Stake</span>' + stakes + '</div>' +
             '</aside>';
     }
 
     function renderReveal() {
         const reveal = getLastReveal();
-
         if (!reveal) return '';
 
         return '<div class="spp-reveal" role="status">' +
-            '<span class="spp-reveal-kicker">' +
-            escapeHtml(reveal.beat.label || 'The world changed') +
-            '</span>' +
-            '<p>' + escapeHtml(reveal.variant.reveal) + '</p>' +
-            '</div>';
+            '<span class="spp-reveal-kicker">' + esc(reveal.beat.label) + '</span>' +
+            '<p>' + esc(reveal.variant.reveal) + '</p></div>';
+    }
+
+    function renderControls() {
+        const byPhase = {
+            planning: [
+                ['Undo', 'undo', true, !state.history.length],
+                ['Commit plan', 'commit', false, false]
+            ],
+            committed: [
+                ['Reveal change', 'reveal', false, false],
+                ['Resolve now', 'resolve', true, false]
+            ],
+            reacting: [
+                ['Open revision', 'open-revision', false, false],
+                ['Resolve now', 'resolve', true, false]
+            ],
+            revising: [
+                ['Undo', 'undo', true, !state.history.length],
+                ['Resolve plan', 'resolve', false, false]
+            ],
+            resolved: [
+                ['Start again', 'restart', false, false]
+            ]
+        };
+
+        const message = selectedEntityId
+            ? 'Selected: ' + getEntity(selectedEntityId).name
+            : state.phase === 'reacting'
+                ? 'The board is locked. Discuss what the change means.'
+                : canManipulate()
+                    ? 'Select an item, then choose its destination.'
+                    : 'The committed position is locked.';
+
+        const buttons = byPhase[state.phase].map(
+            ([label, action, secondary, disabled]) =>
+                '<button class="spp-control-btn' +
+                (secondary ? ' spp-control-btn--secondary' : '') +
+                '" type="button" data-engine-action="' + action + '"' +
+                (disabled ? ' disabled' : '') + '>' +
+                esc(label) + '</button>'
+        ).join('');
+
+        return '<aside class="spp-controls">' +
+            '<div class="spp-phase-card">' +
+            '<span class="spp-phase-label">Phase</span>' +
+            '<strong>' + esc(PHASE_LABELS[state.phase]) + '</strong>' +
+            '<p>' + esc(message) + '</p></div>' +
+            '<div class="spp-control-actions">' + buttons + '</div>' +
+            '<button class="spp-reset-link" type="button"' +
+            ' data-engine-action="restart">Restart run</button>' +
+            '</aside>';
     }
 
     function renderOutcome() {
         if (state.phase !== 'resolved') return '';
 
         const goals = deriveGoals().filter(goal => goal.active);
-        const outcomeLines = (definition.resolution?.outcomeLines || [])
-            .filter(line =>
-                (line.when || []).every(predicate =>
-                    evaluatePredicate(predicate)
-                )
-            );
+        const lines = (definition.resolution?.outcomeLines || []).filter(line =>
+            (line.when || []).every(predicate => evaluatePredicate(predicate))
+        );
 
         return '<div class="spp-outcome">' +
             '<span class="spp-outcome-kicker">Final position</span>' +
             '<h2>What did the plan become?</h2>' +
-            '<p>' +
-            escapeHtml(definition.resolution?.prompt || '') +
-            '</p>' +
+            '<p>' + esc(definition.resolution?.prompt || '') + '</p>' +
             '<div class="spp-outcome-goals">' +
             goals.map(goal =>
                 '<span class="spp-outcome-goal' +
-                (goal.met ? ' is-met' : ' is-unmet') +
-                '">' +
-                (goal.met ? '✓ ' : '○ ') +
-                escapeHtml(goal.label) +
-                '</span>'
+                (goal.met ? ' is-met' : ' is-unmet') + '">' +
+                (goal.met ? '✓ ' : '○ ') + esc(goal.label) + '</span>'
             ).join('') +
             '</div>' +
-            outcomeLines.map(line =>
-                '<p class="spp-outcome-line">' +
-                escapeHtml(line.text) +
-                '</p>'
+            lines.map(line =>
+                '<p class="spp-outcome-line">' + esc(line.text) + '</p>'
             ).join('') +
+            '<button class="spp-control-btn spp-outcome-restart"' +
+            ' type="button" data-engine-action="restart">Start again</button>' +
             '</div>';
-    }
-
-    function renderControls() {
-        const controls = [];
-
-        if (state.phase === 'planning') {
-            controls.push({
-                label: 'Undo',
-                action: 'undo',
-                secondary: true,
-                disabled: !state.history.length
-            });
-            controls.push({
-                label: 'Commit plan',
-                action: 'commit'
-            });
-        }
-
-        if (state.phase === 'committed') {
-            controls.push({
-                label: 'Reveal change',
-                action: 'reveal'
-            });
-            controls.push({
-                label: 'Resolve now',
-                action: 'resolve',
-                secondary: true
-            });
-        }
-
-        if (state.phase === 'reacting') {
-            controls.push({
-                label: 'Open revision',
-                action: 'open-revision'
-            });
-            controls.push({
-                label: 'Resolve now',
-                action: 'resolve',
-                secondary: true
-            });
-        }
-
-        if (state.phase === 'revising') {
-            controls.push({
-                label: 'Undo',
-                action: 'undo',
-                secondary: true,
-                disabled: !state.history.length
-            });
-            controls.push({
-                label: 'Resolve plan',
-                action: 'resolve'
-            });
-        }
-
-        if (state.phase === 'resolved') {
-            controls.push({
-                label: 'Start again',
-                action: 'restart'
-            });
-        }
-
-        const selectionText = selectedEntityId
-            ? 'Selected: ' + getEntity(selectedEntityId).name
-            : state.phase === 'reacting'
-                ? 'The board is locked. Discuss what the change means.'
-                : canManipulate()
-                    ? 'Select an item, then choose its destination.'
-                    : 'The plan is locked in this phase.';
-
-        return '<aside class="spp-controls">' +
-            '<div class="spp-phase-card">' +
-            '<span class="spp-phase-label">Phase</span>' +
-            '<strong>' + escapeHtml(PHASE_LABELS[state.phase]) + '</strong>' +
-            '<p>' + escapeHtml(selectionText) + '</p>' +
-            '</div>' +
-            '<div class="spp-control-actions">' +
-            controls.map(control =>
-                '<button class="spp-control-btn' +
-                (control.secondary ? ' spp-control-btn--secondary' : '') +
-                '" type="button" data-engine-action="' +
-                escapeAttr(control.action) + '"' +
-                (control.disabled ? ' disabled' : '') +
-                '>' +
-                escapeHtml(control.label) +
-                '</button>'
-            ).join('') +
-            '</div>' +
-            '<button class="spp-reset-link" type="button"' +
-            ' data-engine-action="restart">Restart run</button>' +
-            '</aside>';
     }
 
     function renderBoard() {
         return '<div class="spp-board">' +
             '<div class="spp-board-zones">' +
-            definition.containers.map(renderDestination).join('') +
-            '</div>' +
-            '<div class="spp-board-rails">' +
-            renderSystemRail(
+            definition.containers.map(renderContainer).join('') +
+            '</div><div class="spp-board-rails">' +
+            renderRail(
                 'pool',
                 'Available',
-                'Equipment not placed yet. Anything still here is Cut when you commit.'
+                'Items not placed yet. Anything still here is Cut when you commit.'
             ) +
-            renderSystemRail(
+            renderRail(
                 'cut',
                 state.phase === 'planning' ? 'Cut' : 'Left Behind',
                 state.phase === 'planning'
-                    ? 'Equipment you are choosing not to take.'
-                    : 'These choices are now part of the expedition history.'
+                    ? 'Items you are choosing not to keep in the plan.'
+                    : 'These choices are now part of the committed plan history.'
             ) +
-            '</div>' +
-            '</div>';
+            '</div></div>';
     }
 
     function render() {
         const stage = document.getElementById('shared-plan-stage');
-        const phaseLabel = document.getElementById('shared-plan-phase');
+        const phase = document.getElementById('shared-plan-phase');
+        if (!stage) return;
 
-        if (!stage || !definition || !state) return;
-
-        if (phaseLabel) {
-            phaseLabel.textContent = PHASE_LABELS[state.phase];
-        }
+        if (phase) phase.textContent = PHASE_LABELS[state.phase];
 
         stage.innerHTML =
             '<div class="spp-stage-shell">' +
-            '<div class="spp-stage-topline">' +
-            '<div>' +
+            '<div class="spp-stage-topline"><div>' +
             '<span class="spp-stage-eyebrow">' +
-            escapeHtml(definition.identity.eyebrow || '') +
-            '</span>' +
-            '<h1>' + escapeHtml(definition.identity.title) + '</h1>' +
-            '</div>' +
-            '<p>' + escapeHtml(definition.identity.premise) + '</p>' +
-            '</div>' +
+            esc(definition.identity.eyebrow || '') + '</span>' +
+            '<h1>' + esc(definition.identity.title) + '</h1></div>' +
+            '<p>' + esc(definition.identity.premise) + '</p></div>' +
             renderReveal() +
             '<div class="spp-stage-grid">' +
-            renderBrief() +
-            renderBoard() +
-            renderControls() +
+            renderBrief() + renderBoard() + renderControls() +
             '</div>' +
             renderOutcome() +
             '</div>';
@@ -1373,7 +1044,7 @@
     function renderLaunch() {
         const title = document.getElementById('launch-title');
         const premise = document.getElementById('launch-premise');
-        const startButton = document.getElementById('launch-button');
+        const button = document.getElementById('launch-button');
         const warning = document.getElementById('launch-warning');
 
         if (title) title.textContent = definition.identity.title;
@@ -1386,291 +1057,198 @@
                 : '';
         }
 
-        if (startButton) {
-            if (restoreBlocked) {
-                startButton.textContent = 'Start fresh';
-            } else if (lastPersistedWrapper?.status === 'complete') {
-                startButton.textContent = 'Review outcome';
-            } else if (lastPersistedWrapper) {
-                startButton.textContent = 'Continue expedition';
-            } else {
-                startButton.textContent = 'Begin expedition';
-            }
+        if (button) {
+            button.textContent = restoreBlocked
+                ? 'Start fresh'
+                : wrapper?.status === 'complete'
+                    ? 'Review outcome'
+                    : wrapper
+                        ? 'Continue expedition'
+                        : 'Begin expedition';
         }
     }
 
     function showGame() {
-        const launch = document.getElementById('launch-screen');
-        const game = document.getElementById('game-screen');
-
-        if (launch) launch.hidden = true;
-        if (game) game.hidden = false;
-
+        document.getElementById('launch-screen').hidden = true;
+        document.getElementById('game-screen').hidden = false;
         render();
     }
 
     function showLaunch() {
-        const launch = document.getElementById('launch-screen');
-        const game = document.getElementById('game-screen');
-
-        if (launch) launch.hidden = false;
-        if (game) game.hidden = true;
-
+        document.getElementById('launch-screen').hidden = false;
+        document.getElementById('game-screen').hidden = true;
         renderLaunch();
     }
 
     function startGame() {
         if (restoreBlocked) {
             state = createDefaultState();
-            lastPersistedWrapper = null;
+            wrapper = null;
             restoreBlocked = false;
         }
 
-        gameStarted = true;
-        persistState();
+        started = true;
+        persist();
         touchActivity();
-
-        window.AtlasAnalytics?.arcadeGameStart(
-            definition.definitionId
-        );
-
+        window.AtlasAnalytics?.arcadeGameStart(definition.definitionId);
         showGame();
     }
 
-    function loadActiveSessionState() {
-        lastPersistedWrapper = readBridgeWrapper();
-        restoreBlocked = false;
-        selectedEntityId = null;
+    function toast(message) {
+        const node = document.getElementById('shared-plan-toast');
+        if (!node) return;
 
-        state = normalizeState(
-            lastPersistedWrapper?.engineState || null
+        node.textContent = message;
+        node.classList.add('is-visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(
+            () => node.classList.remove('is-visible'),
+            2600
         );
     }
 
-    function mountSharedChrome() {
-        if (window.AtlasSessionPanel) {
-            AtlasSessionPanel.mount({
-                root: '#atlas-session-panel-root',
-                initialView: 'manage'
-            });
-        }
-
-        if (window.ArcadeGameChrome) {
-            ArcadeGameChrome.mountLanding({
-                root: '#launch-screen',
-                onBeforeReturn: function () {
-                    if (gameStarted) persistState();
-                }
-            });
-
-            ArcadeGameChrome.mountGame({
-                root: '#shared-plan-header',
-                returnRoot: '#arcade-game-return-root',
-                actionsRoot: '#arcade-game-actions-root',
-                onBeforeReturn: function () {
-                    if (gameStarted) persistState();
-                }
-            });
-        }
-    }
-
-    function showFatal(errors) {
-        const launch = document.getElementById('launch-screen');
-
-        if (!launch) return;
-
-        launch.innerHTML =
-            '<div class="spp-fatal">' +
-            '<span class="spp-launch-kicker">Engine One</span>' +
-            '<h1>Can’t start this game</h1>' +
-            '<p>The hand-authored Definition did not pass V1 mechanical checks.</p>' +
-            '<ul>' +
-            errors.map(error =>
-                '<li>' + escapeHtml(error) + '</li>'
-            ).join('') +
-            '</ul>' +
-            '<a href="../index.html">Back to Arcade</a>' +
-            '</div>';
-    }
-
-    function showToast(message) {
-        const toast = document.getElementById('shared-plan-toast');
-        if (!toast) return;
-
-        toast.textContent = message;
-        toast.classList.add('is-visible');
-
-        if (toastTimer) clearTimeout(toastTimer);
-
-        toastTimer = setTimeout(function () {
-            toast.classList.remove('is-visible');
-        }, 2600);
-    }
-
-    function handleEntityClick(button) {
-        const entityId = button.dataset.entityId;
-
-        if (!entityId || isSourceLocked(entityId)) return;
-
-        if (!canManipulate()) {
-            showToast('The board is locked in this phase.');
-            return;
-        }
-
-        selectedEntityId = selectedEntityId === entityId
-            ? null
-            : entityId;
-
-        render();
-    }
-
-    function handleDestinationClick(button) {
-        if (!selectedEntityId) return;
-
-        dispatch({
-            type: 'PLACE_ENTITY',
-            entityId: selectedEntityId,
-            destinationId: button.dataset.destinationId
-        });
-    }
-
     function handleEngineAction(action) {
-        if (action === 'undo') {
-            dispatch({ type: 'UNDO' });
-        }
-
-        if (action === 'commit') {
-            dispatch({ type: 'COMMIT_PLAN' });
-        }
-
-        if (action === 'reveal') {
-            dispatch({ type: 'REVEAL_BEAT' });
-        }
-
-        if (action === 'open-revision') {
-            dispatch({ type: 'OPEN_REVISION' });
-        }
-
-        if (action === 'resolve') {
-            dispatch({ type: 'RESOLVE_NOW' });
-        }
+        const map = {
+            undo: 'UNDO',
+            commit: 'COMMIT_PLAN',
+            reveal: 'REVEAL_BEAT',
+            'open-revision': 'OPEN_REVISION',
+            resolve: 'RESOLVE_NOW'
+        };
 
         if (action === 'restart') {
             const confirmed = window.confirm(
-                'Restart Twenty Kilos? This clears the current run for this learner.'
+                'Restart ' + definition.identity.title +
+                '? This clears the current run for this learner.'
             );
-
             if (!confirmed) return;
 
             selectedEntityId = null;
             dispatch({ type: 'RESTART' });
+            return;
         }
+
+        if (map[action]) dispatch({ type: map[action] });
     }
 
     function handleClick(event) {
-        const startButton = event.target.closest('#launch-button');
-        if (startButton) {
+        if (event.target.closest('#launch-button')) {
             startGame();
             return;
         }
 
         const entityButton = event.target.closest('[data-entity-id]');
         if (entityButton) {
-            handleEntityClick(entityButton);
+            const entityId = entityButton.dataset.entityId;
+            if (sourceLocked(entityId)) return;
+            if (!canManipulate()) {
+                toast('The board is locked in this phase.');
+                return;
+            }
+
+            selectedEntityId = selectedEntityId === entityId
+                ? null
+                : entityId;
+            render();
             return;
         }
 
-        const destinationButton = event.target.closest(
-            '[data-destination-id]'
-        );
-        if (destinationButton) {
-            handleDestinationClick(destinationButton);
+        const destination = event.target.closest('[data-destination-id]');
+        if (destination && selectedEntityId) {
+            dispatch({
+                type: 'PLACE_ENTITY',
+                entityId: selectedEntityId,
+                destinationId: destination.dataset.destinationId
+            });
             return;
         }
 
-        const actionButton = event.target.closest('[data-engine-action]');
-        if (actionButton) {
-            handleEngineAction(actionButton.dataset.engineAction);
-        }
+        const action = event.target.closest('[data-engine-action]');
+        if (action) handleEngineAction(action.dataset.engineAction);
     }
 
-    function escapeHtml(value) {
-        return String(value == null ? '' : value)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
+    function mountChrome() {
+        window.AtlasSessionPanel?.mount({
+            root: '#atlas-session-panel-root',
+            initialView: 'manage'
+        });
+
+        window.ArcadeGameChrome?.mountLanding({
+            root: '#launch-screen',
+            onBeforeReturn: () => {
+                if (started) persist();
+            }
+        });
+
+        window.ArcadeGameChrome?.mountGame({
+            root: '#shared-plan-header',
+            returnRoot: '#arcade-game-return-root',
+            actionsRoot: '#arcade-game-actions-root',
+            onBeforeReturn: () => {
+                if (started) persist();
+            }
+        });
     }
 
-    function escapeAttr(value) {
-        return escapeHtml(value);
+    function fatal(errors) {
+        const launch = document.getElementById('launch-screen');
+        launch.innerHTML =
+            '<div class="spp-fatal">' +
+            '<span class="spp-launch-kicker">Engine One</span>' +
+            '<h1>Can’t start this game</h1>' +
+            '<p>The hand-authored Definition did not pass V1 mechanical checks.</p>' +
+            '<ul>' + errors.map(error => '<li>' + esc(error) + '</li>').join('') + '</ul>' +
+            '<a href="../index.html">Back to Arcade</a>' +
+            '</div>';
     }
 
     function init() {
         if (!Bridge) {
-            showFatal(['AtlasBridge did not load.']);
+            fatal(['AtlasBridge did not load.']);
             return;
         }
 
         definition = Definitions[getDefinitionId()] || null;
-
         if (!definition) {
-            showFatal([
-                'Definition "' + getDefinitionId() + '" is not registered.'
-            ]);
+            fatal(['The requested Game Definition is not registered.']);
             return;
         }
 
         const errors = validateDefinition(definition);
-
         if (errors.length) {
-            showFatal(errors);
+            fatal(errors);
             return;
         }
 
-        const mode = Bridge.readAppearanceMode();
-        document.documentElement.dataset.theme = mode;
-
+        document.documentElement.dataset.theme = Bridge.readAppearanceMode();
         session = Bridge.readActiveSession();
         registerDefinition();
-        loadActiveSessionState();
-        mountSharedChrome();
+        loadSessionState();
+        mountChrome();
         showLaunch();
-
         document.addEventListener('click', handleClick);
 
         window.addEventListener('atlas:appearance-change', event => {
-            const nextMode =
-                event.detail?.mode ||
-                Bridge.readAppearanceMode();
-
-            document.documentElement.dataset.theme = nextMode;
+            document.documentElement.dataset.theme =
+                event.detail?.mode || Bridge.readAppearanceMode();
         });
 
         window.addEventListener('atlas:session-change', event => {
-            if (gameStarted) persistState();
+            if (started) persist();
 
-            session =
-                event.detail?.session ||
-                Bridge.readActiveSession();
+            const wasPlaying =
+                !document.getElementById('game-screen').hidden;
 
-            loadActiveSessionState();
+            session = event.detail?.session || Bridge.readActiveSession();
+            loadSessionState();
+            started = Boolean(wrapper) || wasPlaying;
 
-            const game = document.getElementById('game-screen');
-            const wasPlaying = game && !game.hidden;
-
-            gameStarted = Boolean(lastPersistedWrapper) || wasPlaying;
-
-            if (wasPlaying) {
-                showGame();
-            } else {
-                showLaunch();
-            }
+            if (wasPlaying) showGame();
+            else showLaunch();
         });
 
-        window.addEventListener('pagehide', function () {
-            if (gameStarted) persistState();
+        window.addEventListener('pagehide', () => {
+            if (started) persist();
         });
     }
 
