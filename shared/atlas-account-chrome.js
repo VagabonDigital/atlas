@@ -24,7 +24,7 @@
     const STYLE_HREF =
         '/shared/atlas-account-chrome.css?v=20260916-accountchrome1';
     const GATE_SRC =
-        '/shared/atlas-account-gate.js?v=20260916-accountgate1';
+        '/shared/atlas-account-gate.js?v=20260916-accountgate2';
 
     let gatePromise = null;
     let accessUnsubscribe = null;

@@ -5,10 +5,13 @@
    AtlasAccess owns semantic access state.
    AtlasAccount owns account lifecycle.
    AtlasAccessBootstrap owns loading the heavy auth stack on demand.
+   AtlasReturnIntent owns temporary interrupted-action records.
+
+   This module owns same-page authentication resume publication only.
 
    This module does NOT own:
    - header placement
-   - return-to-intent routing
+   - cross-page confirmation/deep-link return routing
    - feature interception
    ============================================================ */
 
@@ -19,6 +22,8 @@
 
     const STYLE_HREF =
         '/shared/atlas-account-gate.css?v=20260916-accountgate1';
+    const RETURN_INTENT_SRC =
+        '/shared/atlas-return-intent.js?v=20260916-returnintent1';
 
     let gateLayer = null;
     let accountMenu = null;
@@ -26,6 +31,8 @@
     let activeTrigger = null;
     let menuAnchor = null;
     let busy = false;
+    let returnIntentPromise = null;
+    let activeReturnIntentId = null;
 
     const state = {
         gateOpen: false,
@@ -51,6 +58,98 @@
         link.href = STYLE_HREF;
         link.setAttribute('data-atlas-account-gate-styles', 'true');
         document.head.appendChild(link);
+    }
+
+    function existingScriptFor(src) {
+        const pathname = String(src || '').split('?')[0];
+
+        return Array.from(document.scripts || []).find(script => {
+            try {
+                return new URL(script.src, window.location.href)
+                    .pathname === pathname;
+            } catch {
+                return false;
+            }
+        }) || null;
+    }
+
+    function ensureReturnIntent() {
+        if (window.AtlasReturnIntent) {
+            return Promise.resolve(window.AtlasReturnIntent);
+        }
+
+        if (returnIntentPromise) return returnIntentPromise;
+
+        returnIntentPromise = new Promise((resolve, reject) => {
+            const existing = existingScriptFor(RETURN_INTENT_SRC);
+
+            function complete() {
+                if (window.AtlasReturnIntent) {
+                    resolve(window.AtlasReturnIntent);
+                } else {
+                    returnIntentPromise = null;
+                    reject(new Error(
+                        'Atlas could not preserve what you were doing.'
+                    ));
+                }
+            }
+
+            if (existing) {
+                existing.addEventListener('load', complete, { once: true });
+                existing.addEventListener(
+                    'error',
+                    () => {
+                        returnIntentPromise = null;
+                        reject(new Error(
+                            'Atlas could not load return-intent support.'
+                        ));
+                    },
+                    { once: true }
+                );
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = RETURN_INTENT_SRC;
+            script.async = false;
+            script.setAttribute(
+                'data-atlas-return-intent-runtime',
+                'true'
+            );
+            script.addEventListener('load', complete, { once: true });
+            script.addEventListener(
+                'error',
+                () => {
+                    returnIntentPromise = null;
+                    reject(new Error(
+                        'Atlas could not load return-intent support.'
+                    ));
+                },
+                { once: true }
+            );
+            document.head.appendChild(script);
+        });
+
+        return returnIntentPromise;
+    }
+
+    async function bindReturnIntent(returnIntentId) {
+        activeReturnIntentId = null;
+
+        const id = String(returnIntentId || '').trim();
+        if (!id) return null;
+
+        const ReturnIntent = await ensureReturnIntent();
+        const intent = ReturnIntent.get(id);
+
+        if (!intent) {
+            throw new Error(
+                'That Atlas action can no longer be resumed. Close this window and try the action again.'
+            );
+        }
+
+        activeReturnIntentId = intent.id;
+        return intent;
     }
 
     async function prepareAccount() {
@@ -379,7 +478,11 @@
             : null;
     }
 
-    async function open({ mode = 'sign-in', trigger = null } = {}) {
+    async function open({
+        mode = 'sign-in',
+        trigger = null,
+        returnIntentId = null
+    } = {}) {
         ensureGate();
         closeAccountMenu({ restoreFocus: false });
         rememberTrigger(trigger);
@@ -392,10 +495,18 @@
         setGateStatus('Preparing your Atlas account…');
 
         try {
+            const returnIntent =
+                await bindReturnIntent(returnIntentId);
+
             await prepareAccount();
             const account = window.AtlasAccount?.getState?.() || null;
 
             if (account?.authenticated) {
+                if (returnIntent) {
+                    await completeAuthenticatedFlow();
+                    return snapshot();
+                }
+
                 close({ restoreFocus: false });
                 await openAccountMenu(trigger || activeTrigger || previousFocus);
                 return snapshot();
@@ -437,22 +548,68 @@
 
         activeTrigger = null;
         previousFocus = null;
+        activeReturnIntentId = null;
     }
 
-    function dispatchAuthenticated() {
+    function dispatchAuthenticated(returnIntent = null) {
         try {
             window.dispatchEvent(new CustomEvent(
                 'atlas:account-gate-authenticated',
                 {
                     detail: {
                         account: window.AtlasAccount?.getState?.() || null,
-                        access: window.AtlasAccess?.getState?.() || null
+                        access: window.AtlasAccess?.getState?.() || null,
+                        returnIntent
                     }
                 }
             ));
         } catch {
             // Access/account subscriptions remain the canonical state path.
         }
+    }
+
+    function dispatchReturnIntentResume(intent) {
+        if (!intent) return;
+
+        try {
+            window.dispatchEvent(new CustomEvent(
+                'atlas:return-intent-resume',
+                {
+                    detail: {
+                        intent,
+                        source: 'account-gate'
+                    }
+                }
+            ));
+        } catch {
+            // Consumers can still inspect their own canonical state.
+        }
+    }
+
+    async function completeAuthenticatedFlow() {
+        const account = window.AtlasAccount?.getState?.() || null;
+        const intentId = activeReturnIntentId;
+        let returnIntent = null;
+
+        if (account?.authenticated && intentId) {
+            try {
+                const ReturnIntent = await ensureReturnIntent();
+                returnIntent = ReturnIntent.consume(intentId);
+            } catch (error) {
+                console.error(
+                    '[AtlasAccountGate] return intent resume failed:',
+                    error
+                );
+            }
+        }
+
+        close({
+            restoreFocus: !returnIntent
+        });
+        dispatchAuthenticated(returnIntent);
+        dispatchReturnIntentResume(returnIntent);
+
+        return returnIntent;
     }
 
     async function handleSignIn(event) {
@@ -470,8 +627,7 @@
         try {
             await prepareAccount();
             await window.AtlasAccount.signIn(email, password);
-            dispatchAuthenticated();
-            close();
+            await completeAuthenticatedFlow();
         } catch (error) {
             setBusy(false);
             setGateStatus(humanizeError(error), 'error');
@@ -518,8 +674,7 @@
                 return;
             }
 
-            dispatchAuthenticated();
-            close();
+            await completeAuthenticatedFlow();
         } catch (error) {
             setBusy(false);
             setGateStatus(humanizeError(error), 'error');
