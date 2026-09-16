@@ -160,8 +160,18 @@ function runPlacementProof() {
     );
     assert.match(
         inside,
-        /atlas-account-chrome\.js\?v=20260916-accountchrome3/,
+        /atlas-account-chrome\.js\?v=20260916-accountchrome4/,
         'Inside Atlas must load shared account chrome.'
+    );
+    assert.match(
+        inside,
+        /atlas-account-chrome\.css\?v=20260916-accountchrome4[\s\S]*?data-atlas-account-chrome-styles/,
+        'Inside Atlas must load account chrome styles in the document head before hydration.'
+    );
+    assert.match(
+        inside,
+        /data-atlas-account-entry data-account-state="pending"[\s\S]*?atlas-inside-account-explore[\s\S]*?data-atlas-inside-account/,
+        'Inside Atlas must ship a compact first-paint account shell in HTML.'
     );
 
     assert.match(
@@ -169,6 +179,17 @@ function runPlacementProof() {
         /variant === 'mobile'[\s\S]*?'mobile-header-btn'[\s\S]*?'spine-btn'/,
         'Hub account controls must inherit the hubs’ native utility-button classes.'
     );
+    assert.match(
+        chrome,
+        /if \(!container\.querySelector\('\[data-atlas-inside-account\]'\)\)/,
+        'Inside Atlas hydration must preserve a server-rendered first-paint account shell.'
+    );
+    assert.match(
+        chrome,
+        /signIn\.hidden = isAccount \|\| isPending[\s\S]*?account\.hidden = presentation\.kind === 'sign-in'/,
+        'Inside Atlas pending state must keep the compact account shell instead of blanking the header.'
+    );
+
     assert.match(
         chrome,
         /MutationObserver/,

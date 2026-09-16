@@ -22,7 +22,7 @@
     if (window.AtlasAccountChrome) return;
 
     const STYLE_HREF =
-        '/shared/atlas-account-chrome.css?v=20260916-accountchrome3';
+        '/shared/atlas-account-chrome.css?v=20260916-accountchrome4';
     const GATE_STYLE_HREF =
         '/shared/atlas-account-gate.css?v=20260916-accountgate2';
     const GATE_SRC =
@@ -261,12 +261,12 @@
     }
 
     function createInsideAtlasEntry(container) {
-        if (!container || container.dataset.accountEntryReady === 'true') {
-            return;
-        }
+        if (!container) return;
 
         container.classList.add('atlas-inside-account-entry');
-        container.innerHTML = `
+
+        if (!container.querySelector('[data-atlas-inside-account]')) {
+            container.innerHTML = `
             <a class="atlas-inside-account-action atlas-inside-account-explore" href="/">Explore Atlas</a>
             <button class="atlas-inside-account-action atlas-inside-account-sign-in" type="button" data-atlas-inside-sign-in>
                 Sign in
@@ -279,6 +279,9 @@
                 ${ACCOUNT_ICON}
             </button>
         `;
+        }
+
+        if (container.dataset.accountEntryReady === 'true') return;
 
         container.querySelector('[data-atlas-inside-sign-in]')
             ?.addEventListener('click', event => {
@@ -320,27 +323,29 @@
         const isPending = presentation.kind === 'pending';
 
         if (signIn) {
-            signIn.hidden = isAccount;
-            signIn.disabled = isPending;
+            signIn.hidden = isAccount || isPending;
+            signIn.disabled = false;
         }
 
         if (create) {
-            create.hidden = isAccount;
-            create.disabled = isPending;
+            create.hidden = isAccount || isPending;
+            create.disabled = false;
         }
 
         if (account) {
-            account.hidden = !isAccount;
+            account.hidden = presentation.kind === 'sign-in';
             account.disabled = false;
+            account.title = isPending
+                ? 'Checking Atlas account'
+                : 'Atlas account';
+            account.setAttribute(
+                'aria-label',
+                isPending ? 'Checking Atlas account' : 'Atlas account'
+            );
         }
 
         container.dataset.accountState = presentation.kind;
-
-        if (presentation.kind === 'pending') {
-            document.body?.removeAttribute('data-atlas-account-ready');
-        } else {
-            document.body?.setAttribute('data-atlas-account-ready', 'true');
-        }
+        document.body?.setAttribute('data-atlas-account-ready', 'true');
     }
 
     function renderAll(accessState) {

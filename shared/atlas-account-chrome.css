@@ -136,11 +136,6 @@
     display: none;
 }
 
-body[data-atlas-surface="inside-atlas"]:not([data-atlas-account-ready="true"])
-[data-atlas-account-entry] {
-    visibility: hidden;
-}
-
 @media (max-width: 980px) {
     body[data-atlas-surface="inside-atlas"] .site-header .nav {
         display: none;

@@ -16,6 +16,8 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:wght@500;600&display=swap"
     rel="stylesheet">
+  <link rel="stylesheet" href="/shared/atlas-account-chrome.css?v=20260916-accountchrome4"
+    data-atlas-account-chrome-styles>
 
   <style>
     *,
@@ -1829,7 +1831,27 @@
         <a href="#top">Overview</a><a href="#why">Why</a><a href="#create">Create</a><a href="#teach">Teach</a><a href="#own">Yours</a><a
           href="#keep">Continuity</a><a href="#early">Story</a>
       </nav>
-      <div data-atlas-account-entry aria-label="Atlas account actions"></div>
+      <div class="atlas-inside-account-entry" data-atlas-account-entry data-account-state="pending"
+        aria-label="Atlas account actions">
+        <a class="atlas-inside-account-action atlas-inside-account-explore" href="/">Explore Atlas</a>
+        <button class="atlas-inside-account-action atlas-inside-account-sign-in" type="button"
+          data-atlas-inside-sign-in hidden>Sign in</button>
+        <button class="atlas-inside-account-action atlas-inside-account-create" type="button"
+          data-atlas-inside-create hidden>
+          <span class="atlas-account-create-label-full">Create free account</span>
+          <span class="atlas-account-create-label-short">Create account</span>
+        </button>
+        <button class="atlas-inside-account-action atlas-inside-account-icon" type="button"
+          data-atlas-inside-account aria-haspopup="dialog" aria-expanded="false" aria-label="Atlas account"
+          title="Atlas account">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.15" stroke="currentColor" stroke-width="1.15" />
+            <circle cx="8" cy="6.05" r="1.95" stroke="currentColor" stroke-width="1.15" />
+            <path d="M4.65 11.85c.52-1.72 1.8-2.68 3.35-2.68s2.83.96 3.35 2.68" stroke="currentColor"
+              stroke-width="1.15" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
       <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch theme" title="Switch theme"><span
           aria-hidden="true">☼</span></button>
     </div>
@@ -2920,7 +2942,7 @@
     })();
   </script>
   <script src="/shared/atlas-access-bootstrap.js?v=20260916-access2"></script>
-  <script src="/shared/atlas-account-chrome.js?v=20260916-accountchrome3"></script>
+  <script src="/shared/atlas-account-chrome.js?v=20260916-accountchrome4"></script>
 </body>
 
 </html>
