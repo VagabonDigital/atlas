@@ -154,7 +154,7 @@
       --danger-bg-hover: #fee2e2;
       --danger-text: #dc2626;
       --danger-border: #fca5a5;
-      --dialog-border: 0 solid transparent;
+      --dialog-border: 1px solid transparent;
 
       /* Elevation, geometry, typography, and motion */
       --shadow-xs: 0 1px 2px rgba(30, 27, 22, 0.05);
@@ -167,6 +167,11 @@
       --font-body: 'DM Sans', system-ui, sans-serif;
       --t: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
       --hub-theme-motion: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+      --subject-art-hover-opacity: 0.16;
+      --subject-art-preview-opacity: 0.18;
+      --subject-art-touch-opacity: 0.14;
+      --appearance-moon-opacity: 1;
+      --appearance-sun-opacity: 0;
 
       /* Shared Atlas integration contract */
       --cream: var(--surface-canvas);
@@ -242,14 +247,14 @@
       /* Library and card states */
       --library-surface: var(--surface-muted);
       --library-border: var(--border-faint);
-      --library-border-width: 1.5px;
+      --library-border-width: 1px;
       --library-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.035),
         0 18px 48px rgba(0, 0, 0, 0.14);
       --card-surface: var(--surface-raised);
       --card-surface-hover: var(--surface-raised-hover);
       --card-border: var(--border-faint);
-      --card-border-width: 1.5px;
+      --card-border-width: 1px;
       --card-emphasis-ring-width: 0px;
       --card-hover-border: var(--accent);
       --card-inprogress-border: rgba(var(--accent-rgb), 0.72);
@@ -276,6 +281,11 @@
       --launch-inprogress-shadow: var(--launch-shadow);
       --page-bg: var(--page-bg-night);
       --dialog-border: 1px solid var(--border-faint);
+      --subject-art-hover-opacity: 0.23;
+      --subject-art-preview-opacity: 0.25;
+      --subject-art-touch-opacity: 0.22;
+      --appearance-moon-opacity: 0;
+      --appearance-sun-opacity: 1;
 
       /* Elevation */
       --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.18);
@@ -375,86 +385,36 @@
       opacity: 1;
     }
 
-    html.theme-changing body::before,
-    html.theme-changing body::after {
-      transition: opacity var(--hub-theme-motion);
-    }
-
     /* ============================================================
        THEME MOTION
        Bridge owns theme state; the Hub owns surface interpolation.
+       Theme changes are paint-only: geometry never participates.
        ============================================================ */
 
     html.theme-changing,
     html.theme-changing body,
-    html.theme-changing .spine,
-    html.theme-changing .spine-mark,
-    html.theme-changing .spine-mark span,
-    html.theme-changing .spine-worlds,
-    html.theme-changing .spine-world-btn,
-    html.theme-changing .spine-world-icon,
-    html.theme-changing .spine-session-pill,
-    html.theme-changing .spine-session-pill .pill-name,
-    html.theme-changing .spine-btn,
-    html.theme-changing .mobile-header,
-    html.theme-changing .mobile-header-brand,
-    html.theme-changing .mobile-header-mark,
-    html.theme-changing .mobile-header-mark span,
-    html.theme-changing .mobile-header-actions,
-    html.theme-changing .mobile-header-btn,
-    html.theme-changing .mobile-session-pill,
-    html.theme-changing .mobile-session-pill span,
-    html.theme-changing .drawer-header,
-    html.theme-changing .drawer-footer,
-    html.theme-changing .drawer-title,
-    html.theme-changing .drawer-title span,
-    html.theme-changing .drawer-close,
-    html.theme-changing .drawer-nav-label,
-    html.theme-changing .drawer-nav-item,
-    html.theme-changing .drawer-nav-item .nav-soon,
-    html.theme-changing .drawer-session-btn,
-    html.theme-changing .drawer-session-btn span,
-    html.theme-changing .drawer-appearance-btn,
-    html.theme-changing .hub-intro,
-    html.theme-changing .hub-eyebrow,
-    html.theme-changing .hub-title,
-    html.theme-changing .hub-desc,
-    html.theme-changing .subject-library,
-    html.theme-changing .subject-library-title,
-    html.theme-changing .subject-card,
-    html.theme-changing .subject-card-title,
-    html.theme-changing .subject-card-version-badge,
-    html.theme-changing .subject-card-hook,
-    html.theme-changing .subject-card-progress-label,
-    html.theme-changing .subject-card-progress-track,
-    html.theme-changing .subject-card-progress-fill,
-    html.theme-changing .btn-launch,
-    html.theme-changing .empty-library,
-    html.theme-changing .empty-library-icon,
-    html.theme-changing .empty-library h2,
-    html.theme-changing .empty-library p,
-    html.theme-changing .bridge-error,
-    html.theme-changing .bridge-error h2,
-    html.theme-changing .bridge-error p,
-    html.theme-changing .btn-primary,
-    html.theme-changing .btn-ghost,
-    html.theme-changing .hub-toast {
+    html.theme-changing body::before,
+    html.theme-changing body::after,
+    html.theme-changing body *,
+    html.theme-changing body *::before,
+    html.theme-changing body *::after {
       transition:
         background-color var(--hub-theme-motion),
-        background var(--hub-theme-motion),
         color var(--hub-theme-motion),
         border-color var(--hub-theme-motion),
         box-shadow var(--hub-theme-motion),
         opacity var(--hub-theme-motion),
         fill var(--hub-theme-motion),
-        stroke var(--hub-theme-motion);
+        stroke var(--hub-theme-motion),
+        outline-color var(--hub-theme-motion),
+        text-decoration-color var(--hub-theme-motion),
+        caret-color var(--hub-theme-motion);
     }
 
     html.theme-changing .drawer {
       transition:
-        transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+        transform var(--hub-theme-motion),
         background-color var(--hub-theme-motion),
-        background var(--hub-theme-motion),
         color var(--hub-theme-motion),
         border-color var(--hub-theme-motion),
         box-shadow var(--hub-theme-motion),
@@ -612,6 +572,7 @@
     }
 
     .spine-btn {
+      position: relative;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -635,20 +596,21 @@
     }
 
     .appearance-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
       display: block;
       flex-shrink: 0;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+
+    .appearance-icon--moon {
+      opacity: var(--appearance-moon-opacity);
     }
 
     .appearance-icon--sun {
-      display: none;
-    }
-
-    html[data-theme="night"] .appearance-icon--moon {
-      display: none;
-    }
-
-    html[data-theme="night"] .appearance-icon--sun {
-      display: block;
+      opacity: var(--appearance-sun-opacity);
     }
 
     /* ============================================================
@@ -927,6 +889,7 @@
     }
 
     .drawer-appearance-btn {
+      position: relative;
       width: 44px;
       height: 44px;
       border-radius: var(--radius-md);
@@ -1800,14 +1763,8 @@
     }
 
     .subject-card:is(:hover, :focus-visible) .subject-card-art {
-      opacity: 0.16;
+      opacity: var(--subject-art-hover-opacity);
       transform: translate3d(0, 0, 0) scale(1);
-    }
-
-    html[data-theme="night"]
-    .subject-card:is(:hover, :focus-visible)
-    .subject-card-art {
-      opacity: 0.23;
     }
 
     .travel-map,
@@ -2862,14 +2819,8 @@
     }
 
     .subject-artwork-preview-card .subject-card-art {
-      opacity: 0.18;
+      opacity: var(--subject-art-preview-opacity);
       transform: none;
-    }
-
-    html[data-theme="night"]
-    .subject-artwork-preview-card
-    .subject-card-art {
-      opacity: 0.25;
     }
 
     .subject-artwork-studio-actions {
@@ -3152,24 +3103,12 @@
 
       .subject-card--has-art .subject-card-art {
         display: flex;
-        opacity: 0.14;
+        opacity: var(--subject-art-touch-opacity);
         transform: none;
       }
 
-      html[data-theme="night"]
-      .subject-card--has-art
-      .subject-card-art {
-        opacity: 0.22;
-      }
-
       .subject-artwork-preview-card .subject-card-art {
-        opacity: 0.18;
-      }
-
-      html[data-theme="night"]
-      .subject-artwork-preview-card
-      .subject-card-art {
-        opacity: 0.25;
+        opacity: var(--subject-art-preview-opacity);
       }
     }
 
