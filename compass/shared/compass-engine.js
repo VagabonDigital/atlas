@@ -20487,7 +20487,7 @@ async function resetSession(name) {
         : (session.name || 'Shared');
 
     showCompassToast(
-        `${getEffectiveSubjectTitle()} activity cleared for ${displayName}.`
+        `Activity cleared for ${displayName}.`
     );
 }
 
