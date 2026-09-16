@@ -1,0 +1,376 @@
+/* ============================================================
+   ATLAS ACCOUNT GATE
+   Shared authentication gate and signed-in account menu.
+
+   The gate inherits Atlas modal tokens when a product world provides them,
+   then falls back to the host surface tokens used by Inside Atlas.
+   ============================================================ */
+
+.atlas-account-gate-open {
+    overflow: hidden;
+}
+
+.atlas-account-gate-layer[hidden],
+.atlas-account-menu[hidden] {
+    display: none !important;
+}
+
+.atlas-account-gate-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: var(--atlas-modal-overlay-bg, rgba(17, 18, 24, 0.52));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.atlas-account-gate-card {
+    width: min(440px, 100%);
+    max-height: min(720px, calc(100vh - 40px));
+    overflow: auto;
+    border: 1px solid var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, 0.16)));
+    border-radius: var(--atlas-modal-radius-lg, 18px);
+    background: var(--atlas-modal-surface, var(--surface-panel, #fffdf9));
+    color: var(--atlas-modal-text, var(--text-body, #504b43));
+    box-shadow: var(--atlas-modal-shadow, 0 24px 70px rgba(22, 25, 34, 0.18));
+    font-family: var(--atlas-modal-font-body, 'DM Sans', system-ui, sans-serif);
+}
+
+.atlas-account-gate-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 22px 0;
+}
+
+.atlas-account-gate-heading {
+    margin: 0;
+    color: var(--atlas-modal-heading, var(--text-heading, #211f1b));
+    font-family: var(--atlas-modal-font-display, 'DM Serif Display', Georgia, serif);
+    font-size: 1.65rem;
+    font-weight: 400;
+    line-height: 1.15;
+}
+
+.atlas-account-gate-close {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, 0.16)));
+    border-radius: 50%;
+    background: var(--atlas-modal-control-surface, var(--surface-raised, #fffdf9));
+    color: var(--atlas-modal-muted, var(--text-muted, #7b7469));
+    cursor: pointer;
+}
+
+.atlas-account-gate-close:hover,
+.atlas-account-gate-close:focus-visible {
+    background: var(--atlas-modal-control-hover, var(--surface-muted, #ebe7de));
+    color: var(--atlas-modal-heading, var(--text-heading, #211f1b));
+}
+
+.atlas-account-gate-body {
+    padding: 18px 22px 22px;
+}
+
+.atlas-account-gate-copy {
+    margin: 0 0 18px;
+    color: var(--atlas-modal-muted, var(--text-muted, #7b7469));
+    font-size: 0.94rem;
+    line-height: 1.5;
+}
+
+.atlas-account-gate-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    padding: 4px;
+    margin-bottom: 18px;
+    border: 1px solid var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, 0.16)));
+    border-radius: 12px;
+    background: var(--atlas-modal-surface-low, var(--surface-muted, #ebe7de));
+}
+
+.atlas-account-gate-tab {
+    min-height: 39px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--atlas-modal-muted, var(--text-muted, #7b7469));
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.atlas-account-gate-tab.is-active {
+    background: var(--atlas-modal-surface-raised, var(--surface-raised, #fffdf9));
+    color: var(--atlas-modal-heading, var(--text-heading, #211f1b));
+    box-shadow: 0 1px 5px rgba(22, 25, 34, 0.08);
+}
+
+.atlas-account-gate-status {
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, 0.16)));
+    border-radius: 10px;
+    background: var(--atlas-modal-accent-bg, rgba(77, 113, 132, 0.08));
+    color: var(--atlas-modal-text, var(--text-body, #504b43));
+    font-size: 0.88rem;
+    line-height: 1.45;
+}
+
+.atlas-account-gate-status[data-kind="error"] {
+    border-color: var(--atlas-modal-danger-border, rgba(178, 58, 46, 0.30));
+    background: var(--atlas-modal-danger-bg, #fbf1f0);
+    color: var(--atlas-modal-danger-text, #b23a2e);
+}
+
+.atlas-account-gate-status[data-kind="success"] {
+    border-color: color-mix(in srgb, var(--atlas-modal-accent, #59617d) 28%, transparent);
+    background: var(--atlas-modal-accent-bg, rgba(77, 113, 132, 0.08));
+    color: var(--atlas-modal-accent, #59617d);
+}
+
+.atlas-account-gate-form[hidden],
+.atlas-account-gate-message[hidden],
+.atlas-account-gate-tabs[hidden] {
+    display: none !important;
+}
+
+.atlas-account-gate-label {
+    display: block;
+    margin: 12px 0 6px;
+    color: var(--atlas-modal-heading, var(--text-heading, #211f1b));
+    font-size: 0.86rem;
+    font-weight: 600;
+}
+
+.atlas-account-gate-input {
+    width: 100%;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--atlas-modal-border-strong, var(--border-subtle, rgba(49, 45, 38, 0.16)));
+    border-radius: 10px;
+    outline: none;
+    background: var(--atlas-modal-control-surface, var(--surface-raised, #fffdf9));
+    color: var(--atlas-modal-heading, var(--text-heading, #211f1b));
+    font: inherit;
+}
+
+.atlas-account-gate-input:focus {
+    border-color: var(--atlas-modal-accent, #59617d);
+    box-shadow: 0 0 0 3px var(--atlas-modal-accent-bg, rgba(89, 97, 125, 0.09));
+}
+
+.atlas-account-gate-hint {
+    margin: 7px 0 0;
+    color: var(--atlas-modal-faint, var(--text-subtle, #9b9489));
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.atlas-account-gate-primary,
+.atlas-account-gate-secondary,
+.atlas-account-gate-text {
+    font: inherit;
+    cursor: pointer;
+}
+
+.atlas-account-gate-primary,
+.atlas-account-gate-secondary {
+    width: 100%;
+    min-height: 44px;
+    border-radius: 10px;
+    padding: 0 14px;
+    font-weight: 600;
+}
+
+.atlas-account-gate-primary {
+    margin-top: 17px;
+    border: 1px solid var(--atlas-modal-accent, #59617d);
+    background: var(--atlas-modal-accent, #59617d);
+    color: var(--atlas-modal-accent-ink, #fff);
+}
+
+.atlas-account-gate-primary:hover:not(:disabled) {
+    background: var(--atlas-modal-accent-hover, #49516b);
+    border-color: var(--atlas-modal-accent-hover, #49516b);
+}
+
+.atlas-account-gate-secondary {
+    margin-top: 10px;
+    border: 1px solid var(--atlas-modal-border-strong, var(--border-subtle, rgba(49, 45, 38, 0.16)));
+    background: transparent;
+    color: var(--atlas-modal-text, var(--text-body, #504b43));
+}
+
+.atlas-account-gate-text {
+    display: inline-block;
+    margin-top: 13px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--atlas-modal-accent, #59617d);
+    font-weight: 600;
+}
+
+.atlas-account-gate-text:hover {
+    text-decoration: underline;
+}
+
+.atlas-account-gate-card button:disabled,
+.atlas-account-gate-card input:disabled,
+.atlas-account-menu button:disabled {
+    opacity: 0.58;
+    cursor: wait;
+}
+
+.atlas-account-gate-message {
+    padding: 4px 0 2px;
+}
+
+.atlas-account-gate-message h3 {
+    margin: 0 0 9px;
+    color: var(--atlas-modal-heading, var(--text-heading, #211f1b));
+    font-family: var(--atlas-modal-font-display, 'DM Serif Display', Georgia, serif);
+    font-size: 1.3rem;
+    font-weight: 400;
+}
+
+.atlas-account-gate-message p {
+    margin: 0;
+    color: var(--atlas-modal-muted, var(--text-muted, #7b7469));
+    line-height: 1.5;
+}
+
+.atlas-account-menu {
+    position: fixed;
+    z-index: 1210;
+    width: min(310px, calc(100vw - 24px));
+    padding: 14px;
+    border: 1px solid var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, 0.16)));
+    border-radius: 14px;
+    background: var(--atlas-modal-surface, var(--surface-panel, #fffdf9));
+    color: var(--atlas-modal-text, var(--text-body, #504b43));
+    box-shadow: var(--atlas-modal-shadow, 0 20px 56px rgba(22, 25, 34, 0.18));
+    font-family: var(--atlas-modal-font-body, 'DM Sans', system-ui, sans-serif);
+}
+
+.atlas-account-menu-kicker {
+    margin: 0 0 4px;
+    color: var(--atlas-modal-faint, var(--text-subtle, #9b9489));
+    font-size: 0.73rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.atlas-account-menu-email {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--atlas-modal-heading, var(--text-heading, #211f1b));
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.atlas-account-menu-plan {
+    display: inline-flex;
+    margin-top: 9px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: var(--atlas-modal-accent-bg, rgba(89, 97, 125, 0.09));
+    color: var(--atlas-modal-accent, #59617d);
+    font-size: 0.76rem;
+    font-weight: 600;
+}
+
+.atlas-account-menu-actions {
+    display: grid;
+    gap: 6px;
+    margin-top: 13px;
+    padding-top: 10px;
+    border-top: 1px solid var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, 0.16)));
+}
+
+.atlas-account-menu-action {
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--atlas-modal-text, var(--text-body, #504b43));
+    text-decoration: none;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 600;
+}
+
+.atlas-account-menu-action:hover,
+.atlas-account-menu-action:focus-visible {
+    background: var(--atlas-modal-control-hover, var(--surface-muted, #ebe7de));
+    color: var(--atlas-modal-heading, var(--text-heading, #211f1b));
+}
+
+.atlas-account-menu-status {
+    margin: 8px 2px 0;
+    color: var(--atlas-modal-danger-text, #b23a2e);
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+    .atlas-account-gate-layer {
+        align-items: end;
+        padding: 12px;
+    }
+
+    .atlas-account-gate-card {
+        width: 100%;
+        max-height: min(760px, calc(100vh - 24px));
+        border-radius: 18px;
+    }
+
+    .atlas-account-gate-head {
+        padding: 20px 18px 0;
+    }
+
+    .atlas-account-gate-body {
+        padding: 16px 18px 20px;
+    }
+
+    .atlas-account-menu {
+        inset: auto 12px 12px 12px !important;
+        width: auto;
+        border-radius: 16px;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .atlas-account-gate-card,
+    .atlas-account-menu {
+        animation: atlas-account-enter 160ms ease-out both;
+    }
+
+    @keyframes atlas-account-enter {
+        from {
+            opacity: 0;
+            transform: translateY(5px) scale(0.99);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+}
