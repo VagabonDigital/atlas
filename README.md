@@ -44,6 +44,14 @@ Anonymous access resolves locally with all account-owned capabilities blocked. A
 
 The executable state proof lives at `tests/atlas-access-contract.test.js` and can be run with `node tests/atlas-access-contract.test.js`. It covers anonymous → Free, account switching through a resolving state, entitlement-read failure, simulated future Pro allowance state and sign-out back to anonymous.
 
+## Shared account gate foundation
+
+`AtlasAccountGate` is the reusable account-entry UI above `AtlasAccess` and `AtlasAccount`. It owns the shared sign-in/create-account dialog, password-reset entry, email-confirmation success state and the compact signed-in account menu. The account menu exposes private identity only on demand (email, Free/Pro status, account settings and sign out) rather than placing tutor identity permanently in teaching chrome.
+
+Anonymous product surfaces remain lightweight. `AtlasAccessBootstrap.prepareAccount()` upgrades the anonymous access runtime into the existing `AtlasCloud` → `AtlasAccount` → `AtlasAccess` stack only when the tutor deliberately opens account UI. The gate does not duplicate Supabase or account lifecycle logic.
+
+Batch 2.2A establishes the shared account UI contract only. Header placement and cross-world lifecycle proof belong to Batch 2.2B; return-to-intent belongs to Batch 2.3; protected-action interception belongs to Batch 2.4. The executable foundation proof lives at `tests/atlas-account-gate-contract.test.js`.
+
 ## Browser persistence trust
 
 `AtlasPersistenceTrust` complements database RLS at the browser boundary. Generic Atlas browser projections and local working-state keys are scoped to either a specific authenticated account or the signed-out/local workspace. When account identity changes, Atlas stashes the outgoing scope, restores the incoming scope and clears transient tab/session state before publishing the new account state. This prevents Account A learner/cache/draft projections from becoming visible to Account B while preserving deliberately local anonymous work and account-local drafts.
