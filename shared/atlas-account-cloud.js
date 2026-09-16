@@ -115,8 +115,8 @@
 
 /*
  * Committed My Versions may be override-only records with an intentionally
- * empty document. Load the portable compatibility boundary before backup use
- * so export/restore validation matches the live Tutor Content authority.
+ * empty document. Load the portable compatibility boundary before Backup v3
+ * so export/restore validation matches the live Tutor Content model.
  */
 (function bootstrapTutorContentPortableCompat() {
     'use strict';
@@ -132,7 +132,7 @@
 
     const script = document.createElement('script');
     script.src =
-        '/shared/atlas-tutor-content-portable-compat.js?v=20260916-backup2';
+        '/shared/atlas-tutor-content-portable-compat.js?v=20260916-backup3';
     script.async = false;
     script.dataset.atlasTutorContentPortableCompat = 'true';
     script.addEventListener(
@@ -149,38 +149,57 @@
 
 /*
  * The root Settings surface already loads the legacy portable-data module.
- * Once a signed-in account initializes, layer the canonical V3 exporter over
- * that stable API so the existing Download Backup control becomes cloud-truth
- * aware without coupling account UI to backup internals.
+ * Layer the canonical V3 exporter only after the Tutor Content compatibility
+ * boundary is present, preventing backup semantics from racing runtime setup.
  */
 (function bootstrapCanonicalBackupExport() {
     'use strict';
 
-    if (
-        !window.AtlasPortableData ||
-        window.AtlasPortableDataV3 ||
-        document.querySelector(
-            'script[data-atlas-portable-data-v3]'
-        )
-    ) {
-        return;
+    let attempts = 0;
+
+    function load() {
+        if (
+            window.AtlasPortableDataV3 ||
+            document.querySelector(
+                'script[data-atlas-portable-data-v3]'
+            )
+        ) {
+            return;
+        }
+
+        if (
+            !window.AtlasPortableData ||
+            !window.AtlasTutorContentPortableCompat
+        ) {
+            attempts += 1;
+            if (attempts < 200) {
+                window.setTimeout(load, 50);
+            }
+            return;
+        }
+
+        try {
+            window.AtlasTutorContentPortableCompat.ensurePatched?.();
+        } catch { }
+
+        const script = document.createElement('script');
+        script.src =
+            '/shared/atlas-portable-data-v3.js?v=20260916-backup3';
+        script.async = false;
+        script.dataset.atlasPortableDataV3 = 'true';
+        script.addEventListener(
+            'error',
+            () => {
+                console.error(
+                    '[AtlasAccountCloud] Canonical backup export could not load.'
+                );
+            },
+            { once: true }
+        );
+        document.head.appendChild(script);
     }
 
-    const script = document.createElement('script');
-    script.src =
-        '/shared/atlas-portable-data-v3.js?v=20260916-backup2';
-    script.async = false;
-    script.dataset.atlasPortableDataV3 = 'true';
-    script.addEventListener(
-        'error',
-        () => {
-            console.error(
-                '[AtlasAccountCloud] Canonical backup export could not load.'
-            );
-        },
-        { once: true }
-    );
-    document.head.appendChild(script);
+    load();
 })();
 
 /*
@@ -210,17 +229,24 @@
             return;
         }
 
-        if (!window.AtlasPortableDataV3) {
+        if (
+            !window.AtlasPortableDataV3 ||
+            !window.AtlasTutorContentPortableCompat
+        ) {
             attempts += 1;
-            if (attempts < 120) {
+            if (attempts < 200) {
                 window.setTimeout(load, 50);
             }
             return;
         }
 
+        try {
+            window.AtlasTutorContentPortableCompat.ensurePatched?.();
+        } catch { }
+
         const script = document.createElement('script');
         script.src =
-            '/shared/atlas-restore-v3.js?v=20260916-restore2';
+            '/shared/atlas-restore-v3.js?v=20260916-restore3';
         script.async = false;
         script.dataset.atlasRestoreV3 = 'true';
         script.addEventListener(
