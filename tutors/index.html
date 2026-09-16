@@ -1821,7 +1821,7 @@
   </style>
 </head>
 
-<body id="top">
+<body id="top" data-atlas-world="atlas" data-atlas-surface="inside-atlas">
   <header class="site-header">
     <div class="frame header-inner">
       <a class="brand" href="../index.html" aria-label="Atlas home">Atlas<span>.</span></a>
@@ -1829,6 +1829,7 @@
         <a href="#top">Overview</a><a href="#why">Why</a><a href="#create">Create</a><a href="#teach">Teach</a><a href="#own">Yours</a><a
           href="#keep">Continuity</a><a href="#early">Story</a>
       </nav>
+      <div data-atlas-account-entry aria-label="Atlas account actions"></div>
       <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch theme" title="Switch theme"><span
           aria-hidden="true">☼</span></button>
     </div>
@@ -2918,6 +2919,8 @@
       syncOverviewNav();
     })();
   </script>
+  <script src="/shared/atlas-access-bootstrap.js?v=20260916-access2"></script>
+  <script src="/shared/atlas-account-chrome.js?v=20260916-accountchrome1"></script>
 </body>
 
 </html>

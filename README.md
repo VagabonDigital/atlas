@@ -52,6 +52,10 @@ Anonymous product surfaces remain lightweight. `AtlasAccessBootstrap.prepareAcco
 
 Batch 2.2A establishes the shared account UI contract only. Header placement and cross-world lifecycle proof belong to Batch 2.2B; return-to-intent belongs to Batch 2.3; protected-action interception belongs to Batch 2.4. The executable foundation proof lives at `tests/atlas-account-gate-contract.test.js`.
 
+Batch 2.2B places that contract into the public product without contaminating teaching canvases. Atlas, Compass and Arcade hubs receive one shared right-side account control: anonymous tutors see **Sign in**; authenticated tutors see a compact account icon opening the shared account menu. Atlas's pilot feedback button is removed from the prime desktop header slot while the secondary mobile-drawer contact remains available. Inside Atlas exposes **Explore Atlas**, **Sign in** and **Create free account** when anonymous, collapsing to Explore Atlas plus the account control when authenticated. Subject and game surfaces receive no promotional account chrome. The executable placement/state proof lives at `tests/atlas-account-chrome-contract.test.js`.
+
+Return-to-intent is still intentionally deferred to Batch 2.3, and capability-driven protected-action interception remains Batch 2.4.
+
 ## Browser persistence trust
 
 `AtlasPersistenceTrust` complements database RLS at the browser boundary. Generic Atlas browser projections and local working-state keys are scoped to either a specific authenticated account or the signed-out/local workspace. When account identity changes, Atlas stashes the outgoing scope, restores the incoming scope and clears transient tab/session state before publishing the new account state. This prevents Account A learner/cache/draft projections from becoming visible to Account B while preserving deliberately local anonymous work and account-local drafts.

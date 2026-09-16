@@ -812,7 +812,7 @@
         }
 
         const src =
-            '/shared/atlas-access-bootstrap.js?v=20260916-access1';
+            '/shared/atlas-access-bootstrap.js?v=20260916-access2';
 
         if (document.readyState === 'loading') {
             document.write(
@@ -826,6 +826,55 @@
         script.async = false;
         script.setAttribute(
             'data-atlas-access-bootstrap',
+            'true'
+        );
+        document.head.appendChild(script);
+    }
+
+    function shouldLoadAtlasAccountChrome() {
+        const surface = String(
+            document.body?.dataset?.atlasSurface || ''
+        );
+
+        if (surface === 'hub') return true;
+
+        const path = String(
+            window.location.pathname || '/'
+        ).replace(/index\.html$/, '');
+
+        return (
+            path === '/' ||
+            path === '/compass/' ||
+            path === '/arcade/'
+        );
+    }
+
+    function writeAtlasAccountChromeScript() {
+        if (
+            !shouldLoadAtlasAccountChrome() ||
+            window.AtlasAccountChrome ||
+            document.querySelector(
+                'script[data-atlas-account-chrome]'
+            )
+        ) {
+            return;
+        }
+
+        const src =
+            '/shared/atlas-account-chrome.js?v=20260916-accountchrome1';
+
+        if (document.readyState === 'loading') {
+            document.write(
+                `<script data-atlas-account-chrome="true" src="${src}"><\/script>`
+            );
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = false;
+        script.setAttribute(
+            'data-atlas-account-chrome',
             'true'
         );
         document.head.appendChild(script);
@@ -921,6 +970,7 @@
     writeAtlasRootRuntimeScript();
     writeCloudAuthorityScripts();
     writeAtlasAccessBootstrapScript();
+    writeAtlasAccountChromeScript();
     installTutorCreateHandoff();
     registerAll();
 })();
