@@ -1,0 +1,37 @@
+name: Temporary Bridge CRLF restore
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/tmp-restore-bridge-crlf-trigger'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore Bridge line endings without semantic churn
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+          python .github/tmp-restore-bridge-crlf.py
+          git rm -f \
+            .github/tmp-restore-bridge-crlf.py \
+            .github/workflows/tmp-restore-bridge-crlf.yml \
+            .github/tmp-restore-bridge-crlf-trigger
+          git config user.name 'Atlas patch bot'
+          git config user.email 'atlas-patch-bot@users.noreply.github.com'
+          git add shared/atlas-bridge.js
+          git diff --check --cached
+          git commit -m 'Restore Atlas Bridge line endings'
+          git push origin main
