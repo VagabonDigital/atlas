@@ -15,6 +15,7 @@ Atlas is a tutor-first English teaching workspace built around three connected p
 - `memory/` — learner-memory surface.
 - `tutors/` — tutor-facing public/pilot surfaces.
 - `shared/` — shared runtime, persistence, cloud authority, navigation and UI modules.
+- `tests/` — lightweight runtime contract proofs for shared product architecture.
 - `supabase/migrations/` — canonical, source-controlled history of Atlas database schema changes.
 
 ## Persistence model
@@ -30,6 +31,18 @@ For signed-in tutors, durable account-owned state is stored in Supabase, includi
 Email/password signup requires email confirmation. Signup confirmation and password-recovery links return to `/account/`, which handles normal sign-in, account creation and recovery states without introducing a separate auth product.
 
 `account_entitlements` is the minimal server-owned foundation for future Free/Pro capability state. Authenticated browser clients can read only their own entitlement row; they cannot mutate entitlement data. A missing row intentionally means the Free baseline. Product code should consume capability-shaped account APIs rather than scatter `plan === 'pro'` checks through Atlas. This foundation does not yet constitute server-side AI quota enforcement.
+
+## Canonical access state
+
+`AtlasAccess` is the product-level access resolver above `AtlasAccount`. `AtlasAccount` continues to own identity and raw server entitlement state; `AtlasAccess` converts that into one semantic access contract for Atlas, Compass and Arcade. Product surfaces should consume `AtlasAccess` capabilities rather than inspect Supabase state or `plan_code`.
+
+The canonical tiers are `anonymous`, `free` and future `pro`. The shared capability vocabulary currently covers durable saving, learner creation, subject creation, subject editing, AI-assisted creation and access to the account library. AI creation also carries a normalized creation-allowance state (`available`, `limited`, `exhausted`, `blocked` or `unknown`) so future quota policy can evolve without changing feature call sites.
+
+Anonymous access resolves locally with all account-owned capabilities blocked. A stored signed-in session upgrades through `AtlasCloud` → `AtlasAccount` → `AtlasAccess`; anonymous visitors do not load the Supabase/auth stack merely to resolve the anonymous tier. While an authenticated account is still resolving entitlement state, or if that entitlement read fails, Atlas preserves authenticated identity but keeps access not-ready and capability checks fail closed rather than misclassifying the tutor as anonymous.
+
+`atlas-access-bootstrap.js` makes this state available through the shared content-registry seam across the Atlas gateway, Compass hub and subjects, and Arcade hub and games. Batch 2.1 establishes state only: shared account gates, return-to-intent and feature-level interception are later Stage 2 responsibilities.
+
+The executable state proof lives at `tests/atlas-access-contract.test.js` and can be run with `node tests/atlas-access-contract.test.js`. It covers anonymous → Free, account switching through a resolving state, entitlement-read failure, simulated future Pro allowance state and sign-out back to anonymous.
 
 ## Browser persistence trust
 
