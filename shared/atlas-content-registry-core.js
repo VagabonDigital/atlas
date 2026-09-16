@@ -76,6 +76,15 @@
         }, {});
     }
 
+
+    function registryProjectionMatches(existing, next) {
+        if (!existing || !next) return false;
+
+        return Object.keys(next).every(key =>
+            JSON.stringify(existing[key]) === JSON.stringify(next[key])
+        );
+    }
+
     function normalizeSubjectForRegistry(subject, categoryTitles) {
         if (!subject || typeof subject !== 'object') return null;
 
@@ -202,7 +211,19 @@
             return false;
         }
 
-        Bridge.upsertWorld(COMPASS_WORLD);
+        const existingRegistry =
+            typeof Bridge.readRegistry === 'function'
+                ? Bridge.readRegistry()
+                : { worlds: {}, items: {} };
+
+        if (
+            !registryProjectionMatches(
+                existingRegistry.worlds?.[COMPASS_WORLD.registryId],
+                COMPASS_WORLD
+            )
+        ) {
+            Bridge.upsertWorld(COMPASS_WORLD);
+        }
 
         const { categories, subjects } = getCompassCatalogData();
 
@@ -219,7 +240,15 @@
             if (!item) return;
 
             validIds.add(item.registryId);
-            Bridge.upsertItem(item);
+
+            if (
+                !registryProjectionMatches(
+                    existingRegistry.items?.[item.registryId],
+                    item
+                )
+            ) {
+                Bridge.upsertItem(item);
+            }
         });
 
         pruneStaleCompassSubjects(Bridge, validIds);

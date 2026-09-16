@@ -11,25 +11,20 @@
     const CORE_SRC =
         '/shared/atlas-content-registry-core.js?v=20260915-live-sync1';
 
-    let renderQueued = false;
-
-    function repaintCompassHub() {
-        if (renderQueued) return;
-
-        renderQueued = true;
-
-        window.requestAnimationFrame(() => {
-            renderQueued = false;
-
-            if (typeof window.renderHub === 'function') {
-                void window.renderHub();
-            }
-        });
+    function requestCompassHubRefresh() {
+        try {
+            window.dispatchEvent(
+                new CustomEvent(
+                    'atlas:compass-hub-refresh-request',
+                    { detail: { source: 'cloud-cache' } }
+                )
+            );
+        } catch { }
     }
 
     window.addEventListener(
         'atlas:compass-hub-cache-refreshed',
-        repaintCompassHub
+        requestCompassHubRefresh
     );
 
     if (window.AtlasContentRegistry) return;

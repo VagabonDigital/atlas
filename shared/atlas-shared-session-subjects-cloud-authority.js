@@ -260,9 +260,12 @@
                 window.AtlasSessionPanel?.refresh?.();
                 window.renderHome?.();
 
-                if (typeof window.renderHub === 'function') {
-                    void window.renderHub();
-                }
+                window.dispatchEvent(
+                    new CustomEvent(
+                        'atlas:compass-hub-refresh-request',
+                        { detail: { source: 'shared-session-subjects' } }
+                    )
+                );
             } catch { }
         });
     }

@@ -551,7 +551,12 @@
         window.requestAnimationFrame(() => {
             try {
                 window.renderHome?.();
-                window.renderHub?.();
+                window.dispatchEvent(
+                    new CustomEvent(
+                        'atlas:compass-hub-refresh-request',
+                        { detail: { source: 'shared-continuity' } }
+                    )
+                );
             } catch { }
 
             const active = Bridge.readActiveSession();

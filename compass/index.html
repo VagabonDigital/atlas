@@ -10590,8 +10590,6 @@
 
       const renderRevision = ++hubRenderRevision;
 
-      registerWithBridge();
-
       const main = document.getElementById('hub-main');
       const session = getActiveSession();
       const atlasSubjects = getAtlasSubjects();
@@ -11681,13 +11679,33 @@
 
     /* ================================================================
        LIVE REFRESH
+       Background state notifications share one repaint path. Rendering is
+       deliberately read-only: it must never register/write persistent state.
        ================================================================ */
+
+    let hubRenderQueued = false;
+
+    function requestHubRender() {
+      if (!Bridge || hubRenderQueued) return;
+
+      hubRenderQueued = true;
+
+      window.requestAnimationFrame(() => {
+        hubRenderQueued = false;
+        void renderHub();
+      });
+    }
+
+    window.addEventListener(
+      'atlas:compass-hub-refresh-request',
+      requestHubRender
+    );
 
     function refresh() {
       if (!Bridge) return;
       const mode = Bridge.applyAppearanceMode(Bridge.readAppearanceMode());
       updateAppearanceButtons(mode);
-      renderHub();
+      requestHubRender();
     }
 
     window.addEventListener('atlas:session-change', refresh);
@@ -11724,6 +11742,10 @@
 
     function init() {
       if (!Bridge) return;
+
+      // Registration belongs to startup, not rendering. The registry layer is
+      // idempotent, so this is a safe fallback if its own bootstrap ran early.
+      registerWithBridge();
 
       const mode = Bridge.readAppearanceMode();
       Bridge.applyAppearanceMode(mode);
