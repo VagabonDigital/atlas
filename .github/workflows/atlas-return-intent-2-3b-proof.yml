@@ -26,6 +26,7 @@ jobs:
         run: |
           python .github/atlas_patch_return_intent_2_3b.py
           sed -i "1s/^\\\\'use strict\\\\';/'use strict';/" tests/atlas-account-gate-return-intent.test.js
+          sed -i 's/[[:space:]]\+$//' tests/atlas-account-gate-return-intent.test.js
 
       - name: Validate Stage 2 runtime syntax
         run: |
