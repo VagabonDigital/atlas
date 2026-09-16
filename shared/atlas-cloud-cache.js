@@ -255,7 +255,7 @@
     }) {
         const safeMetadata =
             metadata && typeof metadata === 'object' && !Array.isArray(metadata)
-                ? cloneJson(metadata)
+                ? cloneJson(metadata) || {}
                 : {};
         const title = String(safeMetadata.title || 'Untitled Subject').trim() || 'Untitled Subject';
         const navTitle = String(safeMetadata.navTitle || title).trim() || title;
@@ -647,6 +647,7 @@
         }
 
         const fallbackListSubjects = Subjects.listSubjects?.bind(Subjects);
+        const fallbackListPendingDeletes = Subjects.listPendingDeletes?.bind(Subjects);
         const fallbackGetLibraryState = Subjects.getLibraryState?.bind(Subjects);
         const fallbackGetSubjectLibraryState = Subjects.getSubjectLibraryState?.bind(Subjects);
         const fallbackGetWorkingDraft = Subjects.getWorkingDraft?.bind(Subjects);
@@ -657,7 +658,23 @@
                 if (!hubUsesCloud()) {
                     return fallbackListSubjects ? fallbackListSubjects() : [];
                 }
-                return listOwnedSubjectSummaries();
+
+                const [summaries, pendingDeletes] = await Promise.all([
+                    listOwnedSubjectSummaries(),
+                    fallbackListPendingDeletes
+                        ? fallbackListPendingDeletes()
+                        : []
+                ]);
+
+                const pendingIds = new Set(
+                    (Array.isArray(pendingDeletes) ? pendingDeletes : [])
+                        .map(record => String(record?.subjectId || '').trim())
+                        .filter(Boolean)
+                );
+
+                return summaries.filter(subject =>
+                    !pendingIds.has(String(subject?.id || '').trim())
+                );
             },
             async getLibraryState() {
                 if (!hubUsesCloud()) {
