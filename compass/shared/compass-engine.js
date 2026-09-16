@@ -20293,7 +20293,7 @@ function mountSessionPanel() {
         primaryActionLabel: 'Wrap up this lesson',
         onPrimaryAction: openCompassWrapUp,
         resetKicker: 'CLEAR SUBJECT ACTIVITY',
-        resetTitle: 'Clear this subject?',
+        resetTitle: 'Clear activity?',
         resetMessage: session =>
             `This removes explored items and saved language for ${session.name} in this subject.`,
         resetConfirmLabel: 'Clear activity',
