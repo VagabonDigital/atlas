@@ -1,0 +1,1240 @@
+{
+  "revisionId": "last-ferry-d43cf217599e",
+  "engineId": "shared-plan",
+  "contentHash": "d43cf217599efd3731e60be94405d155",
+  "engineRuntimeVersion": "0.1.0",
+  "definitionSchemaVersion": "0",
+  "compilerVersion": "0.1.0",
+  "sessionSchemaVersion": "0",
+  "generationContractVersion": "none",
+  "compiledGame": {
+    "contract": {
+      "engineId": "shared-plan",
+      "schemaVersion": "0"
+    },
+    "meta": {
+      "title": "Last Ferry",
+      "premise": "One crossing left before the weather closes the channel, and more to carry than the boat will hold.",
+      "levelBand": "B2-C1",
+      "targetMinutes": 15,
+      "tone": "grave"
+    },
+    "design": {
+      "tensionShape": "safetyVsMeaning",
+      "pressureSignature": "loss",
+      "intendedDilemma": "Everything critical fits only if the grain stays behind, and the grain is the only thing anyone eats in winter.",
+      "languageFocus": [
+        "prioritisation",
+        "conditionals",
+        "concession"
+      ]
+    },
+    "presentation": {
+      "stageForm": "route",
+      "kit": "draftingRoom",
+      "accent": "graphite"
+    },
+    "world": {
+      "topology": "sequence",
+      "thresholdLabel": "The Slipway",
+      "marginLabel": "Left Ashore",
+      "clockLabel": "Last light"
+    },
+    "places": [
+      {
+        "key": "quay",
+        "name": "Quay Head",
+        "glyph": "harbour",
+        "sockets": 3,
+        "descriptor": "The near landing",
+        "status": "active",
+        "index": 0
+      },
+      {
+        "key": "midpoint",
+        "name": "Mid Reach",
+        "glyph": "bridge",
+        "sockets": 2,
+        "descriptor": "A jetty in open water",
+        "status": "active",
+        "index": 1
+      },
+      {
+        "key": "far-shore",
+        "name": "Far Shore",
+        "glyph": "depot",
+        "sockets": 3,
+        "descriptor": "Where the village waits",
+        "status": "active",
+        "index": 2
+      }
+    ],
+    "placeIndex": {
+      "quay": {
+        "key": "quay",
+        "name": "Quay Head",
+        "glyph": "harbour",
+        "sockets": 3,
+        "descriptor": "The near landing",
+        "status": "active",
+        "index": 0
+      },
+      "midpoint": {
+        "key": "midpoint",
+        "name": "Mid Reach",
+        "glyph": "bridge",
+        "sockets": 2,
+        "descriptor": "A jetty in open water",
+        "status": "active",
+        "index": 1
+      },
+      "far-shore": {
+        "key": "far-shore",
+        "name": "Far Shore",
+        "glyph": "depot",
+        "sockets": 3,
+        "descriptor": "Where the village waits",
+        "status": "active",
+        "index": 2
+      }
+    },
+    "pieces": [
+      {
+        "key": "doctor",
+        "name": "Doctor Vey",
+        "glyph": "person",
+        "tags": [
+          "people",
+          "critical"
+        ],
+        "resources": {
+          "weight": 2
+        },
+        "status": "active",
+        "index": 0
+      },
+      {
+        "key": "pump",
+        "name": "Water Pump",
+        "glyph": "pump",
+        "tags": [
+          "gear",
+          "critical"
+        ],
+        "resources": {
+          "weight": 5
+        },
+        "status": "active",
+        "index": 1
+      },
+      {
+        "key": "medkit",
+        "name": "Medicine Chest",
+        "glyph": "medicine",
+        "tags": [
+          "supply",
+          "critical"
+        ],
+        "resources": {
+          "weight": 4
+        },
+        "status": "active",
+        "index": 2
+      },
+      {
+        "key": "grain",
+        "name": "Grain Sacks",
+        "glyph": "crate",
+        "tags": [
+          "supply"
+        ],
+        "resources": {
+          "weight": 6
+        },
+        "status": "active",
+        "index": 3
+      },
+      {
+        "key": "radio",
+        "name": "Field Radio",
+        "glyph": "radio",
+        "tags": [
+          "gear"
+        ],
+        "resources": {
+          "weight": 3
+        },
+        "status": "active",
+        "index": 4
+      },
+      {
+        "key": "lamps",
+        "name": "Storm Lamps",
+        "glyph": "lantern",
+        "tags": [
+          "supply"
+        ],
+        "resources": {
+          "weight": 2
+        },
+        "status": "active",
+        "index": 5
+      }
+    ],
+    "pieceIndex": {
+      "doctor": {
+        "key": "doctor",
+        "name": "Doctor Vey",
+        "glyph": "person",
+        "tags": [
+          "people",
+          "critical"
+        ],
+        "resources": {
+          "weight": 2
+        },
+        "status": "active",
+        "index": 0
+      },
+      "pump": {
+        "key": "pump",
+        "name": "Water Pump",
+        "glyph": "pump",
+        "tags": [
+          "gear",
+          "critical"
+        ],
+        "resources": {
+          "weight": 5
+        },
+        "status": "active",
+        "index": 1
+      },
+      "medkit": {
+        "key": "medkit",
+        "name": "Medicine Chest",
+        "glyph": "medicine",
+        "tags": [
+          "supply",
+          "critical"
+        ],
+        "resources": {
+          "weight": 4
+        },
+        "status": "active",
+        "index": 2
+      },
+      "grain": {
+        "key": "grain",
+        "name": "Grain Sacks",
+        "glyph": "crate",
+        "tags": [
+          "supply"
+        ],
+        "resources": {
+          "weight": 6
+        },
+        "status": "active",
+        "index": 3
+      },
+      "radio": {
+        "key": "radio",
+        "name": "Field Radio",
+        "glyph": "radio",
+        "tags": [
+          "gear"
+        ],
+        "resources": {
+          "weight": 3
+        },
+        "status": "active",
+        "index": 4
+      },
+      "lamps": {
+        "key": "lamps",
+        "name": "Storm Lamps",
+        "glyph": "lantern",
+        "tags": [
+          "supply"
+        ],
+        "resources": {
+          "weight": 2
+        },
+        "status": "active",
+        "index": 5
+      }
+    },
+    "resources": [
+      {
+        "key": "weight",
+        "label": "Load",
+        "unit": "kilos",
+        "scope": "plan",
+        "limit": 14,
+        "render": "loadLine",
+        "index": 0
+      }
+    ],
+    "resourceIndex": {
+      "weight": {
+        "key": "weight",
+        "label": "Load",
+        "unit": "kilos",
+        "scope": "plan",
+        "limit": 14,
+        "render": "loadLine",
+        "index": 0
+      }
+    },
+    "rules": [
+      {
+        "key": "boat-load",
+        "kind": "sumLimit",
+        "resource": "weight",
+        "inscription": "Fourteen kilos in all",
+        "status": "active",
+        "index": 0
+      },
+      {
+        "key": "supplies-onward",
+        "kind": "allowedIn",
+        "subject": {
+          "kind": "tag",
+          "tag": "supply"
+        },
+        "places": [
+          "midpoint",
+          "far-shore"
+        ],
+        "inscription": "Supplies go onward",
+        "status": "active",
+        "index": 1
+      },
+      {
+        "key": "pump-first",
+        "kind": "before",
+        "a": "pump",
+        "b": "grain",
+        "inscription": "Pump lands before grain",
+        "status": "active",
+        "index": 2
+      }
+    ],
+    "ruleIndex": {
+      "boat-load": {
+        "key": "boat-load",
+        "kind": "sumLimit",
+        "resource": "weight",
+        "inscription": "Fourteen kilos in all",
+        "status": "active",
+        "index": 0
+      },
+      "supplies-onward": {
+        "key": "supplies-onward",
+        "kind": "allowedIn",
+        "subject": {
+          "kind": "tag",
+          "tag": "supply"
+        },
+        "places": [
+          "midpoint",
+          "far-shore"
+        ],
+        "inscription": "Supplies go onward",
+        "status": "active",
+        "index": 1
+      },
+      "pump-first": {
+        "key": "pump-first",
+        "kind": "before",
+        "a": "pump",
+        "b": "grain",
+        "inscription": "Pump lands before grain",
+        "status": "active",
+        "index": 2
+      }
+    },
+    "goals": [
+      {
+        "key": "within-weight",
+        "label": "The load stays legal",
+        "condition": {
+          "kind": "sumResource",
+          "resource": "weight",
+          "scope": "plan",
+          "cmp": "lte",
+          "value": 14
+        },
+        "reachedLine": "The boat rode high enough the whole way over.",
+        "missedLine": "She was down at the gunwales and everyone knew it.",
+        "status": "active",
+        "index": 0
+      },
+      {
+        "key": "medicine-lands",
+        "label": "Medicine reaches Far Shore",
+        "condition": {
+          "kind": "pieceIn",
+          "piece": "medkit",
+          "place": "far-shore"
+        },
+        "impossibleWhen": {
+          "kind": "all",
+          "terms": [
+            {
+              "kind": "beatFired",
+              "beat": "the-sever"
+            },
+            {
+              "kind": "pieceCut",
+              "piece": "medkit"
+            }
+          ]
+        },
+        "reachedLine": "The chest went up the beach before dark.",
+        "missedLine": "The village will wait another week for it.",
+        "status": "active",
+        "index": 1
+      },
+      {
+        "key": "critical-aboard",
+        "label": "Every critical load sails",
+        "condition": {
+          "kind": "countTagged",
+          "tag": "critical",
+          "scope": "plan",
+          "cmp": "gte",
+          "value": 3
+        },
+        "reachedLine": "Doctor, pump and chest all made the crossing.",
+        "missedLine": "Something that mattered stayed on the slipway.",
+        "status": "active",
+        "index": 2
+      }
+    ],
+    "goalIndex": {
+      "within-weight": {
+        "key": "within-weight",
+        "label": "The load stays legal",
+        "condition": {
+          "kind": "sumResource",
+          "resource": "weight",
+          "scope": "plan",
+          "cmp": "lte",
+          "value": 14
+        },
+        "reachedLine": "The boat rode high enough the whole way over.",
+        "missedLine": "She was down at the gunwales and everyone knew it.",
+        "status": "active",
+        "index": 0
+      },
+      "medicine-lands": {
+        "key": "medicine-lands",
+        "label": "Medicine reaches Far Shore",
+        "condition": {
+          "kind": "pieceIn",
+          "piece": "medkit",
+          "place": "far-shore"
+        },
+        "impossibleWhen": {
+          "kind": "all",
+          "terms": [
+            {
+              "kind": "beatFired",
+              "beat": "the-sever"
+            },
+            {
+              "kind": "pieceCut",
+              "piece": "medkit"
+            }
+          ]
+        },
+        "reachedLine": "The chest went up the beach before dark.",
+        "missedLine": "The village will wait another week for it.",
+        "status": "active",
+        "index": 1
+      },
+      "critical-aboard": {
+        "key": "critical-aboard",
+        "label": "Every critical load sails",
+        "condition": {
+          "kind": "countTagged",
+          "tag": "critical",
+          "scope": "plan",
+          "cmp": "gte",
+          "value": 3
+        },
+        "reachedLine": "Doctor, pump and chest all made the crossing.",
+        "missedLine": "Something that mattered stayed on the slipway.",
+        "status": "active",
+        "index": 2
+      }
+    },
+    "voices": [
+      {
+        "key": "ilse",
+        "name": "Ilse",
+        "role": "harbourmaster",
+        "claim": "The pump goes over before anything else.",
+        "concern": {
+          "kind": "not",
+          "term": {
+            "kind": "pieceCut",
+            "piece": "pump"
+          }
+        },
+        "tethers": [
+          {
+            "kind": "piece",
+            "piece": "pump"
+          }
+        ],
+        "anchor": {
+          "kind": "place",
+          "place": "quay"
+        },
+        "outcomes": [
+          {
+            "condition": {
+              "kind": "pieceCut",
+              "piece": "pump"
+            },
+            "line": "You left the pump. I hope you can explain that."
+          }
+        ],
+        "fallbackOutcome": "The pump went over. That is the one that mattered.",
+        "claimVariants": [],
+        "index": 0
+      },
+      {
+        "key": "otto",
+        "name": "Otto",
+        "role": "grows the north fields",
+        "claim": "Without the grain there is nothing to eat.",
+        "concern": {
+          "kind": "not",
+          "term": {
+            "kind": "pieceCut",
+            "piece": "grain"
+          }
+        },
+        "tethers": [
+          {
+            "kind": "piece",
+            "piece": "grain"
+          }
+        ],
+        "anchor": {
+          "kind": "place",
+          "place": "far-shore"
+        },
+        "outcomes": [
+          {
+            "condition": {
+              "kind": "pieceCut",
+              "piece": "grain"
+            },
+            "line": "No grain. We will be thin by March."
+          }
+        ],
+        "fallbackOutcome": "The sacks came over. We will manage the winter.",
+        "claimVariants": [],
+        "index": 1
+      }
+    ],
+    "voiceIndex": {
+      "ilse": {
+        "key": "ilse",
+        "name": "Ilse",
+        "role": "harbourmaster",
+        "claim": "The pump goes over before anything else.",
+        "concern": {
+          "kind": "not",
+          "term": {
+            "kind": "pieceCut",
+            "piece": "pump"
+          }
+        },
+        "tethers": [
+          {
+            "kind": "piece",
+            "piece": "pump"
+          }
+        ],
+        "anchor": {
+          "kind": "place",
+          "place": "quay"
+        },
+        "outcomes": [
+          {
+            "condition": {
+              "kind": "pieceCut",
+              "piece": "pump"
+            },
+            "line": "You left the pump. I hope you can explain that."
+          }
+        ],
+        "fallbackOutcome": "The pump went over. That is the one that mattered.",
+        "claimVariants": [],
+        "index": 0
+      },
+      "otto": {
+        "key": "otto",
+        "name": "Otto",
+        "role": "grows the north fields",
+        "claim": "Without the grain there is nothing to eat.",
+        "concern": {
+          "kind": "not",
+          "term": {
+            "kind": "pieceCut",
+            "piece": "grain"
+          }
+        },
+        "tethers": [
+          {
+            "kind": "piece",
+            "piece": "grain"
+          }
+        ],
+        "anchor": {
+          "kind": "place",
+          "place": "far-shore"
+        },
+        "outcomes": [
+          {
+            "condition": {
+              "kind": "pieceCut",
+              "piece": "grain"
+            },
+            "line": "No grain. We will be thin by March."
+          }
+        ],
+        "fallbackOutcome": "The sacks came over. We will manage the winter.",
+        "claimVariants": [],
+        "index": 1
+      }
+    },
+    "beats": [
+      {
+        "key": "the-sever",
+        "trigger": "afterCommit",
+        "omen": {
+          "edge": "north",
+          "text": "Cloud building in the north channel"
+        },
+        "variants": [
+          {
+            "key": "engine-held",
+            "guard": {
+              "kind": "piecePinned",
+              "piece": "pump"
+            },
+            "effects": [
+              {
+                "kind": "severAfter",
+                "place": "midpoint"
+              }
+            ],
+            "staging": "rupture",
+            "severity": "sharp",
+            "entryEdge": "north",
+            "locus": {
+              "kind": "place",
+              "place": "midpoint"
+            },
+            "headline": "The channel shuts beyond Mid Reach.",
+            "scarLabel": "Channel shut",
+            "index": 0
+          },
+          {
+            "key": "weather-wins",
+            "effects": [
+              {
+                "kind": "severAfter",
+                "place": "quay"
+              }
+            ],
+            "staging": "rupture",
+            "severity": "heavy",
+            "entryEdge": "north",
+            "locus": {
+              "kind": "place",
+              "place": "quay"
+            },
+            "headline": "The channel shuts beyond Quay Head.",
+            "scarLabel": "Channel shut",
+            "index": 1
+          }
+        ],
+        "index": 0,
+        "variantIndex": {
+          "engine-held": {
+            "key": "engine-held",
+            "guard": {
+              "kind": "piecePinned",
+              "piece": "pump"
+            },
+            "effects": [
+              {
+                "kind": "severAfter",
+                "place": "midpoint"
+              }
+            ],
+            "staging": "rupture",
+            "severity": "sharp",
+            "entryEdge": "north",
+            "locus": {
+              "kind": "place",
+              "place": "midpoint"
+            },
+            "headline": "The channel shuts beyond Mid Reach.",
+            "scarLabel": "Channel shut"
+          },
+          "weather-wins": {
+            "key": "weather-wins",
+            "effects": [
+              {
+                "kind": "severAfter",
+                "place": "quay"
+              }
+            ],
+            "staging": "rupture",
+            "severity": "heavy",
+            "entryEdge": "north",
+            "locus": {
+              "kind": "place",
+              "place": "quay"
+            },
+            "headline": "The channel shuts beyond Quay Head.",
+            "scarLabel": "Channel shut"
+          }
+        }
+      }
+    ],
+    "beatIndex": {
+      "the-sever": {
+        "key": "the-sever",
+        "trigger": "afterCommit",
+        "omen": {
+          "edge": "north",
+          "text": "Cloud building in the north channel"
+        },
+        "variants": [
+          {
+            "key": "engine-held",
+            "guard": {
+              "kind": "piecePinned",
+              "piece": "pump"
+            },
+            "effects": [
+              {
+                "kind": "severAfter",
+                "place": "midpoint"
+              }
+            ],
+            "staging": "rupture",
+            "severity": "sharp",
+            "entryEdge": "north",
+            "locus": {
+              "kind": "place",
+              "place": "midpoint"
+            },
+            "headline": "The channel shuts beyond Mid Reach.",
+            "scarLabel": "Channel shut",
+            "index": 0
+          },
+          {
+            "key": "weather-wins",
+            "effects": [
+              {
+                "kind": "severAfter",
+                "place": "quay"
+              }
+            ],
+            "staging": "rupture",
+            "severity": "heavy",
+            "entryEdge": "north",
+            "locus": {
+              "kind": "place",
+              "place": "quay"
+            },
+            "headline": "The channel shuts beyond Quay Head.",
+            "scarLabel": "Channel shut",
+            "index": 1
+          }
+        ],
+        "index": 0,
+        "variantIndex": {
+          "engine-held": {
+            "key": "engine-held",
+            "guard": {
+              "kind": "piecePinned",
+              "piece": "pump"
+            },
+            "effects": [
+              {
+                "kind": "severAfter",
+                "place": "midpoint"
+              }
+            ],
+            "staging": "rupture",
+            "severity": "sharp",
+            "entryEdge": "north",
+            "locus": {
+              "kind": "place",
+              "place": "midpoint"
+            },
+            "headline": "The channel shuts beyond Mid Reach.",
+            "scarLabel": "Channel shut"
+          },
+          "weather-wins": {
+            "key": "weather-wins",
+            "effects": [
+              {
+                "kind": "severAfter",
+                "place": "quay"
+              }
+            ],
+            "staging": "rupture",
+            "severity": "heavy",
+            "entryEdge": "north",
+            "locus": {
+              "kind": "place",
+              "place": "quay"
+            },
+            "headline": "The channel shuts beyond Quay Head.",
+            "scarLabel": "Channel shut"
+          }
+        }
+      }
+    },
+    "resolution": {
+      "hindsight": [
+        {
+          "piece": "grain",
+          "condition": {
+            "kind": "pieceCut",
+            "piece": "grain"
+          },
+          "note": "Left on the slipway to keep the weight down."
+        },
+        {
+          "piece": "medkit",
+          "condition": {
+            "kind": "pieceIn",
+            "piece": "medkit",
+            "place": "quay"
+          },
+          "note": "Landed at the near quay and went no further."
+        }
+      ]
+    },
+    "tutor": {
+      "brief": "Six loads, fourteen kilos, three landings in order. The three critical loads weigh eleven together, so the grain only sails if something else does not. Ask where each thing should land, not just whether it goes. The pin matters here: what they choose to protect changes how far the boat gets.",
+      "prompts": {
+        "plan": [
+          "Why that landing and not the next one?",
+          "What happens if this never arrives?"
+        ],
+        "commit": [
+          "What are you protecting above everything else?"
+        ],
+        "perturb": [
+          "Which part of the plan just died?"
+        ],
+        "react": [
+          "What is stranded now?"
+        ],
+        "revise": [
+          "What goes back ashore to make this work?"
+        ],
+        "resolve": [
+          "Was the grain worth the risk you took?"
+        ]
+      }
+    },
+    "topology": {
+      "kind": "sequence",
+      "order": [
+        "quay",
+        "midpoint",
+        "far-shore"
+      ],
+      "adjacency": {
+        "quay": [],
+        "midpoint": [],
+        "far-shore": []
+      },
+      "template": null
+    },
+    "affinity": {
+      "doctor": [
+        "quay",
+        "midpoint",
+        "far-shore"
+      ],
+      "pump": [
+        "quay",
+        "midpoint",
+        "far-shore"
+      ],
+      "medkit": [
+        "midpoint",
+        "far-shore"
+      ],
+      "grain": [
+        "midpoint",
+        "far-shore"
+      ],
+      "radio": [
+        "quay",
+        "midpoint",
+        "far-shore"
+      ],
+      "lamps": [
+        "midpoint",
+        "far-shore"
+      ]
+    },
+    "layout": {
+      "stage": {
+        "width": 1280,
+        "height": 720
+      },
+      "regions": {
+        "horizon": {
+          "x": 80,
+          "y": 24,
+          "width": 1120,
+          "height": 64
+        },
+        "ground": {
+          "x": 80,
+          "y": 104,
+          "width": 1120,
+          "height": 452
+        },
+        "threshold": {
+          "x": 80,
+          "y": 572,
+          "width": 1120,
+          "height": 64
+        },
+        "margin": {
+          "x": 80,
+          "y": 652,
+          "width": 1120,
+          "height": 56
+        }
+      },
+      "places": {
+        "quay": {
+          "frame": {
+            "x": 108,
+            "y": 190,
+            "width": 336,
+            "height": 280
+          },
+          "nameAnchor": {
+            "x": 276,
+            "y": 210,
+            "maxWidth": 320
+          },
+          "sockets": [
+            {
+              "index": 0,
+              "x": 192,
+              "y": 283,
+              "radius": 18
+            },
+            {
+              "index": 1,
+              "x": 360,
+              "y": 283,
+              "radius": 18
+            },
+            {
+              "index": 2,
+              "x": 276,
+              "y": 400,
+              "radius": 18
+            }
+          ]
+        },
+        "midpoint": {
+          "frame": {
+            "x": 472,
+            "y": 190,
+            "width": 336,
+            "height": 280
+          },
+          "nameAnchor": {
+            "x": 640,
+            "y": 210,
+            "maxWidth": 320
+          },
+          "sockets": [
+            {
+              "index": 0,
+              "x": 556,
+              "y": 341,
+              "radius": 18
+            },
+            {
+              "index": 1,
+              "x": 724,
+              "y": 341,
+              "radius": 18
+            }
+          ]
+        },
+        "far-shore": {
+          "frame": {
+            "x": 836,
+            "y": 190,
+            "width": 336,
+            "height": 280
+          },
+          "nameAnchor": {
+            "x": 1004,
+            "y": 210,
+            "maxWidth": 320
+          },
+          "sockets": [
+            {
+              "index": 0,
+              "x": 920,
+              "y": 283,
+              "radius": 18
+            },
+            {
+              "index": 1,
+              "x": 1088,
+              "y": 283,
+              "radius": 18
+            },
+            {
+              "index": 2,
+              "x": 1004,
+              "y": 400,
+              "radius": 18
+            }
+          ]
+        }
+      },
+      "segments": [
+        {
+          "from": "quay",
+          "to": "midpoint",
+          "path": {
+            "x1": 444,
+            "y1": 330,
+            "x2": 472,
+            "y2": 330
+          }
+        },
+        {
+          "from": "midpoint",
+          "to": "far-shore",
+          "path": {
+            "x1": 808,
+            "y1": 330,
+            "x2": 836,
+            "y2": 330
+          }
+        }
+      ],
+      "threshold": [
+        {
+          "index": 0,
+          "x": 173,
+          "y": 604,
+          "maxWidth": 175
+        },
+        {
+          "index": 1,
+          "x": 360,
+          "y": 604,
+          "maxWidth": 175
+        },
+        {
+          "index": 2,
+          "x": 547,
+          "y": 604,
+          "maxWidth": 175
+        },
+        {
+          "index": 3,
+          "x": 733,
+          "y": 604,
+          "maxWidth": 175
+        },
+        {
+          "index": 4,
+          "x": 920,
+          "y": 604,
+          "maxWidth": 175
+        },
+        {
+          "index": 5,
+          "x": 1107,
+          "y": 604,
+          "maxWidth": 175
+        }
+      ],
+      "margin": [
+        {
+          "index": 0,
+          "x": 173,
+          "y": 680,
+          "maxWidth": 175
+        },
+        {
+          "index": 1,
+          "x": 360,
+          "y": 680,
+          "maxWidth": 175
+        },
+        {
+          "index": 2,
+          "x": 547,
+          "y": 680,
+          "maxWidth": 175
+        },
+        {
+          "index": 3,
+          "x": 733,
+          "y": 680,
+          "maxWidth": 175
+        },
+        {
+          "index": 4,
+          "x": 920,
+          "y": 680,
+          "maxWidth": 175
+        },
+        {
+          "index": 5,
+          "x": 1107,
+          "y": 680,
+          "maxWidth": 175
+        }
+      ],
+      "horizon": [
+        {
+          "index": 0,
+          "x": 267,
+          "y": 56,
+          "maxWidth": 361
+        },
+        {
+          "index": 1,
+          "x": 640,
+          "y": 56,
+          "maxWidth": 361
+        },
+        {
+          "index": 2,
+          "x": 1013,
+          "y": 56,
+          "maxWidth": 361
+        }
+      ],
+      "entryPoints": {
+        "north": {
+          "x": 640,
+          "y": 0
+        },
+        "east": {
+          "x": 1280,
+          "y": 360
+        },
+        "south": {
+          "x": 640,
+          "y": 720
+        },
+        "west": {
+          "x": 0,
+          "y": 360
+        },
+        "threshold": {
+          "x": 640,
+          "y": 572
+        },
+        "horizon": {
+          "x": 640,
+          "y": 24
+        }
+      }
+    },
+    "disclosure": {
+      "place:quay": "initial",
+      "place:midpoint": "initial",
+      "place:far-shore": "initial",
+      "piece:doctor": "initial",
+      "piece:pump": "initial",
+      "piece:medkit": "initial",
+      "piece:grain": "initial",
+      "piece:radio": "initial",
+      "piece:lamps": "initial",
+      "rule:boat-load": "initial",
+      "rule:supplies-onward": "initial",
+      "rule:pump-first": "initial",
+      "goal:within-weight": "initial",
+      "goal:medicine-lands": "initial",
+      "goal:critical-aboard": "initial",
+      "voice:ilse": "initial",
+      "voice:otto": "initial",
+      "resource:weight": "initial"
+    },
+    "tutorSafe": {
+      "brief": "Six loads, fourteen kilos, three landings in order. The three critical loads weigh eleven together, so the grain only sails if something else does not. Ask where each thing should land, not just whether it goes. The pin matters here: what they choose to protect changes how far the boat gets.",
+      "prompts": {
+        "plan": [
+          "Why that landing and not the next one?",
+          "What happens if this never arrives?"
+        ],
+        "commit": [
+          "What are you protecting above everything else?"
+        ],
+        "perturb": [
+          "Which part of the plan just died?"
+        ],
+        "react": [
+          "What is stranded now?"
+        ],
+        "revise": [
+          "What goes back ashore to make this work?"
+        ],
+        "resolve": [
+          "Was the grain worth the risk you took?"
+        ]
+      },
+      "pressures": [
+        {
+          "beat": "the-sever",
+          "trigger": "afterCommit",
+          "categories": [
+            "something breaks"
+          ],
+          "severities": [
+            "sharp",
+            "heavy"
+          ],
+          "foreshadowed": true
+        }
+      ],
+      "languageFocus": [
+        "prioritisation",
+        "conditionals",
+        "concession"
+      ],
+      "levelBand": "B2-C1",
+      "targetMinutes": 15
+    }
+  },
+  "provenance": {
+    "authoredBy": "hand",
+    "compiledAt": null
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "atlas-arcade",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\"",
+    "play": "node harness/play.js",
+    "build-revisions": "node harness/build-revisions.js"
+  }
+}

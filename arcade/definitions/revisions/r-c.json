@@ -1,0 +1,1336 @@
+{
+  "revisionId": "twenty-kilos-0bfa6a9ef005",
+  "engineId": "shared-plan",
+  "contentHash": "0bfa6a9ef005ddaaa195290a8a879f30",
+  "engineRuntimeVersion": "0.1.0",
+  "definitionSchemaVersion": "0",
+  "compilerVersion": "0.1.0",
+  "sessionSchemaVersion": "0",
+  "generationContractVersion": "none",
+  "compiledGame": {
+    "contract": {
+      "engineId": "shared-plan",
+      "schemaVersion": "0"
+    },
+    "meta": {
+      "title": "Twenty Kilos",
+      "premise": "Everything you take has to be carried, and the sled only goes as far as the ice allows.",
+      "levelBand": "B1-B2",
+      "targetMinutes": 15,
+      "tone": "dry"
+    },
+    "design": {
+      "tensionShape": "safetyVsMeaning",
+      "pressureSignature": "scarcity",
+      "intendedDilemma": "Warmth, safety and the sponsor each want a place in a pack that holds four things, and only the sled was making all three possible.",
+      "languageFocus": [
+        "prioritisation",
+        "comparison",
+        "justification"
+      ]
+    },
+    "presentation": {
+      "stageForm": "vessel",
+      "kit": "draftingRoom",
+      "accent": "blueprint"
+    },
+    "world": {
+      "topology": "groups",
+      "thresholdLabel": "The Store",
+      "marginLabel": "Base Camp",
+      "clockLabel": "Departure"
+    },
+    "places": [
+      {
+        "key": "pack",
+        "name": "Pack",
+        "glyph": "crate",
+        "sockets": 4,
+        "descriptor": "Carried on your back",
+        "status": "active",
+        "index": 0
+      },
+      {
+        "key": "sled",
+        "name": "Sled",
+        "glyph": "depot",
+        "sockets": 4,
+        "descriptor": "Only while the ice holds",
+        "status": "active",
+        "index": 1
+      }
+    ],
+    "placeIndex": {
+      "pack": {
+        "key": "pack",
+        "name": "Pack",
+        "glyph": "crate",
+        "sockets": 4,
+        "descriptor": "Carried on your back",
+        "status": "active",
+        "index": 0
+      },
+      "sled": {
+        "key": "sled",
+        "name": "Sled",
+        "glyph": "depot",
+        "sockets": 4,
+        "descriptor": "Only while the ice holds",
+        "status": "active",
+        "index": 1
+      }
+    },
+    "pieces": [
+      {
+        "key": "tent",
+        "name": "Tent",
+        "glyph": "tent",
+        "tags": [
+          "warm",
+          "shelter"
+        ],
+        "resources": {
+          "mass": 5,
+          "bulk": 18
+        },
+        "status": "active",
+        "index": 0
+      },
+      {
+        "key": "stove",
+        "name": "Stove",
+        "glyph": "kitchen",
+        "tags": [
+          "warm"
+        ],
+        "resources": {
+          "mass": 3,
+          "bulk": 8
+        },
+        "status": "active",
+        "index": 1
+      },
+      {
+        "key": "fuel",
+        "name": "Fuel Cans",
+        "glyph": "barrel",
+        "tags": [
+          "warm"
+        ],
+        "resources": {
+          "mass": 6,
+          "bulk": 14
+        },
+        "status": "active",
+        "index": 2
+      },
+      {
+        "key": "rations",
+        "name": "Rations",
+        "glyph": "store",
+        "tags": [
+          "food"
+        ],
+        "resources": {
+          "mass": 7,
+          "bulk": 20
+        },
+        "status": "active",
+        "index": 3
+      },
+      {
+        "key": "medkit",
+        "name": "Med Kit",
+        "glyph": "medicine",
+        "tags": [
+          "safety"
+        ],
+        "resources": {
+          "mass": 2,
+          "bulk": 5
+        },
+        "status": "active",
+        "index": 4
+      },
+      {
+        "key": "camera",
+        "name": "Camera Rig",
+        "glyph": "instrument",
+        "tags": [
+          "sponsor"
+        ],
+        "resources": {
+          "mass": 4,
+          "bulk": 10
+        },
+        "status": "active",
+        "index": 5
+      },
+      {
+        "key": "rope",
+        "name": "Rope",
+        "glyph": "toolkit",
+        "tags": [
+          "safety"
+        ],
+        "resources": {
+          "mass": 3,
+          "bulk": 6
+        },
+        "status": "active",
+        "index": 6
+      },
+      {
+        "key": "radio",
+        "name": "Radio",
+        "glyph": "radio",
+        "tags": [
+          "safety"
+        ],
+        "resources": {
+          "mass": 2,
+          "bulk": 4
+        },
+        "status": "active",
+        "index": 7
+      }
+    ],
+    "pieceIndex": {
+      "tent": {
+        "key": "tent",
+        "name": "Tent",
+        "glyph": "tent",
+        "tags": [
+          "warm",
+          "shelter"
+        ],
+        "resources": {
+          "mass": 5,
+          "bulk": 18
+        },
+        "status": "active",
+        "index": 0
+      },
+      "stove": {
+        "key": "stove",
+        "name": "Stove",
+        "glyph": "kitchen",
+        "tags": [
+          "warm"
+        ],
+        "resources": {
+          "mass": 3,
+          "bulk": 8
+        },
+        "status": "active",
+        "index": 1
+      },
+      "fuel": {
+        "key": "fuel",
+        "name": "Fuel Cans",
+        "glyph": "barrel",
+        "tags": [
+          "warm"
+        ],
+        "resources": {
+          "mass": 6,
+          "bulk": 14
+        },
+        "status": "active",
+        "index": 2
+      },
+      "rations": {
+        "key": "rations",
+        "name": "Rations",
+        "glyph": "store",
+        "tags": [
+          "food"
+        ],
+        "resources": {
+          "mass": 7,
+          "bulk": 20
+        },
+        "status": "active",
+        "index": 3
+      },
+      "medkit": {
+        "key": "medkit",
+        "name": "Med Kit",
+        "glyph": "medicine",
+        "tags": [
+          "safety"
+        ],
+        "resources": {
+          "mass": 2,
+          "bulk": 5
+        },
+        "status": "active",
+        "index": 4
+      },
+      "camera": {
+        "key": "camera",
+        "name": "Camera Rig",
+        "glyph": "instrument",
+        "tags": [
+          "sponsor"
+        ],
+        "resources": {
+          "mass": 4,
+          "bulk": 10
+        },
+        "status": "active",
+        "index": 5
+      },
+      "rope": {
+        "key": "rope",
+        "name": "Rope",
+        "glyph": "toolkit",
+        "tags": [
+          "safety"
+        ],
+        "resources": {
+          "mass": 3,
+          "bulk": 6
+        },
+        "status": "active",
+        "index": 6
+      },
+      "radio": {
+        "key": "radio",
+        "name": "Radio",
+        "glyph": "radio",
+        "tags": [
+          "safety"
+        ],
+        "resources": {
+          "mass": 2,
+          "bulk": 4
+        },
+        "status": "active",
+        "index": 7
+      }
+    },
+    "resources": [
+      {
+        "key": "mass",
+        "label": "Mass",
+        "unit": "kilos",
+        "scope": "place",
+        "limit": 15,
+        "render": "loadLine",
+        "index": 0
+      },
+      {
+        "key": "bulk",
+        "label": "Bulk",
+        "unit": "litres",
+        "scope": "plan",
+        "limit": 55,
+        "render": "loadLine",
+        "index": 1
+      }
+    ],
+    "resourceIndex": {
+      "mass": {
+        "key": "mass",
+        "label": "Mass",
+        "unit": "kilos",
+        "scope": "place",
+        "limit": 15,
+        "render": "loadLine",
+        "index": 0
+      },
+      "bulk": {
+        "key": "bulk",
+        "label": "Bulk",
+        "unit": "litres",
+        "scope": "plan",
+        "limit": 55,
+        "render": "loadLine",
+        "index": 1
+      }
+    },
+    "rules": [
+      {
+        "key": "carry-limit",
+        "kind": "sumLimit",
+        "resource": "mass",
+        "inscription": "Twenty kilos to a load",
+        "status": "active",
+        "index": 0
+      },
+      {
+        "key": "bulk-limit",
+        "kind": "sumLimit",
+        "resource": "bulk",
+        "inscription": "Seventy litres in all",
+        "status": "active",
+        "index": 1
+      },
+      {
+        "key": "stove-needs-fuel",
+        "kind": "requires",
+        "piece": "stove",
+        "needs": {
+          "kind": "piece",
+          "piece": "fuel"
+        },
+        "where": "anywhere",
+        "inscription": "Stove needs fuel",
+        "status": "active",
+        "index": 2
+      }
+    ],
+    "ruleIndex": {
+      "carry-limit": {
+        "key": "carry-limit",
+        "kind": "sumLimit",
+        "resource": "mass",
+        "inscription": "Twenty kilos to a load",
+        "status": "active",
+        "index": 0
+      },
+      "bulk-limit": {
+        "key": "bulk-limit",
+        "kind": "sumLimit",
+        "resource": "bulk",
+        "inscription": "Seventy litres in all",
+        "status": "active",
+        "index": 1
+      },
+      "stove-needs-fuel": {
+        "key": "stove-needs-fuel",
+        "kind": "requires",
+        "piece": "stove",
+        "needs": {
+          "kind": "piece",
+          "piece": "fuel"
+        },
+        "where": "anywhere",
+        "inscription": "Stove needs fuel",
+        "status": "active",
+        "index": 2
+      }
+    },
+    "goals": [
+      {
+        "key": "stay-warm",
+        "label": "The team can stay warm",
+        "condition": {
+          "kind": "countTagged",
+          "tag": "warm",
+          "scope": "plan",
+          "cmp": "gte",
+          "value": 2
+        },
+        "reachedLine": "Cold nights, but survivable ones.",
+        "missedLine": "Nobody slept properly after the second night.",
+        "status": "active",
+        "index": 0
+      },
+      {
+        "key": "stay-safe",
+        "label": "Safety gear is carried",
+        "condition": {
+          "kind": "countTagged",
+          "tag": "safety",
+          "scope": "plan",
+          "cmp": "gte",
+          "value": 2
+        },
+        "reachedLine": "When it went wrong you had what you needed.",
+        "missedLine": "You were further from help than you thought.",
+        "status": "active",
+        "index": 1
+      },
+      {
+        "key": "sponsor-served",
+        "label": "The sponsor gets footage",
+        "condition": {
+          "kind": "pieceIn",
+          "piece": "camera",
+          "place": "pack"
+        },
+        "reachedLine": "The rig made the summit. The funding is safe.",
+        "missedLine": "No footage. Next year will be harder to fund.",
+        "status": "active",
+        "index": 2
+      }
+    ],
+    "goalIndex": {
+      "stay-warm": {
+        "key": "stay-warm",
+        "label": "The team can stay warm",
+        "condition": {
+          "kind": "countTagged",
+          "tag": "warm",
+          "scope": "plan",
+          "cmp": "gte",
+          "value": 2
+        },
+        "reachedLine": "Cold nights, but survivable ones.",
+        "missedLine": "Nobody slept properly after the second night.",
+        "status": "active",
+        "index": 0
+      },
+      "stay-safe": {
+        "key": "stay-safe",
+        "label": "Safety gear is carried",
+        "condition": {
+          "kind": "countTagged",
+          "tag": "safety",
+          "scope": "plan",
+          "cmp": "gte",
+          "value": 2
+        },
+        "reachedLine": "When it went wrong you had what you needed.",
+        "missedLine": "You were further from help than you thought.",
+        "status": "active",
+        "index": 1
+      },
+      "sponsor-served": {
+        "key": "sponsor-served",
+        "label": "The sponsor gets footage",
+        "condition": {
+          "kind": "pieceIn",
+          "piece": "camera",
+          "place": "pack"
+        },
+        "reachedLine": "The rig made the summit. The funding is safe.",
+        "missedLine": "No footage. Next year will be harder to fund.",
+        "status": "active",
+        "index": 2
+      }
+    },
+    "voices": [
+      {
+        "key": "ravi",
+        "name": "Ravi",
+        "role": "the sponsor",
+        "claim": "We need summit footage or the funding goes.",
+        "concern": {
+          "kind": "pieceIn",
+          "piece": "camera",
+          "place": "pack"
+        },
+        "claimVariants": [
+          "Carry the rig yourself if you have to."
+        ],
+        "tethers": [
+          {
+            "kind": "piece",
+            "piece": "camera"
+          }
+        ],
+        "anchor": {
+          "kind": "place",
+          "place": "pack"
+        },
+        "outcomes": [
+          {
+            "condition": {
+              "kind": "pieceCut",
+              "piece": "camera"
+            },
+            "line": "You left the rig behind. We will talk in March."
+          }
+        ],
+        "fallbackOutcome": "The rig went with you. Good. Bring something back.",
+        "index": 0
+      },
+      {
+        "key": "anke",
+        "name": "Anke",
+        "role": "team doctor",
+        "claim": "The med kit is not negotiable. Ever.",
+        "concern": {
+          "kind": "not",
+          "term": {
+            "kind": "pieceCut",
+            "piece": "medkit"
+          }
+        },
+        "tethers": [
+          {
+            "kind": "piece",
+            "piece": "medkit"
+          }
+        ],
+        "anchor": {
+          "kind": "place",
+          "place": "pack"
+        },
+        "outcomes": [
+          {
+            "condition": {
+              "kind": "pieceCut",
+              "piece": "medkit"
+            },
+            "line": "You went out without it. I want that on record."
+          }
+        ],
+        "fallbackOutcome": "The kit went. I can live with the rest.",
+        "claimVariants": [],
+        "index": 1
+      }
+    ],
+    "voiceIndex": {
+      "ravi": {
+        "key": "ravi",
+        "name": "Ravi",
+        "role": "the sponsor",
+        "claim": "We need summit footage or the funding goes.",
+        "concern": {
+          "kind": "pieceIn",
+          "piece": "camera",
+          "place": "pack"
+        },
+        "claimVariants": [
+          "Carry the rig yourself if you have to."
+        ],
+        "tethers": [
+          {
+            "kind": "piece",
+            "piece": "camera"
+          }
+        ],
+        "anchor": {
+          "kind": "place",
+          "place": "pack"
+        },
+        "outcomes": [
+          {
+            "condition": {
+              "kind": "pieceCut",
+              "piece": "camera"
+            },
+            "line": "You left the rig behind. We will talk in March."
+          }
+        ],
+        "fallbackOutcome": "The rig went with you. Good. Bring something back.",
+        "index": 0
+      },
+      "anke": {
+        "key": "anke",
+        "name": "Anke",
+        "role": "team doctor",
+        "claim": "The med kit is not negotiable. Ever.",
+        "concern": {
+          "kind": "not",
+          "term": {
+            "kind": "pieceCut",
+            "piece": "medkit"
+          }
+        },
+        "tethers": [
+          {
+            "kind": "piece",
+            "piece": "medkit"
+          }
+        ],
+        "anchor": {
+          "kind": "place",
+          "place": "pack"
+        },
+        "outcomes": [
+          {
+            "condition": {
+              "kind": "pieceCut",
+              "piece": "medkit"
+            },
+            "line": "You went out without it. I want that on record."
+          }
+        ],
+        "fallbackOutcome": "The kit went. I can live with the rest.",
+        "claimVariants": [],
+        "index": 1
+      }
+    },
+    "beats": [
+      {
+        "key": "the-sled-goes",
+        "trigger": "afterCommit",
+        "omen": {
+          "edge": "north",
+          "text": "Thin ice on the north track"
+        },
+        "variants": [
+          {
+            "key": "sponsor-holds",
+            "guard": {
+              "kind": "pieceIn",
+              "piece": "camera",
+              "place": "pack"
+            },
+            "effects": [
+              {
+                "kind": "setCapacity",
+                "place": "sled",
+                "sockets": 0
+              },
+              {
+                "kind": "adjustResourceLimit",
+                "resource": "bulk",
+                "limit": 38
+              },
+              {
+                "kind": "shiftVoice",
+                "voice": "ravi",
+                "claimVariant": 0
+              }
+            ],
+            "staging": "drought",
+            "severity": "heavy",
+            "entryEdge": "north",
+            "locus": {
+              "kind": "place",
+              "place": "sled"
+            },
+            "headline": "The sled is gone. Carry what you can.",
+            "scarLabel": "Sled lost",
+            "index": 0
+          },
+          {
+            "key": "travel-light",
+            "effects": [
+              {
+                "kind": "setCapacity",
+                "place": "sled",
+                "sockets": 0
+              },
+              {
+                "kind": "adjustResourceLimit",
+                "resource": "bulk",
+                "limit": 44
+              }
+            ],
+            "staging": "drought",
+            "severity": "sharp",
+            "entryEdge": "north",
+            "locus": {
+              "kind": "place",
+              "place": "sled"
+            },
+            "headline": "The sled is gone. Carry what you can.",
+            "scarLabel": "Sled lost",
+            "index": 1
+          }
+        ],
+        "index": 0,
+        "variantIndex": {
+          "sponsor-holds": {
+            "key": "sponsor-holds",
+            "guard": {
+              "kind": "pieceIn",
+              "piece": "camera",
+              "place": "pack"
+            },
+            "effects": [
+              {
+                "kind": "setCapacity",
+                "place": "sled",
+                "sockets": 0
+              },
+              {
+                "kind": "adjustResourceLimit",
+                "resource": "bulk",
+                "limit": 38
+              },
+              {
+                "kind": "shiftVoice",
+                "voice": "ravi",
+                "claimVariant": 0
+              }
+            ],
+            "staging": "drought",
+            "severity": "heavy",
+            "entryEdge": "north",
+            "locus": {
+              "kind": "place",
+              "place": "sled"
+            },
+            "headline": "The sled is gone. Carry what you can.",
+            "scarLabel": "Sled lost"
+          },
+          "travel-light": {
+            "key": "travel-light",
+            "effects": [
+              {
+                "kind": "setCapacity",
+                "place": "sled",
+                "sockets": 0
+              },
+              {
+                "kind": "adjustResourceLimit",
+                "resource": "bulk",
+                "limit": 44
+              }
+            ],
+            "staging": "drought",
+            "severity": "sharp",
+            "entryEdge": "north",
+            "locus": {
+              "kind": "place",
+              "place": "sled"
+            },
+            "headline": "The sled is gone. Carry what you can.",
+            "scarLabel": "Sled lost"
+          }
+        }
+      }
+    ],
+    "beatIndex": {
+      "the-sled-goes": {
+        "key": "the-sled-goes",
+        "trigger": "afterCommit",
+        "omen": {
+          "edge": "north",
+          "text": "Thin ice on the north track"
+        },
+        "variants": [
+          {
+            "key": "sponsor-holds",
+            "guard": {
+              "kind": "pieceIn",
+              "piece": "camera",
+              "place": "pack"
+            },
+            "effects": [
+              {
+                "kind": "setCapacity",
+                "place": "sled",
+                "sockets": 0
+              },
+              {
+                "kind": "adjustResourceLimit",
+                "resource": "bulk",
+                "limit": 38
+              },
+              {
+                "kind": "shiftVoice",
+                "voice": "ravi",
+                "claimVariant": 0
+              }
+            ],
+            "staging": "drought",
+            "severity": "heavy",
+            "entryEdge": "north",
+            "locus": {
+              "kind": "place",
+              "place": "sled"
+            },
+            "headline": "The sled is gone. Carry what you can.",
+            "scarLabel": "Sled lost",
+            "index": 0
+          },
+          {
+            "key": "travel-light",
+            "effects": [
+              {
+                "kind": "setCapacity",
+                "place": "sled",
+                "sockets": 0
+              },
+              {
+                "kind": "adjustResourceLimit",
+                "resource": "bulk",
+                "limit": 44
+              }
+            ],
+            "staging": "drought",
+            "severity": "sharp",
+            "entryEdge": "north",
+            "locus": {
+              "kind": "place",
+              "place": "sled"
+            },
+            "headline": "The sled is gone. Carry what you can.",
+            "scarLabel": "Sled lost",
+            "index": 1
+          }
+        ],
+        "index": 0,
+        "variantIndex": {
+          "sponsor-holds": {
+            "key": "sponsor-holds",
+            "guard": {
+              "kind": "pieceIn",
+              "piece": "camera",
+              "place": "pack"
+            },
+            "effects": [
+              {
+                "kind": "setCapacity",
+                "place": "sled",
+                "sockets": 0
+              },
+              {
+                "kind": "adjustResourceLimit",
+                "resource": "bulk",
+                "limit": 38
+              },
+              {
+                "kind": "shiftVoice",
+                "voice": "ravi",
+                "claimVariant": 0
+              }
+            ],
+            "staging": "drought",
+            "severity": "heavy",
+            "entryEdge": "north",
+            "locus": {
+              "kind": "place",
+              "place": "sled"
+            },
+            "headline": "The sled is gone. Carry what you can.",
+            "scarLabel": "Sled lost"
+          },
+          "travel-light": {
+            "key": "travel-light",
+            "effects": [
+              {
+                "kind": "setCapacity",
+                "place": "sled",
+                "sockets": 0
+              },
+              {
+                "kind": "adjustResourceLimit",
+                "resource": "bulk",
+                "limit": 44
+              }
+            ],
+            "staging": "drought",
+            "severity": "sharp",
+            "entryEdge": "north",
+            "locus": {
+              "kind": "place",
+              "place": "sled"
+            },
+            "headline": "The sled is gone. Carry what you can.",
+            "scarLabel": "Sled lost"
+          }
+        }
+      }
+    },
+    "resolution": {
+      "hindsight": [
+        {
+          "piece": "camera",
+          "condition": {
+            "kind": "pieceCut",
+            "piece": "camera"
+          },
+          "note": "Went back to base when the sled died."
+        },
+        {
+          "piece": "fuel",
+          "condition": {
+            "kind": "pieceCut",
+            "piece": "fuel"
+          },
+          "note": "Left behind, and the stove with it."
+        }
+      ]
+    },
+    "tutor": {
+      "brief": "Eight items, two loads, two limits. The sled is doing most of the work and it will not last. Before you commit, make them say what the sled is for. After it goes there are four sockets and twenty kilos, and warmth, safety and the sponsor cannot all fit. Push on which of the three they are willing to lose.",
+      "prompts": {
+        "plan": [
+          "Why does that go on the sled and not the pack?",
+          "What would you drop first?"
+        ],
+        "commit": [
+          "What are you refusing to leave behind?"
+        ],
+        "perturb": [
+          "How much of that plan still works?"
+        ],
+        "react": [
+          "What has to come out now?"
+        ],
+        "revise": [
+          "Warmth, safety or footage. Which one goes?"
+        ],
+        "resolve": [
+          "Was the sled a mistake, or just bad luck?"
+        ]
+      }
+    },
+    "topology": {
+      "kind": "groups",
+      "order": [
+        "pack",
+        "sled"
+      ],
+      "adjacency": {
+        "pack": [],
+        "sled": []
+      },
+      "template": null
+    },
+    "affinity": {
+      "tent": [
+        "pack",
+        "sled"
+      ],
+      "stove": [
+        "pack",
+        "sled"
+      ],
+      "fuel": [
+        "pack",
+        "sled"
+      ],
+      "rations": [
+        "pack",
+        "sled"
+      ],
+      "medkit": [
+        "pack",
+        "sled"
+      ],
+      "camera": [
+        "pack",
+        "sled"
+      ],
+      "rope": [
+        "pack",
+        "sled"
+      ],
+      "radio": [
+        "pack",
+        "sled"
+      ]
+    },
+    "layout": {
+      "stage": {
+        "width": 1280,
+        "height": 720
+      },
+      "regions": {
+        "horizon": {
+          "x": 80,
+          "y": 24,
+          "width": 1120,
+          "height": 64
+        },
+        "ground": {
+          "x": 80,
+          "y": 104,
+          "width": 1120,
+          "height": 452
+        },
+        "threshold": {
+          "x": 80,
+          "y": 572,
+          "width": 1120,
+          "height": 64
+        },
+        "margin": {
+          "x": 80,
+          "y": 652,
+          "width": 1120,
+          "height": 56
+        }
+      },
+      "places": {
+        "pack": {
+          "frame": {
+            "x": 108,
+            "y": 104,
+            "width": 518,
+            "height": 452
+          },
+          "nameAnchor": {
+            "x": 367,
+            "y": 124,
+            "maxWidth": 502
+          },
+          "sockets": [
+            {
+              "index": 0,
+              "x": 238,
+              "y": 240,
+              "radius": 18
+            },
+            {
+              "index": 1,
+              "x": 497,
+              "y": 240,
+              "radius": 18
+            },
+            {
+              "index": 2,
+              "x": 238,
+              "y": 443,
+              "radius": 18
+            },
+            {
+              "index": 3,
+              "x": 497,
+              "y": 443,
+              "radius": 18
+            }
+          ]
+        },
+        "sled": {
+          "frame": {
+            "x": 654,
+            "y": 104,
+            "width": 518,
+            "height": 452
+          },
+          "nameAnchor": {
+            "x": 913,
+            "y": 124,
+            "maxWidth": 502
+          },
+          "sockets": [
+            {
+              "index": 0,
+              "x": 784,
+              "y": 240,
+              "radius": 18
+            },
+            {
+              "index": 1,
+              "x": 1043,
+              "y": 240,
+              "radius": 18
+            },
+            {
+              "index": 2,
+              "x": 784,
+              "y": 443,
+              "radius": 18
+            },
+            {
+              "index": 3,
+              "x": 1043,
+              "y": 443,
+              "radius": 18
+            }
+          ]
+        }
+      },
+      "segments": [],
+      "threshold": [
+        {
+          "index": 0,
+          "x": 150,
+          "y": 604,
+          "maxWidth": 128
+        },
+        {
+          "index": 1,
+          "x": 290,
+          "y": 604,
+          "maxWidth": 128
+        },
+        {
+          "index": 2,
+          "x": 430,
+          "y": 604,
+          "maxWidth": 128
+        },
+        {
+          "index": 3,
+          "x": 570,
+          "y": 604,
+          "maxWidth": 128
+        },
+        {
+          "index": 4,
+          "x": 710,
+          "y": 604,
+          "maxWidth": 128
+        },
+        {
+          "index": 5,
+          "x": 850,
+          "y": 604,
+          "maxWidth": 128
+        },
+        {
+          "index": 6,
+          "x": 990,
+          "y": 604,
+          "maxWidth": 128
+        },
+        {
+          "index": 7,
+          "x": 1130,
+          "y": 604,
+          "maxWidth": 128
+        }
+      ],
+      "margin": [
+        {
+          "index": 0,
+          "x": 150,
+          "y": 680,
+          "maxWidth": 128
+        },
+        {
+          "index": 1,
+          "x": 290,
+          "y": 680,
+          "maxWidth": 128
+        },
+        {
+          "index": 2,
+          "x": 430,
+          "y": 680,
+          "maxWidth": 128
+        },
+        {
+          "index": 3,
+          "x": 570,
+          "y": 680,
+          "maxWidth": 128
+        },
+        {
+          "index": 4,
+          "x": 710,
+          "y": 680,
+          "maxWidth": 128
+        },
+        {
+          "index": 5,
+          "x": 850,
+          "y": 680,
+          "maxWidth": 128
+        },
+        {
+          "index": 6,
+          "x": 990,
+          "y": 680,
+          "maxWidth": 128
+        },
+        {
+          "index": 7,
+          "x": 1130,
+          "y": 680,
+          "maxWidth": 128
+        }
+      ],
+      "horizon": [
+        {
+          "index": 0,
+          "x": 267,
+          "y": 56,
+          "maxWidth": 361
+        },
+        {
+          "index": 1,
+          "x": 640,
+          "y": 56,
+          "maxWidth": 361
+        },
+        {
+          "index": 2,
+          "x": 1013,
+          "y": 56,
+          "maxWidth": 361
+        }
+      ],
+      "entryPoints": {
+        "north": {
+          "x": 640,
+          "y": 0
+        },
+        "east": {
+          "x": 1280,
+          "y": 360
+        },
+        "south": {
+          "x": 640,
+          "y": 720
+        },
+        "west": {
+          "x": 0,
+          "y": 360
+        },
+        "threshold": {
+          "x": 640,
+          "y": 572
+        },
+        "horizon": {
+          "x": 640,
+          "y": 24
+        }
+      }
+    },
+    "disclosure": {
+      "place:pack": "initial",
+      "place:sled": "initial",
+      "piece:tent": "initial",
+      "piece:stove": "initial",
+      "piece:fuel": "initial",
+      "piece:rations": "initial",
+      "piece:medkit": "initial",
+      "piece:camera": "initial",
+      "piece:rope": "initial",
+      "piece:radio": "initial",
+      "rule:carry-limit": "initial",
+      "rule:bulk-limit": "initial",
+      "rule:stove-needs-fuel": "initial",
+      "goal:stay-warm": "initial",
+      "goal:stay-safe": "initial",
+      "goal:sponsor-served": "initial",
+      "voice:ravi": "initial",
+      "voice:anke": "initial",
+      "resource:mass": "initial",
+      "resource:bulk": "initial"
+    },
+    "tutorSafe": {
+      "brief": "Eight items, two loads, two limits. The sled is doing most of the work and it will not last. Before you commit, make them say what the sled is for. After it goes there are four sockets and twenty kilos, and warmth, safety and the sponsor cannot all fit. Push on which of the three they are willing to lose.",
+      "prompts": {
+        "plan": [
+          "Why does that go on the sled and not the pack?",
+          "What would you drop first?"
+        ],
+        "commit": [
+          "What are you refusing to leave behind?"
+        ],
+        "perturb": [
+          "How much of that plan still works?"
+        ],
+        "react": [
+          "What has to come out now?"
+        ],
+        "revise": [
+          "Warmth, safety or footage. Which one goes?"
+        ],
+        "resolve": [
+          "Was the sled a mistake, or just bad luck?"
+        ]
+      },
+      "pressures": [
+        {
+          "beat": "the-sled-goes",
+          "trigger": "afterCommit",
+          "categories": [
+            "something runs short"
+          ],
+          "severities": [
+            "heavy",
+            "sharp"
+          ],
+          "foreshadowed": true
+        }
+      ],
+      "languageFocus": [
+        "prioritisation",
+        "comparison",
+        "justification"
+      ],
+      "levelBand": "B1-B2",
+      "targetMinutes": 15
+    }
+  },
+  "provenance": {
+    "authoredBy": "hand",
+    "compiledAt": null
+  }
+}

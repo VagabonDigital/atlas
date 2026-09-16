@@ -1,0 +1,1361 @@
+{
+  "revisionId": "the-long-table-6d3f5ab854dd",
+  "engineId": "shared-plan",
+  "contentHash": "6d3f5ab854ddca8133dd16903d83c26b",
+  "engineRuntimeVersion": "0.1.0",
+  "definitionSchemaVersion": "0",
+  "compilerVersion": "0.1.0",
+  "sessionSchemaVersion": "0",
+  "generationContractVersion": "none",
+  "compiledGame": {
+    "contract": {
+      "engineId": "shared-plan",
+      "schemaVersion": "0"
+    },
+    "meta": {
+      "title": "The Long Table",
+      "premise": "Three tables, seven people, and one evening that everyone will remember differently.",
+      "levelBand": "B1-B2",
+      "targetMinutes": 15,
+      "tone": "warm"
+    },
+    "design": {
+      "tensionShape": "loyaltyVsEfficiency",
+      "pressureSignature": "arrival",
+      "intendedDilemma": "Seating that keeps the peace uses the porch. Using the porch is what the rain punishes, and someone then has nowhere to sit.",
+      "languageFocus": [
+        "justification",
+        "concession",
+        "hindsight"
+      ]
+    },
+    "presentation": {
+      "stageForm": "table",
+      "kit": "fieldNotebook",
+      "accent": "ink"
+    },
+    "world": {
+      "topology": "groups",
+      "thresholdLabel": "The Hallway",
+      "marginLabel": "Another Night",
+      "clockLabel": "Seven o’clock"
+    },
+    "places": [
+      {
+        "key": "hearth-table",
+        "name": "Hearth Table",
+        "glyph": "hearth",
+        "sockets": 3,
+        "descriptor": "Warm, and everyone hears you",
+        "status": "active",
+        "index": 0
+      },
+      {
+        "key": "window-table",
+        "name": "Window Table",
+        "glyph": "table",
+        "sockets": 3,
+        "descriptor": "Bright, a little formal",
+        "status": "active",
+        "index": 1
+      },
+      {
+        "key": "porch-table",
+        "name": "Porch Table",
+        "glyph": "bench",
+        "sockets": 2,
+        "descriptor": "Outside, under the eaves",
+        "status": "active",
+        "index": 2
+      }
+    ],
+    "placeIndex": {
+      "hearth-table": {
+        "key": "hearth-table",
+        "name": "Hearth Table",
+        "glyph": "hearth",
+        "sockets": 3,
+        "descriptor": "Warm, and everyone hears you",
+        "status": "active",
+        "index": 0
+      },
+      "window-table": {
+        "key": "window-table",
+        "name": "Window Table",
+        "glyph": "table",
+        "sockets": 3,
+        "descriptor": "Bright, a little formal",
+        "status": "active",
+        "index": 1
+      },
+      "porch-table": {
+        "key": "porch-table",
+        "name": "Porch Table",
+        "glyph": "bench",
+        "sockets": 2,
+        "descriptor": "Outside, under the eaves",
+        "status": "active",
+        "index": 2
+      }
+    },
+    "pieces": [
+      {
+        "key": "nadia",
+        "name": "Nadia",
+        "glyph": "person",
+        "tags": [
+          "guest",
+          "family"
+        ],
+        "resources": {},
+        "status": "active",
+        "index": 0
+      },
+      {
+        "key": "gregor",
+        "name": "Gregor",
+        "glyph": "elder",
+        "tags": [
+          "guest",
+          "family",
+          "elder"
+        ],
+        "fact": {
+          "text": "Feels the cold badly",
+          "hidden": false
+        },
+        "resources": {},
+        "status": "active",
+        "index": 1
+      },
+      {
+        "key": "imre",
+        "name": "Imre",
+        "glyph": "person",
+        "tags": [
+          "guest",
+          "friend"
+        ],
+        "resources": {},
+        "status": "active",
+        "index": 2
+      },
+      {
+        "key": "sofia",
+        "name": "Sofia",
+        "glyph": "child",
+        "tags": [
+          "guest",
+          "family",
+          "child"
+        ],
+        "resources": {},
+        "status": "active",
+        "index": 3
+      },
+      {
+        "key": "benedek",
+        "name": "Benedek",
+        "glyph": "person",
+        "tags": [
+          "guest",
+          "friend"
+        ],
+        "resources": {},
+        "status": "active",
+        "index": 4
+      },
+      {
+        "key": "talia",
+        "name": "Talia",
+        "glyph": "person",
+        "tags": [
+          "guest",
+          "family"
+        ],
+        "resources": {},
+        "status": "active",
+        "index": 5
+      },
+      {
+        "key": "orsolya",
+        "name": "Orsolya",
+        "glyph": "person",
+        "tags": [
+          "guest",
+          "family"
+        ],
+        "status": "dormant",
+        "fact": {
+          "text": "Has not eaten since morning",
+          "hidden": false
+        },
+        "resources": {},
+        "index": 6
+      }
+    ],
+    "pieceIndex": {
+      "nadia": {
+        "key": "nadia",
+        "name": "Nadia",
+        "glyph": "person",
+        "tags": [
+          "guest",
+          "family"
+        ],
+        "resources": {},
+        "status": "active",
+        "index": 0
+      },
+      "gregor": {
+        "key": "gregor",
+        "name": "Gregor",
+        "glyph": "elder",
+        "tags": [
+          "guest",
+          "family",
+          "elder"
+        ],
+        "fact": {
+          "text": "Feels the cold badly",
+          "hidden": false
+        },
+        "resources": {},
+        "status": "active",
+        "index": 1
+      },
+      "imre": {
+        "key": "imre",
+        "name": "Imre",
+        "glyph": "person",
+        "tags": [
+          "guest",
+          "friend"
+        ],
+        "resources": {},
+        "status": "active",
+        "index": 2
+      },
+      "sofia": {
+        "key": "sofia",
+        "name": "Sofia",
+        "glyph": "child",
+        "tags": [
+          "guest",
+          "family",
+          "child"
+        ],
+        "resources": {},
+        "status": "active",
+        "index": 3
+      },
+      "benedek": {
+        "key": "benedek",
+        "name": "Benedek",
+        "glyph": "person",
+        "tags": [
+          "guest",
+          "friend"
+        ],
+        "resources": {},
+        "status": "active",
+        "index": 4
+      },
+      "talia": {
+        "key": "talia",
+        "name": "Talia",
+        "glyph": "person",
+        "tags": [
+          "guest",
+          "family"
+        ],
+        "resources": {},
+        "status": "active",
+        "index": 5
+      },
+      "orsolya": {
+        "key": "orsolya",
+        "name": "Orsolya",
+        "glyph": "person",
+        "tags": [
+          "guest",
+          "family"
+        ],
+        "status": "dormant",
+        "fact": {
+          "text": "Has not eaten since morning",
+          "hidden": false
+        },
+        "resources": {},
+        "index": 6
+      }
+    },
+    "resources": [],
+    "resourceIndex": {},
+    "rules": [
+      {
+        "key": "sisters",
+        "kind": "together",
+        "a": "nadia",
+        "b": "talia",
+        "inscription": "Nadia sits with Talia",
+        "status": "active",
+        "index": 0
+      },
+      {
+        "key": "old-quarrel",
+        "kind": "apart",
+        "a": "gregor",
+        "b": "benedek",
+        "inscription": "Gregor and Benedek apart",
+        "status": "active",
+        "index": 1
+      },
+      {
+        "key": "children-inside",
+        "kind": "allowedIn",
+        "subject": {
+          "kind": "tag",
+          "tag": "child"
+        },
+        "places": [
+          "hearth-table",
+          "window-table"
+        ],
+        "inscription": "Children eat indoors",
+        "status": "active",
+        "index": 2
+      }
+    ],
+    "ruleIndex": {
+      "sisters": {
+        "key": "sisters",
+        "kind": "together",
+        "a": "nadia",
+        "b": "talia",
+        "inscription": "Nadia sits with Talia",
+        "status": "active",
+        "index": 0
+      },
+      "old-quarrel": {
+        "key": "old-quarrel",
+        "kind": "apart",
+        "a": "gregor",
+        "b": "benedek",
+        "inscription": "Gregor and Benedek apart",
+        "status": "active",
+        "index": 1
+      },
+      "children-inside": {
+        "key": "children-inside",
+        "kind": "allowedIn",
+        "subject": {
+          "kind": "tag",
+          "tag": "child"
+        },
+        "places": [
+          "hearth-table",
+          "window-table"
+        ],
+        "inscription": "Children eat indoors",
+        "status": "active",
+        "index": 2
+      }
+    },
+    "goals": [
+      {
+        "key": "all-seated",
+        "label": "Everyone finds a seat",
+        "condition": {
+          "kind": "countTagged",
+          "tag": "guest",
+          "scope": "plan",
+          "cmp": "gte",
+          "value": 7
+        },
+        "reachedLine": "Every chair was filled, and nobody ate standing up.",
+        "missedLine": "Someone went home without sitting down.",
+        "status": "active",
+        "index": 0
+      },
+      {
+        "key": "gregor-warm",
+        "label": "Gregor sits at the hearth",
+        "condition": {
+          "kind": "pieceIn",
+          "piece": "gregor",
+          "place": "hearth-table"
+        },
+        "impossibleWhen": {
+          "kind": "all",
+          "terms": [
+            {
+              "kind": "beatFired",
+              "beat": "the-arrival",
+              "variant": "porch-shut"
+            },
+            {
+              "kind": "pieceIn",
+              "piece": "gregor",
+              "place": "porch-table"
+            }
+          ]
+        },
+        "reachedLine": "Gregor kept the warm seat all evening.",
+        "missedLine": "Gregor sat where there was room, and said nothing.",
+        "status": "active",
+        "index": 1
+      }
+    ],
+    "goalIndex": {
+      "all-seated": {
+        "key": "all-seated",
+        "label": "Everyone finds a seat",
+        "condition": {
+          "kind": "countTagged",
+          "tag": "guest",
+          "scope": "plan",
+          "cmp": "gte",
+          "value": 7
+        },
+        "reachedLine": "Every chair was filled, and nobody ate standing up.",
+        "missedLine": "Someone went home without sitting down.",
+        "status": "active",
+        "index": 0
+      },
+      "gregor-warm": {
+        "key": "gregor-warm",
+        "label": "Gregor sits at the hearth",
+        "condition": {
+          "kind": "pieceIn",
+          "piece": "gregor",
+          "place": "hearth-table"
+        },
+        "impossibleWhen": {
+          "kind": "all",
+          "terms": [
+            {
+              "kind": "beatFired",
+              "beat": "the-arrival",
+              "variant": "porch-shut"
+            },
+            {
+              "kind": "pieceIn",
+              "piece": "gregor",
+              "place": "porch-table"
+            }
+          ]
+        },
+        "reachedLine": "Gregor kept the warm seat all evening.",
+        "missedLine": "Gregor sat where there was room, and said nothing.",
+        "status": "active",
+        "index": 1
+      }
+    },
+    "voices": [
+      {
+        "key": "marta",
+        "name": "Marta",
+        "role": "the host",
+        "claim": "Put Gregor by the hearth. He feels the cold.",
+        "concern": {
+          "kind": "pieceIn",
+          "piece": "gregor",
+          "place": "hearth-table"
+        },
+        "claimVariants": [
+          "Forget the hearth. Just find Orsolya a chair."
+        ],
+        "tethers": [
+          {
+            "kind": "piece",
+            "piece": "gregor"
+          },
+          {
+            "kind": "place",
+            "place": "hearth-table"
+          }
+        ],
+        "anchor": {
+          "kind": "place",
+          "place": "hearth-table"
+        },
+        "outcomes": [
+          {
+            "condition": {
+              "kind": "pieceIn",
+              "piece": "gregor",
+              "place": "hearth-table"
+            },
+            "line": "He was warm. That was all I wanted."
+          }
+        ],
+        "fallbackOutcome": "He sat where you put him. He always does.",
+        "index": 0
+      },
+      {
+        "key": "zsofia",
+        "name": "Zsofia",
+        "role": "Sofia’s mother",
+        "claim": "Sofia should sit where I can see her.",
+        "tethers": [
+          {
+            "kind": "piece",
+            "piece": "sofia"
+          }
+        ],
+        "anchor": {
+          "kind": "place",
+          "place": "window-table"
+        },
+        "outcomes": [
+          {
+            "condition": {
+              "kind": "pieceIn",
+              "piece": "sofia",
+              "place": "window-table"
+            },
+            "line": "She was right there by the window. Good."
+          }
+        ],
+        "fallbackOutcome": "I spent the evening turning round in my chair.",
+        "claimVariants": [],
+        "index": 1
+      },
+      {
+        "key": "dezso",
+        "name": "Dezso",
+        "role": "keeps the garden",
+        "claim": "The porch is the best table. Use it.",
+        "tethers": [
+          {
+            "kind": "place",
+            "place": "porch-table"
+          }
+        ],
+        "anchor": {
+          "kind": "place",
+          "place": "porch-table"
+        },
+        "outcomes": [
+          {
+            "condition": {
+              "kind": "beatFired",
+              "beat": "the-arrival",
+              "variant": "porch-shut"
+            },
+            "line": "The porch was perfect, right up until it was not."
+          },
+          {
+            "condition": {
+              "kind": "countTagged",
+              "tag": "guest",
+              "scope": "place",
+              "place": "porch-table",
+              "cmp": "gte",
+              "value": 1
+            },
+            "line": "Someone ate outside after all. I said so."
+          }
+        ],
+        "fallbackOutcome": "Nobody used the porch. Nobody ever does.",
+        "claimVariants": [],
+        "index": 2
+      }
+    ],
+    "voiceIndex": {
+      "marta": {
+        "key": "marta",
+        "name": "Marta",
+        "role": "the host",
+        "claim": "Put Gregor by the hearth. He feels the cold.",
+        "concern": {
+          "kind": "pieceIn",
+          "piece": "gregor",
+          "place": "hearth-table"
+        },
+        "claimVariants": [
+          "Forget the hearth. Just find Orsolya a chair."
+        ],
+        "tethers": [
+          {
+            "kind": "piece",
+            "piece": "gregor"
+          },
+          {
+            "kind": "place",
+            "place": "hearth-table"
+          }
+        ],
+        "anchor": {
+          "kind": "place",
+          "place": "hearth-table"
+        },
+        "outcomes": [
+          {
+            "condition": {
+              "kind": "pieceIn",
+              "piece": "gregor",
+              "place": "hearth-table"
+            },
+            "line": "He was warm. That was all I wanted."
+          }
+        ],
+        "fallbackOutcome": "He sat where you put him. He always does.",
+        "index": 0
+      },
+      "zsofia": {
+        "key": "zsofia",
+        "name": "Zsofia",
+        "role": "Sofia’s mother",
+        "claim": "Sofia should sit where I can see her.",
+        "tethers": [
+          {
+            "kind": "piece",
+            "piece": "sofia"
+          }
+        ],
+        "anchor": {
+          "kind": "place",
+          "place": "window-table"
+        },
+        "outcomes": [
+          {
+            "condition": {
+              "kind": "pieceIn",
+              "piece": "sofia",
+              "place": "window-table"
+            },
+            "line": "She was right there by the window. Good."
+          }
+        ],
+        "fallbackOutcome": "I spent the evening turning round in my chair.",
+        "claimVariants": [],
+        "index": 1
+      },
+      "dezso": {
+        "key": "dezso",
+        "name": "Dezso",
+        "role": "keeps the garden",
+        "claim": "The porch is the best table. Use it.",
+        "tethers": [
+          {
+            "kind": "place",
+            "place": "porch-table"
+          }
+        ],
+        "anchor": {
+          "kind": "place",
+          "place": "porch-table"
+        },
+        "outcomes": [
+          {
+            "condition": {
+              "kind": "beatFired",
+              "beat": "the-arrival",
+              "variant": "porch-shut"
+            },
+            "line": "The porch was perfect, right up until it was not."
+          },
+          {
+            "condition": {
+              "kind": "countTagged",
+              "tag": "guest",
+              "scope": "place",
+              "place": "porch-table",
+              "cmp": "gte",
+              "value": 1
+            },
+            "line": "Someone ate outside after all. I said so."
+          }
+        ],
+        "fallbackOutcome": "Nobody used the porch. Nobody ever does.",
+        "claimVariants": [],
+        "index": 2
+      }
+    },
+    "beats": [
+      {
+        "key": "the-arrival",
+        "trigger": "afterCommit",
+        "omen": {
+          "edge": "east",
+          "text": "A car slows on the lane"
+        },
+        "variants": [
+          {
+            "key": "porch-shut",
+            "guard": {
+              "kind": "countTagged",
+              "tag": "guest",
+              "scope": "place",
+              "place": "porch-table",
+              "cmp": "gte",
+              "value": 1
+            },
+            "effects": [
+              {
+                "kind": "introducePiece",
+                "piece": "orsolya"
+              },
+              {
+                "kind": "closePlace",
+                "place": "porch-table"
+              },
+              {
+                "kind": "shiftVoice",
+                "voice": "marta",
+                "claimVariant": 0
+              }
+            ],
+            "staging": "closure",
+            "severity": "sharp",
+            "entryEdge": "east",
+            "locus": {
+              "kind": "place",
+              "place": "porch-table"
+            },
+            "headline": "Rain takes the porch, and Orsolya is at the door.",
+            "scarLabel": "Rained off",
+            "index": 0
+          },
+          {
+            "key": "one-more",
+            "effects": [
+              {
+                "kind": "introducePiece",
+                "piece": "orsolya"
+              },
+              {
+                "kind": "shiftVoice",
+                "voice": "marta",
+                "claimVariant": 0
+              }
+            ],
+            "staging": "arrival",
+            "severity": "quiet",
+            "entryEdge": "east",
+            "locus": {
+              "kind": "threshold"
+            },
+            "headline": "Orsolya is at the door, and she has not eaten.",
+            "scarLabel": "Unplanned",
+            "index": 1
+          }
+        ],
+        "index": 0,
+        "variantIndex": {
+          "porch-shut": {
+            "key": "porch-shut",
+            "guard": {
+              "kind": "countTagged",
+              "tag": "guest",
+              "scope": "place",
+              "place": "porch-table",
+              "cmp": "gte",
+              "value": 1
+            },
+            "effects": [
+              {
+                "kind": "introducePiece",
+                "piece": "orsolya"
+              },
+              {
+                "kind": "closePlace",
+                "place": "porch-table"
+              },
+              {
+                "kind": "shiftVoice",
+                "voice": "marta",
+                "claimVariant": 0
+              }
+            ],
+            "staging": "closure",
+            "severity": "sharp",
+            "entryEdge": "east",
+            "locus": {
+              "kind": "place",
+              "place": "porch-table"
+            },
+            "headline": "Rain takes the porch, and Orsolya is at the door.",
+            "scarLabel": "Rained off"
+          },
+          "one-more": {
+            "key": "one-more",
+            "effects": [
+              {
+                "kind": "introducePiece",
+                "piece": "orsolya"
+              },
+              {
+                "kind": "shiftVoice",
+                "voice": "marta",
+                "claimVariant": 0
+              }
+            ],
+            "staging": "arrival",
+            "severity": "quiet",
+            "entryEdge": "east",
+            "locus": {
+              "kind": "threshold"
+            },
+            "headline": "Orsolya is at the door, and she has not eaten.",
+            "scarLabel": "Unplanned"
+          }
+        }
+      }
+    ],
+    "beatIndex": {
+      "the-arrival": {
+        "key": "the-arrival",
+        "trigger": "afterCommit",
+        "omen": {
+          "edge": "east",
+          "text": "A car slows on the lane"
+        },
+        "variants": [
+          {
+            "key": "porch-shut",
+            "guard": {
+              "kind": "countTagged",
+              "tag": "guest",
+              "scope": "place",
+              "place": "porch-table",
+              "cmp": "gte",
+              "value": 1
+            },
+            "effects": [
+              {
+                "kind": "introducePiece",
+                "piece": "orsolya"
+              },
+              {
+                "kind": "closePlace",
+                "place": "porch-table"
+              },
+              {
+                "kind": "shiftVoice",
+                "voice": "marta",
+                "claimVariant": 0
+              }
+            ],
+            "staging": "closure",
+            "severity": "sharp",
+            "entryEdge": "east",
+            "locus": {
+              "kind": "place",
+              "place": "porch-table"
+            },
+            "headline": "Rain takes the porch, and Orsolya is at the door.",
+            "scarLabel": "Rained off",
+            "index": 0
+          },
+          {
+            "key": "one-more",
+            "effects": [
+              {
+                "kind": "introducePiece",
+                "piece": "orsolya"
+              },
+              {
+                "kind": "shiftVoice",
+                "voice": "marta",
+                "claimVariant": 0
+              }
+            ],
+            "staging": "arrival",
+            "severity": "quiet",
+            "entryEdge": "east",
+            "locus": {
+              "kind": "threshold"
+            },
+            "headline": "Orsolya is at the door, and she has not eaten.",
+            "scarLabel": "Unplanned",
+            "index": 1
+          }
+        ],
+        "index": 0,
+        "variantIndex": {
+          "porch-shut": {
+            "key": "porch-shut",
+            "guard": {
+              "kind": "countTagged",
+              "tag": "guest",
+              "scope": "place",
+              "place": "porch-table",
+              "cmp": "gte",
+              "value": 1
+            },
+            "effects": [
+              {
+                "kind": "introducePiece",
+                "piece": "orsolya"
+              },
+              {
+                "kind": "closePlace",
+                "place": "porch-table"
+              },
+              {
+                "kind": "shiftVoice",
+                "voice": "marta",
+                "claimVariant": 0
+              }
+            ],
+            "staging": "closure",
+            "severity": "sharp",
+            "entryEdge": "east",
+            "locus": {
+              "kind": "place",
+              "place": "porch-table"
+            },
+            "headline": "Rain takes the porch, and Orsolya is at the door.",
+            "scarLabel": "Rained off"
+          },
+          "one-more": {
+            "key": "one-more",
+            "effects": [
+              {
+                "kind": "introducePiece",
+                "piece": "orsolya"
+              },
+              {
+                "kind": "shiftVoice",
+                "voice": "marta",
+                "claimVariant": 0
+              }
+            ],
+            "staging": "arrival",
+            "severity": "quiet",
+            "entryEdge": "east",
+            "locus": {
+              "kind": "threshold"
+            },
+            "headline": "Orsolya is at the door, and she has not eaten.",
+            "scarLabel": "Unplanned"
+          }
+        }
+      }
+    },
+    "resolution": {
+      "hindsight": [
+        {
+          "piece": "gregor",
+          "condition": {
+            "kind": "pieceIn",
+            "piece": "gregor",
+            "place": "porch-table"
+          },
+          "note": "Stayed on the porch when the rain came."
+        },
+        {
+          "piece": "orsolya",
+          "condition": {
+            "kind": "pieceCut",
+            "piece": "orsolya"
+          },
+          "note": "Arrived hungry and was sent away."
+        }
+      ]
+    },
+    "tutor": {
+      "brief": "Seven people, three tables, no numbers anywhere. The whole game is judgement. Let the learner seat everyone and say why before you commit. The porch looks like the easy answer and it is the one the weather punishes. After the change, push for what they are protecting rather than for a tidy arrangement.",
+      "prompts": {
+        "plan": [
+          "Who would mind sitting there?",
+          "Why those two together?"
+        ],
+        "commit": [
+          "Which seat would you refuse to change?"
+        ],
+        "perturb": [
+          "What does this cost you?"
+        ],
+        "react": [
+          "Who is worst off now?"
+        ],
+        "revise": [
+          "What are you giving up to fix it?"
+        ],
+        "resolve": [
+          "Would you seat them the same way again?"
+        ]
+      }
+    },
+    "topology": {
+      "kind": "groups",
+      "order": [
+        "hearth-table",
+        "window-table",
+        "porch-table"
+      ],
+      "adjacency": {
+        "hearth-table": [],
+        "window-table": [],
+        "porch-table": []
+      },
+      "template": null
+    },
+    "affinity": {
+      "nadia": [
+        "hearth-table",
+        "window-table",
+        "porch-table"
+      ],
+      "gregor": [
+        "hearth-table",
+        "window-table",
+        "porch-table"
+      ],
+      "imre": [
+        "hearth-table",
+        "window-table",
+        "porch-table"
+      ],
+      "sofia": [
+        "hearth-table",
+        "window-table"
+      ],
+      "benedek": [
+        "hearth-table",
+        "window-table",
+        "porch-table"
+      ],
+      "talia": [
+        "hearth-table",
+        "window-table",
+        "porch-table"
+      ],
+      "orsolya": [
+        "hearth-table",
+        "window-table",
+        "porch-table"
+      ]
+    },
+    "layout": {
+      "stage": {
+        "width": 1280,
+        "height": 720
+      },
+      "regions": {
+        "horizon": {
+          "x": 80,
+          "y": 24,
+          "width": 1120,
+          "height": 64
+        },
+        "ground": {
+          "x": 80,
+          "y": 104,
+          "width": 1120,
+          "height": 452
+        },
+        "threshold": {
+          "x": 80,
+          "y": 572,
+          "width": 1120,
+          "height": 64
+        },
+        "margin": {
+          "x": 80,
+          "y": 652,
+          "width": 1120,
+          "height": 56
+        }
+      },
+      "places": {
+        "hearth-table": {
+          "frame": {
+            "x": 108,
+            "y": 104,
+            "width": 336,
+            "height": 452
+          },
+          "nameAnchor": {
+            "x": 276,
+            "y": 124,
+            "maxWidth": 320
+          },
+          "sockets": [
+            {
+              "index": 0,
+              "x": 192,
+              "y": 240,
+              "radius": 18
+            },
+            {
+              "index": 1,
+              "x": 360,
+              "y": 240,
+              "radius": 18
+            },
+            {
+              "index": 2,
+              "x": 276,
+              "y": 443,
+              "radius": 18
+            }
+          ]
+        },
+        "window-table": {
+          "frame": {
+            "x": 472,
+            "y": 104,
+            "width": 336,
+            "height": 452
+          },
+          "nameAnchor": {
+            "x": 640,
+            "y": 124,
+            "maxWidth": 320
+          },
+          "sockets": [
+            {
+              "index": 0,
+              "x": 556,
+              "y": 240,
+              "radius": 18
+            },
+            {
+              "index": 1,
+              "x": 724,
+              "y": 240,
+              "radius": 18
+            },
+            {
+              "index": 2,
+              "x": 640,
+              "y": 443,
+              "radius": 18
+            }
+          ]
+        },
+        "porch-table": {
+          "frame": {
+            "x": 836,
+            "y": 104,
+            "width": 336,
+            "height": 452
+          },
+          "nameAnchor": {
+            "x": 1004,
+            "y": 124,
+            "maxWidth": 320
+          },
+          "sockets": [
+            {
+              "index": 0,
+              "x": 920,
+              "y": 341,
+              "radius": 18
+            },
+            {
+              "index": 1,
+              "x": 1088,
+              "y": 341,
+              "radius": 18
+            }
+          ]
+        }
+      },
+      "segments": [],
+      "threshold": [
+        {
+          "index": 0,
+          "x": 160,
+          "y": 604,
+          "maxWidth": 148
+        },
+        {
+          "index": 1,
+          "x": 320,
+          "y": 604,
+          "maxWidth": 148
+        },
+        {
+          "index": 2,
+          "x": 480,
+          "y": 604,
+          "maxWidth": 148
+        },
+        {
+          "index": 3,
+          "x": 640,
+          "y": 604,
+          "maxWidth": 148
+        },
+        {
+          "index": 4,
+          "x": 800,
+          "y": 604,
+          "maxWidth": 148
+        },
+        {
+          "index": 5,
+          "x": 960,
+          "y": 604,
+          "maxWidth": 148
+        },
+        {
+          "index": 6,
+          "x": 1120,
+          "y": 604,
+          "maxWidth": 148
+        }
+      ],
+      "margin": [
+        {
+          "index": 0,
+          "x": 160,
+          "y": 680,
+          "maxWidth": 148
+        },
+        {
+          "index": 1,
+          "x": 320,
+          "y": 680,
+          "maxWidth": 148
+        },
+        {
+          "index": 2,
+          "x": 480,
+          "y": 680,
+          "maxWidth": 148
+        },
+        {
+          "index": 3,
+          "x": 640,
+          "y": 680,
+          "maxWidth": 148
+        },
+        {
+          "index": 4,
+          "x": 800,
+          "y": 680,
+          "maxWidth": 148
+        },
+        {
+          "index": 5,
+          "x": 960,
+          "y": 680,
+          "maxWidth": 148
+        },
+        {
+          "index": 6,
+          "x": 1120,
+          "y": 680,
+          "maxWidth": 148
+        }
+      ],
+      "horizon": [
+        {
+          "index": 0,
+          "x": 360,
+          "y": 56,
+          "maxWidth": 548
+        },
+        {
+          "index": 1,
+          "x": 920,
+          "y": 56,
+          "maxWidth": 548
+        }
+      ],
+      "entryPoints": {
+        "north": {
+          "x": 640,
+          "y": 0
+        },
+        "east": {
+          "x": 1280,
+          "y": 360
+        },
+        "south": {
+          "x": 640,
+          "y": 720
+        },
+        "west": {
+          "x": 0,
+          "y": 360
+        },
+        "threshold": {
+          "x": 640,
+          "y": 572
+        },
+        "horizon": {
+          "x": 640,
+          "y": 24
+        }
+      }
+    },
+    "disclosure": {
+      "place:hearth-table": "initial",
+      "place:window-table": "initial",
+      "place:porch-table": "initial",
+      "piece:nadia": "initial",
+      "piece:gregor": "initial",
+      "piece:imre": "initial",
+      "piece:sofia": "initial",
+      "piece:benedek": "initial",
+      "piece:talia": "initial",
+      "rule:sisters": "initial",
+      "rule:old-quarrel": "initial",
+      "rule:children-inside": "initial",
+      "goal:all-seated": "initial",
+      "goal:gregor-warm": "initial",
+      "voice:marta": "initial",
+      "voice:zsofia": "initial",
+      "voice:dezso": "initial",
+      "piece:orsolya": "the-arrival/porch-shut"
+    },
+    "tutorSafe": {
+      "brief": "Seven people, three tables, no numbers anywhere. The whole game is judgement. Let the learner seat everyone and say why before you commit. The porch looks like the easy answer and it is the one the weather punishes. After the change, push for what they are protecting rather than for a tidy arrangement.",
+      "prompts": {
+        "plan": [
+          "Who would mind sitting there?",
+          "Why those two together?"
+        ],
+        "commit": [
+          "Which seat would you refuse to change?"
+        ],
+        "perturb": [
+          "What does this cost you?"
+        ],
+        "react": [
+          "Who is worst off now?"
+        ],
+        "revise": [
+          "What are you giving up to fix it?"
+        ],
+        "resolve": [
+          "Would you seat them the same way again?"
+        ]
+      },
+      "pressures": [
+        {
+          "beat": "the-arrival",
+          "trigger": "afterCommit",
+          "categories": [
+            "something closes",
+            "something arrives"
+          ],
+          "severities": [
+            "sharp",
+            "quiet"
+          ],
+          "foreshadowed": true
+        }
+      ],
+      "languageFocus": [
+        "justification",
+        "concession",
+        "hindsight"
+      ],
+      "levelBand": "B1-B2",
+      "targetMinutes": 15
+    }
+  },
+  "provenance": {
+    "authoredBy": "hand",
+    "compiledAt": null
+  }
+}
