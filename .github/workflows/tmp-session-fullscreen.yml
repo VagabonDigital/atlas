@@ -1,0 +1,60 @@
+name: Temporary session fullscreen patch
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/tmp-session-fullscreen-trigger'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch shared session panel
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+
+          patches = [
+              (
+                  Path('shared/atlas-session-panel.css'),
+                  'QG1lZGlhIChtYXgtd2lkdGg6IDY4MHB4KSB7CiAgICAuYXRsYXMtc2Vzc2lvbi1vdmVybGF5IHsKICAgICAgICBhbGlnbi1pdGVtczogZmxleC1lbmQ7CiAgICAgICAgcGFkZGluZzogMDsKICAgIH0KCiAgICAuYXRsYXMtc2Vzc2lvbi1wYW5lbCB7CiAgICAgICAgd2lkdGg6IDEwMCU7CiAgICAgICAgbWF4LXdpZHRoOiBub25lOwogICAgICAgIG1heC1oZWlnaHQ6IDkyc3ZoOwogICAgICAgIGJvcmRlci1yaWdodDogMDsKICAgICAgICBib3JkZXItYm90dG9tOiAwOwogICAgICAgIGJvcmRlci1sZWZ0OiAwOwogICAgICAgIGJvcmRlci1yYWRpdXM6CiAgICAgICAgICAgIHZhcigtLWF0bGFzLW1vZGFsLXJhZGl1cy1sZykKICAgICAgICAgICAgdmFyKC0tYXRsYXMtbW9kYWwtcmFkaXVzLWxnKQogICAgICAgICAgICAwCiAgICAgICAgICAgIDA7CiAgICB9CgogICAgLmF0bGFzLXNlc3Npb24tc2FmZSwKICAgIC5hdGxhcy1zZXNzaW9uLW1hbmFnZSB7CiAgICAgICAgcGFkZGluZy1yaWdodDogMS4yNXJlbTsKICAgICAgICBwYWRkaW5nLWxlZnQ6IDEuMjVyZW07CiAgICB9CgogICAgLmF0bGFzLXNlc3Npb24tcHJpbWFyeSB7CiAgICAgICAgbWluLWhlaWdodDogM3JlbTsKICAgIH0KfQ==',
+                  'QG1lZGlhIChtYXgtd2lkdGg6IDY4MHB4KSB7CiAgICAuYXRsYXMtc2Vzc2lvbi1vdmVybGF5IHsKICAgICAgICBhbGlnbi1pdGVtczogc3RyZXRjaDsKICAgICAgICBqdXN0aWZ5LWNvbnRlbnQ6IHN0cmV0Y2g7CiAgICAgICAgcGFkZGluZzogMDsKICAgIH0KCiAgICAuYXRsYXMtc2Vzc2lvbi1wYW5lbCB7CiAgICAgICAgd2lkdGg6IDEwMCU7CiAgICAgICAgaGVpZ2h0OiAxMDAlOwogICAgICAgIG1heC13aWR0aDogbm9uZTsKICAgICAgICBtYXgtaGVpZ2h0OiBub25lOwogICAgICAgIGJvcmRlcjogMDsKICAgICAgICBib3JkZXItcmFkaXVzOiAwOwogICAgICAgIGJveC1zaGFkb3c6IG5vbmU7CiAgICAgICAgYW5pbWF0aW9uOiBub25lOwogICAgfQoKICAgIC5hdGxhcy1zZXNzaW9uLWhlYWRlciB7CiAgICAgICAgZmxleDogMCAwIGF1dG87CiAgICAgICAgcGFkZGluZy10b3A6CiAgICAgICAgICAgIGNhbGMoMS4xNXJlbSArIGVudihzYWZlLWFyZWEtaW5zZXQtdG9wKSk7CiAgICB9CgogICAgLmF0bGFzLXNlc3Npb24tc2FmZSwKICAgIC5hdGxhcy1zZXNzaW9uLW1hbmFnZSB7CiAgICAgICAgcGFkZGluZy1yaWdodDogMS4yNXJlbTsKICAgICAgICBwYWRkaW5nLWxlZnQ6IDEuMjVyZW07CiAgICB9CgogICAgLmF0bGFzLXNlc3Npb24tbWFuYWdlIHsKICAgICAgICBwYWRkaW5nLWJvdHRvbToKICAgICAgICAgICAgY2FsYygxLjI1cmVtICsgZW52KHNhZmUtYXJlYS1pbnNldC1ib3R0b20pKTsKICAgIH0KCiAgICAuYXRsYXMtc2Vzc2lvbi1wcmltYXJ5IHsKICAgICAgICBtaW4taGVpZ2h0OiAzcmVtOwogICAgfQp9'
+              ),
+              (
+                  Path('shared/atlas-session-panel.js'),
+                  'ICAgICAgICBlbGVtZW50cy5kaWFsb2cuc3R5bGUubWF4SGVpZ2h0ID0gYCR7TWF0aC5tYXgoMTgwLCBoZWlnaHQgLSA4KX1weGA7',
+                  'ICAgICAgICBlbGVtZW50cy5kaWFsb2cuc3R5bGUubWF4SGVpZ2h0ID0gYCR7TWF0aC5tYXgoMTgwLCBoZWlnaHQpfXB4YDs='
+              )
+          ]
+
+          for path, old_b64, new_b64 in patches:
+              text = path.read_text()
+              old = base64.b64decode(old_b64).decode()
+              new = base64.b64decode(new_b64).decode()
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{path}: expected exact block once, found {count}')
+              path.write_text(text.replace(old, new, 1))
+          PY
+
+          git rm -f .github/workflows/tmp-session-fullscreen.yml .github/tmp-session-fullscreen-trigger
+          git config user.name 'Atlas patch bot'
+          git config user.email 'atlas-patch-bot@users.noreply.github.com'
+          git add shared/atlas-session-panel.css shared/atlas-session-panel.js
+          git commit -m 'Make session panel full-screen on phones'
+          git push origin main
