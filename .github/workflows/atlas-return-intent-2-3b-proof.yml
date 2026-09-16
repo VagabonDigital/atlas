@@ -1,0 +1,74 @@
+name: Atlas Batch 2.3B same-page auth resume proof
+
+on:
+  push:
+    paths:
+      - '.github/workflows/atlas-return-intent-2-3b-proof.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync current main
+        run: |
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+
+      - name: Apply Batch 2.3B same-page resume
+        run: |
+          python .github/atlas_patch_return_intent_2_3b.py
+          sed -i "1s/^\\\\'use strict\\\\';/'use strict';/" tests/atlas-account-gate-return-intent.test.js
+
+      - name: Validate Stage 2 runtime syntax
+        run: |
+          node --check shared/atlas-access.js
+          node --check shared/atlas-access-bootstrap.js
+          node --check shared/atlas-account-gate.js
+          node --check shared/atlas-account-chrome.js
+          node --check shared/atlas-return-intent.js
+          node --check tests/atlas-access-contract.test.js
+          node --check tests/atlas-account-gate-contract.test.js
+          node --check tests/atlas-account-chrome-contract.test.js
+          node --check tests/atlas-return-intent-contract.test.js
+          node --check tests/atlas-account-gate-return-intent.test.js
+
+      - name: Run Stage 2 contract proofs
+        run: |
+          node tests/atlas-access-contract.test.js
+          node tests/atlas-account-gate-contract.test.js
+          node tests/atlas-account-chrome-contract.test.js
+          node tests/atlas-return-intent-contract.test.js
+          node tests/atlas-account-gate-return-intent.test.js
+
+      - name: Verify Batch 2.3B boundaries
+        run: |
+          grep -q "returnIntentId = null" shared/atlas-account-gate.js
+          grep -q "atlas:return-intent-resume" shared/atlas-account-gate.js
+          grep -q "ReturnIntent.consume" shared/atlas-account-gate.js
+          grep -q "accountgate2" shared/atlas-account-chrome.js
+          ! grep -q "window.location.href =" shared/atlas-account-gate.js
+          ! grep -q "window.location.assign" shared/atlas-account-gate.js
+          ! grep -q "AtlasReturnIntent" account/index.html
+
+      - name: Commit Batch 2.3B and remove runner
+        run: |
+          rm -f .github/workflows/atlas-return-intent-2-3b-proof.yml
+          rm -f .github/atlas_patch_return_intent_2_3b.py
+          git config user.name "Atlas Patch Runner"
+          git config user.email "atlas-patch@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo "No product changes to commit."
+            exit 0
+          fi
+          git commit -m "Wire same-page return intent through account gate"
+          git push origin main
