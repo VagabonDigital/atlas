@@ -1,0 +1,41 @@
+name: Atlas clear activity title patch
+
+on:
+  push:
+    paths:
+      - '.github/workflows/atlas-clear-activity-title-patch.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync current main
+        run: |
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+
+      - name: Apply guarded patch
+        run: python .github/atlas_patch_clear_activity_title.py
+
+      - name: Commit product change and remove runner
+        run: |
+          rm -f .github/workflows/atlas-clear-activity-title-patch.yml
+          rm -f .github/atlas_patch_clear_activity_title.py
+          git config user.name "Atlas Patch Runner"
+          git config user.email "atlas-patch@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo "No product changes to commit."
+            exit 0
+          fi
+          git commit -m "Clarify Compass activity clear confirmation"
+          git push origin main
