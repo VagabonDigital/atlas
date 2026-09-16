@@ -14,6 +14,8 @@
 
     const ACCOUNT_CLOUD_SRC =
         '/shared/atlas-account-cloud.js?v=20260916-account1';
+    const PERSISTENCE_TRUST_SRC =
+        '/shared/atlas-persistence-trust.js?v=20260916-trust1';
     const RECOVERY_SESSION_KEY = 'atlas::accountPasswordRecovery';
     const listeners = new Set();
 
@@ -32,6 +34,7 @@
     let initPromise = null;
     let unsubscribeAuth = null;
     let accountCloudPromise = null;
+    let persistenceTrustPromise = null;
     let entitlementRequestId = 0;
 
     function readRecoveryHint() {
@@ -166,6 +169,65 @@
         }
     }
 
+    function ensurePersistenceTrust() {
+        if (window.AtlasPersistenceTrust) {
+            return Promise.resolve(window.AtlasPersistenceTrust);
+        }
+
+        if (persistenceTrustPromise) return persistenceTrustPromise;
+
+        persistenceTrustPromise = new Promise((resolve, reject) => {
+            const existing = document.querySelector(
+                'script[data-atlas-persistence-trust]'
+            );
+
+            function complete() {
+                if (window.AtlasPersistenceTrust) {
+                    resolve(window.AtlasPersistenceTrust);
+                } else {
+                    persistenceTrustPromise = null;
+                    reject(new Error(
+                        'Atlas persistence trust support did not initialize.'
+                    ));
+                }
+            }
+
+            if (existing) {
+                existing.addEventListener('load', complete, { once: true });
+                existing.addEventListener(
+                    'error',
+                    () => {
+                        persistenceTrustPromise = null;
+                        reject(new Error(
+                            'Atlas could not load persistence trust support.'
+                        ));
+                    },
+                    { once: true }
+                );
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = PERSISTENCE_TRUST_SRC;
+            script.async = false;
+            script.dataset.atlasPersistenceTrust = 'true';
+            script.addEventListener('load', complete, { once: true });
+            script.addEventListener(
+                'error',
+                () => {
+                    persistenceTrustPromise = null;
+                    reject(new Error(
+                        'Atlas could not load persistence trust support.'
+                    ));
+                },
+                { once: true }
+            );
+            document.head.appendChild(script);
+        });
+
+        return persistenceTrustPromise;
+    }
+
     function ensureAccountCloud() {
         if (window.AtlasAccountCloud) {
             return Promise.resolve(window.AtlasAccountCloud);
@@ -295,6 +357,19 @@
         }, 0);
     }
 
+    function syncPersistenceScopeForSession(session) {
+        try {
+            window.AtlasPersistenceTrust?.syncScopeForUser?.(
+                session?.user?.id || null
+            );
+        } catch (error) {
+            console.error(
+                '[AtlasAccount] persistence scope sync failed:',
+                error
+            );
+        }
+    }
+
     function handleAuthStateChange(event, nextSession) {
         const previousUserId = state.userId;
         let recovery = state.recovery;
@@ -307,6 +382,10 @@
             writeRecoveryHint(false);
             entitlementRequestId += 1;
         }
+
+        // Swap browser projections before publishing the new account state so
+        // no downstream renderer can observe the previous tutor's local cache.
+        syncPersistenceScopeForSession(nextSession);
 
         const nextState = stateForSession(nextSession, { recovery });
         publish(nextState);
@@ -332,6 +411,8 @@
                 throw new Error('AtlasAccount requires AtlasCloud.');
             }
 
+            await ensurePersistenceTrust();
+
             const client = await AtlasCloud.getClient();
 
             const { data } = client.auth.onAuthStateChange(
@@ -347,6 +428,7 @@
             const session = await AtlasCloud.getSession();
             const recovery = Boolean(session?.user) && readRecoveryHint();
 
+            syncPersistenceScopeForSession(session);
             publish(stateForSession(session, { recovery }));
 
             if (session?.user?.id) {
@@ -406,6 +488,7 @@
         await AtlasCloud.signInWithPassword(email, password);
         const session = await AtlasCloud.getSession();
 
+        syncPersistenceScopeForSession(session);
         publish(stateForSession(session, { recovery: false }));
 
         if (session?.user?.id) {
@@ -426,6 +509,7 @@
         const session = data?.session || null;
 
         if (session?.user) {
+            syncPersistenceScopeForSession(session);
             publish(stateForSession(session, { recovery: false }));
             await refreshEntitlement(session.user.id);
         }
@@ -473,6 +557,7 @@
         entitlementRequestId += 1;
         writeRecoveryHint(false);
         await AtlasCloud.signOut();
+        syncPersistenceScopeForSession(null);
         publish(stateForSession(null, { recovery: false }));
         return snapshot();
     }
@@ -590,6 +675,18 @@
         destroy
     });
 
-    loadCompassOriginalCurationCloudAuthority();
-    loadSharedSessionSubjectsCloudAuthority();
+    // Account-scoped authorities that AtlasAccount loads dynamically should
+    // never initialize before the browser projection boundary is ready.
+    ensurePersistenceTrust()
+        .then(Trust => {
+            Trust.syncScope();
+            loadCompassOriginalCurationCloudAuthority();
+            loadSharedSessionSubjectsCloudAuthority();
+        })
+        .catch(error => {
+            console.error(
+                '[AtlasAccount] persistence trust bootstrap failed:',
+                error
+            );
+        });
 })();
