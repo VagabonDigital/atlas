@@ -45,6 +45,7 @@ jobs:
           grep -q 'atlas-content-registry.js?v=20260916-accountchrome3' compass/index.html
           grep -q 'atlas-content-registry.js?v=20260916-accountchrome3' arcade/index.html
           grep -q 'atlas-account-chrome.js?v=20260916-accountchrome3' tutors/index.html
+          grep -q 'atlas-content-registry\\.js\\?v=20260916-accountchrome3' tests/atlas-account-chrome-contract.test.js
 
       - name: Commit polish and remove runner
         run: |
