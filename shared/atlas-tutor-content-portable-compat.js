@@ -5,8 +5,9 @@
    can have a valid overrides map and an empty document object. Working drafts,
    by contrast, still require a complete structured document.
 
-   This layer aligns portable validation/export with the live cloud authority
-   without weakening draft validation or changing committed My Version data.
+   This layer aligns portable validation/export with the live cloud model. It
+   installs directly on AtlasTutorContent and does not depend on the separate
+   cloud-authority wrapper being present on the current page.
    ============================================================ */
 
 (function () {
@@ -17,8 +18,10 @@
     const SCHEMA_VERSION = 2;
     const PORTABLE_SCHEMA_VERSION = 1;
     const LOCAL_OWNER_ID = 'local-tutor';
-    const RETRY_LIMIT = 160;
+    const RETRY_LIMIT = 200;
     let attempts = 0;
+    let fallbackExportPortableData = null;
+    let getWorkingDraft = null;
 
     function isPlainObject(value) {
         return Boolean(
@@ -138,7 +141,8 @@
         const overrides = normalizeOverrides(record.overrides);
         if (
             !isPlainObject(record.overrides) ||
-            Object.keys(overrides).length !== Object.keys(record.overrides || {}).length
+            Object.keys(overrides).length !==
+                Object.keys(record.overrides || {}).length
         ) {
             errors.push(`${label}.overrides must contain only string fields.`);
         }
@@ -333,69 +337,99 @@
         };
     }
 
-    function install() {
+    async function exportPortableData() {
         const Store = window.AtlasTutorContent;
-        const Authority = window.AtlasTutorContentCloudAuthority;
         const Cloud = window.AtlasCloud;
 
         if (
-            !Store ||
-            !Authority ||
-            !Cloud ||
-            typeof Store.exportPortableData !== 'function' ||
-            typeof Store.getWorkingDraft !== 'function' ||
-            typeof Authority.useCloud !== 'function' ||
-            typeof Cloud.listTutorContentVersions !== 'function'
+            Cloud &&
+            typeof Cloud.getUser === 'function' &&
+            typeof Cloud.listTutorContentVersions === 'function'
         ) {
+            const user = await Cloud.getUser();
+
+            if (user?.id) {
+                const versions = await Cloud.listTutorContentVersions();
+                const workingDrafts = [];
+
+                for (const version of versions || []) {
+                    const contentId = String(version?.contentId || '').trim();
+                    if (!contentId) continue;
+
+                    const draft = await getWorkingDraft(contentId);
+                    if (draft) workingDrafts.push(cloneJson(draft));
+                }
+
+                const validation = validatePortableData({
+                    schemaVersion: PORTABLE_SCHEMA_VERSION,
+                    versions: cloneJson(versions || []),
+                    workingDrafts
+                });
+
+                if (!validation.valid) {
+                    throw new Error(validation.errors.join(' '));
+                }
+
+                return validation.data;
+            }
+        }
+
+        return fallbackExportPortableData();
+    }
+
+    exportPortableData.__atlasSparsePortableCompat = true;
+
+    function applyPatch() {
+        const Store = window.AtlasTutorContent;
+        if (!Store) return false;
+
+        if (!fallbackExportPortableData) {
+            if (typeof Store.exportPortableData !== 'function') return false;
+            fallbackExportPortableData = Store.exportPortableData.bind(Store);
+        }
+
+        if (!getWorkingDraft) {
+            if (typeof Store.getWorkingDraft !== 'function') return false;
+            getWorkingDraft = Store.getWorkingDraft.bind(Store);
+        }
+
+        Store.validatePortableData = validatePortableData;
+
+        if (
+            !Store.exportPortableData ||
+            Store.exportPortableData.__atlasSparsePortableCompat !== true
+        ) {
+            Store.exportPortableData = exportPortableData;
+        }
+
+        return true;
+    }
+
+    function ensurePatched() {
+        if (!applyPatch()) {
             attempts += 1;
             if (attempts < RETRY_LIMIT) {
-                window.setTimeout(install, 50);
+                window.setTimeout(ensurePatched, 50);
             }
             return;
         }
 
-        const previousExportPortableData =
-            Store.exportPortableData.bind(Store);
-        const currentGetWorkingDraft =
-            Store.getWorkingDraft.bind(Store);
-
-        async function exportPortableData() {
-            if (!(await Authority.useCloud())) {
-                return previousExportPortableData();
-            }
-
-            const versions = await Cloud.listTutorContentVersions();
-            const workingDrafts = [];
-
-            for (const version of versions || []) {
-                const contentId = String(version?.contentId || '').trim();
-                if (!contentId) continue;
-
-                const draft = await currentGetWorkingDraft(contentId);
-                if (draft) workingDrafts.push(cloneJson(draft));
-            }
-
-            const validation = validatePortableData({
-                schemaVersion: PORTABLE_SCHEMA_VERSION,
-                versions: cloneJson(versions || []),
-                workingDrafts
-            });
-
-            if (!validation.valid) {
-                throw new Error(validation.errors.join(' '));
-            }
-
-            return validation.data;
-        }
-
-        Store.validatePortableData = validatePortableData;
-        Store.exportPortableData = exportPortableData;
-
-        window.AtlasTutorContentPortableCompat = Object.freeze({
-            active: true,
-            validatePortableData
+        // Other persistence layers may initialize after this file and replace
+        // AtlasTutorContent methods. Reassert this narrow portable boundary a
+        // few times during bootstrap so backup semantics remain authoritative.
+        [100, 250, 500, 1000, 2000, 4000, 8000].forEach(delay => {
+            window.setTimeout(applyPatch, delay);
         });
     }
 
-    install();
+    window.addEventListener('atlas:account-change', applyPatch);
+    window.addEventListener('pageshow', applyPatch);
+
+    window.AtlasTutorContentPortableCompat = Object.freeze({
+        active: true,
+        validatePortableData,
+        ensurePatched: applyPatch
+    });
+
+    ensurePatched();
 })();
