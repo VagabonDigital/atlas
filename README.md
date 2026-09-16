@@ -47,11 +47,13 @@ Signed-out browser-local export remains on the legacy v2 path until the anonymou
 
 ### Backup v3 restore
 
-Backup v3 restore is an authenticated recovery/import operation, not a database replacement tool. Atlas previews the package against the destination account first. Stable-ID conflicts are surfaced before write and block restore; Atlas never silently overwrites an existing learner, My Subject, My Version, continuity record, Shared state, library, curation state or Hub personalization state. Existing unrelated destination data is left untouched.
+Backup v3 restore is an authenticated recovery/import operation, not a database replacement tool. Atlas previews the package against the destination account first. Stable entity IDs remain strict: an existing learner, learner-continuity record, My Subject or My Version with the same stable ID blocks the restore rather than being overwritten. A same-ID My Subjects category with a different name is also an explicit conflict.
+
+A destination account does **not** need to be empty. Account-level singleton state is merged transactionally with destination values taking precedence on overlap: My Subjects library/order and placement, Shared teaching continuity, Atlas Original curation, and Hub personalization/favourites. Source-only state is added; unrelated destination state is preserved. A second import of the same backup is therefore blocked by the stable entities created by the first import rather than silently duplicating or replacing them.
 
 A conflict-free durable restore is applied inside one `atlas_restore_v3` PostgreSQL transaction under the signed-in user's RLS identity. The backup source account is provenance only: data may be reconstructed into a different Atlas account, but auth identity, plan and entitlement state never transfer. My Subject identity is therefore account-scoped as `(owner_user_id, id)` rather than globally keyed by subject ID.
 
-Local working drafts and portable cosmetic preferences are staged separately. Their current values are conflict-checked before restore and rolled back if the durable transaction fails. If the destination already contains meaningful Atlas data, the client downloads a safety Backup v3 before applying the restore.
+Local working drafts use the same stable-ID conflict rule. Ordinary portable preferences are destination-preserving: existing destination preferences and per-session appearance values win where both sides have a value, while source-only appearance entries can be added. Local restore writes are rolled back if the durable transaction fails. If the destination already contains meaningful Atlas data, the client downloads a safety Backup v3 before applying the restore.
 
 ## Stage 1 trust contract
 
@@ -61,7 +63,7 @@ Stage 1 establishes the durable account boundary Atlas relies on before public a
 - RLS protects every durable account-owned table, while the browser projection boundary prevents same-browser account leakage.
 - Durable write failures are observable and user-visible where the action matters; Atlas does not silently pretend an account save succeeded.
 - Manual Backup v3 export reads canonical cloud truth and remains available as a basic data-ownership feature.
-- Backup v3 restore is validated, previewed, conflict-blocking and transaction-scoped; it merges only into missing stable identities and never wipes an account.
+- Backup v3 restore is validated, previewed, transaction-scoped and destination-preserving: stable-ID collisions block, unrelated destination data survives, and account-level singleton state merges rather than requiring an empty account.
 - Auth credentials, entitlement/plan state and transient lesson/runtime state are outside the backup/restore contract.
 
 ## Supabase migrations
