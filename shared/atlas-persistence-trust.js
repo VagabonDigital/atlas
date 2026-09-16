@@ -337,8 +337,11 @@
         });
     }
 
-    function refreshKnownAuthorities() {
+    function refreshKnownAuthorities(scope = activeScope || readScopeOwner()) {
         if (authorityRefreshPromise) return authorityRefreshPromise;
+
+        const authenticatedScope =
+            String(scope || '').startsWith('user:');
 
         authorityRefreshPromise = new Promise(resolve => {
             window.setTimeout(async () => {
@@ -346,37 +349,44 @@
                     window.AtlasCloudCache?.clear?.();
                     window.AtlasTutorSubjectsCloudAuthority?.refresh?.();
 
+                    // Learner Sessions owns an in-memory record map. Refresh it
+                    // even on sign-out so it stops treating the previous account
+                    // as authenticated; its signed-out path leaves restored local
+                    // AtlasBridge data untouched.
                     if (
                         window.AtlasLearnerSessionsCloudAuthority?.initialize
                     ) {
                         await window.AtlasLearnerSessionsCloudAuthority
-                            .initialize({ force: true });
+                            .initialize({ force: true })
+                            .catch(() => undefined);
                     }
 
-                    const refreshes = [
-                        window.AtlasLearnerContinuityCloudAuthority,
-                        window.AtlasSharedContinuityCloudAuthority,
-                        window.AtlasOriginalCurationCloudAuthority,
-                        window.AtlasHubPersonalizationCloudAuthority,
-                        window.AtlasSharedSessionSubjectsCloudAuthority
-                    ]
-                        .filter(authority =>
-                            authority &&
-                            typeof authority.initialize === 'function'
-                        )
-                        .map(authority =>
-                            authority.initialize({ force: true })
-                                .catch(() => undefined)
-                        );
+                    if (authenticatedScope) {
+                        const refreshes = [
+                            window.AtlasLearnerContinuityCloudAuthority,
+                            window.AtlasSharedContinuityCloudAuthority,
+                            window.AtlasOriginalCurationCloudAuthority,
+                            window.AtlasHubPersonalizationCloudAuthority,
+                            window.AtlasSharedSessionSubjectsCloudAuthority
+                        ]
+                            .filter(authority =>
+                                authority &&
+                                typeof authority.initialize === 'function'
+                            )
+                            .map(authority =>
+                                authority.initialize({ force: true })
+                                    .catch(() => undefined)
+                            );
 
-                    await Promise.all(refreshes);
+                        await Promise.all(refreshes);
 
-                    if (
-                        window.AtlasTutorContentCloudSync?.refreshProjection
-                    ) {
-                        await window.AtlasTutorContentCloudSync
-                            .refreshProjection()
-                            .catch(() => undefined);
+                        if (
+                            window.AtlasTutorContentCloudSync?.refreshProjection
+                        ) {
+                            await window.AtlasTutorContentCloudSync
+                                .refreshProjection()
+                                .catch(() => undefined);
+                        }
                     }
 
                     try {
@@ -414,7 +424,7 @@
             );
         } catch { }
 
-        void refreshKnownAuthorities();
+        void refreshKnownAuthorities(nextScope);
     }
 
     function syncScopeForUser(userId) {
@@ -543,7 +553,7 @@
             const nextState = syncScope();
 
             if (nextState.scope === previousScope) {
-                void refreshKnownAuthorities();
+                void refreshKnownAuthorities(nextState.scope);
             }
         }
     });
