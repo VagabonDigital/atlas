@@ -114,6 +114,40 @@
 })();
 
 /*
+ * Committed My Versions may be override-only records with an intentionally
+ * empty document. Load the portable compatibility boundary before backup use
+ * so export/restore validation matches the live Tutor Content authority.
+ */
+(function bootstrapTutorContentPortableCompat() {
+    'use strict';
+
+    if (
+        window.AtlasTutorContentPortableCompat ||
+        document.querySelector(
+            'script[data-atlas-tutor-content-portable-compat]'
+        )
+    ) {
+        return;
+    }
+
+    const script = document.createElement('script');
+    script.src =
+        '/shared/atlas-tutor-content-portable-compat.js?v=20260916-backup2';
+    script.async = false;
+    script.dataset.atlasTutorContentPortableCompat = 'true';
+    script.addEventListener(
+        'error',
+        () => {
+            console.error(
+                '[AtlasAccountCloud] Tutor Content portable compatibility could not load.'
+            );
+        },
+        { once: true }
+    );
+    document.head.appendChild(script);
+})();
+
+/*
  * The root Settings surface already loads the legacy portable-data module.
  * Once a signed-in account initializes, layer the canonical V3 exporter over
  * that stable API so the existing Download Backup control becomes cloud-truth
@@ -134,7 +168,7 @@
 
     const script = document.createElement('script');
     script.src =
-        '/shared/atlas-portable-data-v3.js?v=20260916-backup1';
+        '/shared/atlas-portable-data-v3.js?v=20260916-backup2';
     script.async = false;
     script.dataset.atlasPortableDataV3 = 'true';
     script.addEventListener(
@@ -186,7 +220,7 @@
 
         const script = document.createElement('script');
         script.src =
-            '/shared/atlas-restore-v3.js?v=20260916-restore1';
+            '/shared/atlas-restore-v3.js?v=20260916-restore2';
         script.async = false;
         script.dataset.atlasRestoreV3 = 'true';
         script.addEventListener(
