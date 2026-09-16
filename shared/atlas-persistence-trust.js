@@ -76,6 +76,7 @@
     let lastFailure = null;
     let lastToastSignature = '';
     let lastToastAt = 0;
+    let authorityRefreshPromise = null;
 
     function storageGet(storage, key) {
         try {
@@ -336,6 +337,68 @@
         });
     }
 
+    function refreshKnownAuthorities() {
+        if (authorityRefreshPromise) return authorityRefreshPromise;
+
+        authorityRefreshPromise = new Promise(resolve => {
+            window.setTimeout(async () => {
+                try {
+                    window.AtlasCloudCache?.clear?.();
+                    window.AtlasTutorSubjectsCloudAuthority?.refresh?.();
+
+                    if (
+                        window.AtlasLearnerSessionsCloudAuthority?.initialize
+                    ) {
+                        await window.AtlasLearnerSessionsCloudAuthority
+                            .initialize({ force: true });
+                    }
+
+                    const refreshes = [
+                        window.AtlasLearnerContinuityCloudAuthority,
+                        window.AtlasSharedContinuityCloudAuthority,
+                        window.AtlasOriginalCurationCloudAuthority,
+                        window.AtlasHubPersonalizationCloudAuthority,
+                        window.AtlasSharedSessionSubjectsCloudAuthority
+                    ]
+                        .filter(authority =>
+                            authority &&
+                            typeof authority.initialize === 'function'
+                        )
+                        .map(authority =>
+                            authority.initialize({ force: true })
+                                .catch(() => undefined)
+                        );
+
+                    await Promise.all(refreshes);
+
+                    if (
+                        window.AtlasTutorContentCloudSync?.refreshProjection
+                    ) {
+                        await window.AtlasTutorContentCloudSync
+                            .refreshProjection()
+                            .catch(() => undefined);
+                    }
+
+                    try {
+                        window.AtlasSessionPanel?.refresh?.();
+                        window.renderHome?.();
+                        window.dispatchEvent(
+                            new CustomEvent(
+                                'atlas:compass-hub-refresh-request',
+                                { detail: { source: 'persistence-trust' } }
+                            )
+                        );
+                    } catch { }
+                } finally {
+                    authorityRefreshPromise = null;
+                    resolve();
+                }
+            }, 0);
+        });
+
+        return authorityRefreshPromise;
+    }
+
     function dispatchScopeChange(previousScope, nextScope) {
         try {
             window.dispatchEvent(
@@ -350,6 +413,8 @@
                 })
             );
         } catch { }
+
+        void refreshKnownAuthorities();
     }
 
     function syncScopeForUser(userId) {
@@ -460,6 +525,7 @@
     window.AtlasPersistenceTrust = Object.freeze({
         syncScope,
         syncScopeForUser,
+        refreshKnownAuthorities,
         getState,
         clearLastFailure
     });
@@ -473,7 +539,12 @@
 
     window.addEventListener('storage', event => {
         if (event.key === AUTH_STORAGE_KEY) {
-            syncScope();
+            const previousScope = readScopeOwner();
+            const nextState = syncScope();
+
+            if (nextState.scope === previousScope) {
+                void refreshKnownAuthorities();
+            }
         }
     });
 })();
