@@ -454,7 +454,24 @@
     }
 
     html.theme-changing :where(
-      .subject-library *,
+      .subject-library-title,
+      .subject-library-empty-note,
+      .subject-library-create-btn,
+      .subject-card-title,
+      .subject-card-version-badge,
+      .subject-card-hook,
+      .subject-card-progress-label,
+      .subject-card-menu-meta,
+      .subject-card-menu button
+    ) {
+      transition:
+        background-color var(--hub-theme-motion),
+        color var(--hub-theme-motion),
+        border-color var(--hub-theme-motion),
+        opacity var(--hub-theme-motion);
+    }
+
+    html.theme-changing :where(
       .owned-subject-dialog-panel *,
       .subject-artwork-studio *
     ) {

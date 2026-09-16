@@ -150,6 +150,7 @@
 
     const DEFAULT_SESSION_ID = 'default';
     const APPEARANCE_TRANSITION_MS = 280;
+    const APPEARANCE_TRANSITION_CLEANUP_BUFFER_MS = 100;
     let appearanceTransitionTimer = null;
 
     // ============================================================
@@ -1296,10 +1297,13 @@
             clearTimeout(appearanceTransitionTimer);
         }
 
+        // Keep the transition contract alive for a few compositor frames
+        // after the visible 280ms motion completes. Removing the class on
+        // the exact final frame can force a style reset before the last paint.
         appearanceTransitionTimer = setTimeout(() => {
             root.classList.remove('theme-changing');
             appearanceTransitionTimer = null;
-        }, APPEARANCE_TRANSITION_MS);
+        }, APPEARANCE_TRANSITION_MS + APPEARANCE_TRANSITION_CLEANUP_BUFFER_MS);
     }
 
     function normalizeAppearanceMode(mode) {
