@@ -77,6 +77,8 @@ function runPlacementProof() {
     const chrome = read(CHROME_PATH);
     const registry = read(REGISTRY_PATH);
     const inside = read(INSIDE_PATH);
+    const chromeCss = read('shared/atlas-account-chrome.css');
+    const gate = read('shared/atlas-account-gate.js');
     const atlas = read('index.html');
     const compass = read('compass/index.html');
     const arcade = read('arcade/index.html');
@@ -125,7 +127,7 @@ function runPlacementProof() {
         );
         assert.match(
             source,
-            /atlas-content-registry\.js\?v=20260916-accountchrome1/,
+            /atlas-content-registry\.js\?v=20260916-accountchrome2/,
             `Product hub ${index + 1} must cache-bust the account-chrome registry version.`
         );
     });
@@ -158,8 +160,39 @@ function runPlacementProof() {
     );
     assert.match(
         inside,
-        /atlas-account-chrome\.js\?v=20260916-accountchrome1/,
+        /atlas-account-chrome\.js\?v=20260916-accountchrome2/,
         'Inside Atlas must load shared account chrome.'
+    );
+
+    assert.match(
+        chrome,
+        /variant === 'mobile'[\s\S]*?'mobile-header-btn'[\s\S]*?'spine-btn'/,
+        'Hub account controls must inherit the hubs’ native utility-button classes.'
+    );
+    assert.match(
+        chrome,
+        /MutationObserver/,
+        'Account chrome must mount as soon as the header mount point exists, not wait for DOMContentLoaded.'
+    );
+    assert.match(
+        chrome,
+        /if \(gateState\.menuOpen\)[\s\S]*?Gate\.closeAccountMenu\(\)/,
+        'The signed-in account control must toggle its menu closed on a second click.'
+    );
+    assert.match(
+        chrome,
+        /ensureGateStyles/,
+        'Account chrome must wait for gate/menu styles before opening account UI.'
+    );
+    assert.match(
+        chromeCss,
+        /\.atlas-inside-account-action\[hidden\][\s\S]*?display: none !important/,
+        'Inside Atlas guest/account controls must obey hidden state without duplicates.'
+    );
+    assert.match(
+        gate,
+        /focus\(\{ preventScroll: true \}\)/,
+        'Account gate/menu focus must not scroll the underlying page.'
     );
 }
 

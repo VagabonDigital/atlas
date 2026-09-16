@@ -21,7 +21,7 @@
     if (window.AtlasAccountGate) return;
 
     const STYLE_HREF =
-        '/shared/atlas-account-gate.css?v=20260916-accountgate1';
+        '/shared/atlas-account-gate.css?v=20260916-accountgate2';
     const RETURN_INTENT_SRC =
         '/shared/atlas-return-intent.js?v=20260916-returnintent1';
 
@@ -42,6 +42,16 @@
 
     function snapshot() {
         return { ...state };
+    }
+
+    function focusWithoutScroll(target) {
+        if (!target || typeof target.focus !== 'function') return;
+
+        try {
+            target.focus({ preventScroll: true });
+        } catch {
+            target.focus();
+        }
     }
 
     function ensureStyles() {
@@ -412,7 +422,7 @@
             const target = gateLayer?.querySelector(
                 `[data-account-form="${nextMode}"] input`
             );
-            target?.focus?.();
+            focusWithoutScroll(target);
         }, 0);
     }
 
@@ -433,7 +443,9 @@
         setGateStatus('', kind);
 
         window.setTimeout(() => {
-            gateLayer.querySelector('[data-account-message-close]')?.focus?.();
+            focusWithoutScroll(
+                gateLayer.querySelector('[data-account-message-close]')
+            );
         }, 0);
     }
 
@@ -783,7 +795,7 @@
         window.addEventListener('resize', positionAccountMenu);
 
         window.setTimeout(() => {
-            accountMenu.querySelector('a, button')?.focus?.();
+            focusWithoutScroll(accountMenu.querySelector('a, button'));
         }, 0);
 
         return snapshot();

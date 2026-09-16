@@ -9,34 +9,26 @@
 }
 
 .atlas-account-control {
-    min-height: 34px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.38rem;
-    padding: 0 0.7rem;
-    border: 1px solid var(--control-border, var(--border-faint, rgba(49, 45, 38, 0.10)));
-    border-radius: 8px;
-    background: var(--control-surface, var(--surface-raised, #fffdf9));
-    color: var(--control-text, var(--text-body, #504b43));
-    box-shadow: var(--control-shadow, 0 2px 8px rgba(42, 37, 29, 0.045));
-    cursor: pointer;
-    font-size: 0.76rem;
-    font-weight: 600;
-    line-height: 1;
-    white-space: nowrap;
-    transition:
-        color 0.18s ease,
-        background 0.18s ease,
-        border-color 0.18s ease,
-        box-shadow 0.18s ease;
+    flex-shrink: 0;
 }
 
-.atlas-account-control:hover:not(:disabled),
-.atlas-account-control:focus-visible {
-    border-color: var(--control-border-hover, var(--border-subtle, rgba(49, 45, 38, 0.16)));
-    color: var(--control-text-hover, var(--text-heading, #211f1b));
-    box-shadow: var(--control-hover-shadow, 0 7px 18px rgba(42, 37, 29, 0.075));
+.spine-btn.atlas-account-control,
+.mobile-header-btn.atlas-account-control {
+    padding: 0;
+}
+
+.spine-btn.atlas-account-control[data-account-state="sign-in"],
+.mobile-header-btn.atlas-account-control[data-account-state="sign-in"] {
+    width: auto;
+    min-width: 38px;
+    padding-inline: 0.72rem;
+    gap: 0.34rem;
+    white-space: nowrap;
+    color: var(--control-text, var(--text-body, #504b43));
+}
+
+.mobile-header-btn.atlas-account-control[data-account-state="sign-in"] {
+    color: var(--text-muted, #7b7469);
 }
 
 .atlas-account-control:disabled {
@@ -44,27 +36,14 @@
     cursor: wait;
 }
 
-.atlas-account-control[data-account-state="account"],
-.atlas-account-control[data-account-state="pending"] {
-    width: 34px;
-    min-width: 34px;
-    padding-inline: 0;
-}
-
 .atlas-account-control svg {
+    width: 16px;
+    height: 16px;
     flex: 0 0 auto;
 }
 
-.mobile-header-actions .atlas-account-control {
-    min-height: 36px;
-    border-color: var(--mobile-control-border, var(--control-border, var(--border-faint, rgba(49, 45, 38, 0.10))));
-    background: var(--mobile-control-surface, var(--control-surface, var(--surface-raised, #fffdf9)));
-}
-
-.mobile-header-actions .atlas-account-control[data-account-state="account"],
-.mobile-header-actions .atlas-account-control[data-account-state="pending"] {
-    width: 36px;
-    min-width: 36px;
+.atlas-account-control span {
+    line-height: 1;
 }
 
 /* ============================================================
@@ -147,6 +126,10 @@
     opacity: 0.5;
     cursor: wait;
     transform: none;
+}
+
+.atlas-inside-account-action[hidden] {
+    display: none !important;
 }
 
 .atlas-account-create-label-short {

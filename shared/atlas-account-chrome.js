@@ -22,25 +22,22 @@
     if (window.AtlasAccountChrome) return;
 
     const STYLE_HREF =
-        '/shared/atlas-account-chrome.css?v=20260916-accountchrome1';
+        '/shared/atlas-account-chrome.css?v=20260916-accountchrome2';
+    const GATE_STYLE_HREF =
+        '/shared/atlas-account-gate.css?v=20260916-accountgate2';
     const GATE_SRC =
-        '/shared/atlas-account-gate.js?v=20260916-accountgate2';
+        '/shared/atlas-account-gate.js?v=20260916-accountgate3';
 
     let gatePromise = null;
+    let gateStylePromise = null;
     let accessUnsubscribe = null;
     let initialized = false;
 
     const ACCOUNT_ICON = `
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <circle cx="8" cy="5.1" r="2.45" stroke="currentColor" stroke-width="1.3" />
-            <path d="M3.25 13c0-2.35 2.1-4.2 4.75-4.2s4.75 1.85 4.75 4.2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
-        </svg>
-    `;
-
-    const SIGN_IN_ICON = `
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <circle cx="7" cy="4.35" r="2.05" stroke="currentColor" stroke-width="1.2" />
-            <path d="M2.9 11.7c0-2 1.8-3.55 4.1-3.55s4.1 1.55 4.1 3.55" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+            <circle cx="8" cy="8" r="6.15" stroke="currentColor" stroke-width="1.15" />
+            <circle cx="8" cy="6.05" r="1.95" stroke="currentColor" stroke-width="1.15" />
+            <path d="M4.65 11.85c.52-1.72 1.8-2.68 3.35-2.68s2.83.96 3.35 2.68" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" />
         </svg>
     `;
 
@@ -69,14 +66,56 @@
         }) || null;
     }
 
+    function ensureGateStyles() {
+        if (gateStylePromise) return gateStylePromise;
+
+        gateStylePromise = new Promise((resolve, reject) => {
+            let link = document.querySelector(
+                'link[data-atlas-account-gate-styles]'
+            );
+
+            function complete() {
+                resolve(true);
+            }
+
+            function fail() {
+                gateStylePromise = null;
+                reject(new Error('Atlas account styles could not load.'));
+            }
+
+            if (link) {
+                try {
+                    if (link.sheet) {
+                        complete();
+                        return;
+                    }
+                } catch { }
+
+                link.addEventListener('load', complete, { once: true });
+                link.addEventListener('error', fail, { once: true });
+                return;
+            }
+
+            link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = GATE_STYLE_HREF;
+            link.setAttribute('data-atlas-account-gate-styles', 'true');
+            link.addEventListener('load', complete, { once: true });
+            link.addEventListener('error', fail, { once: true });
+            document.head.appendChild(link);
+        });
+
+        return gateStylePromise;
+    }
+
     function ensureGate() {
         if (window.AtlasAccountGate) {
-            return Promise.resolve(window.AtlasAccountGate);
+            return ensureGateStyles().then(() => window.AtlasAccountGate);
         }
 
         if (gatePromise) return gatePromise;
 
-        gatePromise = new Promise((resolve, reject) => {
+        gatePromise = ensureGateStyles().then(() => new Promise((resolve, reject) => {
             const existing = existingScriptFor(GATE_SRC);
 
             function complete() {
@@ -104,6 +143,9 @@
                 reject(new Error('Atlas account UI could not load.'));
             }, { once: true });
             document.head.appendChild(script);
+        })).catch(error => {
+            gatePromise = null;
+            throw error;
         });
 
         return gatePromise;
@@ -143,8 +185,12 @@
 
     function createHubControl(variant) {
         const button = document.createElement('button');
+        const nativeClass = variant === 'mobile'
+            ? 'mobile-header-btn'
+            : 'spine-btn';
+
         button.type = 'button';
-        button.className = `atlas-account-control atlas-account-control--${variant}`;
+        button.className = `${nativeClass} atlas-account-control atlas-account-control--${variant}`;
         button.setAttribute('data-atlas-account-control', variant);
         button.setAttribute('aria-haspopup', 'dialog');
         button.setAttribute('aria-expanded', 'false');
@@ -161,7 +207,7 @@
         button.setAttribute('aria-label', presentation.title);
 
         if (presentation.kind === 'sign-in') {
-            button.innerHTML = `${SIGN_IN_ICON}<span>Sign in</span>`;
+            button.innerHTML = '<span>Sign in</span>';
             return;
         }
 
@@ -289,7 +335,12 @@
         }
 
         container.dataset.accountState = presentation.kind;
-        document.body?.setAttribute('data-atlas-account-ready', 'true');
+
+        if (presentation.kind === 'pending') {
+            document.body?.removeAttribute('data-atlas-account-ready');
+        } else {
+            document.body?.setAttribute('data-atlas-account-ready', 'true');
+        }
     }
 
     function renderAll(accessState) {
@@ -310,6 +361,13 @@
     async function handleSignIn(trigger) {
         try {
             const Gate = await ensureGate();
+            const gateState = Gate.getState?.() || {};
+
+            if (gateState.gateOpen && gateState.gateMode === 'sign-in') {
+                Gate.close();
+                return;
+            }
+
             await Gate.openSignIn(trigger);
         } catch (error) {
             console.error('[AtlasAccountChrome] sign-in UI failed:', error);
@@ -319,6 +377,13 @@
     async function handleCreateAccount(trigger) {
         try {
             const Gate = await ensureGate();
+            const gateState = Gate.getState?.() || {};
+
+            if (gateState.gateOpen && gateState.gateMode === 'create') {
+                Gate.close();
+                return;
+            }
+
             await Gate.openCreateAccount(trigger);
         } catch (error) {
             console.error('[AtlasAccountChrome] create-account UI failed:', error);
@@ -333,6 +398,18 @@
         if (presentation.kind === 'account') {
             try {
                 const Gate = await ensureGate();
+                const gateState = Gate.getState?.() || {};
+
+                if (gateState.menuOpen) {
+                    Gate.closeAccountMenu();
+                    return;
+                }
+
+                if (gateState.gateOpen) {
+                    Gate.close();
+                    return;
+                }
+
                 await Gate.openAccountMenu(trigger);
             } catch (error) {
                 console.error('[AtlasAccountChrome] account menu failed:', error);
@@ -400,15 +477,54 @@
         render: renderAll
     });
 
-    if (typeof document !== 'undefined') {
-        if (document.readyState === 'loading') {
+    function surfaceMountReady() {
+        const body = document.body;
+        if (!body) return false;
+
+        if (body.dataset.atlasSurface === 'hub') {
+            return Boolean(
+                document.querySelector('.spine-actions') ||
+                document.querySelector('.mobile-header-actions')
+            );
+        }
+
+        if (body.dataset.atlasSurface === 'inside-atlas') {
+            return Boolean(
+                document.querySelector('[data-atlas-account-entry]')
+            );
+        }
+
+        return true;
+    }
+
+    function startWhenMountReady() {
+        if (surfaceMountReady()) {
+            initialize();
+            return;
+        }
+
+        if (typeof MutationObserver !== 'function') {
             document.addEventListener(
                 'DOMContentLoaded',
                 () => initialize(),
                 { once: true }
             );
-        } else {
-            initialize();
+            return;
         }
+
+        const observer = new MutationObserver(() => {
+            if (!surfaceMountReady()) return;
+            observer.disconnect();
+            initialize();
+        });
+
+        observer.observe(document.documentElement, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+    if (typeof document !== 'undefined') {
+        startWhenMountReady();
     }
 })();
