@@ -5698,10 +5698,12 @@
 
     function scrollBackupStatusIntoView() {
       const modal = document.getElementById('settings-modal');
+      const modalBody = modal?.querySelector('.modal-body');
       const status = document.getElementById('data-backup-status');
 
       if (
         !modal?.classList.contains('open') ||
+        !modalBody ||
         !status ||
         status.hidden
       ) {
@@ -5715,9 +5717,11 @@
         : 'smooth';
 
       window.requestAnimationFrame(() => {
-        status.scrollIntoView({
-          behavior,
-          block: 'nearest'
+        window.requestAnimationFrame(() => {
+          modalBody.scrollTo({
+            top: modalBody.scrollHeight,
+            behavior
+          });
         });
       });
     }
@@ -5750,6 +5754,7 @@
     async function handleDownloadBackup() {
       setBackupBusy(true);
       setBackupStatus('Preparing backup…', false);
+      scrollBackupStatusIntoView();
 
       try {
         await requirePortableData().downloadBackup();
