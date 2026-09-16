@@ -126,6 +126,19 @@
         return window.AtlasAccount;
     }
 
+    async function prepareAccount() {
+        const Access = await ensureAccess();
+        const Account = await ensureAccountStack();
+
+        await Account.initialize();
+        await Access.initialize();
+
+        return {
+            account: Account.getState?.() || null,
+            access: Access.getState?.() || null
+        };
+    }
+
     async function initialize() {
         if (initPromise) return initPromise;
 
@@ -163,6 +176,7 @@
 
     window.AtlasAccessBootstrap = Object.freeze({
         initialize,
+        prepareAccount,
         getState,
         refresh
     });
