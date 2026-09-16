@@ -1,4 +1,4 @@
-name: Batch 3 runtime audit
+name: Batch 3 consolidate runtime
 
 on:
   push:
@@ -7,18 +7,50 @@ on:
       - '.github/workflows/batch2-retire-legacy-migrations.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  audit:
+  consolidate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Runtime wrapper references
+        with:
+          fetch-depth: 0
+
+      - name: Apply guarded runtime consolidation
+        run: python .github/scripts/batch3_consolidate_runtime.py
+
+      - name: Static syntax checks
         run: |
-          echo '--- core/sync filename references ---'
-          grep -R --line-number --exclude-dir=.git -E 'atlas-(content-registry|session-panel)-core\.js|atlas-tutor-content-cloud-(authority-core|sync)\.js' . || true
-          echo '--- direct renderHub calls outside Compass hub ---'
-          grep -R --line-number --exclude-dir=.git -E 'renderHub\s*\(' shared account arcade memory tutors index.html || true
-          echo '--- canonical runtime references ---'
-          grep -R --line-number --exclude-dir=.git -E 'atlas-(content-registry|session-panel|tutor-content-cloud-authority)\.js' . || true
+          node --check shared/atlas-content-registry.js
+          node --check shared/atlas-session-panel.js
+          node --check shared/atlas-tutor-content-cloud-authority.js
+          node --check shared/atlas-learner-sessions-cloud-authority.js
+          node --check shared/atlas-original-curation-cloud-authority.js
+          node --check shared/atlas-original-curation.js
+
+      - name: Confirm canonical runtime boundaries
+        run: |
+          test ! -e shared/atlas-content-registry-core.js
+          test ! -e shared/atlas-session-panel-core.js
+          test ! -e shared/atlas-tutor-content-cloud-authority-core.js
+          test ! -e shared/atlas-tutor-content-cloud-sync.js
+          ! grep -R --line-number --exclude-dir=.git --exclude-dir=.github \
+            -E 'atlas-(content-registry|session-panel)-core\.js|atlas-tutor-content-cloud-(authority-core|sync)\.js' .
+          ! grep -R --line-number --exclude-dir=.git -E 'window\.renderHub\s*\(' shared
+          grep -q 'window.requestCompassHubRender = requestHubRender' compass/index.html
+          grep -q 'atlas:compass-hub-refresh-request' shared/atlas-content-registry.js
+          grep -q 'atlas:compass-hub-refresh-request' shared/atlas-session-panel.js
+          grep -q 'atlas:compass-hub-refresh-request' shared/atlas-tutor-content-cloud-authority.js
+
+      - name: Commit consolidation and remove temporary automation
+        run: |
+          rm -f .github/workflows/batch2-retire-legacy-migrations.yml
+          rm -f .github/workflows/batch3-runtime-audit.yml
+          rm -f .github/scripts/batch3_consolidate_runtime.py
+          rmdir .github/scripts 2>/dev/null || true
+          git config user.name 'Atlas Cleanup Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A
+          git commit -m 'Consolidate Stage 1 runtime boundaries'
+          git push origin HEAD:main
