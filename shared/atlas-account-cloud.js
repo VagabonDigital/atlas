@@ -112,3 +112,39 @@
         getAccountEntitlement
     });
 })();
+
+/*
+ * The root Settings surface already loads the legacy portable-data module.
+ * Once a signed-in account initializes, layer the canonical V3 exporter over
+ * that stable API so the existing Download Backup control becomes cloud-truth
+ * aware without coupling account UI to backup internals.
+ */
+(function bootstrapCanonicalBackupExport() {
+    'use strict';
+
+    if (
+        !window.AtlasPortableData ||
+        window.AtlasPortableDataV3 ||
+        document.querySelector(
+            'script[data-atlas-portable-data-v3]'
+        )
+    ) {
+        return;
+    }
+
+    const script = document.createElement('script');
+    script.src =
+        '/shared/atlas-portable-data-v3.js?v=20260916-backup1';
+    script.async = false;
+    script.dataset.atlasPortableDataV3 = 'true';
+    script.addEventListener(
+        'error',
+        () => {
+            console.error(
+                '[AtlasAccountCloud] Canonical backup export could not load.'
+            );
+        },
+        { once: true }
+    );
+    document.head.appendChild(script);
+})();
