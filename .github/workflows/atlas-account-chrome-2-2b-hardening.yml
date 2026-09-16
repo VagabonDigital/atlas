@@ -1,0 +1,66 @@
+name: Atlas Batch 2.2B account chrome closure hardening
+
+on:
+  push:
+    paths:
+      - '.github/workflows/atlas-account-chrome-2-2b-hardening.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync current main
+        run: |
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+
+      - name: Apply Batch 2.2B closure hardening
+        run: python .github/atlas_patch_account_chrome_2_2b_hardening.py
+
+      - name: Validate account chrome runtime syntax
+        run: |
+          node --check shared/atlas-access.js
+          node --check shared/atlas-access-bootstrap.js
+          node --check shared/atlas-account-gate.js
+          node --check shared/atlas-account-chrome.js
+          node --check shared/atlas-content-registry.js
+          node --check tests/atlas-access-contract.test.js
+          node --check tests/atlas-account-gate-contract.test.js
+          node --check tests/atlas-account-chrome-contract.test.js
+
+      - name: Run Stage 2 contract proofs
+        run: |
+          node tests/atlas-access-contract.test.js
+          node tests/atlas-account-gate-contract.test.js
+          node tests/atlas-account-chrome-contract.test.js
+
+      - name: Verify hub cache boundaries
+        run: |
+          grep -q './shared/atlas-content-registry.js?v=20260916-accountchrome1' index.html
+          grep -q '../shared/atlas-content-registry.js?v=20260916-accountchrome1' compass/index.html
+          grep -q '../shared/atlas-content-registry.js?v=20260916-accountchrome1' arcade/index.html
+          ! grep -q 'class="spine-btn" data-atlas-feedback' index.html
+          grep -q 'class="drawer-nav-item" data-atlas-feedback' index.html
+
+      - name: Commit closure hardening and remove runner
+        run: |
+          rm -f .github/workflows/atlas-account-chrome-2-2b-hardening.yml
+          rm -f .github/atlas_patch_account_chrome_2_2b_hardening.py
+          git config user.name "Atlas Patch Runner"
+          git config user.email "atlas-patch@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo "No product changes to commit."
+            exit 0
+          fi
+          git commit -m "Harden public account chrome rollout"
+          git push origin main
