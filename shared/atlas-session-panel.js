@@ -213,7 +213,7 @@
         elements.overlay.style.top = `${offsetTop}px`;
         elements.overlay.style.bottom = 'auto';
         elements.overlay.style.height = `${height}px`;
-        elements.dialog.style.maxHeight = `${Math.max(180, height - 8)}px`;
+        elements.dialog.style.maxHeight = `${Math.max(180, height)}px`;
     }
 
     function focusTextControl(element) {

@@ -622,28 +622,37 @@
 
 @media (max-width: 680px) {
     .atlas-session-overlay {
-        align-items: flex-end;
+        align-items: stretch;
+        justify-content: stretch;
         padding: 0;
     }
 
     .atlas-session-panel {
         width: 100%;
+        height: 100%;
         max-width: none;
-        max-height: 92svh;
-        border-right: 0;
-        border-bottom: 0;
-        border-left: 0;
-        border-radius:
-            var(--atlas-modal-radius-lg)
-            var(--atlas-modal-radius-lg)
-            0
-            0;
+        max-height: none;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        animation: none;
+    }
+
+    .atlas-session-header {
+        flex: 0 0 auto;
+        padding-top:
+            calc(1.15rem + env(safe-area-inset-top));
     }
 
     .atlas-session-safe,
     .atlas-session-manage {
         padding-right: 1.25rem;
         padding-left: 1.25rem;
+    }
+
+    .atlas-session-manage {
+        padding-bottom:
+            calc(1.25rem + env(safe-area-inset-bottom));
     }
 
     .atlas-session-primary {
