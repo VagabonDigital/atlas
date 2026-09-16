@@ -9,7 +9,7 @@ Atlas is a tutor-first English teaching workspace built around three connected p
 ## Repository map
 
 - `index.html` — Atlas gateway.
-- `account/` — account surface.
+- `account/` — permanent account lifecycle surface: sign in, account creation, email confirmation return, password recovery, plan identity and sign out.
 - `compass/` — Compass hub, Atlas Originals and subject runtime.
 - `arcade/` — Arcade hub and game runtimes.
 - `memory/` — learner-memory surface.
@@ -23,6 +23,14 @@ Atlas JavaScript running in the browser communicates directly with the Supabase 
 
 For signed-in tutors, durable account-owned state is stored in Supabase, including My Subjects, My Versions, learner records, Session Subjects, curation, hub personalization and teaching continuity. Browser storage remains appropriate for deliberately local or transient state such as the active learner tab/session, working drafts, short-lived undo state and cosmetic preferences.
 
+## Account lifecycle and entitlements
+
+`AtlasCloud` owns the shared Supabase browser client. `AtlasAccountCloud` contains Supabase-specific account lifecycle operations and entitlement reads. `AtlasAccount` is the product-facing account contract used by Atlas surfaces.
+
+Email/password signup requires email confirmation. Signup confirmation and password-recovery links return to `/account/`, which handles normal sign-in, account creation and recovery states without introducing a separate auth product.
+
+`account_entitlements` is the minimal server-owned foundation for future Free/Pro capability state. Authenticated browser clients can read only their own entitlement row; they cannot mutate entitlement data. A missing row intentionally means the Free baseline. Product code should consume capability-shaped account APIs rather than scatter `plan === 'pro'` checks through Atlas. This foundation does not yet constitute server-side AI quota enforcement.
+
 ## Supabase migrations
 
 Files in `supabase/migrations/` are the permanent database blueprint/history. They are **not** runtime scripts and are not automatically executed by GitHub. A migration becomes live only when its SQL is applied to Supabase, either manually or through the Supabase migration tooling.
@@ -31,7 +39,11 @@ Saved queries in the Supabase SQL Editor are optional convenience copies and are
 
 ## Database access boundary
 
-Account-owned tables are RLS-protected and expose only `SELECT`, `INSERT`, `UPDATE` and `DELETE` to authenticated Atlas clients. Anonymous clients have no durable account-table access. Broad default browser-role table grants are disabled for future Atlas migrations, and the `rls_auto_enable` event-trigger helper remains only as an internal DDL safety net rather than an exposed RPC.
+Durable account tables are RLS-protected. The ordinary Atlas product-state tables expose only `SELECT`, `INSERT`, `UPDATE` and `DELETE` to authenticated Atlas clients. `account_entitlements` is stricter: authenticated clients receive `SELECT` only, with server/admin infrastructure retaining mutation authority. Anonymous clients have no durable account-table access. Broad default browser-role table grants are disabled for future Atlas migrations, and the `rls_auto_enable` event-trigger helper remains only as an internal DDL safety net rather than an exposed RPC.
+
+## Auth hardening
+
+Production email/password accounts require a minimum password length of 8 characters and email confirmation. `https://atlasfortutors.com/account/` is an allowed auth redirect. Supabase leaked-password checking is not enabled because that hosted Auth feature is unavailable on the current Free project; enable it if the infrastructure tier later supports it. Auth email currently uses Supabase's default mail service, so custom SMTP remains a public-launch hardening task rather than part of the account runtime.
 
 ## Legacy data migration
 
