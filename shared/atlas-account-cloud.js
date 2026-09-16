@@ -239,9 +239,10 @@
 })();
 
 /*
- * Safe restore is root-only product infrastructure. It layers over Backup v3,
- * adds account conflict preview, and calls the transaction-scoped restore RPC.
- * Loading it here keeps the existing Settings UI decoupled from Supabase.
+ * Safe restore is root-only product infrastructure. Backup v3 can reconstruct
+ * into an account that already contains unrelated Atlas work: stable-id
+ * collisions remain blockers, while singleton account state merges with the
+ * destination taking precedence on overlap.
  */
 (function bootstrapSafeBackupRestore() {
     'use strict';
@@ -259,7 +260,7 @@
         if (
             window.AtlasPortableRestoreV3 ||
             document.querySelector(
-                'script[data-atlas-restore-v3]'
+                'script[data-atlas-backup-restore-v3]'
             )
         ) {
             return;
@@ -283,9 +284,9 @@
 
         const script = document.createElement('script');
         script.src =
-            '/shared/atlas-restore-v3.js?v=20260916-restore4';
+            '/shared/atlas-backup-restore-v3.js?v=20260916-restore5';
         script.async = false;
-        script.dataset.atlasRestoreV3 = 'true';
+        script.dataset.atlasBackupRestoreV3 = 'true';
         script.addEventListener(
             'error',
             () => {
