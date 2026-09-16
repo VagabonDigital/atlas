@@ -2,8 +2,9 @@
    ATLAS ACCOUNT
    Product-level authenticated account state.
 
-   AtlasCloud owns the Supabase-specific client. AtlasAccount is the stable
+   AtlasCloud owns the shared Supabase client. AtlasAccount is the stable
    product contract consumed by Atlas surfaces and persistence owners.
+   Account-specific cloud operations are isolated behind AtlasAccountCloud.
    ============================================================ */
 
 (function () {
@@ -11,41 +12,136 @@
 
     if (window.AtlasAccount) return;
 
+    const ACCOUNT_CLOUD_SRC =
+        '/shared/atlas-account-cloud.js?v=20260916-account1';
+    const RECOVERY_SESSION_KEY = 'atlas::accountPasswordRecovery';
     const listeners = new Set();
 
     let state = Object.freeze({
         ready: false,
         authenticated: false,
         userId: null,
-        email: null
+        email: null,
+        recovery: readRecoveryHint(),
+        entitlementReady: false,
+        planCode: null,
+        capabilities: Object.freeze({}),
+        entitlementError: null
     });
 
     let initPromise = null;
     let unsubscribeAuth = null;
+    let accountCloudPromise = null;
+    let entitlementRequestId = 0;
 
-    function snapshot() {
-        return { ...state };
+    function readRecoveryHint() {
+        try {
+            if (sessionStorage.getItem(RECOVERY_SESSION_KEY) === '1') {
+                return true;
+            }
+        } catch {
+            // Recovery can still be inferred from the URL below.
+        }
+
+        return /(?:^|[&#])type=recovery(?:&|$)/.test(
+            String(window.location.hash || '')
+        );
     }
 
-    function normalizeSession(session) {
-        const user = session?.user || null;
+    function writeRecoveryHint(active) {
+        try {
+            if (active) {
+                sessionStorage.setItem(RECOVERY_SESSION_KEY, '1');
+            } else {
+                sessionStorage.removeItem(RECOVERY_SESSION_KEY);
+            }
+        } catch {
+            // Recovery state also lives in memory for the current page.
+        }
+    }
 
+    function copyCapabilities(value) {
+        if (!value || typeof value !== 'object' || Array.isArray(value)) {
+            return {};
+        }
+
+        return JSON.parse(JSON.stringify(value));
+    }
+
+    function freezeState(nextState) {
         return Object.freeze({
+            ...nextState,
+            capabilities: Object.freeze(
+                copyCapabilities(nextState.capabilities)
+            )
+        });
+    }
+
+    function snapshot() {
+        return {
+            ...state,
+            capabilities: copyCapabilities(state.capabilities)
+        };
+    }
+
+    function stateForSession(session, { recovery = state.recovery } = {}) {
+        const user = session?.user || null;
+        const sameUser = Boolean(
+            user &&
+            state.authenticated &&
+            state.userId === user.id
+        );
+
+        if (!user) {
+            return freezeState({
+                ready: true,
+                authenticated: false,
+                userId: null,
+                email: null,
+                recovery: false,
+                entitlementReady: true,
+                planCode: null,
+                capabilities: {},
+                entitlementError: null
+            });
+        }
+
+        return freezeState({
             ready: true,
-            authenticated: Boolean(user),
-            userId: user?.id || null,
-            email: user?.email || null
+            authenticated: true,
+            userId: user.id,
+            email: user.email || null,
+            recovery: Boolean(recovery),
+            entitlementReady: sameUser
+                ? state.entitlementReady
+                : false,
+            planCode: sameUser
+                ? state.planCode
+                : null,
+            capabilities: sameUser
+                ? state.capabilities
+                : {},
+            entitlementError: sameUser
+                ? state.entitlementError
+                : null
         });
     }
 
     function publish(nextState) {
+        const normalized = freezeState(nextState);
         const changed =
-            nextState.ready !== state.ready ||
-            nextState.authenticated !== state.authenticated ||
-            nextState.userId !== state.userId ||
-            nextState.email !== state.email;
+            normalized.ready !== state.ready ||
+            normalized.authenticated !== state.authenticated ||
+            normalized.userId !== state.userId ||
+            normalized.email !== state.email ||
+            normalized.recovery !== state.recovery ||
+            normalized.entitlementReady !== state.entitlementReady ||
+            normalized.planCode !== state.planCode ||
+            normalized.entitlementError !== state.entitlementError ||
+            JSON.stringify(normalized.capabilities) !==
+                JSON.stringify(state.capabilities);
 
-        state = nextState;
+        state = normalized;
 
         if (!changed) return;
 
@@ -70,6 +166,164 @@
         }
     }
 
+    function ensureAccountCloud() {
+        if (window.AtlasAccountCloud) {
+            return Promise.resolve(window.AtlasAccountCloud);
+        }
+
+        if (accountCloudPromise) return accountCloudPromise;
+
+        accountCloudPromise = new Promise((resolve, reject) => {
+            const existing = document.querySelector(
+                'script[data-atlas-account-cloud]'
+            );
+
+            function complete() {
+                if (window.AtlasAccountCloud) {
+                    resolve(window.AtlasAccountCloud);
+                } else {
+                    accountCloudPromise = null;
+                    reject(new Error(
+                        'Atlas account cloud support did not initialize.'
+                    ));
+                }
+            }
+
+            if (existing) {
+                existing.addEventListener('load', complete, { once: true });
+                existing.addEventListener(
+                    'error',
+                    () => {
+                        accountCloudPromise = null;
+                        reject(new Error(
+                            'Atlas could not load account cloud support.'
+                        ));
+                    },
+                    { once: true }
+                );
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = ACCOUNT_CLOUD_SRC;
+            script.async = false;
+            script.dataset.atlasAccountCloud = 'true';
+            script.addEventListener('load', complete, { once: true });
+            script.addEventListener(
+                'error',
+                () => {
+                    accountCloudPromise = null;
+                    reject(new Error(
+                        'Atlas could not load account cloud support.'
+                    ));
+                },
+                { once: true }
+            );
+            document.head.appendChild(script);
+        });
+
+        return accountCloudPromise;
+    }
+
+    async function refreshEntitlement(expectedUserId = state.userId) {
+        const userId = String(expectedUserId || '').trim();
+
+        if (!state.authenticated || !userId || state.userId !== userId) {
+            return snapshot();
+        }
+
+        const requestId = ++entitlementRequestId;
+
+        publish({
+            ...state,
+            entitlementReady: false,
+            entitlementError: null
+        });
+
+        try {
+            const AccountCloud = await ensureAccountCloud();
+            const entitlement = await AccountCloud.getAccountEntitlement();
+
+            if (
+                requestId !== entitlementRequestId ||
+                !state.authenticated ||
+                state.userId !== userId
+            ) {
+                return snapshot();
+            }
+
+            publish({
+                ...state,
+                entitlementReady: true,
+                planCode: entitlement?.planCode || 'free',
+                capabilities: entitlement?.capabilities || {},
+                entitlementError: null
+            });
+        } catch (error) {
+            if (
+                requestId !== entitlementRequestId ||
+                !state.authenticated ||
+                state.userId !== userId
+            ) {
+                return snapshot();
+            }
+
+            console.error('[AtlasAccount] entitlement read failed:', error);
+            publish({
+                ...state,
+                entitlementReady: true,
+                planCode: null,
+                capabilities: {},
+                entitlementError: error?.message || String(error)
+            });
+        }
+
+        return snapshot();
+    }
+
+    function scheduleEntitlementRefresh(userId) {
+        const expectedUserId = String(userId || '').trim();
+        if (!expectedUserId) return;
+
+        window.setTimeout(() => {
+            refreshEntitlement(expectedUserId).catch(error => {
+                console.error(
+                    '[AtlasAccount] entitlement refresh failed:',
+                    error
+                );
+            });
+        }, 0);
+    }
+
+    function handleAuthStateChange(event, nextSession) {
+        const previousUserId = state.userId;
+        let recovery = state.recovery;
+
+        if (event === 'PASSWORD_RECOVERY') {
+            recovery = true;
+            writeRecoveryHint(true);
+        } else if (event === 'SIGNED_OUT') {
+            recovery = false;
+            writeRecoveryHint(false);
+            entitlementRequestId += 1;
+        }
+
+        const nextState = stateForSession(nextSession, { recovery });
+        publish(nextState);
+
+        if (
+            nextState.authenticated &&
+            (
+                nextState.userId !== previousUserId ||
+                event === 'SIGNED_IN' ||
+                event === 'INITIAL_SESSION' ||
+                event === 'PASSWORD_RECOVERY'
+            )
+        ) {
+            scheduleEntitlementRefresh(nextState.userId);
+        }
+    }
+
     async function initialize() {
         if (initPromise) return initPromise;
 
@@ -79,26 +333,40 @@
             }
 
             const client = await AtlasCloud.getClient();
-            const session = await AtlasCloud.getSession();
 
-            publish(normalizeSession(session));
-
-            const { data } = client.auth.onAuthStateChange((_event, nextSession) => {
-                publish(normalizeSession(nextSession));
-            });
+            const { data } = client.auth.onAuthStateChange(
+                (event, nextSession) => {
+                    handleAuthStateChange(event, nextSession);
+                }
+            );
 
             if (data?.subscription) {
                 unsubscribeAuth = () => data.subscription.unsubscribe();
             }
 
+            const session = await AtlasCloud.getSession();
+            const recovery = Boolean(session?.user) && readRecoveryHint();
+
+            publish(stateForSession(session, { recovery }));
+
+            if (session?.user?.id) {
+                await refreshEntitlement(session.user.id);
+            }
+
             return snapshot();
         })().catch(error => {
             initPromise = null;
-            publish(Object.freeze({
+            entitlementRequestId += 1;
+            publish(freezeState({
                 ready: true,
                 authenticated: false,
                 userId: null,
-                email: null
+                email: null,
+                recovery: false,
+                entitlementReady: true,
+                planCode: null,
+                capabilities: {},
+                entitlementError: null
             }));
             throw error;
         });
@@ -128,18 +396,84 @@
         return () => listeners.delete(listener);
     }
 
+    function accountReturnUrl() {
+        return new URL('/account/', window.location.origin).href;
+    }
+
     async function signIn(email, password) {
         await initialize();
+        writeRecoveryHint(false);
         await AtlasCloud.signInWithPassword(email, password);
         const session = await AtlasCloud.getSession();
-        publish(normalizeSession(session));
+
+        publish(stateForSession(session, { recovery: false }));
+
+        if (session?.user?.id) {
+            await refreshEntitlement(session.user.id);
+        }
+
+        return snapshot();
+    }
+
+    async function createAccount(email, password) {
+        await initialize();
+        const AccountCloud = await ensureAccountCloud();
+        const data = await AccountCloud.signUpWithPassword(
+            email,
+            password,
+            accountReturnUrl()
+        );
+        const session = data?.session || null;
+
+        if (session?.user) {
+            publish(stateForSession(session, { recovery: false }));
+            await refreshEntitlement(session.user.id);
+        }
+
+        return {
+            state: snapshot(),
+            confirmationRequired: !session,
+            email: data?.user?.email || String(email || '').trim()
+        };
+    }
+
+    async function requestPasswordReset(email) {
+        await initialize();
+        const AccountCloud = await ensureAccountCloud();
+        await AccountCloud.requestPasswordReset(
+            email,
+            accountReturnUrl()
+        );
+        return true;
+    }
+
+    async function completePasswordRecovery(password) {
+        await initialize();
+
+        if (!state.authenticated || !state.recovery) {
+            const error = new Error(
+                'Open the password reset link from your email before choosing a new password.'
+            );
+            error.code = 'ATLAS_RECOVERY_REQUIRED';
+            throw error;
+        }
+
+        const AccountCloud = await ensureAccountCloud();
+        await AccountCloud.updatePassword(password);
+        writeRecoveryHint(false);
+        publish({
+            ...state,
+            recovery: false
+        });
         return snapshot();
     }
 
     async function signOut() {
         await initialize();
+        entitlementRequestId += 1;
+        writeRecoveryHint(false);
         await AtlasCloud.signOut();
-        publish(normalizeSession(null));
+        publish(stateForSession(null, { recovery: false }));
         return snapshot();
     }
 
@@ -147,7 +481,9 @@
         await initialize();
 
         if (!state.authenticated || !state.userId) {
-            const error = new Error('Atlas requires a signed-in account for this action.');
+            const error = new Error(
+                'Atlas requires a signed-in account for this action.'
+            );
             error.code = 'ATLAS_AUTH_REQUIRED';
             throw error;
         }
@@ -158,11 +494,37 @@
         };
     }
 
+    function getCapability(name, fallback = null) {
+        const key = String(name || '').trim();
+
+        if (
+            !key ||
+            !state.authenticated ||
+            !state.entitlementReady ||
+            state.entitlementError
+        ) {
+            return fallback;
+        }
+
+        if (!Object.prototype.hasOwnProperty.call(state.capabilities, key)) {
+            return fallback;
+        }
+
+        return state.capabilities[key];
+    }
+
+    function hasCapability(name) {
+        return Boolean(getCapability(name, false));
+    }
+
     function destroy() {
+        entitlementRequestId += 1;
+
         if (unsubscribeAuth) {
             unsubscribeAuth();
             unsubscribeAuth = null;
         }
+
         listeners.clear();
         initPromise = null;
     }
@@ -217,8 +579,14 @@
         getState,
         subscribe,
         signIn,
+        createAccount,
+        requestPasswordReset,
+        completePasswordRecovery,
         signOut,
         requireUser,
+        refreshEntitlement,
+        getCapability,
+        hasCapability,
         destroy
     });
 
