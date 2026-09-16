@@ -95,7 +95,8 @@
         color var(--motion, 180ms ease),
         background var(--motion, 180ms ease),
         border-color var(--motion, 180ms ease),
-        transform var(--motion, 180ms ease);
+        transform var(--motion, 180ms ease),
+        box-shadow var(--motion, 180ms ease);
 }
 
 .atlas-inside-account-explore,
@@ -115,7 +116,7 @@
     padding: 0 13px;
     border: 1px solid var(--accent, #4d7184);
     background: var(--accent, #4d7184);
-    color: #fff;
+    color: var(--surface-panel, #fffdf9);
 }
 
 .atlas-inside-account-icon {
@@ -137,8 +138,9 @@
 }
 
 .atlas-inside-account-create:hover {
-    background: var(--accent-ink, #315568);
-    border-color: var(--accent-ink, #315568);
+    background: var(--accent, #4d7184);
+    border-color: var(--accent, #4d7184);
+    box-shadow: 0 6px 18px rgba(var(--accent-rgb, 77, 113, 132), 0.18);
 }
 
 .atlas-inside-account-action:disabled {
