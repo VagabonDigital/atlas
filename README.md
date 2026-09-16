@@ -31,6 +31,12 @@ Email/password signup requires email confirmation. Signup confirmation and passw
 
 `account_entitlements` is the minimal server-owned foundation for future Free/Pro capability state. Authenticated browser clients can read only their own entitlement row; they cannot mutate entitlement data. A missing row intentionally means the Free baseline. Product code should consume capability-shaped account APIs rather than scatter `plan === 'pro'` checks through Atlas. This foundation does not yet constitute server-side AI quota enforcement.
 
+## Browser persistence trust
+
+`AtlasPersistenceTrust` complements database RLS at the browser boundary. Generic Atlas browser projections and local working-state keys are scoped to either a specific authenticated account or the signed-out/local workspace. When account identity changes, Atlas stashes the outgoing scope, restores the incoming scope and clears transient tab/session state before publishing the new account state. This prevents Account A learner/cache/draft projections from becoming visible to Account B while preserving deliberately local anonymous work and account-local drafts.
+
+Existing cloud authorities retain their own server-authoritative recovery behavior. Background persistence failures emit explicit cloud-error events; `AtlasPersistenceTrust` normalizes them into `atlas:persistence-failure` for observability and adds a visible failure message for learner writes that previously only emitted an event. Direct My Subjects/My Versions actions continue to throw on failed cloud writes rather than silently falling back to local storage.
+
 ## Supabase migrations
 
 Files in `supabase/migrations/` are the permanent database blueprint/history. They are **not** runtime scripts and are not automatically executed by GitHub. A migration becomes live only when its SQL is applied to Supabase, either manually or through the Supabase migration tooling.
