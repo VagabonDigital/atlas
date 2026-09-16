@@ -65,27 +65,9 @@
         const existing = existingScriptFor(src);
 
         if (existing) {
-            if (
-                existing.dataset.atlasLoaded === 'true' ||
-                existing.readyState === 'complete' ||
-                existing.readyState === 'loaded'
-            ) {
-                return Promise.resolve();
-            }
-
             return new Promise((resolve, reject) => {
                 existing.addEventListener('load', resolve, { once: true });
                 existing.addEventListener('error', reject, { once: true });
-
-                window.setTimeout(() => {
-                    if (
-                        window.AtlasAccess ||
-                        window.AtlasAccount ||
-                        window.AtlasCloud
-                    ) {
-                        resolve();
-                    }
-                }, 0);
             });
         }
 
@@ -93,16 +75,12 @@
             const script = document.createElement('script');
             script.src = src;
             script.async = false;
-            script.dataset.atlasLoaded = 'false';
 
             if (marker) {
                 script.setAttribute(marker, 'true');
             }
 
-            script.addEventListener('load', () => {
-                script.dataset.atlasLoaded = 'true';
-                resolve();
-            }, { once: true });
+            script.addEventListener('load', resolve, { once: true });
             script.addEventListener('error', reject, { once: true });
             document.head.appendChild(script);
         });
