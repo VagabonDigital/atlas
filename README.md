@@ -56,6 +56,14 @@ Batch 2.2B places that contract into the public product without contaminating te
 
 Return-to-intent is still intentionally deferred to Batch 2.3, and capability-driven protected-action interception remains Batch 2.4.
 
+## Return-to-intent foundation
+
+`AtlasReturnIntent` is the canonical temporary contract for preserving what an anonymous tutor meant to do before authentication interrupted them. Each intent receives an opaque ID and stores only a supported action type, a normalized same-origin Atlas destination, small JSON-safe context, creation time and expiry. The destination is persisted as a relative path/query/hash rather than an arbitrary absolute redirect URL. Account routes are rejected as return destinations so an auth round-trip cannot loop back into the account surface.
+
+Return intents are stored independently by ID in browser-local storage so separate tabs do not overwrite one another and a confirmation email opened in another same-browser tab can recover the exact intent. If localStorage is unavailable, the runtime can preserve same-page intent state in memory but makes no claim of cross-tab durability. Intents expire after 24 hours by default, cannot live longer than seven days, reject oversized or non-plain context, validate again when read, and are consume-once when the later resume layer chooses to consume them. Tampered, malformed and expired records fail closed and are removed.
+
+Batch 2.3A establishes storage and validation only. It does not wire the account gate, add auth callback/query parameters, navigate to destinations or intercept protected features. Same-page authentication resume belongs to Batch 2.3B; confirmation/deep-link handoff belongs to Batch 2.3C; feature actions begin creating return intents in Batch 2.4. The executable contract proof lives at `tests/atlas-return-intent-contract.test.js`.
+
 ## Browser persistence trust
 
 `AtlasPersistenceTrust` complements database RLS at the browser boundary. Generic Atlas browser projections and local working-state keys are scoped to either a specific authenticated account or the signed-out/local workspace. When account identity changes, Atlas stashes the outgoing scope, restores the incoming scope and clears transient tab/session state before publishing the new account state. This prevents Account A learner/cache/draft projections from becoming visible to Account B while preserving deliberately local anonymous work and account-local drafts.
