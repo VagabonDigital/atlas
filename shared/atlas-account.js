@@ -190,6 +190,28 @@
         document.head.appendChild(script);
     }
 
+    function loadSharedSessionSubjectsCloudAuthority() {
+        if (
+            !window.AtlasCloud ||
+            window.AtlasSharedSessionSubjectsCloudAuthority ||
+            document.querySelector(
+                'script[data-atlas-shared-session-subjects-cloud-authority]'
+            )
+        ) {
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src =
+            '/shared/atlas-shared-session-subjects-cloud-authority.js?v=20260915-shared-session-subjects1';
+        script.async = false;
+        script.setAttribute(
+            'data-atlas-shared-session-subjects-cloud-authority',
+            'true'
+        );
+        document.head.appendChild(script);
+    }
+
     window.AtlasAccount = Object.freeze({
         initialize,
         getState,
@@ -201,4 +223,5 @@
     });
 
     loadCompassOriginalCurationCloudAuthority();
+    loadSharedSessionSubjectsCloudAuthority();
 })();
