@@ -148,9 +148,44 @@
 })();
 
 /*
+ * Supabase jsonb can return semantically identical library objects with a
+ * different JavaScript key order. The legacy Tutor Subjects validator uses
+ * JSON.stringify equality, so install an order-only compatibility boundary
+ * before Backup v3 preview/restore validation.
+ */
+(function bootstrapTutorSubjectsPortableCompat() {
+    'use strict';
+
+    if (
+        window.AtlasTutorSubjectsPortableCompat ||
+        document.querySelector(
+            'script[data-atlas-tutor-subjects-portable-compat]'
+        )
+    ) {
+        return;
+    }
+
+    const script = document.createElement('script');
+    script.src =
+        '/shared/atlas-tutor-subjects-portable-compat.js?v=20260916-backup1';
+    script.async = false;
+    script.dataset.atlasTutorSubjectsPortableCompat = 'true';
+    script.addEventListener(
+        'error',
+        () => {
+            console.error(
+                '[AtlasAccountCloud] Tutor Subjects portable compatibility could not load.'
+            );
+        },
+        { once: true }
+    );
+    document.head.appendChild(script);
+})();
+
+/*
  * The root Settings surface already loads the legacy portable-data module.
- * Layer the canonical V3 exporter only after the Tutor Content compatibility
- * boundary is present, preventing backup semantics from racing runtime setup.
+ * Layer the canonical V3 exporter only after both portable compatibility
+ * boundaries are present, preventing backup semantics from racing setup.
  */
 (function bootstrapCanonicalBackupExport() {
     'use strict';
@@ -169,7 +204,8 @@
 
         if (
             !window.AtlasPortableData ||
-            !window.AtlasTutorContentPortableCompat
+            !window.AtlasTutorContentPortableCompat ||
+            !window.AtlasTutorSubjectsPortableCompat
         ) {
             attempts += 1;
             if (attempts < 200) {
@@ -184,7 +220,7 @@
 
         const script = document.createElement('script');
         script.src =
-            '/shared/atlas-portable-data-v3.js?v=20260916-backup3';
+            '/shared/atlas-portable-data-v3.js?v=20260916-backup4';
         script.async = false;
         script.dataset.atlasPortableDataV3 = 'true';
         script.addEventListener(
@@ -231,7 +267,8 @@
 
         if (
             !window.AtlasPortableDataV3 ||
-            !window.AtlasTutorContentPortableCompat
+            !window.AtlasTutorContentPortableCompat ||
+            !window.AtlasTutorSubjectsPortableCompat
         ) {
             attempts += 1;
             if (attempts < 200) {
@@ -246,7 +283,7 @@
 
         const script = document.createElement('script');
         script.src =
-            '/shared/atlas-restore-v3.js?v=20260916-restore3';
+            '/shared/atlas-restore-v3.js?v=20260916-restore4';
         script.async = false;
         script.dataset.atlasRestoreV3 = 'true';
         script.addEventListener(
