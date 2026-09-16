@@ -36,7 +36,7 @@
 
     if (document.readyState === 'loading') {
         document.write(
-            '<script src="' + CORE_SRC + '"><\\/script>'
+            '<script src="' + CORE_SRC + '"><\/script>'
         );
         return;
     }
