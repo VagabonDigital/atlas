@@ -223,6 +223,34 @@ p {
 }
 
 /* ============================================================
+COMPASS TOAST
+Matches the Compass Hub feedback treatment.
+============================================================ */
+.compass-toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    z-index: 1300;
+    max-width: calc(100vw - 2rem);
+    padding: 0.65rem 1.15rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface-panel);
+    color: var(--text-muted);
+    box-shadow: var(--shadow-md);
+    font-size: 0.84rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(8px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.compass-toast.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* ============================================================
 VIEW LIFECYCLE AND AMBIENT CANVAS
 ============================================================ */
 

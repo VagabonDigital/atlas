@@ -20391,6 +20391,40 @@ function refreshSessionUI() {
     }
 }
 
+let compassToastTimer = null;
+
+function showCompassToast(text) {
+    let toast = document.getElementById('compass-toast');
+
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'compass-toast';
+        toast.className = 'compass-toast';
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
+        document.body.appendChild(toast);
+    }
+
+    if (compassToastTimer !== null) {
+        window.clearTimeout(compassToastTimer);
+        compassToastTimer = null;
+    }
+
+    toast.textContent = String(text || '');
+    toast.classList.remove('visible');
+
+    window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+            toast.classList.add('visible');
+        });
+    });
+
+    compassToastTimer = window.setTimeout(() => {
+        toast.classList.remove('visible');
+        compassToastTimer = null;
+    }, 2800);
+}
+
 async function resetSession(name) {
     const Bridge = requireAtlasBridge();
     const session = getBridgeSessionByName(name);
@@ -20447,6 +20481,14 @@ async function resetSession(name) {
 
     window.AtlasSessionPanel?.refresh();
     refreshSessionUI();
+
+    const displayName = window.AtlasSessionPanel
+        ? AtlasSessionPanel.getSessionDisplayName(session)
+        : (session.name || 'Shared');
+
+    showCompassToast(
+        `${getEffectiveSubjectTitle()} activity cleared for ${displayName}.`
+    );
 }
 
 // ============================================================
