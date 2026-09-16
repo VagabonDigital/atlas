@@ -12,6 +12,19 @@
 
     if (window.AtlasAccountCloud) return;
 
+    const AUTH_STORAGE_KEY =
+        'sb-jnhjfpagectprceswvqn-auth-token';
+
+    const AUTH_SESSION_ERROR_CODES = new Set([
+        'refresh_token_not_found',
+        'refresh_token_already_used',
+        'session_not_found',
+        'bad_jwt',
+        'pgrst301',
+        'pgrst302',
+        'pgrst303'
+    ]);
+
     function requireAtlasCloud() {
         if (!window.AtlasCloud || typeof AtlasCloud.getClient !== 'function') {
             throw new Error('AtlasAccountCloud requires AtlasCloud.');
@@ -29,6 +42,44 @@
     function normalizeRedirectUrl(redirectTo) {
         const value = String(redirectTo || '').trim();
         return value || new URL('/account/', window.location.origin).href;
+    }
+
+    function isAuthSessionError(error) {
+        const code = String(error?.code || '').trim().toLowerCase();
+        const name = String(error?.name || '').trim().toLowerCase();
+        const message = String(error?.message || error || '')
+            .trim()
+            .toLowerCase();
+        const status = Number(
+            error?.status ||
+            error?.statusCode ||
+            error?.httpStatusCode ||
+            0
+        );
+
+        if (status === 401) return true;
+        if (AUTH_SESSION_ERROR_CODES.has(code)) return true;
+
+        if (
+            name.includes('authsessionmissing') ||
+            name.includes('sessionmissing')
+        ) {
+            return true;
+        }
+
+        return [
+            'refresh token not found',
+            'invalid refresh token',
+            'refresh token has already been used',
+            'auth session missing',
+            'session missing',
+            'session has expired',
+            'jwt expired',
+            'jwt is expired',
+            'invalid jwt',
+            'invalid claim: missing sub',
+            'user from sub claim in jwt does not exist'
+        ].some(fragment => message.includes(fragment));
     }
 
     async function signUpWithPassword(email, password, redirectTo) {
@@ -71,6 +122,63 @@
         return data;
     }
 
+    async function signOutCurrentSession() {
+        requireAtlasCloud();
+        const client = await AtlasCloud.getClient();
+        const { error } = await client.auth.signOut({
+            scope: 'local'
+        });
+
+        if (error && !isAuthSessionError(error)) {
+            throw error;
+        }
+
+        if (error) {
+            try {
+                localStorage.removeItem(AUTH_STORAGE_KEY);
+            } catch { }
+        }
+
+        return true;
+    }
+
+    async function reconcileCurrentSession() {
+        requireAtlasCloud();
+        const client = await AtlasCloud.getClient();
+        const { data, error } = await client.auth.getUser();
+
+        if (!error && data?.user) {
+            return {
+                valid: true,
+                user: data.user
+            };
+        }
+
+        if (error && !isAuthSessionError(error)) {
+            throw error;
+        }
+
+        const signOutResult = await client.auth.signOut({
+            scope: 'local'
+        });
+
+        if (
+            signOutResult?.error &&
+            !isAuthSessionError(signOutResult.error)
+        ) {
+            throw signOutResult.error;
+        }
+
+        try {
+            localStorage.removeItem(AUTH_STORAGE_KEY);
+        } catch { }
+
+        return {
+            valid: false,
+            user: null
+        };
+    }
+
     async function getAccountEntitlement() {
         requireAtlasCloud();
         const client = await AtlasCloud.getClient();
@@ -109,6 +217,9 @@
         signUpWithPassword,
         requestPasswordReset,
         updatePassword,
+        signOutCurrentSession,
+        reconcileCurrentSession,
+        isAuthSessionError,
         getAccountEntitlement
     });
 })();
@@ -284,7 +395,7 @@
 
         const script = document.createElement('script');
         script.src =
-            '/shared/atlas-backup-restore-v3.js?v=20260916-restore5';
+            '/shared/atlas-backup-restore-v3.js?v=20260916-restore6';
         script.async = false;
         script.dataset.atlasBackupRestoreV3 = 'true';
         script.addEventListener(

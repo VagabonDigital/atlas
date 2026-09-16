@@ -13,9 +13,9 @@
     if (window.AtlasAccount) return;
 
     const ACCOUNT_CLOUD_SRC =
-        '/shared/atlas-account-cloud.js?v=20260916-account1';
+        '/shared/atlas-account-cloud.js?v=20260916-account2';
     const PERSISTENCE_TRUST_SRC =
-        '/shared/atlas-persistence-trust.js?v=20260916-trust1';
+        '/shared/atlas-persistence-trust.js?v=20260916-trust2';
     const RECOVERY_SESSION_KEY = 'atlas::accountPasswordRecovery';
     const listeners = new Set();
 
@@ -35,6 +35,7 @@
     let unsubscribeAuth = null;
     let accountCloudPromise = null;
     let persistenceTrustPromise = null;
+    let sessionReconcilePromise = null;
     let entitlementRequestId = 0;
 
     function readRecoveryHint() {
@@ -556,10 +557,79 @@
         await initialize();
         entitlementRequestId += 1;
         writeRecoveryHint(false);
-        await AtlasCloud.signOut();
+        const AccountCloud = await ensureAccountCloud();
+        await AccountCloud.signOutCurrentSession();
         syncPersistenceScopeForSession(null);
         publish(stateForSession(null, { recovery: false }));
         return snapshot();
+    }
+
+    async function reconcileSessionAfterCloudError(error) {
+        await initialize();
+
+        if (state.ready && !state.authenticated) {
+            return true;
+        }
+
+        const AccountCloud = await ensureAccountCloud();
+
+        if (
+            typeof AccountCloud.isAuthSessionError !== 'function' ||
+            !AccountCloud.isAuthSessionError(error)
+        ) {
+            return false;
+        }
+
+        if (sessionReconcilePromise) {
+            return sessionReconcilePromise;
+        }
+
+        sessionReconcilePromise = (async () => {
+            let result;
+
+            try {
+                result = await AccountCloud.reconcileCurrentSession();
+            } catch (verifyError) {
+                if (!AccountCloud.isAuthSessionError(verifyError)) {
+                    console.warn(
+                        '[AtlasAccount] session verification failed without proving auth loss:',
+                        verifyError
+                    );
+                    return false;
+                }
+
+                result = {
+                    valid: false,
+                    user: null
+                };
+            }
+
+            if (result?.valid) {
+                return false;
+            }
+
+            entitlementRequestId += 1;
+            writeRecoveryHint(false);
+            syncPersistenceScopeForSession(null);
+            publish(stateForSession(null, { recovery: false }));
+
+            try {
+                window.dispatchEvent(
+                    new CustomEvent('atlas:account-session-ended', {
+                        detail: {
+                            code: String(error?.code || ''),
+                            message: String(error?.message || '')
+                        }
+                    })
+                );
+            } catch { }
+
+            return true;
+        })().finally(() => {
+            sessionReconcilePromise = null;
+        });
+
+        return sessionReconcilePromise;
     }
 
     async function requireUser() {
@@ -604,6 +674,7 @@
 
     function destroy() {
         entitlementRequestId += 1;
+        sessionReconcilePromise = null;
 
         if (unsubscribeAuth) {
             unsubscribeAuth();
@@ -668,6 +739,7 @@
         requestPasswordReset,
         completePasswordRecovery,
         signOut,
+        reconcileSessionAfterCloudError,
         requireUser,
         refreshEntitlement,
         getCapability,

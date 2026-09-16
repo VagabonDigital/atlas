@@ -419,18 +419,13 @@
 
     function conflictMessage(preview) {
         const conflicts = preview.conflicts || [];
-        const first = conflicts.slice(0, 3)
-            .map(item => `${item.surface}: ${item.id}`)
-            .join(', ');
-        const suffix = conflicts.length > 3
-            ? ` and ${conflicts.length - 3} more`
-            : '';
+        const count = conflicts.length;
 
         return [
-            `Atlas found ${conflicts.length} restore conflict${conflicts.length === 1 ? '' : 's'}.`,
-            first ? `${first}${suffix}.` : '',
-            'Nothing was changed. Existing unrelated Atlas data is safe; resolve only the conflicting stable identities before restoring.'
-        ].filter(Boolean).join(' ');
+            `Atlas found ${count} saved item${count === 1 ? '' : 's'} from this backup that already exist${count === 1 ? 's' : ''} in this account.`,
+            'Nothing was changed.',
+            'Atlas won’t overwrite existing work. Keep the work already here, or restore a backup that does not contain the same saved items.'
+        ].join(' ');
     }
 
     async function restoreV3(candidate, options = {}) {
@@ -502,19 +497,19 @@
             .reduce((total, value) => total + (Number(value) || 0), 0);
 
         const mergeNote = mergedSurfaces
-            ? ' Existing library, Shared, curation or personalization state will be merged; destination values stay in place where both accounts already have a value.'
+            ? ' Some saved settings and workspace choices exist in both places. Atlas will keep the choices already in this account and add anything that is missing.'
             : '';
         const sourceNote = preview.sourceAccountDifferent
-            ? ' The backup came from another Atlas account; account access and plan do not transfer.'
+            ? ' This restores saved Atlas work only; it does not change the account you are signed in to or its plan.'
             : '';
 
         return [
-            'Safe restore is ready.',
+            'This backup is ready to restore.',
             pieces.length
-                ? `Atlas will add ${pieces.join(', ')} without deleting existing unrelated data.`
-                : 'Atlas found no conflicting durable data.',
+                ? `Atlas will add ${pieces.join(', ')} without replacing unrelated work already in this account.`
+                : 'Atlas can add the saved work from this backup without replacing unrelated work already in this account.',
             mergeNote,
-            'A safety backup will download first because this account may already contain Atlas data.',
+            'Atlas will download a safety backup of this account before making changes.',
             sourceNote
         ].join(' ').replace(/\s+/g, ' ').trim();
     }

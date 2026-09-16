@@ -76,7 +76,9 @@
     let lastFailure = null;
     let lastToastSignature = '';
     let lastToastAt = 0;
+    let lastSessionEndedToastAt = 0;
     let authorityRefreshPromise = null;
+    let authLossPromise = null;
 
     function storageGet(storage, key) {
         try {
@@ -493,23 +495,86 @@
         } catch { }
     }
 
+    function showSessionEndedToast() {
+        const now = Date.now();
+
+        if (now - lastSessionEndedToastAt < 5000) {
+            return;
+        }
+
+        lastSessionEndedToastAt = now;
+
+        try {
+            window.showToast?.(
+                'Your Atlas session ended. Sign in again to keep saving your work.'
+            );
+        } catch { }
+    }
+
+    async function maybeHandleAuthLoss(detail) {
+        const Account = window.AtlasAccount;
+
+        if (
+            !Account ||
+            typeof Account.reconcileSessionAfterCloudError !== 'function'
+        ) {
+            return false;
+        }
+
+        if (authLossPromise) {
+            return authLossPromise;
+        }
+
+        authLossPromise = Promise.resolve(
+            Account.reconcileSessionAfterCloudError(detail)
+        )
+            .then(ended => {
+                if (ended) {
+                    showSessionEndedToast();
+                }
+
+                return Boolean(ended);
+            })
+            .catch(error => {
+                console.warn(
+                    '[AtlasPersistenceTrust] auth-loss reconciliation failed:',
+                    error
+                );
+                return false;
+            })
+            .finally(() => {
+                authLossPromise = null;
+            });
+
+        return authLossPromise;
+    }
+
+    async function observeCloudFailure(eventName, detail) {
+        const authEnded = await maybeHandleAuthLoss(detail);
+
+        if (authEnded) {
+            return;
+        }
+
+        recordFailure({
+            source: eventName,
+            action: detail.action || '',
+            code: detail.code || '',
+            message:
+                detail.message ||
+                'Atlas cloud persistence operation failed.'
+        });
+
+        if (eventName === 'atlas:learner-cloud-error') {
+            maybeToastLearnerFailure(detail);
+        }
+    }
+
     function installFailureObservers() {
         CLOUD_ERROR_EVENTS.forEach(eventName => {
             window.addEventListener(eventName, event => {
                 const detail = event?.detail || {};
-
-                recordFailure({
-                    source: eventName,
-                    action: detail.action || '',
-                    code: detail.code || '',
-                    message:
-                        detail.message ||
-                        'Atlas cloud persistence operation failed.'
-                });
-
-                if (eventName === 'atlas:learner-cloud-error') {
-                    maybeToastLearnerFailure(detail);
-                }
+                void observeCloudFailure(eventName, detail);
             });
         });
     }
