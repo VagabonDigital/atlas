@@ -342,6 +342,19 @@
         publish(stateFromAccount(accountState));
     }
 
+    function bootstrapAnonymous() {
+        if (window.AtlasAccount) {
+            return snapshot();
+        }
+
+        publish(stateFromAccount({
+            ready: true,
+            authenticated: false
+        }));
+
+        return snapshot();
+    }
+
     async function initialize() {
         if (initPromise) return initPromise;
 
@@ -455,6 +468,7 @@
 
     window.AtlasAccess = Object.freeze({
         CAPABILITY_NAMES,
+        bootstrapAnonymous,
         initialize,
         getState,
         subscribe,

@@ -801,6 +801,36 @@
         document.head.appendChild(script);
     }
 
+    function writeAtlasAccessBootstrapScript() {
+        if (
+            window.AtlasAccessBootstrap ||
+            document.querySelector(
+                'script[data-atlas-access-bootstrap]'
+            )
+        ) {
+            return;
+        }
+
+        const src =
+            '/shared/atlas-access-bootstrap.js?v=20260916-access1';
+
+        if (document.readyState === 'loading') {
+            document.write(
+                `<script data-atlas-access-bootstrap="true" src="${src}"><\/script>`
+            );
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = false;
+        script.setAttribute(
+            'data-atlas-access-bootstrap',
+            'true'
+        );
+        document.head.appendChild(script);
+    }
+
     function writeCloudAuthorityScripts() {
         if (
             !window.location.pathname.startsWith('/compass/') ||
@@ -890,6 +920,7 @@
 
     writeAtlasRootRuntimeScript();
     writeCloudAuthorityScripts();
+    writeAtlasAccessBootstrapScript();
     installTutorCreateHandoff();
     registerAll();
 })();
