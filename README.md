@@ -37,6 +37,14 @@ Email/password signup requires email confirmation. Signup confirmation and passw
 
 Existing cloud authorities retain their own server-authoritative recovery behavior. Background persistence failures emit explicit cloud-error events; `AtlasPersistenceTrust` normalizes them into `atlas:persistence-failure` for observability and adds a visible failure message for learner writes that previously only emitted an event. Direct My Subjects/My Versions actions continue to throw on failed cloud writes rather than silently falling back to local storage.
 
+## Backup and data ownership
+
+Signed-in manual backups use **Atlas Backup v3**. Durable account-owned data is read from canonical Supabase/cloud authority state at export time rather than trusting browser projections. The package includes learner records and Session Subjects, named-learner and Shared teaching continuity, My Subjects and library state, My Versions, Atlas Original curation, and Hub personalization. Deliberately local authoring working drafts and a small set of cosmetic preferences are included separately under the backup workspace section.
+
+Transient runtime state is intentionally excluded: active learner/tab selection, live manipulation, Wrap Up drafts, pending-delete undo journals, generation checkpoints/build state, catalog projections, launch URLs, auth tokens, entitlement/plan state and other server-controlled access data. The package is validated before download. Manual export is an account data-ownership feature and is not a Pro capability.
+
+Signed-out browser-local export remains on the legacy v2 path until the anonymous/public access architecture is rebuilt. Backup v3 restore is deliberately disabled until Stage 1.4 defines and tests ownership, merge/conflict, duplicate, preview and failure-recovery semantics; loading a v3 package cannot currently write account data.
+
 ## Supabase migrations
 
 Files in `supabase/migrations/` are the permanent database blueprint/history. They are **not** runtime scripts and are not automatically executed by GitHub. A migration becomes live only when its SQL is applied to Supabase, either manually or through the Supabase migration tooling.
