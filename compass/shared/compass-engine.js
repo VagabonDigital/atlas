@@ -18223,7 +18223,7 @@ function toggleDiscussionFocusExplored() {
 // ============================================================
 
 function getSetIconSvg(type, active) {
-    const color = active ? '#fff' : 'var(--accent)';
+    const color = 'currentColor';
 
     if (type === 'first-look') {
         return `<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
