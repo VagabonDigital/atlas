@@ -22,3 +22,5 @@ jobs:
           grep -R --line-number --exclude-dir=.git -E 'renderHub\s*\(' shared account arcade memory tutors index.html || true
           echo '--- canonical runtime references ---'
           grep -R --line-number --exclude-dir=.git -E 'atlas-(content-registry|session-panel|tutor-content-cloud-authority)\.js' . || true
+
+# audit-trigger: 2
