@@ -92,11 +92,6 @@ function runPlacementProof() {
         'Inside Atlas must use the same shared account chrome module.'
     );
     assert.match(
-        chrome,
-        /pilotFeedback\?\.remove/,
-        'The Atlas pilot feedback control should leave the prime desktop header slot.'
-    );
-    assert.match(
         registry,
         /atlas-account-chrome\.js/,
         'The shared registry must load account chrome for product hubs.'
@@ -128,7 +123,23 @@ function runPlacementProof() {
             /class="mobile-header-actions"/,
             `Product hub ${index + 1} must expose the shared mobile utility zone.`
         );
+        assert.match(
+            source,
+            /atlas-content-registry\.js\?v=20260916-accountchrome1/,
+            `Product hub ${index + 1} must cache-bust the account-chrome registry version.`
+        );
     });
+
+    assert.doesNotMatch(
+        atlas,
+        /class="spine-btn" data-atlas-feedback/,
+        'Atlas desktop header must not retain the pilot feedback control.'
+    );
+    assert.match(
+        atlas,
+        /class="drawer-nav-item" data-atlas-feedback/,
+        'Atlas should retain the secondary mobile-drawer contact path for now.'
+    );
 
     assert.match(
         inside,

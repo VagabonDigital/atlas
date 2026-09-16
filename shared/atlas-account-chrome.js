@@ -186,13 +186,6 @@
             }
 
             mounted.push(control);
-
-            if (body.dataset.atlasWorld === 'atlas') {
-                const pilotFeedback = desktopActions.querySelector(
-                    '[data-atlas-feedback]'
-                );
-                pilotFeedback?.remove?.();
-            }
         }
 
         const mobileActions = document.querySelector('.mobile-header-actions');
