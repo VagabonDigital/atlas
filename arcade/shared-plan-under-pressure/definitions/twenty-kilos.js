@@ -18,8 +18,8 @@
         engineId: 'shared-plan-under-pressure',
         engineVersion: 1,
         definitionId: 'twenty-kilos',
-        definitionVersion: '1.0.0',
-        definitionHash: 'twenty-kilos-v1.0.0-20260915',
+        definitionVersion: '1.0.1',
+        definitionHash: 'twenty-kilos-v1.0.1-20260915',
 
         registry: {
             registryId: 'arcade:twenty-kilos',
@@ -61,6 +61,7 @@
                 description:
                     'What the team can carry when vehicle support disappears.',
                 resourceLimit: 20,
+                carried: true,
                 layout: 'cluster'
             },
             {
@@ -70,6 +71,7 @@
                 description:
                     'Vehicle-supported equipment. Useful while the route stays open.',
                 resourceLimit: 10,
+                carried: true,
                 layout: 'cluster'
             },
             {
@@ -79,6 +81,7 @@
                 description:
                     'Equipment deliberately left behind before departure.',
                 resourceLimit: null,
+                carried: false,
                 layout: 'cluster',
                 lockAfterCommit: true
             }
