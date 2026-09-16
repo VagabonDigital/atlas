@@ -148,3 +148,58 @@
     );
     document.head.appendChild(script);
 })();
+
+/*
+ * Safe restore is root-only product infrastructure. It layers over Backup v3,
+ * adds account conflict preview, and calls the transaction-scoped restore RPC.
+ * Loading it here keeps the existing Settings UI decoupled from Supabase.
+ */
+(function bootstrapSafeBackupRestore() {
+    'use strict';
+
+    if (
+        window.location.pathname !== '/' &&
+        window.location.pathname !== '/index.html'
+    ) {
+        return;
+    }
+
+    let attempts = 0;
+
+    function load() {
+        if (
+            window.AtlasPortableRestoreV3 ||
+            document.querySelector(
+                'script[data-atlas-restore-v3]'
+            )
+        ) {
+            return;
+        }
+
+        if (!window.AtlasPortableDataV3) {
+            attempts += 1;
+            if (attempts < 120) {
+                window.setTimeout(load, 50);
+            }
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src =
+            '/shared/atlas-restore-v3.js?v=20260916-restore1';
+        script.async = false;
+        script.dataset.atlasRestoreV3 = 'true';
+        script.addEventListener(
+            'error',
+            () => {
+                console.error(
+                    '[AtlasAccountCloud] Safe Backup v3 restore could not load.'
+                );
+            },
+            { once: true }
+        );
+        document.head.appendChild(script);
+    }
+
+    load();
+})();
