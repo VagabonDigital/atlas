@@ -479,3 +479,28 @@
     script.dataset.atlasLearnerContinuityCloud = 'true';
     document.head.appendChild(script);
 })();
+
+/*
+ * Shared is not a learner record, but signed-in tutors still need the same
+ * durable teaching continuity there. Load its account-level authority from
+ * the same cross-surface seam used by named learner continuity.
+ */
+(function bootstrapSharedContinuityAuthority() {
+    'use strict';
+
+    if (
+        window.AtlasSharedContinuityCloudAuthority ||
+        document.querySelector(
+            'script[data-atlas-shared-continuity-cloud]'
+        )
+    ) {
+        return;
+    }
+
+    const script = document.createElement('script');
+    script.src =
+        '/shared/atlas-shared-continuity-cloud-authority.js?v=20260915-shared-continuity1';
+    script.async = false;
+    script.dataset.atlasSharedContinuityCloud = 'true';
+    document.head.appendChild(script);
+})();
