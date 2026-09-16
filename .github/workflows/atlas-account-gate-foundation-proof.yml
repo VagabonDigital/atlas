@@ -1,0 +1,50 @@
+name: Atlas Batch 2.2A account gate foundation proof
+
+on:
+  push:
+    paths:
+      - '.github/workflows/atlas-account-gate-foundation-proof.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync current main
+        run: |
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+
+      - name: Document shared account gate contract
+        run: python .github/atlas_patch_account_gate_foundation.py
+
+      - name: Validate account gate runtime syntax
+        run: |
+          node --check shared/atlas-account-gate.js
+          node --check shared/atlas-access-bootstrap.js
+          node --check tests/atlas-account-gate-contract.test.js
+
+      - name: Run account gate foundation proof
+        run: node tests/atlas-account-gate-contract.test.js
+
+      - name: Commit documentation and remove runner
+        run: |
+          rm -f .github/workflows/atlas-account-gate-foundation-proof.yml
+          rm -f .github/atlas_patch_account_gate_foundation.py
+          git config user.name "Atlas Patch Runner"
+          git config user.email "atlas-patch@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo "No product changes to commit."
+            exit 0
+          fi
+          git commit -m "Document shared account gate foundation"
+          git push origin main
