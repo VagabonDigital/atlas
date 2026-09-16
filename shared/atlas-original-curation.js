@@ -718,7 +718,7 @@
                 subject
             );
 
-            await window.renderHub();
+            await (window.requestCompassHubRender?.() || Promise.resolve());
             showHubToast('Subject restored.');
         }
 
@@ -918,7 +918,7 @@
                 false
             );
 
-            await window.renderHub();
+            await (window.requestCompassHubRender?.() || Promise.resolve());
             showHubToast('Subject restored.');
         }
 
@@ -985,7 +985,7 @@
                 );
             }
 
-            await window.renderHub();
+            await (window.requestCompassHubRender?.() || Promise.resolve());
             showHubToast('Atlas Original restored.');
         }
 
@@ -1294,7 +1294,7 @@
 
                 if (!moved) return;
 
-                await window.renderHub();
+                await (window.requestCompassHubRender?.() || Promise.resolve());
             } catch (error) {
                 console.error(
                     '[Compass Hub] Atlas Subject reorder failed:',
@@ -1493,7 +1493,7 @@
                 );
             }
 
-            await window.renderHub();
+            await (window.requestCompassHubRender?.() || Promise.resolve());
             window.showToast?.('Atlas Original restored.');
         }
 
@@ -1575,7 +1575,7 @@
 
         void reconcilePendingDeletes();
 
-        Promise.resolve(window.renderHub())
+        Promise.resolve(window.requestCompassHubRender?.())
             .then(decorateAtlasSubjectMenus)
             .catch(() => { });
     }

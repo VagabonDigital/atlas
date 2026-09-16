@@ -237,12 +237,14 @@
         );
 
         window.requestAnimationFrame(() => {
-            if (
-                typeof window.renderHub ===
-                'function'
-            ) {
-                void window.renderHub();
-            }
+            try {
+                window.dispatchEvent(
+                    new CustomEvent(
+                        'atlas:compass-hub-refresh-request',
+                        { detail: { source: 'learner-cloud' } }
+                    )
+                );
+            } catch { }
         });
     }
 

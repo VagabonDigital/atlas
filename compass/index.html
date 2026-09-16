@@ -3536,8 +3536,8 @@
   <script src="../shared/atlas-original-curation.js"></script>
   <script src="../shared/atlas-ai.js"></script>
   <script src="../shared/compass-catalog-data.js?v=4"></script>
-  <script src="../shared/atlas-content-registry.js"></script>
-  <script src="../shared/atlas-session-panel.js"></script>
+  <script src="../shared/atlas-content-registry.js?v=20260916-runtime3"></script>
+  <script src="../shared/atlas-session-panel.js?v=20260916-runtime3"></script>
   <script src="../shared/atlas-search.js"></script>
   <script>
     'use strict';
@@ -11684,17 +11684,33 @@
        ================================================================ */
 
     let hubRenderQueued = false;
+    let hubRenderPromise = Promise.resolve();
 
     function requestHubRender() {
-      if (!Bridge || hubRenderQueued) return;
+      if (!Bridge) return Promise.resolve();
+      if (hubRenderQueued) return hubRenderPromise;
 
       hubRenderQueued = true;
 
-      window.requestAnimationFrame(() => {
-        hubRenderQueued = false;
-        void renderHub();
+      let resolveRender;
+      hubRenderPromise = new Promise(resolve => {
+        resolveRender = resolve;
       });
+
+      window.requestAnimationFrame(async () => {
+        hubRenderQueued = false;
+
+        try {
+          await renderHub();
+        } finally {
+          resolveRender();
+        }
+      });
+
+      return hubRenderPromise;
     }
+
+    window.requestCompassHubRender = requestHubRender;
 
     window.addEventListener(
       'atlas:compass-hub-refresh-request',

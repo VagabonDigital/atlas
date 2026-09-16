@@ -216,7 +216,7 @@
                 ? '<script src="../../shared/atlas-ai.js"><\/script>'
                 : '') +
             '<script src="../../shared/compass-catalog-data.js"><\/script>' +
-            '<script src="../../shared/atlas-content-registry.js?v=20260915-myversion1"><\/script>' +
+            '<script src="../../shared/atlas-content-registry.js?v=20260916-runtime3"><\/script>' +
             '<link rel="stylesheet" href="../shared/compass-subject.css">' +
             '<link rel="stylesheet" href="../../shared/atlas-modal-theme.css?v=20260721-world-modals">' +
             '<link rel="stylesheet" href="../../shared/atlas-search.css?v=20260721-world-modals">' +
@@ -243,7 +243,7 @@
         document.write(
             '<script src="../shared/compass-subject-shell.js"><\/script>' +
             '<script src="../../shared/atlas-search.js"><\/script>' +
-            '<script src="../../shared/atlas-session-panel.js"><\/script>' +
+            '<script src="../../shared/atlas-session-panel.js?v=20260916-runtime3"><\/script>' +
             '<script src="../shared/compass-engine.js"><\/script>'
         );
     }
