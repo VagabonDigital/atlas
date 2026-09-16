@@ -130,14 +130,6 @@
         );
     }
 
-    function legacyReviewCompletionKey() {
-        return (
-            REVIEW_COMPLETED_PREFIX +
-            'local::' +
-            encodeURIComponent(SHARED_SESSION_ID)
-        );
-    }
-
     function readStoredNumber(key) {
         try {
             const raw = localStorage.getItem(key);
@@ -152,9 +144,8 @@
     }
 
     function readReviewedThrough(userId) {
-        return Math.max(
-            readStoredNumber(reviewCompletionKey(userId)),
-            readStoredNumber(legacyReviewCompletionKey())
+        return readStoredNumber(
+            reviewCompletionKey(userId)
         );
     }
 
@@ -790,41 +781,16 @@
 
             currentUserId = userId;
 
-            const localBefore =
-                !belongsToDifferentAccount
-                    ? readLocalSnapshot(userId)
-                    : emptyState();
-
             const remote = await fetchRemote();
 
             if (remote) {
                 remoteRecord = remote;
                 lastSnapshotJson = JSON.stringify(remote.state);
                 writeLocalSnapshot(userId, remote.state);
-            } else if (
-                !belongsToDifferentAccount &&
-                !previousUserId &&
-                hasMeaningfulState(localBefore)
-            ) {
-                try {
-                    remoteRecord = await createRemote(localBefore);
-                    lastSnapshotJson = JSON.stringify(remoteRecord.state);
-                    writeLocalSnapshot(userId, remoteRecord.state);
-                } catch (error) {
-                    if (error?.code === '23505') {
-                        remoteRecord = await fetchRemote();
-
-                        if (remoteRecord) {
-                            lastSnapshotJson = JSON.stringify(remoteRecord.state);
-                            writeLocalSnapshot(userId, remoteRecord.state);
-                        }
-                    } else {
-                        throw error;
-                    }
-                }
             } else {
+                clearLocalSharedContinuity();
                 remoteRecord = null;
-                lastSnapshotJson = JSON.stringify(localBefore);
+                lastSnapshotJson = JSON.stringify(emptyState());
             }
 
             writeCacheOwner(userId);

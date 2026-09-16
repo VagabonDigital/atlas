@@ -10,8 +10,8 @@
    Rules:
    - signed-in Shared Session Subjects are cloud-authoritative
    - signed-out Shared remains browser-local
-   - legacy Shared refs are claimed only when meaningful refs exist
-   - a fresh empty browser never seals an unmigrated account empty
+   - signed-in cloud refs always win over browser cache
+   - browser-local Shared refs are only a signed-out/cache concern
    - active learner/session selection remains tab-local
    ============================================================ */
 
@@ -179,7 +179,6 @@
 
         return {
             refs: normalizeSubjectRefs(row.subject_refs),
-            migrated: row.subject_refs_migrated === true,
             updatedAt: Date.parse(row.updated_at) || 0
         };
     }
@@ -191,7 +190,7 @@
         const { data, error } = await client
             .from(TABLE)
             .select(
-                'owner_user_id, subject_refs, subject_refs_migrated, updated_at'
+                'owner_user_id, subject_refs, updated_at'
             )
             .eq('owner_user_id', user.id)
             .maybeSingle();
@@ -219,7 +218,7 @@
                 subject_refs_migrated: true
             })
             .select(
-                'owner_user_id, subject_refs, subject_refs_migrated, updated_at'
+                'owner_user_id, subject_refs, updated_at'
             )
             .single();
 
@@ -246,7 +245,7 @@
             })
             .eq('owner_user_id', user.id)
             .select(
-                'owner_user_id, subject_refs, subject_refs_migrated, updated_at'
+                'owner_user_id, subject_refs, updated_at'
             )
             .maybeSingle();
 
@@ -352,7 +351,7 @@
                 const latest = await fetchRemote();
                 remoteRecord = latest;
 
-                if (latest?.migrated) {
+                if (latest) {
                     writeLocalRefs(latest.refs);
                     writeCacheOwner(currentUserId);
                     refreshSurface();
@@ -490,44 +489,9 @@
 
             currentUserId = userId;
 
-            const localBefore = readLocalRefs();
-            let remote = await fetchRemote();
-
-            if (remote?.migrated) {
-                remoteRecord = remote;
-                writeLocalRefs(remote.refs);
-            } else if (localBefore.length) {
-                try {
-                    remote = remote
-                        ? await updateRemote(localBefore)
-                        : await createRemote(localBefore);
-                } catch (error) {
-                    if (error?.code === '23505') {
-                        remote = await fetchRemote();
-
-                        if (remote?.migrated) {
-                            writeLocalRefs(remote.refs);
-                        } else if (remote) {
-                            remote = await updateRemote(localBefore);
-                        }
-                    } else {
-                        throw error;
-                    }
-                }
-
-                remoteRecord = remote;
-
-                if (remote?.migrated) {
-                    writeLocalRefs(remote.refs);
-                }
-            } else {
-                /*
-                 * Critical migration boundary: an existing 010 row without
-                 * migrated subject refs stays open for a legacy browser to
-                 * claim later. A fresh empty browser does not write [].
-                 */
-                remoteRecord = remote;
-            }
+            const remote = await fetchRemote();
+            remoteRecord = remote;
+            writeLocalRefs(remote?.refs || []);
 
             writeCacheOwner(userId);
             initialized = true;
@@ -565,23 +529,13 @@
             }
 
             const localBefore = readLocalRefs();
-            let latest = await fetchRemote();
+            const latest = await fetchRemote();
+            remoteRecord = latest;
+            const cloudRefs = latest?.refs || [];
 
-            if (latest?.migrated) {
-                remoteRecord = latest;
-
-                if (!sameRefs(localBefore, latest.refs)) {
-                    writeLocalRefs(latest.refs);
-                    refreshSurface();
-                }
-            } else if (localBefore.length) {
-                latest = latest
-                    ? await updateRemote(localBefore)
-                    : await createRemote(localBefore);
-                remoteRecord = latest;
-                writeLocalRefs(latest.refs);
-            } else {
-                remoteRecord = latest;
+            if (!sameRefs(localBefore, cloudRefs)) {
+                writeLocalRefs(cloudRefs);
+                refreshSurface();
             }
 
             writeCacheOwner(currentUserId);
@@ -611,9 +565,8 @@
             active: initialized && authenticated,
             userId: currentUserId || null,
             cloudExists: Boolean(remoteRecord),
-            migrated: remoteRecord?.migrated === true,
-            count: remoteRecord?.migrated
-                ? remoteRecord.refs.length
+            count: authenticated
+                ? (remoteRecord?.refs?.length || 0)
                 : readLocalRefs().length
         };
     }

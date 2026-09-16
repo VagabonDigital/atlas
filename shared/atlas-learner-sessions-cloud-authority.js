@@ -9,8 +9,8 @@
    - committed learner writes go to cloud before local cache mutation
    - named-learner Session Subjects are account continuity when supported
    - Shared/default and active-tab selection remain browser-local
-   - legacy local-only named sessions and Session Subjects are preserved
-     until they have been safely claimed by the signed-in account
+   - signed-in named learners and Session Subjects are cloud-authoritative
+   - browser-local records remain only for signed-out behavior and UI caching
    ============================================================ */
 
 (function () {
@@ -156,7 +156,7 @@
             });
     }
 
-    function readLegacySessionSubjects(sessionId) {
+    function readSessionSubjectCache(sessionId) {
         const id = String(sessionId || '').trim();
 
         if (!id) return [];
@@ -174,7 +174,7 @@
         }
     }
 
-    function writeLegacySessionSubjects(
+    function writeSessionSubjectCache(
         sessionId,
         subjectRefs
     ) {
@@ -204,7 +204,7 @@
         }
     }
 
-    function clearLegacySessionSubjects(sessionId) {
+    function clearSessionSubjectCache(sessionId) {
         const id = String(sessionId || '').trim();
 
         if (!id) return false;
@@ -263,14 +263,11 @@
 
     function syncSessionSubjectCache(remoteRecords) {
         remoteRecords.forEach(record => {
-            if (
-                !record?.subjectRefsSupported ||
-                !record.subjectRefsMigrated
-            ) {
+            if (!record?.subjectRefsSupported) {
                 return;
             }
 
-            writeLegacySessionSubjects(
+            writeSessionSubjectCache(
                 record.id,
                 record.subjectRefs
             );
@@ -279,33 +276,11 @@
 
     function hydrateBridge(remoteRecords) {
         const Bridge = requireBridge();
-        const localSessions = Bridge.readSessions();
-        const localNamed = localSessions.filter(
-            session => session.id !== Bridge.defaultSessionId
-        );
-        const sessionsById = new Map(
-            localNamed.map(session => [session.id, session])
-        );
-
-        remoteRecords.forEach(record => {
-            sessionsById.set(
-                record.id,
-                bridgeSessionFromRecord(record)
-            );
-        });
-
         Bridge.writeSessions(
-            Array.from(sessionsById.values())
+            remoteRecords.map(bridgeSessionFromRecord)
         );
 
-        const existingMemory =
-            Bridge.readJson(Bridge.keys.learnerMemory, {});
-        const nextMemory =
-            existingMemory &&
-            typeof existingMemory === 'object' &&
-            !Array.isArray(existingMemory)
-                ? { ...existingMemory }
-                : {};
+        const nextMemory = {};
 
         remoteRecords.forEach(record => {
             const memory = record.memory || null;
@@ -338,43 +313,6 @@
          * from cloud on every learner hydration.
          */
         syncSessionSubjectCache(remoteRecords);
-    }
-
-    async function claimLegacySubjectRefs(record) {
-        if (
-            !record ||
-            !record.subjectRefsSupported ||
-            record.subjectRefsMigrated
-        ) {
-            return record;
-        }
-
-        const localRefs =
-            readLegacySessionSubjects(record.id);
-
-        if (!localRefs.length) {
-            return record;
-        }
-
-        const saved =
-            await requireLearnerCloud()
-                .updateLearnerSession(
-                    {
-                        ...record,
-                        subjectRefs: localRefs,
-                        subjectRefsMigrated: true
-                    },
-                    record.revision
-                );
-
-        recordsById.set(saved.id, saved);
-
-        writeLegacySessionSubjects(
-            saved.id,
-            saved.subjectRefs
-        );
-
-        return saved;
     }
 
     function patchSubjectSessionApi() {
@@ -475,34 +413,11 @@
 
             recordsById.clear();
 
-            const resolved = [];
+            remote.forEach(record => {
+                recordsById.set(record.id, record);
+            });
 
-            for (const record of remote) {
-                let next = record;
-
-                if (
-                    record.subjectRefsSupported &&
-                    !record.subjectRefsMigrated
-                ) {
-                    try {
-                        next =
-                            await claimLegacySubjectRefs(
-                                record
-                            );
-                    } catch (error) {
-                        dispatchError(
-                            error,
-                            'session-subject-migration',
-                            record.id
-                        );
-                    }
-                }
-
-                recordsById.set(next.id, next);
-                resolved.push(next);
-            }
-
-            hydrateBridge(resolved);
+            hydrateBridge(remote);
             patchSubjectSessionApi();
 
             initialized = true;
@@ -554,11 +469,8 @@
         if (record) {
             recordsById.set(id, record);
 
-            if (
-                record.subjectRefsSupported &&
-                record.subjectRefsMigrated
-            ) {
-                writeLegacySessionSubjects(
+            if (record.subjectRefsSupported) {
+                writeSessionSubjectCache(
                     id,
                     record.subjectRefs
                 );
@@ -611,7 +523,7 @@
             ) || [];
         }
 
-        return readLegacySessionSubjects(sessionId);
+        return readSessionSubjectCache(sessionId);
     }
 
     async function fallbackSetSessionSubjects(
@@ -630,7 +542,7 @@
                 );
         }
 
-        return writeLegacySessionSubjects(
+        return writeSessionSubjectCache(
             sessionId,
             refs
         )
@@ -654,7 +566,7 @@
             ) || [];
         }
 
-        let current =
+        const current =
             await getCloudRecord(id);
 
         if (
@@ -666,34 +578,13 @@
             ) || [];
         }
 
-        if (!current.subjectRefsMigrated) {
-            try {
-                current =
-                    await claimLegacySubjectRefs(
-                        current
-                    );
-            } catch (error) {
-                dispatchError(
-                    error,
-                    'session-subject-migration',
-                    id
-                );
-            }
-        }
-
-        if (current.subjectRefsMigrated) {
-            writeLegacySessionSubjects(
-                id,
-                current.subjectRefs
-            );
-
-            return cloneJson(
-                current.subjectRefs
-            ) || [];
-        }
+        writeSessionSubjectCache(
+            id,
+            current.subjectRefs
+        );
 
         return cloneJson(
-            readLegacySessionSubjects(id)
+            current.subjectRefs
         ) || [];
     }
 
@@ -753,13 +644,9 @@
         }
 
         records.forEach(record => {
-            const refs =
-                record.subjectRefsSupported &&
-                record.subjectRefsMigrated
-                    ? record.subjectRefs
-                    : readLegacySessionSubjects(
-                        record.id
-                    );
+            const refs = record.subjectRefsSupported
+                ? record.subjectRefs
+                : [];
 
             if (
                 normalizeSubjectRefs(refs)
@@ -828,7 +715,7 @@
 
                 recordsById.set(id, saved);
 
-                writeLegacySessionSubjects(
+                writeSessionSubjectCache(
                     id,
                     saved.subjectRefs
                 );
@@ -1004,7 +891,7 @@
                 saved.subjectRefsSupported &&
                 saved.subjectRefsMigrated
             ) {
-                writeLegacySessionSubjects(
+                writeSessionSubjectCache(
                     saved.id,
                     saved.subjectRefs
                 );
@@ -1107,7 +994,7 @@
             if (!current) {
                 const deletedLocally = Bridge.deleteSession(id);
                 recordsById.delete(id);
-                clearLegacySessionSubjects(id);
+                clearSessionSubjectCache(id);
                 return deletedLocally;
             }
 
@@ -1134,7 +1021,7 @@
                 }
 
                 recordsById.delete(id);
-                clearLegacySessionSubjects(id);
+                clearSessionSubjectCache(id);
                 return Bridge.deleteSession(id);
             } catch (error) {
                 dispatchError(error, 'delete', id);

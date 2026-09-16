@@ -2,7 +2,7 @@
    ATLAS TUTOR CONTENT — CLOUD AUTHORITY LOADER
 
    Keeps the proven cloud authority implementation stable while layering
-   transitional legacy-claim + cross-browser My Version projection on top.
+   cross-browser My Version projection on top.
    ============================================================ */
 
 (function () {

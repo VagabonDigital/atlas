@@ -154,16 +154,6 @@
         );
     }
 
-    function legacyLocalReviewCompletionKey(sessionId) {
-        return (
-            REVIEW_COMPLETED_PREFIX +
-            'local::' +
-            encodeURIComponent(
-                cleanSessionId(sessionId)
-            )
-        );
-    }
-
     function readNumberFromStorage(key) {
         try {
             const raw = localStorage.getItem(key);
@@ -178,14 +168,9 @@
     }
 
     function readReviewedThrough(sessionId, userId) {
-        const accountValue = readNumberFromStorage(
+        return readNumberFromStorage(
             reviewCompletionKey(userId, sessionId)
         );
-        const legacyValue = readNumberFromStorage(
-            legacyLocalReviewCompletionKey(sessionId)
-        );
-
-        return Math.max(accountValue, legacyValue);
     }
 
     function readLocalSnapshot(sessionId, userId) {
@@ -990,22 +975,6 @@
 
             currentUserId = userId;
 
-            const localIdsBefore =
-                getLocalNamedSessionIds();
-            const localBefore = new Map();
-
-            if (!belongsToDifferentAccount) {
-                localIdsBefore.forEach(sessionId => {
-                    localBefore.set(
-                        sessionId,
-                        readLocalSnapshot(
-                            sessionId,
-                            userId
-                        )
-                    );
-                });
-            }
-
             const remoteRecords = await listRemote();
 
             recordsBySessionId.clear();
@@ -1026,66 +995,6 @@
                     record.state
                 );
             });
-
-            if (!belongsToDifferentAccount) {
-                for (const [sessionId, state] of localBefore) {
-                    if (
-                        recordsBySessionId.has(sessionId) ||
-                        !hasMeaningfulState(state)
-                    ) {
-                        continue;
-                    }
-
-                    try {
-                        const created = await createRemote(
-                            sessionId,
-                            state
-                        );
-
-                        recordsBySessionId.set(
-                            sessionId,
-                            created
-                        );
-                        lastSnapshotJsonBySessionId.set(
-                            sessionId,
-                            JSON.stringify(created.state)
-                        );
-                        writeLocalSnapshot(
-                            sessionId,
-                            userId,
-                            created.state
-                        );
-                    } catch (error) {
-                        if (error?.code === '23505') {
-                            const existing =
-                                await fetchRemote(sessionId);
-
-                            if (existing) {
-                                recordsBySessionId.set(
-                                    sessionId,
-                                    existing
-                                );
-                                lastSnapshotJsonBySessionId.set(
-                                    sessionId,
-                                    JSON.stringify(existing.state)
-                                );
-                                writeLocalSnapshot(
-                                    sessionId,
-                                    userId,
-                                    existing.state
-                                );
-                                continue;
-                            }
-                        }
-
-                        dispatchError(
-                            error,
-                            'legacy-claim',
-                            sessionId
-                        );
-                    }
-                }
-            }
 
             writeCacheOwner(userId);
             initialized = true;

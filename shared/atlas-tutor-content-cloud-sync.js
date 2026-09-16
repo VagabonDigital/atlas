@@ -1,16 +1,12 @@
 /* ============================================================
-   ATLAS TUTOR CONTENT — CLOUD SYNC
+   ATLAS TUTOR CONTENT — CLOUD PROJECTION
 
-   Transitional cutover layer for committed My Versions.
+   Keeps committed cloud My Versions projected into AtlasBridge so Compass
+   reflects the same titles and My Version state across browsers.
 
-   Signed-in rules:
-   - existing cloud versions are authoritative;
-   - pre-account local committed versions may claim only missing rows;
-   - fresh browsers project cloud My Versions into AtlasBridge so Compass
-     immediately shows the same title / My Version state cross-browser;
-   - working drafts and live manipulation remain browser/session-local;
-   - override-only versions are allowed to use an empty document object,
-     which Compass safely materializes against the canonical Atlas Original.
+   Signed-in cloud data is authoritative. This layer does not import or claim
+   legacy browser-local committed versions. Working drafts and live
+   manipulation remain browser/session-local by design.
    ============================================================ */
 
 (function () {
@@ -28,9 +24,6 @@
         );
         return;
     }
-
-    const Local = Authority.local;
-    const VERSION_PREFIX = 'atlas::tutorContent::version::';
 
     const cloudApi = {
         getVersion:
@@ -55,7 +48,6 @@
                 : null
     };
 
-    let initialClaimPromise = null;
     let projectionPromise = null;
 
     function isPlainObject(value) {
@@ -80,142 +72,6 @@
             return Boolean(await Authority.useCloud());
         } catch {
             return false;
-        }
-    }
-
-    function listLocalVersionIds() {
-        const ids = [];
-        const seen = new Set();
-
-        try {
-            for (let index = 0; index < localStorage.length; index += 1) {
-                const key = localStorage.key(index);
-                if (!key || !key.startsWith(VERSION_PREFIX)) continue;
-
-                let id = '';
-                try {
-                    id = decodeURIComponent(
-                        key.slice(VERSION_PREFIX.length)
-                    ).trim();
-                } catch {
-                    continue;
-                }
-
-                if (!id || seen.has(id)) continue;
-                seen.add(id);
-                ids.push(id);
-            }
-        } catch { }
-
-        return ids.sort();
-    }
-
-    function cloudReadyEvent(detail) {
-        try {
-            window.dispatchEvent(
-                new CustomEvent(
-                    'atlas:tutor-content-cloud-ready',
-                    { detail }
-                )
-            );
-        } catch { }
-    }
-
-    function cloudErrorEvent(error, action, contentId = '') {
-        try {
-            window.dispatchEvent(
-                new CustomEvent(
-                    'atlas:tutor-content-cloud-error',
-                    {
-                        detail: {
-                            action,
-                            contentId,
-                            code: error?.code || '',
-                            message:
-                                error?.message ||
-                                String(error || 'My Version cloud sync failed.')
-                        }
-                    }
-                )
-            );
-        } catch { }
-
-        console.error(
-            '[AtlasTutorContentCloudSync]',
-            action,
-            contentId,
-            error
-        );
-    }
-
-    function localRecordForCloud(record, contentId) {
-        if (!record || typeof record !== 'object') return null;
-
-        const id = cleanId(contentId || record.contentId);
-        if (!id) return null;
-
-        return {
-            schemaVersion: Math.max(
-                1,
-                Math.floor(Number(record.schemaVersion) || 2)
-            ),
-            ownerId: 'local-tutor',
-            contentId: id,
-            baseContentVersion:
-                typeof record.baseContentVersion === 'string'
-                    ? record.baseContentVersion
-                    : '',
-            revision: Math.max(
-                0,
-                Math.floor(Number(record.revision) || 0)
-            ),
-            updatedAt: Math.max(
-                0,
-                Number(record.updatedAt) || 0
-            ),
-            overrides: isPlainObject(record.overrides)
-                ? cloneJson(record.overrides)
-                : {},
-            document: isPlainObject(record.document)
-                ? cloneJson(record.document)
-                : {}
-        };
-    }
-
-    async function claimOne(contentId, knownCloud = null) {
-        const id = cleanId(contentId);
-        if (!id) return null;
-
-        if (!(await useCloud())) {
-            return typeof Local.getVersion === 'function'
-                ? Local.getVersion(id)
-                : null;
-        }
-
-        let remote = knownCloud;
-
-        if (!remote) {
-            remote = await Cloud.getTutorContentVersion(id);
-        }
-
-        if (remote) return remote;
-
-        const local =
-            typeof Local.getVersion === 'function'
-                ? await Local.getVersion(id)
-                : null;
-
-        if (!local) return null;
-
-        const candidate = localRecordForCloud(local, id);
-        if (!candidate) return null;
-
-        try {
-            return await Cloud.createTutorContentVersion(candidate);
-        } catch (error) {
-            if (error?.code !== '23505') throw error;
-
-            return Cloud.getTutorContentVersion(id);
         }
     }
 
@@ -399,79 +255,6 @@
         return projectionPromise;
     }
 
-    async function claimLegacyVersions() {
-        if (!(await useCloud())) {
-            return {
-                active: false,
-                claimed: 0,
-                cloudCount: 0,
-                localCount: listLocalVersionIds().length
-            };
-        }
-
-        if (initialClaimPromise) return initialClaimPromise;
-
-        initialClaimPromise = (async () => {
-            const remoteBefore =
-                await Cloud.listTutorContentVersions();
-
-            const remoteById = new Map(
-                (remoteBefore || []).map(version => [
-                    cleanId(version?.contentId),
-                    version
-                ])
-            );
-
-            const localIds = listLocalVersionIds();
-            let claimed = 0;
-
-            for (const contentId of localIds) {
-                if (remoteById.has(contentId)) continue;
-
-                try {
-                    const claimedVersion =
-                        await claimOne(contentId);
-
-                    if (claimedVersion) {
-                        remoteById.set(
-                            contentId,
-                            claimedVersion
-                        );
-                        claimed += 1;
-                    }
-                } catch (error) {
-                    cloudErrorEvent(
-                        error,
-                        'legacy-claim',
-                        contentId
-                    );
-                }
-            }
-
-            const versions =
-                await Cloud.listTutorContentVersions();
-
-            projectCloudVersions(versions);
-            refreshVisibleSurfaces();
-
-            const detail = {
-                active: true,
-                claimed,
-                localCount: localIds.length,
-                cloudCount: versions.length
-            };
-
-            cloudReadyEvent(detail);
-            return detail;
-        })().catch(error => {
-            initialClaimPromise = null;
-            cloudErrorEvent(error, 'initialize');
-            throw error;
-        });
-
-        return initialClaimPromise;
-    }
-
     async function getVersion(contentId) {
         const id = cleanId(contentId);
         if (!id) return null;
@@ -482,7 +265,6 @@
                 : null;
         }
 
-        await claimLegacyVersions();
         return Cloud.getTutorContentVersion(id);
     }
 
@@ -490,9 +272,6 @@
         const id = cleanId(contentId);
         if (!id || !cloudApi.getWorkingDraft) return null;
 
-        if (await useCloud()) {
-            await claimLegacyVersions();
-        }
 
         return cloudApi.getWorkingDraft(id);
     }
@@ -504,8 +283,6 @@
         if (!(await useCloud())) {
             return cloudApi.saveVersion(id, patch);
         }
-
-        await claimLegacyVersions();
 
         const current = await Cloud.getTutorContentVersion(id);
         const candidatePatch =
@@ -536,9 +313,6 @@
         const id = cleanId(contentId);
         if (!id || !cloudApi.deleteVersion) return false;
 
-        if (await useCloud()) {
-            await claimLegacyVersions();
-        }
 
         const deleted = await cloudApi.deleteVersion(id);
 
@@ -550,9 +324,6 @@
     }
 
     async function exportPortableData() {
-        if (await useCloud()) {
-            await claimLegacyVersions();
-        }
 
         return cloudApi.exportPortableData
             ? cloudApi.exportPortableData()
@@ -567,17 +338,11 @@
     Store.__atlasCloudSync = true;
 
     window.AtlasTutorContentCloudSync = Object.freeze({
-        claimLegacyVersions,
         refreshProjection,
-        claimOne,
         getState() {
-            return {
-                active: true,
-                localVersionCount: listLocalVersionIds().length,
-                claimStarted: Boolean(initialClaimPromise)
-            };
+            return { active: true };
         }
     });
 
-    void claimLegacyVersions().catch(() => undefined);
+    void refreshProjection().catch(() => undefined);
 })();
