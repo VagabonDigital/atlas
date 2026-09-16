@@ -661,7 +661,10 @@
             await prepareAccount();
             const result = await window.AtlasAccount.createAccount(
                 email,
-                password
+                password,
+                {
+                    returnIntentId: activeReturnIntentId
+                }
             );
 
             setBusy(false);

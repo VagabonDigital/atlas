@@ -479,8 +479,26 @@
         return () => listeners.delete(listener);
     }
 
-    function accountReturnUrl() {
-        return new URL('/account/', window.location.origin).href;
+    function normalizeReturnIntentId(value) {
+        const id = String(value || '').trim();
+        if (!id) return null;
+
+        if (!/^ri_[A-Za-z0-9_-]{20,80}$/.test(id)) {
+            throw new Error('Atlas return intent ID is invalid.');
+        }
+
+        return id;
+    }
+
+    function accountReturnUrl({ returnIntentId = null } = {}) {
+        const url = new URL('/account/', window.location.origin);
+        const intentId = normalizeReturnIntentId(returnIntentId);
+
+        if (intentId) {
+            url.searchParams.set('ri', intentId);
+        }
+
+        return url.href;
     }
 
     async function signIn(email, password) {
@@ -499,13 +517,17 @@
         return snapshot();
     }
 
-    async function createAccount(email, password) {
+    async function createAccount(
+        email,
+        password,
+        { returnIntentId = null } = {}
+    ) {
         await initialize();
         const AccountCloud = await ensureAccountCloud();
         const data = await AccountCloud.signUpWithPassword(
             email,
             password,
-            accountReturnUrl()
+            accountReturnUrl({ returnIntentId })
         );
         const session = data?.session || null;
 
