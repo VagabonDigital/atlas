@@ -22,7 +22,7 @@
     if (window.AtlasAccountChrome) return;
 
     const STYLE_HREF =
-        '/shared/atlas-account-chrome.css?v=20260916-accountchrome2';
+        '/shared/atlas-account-chrome.css?v=20260916-accountchrome3';
     const GATE_STYLE_HREF =
         '/shared/atlas-account-gate.css?v=20260916-accountgate2';
     const GATE_SRC =

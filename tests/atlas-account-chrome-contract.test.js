@@ -127,7 +127,7 @@ function runPlacementProof() {
         );
         assert.match(
             source,
-            /atlas-content-registry\.js\?v=20260916-accountchrome2/,
+            /atlas-content-registry\.js\?v=20260916-accountchrome3/,
             `Product hub ${index + 1} must cache-bust the account-chrome registry version.`
         );
     });
@@ -160,7 +160,7 @@ function runPlacementProof() {
     );
     assert.match(
         inside,
-        /atlas-account-chrome\.js\?v=20260916-accountchrome2/,
+        /atlas-account-chrome\.js\?v=20260916-accountchrome3/,
         'Inside Atlas must load shared account chrome.'
     );
 

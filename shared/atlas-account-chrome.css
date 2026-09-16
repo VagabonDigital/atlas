@@ -32,8 +32,8 @@
 }
 
 .atlas-account-control:disabled {
-    opacity: 0.52;
-    cursor: wait;
+    opacity: 1;
+    cursor: default;
 }
 
 .atlas-account-control svg {
