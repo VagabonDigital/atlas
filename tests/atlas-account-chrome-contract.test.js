@@ -160,12 +160,12 @@ function runPlacementProof() {
     );
     assert.match(
         inside,
-        /atlas-account-chrome\.js\?v=20260916-accountchrome5/,
+        /atlas-account-chrome\.js\?v=20260916-accountchrome6/,
         'Inside Atlas must load shared account chrome.'
     );
     assert.match(
         inside,
-        /atlas-account-chrome\.css\?v=20260916-accountchrome5[\s\S]*?data-atlas-account-chrome-styles/,
+        /atlas-account-chrome\.css\?v=20260916-accountchrome6[\s\S]*?data-atlas-account-chrome-styles/,
         'Inside Atlas must load account chrome styles in the document head before hydration.'
     );
     assert.match(
@@ -186,8 +186,8 @@ function runPlacementProof() {
     );
     assert.match(
         chrome,
-        /signIn\.hidden = isAccount \|\| isPending[\s\S]*?account\.hidden = presentation\.kind === 'sign-in'/,
-        'Inside Atlas pending state must keep the compact account shell instead of blanking the header.'
+        /pendingAnonymous/,
+        'Inside Atlas pending state must preserve the synchronous first-paint account hint.'
     );
 
     [atlas, compass, arcade].forEach((source, index) => {
@@ -222,6 +222,21 @@ function runPlacementProof() {
         gate,
         /focus\(\{ preventScroll: true \}\)/,
         'Account gate/menu focus must not scroll the underlying page.'
+    );
+    assert.match(
+        inside,
+        /atlasAccountHint/,
+        'Inside Atlas must resolve anonymous/account first-paint geometry synchronously.'
+    );
+    assert.doesNotMatch(
+        inside,
+        /data-atlas-inside-create hidden/,
+        'Inside Atlas must not hide Create free account in its static first-paint shell.'
+    );
+    assert.match(
+        chromeCss,
+        /data-atlas-account-hint="anonymous"/,
+        'Inside Atlas account CSS must honor the synchronous anonymous first-paint hint.'
     );
 }
 

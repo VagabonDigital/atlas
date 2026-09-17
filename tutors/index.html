@@ -77,7 +77,20 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="/shared/atlas-account-chrome.css?v=20260916-accountchrome5"
+  <script>
+    (function () {
+      var hasAccount = false;
+      try {
+        hasAccount = Boolean(
+          localStorage.getItem('sb-jnhjfpagectprceswvqn-auth-token')
+        );
+      } catch (e) { }
+
+      document.documentElement.dataset.atlasAccountHint =
+        hasAccount ? 'account' : 'anonymous';
+    })();
+  </script>
+  <link rel="stylesheet" href="/shared/atlas-account-chrome.css?v=20260916-accountchrome6"
     data-atlas-account-chrome-styles>
 
   <style>
@@ -1903,9 +1916,9 @@
         aria-label="Atlas account actions">
         <a class="atlas-inside-account-action atlas-inside-account-explore" href="/">Explore Atlas</a>
         <button class="atlas-inside-account-action atlas-inside-account-sign-in" type="button"
-          data-atlas-inside-sign-in hidden>Sign in</button>
+          data-atlas-inside-sign-in>Sign in</button>
         <button class="atlas-inside-account-action atlas-inside-account-create" type="button"
-          data-atlas-inside-create hidden>
+          data-atlas-inside-create>
           <span class="atlas-account-create-label-full">Create free account</span>
           <span class="atlas-account-create-label-short">Create account</span>
         </button>
@@ -3011,7 +3024,7 @@
     })();
   </script>
   <script src="/shared/atlas-access-bootstrap.js?v=20260916-access2"></script>
-  <script src="/shared/atlas-account-chrome.js?v=20260916-accountchrome5"></script>
+  <script src="/shared/atlas-account-chrome.js?v=20260916-accountchrome6"></script>
 </body>
 
 </html>

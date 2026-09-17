@@ -22,7 +22,7 @@
     if (window.AtlasAccountChrome) return;
 
     const STYLE_HREF =
-        '/shared/atlas-account-chrome.css?v=20260916-accountchrome5';
+        '/shared/atlas-account-chrome.css?v=20260916-accountchrome6';
     const GATE_STYLE_HREF =
         '/shared/atlas-account-gate.css?v=20260916-accountgate2';
     const GATE_SRC =
@@ -326,19 +326,22 @@
         const account = container.querySelector('[data-atlas-inside-account]');
         const isAccount = presentation.kind === 'account';
         const isPending = presentation.kind === 'pending';
+        const pendingAnonymous =
+            isPending &&
+            document.documentElement.dataset.atlasAccountHint === 'anonymous';
 
         if (signIn) {
-            signIn.hidden = isAccount || isPending;
+            signIn.hidden = isAccount || (isPending && !pendingAnonymous);
             signIn.disabled = false;
         }
 
         if (create) {
-            create.hidden = isAccount || isPending;
+            create.hidden = isAccount || (isPending && !pendingAnonymous);
             create.disabled = false;
         }
 
         if (account) {
-            account.hidden = presentation.kind === 'sign-in';
+            account.hidden = presentation.kind === 'sign-in' || pendingAnonymous;
             account.disabled = false;
             account.title = isPending
                 ? 'Checking Atlas account'

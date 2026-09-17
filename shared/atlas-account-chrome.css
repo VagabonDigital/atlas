@@ -111,6 +111,23 @@ html[data-atlas-account-hint="anonymous"] .atlas-account-control[data-account-st
     padding: 0;
 }
 
+.atlas-inside-account-entry[data-account-state="pending"] .atlas-inside-account-sign-in,
+.atlas-inside-account-entry[data-account-state="pending"] .atlas-inside-account-create {
+    display: none;
+}
+
+html[data-atlas-account-hint="anonymous"]
+.atlas-inside-account-entry[data-account-state="pending"] .atlas-inside-account-sign-in,
+html[data-atlas-account-hint="anonymous"]
+.atlas-inside-account-entry[data-account-state="pending"] .atlas-inside-account-create {
+    display: inline-flex;
+}
+
+html[data-atlas-account-hint="anonymous"]
+.atlas-inside-account-entry[data-account-state="pending"] .atlas-inside-account-icon {
+    display: none;
+}
+
 .atlas-inside-account-action:hover:not(:disabled),
 .atlas-inside-account-action:focus-visible {
     transform: translateY(-1px);
