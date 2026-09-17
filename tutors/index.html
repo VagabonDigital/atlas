@@ -134,6 +134,9 @@
       --frame: 1120px;
       --copy: 720px;
       --motion: 220ms cubic-bezier(.2, .75, .2, 1);
+      --hub-theme-motion: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+      --page-bg-day: radial-gradient(circle at 18% -4%, rgba(77, 113, 132, .055), transparent 25rem), #f3f0e9;
+      --page-bg-dark: radial-gradient(circle at 18% -4%, rgba(143, 178, 194, .055), transparent 25rem), #1b1d1c;
     }
 
     html[data-theme="dark"] {
@@ -168,13 +171,69 @@
     }
 
     body {
+      position: relative;
+      isolation: isolate;
       margin: 0;
       min-height: 100vh;
       font-family: var(--font-body);
       color: var(--text-body);
-      background: radial-gradient(circle at 18% -4%, rgba(var(--accent-rgb), .055), transparent 25rem), var(--surface-canvas);
+      background: transparent;
       line-height: 1.62;
       -webkit-font-smoothing: antialiased;
+    }
+
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    body::before {
+      background: var(--page-bg-day);
+      opacity: 1;
+    }
+
+    body::after {
+      background: var(--page-bg-dark);
+      opacity: 0;
+    }
+
+    html[data-theme="dark"] body::before {
+      opacity: 0;
+    }
+
+    html[data-theme="dark"] body::after {
+      opacity: 1;
+    }
+
+    /* ============================================================
+       THEME MOTION
+       Match the Atlas hubs: one 280ms paint window, no geometry.
+       Inside Atlas is a static public surface, so synchronising the
+       page paint contract here avoids per-component timing drift.
+       ============================================================ */
+    html.theme-changing body,
+    html.theme-changing body *,
+    html.theme-changing body *::before,
+    html.theme-changing body *::after {
+      transition:
+        background-color var(--hub-theme-motion),
+        background var(--hub-theme-motion),
+        color var(--hub-theme-motion),
+        border-color var(--hub-theme-motion),
+        outline-color var(--hub-theme-motion),
+        box-shadow var(--hub-theme-motion),
+        fill var(--hub-theme-motion),
+        stroke var(--hub-theme-motion);
+    }
+
+    html.theme-changing body::before,
+    html.theme-changing body::after,
+    html.theme-changing .theme-toggle .appearance-icon {
+      transition: opacity var(--hub-theme-motion);
     }
 
     button,
@@ -2437,9 +2496,40 @@
       try { stored = localStorage.getItem("atlas-theme"); } catch (e) { }
       var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
       root.dataset.theme = stored || (prefersDark ? "dark" : "light");
+      var THEME_TRANSITION_MS = 280;
+      var THEME_TRANSITION_CLEANUP_BUFFER_MS = 100;
+      var themeTransitionTimer = null;
+
+      function beginThemeTransition() {
+        if (
+          window.matchMedia &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ) {
+          return;
+        }
+
+        root.classList.remove("theme-changing");
+        void root.offsetWidth;
+        root.classList.add("theme-changing");
+
+        if (themeTransitionTimer !== null) {
+          window.clearTimeout(themeTransitionTimer);
+        }
+
+        themeTransitionTimer = window.setTimeout(function () {
+          root.classList.remove("theme-changing");
+          themeTransitionTimer = null;
+        }, THEME_TRANSITION_MS + THEME_TRANSITION_CLEANUP_BUFFER_MS);
+      }
+
       function syncTheme() { var dark = root.dataset.theme === "dark"; themeToggle.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode"); }
       syncTheme();
-      themeToggle.addEventListener("click", function () { root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark"; try { localStorage.setItem("atlas-theme", root.dataset.theme); } catch (e) { } syncTheme(); });
+      themeToggle.addEventListener("click", function () {
+        beginThemeTransition();
+        root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+        try { localStorage.setItem("atlas-theme", root.dataset.theme); } catch (e) { }
+        syncTheme();
+      });
 
       var revolverItems = Array.prototype.slice.call(document.querySelectorAll(".revolver-item"));
       var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
