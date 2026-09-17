@@ -4826,6 +4826,125 @@
       }
     }
 
+    let subjectCapabilityResumeUnsubscribe = null;
+
+    async function requireCompassSubjectCapability(
+      capability,
+      action,
+      operation,
+      context = {},
+      trigger = null
+    ) {
+      try {
+        const Gate = await ensureCompassCapabilityGate();
+
+        return Gate.requireCapability(
+          capability,
+          {
+            action,
+            destination: window.location.href,
+            context: {
+              operation,
+              ...context
+            },
+            trigger
+          }
+        );
+      } catch (error) {
+        return {
+          outcome: 'unavailable',
+          error
+        };
+      }
+    }
+
+    function compassSubjectCapabilityAllows(
+      access,
+      unavailableMessage = 'This subject action is unavailable right now.'
+    ) {
+      if (access?.outcome === 'allowed') {
+        return true;
+      }
+
+      if (access?.outcome === 'auth-required') {
+        return false;
+      }
+
+      if (
+        access?.outcome === 'limited' &&
+        access?.reason === 'exhausted'
+      ) {
+        showToast(
+          'You’ve used your current AI creation allowance.'
+        );
+        return false;
+      }
+
+      showToast(unavailableMessage);
+      return false;
+    }
+
+    async function installSubjectCapabilityResume() {
+      try {
+        const Gate = await ensureCompassCapabilityGate();
+
+        subjectCapabilityResumeUnsubscribe?.();
+
+        subjectCapabilityResumeUnsubscribe =
+          Gate.subscribeResume(
+            async payload => {
+              const intent = payload?.intent || null;
+              const context = intent?.context || {};
+
+              if (
+                intent?.action === 'create-subject' &&
+                context.operation === 'open-create-dialog'
+              ) {
+                await openCreateSubjectDialog(
+                  null,
+                  context.sessionId || '',
+                  null,
+                  context.categoryId || '',
+                  { skipCapabilityGate: true }
+                );
+                return;
+              }
+
+              if (
+                intent?.action === 'create-subject' &&
+                context.operation === 'duplicate-owned-subject' &&
+                context.subjectId
+              ) {
+                await duplicateOwnedSubject(
+                  context.subjectId,
+                  null,
+                  { skipCapabilityGate: true }
+                );
+                return;
+              }
+
+              if (
+                intent?.action === 'edit-subject' &&
+                context.operation === 'open-owned-subject' &&
+                context.subjectId
+              ) {
+                await editOwnedSubject(
+                  context.subjectId,
+                  null,
+                  { skipCapabilityGate: true }
+                );
+              }
+            },
+            { replay: true }
+          );
+      } catch (error) {
+        console.warn(
+          '[Compass] subject capability resume unavailable:',
+          error
+        );
+      }
+    }
+
     /* ================================================================
        OWNED SUBJECT MANAGEMENT
        ================================================================ */
@@ -5755,14 +5874,38 @@
       });
     }
 
-    function openCreateSubjectDialog(
+    async function openCreateSubjectDialog(
       event,
       sessionId = '',
       returnFocus = null,
-      categoryId = ''
+      categoryId = '',
+      options = {}
     ) {
       event?.preventDefault();
       event?.stopPropagation();
+
+      if (!options.skipCapabilityGate) {
+        const access =
+          await requireCompassSubjectCapability(
+            'canCreateSubject',
+            'create-subject',
+            'open-create-dialog',
+            {
+              sessionId: String(sessionId || '').trim(),
+              categoryId: String(categoryId || '').trim()
+            },
+            event?.currentTarget || null
+          );
+
+        if (
+          !compassSubjectCapabilityAllows(
+            access,
+            'Subject creation is unavailable right now.'
+          )
+        ) {
+          return;
+        }
+      }
 
       ownedSubjectDialogReturnFocus =
         returnFocus ||
@@ -6102,7 +6245,8 @@
     }
 
     async function confirmOwnedSubjectDialog(
-      createMode = 'generate'
+      createMode = 'generate',
+      options = {}
     ) {
       const state = ownedSubjectDialogState;
       const dialog = document.getElementById(
@@ -6729,6 +6873,29 @@
 
         const generateFullSubject =
           createMode !== 'blank';
+
+        if (
+          generateFullSubject &&
+          !options.skipAICapabilityGate
+        ) {
+          const aiAccess =
+            await requireCompassSubjectCapability(
+              'canCreateWithAI',
+              'capability',
+              'create-subject-ai',
+              { title: nextTitle },
+              confirm
+            );
+
+          if (
+            !compassSubjectCapabilityAllows(
+              aiAccess,
+              'AI-assisted subject creation is unavailable right now.'
+            )
+          ) {
+            return;
+          }
+        }
 
         const allowedLevels = new Set([
           'a1-a2',
@@ -7971,14 +8138,35 @@
       }
     }
 
-    function editOwnedSubject(
+    async function editOwnedSubject(
       subjectId,
-      event
+      event,
+      options = {}
     ) {
       event?.preventDefault();
       event?.stopPropagation();
 
       closeOwnedSubjectMenus();
+
+      if (!options.skipCapabilityGate) {
+        const access =
+          await requireCompassSubjectCapability(
+            'canEditSubject',
+            'edit-subject',
+            'open-owned-subject',
+            { subjectId: String(subjectId || '').trim() },
+            event?.currentTarget || null
+          );
+
+        if (
+          !compassSubjectCapabilityAllows(
+            access,
+            'Subject editing is unavailable right now.'
+          )
+        ) {
+          return;
+        }
+      }
 
       const launchUrl =
         getOwnedSubjectLaunchUrl(
@@ -7998,12 +8186,33 @@
 
     async function duplicateOwnedSubject(
       subjectId,
-      event
+      event,
+      options = {}
     ) {
       event?.preventDefault();
       event?.stopPropagation();
 
       closeOwnedSubjectMenus();
+
+      if (!options.skipCapabilityGate) {
+        const access =
+          await requireCompassSubjectCapability(
+            'canCreateSubject',
+            'create-subject',
+            'duplicate-owned-subject',
+            { subjectId: String(subjectId || '').trim() },
+            event?.currentTarget || null
+          );
+
+        if (
+          !compassSubjectCapabilityAllows(
+            access,
+            'Subject creation is unavailable right now.'
+          )
+        ) {
+          return;
+        }
+      }
 
       const Subjects = window.AtlasTutorSubjects;
 
@@ -10985,6 +11194,24 @@
         return;
       }
 
+      const aiAccess =
+        await requireCompassSubjectCapability(
+          'canCreateWithAI',
+          'capability',
+          'suggest-subject-ideas',
+          { mode: selectedMode.id },
+          button
+        );
+
+      if (
+        !compassSubjectCapabilityAllows(
+          aiAccess,
+          'Compass suggestions are unavailable right now.'
+        )
+      ) {
+        return;
+      }
+
       const topicFocusInput =
         dialog?.querySelector(
           '#compass-idea-topic-focus'
@@ -12393,6 +12620,7 @@
       });
 
       void installAccountLibraryResume();
+      void installSubjectCapabilityResume();
 
       renderHub();
     }

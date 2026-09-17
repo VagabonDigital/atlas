@@ -536,6 +536,39 @@
             const Subjects =
                 Host.AtlasTutorSubjects ||
                 window.AtlasTutorSubjects;
+            const Gate = Host.AtlasCapabilityGate;
+
+            if (
+                !Gate ||
+                typeof Gate.requireCapability !== 'function'
+            ) {
+                throw new Error(
+                    'Atlas capability enforcement is unavailable.'
+                );
+            }
+
+            const access = await Gate.requireCapability(
+                action === 'own'
+                    ? 'canAccessAccountLibrary'
+                    : 'canCreateSubject',
+                {
+                    action: action === 'own'
+                        ? 'open-account-library'
+                        : 'create-subject',
+                    destination: Host.location.href,
+                    context: {
+                        operation: action === 'own'
+                            ? 'add-atlas-original'
+                            : 'duplicate-atlas-original'
+                    }
+                }
+            );
+
+            if (access?.outcome !== 'allowed') {
+                throw new Error(
+                    'Atlas subject action is not permitted.'
+                );
+            }
 
             if (
                 !Content ||

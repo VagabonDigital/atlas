@@ -325,7 +325,13 @@
             );
         }
 
-        if (window.AtlasAccess.can(capability)) {
+        const capabilityAllowed =
+            window.AtlasAccess.can(capability);
+
+        if (
+            capabilityAllowed &&
+            capability !== 'canCreateWithAI'
+        ) {
             return outcome(
                 OUTCOMES.ALLOWED,
                 capability,
@@ -399,9 +405,7 @@
 
         if (
             allowance &&
-            ['limited', 'exhausted'].includes(
-                allowance.status
-            )
+            allowance.status === 'exhausted'
         ) {
             return outcome(
                 OUTCOMES.LIMITED,
@@ -411,6 +415,18 @@
                     reason: allowance.status,
                     allowance
                 }
+            );
+        }
+
+        if (
+            capabilityAllowed &&
+            (!allowance || allowance.allowed !== false)
+        ) {
+            return outcome(
+                OUTCOMES.ALLOWED,
+                capability,
+                access,
+                allowance ? { allowance } : {}
             );
         }
 

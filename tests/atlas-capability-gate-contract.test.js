@@ -241,6 +241,29 @@ async function testAiExhaustionNormalizesAsLimited() {
     assert.equal(harness.opened.length, 0);
 }
 
+async function testAiCapabilityTrueStillRespectsExhaustedAllowance() {
+    const harness = makeHarness({
+        ready: true,
+        status: 'ready',
+        authenticated: true,
+        tier: 'free',
+        capabilities: { canCreateWithAI: true },
+        creationAllowance: {
+            status: 'exhausted',
+            allowed: false,
+            remaining: 0,
+            limit: 10
+        }
+    });
+
+    const result = await harness.window.AtlasCapabilityGate
+        .requireCapability('canCreateWithAI');
+
+    assert.equal(result.outcome, 'limited');
+    assert.equal(result.reason, 'exhausted');
+    assert.equal(result.allowance.remaining, 0);
+}
+
 function testResumeReplayClosesSamePageRace() {
     const harness = makeHarness({
         ready: true,
@@ -302,6 +325,7 @@ async function run() {
     await testAnonymousCreatesIntentAndOpensGate();
     await testAuthenticatedDenialDoesNotShowLogin();
     await testAiExhaustionNormalizesAsLimited();
+    await testAiCapabilityTrueStillRespectsExhaustedAllowance();
     testResumeReplayClosesSamePageRace();
     await testUnknownCapabilityFailsClosed();
 

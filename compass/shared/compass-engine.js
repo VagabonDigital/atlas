@@ -519,6 +519,229 @@ function isOwnedSubjectRuntime() {
     return getCompassSubjectRuntime().source === 'owned';
 }
 
+let subjectAuthoringCapabilityGatePromise = null;
+let subjectAuthoringResumeUnsubscribe = null;
+let subjectAuthoringAIGuardInstalled = false;
+
+async function ensureSubjectAuthoringCapabilityGate() {
+    if (window.AtlasCapabilityGate) {
+        return window.AtlasCapabilityGate;
+    }
+
+    if (subjectAuthoringCapabilityGatePromise) {
+        return subjectAuthoringCapabilityGatePromise;
+    }
+
+    subjectAuthoringCapabilityGatePromise =
+        (async () => {
+            const Bootstrap = window.AtlasAccessBootstrap;
+
+            if (
+                !Bootstrap ||
+                typeof Bootstrap.prepareCapabilityGate !== 'function'
+            ) {
+                throw new Error(
+                    'Atlas capability enforcement is unavailable.'
+                );
+            }
+
+            return Bootstrap.prepareCapabilityGate();
+        })().catch(error => {
+            subjectAuthoringCapabilityGatePromise = null;
+            throw error;
+        });
+
+    return subjectAuthoringCapabilityGatePromise;
+}
+
+async function requireSubjectAuthoringCapability(
+    capability,
+    action,
+    operation,
+    context = {},
+    trigger = null
+) {
+    try {
+        const Gate =
+            await ensureSubjectAuthoringCapabilityGate();
+
+        return Gate.requireCapability(
+            capability,
+            {
+                action,
+                destination: window.location.href,
+                context: {
+                    operation,
+                    ...context
+                },
+                trigger
+            }
+        );
+    } catch (error) {
+        return {
+            outcome: 'unavailable',
+            error
+        };
+    }
+}
+
+function subjectAuthoringCapabilityAllows(access, message) {
+    if (access?.outcome === 'allowed') {
+        return true;
+    }
+
+    if (access?.outcome === 'auth-required') {
+        return false;
+    }
+
+    const status = document.getElementById(
+        'atlas-my-version-status'
+    );
+
+    if (status) {
+        status.textContent =
+            access?.outcome === 'limited' &&
+            access?.reason === 'exhausted'
+                ? 'AI creation allowance used for now'
+                : message;
+    }
+
+    return false;
+}
+
+async function installSubjectAuthoringResume() {
+    try {
+        const Gate =
+            await ensureSubjectAuthoringCapabilityGate();
+
+        subjectAuthoringResumeUnsubscribe?.();
+
+        subjectAuthoringResumeUnsubscribe =
+            Gate.subscribeResume(
+                async payload => {
+                    const intent = payload?.intent || null;
+                    const context = intent?.context || {};
+
+                    if (
+                        intent?.action === 'edit-subject' &&
+                        context.operation === 'open-authoring'
+                    ) {
+                        await requestMyVersionEditing({
+                            expandAuthorBar:
+                                context.expandAuthorBar !== false,
+                            skipCapabilityGate: true
+                        });
+                        return;
+                    }
+
+                    if (
+                        intent?.action === 'edit-subject' &&
+                        context.operation === 'save-subject'
+                    ) {
+                        await saveMyVersion({
+                            skipCapabilityGate: true
+                        });
+                        return;
+                    }
+
+                    if (
+                        intent?.action === 'create-subject' &&
+                        context.operation === 'create-from-version'
+                    ) {
+                        await createSubjectFromMyVersion({
+                            skipCapabilityGate: true
+                        });
+                    }
+                },
+                { replay: true }
+            );
+    } catch (error) {
+        console.warn(
+            '[Compass] subject authoring resume unavailable:',
+            error
+        );
+    }
+}
+
+function isSubjectAuthoringAIContext() {
+    return Boolean(
+        myVersionGeneratingFullSubject ||
+        (myVersionEditing && myVersionAuthoringOpen)
+    );
+}
+
+function installSubjectAuthoringAIGuard() {
+    if (subjectAuthoringAIGuardInstalled) return;
+
+    const AI = window.AtlasAI;
+
+    if (!AI) return;
+
+    const guardedMethods = new Set([
+        'generateMoment',
+        'generateCulturalLensCard',
+        'generateDiscussionSet',
+        'generateSubjectFraming',
+        'generateOverview',
+        'generateDiscussionFraming',
+        'generateCulturalLensFraming',
+        'generateReflection',
+        'generateMomentUpgrade',
+        'generateCulturalLensUpgrade',
+        'generateMakeItReal',
+        'generateDiscussionPathway'
+    ]);
+
+    window.AtlasAI = new Proxy(AI, {
+        get(target, property, receiver) {
+            const value = Reflect.get(
+                target,
+                property,
+                receiver
+            );
+
+            if (
+                !guardedMethods.has(property) ||
+                typeof value !== 'function'
+            ) {
+                return value;
+            }
+
+            return async function (...args) {
+                if (!isSubjectAuthoringAIContext()) {
+                    return value.apply(target, args);
+                }
+
+                const access =
+                    await requireSubjectAuthoringCapability(
+                        'canCreateWithAI',
+                        'capability',
+                        'ai-authoring',
+                        { method: String(property) }
+                    );
+
+                if (
+                    !subjectAuthoringCapabilityAllows(
+                        access,
+                        'AI-assisted creation is unavailable'
+                    )
+                ) {
+                    const error = new Error(
+                        'Atlas AI authoring is unavailable for this account.'
+                    );
+                    error.code =
+                        'ATLAS_AI_CAPABILITY_BLOCKED';
+                    throw error;
+                }
+
+                return value.apply(target, args);
+            };
+        }
+    });
+
+    subjectAuthoringAIGuardInstalled = true;
+}
+
 function consumeOwnedSubjectAuthoringIntent() {
     if (!isOwnedSubjectRuntime()) {
         return '';
@@ -2265,11 +2488,34 @@ function openMyVersionManagementFromBar() {
     openMyVersionManagementDialog();
 }
 
-function requestMyVersionEditing({
-    expandAuthorBar = true
+async function requestMyVersionEditing({
+    expandAuthorBar = true,
+    skipCapabilityGate = false
 } = {}) {
     if (myVersionEditing || myVersionSaving) {
         return;
+    }
+
+    if (!skipCapabilityGate) {
+        const access =
+            await requireSubjectAuthoringCapability(
+                'canEditSubject',
+                'edit-subject',
+                'open-authoring',
+                {
+                    expandAuthorBar:
+                        Boolean(expandAuthorBar)
+                }
+            );
+
+        if (
+            !subjectAuthoringCapabilityAllows(
+                access,
+                'Subject editing is unavailable'
+            )
+        ) {
+            return;
+        }
     }
 
     myVersionExpandBarOnEditStart =
@@ -2351,13 +2597,31 @@ async function cancelMyVersionEditing() {
     renderAllTutorContentSurfaces();
 }
 
-async function saveMyVersion() {
+async function saveMyVersion(options = {}) {
     if (
         !myVersionEditing ||
         myVersionSaving ||
         !myVersionDirty
     ) {
         return;
+    }
+
+    if (!options.skipCapabilityGate) {
+        const access =
+            await requireSubjectAuthoringCapability(
+                'canEditSubject',
+                'edit-subject',
+                'save-subject'
+            );
+
+        if (
+            !subjectAuthoringCapabilityAllows(
+                access,
+                'Subject editing is unavailable'
+            )
+        ) {
+            return;
+        }
     }
 
     const activeElement = document.activeElement;
@@ -3890,7 +4154,7 @@ function updateCreateSubjectFromMyVersionUI() {
     }
 }
 
-async function createSubjectFromMyVersion() {
+async function createSubjectFromMyVersion(options = {}) {
     if (
         isOwnedSubjectRuntime() ||
         !myVersionEditing ||
@@ -3898,6 +4162,24 @@ async function createSubjectFromMyVersion() {
         !hasSavedMyVersion()
     ) {
         return;
+    }
+
+    if (!options.skipCapabilityGate) {
+        const access =
+            await requireSubjectAuthoringCapability(
+                'canCreateSubject',
+                'create-subject',
+                'create-from-version'
+            );
+
+        if (
+            !subjectAuthoringCapabilityAllows(
+                access,
+                'Subject creation is unavailable'
+            )
+        ) {
+            return;
+        }
     }
 
     const button = document.getElementById(
@@ -21475,6 +21757,8 @@ async function init() {
     mountSessionPanel();
 
     void installDurableSaveResume();
+    void installSubjectAuthoringResume();
+    installSubjectAuthoringAIGuard();
 
     updateSessionUI();
     renderUpgradeVisibilityControls();
@@ -21488,10 +21772,10 @@ async function init() {
         ownedSubjectAuthoringIntent &&
         !myVersionEditing
     ) {
-        beginMyVersionEditing(
-            ownedSubjectAuthoringIntent !==
-                'generate'
-        );
+        await requestMyVersionEditing({
+            expandAuthorBar:
+                ownedSubjectAuthoringIntent === 'edit'
+        });
     }
 
     if (
