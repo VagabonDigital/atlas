@@ -329,24 +329,33 @@
         const id = String(subjectId || '').trim();
         if (!id) return false;
 
-        let query = client
-            .from('owned_subjects')
-            .delete()
-            .eq('id', id);
+        const revision =
+            expectedRevision === null
+                ? null
+                : Math.max(
+                    1,
+                    Math.floor(Number(expectedRevision) || 1)
+                );
 
-        if (expectedRevision !== null) {
-            query = query.eq(
-                'revision',
-                Math.max(1, Math.floor(Number(expectedRevision) || 1))
-            );
-        }
-
-        const { data, error } = await query
-            .select('id')
-            .maybeSingle();
+        const { data, error } = await client.rpc(
+            'atlas_delete_owned_subject_v1',
+            {
+                p_subject_id: id,
+                p_expected_revision: revision
+            }
+        );
 
         if (error) throw error;
-        return Boolean(data && data.id === id);
+
+        if (data?.conflict === true) {
+            const conflict = new Error(
+                'This My Subject changed elsewhere before deletion completed.'
+            );
+            conflict.code = 'ATLAS_REVISION_CONFLICT';
+            throw conflict;
+        }
+
+        return data?.deleted === true;
     }
 
     function rowToSubjectLibraryState(row) {
