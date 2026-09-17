@@ -1,5 +1,6 @@
 from pathlib import Path
 
+# Triggered after the temporary workflow was installed.
 path = Path('compass/index.html')
 text = path.read_text(encoding='utf-8')
 
