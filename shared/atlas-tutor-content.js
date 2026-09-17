@@ -756,6 +756,58 @@
         };
     }
 
+    async function exportWorkingDrafts(contentIds = []) {
+        const allowedIds = new Set(
+            (Array.isArray(contentIds) ? contentIds : [])
+                .map(value =>
+                    String(value || '').trim()
+                )
+                .filter(Boolean)
+        );
+        const errors = [];
+        const workingDrafts = [];
+
+        listKeysWithPrefix(
+            localStorage,
+            WORKING_DRAFT_PREFIX
+        )
+            .map(key => readPortableRecord(
+                localStorage,
+                key,
+                WORKING_DRAFT_PREFIX
+            ))
+            .filter(record =>
+                allowedIds.has(
+                    String(record?.contentId || '').trim()
+                )
+            )
+            .forEach((record, index) => {
+                const normalized =
+                    validatePortableRecord(
+                        record,
+                        `Tutor Content working draft ${index + 1}`,
+                        true,
+                        errors
+                    );
+
+                if (normalized) {
+                    workingDrafts.push(normalized);
+                }
+            });
+
+        if (errors.length) {
+            throw new Error(errors.join(' '));
+        }
+
+        workingDrafts.sort((left, right) =>
+            left.contentId.localeCompare(
+                right.contentId
+            )
+        );
+
+        return workingDrafts;
+    }
+
     async function exportPortableData() {
         const versions = listKeysWithPrefix(
             localStorage,
@@ -844,6 +896,7 @@
         saveLiveDraft,
         clearLiveDraft,
 
+        exportWorkingDrafts,
         exportPortableData,
         validatePortableData,
         restorePortableData
