@@ -23,6 +23,118 @@
     <link rel="stylesheet" href="../../shared/atlas-session-panel.css?v=20260721-world-modals">
 
     <style>
+        #compass-subject-load-status {
+            min-height: 100svh;
+            display: grid;
+            place-items: center;
+            padding: 2rem;
+        }
+
+        .compass-subject-load-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            text-align: center;
+        }
+
+        .compass-subject-load-dots {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.42rem;
+            height: 1rem;
+        }
+
+        .compass-subject-load-dot {
+            width: 0.46rem;
+            height: 0.46rem;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: compass-subject-load-bounce 0.9s ease-in-out infinite;
+        }
+
+        .compass-subject-load-dot:nth-child(2) {
+            animation-delay: 0.12s;
+        }
+
+        .compass-subject-load-dot:nth-child(3) {
+            animation-delay: 0.24s;
+        }
+
+        .compass-subject-load-message {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .compass-subject-load-actions {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.65rem;
+            margin-top: 0.25rem;
+            flex-wrap: wrap;
+        }
+
+        .compass-subject-load-action {
+            min-height: 2.4rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.55rem 0.9rem;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            background: var(--surface-panel);
+            color: var(--text-body);
+            font: inherit;
+            font-size: 0.82rem;
+            line-height: 1;
+            text-decoration: none;
+            cursor: pointer;
+            transition:
+                border-color var(--transition),
+                background var(--transition),
+                color var(--transition);
+        }
+
+        .compass-subject-load-action:hover {
+            border-color: var(--border-strong);
+            background: var(--surface-raised);
+            color: var(--text-heading);
+        }
+
+        #compass-subject-load-status.is-error .compass-subject-load-dots {
+            display: none;
+        }
+
+        #compass-subject-load-status.is-error .compass-subject-load-message {
+            color: var(--text-body);
+        }
+
+        #compass-subject-load-status.is-error .compass-subject-load-actions {
+            display: flex;
+        }
+
+        @keyframes compass-subject-load-bounce {
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-4px);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .compass-subject-load-dot {
+                animation: none;
+            }
+        }
+
         @media (min-width: 600px) {
             .discussion-sets:has(> .set-card + .set-card):not(:has(> .set-card + .set-card + .set-card)) {
                 grid-template-columns: repeat(2, minmax(240px, 1fr));
@@ -32,14 +144,34 @@
 </head>
 
 <body data-atlas-world="compass" data-atlas-surface="content">
-    <main id="compass-subject-load-status" aria-live="polite">
-        Opening subject…
+    <main id="compass-subject-load-status" aria-live="polite" aria-busy="true">
+        <div class="compass-subject-load-state">
+            <div class="compass-subject-load-dots" aria-hidden="true">
+                <span class="compass-subject-load-dot"></span>
+                <span class="compass-subject-load-dot"></span>
+                <span class="compass-subject-load-dot"></span>
+            </div>
+
+            <p class="compass-subject-load-message" id="compass-subject-load-message">
+                Opening subject
+            </p>
+
+            <div class="compass-subject-load-actions">
+                <button class="compass-subject-load-action" id="compass-subject-load-retry" type="button">
+                    Retry
+                </button>
+
+                <a class="compass-subject-load-action" href="../">
+                    Back to Compass
+                </a>
+            </div>
+        </div>
     </main>
 
     <script src="../shared/compass-subject-shell.js"></script>
     <script src="../../shared/atlas-search.js"></script>
     <script src="../../shared/atlas-session-panel.js?v=20260916-runtime3"></script>
-    <script src="../shared/compass-subject-loader.js?v=20260915-save-guard-1"></script>
+    <script src="../shared/compass-subject-loader.js?v=20260917-loading-state-1"></script>
 </body>
 
 </html>

@@ -1387,7 +1387,7 @@
             order: 30,
             available: true,
             artId: 'words-that-stick',
-            hook: 'The origins, patterns and stories behind ambitious English words, with a focus on precise meaning, memorable connections and using new vocabulary naturally in real conversations.'
+            hook: 'For C1+ learners: explore the origins, patterns and stories behind ambitious English words, with a focus on precise meaning, memorable connections and using new vocabulary naturally in real conversations.'
         }
     ];
 

@@ -12,6 +12,8 @@
 (function () {
     'use strict';
 
+    const SUBJECT_LOAD_TIMEOUT_MS = 15000;
+
     function cloneJson(value) {
         try {
             return JSON.parse(JSON.stringify(value));
@@ -56,13 +58,68 @@
         );
     }
 
-    function showLoadError(message) {
+    function showLoadError(
+        message,
+        {
+            canRetry = true
+        } = {}
+    ) {
         const status = getStatusElement();
 
         if (!status) return;
 
-        status.textContent = message;
+        const messageElement =
+            status.querySelector(
+                '#compass-subject-load-message'
+            );
+
+        const retryButton =
+            status.querySelector(
+                '#compass-subject-load-retry'
+            );
+
+        if (messageElement) {
+            messageElement.textContent = message;
+        } else {
+            status.textContent = message;
+        }
+
+        status.classList.add('is-error');
         status.setAttribute('role', 'alert');
+        status.setAttribute('aria-busy', 'false');
+
+        if (retryButton) {
+            retryButton.hidden = !canRetry;
+            retryButton.onclick = canRetry
+                ? () => window.location.reload()
+                : null;
+        }
+    }
+
+    function withTimeout(
+        promise,
+        errorMessage
+    ) {
+        let timeoutId = null;
+
+        const timeoutPromise =
+            new Promise((resolve, reject) => {
+                timeoutId = setTimeout(
+                    () => reject(
+                        new Error(errorMessage)
+                    ),
+                    SUBJECT_LOAD_TIMEOUT_MS
+                );
+            });
+
+        return Promise.race([
+            promise,
+            timeoutPromise
+        ]).finally(() => {
+            if (timeoutId !== null) {
+                clearTimeout(timeoutId);
+            }
+        });
     }
 
     function requireAtlasTutorSubjects() {
@@ -197,15 +254,42 @@
     function loadScript(relativePath, errorMessage) {
         return new Promise((resolve, reject) => {
             const script = document.createElement('script');
+            let settled = false;
+
+            const finish = (
+                callback,
+                value
+            ) => {
+                if (settled) return;
+
+                settled = true;
+                clearTimeout(timeoutId);
+                callback(value);
+            };
 
             script.src = new URL(
                 relativePath,
                 window.location.href
             ).href;
 
-            script.onload = resolve;
-            script.onerror = () => reject(
-                new Error(errorMessage)
+            script.onload = () =>
+                finish(resolve);
+
+            script.onerror = () =>
+                finish(
+                    reject,
+                    new Error(errorMessage)
+                );
+
+            const timeoutId = setTimeout(
+                () => {
+                    script.remove();
+                    finish(
+                        reject,
+                        new Error(errorMessage)
+                    );
+                },
+                SUBJECT_LOAD_TIMEOUT_MS
             );
 
             document.body.appendChild(script);
@@ -379,18 +463,27 @@
 
         if (!subjectId) {
             showLoadError(
-                'This subject link is missing its subject ID.'
+                'This subject link isn’t available.',
+                {
+                    canRetry: false
+                }
             );
             return;
         }
 
         try {
-            const record = await requireAtlasTutorSubjects()
-                .getSubject(subjectId);
+            const record = await withTimeout(
+                requireAtlasTutorSubjects()
+                    .getSubject(subjectId),
+                'Subject request timed out.'
+            );
 
             if (!record) {
                 showLoadError(
-                    'This subject could not be found.'
+                    'This subject isn’t available.',
+                    {
+                        canRetry: false
+                    }
                 );
                 return;
             }
@@ -400,7 +493,10 @@
 
             if (!subject) {
                 showLoadError(
-                    'This subject is not a valid Structured Subject.'
+                    'This subject isn’t available.',
+                    {
+                        canRetry: false
+                    }
                 );
                 return;
             }
@@ -417,7 +513,7 @@
             );
 
             showLoadError(
-                'This subject could not be opened.'
+                'We couldn’t open this subject.'
             );
         }
     }

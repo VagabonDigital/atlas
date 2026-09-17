@@ -199,16 +199,21 @@
         return new Promise(resolve => {
             let settled = false;
             let unsubscribe = null;
+            let timer = null;
 
             const finish = value => {
                 if (settled) return;
                 settled = true;
-                window.clearTimeout(timer);
+
+                if (timer !== null) {
+                    window.clearTimeout(timer);
+                }
+
                 unsubscribe?.();
                 resolve(value || snapshotAccess());
             };
 
-            const timer = window.setTimeout(
+            timer = window.setTimeout(
                 () => finish(snapshotAccess()),
                 timeoutMs
             );
@@ -325,7 +330,13 @@
             );
         }
 
-        if (window.AtlasAccess.can(capability)) {
+        const capabilityAllowed =
+            window.AtlasAccess.can(capability);
+
+        if (
+            capabilityAllowed &&
+            capability !== 'canCreateWithAI'
+        ) {
             return outcome(
                 OUTCOMES.ALLOWED,
                 capability,
@@ -399,9 +410,7 @@
 
         if (
             allowance &&
-            ['limited', 'exhausted'].includes(
-                allowance.status
-            )
+            allowance.status === 'exhausted'
         ) {
             return outcome(
                 OUTCOMES.LIMITED,
@@ -411,6 +420,18 @@
                     reason: allowance.status,
                     allowance
                 }
+            );
+        }
+
+        if (
+            capabilityAllowed &&
+            (!allowance || allowance.allowed !== false)
+        ) {
+            return outcome(
+                OUTCOMES.ALLOWED,
+                capability,
+                access,
+                allowance ? { allowance } : {}
             );
         }
 

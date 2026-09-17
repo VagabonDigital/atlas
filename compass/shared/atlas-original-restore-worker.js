@@ -82,6 +82,33 @@
         try {
             const Host = getHostWindow();
             const Content = Host.AtlasTutorContent;
+            const Gate = Host.AtlasCapabilityGate;
+
+            if (
+                !Gate ||
+                typeof Gate.requireCapability !== 'function'
+            ) {
+                throw new Error(
+                    'Atlas capability enforcement is unavailable.'
+                );
+            }
+
+            const access = await Gate.requireCapability(
+                'canEditSubject',
+                {
+                    action: 'edit-subject',
+                    destination: Host.location.href,
+                    context: {
+                        operation: 'restore-atlas-original'
+                    }
+                }
+            );
+
+            if (access?.outcome !== 'allowed') {
+                throw new Error(
+                    'Atlas subject editing is not permitted.'
+                );
+            }
 
             if (
                 !Content ||
