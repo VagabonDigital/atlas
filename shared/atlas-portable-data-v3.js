@@ -374,9 +374,7 @@
             library,
             versions,
             curationRow,
-            personalizationRow,
-            subjectPortable,
-            contentPortable
+            personalizationRow
         ] = await Promise.all([
             LearnerCloud.listLearnerSessions(),
             readLearnerContinuity(client, user.id),
@@ -385,9 +383,34 @@
             AtlasCloud.getSubjectLibraryState(),
             AtlasCloud.listTutorContentVersions(),
             readSingleRow(client, 'original_curation_state', user.id),
-            readSingleRow(client, 'hub_personalization_state', user.id),
-            TutorSubjects.exportPortableData(),
-            TutorContent.exportPortableData()
+            readSingleRow(client, 'hub_personalization_state', user.id)
+        ]);
+
+        if (
+            typeof TutorSubjects.exportWorkingDrafts !== 'function' ||
+            typeof TutorContent.exportWorkingDrafts !== 'function'
+        ) {
+            throw new Error(
+                'Atlas workspace draft export support is unavailable.'
+            );
+        }
+
+        const subjectRecords = sortById(subjects || []);
+        const versionRecords = sortById(
+            versions || [],
+            'contentId'
+        );
+
+        const [
+            subjectWorkingDrafts,
+            versionWorkingDrafts
+        ] = await Promise.all([
+            TutorSubjects.exportWorkingDrafts(
+                subjectRecords.map(record => record.id)
+            ),
+            TutorContent.exportWorkingDrafts(
+                versionRecords.map(record => record.contentId)
+            )
         ]);
 
         const learnerRecords = sortById(learners || []);
@@ -410,22 +433,19 @@
                 ),
                 shared: normalizeSharedRow(sharedRow),
                 mySubjects: {
-                    subjects: sortById(subjects || []),
+                    subjects: subjectRecords,
                     library: library ? cloneJson(library) : null
                 },
-                myVersions: sortById(
-                    versions || [],
-                    'contentId'
-                ),
+                myVersions: versionRecords,
                 originalCuration:
                     normalizeStateRow(curationRow),
                 hubPersonalization:
                     normalizeStateRow(personalizationRow),
                 workspace: {
                     mySubjectWorkingDrafts:
-                        cloneJson(subjectPortable?.workingDrafts || []),
+                        cloneJson(subjectWorkingDrafts || []),
                     myVersionWorkingDrafts:
-                        cloneJson(contentPortable?.workingDrafts || []),
+                        cloneJson(versionWorkingDrafts || []),
                     preferences: readPreferences(Bridge),
                     appearanceBySession:
                         readAppearanceBySession(Bridge, learnerIds)
@@ -767,10 +787,10 @@
                 );
             }
 
-            // Owning persistence modules validate the two authoring portable
-            // payloads before we extract their working drafts. Re-run their
-            // validators here when available so a malformed package cannot be
-            // downloaded or later accepted silently.
+            // The owning persistence modules validate local working drafts
+            // through their narrow workspace exporters before this package is
+            // assembled. Re-run Tutor Content validation here when available
+            // so My Versions + their drafts remain independently coherent.
             if (
                 window.AtlasTutorContent?.validatePortableData &&
                 Array.isArray(data.myVersions) &&
