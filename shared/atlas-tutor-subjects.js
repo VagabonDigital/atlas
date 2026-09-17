@@ -3171,6 +3171,52 @@
         };
     }
 
+    async function exportWorkingDrafts(subjectIds = []) {
+        const allowedIds = new Set(
+            normalizeSubjectOrder(subjectIds)
+        );
+        const errors = [];
+        const workingDrafts = [];
+
+        listKeysWithPrefix(
+            WORKING_DRAFT_PREFIX
+        )
+            .map(key => readPortableRecord(
+                key,
+                WORKING_DRAFT_PREFIX,
+                'subjectId'
+            ))
+            .filter(record =>
+                allowedIds.has(
+                    String(record?.subjectId || '').trim()
+                )
+            )
+            .forEach((record, index) => {
+                const normalized =
+                    validatePortableWorkingDraft(
+                        record,
+                        `Tutor Subject working draft ${index + 1}`,
+                        errors
+                    );
+
+                if (normalized) {
+                    workingDrafts.push(normalized);
+                }
+            });
+
+        if (errors.length) {
+            throw new Error(errors.join(' '));
+        }
+
+        workingDrafts.sort((left, right) =>
+            left.subjectId.localeCompare(
+                right.subjectId
+            )
+        );
+
+        return workingDrafts;
+    }
+
     async function exportPortableData() {
         await reconcilePendingDeletes();
 
@@ -3399,6 +3445,7 @@
         finalizePendingDelete,
         reconcilePendingDeletes,
 
+        exportWorkingDrafts,
         exportPortableData,
         validatePortableData,
         restorePortableData
