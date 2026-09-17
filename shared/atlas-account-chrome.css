@@ -18,7 +18,9 @@
 }
 
 .spine-btn.atlas-account-control[data-account-state="sign-in"],
-.mobile-header-btn.atlas-account-control[data-account-state="sign-in"] {
+.mobile-header-btn.atlas-account-control[data-account-state="sign-in"],
+html[data-atlas-account-hint="anonymous"] .spine-btn.atlas-account-control[data-account-state="pending"],
+html[data-atlas-account-hint="anonymous"] .mobile-header-btn.atlas-account-control[data-account-state="pending"] {
     width: auto;
     min-width: 38px;
     padding-inline: 0.72rem;
@@ -45,6 +47,11 @@
 .atlas-account-control span {
     line-height: 1;
 }
+
+.atlas-account-firstpaint-sign-in { display: none; }
+.atlas-account-firstpaint-icon { display: block; }
+html[data-atlas-account-hint="anonymous"] .atlas-account-control[data-account-state="pending"] .atlas-account-firstpaint-sign-in { display: inline; }
+html[data-atlas-account-hint="anonymous"] .atlas-account-control[data-account-state="pending"] .atlas-account-firstpaint-icon { display: none; }
 
 /* ============================================================
    INSIDE ATLAS

@@ -861,7 +861,7 @@
         }
 
         const src =
-            '/shared/atlas-account-chrome.js?v=20260916-accountchrome3';
+            '/shared/atlas-account-chrome.js?v=20260916-accountchrome5';
 
         if (document.readyState === 'loading') {
             document.write(

@@ -38,8 +38,10 @@
   <link rel="stylesheet" href="./shared/atlas-modal-theme.css?v=20260721-world-modals">
   <link rel="stylesheet" href="./shared/atlas-search.css?v=20260721-world-modals">
   <link rel="stylesheet" href="./shared/atlas-session-panel.css?v=20260721-world-modals">
+  <link rel="stylesheet" href="./shared/atlas-account-chrome.css?v=20260916-accountchrome5" data-atlas-account-chrome-styles>
 
   <script src="./shared/atlas-bridge.js"></script>
+  <script>(function(){var h=false;try{h=Boolean(localStorage.getItem('sb-jnhjfpagectprceswvqn-auth-token'));}catch(e){}document.documentElement.dataset.atlasAccountHint=h?'account':'anonymous';})();</script>
 
   <!-- Anti-flash: apply the active session theme before first paint. -->
   <script>
@@ -3746,6 +3748,7 @@
             stroke="currentColor" stroke-width="1.35" stroke-linecap="round" />
         </svg>
       </button>
+      <button class="spine-btn atlas-account-control atlas-account-control--desktop" type="button" data-atlas-account-control="desktop" data-account-state="pending" aria-haspopup="dialog" aria-expanded="false" aria-label="Atlas account" title="Atlas account" disabled><span class="atlas-account-firstpaint-sign-in">Sign in</span><svg class="atlas-account-firstpaint-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.15" stroke="currentColor" stroke-width="1.15"/><circle cx="8" cy="6.05" r="1.95" stroke="currentColor" stroke-width="1.15"/><path d="M4.65 11.85c.52-1.72 1.8-2.68 3.35-2.68s2.83.96 3.35 2.68" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/></svg></button>
     </div>
   </header>
   <!-- ============================================================ MOBILE HEADER -->
@@ -3770,6 +3773,7 @@
         </svg>
       </button>
 
+      <button class="mobile-header-btn atlas-account-control atlas-account-control--mobile" type="button" data-atlas-account-control="mobile" data-account-state="pending" aria-haspopup="dialog" aria-expanded="false" aria-label="Atlas account" title="Atlas account" disabled><span class="atlas-account-firstpaint-sign-in">Sign in</span><svg class="atlas-account-firstpaint-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.15" stroke="currentColor" stroke-width="1.15"/><circle cx="8" cy="6.05" r="1.95" stroke="currentColor" stroke-width="1.15"/><path d="M4.65 11.85c.52-1.72 1.8-2.68 3.35-2.68s2.83.96 3.35 2.68" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/></svg></button>
       <button class="mobile-header-btn" onclick="openDrawer()" aria-label="Menu">
         <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
           <path d="M2 4h13M2 8.5h13M2 13h13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
@@ -3976,7 +3980,7 @@
   <script src="./shared/atlas-tutor-subjects.js"></script>
   <script src="./shared/atlas-original-curation.js"></script>
   <script src="./shared/atlas-portable-data.js"></script>
-  <script src="./shared/atlas-content-registry.js?v=20260916-accountchrome3"></script>
+  <script src="./shared/atlas-content-registry.js?v=20260916-accountchrome5"></script>
   <script src="./shared/atlas-session-panel.js?v=20260916-runtime3"></script>
   <script src="./shared/atlas-search.js"></script>
   <script src="./shared/atlas-feedback.js"></script>

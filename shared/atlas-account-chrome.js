@@ -22,7 +22,7 @@
     if (window.AtlasAccountChrome) return;
 
     const STYLE_HREF =
-        '/shared/atlas-account-chrome.css?v=20260916-accountchrome4';
+        '/shared/atlas-account-chrome.css?v=20260916-accountchrome5';
     const GATE_STYLE_HREF =
         '/shared/atlas-account-gate.css?v=20260916-accountgate2';
     const GATE_SRC =
@@ -195,6 +195,7 @@
         button.setAttribute('aria-haspopup', 'dialog');
         button.setAttribute('aria-expanded', 'false');
         button.addEventListener('click', () => handleAccountAction(button));
+        button.dataset.accountControlReady = 'true';
         return button;
     }
 
@@ -205,6 +206,8 @@
         button.disabled = presentation.disabled;
         button.title = presentation.title;
         button.setAttribute('aria-label', presentation.title);
+
+        if (presentation.kind === 'pending') return;
 
         if (presentation.kind === 'sign-in') {
             button.innerHTML = '<span>Sign in</span>';
@@ -231,6 +234,7 @@
                 desktopActions.appendChild(control);
             }
 
+            if (control.dataset.accountControlReady !== 'true') { control.addEventListener('click', () => handleAccountAction(control)); control.dataset.accountControlReady = 'true'; }
             mounted.push(control);
         }
 
@@ -254,6 +258,7 @@
                 }
             }
 
+            if (control.dataset.accountControlReady !== 'true') { control.addEventListener('click', () => handleAccountAction(control)); control.dataset.accountControlReady = 'true'; }
             mounted.push(control);
         }
 

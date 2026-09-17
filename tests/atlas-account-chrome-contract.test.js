@@ -127,7 +127,7 @@ function runPlacementProof() {
         );
         assert.match(
             source,
-            /atlas-content-registry\.js\?v=20260916-accountchrome3/,
+            /atlas-content-registry\.js\?v=20260916-accountchrome5/,
             `Product hub ${index + 1} must cache-bust the account-chrome registry version.`
         );
     });
@@ -160,12 +160,12 @@ function runPlacementProof() {
     );
     assert.match(
         inside,
-        /atlas-account-chrome\.js\?v=20260916-accountchrome4/,
+        /atlas-account-chrome\.js\?v=20260916-accountchrome5/,
         'Inside Atlas must load shared account chrome.'
     );
     assert.match(
         inside,
-        /atlas-account-chrome\.css\?v=20260916-accountchrome4[\s\S]*?data-atlas-account-chrome-styles/,
+        /atlas-account-chrome\.css\?v=20260916-accountchrome5[\s\S]*?data-atlas-account-chrome-styles/,
         'Inside Atlas must load account chrome styles in the document head before hydration.'
     );
     assert.match(
@@ -189,6 +189,14 @@ function runPlacementProof() {
         /signIn\.hidden = isAccount \|\| isPending[\s\S]*?account\.hidden = presentation\.kind === 'sign-in'/,
         'Inside Atlas pending state must keep the compact account shell instead of blanking the header.'
     );
+
+    [atlas, compass, arcade].forEach((source, index) => {
+        assert.match(source, /data-atlas-account-control="desktop"[\s\S]*?data-account-state="pending"/, `Product hub ${index + 1} must ship a desktop first-paint account shell.`);
+        assert.match(source, /data-atlas-account-control="mobile"[\s\S]*?data-account-state="pending"/, `Product hub ${index + 1} must ship a mobile first-paint account shell.`);
+        assert.match(source, /sb-jnhjfpagectprceswvqn-auth-token[\s\S]*?atlasAccountHint/, `Product hub ${index + 1} must resolve first-paint account geometry synchronously.`);
+    });
+    assert.match(chrome, /if \(presentation\.kind === 'pending'\) return;/, 'Account chrome must preserve the first-paint shell while access resolves.');
+    assert.match(inside, /appearance-icon appearance-icon--moon[\s\S]*?appearance-icon appearance-icon--sun/, 'Inside Atlas must use deterministic SVG appearance icons.');
 
     assert.match(
         chrome,
