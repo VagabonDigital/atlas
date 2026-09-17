@@ -93,14 +93,51 @@
   <script src="../shared/atlas-bridge.js"></script>
   <script>
     (function () {
-      var h = false;
+      var authStorageKey =
+        'sb-jnhjfpagectprceswvqn-auth-token';
+      var hubCachePrefix =
+        'atlas::compassHubCache::v1::';
+      var hubCacheVersion = 1;
+      var authRaw = null;
+      var userId = '';
+
       try {
-        h = Boolean(
-          localStorage.getItem(
-            'sb-jnhjfpagectprceswvqn-auth-token'
-          )
+        authRaw = localStorage.getItem(
+          authStorageKey
         );
+
+        if (authRaw) {
+          var parsed = JSON.parse(authRaw);
+          var candidates = [
+            parsed,
+            parsed && parsed.session,
+            parsed && parsed.currentSession,
+            parsed && parsed.data &&
+              parsed.data.session
+          ];
+
+          for (
+            var index = 0;
+            index < candidates.length;
+            index += 1
+          ) {
+            var candidate = candidates[index];
+            var candidateId = String(
+              candidate &&
+              candidate.user &&
+              candidate.user.id ||
+              ''
+            ).trim();
+
+            if (candidateId) {
+              userId = candidateId;
+              break;
+            }
+          }
+        }
       } catch (e) { }
+
+      var h = Boolean(authRaw);
 
       document.documentElement.dataset.atlasAccountHint =
         h ? 'account' : 'anonymous';
@@ -109,6 +146,32 @@
         document.documentElement.dataset.atlasCompassCloudAuthority =
           'pending';
       }
+
+      if (!userId) return;
+
+      try {
+        var cachedRaw = localStorage.getItem(
+          hubCachePrefix + userId
+        );
+
+        if (!cachedRaw) return;
+
+        var cached = JSON.parse(cachedRaw);
+
+        if (
+          !cached ||
+          cached.version !== hubCacheVersion ||
+          String(cached.userId || '') !== userId
+        ) {
+          return;
+        }
+
+        window.AtlasCompassHubInitialSnapshot =
+          cached;
+
+        document.documentElement.dataset.atlasCompassCache =
+          'ready';
+      } catch (e) { }
     })();
   </script>
 
@@ -3975,10 +4038,169 @@
         .atlasCompassCloudAuthority === 'pending';
     }
 
-    async function getOwnedSubjects() {
-      if (isCompassCloudAuthorityPending()) {
-        return [];
+    let compassCloudAuthorityReadyPromise = null;
+
+    function ensureCompassCloudAuthorityReady() {
+      if (!isCompassCloudAuthorityPending()) {
+        return Promise.resolve(true);
       }
+
+      if (window.AtlasTutorSubjectsCloudAuthority) {
+        syncCompassCloudAuthorityState();
+        return Promise.resolve(true);
+      }
+
+      if (compassCloudAuthorityReadyPromise) {
+        return compassCloudAuthorityReadyPromise;
+      }
+
+      compassCloudAuthorityReadyPromise =
+        new Promise(resolve => {
+          let settled = false;
+          let timeout = null;
+
+          const finish = ready => {
+            if (settled) return;
+            settled = true;
+
+            window.removeEventListener(
+              'atlas:compass-cloud-authority-ready',
+              onReady
+            );
+
+            if (timeout) {
+              window.clearTimeout(timeout);
+            }
+
+            if (ready) {
+              syncCompassCloudAuthorityState();
+            }
+
+            resolve(ready);
+          };
+
+          const onReady = () => finish(true);
+
+          window.addEventListener(
+            'atlas:compass-cloud-authority-ready',
+            onReady,
+            { once: true }
+          );
+
+          timeout = window.setTimeout(
+            () => finish(
+              Boolean(
+                window.AtlasTutorSubjectsCloudAuthority
+              )
+            ),
+            8000
+          );
+        })
+          .finally(() => {
+            compassCloudAuthorityReadyPromise = null;
+          });
+
+      return compassCloudAuthorityReadyPromise;
+    }
+
+    document.addEventListener(
+      'click',
+      event => {
+        if (!isCompassCloudAuthorityPending()) {
+          return;
+        }
+
+        const target = event.target;
+
+        if (
+          !target ||
+          typeof target.closest !== 'function'
+        ) {
+          return;
+        }
+
+        const button = target.closest(
+          '.subject-library button'
+        );
+
+        if (
+          !button ||
+          button.classList.contains(
+            'subject-card-manage-btn'
+          )
+        ) {
+          return;
+        }
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        void ensureCompassCloudAuthorityReady()
+          .then(ready => {
+            if (!ready) {
+              showToast(
+                'Your Atlas account is still getting ready. Try again.'
+              );
+              return;
+            }
+
+            if (document.contains(button)) {
+              button.click();
+            }
+          });
+      },
+      true
+    );
+
+    function getCompassInitialAccountSnapshot() {
+      if (!isCompassCloudAuthorityPending()) {
+        return null;
+      }
+
+      const snapshot =
+        window.AtlasCompassHubInitialSnapshot;
+
+      if (
+        !snapshot ||
+        snapshot.version !== 1 ||
+        !String(snapshot.userId || '').trim()
+      ) {
+        return null;
+      }
+
+      return snapshot;
+    }
+
+    function getCompassInitialLibraryState(
+      snapshot = getCompassInitialAccountSnapshot()
+    ) {
+      const candidate =
+        snapshot?.library?.state?.library ||
+        snapshot?.library?.library ||
+        null;
+
+      if (
+        !candidate ||
+        typeof candidate !== 'object' ||
+        Array.isArray(candidate)
+      ) {
+        return null;
+      }
+
+      return candidate;
+    }
+
+    function getCompassInitialSubjectSummaries(
+      snapshot = getCompassInitialAccountSnapshot()
+    ) {
+      return Array.isArray(snapshot?.summaries)
+        ? snapshot.summaries
+        : [];
+    }
+
+    async function getOwnedSubjects() {
+      const cloudAuthorityPending =
+        isCompassCloudAuthorityPending();
 
       const Subjects = window.AtlasTutorSubjects;
 
@@ -3993,15 +4215,30 @@
       let libraryState = null;
 
       try {
-        [
-          records,
-          libraryState
-        ] = await Promise.all([
-          Subjects.listSubjects(),
-          typeof Subjects.getLibraryState === 'function'
-            ? Subjects.getLibraryState()
-            : Promise.resolve(null)
-        ]);
+        if (cloudAuthorityPending) {
+          const snapshot =
+            getCompassInitialAccountSnapshot();
+
+          records =
+            getCompassInitialSubjectSummaries(
+              snapshot
+            );
+
+          libraryState =
+            getCompassInitialLibraryState(
+              snapshot
+            );
+        } else {
+          [
+            records,
+            libraryState
+          ] = await Promise.all([
+            Subjects.listSubjects(),
+            typeof Subjects.getLibraryState === 'function'
+              ? Subjects.getLibraryState()
+              : Promise.resolve(null)
+          ]);
+        }
       } catch {
         return [];
       }
@@ -4042,6 +4279,7 @@
       const workingDraftDescriptions = new Map();
 
       if (
+        !cloudAuthorityPending &&
         typeof Subjects.getWorkingDraft === 'function'
       ) {
         await Promise.all(
@@ -4113,7 +4351,9 @@
             'Untitled Subject'
           ).trim() || 'Untitled Subject';
 
-          syncOwnedSubjectRegistryProjection(record);
+          if (!cloudAuthorityPending) {
+            syncOwnedSubjectRegistryProjection(record);
+          }
 
           const placement =
             libraryState?.subjects?.[id] || {
@@ -4133,6 +4373,8 @@
           return {
             subjectId: id,
             isOwned: true,
+            isCachedProjection:
+              cloudAuthorityPending,
             provenance:
               record.provenance &&
               typeof record.provenance === 'object' &&
@@ -4400,6 +4642,188 @@
       requestAnimationFrame(() => el.classList.add('visible'));
       if (toastTimer) clearTimeout(toastTimer);
       toastTimer = setTimeout(() => el.classList.remove('visible'), 3200);
+    }
+
+
+    let compassCapabilityGatePromise = null;
+    let accountLibraryResumeUnsubscribe = null;
+
+    async function ensureCompassCapabilityGate() {
+      if (window.AtlasCapabilityGate) {
+        return window.AtlasCapabilityGate;
+      }
+
+      if (compassCapabilityGatePromise) {
+        return compassCapabilityGatePromise;
+      }
+
+      compassCapabilityGatePromise =
+        (async () => {
+          const Bootstrap = window.AtlasAccessBootstrap;
+
+          if (
+            !Bootstrap ||
+            typeof Bootstrap.prepareCapabilityGate !== 'function'
+          ) {
+            throw new Error(
+              'Atlas capability enforcement is unavailable.'
+            );
+          }
+
+          return Bootstrap.prepareCapabilityGate();
+        })().catch(error => {
+          compassCapabilityGatePromise = null;
+          throw error;
+        });
+
+      return compassCapabilityGatePromise;
+    }
+
+    async function requireAccountLibraryAccess(
+      operation,
+      context = {},
+      trigger = null
+    ) {
+      try {
+        const Gate = await ensureCompassCapabilityGate();
+
+        return Gate.requireCapability(
+          'canAccessAccountLibrary',
+          {
+            action: 'open-account-library',
+            destination: window.location.href,
+            context: {
+              operation,
+              ...context
+            },
+            trigger
+          }
+        );
+      } catch (error) {
+        return {
+          outcome: 'unavailable',
+          error
+        };
+      }
+    }
+
+    async function ensureAccountLibraryAuthorityReady(access) {
+      if (!access?.access?.authenticated) {
+        return false;
+      }
+
+      if (window.AtlasTutorSubjectsCloudAuthority) {
+        return true;
+      }
+
+      if (!isCompassCloudAuthorityPending()) {
+        // A live anonymous → authenticated transition can currently reach
+        // capability-ready state before the workspace cloud authorities that
+        // were skipped at anonymous startup have been activated. Do not fall
+        // through to the legacy local My Subjects object in that gap.
+        return false;
+      }
+
+      const ready =
+        await ensureCompassCloudAuthorityReady();
+
+      return Boolean(
+        ready &&
+        window.AtlasTutorSubjectsCloudAuthority
+      );
+    }
+
+    async function accountLibraryAccessAllows(access) {
+      if (access?.outcome === 'allowed') {
+        const authorityReady =
+          await ensureAccountLibraryAuthorityReady(access);
+
+        if (authorityReady) {
+          return true;
+        }
+
+        showToast(
+          'Your Atlas account is still getting ready. Try again.'
+        );
+        return false;
+      }
+
+      if (access?.outcome !== 'auth-required') {
+        showToast(
+          'My Subjects are unavailable right now.'
+        );
+      }
+
+      return false;
+    }
+
+    async function installAccountLibraryResume() {
+      try {
+        const Gate = await ensureCompassCapabilityGate();
+
+        accountLibraryResumeUnsubscribe?.();
+
+        accountLibraryResumeUnsubscribe =
+          Gate.subscribeResume(
+            async payload => {
+              const intent = payload?.intent || null;
+
+              if (
+                !intent ||
+                intent.action !== 'open-account-library'
+              ) {
+                return;
+              }
+
+              const context = intent.context || {};
+
+              if (
+                context.operation === 'add-atlas-original' &&
+                context.registryId
+              ) {
+                await runAtlasOriginalOwnershipAction(
+                  context.registryId,
+                  'own',
+                  null,
+                  {
+                    categoryId: context.categoryId || ''
+                  }
+                );
+                return;
+              }
+
+              if (
+                context.operation === 'add-owned-subject' &&
+                context.subjectId
+              ) {
+                await addOwnedSubjectToLibrary(
+                  context.subjectId,
+                  null
+                );
+                return;
+              }
+
+              if (
+                context.operation === 'remove-owned-subject' &&
+                context.subjectId
+              ) {
+                await removeOwnedSubjectFromLibrary(
+                  context.subjectId,
+                  null
+                );
+              }
+            },
+            {
+              action: 'open-account-library',
+              replay: true
+            }
+          );
+      } catch (error) {
+        console.warn(
+          '[Compass] account-library resume unavailable:',
+          error
+        );
+      }
     }
 
     /* ================================================================
@@ -9344,7 +9768,7 @@
       requestAnimationFrame(() => confirm.focus());
     }
 
-    function runAtlasOriginalOwnershipAction(
+    async function runAtlasOriginalOwnershipAction(
       registryId,
       action,
       event,
@@ -9361,6 +9785,22 @@
       if (!subject) {
         showToast('That Atlas subject could not be found.');
         return;
+      }
+
+      if (action === 'own') {
+        const access =
+          await requireAccountLibraryAccess(
+            'add-atlas-original',
+            {
+              registryId: subject.registryId,
+              categoryId
+            },
+            event?.currentTarget || null
+          );
+
+        if (!(await accountLibraryAccessAllows(access))) {
+          return;
+        }
       }
 
       const requestId =
@@ -9706,6 +10146,17 @@
 
       closeOwnedSubjectMenus();
 
+      const access =
+        await requireAccountLibraryAccess(
+          'add-owned-subject',
+          { subjectId },
+          event?.currentTarget || null
+        );
+
+      if (!(await accountLibraryAccessAllows(access))) {
+        return;
+      }
+
       const Subjects = window.AtlasTutorSubjects;
 
       if (
@@ -9749,6 +10200,17 @@
       event?.stopPropagation();
 
       closeOwnedSubjectMenus();
+
+      const access =
+        await requireAccountLibraryAccess(
+          'remove-owned-subject',
+          { subjectId },
+          event?.currentTarget || null
+        );
+
+      if (!(await accountLibraryAccessAllows(access))) {
+        return;
+      }
 
       const Subjects = window.AtlasTutorSubjects;
 
@@ -10719,29 +11181,44 @@
         isCompassCloudAuthorityPending();
 
       let sessionSubjectRefs = [];
-      let libraryState = null;
+      let libraryState =
+        cloudAuthorityPending
+          ? getCompassInitialLibraryState()
+          : null;
 
       try {
-        if (Subjects && !cloudAuthorityPending) {
-          const results = await Promise.all([
-            typeof Subjects.getSessionSubjects === 'function'
-              ? Subjects.getSessionSubjects(session.id)
-              : Promise.resolve([]),
-            typeof Subjects.getLibraryState === 'function'
-              ? Subjects.getLibraryState()
-              : Promise.resolve(null)
-          ]);
+        if (Subjects) {
+          if (cloudAuthorityPending) {
+            sessionSubjectRefs =
+              typeof Subjects.getSessionSubjects === 'function'
+                ? await Subjects.getSessionSubjects(
+                    session.id
+                  )
+                : [];
+          } else {
+            const results = await Promise.all([
+              typeof Subjects.getSessionSubjects === 'function'
+                ? Subjects.getSessionSubjects(session.id)
+                : Promise.resolve([]),
+              typeof Subjects.getLibraryState === 'function'
+                ? Subjects.getLibraryState()
+                : Promise.resolve(null)
+            ]);
 
-          sessionSubjectRefs =
-            Array.isArray(results[0])
-              ? results[0]
-              : [];
+            sessionSubjectRefs =
+              Array.isArray(results[0])
+                ? results[0]
+                : [];
 
-          libraryState = results[1];
+            libraryState = results[1];
+          }
         }
       } catch {
         sessionSubjectRefs = [];
-        libraryState = null;
+
+        if (!cloudAuthorityPending) {
+          libraryState = null;
+        }
       }
 
       if (renderRevision !== hubRenderRevision) {
@@ -10881,9 +11358,7 @@
       }
 
       const ownedLibraryHtml =
-        cloudAuthorityPending
-          ? ''
-          : libraryCategories
+        libraryCategories
           .map((category, index) =>
             renderSubjectCollection(
               remainingOwnedSubjects.filter(subject =>
@@ -11916,6 +12391,8 @@
         root: '#atlas-session-panel-root',
         initialView: 'manage'
       });
+
+      void installAccountLibraryResume();
 
       renderHub();
     }

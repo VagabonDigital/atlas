@@ -14814,6 +14814,328 @@ function updateUpgradeSaveButton(contextId) {
         });
 }
 
+
+let durableSaveCapabilityGatePromise = null;
+let durableSaveResumeUnsubscribe = null;
+
+async function ensureDurableSaveCapabilityGate() {
+    if (window.AtlasCapabilityGate) {
+        return window.AtlasCapabilityGate;
+    }
+
+    if (durableSaveCapabilityGatePromise) {
+        return durableSaveCapabilityGatePromise;
+    }
+
+    durableSaveCapabilityGatePromise =
+        (async () => {
+            const Bootstrap = window.AtlasAccessBootstrap;
+
+            if (
+                !Bootstrap ||
+                typeof Bootstrap.prepareCapabilityGate !== 'function'
+            ) {
+                throw new Error(
+                    'Atlas capability enforcement is unavailable.'
+                );
+            }
+
+            return Bootstrap.prepareCapabilityGate();
+        })().catch(error => {
+            durableSaveCapabilityGatePromise = null;
+            throw error;
+        });
+
+    return durableSaveCapabilityGatePromise;
+}
+
+async function requireDurableSaveAccess(
+    operation,
+    context = {},
+    trigger = null
+) {
+    try {
+        const Gate =
+            await ensureDurableSaveCapabilityGate();
+
+        return Gate.requireCapability(
+            'canSaveDurableWork',
+            {
+                action: 'save-work',
+                destination: window.location.href,
+                context: {
+                    operation,
+                    ...context
+                },
+                trigger
+            }
+        );
+    } catch (error) {
+        return {
+            outcome: 'unavailable',
+            error
+        };
+    }
+}
+
+function getDurableContinuityAuthorityContract() {
+    const Bridge = requireAtlasBridge();
+    const activeSession = getCurrentBridgeSession();
+    const sharedSessionId =
+        Bridge.defaultSessionId || 'default';
+    const shared =
+        activeSession?.id === sharedSessionId;
+
+    return shared
+        ? {
+            authorityName:
+                'AtlasSharedContinuityCloudAuthority',
+            readyEvent:
+                'atlas:shared-continuity-cloud-ready',
+            scriptMarker:
+                'script[data-atlas-shared-continuity-cloud]'
+        }
+        : {
+            authorityName:
+                'AtlasLearnerContinuityCloudAuthority',
+            readyEvent:
+                'atlas:learner-continuity-cloud-ready',
+            scriptMarker:
+                'script[data-atlas-learner-continuity-cloud]'
+        };
+}
+
+async function ensureDurableContinuityAuthorityReady(access) {
+    if (!access?.access?.authenticated) {
+        return false;
+    }
+
+    const contract =
+        getDurableContinuityAuthorityContract();
+
+    const authorityReady = () => {
+        const Authority =
+            window[contract.authorityName];
+
+        return Boolean(
+            Authority &&
+            typeof Authority.getState === 'function' &&
+            Authority.getState()?.active
+        );
+    };
+
+    if (authorityReady()) {
+        return true;
+    }
+
+    const Authority =
+        window[contract.authorityName];
+
+    if (
+        Authority &&
+        typeof Authority.initialize === 'function'
+    ) {
+        try {
+            await Authority.initialize();
+        } catch { }
+
+        if (authorityReady()) {
+            return true;
+        }
+    }
+
+    const authorityIsBooting = Boolean(
+        document.querySelector(contract.scriptMarker) ||
+        document.querySelector(
+            'script[data-atlas-learner-cloud-adapter]'
+        )
+    );
+
+    if (!authorityIsBooting) {
+        // During the known live-sign-in reconciliation gap, the account can
+        // be capability-ready while continuity authorities skipped during
+        // anonymous startup are still absent. Never write account-owned work
+        // into the browser-only projection in that state.
+        return false;
+    }
+
+    return new Promise(resolve => {
+        let settled = false;
+        let timeout = null;
+
+        const finish = ready => {
+            if (settled) return;
+            settled = true;
+
+            window.removeEventListener(
+                contract.readyEvent,
+                onReady
+            );
+
+            if (timeout) {
+                window.clearTimeout(timeout);
+            }
+
+            resolve(Boolean(ready));
+        };
+
+        const onReady = () =>
+            finish(authorityReady());
+
+        window.addEventListener(
+            contract.readyEvent,
+            onReady,
+            { once: true }
+        );
+
+        if (authorityReady()) {
+            finish(true);
+            return;
+        }
+
+        timeout = window.setTimeout(
+            () => finish(authorityReady()),
+            8000
+        );
+    });
+}
+
+async function durableSaveAccessAllows(access) {
+    if (access?.outcome === 'allowed') {
+        const authorityReady =
+            await ensureDurableContinuityAuthorityReady(
+                access
+            );
+
+        if (authorityReady) {
+            return true;
+        }
+
+        showToast(
+            'Your Atlas account is still getting ready. Try again.'
+        );
+        return false;
+    }
+
+    if (access?.outcome !== 'auth-required') {
+        console.warn(
+            '[Compass] Durable save unavailable:',
+            access?.error ||
+            access?.outcome ||
+            'unknown'
+        );
+        showToast(
+            'Saving is unavailable right now. Try again.'
+        );
+    }
+
+    return false;
+}
+
+async function installDurableSaveResume() {
+    try {
+        const Gate =
+            await ensureDurableSaveCapabilityGate();
+
+        durableSaveResumeUnsubscribe?.();
+
+        durableSaveResumeUnsubscribe =
+            Gate.subscribeResume(
+                async payload => {
+                    const intent = payload?.intent || null;
+
+                    if (
+                        !intent ||
+                        intent.action !== 'save-work'
+                    ) {
+                        return;
+                    }
+
+                    const context = intent.context || {};
+                    const contextId = String(
+                        context.contextId || ''
+                    ).trim();
+
+                    if (
+                        context.operation === 'remove-entry'
+                    ) {
+                        const entryId = String(
+                            context.entryId || ''
+                        ).trim();
+                        const sessionId = String(
+                            context.sessionId || ''
+                        ).trim();
+                        const activeSession =
+                            getCurrentBridgeSession();
+
+                        if (
+                            !entryId ||
+                            !sessionId ||
+                            activeSession?.id !== sessionId
+                        ) {
+                            return;
+                        }
+
+                        await removeSavedLanguageEntryById(
+                            entryId,
+                            null
+                        );
+                        return;
+                    }
+
+                    if (
+                        !contextId ||
+                        (
+                            context.operation !== 'save' &&
+                            context.operation !== 'unsave'
+                        )
+                    ) {
+                        return;
+                    }
+
+                    const access =
+                        await requireDurableSaveAccess(
+                            context.operation,
+                            { contextId }
+                        );
+
+                    if (!(await durableSaveAccessAllows(access))) {
+                        return;
+                    }
+
+                    if (
+                        context.operation === 'save' &&
+                        !isUpgradeSaved(contextId)
+                    ) {
+                        saveLanguageFromUpgrade(contextId);
+                    } else if (
+                        context.operation === 'unsave' &&
+                        isUpgradeSaved(contextId)
+                    ) {
+                        unsaveLanguageFromUpgrade(contextId);
+                    }
+
+                    if (
+                        document
+                            .getElementById('vb-drawer')
+                            ?.classList.contains('open')
+                    ) {
+                        renderVocabBank();
+                    }
+                },
+                {
+                    action: 'save-work',
+                    replay: true
+                }
+            );
+    } catch (error) {
+        console.warn(
+            '[Compass] durable-save resume unavailable:',
+            error
+        );
+    }
+}
+
 function saveLanguageFromUpgrade(contextId) {
     const entry = buildSavedLanguageEntry(contextId);
 
@@ -14846,7 +15168,7 @@ function unsaveLanguageFromUpgrade(contextId) {
     publishAtlasCompassItem('language-unsaved');
 }
 
-function removeSavedLanguageEntryById(entryId, event) {
+async function removeSavedLanguageEntryById(entryId, event) {
     event?.stopPropagation();
     event?.preventDefault();
 
@@ -14855,6 +15177,20 @@ function removeSavedLanguageEntryById(entryId, event) {
     const cleanEntryId = String(entryId || '').trim();
 
     if (!cleanEntryId) return;
+
+    const access =
+        await requireDurableSaveAccess(
+            'remove-entry',
+            {
+                entryId: cleanEntryId,
+                sessionId: activeSession.id
+            },
+            event?.currentTarget || null
+        );
+
+    if (!(await durableSaveAccessAllows(access))) {
+        return;
+    }
 
     const ledger = Bridge.readLedger();
 
@@ -14872,11 +15208,27 @@ function removeSavedLanguageEntryById(entryId, event) {
     publishAtlasCompassItem('language-unsaved');
 }
 
-function toggleSavedLanguage(contextId, event) {
+async function toggleSavedLanguage(contextId, event) {
     event?.stopPropagation();
     event?.preventDefault();
 
-    if (isUpgradeSaved(contextId)) {
+    const operation =
+        isUpgradeSaved(contextId)
+            ? 'unsave'
+            : 'save';
+
+    const access =
+        await requireDurableSaveAccess(
+            operation,
+            { contextId },
+            event?.currentTarget || null
+        );
+
+    if (!(await durableSaveAccessAllows(access))) {
+        return;
+    }
+
+    if (operation === 'unsave') {
         unsaveLanguageFromUpgrade(contextId);
     } else {
         saveLanguageFromUpgrade(contextId);
@@ -21121,6 +21473,8 @@ async function init() {
     renderAllCompassNavigation();
     applySubjectIdentityChrome();
     mountSessionPanel();
+
+    void installDurableSaveResume();
 
     updateSessionUI();
     renderUpgradeVisibilityControls();

@@ -8,7 +8,7 @@
    Owns:
    - resolving /account/?ri=<opaque-id>
    - removing invalid/stale return references from the account URL
-   - consume-once navigation after authentication is established
+   - queue-once destination handoff after authentication is established
 
    Does NOT own:
    - protected-action interception
@@ -105,26 +105,24 @@
         }
 
         const id = pendingId;
-        const intent = window.AtlasReturnIntent.consume(id);
+        const intent = window.AtlasReturnIntent.get(id);
+
+        if (!intent) {
+            pendingId = null;
+            scrubIntentParameter();
+            return null;
+        }
+
+        const queued =
+            window.AtlasReturnIntent.queueResume?.(id);
+
+        if (!queued) {
+            return null;
+        }
+
         pendingId = null;
         scrubIntentParameter();
-
-        if (!intent) return null;
-
         navigating = true;
-
-        try {
-            window.dispatchEvent(new CustomEvent(
-                'atlas:return-intent-resume',
-                {
-                    detail: {
-                        intent,
-                        source: 'account-confirmation'
-                    }
-                }
-            ));
-        } catch { }
-
         window.location.replace(intent.destination);
         return intent;
     }

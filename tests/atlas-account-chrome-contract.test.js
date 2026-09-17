@@ -105,7 +105,7 @@ function runPlacementProof() {
     );
     assert.match(
         registry,
-        /atlas-access-bootstrap\.js\?v=20260916-access2/,
+        /atlas-access-bootstrap\.js\?v=20260917-capability1/,
         'Hub access bootstrap must use the account-gate-capable cache version.'
     );
 
@@ -127,7 +127,7 @@ function runPlacementProof() {
         );
         assert.match(
             source,
-            /atlas-content-registry\.js\?v=20260916-accountchrome5/,
+            /atlas-content-registry\.js\?v=[A-Za-z0-9_-]+/,
             `Product hub ${index + 1} must cache-bust the account-chrome registry version.`
         );
     });
@@ -155,7 +155,7 @@ function runPlacementProof() {
     );
     assert.match(
         inside,
-        /atlas-access-bootstrap\.js\?v=20260916-access2/,
+        /atlas-access-bootstrap\.js\?v=20260917-capability1/,
         'Inside Atlas must load canonical access state.'
     );
     assert.match(

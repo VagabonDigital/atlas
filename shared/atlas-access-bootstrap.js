@@ -20,7 +20,8 @@
     const SOURCES = Object.freeze({
         access: '/shared/atlas-access.js?v=20260916-access1',
         cloud: '/shared/atlas-cloud.js?v=20260916-access1',
-        account: '/shared/atlas-account.js?v=20260916-returnintent2'
+        account: '/shared/atlas-account.js?v=20260916-returnintent2',
+        capabilityGate: '/shared/atlas-capability-gate.js?v=20260917-capability1'
     });
 
     let initPromise = null;
@@ -139,6 +140,23 @@
         };
     }
 
+    async function prepareCapabilityGate() {
+        if (!window.AtlasCapabilityGate) {
+            await loadScript(
+                SOURCES.capabilityGate,
+                'data-atlas-capability-gate-runtime'
+            );
+        }
+
+        if (!window.AtlasCapabilityGate) {
+            throw new Error(
+                'Atlas capability enforcement could not initialize.'
+            );
+        }
+
+        return window.AtlasCapabilityGate;
+    }
+
     async function initialize() {
         if (initPromise) return initPromise;
 
@@ -177,6 +195,7 @@
     window.AtlasAccessBootstrap = Object.freeze({
         initialize,
         prepareAccount,
+        prepareCapabilityGate,
         getState,
         refresh
     });
@@ -197,6 +216,13 @@
         if (!event.newValue && !window.AtlasAccount) {
             window.AtlasAccess?.bootstrapAnonymous?.();
         }
+    });
+
+    prepareCapabilityGate().catch(error => {
+        console.error(
+            '[AtlasAccessBootstrap] capability gate failed:',
+            error
+        );
     });
 
     initialize().catch(error => {

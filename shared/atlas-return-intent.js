@@ -31,6 +31,9 @@
     const MAX_CONTEXT_CHARS = 2048;
     const MAX_CONTEXT_DEPTH = 6;
     const MAX_ID_ATTEMPTS = 8;
+    const RESUME_QUEUE_VERSION = 1;
+    const RESUME_QUEUE_KEY = 'atlas::returnIntentResume::v1';
+    const RESUME_QUEUE_MAX_AGE_MS = 10 * 60 * 1000;
 
     const ACTION_TYPES = Object.freeze({
         CREATE_LEARNER: 'create-learner',
@@ -483,6 +486,111 @@
         return existed;
     }
 
+    function clearQueuedResume() {
+        try {
+            window.sessionStorage.removeItem(
+                RESUME_QUEUE_KEY
+            );
+        } catch { }
+    }
+
+    function queueResume(id) {
+        const normalizedId = String(id || '').trim();
+        const intent = get(normalizedId);
+
+        if (!intent) return null;
+
+        const record = {
+            version: RESUME_QUEUE_VERSION,
+            id: intent.id,
+            queuedAt: now()
+        };
+
+        try {
+            window.sessionStorage.setItem(
+                RESUME_QUEUE_KEY,
+                JSON.stringify(record)
+            );
+        } catch {
+            return null;
+        }
+
+        return intent;
+    }
+
+    function readQueuedResumeRecord() {
+        let serialized = null;
+
+        try {
+            serialized = window.sessionStorage.getItem(
+                RESUME_QUEUE_KEY
+            );
+        } catch {
+            return null;
+        }
+
+        if (!serialized) return null;
+
+        let candidate = null;
+
+        try {
+            candidate = JSON.parse(serialized);
+        } catch {
+            clearQueuedResume();
+            return null;
+        }
+
+        const queuedAt = Number(candidate?.queuedAt);
+        const id = String(candidate?.id || '').trim();
+
+        if (
+            !candidate ||
+            candidate.version !== RESUME_QUEUE_VERSION ||
+            !isValidId(id) ||
+            !Number.isFinite(queuedAt) ||
+            queuedAt <= 0 ||
+            now() - queuedAt > RESUME_QUEUE_MAX_AGE_MS
+        ) {
+            clearQueuedResume();
+            return null;
+        }
+
+        return {
+            version: RESUME_QUEUE_VERSION,
+            id,
+            queuedAt
+        };
+    }
+
+    function consumeQueuedResume(
+        destination = window.location.href
+    ) {
+        const queued = readQueuedResumeRecord();
+
+        if (!queued) return null;
+
+        clearQueuedResume();
+
+        const intent = get(queued.id);
+        if (!intent) return null;
+
+        let currentDestination = null;
+
+        try {
+            currentDestination = normalizeDestination(
+                destination
+            );
+        } catch {
+            return null;
+        }
+
+        if (currentDestination !== intent.destination) {
+            return null;
+        }
+
+        return consume(intent.id);
+    }
+
     function clearExpired() {
         const candidateIds = new Set(memoryStore.keys());
 
@@ -551,6 +659,9 @@
         discard,
         clearExpired,
         isValidId,
-        normalizeDestination
+        normalizeDestination,
+        queueResume,
+        consumeQueuedResume,
+        clearQueuedResume
     });
 })();

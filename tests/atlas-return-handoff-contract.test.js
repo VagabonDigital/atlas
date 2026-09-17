@@ -4,11 +4,15 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 
-const source = fs.readFileSync('shared/atlas-return-handoff.js', 'utf8');
+const source = fs.readFileSync(
+    'shared/atlas-return-handoff.js',
+    'utf8'
+);
 
 function makeHarness({
     href = 'https://atlasfortutors.com/account/?ri=ri_abcdefghijklmnopqrstuvwx',
-    stored = true
+    stored = true,
+    queueSucceeds = true
 } = {}) {
     const intent = {
         id: 'ri_abcdefghijklmnopqrstuvwx',
@@ -16,10 +20,9 @@ function makeHarness({
         destination: '/compass/subject.html?id=marine-biology#teach',
         context: { subjectId: 'marine-biology' }
     };
-    let consumed = 0;
+    let queued = 0;
     const replacements = [];
     const historyUrls = [];
-    const events = [];
 
     const location = {
         href,
@@ -43,32 +46,26 @@ function makeHarness({
             get(id) {
                 return stored && id === intent.id ? intent : null;
             },
-            consume(id) {
-                if (!stored || id !== intent.id || consumed > 0) return null;
-                consumed += 1;
+            queueResume(id) {
+                if (
+                    !queueSucceeds ||
+                    !stored ||
+                    id !== intent.id
+                ) {
+                    return null;
+                }
+                queued += 1;
                 return intent;
             }
-        },
-        dispatchEvent(event) {
-            events.push(event);
-            return true;
         }
     };
     window.window = window;
-
-    class FakeCustomEvent {
-        constructor(type, options = {}) {
-            this.type = type;
-            this.detail = options.detail;
-        }
-    }
 
     const context = {
         console,
         window,
         document: { title: 'Atlas Account' },
-        URL,
-        CustomEvent: FakeCustomEvent
+        URL
     };
 
     vm.runInNewContext(source, context, {
@@ -80,12 +77,11 @@ function makeHarness({
         intent,
         replacements,
         historyUrls,
-        events,
-        get consumed() { return consumed; }
+        get queued() { return queued; }
     };
 }
 
-function testAuthenticatedConfirmationReturnsExactlyOnce() {
+function testAuthenticatedConfirmationQueuesThenNavigates() {
     const harness = makeHarness();
     harness.Handoff.initialize();
 
@@ -96,12 +92,10 @@ function testAuthenticatedConfirmationReturnsExactlyOnce() {
     });
 
     assert.equal(resumed.destination, harness.intent.destination);
-    assert.equal(harness.consumed, 1);
-    assert.deepEqual(harness.replacements, [harness.intent.destination]);
-    assert.equal(
-        harness.events.find(event => event.type === 'atlas:return-intent-resume')
-            .detail.source,
-        'account-confirmation'
+    assert.equal(harness.queued, 1);
+    assert.deepEqual(
+        harness.replacements,
+        [harness.intent.destination]
     );
 
     assert.equal(
@@ -111,11 +105,30 @@ function testAuthenticatedConfirmationReturnsExactlyOnce() {
             recovery: false
         }),
         null,
-        'Consumed confirmation intent must not resume twice.'
+        'Queued confirmation handoff must not navigate twice.'
     );
 }
 
-function testUnauthenticatedAndRecoveryDoNotConsume() {
+function testQueueFailureDoesNotNavigateOrLosePendingId() {
+    const harness = makeHarness({ queueSucceeds: false });
+    harness.Handoff.initialize();
+
+    assert.equal(
+        harness.Handoff.resumeIfAuthenticated({
+            ready: true,
+            authenticated: true,
+            recovery: false
+        }),
+        null
+    );
+    assert.equal(harness.replacements.length, 0);
+    assert.equal(
+        harness.Handoff.getPendingId(),
+        harness.intent.id
+    );
+}
+
+function testUnauthenticatedAndRecoveryDoNotQueue() {
     const harness = makeHarness();
     harness.Handoff.initialize();
 
@@ -127,7 +140,7 @@ function testUnauthenticatedAndRecoveryDoNotConsume() {
         }),
         null
     );
-    assert.equal(harness.consumed, 0);
+    assert.equal(harness.queued, 0);
 
     assert.equal(
         harness.Handoff.resumeIfAuthenticated({
@@ -135,10 +148,9 @@ function testUnauthenticatedAndRecoveryDoNotConsume() {
             authenticated: true,
             recovery: true
         }),
-        null,
-        'Password recovery must take precedence over return navigation.'
+        null
     );
-    assert.equal(harness.consumed, 0);
+    assert.equal(harness.queued, 0);
 }
 
 function testInvalidAndMissingIdsFailClosed() {
@@ -165,33 +177,47 @@ function testDirectAccountVisitIsUnchanged() {
 }
 
 function testIntegrationBoundaries() {
-    const account = fs.readFileSync('shared/atlas-account.js', 'utf8');
-    const gate = fs.readFileSync('shared/atlas-account-gate.js', 'utf8');
-    const page = fs.readFileSync('account/index.html', 'utf8');
+    const account = fs.readFileSync(
+        'shared/atlas-account.js',
+        'utf8'
+    );
+    const gate = fs.readFileSync(
+        'shared/atlas-account-gate.js',
+        'utf8'
+    );
+    const page = fs.readFileSync(
+        'account/index.html',
+        'utf8'
+    );
 
     assert.match(account, /searchParams\.set\('ri', intentId\)/);
     assert.match(account, /accountReturnUrl\(\{ returnIntentId \}\)/);
     assert.match(
         account,
-        /requestPasswordReset\([\s\S]*?accountReturnUrl\(\)/,
-        'Password recovery callback must remain independent of return intent.'
+        /requestPasswordReset\([\s\S]*?accountReturnUrl\(\)/
     );
     assert.match(gate, /returnIntentId: activeReturnIntentId/);
-    assert.match(page, /atlas-return-handoff\.js\?v=20260916-returnhandoff1/);
-    assert.match(page, /AtlasReturnHandoff\.resumeIfAuthenticated\(state\)/);
+    assert.match(
+        page,
+        /atlas-return-handoff\.js\?v=20260917-capability1/
+    );
+    assert.match(
+        page,
+        /AtlasReturnHandoff\.resumeIfAuthenticated\(state\)/
+    );
     assert.doesNotMatch(
         page,
-        /new URLSearchParams[\s\S]*?window\.location\.href\s*=\s*.*ri/,
-        'Account page must never turn raw query data into a redirect.'
+        /new URLSearchParams[\s\S]*?window\.location\.href\s*=\s*.*ri/
     );
 }
 
-testAuthenticatedConfirmationReturnsExactlyOnce();
-testUnauthenticatedAndRecoveryDoNotConsume();
+testAuthenticatedConfirmationQueuesThenNavigates();
+testQueueFailureDoesNotNavigateOrLosePendingId();
+testUnauthenticatedAndRecoveryDoNotQueue();
 testInvalidAndMissingIdsFailClosed();
 testDirectAccountVisitIsUnchanged();
 testIntegrationBoundaries();
 
 console.log(
-    'Atlas confirmation handoff proof passed: opaque callback ID, exact deep-link return, recovery precedence, safe fallback, and consume-once navigation.'
+    'Atlas confirmation handoff proof passed: opaque callback ID queues before navigation, recovery takes precedence, queue failure stays safe, and direct account visits remain unchanged.'
 );
