@@ -199,16 +199,21 @@
         return new Promise(resolve => {
             let settled = false;
             let unsubscribe = null;
+            let timer = null;
 
             const finish = value => {
                 if (settled) return;
                 settled = true;
-                window.clearTimeout(timer);
+
+                if (timer !== null) {
+                    window.clearTimeout(timer);
+                }
+
                 unsubscribe?.();
                 resolve(value || snapshotAccess());
             };
 
-            const timer = window.setTimeout(
+            timer = window.setTimeout(
                 () => finish(snapshotAccess()),
                 timeoutMs
             );

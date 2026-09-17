@@ -304,6 +304,65 @@ function testResumeReplayClosesSamePageRace() {
     assert.equal(replayed.source, 'account-gate');
 }
 
+async function testResolvingStateFailsClosed() {
+    const harness = makeHarness({
+        ready: false,
+        status: 'resolving',
+        authenticated: true,
+        tier: null,
+        capabilities: {}
+    });
+
+    const result = await harness.window.AtlasCapabilityGate
+        .requireCapability('canCreateSubject');
+
+    assert.equal(result.outcome, 'resolving');
+    assert.equal(harness.created.length, 0);
+    assert.equal(harness.opened.length, 0);
+}
+
+async function testAccessFailureIsUnavailable() {
+    const harness = makeHarness({
+        ready: true,
+        status: 'error',
+        authenticated: true,
+        tier: null,
+        capabilities: {},
+        error: 'Entitlement unavailable.'
+    });
+
+    const result = await harness.window.AtlasCapabilityGate
+        .requireCapability('canCreateSubject');
+
+    assert.equal(result.outcome, 'unavailable');
+    assert.match(String(result.error || ''), /Entitlement unavailable/);
+    assert.equal(harness.created.length, 0);
+    assert.equal(harness.opened.length, 0);
+}
+
+async function testLimitedAvailableAiAllowanceStillAllows() {
+    const harness = makeHarness({
+        ready: true,
+        status: 'ready',
+        authenticated: true,
+        tier: 'free',
+        capabilities: { canCreateWithAI: true },
+        creationAllowance: {
+            status: 'limited',
+            allowed: true,
+            remaining: 3,
+            limit: 10
+        }
+    });
+
+    const result = await harness.window.AtlasCapabilityGate
+        .requireCapability('canCreateWithAI');
+
+    assert.equal(result.outcome, 'allowed');
+    assert.equal(result.allowance.status, 'limited');
+    assert.equal(result.allowance.remaining, 3);
+}
+
 async function testUnknownCapabilityFailsClosed() {
     const harness = makeHarness({
         ready: true,
@@ -326,6 +385,9 @@ async function run() {
     await testAuthenticatedDenialDoesNotShowLogin();
     await testAiExhaustionNormalizesAsLimited();
     await testAiCapabilityTrueStillRespectsExhaustedAllowance();
+    await testResolvingStateFailsClosed();
+    await testAccessFailureIsUnavailable();
+    await testLimitedAvailableAiAllowanceStillAllows();
     testResumeReplayClosesSamePageRace();
     await testUnknownCapabilityFailsClosed();
 

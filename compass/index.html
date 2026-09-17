@@ -4811,6 +4811,113 @@
                   context.subjectId,
                   null
                 );
+                return;
+              }
+
+              if (context.operation === 'create-category') {
+                await openCreateCategoryDialog(
+                  null,
+                  { skipCapabilityGate: true }
+                );
+                return;
+              }
+
+              if (
+                context.operation === 'rename-category' &&
+                context.categoryId
+              ) {
+                await openRenameCategoryDialog(
+                  context.categoryId,
+                  null,
+                  { skipCapabilityGate: true }
+                );
+                return;
+              }
+
+              if (
+                context.operation === 'move-category' &&
+                context.categoryId
+              ) {
+                await moveLibraryCategory(
+                  context.categoryId,
+                  Number(context.offset),
+                  null,
+                  { skipCapabilityGate: true }
+                );
+                return;
+              }
+
+              if (
+                context.operation === 'delete-category' &&
+                context.categoryId
+              ) {
+                await openDeleteCategoryDialog(
+                  context.categoryId,
+                  null,
+                  { skipCapabilityGate: true }
+                );
+                return;
+              }
+
+              if (
+                context.operation === 'move-owned-subject-category' &&
+                context.subjectId
+              ) {
+                await openMoveOwnedSubjectCategoryDialog(
+                  context.subjectId,
+                  null,
+                  { skipCapabilityGate: true }
+                );
+                return;
+              }
+
+              if (
+                context.operation === 'archive-owned-subject' &&
+                context.subjectId
+              ) {
+                await archiveOwnedSubject(
+                  context.subjectId,
+                  null,
+                  { skipCapabilityGate: true }
+                );
+                return;
+              }
+
+              if (context.operation === 'open-archived-subjects') {
+                await openArchivedSubjectsDialog(
+                  null,
+                  { skipCapabilityGate: true }
+                );
+                return;
+              }
+
+              if (
+                context.operation === 'manage-last-home' &&
+                context.subjectId
+              ) {
+                await openOwnedSubjectLastHomeDialog(
+                  context.subjectId,
+                  null,
+                  { skipCapabilityGate: true }
+                );
+                return;
+              }
+
+              if (
+                context.operation === 'move-library-subject-order' &&
+                context.subjectId &&
+                context.targetSubjectId
+              ) {
+                await moveShelfSubject(
+                  'category',
+                  context.subjectKind || 'my-subject',
+                  context.subjectId,
+                  context.targetKind || 'my-subject',
+                  context.targetSubjectId,
+                  Number(context.offset),
+                  null,
+                  { skipCapabilityGate: true }
+                );
               }
             },
             {
@@ -4933,6 +5040,71 @@
                   null,
                   { skipCapabilityGate: true }
                 );
+                return;
+              }
+
+              if (
+                intent?.action === 'edit-subject' &&
+                context.operation === 'rename-owned-subject' &&
+                context.subjectId
+              ) {
+                await openOwnedSubjectRenameDialog(
+                  context.subjectId,
+                  null,
+                  { skipCapabilityGate: true }
+                );
+                return;
+              }
+
+              if (
+                intent?.action === 'edit-subject' &&
+                context.operation === 'delete-owned-subject' &&
+                context.subjectId
+              ) {
+                await openOwnedSubjectDeleteDialog(
+                  context.subjectId,
+                  null,
+                  { skipCapabilityGate: true }
+                );
+                return;
+              }
+
+              if (
+                intent?.action === 'edit-subject' &&
+                context.operation === 'open-subject-artwork' &&
+                context.subjectId
+              ) {
+                await openSubjectArtworkStudio(
+                  context.subjectId,
+                  null,
+                  { skipCapabilityGate: true }
+                );
+                return;
+              }
+
+              if (
+                intent?.action === 'edit-subject' &&
+                context.operation === 'rename-atlas-subject' &&
+                context.registryId
+              ) {
+                await openAtlasSubjectRenameDialog(
+                  context.registryId,
+                  null,
+                  { skipCapabilityGate: true }
+                );
+                return;
+              }
+
+              if (
+                intent?.action === 'edit-subject' &&
+                context.operation === 'restore-atlas-original-dialog' &&
+                context.registryId
+              ) {
+                await openRestoreAtlasOriginalHubDialog({
+                  registryId: context.registryId,
+                  subjectId: context.subjectId || '',
+                  skipCapabilityGate: true
+                });
               }
             },
             { replay: true }
@@ -5417,9 +5589,23 @@
       ownedSubjectDialogReturnFocus = null;
     }
 
-    function openCreateCategoryDialog(event) {
+    async function openCreateCategoryDialog(event, options = {}) {
       event?.preventDefault();
       event?.stopPropagation();
+
+      if (!options.skipCapabilityGate) {
+        const access =
+          await requireAccountLibraryAccess(
+            'create-category',
+            {
+            },
+            event?.currentTarget || null
+          );
+
+        if (!(await accountLibraryAccessAllows(access))) {
+          return;
+        }
+      }
 
       ownedSubjectDialogReturnFocus =
         event?.currentTarget
@@ -5526,10 +5712,26 @@
 
     async function openRenameCategoryDialog(
       categoryId,
-      event
+      event,
+      options = {}
     ) {
       event?.preventDefault();
       event?.stopPropagation();
+
+      if (!options.skipCapabilityGate) {
+        const access =
+          await requireAccountLibraryAccess(
+            'rename-category',
+            {
+              categoryId: String(categoryId || '').trim()
+            },
+            event?.currentTarget || null
+          );
+
+        if (!(await accountLibraryAccessAllows(access))) {
+          return;
+        }
+      }
 
       ownedSubjectDialogReturnFocus =
         event?.currentTarget
@@ -5659,10 +5861,27 @@
     async function moveLibraryCategory(
       categoryId,
       offset,
-      event
+      event,
+      options = {}
     ) {
       event?.preventDefault();
       event?.stopPropagation();
+
+      if (!options.skipCapabilityGate) {
+        const access =
+          await requireAccountLibraryAccess(
+            'move-category',
+            {
+              categoryId: String(categoryId || '').trim(),
+              offset: Number(offset)
+            },
+            event?.currentTarget || null
+          );
+
+        if (!(await accountLibraryAccessAllows(access))) {
+          return;
+        }
+      }
 
       closeOwnedSubjectMenus();
 
@@ -5706,10 +5925,26 @@
 
     async function openDeleteCategoryDialog(
       categoryId,
-      event
+      event,
+      options = {}
     ) {
       event?.preventDefault();
       event?.stopPropagation();
+
+      if (!options.skipCapabilityGate) {
+        const access =
+          await requireAccountLibraryAccess(
+            'delete-category',
+            {
+              categoryId: String(categoryId || '').trim()
+            },
+            event?.currentTarget || null
+          );
+
+        if (!(await accountLibraryAccessAllows(access))) {
+          return;
+        }
+      }
 
       ownedSubjectDialogReturnFocus =
         event?.currentTarget
@@ -6064,10 +6299,33 @@
 
     async function openOwnedSubjectRenameDialog(
       subjectId,
-      event
+      event,
+      options = {}
     ) {
       event?.preventDefault();
       event?.stopPropagation();
+
+      if (!options.skipCapabilityGate) {
+        const access =
+          await requireCompassSubjectCapability(
+            'canEditSubject',
+            'edit-subject',
+            'rename-owned-subject',
+            {
+              subjectId: String(subjectId || '').trim()
+            },
+            event?.currentTarget || null
+          );
+
+        if (
+          !compassSubjectCapabilityAllows(
+            access,
+            'Subject editing is unavailable right now.'
+          )
+        ) {
+          return;
+        }
+      }
 
       ownedSubjectDialogReturnFocus =
         event?.currentTarget
@@ -6162,10 +6420,33 @@
 
     async function openOwnedSubjectDeleteDialog(
       subjectId,
-      event
+      event,
+      options = {}
     ) {
       event?.preventDefault();
       event?.stopPropagation();
+
+      if (!options.skipCapabilityGate) {
+        const access =
+          await requireCompassSubjectCapability(
+            'canEditSubject',
+            'edit-subject',
+            'delete-owned-subject',
+            {
+              subjectId: String(subjectId || '').trim()
+            },
+            event?.currentTarget || null
+          );
+
+        if (
+          !compassSubjectCapabilityAllows(
+            access,
+            'Subject editing is unavailable right now.'
+          )
+        ) {
+          return;
+        }
+      }
 
       ownedSubjectDialogReturnFocus =
         event?.currentTarget
@@ -7734,10 +8015,33 @@
 
     async function openSubjectArtworkStudio(
       subjectId,
-      event
+      event,
+      options = {}
     ) {
       event?.preventDefault();
       event?.stopPropagation();
+
+      if (!options.skipCapabilityGate) {
+        const access =
+          await requireCompassSubjectCapability(
+            'canEditSubject',
+            'edit-subject',
+            'open-subject-artwork',
+            {
+              subjectId: String(subjectId || '').trim()
+            },
+            event?.currentTarget || null
+          );
+
+        if (
+          !compassSubjectCapabilityAllows(
+            access,
+            'Subject editing is unavailable right now.'
+          )
+        ) {
+          return;
+        }
+      }
 
       subjectArtworkStudioReturnFocus =
         event?.currentTarget
@@ -8247,10 +8551,26 @@
 
     async function openMoveOwnedSubjectCategoryDialog(
       subjectId,
-      event
+      event,
+      options = {}
     ) {
       event?.preventDefault();
       event?.stopPropagation();
+
+      if (!options.skipCapabilityGate) {
+        const access =
+          await requireAccountLibraryAccess(
+            'move-owned-subject-category',
+            {
+              subjectId: String(subjectId || '').trim()
+            },
+            event?.currentTarget || null
+          );
+
+        if (!(await accountLibraryAccessAllows(access))) {
+          return;
+        }
+      }
 
       ownedSubjectDialogReturnFocus =
         event?.currentTarget
@@ -8441,10 +8761,26 @@
 
     async function archiveOwnedSubject(
       subjectId,
-      event
+      event,
+      options = {}
     ) {
       event?.preventDefault();
       event?.stopPropagation();
+
+      if (!options.skipCapabilityGate) {
+        const access =
+          await requireAccountLibraryAccess(
+            'archive-owned-subject',
+            {
+              subjectId: String(subjectId || '').trim()
+            },
+            event?.currentTarget || null
+          );
+
+        if (!(await accountLibraryAccessAllows(access))) {
+          return;
+        }
+      }
 
       closeOwnedSubjectMenus();
 
@@ -8487,9 +8823,23 @@
       }
     }
 
-    async function openArchivedSubjectsDialog(event) {
+    async function openArchivedSubjectsDialog(event, options = {}) {
       event?.preventDefault();
       event?.stopPropagation();
+
+      if (!options.skipCapabilityGate) {
+        const access =
+          await requireAccountLibraryAccess(
+            'open-archived-subjects',
+            {
+            },
+            event?.currentTarget || null
+          );
+
+        if (!(await accountLibraryAccessAllows(access))) {
+          return;
+        }
+      }
 
       ownedSubjectDialogReturnFocus =
         event?.currentTarget ||
@@ -8622,8 +8972,27 @@
 
     async function openOwnedSubjectLastHomeDialog(
       subjectId,
-      event
+      event,
+      options = {}
     ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      if (!options.skipCapabilityGate) {
+        const access =
+          await requireAccountLibraryAccess(
+            'manage-last-home',
+            {
+              subjectId: String(subjectId || '').trim()
+            },
+            event?.currentTarget || null
+          );
+
+        if (!(await accountLibraryAccessAllows(access))) {
+          return;
+        }
+      }
+
       ownedSubjectDialogReturnFocus =
         event?.currentTarget
           ?.closest('.subject-card-management')
@@ -8825,10 +9194,30 @@
       targetKind,
       targetSubjectId,
       offset,
-      event
+      event,
+      options = {}
     ) {
       event?.preventDefault();
       event?.stopPropagation();
+
+      if (scope === 'category' && !options.skipCapabilityGate) {
+        const access =
+          await requireAccountLibraryAccess(
+            'move-library-subject-order',
+            {
+              subjectKind,
+              subjectId: String(subjectId || '').trim(),
+              targetKind,
+              targetSubjectId: String(targetSubjectId || '').trim(),
+              offset: Number(offset)
+            },
+            event?.currentTarget || null
+          );
+
+        if (!(await accountLibraryAccessAllows(access))) {
+          return;
+        }
+      }
 
       closeOwnedSubjectMenus();
 
@@ -9777,13 +10166,37 @@
       ).trim();
     }
 
-    function openRestoreAtlasOriginalHubDialog({
+    async function openRestoreAtlasOriginalHubDialog({
       registryId,
       subjectId = '',
-      event = null
+      event = null,
+      skipCapabilityGate = false
     } = {}) {
       event?.preventDefault();
       event?.stopPropagation();
+
+      if (!skipCapabilityGate) {
+        const access =
+          await requireCompassSubjectCapability(
+            'canEditSubject',
+            'edit-subject',
+            'restore-atlas-original-dialog',
+            {
+              registryId: String(registryId || '').trim(),
+              subjectId: String(subjectId || '').trim()
+            },
+            event?.currentTarget || null
+          );
+
+        if (
+          !compassSubjectCapabilityAllows(
+            access,
+            'Subject editing is unavailable right now.'
+          )
+        ) {
+          return;
+        }
+      }
 
       const sourceRegistryId = String(registryId || '').trim();
       const ownedSubjectId = String(subjectId || '').trim();
@@ -10138,9 +10551,31 @@
       }
     });
 
-    async function openAtlasSubjectRenameDialog(registryId, event) {
+    async function openAtlasSubjectRenameDialog(registryId, event, options = {}) {
       event?.preventDefault();
       event?.stopPropagation();
+
+      if (!options.skipCapabilityGate) {
+        const access =
+          await requireCompassSubjectCapability(
+            'canEditSubject',
+            'edit-subject',
+            'rename-atlas-subject',
+            {
+              registryId: String(registryId || '').trim()
+            },
+            event?.currentTarget || null
+          );
+
+        if (
+          !compassSubjectCapabilityAllows(
+            access,
+            'Subject editing is unavailable right now.'
+          )
+        ) {
+          return;
+        }
+      }
 
       ownedSubjectDialogReturnFocus =
         event?.currentTarget
