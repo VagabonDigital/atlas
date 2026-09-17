@@ -91,11 +91,15 @@ if not (js_version_done and css_version_done and runtime_done):
     )
 
 test = ''.join(lines)
-anchor = '''    [atlas, compass, arcade].forEach((source, index) => {\n'''
-extra = '''    assert.match(\n        inside,\n        /atlasAccountHint/,\n        'Inside Atlas must resolve anonymous/account first-paint geometry synchronously.'\n    );\n    assert.doesNotMatch(\n        inside,\n        /data-atlas-inside-create hidden/,\n        'Inside Atlas must not hide Create free account in its static first-paint shell.'\n    );\n    assert.match(\n        chromeCss,\n        /data-atlas-account-hint="anonymous"/,\n        'Inside Atlas account CSS must honor the synchronous anonymous first-paint hint.'\n    );\n\n'''
+anchor = '\n}\n\nrunPresentationProof();'
+extra = '''    assert.match(\n        inside,\n        /atlasAccountHint/,\n        'Inside Atlas must resolve anonymous/account first-paint geometry synchronously.'\n    );\n    assert.doesNotMatch(\n        inside,\n        /data-atlas-inside-create hidden/,\n        'Inside Atlas must not hide Create free account in its static first-paint shell.'\n    );\n    assert.match(\n        chromeCss,\n        /data-atlas-account-hint="anonymous"/,\n        'Inside Atlas account CSS must honor the synchronous anonymous first-paint hint.'\n    );\n'''
 if test.count(anchor) != 1:
-    raise SystemExit(f'Hub proof anchor: expected 1 match, found {test.count(anchor)}')
-test = test.replace(anchor, extra + anchor, 1)
+    raise SystemExit(f'Proof function end: expected 1 match, found {test.count(anchor)}')
+test = test.replace(
+    anchor,
+    '\n' + extra + '}\n\nrunPresentationProof();',
+    1
+)
 test_path.write_text(test, encoding='utf-8')
 
 print('Inside Atlas anonymous first-paint account shell updated.')
