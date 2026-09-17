@@ -4749,6 +4749,38 @@
       });
     }
 
+    function hasAuthenticatedAccountContext() {
+      const Account = window.AtlasAccount;
+
+      if (Account && typeof Account.getState === 'function') {
+        try {
+          if (Account.getState()?.authenticated === true) {
+            return true;
+          }
+        } catch { }
+      }
+
+      if (
+        document.documentElement.dataset.atlasAccountHint ===
+        'account'
+      ) {
+        return true;
+      }
+
+      // During live sign-in the Supabase session can be stored before the
+      // account publication/render pass completes. Treat that narrow gap as
+      // authenticated too so Atlas never flashes the anonymous learner setup.
+      try {
+        return Boolean(
+          localStorage.getItem(
+            'sb-jnhjfpagectprceswvqn-auth-token'
+          )
+        );
+      } catch {
+        return false;
+      }
+    }
+
     function renderHome() {
       reviewState = null;
       const main = document.getElementById('atlas-main');
@@ -4777,8 +4809,17 @@
         expandedContinueHandoffId = null;
       }
 
-      // True-empty state: default session, no saved language, no history.
-      if (isDefault && !defaultSetupDismissed && !hasContinue && !hasReview && !hasHistory) {
+      // The learner-name setup is an anonymous/local-workspace state. A
+      // signed-in tutor may briefly have only Shared in the local projection
+      // while account-owned learners are restoring; that is not true-empty.
+      if (
+        isDefault &&
+        !hasAuthenticatedAccountContext() &&
+        !defaultSetupDismissed &&
+        !hasContinue &&
+        !hasReview &&
+        !hasHistory
+      ) {
         main.innerHTML = renderEmptyState();
         return;
       }
