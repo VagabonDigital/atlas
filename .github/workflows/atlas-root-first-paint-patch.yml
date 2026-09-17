@@ -1,8 +1,48 @@
-name: noop
+name: Atlas root first-paint patch
+
 on:
-  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/atlas-root-first-paint-patch.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: atlas-root-first-paint-patch
+  cancel-in-progress: false
+
 jobs:
-  noop:
+  patch:
+    if: github.event.head_commit.message == 'Arm Atlas root first-paint patch'
     runs-on: ubuntu-latest
     steps:
-      - run: echo noop
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rebase on current main
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+
+      - name: Apply guarded Atlas root first-paint patch
+        run: |
+          python .github/scripts/atlas_root_first_paint_patch.py
+
+      - name: Validate patch
+        run: |
+          node --check shared/atlas-root-runtime.js
+          node --check shared/atlas-content-registry.js
+          git diff --check
+
+      - name: Commit product change and remove patch machinery
+        run: |
+          rm .github/scripts/atlas_root_first_paint_patch.py
+          rm .github/workflows/atlas-root-first-paint-patch.yml
+          git config user.name 'Atlas Patch Runner'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html shared/atlas-root-runtime.js shared/atlas-content-registry.js .github/scripts/atlas_root_first_paint_patch.py .github/workflows/atlas-root-first-paint-patch.yml
+          git commit -m 'Defer Atlas root account hydration'
+          git push origin HEAD:main
