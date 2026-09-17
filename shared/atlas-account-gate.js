@@ -371,11 +371,31 @@
         status.hidden = !message;
     }
 
-    function setBusy(nextBusy) {
+    function setBusy(nextBusy, actionLabel = '') {
         busy = Boolean(nextBusy);
 
         gateLayer?.querySelectorAll('button, input').forEach(control => {
             control.disabled = busy;
+        });
+
+        gateLayer?.querySelectorAll(
+            '[data-account-form] .atlas-account-gate-primary'
+        ).forEach(button => {
+            if (!button.dataset.defaultLabel) {
+                button.dataset.defaultLabel =
+                    String(button.textContent || '').trim();
+            }
+
+            const form =
+                button.closest('[data-account-form]');
+            const isActiveForm =
+                form?.dataset.accountForm ===
+                    state.gateMode;
+
+            button.textContent =
+                busy && actionLabel && isActiveForm
+                    ? actionLabel
+                    : button.dataset.defaultLabel;
         });
     }
 
@@ -504,7 +524,6 @@
         state.gateOpen = true;
         setGateMode(mode);
         setBusy(true);
-        setGateStatus('Preparing your Atlas account…');
 
         try {
             const returnIntent =
@@ -633,8 +652,8 @@
         const email = String(data.get('email') || '').trim();
         const password = String(data.get('password') || '');
 
-        setBusy(true);
-        setGateStatus('Signing in…');
+        setGateStatus('');
+        setBusy(true, 'Signing in…');
 
         try {
             await prepareAccount();
@@ -666,8 +685,8 @@
             return;
         }
 
-        setBusy(true);
-        setGateStatus('Creating your Atlas account…');
+        setGateStatus('');
+        setBusy(true, 'Creating account…');
 
         try {
             await prepareAccount();
@@ -704,8 +723,8 @@
         const data = new FormData(form);
         const email = String(data.get('email') || '').trim();
 
-        setBusy(true);
-        setGateStatus('Sending reset link…');
+        setGateStatus('');
+        setBusy(true, 'Sending reset link…');
 
         try {
             await prepareAccount();
