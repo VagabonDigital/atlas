@@ -162,8 +162,8 @@ replacements = [
         'Add first-paint control'
     ),
     (
-        '''        const managementHtml =\n          isCompassCloudAuthorityPending()\n            ? ''\n            : '<div class=\\"subject-card-management\\">' +''',
-        '''        const managementHtml =\n          '<div class=\\"subject-card-management\\">' +''',
+        '''        const managementHtml =\n          isCompassCloudAuthorityPending()\n            ? ''\n            : ''',
+        '''        const managementHtml =\n          ''',
         2,
         'card ellipsis first-paint controls'
     ),
@@ -195,7 +195,7 @@ for forbidden in [
     'canCreate:\n                  !cloudAuthorityPending',
     'canManageCategory:\n                  !cloudAuthorityPending',
     'canAdd:\n              !cloudAuthorityPending',
-    "isCompassCloudAuthorityPending()\n            ? ''\n            : '<div class=\\\"subject-card-management\\\">'",
+    "isCompassCloudAuthorityPending()\n            ? ''\n            :",
 ]:
     if forbidden in text:
         raise SystemExit(f'Old pending visual gate remains: {forbidden}')
