@@ -146,7 +146,7 @@ export function buildMarks(game, view, adapter) {
         id: markId.threshold(),
         type: 'threshold',
         layer: 'bands',
-        geometry: { region: box(REGIONS.threshold) },
+        geometry: { band: box(REGIONS.threshold) },
         state: { waiting: view.pieces.filter((p) => p.location.kind === 'threshold').length },
         text: { label: text(view.world.thresholdLabel, 'micro', labelArea(layout.bandLabels.threshold), { align: 'start', lines: layout.bandLabels.threshold.lines, emphasis: true }) },
         label: view.world.thresholdLabel
@@ -155,7 +155,7 @@ export function buildMarks(game, view, adapter) {
         id: markId.margin(),
         type: 'margin',
         layer: 'bands',
-        geometry: { region: box(REGIONS.margin) },
+        geometry: { band: box(REGIONS.margin) },
         state: { resting: view.pieces.filter((p) => p.location.kind === 'margin').length },
         text: { label: text(view.world.marginLabel, 'micro', labelArea(layout.bandLabels.margin), { align: 'start', lines: layout.bandLabels.margin.lines, emphasis: true }) },
         label: view.world.marginLabel

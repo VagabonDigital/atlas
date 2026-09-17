@@ -1,0 +1,103 @@
+/* Engine One — kit tokens.
+
+   Every token in the contract (kits/index.js) is defined here for both
+   appearances. Nothing outside .sp-stage is styled, and no mark uses a colour
+   that is not one of these names. */
+
+@layer sp-tokens, sp-stage;
+
+@layer sp-tokens {
+  .sp-stage[data-kit="neutral"] {
+    --sp-bleed: #e4dfd4;
+    --sp-ground: #f2eee6;
+    --sp-texture: #e6e0d3;
+    --sp-zone: #f6f3ec;
+    --sp-surface: #e7ddcb;
+    --sp-surface-edge: #b6a68d;
+    --sp-setting: #faf7f1;
+    --sp-setting-edge: #cabea9;
+    --sp-passage: #e9e3d7;
+    --sp-passage-edge: #cec5b3;
+    --sp-rest: #ded7c9;
+    --sp-rest-edge: #b3aa97;
+    --sp-socket-edge: #a1927c;
+
+    --sp-ink: #2a2723;
+    --sp-ink-quiet: #5b554c;
+    --sp-ink-faint: #8a8377;
+
+    --sp-provisional-fill: #fcfaf6;
+    --sp-provisional-edge: #6c655a;
+    --sp-set-fill: #ffffff;
+    --sp-set-edge: #2a2723;
+    --sp-strained-edge: #8a3b2e;
+    --sp-loosened-edge: #7a6f60;
+    --sp-resolved-fill: #f3efe6;
+
+    --sp-tether: #5b554c;
+    --sp-seam: #8a3b2e;
+    --sp-scar: #6b4f2a;
+    --sp-imprint: #7a6f60;
+    --sp-drift: #4a4540;
+    --sp-meter: #3f5b73;
+    --sp-hatch: #b3aa97;
+    --sp-voice-card: #fffdf8;
+    --sp-voice-edge: #9a8f7d;
+    --sp-medallion: #3b4a5c;
+    --sp-medallion-ink: #fffdf8;
+
+    --sp-accent: #34495e;
+    --sp-focus: #1f6feb;
+    --sp-shadow: rgba(46, 38, 26, 0.18);
+
+    --sp-font-names: ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+    --sp-font-display: ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  }
+
+  .sp-stage[data-kit="neutral"][data-appearance="night"] {
+    --sp-bleed: #15161a;
+    --sp-ground: #202227;
+    --sp-texture: #2a2d33;
+    --sp-zone: #24272c;
+    --sp-surface: #363029;
+    --sp-surface-edge: #61574a;
+    --sp-setting: #2b2926;
+    --sp-setting-edge: #5e5649;
+    --sp-passage: #272a30;
+    --sp-passage-edge: #3c4048;
+    --sp-rest: #2d3036;
+    --sp-rest-edge: #4a4e56;
+    --sp-socket-edge: #7e7566;
+
+    --sp-ink: #ece5d5;
+    --sp-ink-quiet: #c0b8a7;
+    --sp-ink-faint: #8d8679;
+
+    --sp-provisional-fill: #2a2c31;
+    --sp-provisional-edge: #b7af9f;
+    --sp-set-fill: #33363c;
+    --sp-set-edge: #ece5d5;
+    --sp-strained-edge: #e0826e;
+    --sp-loosened-edge: #a89f8f;
+    --sp-resolved-fill: #2d3035;
+
+    --sp-tether: #bdb5a4;
+    --sp-seam: #e0826e;
+    --sp-scar: #d8b27a;
+    --sp-imprint: #a89f8f;
+    --sp-drift: #d7cfbf;
+    --sp-meter: #8fb3d1;
+    --sp-hatch: #4a4e56;
+    --sp-voice-card: #26292f;
+    --sp-voice-edge: #6b655b;
+    --sp-medallion: #c9d3df;
+    --sp-medallion-ink: #1d1f22;
+
+    --sp-accent: #b8c7d9;
+    --sp-focus: #6ea8ff;
+    --sp-shadow: rgba(0, 0, 0, 0.45);
+
+    --sp-font-names: ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+    --sp-font-display: ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  }
+}

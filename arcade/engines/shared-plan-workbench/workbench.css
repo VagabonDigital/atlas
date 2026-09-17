@@ -1,0 +1,133 @@
+/* The workbench is a developer tool, not the product. It stays visually quiet
+   so the Stage inside it is what gets judged. */
+
+:root {
+  color-scheme: light;
+  --wb-bg: #f4f5f6;
+  --wb-panel: #ffffff;
+  --wb-line: #d8dbde;
+  --wb-ink: #1f2429;
+  --wb-quiet: #5d656d;
+  --wb-bad: #a32c1a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--wb-bg);
+  color: var(--wb-ink);
+  font: 14px/1.45 ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+
+.wb-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: var(--wb-panel);
+  border-bottom: 1px solid var(--wb-line);
+}
+
+.wb-bar h1 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.wb-bar h1 span { color: var(--wb-quiet); font-weight: 400; }
+
+.wb-controls { display: flex; flex-wrap: wrap; gap: 16px; }
+
+.wb-controls label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--wb-quiet);
+}
+
+.wb-controls select {
+  font: inherit;
+  font-size: 13px;
+  color: var(--wb-ink);
+  padding: 4px 6px;
+  border: 1px solid var(--wb-line);
+  border-radius: 4px;
+  background: var(--wb-panel);
+}
+
+.wb-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px;
+  padding: 20px;
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .wb-main { grid-template-columns: minmax(0, 1fr); }
+}
+
+.wb-stage-column { display: grid; gap: 10px; min-width: 0; }
+
+/* The host box. The Stage fills it and composes its own 16:9 world inside. */
+.wb-stage {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--wb-line);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--wb-panel);
+}
+
+.wb-error {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--wb-bad);
+  border-radius: 4px;
+  color: var(--wb-bad);
+  background: #fdf1ef;
+}
+
+.wb-note { margin: 0; color: var(--wb-quiet); font-size: 13px; }
+
+.wb-side { display: grid; gap: 14px; }
+
+.wb-side section {
+  background: var(--wb-panel);
+  border: 1px solid var(--wb-line);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+.wb-side h2 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--wb-quiet);
+}
+
+.wb-aside-note { margin: 0 0 10px; font-size: 12px; color: var(--wb-quiet); }
+
+.wb-facts { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; margin: 0; font-size: 13px; }
+.wb-facts dt { color: var(--wb-quiet); }
+.wb-facts dd { margin: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.wb-facts dd.is-bad { color: var(--wb-bad); }
+
+.wb-beat { display: grid; gap: 8px; }
+
+.wb-action {
+  border: 1px solid var(--wb-line);
+  border-radius: 4px;
+  padding: 8px 10px;
+}
+
+.wb-action b { font-weight: 600; }
+.wb-action span { display: block; font-size: 12px; color: var(--wb-quiet); }
+.wb-action[data-enabled="false"] { opacity: 0.75; }

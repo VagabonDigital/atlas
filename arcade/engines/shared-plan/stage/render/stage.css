@@ -1,0 +1,202 @@
+/* Engine One — the Stage.
+
+   One composed world on a fixed 16:9 canvas of 1280 x 720 logical units. The
+   canvas is a container, so one logical unit is `var(--u)` and both geometry and
+   type are expressed in it: nothing is scaled by transform, so text renders
+   natively at every size and stays sharp through a video call.
+
+   Geometry is drawn in SVG; every piece of text is a real DOM element, so it
+   wraps and reads as type. Nothing here is styled outside `.sp-stage`, and no
+   rule names a game, a Stage Form or a colour: only kit tokens. */
+
+@layer sp-stage {
+  .sp-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    container-type: size;
+    background: var(--sp-bleed);
+    color: var(--sp-ink);
+    font-family: var(--sp-font-names);
+    overflow: hidden;
+  }
+
+  .sp-stage__frame {
+    position: relative;
+    width: min(100cqw, calc(100cqh * 16 / 9));
+    aspect-ratio: 16 / 9;
+    container-type: size;
+    --u: calc(100cqw / 1280);
+    overflow: hidden;
+  }
+
+  .sp-stage__layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .sp-stage__text {
+    pointer-events: none;
+  }
+
+  /* ---- text ---- */
+
+  .sp-text {
+    position: absolute;
+    left: calc(var(--x) * var(--u));
+    top: calc(var(--y) * var(--u));
+    width: calc(var(--w) * var(--u));
+    height: calc(var(--h) * var(--u));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin: 0;
+    font-size: calc(var(--fs) * var(--u));
+    line-height: var(--lh);
+    color: var(--sp-ink);
+    overflow-wrap: break-word;
+  }
+
+  .sp-text[data-align="start"] {
+    justify-content: flex-start;
+    text-align: start;
+  }
+
+  .sp-text[data-valign="start"] {
+    align-items: flex-start;
+  }
+
+  .sp-text[data-emphasis="true"] {
+    font-weight: 600;
+  }
+
+  /* ---- the space a form paints ---- */
+
+  .sp-shape--field { fill: var(--sp-ground); }
+  .sp-shape--texture { stroke: var(--sp-texture); stroke-width: 2; }
+  .sp-shape--passage { fill: var(--sp-passage); stroke: var(--sp-passage-edge); stroke-width: 2; }
+  .sp-shape--rest { fill: var(--sp-rest); stroke: var(--sp-rest-edge); stroke-width: 2; }
+  .sp-shape--support { fill: var(--sp-rest-edge); }
+  .sp-shape--surface { fill: var(--sp-surface); stroke: var(--sp-surface-edge); stroke-width: 2; }
+  .sp-shape--setting { fill: var(--sp-setting); stroke: var(--sp-setting-edge); stroke-width: 1.5; }
+
+  /* ---- Places ---- */
+
+  /* A Place is its surface and its name, not a panel drawn around them. The
+     zone stays in the frame for what a Place becomes when it closes, and for
+     the area a held Piece will later be dropped on. */
+  .sp-place__zone { fill: none; }
+  .sp-place[data-closed="true"] .sp-place__zone { fill: var(--sp-hatch); }
+  .sp-place[data-closed="true"] .sp-shape--surface { stroke-dasharray: 8 6; }
+
+  .sp-place__name { color: var(--sp-ink); }
+
+  /* ---- sockets ---- */
+
+  .sp-socket__ring {
+    fill: none;
+    stroke: var(--sp-socket-edge);
+    stroke-width: 2;
+    stroke-dasharray: 5 5;
+  }
+
+  .sp-socket[data-occupied="true"] .sp-socket__ring { stroke-dasharray: none; stroke: var(--sp-setting-edge); }
+
+  /* ---- Pieces ---- */
+
+  .sp-piece__chip {
+    fill: var(--sp-provisional-fill);
+    stroke: var(--sp-provisional-edge);
+    stroke-width: 2;
+    stroke-dasharray: 7 5;
+  }
+
+  .sp-piece[data-material="provisional"] {
+    filter: drop-shadow(0 calc(2 * var(--u)) calc(4 * var(--u)) var(--sp-shadow));
+  }
+
+  .sp-piece[data-material="set"] .sp-piece__chip,
+  .sp-piece[data-material="resolved"] .sp-piece__chip {
+    fill: var(--sp-set-fill);
+    stroke: var(--sp-set-edge);
+    stroke-dasharray: none;
+  }
+
+  .sp-piece[data-material="strained"] .sp-piece__chip { stroke: var(--sp-strained-edge); stroke-width: 3; }
+  .sp-piece[data-material="loosened"] .sp-piece__chip { stroke: var(--sp-loosened-edge); stroke-dasharray: 4 4; }
+  .sp-piece[data-pinned="true"] .sp-piece__chip { stroke-width: 3.5; }
+  .sp-piece[data-unavailable="true"] { opacity: 0.55; }
+
+  .sp-piece__name { color: var(--sp-ink); }
+
+  /* ---- links between Pieces ---- */
+
+  .sp-tether__path {
+    fill: none;
+    stroke: var(--sp-ink-faint);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .sp-tether[data-relevant="true"] .sp-tether__path { stroke: var(--sp-tether); stroke-width: 2.5; }
+  .sp-tether[data-relation="repel"] .sp-tether__path { stroke-dasharray: 2 7; }
+  .sp-tether[data-relation="order"] .sp-tether__path { stroke-dasharray: 12 5; }
+
+  /* ---- shared marks between a Piece and the Places it may enter ---- */
+
+  .sp-affinity__shape {
+    fill: var(--sp-accent);
+    stroke: var(--sp-zone);
+    stroke-width: 1.5;
+  }
+
+  /* ---- Voices ---- */
+
+  /* A Voice is a person standing by what they care about: a medallion and what
+     they say. The card is the room they were given, and it only becomes visible
+     when a change touches what they are tethered to. */
+  .sp-voice__card { fill: none; stroke: none; }
+
+  .sp-voice[data-brightened="true"] .sp-voice__card {
+    fill: var(--sp-voice-card);
+    stroke: var(--sp-accent);
+    stroke-width: 3;
+  }
+  .sp-voice__medallion { fill: var(--sp-medallion); }
+  .sp-voice__connector { stroke: var(--sp-voice-edge); stroke-width: 2; }
+  .sp-voice__initials { color: var(--sp-medallion-ink); }
+  .sp-voice__name { color: var(--sp-ink); }
+  .sp-voice__role { color: var(--sp-ink-quiet); }
+  .sp-voice__claim { color: var(--sp-ink); font-family: var(--sp-font-display); }
+
+  /* ---- the Horizon ---- */
+
+  .sp-goal__rule { stroke: var(--sp-ink-faint); stroke-width: 2; stroke-linecap: round; }
+  .sp-goal[data-crossed="true"] .sp-goal__rule { stroke: var(--sp-scar); stroke-dasharray: 4 4; }
+  .sp-goal__label { color: var(--sp-ink-quiet); }
+
+  /* ---- the Omen, at the edge a change will come from ---- */
+
+  .sp-omen__sign {
+    fill: none;
+    stroke: var(--sp-ink-faint);
+    stroke-width: 2;
+    stroke-dasharray: 4 5;
+  }
+
+  .sp-omen[data-sharpened="true"] .sp-omen__sign { stroke: var(--sp-ink-quiet); stroke-dasharray: none; }
+  .sp-omen__text { color: var(--sp-ink-faint); }
+
+  /* ---- band labels ---- */
+
+  .sp-band__label {
+    color: var(--sp-ink-faint);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}

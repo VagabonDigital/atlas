@@ -4,7 +4,12 @@
   "type": "module",
   "scripts": {
     "test": "node --test \"tests/*.test.js\"",
+    "test:browser": "node --test \"tests/browser/*.test.js\"",
+    "serve": "node dev/serve.js",
     "play": "node harness/play.js",
     "build-revisions": "node harness/build-revisions.js"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
   }
 }
