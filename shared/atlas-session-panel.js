@@ -1625,7 +1625,12 @@
 
         updateSafeView();
 
-        if (panelView === 'manage') {
+        // Management rows are interaction-only UI. Keep closed-panel
+        // refreshes lightweight and rebuild the list when Manage is visible.
+        if (
+            isOpen() &&
+            panelView === 'manage'
+        ) {
             renderManageView();
         }
     }
@@ -1743,11 +1748,11 @@
         });
 
         mounted = true;
-        if (getInitialView() === 'manage') {
-            showManageView({ focus: false, fromSafe: false });
-        } else {
-            showSafeView();
-        }
+
+        // The closed panel needs only its lightweight safe/session summary.
+        // Preserve options.initialView for open(), where Manage is rendered
+        // on demand if that is the surface's configured entry view.
+        showSafeView();
 
         void installLearnerCapabilityResume();
 
