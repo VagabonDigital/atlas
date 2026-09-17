@@ -4038,6 +4038,120 @@
         .atlasCompassCloudAuthority === 'pending';
     }
 
+    let compassCloudAuthorityReadyPromise = null;
+
+    function ensureCompassCloudAuthorityReady() {
+      if (!isCompassCloudAuthorityPending()) {
+        return Promise.resolve(true);
+      }
+
+      if (window.AtlasTutorSubjectsCloudAuthority) {
+        syncCompassCloudAuthorityState();
+        return Promise.resolve(true);
+      }
+
+      if (compassCloudAuthorityReadyPromise) {
+        return compassCloudAuthorityReadyPromise;
+      }
+
+      compassCloudAuthorityReadyPromise =
+        new Promise(resolve => {
+          let settled = false;
+          let timeout = null;
+
+          const finish = ready => {
+            if (settled) return;
+            settled = true;
+
+            window.removeEventListener(
+              'atlas:compass-cloud-authority-ready',
+              onReady
+            );
+
+            if (timeout) {
+              window.clearTimeout(timeout);
+            }
+
+            if (ready) {
+              syncCompassCloudAuthorityState();
+            }
+
+            resolve(ready);
+          };
+
+          const onReady = () => finish(true);
+
+          window.addEventListener(
+            'atlas:compass-cloud-authority-ready',
+            onReady,
+            { once: true }
+          );
+
+          timeout = window.setTimeout(
+            () => finish(
+              Boolean(
+                window.AtlasTutorSubjectsCloudAuthority
+              )
+            ),
+            8000
+          );
+        })
+          .finally(() => {
+            compassCloudAuthorityReadyPromise = null;
+          });
+
+      return compassCloudAuthorityReadyPromise;
+    }
+
+    document.addEventListener(
+      'click',
+      event => {
+        if (!isCompassCloudAuthorityPending()) {
+          return;
+        }
+
+        const target = event.target;
+
+        if (
+          !target ||
+          typeof target.closest !== 'function'
+        ) {
+          return;
+        }
+
+        const button = target.closest(
+          '.subject-library button'
+        );
+
+        if (
+          !button ||
+          button.classList.contains(
+            'subject-card-manage-btn'
+          )
+        ) {
+          return;
+        }
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        void ensureCompassCloudAuthorityReady()
+          .then(ready => {
+            if (!ready) {
+              showToast(
+                'Your Atlas account is still getting ready. Try again.'
+              );
+              return;
+            }
+
+            if (document.contains(button)) {
+              button.click();
+            }
+          });
+      },
+      true
+    );
+
     function getCompassInitialAccountSnapshot() {
       if (!isCompassCloudAuthorityPending()) {
         return null;
@@ -11032,19 +11146,15 @@
               ),
               category.name,
               {
-                canCreate:
-                  !cloudAuthorityPending,
+                canCreate: true,
                 categoryId: category.id,
-                canManageCategory:
-                  !cloudAuthorityPending,
+                canManageCategory: true,
                 isDefaultCategory:
                   category.id ===
                   libraryState?.defaultCategoryId,
                 canMoveCategoryEarlier:
-                  !cloudAuthorityPending &&
                   index > 0,
                 canMoveCategoryLater:
-                  !cloudAuthorityPending &&
                   index < libraryCategories.length - 1
               }
             )
@@ -11061,8 +11171,7 @@
           sessionSubjects,
           getActiveSessionSubjectCollectionTitle(),
           {
-            canAdd:
-              !cloudAuthorityPending
+            canAdd: true
           }
         ) +
         ownedLibraryHtml +
@@ -11524,9 +11633,7 @@
 
       if (subject.isOwned && subject.subjectId) {
         const managementHtml =
-          isCompassCloudAuthorityPending()
-            ? ''
-            : '<div class="subject-card-management">' +
+          '<div class="subject-card-management">' +
 
           '<button class="subject-card-manage-btn" ' +
           'type="button" ' +
@@ -11723,9 +11830,7 @@
 
       if (!subject.isOwned && subject.registryId) {
         const managementHtml =
-          isCompassCloudAuthorityPending()
-            ? ''
-            : '<div class="subject-card-management">' +
+          '<div class="subject-card-management">' +
 
           '<button class="subject-card-manage-btn" ' +
           'type="button" ' +
