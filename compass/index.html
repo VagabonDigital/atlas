@@ -4707,9 +4707,45 @@
       }
     }
 
-    function accountLibraryAccessAllows(access) {
-      if (access?.outcome === 'allowed') {
+    async function ensureAccountLibraryAuthorityReady(access) {
+      if (!access?.access?.authenticated) {
+        return false;
+      }
+
+      if (window.AtlasTutorSubjectsCloudAuthority) {
         return true;
+      }
+
+      if (!isCompassCloudAuthorityPending()) {
+        // A live anonymous → authenticated transition can currently reach
+        // capability-ready state before the workspace cloud authorities that
+        // were skipped at anonymous startup have been activated. Do not fall
+        // through to the legacy local My Subjects object in that gap.
+        return false;
+      }
+
+      const ready =
+        await ensureCompassCloudAuthorityReady();
+
+      return Boolean(
+        ready &&
+        window.AtlasTutorSubjectsCloudAuthority
+      );
+    }
+
+    async function accountLibraryAccessAllows(access) {
+      if (access?.outcome === 'allowed') {
+        const authorityReady =
+          await ensureAccountLibraryAuthorityReady(access);
+
+        if (authorityReady) {
+          return true;
+        }
+
+        showToast(
+          'Your Atlas account is still getting ready. Try again.'
+        );
+        return false;
       }
 
       if (access?.outcome !== 'auth-required') {
@@ -9762,7 +9798,7 @@
             event?.currentTarget || null
           );
 
-        if (!accountLibraryAccessAllows(access)) {
+        if (!(await accountLibraryAccessAllows(access))) {
           return;
         }
       }
@@ -10117,7 +10153,7 @@
           event?.currentTarget || null
         );
 
-      if (!accountLibraryAccessAllows(access)) {
+      if (!(await accountLibraryAccessAllows(access))) {
         return;
       }
 
@@ -10172,7 +10208,7 @@
           event?.currentTarget || null
         );
 
-      if (!accountLibraryAccessAllows(access)) {
+      if (!(await accountLibraryAccessAllows(access))) {
         return;
       }
 

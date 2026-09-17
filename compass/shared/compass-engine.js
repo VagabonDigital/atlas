@@ -14878,9 +14878,143 @@ async function requireDurableSaveAccess(
     }
 }
 
-function durableSaveAccessAllows(access) {
-    if (access?.outcome === 'allowed') {
+function getDurableContinuityAuthorityContract() {
+    const Bridge = requireAtlasBridge();
+    const activeSession = getCurrentBridgeSession();
+    const sharedSessionId =
+        Bridge.defaultSessionId || 'default';
+    const shared =
+        activeSession?.id === sharedSessionId;
+
+    return shared
+        ? {
+            authorityName:
+                'AtlasSharedContinuityCloudAuthority',
+            readyEvent:
+                'atlas:shared-continuity-cloud-ready',
+            scriptMarker:
+                'script[data-atlas-shared-continuity-cloud]'
+        }
+        : {
+            authorityName:
+                'AtlasLearnerContinuityCloudAuthority',
+            readyEvent:
+                'atlas:learner-continuity-cloud-ready',
+            scriptMarker:
+                'script[data-atlas-learner-continuity-cloud]'
+        };
+}
+
+async function ensureDurableContinuityAuthorityReady(access) {
+    if (!access?.access?.authenticated) {
+        return false;
+    }
+
+    const contract =
+        getDurableContinuityAuthorityContract();
+
+    const authorityReady = () => {
+        const Authority =
+            window[contract.authorityName];
+
+        return Boolean(
+            Authority &&
+            typeof Authority.getState === 'function' &&
+            Authority.getState()?.active
+        );
+    };
+
+    if (authorityReady()) {
         return true;
+    }
+
+    const Authority =
+        window[contract.authorityName];
+
+    if (
+        Authority &&
+        typeof Authority.initialize === 'function'
+    ) {
+        try {
+            await Authority.initialize();
+        } catch { }
+
+        if (authorityReady()) {
+            return true;
+        }
+    }
+
+    const authorityIsBooting = Boolean(
+        document.querySelector(contract.scriptMarker) ||
+        document.querySelector(
+            'script[data-atlas-learner-cloud-adapter]'
+        )
+    );
+
+    if (!authorityIsBooting) {
+        // During the known live-sign-in reconciliation gap, the account can
+        // be capability-ready while continuity authorities skipped during
+        // anonymous startup are still absent. Never write account-owned work
+        // into the browser-only projection in that state.
+        return false;
+    }
+
+    return new Promise(resolve => {
+        let settled = false;
+        let timeout = null;
+
+        const finish = ready => {
+            if (settled) return;
+            settled = true;
+
+            window.removeEventListener(
+                contract.readyEvent,
+                onReady
+            );
+
+            if (timeout) {
+                window.clearTimeout(timeout);
+            }
+
+            resolve(Boolean(ready));
+        };
+
+        const onReady = () =>
+            finish(authorityReady());
+
+        window.addEventListener(
+            contract.readyEvent,
+            onReady,
+            { once: true }
+        );
+
+        if (authorityReady()) {
+            finish(true);
+            return;
+        }
+
+        timeout = window.setTimeout(
+            () => finish(authorityReady()),
+            8000
+        );
+    });
+}
+
+async function durableSaveAccessAllows(access) {
+    if (access?.outcome === 'allowed') {
+        const authorityReady =
+            await ensureDurableContinuityAuthorityReady(
+                access
+            );
+
+        if (authorityReady) {
+            return true;
+        }
+
+        showToast(
+            'Your Atlas account is still getting ready. Try again.'
+        );
+        return false;
     }
 
     if (access?.outcome !== 'auth-required') {
@@ -14889,6 +15023,9 @@ function durableSaveAccessAllows(access) {
             access?.error ||
             access?.outcome ||
             'unknown'
+        );
+        showToast(
+            'Saving is unavailable right now. Try again.'
         );
     }
 
@@ -14920,6 +15057,33 @@ async function installDurableSaveResume() {
                     ).trim();
 
                     if (
+                        context.operation === 'remove-entry'
+                    ) {
+                        const entryId = String(
+                            context.entryId || ''
+                        ).trim();
+                        const sessionId = String(
+                            context.sessionId || ''
+                        ).trim();
+                        const activeSession =
+                            getCurrentBridgeSession();
+
+                        if (
+                            !entryId ||
+                            !sessionId ||
+                            activeSession?.id !== sessionId
+                        ) {
+                            return;
+                        }
+
+                        await removeSavedLanguageEntryById(
+                            entryId,
+                            null
+                        );
+                        return;
+                    }
+
+                    if (
                         !contextId ||
                         (
                             context.operation !== 'save' &&
@@ -14935,7 +15099,7 @@ async function installDurableSaveResume() {
                             { contextId }
                         );
 
-                    if (!durableSaveAccessAllows(access)) {
+                    if (!(await durableSaveAccessAllows(access))) {
                         return;
                     }
 
@@ -15004,7 +15168,7 @@ function unsaveLanguageFromUpgrade(contextId) {
     publishAtlasCompassItem('language-unsaved');
 }
 
-function removeSavedLanguageEntryById(entryId, event) {
+async function removeSavedLanguageEntryById(entryId, event) {
     event?.stopPropagation();
     event?.preventDefault();
 
@@ -15013,6 +15177,20 @@ function removeSavedLanguageEntryById(entryId, event) {
     const cleanEntryId = String(entryId || '').trim();
 
     if (!cleanEntryId) return;
+
+    const access =
+        await requireDurableSaveAccess(
+            'remove-entry',
+            {
+                entryId: cleanEntryId,
+                sessionId: activeSession.id
+            },
+            event?.currentTarget || null
+        );
+
+    if (!(await durableSaveAccessAllows(access))) {
+        return;
+    }
 
     const ledger = Bridge.readLedger();
 
@@ -15046,7 +15224,7 @@ async function toggleSavedLanguage(contextId, event) {
             event?.currentTarget || null
         );
 
-    if (!durableSaveAccessAllows(access)) {
+    if (!(await durableSaveAccessAllows(access))) {
         return;
     }
 

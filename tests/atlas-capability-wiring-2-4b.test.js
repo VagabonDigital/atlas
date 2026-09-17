@@ -57,6 +57,19 @@ assert.match(engine, /void installDurableSaveResume\(\);/);
 assert.doesNotMatch(hub, /await installAccountLibraryResume\(\);/);
 assert.doesNotMatch(engine, /await installDurableSaveResume\(\);/);
 
+assert.match(hub, /async function ensureAccountLibraryAuthorityReady/);
+assert.match(hub, /window\.AtlasTutorSubjectsCloudAuthority/);
+assert.match(hub, /isCompassCloudAuthorityPending\(\)[\s\S]*?ensureCompassCloudAuthorityReady\(\)/);
+assert.match(hub, /await accountLibraryAccessAllows\(access\)/);
+
+assert.match(engine, /async function ensureDurableContinuityAuthorityReady/);
+assert.match(engine, /AtlasLearnerContinuityCloudAuthority/);
+assert.match(engine, /AtlasSharedContinuityCloudAuthority/);
+assert.match(engine, /data-atlas-learner-cloud-adapter/);
+assert.match(engine, /async function removeSavedLanguageEntryById[\s\S]*?requireDurableSaveAccess\([\s\S]*?'remove-entry'/);
+assert.match(engine, /context\.operation === 'remove-entry'[\s\S]*?removeSavedLanguageEntryById/);
+assert.match(engine, /await durableSaveAccessAllows\(access\)/);
+
 console.log(
     'Stage 2.4B capability wiring proof passed: learner creation, durable saves, and My Subjects use canonical capabilities with resumable auth.'
 );
