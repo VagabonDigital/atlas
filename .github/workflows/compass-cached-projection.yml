@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.github/atlas_patch_compass_cached_projection.py'
+      - '.github/compass_cached_projection.trigger'
 
 permissions:
   contents: write
@@ -48,6 +49,7 @@ jobs:
       - name: Remove temporary patch machinery
         run: |
           rm -f .github/atlas_patch_compass_cached_projection.py
+          rm -f .github/compass_cached_projection.trigger
           rm -f .github/workflows/compass-cached-projection.yml
 
       - name: Commit and push product change
