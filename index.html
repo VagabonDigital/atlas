@@ -47,6 +47,10 @@
     }
 
     html:not([data-atlas-welcome="seen"]) body > .atlas-welcome-screen {
+      visibility: hidden;
+    }
+
+    html:not([data-atlas-welcome="seen"])[data-atlas-welcome-fonts-ready="true"] body > .atlas-welcome-screen {
       visibility: visible;
     }
   </style>
@@ -57,8 +61,71 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
+    id="atlas-font-stylesheet"
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
     rel="stylesheet">
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var stylesheet = document.getElementById(
+        'atlas-font-stylesheet'
+      );
+      var released = false;
+
+      function releaseWelcomeFonts() {
+        if (released) return;
+        released = true;
+        root.dataset.atlasWelcomeFontsReady = 'true';
+      }
+
+      function loadWelcomeFonts() {
+        if (
+          !document.fonts ||
+          typeof document.fonts.load !== 'function'
+        ) {
+          releaseWelcomeFonts();
+          return;
+        }
+
+        Promise.all([
+          document.fonts.load(
+            '400 48px "DM Serif Display"'
+          ),
+          document.fonts.load(
+            '400 16px "DM Sans"'
+          ),
+          document.fonts.load(
+            '600 14px "DM Sans"'
+          )
+        ]).then(
+          releaseWelcomeFonts,
+          releaseWelcomeFonts
+        );
+      }
+
+      if (!stylesheet) {
+        releaseWelcomeFonts();
+        return;
+      }
+
+      if (stylesheet.sheet) {
+        loadWelcomeFonts();
+        return;
+      }
+
+      stylesheet.addEventListener(
+        'load',
+        loadWelcomeFonts,
+        { once: true }
+      );
+
+      stylesheet.addEventListener(
+        'error',
+        releaseWelcomeFonts,
+        { once: true }
+      );
+    })();
+  </script>
   <link rel="stylesheet" href="./shared/atlas-modal-theme.css?v=20260721-world-modals">
   <link rel="stylesheet" href="./shared/atlas-search.css?v=20260721-world-modals">
   <link rel="stylesheet" href="./shared/atlas-session-panel.css?v=20260721-world-modals">
