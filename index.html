@@ -28,6 +28,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     /*
+     * Keep Atlas visually centered independently of the classic scrollbar.
+     * Reserving the gutter on both edges means the right-hand scrollbar can
+     * appear/disappear without changing the page's optical center.
+     */
+    html {
+      overflow-y: scroll;
+      scrollbar-gutter: stable both-edges;
+    }
+
+    /*
      * First-visit paint contract: before Enter Atlas, the welcome screen is
      * the product surface. Keep the Hub itself out of paint entirely so a
      * hard refresh can never expose the underlying workspace for a frame.
@@ -320,7 +330,7 @@
       scroll-behavior: smooth;
       overflow-y: scroll;
       overflow-x: clip;
-      scrollbar-gutter: stable;
+      scrollbar-gutter: stable both-edges;
     }
 
     /* ============================================================
