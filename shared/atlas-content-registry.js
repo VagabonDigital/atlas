@@ -812,7 +812,7 @@
         }
 
         const src =
-            '/shared/atlas-access-bootstrap.js?v=20260917-navspeed1';
+            '/shared/atlas-access-bootstrap.js?v=20260917-capability1';
 
         if (document.readyState === 'loading') {
             document.write(

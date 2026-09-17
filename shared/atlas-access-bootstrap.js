@@ -34,25 +34,6 @@
         }
     }
 
-    function shouldYieldForHubFirstPaint() {
-        return Boolean(
-            hasStoredAccountSession() &&
-            document.body?.dataset?.atlasSurface === 'hub'
-        );
-    }
-
-    function yieldUntilHubFirstPaint() {
-        if (!shouldYieldForHubFirstPaint()) {
-            return Promise.resolve();
-        }
-
-        return new Promise(resolve => {
-            window.requestAnimationFrame(() => {
-                window.setTimeout(resolve, 0);
-            });
-        });
-    }
-
     function ensurePreconnect(href) {
         if (
             !href ||
@@ -191,7 +172,6 @@
                 return Access.bootstrapAnonymous();
             }
 
-            await yieldUntilHubFirstPaint();
             await ensureAccountStack();
             await Access.initialize();
             return Access.getState();
