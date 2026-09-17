@@ -112,12 +112,12 @@
         return capabilityGatePromise;
     }
 
-    async function ensureLearnerCloud() {
+    async function ensureLearnerCloud({ force = false } = {}) {
         if (!hasStoredAtlasAccountSession()) {
             return null;
         }
 
-        if (learnerCloudPromise) {
+        if (learnerCloudPromise && !force) {
             return learnerCloudPromise;
         }
 
@@ -147,7 +147,7 @@
                 window.AtlasLearnerSessionsCloudAuthority || null;
 
             if (Authority) {
-                await Authority.initialize();
+                await Authority.initialize({ force });
             }
 
             return Authority;
@@ -1769,6 +1769,72 @@
         requestCreateLearner,
         isOpen
     };
+
+    /*
+     * Anonymous startup deliberately skips learner/cloud bootstrap. If the
+     * tutor signs in without navigating away, activate that same existing
+     * bootstrap chain now. AtlasLearnerSessionsCloud loads the continuity
+     * authorities, whose ready events refresh Atlas Continue/Review state.
+     *
+     * Account publications also occur for entitlement changes, so react only
+     * when authentication or account identity actually changes.
+     */
+    let observedAccountAuthenticated =
+        hasStoredAtlasAccountSession();
+    let observedAccountUserId = '';
+
+    window.addEventListener(
+        'atlas:account-change',
+        event => {
+            const detail = event?.detail || {};
+            const nextAuthenticated =
+                detail.authenticated === true;
+            const nextUserId =
+                String(detail.userId || '').trim();
+
+            const identityChanged =
+                observedAccountAuthenticated !==
+                    nextAuthenticated ||
+                (
+                    nextAuthenticated &&
+                    observedAccountUserId &&
+                    nextUserId &&
+                    observedAccountUserId !== nextUserId
+                );
+
+            observedAccountAuthenticated =
+                nextAuthenticated;
+            observedAccountUserId =
+                nextAuthenticated ? nextUserId : '';
+
+            if (!identityChanged) {
+                return;
+            }
+
+            // A successful authority promise belongs to the previous account
+            // state. Clear this wrapper cache at the identity boundary.
+            learnerCloudPromise = null;
+
+            // Reconcile visible state immediately. On sign-in this removes
+            // anonymous-only setup before cloud hydration finishes.
+            refresh();
+            window.renderHome?.();
+
+            if (!nextAuthenticated) {
+                return;
+            }
+
+            void ensureLearnerCloud({ force: true })
+                .then(() => {
+                    refresh();
+                    window.renderHome?.();
+                })
+                .catch(() => {
+                    refresh();
+                    window.renderHome?.();
+                });
+        }
+    );
 })();
 
 /* ============================================================
