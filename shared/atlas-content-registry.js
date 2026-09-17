@@ -880,11 +880,232 @@
         document.head.appendChild(script);
     }
 
+    let compassHubCloudAuthorityPromise = null;
+
+    function isCompassHubPath() {
+        const path = String(
+            window.location.pathname || ''
+        );
+
+        return (
+            path === '/compass/' ||
+            path === '/compass/index.html'
+        );
+    }
+
+    function existingRuntimeScript(src) {
+        const pathname = new URL(
+            src,
+            window.location.href
+        ).pathname;
+
+        return Array.from(document.scripts || []).find(script => {
+            if (!script.src) return false;
+
+            try {
+                return new URL(
+                    script.src,
+                    window.location.href
+                ).pathname === pathname;
+            } catch {
+                return false;
+            }
+        }) || null;
+    }
+
+    function loadRuntimeScript(src, globalName) {
+        if (globalName && window[globalName]) {
+            return Promise.resolve(window[globalName]);
+        }
+
+        return new Promise((resolve, reject) => {
+            const existing = existingRuntimeScript(src);
+
+            const complete = () => {
+                if (!globalName || window[globalName]) {
+                    resolve(
+                        globalName ? window[globalName] : true
+                    );
+                    return;
+                }
+
+                reject(
+                    new Error(
+                        `${globalName} did not initialize.`
+                    )
+                );
+            };
+
+            const fail = () => reject(
+                new Error(`Atlas runtime failed to load: ${src}`)
+            );
+
+            if (existing) {
+                existing.addEventListener(
+                    'load',
+                    complete,
+                    { once: true }
+                );
+                existing.addEventListener(
+                    'error',
+                    fail,
+                    { once: true }
+                );
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = false;
+            script.addEventListener(
+                'load',
+                complete,
+                { once: true }
+            );
+            script.addEventListener(
+                'error',
+                fail,
+                { once: true }
+            );
+            document.head.appendChild(script);
+        });
+    }
+
+    function signalCompassCloudAuthorityReady() {
+        document.documentElement.dataset
+            .atlasCompassCloudAuthority = 'ready';
+
+        try {
+            window.dispatchEvent(
+                new Event(
+                    'atlas:compass-cloud-authority-ready'
+                )
+            );
+        } catch { }
+
+        requestCompassHubRefresh('cloud-authority');
+    }
+
+    async function loadCompassHubCloudAuthorityScripts() {
+        if (compassHubCloudAuthorityPromise) {
+            return compassHubCloudAuthorityPromise;
+        }
+
+        compassHubCloudAuthorityPromise = (async () => {
+            const needsSubjects = Boolean(
+                window.AtlasTutorSubjects &&
+                !window.AtlasTutorSubjectsCloudAuthority
+            );
+
+            const needsTutorContent = Boolean(
+                window.AtlasTutorContent &&
+                !window.AtlasTutorContentCloudAuthority
+            );
+
+            if (!needsSubjects && !needsTutorContent) {
+                signalCompassCloudAuthorityReady();
+                return true;
+            }
+
+            ensurePreconnect(
+                'https://jnhjfpagectprceswvqn.supabase.co'
+            );
+            ensurePreconnect('https://cdn.jsdelivr.net');
+
+            if (!window.AtlasCloud) {
+                await loadRuntimeScript(
+                    '/shared/atlas-cloud.js?v=20260916-runtime3',
+                    'AtlasCloud'
+                );
+            }
+
+            if (!window.AtlasAccount) {
+                await loadRuntimeScript(
+                    '/shared/atlas-account.js?v=20260916-stage1close1',
+                    'AtlasAccount'
+                );
+            }
+
+            if (needsSubjects && !window.AtlasCloudCache) {
+                await loadRuntimeScript(
+                    '/shared/atlas-cloud-cache.js?v=20260916-runtime3',
+                    'AtlasCloudCache'
+                );
+            }
+
+            if (
+                needsSubjects &&
+                !window.AtlasTutorSubjectsCloudAuthority
+            ) {
+                await loadRuntimeScript(
+                    '/shared/atlas-tutor-subjects-cloud-authority.js?v=20260916-runtime3',
+                    'AtlasTutorSubjectsCloudAuthority'
+                );
+            }
+
+            if (
+                needsTutorContent &&
+                !window.AtlasTutorContentCloudAuthority
+            ) {
+                await loadRuntimeScript(
+                    '/shared/atlas-tutor-content-cloud-authority.js?v=20260916-runtime3',
+                    'AtlasTutorContentCloudAuthority'
+                );
+            }
+
+            signalCompassCloudAuthorityReady();
+            return true;
+        })().catch(error => {
+            compassHubCloudAuthorityPromise = null;
+            console.error(
+                '[AtlasContentRegistry] Compass cloud authority failed:',
+                error
+            );
+            return false;
+        });
+
+        return compassHubCloudAuthorityPromise;
+    }
+
+    function scheduleCompassHubCloudAuthorityScripts() {
+        let scheduled = false;
+
+        const startAfterPaint = () => {
+            if (scheduled) return;
+            scheduled = true;
+
+            window.requestAnimationFrame(() => {
+                window.setTimeout(() => {
+                    void loadCompassHubCloudAuthorityScripts();
+                }, 0);
+            });
+        };
+
+        if (
+            document.documentElement.dataset
+                .atlasCompassFirstPaintReady === 'true'
+        ) {
+            startAfterPaint();
+            return;
+        }
+
+        window.addEventListener(
+            'atlas:compass-first-paint-ready',
+            startAfterPaint,
+            { once: true }
+        );
+    }
+
     function writeCloudAuthorityScripts() {
         if (
             !window.location.pathname.startsWith('/compass/') ||
             !hasStoredAtlasAccountSession()
         ) {
+            return;
+        }
+
+        if (isCompassHubPath()) {
+            scheduleCompassHubCloudAuthorityScripts();
             return;
         }
 

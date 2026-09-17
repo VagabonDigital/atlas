@@ -42,9 +42,14 @@
         if (released) return;
         released = true;
         window.clearTimeout(safetyTimer);
-        window.requestAnimationFrame(function () {
-          root.classList.remove('atlas-session-fonts-pending');
-        });
+        root.classList.remove('atlas-session-fonts-pending');
+        root.dataset.atlasCompassFirstPaintReady = 'true';
+
+        try {
+          window.dispatchEvent(
+            new Event('atlas:compass-first-paint-ready')
+          );
+        } catch (e) { }
       }
 
       function releaseWhenReady() {
@@ -3623,7 +3628,7 @@
   <script src="../shared/atlas-original-curation.js"></script>
   <script src="../shared/atlas-ai.js"></script>
   <script src="../shared/compass-catalog-data.js?v=4"></script>
-  <script src="../shared/atlas-content-registry.js?v=20260916-accountchrome5"></script>
+  <script src="../shared/atlas-content-registry.js?v=20260916-compassperf1"></script>
   <script src="../shared/atlas-session-panel.js?v=20260916-runtime3"></script>
   <script src="../shared/atlas-search.js"></script>
   <script>
