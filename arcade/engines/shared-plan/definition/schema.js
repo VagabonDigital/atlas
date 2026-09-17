@@ -1,15 +1,19 @@
-/* Engine One — the Authored Definition schema, v0.
+/* Engine One — the Authored Definition schema, v1.
 
    This is the single source of the contract. The compiler shape-checks against
    it, the resolver walks it to find references, and `definitionJsonSchema()`
-   exports it for model structured output. */
+   exports it for model structured output.
+
+   Schema 1 differs from schema 0 in exactly one way: a Voice's anchor must be a
+   Place. Every schema 0 Definition that anchored its Voices to Places is a valid
+   schema 1 Definition once it declares the new version. */
 
 import { S, toJsonSchema } from './schema-dsl.js';
 import { BUDGETS } from './budgets.js';
 import * as V from './vocabularies.js';
 
 export const ENGINE_ID = 'shared-plan';
-export const DEFINITION_SCHEMA_VERSION = '0';
+export const DEFINITION_SCHEMA_VERSION = '1';
 
 const glyphIds = Object.keys(V.GLYPHS);
 const kitIds = Object.keys(V.MATERIAL_KITS);
@@ -21,6 +25,14 @@ const allSlots = [...new Set(Object.values(V.SITE_TEMPLATES).flatMap((t) => t.sl
 
 const TARGET = S.union({
     piece: S.object({ kind: S.const('piece'), piece: S.ref('piece') }),
+    place: S.object({ kind: S.const('place'), place: S.ref('place') })
+});
+
+/* Where a Voice stands. Only a Place gives a Voice a fixed position in the
+   world; what it cares about can still be a Piece, through its tethers, and a
+   Voice never follows a Piece around. Same shape as a Place target, so every
+   Definition that anchored a Voice to a Place is unchanged. */
+const ANCHOR = S.union({
     place: S.object({ kind: S.const('place'), place: S.ref('place') })
 });
 
@@ -197,7 +209,7 @@ const VOICE = S.object({
     concern: S.lazy(() => PREDICATE, { optional: true }),
     claimVariants: S.array(S.string('claim'), { max: BUDGETS.claimVariantsPerVoice.max, optional: true }),
     tethers: S.array(TARGET, { max: BUDGETS.tethersPerVoice.max, optional: true }),
-    anchor: TARGET,
+    anchor: ANCHOR,
     outcomes: S.array(S.object({
         condition: S.lazy(() => PREDICATE),
         line: S.string('outcome')

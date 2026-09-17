@@ -49,6 +49,29 @@ export function fits(text, scaleRole, maxWidth) {
     return measure(text, scaleRole) <= maxWidth;
 }
 
+/* Greedy word wrap, the way a browser sets a paragraph: as many words on a line
+   as fit, then the next line. Unlike `wrappedFit`, it counts the space lost
+   where a line breaks, so it is used wherever the number of lines sizes a box.
+   A line wider than the measure is a single word that cannot be broken. */
+export function wrapLines(text, scaleRole, maxWidth) {
+    const space = measure(' ', scaleRole);
+    const lines = [];
+    let words = [];
+    let width = 0;
+    for (const word of text.trim().split(/\s+/u)) {
+        const w = measure(word, scaleRole);
+        if (words.length > 0 && width + space + w > maxWidth) {
+            lines.push({ text: words.join(' '), width });
+            words = [];
+            width = 0;
+        }
+        width = words.length > 0 ? width + space + w : w;
+        words.push(word);
+    }
+    if (words.length > 0) lines.push({ text: words.join(' '), width });
+    return lines;
+}
+
 /* Most Stage text wraps: a Piece name under a socket, a Voice claim beneath a
    medallion, a headline inscribed at a locus. Measuring those as one line would
    reject text that renders perfectly well.

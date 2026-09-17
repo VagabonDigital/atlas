@@ -205,7 +205,10 @@ test('every fixture lays out legibly at 1280x720', () => {
 
         for (const place of game.places) {
             const solved = game.layout.places[place.key];
-            assert.equal(solved.sockets.length, place.sockets, `${name}: ${place.key} has the wrong socket count`);
+            /* Geometry covers every capacity a beat can raise the Place to, which
+               is never less than what was authored. */
+            assert.ok(place.maxSockets >= place.sockets, `${name}: ${place.key} lost authored sockets`);
+            assert.equal(solved.sockets.length, place.maxSockets, `${name}: ${place.key} has the wrong socket count`);
             for (const socket of solved.sockets) {
                 assert.ok(socket.x > 0 && socket.x < STAGE.width, `${name}: a socket is off-stage`);
                 assert.ok(socket.y > 0 && socket.y < STAGE.height, `${name}: a socket is off-stage`);

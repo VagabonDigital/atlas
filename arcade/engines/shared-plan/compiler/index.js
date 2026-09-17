@@ -9,8 +9,12 @@
    our best designer. */
 
 import { DEFINITION_SCHEMA, checkShape, ENGINE_ID, DEFINITION_SCHEMA_VERSION } from '../definition/index.js';
-import { solve, hasSolver, fitReport, collisionReport } from '../layout/index.js';
+import { solve, hasSolver, fitReport, collisionReport, voiceReport } from '../layout/index.js';
 import { SESSION_SCHEMA_VERSION } from '../model/index.js';
+import {
+    ENGINE_RUNTIME_VERSION, COMPILER_VERSION, NO_GENERATION_CONTRACT, SUPPORTED_DEFINITION_SCHEMA_VERSIONS,
+    runtimeSeries
+} from '../identity.js';
 import { makeSink } from './diagnostics.js';
 import { normalise } from './normalise.js';
 import { resolve } from './resolve.js';
@@ -18,37 +22,12 @@ import { validate } from './validate.js';
 import { disclosureSchedule, tutorSafeProjection } from './disclosure.js';
 import { contentHash } from './hash.js';
 
-export const ENGINE_RUNTIME_VERSION = '0.1.0';
-export const COMPILER_VERSION = '0.1.0';
-/* Hand-authored Drafts have no Generation Contract. B3 introduces v0. */
-export const NO_GENERATION_CONTRACT = 'none';
-
-/* Which Definition schema versions this build can interpret. The contract makes
-   this a list rather than a single value because an engine is expected to keep
-   reading older content across runtime releases. */
-export const SUPPORTED_DEFINITION_SCHEMA_VERSIONS = Object.freeze([DEFINITION_SCHEMA_VERSION]);
-
-/* The shape `EngineIdentity` in arcade/contracts declares. The session schema
-   version belongs here — to the engine, which is what speaks it — and not on a
-   Game Revision, which is compiled content and has no session in it. B2's
-   Runtime Face surfaces this to Core. */
-export const ENGINE_IDENTITY = Object.freeze({
-    engineId: ENGINE_ID,
-    runtimeVersion: ENGINE_RUNTIME_VERSION,
-    supportedDefinitionSchemaVersions: SUPPORTED_DEFINITION_SCHEMA_VERSIONS,
-    sessionSchemaVersion: SESSION_SCHEMA_VERSION
-});
-
-/* Runtime compatibility is decided per release series, not per patch.
-   Refusing a revision because the runtime moved from 0.1.0 to 0.1.1 would
-   invalidate every saved game on every bugfix; accepting one across a breaking
-   change would mount content this build interprets differently from the
-   compiler that produced it. While the major version is 0 the minor position is
-   the breaking one, which is the usual reading of a 0.x version. */
-export function runtimeSeries(version) {
-    const [major = '0', minor = '0'] = String(version).split('.');
-    return major === '0' ? `0.${minor}` : major;
-}
+/* Versions and identity live in identity.js, so the runtime can declare them
+   without loading the compiler. They are re-exported here unchanged. */
+export {
+    ENGINE_RUNTIME_VERSION, COMPILER_VERSION, NO_GENERATION_CONTRACT, SUPPORTED_DEFINITION_SCHEMA_VERSIONS,
+    ENGINE_IDENTITY, runtimeSeries
+} from '../identity.js';
 
 export { makeSink, formatDiagnostic, phraseForRepair, SEVERITY } from './diagnostics.js';
 export { contentHash, canonicalJson } from './hash.js';
@@ -131,6 +110,10 @@ export function compile(draft) {
             modelMessage: 'Reduce the number of Places.'
         });
     }
+    /* A working dense-Table fallback is a legible composition, only a less local
+       one, so it is a warning. A world whose Voices leave no room for its Pieces
+       is refused. Each note carries its own severity. */
+    for (const note of voiceReport(game, layout)) report(note);
 
     if (report.hasErrors()) return { ok: false, compiledGame: null, diagnostics: report.entries };
 

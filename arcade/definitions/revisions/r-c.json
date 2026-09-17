@@ -1,15 +1,15 @@
 {
-  "revisionId": "twenty-kilos-0bfa6a9ef005",
+  "revisionId": "twenty-kilos-3c626494ee69",
   "engineId": "shared-plan",
-  "contentHash": "0bfa6a9ef005ddaaa195290a8a879f30",
+  "contentHash": "3c626494ee696b56095f6179bf45fa84",
   "engineRuntimeVersion": "0.1.0",
-  "definitionSchemaVersion": "0",
-  "compilerVersion": "0.1.0",
+  "definitionSchemaVersion": "1",
+  "compilerVersion": "0.2.0",
   "generationContractVersion": "none",
   "compiledGame": {
     "contract": {
       "engineId": "shared-plan",
-      "schemaVersion": "0"
+      "schemaVersion": "1"
     },
     "meta": {
       "title": "Twenty Kilos",
@@ -47,7 +47,8 @@
         "sockets": 4,
         "descriptor": "Carried on your back",
         "status": "active",
-        "index": 0
+        "index": 0,
+        "maxSockets": 4
       },
       {
         "key": "sled",
@@ -56,7 +57,8 @@
         "sockets": 4,
         "descriptor": "Only while the ice holds",
         "status": "active",
-        "index": 1
+        "index": 1,
+        "maxSockets": 4
       }
     ],
     "placeIndex": {
@@ -67,7 +69,8 @@
         "sockets": 4,
         "descriptor": "Carried on your back",
         "status": "active",
-        "index": 0
+        "index": 0,
+        "maxSockets": 4
       },
       "sled": {
         "key": "sled",
@@ -76,7 +79,8 @@
         "sockets": 4,
         "descriptor": "Only while the ice holds",
         "status": "active",
-        "index": 1
+        "index": 1,
+        "maxSockets": 4
       }
     },
     "pieces": [
@@ -1007,232 +1011,487 @@
         "height": 720
       },
       "regions": {
+        "chromeTopLeft": {
+          "x": 0,
+          "y": 0,
+          "width": 200,
+          "height": 88
+        },
         "horizon": {
-          "x": 80,
-          "y": 24,
-          "width": 1120,
+          "x": 216,
+          "y": 16,
+          "width": 668,
           "height": 64
         },
+        "chromeTopRight": {
+          "x": 900,
+          "y": 0,
+          "width": 380,
+          "height": 88
+        },
+        "gutterWest": {
+          "x": 0,
+          "y": 96,
+          "width": 96,
+          "height": 460
+        },
         "ground": {
-          "x": 80,
-          "y": 104,
-          "width": 1120,
-          "height": 452
+          "x": 96,
+          "y": 96,
+          "width": 1088,
+          "height": 460
+        },
+        "gutterEast": {
+          "x": 1184,
+          "y": 96,
+          "width": 96,
+          "height": 460
+        },
+        "bandLabels": {
+          "x": 0,
+          "y": 568,
+          "width": 96,
+          "height": 136
         },
         "threshold": {
-          "x": 80,
-          "y": 572,
-          "width": 1120,
+          "x": 96,
+          "y": 568,
+          "width": 844,
           "height": 64
         },
         "margin": {
-          "x": 80,
-          "y": 652,
-          "width": 1120,
-          "height": 56
+          "x": 96,
+          "y": 640,
+          "width": 844,
+          "height": 64
+        },
+        "chromeBottomRight": {
+          "x": 956,
+          "y": 568,
+          "width": 324,
+          "height": 152
         }
       },
       "places": {
         "pack": {
           "frame": {
-            "x": 108,
-            "y": 104,
-            "width": 518,
-            "height": 452
+            "x": 124,
+            "y": 96,
+            "width": 502,
+            "height": 460
           },
           "nameAnchor": {
-            "x": 367,
-            "y": 124,
-            "maxWidth": 502
+            "x": 375,
+            "y": 116,
+            "maxWidth": 486
+          },
+          "voiceStrip": {
+            "x": 132,
+            "y": 130,
+            "width": 486,
+            "height": 88,
+            "position": "inside"
           },
           "sockets": [
             {
               "index": 0,
-              "x": 238,
-              "y": 240,
+              "x": 250,
+              "y": 300,
               "radius": 18
             },
             {
               "index": 1,
-              "x": 497,
-              "y": 240,
+              "x": 501,
+              "y": 300,
               "radius": 18
             },
             {
               "index": 2,
-              "x": 238,
-              "y": 443,
+              "x": 250,
+              "y": 447,
               "radius": 18
             },
             {
               "index": 3,
-              "x": 497,
-              "y": 443,
+              "x": 501,
+              "y": 447,
               "radius": 18
             }
-          ]
+          ],
+          "socketRow": 147,
+          "loads": [
+            {
+              "resource": "mass",
+              "x1": 136,
+              "x2": 614,
+              "y": 532,
+              "labelMaxWidth": 478
+            }
+          ],
+          "headline": {
+            "x": 96,
+            "y": 226,
+            "width": 675,
+            "height": 68,
+            "lines": 2
+          }
         },
         "sled": {
           "frame": {
             "x": 654,
-            "y": 104,
-            "width": 518,
-            "height": 452
+            "y": 96,
+            "width": 502,
+            "height": 460
           },
           "nameAnchor": {
-            "x": 913,
-            "y": 124,
-            "maxWidth": 502
+            "x": 905,
+            "y": 116,
+            "maxWidth": 486
           },
+          "voiceStrip": null,
           "sockets": [
             {
               "index": 0,
-              "x": 784,
-              "y": 240,
+              "x": 780,
+              "y": 228,
               "radius": 18
             },
             {
               "index": 1,
-              "x": 1043,
-              "y": 240,
+              "x": 1031,
+              "y": 228,
               "radius": 18
             },
             {
               "index": 2,
-              "x": 784,
-              "y": 443,
+              "x": 780,
+              "y": 423,
               "radius": 18
             },
             {
               "index": 3,
-              "x": 1043,
-              "y": 443,
+              "x": 1031,
+              "y": 423,
               "radius": 18
             }
-          ]
+          ],
+          "socketRow": 195,
+          "loads": [
+            {
+              "resource": "mass",
+              "x1": 666,
+              "x2": 1144,
+              "y": 532,
+              "labelMaxWidth": 478
+            }
+          ],
+          "headline": {
+            "x": 509,
+            "y": 226,
+            "width": 675,
+            "height": 68,
+            "lines": 2
+          }
         }
       },
       "segments": [],
+      "voices": {
+        "placement": "satellite",
+        "band": null,
+        "fallback": null,
+        "crowded": [],
+        "cards": {
+          "ravi": {
+            "x": 132,
+            "y": 130,
+            "width": 239,
+            "height": 88,
+            "host": "pack",
+            "position": "inside",
+            "medallion": {
+              "x": 154,
+              "y": 152,
+              "radius": 16
+            },
+            "name": {
+              "x": 176,
+              "maxWidth": 189,
+              "lineHeight": 16,
+              "y": 136
+            },
+            "role": {
+              "x": 176,
+              "maxWidth": 189,
+              "lineHeight": 16,
+              "y": 152
+            },
+            "claim": {
+              "x": 138,
+              "y": 172,
+              "maxWidth": 227,
+              "lines": 2,
+              "lineHeight": 20
+            },
+            "connector": null
+          },
+          "anke": {
+            "x": 379,
+            "y": 130,
+            "width": 239,
+            "height": 88,
+            "host": "pack",
+            "position": "inside",
+            "medallion": {
+              "x": 401,
+              "y": 152,
+              "radius": 16
+            },
+            "name": {
+              "x": 423,
+              "maxWidth": 189,
+              "lineHeight": 16,
+              "y": 136
+            },
+            "role": {
+              "x": 423,
+              "maxWidth": 189,
+              "lineHeight": 16,
+              "y": 152
+            },
+            "claim": {
+              "x": 385,
+              "y": 172,
+              "maxWidth": 227,
+              "lines": 2,
+              "lineHeight": 20
+            },
+            "connector": null
+          }
+        }
+      },
       "threshold": [
         {
           "index": 0,
-          "x": 150,
-          "y": 604,
-          "maxWidth": 128
+          "x": 149,
+          "y": 600,
+          "left": 96,
+          "width": 106,
+          "maxWidth": 94
         },
         {
           "index": 1,
-          "x": 290,
-          "y": 604,
-          "maxWidth": 128
+          "x": 254,
+          "y": 600,
+          "left": 202,
+          "width": 105,
+          "maxWidth": 94
         },
         {
           "index": 2,
-          "x": 430,
-          "y": 604,
-          "maxWidth": 128
+          "x": 360,
+          "y": 600,
+          "left": 307,
+          "width": 106,
+          "maxWidth": 94
         },
         {
           "index": 3,
-          "x": 570,
-          "y": 604,
-          "maxWidth": 128
+          "x": 465,
+          "y": 600,
+          "left": 413,
+          "width": 105,
+          "maxWidth": 94
         },
         {
           "index": 4,
-          "x": 710,
-          "y": 604,
-          "maxWidth": 128
+          "x": 571,
+          "y": 600,
+          "left": 518,
+          "width": 106,
+          "maxWidth": 94
         },
         {
           "index": 5,
-          "x": 850,
-          "y": 604,
-          "maxWidth": 128
+          "x": 676,
+          "y": 600,
+          "left": 624,
+          "width": 105,
+          "maxWidth": 94
         },
         {
           "index": 6,
-          "x": 990,
-          "y": 604,
-          "maxWidth": 128
+          "x": 782,
+          "y": 600,
+          "left": 729,
+          "width": 106,
+          "maxWidth": 94
         },
         {
           "index": 7,
-          "x": 1130,
-          "y": 604,
-          "maxWidth": 128
+          "x": 887,
+          "y": 600,
+          "left": 835,
+          "width": 105,
+          "maxWidth": 94
         }
       ],
       "margin": [
         {
           "index": 0,
-          "x": 150,
-          "y": 680,
-          "maxWidth": 128
+          "x": 149,
+          "y": 672,
+          "left": 96,
+          "width": 106,
+          "maxWidth": 94
         },
         {
           "index": 1,
-          "x": 290,
-          "y": 680,
-          "maxWidth": 128
+          "x": 254,
+          "y": 672,
+          "left": 202,
+          "width": 105,
+          "maxWidth": 94
         },
         {
           "index": 2,
-          "x": 430,
-          "y": 680,
-          "maxWidth": 128
+          "x": 360,
+          "y": 672,
+          "left": 307,
+          "width": 106,
+          "maxWidth": 94
         },
         {
           "index": 3,
-          "x": 570,
-          "y": 680,
-          "maxWidth": 128
+          "x": 465,
+          "y": 672,
+          "left": 413,
+          "width": 105,
+          "maxWidth": 94
         },
         {
           "index": 4,
-          "x": 710,
-          "y": 680,
-          "maxWidth": 128
+          "x": 571,
+          "y": 672,
+          "left": 518,
+          "width": 106,
+          "maxWidth": 94
         },
         {
           "index": 5,
-          "x": 850,
-          "y": 680,
-          "maxWidth": 128
+          "x": 676,
+          "y": 672,
+          "left": 624,
+          "width": 105,
+          "maxWidth": 94
         },
         {
           "index": 6,
-          "x": 990,
-          "y": 680,
-          "maxWidth": 128
+          "x": 782,
+          "y": 672,
+          "left": 729,
+          "width": 106,
+          "maxWidth": 94
         },
         {
           "index": 7,
-          "x": 1130,
-          "y": 680,
-          "maxWidth": 128
+          "x": 887,
+          "y": 672,
+          "left": 835,
+          "width": 105,
+          "maxWidth": 94
         }
       ],
       "horizon": [
         {
           "index": 0,
-          "x": 267,
-          "y": 56,
-          "maxWidth": 361
+          "x": 300,
+          "y": 48,
+          "left": 216,
+          "width": 167,
+          "maxWidth": 155
         },
         {
           "index": 1,
-          "x": 640,
-          "y": 56,
-          "maxWidth": 361
+          "x": 467,
+          "y": 48,
+          "left": 383,
+          "width": 167,
+          "maxWidth": 155
         },
         {
           "index": 2,
-          "x": 1013,
-          "y": 56,
-          "maxWidth": 361
+          "x": 634,
+          "y": 48,
+          "left": 550,
+          "width": 167,
+          "maxWidth": 155
         }
       ],
+      "omen": {
+        "beat": "the-sled-goes",
+        "edge": "north",
+        "region": "horizon",
+        "x": 717,
+        "y": 16,
+        "width": 167,
+        "height": 64,
+        "maxWidth": 155,
+        "lines": 2
+      },
+      "clock": {
+        "x": 8,
+        "y": 104,
+        "width": 80,
+        "height": 52,
+        "maxWidth": 76,
+        "lines": 2
+      },
+      "sealStamp": {
+        "x": 8,
+        "y": 164,
+        "width": 80,
+        "height": 52,
+        "maxWidth": 76,
+        "lines": 2
+      },
+      "planLoads": [
+        {
+          "resource": "bulk",
+          "x": 1192,
+          "y": 104,
+          "width": 80,
+          "height": 120,
+          "maxWidth": 76,
+          "lines": 2
+        }
+      ],
+      "bandLabels": {
+        "threshold": {
+          "x": 8,
+          "y": 568,
+          "width": 80,
+          "height": 64,
+          "maxWidth": 76,
+          "lines": 2
+        },
+        "margin": {
+          "x": 8,
+          "y": 640,
+          "width": 80,
+          "height": 64,
+          "maxWidth": 76,
+          "lines": 2
+        }
+      },
+      "headlines": {
+        "threshold": {
+          "x": 181,
+          "y": 480,
+          "width": 675,
+          "height": 68,
+          "lines": 2
+        }
+      },
       "entryPoints": {
         "north": {
           "x": 640,
@@ -1252,11 +1511,11 @@
         },
         "threshold": {
           "x": 640,
-          "y": 572
+          "y": 568
         },
         "horizon": {
           "x": 640,
-          "y": 24
+          "y": 16
         }
       }
     },

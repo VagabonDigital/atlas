@@ -7,11 +7,12 @@
    but no Stage work. */
 
 import { buildContext } from './state.js';
-import { seams, overCapacityPlaces, activeRules } from './rules.js';
+import { seams, overCapacityPlaces, activeRules, seamParticipants, subjectPieces } from './rules.js';
 import { evaluate } from './predicates.js';
 import { variantOf } from './effects.js';
 import { checkAction } from './actions.js';
 import { isEditable } from './phases.js';
+import { variantTouches } from './touches.js';
 
 const PRIMARY_BY_PHASE = Object.freeze({
     plan: { id: 'commitPlan', label: 'Commit plan', interaction: 'hold' },
@@ -87,6 +88,43 @@ export function derive(game, session) {
     const lastFired = session.firedBeats.at(-1) ?? null;
     const lastVariant = lastFired ? variantOf(game, lastFired) : null;
 
+    /* --- the most recent change ---
+       Everything the Stage needs to stage a change arriving, so that it never has
+       to look a beat up in the Definition for itself. */
+    const lastChange = lastFired
+        ? {
+            beat: lastFired.beat,
+            variant: lastFired.variant,
+            trigger: game.beatIndex[lastFired.beat].trigger,
+            staging: lastVariant.staging,
+            severity: lastVariant.severity,
+            entryEdge: lastVariant.entryEdge,
+            locus: lastVariant.locus,
+            headline: lastVariant.headline,
+            scarLabel: lastVariant.scarLabel,
+            touched: variantTouches(game, lastVariant)
+        }
+        : null;
+
+    /* --- affinity marks ---
+       A Piece and the Places it may enter share a small mark. Marks are numbered
+       by each allowed-in Rule's position among all allowed-in Rules in contract
+       order, so a mark keeps its identity when a dormant Rule wakes up. Only
+       active Rules produce marks. */
+    const pieceAffinity = new Map();
+    const placeAffinity = new Map();
+    const push = (map, key, index) => {
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(index);
+    };
+    game.rules
+        .filter((r) => r.kind === 'allowedIn')
+        .forEach((rule, index) => {
+            if (!ctx.world.activeRules.has(rule.key)) return;
+            for (const key of subjectPieces(game, rule.subject)) push(pieceAffinity, key, index);
+            for (const place of rule.places) push(placeAffinity, place, index);
+        });
+
     /* --- pieces --- */
     const pieces = game.pieces
         .filter((p) => ctx.world.bornPieces.has(p.key))
@@ -102,7 +140,8 @@ export function derive(game, session) {
             pinned: ctx.isPinned(p.key),
             justArrived: ctx.world.justArrived.has(p.key),
             fact: p.fact && (!p.fact.hidden || ctx.world.revealedFacts.has(p.key)) ? p.fact.text : null,
-            factRevealed: Boolean(p.fact?.hidden) && ctx.world.revealedFacts.has(p.key)
+            factRevealed: Boolean(p.fact?.hidden) && ctx.world.revealedFacts.has(p.key),
+            affinity: pieceAffinity.get(p.key) ?? []
         }));
 
     /* --- places --- */
@@ -129,7 +168,8 @@ export function derive(game, session) {
                     render: r.render,
                     fill: ctx.resourceSum(r.key, 'place', p.key),
                     limit: ctx.limitOf(r.key)
-                }))
+                })),
+            affinity: placeAffinity.get(p.key) ?? []
         }));
 
     const planLoads = game.resources
@@ -247,7 +287,20 @@ export function derive(game, session) {
                 if (now.kind === 'margin') state = 'lost';
                 else if (was && sameLocation(was, now)) state = 'held';
                 else state = 'moved';
-                return { piece: p.key, name: p.name, from: was, to: now, state };
+                return {
+                    piece: p.key,
+                    name: p.name,
+                    from: was,
+                    to: now,
+                    state,
+                    /* Where the Piece stood at every commitment and at the end, for
+                       the hindsight thread. A Piece that did not exist yet, or was
+                       still waiting at the Threshold, has no position to record. */
+                    path: [
+                        ...session.commitments.map((c) => ({ at: c.at, location: c.placements[p.key] ?? null })),
+                        { at: 'final', location: now }
+                    ]
+                };
             });
 
         resolution = {
@@ -266,22 +319,27 @@ export function derive(game, session) {
     const primary = PRIMARY_BY_PHASE[session.phase];
     const primaryActions = [];
     if (session.phase === 'resolve') {
-        primaryActions.push({ ...primary, enabled: true });
+        primaryActions.push({ ...primary, enabled: true, placement: 'primary' });
     } else {
         const verdict = checkAction(ctx, { kind: primary.id, confirm: false });
         primaryActions.push({
             ...primary,
             enabled: verdict.ok,
             reason: verdict.ok ? undefined : verdict.reason,
-            needsConfirm: verdict.needsConfirm ?? false
+            needsConfirm: verdict.needsConfirm ?? false,
+            placement: 'primary'
         });
         if (checkAction(ctx, { kind: 'resolveNow' }).ok) {
-            primaryActions.push({ id: 'resolveNow', label: 'Resolve now', interaction: 'press', enabled: true });
+            primaryActions.push({
+                id: 'resolveNow', label: 'Resolve now', interaction: 'press', enabled: true, placement: 'menu'
+            });
         }
     }
 
     return {
         phase: session.phase,
+        beatCount: session.firedBeats.length,
+        lastChange,
         editable: isEditable(session.phase),
         disclosure: disclosureSet(ctx),
         world: {
@@ -296,7 +354,7 @@ export function derive(game, session) {
         pieces,
         places,
         planLoads,
-        seams: brokenSeams,
+        seams: brokenSeams.map((s) => ({ ...s, involves: seamParticipants(ctx, s) })),
         overflow,
         tethers,
         scars,

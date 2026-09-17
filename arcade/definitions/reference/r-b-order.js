@@ -7,7 +7,7 @@
    Data only. Nothing here is code. */
 
 export default {
-    contract: { engineId: 'shared-plan', schemaVersion: '0' },
+    contract: { engineId: 'shared-plan', schemaVersion: '1' },
 
     meta: {
         title: 'Last Ferry',

@@ -20,7 +20,9 @@ export {
 } from './state.js';
 export { evaluate, predicateDepth, predicateTouches, predicateTouchesPin } from './predicates.js';
 export { baseWorld, deriveWorld, variantOf } from './effects.js';
-export { seams, overCapacityPlaces, activeRules, subjectPieces } from './rules.js';
+export { seams, overCapacityPlaces, activeRules, subjectPieces, seamParticipants } from './rules.js';
+export { locusId, variantTouches } from './touches.js';
+export { thenSession, deriveThen } from './history.js';
 export { ACTION_KINDS, Actions, checkAction, freeSocket, nextBeat, selectVariant } from './actions.js';
 export { reduce, apply } from './reducer.js';
 export {

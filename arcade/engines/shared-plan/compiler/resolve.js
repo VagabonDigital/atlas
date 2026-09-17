@@ -190,7 +190,23 @@ export function resolve(draft, report) {
 
     const topology = resolveTopology(draft, report);
 
-    const places = draft.places.map((p, index) => ({ ...p, index }));
+    /* A beat may raise a Place's capacity above what was authored. Sockets that
+       capacity reaches have to exist in the layout from the start, hidden until
+       they open, or a Piece could land somewhere the Stage has no position for. */
+    const raisedCapacity = Object.create(null);
+    for (const beat of draft.beats) {
+        for (const variant of beat.variants) {
+            for (const effect of variant.effects) {
+                if (effect.kind !== 'setCapacity') continue;
+                raisedCapacity[effect.place] = Math.max(raisedCapacity[effect.place] ?? 0, effect.sockets);
+            }
+        }
+    }
+    const places = draft.places.map((p, index) => ({
+        ...p,
+        index,
+        maxSockets: Math.max(p.sockets, raisedCapacity[p.key] ?? 0)
+    }));
     const pieces = draft.pieces.map((p, index) => ({
         ...p,
         index,

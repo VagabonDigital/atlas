@@ -26,6 +26,7 @@ export interface PrimaryActionDescriptor {
     interaction: 'press' | 'hold';
     enabled: boolean;
     reason?: string;
+    placement: 'primary' | 'secondary' | 'menu';
 }
 
 export interface ArcadeSessionStore {
@@ -37,6 +38,7 @@ export interface ArcadeSessionStore {
 export interface RuntimeHostContext {
     container: HTMLElement;
     appearance: 'light' | 'night';
+    motion: 'full' | 'reduced' | 'off';
     sessionStore: ArcadeSessionStore;
     chromeSlot: HTMLElement;
 }
@@ -46,6 +48,7 @@ export interface RuntimeController {
     restore(record: unknown): boolean;
     pause(): void;
     destroy(): void;
+    invoke(actionId: string): void;
     subscribePrimaryActions(
         listener: (
             actions: readonly PrimaryActionDescriptor[]

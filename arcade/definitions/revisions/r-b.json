@@ -1,15 +1,15 @@
 {
-  "revisionId": "last-ferry-d43cf217599e",
+  "revisionId": "last-ferry-4c2b14a4a624",
   "engineId": "shared-plan",
-  "contentHash": "d43cf217599efd3731e60be94405d155",
+  "contentHash": "4c2b14a4a624ac14c7f5537802fe9642",
   "engineRuntimeVersion": "0.1.0",
-  "definitionSchemaVersion": "0",
-  "compilerVersion": "0.1.0",
+  "definitionSchemaVersion": "1",
+  "compilerVersion": "0.2.0",
   "generationContractVersion": "none",
   "compiledGame": {
     "contract": {
       "engineId": "shared-plan",
-      "schemaVersion": "0"
+      "schemaVersion": "1"
     },
     "meta": {
       "title": "Last Ferry",
@@ -47,7 +47,8 @@
         "sockets": 3,
         "descriptor": "The near landing",
         "status": "active",
-        "index": 0
+        "index": 0,
+        "maxSockets": 3
       },
       {
         "key": "midpoint",
@@ -56,7 +57,8 @@
         "sockets": 2,
         "descriptor": "A jetty in open water",
         "status": "active",
-        "index": 1
+        "index": 1,
+        "maxSockets": 2
       },
       {
         "key": "far-shore",
@@ -65,7 +67,8 @@
         "sockets": 3,
         "descriptor": "Where the village waits",
         "status": "active",
-        "index": 2
+        "index": 2,
+        "maxSockets": 3
       }
     ],
     "placeIndex": {
@@ -76,7 +79,8 @@
         "sockets": 3,
         "descriptor": "The near landing",
         "status": "active",
-        "index": 0
+        "index": 0,
+        "maxSockets": 3
       },
       "midpoint": {
         "key": "midpoint",
@@ -85,7 +89,8 @@
         "sockets": 2,
         "descriptor": "A jetty in open water",
         "status": "active",
-        "index": 1
+        "index": 1,
+        "maxSockets": 2
       },
       "far-shore": {
         "key": "far-shore",
@@ -94,7 +99,8 @@
         "sockets": 3,
         "descriptor": "Where the village waits",
         "status": "active",
-        "index": 2
+        "index": 2,
+        "maxSockets": 3
       }
     },
     "pieces": [
@@ -901,124 +907,202 @@
         "height": 720
       },
       "regions": {
+        "chromeTopLeft": {
+          "x": 0,
+          "y": 0,
+          "width": 200,
+          "height": 88
+        },
         "horizon": {
-          "x": 80,
-          "y": 24,
-          "width": 1120,
+          "x": 216,
+          "y": 16,
+          "width": 668,
           "height": 64
         },
+        "chromeTopRight": {
+          "x": 900,
+          "y": 0,
+          "width": 380,
+          "height": 88
+        },
+        "gutterWest": {
+          "x": 0,
+          "y": 96,
+          "width": 96,
+          "height": 460
+        },
         "ground": {
-          "x": 80,
-          "y": 104,
-          "width": 1120,
-          "height": 452
+          "x": 96,
+          "y": 96,
+          "width": 1088,
+          "height": 460
+        },
+        "gutterEast": {
+          "x": 1184,
+          "y": 96,
+          "width": 96,
+          "height": 460
+        },
+        "bandLabels": {
+          "x": 0,
+          "y": 568,
+          "width": 96,
+          "height": 136
         },
         "threshold": {
-          "x": 80,
-          "y": 572,
-          "width": 1120,
+          "x": 96,
+          "y": 568,
+          "width": 844,
           "height": 64
         },
         "margin": {
-          "x": 80,
-          "y": 652,
-          "width": 1120,
-          "height": 56
+          "x": 96,
+          "y": 640,
+          "width": 844,
+          "height": 64
+        },
+        "chromeBottomRight": {
+          "x": 956,
+          "y": 568,
+          "width": 324,
+          "height": 152
         }
       },
       "places": {
         "quay": {
           "frame": {
-            "x": 108,
-            "y": 190,
-            "width": 336,
-            "height": 280
+            "x": 124,
+            "y": 192,
+            "width": 325,
+            "height": 285
           },
           "nameAnchor": {
-            "x": 276,
-            "y": 210,
-            "maxWidth": 320
+            "x": 286.5,
+            "y": 212,
+            "maxWidth": 309
+          },
+          "voiceStrip": {
+            "x": 132,
+            "y": 96,
+            "width": 309,
+            "height": 88,
+            "position": "above"
           },
           "sockets": [
             {
               "index": 0,
-              "x": 192,
-              "y": 283,
+              "x": 205,
+              "y": 286,
               "radius": 18
             },
             {
               "index": 1,
-              "x": 360,
-              "y": 283,
+              "x": 368,
+              "y": 286,
               "radius": 18
             },
             {
               "index": 2,
-              "x": 276,
-              "y": 400,
+              "x": 287,
+              "y": 405,
               "radius": 18
             }
-          ]
+          ],
+          "socketRow": 119,
+          "loads": [],
+          "headline": {
+            "x": 96,
+            "y": 226,
+            "width": 675,
+            "height": 68,
+            "lines": 2
+          }
         },
         "midpoint": {
           "frame": {
-            "x": 472,
-            "y": 190,
-            "width": 336,
-            "height": 280
+            "x": 477,
+            "y": 192,
+            "width": 325,
+            "height": 285
           },
           "nameAnchor": {
-            "x": 640,
-            "y": 210,
-            "maxWidth": 320
+            "x": 639.5,
+            "y": 212,
+            "maxWidth": 309
           },
+          "voiceStrip": null,
           "sockets": [
             {
               "index": 0,
-              "x": 556,
-              "y": 341,
+              "x": 558,
+              "y": 346,
               "radius": 18
             },
             {
               "index": 1,
-              "x": 724,
-              "y": 341,
+              "x": 721,
+              "y": 346,
               "radius": 18
             }
-          ]
+          ],
+          "socketRow": 239,
+          "loads": [],
+          "headline": {
+            "x": 302,
+            "y": 226,
+            "width": 675,
+            "height": 68,
+            "lines": 2
+          }
         },
         "far-shore": {
           "frame": {
-            "x": 836,
-            "y": 190,
-            "width": 336,
-            "height": 280
+            "x": 831,
+            "y": 192,
+            "width": 325,
+            "height": 285
           },
           "nameAnchor": {
-            "x": 1004,
-            "y": 210,
-            "maxWidth": 320
+            "x": 993.5,
+            "y": 212,
+            "maxWidth": 309
+          },
+          "voiceStrip": {
+            "x": 839,
+            "y": 96,
+            "width": 309,
+            "height": 88,
+            "position": "above"
           },
           "sockets": [
             {
               "index": 0,
-              "x": 920,
-              "y": 283,
+              "x": 912,
+              "y": 286,
               "radius": 18
             },
             {
               "index": 1,
-              "x": 1088,
-              "y": 283,
+              "x": 1075,
+              "y": 286,
               "radius": 18
             },
             {
               "index": 2,
-              "x": 1004,
-              "y": 400,
+              "x": 994,
+              "y": 405,
               "radius": 18
             }
-          ]
+          ],
+          "socketRow": 119,
+          "loads": [],
+          "headline": {
+            "x": 509,
+            "y": 226,
+            "width": 675,
+            "height": 68,
+            "lines": 2
+          }
         }
       },
       "segments": [
@@ -1026,119 +1110,288 @@
           "from": "quay",
           "to": "midpoint",
           "path": {
-            "x1": 444,
-            "y1": 330,
-            "x2": 472,
-            "y2": 330
+            "x1": 449,
+            "y1": 335,
+            "x2": 477,
+            "y2": 335
           }
         },
         {
           "from": "midpoint",
           "to": "far-shore",
           "path": {
-            "x1": 808,
-            "y1": 330,
-            "x2": 836,
-            "y2": 330
+            "x1": 802,
+            "y1": 335,
+            "x2": 831,
+            "y2": 335
           }
         }
       ],
+      "voices": {
+        "placement": "satellite",
+        "band": null,
+        "fallback": null,
+        "crowded": [],
+        "cards": {
+          "ilse": {
+            "x": 132,
+            "y": 96,
+            "width": 309,
+            "height": 88,
+            "host": "quay",
+            "position": "above",
+            "medallion": {
+              "x": 154,
+              "y": 118,
+              "radius": 16
+            },
+            "name": {
+              "x": 176,
+              "maxWidth": 259,
+              "lineHeight": 16,
+              "y": 102
+            },
+            "role": {
+              "x": 176,
+              "maxWidth": 259,
+              "lineHeight": 16,
+              "y": 118
+            },
+            "claim": {
+              "x": 138,
+              "y": 138,
+              "maxWidth": 297,
+              "lines": 2,
+              "lineHeight": 20
+            },
+            "connector": null
+          },
+          "otto": {
+            "x": 839,
+            "y": 96,
+            "width": 309,
+            "height": 88,
+            "host": "far-shore",
+            "position": "above",
+            "medallion": {
+              "x": 861,
+              "y": 118,
+              "radius": 16
+            },
+            "name": {
+              "x": 883,
+              "maxWidth": 259,
+              "lineHeight": 16,
+              "y": 102
+            },
+            "role": {
+              "x": 883,
+              "maxWidth": 259,
+              "lineHeight": 16,
+              "y": 118
+            },
+            "claim": {
+              "x": 845,
+              "y": 138,
+              "maxWidth": 297,
+              "lines": 2,
+              "lineHeight": 20
+            },
+            "connector": null
+          }
+        }
+      },
       "threshold": [
         {
           "index": 0,
-          "x": 173,
-          "y": 604,
-          "maxWidth": 175
+          "x": 166,
+          "y": 600,
+          "left": 96,
+          "width": 141,
+          "maxWidth": 129
         },
         {
           "index": 1,
-          "x": 360,
-          "y": 604,
-          "maxWidth": 175
+          "x": 307,
+          "y": 600,
+          "left": 237,
+          "width": 140,
+          "maxWidth": 129
         },
         {
           "index": 2,
-          "x": 547,
-          "y": 604,
-          "maxWidth": 175
+          "x": 448,
+          "y": 600,
+          "left": 377,
+          "width": 141,
+          "maxWidth": 129
         },
         {
           "index": 3,
-          "x": 733,
-          "y": 604,
-          "maxWidth": 175
+          "x": 588,
+          "y": 600,
+          "left": 518,
+          "width": 141,
+          "maxWidth": 129
         },
         {
           "index": 4,
-          "x": 920,
-          "y": 604,
-          "maxWidth": 175
+          "x": 729,
+          "y": 600,
+          "left": 659,
+          "width": 140,
+          "maxWidth": 129
         },
         {
           "index": 5,
-          "x": 1107,
-          "y": 604,
-          "maxWidth": 175
+          "x": 870,
+          "y": 600,
+          "left": 799,
+          "width": 141,
+          "maxWidth": 129
         }
       ],
       "margin": [
         {
           "index": 0,
-          "x": 173,
-          "y": 680,
-          "maxWidth": 175
+          "x": 166,
+          "y": 672,
+          "left": 96,
+          "width": 141,
+          "maxWidth": 129
         },
         {
           "index": 1,
-          "x": 360,
-          "y": 680,
-          "maxWidth": 175
+          "x": 307,
+          "y": 672,
+          "left": 237,
+          "width": 140,
+          "maxWidth": 129
         },
         {
           "index": 2,
-          "x": 547,
-          "y": 680,
-          "maxWidth": 175
+          "x": 448,
+          "y": 672,
+          "left": 377,
+          "width": 141,
+          "maxWidth": 129
         },
         {
           "index": 3,
-          "x": 733,
-          "y": 680,
-          "maxWidth": 175
+          "x": 588,
+          "y": 672,
+          "left": 518,
+          "width": 141,
+          "maxWidth": 129
         },
         {
           "index": 4,
-          "x": 920,
-          "y": 680,
-          "maxWidth": 175
+          "x": 729,
+          "y": 672,
+          "left": 659,
+          "width": 140,
+          "maxWidth": 129
         },
         {
           "index": 5,
-          "x": 1107,
-          "y": 680,
-          "maxWidth": 175
+          "x": 870,
+          "y": 672,
+          "left": 799,
+          "width": 141,
+          "maxWidth": 129
         }
       ],
       "horizon": [
         {
           "index": 0,
-          "x": 267,
-          "y": 56,
-          "maxWidth": 361
+          "x": 300,
+          "y": 48,
+          "left": 216,
+          "width": 167,
+          "maxWidth": 155
         },
         {
           "index": 1,
-          "x": 640,
-          "y": 56,
-          "maxWidth": 361
+          "x": 467,
+          "y": 48,
+          "left": 383,
+          "width": 167,
+          "maxWidth": 155
         },
         {
           "index": 2,
-          "x": 1013,
-          "y": 56,
-          "maxWidth": 361
+          "x": 634,
+          "y": 48,
+          "left": 550,
+          "width": 167,
+          "maxWidth": 155
         }
       ],
+      "omen": {
+        "beat": "the-sever",
+        "edge": "north",
+        "region": "horizon",
+        "x": 717,
+        "y": 16,
+        "width": 167,
+        "height": 64,
+        "maxWidth": 155,
+        "lines": 2
+      },
+      "clock": {
+        "x": 8,
+        "y": 104,
+        "width": 80,
+        "height": 52,
+        "maxWidth": 76,
+        "lines": 2
+      },
+      "sealStamp": {
+        "x": 8,
+        "y": 164,
+        "width": 80,
+        "height": 52,
+        "maxWidth": 76,
+        "lines": 2
+      },
+      "planLoads": [
+        {
+          "resource": "weight",
+          "x": 1192,
+          "y": 104,
+          "width": 80,
+          "height": 120,
+          "maxWidth": 76,
+          "lines": 2
+        }
+      ],
+      "bandLabels": {
+        "threshold": {
+          "x": 8,
+          "y": 568,
+          "width": 80,
+          "height": 64,
+          "maxWidth": 76,
+          "lines": 2
+        },
+        "margin": {
+          "x": 8,
+          "y": 640,
+          "width": 80,
+          "height": 64,
+          "maxWidth": 76,
+          "lines": 2
+        }
+      },
+      "headlines": {
+        "threshold": {
+          "x": 181,
+          "y": 480,
+          "width": 675,
+          "height": 68,
+          "lines": 2
+        }
+      },
       "entryPoints": {
         "north": {
           "x": 640,
@@ -1158,11 +1411,11 @@
         },
         "threshold": {
           "x": 640,
-          "y": 572
+          "y": 568
         },
         "horizon": {
           "x": 640,
-          "y": 24
+          "y": 16
         }
       }
     },

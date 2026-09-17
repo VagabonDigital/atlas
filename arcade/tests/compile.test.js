@@ -12,7 +12,7 @@ import {
     compile, compileAndFreeze, freeze, verifyRevision, contentHash, phraseForRepair,
     ENGINE_IDENTITY, runtimeSeries
 } from '../engines/shared-plan/compiler/index.js';
-import { definitionJsonSchema, BUDGETS, TEXT_KINDS } from '../engines/shared-plan/definition/index.js';
+import { definitionJsonSchema, BUDGETS, TEXT_KINDS, DEFINITION_SCHEMA_VERSION } from '../engines/shared-plan/definition/index.js';
 import { SESSION_SCHEMA_VERSION } from '../engines/shared-plan/model/index.js';
 import { allDrafts, draftNames, referenceNames, revisionFor } from './helpers.js';
 
@@ -385,7 +385,7 @@ test('the engine declares an identity of the shape the contract requires', () =>
     );
     assert.equal(ENGINE_IDENTITY.engineId, 'shared-plan');
     assert.ok(Array.isArray(ENGINE_IDENTITY.supportedDefinitionSchemaVersions));
-    assert.ok(ENGINE_IDENTITY.supportedDefinitionSchemaVersions.includes('0'));
+    assert.ok(ENGINE_IDENTITY.supportedDefinitionSchemaVersions.includes(DEFINITION_SCHEMA_VERSION));
 });
 
 test('a revision from an incompatible engine runtime fails closed before mounting', () => {

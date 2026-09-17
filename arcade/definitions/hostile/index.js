@@ -1,13 +1,14 @@
-/* Hostile fixtures H-1 to H-6.
+/* Hostile fixtures H-1 to H-7.
 
    These are not games anyone should teach with. They are the shapes the engine
    must survive: every budget at once, no Rules at all, the longest legal names
-   in the narrowest slots, unconditional beats, a world that locks itself, and a
-   world where almost nothing exists until a beat creates it.
+   in the narrowest slots, unconditional beats, a world that locks itself, a
+   world where almost nothing exists until a beat creates it, and Places that
+   grow past their authored capacity after commitment.
 
    Each must compile, play end to end and lay out legibly. Data only. */
 
-const contract = { engineId: 'shared-plan', schemaVersion: '0' };
+const contract = { engineId: 'shared-plan', schemaVersion: '1' };
 
 const tutor = {
     brief: 'A hostile fixture. Not a lesson.',
@@ -310,5 +311,57 @@ const h6 = {
     tutor
 };
 
-export const hostileFixtures = { 'h-1': h1, 'h-2': h2, 'h-3': h3, 'h-4': h4, 'h-5': h5, 'h-6': h6 };
+/* H-7 — capacity that grows after commitment.
+
+   Both Places start small and beats raise them past their authored socket
+   counts, the first after commit and the second as an aftershock. Every socket
+   capacity can reach must already exist in the layout; a Piece placed into a
+   newly opened socket must land somewhere the Stage can draw. Its South Omen
+   also exercises the Omen slot reserved in the Threshold band. */
+const h7 = {
+    contract,
+    meta: { title: 'Room To Grow', premise: 'The hall is small until the change arrives, and then it is not.', levelBand: 'B1-B2', targetMinutes: 10, tone: 'warm' },
+    design: { tensionShape: 'earlyCommitmentBlocksLaterOpportunity', pressureSignature: 'arrival', intendedDilemma: 'Space opens after commitment, so whoever was sent home can be brought back in.', languageFocus: ['hindsight'] },
+    presentation: { stageForm: 'table', kit: 'fieldNotebook', accent: 'moss' },
+    world: { topology: 'groups', thresholdLabel: 'Doorstep', marginLabel: 'Sent Home', clockLabel: 'Evening' },
+    places: [
+        { key: 'hall', name: 'Main Hall', glyph: 'hearth', sockets: 2 },
+        { key: 'porch', name: 'Side Porch', glyph: 'bench', sockets: 2 }
+    ],
+    pieces: [
+        { key: 'arlo', name: 'Arlo', glyph: 'person', tags: ['guest'] },
+        { key: 'bea', name: 'Bea', glyph: 'person', tags: ['guest'] },
+        { key: 'cato', name: 'Cato', glyph: 'elder', tags: ['guest'] },
+        { key: 'dara', name: 'Dara', glyph: 'person', tags: ['guest'] },
+        { key: 'eno', name: 'Eno', glyph: 'child', tags: ['guest'] },
+        { key: 'fern', name: 'Fern', glyph: 'person', tags: ['guest'] }
+    ],
+    resources: [],
+    rules: [],
+    goals: [
+        { key: 'most-seated', label: 'Most guests find a seat', condition: { kind: 'countTagged', tag: 'guest', scope: 'plan', cmp: 'gte', value: 5 }, reachedLine: 'Almost everyone ended up with a chair.', missedLine: 'Too many guests went home early.' }
+    ],
+    voices: [],
+    beats: [
+        {
+            key: 'hall-opens',
+            trigger: 'afterCommit',
+            omen: { edge: 'south', text: 'Chairs stacked by the door' },
+            variants: [
+                { key: 'more-chairs', effects: [{ kind: 'setCapacity', place: 'hall', sockets: 5 }], staging: 'arrival', severity: 'quiet', entryEdge: 'south', locus: { kind: 'place', place: 'hall' }, headline: 'More chairs arrive for the main hall.', scarLabel: 'Widened' }
+            ]
+        },
+        {
+            key: 'porch-opens',
+            trigger: 'afterRevision',
+            variants: [
+                { key: 'porch-cleared', effects: [{ kind: 'setCapacity', place: 'porch', sockets: 4 }], staging: 'arrival', severity: 'quiet', entryEdge: 'east', locus: { kind: 'place', place: 'porch' }, headline: 'The porch is cleared for more guests.', scarLabel: 'Cleared' }
+            ]
+        }
+    ],
+    resolution: { hindsight: [] },
+    tutor
+};
+
+export const hostileFixtures = { 'h-1': h1, 'h-2': h2, 'h-3': h3, 'h-4': h4, 'h-5': h5, 'h-6': h6, 'h-7': h7 };
 export default hostileFixtures;

@@ -121,6 +121,47 @@ export function activeRules(ctx) {
     return ctx.game.rules.filter((r) => ctx.world.activeRules.has(r.key));
 }
 
+/* Which Pieces a Seam concerns. The Stage's local preview needs this: holding a
+   Piece must be able to show a Seam it would open or close even when that Seam
+   is anchored on a different Piece. It lives here, beside the Rules it reads,
+   and is deliberately kept out of `seams()`, which the enumerator calls at every
+   leaf of the plan space. */
+export function seamParticipants(ctx, seam) {
+    const { game } = ctx;
+    const rule = game.ruleIndex[seam.rule];
+    let keys;
+
+    switch (rule.kind) {
+        case 'sumLimit': {
+            const pool = seam.locus.kind === 'place'
+                ? ctx.piecesIn(seam.locus.place)
+                : game.pieces.filter((p) => ctx.inPlan(p.key)).map((p) => p.key);
+            keys = pool.filter((k) => (game.pieceIndex[k].resources[rule.resource] ?? 0) > 0);
+            break;
+        }
+        case 'allowedIn':
+            keys = [seam.locus.piece];
+            break;
+        case 'requires':
+            keys = [rule.piece, ...subjectPieces(game, rule.needs)];
+            break;
+        case 'together':
+        case 'apart':
+        case 'near':
+        case 'far':
+        case 'before':
+            keys = [rule.a, rule.b];
+            break;
+        default:
+            throw new Error(`Unknown rule kind: ${rule.kind}`);
+    }
+
+    const wanted = new Set(keys);
+    return game.pieces
+        .filter((p) => wanted.has(p.key) && ctx.world.bornPieces.has(p.key))
+        .map((p) => p.key);
+}
+
 export function seams(ctx) {
     return activeRules(ctx).flatMap((rule) => violationsForRule(ctx, rule));
 }
