@@ -28,16 +28,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     /*
-     * Keep Atlas visually centered independently of the classic scrollbar.
-     * Reserving the gutter on both edges means the right-hand scrollbar can
-     * appear/disappear without changing the page's optical center.
-     */
-    html {
-      overflow-y: scroll;
-      scrollbar-gutter: stable both-edges;
-    }
-
-    /*
      * First-visit paint contract: before Enter Atlas, the welcome screen is
      * the product surface. Keep the Hub itself out of paint entirely so a
      * hard refresh can never expose the underlying workspace for a frame.
@@ -397,7 +387,7 @@
       scroll-behavior: smooth;
       overflow-y: scroll;
       overflow-x: clip;
-      scrollbar-gutter: stable both-edges;
+      scrollbar-gutter: stable;
     }
 
     /* ============================================================
@@ -3075,10 +3065,12 @@
         visibility 260ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    html[data-atlas-welcome="exiting"] .atlas-welcome-screen,
     html[data-atlas-welcome="seen"] .atlas-welcome-screen {
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
+      transition: none;
     }
 
     .atlas-welcome-inner {
@@ -3763,15 +3755,22 @@
 
   <script>
     function enterAtlasFromWelcome() {
-      // The fixed welcome screen keeps the Hub out of view while the document
-      // retains its normal scrollbar geometry. Always reveal Atlas from the
-      // top even if a wheel/trackpad moved the hidden page underneath.
-      window.scrollTo(0, 0);
+      const root = document.documentElement;
 
-      try {
-        localStorage.setItem('atlas::welcomeSeen:v1', '1');
-      } catch (e) { }
-      document.documentElement.dataset.atlasWelcome = 'seen';
+      // Remove the Welcome from view before the Hub becomes the active page.
+      // This keeps the Welcome composition completely independent of the
+      // Hub's scrollbar geometry.
+      root.dataset.atlasWelcome = 'exiting';
+
+      window.requestAnimationFrame(() => {
+        window.scrollTo(0, 0);
+
+        try {
+          localStorage.setItem('atlas::welcomeSeen:v1', '1');
+        } catch (e) { }
+
+        root.dataset.atlasWelcome = 'seen';
+      });
     }
   </script>
 
