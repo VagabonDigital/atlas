@@ -31,6 +31,9 @@ assert.match(engine, /isSubjectAuthoringAIContext[\s\S]*?myVersionGeneratingFull
 assert.match(engine, /installSubjectAuthoringAIGuard[\s\S]*?'canCreateWithAI'[\s\S]*?'ai-authoring'/);
 assert.match(engine, /await requestMyVersionEditing\([\s\S]*?ownedSubjectAuthoringIntent === 'edit'/);
 
+assert.match(engine, /createOwnedSubjectFromAtlasHub[\s\S]*?'canAccessAccountLibrary'[\s\S]*?'canCreateSubject'/);
+assert.match(engine, /hubAction === 'restore-version'[\s\S]*?'canEditSubject'[\s\S]*?'restore-atlas-original'/);
+
 assert.match(actionWorker, /action === 'own'[\s\S]*?'canAccessAccountLibrary'[\s\S]*?'canCreateSubject'/);
 assert.match(restoreWorker, /requireCapability\([\s\S]*?'canEditSubject'[\s\S]*?'restore-atlas-original'/);
 

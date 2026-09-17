@@ -21882,6 +21882,27 @@ if (document.readyState === 'loading') {
 // ============================================================
 
 async function createOwnedSubjectFromAtlasHub(action) {
+    const ownershipAction = action === 'own';
+
+    const access =
+        await requireSubjectAuthoringCapability(
+            ownershipAction
+                ? 'canAccessAccountLibrary'
+                : 'canCreateSubject',
+            ownershipAction
+                ? 'open-account-library'
+                : 'create-subject',
+            ownershipAction
+                ? 'add-atlas-original'
+                : 'duplicate-atlas-original'
+        );
+
+    if (access?.outcome !== 'allowed') {
+        throw new Error(
+            '[Compass] Atlas subject action is not permitted.'
+        );
+    }
+
     await loadTutorContentState();
 
     const publishedVersion = tutorContentVersion;
@@ -21898,7 +21919,6 @@ async function createOwnedSubjectFromAtlasHub(action) {
 
     const Subjects = requireAtlasTutorSubjects();
     const sourceContentId = getTutorContentId();
-    const ownershipAction = action === 'own';
 
     const subject = await Subjects.createSubject({
         format: 'structured',
@@ -22019,6 +22039,19 @@ function consumeCompassHubAtlasAction() {
     (async () => {
         try {
             if (hubAction === 'restore-version') {
+                const editAccess =
+                    await requireSubjectAuthoringCapability(
+                        'canEditSubject',
+                        'edit-subject',
+                        'restore-atlas-original'
+                    );
+
+                if (editAccess?.outcome !== 'allowed') {
+                    throw new Error(
+                        '[Compass] Atlas subject editing is not permitted.'
+                    );
+                }
+
                 if (
                     isOwnedSubjectRuntime() ||
                     !hasSavedMyVersion()
