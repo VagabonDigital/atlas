@@ -281,8 +281,7 @@
         };
     }
 
-    function readSessions() {
-        const raw = readJson(KEYS.sessions, null);
+    function normalizeSessions(raw) {
         const normalized = Array.isArray(raw)
             ? raw.map(normalizeSession).filter(Boolean)
             : [];
@@ -307,9 +306,36 @@
             return (b.lastActiveAt || 0) - (a.lastActiveAt || 0);
         });
 
-        writeJson(KEYS.sessions, sessions);
-
         return sessions;
+    }
+
+    function readSessions() {
+        return normalizeSessions(readJson(KEYS.sessions, null));
+    }
+
+    function resolveActiveSessionId(sessions, storedId) {
+        return storedId && sessions.some(session => session.id === storedId)
+            ? storedId
+            : DEFAULT_SESSION_ID;
+    }
+
+    function repairActiveSessionId(sessions) {
+        const storedId = tabStorageGet(KEYS.activeSessionId);
+        const activeId = resolveActiveSessionId(sessions, storedId);
+        if (storedId !== activeId) {
+            tabStorageSet(KEYS.activeSessionId, activeId);
+        }
+    }
+
+    // Explicit migration boundary: persist generated IDs/defaults and legacy
+    // normalization once, not as a side effect of rendering or reading.
+    function repairSessionState() {
+        const sessions = readSessions();
+        const serialized = JSON.stringify(sessions);
+        if (storageGet(KEYS.sessions) !== serialized) {
+            storageSet(KEYS.sessions, serialized);
+        }
+        repairActiveSessionId(sessions);
     }
 
     function writeSessions(sessions) {
@@ -321,24 +347,24 @@
             normalized.unshift(createDefaultSession());
         }
 
-        return writeJson(KEYS.sessions, normalized);
+        const written = writeJson(KEYS.sessions, normalized);
+        if (written) repairActiveSessionId(normalized);
+        return written;
     }
 
     function readActiveSessionId() {
         const storedId = tabStorageGet(KEYS.activeSessionId);
         const sessions = readSessions();
 
-        if (storedId && sessions.some(session => session.id === storedId)) {
-            return storedId;
-        }
-
-        tabStorageSet(KEYS.activeSessionId, DEFAULT_SESSION_ID);
-        return DEFAULT_SESSION_ID;
+        return resolveActiveSessionId(sessions, storedId);
     }
 
     function readActiveSession() {
         const sessions = readSessions();
-        const activeSessionId = readActiveSessionId();
+        const activeSessionId = resolveActiveSessionId(
+            sessions,
+            tabStorageGet(KEYS.activeSessionId)
+        );
 
         return sessions.find(session => session.id === activeSessionId) || sessions[0] || createDefaultSession();
     }
@@ -402,8 +428,11 @@
             lastActiveAt: timestamp
         };
 
-        writeSessions([...sessions, session]);
+        const written = writeSessions([...sessions, session]);
         tabStorageSet(KEYS.activeSessionId, session.id);
+        // A failed list write must not leave an unpersisted learner selected.
+        // Repair here instead of relying on a subsequent getter to do it.
+        if (!written) repairActiveSessionId(readSessions());
         writeSessionAppearanceMode(session.id, inheritedAppearanceMode);
 
         window.dispatchEvent(new CustomEvent('atlas:session-change', {
@@ -1398,8 +1427,11 @@
         storageRemove(KEYS.ledger);
         storageRemove(KEYS.learnerMemory);
 
-        readSessions();
-        tabStorageSet(KEYS.activeSessionId, DEFAULT_SESSION_ID);
+        writeSessions([]);
+        // Reset selection even if replacing the local session list failed.
+        if (tabStorageGet(KEYS.activeSessionId) !== DEFAULT_SESSION_ID) {
+            tabStorageSet(KEYS.activeSessionId, DEFAULT_SESSION_ID);
+        }
 
         window.dispatchEvent(new CustomEvent('atlas:session-change', {
             detail: { session: readActiveSession() }
@@ -1424,6 +1456,7 @@
         slugify,
 
         readSessions,
+        repairSessionState,
         writeSessions,
         readActiveSessionId,
         readActiveSession,
@@ -1466,9 +1499,6 @@
         resetAllAtlasState
     };
 
-    // Ensure a valid default session exists immediately after bridge load.
-    readSessions();
-
     // Migrate the previous cross-tab active session once, then keep it
     // isolated inside this browser tab.
     const legacyActiveSessionId = storageGet(KEYS.activeSessionId);
@@ -1484,7 +1514,19 @@
     }
 
     storageRemove(KEYS.activeSessionId);
-    readActiveSessionId();
+    repairSessionState();
+
+    // Other tabs and account-scope restoration replace projections outside
+    // Bridge mutations. Repair at those change boundaries, never in getters.
+    window.addEventListener('storage', event => {
+        if (
+            event.storageArea === localStorage &&
+            (event.key === KEYS.sessions || event.key === null)
+        ) {
+            repairSessionState();
+        }
+    });
+    window.addEventListener('atlas:persistence-scope-change', repairSessionState);
 
     // Apply the active tab's saved appearance before first paint.
     applyAppearanceMode();
