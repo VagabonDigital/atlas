@@ -11,11 +11,16 @@
   LEGIT APERIT · MUNDUS RESPICIT · PONS MEMINIT
   ==========================================================================
 -->
-<html lang="en">
+<html lang="en" class="atlas-session-fonts-pending">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html.atlas-session-fonts-pending body {
+      visibility: hidden;
+    }
+  </style>
   <title>Compass</title>
   <link rel="icon" type="image/svg+xml"
     href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='5' y='5' width='90' height='90' rx='24' fill='%234F7772'/%3E%3Ccircle cx='50' cy='50' r='28' fill='none' stroke='%23DFF4EE' stroke-width='7'/%3E%3Cpath d='M71 29L57 57L29 71L43 43Z' fill='%23FFFFFF' stroke='%23FFFFFF' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M71 29L57 57L50 50Z' fill='%23A9D9CF'/%3E%3C/svg%3E">
@@ -25,6 +30,41 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
     rel="stylesheet">
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var released = false;
+      var sessionFont = null;
+      var safetyTimer = window.setTimeout(release, 1500);
+
+      function release() {
+        if (released) return;
+        released = true;
+        window.clearTimeout(safetyTimer);
+        window.requestAnimationFrame(function () {
+          root.classList.remove('atlas-session-fonts-pending');
+        });
+      }
+
+      if (document.fonts && typeof document.fonts.load === 'function') {
+        sessionFont = document.fonts.load('500 13px "DM Sans"');
+      }
+
+      function finishFirstPaint() {
+        Promise.resolve(sessionFont).then(release, release);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener(
+          'DOMContentLoaded',
+          finishFirstPaint,
+          { once: true }
+        );
+      } else {
+        finishFirstPaint();
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="../shared/atlas-modal-theme.css">
   <link rel="stylesheet" href="../shared/atlas-search.css">
   <link rel="stylesheet" href="../shared/atlas-session-panel.css">
