@@ -735,6 +735,8 @@
 
         accountMenu.querySelector('[data-account-menu-email]').textContent = email;
         accountMenu.querySelector('[data-account-menu-plan]').textContent = tier;
+        const signOutButton = accountMenu.querySelector('[data-account-menu-sign-out]');
+        if (signOutButton) signOutButton.disabled = false;
         const status = accountMenu.querySelector('[data-account-menu-status]');
         status.textContent = '';
         status.hidden = true;
