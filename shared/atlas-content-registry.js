@@ -785,14 +785,14 @@
 
         if (document.readyState === 'loading') {
             document.write(
-                '<script data-atlas-root-runtime="true" src="/shared/atlas-root-runtime.js?v=20260916-stage1close1"><\/script>'
+                '<script data-atlas-root-runtime="true" src="/shared/atlas-root-runtime.js?v=20260917-rootpaint1"><\/script>'
             );
             return;
         }
 
         const script = document.createElement('script');
         script.src =
-            '/shared/atlas-root-runtime.js?v=20260916-stage1close1';
+            '/shared/atlas-root-runtime.js?v=20260917-rootpaint1';
         script.async = false;
         script.setAttribute(
             'data-atlas-root-runtime',

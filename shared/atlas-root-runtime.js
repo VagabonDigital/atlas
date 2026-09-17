@@ -27,6 +27,7 @@
         'atlas::languageReviewCompletedThrough::v1::';
 
     let reviewCompletionInstalled = false;
+    let rootCloudAuthorityPromise = null;
 
     function isAtlasRoot() {
         const path = String(
@@ -105,6 +106,12 @@
         window.requestAnimationFrame(() => {
             document.documentElement.dataset
                 .atlasRootEntryReady = 'true';
+
+            try {
+                window.dispatchEvent(
+                    new Event('atlas:root-first-paint-ready')
+                );
+            } catch { }
         });
     }
 
@@ -227,7 +234,7 @@
             );
         }
 
-        if (!scripts.length) return;
+        if (!scripts.length) return Promise.resolve(true);
 
         if (document.readyState === 'loading') {
             document.write(
@@ -240,18 +247,143 @@
             return;
         }
 
-        scripts.reduce(
+        return scripts.reduce(
             (chain, src) =>
                 chain.then(() =>
                     loadScriptSequentially(src)
                 ),
             Promise.resolve()
+        ).then(
+            () => true
         ).catch(error => {
             console.error(
                 '[AtlasRootRuntime] Account persistence bootstrap failed:',
                 error
             );
+            return false;
         });
+    }
+
+    function ensureRootCloudAuthorityReady() {
+        if (!hasStoredAccountSession()) {
+            return Promise.resolve(true);
+        }
+
+        if (rootCloudAuthorityPromise) {
+            return rootCloudAuthorityPromise;
+        }
+
+        rootCloudAuthorityPromise = new Promise(resolve => {
+            const startAfterPaint = () => {
+                window.requestAnimationFrame(() => {
+                    window.setTimeout(async () => {
+                        try {
+                            if (
+                                window.AtlasAccessBootstrap &&
+                                typeof window.AtlasAccessBootstrap.initialize ===
+                                    'function'
+                            ) {
+                                try {
+                                    await window.AtlasAccessBootstrap.initialize();
+                                } catch (error) {
+                                    console.warn(
+                                        '[AtlasRootRuntime] Access bootstrap was not ready before root authority hydration:',
+                                        error
+                                    );
+                                }
+                            }
+
+                            const ready = Boolean(
+                                await Promise.resolve(
+                                    writeRootCloudAuthorityScripts()
+                                )
+                            );
+
+                            document.documentElement.dataset
+                                .atlasRootCloudAuthority = ready
+                                    ? 'ready'
+                                    : 'failed';
+
+                            if (ready) {
+                                try {
+                                    window.dispatchEvent(
+                                        new Event(
+                                            'atlas:root-cloud-authority-ready'
+                                        )
+                                    );
+                                } catch { }
+                            }
+
+                            resolve(ready);
+                        } catch (error) {
+                            console.error(
+                                '[AtlasRootRuntime] Root authority hydration failed:',
+                                error
+                            );
+                            document.documentElement.dataset
+                                .atlasRootCloudAuthority = 'failed';
+                            resolve(false);
+                        }
+                    }, 0);
+                });
+            };
+
+            if (
+                document.documentElement.dataset
+                    .atlasRootEntryReady === 'true'
+            ) {
+                startAfterPaint();
+                return;
+            }
+
+            window.addEventListener(
+                'atlas:root-first-paint-ready',
+                startAfterPaint,
+                { once: true }
+            );
+        });
+
+        return rootCloudAuthorityPromise;
+    }
+
+    function patchSettingsAuthorityGate() {
+        const original = window.openSettingsModal;
+
+        if (
+            typeof original !== 'function' ||
+            original.__atlasRootCloudAuthorityPatched
+        ) {
+            return false;
+        }
+
+        function gatedOpenSettingsModal(...args) {
+            if (
+                !hasStoredAccountSession() ||
+                document.documentElement.dataset
+                    .atlasRootCloudAuthority === 'ready'
+            ) {
+                return original.apply(this, args);
+            }
+
+            return ensureRootCloudAuthorityReady().then(ready => {
+                if (!ready) {
+                    try {
+                        window.showToast?.(
+                            'Atlas account is still getting ready. Try again in a moment.'
+                        );
+                    } catch { }
+                    return false;
+                }
+
+                return original.apply(this, args);
+            });
+        }
+
+        gatedOpenSettingsModal
+            .__atlasRootCloudAuthorityPatched = true;
+
+        window.openSettingsModal = gatedOpenSettingsModal;
+        return true;
     }
 
     function reviewScope() {
@@ -594,6 +726,7 @@
         patchReviewSet();
         patchGatewayCopy();
         installReviewCompletion();
+        patchSettingsAuthorityGate();
 
         if (hasStoredAccountSession()) {
             markWelcomeSeenForAuthenticatedUser();
@@ -607,17 +740,20 @@
          * anonymous state, never the wrong state underneath it.
          */
         releaseRootEntryGate();
+        void ensureRootCloudAuthorityReady();
     }
 
     if (isAtlasRoot()) {
         /*
-         * This runtime is injected synchronously while Atlas root is still
-         * parsing. Load the account-owned subject, Atlas Original, and Hub
-         * personalization authorities here: root Settings reads and restores
-         * all three durable objects and must not fall back to browser-only
-         * state for signed-in tutors.
+         * Account-scoped browser projection safety is established before the
+         * root product scripts run. Durable cloud authorities hydrate only
+         * after the first visible root frame; signed-in Settings waits at the
+         * interaction boundary if that hydration is still pending.
          */
-        writeRootCloudAuthorityScripts();
+        if (hasStoredAccountSession()) {
+            document.documentElement.dataset
+                .atlasRootCloudAuthority = 'pending';
+        }
 
         /*
          * Mark authenticated entry as soon as the account token is
@@ -663,6 +799,7 @@
         active: isAtlasRoot(),
         storedSessionUserId,
         markCurrentLanguageReviewComplete,
-        readReviewedThrough
+        readReviewedThrough,
+        ensureRootCloudAuthorityReady
     });
 })();
