@@ -93,14 +93,51 @@
   <script src="../shared/atlas-bridge.js"></script>
   <script>
     (function () {
-      var h = false;
+      var authStorageKey =
+        'sb-jnhjfpagectprceswvqn-auth-token';
+      var hubCachePrefix =
+        'atlas::compassHubCache::v1::';
+      var hubCacheVersion = 1;
+      var authRaw = null;
+      var userId = '';
+
       try {
-        h = Boolean(
-          localStorage.getItem(
-            'sb-jnhjfpagectprceswvqn-auth-token'
-          )
+        authRaw = localStorage.getItem(
+          authStorageKey
         );
+
+        if (authRaw) {
+          var parsed = JSON.parse(authRaw);
+          var candidates = [
+            parsed,
+            parsed && parsed.session,
+            parsed && parsed.currentSession,
+            parsed && parsed.data &&
+              parsed.data.session
+          ];
+
+          for (
+            var index = 0;
+            index < candidates.length;
+            index += 1
+          ) {
+            var candidate = candidates[index];
+            var candidateId = String(
+              candidate &&
+              candidate.user &&
+              candidate.user.id ||
+              ''
+            ).trim();
+
+            if (candidateId) {
+              userId = candidateId;
+              break;
+            }
+          }
+        }
       } catch (e) { }
+
+      var h = Boolean(authRaw);
 
       document.documentElement.dataset.atlasAccountHint =
         h ? 'account' : 'anonymous';
@@ -109,6 +146,32 @@
         document.documentElement.dataset.atlasCompassCloudAuthority =
           'pending';
       }
+
+      if (!userId) return;
+
+      try {
+        var cachedRaw = localStorage.getItem(
+          hubCachePrefix + userId
+        );
+
+        if (!cachedRaw) return;
+
+        var cached = JSON.parse(cachedRaw);
+
+        if (
+          !cached ||
+          cached.version !== hubCacheVersion ||
+          String(cached.userId || '') !== userId
+        ) {
+          return;
+        }
+
+        window.AtlasCompassHubInitialSnapshot =
+          cached;
+
+        document.documentElement.dataset.atlasCompassCache =
+          'ready';
+      } catch (e) { }
     })();
   </script>
 
@@ -3975,10 +4038,55 @@
         .atlasCompassCloudAuthority === 'pending';
     }
 
-    async function getOwnedSubjects() {
-      if (isCompassCloudAuthorityPending()) {
-        return [];
+    function getCompassInitialAccountSnapshot() {
+      if (!isCompassCloudAuthorityPending()) {
+        return null;
       }
+
+      const snapshot =
+        window.AtlasCompassHubInitialSnapshot;
+
+      if (
+        !snapshot ||
+        snapshot.version !== 1 ||
+        !String(snapshot.userId || '').trim()
+      ) {
+        return null;
+      }
+
+      return snapshot;
+    }
+
+    function getCompassInitialLibraryState(
+      snapshot = getCompassInitialAccountSnapshot()
+    ) {
+      const candidate =
+        snapshot?.library?.state?.library ||
+        snapshot?.library?.library ||
+        null;
+
+      if (
+        !candidate ||
+        typeof candidate !== 'object' ||
+        Array.isArray(candidate)
+      ) {
+        return null;
+      }
+
+      return candidate;
+    }
+
+    function getCompassInitialSubjectSummaries(
+      snapshot = getCompassInitialAccountSnapshot()
+    ) {
+      return Array.isArray(snapshot?.summaries)
+        ? snapshot.summaries
+        : [];
+    }
+
+    async function getOwnedSubjects() {
+      const cloudAuthorityPending =
+        isCompassCloudAuthorityPending();
 
       const Subjects = window.AtlasTutorSubjects;
 
@@ -3993,15 +4101,30 @@
       let libraryState = null;
 
       try {
-        [
-          records,
-          libraryState
-        ] = await Promise.all([
-          Subjects.listSubjects(),
-          typeof Subjects.getLibraryState === 'function'
-            ? Subjects.getLibraryState()
-            : Promise.resolve(null)
-        ]);
+        if (cloudAuthorityPending) {
+          const snapshot =
+            getCompassInitialAccountSnapshot();
+
+          records =
+            getCompassInitialSubjectSummaries(
+              snapshot
+            );
+
+          libraryState =
+            getCompassInitialLibraryState(
+              snapshot
+            );
+        } else {
+          [
+            records,
+            libraryState
+          ] = await Promise.all([
+            Subjects.listSubjects(),
+            typeof Subjects.getLibraryState === 'function'
+              ? Subjects.getLibraryState()
+              : Promise.resolve(null)
+          ]);
+        }
       } catch {
         return [];
       }
@@ -4042,6 +4165,7 @@
       const workingDraftDescriptions = new Map();
 
       if (
+        !cloudAuthorityPending &&
         typeof Subjects.getWorkingDraft === 'function'
       ) {
         await Promise.all(
@@ -4113,7 +4237,9 @@
             'Untitled Subject'
           ).trim() || 'Untitled Subject';
 
-          syncOwnedSubjectRegistryProjection(record);
+          if (!cloudAuthorityPending) {
+            syncOwnedSubjectRegistryProjection(record);
+          }
 
           const placement =
             libraryState?.subjects?.[id] || {
@@ -4133,6 +4259,8 @@
           return {
             subjectId: id,
             isOwned: true,
+            isCachedProjection:
+              cloudAuthorityPending,
             provenance:
               record.provenance &&
               typeof record.provenance === 'object' &&
@@ -10719,29 +10847,44 @@
         isCompassCloudAuthorityPending();
 
       let sessionSubjectRefs = [];
-      let libraryState = null;
+      let libraryState =
+        cloudAuthorityPending
+          ? getCompassInitialLibraryState()
+          : null;
 
       try {
-        if (Subjects && !cloudAuthorityPending) {
-          const results = await Promise.all([
-            typeof Subjects.getSessionSubjects === 'function'
-              ? Subjects.getSessionSubjects(session.id)
-              : Promise.resolve([]),
-            typeof Subjects.getLibraryState === 'function'
-              ? Subjects.getLibraryState()
-              : Promise.resolve(null)
-          ]);
+        if (Subjects) {
+          if (cloudAuthorityPending) {
+            sessionSubjectRefs =
+              typeof Subjects.getSessionSubjects === 'function'
+                ? await Subjects.getSessionSubjects(
+                    session.id
+                  )
+                : [];
+          } else {
+            const results = await Promise.all([
+              typeof Subjects.getSessionSubjects === 'function'
+                ? Subjects.getSessionSubjects(session.id)
+                : Promise.resolve([]),
+              typeof Subjects.getLibraryState === 'function'
+                ? Subjects.getLibraryState()
+                : Promise.resolve(null)
+            ]);
 
-          sessionSubjectRefs =
-            Array.isArray(results[0])
-              ? results[0]
-              : [];
+            sessionSubjectRefs =
+              Array.isArray(results[0])
+                ? results[0]
+                : [];
 
-          libraryState = results[1];
+            libraryState = results[1];
+          }
         }
       } catch {
         sessionSubjectRefs = [];
-        libraryState = null;
+
+        if (!cloudAuthorityPending) {
+          libraryState = null;
+        }
       }
 
       if (renderRevision !== hubRenderRevision) {
@@ -10881,9 +11024,7 @@
       }
 
       const ownedLibraryHtml =
-        cloudAuthorityPending
-          ? ''
-          : libraryCategories
+        libraryCategories
           .map((category, index) =>
             renderSubjectCollection(
               remainingOwnedSubjects.filter(subject =>
@@ -10891,15 +11032,19 @@
               ),
               category.name,
               {
-                canCreate: true,
+                canCreate:
+                  !cloudAuthorityPending,
                 categoryId: category.id,
-                canManageCategory: true,
+                canManageCategory:
+                  !cloudAuthorityPending,
                 isDefaultCategory:
                   category.id ===
                   libraryState?.defaultCategoryId,
                 canMoveCategoryEarlier:
+                  !cloudAuthorityPending &&
                   index > 0,
                 canMoveCategoryLater:
+                  !cloudAuthorityPending &&
                   index < libraryCategories.length - 1
               }
             )
@@ -10916,7 +11061,8 @@
           sessionSubjects,
           getActiveSessionSubjectCollectionTitle(),
           {
-            canAdd: true
+            canAdd:
+              !cloudAuthorityPending
           }
         ) +
         ownedLibraryHtml +
@@ -11378,7 +11524,9 @@
 
       if (subject.isOwned && subject.subjectId) {
         const managementHtml =
-          '<div class="subject-card-management">' +
+          isCompassCloudAuthorityPending()
+            ? ''
+            : '<div class="subject-card-management">' +
 
           '<button class="subject-card-manage-btn" ' +
           'type="button" ' +
@@ -11575,7 +11723,9 @@
 
       if (!subject.isOwned && subject.registryId) {
         const managementHtml =
-          '<div class="subject-card-management">' +
+          isCompassCloudAuthorityPending()
+            ? ''
+            : '<div class="subject-card-management">' +
 
           '<button class="subject-card-manage-btn" ' +
           'type="button" ' +
