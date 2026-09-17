@@ -34,7 +34,8 @@
     (function () {
       var root = document.documentElement;
       var released = false;
-      var sessionFont = null;
+      var fontReady = false;
+      var sessionChromeReady = false;
       var safetyTimer = window.setTimeout(release, 1500);
 
       function release() {
@@ -46,22 +47,36 @@
         });
       }
 
+      function releaseWhenReady() {
+        if (fontReady && sessionChromeReady) {
+          release();
+        }
+      }
+
+      window.addEventListener(
+        'atlas:compass-session-chrome-ready',
+        function () {
+          sessionChromeReady = true;
+          releaseWhenReady();
+        },
+        { once: true }
+      );
+
       if (document.fonts && typeof document.fonts.load === 'function') {
-        sessionFont = document.fonts.load('500 13px "DM Sans"');
-      }
-
-      function finishFirstPaint() {
-        Promise.resolve(sessionFont).then(release, release);
-      }
-
-      if (document.readyState === 'loading') {
-        document.addEventListener(
-          'DOMContentLoaded',
-          finishFirstPaint,
-          { once: true }
+        Promise.resolve(
+          document.fonts.load('500 13px "DM Sans"')
+        ).then(
+          function () {
+            fontReady = true;
+            releaseWhenReady();
+          },
+          function () {
+            fontReady = true;
+            releaseWhenReady();
+          }
         );
       } else {
-        finishFirstPaint();
+        fontReady = true;
       }
     })();
   </script>
@@ -3574,6 +3589,12 @@
   <!-- ============================================================ MAIN -->
   <main class="hub-main" id="hub-main" role="main"></main>
   <div id="atlas-session-panel-root"></div>
+
+  <script>
+    window.dispatchEvent(
+      new Event('atlas:compass-session-chrome-ready')
+    );
+  </script>
 
   <!-- ============================================================ SCRIPTS -->
   <script src="../shared/atlas-structured-subject.js?v=20260911-1"></script>
