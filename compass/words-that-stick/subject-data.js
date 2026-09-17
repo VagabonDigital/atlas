@@ -29,7 +29,7 @@ const subjectCopy = {
     overview: {
         heading: `A Better Word for That`,
         intro: [
-            `Designed for C1+ learners, this subject builds advanced vocabulary through precise contrasts, word roots, memorable stories and deliberate retrieval. Instead of memorising definitions in isolation, you will connect new words to images, origins and related forms, then use them naturally in real conversations.`
+            `Build advanced vocabulary through precise contrasts, word roots, memorable stories and deliberate retrieval. Instead of memorising definitions in isolation, connect new words to images, origins and related forms, then use them naturally in real conversations.`
         ],
         question: `When you want to express an idea clearly, do you usually choose a familiar word or try to find a more precise one?`
     },
