@@ -23,6 +23,33 @@ export const COMPILER_VERSION = '0.1.0';
 /* Hand-authored Drafts have no Generation Contract. B3 introduces v0. */
 export const NO_GENERATION_CONTRACT = 'none';
 
+/* Which Definition schema versions this build can interpret. The contract makes
+   this a list rather than a single value because an engine is expected to keep
+   reading older content across runtime releases. */
+export const SUPPORTED_DEFINITION_SCHEMA_VERSIONS = Object.freeze([DEFINITION_SCHEMA_VERSION]);
+
+/* The shape `EngineIdentity` in arcade/contracts declares. The session schema
+   version belongs here — to the engine, which is what speaks it — and not on a
+   Game Revision, which is compiled content and has no session in it. B2's
+   Runtime Face surfaces this to Core. */
+export const ENGINE_IDENTITY = Object.freeze({
+    engineId: ENGINE_ID,
+    runtimeVersion: ENGINE_RUNTIME_VERSION,
+    supportedDefinitionSchemaVersions: SUPPORTED_DEFINITION_SCHEMA_VERSIONS,
+    sessionSchemaVersion: SESSION_SCHEMA_VERSION
+});
+
+/* Runtime compatibility is decided per release series, not per patch.
+   Refusing a revision because the runtime moved from 0.1.0 to 0.1.1 would
+   invalidate every saved game on every bugfix; accepting one across a breaking
+   change would mount content this build interprets differently from the
+   compiler that produced it. While the major version is 0 the minor position is
+   the breaking one, which is the usual reading of a 0.x version. */
+export function runtimeSeries(version) {
+    const [major = '0', minor = '0'] = String(version).split('.');
+    return major === '0' ? `0.${minor}` : major;
+}
+
 export { makeSink, formatDiagnostic, phraseForRepair, SEVERITY } from './diagnostics.js';
 export { contentHash, canonicalJson } from './hash.js';
 
@@ -128,6 +155,11 @@ export function freeze(compiledGame, { generationContractVersion = NO_GENERATION
         generationContractVersion
     });
 
+    /* Exactly the fields `GameRevision` declares in arcade/contracts, and no
+       others. The session schema version is deliberately not among them: a
+       revision is compiled content and contains no session, so which session
+       format an engine speaks belongs to `EngineIdentity`. It is recorded in
+       provenance, which is the contract's own place for free-form metadata. */
     return {
         revisionId: revisionIdFor(compiledGame, hash),
         engineId: ENGINE_ID,
@@ -135,10 +167,14 @@ export function freeze(compiledGame, { generationContractVersion = NO_GENERATION
         engineRuntimeVersion: ENGINE_RUNTIME_VERSION,
         definitionSchemaVersion: DEFINITION_SCHEMA_VERSION,
         compilerVersion: COMPILER_VERSION,
-        sessionSchemaVersion: SESSION_SCHEMA_VERSION,
         generationContractVersion,
         compiledGame,
-        provenance: provenance ?? { authoredBy: 'hand', compiledAt: null }
+        provenance: {
+            authoredBy: 'hand',
+            compiledAt: null,
+            frozenBySessionSchemaVersion: SESSION_SCHEMA_VERSION,
+            ...provenance
+        }
     };
 }
 
@@ -163,15 +199,39 @@ export function compileAndFreeze(draft, options) {
    play, with a clean message, rather than during a lesson. */
 export function verifyRevision(revision) {
     const problems = [];
+
+    /* Fail closed before play, with a clean message. A malformed revision must
+       be refused here rather than throwing somewhere inside the hash. */
+    if (!revision || typeof revision !== 'object') {
+        return { ok: false, problems: ['Revision is not an object.'] };
+    }
+    const game = revision.compiledGame;
+    if (!game || typeof game !== 'object' || !Array.isArray(game.beats) || !Array.isArray(game.places)) {
+        return { ok: false, problems: ['Revision carries no usable Compiled Game.'] };
+    }
+
     if (revision.engineId !== ENGINE_ID) problems.push(`Revision is for engine "${revision.engineId}".`);
-    if (revision.definitionSchemaVersion !== DEFINITION_SCHEMA_VERSION) {
-        problems.push(`Definition schema ${revision.definitionSchemaVersion} is not supported.`);
+
+    if (!SUPPORTED_DEFINITION_SCHEMA_VERSIONS.includes(revision.definitionSchemaVersion)) {
+        problems.push(
+            `Definition schema ${revision.definitionSchemaVersion} is not supported `
+            + `(this build reads ${SUPPORTED_DEFINITION_SCHEMA_VERSIONS.join(', ')}).`
+        );
     }
-    if (revision.sessionSchemaVersion !== SESSION_SCHEMA_VERSION) {
-        problems.push(`Session schema ${revision.sessionSchemaVersion} is not supported.`);
+
+    /* The hash is computed from the revision's own recorded versions, so a
+       revision built by an incompatible runtime hashes perfectly well against
+       itself. Without this check it would mount and be interpreted by rules it
+       was never compiled against. */
+    if (runtimeSeries(revision.engineRuntimeVersion) !== runtimeSeries(ENGINE_RUNTIME_VERSION)) {
+        problems.push(
+            `Revision was compiled by engine runtime ${revision.engineRuntimeVersion}, `
+            + `which this build (${ENGINE_RUNTIME_VERSION}) cannot interpret.`
+        );
     }
+
     const expected = contentHash({
-        compiledGame: stripVolatile(revision.compiledGame),
+        compiledGame: stripVolatile(game),
         engineRuntimeVersion: revision.engineRuntimeVersion,
         definitionSchemaVersion: revision.definitionSchemaVersion,
         compilerVersion: revision.compilerVersion,

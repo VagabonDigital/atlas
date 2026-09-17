@@ -6,6 +6,7 @@
 
 import { allDrafts, references } from '../definitions/index.js';
 import { compileAndFreeze, formatDiagnostic } from '../engines/shared-plan/compiler/index.js';
+import { analyse } from '../engines/shared-plan/analysis/index.js';
 
 export { allDrafts, references };
 
@@ -34,6 +35,19 @@ export function revisionFor(name) {
         compiled.set(name, result.revision);
     }
     return compiled.get(name);
+}
+
+/* Analysing a world at every budget means searching hundreds of thousands of
+   plans. It is deterministic, so a fixture only needs analysing once per run;
+   tests that assert determinism call `analyse` directly instead. */
+const analyses = new Map();
+
+export function analysisFor(name) {
+    if (!analyses.has(name)) {
+        const revision = revisionFor(name);
+        analyses.set(name, analyse(revision.compiledGame, revision));
+    }
+    return analyses.get(name);
 }
 
 export const draftNames = Object.keys(allDrafts);

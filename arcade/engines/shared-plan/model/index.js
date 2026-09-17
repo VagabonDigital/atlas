@@ -28,6 +28,7 @@ export {
     syntheticSession,
     enumerateArrangements,
     sampleArrangements,
+    commitEvidence,
     arrangementSignature,
     firstValidCommit,
     variantForCommit,

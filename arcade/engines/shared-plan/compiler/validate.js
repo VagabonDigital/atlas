@@ -5,12 +5,18 @@
    C, and it is advisory by policy. */
 
 import { BUDGETS, VOCAB, countWords } from '../definition/index.js';
-import { predicateDepth, predicateTouches } from '../model/predicates.js';
+import { predicateDepth, predicateTouches, predicateTouchesPin } from '../model/predicates.js';
 import { buildContext, syntheticSession } from '../model/index.js';
 import { evaluate } from '../model/predicates.js';
-import { enumerateArrangements, enumerateRevisions, variantForCommit } from '../model/enumerate.js';
+import {
+    commitEvidence, enumerateArrangements, enumerateRevisions,
+    frozenAfterBeat, variantForCommit
+} from '../model/enumerate.js';
 
 const HONESTY_COMMIT_SAMPLE = 400;
+/* Caps the expensive half of the honesty check. Hitting it means the answer is
+   reported as unverified rather than quietly assumed. */
+const HONESTY_REVISION_SEARCH_BUDGET = 600;
 
 function checkPresentation(game, report) {
     const form = VOCAB.STAGE_FORMS[game.presentation.stageForm];
@@ -331,7 +337,7 @@ function checkCommitExists(game, revisionLike, report) {
     /* The budget has to cover the worst legal world — every budget at maximum,
        eight Pieces across five Places — or a hostile but valid Definition would
        be rejected for being large rather than for being wrong. */
-    const { arrangements, truncated } = enumerateArrangements(game, revisionLike, {
+    const { arrangements, complete } = enumerateArrangements(game, revisionLike, {
         limit: 1,
         nodeBudget: 400000
     });
@@ -339,9 +345,11 @@ function checkCommitExists(game, revisionLike, report) {
         report({
             code: 'validate.noValidCommit',
             locus: 'rules',
-            message: truncated
-                ? 'No plan that satisfies every Rule was found within the search budget.'
-                : 'There is no arrangement of the Pieces that satisfies every Rule.',
+            /* Finding nothing only means "there is nothing" if the whole space
+               was walked; otherwise it means the budget ran out first. */
+            message: complete
+                ? 'There is no arrangement of the Pieces that satisfies every Rule.'
+                : 'No plan that satisfies every Rule was found within the search budget.',
             modelMessage: 'Relax the Rules, raise a capacity or a resource limit, or reduce the number of Pieces, so at least one legal plan exists.'
         });
         return null;
@@ -349,58 +357,142 @@ function checkCommitExists(game, revisionLike, report) {
     return arrangements[0];
 }
 
-/* A world mark that lies breaks trust, so this blocks. If the search is
-   truncated the claim is downgraded to a warning rather than asserted. */
+/* Every variant the beat could select for a given plan, including the ones a
+   Keep pin would select. A guard may read the pin, so checking only the unpinned
+   selection would leave pin-guarded variants entirely unverified. */
+function selectableVariants(game, revisionLike, beat, placements) {
+    const found = new Map();
+    const record = (pinned) => {
+        const variant = variantForCommit(game, revisionLike, beat, placements, pinned);
+        if (!found.has(variant.key)) found.set(variant.key, { variant, pinned });
+    };
+
+    record(null);
+    if (beat.variants.some((v) => v.guard && predicateTouchesPin(v.guard))) {
+        for (const [key, loc] of Object.entries(placements)) {
+            if (loc.kind === 'place') record(key);
+        }
+    }
+    return [...found.values()];
+}
+
+/* A world mark that lies breaks trust, so this blocks.
+
+   The two directions of this question need different evidence. Finding a legal
+   revision that still reaches the Goal is a witness: it is a concrete, verified
+   counterexample and it blocks regardless of how much of the space was searched.
+   Finding none proves the mark honest only if the search saw everything, so an
+   incomplete search that found nothing is reported as unverified rather than
+   passing silently. */
 function checkImpossibleWhenHonesty(game, revisionLike, report) {
     const goals = game.goals.filter((g) => g.impossibleWhen);
     if (goals.length === 0) return;
 
-    const { arrangements, truncated: commitsTruncated } = enumerateArrangements(game, revisionLike, {
-        limit: HONESTY_COMMIT_SAMPLE,
-        nodeBudget: 200000
+    const { arrangements, exhaustive } = commitEvidence(game, revisionLike, {
+        sampleTarget: HONESTY_COMMIT_SAMPLE
     });
 
-    let searchTruncated = commitsTruncated;
+    let complete = exhaustive;
+    let searches = 0;
     const dishonest = new Map();
+    /* Goals whose mark was actually exercised, so "we looked and found nothing"
+       can be told apart from "the condition never came up". */
+    const examined = new Set();
+
+    /* The revisions available after a beat depend only on which variant fired
+       and which Pieces the world froze in place, never on the Keep pin, because
+       only Rules decide which revisions are legal. Many different commits leave
+       the same Pieces frozen, so the same search would otherwise be repeated
+       hundreds of times. */
+    const revisionCache = new Map();
+    const revisionsFor = (placements, firedBeats, variantKey) => {
+        const { frozen } = frozenAfterBeat(game, revisionLike, placements, firedBeats);
+        const key = `${variantKey}|${Object.keys(frozen).sort().map(
+            (k) => `${k}:${frozen[k].kind === 'place' ? frozen[k].place : frozen[k].kind}`
+        ).join(',')}`;
+
+        if (revisionCache.has(key)) return revisionCache.get(key);
+        if (searches >= HONESTY_REVISION_SEARCH_BUDGET) return null;
+        searches += 1;
+
+        const result = enumerateRevisions(
+            game, revisionLike, placements, firedBeats, { nodeBudget: 40000 }
+        );
+        revisionCache.set(key, result);
+        return result;
+    };
 
     for (const beat of game.beats) {
         for (const placements of arrangements) {
-            const variant = variantForCommit(game, revisionLike, beat, placements);
-            const firedBeats = [{ beat: beat.key, variant: variant.key }];
-            const ctx = buildContext(game, syntheticSession(revisionLike, placements, { firedBeats, phase: 'react' }));
+            for (const { variant, pinned } of selectableVariants(game, revisionLike, beat, placements)) {
+                const firedBeats = [{ beat: beat.key, variant: variant.key }];
+                const ctx = buildContext(game, syntheticSession(
+                    revisionLike, placements, { firedBeats, phase: 'react', pinned }
+                ));
 
-            for (const goal of goals) {
-                if (!ctx.world.activeGoals.has(goal.key)) continue;
-                if (!evaluate(ctx, goal.impossibleWhen)) continue;
+                for (const goal of goals) {
+                    if (dishonest.has(goal.key)) continue;
+                    if (!ctx.world.activeGoals.has(goal.key)) continue;
+                    if (!evaluate(ctx, goal.impossibleWhen)) continue;
 
-                const { arrangements: revisions, truncated } = enumerateRevisions(
-                    game, revisionLike, placements, firedBeats, { nodeBudget: 40000 }
-                );
-                if (truncated) searchTruncated = true;
+                    examined.add(goal.key);
 
-                for (const revision of revisions) {
-                    const after = buildContext(
-                        game,
-                        syntheticSession(revisionLike, revision, { firedBeats, phase: 'resolve' })
-                    );
-                    if (evaluate(after, goal.condition)) {
-                        dishonest.set(goal.key, { goal, beat, variant });
-                        break;
+                    const search = revisionsFor(placements, firedBeats, variant.key);
+                    if (search === null) {
+                        complete = false;
+                        continue;
+                    }
+                    const { arrangements: revisions, complete: revisionsComplete } = search;
+                    if (!revisionsComplete) complete = false;
+
+                    for (const revision of revisions) {
+                        const after = buildContext(game, syntheticSession(
+                            revisionLike, revision, { firedBeats, phase: 'resolve', pinned }
+                        ));
+                        if (evaluate(after, goal.condition)) {
+                            dishonest.set(goal.key, { goal, beat, variant });
+                            break;
+                        }
                     }
                 }
             }
         }
     }
 
+    /* A witness is a witness. It blocks. */
     for (const { goal, beat, variant } of dishonest.values()) {
-        const entry = {
+        report({
             code: 'validate.dishonestImpossibleWhen',
             locus: `goals.${goal.key}.impossibleWhen`,
             message: `"${goal.label}" is marked impossible after ${beat.key}/${variant.key}, but a legal revision still reaches it.`,
             modelMessage: `Either tighten goals.${goal.key}.impossibleWhen so it only holds when the Goal is genuinely unreachable, or remove it.`
-        };
-        if (searchTruncated) report.warn(entry);
-        else report(entry);
+        });
+    }
+
+    if (!complete) {
+        for (const goal of goals) {
+            if (dishonest.has(goal.key)) continue;
+            report.warn({
+                code: 'validate.impossibleWhenUnverified',
+                locus: `goals.${goal.key}.impossibleWhen`,
+                message: `"${goal.label}" could not be fully verified as honest: the plan space was not searched exhaustively.`,
+                modelMessage: `Reduce the number of Pieces or Places, or tighten the Rules, so the plan space can be checked exhaustively.`
+            });
+        }
+    }
+
+    /* A mark whose condition never held anywhere is not dishonest, but it is
+       inert: it will never appear on the Horizon. */
+    if (complete) {
+        for (const goal of goals) {
+            if (examined.has(goal.key)) continue;
+            report.warn({
+                code: 'validate.impossibleWhenNeverHolds',
+                locus: `goals.${goal.key}.impossibleWhen`,
+                message: `"${goal.label}" is never marked out of reach by any legal plan, so the condition never shows.`,
+                modelMessage: `Loosen goals.${goal.key}.impossibleWhen so it can actually hold, or remove it.`
+            });
+        }
     }
 }
 

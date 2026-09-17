@@ -9,13 +9,30 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-    compile, compileAndFreeze, freeze, verifyRevision, contentHash, phraseForRepair
+    compile, compileAndFreeze, freeze, verifyRevision, contentHash, phraseForRepair,
+    ENGINE_IDENTITY, runtimeSeries
 } from '../engines/shared-plan/compiler/index.js';
 import { definitionJsonSchema, BUDGETS, TEXT_KINDS } from '../engines/shared-plan/definition/index.js';
+import { SESSION_SCHEMA_VERSION } from '../engines/shared-plan/model/index.js';
 import { allDrafts, draftNames, referenceNames, revisionFor } from './helpers.js';
 
 const clone = (value) => structuredClone(value);
 const codes = (diagnostics) => diagnostics.filter((d) => d.severity === 'error').map((d) => d.code);
+
+/* Recomputes a revision's content hash the way the compiler does, so a test can
+   alter a recorded version and still hand verification an internally consistent
+   revision. Otherwise every such test would pass for the wrong reason. */
+function rehash(revision) {
+    const { placeIndex, pieceIndex, resourceIndex, ruleIndex, goalIndex, voiceIndex, beatIndex, ...rest } =
+        revision.compiledGame;
+    return contentHash({
+        compiledGame: { ...rest, beats: rest.beats.map(({ variantIndex, ...b }) => b) },
+        engineRuntimeVersion: revision.engineRuntimeVersion,
+        definitionSchemaVersion: revision.definitionSchemaVersion,
+        compilerVersion: revision.compilerVersion,
+        generationContractVersion: revision.generationContractVersion
+    });
+}
 
 test('every reference and hostile fixture compiles', () => {
     for (const name of draftNames) {
@@ -168,9 +185,89 @@ test('a dishonest impossibleWhen is refused', () => {
     assert.ok(codes(diagnostics).includes('validate.dishonestImpossibleWhen'));
 });
 
-test('an honest impossibleWhen is allowed through', () => {
-    const { ok } = compile(allDrafts['r-a']);
-    assert.ok(ok);
+test('an honest impossibleWhen is allowed through, with nothing left unverified', () => {
+    for (const name of ['r-a', 'r-b']) {
+        const { ok, diagnostics } = compile(allDrafts[name]);
+        assert.ok(ok, `${name} should compile`);
+        /* If honesty could only be checked over part of the space, the compiler
+           has to say so rather than pass quietly. These references are small
+           enough to verify completely, so neither should appear. */
+        assert.ok(
+            !diagnostics.some((d) => d.code === 'validate.impossibleWhenUnverified'),
+            `${name}: honesty should be fully verifiable`
+        );
+    }
+});
+
+/* H-3 sits at every structural budget and has roughly 840,000 legal plans, far
+   past anything that can be walked exhaustively. Adding a Goal with an
+   impossibleWhen to it produces the case where honesty genuinely cannot be
+   settled by search. */
+function unsearchableWorldWith(impossibleWhen) {
+    const draft = clone(allDrafts['h-3']);
+    draft.goals.push({
+        key: 'transformer-sited',
+        label: 'The transformer is sited',
+        condition: { kind: 'pieceIn', piece: 'transformer', place: 'substation' },
+        impossibleWhen,
+        reachedLine: 'The transformer went into the substation yard.',
+        missedLine: 'The transformer ended up somewhere else entirely.'
+    });
+    return draft;
+}
+
+test('a dishonest impossibleWhen still blocks when the search is incomplete', () => {
+    /* Claims the Goal dies the instant the beat lands, which is untrue: the
+       condemnation closes only the Northwest Wing, and the substation yard is
+       still open. A witness is a verified counterexample, so how much of the
+       rest of the space went unsearched cannot weaken it. */
+    const draft = unsearchableWorldWith({ kind: 'beatFired', beat: 'condemnation' });
+
+    const { ok, diagnostics } = compile(draft);
+    const errors = diagnostics.filter((d) => d.severity === 'error').map((d) => d.code);
+    assert.equal(ok, false, 'a world mark that lies must be refused');
+    assert.ok(
+        errors.includes('validate.dishonestImpossibleWhen'),
+        `a witness must block, not warn; got ${errors.join(', ') || '(none)'}`
+    );
+});
+
+test('honesty that could not be fully checked is reported, not assumed', () => {
+    /* Honest: a transformer stranded in the condemned wing can never reach the
+       substation yard. But the space is too large to prove it. */
+    const draft = unsearchableWorldWith({
+        kind: 'all',
+        terms: [
+            { kind: 'beatFired', beat: 'condemnation' },
+            { kind: 'pieceIn', piece: 'transformer', place: 'northwest' }
+        ]
+    });
+
+    const { ok, diagnostics } = compile(draft);
+    assert.ok(ok, 'an unverified mark is a warning, not a refusal');
+    assert.ok(
+        !diagnostics.some((d) => d.code === 'validate.dishonestImpossibleWhen'),
+        'an honest mark must not be reported as a lie'
+    );
+    assert.ok(
+        diagnostics.some((d) => d.code === 'validate.impossibleWhenUnverified' && d.severity === 'warning'),
+        'an incomplete honesty search must say it was incomplete'
+    );
+});
+
+test('a pin-guarded variant is honesty-checked too', () => {
+    /* R-B's engine-held variant only fires when the pump is pinned. Checking
+       only the unpinned selection would leave it entirely unverified, so a lie
+       stated about it must still be caught. */
+    const draft = clone(allDrafts['r-b']);
+    draft.goals[1].impossibleWhen = {
+        kind: 'beatFired', beat: 'the-sever', variant: 'engine-held'
+    };
+
+    const { ok, diagnostics } = compile(draft);
+    const errors = diagnostics.filter((d) => d.severity === 'error').map((d) => d.code);
+    assert.equal(ok, false, 'a lie about a pin-guarded variant must be caught');
+    assert.ok(errors.includes('validate.dishonestImpossibleWhen'), errors.join(', ') || '(none)');
 });
 
 test('graph worlds are refused cleanly while their solver is unbuilt', () => {
@@ -245,14 +342,89 @@ test('the content hash ignores key order but not content', () => {
     assert.notEqual(a, c);
 });
 
-test('freezing records every version the revision depends on', () => {
+/* The field list declared by `GameRevision` in arcade/contracts. A frozen
+   revision must carry exactly these, so Core can consume any engine's revisions
+   through one shared shape. */
+const GAME_REVISION_FIELDS = [
+    'revisionId', 'engineId', 'contentHash', 'engineRuntimeVersion',
+    'definitionSchemaVersion', 'compilerVersion', 'generationContractVersion',
+    'compiledGame', 'provenance'
+];
+
+test('a frozen revision matches the GameRevision contract exactly', () => {
     const { compiledGame } = compile(allDrafts['r-b']);
     const revision = freeze(compiledGame);
-    for (const field of [
-        'engineRuntimeVersion', 'definitionSchemaVersion', 'compilerVersion',
-        'sessionSchemaVersion', 'generationContractVersion', 'contentHash', 'revisionId'
-    ]) {
-        assert.ok(revision[field], `a frozen revision must record ${field}`);
+
+    for (const field of GAME_REVISION_FIELDS) {
+        assert.ok(field in revision, `a frozen revision must record ${field}`);
     }
+    assert.deepEqual(
+        Object.keys(revision).sort(),
+        [...GAME_REVISION_FIELDS].sort(),
+        'a frozen revision must not invent fields the shared contract does not declare'
+    );
     assert.equal(revision.engineId, 'shared-plan');
+});
+
+test('the session schema version belongs to the engine, not to a revision', () => {
+    const { compiledGame } = compile(allDrafts['r-b']);
+    const revision = freeze(compiledGame);
+
+    /* A revision is compiled content and contains no session, so which session
+       format an engine speaks is not a property of it. It is recorded as
+       provenance and declared through EngineIdentity. */
+    assert.ok(!('sessionSchemaVersion' in revision));
+    assert.equal(revision.provenance.frozenBySessionSchemaVersion, SESSION_SCHEMA_VERSION);
+    assert.equal(ENGINE_IDENTITY.sessionSchemaVersion, SESSION_SCHEMA_VERSION);
+});
+
+test('the engine declares an identity of the shape the contract requires', () => {
+    assert.deepEqual(
+        Object.keys(ENGINE_IDENTITY).sort(),
+        ['engineId', 'runtimeVersion', 'sessionSchemaVersion', 'supportedDefinitionSchemaVersions']
+    );
+    assert.equal(ENGINE_IDENTITY.engineId, 'shared-plan');
+    assert.ok(Array.isArray(ENGINE_IDENTITY.supportedDefinitionSchemaVersions));
+    assert.ok(ENGINE_IDENTITY.supportedDefinitionSchemaVersions.includes('0'));
+});
+
+test('a revision from an incompatible engine runtime fails closed before mounting', () => {
+    const revision = clone(revisionFor('r-a'));
+    /* Rebuild the hash so the revision is internally consistent: without the
+       runtime check it would verify perfectly and then mount against rules it
+       was never compiled against. */
+    revision.engineRuntimeVersion = '0.9.0';
+    revision.contentHash = rehash(revision);
+
+    const check = verifyRevision(revision);
+    assert.equal(check.ok, false, 'an incompatible runtime must be refused');
+    assert.match(check.problems.join(' '), /cannot interpret/);
+});
+
+test('a revision from a patch-level runtime difference still mounts', () => {
+    const revision = clone(revisionFor('r-a'));
+    /* Refusing every revision on every bugfix would invalidate saved games for
+       no reason, so compatibility is decided per release series. */
+    revision.engineRuntimeVersion = '0.1.99';
+    revision.contentHash = rehash(revision);
+
+    assert.ok(verifyRevision(revision).ok, 'a patch-level difference must not fail closed');
+});
+
+test('an unsupported Definition schema is refused against the supported list', () => {
+    const revision = clone(revisionFor('r-a'));
+    revision.definitionSchemaVersion = '99';
+    revision.contentHash = rehash(revision);
+
+    const check = verifyRevision(revision);
+    assert.equal(check.ok, false);
+    assert.match(check.problems.join(' '), /Definition schema 99 is not supported/);
+});
+
+test('a malformed revision fails closed rather than throwing', () => {
+    for (const bad of [null, undefined, 42, 'a revision', {}, { compiledGame: null }, { compiledGame: {} }]) {
+        const check = verifyRevision(bad);
+        assert.equal(check.ok, false, `${JSON.stringify(bad)} should be refused`);
+        assert.ok(check.problems.length > 0);
+    }
 });

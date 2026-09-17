@@ -5,7 +5,6 @@
   "engineRuntimeVersion": "0.1.0",
   "definitionSchemaVersion": "0",
   "compilerVersion": "0.1.0",
-  "sessionSchemaVersion": "0",
   "generationContractVersion": "none",
   "compiledGame": {
     "contract": {
@@ -1235,6 +1234,7 @@
   },
   "provenance": {
     "authoredBy": "hand",
-    "compiledAt": null
+    "compiledAt": null,
+    "frozenBySessionSchemaVersion": "0"
   }
 }

@@ -93,9 +93,10 @@ const mapKey = (keyMap, key) => keyMap.get(key) ?? key;
 
 function mapReport(report, keyMap) {
     return {
-        validCommits: report.validCommits,
-        commitsTruncated: report.commitsTruncated,
+        commitsExamined: report.commitsExamined,
+        commitsExhaustive: report.commitsExhaustive,
         deadRules: report.deadRules.map((k) => mapKey(keyMap, k)).sort(),
+        undeterminedRules: report.undeterminedRules.map((k) => mapKey(keyMap, k)).sort(),
         dominance: Object.fromEntries(
             Object.entries(report.dominance).map(([k, v]) => [
                 mapKey(keyMap, k),
@@ -112,7 +113,7 @@ function mapReport(report, keyMap) {
             variantShare: Object.fromEntries(
                 Object.entries(b.variantShare).map(([k, v]) => [mapKey(keyMap, k), v])
             ),
-            unreachableVariants: b.unreachableVariants.map((k) => mapKey(keyMap, k)).sort(),
+            variantsNotSelected: b.variantsNotSelected.map((k) => mapKey(keyMap, k)).sort(),
             pinGatedVariants: b.pinGatedVariants.map((k) => mapKey(keyMap, k)).sort()
         }))
     };

@@ -143,15 +143,23 @@ export function enumerateArrangements(game, revisionLike, options = {}) {
 
     const results = [];
     let nodes = 0;
-    let truncated = false;
+    /* Why the walk stopped, which is the difference between "this is the plan
+       space" and "this is some of it". Hitting the result limit is just as
+       incomplete as running out of node budget, and conflating the two is how a
+       sample starts being reported as exhaustive evidence. */
+    let stoppedBy = 'exhausted';
 
     const planLimitOk = () => planResources.every((r) => planSums[r.key] <= (world.resourceLimit[r.key] ?? 0));
 
     const recurse = (i) => {
-        if (truncated || results.length >= limit) return;
+        if (stoppedBy !== 'exhausted') return;
+        if (results.length >= limit) {
+            stoppedBy = 'limit';
+            return;
+        }
         nodes += 1;
         if (nodes > nodeBudget) {
-            truncated = true;
+            stoppedBy = 'nodeBudget';
             return;
         }
 
@@ -164,7 +172,11 @@ export function enumerateArrangements(game, revisionLike, options = {}) {
             if (overCapacityPlaces(ctx).length > 0) return;
             const arrangement = { ...current };
             results.push(arrangement);
-            if (onArrangement) onArrangement(arrangement, ctx);
+            /* A caller looking for a witness rather than a census can return
+               false to stop the walk as soon as it has its answer. */
+            if (onArrangement && onArrangement(arrangement, ctx) === false) {
+                stoppedBy = 'caller';
+            }
             return;
         }
 
@@ -199,7 +211,11 @@ export function enumerateArrangements(game, revisionLike, options = {}) {
             for (const r of planResources) planSums[r.key] -= compiled.resources[r.key] ?? 0;
             delete current[piece.key];
 
-            if (truncated || results.length >= limit) return;
+            if (stoppedBy !== 'exhausted') return;
+            if (results.length >= limit) {
+                stoppedBy = 'limit';
+                return;
+            }
         }
 
         /* Or leave it behind. */
@@ -209,7 +225,17 @@ export function enumerateArrangements(game, revisionLike, options = {}) {
     };
 
     recurse(0);
-    return { arrangements: results, truncated, nodes };
+
+    const complete = stoppedBy === 'exhausted';
+    return {
+        arrangements: results,
+        complete,
+        stoppedBy,
+        /* `truncated` now means "did not see the whole space", for any reason.
+           Every caller that guards a claim with it is asking that question. */
+        truncated: !complete,
+        nodes
+    };
 }
 
 export function firstValidCommit(game, revisionLike) {
@@ -235,7 +261,7 @@ export function sampleArrangements(game, revisionLike, options = {}) {
     const { target = 600, rounds = 6, ...rest } = options;
     const perRound = Math.max(1, Math.ceil(target / rounds));
     const seen = new Map();
-    let truncated = false;
+    let complete = false;
     let nodes = 0;
 
     for (let round = 0; round < rounds; round += 1) {
@@ -245,16 +271,54 @@ export function sampleArrangements(game, revisionLike, options = {}) {
             limit: perRound
         });
         nodes += result.nodes;
-        if (result.truncated) truncated = true;
         for (const arrangement of result.arrangements) {
             seen.set(arrangementSignature(arrangement), arrangement);
         }
-        /* A round that came back short has exhausted its walk, so the space is
-           smaller than the sample target and further rounds add nothing new. */
-        if (!result.truncated && result.arrangements.length < perRound && round > 0) break;
+        /* Every round walks the same space in a different order, so a round that
+           exhausted its walk has already seen all of it and the union is the
+           whole space. Nothing further can be added. */
+        if (result.complete) {
+            complete = true;
+            break;
+        }
     }
 
-    return { arrangements: [...seen.values()], truncated, nodes };
+    return { arrangements: [...seen.values()], complete, truncated: !complete, nodes };
+}
+
+/* Exact evidence where the space is small enough to walk, a stratified sample
+   where it is not, and an honest flag saying which was obtained.
+
+   The reference games enumerate completely in tens of milliseconds. A world
+   sitting at every budget at once does not, and no amount of sampling turns
+   that into exhaustive knowledge — so it is labelled rather than dressed up. */
+export function commitEvidence(game, revisionLike, options = {}) {
+    const {
+        exhaustiveNodeBudget = 150000,
+        sampleTarget = 600,
+        sampleNodeBudget = 400000,
+        ...rest
+    } = options;
+
+    const full = enumerateArrangements(game, revisionLike, {
+        ...rest,
+        limit: Infinity,
+        nodeBudget: exhaustiveNodeBudget
+    });
+    if (full.complete) {
+        return { arrangements: full.arrangements, exhaustive: true, nodes: full.nodes };
+    }
+
+    const sampled = sampleArrangements(game, revisionLike, {
+        ...rest,
+        target: sampleTarget,
+        nodeBudget: sampleNodeBudget
+    });
+    return {
+        arrangements: sampled.arrangements,
+        exhaustive: sampled.complete,
+        nodes: full.nodes + sampled.nodes
+    };
 }
 
 /* Which variant a beat would select for a given committed arrangement. */
