@@ -2,7 +2,7 @@
   ===========================================================================
   ATLAS · COMPASS SUBJECT MODULE
   SmartStudy™ Methodology
-  Words That Stick: Advanced Vocabulary Through Roots & Stories
+  Words That Stick: Vocabulary Through Roots & Stories
   ---------------------------------------------------------------------------
   A C1+ vocabulary subject built around precise meaning, etymology, word
   families, memorable associations, retrieval and natural productive use.
@@ -16,8 +16,8 @@ const MODULE = {
     id: `words-that-stick`,
     schemaVersion: 2,
     contentVersion: `1.0.0`,
-    title: `Words That Stick: Advanced Vocabulary Through Roots & Stories`,
-    titleHtml: `Words That Stick: <em>Advanced Vocabulary Through Roots & Stories</em>`,
+    title: `Words That Stick: Vocabulary Through Roots & Stories`,
+    titleHtml: `Words That Stick: <em>Vocabulary Through Roots & Stories</em>`,
     navTitle: `Words That Stick`,
     bgImage: `https://www.piqosity.com/wp-content/uploads/2022/02/Depositphotos_169103504_L-1024x612.jpg`
 };
