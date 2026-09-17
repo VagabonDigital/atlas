@@ -523,7 +523,6 @@
         document.body.classList.add('atlas-account-gate-open');
         state.gateOpen = true;
         setGateMode(mode);
-        setBusy(true);
 
         try {
             const returnIntent =
@@ -543,13 +542,21 @@
                 return snapshot();
             }
 
-            setGateStatus('');
-            setBusy(false);
-            setGateMode(mode);
+            /*
+             * Opening the gate must stay immediately usable. If the tutor
+             * already submitted while account preparation was finishing,
+             * leave that submit-owned busy state alone.
+             */
+            if (!busy) {
+                setGateStatus('');
+            }
+
             return snapshot();
         } catch (error) {
-            setBusy(false);
-            setGateStatus(humanizeError(error), 'error');
+            if (!busy) {
+                setGateStatus(humanizeError(error), 'error');
+            }
+
             return snapshot();
         }
     }
