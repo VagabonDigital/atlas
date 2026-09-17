@@ -11827,7 +11827,7 @@
     }
 
     let hubRenderRevision = 0;
-    let lastCommittedHubMarkup = null;
+    let lastCommittedHubContentMarkup = null;
 
     async function renderHub() {
       if (!Bridge) return;
@@ -12048,8 +12048,7 @@
       renderSpineHubNav();
       renderDrawerHubNav();
 
-      const nextHubMarkup =
-        renderIntro(session) +
+      const nextHubContentMarkup =
         renderSubjectCollection(
           sessionSubjects,
           getActiveSessionSubjectCollectionTitle(),
@@ -12064,19 +12063,26 @@
         );
 
       /*
-       * Background account/session refreshes can ask Compass to render the
-       * same Hub state several times after a hard refresh. Replacing
-       * hub-main in that case destroys the subject-card nodes under the
-       * pointer, forcing :hover to drop and reacquire. Keep the existing DOM
-       * when the rendered result is unchanged; real data changes still commit
-       * normally.
+       * The intro contains a time-derived animation phase so the complete
+       * Hub HTML is expected to differ across refreshes even when no subject
+       * data changed. Compare only meaningful Hub content. Unchanged account
+       * or lifecycle refreshes therefore leave the existing subject-card DOM
+       * intact; real card/library/session changes still commit normally.
        */
-      if (nextHubMarkup === lastCommittedHubMarkup) {
+      if (
+        nextHubContentMarkup ===
+        lastCommittedHubContentMarkup
+      ) {
         return;
       }
 
+      const nextHubMarkup =
+        renderIntro(session) +
+        nextHubContentMarkup;
+
       main.innerHTML = nextHubMarkup;
-      lastCommittedHubMarkup = nextHubMarkup;
+      lastCommittedHubContentMarkup =
+        nextHubContentMarkup;
     }
 
     const COMPASS_TOPIC_CYCLE_MS = 80000;

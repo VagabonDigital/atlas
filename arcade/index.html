@@ -2230,6 +2230,8 @@
     /* ================================================================
        RENDER MAIN HUB
        ================================================================ */
+    let lastCommittedArcadeContentMarkup = null;
+
     function renderHub() {
       if (!Bridge) return;
 
@@ -2241,12 +2243,41 @@
       renderSpineHubNav();
       renderDrawerHubNav();
 
+      const gameCardsMarkup =
+        GAME_CATALOGUE
+          .map(game =>
+            renderGameCard(
+              game,
+              sessionStates[game.registryId]
+            )
+          )
+          .join('');
+
+      const nextArcadeContentMarkup =
+        '<div class="library-zone">' +
+        '<div class="library-header">' +
+        '<h2 class="library-title">Choose a game</h2>' +
+        '</div>' +
+        '<div class="game-grid">' +
+        gameCardsMarkup +
+        '</div>' +
+        '</div>';
+
+      // Focus/pageshow/visibility refreshes are allowed to re-read Bridge
+      // state, but unchanged game presentation must not destroy/recreate the
+      // cards beneath the pointer.
+      if (
+        nextArcadeContentMarkup ===
+        lastCommittedArcadeContentMarkup
+      ) {
+        return;
+      }
+
       const arcadePromptPhaseMs =
         getArcadePromptPhaseMs();
 
-      let html = '';
-
-      html += '<div class="hub-intro">' +
+      const html =
+        '<div class="hub-intro">' +
         '<div class="hub-intro-text">' +
         '<h1 class="hub-title" aria-label="Ready to play?">' +
         'Ready to' +
@@ -2265,22 +2296,12 @@
         '</h1>' +
         '<p class="hub-desc">Think fast, speak freely, and see where the game takes you.</p>' +
         '</div>' +
-        '</div>';
-
-      html += '<div class="library-zone">' +
-        '<div class="library-header">' +
-        '<h2 class="library-title">Choose a game</h2>' +
         '</div>' +
-        '<div class="game-grid">';
-
-      GAME_CATALOGUE.forEach(game => {
-        html += renderGameCard(game, sessionStates[game.registryId]);
-      });
-
-      html += '</div>' +
-        '</div>';
+        nextArcadeContentMarkup;
 
       document.getElementById('arcade-main').innerHTML = html;
+      lastCommittedArcadeContentMarkup =
+        nextArcadeContentMarkup;
     }
 
     function renderGameCard(game, state) {

@@ -4732,6 +4732,7 @@
     // ================================================================
     let reviewState = null; // { set: [...], idx, revealed }
     let defaultSetupDismissed = false;
+    let lastCommittedHomeMarkup = null;
 
     function openLanguageReview() {
       const session = getActiveSession();
@@ -4816,6 +4817,7 @@
 
       const main = document.getElementById('atlas-main');
       main.className = ''; // detach .atlas-main constraints; review-view sets its own
+      lastCommittedHomeMarkup = null;
       main.innerHTML =
         '<div class="review-view">' +
         '<div class="review-topbar">' +
@@ -4917,27 +4919,35 @@
       // The learner-name setup is an anonymous/local-workspace state. A
       // signed-in tutor may briefly have only Shared in the local projection
       // while account-owned learners are restoring; that is not true-empty.
-      if (
+      const showEmptyState =
         isDefault &&
         !hasAuthenticatedAccountContext() &&
         !defaultSetupDismissed &&
         !hasContinue &&
         !hasReview &&
-        !hasHistory
-      ) {
-        main.innerHTML = renderEmptyState();
+        !hasHistory;
+
+      const nextHomeMarkup = showEmptyState
+        ? renderEmptyState()
+        : renderGateway(
+          session,
+          isDefault,
+          continueItem,
+          continueHandoff,
+          hasContinue,
+          reviewSet,
+          hasReview
+        );
+
+      // Background account/session events may ask Atlas to refresh even when
+      // the visible gateway has not changed. Keep the existing world/Continue
+      // card nodes alive so hover/focus state is not destroyed and reacquired.
+      if (nextHomeMarkup === lastCommittedHomeMarkup) {
         return;
       }
 
-      main.innerHTML = renderGateway(
-        session,
-        isDefault,
-        continueItem,
-        continueHandoff,
-        hasContinue,
-        reviewSet,
-        hasReview
-      );
+      main.innerHTML = nextHomeMarkup;
+      lastCommittedHomeMarkup = nextHomeMarkup;
     }
 
     function renderEmptyState() {
