@@ -4644,6 +4644,152 @@
       toastTimer = setTimeout(() => el.classList.remove('visible'), 3200);
     }
 
+
+    let compassCapabilityGatePromise = null;
+    let accountLibraryResumeUnsubscribe = null;
+
+    async function ensureCompassCapabilityGate() {
+      if (window.AtlasCapabilityGate) {
+        return window.AtlasCapabilityGate;
+      }
+
+      if (compassCapabilityGatePromise) {
+        return compassCapabilityGatePromise;
+      }
+
+      compassCapabilityGatePromise =
+        (async () => {
+          const Bootstrap = window.AtlasAccessBootstrap;
+
+          if (
+            !Bootstrap ||
+            typeof Bootstrap.prepareCapabilityGate !== 'function'
+          ) {
+            throw new Error(
+              'Atlas capability enforcement is unavailable.'
+            );
+          }
+
+          return Bootstrap.prepareCapabilityGate();
+        })().catch(error => {
+          compassCapabilityGatePromise = null;
+          throw error;
+        });
+
+      return compassCapabilityGatePromise;
+    }
+
+    async function requireAccountLibraryAccess(
+      operation,
+      context = {},
+      trigger = null
+    ) {
+      try {
+        const Gate = await ensureCompassCapabilityGate();
+
+        return Gate.requireCapability(
+          'canAccessAccountLibrary',
+          {
+            action: 'open-account-library',
+            destination: window.location.href,
+            context: {
+              operation,
+              ...context
+            },
+            trigger
+          }
+        );
+      } catch (error) {
+        return {
+          outcome: 'unavailable',
+          error
+        };
+      }
+    }
+
+    function accountLibraryAccessAllows(access) {
+      if (access?.outcome === 'allowed') {
+        return true;
+      }
+
+      if (access?.outcome !== 'auth-required') {
+        showToast(
+          'My Subjects are unavailable right now.'
+        );
+      }
+
+      return false;
+    }
+
+    async function installAccountLibraryResume() {
+      try {
+        const Gate = await ensureCompassCapabilityGate();
+
+        accountLibraryResumeUnsubscribe?.();
+
+        accountLibraryResumeUnsubscribe =
+          Gate.subscribeResume(
+            async payload => {
+              const intent = payload?.intent || null;
+
+              if (
+                !intent ||
+                intent.action !== 'open-account-library'
+              ) {
+                return;
+              }
+
+              const context = intent.context || {};
+
+              if (
+                context.operation === 'add-atlas-original' &&
+                context.registryId
+              ) {
+                await runAtlasOriginalOwnershipAction(
+                  context.registryId,
+                  'own',
+                  null,
+                  {
+                    categoryId: context.categoryId || ''
+                  }
+                );
+                return;
+              }
+
+              if (
+                context.operation === 'add-owned-subject' &&
+                context.subjectId
+              ) {
+                await addOwnedSubjectToLibrary(
+                  context.subjectId,
+                  null
+                );
+                return;
+              }
+
+              if (
+                context.operation === 'remove-owned-subject' &&
+                context.subjectId
+              ) {
+                await removeOwnedSubjectFromLibrary(
+                  context.subjectId,
+                  null
+                );
+              }
+            },
+            {
+              action: 'open-account-library',
+              replay: true
+            }
+          );
+      } catch (error) {
+        console.warn(
+          '[Compass] account-library resume unavailable:',
+          error
+        );
+      }
+    }
+
     /* ================================================================
        OWNED SUBJECT MANAGEMENT
        ================================================================ */
@@ -9586,7 +9732,7 @@
       requestAnimationFrame(() => confirm.focus());
     }
 
-    function runAtlasOriginalOwnershipAction(
+    async function runAtlasOriginalOwnershipAction(
       registryId,
       action,
       event,
@@ -9603,6 +9749,22 @@
       if (!subject) {
         showToast('That Atlas subject could not be found.');
         return;
+      }
+
+      if (action === 'own') {
+        const access =
+          await requireAccountLibraryAccess(
+            'add-atlas-original',
+            {
+              registryId: subject.registryId,
+              categoryId
+            },
+            event?.currentTarget || null
+          );
+
+        if (!accountLibraryAccessAllows(access)) {
+          return;
+        }
       }
 
       const requestId =
@@ -9948,6 +10110,17 @@
 
       closeOwnedSubjectMenus();
 
+      const access =
+        await requireAccountLibraryAccess(
+          'add-owned-subject',
+          { subjectId },
+          event?.currentTarget || null
+        );
+
+      if (!accountLibraryAccessAllows(access)) {
+        return;
+      }
+
       const Subjects = window.AtlasTutorSubjects;
 
       if (
@@ -9991,6 +10164,17 @@
       event?.stopPropagation();
 
       closeOwnedSubjectMenus();
+
+      const access =
+        await requireAccountLibraryAccess(
+          'remove-owned-subject',
+          { subjectId },
+          event?.currentTarget || null
+        );
+
+      if (!accountLibraryAccessAllows(access)) {
+        return;
+      }
 
       const Subjects = window.AtlasTutorSubjects;
 
@@ -12171,6 +12355,8 @@
         root: '#atlas-session-panel-root',
         initialView: 'manage'
       });
+
+      void installAccountLibraryResume();
 
       renderHub();
     }

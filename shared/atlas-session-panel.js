@@ -27,6 +27,8 @@
     let previousBodyOverflow = '';
     let mounted = false;
     let learnerCloudPromise = null;
+    let capabilityGatePromise = null;
+    let learnerResumeUnsubscribe = null;
 
     function hasStoredAtlasAccountSession() {
         try {
@@ -71,6 +73,43 @@
             script.addEventListener('error', reject, { once: true });
             document.head.appendChild(script);
         });
+    }
+
+    async function ensureCapabilityGate() {
+        if (window.AtlasCapabilityGate) {
+            return window.AtlasCapabilityGate;
+        }
+
+        if (capabilityGatePromise) {
+            return capabilityGatePromise;
+        }
+
+        capabilityGatePromise = (async () => {
+            if (!window.AtlasAccessBootstrap) {
+                await loadScript(
+                    '/shared/atlas-access-bootstrap.js?v=20260917-capability1',
+                    'data-atlas-access-bootstrap'
+                );
+            }
+
+            const Bootstrap = window.AtlasAccessBootstrap;
+
+            if (
+                !Bootstrap ||
+                typeof Bootstrap.prepareCapabilityGate !== 'function'
+            ) {
+                throw new Error(
+                    'Atlas capability enforcement is unavailable.'
+                );
+            }
+
+            return Bootstrap.prepareCapabilityGate();
+        })().catch(error => {
+            capabilityGatePromise = null;
+            throw error;
+        });
+
+        return capabilityGatePromise;
     }
 
     async function ensureLearnerCloud() {
@@ -1332,6 +1371,156 @@
         }
     }
 
+    async function requestCreateLearner(
+        name,
+        {
+            trigger = null,
+            source = 'session-panel'
+        } = {}
+    ) {
+        const cleanName = String(name || '').trim();
+
+        if (!cleanName) {
+            return {
+                outcome: 'invalid',
+                created: null
+            };
+        }
+
+        let access = null;
+
+        try {
+            const Gate = await ensureCapabilityGate();
+
+            access = await Gate.requireCapability(
+                'canCreateLearner',
+                {
+                    action: 'create-learner',
+                    destination: window.location.href,
+                    context: {
+                        name: cleanName,
+                        source: String(source || 'session-panel')
+                            .slice(0, 80)
+                    },
+                    trigger
+                }
+            );
+        } catch (error) {
+            return {
+                outcome: 'unavailable',
+                created: null,
+                error
+            };
+        }
+
+        if (access?.outcome !== 'allowed') {
+            return {
+                outcome:
+                    access?.outcome || 'unavailable',
+                created: null,
+                access
+            };
+        }
+
+        try {
+            const Authority = await ensureLearnerCloud();
+
+            if (
+                !Authority ||
+                !Authority.getState?.().active ||
+                typeof Authority.createSession !== 'function'
+            ) {
+                throw new Error(
+                    'Account learner storage is unavailable.'
+                );
+            }
+
+            const created =
+                await Authority.createSession(cleanName);
+
+            if (!created) {
+                return {
+                    outcome: 'duplicate',
+                    created: null,
+                    access
+                };
+            }
+
+            refresh();
+            window.renderHome?.();
+
+            return {
+                outcome: 'allowed',
+                created,
+                access
+            };
+        } catch (error) {
+            return {
+                outcome: 'unavailable',
+                created: null,
+                access,
+                error
+            };
+        }
+    }
+
+    async function installLearnerCapabilityResume() {
+        try {
+            const Gate = await ensureCapabilityGate();
+
+            learnerResumeUnsubscribe?.();
+
+            learnerResumeUnsubscribe =
+                Gate.subscribeResume(
+                    async payload => {
+                        const intent = payload?.intent || null;
+
+                        if (
+                            !intent ||
+                            intent.action !== 'create-learner'
+                        ) {
+                            return;
+                        }
+
+                        const name = String(
+                            intent.context?.name || ''
+                        ).trim();
+
+                        if (!name) return;
+
+                        const result =
+                            await requestCreateLearner(
+                                name,
+                                {
+                                    source: 'return-intent'
+                                }
+                            );
+
+                        if (!result?.created) return;
+
+                        if (mounted) {
+                            setCreateExpanded(
+                                false,
+                                { reset: true }
+                            );
+                            refresh();
+                        }
+
+                        window.renderHome?.();
+                    },
+                    {
+                        action: 'create-learner',
+                        replay: true
+                    }
+                );
+        } catch (error) {
+            console.warn(
+                '[AtlasSessionPanel] learner capability resume unavailable:',
+                error
+            );
+        }
+    }
+
     async function handleCreate(event) {
         event.preventDefault();
 
@@ -1340,27 +1529,32 @@
 
         if (!name) return;
 
-        let created = null;
+        if (elements.createError) {
+            elements.createError.textContent = '';
+        }
 
-        try {
-            const Authority = await ensureLearnerCloud();
+        const result =
+            await requestCreateLearner(
+                name,
+                {
+                    trigger:
+                        event.submitter ||
+                        elements.createToggle ||
+                        elements.createInput,
+                    source: 'session-panel'
+                }
+            );
 
-            created =
-                Authority?.getState?.().active
-                    ? await Authority.createSession(name)
-                    : getBridge().createSession(name);
-        } catch {
-            if (elements.createError) {
-                elements.createError.textContent =
-                    'Couldn’t save this session. Try again.';
-            }
+        if (result?.outcome === 'auth-required') {
             return;
         }
 
-        if (!created) {
+        if (!result?.created) {
             if (elements.createError) {
                 elements.createError.textContent =
-                    'A session with that name already exists.';
+                    result?.outcome === 'duplicate'
+                        ? 'A session with that name already exists.'
+                        : 'Couldn’t add this learner right now. Try again.';
             }
             return;
         }
@@ -1555,6 +1749,8 @@
             showSafeView();
         }
 
+        void installLearnerCapabilityResume();
+
         void ensureLearnerCloud()
             .then(() => refresh())
             .catch(() => refresh());
@@ -1570,6 +1766,7 @@
         showSafeView,
         showManageView,
         getSessionDisplayName,
+        requestCreateLearner,
         isOpen
     };
 })();

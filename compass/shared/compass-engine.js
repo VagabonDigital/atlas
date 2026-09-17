@@ -14814,6 +14814,164 @@ function updateUpgradeSaveButton(contextId) {
         });
 }
 
+
+let durableSaveCapabilityGatePromise = null;
+let durableSaveResumeUnsubscribe = null;
+
+async function ensureDurableSaveCapabilityGate() {
+    if (window.AtlasCapabilityGate) {
+        return window.AtlasCapabilityGate;
+    }
+
+    if (durableSaveCapabilityGatePromise) {
+        return durableSaveCapabilityGatePromise;
+    }
+
+    durableSaveCapabilityGatePromise =
+        (async () => {
+            const Bootstrap = window.AtlasAccessBootstrap;
+
+            if (
+                !Bootstrap ||
+                typeof Bootstrap.prepareCapabilityGate !== 'function'
+            ) {
+                throw new Error(
+                    'Atlas capability enforcement is unavailable.'
+                );
+            }
+
+            return Bootstrap.prepareCapabilityGate();
+        })().catch(error => {
+            durableSaveCapabilityGatePromise = null;
+            throw error;
+        });
+
+    return durableSaveCapabilityGatePromise;
+}
+
+async function requireDurableSaveAccess(
+    operation,
+    context = {},
+    trigger = null
+) {
+    try {
+        const Gate =
+            await ensureDurableSaveCapabilityGate();
+
+        return Gate.requireCapability(
+            'canSaveDurableWork',
+            {
+                action: 'save-work',
+                destination: window.location.href,
+                context: {
+                    operation,
+                    ...context
+                },
+                trigger
+            }
+        );
+    } catch (error) {
+        return {
+            outcome: 'unavailable',
+            error
+        };
+    }
+}
+
+function durableSaveAccessAllows(access) {
+    if (access?.outcome === 'allowed') {
+        return true;
+    }
+
+    if (access?.outcome !== 'auth-required') {
+        console.warn(
+            '[Compass] Durable save unavailable:',
+            access?.error ||
+            access?.outcome ||
+            'unknown'
+        );
+    }
+
+    return false;
+}
+
+async function installDurableSaveResume() {
+    try {
+        const Gate =
+            await ensureDurableSaveCapabilityGate();
+
+        durableSaveResumeUnsubscribe?.();
+
+        durableSaveResumeUnsubscribe =
+            Gate.subscribeResume(
+                async payload => {
+                    const intent = payload?.intent || null;
+
+                    if (
+                        !intent ||
+                        intent.action !== 'save-work'
+                    ) {
+                        return;
+                    }
+
+                    const context = intent.context || {};
+                    const contextId = String(
+                        context.contextId || ''
+                    ).trim();
+
+                    if (
+                        !contextId ||
+                        (
+                            context.operation !== 'save' &&
+                            context.operation !== 'unsave'
+                        )
+                    ) {
+                        return;
+                    }
+
+                    const access =
+                        await requireDurableSaveAccess(
+                            context.operation,
+                            { contextId }
+                        );
+
+                    if (!durableSaveAccessAllows(access)) {
+                        return;
+                    }
+
+                    if (
+                        context.operation === 'save' &&
+                        !isUpgradeSaved(contextId)
+                    ) {
+                        saveLanguageFromUpgrade(contextId);
+                    } else if (
+                        context.operation === 'unsave' &&
+                        isUpgradeSaved(contextId)
+                    ) {
+                        unsaveLanguageFromUpgrade(contextId);
+                    }
+
+                    if (
+                        document
+                            .getElementById('vb-drawer')
+                            ?.classList.contains('open')
+                    ) {
+                        renderVocabBank();
+                    }
+                },
+                {
+                    action: 'save-work',
+                    replay: true
+                }
+            );
+    } catch (error) {
+        console.warn(
+            '[Compass] durable-save resume unavailable:',
+            error
+        );
+    }
+}
+
 function saveLanguageFromUpgrade(contextId) {
     const entry = buildSavedLanguageEntry(contextId);
 
@@ -14872,11 +15030,27 @@ function removeSavedLanguageEntryById(entryId, event) {
     publishAtlasCompassItem('language-unsaved');
 }
 
-function toggleSavedLanguage(contextId, event) {
+async function toggleSavedLanguage(contextId, event) {
     event?.stopPropagation();
     event?.preventDefault();
 
-    if (isUpgradeSaved(contextId)) {
+    const operation =
+        isUpgradeSaved(contextId)
+            ? 'unsave'
+            : 'save';
+
+    const access =
+        await requireDurableSaveAccess(
+            operation,
+            { contextId },
+            event?.currentTarget || null
+        );
+
+    if (!durableSaveAccessAllows(access)) {
+        return;
+    }
+
+    if (operation === 'unsave') {
         unsaveLanguageFromUpgrade(contextId);
     } else {
         saveLanguageFromUpgrade(contextId);
@@ -21121,6 +21295,8 @@ async function init() {
     renderAllCompassNavigation();
     applySubjectIdentityChrome();
     mountSessionPanel();
+
+    void installDurableSaveResume();
 
     updateSessionUI();
     renderUpgradeVisibilityControls();

@@ -4802,7 +4802,7 @@
         '<p class="empty-setup-sub">Add a name to keep each learner\u2019s progress separate, or skip this for now.</p>' +
         '<div class="empty-form">' +
         '<input class="session-input" id="empty-name-input" type="text" placeholder="Learner name" maxlength="40" autocomplete="off" style="flex:1">' +
-        '<button class="btn-primary" onclick="startWithName()">Continue</button>' +
+        '<button class="btn-primary" onclick="startWithName(event)">Continue</button>' +
         '</div>' +
         '<button class="empty-default-link" onclick="startWithDefault()">Skip for now</button>' +
         '</div>' +
@@ -4810,18 +4810,44 @@
         renderDoors() +
         renderTutorEntry();
     }
-    function startWithName() {
+    async function startWithName(event) {
       const inp = document.getElementById('empty-name-input');
       if (!inp) return;
+
       const name = inp.value.trim();
       if (!name) { inp.focus(); return; }
-      const created = Bridge.createSession(name);
-      if (!created) {
+
+      const Panel = window.AtlasSessionPanel;
+
+      if (
+        !Panel ||
+        typeof Panel.requestCreateLearner !== 'function'
+      ) {
         inp.style.borderColor = 'var(--danger)';
         setTimeout(() => { inp.style.borderColor = ''; }, 1200);
         return;
       }
-      // Event listener re-renders; call renderHome directly too for immediacy.
+
+      const result =
+        await Panel.requestCreateLearner(
+          name,
+          {
+            trigger: event?.currentTarget || null,
+            source: 'atlas-root-empty-state'
+          }
+        );
+
+      if (result?.outcome === 'auth-required') {
+        return;
+      }
+
+      if (!result?.created) {
+        inp.style.borderColor = 'var(--danger)';
+        setTimeout(() => { inp.style.borderColor = ''; }, 1200);
+        return;
+      }
+
+      // Session authority publishes the canonical change; render immediately too.
       renderHome();
     }
     function startWithDefault() {
