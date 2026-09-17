@@ -2967,8 +2967,18 @@
     /* ============================================================
        FIRST-VISIT WELCOME
        ============================================================ */
-    html:not([data-atlas-welcome="seen"]) body {
-      overflow: hidden;
+    /*
+     * Keep the document scrollbar geometry stable while the fixed welcome
+     * screen is visible. Hiding body overflow here made the scrollbar appear
+     * only after Enter Atlas, shifting the centred welcome composition.
+     * The gutter stays reserved; only the scrollbar thumb is hidden.
+     */
+    html:not([data-atlas-welcome="seen"]) {
+      scrollbar-color: transparent transparent;
+    }
+
+    html:not([data-atlas-welcome="seen"])::-webkit-scrollbar-thumb {
+      background: transparent;
     }
 
     .atlas-welcome-screen {
@@ -3676,6 +3686,11 @@
 
   <script>
     function enterAtlasFromWelcome() {
+      // The fixed welcome screen keeps the Hub out of view while the document
+      // retains its normal scrollbar geometry. Always reveal Atlas from the
+      // top even if a wheel/trackpad moved the hidden page underneath.
+      window.scrollTo(0, 0);
+
       try {
         localStorage.setItem('atlas::welcomeSeen:v1', '1');
       } catch (e) { }
