@@ -879,19 +879,10 @@
         removeValue(buildStateStorageKey(id));
         removeValue(buildCheckpointStorageKey(id));
         removeValue(pendingDeleteStorageKey(id));
+        invalidateSnapshot();
 
-        try {
-            await mutateCloudLibrary(draft => {
-                delete draft.library.subjects[id];
-                draft.order = draft.order.filter(candidateId => candidateId !== id);
-                return true;
-            });
-        } finally {
-            invalidateSnapshot();
-        }
-
-        // Current session collections remain browser-local in Stage 1.
-        // Remove deleted My Subject references from every local session.
+        // Durable deletion already removed cloud-owned learner, Shared, and
+        // library references atomically. Clear this browser's projections too.
         listKeysWithPrefix(SESSION_SUBJECTS_PREFIX).forEach(key => {
             const refs = readJson(key);
             if (!Array.isArray(refs)) return;
@@ -900,6 +891,14 @@
             if (next.length === 0) removeValue(key);
             else writeJson(key, next);
         });
+
+        void window.AtlasLearnerSessionsCloudAuthority
+            ?.initialize?.({ force: true })
+            .catch(() => undefined);
+
+        void window.AtlasSharedSessionSubjectsCloudAuthority
+            ?.refresh?.({ force: true })
+            .catch(() => undefined);
 
         return true;
     }
