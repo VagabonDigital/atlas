@@ -40,11 +40,42 @@
     let currentUserId = '';
     let remoteRecord = null;
     let initializePromise = null;
+    let queuedInitializePromise = null;
+    let forceInitializeQueued = false;
+    let initializeGeneration = 0;
     let syncTimer = null;
     let syncChain = Promise.resolve();
     let suspendLocalSync = false;
     let storageHooksInstalled = false;
     let lastSnapshotJson = '';
+
+    function storedAccountUserId() {
+        try {
+            const raw = localStorage.getItem(
+                AUTH_STORAGE_KEY
+            );
+
+            if (!raw) return '';
+
+            const parsed = JSON.parse(raw);
+            const candidates = [
+                parsed,
+                parsed?.session,
+                parsed?.currentSession,
+                parsed?.data?.session
+            ];
+
+            for (const candidate of candidates) {
+                const id = String(
+                    candidate?.user?.id || ''
+                ).trim();
+
+                if (id) return id;
+            }
+        } catch { }
+
+        return '';
+    }
 
     function cloneJson(value) {
         if (value === null || value === undefined) return value;
@@ -736,14 +767,58 @@
     async function initialize({ force = false } = {}) {
         installStorageHooks();
 
-        if (initializePromise && !force) {
-            return initializePromise;
+        const storedUserId = storedAccountUserId();
+        const identityChanged = Boolean(
+            initialized || currentUserId
+        ) && storedUserId !== currentUserId;
+
+        if (initializePromise) {
+            if (!force || !identityChanged) {
+                return initializePromise;
+            }
+
+            initializeGeneration += 1;
+            forceInitializeQueued = true;
+
+            if (!queuedInitializePromise) {
+                const activePromise = initializePromise;
+
+                queuedInitializePromise =
+                    Promise.resolve(activePromise)
+                        .catch(() => undefined)
+                        .then(() => {
+                            queuedInitializePromise = null;
+
+                            if (!forceInitializeQueued) {
+                                return getState();
+                            }
+
+                            forceInitializeQueued = false;
+                            return initialize({ force: true });
+                        });
+            }
+
+            return queuedInitializePromise;
         }
 
-        initializePromise = (async () => {
+        if (
+            initialized &&
+            !force &&
+            storedUserId === currentUserId
+        ) {
+            return getState();
+        }
+
+        const generation = ++initializeGeneration;
+
+        const request = (async () => {
             const previousUserId = currentUserId;
             const session = await getSession();
             const userId = String(session?.user?.id || '').trim();
+
+            if (generation !== initializeGeneration) {
+                return getState();
+            }
 
             if (!userId) {
                 authenticated = false;
@@ -783,6 +858,10 @@
 
             const remote = await fetchRemote();
 
+            if (generation !== initializeGeneration) {
+                return getState();
+            }
+
             if (remote) {
                 remoteRecord = remote;
                 lastSnapshotJson = JSON.stringify(remote.state);
@@ -799,12 +878,20 @@
 
             return getState();
         })().catch(error => {
-            initializePromise = null;
             dispatchError(error, 'initialize');
             throw error;
         });
 
-        return initializePromise;
+        let trackedPromise = null;
+
+        trackedPromise = request.finally(() => {
+            if (initializePromise === trackedPromise) {
+                initializePromise = null;
+            }
+        });
+
+        initializePromise = trackedPromise;
+        return trackedPromise;
     }
 
     function getState() {

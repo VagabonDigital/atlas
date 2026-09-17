@@ -27,19 +27,40 @@
     let previousBodyOverflow = '';
     let mounted = false;
     let learnerCloudPromise = null;
+    let learnerCloudPromiseUserId = '';
     let capabilityGatePromise = null;
     let learnerResumeUnsubscribe = null;
 
-    function hasStoredAtlasAccountSession() {
+    function storedAtlasAccountUserId() {
         try {
-            return Boolean(
-                localStorage.getItem(
-                    SUPABASE_SESSION_KEY
-                )
+            const raw = localStorage.getItem(
+                SUPABASE_SESSION_KEY
             );
-        } catch {
-            return false;
-        }
+
+            if (!raw) return '';
+
+            const parsed = JSON.parse(raw);
+            const candidates = [
+                parsed,
+                parsed?.session,
+                parsed?.currentSession,
+                parsed?.data?.session
+            ];
+
+            for (const candidate of candidates) {
+                const id = String(
+                    candidate?.user?.id || ''
+                ).trim();
+
+                if (id) return id;
+            }
+        } catch { }
+
+        return '';
+    }
+
+    function hasStoredAtlasAccountSession() {
+        return Boolean(storedAtlasAccountUserId());
     }
 
     function loadScript(src, marker) {
@@ -113,13 +134,33 @@
     }
 
     async function ensureLearnerCloud({ force = false } = {}) {
-        if (!hasStoredAtlasAccountSession()) {
+        const userId = storedAtlasAccountUserId();
+
+        if (!userId) {
             return null;
         }
 
-        if (learnerCloudPromise && !force) {
-            return learnerCloudPromise;
+        if (
+            learnerCloudPromise &&
+            learnerCloudPromiseUserId === userId
+        ) {
+            if (!force) {
+                return learnerCloudPromise;
+            }
+
+            return learnerCloudPromise.then(async Authority => {
+                if (
+                    Authority &&
+                    typeof Authority.initialize === 'function'
+                ) {
+                    await Authority.initialize({ force: true });
+                }
+
+                return Authority;
+            });
         }
+
+        learnerCloudPromiseUserId = userId;
 
         learnerCloudPromise = (async () => {
             if (!window.AtlasCloud) {
@@ -152,7 +193,11 @@
 
             return Authority;
         })().catch(error => {
-            learnerCloudPromise = null;
+            if (learnerCloudPromiseUserId === userId) {
+                learnerCloudPromise = null;
+                learnerCloudPromiseUserId = '';
+            }
+
             throw error;
         });
 
@@ -1786,7 +1831,8 @@
      */
     let observedAccountAuthenticated =
         hasStoredAtlasAccountSession();
-    let observedAccountUserId = '';
+    let observedAccountUserId =
+        storedAtlasAccountUserId();
 
     window.addEventListener(
         'atlas:account-change',
@@ -1815,10 +1861,6 @@
             if (!identityChanged) {
                 return;
             }
-
-            // A successful authority promise belongs to the previous account
-            // state. Clear this wrapper cache at the identity boundary.
-            learnerCloudPromise = null;
 
             // Reconcile visible state immediately. On sign-in this removes
             // anonymous-only setup before cloud hydration finishes.
@@ -1910,10 +1952,31 @@
         return learnerRefreshPromise;
     }
 
-    function refreshWhenVisible() {
-        if (!document.hidden) {
+    let hasBlurred = false;
+    let hasBeenHidden = document.hidden;
+
+    function refreshAfterFocusReturn() {
+        if (!hasBlurred || document.hidden) return;
+        hasBlurred = false;
+        void refreshLearnersFromCloud();
+    }
+
+    function refreshAfterPageRestore(event) {
+        if (event?.persisted === true) {
             void refreshLearnersFromCloud();
         }
+    }
+
+    function refreshAfterVisibilityReturn() {
+        if (document.hidden) {
+            hasBeenHidden = true;
+            return;
+        }
+
+        if (!hasBeenHidden) return;
+
+        hasBeenHidden = false;
+        void refreshLearnersFromCloud();
     }
 
     function patchOpen() {
@@ -1935,9 +1998,21 @@
         Panel.__atlasLearnerLiveRefreshPatched = true;
     }
 
-    window.addEventListener('focus', refreshWhenVisible);
-    window.addEventListener('pageshow', refreshWhenVisible);
-    document.addEventListener('visibilitychange', refreshWhenVisible);
+    window.addEventListener('blur', () => {
+        hasBlurred = true;
+    });
+    window.addEventListener(
+        'focus',
+        refreshAfterFocusReturn
+    );
+    window.addEventListener(
+        'pageshow',
+        refreshAfterPageRestore
+    );
+    document.addEventListener(
+        'visibilitychange',
+        refreshAfterVisibilityReturn
+    );
 
     patchOpen();
 })();

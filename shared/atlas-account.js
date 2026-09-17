@@ -37,6 +37,8 @@
     let persistenceTrustPromise = null;
     let sessionReconcilePromise = null;
     let entitlementRequestId = 0;
+    let entitlementPromise = null;
+    let entitlementPromiseUserId = '';
 
     function readRecoveryHint() {
         try {
@@ -295,6 +297,13 @@
             return snapshot();
         }
 
+        if (
+            entitlementPromise &&
+            entitlementPromiseUserId === userId
+        ) {
+            return entitlementPromise;
+        }
+
         const requestId = ++entitlementRequestId;
 
         publish({
@@ -303,45 +312,67 @@
             entitlementError: null
         });
 
-        try {
-            const AccountCloud = await ensureAccountCloud();
-            const entitlement = await AccountCloud.getAccountEntitlement();
+        entitlementPromiseUserId = userId;
 
-            if (
-                requestId !== entitlementRequestId ||
-                !state.authenticated ||
-                state.userId !== userId
-            ) {
-                return snapshot();
+        const request = (async () => {
+            try {
+                const AccountCloud = await ensureAccountCloud();
+                const entitlement =
+                    await AccountCloud.getAccountEntitlement();
+
+                if (
+                    requestId !== entitlementRequestId ||
+                    !state.authenticated ||
+                    state.userId !== userId
+                ) {
+                    return snapshot();
+                }
+
+                publish({
+                    ...state,
+                    entitlementReady: true,
+                    planCode: entitlement?.planCode || 'free',
+                    capabilities: entitlement?.capabilities || {},
+                    entitlementError: null
+                });
+            } catch (error) {
+                if (
+                    requestId !== entitlementRequestId ||
+                    !state.authenticated ||
+                    state.userId !== userId
+                ) {
+                    return snapshot();
+                }
+
+                console.error(
+                    '[AtlasAccount] entitlement read failed:',
+                    error
+                );
+
+                publish({
+                    ...state,
+                    entitlementReady: true,
+                    planCode: null,
+                    capabilities: {},
+                    entitlementError:
+                        error?.message || String(error)
+                });
             }
 
-            publish({
-                ...state,
-                entitlementReady: true,
-                planCode: entitlement?.planCode || 'free',
-                capabilities: entitlement?.capabilities || {},
-                entitlementError: null
-            });
-        } catch (error) {
-            if (
-                requestId !== entitlementRequestId ||
-                !state.authenticated ||
-                state.userId !== userId
-            ) {
-                return snapshot();
+            return snapshot();
+        })();
+
+        let trackedPromise = null;
+
+        trackedPromise = request.finally(() => {
+            if (entitlementPromise === trackedPromise) {
+                entitlementPromise = null;
+                entitlementPromiseUserId = '';
             }
+        });
 
-            console.error('[AtlasAccount] entitlement read failed:', error);
-            publish({
-                ...state,
-                entitlementReady: true,
-                planCode: null,
-                capabilities: {},
-                entitlementError: error?.message || String(error)
-            });
-        }
-
-        return snapshot();
+        entitlementPromise = trackedPromise;
+        return trackedPromise;
     }
 
     function scheduleEntitlementRefresh(userId) {

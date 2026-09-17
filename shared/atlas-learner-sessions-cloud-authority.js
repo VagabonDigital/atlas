@@ -25,8 +25,12 @@
         'atlas::tutorSubjects::sessionSubjects::';
 
     let initializePromise = null;
+    let queuedInitializePromise = null;
+    let forceInitializeQueued = false;
     let authenticated = false;
     let initialized = false;
+    let currentUserId = '';
+    let lastHydratedAt = 0;
     let subjectApiFallback = null;
 
     const recordsById = new Map();
@@ -62,14 +66,36 @@
         return window.AtlasLearnerSessionsCloud;
     }
 
-    function hasStoredAccountSession() {
+    function storedAccountUserId() {
         try {
-            return Boolean(
-                localStorage.getItem(SUPABASE_SESSION_KEY)
+            const raw = localStorage.getItem(
+                SUPABASE_SESSION_KEY
             );
-        } catch {
-            return false;
-        }
+
+            if (!raw) return '';
+
+            const parsed = JSON.parse(raw);
+            const candidates = [
+                parsed,
+                parsed?.session,
+                parsed?.currentSession,
+                parsed?.data?.session
+            ];
+
+            for (const candidate of candidates) {
+                const id = String(
+                    candidate?.user?.id || ''
+                ).trim();
+
+                if (id) return id;
+            }
+        } catch { }
+
+        return '';
+    }
+
+    function hasStoredAccountSession() {
+        return Boolean(storedAccountUserId());
     }
 
     function cloneJson(value) {
@@ -384,28 +410,68 @@
         return true;
     }
 
+    function queueForcedInitialize() {
+        forceInitializeQueued = true;
+
+        if (queuedInitializePromise) {
+            return queuedInitializePromise;
+        }
+
+        const activePromise = initializePromise;
+
+        queuedInitializePromise = Promise.resolve(activePromise)
+            .catch(() => undefined)
+            .then(() => {
+                queuedInitializePromise = null;
+
+                if (!forceInitializeQueued) {
+                    return getState();
+                }
+
+                forceInitializeQueued = false;
+                return initialize({ force: true });
+            });
+
+        return queuedInitializePromise;
+    }
+
     async function initialize({ force = false } = {}) {
-        if (!hasStoredAccountSession()) {
-            authenticated = false;
-            initialized = true;
-            patchSubjectSessionApi();
+        if (initializePromise) {
+            return force
+                ? queueForcedInitialize()
+                : initializePromise;
+        }
+
+        const storedUserId = storedAccountUserId();
+
+        if (
+            initialized &&
+            !force &&
+            storedUserId === currentUserId
+        ) {
             return getState();
         }
 
-        if (initializePromise && !force) {
-            return initializePromise;
-        }
-
-        initializePromise = (async () => {
+        const request = (async () => {
             const Cloud = requireCloud();
             const LearnerCloud = requireLearnerCloud();
             const session = await Cloud.getSession();
+            const userId = String(
+                session?.user?.id || ''
+            ).trim();
 
-            authenticated = Boolean(session?.user);
+            // A response for an account that stopped being current while this
+            // hydration was in flight must never repopulate the new scope.
+            if (storedAccountUserId() !== userId) {
+                return getState();
+            }
 
-            if (!authenticated) {
+            if (!userId) {
+                authenticated = false;
+                currentUserId = '';
                 recordsById.clear();
                 initialized = true;
+                lastHydratedAt = Date.now();
                 patchSubjectSessionApi();
                 return getState();
             }
@@ -413,6 +479,12 @@
             const remote =
                 await LearnerCloud.listLearnerSessions();
 
+            if (storedAccountUserId() !== userId) {
+                return getState();
+            }
+
+            authenticated = true;
+            currentUserId = userId;
             recordsById.clear();
 
             remote.forEach(record => {
@@ -423,16 +495,25 @@
             patchSubjectSessionApi();
 
             initialized = true;
+            lastHydratedAt = Date.now();
             dispatchReady();
 
             return getState();
         })().catch(error => {
-            initializePromise = null;
             dispatchError(error, 'initialize');
             throw error;
         });
 
-        return initializePromise;
+        let trackedPromise = null;
+
+        trackedPromise = request.finally(() => {
+            if (initializePromise === trackedPromise) {
+                initializePromise = null;
+            }
+        });
+
+        initializePromise = trackedPromise;
+        return trackedPromise;
     }
 
     function getState() {
@@ -444,6 +525,8 @@
             initialized,
             authenticated,
             active: initialized && authenticated,
+            userId: currentUserId || null,
+            lastHydratedAt,
             cloudCount: recordsById.size,
             sessionSubjectsSupported:
                 records.some(record =>

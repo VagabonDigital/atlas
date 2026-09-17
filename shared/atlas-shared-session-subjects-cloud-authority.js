@@ -37,11 +37,42 @@
     let currentUserId = '';
     let remoteRecord = null;
     let initializePromise = null;
+    let queuedInitializePromise = null;
+    let forceInitializeQueued = false;
+    let initializeGeneration = 0;
     let mutationChain = Promise.resolve();
     let refreshPromise = null;
     let lastRefreshAt = 0;
     let suspendLocalSync = false;
     let storageHooksInstalled = false;
+
+    function storedAccountUserId() {
+        try {
+            const raw = localStorage.getItem(
+                AUTH_STORAGE_KEY
+            );
+
+            if (!raw) return '';
+
+            const parsed = JSON.parse(raw);
+            const candidates = [
+                parsed,
+                parsed?.session,
+                parsed?.currentSession,
+                parsed?.data?.session
+            ];
+
+            for (const candidate of candidates) {
+                const id = String(
+                    candidate?.user?.id || ''
+                ).trim();
+
+                if (id) return id;
+            }
+        } catch { }
+
+        return '';
+    }
 
     function cloneJson(value) {
         if (value === null || value === undefined) return value;
@@ -446,14 +477,58 @@
     async function initialize({ force = false } = {}) {
         installStorageHooks();
 
-        if (initializePromise && !force) {
-            return initializePromise;
+        const storedUserId = storedAccountUserId();
+        const identityChanged = Boolean(
+            initialized || currentUserId
+        ) && storedUserId !== currentUserId;
+
+        if (initializePromise) {
+            if (!force || !identityChanged) {
+                return initializePromise;
+            }
+
+            initializeGeneration += 1;
+            forceInitializeQueued = true;
+
+            if (!queuedInitializePromise) {
+                const activePromise = initializePromise;
+
+                queuedInitializePromise =
+                    Promise.resolve(activePromise)
+                        .catch(() => undefined)
+                        .then(() => {
+                            queuedInitializePromise = null;
+
+                            if (!forceInitializeQueued) {
+                                return getState();
+                            }
+
+                            forceInitializeQueued = false;
+                            return initialize({ force: true });
+                        });
+            }
+
+            return queuedInitializePromise;
         }
 
-        initializePromise = (async () => {
+        if (
+            initialized &&
+            !force &&
+            storedUserId === currentUserId
+        ) {
+            return getState();
+        }
+
+        const generation = ++initializeGeneration;
+
+        const request = (async () => {
             const previousUserId = currentUserId;
             const { user } = await getCloudAndUser();
             const userId = String(user?.id || '').trim();
+
+            if (generation !== initializeGeneration) {
+                return getState();
+            }
 
             if (!userId) {
                 authenticated = false;
@@ -490,6 +565,11 @@
             currentUserId = userId;
 
             const remote = await fetchRemote();
+
+            if (generation !== initializeGeneration) {
+                return getState();
+            }
+
             remoteRecord = remote;
             writeLocalRefs(remote?.refs || []);
 
@@ -499,16 +579,24 @@
 
             return getState();
         })().catch(error => {
-            initializePromise = null;
             dispatchError(error, 'initialize');
             throw error;
         });
 
-        return initializePromise;
+        let trackedPromise = null;
+
+        trackedPromise = request.finally(() => {
+            if (initializePromise === trackedPromise) {
+                initializePromise = null;
+            }
+        });
+
+        initializePromise = trackedPromise;
+        return trackedPromise;
     }
 
     async function refreshFromCloud({ force = false } = {}) {
-        if (refreshPromise && !force) {
+        if (refreshPromise) {
             return refreshPromise;
         }
 
@@ -528,8 +616,17 @@
                 return getState();
             }
 
+            const refreshUserId = currentUserId;
             const localBefore = readLocalRefs();
             const latest = await fetchRemote();
+
+            if (
+                refreshUserId !== currentUserId ||
+                storedAccountUserId() !== refreshUserId
+            ) {
+                return getState();
+            }
+
             remoteRecord = latest;
             const cloudRefs = latest?.refs || [];
 
@@ -552,10 +649,31 @@
         return refreshPromise;
     }
 
-    function refreshWhenVisible() {
-        if (!document.hidden) {
+    let hasBlurred = false;
+    let hasBeenHidden = document.hidden;
+
+    function refreshAfterFocusReturn() {
+        if (!hasBlurred || document.hidden) return;
+        hasBlurred = false;
+        void refreshFromCloud();
+    }
+
+    function refreshAfterPageRestore(event) {
+        if (event?.persisted === true) {
             void refreshFromCloud();
         }
+    }
+
+    function refreshAfterVisibilityReturn() {
+        if (document.hidden) {
+            hasBeenHidden = true;
+            return;
+        }
+
+        if (!hasBeenHidden) return;
+
+        hasBeenHidden = false;
+        void refreshFromCloud();
     }
 
     function getState() {
@@ -571,21 +689,41 @@
         };
     }
 
+    window.addEventListener('blur', () => {
+        hasBlurred = true;
+    });
     window.addEventListener(
         'focus',
-        refreshWhenVisible
+        refreshAfterFocusReturn
     );
     window.addEventListener(
         'pageshow',
-        refreshWhenVisible
+        refreshAfterPageRestore
     );
     document.addEventListener(
         'visibilitychange',
-        refreshWhenVisible
+        refreshAfterVisibilityReturn
     );
     window.addEventListener(
         'atlas:account-change',
-        () => initialize({ force: true })
+        event => {
+            const detail = event?.detail || {};
+            const nextAuthenticated =
+                detail.authenticated === true;
+            const nextUserId = String(
+                detail.userId || ''
+            ).trim();
+
+            if (
+                nextAuthenticated === authenticated &&
+                nextUserId === currentUserId
+            ) {
+                return;
+            }
+
+            void initialize({ force: true })
+                .catch(() => undefined);
+        }
     );
 
     window.AtlasSharedSessionSubjectsCloudAuthority =

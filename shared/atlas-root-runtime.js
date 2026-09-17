@@ -27,6 +27,8 @@
         'atlas::languageReviewCompletedThrough::v1::';
 
     let reviewCompletionInstalled = false;
+    let liveAuthorityHydrationPromise = null;
+    let liveAuthorityHydrationUserId = '';
 
     function isAtlasRoot() {
         const path = String(
@@ -172,7 +174,7 @@
             !isAtlasRoot() ||
             !hasStoredAccountSession()
         ) {
-            return;
+            return Promise.resolve();
         }
 
         ensurePreconnect(
@@ -227,7 +229,9 @@
             );
         }
 
-        if (!scripts.length) return;
+        if (!scripts.length) {
+            return Promise.resolve();
+        }
 
         if (document.readyState === 'loading') {
             document.write(
@@ -237,10 +241,10 @@
                     )
                     .join('')
             );
-            return;
+            return Promise.resolve();
         }
 
-        scripts.reduce(
+        return scripts.reduce(
             (chain, src) =>
                 chain.then(() =>
                     loadScriptSequentially(src)
@@ -251,7 +255,92 @@
                 '[AtlasRootRuntime] Account persistence bootstrap failed:',
                 error
             );
+            throw error;
         });
+    }
+
+    function hydrateRootAuthoritiesAfterLiveSignIn(userId) {
+        const id = String(userId || '').trim();
+
+        if (!id || !isAtlasRoot()) {
+            return Promise.resolve();
+        }
+
+        if (
+            liveAuthorityHydrationPromise &&
+            liveAuthorityHydrationUserId === id
+        ) {
+            return liveAuthorityHydrationPromise;
+        }
+
+        liveAuthorityHydrationUserId = id;
+
+        const request = Promise.resolve(
+            writeRootCloudAuthorityScripts()
+        )
+            .then(async () => {
+                if (storedSessionUserId() !== id) return;
+
+                const authorities = [
+                    window.AtlasOriginalCurationCloudAuthority,
+                    window.AtlasHubPersonalizationCloudAuthority
+                ]
+                    .filter(authority =>
+                        authority &&
+                        typeof authority.initialize === 'function'
+                    );
+
+                await Promise.all(
+                    authorities.map(authority =>
+                        authority.initialize()
+                    )
+                );
+
+                if (storedSessionUserId() !== id) return;
+
+                const modal =
+                    document.getElementById('settings-modal');
+
+                if (!modal?.classList.contains('open')) {
+                    return;
+                }
+
+                if (
+                    typeof window.renderArchivedSubjectsSettings ===
+                    'function'
+                ) {
+                    await window.renderArchivedSubjectsSettings();
+                }
+
+                if (
+                    typeof window.renderRestoreAllAtlasOriginalsSetting ===
+                    'function'
+                ) {
+                    window.renderRestoreAllAtlasOriginalsSetting();
+                }
+
+                if (
+                    typeof window.renderAtmosphereFavorites ===
+                    'function'
+                ) {
+                    window.renderAtmosphereFavorites();
+                }
+            });
+
+        let trackedPromise = null;
+
+        trackedPromise = request.finally(() => {
+            if (
+                liveAuthorityHydrationPromise ===
+                trackedPromise
+            ) {
+                liveAuthorityHydrationPromise = null;
+                liveAuthorityHydrationUserId = '';
+            }
+        });
+
+        liveAuthorityHydrationPromise = trackedPromise;
+        return trackedPromise;
     }
 
     function reviewScope() {
@@ -656,6 +745,34 @@
         window.addEventListener(
             'atlas:hub-personalization-cloud-ready',
             refreshRootAfterPersonalizationHydration
+        );
+
+        window.addEventListener(
+            'atlas:account-change',
+            event => {
+                const detail = event?.detail || {};
+                const userId = String(
+                    detail.userId || ''
+                ).trim();
+
+                if (
+                    detail.authenticated !== true ||
+                    !userId
+                ) {
+                    return;
+                }
+
+                markWelcomeSeenForAuthenticatedUser();
+
+                void hydrateRootAuthoritiesAfterLiveSignIn(
+                    userId
+                ).catch(error => {
+                    console.error(
+                        '[AtlasRootRuntime] Live account hydration failed:',
+                        error
+                    );
+                });
+            }
         );
     }
 
