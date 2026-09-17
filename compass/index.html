@@ -86,7 +86,26 @@
   <link rel="stylesheet" href="../shared/atlas-account-chrome.css?v=20260916-accountchrome5" data-atlas-account-chrome-styles>
 
   <script src="../shared/atlas-bridge.js"></script>
-  <script>(function(){var h=false;try{h=Boolean(localStorage.getItem('sb-jnhjfpagectprceswvqn-auth-token'));}catch(e){}document.documentElement.dataset.atlasAccountHint=h?'account':'anonymous';})();</script>
+  <script>
+    (function () {
+      var h = false;
+      try {
+        h = Boolean(
+          localStorage.getItem(
+            'sb-jnhjfpagectprceswvqn-auth-token'
+          )
+        );
+      } catch (e) { }
+
+      document.documentElement.dataset.atlasAccountHint =
+        h ? 'account' : 'anonymous';
+
+      if (h) {
+        document.documentElement.dataset.atlasCompassCloudAuthority =
+          'pending';
+      }
+    })();
+  </script>
 
   <!-- Anti-flash: apply the active session theme before first paint -->
   <script>
@@ -3928,7 +3947,34 @@
       }
     }
 
+    function syncCompassCloudAuthorityState() {
+      const root = document.documentElement;
+
+      if (root.dataset.atlasAccountHint !== 'account') {
+        delete root.dataset.atlasCompassCloudAuthority;
+        return false;
+      }
+
+      const ready = Boolean(
+        window.AtlasTutorSubjectsCloudAuthority
+      );
+
+      root.dataset.atlasCompassCloudAuthority =
+        ready ? 'ready' : 'pending';
+
+      return !ready;
+    }
+
+    function isCompassCloudAuthorityPending() {
+      return document.documentElement.dataset
+        .atlasCompassCloudAuthority === 'pending';
+    }
+
     async function getOwnedSubjects() {
+      if (isCompassCloudAuthorityPending()) {
+        return [];
+      }
+
       const Subjects = window.AtlasTutorSubjects;
 
       if (
@@ -10664,12 +10710,14 @@
       const ownedSubjects = await getOwnedSubjects();
 
       const Subjects = window.AtlasTutorSubjects;
+      const cloudAuthorityPending =
+        isCompassCloudAuthorityPending();
 
       let sessionSubjectRefs = [];
       let libraryState = null;
 
       try {
-        if (Subjects) {
+        if (Subjects && !cloudAuthorityPending) {
           const results = await Promise.all([
             typeof Subjects.getSessionSubjects === 'function'
               ? Subjects.getSessionSubjects(session.id)
@@ -10828,7 +10876,9 @@
       }
 
       const ownedLibraryHtml =
-        libraryCategories
+        cloudAuthorityPending
+          ? ''
+          : libraryCategories
           .map((category, index) =>
             renderSubjectCollection(
               remainingOwnedSubjects.filter(subject =>
@@ -11785,6 +11835,14 @@
       requestHubRender
     );
 
+    window.addEventListener(
+      'atlas:compass-cloud-authority-ready',
+      () => {
+        syncCompassCloudAuthorityState();
+        requestHubRender();
+      }
+    );
+
     function refresh() {
       if (!Bridge) return;
       const mode = Bridge.applyAppearanceMode(Bridge.readAppearanceMode());
@@ -11826,6 +11884,8 @@
 
     function init() {
       if (!Bridge) return;
+
+      syncCompassCloudAuthorityState();
 
       // Registration belongs to startup, not rendering. The registry layer is
       // idempotent, so this is a safe fallback if its own bootstrap ran early.
