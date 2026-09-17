@@ -11827,6 +11827,7 @@
     }
 
     let hubRenderRevision = 0;
+    let lastCommittedHubMarkup = null;
 
     async function renderHub() {
       if (!Bridge) return;
@@ -12047,7 +12048,7 @@
       renderSpineHubNav();
       renderDrawerHubNav();
 
-      main.innerHTML =
+      const nextHubMarkup =
         renderIntro(session) +
         renderSubjectCollection(
           sessionSubjects,
@@ -12061,6 +12062,21 @@
           remainingAtlasSubjects,
           'Atlas Subjects'
         );
+
+      /*
+       * Background account/session refreshes can ask Compass to render the
+       * same Hub state several times after a hard refresh. Replacing
+       * hub-main in that case destroys the subject-card nodes under the
+       * pointer, forcing :hover to drop and reacquire. Keep the existing DOM
+       * when the rendered result is unchanged; real data changes still commit
+       * normally.
+       */
+      if (nextHubMarkup === lastCommittedHubMarkup) {
+        return;
+      }
+
+      main.innerHTML = nextHubMarkup;
+      lastCommittedHubMarkup = nextHubMarkup;
     }
 
     const COMPASS_TOPIC_CYCLE_MS = 80000;
