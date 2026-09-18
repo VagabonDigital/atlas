@@ -700,7 +700,19 @@
     function hydrateSessionChrome() {
         if (typeof document === 'undefined') return;
 
-        const displayName = getSessionDisplayName();
+        const anonymous =
+            document.documentElement
+                ?.dataset
+                ?.atlasAccountHint ===
+            'anonymous';
+
+        const displayName = anonymous
+            ? 'Add learner'
+            : getSessionDisplayName();
+
+        const ariaLabel = anonymous
+            ? 'Add learner. A free account keeps learner progress and continuity.'
+            : `Open session panel. Working with ${displayName}`;
 
         [
             'spine-session-name',
@@ -720,8 +732,13 @@
             if (trigger) {
                 trigger.setAttribute(
                     'aria-label',
-                    `Open session panel. Working with ${displayName}`
+                    ariaLabel
                 );
+
+                trigger.dataset.atlasLearnerEntry =
+                    anonymous
+                        ? 'anonymous'
+                        : 'account';
             }
         });
     }
