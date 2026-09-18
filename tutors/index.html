@@ -606,6 +606,43 @@
       font-size: 19px;
     }
 
+    .hero-actions {
+      display: flex;
+      margin-top: 28px;
+    }
+
+    .product-entry-primary {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 15px;
+      border: 1px solid var(--accent);
+      border-radius: 9px;
+      background: var(--accent);
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1;
+      text-decoration: none;
+      transition:
+        opacity var(--motion) ease,
+        transform var(--motion) ease;
+    }
+
+    .product-entry-primary:hover {
+      opacity: .92;
+      transform: translateY(-1px);
+    }
+
+    .product-entry-primary:active {
+      transform: translateY(0);
+    }
+
+    html[data-theme="night"] .product-entry-primary {
+      color: #172124;
+    }
+
     .power-rail {
       margin-top: 46px;
       display: grid;
@@ -1183,6 +1220,32 @@
       border-top: 1px solid var(--border-faint);
       color: var(--text-heading);
       font-size: 13px;
+    }
+
+    .world-entry {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 18px;
+      color: var(--text-heading);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition:
+        color var(--motion) ease,
+        transform var(--motion) ease;
+    }
+
+    .world-entry:hover {
+      transform: translateX(2px);
+    }
+
+    .world-entry--compass {
+      color: var(--compass);
+    }
+
+    .world-entry--arcade {
+      color: var(--arcade);
     }
 
     .world-ui {
@@ -1798,64 +1861,29 @@
       background: rgba(var(--arcade-rgb), .10);
     }
 
-    .early {
+    .product-entry-final {
+      padding-top: 18px;
       padding-bottom: 96px;
     }
 
-    .early-grid {
-      display: grid;
-      grid-template-columns: 1fr .7fr;
-      gap: 56px;
-      align-items: start;
+    .product-entry-final-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 36px;
+      padding: 32px 0;
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
     }
 
-    .origin p {
-      margin-top: 18px;
-      max-width: 660px;
+    .product-entry-final h2 {
+      margin-top: 4px;
     }
 
-    .origin-quote {
-      margin-top: 24px;
-      padding-left: 18px;
-      border-left: 2px solid var(--accent);
-      color: var(--text-heading);
-      font-family: var(--font-display);
-      font-size: 22px;
-      line-height: 1.35;
-    }
-
-    .pilot {
-      padding: 24px;
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      background: var(--surface-panel);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .pilot h3 {
-      font-size: 27px;
-    }
-
-    .pilot p {
+    .product-entry-final p:not(.kicker) {
+      max-width: 620px;
       margin-top: 12px;
       color: var(--text-muted);
-      font-size: 14px;
-    }
-
-    .pilot-actions {
-      margin-top: 20px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .pilot-actions a {
-      padding: 9px 11px;
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      text-decoration: none;
-      color: var(--text-heading);
-      font-size: 13px;
     }
 
     .footer {
@@ -1872,12 +1900,23 @@
       flex-wrap: wrap;
     }
 
+    .footer a {
+      color: inherit;
+      text-decoration-color: transparent;
+      text-underline-offset: 0.18em;
+    }
+
+    .footer a:hover,
+    .footer a:focus-visible {
+      color: var(--text-heading);
+      text-decoration-color: currentColor;
+    }
+
     @media (max-width: 940px) {
 
       .why-grid,
       .create-layout,
-      .ownership-layout,
-      .early-grid {
+      .ownership-layout {
         grid-template-columns: 1fr;
       }
 
@@ -1999,14 +2038,14 @@
         flex: 0 0 auto;
       }
 
-      .pilot-actions {
-        flex-direction: column;
+      .product-entry-final-inner {
         align-items: stretch;
+        flex-direction: column;
+        gap: 22px;
       }
 
-      .pilot-actions a {
+      .product-entry-final .product-entry-primary {
         width: 100%;
-        text-align: center;
       }
 
       .learner-board {
@@ -2073,11 +2112,11 @@
       <a class="brand" href="../index.html" aria-label="Atlas home">Atlas<span>.</span></a>
       <nav class="nav" aria-label="Tutor Layer chapters">
         <a href="#top">Overview</a><a href="#why">Why</a><a href="#create">Create</a><a href="#teach">Teach</a><a href="#own">Yours</a><a
-          href="#keep">Continuity</a><a href="#early">Story</a>
+          href="#keep">Continuity</a>
       </nav>
       <div class="atlas-inside-account-entry" data-atlas-account-entry data-account-state="pending"
         aria-label="Atlas account actions">
-        <a class="atlas-inside-account-action atlas-inside-account-explore" href="/">Explore Atlas</a>
+        <a class="atlas-inside-account-action atlas-inside-account-explore" href="/?entry=product">Explore Atlas</a>
         <button class="atlas-inside-account-action atlas-inside-account-sign-in" type="button"
           data-atlas-inside-sign-in>Sign in</button>
         <button class="atlas-inside-account-action atlas-inside-account-create" type="button"
@@ -2116,13 +2155,16 @@
               builds your teaching library, and keeps the thread between lessons.</span></span></h1>
         <p class="hero-lede">A creative teaching workspace for recurring one-to-one English lessons. Create or choose
           material, shape it around the learner, and return with context, language and momentum already there.</p>
+        <div class="hero-actions">
+          <a class="product-entry-primary" href="/?entry=product">Explore Atlas</a>
+        </div>
         <div class="power-rail" aria-label="Core Atlas capabilities">
           <div class="power"><strong>Create</strong><span>Turn any topic, question, goal or spark into lesson-ready material in
               seconds.</span></div>
-          <div class="power"><strong>Teach</strong><span>Go deep with structured material or change the energy with a
-              conversation game.</span></div>
           <div class="power"><strong>Shape</strong><span>Rewrite questions, change direction and adapt the lesson as it
               unfolds.</span></div>
+          <div class="power"><strong>Teach</strong><span>Go deep with structured material or change the energy with a
+              conversation game.</span></div>
           <div class="power"><strong>Build</strong><span>Save what you create and grow a library of material you’ll actually
               want to teach again.</span></div>
           <div class="power"><strong>Remember</strong><span>Come back next lesson with context, language and progress already
@@ -2286,6 +2328,7 @@
               <p>Structured teaching material you can create, edit, own and return to — organised into Overview,
                 Discussion, Cultural Lens and Reflection.</p>
               <div class="world-line">Create it, shape it, teach it, keep it.</div>
+              <a class="world-entry world-entry--compass" href="../compass/index.html">Explore Compass <span aria-hidden="true">→</span></a>
             </div>
             <div class="world-ui">
               <div class="compass-shell">
@@ -2307,6 +2350,7 @@
               <p>Fast, low-friction conversation games for the moments when a different rhythm is exactly what the
                 lesson needs.</p>
               <div class="world-line">Open a game and start. No setup required.</div>
+              <a class="world-entry world-entry--arcade" href="../arcade/index.html">Explore Arcade <span aria-hidden="true">→</span></a>
             </div>
             <div class="world-ui">
               <div class="arcade-list">
@@ -2559,35 +2603,23 @@
       </div>
     </section>
 
-    <section class="section early" id="early">
-      <div class="frame early-grid">
-        <div class="origin">
-          <p class="kicker">The story</p>
-          <h2>It started with a Google Doc.</h2>
-          <p>Strong subjects and questions could already make good lessons. But the document itself was static,
-            disconnected from the learner, and difficult to turn into a teaching environment that accumulated value over
-            time.</p>
-          <p>Atlas grew from that practical problem: make the material a better place to teach from rather than something
-            to work through, give the tutor authorship over it, and keep the parts of the relationship that matter connected.</p>
-          <div class="origin-quote">From “read through this material” to “this is my teaching workspace.”</div>
+    <section class="section product-entry-final" aria-labelledby="product-entry-final-title">
+      <div class="frame product-entry-final-inner">
+        <div>
+          <p class="kicker">Explore Atlas</p>
+          <h2 id="product-entry-final-title">Take it into a lesson.</h2>
+          <p>Open the live workspace, choose Compass or Arcade, and start with real teaching material.</p>
         </div>
-        <aside class="pilot">
-          <p class="kicker">The Atlas Pilot</p>
-          <h3>Push it.</h3>
-          <p>Create something unusually specific. Change material that doesn’t fit. Save something you’d genuinely want
-            to teach again. Switch from Compass to Arcade when the lesson needs a different rhythm, then come back.</p>
-          <p>Return to the same learner later and see what Atlas actually carried forward. If something feels awkward,
-            limited or unnecessary, tell us. That is exactly what the pilot is for.</p>
-          <div class="pilot-actions"><a href="./feedback.html" aria-label="Message Atlas Team">Message Atlas Team</a><a href="#" id="shareAtlas"
-              aria-label="Share Atlas">Share Atlas</a><a href="https://buymeacoffee.com/urkoeiqgy" target="_blank"
-              rel="noopener noreferrer" aria-label="Buy us a coffee">Buy us a coffee</a></div>
-        </aside>
+        <a class="product-entry-primary" href="/?entry=product">Explore Atlas</a>
       </div>
     </section>
   </main>
 
   <footer class="footer">
-    <div class="frame footer-inner"><span>Atlas</span><span>Create. Shape. Teach.</span></div>
+    <div class="frame footer-inner">
+      <span>Atlas</span>
+      <span><a href="./feedback.html">Message Atlas</a> · Create. Shape. Teach.</span>
+    </div>
   </footer>
 
   <script src="../shared/atlas-ai.js"></script>
@@ -3216,46 +3248,6 @@
 
         revealSections.forEach(function (section) {
           revealObserver.observe(section);
-        });
-      }
-
-      var shareAtlas = document.getElementById("shareAtlas");
-
-      if (shareAtlas) {
-        shareAtlas.addEventListener("click", async function (event) {
-          event.preventDefault();
-
-          var shareUrl = new URL(window.location.href);
-          shareUrl.hash = "";
-          shareUrl.search = "";
-
-          var shareData = {
-            title: "Atlas",
-            text: "A creative teaching workspace for one-to-one English tutors.",
-            url: shareUrl.href
-          };
-
-          if (navigator.share) {
-            try {
-              await navigator.share(shareData);
-              return;
-            } catch (error) {
-              if (error && error.name === "AbortError") return;
-            }
-          }
-
-          try {
-            await navigator.clipboard.writeText(shareUrl.href);
-
-            var originalText = shareAtlas.textContent;
-            shareAtlas.textContent = "Link copied ✓";
-
-            window.setTimeout(function () {
-              shareAtlas.textContent = originalText;
-            }, 1800);
-          } catch (error) {
-            console.error("Could not share Atlas:", error);
-          }
         });
       }
 
