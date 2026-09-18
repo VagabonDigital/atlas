@@ -1327,6 +1327,22 @@
 
                     if (!registryId) return;
 
+                    const orderScope =
+                        String(
+                            menu.dataset.orderScope || ''
+                        ).trim();
+
+                    if (orderScope) {
+                        menu
+                            .querySelectorAll(
+                                '[data-atlas-order-action]'
+                            )
+                            .forEach(button => button.remove());
+
+                        delete menu.dataset.atlasOrderSignature;
+                        return;
+                    }
+
                     const index = visibleIds.indexOf(registryId);
                     const canMoveEarlier = index > 0;
                     const canMoveLater =
