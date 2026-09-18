@@ -71,6 +71,10 @@ const accountChrome = fs.readFileSync(
     'shared/atlas-account-chrome.js',
     'utf8'
 );
+const bridge = fs.readFileSync(
+    'shared/atlas-bridge.js',
+    'utf8'
+);
 const personalization = fs.readFileSync(
     'shared/atlas-hub-personalization-cloud-authority.js',
     'utf8'
@@ -340,7 +344,45 @@ assert.match(
 
 assert.match(
     accountChromeCss,
-    /mobile-header-btn\.atlas-account-control\[data-account-state="sign-in"\][\s\S]*?border-radius: 20px;[\s\S]*?font-size: 0\.76rem;[\s\S]*?font-weight: 500;[\s\S]*?padding-inline: 0\.7rem;/
+    /\.mobile-header-session,[\s\S]*?\.mobile-session-pill,[\s\S]*?mobile-header-btn\.atlas-account-control\[data-account-state="sign-in"\][\s\S]*?font-family: inherit;[\s\S]*?font-size: 0\.76rem;[\s\S]*?font-weight: 500;[\s\S]*?line-height: 1;/
+);
+
+assert.match(
+    accountChromeCss,
+    /mobile-header-btn\.atlas-account-control\[data-account-state="sign-in"\][\s\S]*?border-radius: 20px;[\s\S]*?padding-inline: 0\.7rem;/
+);
+
+assert.match(
+    bridge,
+    /function hydrateSessionChrome\(\)[\s\S]*?atlasAccountHint ===[\s\S]*?'anonymous'[\s\S]*?\? 'Add learner'[\s\S]*?atlasLearnerEntry/
+);
+
+for (const [hubName, hubSource, authFunction] of [
+    ['Compass', compass, 'getStoredCompassAccountUserId'],
+    ['Arcade', arcade, 'getStoredPresentationUserId']
+]) {
+    assert.match(
+        hubSource,
+        new RegExp(
+            "function setSessionLabels\\(\\)[\\s\\S]*?" +
+            authFunction +
+            "\\(\\)[\\s\\S]*?\\? AtlasSessionPanel[\\s\\S]*?: 'Add learner'"
+        )
+    );
+
+    assert.match(
+        hubSource,
+        new RegExp(
+            "function openSessionPanel\\([\\s\\S]*?!" +
+            authFunction +
+            "\\(\\)[\\s\\S]*?Panel\\.openCreateLearner\\(trigger\\)"
+        )
+    );
+}
+
+assert.match(
+    sessionPanel,
+    /function openCreateLearner\([\s\S]*?focus:\s*!isMobileSessionLayout\(\)[\s\S]*?reset: true/
 );
 
 for (const [hubName, hubSource] of [
