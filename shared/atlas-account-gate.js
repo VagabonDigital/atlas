@@ -24,6 +24,8 @@
         '/shared/atlas-account-gate.css?v=20260916-accountgate2';
     const RETURN_INTENT_SRC =
         '/shared/atlas-return-intent.js?v=20260916-returnintent1';
+    const FEEDBACK_SRC =
+        '/shared/atlas-feedback.js?v=20260918-publicentry1';
 
     let gateLayer = null;
     let accountMenu = null;
@@ -32,6 +34,7 @@
     let menuAnchor = null;
     let busy = false;
     let returnIntentPromise = null;
+    let feedbackPromise = null;
     let activeReturnIntentId = null;
 
     const state = {
@@ -188,6 +191,105 @@
             'Atlas account support is not available on this surface.'
         );
     }
+
+    function ensureFeedback() {
+        if (window.AtlasFeedback) {
+            return Promise.resolve(
+                window.AtlasFeedback
+            );
+        }
+
+        if (feedbackPromise) {
+            return feedbackPromise;
+        }
+
+        feedbackPromise =
+            new Promise((resolve, reject) => {
+                const existing =
+                    existingScriptFor(
+                        FEEDBACK_SRC
+                    );
+
+                function complete() {
+                    if (window.AtlasFeedback) {
+                        resolve(
+                            window.AtlasFeedback
+                        );
+                    } else {
+                        feedbackPromise = null;
+                        reject(
+                            new Error(
+                                'Atlas messaging could not initialize.'
+                            )
+                        );
+                    }
+                }
+
+                if (existing) {
+                    existing.addEventListener(
+                        'load',
+                        complete,
+                        { once: true }
+                    );
+                    existing.addEventListener(
+                        'error',
+                        reject,
+                        { once: true }
+                    );
+                    return;
+                }
+
+                const script =
+                    document.createElement(
+                        'script'
+                    );
+
+                script.src = FEEDBACK_SRC;
+                script.async = false;
+
+                script.addEventListener(
+                    'load',
+                    complete,
+                    { once: true }
+                );
+
+                script.addEventListener(
+                    'error',
+                    () => {
+                        feedbackPromise = null;
+                        reject(
+                            new Error(
+                                'Atlas messaging could not load.'
+                            )
+                        );
+                    },
+                    { once: true }
+                );
+
+                document.head.appendChild(
+                    script
+                );
+            });
+
+        return feedbackPromise;
+    }
+
+    async function openFeedbackFromAccount() {
+        closeMenu();
+
+        try {
+            const Feedback =
+                await ensureFeedback();
+
+            Feedback.open();
+        } catch (error) {
+            console.error(
+                '[AtlasAccountGate] feedback UI failed:',
+                error
+            );
+        }
+    }
+
 
     function humanizeError(error) {
         const message = String(error?.message || error || '').trim();
@@ -367,6 +469,7 @@
             <span class="atlas-account-menu-plan" data-account-menu-plan></span>
             <div class="atlas-account-menu-actions">
                 <a class="atlas-account-menu-action" href="/account/" data-account-settings>Account settings</a>
+                <button class="atlas-account-menu-action" type="button" data-account-menu-feedback>Message Atlas</button>
                 <button class="atlas-account-menu-action" type="button" data-account-menu-sign-out>Sign out</button>
             </div>
             <p class="atlas-account-menu-status" data-account-menu-status role="status" aria-live="polite" hidden></p>
@@ -379,6 +482,12 @@
         if (accountSettingsLink) {
             accountSettingsLink.href = getAccountSettingsHref();
         }
+
+        accountMenu.querySelector('[data-account-menu-feedback]')
+            ?.addEventListener(
+                'click',
+                openFeedbackFromAccount
+            );
 
         accountMenu.querySelector('[data-account-menu-sign-out]')
             ?.addEventListener('click', handleSignOut);
