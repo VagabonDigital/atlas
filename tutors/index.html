@@ -1862,8 +1862,7 @@
     }
 
     .product-entry-final {
-      padding-top: 18px;
-      padding-bottom: 96px;
+      padding: 48px 0 56px;
     }
 
     .product-entry-final-inner {
@@ -1871,9 +1870,11 @@
       align-items: center;
       justify-content: space-between;
       gap: 36px;
-      padding: 32px 0;
-      border-top: 1px solid var(--border-subtle);
-      border-bottom: 1px solid var(--border-subtle);
+      padding: 30px 32px;
+      border: 1px solid var(--border-faint);
+      border-radius: var(--radius-xl);
+      background: var(--surface-panel);
+      box-shadow: var(--shadow-sm);
     }
 
     .product-entry-final h2 {
@@ -1898,18 +1899,6 @@
       justify-content: space-between;
       gap: 18px;
       flex-wrap: wrap;
-    }
-
-    .footer a {
-      color: inherit;
-      text-decoration-color: transparent;
-      text-underline-offset: 0.18em;
-    }
-
-    .footer a:hover,
-    .footer a:focus-visible {
-      color: var(--text-heading);
-      text-decoration-color: currentColor;
     }
 
     @media (max-width: 940px) {
@@ -2607,8 +2596,8 @@
       <div class="frame product-entry-final-inner">
         <div>
           <p class="kicker">Explore Atlas</p>
-          <h2 id="product-entry-final-title">Take it into a lesson.</h2>
-          <p>Open the live workspace, choose Compass or Arcade, and start with real teaching material.</p>
+          <h2 id="product-entry-final-title">Ready to try it?</h2>
+          <p>Open Atlas, choose a subject or game, and use it in your next lesson.</p>
         </div>
         <a class="product-entry-primary" href="/?entry=product">Explore Atlas</a>
       </div>
@@ -2616,10 +2605,7 @@
   </main>
 
   <footer class="footer">
-    <div class="frame footer-inner">
-      <span>Atlas</span>
-      <span><a href="./feedback.html">Message Atlas</a> · Create. Shape. Teach.</span>
-    </div>
+    <div class="frame footer-inner"><span>Atlas</span><span>Create. Shape. Teach.</span></div>
   </footer>
 
   <script src="../shared/atlas-ai.js"></script>
