@@ -375,6 +375,33 @@
   <script>
     'use strict';
 
+    const ACCOUNT_ORIGINS = Object.freeze({
+      atlas: Object.freeze({ label: 'Atlas', href: '/' }),
+      compass: Object.freeze({ label: 'Compass', href: '/compass/' }),
+      arcade: Object.freeze({ label: 'Arcade', href: '/arcade/' }),
+      'inside-atlas': Object.freeze({ label: 'Inside Atlas', href: '/tutors/' })
+    });
+
+    function getAccountOrigin() {
+      const key = new URL(window.location.href).searchParams.get('from') || 'atlas';
+      return ACCOUNT_ORIGINS[key] || ACCOUNT_ORIGINS.atlas;
+    }
+
+    const AccountOrigin = getAccountOrigin();
+    const BackLink = document.querySelector('.back-link');
+    const ReturnButton = document.getElementById('return');
+
+    if (BackLink) {
+      BackLink.href = AccountOrigin.href;
+      BackLink.textContent = '← Back';
+      BackLink.setAttribute('aria-label', `Back to ${AccountOrigin.label}`);
+      BackLink.title = `Back to ${AccountOrigin.label}`;
+    }
+
+    if (ReturnButton) {
+      ReturnButton.textContent = `Return to ${AccountOrigin.label}`;
+    }
+
     const Status = document.getElementById('status');
     const GuestView = document.getElementById('guest-view');
     const ForgotView = document.getElementById('forgot-view');
@@ -688,7 +715,7 @@
     });
 
     document.getElementById('return').addEventListener('click', () => {
-      window.location.href = '/';
+      window.location.href = AccountOrigin.href;
     });
   </script>
 </body>
