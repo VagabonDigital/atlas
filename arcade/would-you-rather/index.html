@@ -1279,6 +1279,8 @@
   <script src="../../shared/atlas-bridge.js"></script>
   <script src="../../shared/atlas-session-panel.js?v=20260916-runtime3"></script>
   <script src="../../shared/compass-catalog-data.js"></script>
+  <script src="../../shared/arcade-catalog-data.js"></script>
+  <script src="../shared/arcade-public-access.js?v=20260918-public1"></script>
   <script src="../../shared/atlas-content-registry.js?v=20260916-access1"></script>
   <script src="../../shared/atlas-search.js"></script>
   <script src="../shared/arcade-game-chrome.js?v=20260721"></script>
@@ -1574,10 +1576,72 @@
       if (el) el.textContent = rem;
     }
 
+    function updateStartButton(covered = 0) {
+      const btn =
+        document.getElementById(
+          'btn-start'
+        );
+
+      if (!btn) return;
+
+      const anonymousPreview =
+        window.ArcadePublicAccess
+          ?.isAnonymousPreview?.(
+            REGISTRY_ID
+          ) === true;
+
+      btn.textContent =
+        anonymousPreview
+          ? '⚡ Create free account to play'
+          : covered > 0
+            ? '⚡ Resume Game'
+            : '⚡ Start Game';
+    }
+
     /* ================================================================
        SCREEN TRANSITIONS
     ================================================================ */
-    function startGame() {
+    async function startGame(
+      {
+        skipPublicAccessGate = false
+      } = {}
+    ) {
+      if (
+        !skipPublicAccessGate &&
+        window.ArcadePublicAccess
+          ?.isAnonymousPreview?.(
+            REGISTRY_ID
+          )
+      ) {
+        const access =
+          await ArcadePublicAccess
+            .requestGameAccess(
+              REGISTRY_ID,
+              document.getElementById(
+                'btn-start'
+              )
+            );
+
+        if (
+          !ArcadePublicAccess
+            .accessAllows(access)
+        ) {
+          if (
+            access?.outcome !==
+              'auth-required'
+          ) {
+            showToast(
+              'Create a free Atlas account to play.'
+            );
+          }
+
+          return;
+        }
+      }
+
+      session =
+        Bridge.readActiveSession();
+
       window.AtlasAnalytics?.arcadeGameStart(
         'would-you-rather'
       );
@@ -1642,6 +1706,21 @@
 
       session = Bridge.readActiveSession();
 
+      if (window.ArcadePublicAccess) {
+        void ArcadePublicAccess
+          .subscribeGameResume(
+            REGISTRY_ID,
+            async () => {
+              session =
+                Bridge.readActiveSession();
+
+              await startGame({
+                skipPublicAccessGate: true
+              });
+            }
+          );
+      }
+
       if (window.ArcadeGameChrome) {
         ArcadeGameChrome.mountLanding({
           root: '#intro-screen',
@@ -1665,6 +1744,11 @@
           title: 'Would You Rather',
           premise: 'Choose between impossible options and explain what made you decide.',
           status: 'available',
+          publicAccess:
+            window.ArcadeCatalogData
+              ?.getArcadeGamePublicAccess?.(
+                REGISTRY_ID
+              ) || 'preview',
           unitLabel: 'Questions',
           total: TOTAL_Q,
           formatLabel: 'Choices',
@@ -1709,13 +1793,9 @@
           return;
         }
 
-        const btn = document.getElementById('btn-start');
-
-        if (btn) {
-          btn.textContent = covered > 0
-            ? '⚡ Resume Game'
-            : '⚡ Start Game';
-        }
+        updateStartButton(
+          covered
+        );
 
         return;
       }
@@ -1725,11 +1805,21 @@
       currentIndex = -1;
       completedAt = null;
       updateRemaining();
+      updateStartButton(0);
     }
 
     /* ================================================================
        BRIDGE LISTENER — appearance changes from other tabs
     ================================================================ */
+    window.addEventListener(
+      'atlas:account-change',
+      () => {
+        updateStartButton(
+          usedCount()
+        );
+      }
+    );
+
     window.addEventListener('atlas:appearance-change', e => {
       const mode =
         (e.detail && e.detail.mode) ||
