@@ -4638,7 +4638,19 @@
     // SESSION MODAL — bridge methods only
     // ================================================================
     function openSessionPanel(trigger = document.activeElement) {
-      if (window.AtlasSessionPanel) AtlasSessionPanel.open(trigger);
+      const Panel = window.AtlasSessionPanel;
+
+      if (!Panel) return;
+
+      if (
+        !hasAuthenticatedAccountContext() &&
+        typeof Panel.openCreateLearner === 'function'
+      ) {
+        Panel.openCreateLearner(trigger);
+        return;
+      }
+
+      Panel.open(trigger);
     }
     // ================================================================
     // MOBILE DRAWER
@@ -4768,7 +4780,6 @@
     // LANGUAGE REVIEW — focused inline view (replaces home content)
     // ================================================================
     let reviewState = null; // { set: [...], idx, revealed }
-    let defaultSetupDismissed = false;
     let lastCommittedHomeMarkup = null;
 
     function openLanguageReview() {
@@ -4882,13 +4893,28 @@
     // ================================================================
     function setSessionLabels() {
       const session = getActiveSession();
-      const display = AtlasSessionPanel.getSessionDisplayName(session);
+      const authenticated =
+        hasAuthenticatedAccountContext();
+      const display = authenticated
+        ? AtlasSessionPanel.getSessionDisplayName(session)
+        : 'Add learner';
+      const ariaLabel = authenticated
+        ? 'Open session panel. Working with ' + display
+        : 'Add learner. A free account keeps learner progress and continuity.';
+
       ['spine-session-name', 'mobile-session-name', 'drawer-session-name'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) {
-          el.textContent = display;
-          const trigger = el.closest('button');
-          if (trigger) trigger.setAttribute('aria-label', 'Open session panel. Working with ' + display);
+
+        if (!el) return;
+
+        el.textContent = display;
+
+        const trigger = el.closest('button');
+
+        if (trigger) {
+          trigger.setAttribute('aria-label', ariaLabel);
+          trigger.dataset.atlasLearnerEntry =
+            authenticated ? 'account' : 'anonymous';
         }
       });
     }
@@ -4913,7 +4939,7 @@
 
       // During live sign-in the Supabase session can be stored before the
       // account publication/render pass completes. Treat that narrow gap as
-      // authenticated too so Atlas never flashes the anonymous learner setup.
+      // authenticated too so Atlas never flashes the anonymous gateway.
       try {
         return Boolean(
           localStorage.getItem(
@@ -4940,35 +4966,33 @@
       renderSpineHubNav();
 
       const isDefault = isDefaultSession(session);
+      const authenticated =
+        hasAuthenticatedAccountContext();
       const continueItem = getContinueItem(reg, session.id);
       const latestHandoff = continueItem ? getLatestHandoff(session.id) : null;
       const continueHandoff = getMatchingCompassHandoff(continueItem, latestHandoff);
       const reviewSet = getReviewSet(ledger, session.id);
       const hasContinue = !!continueItem;
       const hasReview = reviewSet.length > 0;
-      const sessionStates = (reg.sessionStates || {})[session.id];
-      const hasHistory = !!(sessionStates && Object.keys(sessionStates).length);
+
+      document.documentElement.dataset.atlasGatewayState =
+        authenticated ? 'authenticated' : 'anonymous';
 
       if (!continueHandoff || continueHandoff.id !== expandedContinueHandoffId) {
         expandedContinueHandoffId = null;
       }
 
-      // The learner-name setup is an anonymous/local-workspace state. A
-      // signed-in tutor may briefly have only Shared in the local projection
-      // while account-owned learners are restoring; that is not true-empty.
-      const showEmptyState =
-        isDefault &&
-        !hasAuthenticatedAccountContext() &&
-        !defaultSetupDismissed &&
-        !hasContinue &&
-        !hasReview &&
-        !hasHistory;
-
-      const nextHomeMarkup = showEmptyState
-        ? renderEmptyState()
-        : renderGateway(
+      const nextHomeMarkup = authenticated
+        ? renderGateway(
           session,
           isDefault,
+          continueItem,
+          continueHandoff,
+          hasContinue,
+          reviewSet,
+          hasReview
+        )
+        : renderAnonymousGateway(
           continueItem,
           continueHandoff,
           hasContinue,
@@ -4987,65 +5011,32 @@
       lastCommittedHomeMarkup = nextHomeMarkup;
     }
 
-    function renderEmptyState() {
+    function renderAnonymousGateway(
+      continueItem,
+      continueHandoff,
+      hasContinue,
+      reviewSet,
+      hasReview
+    ) {
+      const hasLocalContext =
+        hasContinue || hasReview;
+
       return '' +
-        '<div class="empty-setup">' +
-        '<div class="today-label">Welcome</div>' +
-        '<h1 class="empty-setup-title">Who is this lesson with?</h1>' +
-        '<p class="empty-setup-sub">Add a name to keep each learner\u2019s progress separate, or skip this for now.</p>' +
-        '<div class="empty-form">' +
-        '<input class="session-input" id="empty-name-input" type="text" placeholder="Learner name" maxlength="40" autocomplete="off" style="flex:1">' +
-        '<button class="btn-primary" onclick="startWithName(event)">Continue</button>' +
+        '<div class="context-anchor">' +
+        '<h1 class="welcome-line">Choose a world.</h1>' +
+        '<p class="welcome-sub">' +
+        (
+          hasLocalContext
+            ? 'Continue where you left off, or start somewhere new.'
+            : 'Start with a subject in Compass or a game in Arcade.'
+        ) +
+        '</p>' +
         '</div>' +
-        '<button class="empty-default-link" onclick="startWithDefault()">Skip for now</button>' +
-        '</div>' +
-        '<p class="doors-label" style="margin-top:2.25rem">Choose a world</p>' +
+        (hasContinue ? renderContinueCard(continueItem, continueHandoff) : '') +
+        (hasReview ? renderReviewRow(reviewSet.length) : '') +
+        (hasLocalContext ? '<p class="doors-label">Choose a world</p>' : '') +
         renderDoors() +
         renderTutorEntry();
-    }
-    async function startWithName(event) {
-      const inp = document.getElementById('empty-name-input');
-      if (!inp) return;
-
-      const name = inp.value.trim();
-      if (!name) { inp.focus(); return; }
-
-      const Panel = window.AtlasSessionPanel;
-
-      if (
-        !Panel ||
-        typeof Panel.requestCreateLearner !== 'function'
-      ) {
-        inp.style.borderColor = 'var(--danger)';
-        setTimeout(() => { inp.style.borderColor = ''; }, 1200);
-        return;
-      }
-
-      const result =
-        await Panel.requestCreateLearner(
-          name,
-          {
-            trigger: event?.currentTarget || null,
-            source: 'atlas-root-empty-state'
-          }
-        );
-
-      if (result?.outcome === 'auth-required') {
-        return;
-      }
-
-      if (!result?.created) {
-        inp.style.borderColor = 'var(--danger)';
-        setTimeout(() => { inp.style.borderColor = ''; }, 1200);
-        return;
-      }
-
-      // Session authority publishes the canonical change; render immediately too.
-      renderHome();
-    }
-    function startWithDefault() {
-      defaultSetupDismissed = true;
-      renderHome();
     }
 
     function renderGateway(session, isDefault, continueItem, continueHandoff, hasContinue, reviewSet, hasReview) {

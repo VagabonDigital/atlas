@@ -34,13 +34,13 @@ const learnerRequest = between(
 assert.doesNotMatch(learnerRequest, /getBridge\(\)\.createSession|Bridge\.createSession/);
 assert.match(panel, /subscribeResume\([\s\S]*?action:\s*'create-learner'/);
 
-const rootCreate = between(
+const rootLearnerEntry = between(
     atlas,
-    '    async function startWithName(event) {',
-    '    function startWithDefault()'
+    '    function openSessionPanel(',
+    '    // ================================================================\n    // MOBILE DRAWER'
 );
-assert.match(rootCreate, /Panel\.requestCreateLearner/);
-assert.doesNotMatch(rootCreate, /Bridge\.createSession/);
+assert.match(rootLearnerEntry, /Panel\.openCreateLearner/);
+assert.doesNotMatch(rootLearnerEntry, /Bridge\.createSession/);
 
 assert.match(hub, /requireCapability\(\s*'canAccessAccountLibrary'[\s\S]*?action:\s*'open-account-library'/);
 assert.match(hub, /'add-atlas-original'/);

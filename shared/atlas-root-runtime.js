@@ -749,25 +749,6 @@
         );
     }
 
-    function bypassAuthenticatedEmptySetup() {
-        if (
-            !hasStoredAccountSession() ||
-            typeof window.startWithDefault !==
-                'function'
-        ) {
-            return false;
-        }
-
-        /*
-         * Do not choose a learner for the tutor. Shared remains the
-         * browser-local fallback; an already-active named session is
-         * preserved by AtlasBridge. This only suppresses the old
-         * first-browser learner-name prompt for authenticated accounts.
-         */
-        window.startWithDefault();
-        return true;
-    }
-
     function refreshRootAfterLearnerHydration() {
         if (
             !isAtlasRoot() ||
@@ -856,7 +837,6 @@
 
         if (hasStoredAccountSession()) {
             markWelcomeSeenForAuthenticatedUser();
-            bypassAuthenticatedEmptySetup();
         }
 
         /*

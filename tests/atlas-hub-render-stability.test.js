@@ -14,7 +14,8 @@ assert.match(atlas, /main\.innerHTML = nextHomeMarkup;\s*lastCommittedHomeMarkup
 
 assert.match(compass, /let lastCommittedHubContentMarkup = null;/);
 assert.match(compass, /const nextHubContentMarkup =/);
-assert.match(compass, /nextHubContentMarkup ===\s*lastCommittedHubContentMarkup/);
+assert.match(compass, /const hubMarkupChanged =\s*nextHubContentMarkup !==\s*lastCommittedHubContentMarkup/);
+assert.match(compass, /if \(!hubMarkupChanged\) \{\s*return;\s*\}/);
 assert.doesNotMatch(compass, /nextHubMarkup === lastCommittedHubMarkup/);
 assert.match(compass, /renderIntro\(session\) \+\s*nextHubContentMarkup/);
 

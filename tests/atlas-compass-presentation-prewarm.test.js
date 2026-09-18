@@ -45,14 +45,51 @@ assert.match(
     root,
     /Cache\.prepareCompassPresentation\(\)/
 );
-assert.match(
-    root,
-    /const rootCloudAuthorityBootstrapPromise =\s*writeRootCloudAuthorityScripts\(\);/
+
+const initialBootstrapStart = root.indexOf(
+    'function startInitialRootCloudBootstrap(userId)'
+);
+const initialBootstrapEnd = root.indexOf(
+    'function scheduleInitialRootCloudBootstrap(userId)',
+    initialBootstrapStart
+);
+assert.notEqual(initialBootstrapStart, -1);
+assert.notEqual(initialBootstrapEnd, -1);
+const initialBootstrap = root.slice(
+    initialBootstrapStart,
+    initialBootstrapEnd
 );
 assert.match(
-    root,
-    /rootCloudAuthorityBootstrapPromise[\s\S]{0,260}prewarmCompassPresentation\(\s*initialUserId/
+    initialBootstrap,
+    /writeRootCloudAuthorityScripts\(\)/
 );
+assert.match(
+    initialBootstrap,
+    /prewarmCompassPresentation\(id\)/
+);
+assert.ok(
+    initialBootstrap.indexOf('writeRootCloudAuthorityScripts()') <
+        initialBootstrap.indexOf('prewarmCompassPresentation(id)'),
+    'initial account authorities must load before Compass presentation prewarm'
+);
+
+const scheduleStart = root.indexOf(
+    'function scheduleInitialRootCloudBootstrap(userId)'
+);
+const scheduleEnd = root.indexOf(
+    'function prewarmCompassPresentation(userId)',
+    scheduleStart
+);
+const schedule = root.slice(scheduleStart, scheduleEnd);
+assert.match(
+    schedule,
+    /atlas:local-presentation-ready/
+);
+assert.match(
+    schedule,
+    /window\.requestAnimationFrame\(\(\) => \{[\s\S]*?window\.setTimeout\(\(\) => \{[\s\S]*?startInitialRootCloudBootstrap/
+);
+
 assert.match(
     root,
     /const compassPresentationPromise =\s*prewarmCompassPresentation\(id\);/
@@ -72,6 +109,12 @@ assert.doesNotMatch(
     'Atlas first-paint release must not wait on Compass prewarm'
 );
 
+assert.doesNotMatch(
+    root,
+    /bypassAuthenticatedEmptySetup|startWithDefault/,
+    'retired learner-first root compatibility must stay removed'
+);
+
 assert.match(
     cache,
     /async function prepareCompassPresentation\(\)/
@@ -84,11 +127,11 @@ assert.match(
 assert.equal(
     (
         registry.match(
-            /atlas-root-runtime\.js\?v=20260917-presentation2/g
+            /atlas-root-runtime\.js\?v=20260917-postpaint1/g
         ) || []
     ).length,
     2,
-    'both Root Runtime loader paths must use the 4B asset revision'
+    'both Root Runtime loader paths must use the post-paint asset revision'
 );
 assert.equal(
     (
@@ -97,20 +140,24 @@ assert.equal(
         ) || []
     ).length,
     2,
-    'both Cloud Cache loader paths must use the 4B asset revision'
+    'both Cloud Cache loader paths must use the presentation cache revision'
 );
 
-for (const [name, html] of [
-    ['Atlas', atlas],
-    ['Compass', compass],
-    ['Arcade', arcade]
-]) {
-    assert.match(
-        html,
-        /atlas-content-registry\.js\?v=20260917-presentation2/,
-        name + ' must load the updated presentation-aware Content Registry'
-    );
-}
+assert.match(
+    atlas,
+    /atlas-content-registry\.js\?v=20260917-postpaint1/,
+    'Atlas must load the post-paint Content Registry'
+);
+assert.match(
+    compass,
+    /atlas-content-registry\.js\?v=20260917-liveauth1/,
+    'Compass must load the live-auth Content Registry revision'
+);
+assert.match(
+    arcade,
+    /atlas-content-registry\.js\?v=20260917-postpaint1/,
+    'Arcade must load the post-paint Content Registry'
+);
 
 console.log(
     'Atlas Compass presentation prewarm contract passed.'

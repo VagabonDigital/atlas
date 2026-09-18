@@ -407,7 +407,7 @@ async function run() {
     assert.match(bootstrap, /prepareCapabilityGate/);
     assert.match(
         registry,
-        /atlas-access-bootstrap\.js\?v=20260917-capability1/
+        /atlas-access-bootstrap\.js\?v=20260917-postpaint1/
     );
 
     console.log(

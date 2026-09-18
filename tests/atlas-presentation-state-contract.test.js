@@ -74,16 +74,16 @@ assert.match(
     /scopeOwner !== 'user:' \+ userId/
 );
 
-const pendingBranch = compass.match(
-    /if \(cloudAuthorityPending\) \{[\s\S]*?\} else if \([\s\S]*?Subjects\.getSubjectSessionIds/
+const cachedHomesBranch = compass.match(
+    /if \(\s*useInitialSnapshot \|\|\s*cloudAuthorityPending\s*\) \{[\s\S]*?getCachedOwnedSubjectSessionIds[\s\S]*?\} else if \([\s\S]*?Subjects\.getSubjectSessionIds/
 );
 assert.ok(
-    pendingBranch,
-    'cached Compass presentation must resolve session homes locally before the cloud-authority branch'
+    cachedHomesBranch,
+    'cached Compass presentation must resolve session homes locally before live authority reads'
 );
 assert.match(
-    pendingBranch[0],
-    /getCachedOwnedSubjectSessionIds/
+    cachedHomesBranch[0],
+    /initialSnapshot \|\|\s*getCompassInitialAccountSnapshot\(\)/
 );
 
 assert.match(

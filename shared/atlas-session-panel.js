@@ -1281,6 +1281,23 @@
         });
     }
 
+    function openCreateLearner(
+        trigger = document.activeElement
+    ) {
+        open(
+            trigger,
+            { initialView: 'manage' }
+        );
+
+        setCreateExpanded(
+            true,
+            {
+                focus: true,
+                reset: true
+            }
+        );
+    }
+
     async function runSessionAction(action, sessionId) {
         const Bridge = getBridge();
         const session = Bridge.readSessions().find(item => item.id === sessionId);
@@ -1598,7 +1615,7 @@
             if (elements.createError) {
                 elements.createError.textContent =
                     result?.outcome === 'duplicate'
-                        ? 'A session with that name already exists.'
+                        ? 'A learner with that name already exists.'
                         : 'Couldn’t add this learner right now. Try again.';
             }
             return;
@@ -1738,15 +1755,15 @@
                                 id="atlas-session-create-toggle" type="button"
                                 aria-expanded="false"
                                 aria-controls="atlas-session-create-fields">
-                                + New session
+                                + Add learner
                             </button>
 
                             <div class="atlas-session-create-fields"
                                 id="atlas-session-create-fields" hidden>
-                                <label for="atlas-session-create-name">New session</label>
+                                <label for="atlas-session-create-name">Learner name</label>
                                 <div class="atlas-session-create-row">
                                     <input id="atlas-session-create-name" type="text" maxlength="40"
-                                        placeholder="Name this session" autocomplete="off">
+                                        placeholder="Name this learner" autocomplete="off">
                                     <button type="submit">Add</button>
                                 </div>
                                 <p class="atlas-session-create-error"
@@ -1811,6 +1828,7 @@
     window.AtlasSessionPanel = {
         mount,
         open,
+        openCreateLearner,
         close,
         refresh,
         showSafeView,
