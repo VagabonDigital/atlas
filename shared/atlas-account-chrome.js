@@ -26,7 +26,7 @@
     const GATE_STYLE_HREF =
         '/shared/atlas-account-gate.css?v=20260916-accountgate2';
     const GATE_SRC =
-        '/shared/atlas-account-gate.js?v=20260916-accountgate3';
+        '/shared/atlas-account-gate.js?v=20260916-accountgate4';
 
     let gatePromise = null;
     let gateStylePromise = null;
