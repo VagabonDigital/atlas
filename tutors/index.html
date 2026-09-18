@@ -9,12 +9,116 @@
     content="Inside Atlas — the creative teaching workspace for recurring one-to-one English lessons.">
   <meta name="color-scheme" content="light dark">
 
+  <script>
+    (function () {
+      "use strict";
+
+      var APPEARANCE_KEY = "atlas::appearanceMode";
+      var APPEARANCE_BY_SESSION_KEY =
+        "atlas::appearanceBySession";
+      var ACTIVE_SESSION_KEY =
+        "atlas::activeSessionId";
+
+      function normalize(mode) {
+        return mode === "night" ? "night" : "light";
+      }
+
+      function read() {
+        var sessionId = "default";
+        var modes = {};
+
+        try {
+          sessionId =
+            sessionStorage.getItem(ACTIVE_SESSION_KEY) ||
+            "default";
+        } catch (e) { }
+
+        try {
+          var parsed = JSON.parse(
+            localStorage.getItem(
+              APPEARANCE_BY_SESSION_KEY
+            ) || "{}"
+          );
+
+          if (
+            parsed &&
+            typeof parsed === "object" &&
+            !Array.isArray(parsed)
+          ) {
+            modes = parsed;
+          }
+        } catch (e) { }
+
+        if (
+          modes[sessionId] === "light" ||
+          modes[sessionId] === "night"
+        ) {
+          return modes[sessionId];
+        }
+
+        try {
+          return normalize(
+            localStorage.getItem(APPEARANCE_KEY)
+          );
+        } catch (e) {
+          return "light";
+        }
+      }
+
+      function write(mode) {
+        var normalized = normalize(mode);
+        var sessionId = "default";
+        var modes = {};
+
+        try {
+          sessionId =
+            sessionStorage.getItem(ACTIVE_SESSION_KEY) ||
+            "default";
+        } catch (e) { }
+
+        try {
+          var parsed = JSON.parse(
+            localStorage.getItem(
+              APPEARANCE_BY_SESSION_KEY
+            ) || "{}"
+          );
+
+          if (
+            parsed &&
+            typeof parsed === "object" &&
+            !Array.isArray(parsed)
+          ) {
+            modes = parsed;
+          }
+
+          modes[sessionId] = normalized;
+
+          localStorage.setItem(
+            APPEARANCE_BY_SESSION_KEY,
+            JSON.stringify(modes)
+          );
+        } catch (e) { }
+
+        return normalized;
+      }
+
+      window.AtlasInsideAppearance =
+        Object.freeze({
+          read: read,
+          write: write
+        });
+
+      document.documentElement.dataset.theme =
+        read();
+    })();
+  </script>
+
   <style>
     html.atlas-fonts-pending {
       background: #f3f0e9;
     }
 
-    html.atlas-fonts-pending[data-theme="dark"] {
+    html.atlas-fonts-pending[data-theme="night"] {
       background: #1b1d1c;
     }
 
@@ -139,7 +243,7 @@
       --page-bg-dark: radial-gradient(circle at 18% -4%, rgba(143, 178, 194, .055), transparent 25rem), #1b1d1c;
     }
 
-    html[data-theme="dark"] {
+    html[data-theme="night"] {
       --surface-canvas: #1b1d1c;
       --surface-muted: #212421;
       --surface-panel: #252826;
@@ -201,11 +305,11 @@
       opacity: 0;
     }
 
-    html[data-theme="dark"] body::before {
+    html[data-theme="night"] body::before {
       opacity: 0;
     }
 
-    html[data-theme="dark"] body::after {
+    html[data-theme="night"] body::after {
       opacity: 1;
     }
 
@@ -450,8 +554,8 @@
     .theme-toggle .appearance-icon { position: absolute; top: 50%; left: 50%; display: block; pointer-events: none; transform: translate(-50%, -50%); transition: opacity var(--motion); }
     html[data-theme="light"] .theme-toggle .appearance-icon--moon { opacity: 1; }
     html[data-theme="light"] .theme-toggle .appearance-icon--sun { opacity: 0; }
-    html[data-theme="dark"] .theme-toggle .appearance-icon--moon { opacity: 0; }
-    html[data-theme="dark"] .theme-toggle .appearance-icon--sun { opacity: 1; }
+    html[data-theme="night"] .theme-toggle .appearance-icon--moon { opacity: 0; }
+    html[data-theme="night"] .theme-toggle .appearance-icon--sun { opacity: 1; }
 
     .hero {
       padding: 52px 0 88px;
@@ -711,7 +815,7 @@
       transform: translateY(1px);
     }
 
-    html[data-theme="dark"] .create-button {
+    html[data-theme="night"] .create-button {
       color: #172124;
     }
 
@@ -1496,7 +1600,7 @@
       transform: translate3d(0, 0, 0) scale(1);
     }
 
-    html[data-theme="dark"] .library-demo-card:is(:hover, :focus-visible) .library-demo-art {
+    html[data-theme="night"] .library-demo-card:is(:hover, :focus-visible) .library-demo-art {
       opacity: .23;
     }
 
@@ -1536,7 +1640,7 @@
         transform: none;
       }
 
-      html[data-theme="dark"] .library-demo-art {
+      html[data-theme="night"] .library-demo-art {
         opacity: .22;
       }
     }
@@ -2492,10 +2596,9 @@
       "use strict";
       var root = document.documentElement;
       var themeToggle = document.getElementById("themeToggle");
-      var stored = null;
-      try { stored = localStorage.getItem("atlas-theme"); } catch (e) { }
-      var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-      root.dataset.theme = stored || (prefersDark ? "dark" : "light");
+      var Appearance = window.AtlasInsideAppearance;
+      root.dataset.theme =
+        Appearance ? Appearance.read() : "light";
       var THEME_TRANSITION_MS = 280;
       var THEME_TRANSITION_CLEANUP_BUFFER_MS = 100;
       var themeTransitionTimer = null;
@@ -2522,13 +2625,66 @@
         }, THEME_TRANSITION_MS + THEME_TRANSITION_CLEANUP_BUFFER_MS);
       }
 
-      function syncTheme() { var dark = root.dataset.theme === "dark"; themeToggle.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode"); }
-      syncTheme();
-      themeToggle.addEventListener("click", function () {
-        beginThemeTransition();
-        root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
-        try { localStorage.setItem("atlas-theme", root.dataset.theme); } catch (e) { }
+      function syncTheme() {
+        var night = root.dataset.theme === "night";
+
+        themeToggle.setAttribute(
+          "aria-label",
+          night
+            ? "Switch to day mode"
+            : "Switch to night mode"
+        );
+      }
+
+      function refreshTheme() {
+        var mode =
+          Appearance ? Appearance.read() : "light";
+
+        root.dataset.theme = mode;
         syncTheme();
+      }
+
+      syncTheme();
+
+      themeToggle.addEventListener("click", function () {
+        var next =
+          root.dataset.theme === "night"
+            ? "light"
+            : "night";
+
+        beginThemeTransition();
+
+        root.dataset.theme =
+          Appearance
+            ? Appearance.write(next)
+            : next;
+
+        syncTheme();
+      });
+
+      window.addEventListener(
+        "pageshow",
+        refreshTheme
+      );
+
+      window.addEventListener(
+        "focus",
+        refreshTheme
+      );
+
+      window.addEventListener(
+        "atlas:persistence-scope-change",
+        refreshTheme
+      );
+
+      window.addEventListener("storage", function (event) {
+        if (
+          !event ||
+          event.key === "atlas::appearanceMode" ||
+          event.key === "atlas::appearanceBySession"
+        ) {
+          refreshTheme();
+        }
       });
 
       var revolverItems = Array.prototype.slice.call(document.querySelectorAll(".revolver-item"));
