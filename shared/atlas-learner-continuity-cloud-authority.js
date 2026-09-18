@@ -291,6 +291,13 @@
         );
         const normalized = normalizeReviewedThrough(value);
 
+        if (
+            readReviewedThrough(sessionId, userId) ===
+            normalized
+        ) {
+            return false;
+        }
+
         try {
             if (normalized < 0) {
                 localStorage.removeItem(key);
@@ -300,43 +307,122 @@
                     String(normalized)
                 );
             }
-        } catch { }
+
+            return true;
+        } catch {
+            return false;
+        }
     }
 
-    function writeLocalSnapshot(sessionId, userId, state) {
-        const id = cleanSessionId(sessionId);
-        const normalized = normalizeState(state, id);
+    function writeLocalSnapshots(records, userId) {
+        const normalizedRecords = (
+            Array.isArray(records) ? records : []
+        )
+            .map(record => {
+                const sessionId = cleanSessionId(
+                    record?.sessionId
+                );
+
+                if (!isNamedSessionId(sessionId)) {
+                    return null;
+                }
+
+                return {
+                    sessionId,
+                    state: normalizeState(
+                        record?.state,
+                        sessionId
+                    )
+                };
+            })
+            .filter(Boolean);
+
+        if (!normalizedRecords.length) {
+            return {
+                registryChanged: false,
+                ledgerChanged: false,
+                handoffsChanged: false,
+                reviewWatermarksChanged: 0
+            };
+        }
+
+        const remoteSessionIds = new Set(
+            normalizedRecords.map(record =>
+                record.sessionId
+            )
+        );
 
         suspendLocalSync = true;
 
         try {
             const registry = Bridge.readRegistry();
+            const ledger = Bridge.readLedger();
+            const handoffStore = Bridge.readJson(
+                Bridge.keys.handoffs,
+                {}
+            );
 
             registry.sessionStates =
                 isPlainObject(registry.sessionStates)
                     ? registry.sessionStates
                     : {};
 
-            if (
-                Object.keys(normalized.sessionStates).length
-            ) {
-                registry.sessionStates[id] =
-                    cloneJson(normalized.sessionStates);
-            } else {
-                delete registry.sessionStates[id];
-            }
+            const registryBefore = JSON.stringify({
+                sessionStates: registry.sessionStates,
+                recentActivity:
+                    Array.isArray(registry.recentActivity)
+                        ? registry.recentActivity
+                        : []
+            });
 
-            const otherRecent = (
+            const ledgerEntries =
+                isPlainObject(ledger.entries)
+                    ? ledger.entries
+                    : {};
+
+            const ledgerBefore =
+                JSON.stringify(ledgerEntries);
+
+            const currentHandoffs =
+                isPlainObject(handoffStore)
+                    ? handoffStore
+                    : {};
+
+            const handoffsBefore =
+                JSON.stringify(currentHandoffs);
+
+            normalizedRecords.forEach(record => {
+                const id = record.sessionId;
+                const state = record.state;
+
+                if (
+                    Object.keys(state.sessionStates).length
+                ) {
+                    registry.sessionStates[id] =
+                        cloneJson(state.sessionStates);
+                } else {
+                    delete registry.sessionStates[id];
+                }
+            });
+
+            const remoteRecentActivity =
+                normalizedRecords.flatMap(record =>
+                    cloneJson(record.state.recentActivity)
+                );
+
+            const unaffectedRecentActivity = (
                 Array.isArray(registry.recentActivity)
                     ? registry.recentActivity
                     : []
             ).filter(item =>
-                cleanSessionId(item?.sessionId) !== id
+                !remoteSessionIds.has(
+                    cleanSessionId(item?.sessionId)
+                )
             );
 
             registry.recentActivity = [
-                ...cloneJson(normalized.recentActivity),
-                ...otherRecent
+                ...remoteRecentActivity,
+                ...unaffectedRecentActivity
             ]
                 .sort((a, b) =>
                     (Number(b?.timestamp) || 0) -
@@ -344,67 +430,115 @@
                 )
                 .slice(0, 50);
 
-            Bridge.writeRegistry(registry);
-
-            const ledger = Bridge.readLedger();
             const nextEntries = Object.entries(
-                isPlainObject(ledger.entries)
-                    ? ledger.entries
-                    : {}
+                ledgerEntries
             ).reduce((result, [entryId, entry]) => {
                 if (
-                    cleanSessionId(entry?.sessionId) !== id
+                    !remoteSessionIds.has(
+                        cleanSessionId(entry?.sessionId)
+                    )
                 ) {
                     result[entryId] = entry;
                 }
+
                 return result;
             }, {});
 
-            Object.assign(
-                nextEntries,
-                cloneJson(normalized.ledgerEntries)
-            );
-
-            Bridge.writeLedger({
-                ...ledger,
-                entries: nextEntries
+            normalizedRecords.forEach(record => {
+                Object.assign(
+                    nextEntries,
+                    cloneJson(record.state.ledgerEntries)
+                );
             });
 
-            const handoffStore = Bridge.readJson(
-                Bridge.keys.handoffs,
-                {}
-            );
             const nextHandoffs = Object.entries(
-                isPlainObject(handoffStore)
-                    ? handoffStore
-                    : {}
+                currentHandoffs
             ).reduce((result, [storageId, handoff]) => {
                 if (
-                    cleanSessionId(handoff?.sessionId) !== id
+                    !remoteSessionIds.has(
+                        cleanSessionId(handoff?.sessionId)
+                    )
                 ) {
                     result[storageId] = handoff;
                 }
+
                 return result;
             }, {});
 
-            Object.assign(
-                nextHandoffs,
-                cloneJson(normalized.handoffs)
-            );
+            normalizedRecords.forEach(record => {
+                Object.assign(
+                    nextHandoffs,
+                    cloneJson(record.state.handoffs)
+                );
+            });
 
-            Bridge.writeJson(
-                Bridge.keys.handoffs,
-                nextHandoffs
-            );
+            const registryChanged =
+                registryBefore !==
+                JSON.stringify({
+                    sessionStates: registry.sessionStates,
+                    recentActivity: registry.recentActivity
+                });
 
-            writeReviewedThrough(
-                id,
-                userId,
-                normalized.languageReviewCompletedThrough
-            );
+            const ledgerChanged =
+                ledgerBefore !==
+                JSON.stringify(nextEntries);
+
+            const handoffsChanged =
+                handoffsBefore !==
+                JSON.stringify(nextHandoffs);
+
+            if (registryChanged) {
+                Bridge.writeRegistry(registry);
+            }
+
+            if (ledgerChanged) {
+                Bridge.writeLedger({
+                    ...ledger,
+                    entries: nextEntries
+                });
+            }
+
+            if (handoffsChanged) {
+                Bridge.writeJson(
+                    Bridge.keys.handoffs,
+                    nextHandoffs
+                );
+            }
+
+            let reviewWatermarksChanged = 0;
+
+            normalizedRecords.forEach(record => {
+                if (
+                    writeReviewedThrough(
+                        record.sessionId,
+                        userId,
+                        record.state
+                            .languageReviewCompletedThrough
+                    )
+                ) {
+                    reviewWatermarksChanged += 1;
+                }
+            });
+
+            return {
+                registryChanged,
+                ledgerChanged,
+                handoffsChanged,
+                reviewWatermarksChanged
+            };
         } finally {
             suspendLocalSync = false;
         }
+    }
+
+    function writeLocalSnapshot(sessionId, userId, state) {
+        return writeLocalSnapshots(
+            [{
+                sessionId,
+                state
+            }],
+            userId
+        );
     }
 
     function clearNamedLocalContinuity() {
@@ -1068,12 +1202,12 @@
                     record.sessionId,
                     JSON.stringify(record.state)
                 );
-                writeLocalSnapshot(
-                    record.sessionId,
-                    userId,
-                    record.state
-                );
             });
+
+            writeLocalSnapshots(
+                remoteRecords,
+                userId
+            );
 
             writeCacheOwner(userId);
             initialized = true;
