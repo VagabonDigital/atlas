@@ -416,7 +416,7 @@
 
         if (title) {
             title.textContent = nextMode === 'create'
-                ? 'Create a free Atlas account to keep your work across browsers and devices.'
+                ? 'Create a free Atlas account to make your own subjects, add students and build your teaching workspace.'
                 : nextMode === 'forgot'
                     ? 'Reset your password with a secure link sent to your email.'
                     : 'Sign in to continue with your Atlas work.';
