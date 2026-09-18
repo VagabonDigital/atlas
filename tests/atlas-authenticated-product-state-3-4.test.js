@@ -343,24 +343,31 @@ assert.match(
     /mobile-header-btn\.atlas-account-control\[data-account-state="sign-in"\][\s\S]*?border-radius: 20px;[\s\S]*?font-size: 0\.76rem;[\s\S]*?font-weight: 500;[\s\S]*?padding-inline: 0\.7rem;/
 );
 
-const mobileAccountIndex = root.indexOf(
-    'data-atlas-account-control="mobile"'
-);
-const mobileSearchIndex = root.indexOf(
-    'data-atlas-search',
-    mobileAccountIndex
-);
-const mobileMenuIndex = root.indexOf(
-    'aria-label="Menu"',
-    mobileSearchIndex
-);
+for (const [hubName, hubSource] of [
+    ['Atlas', root],
+    ['Compass', compass],
+    ['Arcade', arcade]
+]) {
+    const mobileAccountIndex = hubSource.indexOf(
+        'data-atlas-account-control="mobile"'
+    );
+    const mobileSearchIndex = hubSource.indexOf(
+        'data-atlas-search',
+        mobileAccountIndex
+    );
+    const mobileMenuIndex = hubSource.indexOf(
+        'aria-label="Menu"',
+        mobileSearchIndex
+    );
 
-assert.ok(
-    mobileAccountIndex >= 0 &&
-    mobileSearchIndex > mobileAccountIndex &&
-    mobileMenuIndex > mobileSearchIndex,
-    'Mobile account control should precede Search, with Search beside Menu'
-);
+    assert.ok(
+        mobileAccountIndex >= 0 &&
+        mobileSearchIndex > mobileAccountIndex &&
+        mobileMenuIndex > mobileSearchIndex,
+        hubName +
+            ' mobile account control should precede Search, with Search beside Menu'
+    );
+}
 
 assert.match(
     accountChrome,
