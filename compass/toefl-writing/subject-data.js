@@ -4,7 +4,7 @@
   SmartStudy™ Methodology
   TOEFL Writing: From Sentence to Argument
   ---------------------------------------------------------------------------
-  A C1+ TOEFL Writing subject for building accurate sentences, writing clear
+  A TOEFL Writing subject for building accurate sentences, writing clear
   emails, developing academic discussion responses, and making strong choices
   under time pressure. Built for tutor-led writing practice, explicit strategy
   teaching, revision, and precise written communication.
@@ -31,7 +31,7 @@ const subjectCopy = {
     overview: {
         heading: `Give Your Ideas Direction`,
         intro: [
-            `Designed for C1+ learners, this subject follows the current TOEFL iBT Writing task types: Build a Sentence, Write an Email, and Write for an Academic Discussion. You will practise making your meaning clear, choosing the right tone, developing ideas efficiently, and staying in control when time is limited.`
+            `This subject follows the current TOEFL iBT Writing task types: Build a Sentence, Write an Email, and Write for an Academic Discussion. You will practise making your meaning clear, choosing the right tone, developing ideas efficiently, and staying in control when time is limited.`
         ],
         question: `When you have only a short time to explain an idea, what helps you organise your thoughts?`
     },
