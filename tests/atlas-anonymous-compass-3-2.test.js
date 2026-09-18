@@ -194,15 +194,23 @@ assert.match(
 );
 assert.match(
     compass,
-    /'canCreateWithAI'[\s\S]*?'suggest-subject-ideas'[\s\S]*?draftId/
+    /const ANONYMOUS_COMPASS_PREVIEW_IDEAS = Object\.freeze\([\s\S]*?science-nature[\s\S]*?technology-future[\s\S]*?travel-experiences/
 );
 assert.match(
     compass,
-    /context\.operation ===\s*'suggest-subject-ideas'[\s\S]*?consumeCompassCreatePreviewDraft[\s\S]*?askCompassForSubjects/
+    /function getAnonymousCompassPreviewSuggestions\([\s\S]*?ideas/
+);
+assert.match(
+    compass,
+    /ownedSubjectDialogState\?\.mode ===\s*'create'[\s\S]*?anonymousPreview[\s\S]*?renderCompassRecommendationResult\(\s*getAnonymousCompassPreviewSuggestions\([\s\S]*?return;/
+);
+assert.match(
+    compass,
+    /!window\.AtlasAI[\s\S]*?'canCreateWithAI'[\s\S]*?'suggest-subject-ideas'/
 );
 assert.doesNotMatch(
     compass,
-    /aiAccess\?\.outcome === 'allowed'[\s\S]{0,320}anonymousPreview = false/
+    /context\.operation ===\s*'suggest-subject-ideas'[\s\S]*?consumeCompassCreatePreviewDraft/
 );
 
 assert.match(
@@ -299,5 +307,5 @@ assert.match(
 );
 
 console.log(
-    'Stage 3.2 anonymous Compass contract passed: real catalogue, four full subjects, preview routing, anonymous creation preview, capability-safe creation/AI boundaries, return-intent restoration, and Search visibility.'
+    'Stage 3.2 anonymous Compass contract passed: real catalogue, four full subjects, preview routing, anonymous creation preview with visible local suggestions, protected creation/live-AI boundaries, return-intent restoration, and Search visibility.'
 );
