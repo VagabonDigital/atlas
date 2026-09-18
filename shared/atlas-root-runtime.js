@@ -31,6 +31,9 @@
     let liveAuthorityHydrationUserId = '';
     let compassPresentationPrewarmPromise = null;
     let compassPresentationPrewarmUserId = '';
+    let initialRootCloudBootstrapPromise = null;
+    let initialRootCloudBootstrapUserId = '';
+    let initialRootCloudBootstrapScheduled = false;
 
     function isAtlasRoot() {
         const path = String(
@@ -171,12 +174,12 @@
         });
     }
 
-    function writeRootCloudAuthorityScripts() {
+    async function writeRootCloudAuthorityScripts() {
         if (
             !isAtlasRoot() ||
             !hasStoredAccountSession()
         ) {
-            return Promise.resolve();
+            return;
         }
 
         ensurePreconnect(
@@ -184,19 +187,30 @@
         );
         ensurePreconnect('https://cdn.jsdelivr.net');
 
+        const Bootstrap =
+            window.AtlasAccessBootstrap;
+
+        if (
+            Bootstrap &&
+            typeof Bootstrap.prepareAccountRuntime ===
+                'function'
+        ) {
+            await Bootstrap.prepareAccountRuntime();
+        } else {
+            if (!window.AtlasCloud) {
+                await loadScriptSequentially(
+                    '/shared/atlas-cloud.js?v=20260915-production2'
+                );
+            }
+
+            if (!window.AtlasAccount) {
+                await loadScriptSequentially(
+                    '/shared/atlas-account.js?v=20260916-returnintent2'
+                );
+            }
+        }
+
         const scripts = [];
-
-        if (!window.AtlasCloud) {
-            scripts.push(
-                '/shared/atlas-cloud.js?v=20260915-production2'
-            );
-        }
-
-        if (!window.AtlasAccount) {
-            scripts.push(
-                '/shared/atlas-account.js?v=20260916-returnintent2'
-            );
-        }
 
         if (
             window.AtlasTutorSubjects &&
@@ -231,34 +245,112 @@
             );
         }
 
-        if (!scripts.length) {
-            return Promise.resolve();
-        }
-
-        if (document.readyState === 'loading') {
-            document.write(
-                scripts
-                    .map(src =>
-                        `<script src="${src}"><\/script>`
-                    )
-                    .join('')
-            );
-            return Promise.resolve();
-        }
-
-        return scripts.reduce(
+        await scripts.reduce(
             (chain, src) =>
                 chain.then(() =>
                     loadScriptSequentially(src)
                 ),
             Promise.resolve()
-        ).catch(error => {
-            console.error(
-                '[AtlasRootRuntime] Account persistence bootstrap failed:',
-                error
-            );
-            throw error;
+        );
+    }
+
+    function startInitialRootCloudBootstrap(userId) {
+        const id = String(userId || '').trim();
+
+        if (
+            !id ||
+            !isAtlasRoot() ||
+            storedSessionUserId() !== id
+        ) {
+            return Promise.resolve(null);
+        }
+
+        if (
+            initialRootCloudBootstrapPromise &&
+            initialRootCloudBootstrapUserId === id
+        ) {
+            return initialRootCloudBootstrapPromise;
+        }
+
+        initialRootCloudBootstrapUserId = id;
+
+        const request = Promise.resolve()
+            .then(() =>
+                writeRootCloudAuthorityScripts()
+            )
+            .then(() => {
+                if (storedSessionUserId() !== id) {
+                    return null;
+                }
+
+                return prewarmCompassPresentation(id);
+            })
+            .catch(error => {
+                console.warn(
+                    '[AtlasRootRuntime] Initial post-paint account bootstrap failed:',
+                    error
+                );
+                return null;
+            });
+
+        let trackedPromise = null;
+
+        trackedPromise = request.finally(() => {
+            if (
+                initialRootCloudBootstrapPromise ===
+                trackedPromise
+            ) {
+                initialRootCloudBootstrapPromise = null;
+                initialRootCloudBootstrapUserId = '';
+            }
         });
+
+        initialRootCloudBootstrapPromise =
+            trackedPromise;
+
+        return trackedPromise;
+    }
+
+    function scheduleInitialRootCloudBootstrap(userId) {
+        const id = String(userId || '').trim();
+
+        if (
+            !id ||
+            initialRootCloudBootstrapScheduled
+        ) {
+            return;
+        }
+
+        initialRootCloudBootstrapScheduled = true;
+
+        const startAfterPaint = () => {
+            window.removeEventListener(
+                'atlas:local-presentation-ready',
+                startAfterPaint
+            );
+
+            window.requestAnimationFrame(() => {
+                window.setTimeout(() => {
+                    void startInitialRootCloudBootstrap(
+                        id
+                    );
+                }, 0);
+            });
+        };
+
+        if (
+            document.documentElement.dataset
+                .atlasLocalPresentationReady === 'true'
+        ) {
+            startAfterPaint();
+            return;
+        }
+
+        window.addEventListener(
+            'atlas:local-presentation-ready',
+            startAfterPaint,
+            { once: true }
+        );
     }
 
     function prewarmCompassPresentation(userId) {
@@ -778,40 +870,17 @@
 
     if (isAtlasRoot()) {
         /*
-         * This runtime is injected synchronously while Atlas root is still
-         * parsing. Load the account-owned subject, Atlas Original, and Hub
-         * personalization authorities here: root Settings reads and restores
-         * all three durable objects and must not fall back to browser-only
-         * state for signed-in tutors.
-         */
-        const rootCloudAuthorityBootstrapPromise =
-            writeRootCloudAuthorityScripts();
-
-        /*
-         * Mark authenticated entry as soon as the account token is
-         * available; the shared prepaint gate keeps the root invisible until
-         * DOMContentLoaded resolves the complete entry state.
+         * Parser-time root work is presentation-only. Authenticated cloud,
+         * account, subject, curation, personalization, and Compass prewarm
+         * startup begin only after the first validated local Hub frame has
+         * actually crossed a browser paint boundary.
          */
         if (hasStoredAccountSession()) {
             markWelcomeSeenForAuthenticatedUser();
 
-            const initialUserId =
-                storedSessionUserId();
-
-            void Promise.resolve(
-                rootCloudAuthorityBootstrapPromise
-            )
-                .then(() =>
-                    prewarmCompassPresentation(
-                        initialUserId
-                    )
-                )
-                .catch(error => {
-                    console.warn(
-                        '[AtlasRootRuntime] Initial Compass presentation prewarm failed:',
-                        error
-                    );
-                });
+            scheduleInitialRootCloudBootstrap(
+                storedSessionUserId()
+            );
         }
 
         /*

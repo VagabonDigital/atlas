@@ -25,6 +25,8 @@
     });
 
     let initPromise = null;
+    let accountStackPromise = null;
+    let hubStartupGatePromise = null;
 
     function hasStoredAccountSession() {
         try {
@@ -32,6 +34,78 @@
         } catch {
             return false;
         }
+    }
+
+    function isHubSurface() {
+        const surface = String(
+            document.body?.dataset?.atlasSurface || ''
+        ).trim();
+
+        if (surface === 'hub') {
+            return true;
+        }
+
+        const path = String(
+            window.location.pathname || '/'
+        );
+
+        return (
+            path === '/' ||
+            path === '/index.html' ||
+            path === '/compass/' ||
+            path === '/compass/index.html' ||
+            path === '/arcade/' ||
+            path === '/arcade/index.html'
+        );
+    }
+
+    function waitForHubPresentationPaint() {
+        if (
+            !isHubSurface() ||
+            document.documentElement.dataset
+                .atlasLocalPresentationReady === 'true'
+        ) {
+            return Promise.resolve();
+        }
+
+        if (hubStartupGatePromise) {
+            return hubStartupGatePromise;
+        }
+
+        hubStartupGatePromise = new Promise(resolve => {
+            let released = false;
+
+            const releaseAfterPaint = () => {
+                if (released) return;
+                released = true;
+
+                window.removeEventListener(
+                    'atlas:local-presentation-ready',
+                    releaseAfterPaint
+                );
+
+                window.requestAnimationFrame(() => {
+                    window.setTimeout(resolve, 0);
+                });
+            };
+
+            window.addEventListener(
+                'atlas:local-presentation-ready',
+                releaseAfterPaint,
+                { once: true }
+            );
+
+            if (
+                document.documentElement.dataset
+                    .atlasLocalPresentationReady === 'true'
+            ) {
+                releaseAfterPaint();
+            }
+        }).finally(() => {
+            hubStartupGatePromise = null;
+        });
+
+        return hubStartupGatePromise;
     }
 
     function ensurePreconnect(href) {
@@ -103,28 +177,51 @@
     }
 
     async function ensureAccountStack() {
-        ensurePreconnect('https://jnhjfpagectprceswvqn.supabase.co');
-        ensurePreconnect('https://cdn.jsdelivr.net');
+        if (window.AtlasAccount && window.AtlasCloud) {
+            return window.AtlasAccount;
+        }
 
-        if (!window.AtlasCloud) {
-            await loadScript(
-                SOURCES.cloud,
-                'data-atlas-access-cloud'
+        if (accountStackPromise) {
+            return accountStackPromise;
+        }
+
+        accountStackPromise = (async () => {
+            ensurePreconnect(
+                'https://jnhjfpagectprceswvqn.supabase.co'
             );
-        }
+            ensurePreconnect('https://cdn.jsdelivr.net');
 
-        if (!window.AtlasAccount) {
-            await loadScript(
-                SOURCES.account,
-                'data-atlas-access-account'
-            );
-        }
+            if (!window.AtlasCloud) {
+                await loadScript(
+                    SOURCES.cloud,
+                    'data-atlas-access-cloud'
+                );
+            }
 
-        if (!window.AtlasAccount) {
-            throw new Error('Atlas account state could not initialize.');
-        }
+            if (!window.AtlasAccount) {
+                await loadScript(
+                    SOURCES.account,
+                    'data-atlas-access-account'
+                );
+            }
 
-        return window.AtlasAccount;
+            if (!window.AtlasAccount) {
+                throw new Error(
+                    'Atlas account state could not initialize.'
+                );
+            }
+
+            return window.AtlasAccount;
+        })().catch(error => {
+            accountStackPromise = null;
+            throw error;
+        });
+
+        return accountStackPromise;
+    }
+
+    async function prepareAccountRuntime() {
+        return ensureAccountStack();
     }
 
     async function prepareAccount() {
@@ -161,6 +258,8 @@
         if (initPromise) return initPromise;
 
         initPromise = (async () => {
+            await waitForHubPresentationPaint();
+
             const Access = await ensureAccess();
 
             if (window.AtlasAccount) {
@@ -195,6 +294,7 @@
     window.AtlasAccessBootstrap = Object.freeze({
         initialize,
         prepareAccount,
+        prepareAccountRuntime,
         prepareCapabilityGate,
         getState,
         refresh
