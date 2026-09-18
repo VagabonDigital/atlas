@@ -149,8 +149,16 @@
         var explicitProductEntry =
           entryUrl.searchParams.get('entry') === 'product';
 
+        var publicEntryStage =
+          localStorage.getItem(
+            'atlas::publicEntryStage:v1'
+          ) || '';
+
         var welcomeSeen =
-          localStorage.getItem('atlas::welcomeSeen:v1') === '1';
+          localStorage.getItem(
+            'atlas::welcomeSeen:v1'
+          ) === '1';
+
         var storedAccountSession = false;
         var storedAuth = JSON.parse(
           localStorage.getItem(
@@ -183,6 +191,10 @@
               'atlas::welcomeSeen:v1',
               '1'
             );
+            localStorage.setItem(
+              'atlas::publicEntryStage:v1',
+              'product'
+            );
           } catch (e) { }
 
           document.documentElement.dataset.atlasWelcome =
@@ -205,8 +217,50 @@
           return;
         }
 
-        if (welcomeSeen || storedAccountSession) {
-          document.documentElement.dataset.atlasWelcome = 'seen';
+        if (storedAccountSession) {
+          try {
+            localStorage.setItem(
+              'atlas::welcomeSeen:v1',
+              '1'
+            );
+            localStorage.setItem(
+              'atlas::publicEntryStage:v1',
+              'product'
+            );
+          } catch (e) { }
+
+          document.documentElement.dataset.atlasWelcome =
+            'seen';
+          return;
+        }
+
+        if (publicEntryStage === 'product') {
+          document.documentElement.dataset.atlasWelcome =
+            'seen';
+          return;
+        }
+
+        if (publicEntryStage === 'inside') {
+          window.location.replace(
+            './tutors/' +
+              window.location.search +
+              window.location.hash
+          );
+          return;
+        }
+
+        if (welcomeSeen) {
+          // Legacy migration: before public-entry stages existed,
+          // welcomeSeen meant the tutor had already entered the Hub.
+          try {
+            localStorage.setItem(
+              'atlas::publicEntryStage:v1',
+              'product'
+            );
+          } catch (e) { }
+
+          document.documentElement.dataset.atlasWelcome =
+            'seen';
           return;
         }
       } catch (e) { }
@@ -3833,6 +3887,10 @@
         localStorage.setItem(
           'atlas::welcomeSeen:v1',
           '1'
+        );
+        localStorage.setItem(
+          'atlas::publicEntryStage:v1',
+          'inside'
         );
       } catch (e) { }
 
