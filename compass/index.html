@@ -4826,58 +4826,68 @@
       const sessionStates = ((reg.sessionStates || {})[session.id]) || {};
       const Curation = window.AtlasOriginalCuration;
 
-      return COMPASS_AVAILABLE_SUBJECT_SLUGS
-        .map(slug => {
-          const subject = Object.values(COMPASS_CATALOG).find(item =>
-            compassSubjectSlug(item) === slug
-          );
+      const subjects =
+        COMPASS_AVAILABLE_SUBJECT_SLUGS
+          .map(slug => {
+            const subject = Object.values(COMPASS_CATALOG).find(item =>
+              compassSubjectSlug(item) === slug
+            );
 
-          if (!subject) return null;
+            if (!subject) return null;
 
-          if (
-            !includeCuratedHidden &&
-            Curation &&
-            typeof Curation.isHidden === 'function' &&
-            Curation.isHidden(subject.registryId)
-          ) {
-            return null;
-          }
+            if (
+              !includeCuratedHidden &&
+              Curation &&
+              typeof Curation.isHidden === 'function' &&
+              Curation.isHidden(subject.registryId)
+            ) {
+              return null;
+            }
 
-          const relativeLaunchUrl = getCompassSubjectLaunchUrl(subject);
-          const launchUrl = relativeLaunchUrl
-            ? withLaunchOrigin(
-              new URL(relativeLaunchUrl, window.location.href).href,
-              'compass'
-            )
-            : '';
-
-          if (!launchUrl) return null;
-
-          const item = (reg.items || {})[subject.registryId] || null;
-          const state = sessionStates[subject.registryId] || null;
-          const hasMyVersion = item?.hasMyVersion === true;
-
-          return {
-            registryId: subject.registryId,
-            title: item?.title || subject.title,
-            launchUrl,
-            artId: subject.artId || '',
-            hook: hasMyVersion &&
-              item &&
-              Object.prototype.hasOwnProperty.call(
-                item,
-                'description'
+            const relativeLaunchUrl = getCompassSubjectLaunchUrl(subject);
+            const launchUrl = relativeLaunchUrl
+              ? withLaunchOrigin(
+                new URL(relativeLaunchUrl, window.location.href).href,
+                'compass'
               )
-                ? item.description || ''
-                : subject.hook || '',
-            hasMyVersion,
-            status: resolveStatus(state),
-            state,
-            contentVersion: item ? item.contentVersion || null : null
-          };
-        })
-        .filter(Boolean);
+              : '';
+
+            if (!launchUrl) return null;
+
+            const item = (reg.items || {})[subject.registryId] || null;
+            const state = sessionStates[subject.registryId] || null;
+            const hasMyVersion = item?.hasMyVersion === true;
+
+            return {
+              registryId: subject.registryId,
+              title: item?.title || subject.title,
+              launchUrl,
+              artId: subject.artId || '',
+              hook: hasMyVersion &&
+                item &&
+                Object.prototype.hasOwnProperty.call(
+                  item,
+                  'description'
+                )
+                  ? item.description || ''
+                  : subject.hook || '',
+              hasMyVersion,
+              status: resolveStatus(state),
+              state,
+              contentVersion: item ? item.contentVersion || null : null
+            };
+          })
+          .filter(Boolean);
+
+      return (
+        Curation &&
+        typeof Curation.sortSubjects === 'function'
+      )
+        ? Curation.sortSubjects(subjects)
+        : subjects;
     }
+
+    getAtlasSubjects.__atlasCurationSorted = true;
 
     function getOwnedSubjectLaunchUrl(
       subjectId,
