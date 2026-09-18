@@ -1640,6 +1640,8 @@
   <script src="../../shared/atlas-bridge.js"></script>
   <script src="../../shared/atlas-session-panel.js?v=20260916-runtime3"></script>
   <script src="../../shared/compass-catalog-data.js"></script>
+  <script src="../../shared/arcade-catalog-data.js"></script>
+  <script src="../shared/arcade-public-access.js?v=20260918-public1"></script>
   <script src="../../shared/atlas-content-registry.js?v=20260916-access1"></script>
   <script src="../../shared/atlas-search.js"></script>
   <script src="../shared/arcade-game-chrome.js?v=20260721"></script>
@@ -2054,9 +2056,17 @@
       const launchButton = document.getElementById('launch-button');
       if (!launchButton) return;
 
-      const buttonLabel = covered > 0
-        ? 'Continue sequence'
-        : 'Start sequence';
+      const anonymousPreview =
+        window.ArcadePublicAccess
+          ?.isAnonymousPreview?.(
+            REGISTRY_ID
+          ) === true;
+
+      const buttonLabel = anonymousPreview
+        ? 'Create free account to play'
+        : covered > 0
+          ? 'Continue sequence'
+          : 'Start sequence';
 
       launchButton.innerHTML =
         '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
@@ -2065,8 +2075,48 @@
         buttonLabel;
     }
 
-    function startGame() {
+    async function startGame(
+      {
+        skipPublicAccessGate = false
+      } = {}
+    ) {
       if (!Bridge || !session) return;
+
+      if (
+        !skipPublicAccessGate &&
+        window.ArcadePublicAccess
+          ?.isAnonymousPreview?.(
+            REGISTRY_ID
+          )
+      ) {
+        const access =
+          await ArcadePublicAccess
+            .requestGameAccess(
+              REGISTRY_ID,
+              document.getElementById(
+                'launch-button'
+              )
+            );
+
+        if (
+          !ArcadePublicAccess
+            .accessAllows(access)
+        ) {
+          if (
+            access?.outcome !==
+              'auth-required'
+          ) {
+            showToast(
+              'Create a free Atlas account to play.'
+            );
+          }
+
+          return;
+        }
+      }
+
+      session =
+        Bridge.readActiveSession();
 
       window.AtlasAnalytics?.arcadeGameStart(
         'tomorrow-got-weird'
@@ -2476,6 +2526,21 @@
 
       session = Bridge.readActiveSession();
 
+      if (window.ArcadePublicAccess) {
+        void ArcadePublicAccess
+          .subscribeGameResume(
+            REGISTRY_ID,
+            async () => {
+              session =
+                Bridge.readActiveSession();
+
+              await startGame({
+                skipPublicAccessGate: true
+              });
+            }
+          );
+      }
+
       if (window.ArcadeGameChrome) {
         ArcadeGameChrome.mountLanding({
           root: '#launch',
@@ -2497,6 +2562,11 @@
         title: 'Tomorrow Got Weird',
         premise: 'Step into strange future scenarios and decide what you would do next.',
         status: 'available',
+        publicAccess:
+          window.ArcadeCatalogData
+            ?.getArcadeGamePublicAccess?.(
+              REGISTRY_ID
+            ) || 'preview',
         unitLabel: 'Scenarios',
         total: SCENARIOS.length,
         formatLabel: 'Imagination',
@@ -2520,6 +2590,21 @@
 
       updateLaunchButton(timeline.covered);
     }
+
+    window.addEventListener(
+      'atlas:account-change',
+      () => {
+        const saved =
+          readBridgeState();
+
+        const timeline =
+          getTimelineProgress(saved);
+
+        updateLaunchButton(
+          timeline.covered
+        );
+      }
+    );
 
     window.addEventListener('atlas:appearance-change', event => {
       if (!Bridge) return;
