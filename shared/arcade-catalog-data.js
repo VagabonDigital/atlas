@@ -229,6 +229,7 @@
     const ARCADE_GAMES = [
         {
             registryId: 'arcade:tomorrow-got-weird',
+            publicAccess: 'preview',
             title: 'Tomorrow Got Weird',
             premise: 'Step into strange future scenarios and decide what you would do next.',
             unitLabel: 'Scenarios',
@@ -240,6 +241,7 @@
         },
         {
             registryId: 'arcade:truth-trap',
+            publicAccess: 'full',
             title: 'Truth Trap',
             premise: 'Two facts are true. One is a lie. Spot the fake and explain your reasoning.',
             unitLabel: 'Rounds',
@@ -251,6 +253,7 @@
         },
         {
             registryId: 'arcade:would-you-rather',
+            publicAccess: 'preview',
             title: 'Would You Rather',
             premise: 'Choose between impossible options and explain what made you decide.',
             unitLabel: 'Questions',
@@ -277,6 +280,19 @@
         }, {});
     }
 
+    function getArcadeGamePublicAccess(registryId) {
+        const id = String(registryId || '').trim();
+
+        const game = ARCADE_GAMES.find(
+            candidate =>
+                candidate.registryId === id
+        );
+
+        return game?.publicAccess === 'full'
+            ? 'full'
+            : 'preview';
+    }
+
     function getArcadeGameArt(artId) {
         return ARCADE_GAME_ART[artId] || '';
     }
@@ -284,6 +300,7 @@
     window.ArcadeCatalogData = {
         getArcadeGames,
         getArcadeGameMap,
+        getArcadeGamePublicAccess,
         getArcadeGameArt
     };
 })();
