@@ -6761,6 +6761,8 @@
       if (!opening) return;
 
       menu.classList.remove('is-flipped');
+      menu.style.maxHeight = '';
+      menu.style.overflowY = '';
       menu.hidden = false;
 
       const menuRect = menu.getBoundingClientRect();
@@ -6769,6 +6771,7 @@
         window.innerHeight ||
         document.documentElement.clientHeight;
       const viewportPadding = 12;
+      const menuGap = 8;
       const spaceBelow =
         viewportHeight -
         buttonRect.bottom -
@@ -6776,12 +6779,27 @@
       const spaceAbove =
         buttonRect.top -
         viewportPadding;
-
-      if (
+      const openAbove =
         menuRect.height > spaceBelow &&
-        spaceAbove > spaceBelow
-      ) {
+        spaceAbove > spaceBelow;
+
+      if (openAbove) {
         menu.classList.add('is-flipped');
+      }
+
+      const availableHeight =
+        Math.max(
+          0,
+          Math.floor(
+            (openAbove ? spaceAbove : spaceBelow) -
+            menuGap
+          )
+        );
+
+      if (menuRect.height > availableHeight) {
+        menu.style.maxHeight =
+          availableHeight + 'px';
+        menu.style.overflowY = 'auto';
       }
 
       button.setAttribute('aria-expanded', 'true');
@@ -14535,7 +14553,9 @@
           '</svg>' +
           '</button>' +
 
-          '<div class="subject-card-menu" role="menu" hidden>' +
+          '<div class="subject-card-menu" role="menu" data-order-scope="' +
+          escHtml(subject.moveScope || '') +
+          '" hidden>' +
 
           (subject.provenance &&
             subject.provenance.sourceWorld === COMPASS_ID &&
@@ -14731,7 +14751,9 @@
           '</svg>' +
           '</button>' +
 
-          '<div class="subject-card-menu" role="menu" hidden>' +
+          '<div class="subject-card-menu" role="menu" data-order-scope="' +
+          escHtml(subject.moveScope || '') +
+          '" hidden>' +
 
           (subject.hasMyVersion
             ? '<div class="subject-card-menu-meta">My Version</div>'
