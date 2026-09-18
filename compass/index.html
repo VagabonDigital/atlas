@@ -6224,6 +6224,81 @@
 
               if (
                 intent?.action === 'create-subject' &&
+                context.operation ===
+                  'continue-create-preview'
+              ) {
+                const draft =
+                  consumeCompassCreatePreviewDraft(
+                    context.draftId || ''
+                  );
+
+                await openCreateSubjectDialog(
+                  null,
+                  draft?.sessionId || '',
+                  null,
+                  draft?.categoryId || '',
+                  {
+                    initialDraft: draft
+                  }
+                );
+                return;
+              }
+
+              if (
+                intent?.action === 'capability' &&
+                context.operation ===
+                  'suggest-subject-ideas'
+              ) {
+                const draft =
+                  consumeCompassCreatePreviewDraft(
+                    context.draftId || ''
+                  );
+
+                await openCreateSubjectDialog(
+                  null,
+                  draft?.sessionId || '',
+                  null,
+                  draft?.categoryId || '',
+                  {
+                    initialDraft: draft
+                  }
+                );
+
+                const dialog =
+                  document.getElementById(
+                    'owned-subject-dialog'
+                  );
+
+                const ideaButton =
+                  dialog?.querySelector(
+                    '.owned-subject-dialog-idea-btn'
+                  );
+
+                if (
+                  ideaButton &&
+                  context.mode
+                ) {
+                  if (
+                    ownedSubjectDialogState?.mode ===
+                    'create'
+                  ) {
+                    ownedSubjectDialogState
+                      .ideaMode =
+                        String(
+                          context.mode || ''
+                        ).trim();
+                  }
+
+                  await askCompassForSubjects(
+                    ideaButton,
+                    context.mode
+                  );
+                }
+                return;
+              }
+
+              if (
+                intent?.action === 'create-subject' &&
                 context.operation === 'duplicate-owned-subject' &&
                 context.subjectId
               ) {
@@ -7314,6 +7389,256 @@
       });
     }
 
+    const COMPASS_CREATE_PREVIEW_DRAFT_PREFIX =
+      'atlas::compassCreatePreviewDraft::v1::';
+    const COMPASS_CREATE_PREVIEW_DRAFT_MAX_AGE_MS =
+      24 * 60 * 60 * 1000;
+
+    function createCompassCreatePreviewDraftId() {
+      try {
+        if (
+          window.crypto &&
+          typeof window.crypto.randomUUID === 'function'
+        ) {
+          return window.crypto.randomUUID();
+        }
+      } catch { }
+
+      return (
+        Date.now().toString(36) +
+        '-' +
+        Math.random().toString(36).slice(2, 12)
+      );
+    }
+
+    function collectCompassCreateDialogDraft(
+      createMode = 'generate'
+    ) {
+      const dialog = document.getElementById(
+        'owned-subject-dialog'
+      );
+
+      const state = ownedSubjectDialogState;
+
+      if (
+        !dialog ||
+        state?.mode !== 'create'
+      ) {
+        return null;
+      }
+
+      const topicFocusInput =
+        dialog.querySelector(
+          '#compass-idea-topic-focus'
+        );
+
+      return {
+        version: 1,
+        createdAt: Date.now(),
+        createMode:
+          createMode === 'blank'
+            ? 'blank'
+            : 'generate',
+        sessionId:
+          String(state.sessionId || '').trim(),
+        categoryId:
+          String(state.categoryId || '').trim(),
+        title:
+          String(
+            dialog.querySelector(
+              '#owned-subject-dialog-input'
+            )?.value || ''
+          ).trim().slice(0, 120),
+        languageLevel:
+          String(
+            dialog.querySelector(
+              '#owned-subject-dialog-level'
+            )?.value || 'b2'
+          ).trim(),
+        style:
+          String(
+            dialog.querySelector(
+              '#owned-subject-dialog-style'
+            )?.value || 'balanced'
+          ).trim(),
+        subjectSize:
+          String(
+            dialog.querySelector(
+              '#owned-subject-dialog-size'
+            )?.value || 'standard'
+          ).trim(),
+        brief:
+          String(
+            dialog.querySelector(
+              '#owned-subject-dialog-brief'
+            )?.value || ''
+          ).trim().slice(0, 2400),
+        ideaMode:
+          String(state.ideaMode || '').trim(),
+        topicFocus:
+          String(
+            topicFocusInput
+              ? topicFocusInput.value
+              : state.topicFocus || ''
+          ).trim().slice(0, 240),
+        suggestion:
+          state.suggestion &&
+          typeof state.suggestion === 'object'
+            ? state.suggestion
+            : null
+      };
+    }
+
+    function storeCompassCreatePreviewDraft(
+      createMode = 'generate'
+    ) {
+      const draft =
+        collectCompassCreateDialogDraft(
+          createMode
+        );
+
+      if (!draft) {
+        return '';
+      }
+
+      const id =
+        createCompassCreatePreviewDraftId();
+
+      try {
+        localStorage.setItem(
+          COMPASS_CREATE_PREVIEW_DRAFT_PREFIX + id,
+          JSON.stringify(draft)
+        );
+
+        return id;
+      } catch {
+        return '';
+      }
+    }
+
+    function discardCompassCreatePreviewDraft(
+      draftId
+    ) {
+      const id =
+        String(draftId || '').trim();
+
+      if (!id) return;
+
+      try {
+        localStorage.removeItem(
+          COMPASS_CREATE_PREVIEW_DRAFT_PREFIX + id
+        );
+      } catch { }
+    }
+
+    function consumeCompassCreatePreviewDraft(
+      draftId
+    ) {
+      const id =
+        String(draftId || '').trim();
+
+      if (!id) {
+        return null;
+      }
+
+      let draft = null;
+
+      try {
+        const key =
+          COMPASS_CREATE_PREVIEW_DRAFT_PREFIX + id;
+
+        const raw =
+          localStorage.getItem(key);
+
+        localStorage.removeItem(key);
+
+        draft = raw
+          ? JSON.parse(raw)
+          : null;
+      } catch {
+        return null;
+      }
+
+      if (
+        !draft ||
+        draft.version !== 1 ||
+        !Number.isFinite(
+          Number(draft.createdAt)
+        ) ||
+        Date.now() -
+          Number(draft.createdAt) >
+            COMPASS_CREATE_PREVIEW_DRAFT_MAX_AGE_MS
+      ) {
+        return null;
+      }
+
+      return draft;
+    }
+
+    async function requireAnonymousCreatePreviewAccess(
+      createMode,
+      trigger
+    ) {
+      const draftId =
+        storeCompassCreatePreviewDraft(
+          createMode
+        );
+
+      const access =
+        await requireCompassSubjectCapability(
+          'canCreateSubject',
+          'create-subject',
+          'continue-create-preview',
+          {
+            ...(draftId
+              ? { draftId }
+              : {})
+          },
+          trigger
+        );
+
+      if (access?.outcome === 'allowed') {
+        discardCompassCreatePreviewDraft(
+          draftId
+        );
+
+        if (
+          ownedSubjectDialogState?.mode ===
+          'create'
+        ) {
+          ownedSubjectDialogState
+            .anonymousPreview = false;
+        }
+
+        return true;
+      }
+
+      if (access?.outcome !== 'auth-required') {
+        discardCompassCreatePreviewDraft(
+          draftId
+        );
+      }
+
+      return compassSubjectCapabilityAllows(
+        access,
+        'Subject creation is unavailable right now.'
+      );
+    }
+
+    function openAnonymousCreatePreview(
+      event
+    ) {
+      void openCreateSubjectDialog(
+        event,
+        '',
+        event?.currentTarget || null,
+        '',
+        {
+          anonymousPreview: true
+        }
+      );
+    }
+
     async function openCreateSubjectDialog(
       event,
       sessionId = '',
@@ -7324,7 +7649,14 @@
       event?.preventDefault();
       event?.stopPropagation();
 
-      if (!options.skipCapabilityGate) {
+      const anonymousPreview =
+        options.anonymousPreview === true &&
+        !getStoredCompassAccountUserId();
+
+      if (
+        !options.skipCapabilityGate &&
+        !anonymousPreview
+      ) {
         const access =
           await requireCompassSubjectCapability(
             'canCreateSubject',
@@ -7358,15 +7690,24 @@
       const Structured = window.AtlasStructuredSubject;
 
       if (
-        !Subjects ||
-        typeof Subjects.createSubject !== 'function' ||
-        !Structured ||
-        typeof Structured.createBlankDocument !== 'function' ||
-        typeof Structured.validateDocument !== 'function'
+        !anonymousPreview &&
+        (
+          !Subjects ||
+          typeof Subjects.createSubject !== 'function' ||
+          !Structured ||
+          typeof Structured.createBlankDocument !== 'function' ||
+          typeof Structured.validateDocument !== 'function'
+        )
       ) {
         showToast('Subject creation is unavailable.');
         return;
       }
+
+      const initialDraft =
+        options.initialDraft &&
+        typeof options.initialDraft === 'object'
+          ? options.initialDraft
+          : null;
 
       const dialog = ensureOwnedSubjectDialog();
 
@@ -7436,13 +7777,41 @@
 
       ownedSubjectDialogState = {
         mode: 'create',
+        anonymousPreview,
         sessionId:
-          String(sessionId || '').trim() || null,
+          String(
+            initialDraft?.sessionId ||
+            sessionId ||
+            ''
+          ).trim() || null,
         categoryId:
-          String(categoryId || '').trim() || null,
-        ideaMode: '',
-        topicFocus: ''
+          String(
+            initialDraft?.categoryId ||
+            categoryId ||
+            ''
+          ).trim() || null,
+        ideaMode:
+          String(
+            initialDraft?.ideaMode || ''
+          ).trim(),
+        topicFocus:
+          String(
+            initialDraft?.topicFocus || ''
+          ).trim(),
+        suggestion:
+          initialDraft?.suggestion &&
+          typeof initialDraft.suggestion === 'object'
+            ? initialDraft.suggestion
+            : null
       };
+
+      const kicker = dialog.querySelector(
+        '#owned-subject-dialog-kicker'
+      );
+
+      if (kicker) {
+        kicker.textContent = 'My Subjects';
+      }
 
       title.textContent = 'Create subject';
 
@@ -7454,7 +7823,10 @@
       fieldLabel.textContent =
         'What do you want to explore?';
 
-      input.value = '';
+      input.value =
+        String(
+          initialDraft?.title || ''
+        ).slice(0, 120);
       input.placeholder =
         'A topic, situation, film or idea…';
 
@@ -7466,7 +7838,8 @@
       recommendationRegion.innerHTML = '';
 
       syncCompassIdeaModeControl(
-        dialog
+        dialog,
+        ownedSubjectDialogState.ideaMode
       );
 
       if (ideaLabel) {
@@ -7474,10 +7847,45 @@
           'Need an idea?';
       }
 
-      levelSelect.value = 'b2';
-      styleSelect.value = 'balanced';
-      sizeSelect.value = 'standard';
-      briefInput.value = '';
+      const setCreateSelectValue = (
+        select,
+        requested,
+        fallback
+      ) => {
+        const value =
+          String(requested || '').trim();
+
+        select.value =
+          Array.from(select.options || [])
+            .some(option =>
+              option.value === value
+            )
+            ? value
+            : fallback;
+      };
+
+      setCreateSelectValue(
+        levelSelect,
+        initialDraft?.languageLevel,
+        'b2'
+      );
+
+      setCreateSelectValue(
+        styleSelect,
+        initialDraft?.style,
+        'balanced'
+      );
+
+      setCreateSelectValue(
+        sizeSelect,
+        initialDraft?.subjectSize,
+        'standard'
+      );
+
+      briefInput.value =
+        String(
+          initialDraft?.brief || ''
+        ).slice(0, 2400);
 
       error.hidden = true;
       error.textContent = '';
@@ -8355,6 +8763,18 @@
             'Give the subject a name.';
           input?.focus();
           return;
+        }
+
+        if (state.anonymousPreview) {
+          const allowed =
+            await requireAnonymousCreatePreviewAccess(
+              createMode,
+              confirm
+            );
+
+          if (!allowed) {
+            return;
+          }
         }
 
         const generateFullSubject =
@@ -12834,14 +13254,49 @@
         return;
       }
 
+      const previewDraftId =
+        ownedSubjectDialogState?.mode ===
+          'create' &&
+        ownedSubjectDialogState
+          .anonymousPreview
+          ? storeCompassCreatePreviewDraft(
+              'generate'
+            )
+          : '';
+
       const aiAccess =
         await requireCompassSubjectCapability(
           'canCreateWithAI',
           'capability',
           'suggest-subject-ideas',
-          { mode: selectedMode.id },
+          {
+            mode: selectedMode.id,
+            ...(previewDraftId
+              ? { draftId: previewDraftId }
+              : {})
+          },
           button
         );
+
+      if (aiAccess?.outcome === 'allowed') {
+        discardCompassCreatePreviewDraft(
+          previewDraftId
+        );
+
+        if (
+          ownedSubjectDialogState?.mode ===
+          'create'
+        ) {
+          ownedSubjectDialogState
+            .anonymousPreview = false;
+        }
+      } else if (
+        aiAccess?.outcome !== 'auth-required'
+      ) {
+        discardCompassCreatePreviewDraft(
+          previewDraftId
+        );
+      }
 
       if (
         !compassSubjectCapabilityAllows(
