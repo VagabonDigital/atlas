@@ -63,6 +63,10 @@ const search = fs.readFileSync(
     'shared/atlas-search.js',
     'utf8'
 );
+const accountChromeCss = fs.readFileSync(
+    'shared/atlas-account-chrome.css',
+    'utf8'
+);
 
 // ---------------------------------------------------------------------------
 // Atlas gateway: one product, authenticated state replaces acquisition state.
@@ -105,6 +109,21 @@ assert.match(
 assert.match(
     sessionPanel,
     /Gate\.requireCapability\(\s*'canCreateLearner'[\s\S]*?action: 'create-learner'/
+);
+
+assert.match(
+    sessionPanel,
+    /function getVisibleSessions\(\)[\s\S]*?if \(hasStoredAtlasAccountSession\(\)\)[\s\S]*?return sessions;[\s\S]*?session\.id ===[\s\S]*?Bridge\.defaultSessionId/
+);
+
+assert.match(
+    sessionPanel,
+    /function getFilteredSessions\(\)[\s\S]*?return getVisibleSessions\(\)\.filter/
+);
+
+assert.match(
+    sessionPanel,
+    /function getVisibleActiveSession\(\)[\s\S]*?hasStoredAtlasAccountSession\(\)[\s\S]*?Bridge\.defaultSessionId/
 );
 
 assert.match(
@@ -302,6 +321,29 @@ assert.match(
     /window\.addEventListener\(\s*'atlas:account-change',\s*refresh\s*\)/
 );
 
+// ---------------------------------------------------------------------------
+// Mobile/global navigation polish discovered during authenticated-state QA.
+// ---------------------------------------------------------------------------
+
+assert.match(
+    accountChromeCss,
+    /mobile-header-btn\.atlas-account-control\[data-account-state="sign-in"\][\s\S]*?border-radius: 20px;[\s\S]*?font-size: 0\.76rem;[\s\S]*?font-weight: 500;[\s\S]*?padding-inline: 0\.7rem;/
+);
+
+const drawerSettingsIndex = root.indexOf(
+    'onclick="closeDrawer();openSettingsModal()"'
+);
+const drawerFeedbackIndex = root.indexOf(
+    'data-atlas-feedback'
+);
+
+assert.ok(
+    drawerSettingsIndex >= 0 &&
+    drawerFeedbackIndex >= 0 &&
+    drawerSettingsIndex < drawerFeedbackIndex,
+    'Settings should appear above Message the Atlas team in the mobile drawer'
+);
+
 console.log(
-    'Stage 3.4 authenticated product state contract passed: signed-in Atlas restores learners, continuity, Session Subjects, My Subjects, My Versions, saved language/history, durable teaching state, account isolation, and live in-place authenticated product rendering.'
+    'Stage 3.4 authenticated product state contract passed: signed-in Atlas restores learners, continuity, Session Subjects, My Subjects, My Versions, saved language/history, durable teaching state, account isolation, signed-out learner privacy, and live in-place product rendering.'
 );
