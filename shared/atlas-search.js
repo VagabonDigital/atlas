@@ -241,9 +241,17 @@
 
         if (
             !hasStoredAtlasAccountSession() &&
-            item?.world === 'compass' &&
-            item?.type === 'subject' &&
-            item?.publicAccess === 'preview'
+            item?.publicAccess === 'preview' &&
+            (
+                (
+                    item?.world === 'compass' &&
+                    item?.type === 'subject'
+                ) ||
+                (
+                    item?.world === 'arcade' &&
+                    item?.type === 'game'
+                )
+            )
         ) {
             return 'Preview';
         }
