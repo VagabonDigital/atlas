@@ -1357,7 +1357,11 @@
         setCreateExpanded(
             true,
             {
-                focus: true,
+                // Mobile keyboards consume most of the learner panel.
+                // Show the ready input immediately, but let the tutor
+                // deliberately tap it before typing.
+                focus:
+                    !isMobileSessionLayout(),
                 reset: true
             }
         );
