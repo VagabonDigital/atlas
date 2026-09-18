@@ -2376,7 +2376,20 @@
        SESSION MODAL
        ================================================================ */
     function openSessionPanel(trigger = document.activeElement) {
-      if (window.AtlasSessionPanel) AtlasSessionPanel.open(trigger);
+      const Panel = window.AtlasSessionPanel;
+
+      if (!Panel) return;
+
+      if (
+        !getStoredPresentationUserId() &&
+        typeof Panel.openCreateLearner ===
+          'function'
+      ) {
+        Panel.openCreateLearner(trigger);
+        return;
+      }
+
+      Panel.open(trigger);
     }
 
     /* ================================================================
