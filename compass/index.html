@@ -3666,6 +3666,805 @@
   <script>
     'use strict';
 
+    /* COMPASS HOVER FORENSICS — temporary diagnostic harness */
+    const CompassHoverForensics = (() => {
+      const PARAM = 'hoverDebug';
+      const STORAGE_KEY =
+        'atlas::compassHoverForensics::enabled';
+
+      let enabled = false;
+
+      try {
+        const params =
+          new URL(window.location.href).searchParams;
+
+        if (params.get(PARAM) === '1') {
+          sessionStorage.setItem(
+            STORAGE_KEY,
+            '1'
+          );
+        } else if (params.get(PARAM) === '0') {
+          sessionStorage.removeItem(
+            STORAGE_KEY
+          );
+        }
+
+        enabled =
+          sessionStorage.getItem(
+            STORAGE_KEY
+          ) === '1';
+      } catch { }
+
+      const noop = () => undefined;
+
+      if (!enabled) {
+        return {
+          enabled: false,
+          log: noop,
+          noteRender: noop,
+          noteMarkupDecision: noop,
+          report: () => 'Compass hover forensics are disabled.'
+        };
+      }
+
+      const startedAt = performance.now();
+      const entries = [];
+      const nodeIds = new WeakMap();
+      let nextNodeId = 1;
+      let trackedCard = null;
+      let trackedKey = '';
+      let pointerX = null;
+      let pointerY = null;
+
+      function elapsed() {
+        return Number(
+          (performance.now() - startedAt)
+            .toFixed(1)
+        );
+      }
+
+      function getNodeId(node) {
+        if (!node || typeof node !== 'object') {
+          return null;
+        }
+
+        if (!nodeIds.has(node)) {
+          nodeIds.set(
+            node,
+            nextNodeId++
+          );
+        }
+
+        return nodeIds.get(node);
+      }
+
+      function cardKey(card) {
+        if (!card) return '';
+
+        const title = String(
+          card.querySelector(
+            '.subject-card-title'
+          )?.textContent || ''
+        ).trim();
+
+        const link =
+          card.matches('a.subject-card')
+            ? card
+            : card.querySelector(
+                '.subject-card-open-layer'
+              );
+
+        let href = '';
+
+        try {
+          href = link?.href
+            ? new URL(link.href).pathname +
+              new URL(link.href).search
+            : '';
+        } catch {
+          href = String(
+            link?.getAttribute('href') || ''
+          );
+        }
+
+        return title + '|' + href;
+      }
+
+      function rectOf(node) {
+        if (
+          !node ||
+          typeof node.getBoundingClientRect !==
+            'function'
+        ) {
+          return null;
+        }
+
+        const rect =
+          node.getBoundingClientRect();
+
+        return {
+          x: Number(rect.x.toFixed(1)),
+          y: Number(rect.y.toFixed(1)),
+          width:
+            Number(rect.width.toFixed(1)),
+          height:
+            Number(rect.height.toFixed(1))
+        };
+      }
+
+      function elementAtPointer() {
+        if (
+          !Number.isFinite(pointerX) ||
+          !Number.isFinite(pointerY)
+        ) {
+          return null;
+        }
+
+        const element =
+          document.elementFromPoint(
+            pointerX,
+            pointerY
+          );
+
+        const card =
+          element?.closest?.(
+            '.subject-card'
+          ) || null;
+
+        return {
+          tag:
+            element?.tagName || null,
+          className:
+            typeof element?.className ===
+              'string'
+              ? element.className
+              : null,
+          cardNodeId:
+            getNodeId(card),
+          cardKey:
+            cardKey(card)
+        };
+      }
+
+      function cardSnapshot(card = trackedCard) {
+        return {
+          nodeId: getNodeId(card),
+          key: cardKey(card),
+          connected:
+            Boolean(card?.isConnected),
+          hovered:
+            Boolean(
+              card?.matches?.(':hover')
+            ),
+          rect: rectOf(card),
+          elementAtPointer:
+            elementAtPointer()
+        };
+      }
+
+      function safeDetail(value) {
+        if (
+          value === null ||
+          value === undefined
+        ) {
+          return value;
+        }
+
+        if (
+          typeof value === 'string' ||
+          typeof value === 'number' ||
+          typeof value === 'boolean'
+        ) {
+          return value;
+        }
+
+        try {
+          return JSON.parse(
+            JSON.stringify(value)
+          );
+        } catch {
+          return String(value);
+        }
+      }
+
+      function log(type, detail = {}) {
+        const entry = {
+          seq: entries.length + 1,
+          t: elapsed(),
+          type,
+          ...safeDetail(detail)
+        };
+
+        entries.push(entry);
+
+        if (entries.length > 500) {
+          entries.shift();
+        }
+
+        console.log(
+          '[CompassHover]',
+          entry
+        );
+
+        return entry;
+      }
+
+      function relationKey(node) {
+        return cardKey(
+          node?.closest?.(
+            '.subject-card'
+          ) || null
+        );
+      }
+
+      function trackCard(card, event) {
+        if (!card) return;
+
+        if (
+          trackedCard === card &&
+          trackedKey === cardKey(card)
+        ) {
+          return;
+        }
+
+        trackedCard = card;
+        trackedKey = cardKey(card);
+
+        log(
+          'track-card',
+          {
+            event:
+              event?.type || null,
+            pointer: {
+              x: pointerX,
+              y: pointerY
+            },
+            card: cardSnapshot(card)
+          }
+        );
+      }
+
+      function updatePointer(event) {
+        if (
+          Number.isFinite(event?.clientX) &&
+          Number.isFinite(event?.clientY)
+        ) {
+          pointerX = event.clientX;
+          pointerY = event.clientY;
+        }
+      }
+
+      [
+        'pointerover',
+        'pointerenter',
+        'pointerout',
+        'pointerleave',
+        'mouseover',
+        'mouseenter',
+        'mouseout',
+        'mouseleave'
+      ].forEach(type => {
+        document.addEventListener(
+          type,
+          event => {
+            updatePointer(event);
+
+            const card =
+              event.target?.closest?.(
+                '.subject-card'
+              ) || null;
+
+            if (
+              (
+                type === 'pointerover' ||
+                type === 'pointerenter' ||
+                type === 'mouseover' ||
+                type === 'mouseenter'
+              ) &&
+              card
+            ) {
+              trackCard(card, event);
+            }
+
+            if (
+              card === trackedCard ||
+              relationKey(
+                event.relatedTarget
+              ) === trackedKey
+            ) {
+              log(
+                type,
+                {
+                  targetNodeId:
+                    getNodeId(card),
+                  targetKey:
+                    cardKey(card),
+                  relatedKey:
+                    relationKey(
+                      event.relatedTarget
+                    ),
+                  tracked:
+                    cardSnapshot()
+                }
+              );
+
+              if (
+                type === 'pointerout' ||
+                type === 'pointerleave' ||
+                type === 'mouseout' ||
+                type === 'mouseleave'
+              ) {
+                requestAnimationFrame(
+                  () => {
+                    log(
+                      type +
+                        ':next-frame',
+                      {
+                        tracked:
+                          cardSnapshot()
+                      }
+                    );
+                  }
+                );
+              }
+            }
+          },
+          true
+        );
+      });
+
+      document.addEventListener(
+        'pointermove',
+        updatePointer,
+        true
+      );
+
+      [
+        'transitionrun',
+        'transitionstart',
+        'transitionend',
+        'transitioncancel',
+        'animationstart',
+        'animationend',
+        'animationcancel'
+      ].forEach(type => {
+        document.addEventListener(
+          type,
+          event => {
+            const card =
+              event.target?.closest?.(
+                '.subject-card'
+              ) || null;
+
+            if (
+              !trackedCard ||
+              (
+                card !== trackedCard &&
+                cardKey(card) !== trackedKey
+              )
+            ) {
+              return;
+            }
+
+            log(
+              type,
+              {
+                propertyName:
+                  event.propertyName ||
+                  null,
+                animationName:
+                  event.animationName ||
+                  null,
+                elapsedTime:
+                  Number(
+                    event.elapsedTime || 0
+                  ),
+                targetNodeId:
+                  getNodeId(card),
+                tracked:
+                  cardSnapshot()
+              }
+            );
+          },
+          true
+        );
+      });
+
+      const lifecycleEvents = [
+        'atlas:local-presentation-ready',
+        'atlas:compass-first-paint-ready',
+        'atlas:compass-cloud-authority-ready',
+        'atlas:compass-hub-cache-refreshed',
+        'atlas:compass-hub-refresh-request',
+        'atlas:persistence-scope-change',
+        'atlas:account-change',
+        'atlas:session-change',
+        'focus',
+        'pageshow'
+      ];
+
+      lifecycleEvents.forEach(type => {
+        window.addEventListener(
+          type,
+          event => {
+            log(
+              'event:' + type,
+              {
+                detail:
+                  safeDetail(
+                    event?.detail || null
+                  ),
+                tracked:
+                  cardSnapshot()
+              }
+            );
+          },
+          true
+        );
+      });
+
+      document.addEventListener(
+        'visibilitychange',
+        () => {
+          log(
+            'event:visibilitychange',
+            {
+              hidden:
+                document.hidden,
+              tracked:
+                cardSnapshot()
+            }
+          );
+        },
+        true
+      );
+
+      if (document.fonts) {
+        [
+          'loading',
+          'loadingdone',
+          'loadingerror'
+        ].forEach(type => {
+          document.fonts.addEventListener?.(
+            type,
+            () => {
+              log(
+                'fonts:' + type,
+                {
+                  status:
+                    document.fonts.status,
+                  tracked:
+                    cardSnapshot()
+                }
+              );
+            }
+          );
+        });
+      }
+
+      const hubMain =
+        document.getElementById(
+          'hub-main'
+        );
+
+      if (hubMain) {
+        const observer =
+          new MutationObserver(
+            records => {
+              let removedTracked = false;
+              let addedReplacement = null;
+              const attributes = [];
+              let childListCount = 0;
+
+              records.forEach(record => {
+                if (
+                  record.type ===
+                  'childList'
+                ) {
+                  childListCount += 1;
+
+                  record.removedNodes
+                    .forEach(node => {
+                      if (
+                        node ===
+                          trackedCard ||
+                        node
+                          ?.contains?.(
+                            trackedCard
+                          )
+                      ) {
+                        removedTracked =
+                          true;
+                      }
+                    });
+
+                  record.addedNodes
+                    .forEach(node => {
+                      if (
+                        !trackedKey ||
+                        addedReplacement
+                      ) {
+                        return;
+                      }
+
+                      const candidates = [];
+
+                      if (
+                        node?.matches?.(
+                          '.subject-card'
+                        )
+                      ) {
+                        candidates.push(
+                          node
+                        );
+                      }
+
+                      node
+                        ?.querySelectorAll?.(
+                          '.subject-card'
+                        )
+                        .forEach(
+                          candidate =>
+                            candidates.push(
+                              candidate
+                            )
+                        );
+
+                      addedReplacement =
+                        candidates.find(
+                          candidate =>
+                            cardKey(
+                              candidate
+                            ) ===
+                            trackedKey
+                        ) || null;
+                    });
+                } else if (
+                  record.type ===
+                    'attributes' &&
+                  (
+                    record.target ===
+                      trackedCard ||
+                    record.target
+                      ?.closest?.(
+                        '.subject-card'
+                      ) ===
+                      trackedCard
+                  )
+                ) {
+                  attributes.push({
+                    nodeId:
+                      getNodeId(
+                        record.target
+                      ),
+                    attribute:
+                      record.attributeName,
+                    value:
+                      record.target
+                        ?.getAttribute?.(
+                          record.attributeName
+                        )
+                  });
+                }
+              });
+
+              if (
+                removedTracked ||
+                addedReplacement ||
+                attributes.length ||
+                childListCount
+              ) {
+                log(
+                  'mutation',
+                  {
+                    childListCount,
+                    removedTracked,
+                    replacement:
+                      addedReplacement
+                        ? {
+                            nodeId:
+                              getNodeId(
+                                addedReplacement
+                              ),
+                            key:
+                              cardKey(
+                                addedReplacement
+                              ),
+                            rect:
+                              rectOf(
+                                addedReplacement
+                              )
+                          }
+                        : null,
+                    attributes,
+                    tracked:
+                      cardSnapshot()
+                  }
+                );
+              }
+            }
+          );
+
+        observer.observe(
+          hubMain,
+          {
+            subtree: true,
+            childList: true,
+            attributes: true,
+            attributeFilter: [
+              'class',
+              'style',
+              'hidden'
+            ]
+          }
+        );
+      }
+
+      function markupDifference(
+        previous,
+        next
+      ) {
+        if (
+          typeof previous !==
+            'string' ||
+          typeof next !== 'string'
+        ) {
+          return null;
+        }
+
+        const limit = Math.min(
+          previous.length,
+          next.length
+        );
+
+        let index = 0;
+
+        while (
+          index < limit &&
+          previous.charCodeAt(index) ===
+            next.charCodeAt(index)
+        ) {
+          index += 1;
+        }
+
+        if (
+          index === limit &&
+          previous.length === next.length
+        ) {
+          return null;
+        }
+
+        const start = Math.max(
+          0,
+          index - 100
+        );
+        const endPrevious =
+          Math.min(
+            previous.length,
+            index + 180
+          );
+        const endNext =
+          Math.min(
+            next.length,
+            index + 180
+          );
+
+        return {
+          index,
+          previousLength:
+            previous.length,
+          nextLength:
+            next.length,
+          previous:
+            previous.slice(
+              start,
+              endPrevious
+            ),
+          next:
+            next.slice(
+              start,
+              endNext
+            )
+        };
+      }
+
+      function noteRender(
+        phase,
+        detail = {}
+      ) {
+        log(
+          'render:' + phase,
+          {
+            ...detail,
+            tracked:
+              cardSnapshot()
+          }
+        );
+      }
+
+      function noteMarkupDecision(
+        previous,
+        next,
+        willCommit,
+        detail = {}
+      ) {
+        log(
+          willCommit
+            ? 'render:markup-changed'
+            : 'render:markup-unchanged',
+          {
+            ...detail,
+            diff:
+              willCommit
+                ? markupDifference(
+                    previous,
+                    next
+                  )
+                : null,
+            tracked:
+              cardSnapshot()
+          }
+        );
+      }
+
+      function report() {
+        const report = {
+          startedAt:
+            new Date(
+              Date.now() -
+                performance.now() +
+                startedAt
+            ).toISOString(),
+          location:
+            window.location.href,
+          fontStatus:
+            document.fonts?.status ||
+            null,
+          tracked:
+            cardSnapshot(),
+          entries
+        };
+
+        console.log(
+          '[CompassHover report]',
+          report
+        );
+
+        return JSON.stringify(
+          report,
+          null,
+          2
+        );
+      }
+
+      log(
+        'forensics-enabled',
+        {
+          readyState:
+            document.readyState,
+          fontStatus:
+            document.fonts?.status ||
+            null,
+          cloudAuthority:
+            document.documentElement
+              .dataset
+              .atlasCompassCloudAuthority ||
+            null
+        }
+      );
+
+      return {
+        enabled: true,
+        log,
+        noteRender,
+        noteMarkupDecision,
+        report
+      };
+    })();
+
+    window.__atlasHoverForensics =
+      CompassHoverForensics;
+
     /* ================================================================
        COMPASS HUB V2
        Reads state through AtlasBridge. Catalog metadata comes from CompassCatalogData.
@@ -12079,7 +12878,8 @@
     let lastCommittedHubContentMarkup = null;
 
     async function renderHub({
-      initialSnapshot = null
+      initialSnapshot = null,
+      diagnosticSource = 'direct'
     } = {}) {
       if (!Bridge) return;
 
@@ -12088,6 +12888,18 @@
         Boolean(initialSnapshot);
 
       const main = document.getElementById('hub-main');
+
+      CompassHoverForensics.noteRender(
+        'start',
+        {
+          revision: renderRevision,
+          source: diagnosticSource,
+          initialSnapshot:
+            useInitialSnapshot,
+          cloudAuthorityPending:
+            isCompassCloudAuthorityPending()
+        }
+      );
       const session = getActiveSession();
       const atlasSubjects = getAtlasSubjects();
       const ownedSubjects = await getOwnedSubjects({
@@ -12338,10 +13150,24 @@
        * or lifecycle refreshes therefore leave the existing subject-card DOM
        * intact; real card/library/session changes still commit normally.
        */
-      if (
-        nextHubContentMarkup ===
-        lastCommittedHubContentMarkup
-      ) {
+      const hubMarkupChanged =
+        nextHubContentMarkup !==
+        lastCommittedHubContentMarkup;
+
+      CompassHoverForensics
+        .noteMarkupDecision(
+          lastCommittedHubContentMarkup,
+          nextHubContentMarkup,
+          hubMarkupChanged,
+          {
+            revision:
+              renderRevision,
+            source:
+              diagnosticSource
+          }
+        );
+
+      if (!hubMarkupChanged) {
         return;
       }
 
@@ -12349,9 +13175,25 @@
         renderIntro(session) +
         nextHubContentMarkup;
 
+      CompassHoverForensics.noteRender(
+        'commit-before',
+        {
+          revision: renderRevision,
+          source: diagnosticSource
+        }
+      );
+
       main.innerHTML = nextHubMarkup;
       lastCommittedHubContentMarkup =
         nextHubContentMarkup;
+
+      CompassHoverForensics.noteRender(
+        'commit-after',
+        {
+          revision: renderRevision,
+          source: diagnosticSource
+        }
+      );
     }
 
     const COMPASS_TOPIC_CYCLE_MS = 80000;
@@ -13236,10 +14078,52 @@
 
     let hubRenderQueued = false;
     let hubRenderPromise = Promise.resolve();
+    let queuedHubRenderSources = [];
 
-    function requestHubRender() {
+    function getHubRenderSource(trigger) {
+      if (typeof trigger === 'string') {
+        return trigger;
+      }
+
+      if (trigger?.type) {
+        const detailSource =
+          String(
+            trigger?.detail?.source ||
+            ''
+          ).trim();
+
+        return detailSource
+          ? trigger.type +
+            ':' +
+            detailSource
+          : trigger.type;
+      }
+
+      return 'direct';
+    }
+
+    function requestHubRender(trigger = null) {
       if (!Bridge) return Promise.resolve();
-      if (hubRenderQueued) return hubRenderPromise;
+
+      const source =
+        getHubRenderSource(trigger);
+
+      queuedHubRenderSources.push(
+        source
+      );
+
+      CompassHoverForensics.log(
+        'render-request',
+        {
+          source,
+          queued:
+            hubRenderQueued
+        }
+      );
+
+      if (hubRenderQueued) {
+        return hubRenderPromise;
+      }
 
       hubRenderQueued = true;
 
@@ -13251,8 +14135,15 @@
       window.requestAnimationFrame(async () => {
         hubRenderQueued = false;
 
+        const diagnosticSource =
+          queuedHubRenderSources
+            .splice(0)
+            .join(',');
+
         try {
-          await renderHub();
+          await renderHub({
+            diagnosticSource
+          });
         } finally {
           resolveRender();
         }
@@ -13270,17 +14161,17 @@
 
     window.addEventListener(
       'atlas:compass-cloud-authority-ready',
-      () => {
+      event => {
         syncCompassCloudAuthorityState();
-        requestHubRender();
+        requestHubRender(event);
       }
     );
 
-    function refresh() {
+    function refresh(event = null) {
       if (!Bridge) return;
       const mode = Bridge.applyAppearanceMode(Bridge.readAppearanceMode());
       updateAppearanceButtons(mode);
-      requestHubRender();
+      requestHubRender(event || 'refresh');
     }
 
     window.addEventListener('atlas:session-change', refresh);
@@ -13448,7 +14339,8 @@
        * parsing. This makes cached-first rendering deterministic.
        */
       await renderHub({
-        initialSnapshot
+        initialSnapshot,
+        diagnosticSource: 'initial'
       });
 
       markLocalPresentationReady(
