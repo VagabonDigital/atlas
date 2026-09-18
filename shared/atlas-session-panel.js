@@ -239,6 +239,7 @@
             primaryAction: root?.querySelector('#atlas-session-primary-action'),
             manageButton: root?.querySelector('#atlas-session-open-manage'),
             backButton: root?.querySelector('#atlas-session-manage-back'),
+            searchLabel: root?.querySelector('.atlas-session-search-label'),
             searchInput: root?.querySelector('#atlas-session-search'),
             sessionList: root?.querySelector('#atlas-session-list'),
             searchEmpty: root?.querySelector('#atlas-session-search-empty'),
@@ -1185,8 +1186,18 @@
         elements.backButton.hidden = !manageHasSafeHistory;
         elements.dialog?.setAttribute('aria-labelledby', 'atlas-session-manage-title');
 
+        const searchable =
+            hasStoredAtlasAccountSession();
+
+        if (elements.searchLabel) {
+            elements.searchLabel.hidden =
+                !searchable;
+        }
+
         if (elements.searchInput) {
             elements.searchInput.value = '';
+            elements.searchInput.hidden =
+                !searchable;
         }
 
         setCreateExpanded(false, { reset: true });
@@ -1194,7 +1205,19 @@
 
         if (focus) {
             window.requestAnimationFrame(() => {
-                elements.searchInput?.focus({ preventScroll: true });
+                if (hasStoredAtlasAccountSession()) {
+                    elements.searchInput?.focus({
+                        preventScroll: true
+                    });
+                } else {
+                    elements.dialog
+                        ?.querySelector(
+                            '#atlas-session-manage-title'
+                        )
+                        ?.focus({
+                            preventScroll: true
+                        });
+                }
             });
         }
     }
@@ -1301,7 +1324,12 @@
 
         window.requestAnimationFrame(() => {
             if (initialView === 'manage') {
-                if (window.matchMedia('(max-width: 680px)').matches) {
+                if (
+                    window.matchMedia(
+                        '(max-width: 680px)'
+                    ).matches ||
+                    !hasStoredAtlasAccountSession()
+                ) {
                     root
                         ?.querySelector('#atlas-session-manage-title')
                         ?.focus({ preventScroll: true });
