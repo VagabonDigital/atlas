@@ -29,6 +29,8 @@
     let reviewCompletionInstalled = false;
     let liveAuthorityHydrationPromise = null;
     let liveAuthorityHydrationUserId = '';
+    let compassPresentationPrewarmPromise = null;
+    let compassPresentationPrewarmUserId = '';
 
     function isAtlasRoot() {
         const path = String(
@@ -201,7 +203,7 @@
             !window.AtlasCloudCache
         ) {
             scripts.push(
-                '/shared/atlas-cloud-cache.js?v=20260915-performance2'
+                '/shared/atlas-cloud-cache.js?v=20260917-presentation2'
             );
         }
 
@@ -259,6 +261,79 @@
         });
     }
 
+    function prewarmCompassPresentation(userId) {
+        const id = String(userId || '').trim();
+
+        if (
+            !id ||
+            !isAtlasRoot() ||
+            storedSessionUserId() !== id
+        ) {
+            return Promise.resolve(null);
+        }
+
+        if (
+            compassPresentationPrewarmPromise &&
+            compassPresentationPrewarmUserId === id
+        ) {
+            return compassPresentationPrewarmPromise;
+        }
+
+        const Cache = window.AtlasCloudCache;
+
+        if (
+            !Cache ||
+            typeof Cache.prepareCompassPresentation !==
+                'function'
+        ) {
+            return Promise.resolve(null);
+        }
+
+        compassPresentationPrewarmUserId = id;
+
+        const request = Promise.resolve(
+            Cache.prepareCompassPresentation()
+        )
+            .then(snapshot => {
+                if (storedSessionUserId() !== id) {
+                    return null;
+                }
+
+                if (
+                    snapshot &&
+                    String(snapshot.userId || '').trim() !== id
+                ) {
+                    return null;
+                }
+
+                return snapshot || null;
+            })
+            .catch(error => {
+                console.warn(
+                    '[AtlasRootRuntime] Compass presentation prewarm failed:',
+                    error
+                );
+                return null;
+            });
+
+        let trackedPromise = null;
+
+        trackedPromise = request.finally(() => {
+            if (
+                compassPresentationPrewarmPromise ===
+                trackedPromise
+            ) {
+                compassPresentationPrewarmPromise = null;
+                compassPresentationPrewarmUserId = '';
+            }
+        });
+
+        compassPresentationPrewarmPromise =
+            trackedPromise;
+
+        return trackedPromise;
+    }
+
     function hydrateRootAuthoritiesAfterLiveSignIn(userId) {
         const id = String(userId || '').trim();
 
@@ -281,6 +356,9 @@
             .then(async () => {
                 if (storedSessionUserId() !== id) return;
 
+                const compassPresentationPromise =
+                    prewarmCompassPresentation(id);
+
                 const authorities = [
                     window.AtlasOriginalCurationCloudAuthority,
                     window.AtlasHubPersonalizationCloudAuthority
@@ -301,30 +379,30 @@
                 const modal =
                     document.getElementById('settings-modal');
 
-                if (!modal?.classList.contains('open')) {
-                    return;
+                if (modal?.classList.contains('open')) {
+                    if (
+                        typeof window.renderArchivedSubjectsSettings ===
+                        'function'
+                    ) {
+                        await window.renderArchivedSubjectsSettings();
+                    }
+
+                    if (
+                        typeof window.renderRestoreAllAtlasOriginalsSetting ===
+                        'function'
+                    ) {
+                        window.renderRestoreAllAtlasOriginalsSetting();
+                    }
+
+                    if (
+                        typeof window.renderAtmosphereFavorites ===
+                        'function'
+                    ) {
+                        window.renderAtmosphereFavorites();
+                    }
                 }
 
-                if (
-                    typeof window.renderArchivedSubjectsSettings ===
-                    'function'
-                ) {
-                    await window.renderArchivedSubjectsSettings();
-                }
-
-                if (
-                    typeof window.renderRestoreAllAtlasOriginalsSetting ===
-                    'function'
-                ) {
-                    window.renderRestoreAllAtlasOriginalsSetting();
-                }
-
-                if (
-                    typeof window.renderAtmosphereFavorites ===
-                    'function'
-                ) {
-                    window.renderAtmosphereFavorites();
-                }
+                await compassPresentationPromise;
             });
 
         let trackedPromise = null;
@@ -706,7 +784,8 @@
          * all three durable objects and must not fall back to browser-only
          * state for signed-in tutors.
          */
-        writeRootCloudAuthorityScripts();
+        const rootCloudAuthorityBootstrapPromise =
+            writeRootCloudAuthorityScripts();
 
         /*
          * Mark authenticated entry as soon as the account token is
@@ -715,6 +794,24 @@
          */
         if (hasStoredAccountSession()) {
             markWelcomeSeenForAuthenticatedUser();
+
+            const initialUserId =
+                storedSessionUserId();
+
+            void Promise.resolve(
+                rootCloudAuthorityBootstrapPromise
+            )
+                .then(() =>
+                    prewarmCompassPresentation(
+                        initialUserId
+                    )
+                )
+                .catch(error => {
+                    console.warn(
+                        '[AtlasRootRuntime] Initial Compass presentation prewarm failed:',
+                        error
+                    );
+                });
         }
 
         /*
