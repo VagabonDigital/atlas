@@ -2412,6 +2412,10 @@
     }
 
     window.addEventListener('atlas:session-change', refresh);
+    window.addEventListener(
+      'atlas:account-change',
+      refresh
+    );
     window.addEventListener('atlas:appearance-change', e => {
       const mode = (e.detail && e.detail.mode) || Bridge.readAppearanceMode();
       updateAppearanceButtons(mode);
