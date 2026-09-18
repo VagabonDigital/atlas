@@ -582,7 +582,7 @@
                 type: 'rename',
                 sessionId,
                 value: cleanName,
-                error: 'Enter a session name.'
+                error: 'Enter a student name.'
             };
 
             renderManageView();
@@ -718,7 +718,7 @@
                 type: 'delete',
                 sessionId,
                 value: '',
-                error: 'Couldn’t delete this session.'
+                error: 'Couldn’t delete this student.'
             };
 
             renderManageView();
@@ -910,7 +910,7 @@
                 document.createElement('div');
             const confirm =
                 createActionButton({
-                    label: 'Delete session',
+                    label: 'Delete student',
                     ariaLabel:
                         `Permanently delete ${displayName}`,
                     className: 'is-danger',
@@ -932,7 +932,7 @@
             copy.className =
                 'atlas-session-row-confirm-copy';
             copy.textContent =
-                `Delete ${displayName}? This permanently removes this learner session and its saved activity.`;
+                `Delete ${displayName}? This permanently removes this student and their saved activity.`;
 
             actions.className =
                 'atlas-session-row-editor-actions';
@@ -1714,9 +1714,9 @@
                 <section class="atlas-session-panel" role="dialog" aria-modal="true"
                     aria-labelledby="atlas-session-active-name">
                     <header class="atlas-session-header">
-                        <p class="atlas-session-header-label">Session</p>
+                        <p class="atlas-session-header-label">Students</p>
                         <button class="atlas-session-close" type="button"
-                            data-atlas-session-close aria-label="Close session panel">×</button>
+                            data-atlas-session-close aria-label="Close students panel">×</button>
                     </header>
 
                     <div class="atlas-session-safe" id="atlas-session-safe-view">
@@ -1726,27 +1726,27 @@
                         <button class="atlas-session-primary" id="atlas-session-primary-action"
                             type="button" hidden></button>
                         <button class="atlas-session-manage-link" id="atlas-session-open-manage" type="button">
-                            Switch or manage sessions
+                            Choose or manage students
                         </button>
                     </div>
 
                     <div class="atlas-session-manage" id="atlas-session-manage-view" hidden>
                         <div class="atlas-session-manage-top">
                             <button class="atlas-session-back" id="atlas-session-manage-back" type="button">
-                                ← Back to current session
+                                ← Back
                             </button>
-                            <h2 id="atlas-session-manage-title" tabindex="-1">Switch or manage sessions</h2>
+                            <h2 id="atlas-session-manage-title" tabindex="-1">Choose or manage students</h2>
                             <label class="atlas-session-search-label" for="atlas-session-search">
-                                Search sessions
+                                Search students
                             </label>
                             <input class="atlas-session-search" id="atlas-session-search" type="search"
-                                placeholder="Search sessions" autocomplete="off">
+                                placeholder="Search students" autocomplete="off">
                         </div>
 
                         <div class="atlas-session-list-scroll">
                             <div class="atlas-session-list" id="atlas-session-list"></div>
                             <p class="atlas-session-search-empty" id="atlas-session-search-empty" hidden>
-                                No sessions match that search.
+                                No students match that search.
                             </p>
                         </div>
 
@@ -1755,15 +1755,15 @@
                                 id="atlas-session-create-toggle" type="button"
                                 aria-expanded="false"
                                 aria-controls="atlas-session-create-fields">
-                                + Add learner
+                                + Add student
                             </button>
 
                             <div class="atlas-session-create-fields"
                                 id="atlas-session-create-fields" hidden>
-                                <label for="atlas-session-create-name">Learner name</label>
+                                <label for="atlas-session-create-name">Student name</label>
                                 <div class="atlas-session-create-row">
                                     <input id="atlas-session-create-name" type="text" maxlength="40"
-                                        placeholder="Name this learner" autocomplete="off">
+                                        placeholder="Name this student" autocomplete="off">
                                     <button type="submit">Add</button>
                                 </div>
                                 <p class="atlas-session-create-error"
