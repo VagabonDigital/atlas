@@ -11,13 +11,13 @@
   LEGIT APERIT · MUNDUS RESPICIT · PONS MEMINIT
   ==========================================================================
 -->
-<html lang="en" class="atlas-session-fonts-pending">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    html.atlas-session-fonts-pending body {
+    html:not([data-atlas-local-presentation-ready="true"]) body {
       visibility: hidden;
     }
   </style>
@@ -30,61 +30,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
     rel="stylesheet">
-  <script>
-    (function () {
-      var root = document.documentElement;
-      var released = false;
-      var fontReady = false;
-      var sessionChromeReady = false;
-      var safetyTimer = window.setTimeout(release, 1500);
 
-      function release() {
-        if (released) return;
-        released = true;
-        window.clearTimeout(safetyTimer);
-        root.classList.remove('atlas-session-fonts-pending');
-        root.dataset.atlasCompassFirstPaintReady = 'true';
-
-        try {
-          window.dispatchEvent(
-            new Event('atlas:compass-first-paint-ready')
-          );
-        } catch (e) { }
-      }
-
-      function releaseWhenReady() {
-        if (fontReady && sessionChromeReady) {
-          release();
-        }
-      }
-
-      window.addEventListener(
-        'atlas:compass-session-chrome-ready',
-        function () {
-          sessionChromeReady = true;
-          releaseWhenReady();
-        },
-        { once: true }
-      );
-
-      if (document.fonts && typeof document.fonts.load === 'function') {
-        Promise.resolve(
-          document.fonts.load('500 13px "DM Sans"')
-        ).then(
-          function () {
-            fontReady = true;
-            releaseWhenReady();
-          },
-          function () {
-            fontReady = true;
-            releaseWhenReady();
-          }
-        );
-      } else {
-        fontReady = true;
-      }
-    })();
-  </script>
   <link rel="stylesheet" href="../shared/atlas-modal-theme.css">
   <link rel="stylesheet" href="../shared/atlas-search.css">
   <link rel="stylesheet" href="../shared/atlas-session-panel.css">
@@ -160,12 +106,19 @@
 
         var cached = JSON.parse(cachedRaw);
 
+        var scopeOwner = String(
+          localStorage.getItem(
+            'atlas::persistenceTrust::scopeOwner::v1'
+          ) || ''
+        ).trim();
+
         if (
           !cached ||
           cached.version !== hubCacheVersion ||
           cached.kind !== hubCacheKind ||
           cached.ready !== true ||
           String(cached.userId || '') !== userId ||
+          scopeOwner !== 'user:' + userId ||
           !Array.isArray(cached.summaries) ||
           !Object.prototype.hasOwnProperty.call(
             cached,
@@ -4168,17 +4121,75 @@
       true
     );
 
-    function getCompassInitialAccountSnapshot() {
-      if (!isCompassCloudAuthorityPending()) {
-        return null;
+    function getStoredCompassAccountUserId() {
+      try {
+        const raw = localStorage.getItem(
+          'sb-jnhjfpagectprceswvqn-auth-token'
+        );
+
+        if (!raw) return '';
+
+        const parsed = JSON.parse(raw);
+        const candidates = [
+          parsed,
+          parsed?.session,
+          parsed?.currentSession,
+          parsed?.data?.session
+        ];
+
+        for (const candidate of candidates) {
+          const id = String(
+            candidate?.user?.id || ''
+          ).trim();
+
+          if (id) return id;
+        }
+      } catch { }
+
+      return '';
+    }
+
+    function isLocalPresentationScopeReady() {
+      const userId =
+        getStoredCompassAccountUserId();
+
+      let owner = '';
+
+      try {
+        owner = String(
+          localStorage.getItem(
+            'atlas::persistenceTrust::scopeOwner::v1'
+          ) || ''
+        ).trim();
+      } catch { }
+
+      if (userId) {
+        return owner === 'user:' + userId;
       }
 
+      return !owner || owner === 'local';
+    }
+
+    function getCompassInitialAccountSnapshot() {
       const snapshot =
         window.AtlasCompassHubInitialSnapshot;
 
       const hintedUserId = String(
         snapshot?.userId || ''
       ).trim();
+
+      const storedUserId =
+        getStoredCompassAccountUserId();
+
+      let scopeOwner = '';
+
+      try {
+        scopeOwner = String(
+          localStorage.getItem(
+            'atlas::persistenceTrust::scopeOwner::v1'
+          ) || ''
+        ).trim();
+      } catch { }
 
       if (
         !snapshot ||
@@ -4187,6 +4198,8 @@
           'compass-hub-presentation' ||
         snapshot.ready !== true ||
         !hintedUserId ||
+        hintedUserId !== storedUserId ||
+        scopeOwner !== 'user:' + hintedUserId ||
         !Array.isArray(snapshot.summaries) ||
         !Object.prototype.hasOwnProperty.call(
           snapshot,
@@ -4224,6 +4237,87 @@
       return Array.isArray(snapshot?.summaries)
         ? snapshot.summaries
         : [];
+    }
+
+    function getCachedSessionSubjectRefs(
+      sessionId,
+      snapshot
+    ) {
+      const id = String(sessionId || '').trim();
+      const userId = String(
+        snapshot?.userId || ''
+      ).trim();
+
+      if (!id || !userId) {
+        return [];
+      }
+
+      try {
+        const scopeOwner = String(
+          localStorage.getItem(
+            'atlas::persistenceTrust::scopeOwner::v1'
+          ) || ''
+        ).trim();
+
+        if (scopeOwner !== 'user:' + userId) {
+          return [];
+        }
+
+        const key =
+          'atlas::tutorSubjects::sessionSubjects::' +
+          encodeURIComponent(id);
+
+        const raw = JSON.parse(
+          localStorage.getItem(key) || '[]'
+        );
+
+        if (!Array.isArray(raw)) {
+          return [];
+        }
+
+        const seen = new Set();
+
+        return raw
+          .map(ref => {
+            const kind = String(
+              ref?.kind || ''
+            ).trim();
+
+            const subjectId = String(
+              ref?.id || ''
+            ).trim();
+
+            if (
+              !subjectId ||
+              (
+                kind !== 'my-subject' &&
+                kind !== 'atlas-subject'
+              )
+            ) {
+              return null;
+            }
+
+            return {
+              kind,
+              id: subjectId
+            };
+          })
+          .filter(ref => {
+            if (!ref) return false;
+
+            const key =
+              ref.kind + ':' + ref.id;
+
+            if (seen.has(key)) {
+              return false;
+            }
+
+            seen.add(key);
+            return true;
+          });
+      } catch {
+        return [];
+      }
     }
 
     function getCachedOwnedSubjectSessionIds(
@@ -4329,9 +4423,14 @@
       return result;
     }
 
-    async function getOwnedSubjects() {
+    async function getOwnedSubjects({
+      initialSnapshot = null
+    } = {}) {
       const cloudAuthorityPending =
         isCompassCloudAuthorityPending();
+
+      const useInitialSnapshot =
+        Boolean(initialSnapshot);
 
       const Subjects = window.AtlasTutorSubjects;
 
@@ -4346,8 +4445,12 @@
       let libraryState = null;
 
       try {
-        if (cloudAuthorityPending) {
+        if (
+          useInitialSnapshot ||
+          cloudAuthorityPending
+        ) {
           const snapshot =
+            initialSnapshot ||
             getCompassInitialAccountSnapshot();
 
           records =
@@ -4376,11 +4479,15 @@
 
       let subjectSessionIds = new Map();
 
-      if (cloudAuthorityPending) {
+      if (
+        useInitialSnapshot ||
+        cloudAuthorityPending
+      ) {
         subjectSessionIds =
           getCachedOwnedSubjectSessionIds(
             records,
-            getCompassInitialAccountSnapshot()
+            initialSnapshot ||
+              getCompassInitialAccountSnapshot()
           );
       } else if (
         typeof Subjects.getSubjectSessionIds === 'function'
@@ -4416,6 +4523,7 @@
       const workingDraftDescriptions = new Map();
 
       if (
+        !useInitialSnapshot &&
         !cloudAuthorityPending &&
         typeof Subjects.getWorkingDraft === 'function'
       ) {
@@ -4488,7 +4596,10 @@
             'Untitled Subject'
           ).trim() || 'Untitled Subject';
 
-          if (!cloudAuthorityPending) {
+          if (
+            !useInitialSnapshot &&
+            !cloudAuthorityPending
+          ) {
             syncOwnedSubjectRegistryProjection(record);
           }
 
@@ -4511,6 +4622,7 @@
             subjectId: id,
             isOwned: true,
             isCachedProjection:
+              useInitialSnapshot ||
               cloudAuthorityPending,
             provenance:
               record.provenance &&
@@ -11966,15 +12078,21 @@
     let hubRenderRevision = 0;
     let lastCommittedHubContentMarkup = null;
 
-    async function renderHub() {
+    async function renderHub({
+      initialSnapshot = null
+    } = {}) {
       if (!Bridge) return;
 
       const renderRevision = ++hubRenderRevision;
+      const useInitialSnapshot =
+        Boolean(initialSnapshot);
 
       const main = document.getElementById('hub-main');
       const session = getActiveSession();
       const atlasSubjects = getAtlasSubjects();
-      const ownedSubjects = await getOwnedSubjects();
+      const ownedSubjects = await getOwnedSubjects({
+        initialSnapshot
+      });
 
       const Subjects = window.AtlasTutorSubjects;
       const cloudAuthorityPending =
@@ -11982,13 +12100,25 @@
 
       let sessionSubjectRefs = [];
       let libraryState =
-        cloudAuthorityPending
-          ? getCompassInitialLibraryState()
+        (
+          useInitialSnapshot ||
+          cloudAuthorityPending
+        )
+          ? getCompassInitialLibraryState(
+              initialSnapshot ||
+              undefined
+            )
           : null;
 
       try {
         if (Subjects) {
-          if (cloudAuthorityPending) {
+          if (useInitialSnapshot) {
+            sessionSubjectRefs =
+              getCachedSessionSubjectRefs(
+                session.id,
+                initialSnapshot
+              );
+          } else if (cloudAuthorityPending) {
             sessionSubjectRefs =
               typeof Subjects.getSessionSubjects === 'function'
                 ? await Subjects.getSessionSubjects(
@@ -12025,15 +12155,17 @@
         return;
       }
 
-      sessionSubjectRefs =
-        await syncAtlasOriginalSessionSubjects(
-          session,
-          atlasSubjects,
-          sessionSubjectRefs
-        );
+      if (!useInitialSnapshot) {
+        sessionSubjectRefs =
+          await syncAtlasOriginalSessionSubjects(
+            session,
+            atlasSubjects,
+            sessionSubjectRefs
+          );
 
-      if (renderRevision !== hubRenderRevision) {
-        return;
+        if (renderRevision !== hubRenderRevision) {
+          return;
+        }
       }
 
       const ownedById = new Map(
@@ -13183,8 +13315,99 @@
        INIT
        ================================================================ */
 
-    function init() {
-      if (!Bridge) return;
+    let localPresentationInitStarted = false;
+    let localPresentationScopeWaitInstalled = false;
+
+    function waitForLocalPresentationScope() {
+      if (localPresentationScopeWaitInstalled) {
+        return;
+      }
+
+      localPresentationScopeWaitInstalled = true;
+
+      const retry = () => {
+        if (!isLocalPresentationScopeReady()) {
+          return;
+        }
+
+        window.removeEventListener(
+          'atlas:persistence-scope-change',
+          retry
+        );
+
+        window.removeEventListener(
+          'atlas:account-change',
+          retry
+        );
+
+        localPresentationScopeWaitInstalled = false;
+        void init();
+      };
+
+      window.addEventListener(
+        'atlas:persistence-scope-change',
+        retry
+      );
+
+      window.addEventListener(
+        'atlas:account-change',
+        retry
+      );
+    }
+
+    function markLocalPresentationReady(source) {
+      const root = document.documentElement;
+
+      if (
+        root.dataset.atlasLocalPresentationReady ===
+        'true'
+      ) {
+        return;
+      }
+
+      root.dataset.atlasLocalPresentationReady =
+        'true';
+      root.dataset.atlasCompassFirstPaintReady =
+        'true';
+
+      try {
+        window.dispatchEvent(
+          new CustomEvent(
+            'atlas:local-presentation-ready',
+            {
+              detail: {
+                hub: 'compass',
+                source:
+                  String(source || 'local')
+              }
+            }
+          )
+        );
+
+        window.dispatchEvent(
+          new Event(
+            'atlas:compass-first-paint-ready'
+          )
+        );
+      } catch { }
+    }
+
+    async function init() {
+      if (localPresentationInitStarted) {
+        return;
+      }
+
+      if (!isLocalPresentationScopeReady()) {
+        waitForLocalPresentationScope();
+        return;
+      }
+
+      localPresentationInitStarted = true;
+
+      if (!Bridge) {
+        markLocalPresentationReady('error');
+        return;
+      }
 
       syncCompassCloudAuthorityState();
 
@@ -13216,10 +13439,26 @@
       void installAccountLibraryResume();
       void installSubjectCapabilityResume();
 
-      renderHub();
+      const initialSnapshot =
+        getCompassInitialAccountSnapshot();
+
+      /*
+       * A coherent account-scoped presentation snapshot owns the first
+       * frame even if cloud authority happened to finish loading during
+       * parsing. This makes cached-first rendering deterministic.
+       */
+      await renderHub({
+        initialSnapshot
+      });
+
+      markLocalPresentationReady(
+        initialSnapshot
+          ? 'account-snapshot'
+          : 'bridge'
+      );
     }
 
-    init();
+    void init();
   </script>
 </body>
 

@@ -11,13 +11,13 @@
   LUDIT CELERITER · PONS MEMINIT · MUNDUS RIDET
   ==========================================================================
 -->
-<html lang="en" class="atlas-session-fonts-pending">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    html.atlas-session-fonts-pending body {
+    html:not([data-atlas-local-presentation-ready="true"]) body {
       visibility: hidden;
     }
   </style>
@@ -31,41 +31,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
     rel="stylesheet">
-  <script>
-    (function () {
-      var root = document.documentElement;
-      var released = false;
-      var sessionFont = null;
-      var safetyTimer = window.setTimeout(release, 1500);
 
-      function release() {
-        if (released) return;
-        released = true;
-        window.clearTimeout(safetyTimer);
-        window.requestAnimationFrame(function () {
-          root.classList.remove('atlas-session-fonts-pending');
-        });
-      }
-
-      if (document.fonts && typeof document.fonts.load === 'function') {
-        sessionFont = document.fonts.load('500 13px "DM Sans"');
-      }
-
-      function finishFirstPaint() {
-        Promise.resolve(sessionFont).then(release, release);
-      }
-
-      if (document.readyState === 'loading') {
-        document.addEventListener(
-          'DOMContentLoaded',
-          finishFirstPaint,
-          { once: true }
-        );
-      } else {
-        finishFirstPaint();
-      }
-    })();
-  </script>
 
   <link rel="stylesheet" href="../shared/atlas-modal-theme.css?v=20260721-world-modals">
   <link rel="stylesheet" href="../shared/atlas-search.css?v=20260721-world-modals">
@@ -2437,8 +2403,139 @@
     /* ================================================================
        INIT
        ================================================================ */
+    function getStoredPresentationUserId() {
+      try {
+        const raw = localStorage.getItem(
+          'sb-jnhjfpagectprceswvqn-auth-token'
+        );
+
+        if (!raw) return '';
+
+        const parsed = JSON.parse(raw);
+        const candidates = [
+          parsed,
+          parsed?.session,
+          parsed?.currentSession,
+          parsed?.data?.session
+        ];
+
+        for (const candidate of candidates) {
+          const id = String(
+            candidate?.user?.id || ''
+          ).trim();
+
+          if (id) return id;
+        }
+      } catch { }
+
+      return '';
+    }
+
+    function isLocalPresentationScopeReady() {
+      const userId =
+        getStoredPresentationUserId();
+
+      let owner = '';
+
+      try {
+        owner = String(
+          localStorage.getItem(
+            'atlas::persistenceTrust::scopeOwner::v1'
+          ) || ''
+        ).trim();
+      } catch { }
+
+      if (userId) {
+        return owner === 'user:' + userId;
+      }
+
+      return !owner || owner === 'local';
+    }
+
+    let localPresentationInitStarted = false;
+    let localPresentationScopeWaitInstalled = false;
+
+    function waitForLocalPresentationScope() {
+      if (localPresentationScopeWaitInstalled) {
+        return;
+      }
+
+      localPresentationScopeWaitInstalled = true;
+
+      const retry = () => {
+        if (!isLocalPresentationScopeReady()) {
+          return;
+        }
+
+        window.removeEventListener(
+          'atlas:persistence-scope-change',
+          retry
+        );
+
+        window.removeEventListener(
+          'atlas:account-change',
+          retry
+        );
+
+        localPresentationScopeWaitInstalled = false;
+        init();
+      };
+
+      window.addEventListener(
+        'atlas:persistence-scope-change',
+        retry
+      );
+
+      window.addEventListener(
+        'atlas:account-change',
+        retry
+      );
+    }
+
+    function markLocalPresentationReady() {
+      const root = document.documentElement;
+
+      if (
+        root.dataset.atlasLocalPresentationReady ===
+        'true'
+      ) {
+        return;
+      }
+
+      root.dataset.atlasLocalPresentationReady =
+        'true';
+
+      try {
+        window.dispatchEvent(
+          new CustomEvent(
+            'atlas:local-presentation-ready',
+            {
+              detail: {
+                hub: 'arcade',
+                source: 'bridge'
+              }
+            }
+          )
+        );
+      } catch { }
+    }
+
     function init() {
-      if (!Bridge) return;
+      if (localPresentationInitStarted) {
+        return;
+      }
+
+      if (!isLocalPresentationScopeReady()) {
+        waitForLocalPresentationScope();
+        return;
+      }
+
+      localPresentationInitStarted = true;
+
+      if (!Bridge) {
+        markLocalPresentationReady();
+        return;
+      }
 
       const mode = Bridge.readAppearanceMode();
       Bridge.applyAppearanceMode(mode);
@@ -2458,6 +2555,7 @@
       });
 
       renderHub();
+      markLocalPresentationReady();
     }
 
     if (document.readyState === 'loading') {

@@ -43,6 +43,15 @@
     html:not([data-atlas-welcome="seen"])[data-atlas-welcome-fonts-ready="true"] body > .atlas-welcome-screen {
       visibility: visible;
     }
+
+    /*
+     * Returning/local workspace entry is presentation-gated, not
+     * cloud-gated. The Hub becomes visible as soon as its synchronous
+     * Bridge-backed first frame has been committed.
+     */
+    html[data-atlas-welcome="seen"]:not([data-atlas-local-presentation-ready="true"]) body {
+      visibility: hidden;
+    }
   </style>
   <title>Atlas</title>
   <link rel="icon" type="image/svg+xml"
@@ -6130,8 +6139,140 @@
     // ================================================================
     // INIT
     // ================================================================
+    function getStoredPresentationUserId() {
+      try {
+        const raw = localStorage.getItem(
+          'sb-jnhjfpagectprceswvqn-auth-token'
+        );
+
+        if (!raw) return '';
+
+        const parsed = JSON.parse(raw);
+        const candidates = [
+          parsed,
+          parsed?.session,
+          parsed?.currentSession,
+          parsed?.data?.session
+        ];
+
+        for (const candidate of candidates) {
+          const id = String(
+            candidate?.user?.id || ''
+          ).trim();
+
+          if (id) return id;
+        }
+      } catch { }
+
+      return '';
+    }
+
+    function isLocalPresentationScopeReady() {
+      const userId =
+        getStoredPresentationUserId();
+
+      let owner = '';
+
+      try {
+        owner = String(
+          localStorage.getItem(
+            'atlas::persistenceTrust::scopeOwner::v1'
+          ) || ''
+        ).trim();
+      } catch { }
+
+      if (userId) {
+        return owner === 'user:' + userId;
+      }
+
+      return !owner || owner === 'local';
+    }
+
+    let localPresentationInitStarted = false;
+    let localPresentationScopeWaitInstalled = false;
+
+    function waitForLocalPresentationScope() {
+      if (localPresentationScopeWaitInstalled) {
+        return;
+      }
+
+      localPresentationScopeWaitInstalled = true;
+
+      const retry = () => {
+        if (!isLocalPresentationScopeReady()) {
+          return;
+        }
+
+        window.removeEventListener(
+          'atlas:persistence-scope-change',
+          retry
+        );
+
+        window.removeEventListener(
+          'atlas:account-change',
+          retry
+        );
+
+        localPresentationScopeWaitInstalled = false;
+        init();
+      };
+
+      window.addEventListener(
+        'atlas:persistence-scope-change',
+        retry
+      );
+
+      window.addEventListener(
+        'atlas:account-change',
+        retry
+      );
+    }
+
+    function markLocalPresentationReady() {
+      const root = document.documentElement;
+
+      if (
+        root.dataset.atlasLocalPresentationReady ===
+        'true'
+      ) {
+        return;
+      }
+
+      root.dataset.atlasLocalPresentationReady =
+        'true';
+
+      try {
+        window.dispatchEvent(
+          new CustomEvent(
+            'atlas:local-presentation-ready',
+            {
+              detail: {
+                hub: 'atlas',
+                source: 'bridge'
+              }
+            }
+          )
+        );
+      } catch { }
+    }
+
     function init() {
-      if (!window.AtlasBridge) return; // guard already rendered a message
+      if (localPresentationInitStarted) {
+        return;
+      }
+
+      if (!isLocalPresentationScopeReady()) {
+        waitForLocalPresentationScope();
+        return;
+      }
+
+      localPresentationInitStarted = true;
+
+      if (!window.AtlasBridge) {
+        // The Bridge guard above has already rendered a direct error state.
+        markLocalPresentationReady();
+        return;
+      }
 
       const mode = Bridge.readAppearanceMode();
       Bridge.applyAppearanceMode(mode);
@@ -6159,6 +6300,7 @@
       });
 
       renderHome();
+      markLocalPresentationReady();
     }
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init);
