@@ -25,7 +25,8 @@
 
     const LOCAL_OWNER_ID = 'local-tutor';
     const AUTH_STORAGE_KEY = 'sb-jnhjfpagectprceswvqn-auth-token';
-    const HUB_CACHE_VERSION = 1;
+    const HUB_CACHE_VERSION = 2;
+    const HUB_CACHE_KIND = 'compass-hub-presentation';
     const HUB_CACHE_PREFIX = 'atlas::compassHubCache::v1::';
     const WORKING_DRAFT_PREFIX = 'atlas::tutorSubjects::workingDraft::';
     const BUILD_CHECKPOINT_PREFIX = 'atlas::tutorSubjects::buildCheckpoint::';
@@ -131,15 +132,70 @@
         return activeUserId;
     }
 
-    function persistentSnapshot() {
-        if (!activeUserId) return null;
+    function normalizePersistentSnapshot(
+        value,
+        expectedUserId = activeUserId
+    ) {
+        const userId = String(
+            expectedUserId || ''
+        ).trim();
+
+        if (
+            !userId ||
+            !value ||
+            typeof value !== 'object' ||
+            Array.isArray(value) ||
+            value.version !== HUB_CACHE_VERSION ||
+            value.kind !== HUB_CACHE_KIND ||
+            value.ready !== true ||
+            String(value.userId || '').trim() !== userId ||
+            !Array.isArray(value.summaries) ||
+            !Object.prototype.hasOwnProperty.call(
+                value,
+                'library'
+            ) ||
+            (
+                value.library !== null &&
+                (
+                    typeof value.library !== 'object' ||
+                    Array.isArray(value.library)
+                )
+            )
+        ) {
+            return null;
+        }
 
         return {
             version: HUB_CACHE_VERSION,
+            kind: HUB_CACHE_KIND,
+            ready: true,
+            userId,
+            cachedAt: Math.max(
+                0,
+                Number(value.cachedAt) || 0
+            ),
+            summaries: cloneJson(value.summaries) || [],
+            library: cloneJson(value.library)
+        };
+    }
+
+    function persistentSnapshot() {
+        if (
+            !activeUserId ||
+            !summariesLoaded ||
+            !libraryLoaded
+        ) {
+            return null;
+        }
+
+        return {
+            version: HUB_CACHE_VERSION,
+            kind: HUB_CACHE_KIND,
+            ready: true,
             userId: activeUserId,
             cachedAt: Date.now(),
             summaries: cachedSummaryList(),
-            library: libraryLoaded ? cloneJson(libraryValue) : null
+            library: cloneJson(libraryValue)
         };
     }
 
@@ -158,37 +214,35 @@
         if (!id || hydratedPersistentUserId === id) return false;
 
         hydratedPersistentUserId = id;
-        const cached = readJson(localStorage, hubCacheKey(id));
 
-        if (
-            !cached ||
-            cached.version !== HUB_CACHE_VERSION ||
-            String(cached.userId || '') !== id
-        ) {
+        const cached = normalizePersistentSnapshot(
+            readJson(localStorage, hubCacheKey(id)),
+            id
+        );
+
+        if (!cached) {
             return false;
         }
 
-        if (Array.isArray(cached.summaries)) {
-            subjectSummaryById.clear();
-            cached.summaries.forEach(summary => {
-                const subjectId = String(summary?.id || '').trim();
-                if (subjectId) {
-                    subjectSummaryById.set(subjectId, cloneJson(summary));
-                }
-            });
-            summariesLoaded = true;
-        }
+        subjectSummaryById.clear();
+        cached.summaries.forEach(summary => {
+            const subjectId = String(
+                summary?.id || ''
+            ).trim();
 
-        if (
-            cached.library &&
-            typeof cached.library === 'object' &&
-            !Array.isArray(cached.library)
-        ) {
-            libraryValue = cloneJson(cached.library);
-            libraryLoaded = true;
-        }
+            if (subjectId) {
+                subjectSummaryById.set(
+                    subjectId,
+                    cloneJson(summary)
+                );
+            }
+        });
 
-        return summariesLoaded || libraryLoaded;
+        summariesLoaded = true;
+        libraryValue = cloneJson(cached.library);
+        libraryLoaded = true;
+
+        return true;
     }
 
     function fastStoredUserScope() {
@@ -773,9 +827,44 @@
         }
     }
 
+    function getCompassPresentationSnapshot() {
+        const userId =
+            activeUserId ||
+            fastStoredUserScope();
+
+        if (!userId) return null;
+
+        const memorySnapshot = persistentSnapshot();
+
+        if (memorySnapshot) {
+            return cloneJson(memorySnapshot);
+        }
+
+        return normalizePersistentSnapshot(
+            readJson(localStorage, hubCacheKey(userId)),
+            userId
+        );
+    }
+
+    async function prepareCompassPresentation() {
+        const userId = await syncUserScope();
+
+        if (!userId) return null;
+
+        await revalidateHubInBackground();
+
+        if (activeUserId !== userId) {
+            return null;
+        }
+
+        return getCompassPresentationSnapshot();
+    }
+
     window.AtlasCloudCache = Object.freeze({
         active: true,
         clear: clearCaches,
+        getCompassPresentationSnapshot,
+        prepareCompassPresentation,
         stats() {
             return {
                 userId: activeUserId,

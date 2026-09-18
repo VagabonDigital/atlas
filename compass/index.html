@@ -97,7 +97,9 @@
         'sb-jnhjfpagectprceswvqn-auth-token';
       var hubCachePrefix =
         'atlas::compassHubCache::v1::';
-      var hubCacheVersion = 1;
+      var hubCacheVersion = 2;
+      var hubCacheKind =
+        'compass-hub-presentation';
       var authRaw = null;
       var userId = '';
 
@@ -161,7 +163,21 @@
         if (
           !cached ||
           cached.version !== hubCacheVersion ||
-          String(cached.userId || '') !== userId
+          cached.kind !== hubCacheKind ||
+          cached.ready !== true ||
+          String(cached.userId || '') !== userId ||
+          !Array.isArray(cached.summaries) ||
+          !Object.prototype.hasOwnProperty.call(
+            cached,
+            'library'
+          ) ||
+          (
+            cached.library !== null &&
+            (
+              typeof cached.library !== 'object' ||
+              Array.isArray(cached.library)
+            )
+          )
         ) {
           return;
         }
@@ -4160,10 +4176,22 @@
       const snapshot =
         window.AtlasCompassHubInitialSnapshot;
 
+      const hintedUserId = String(
+        snapshot?.userId || ''
+      ).trim();
+
       if (
         !snapshot ||
-        snapshot.version !== 1 ||
-        !String(snapshot.userId || '').trim()
+        snapshot.version !== 2 ||
+        snapshot.kind !==
+          'compass-hub-presentation' ||
+        snapshot.ready !== true ||
+        !hintedUserId ||
+        !Array.isArray(snapshot.summaries) ||
+        !Object.prototype.hasOwnProperty.call(
+          snapshot,
+          'library'
+        )
       ) {
         return null;
       }
@@ -4196,6 +4224,109 @@
       return Array.isArray(snapshot?.summaries)
         ? snapshot.summaries
         : [];
+    }
+
+    function getCachedOwnedSubjectSessionIds(
+      records,
+      snapshot
+    ) {
+      const result = new Map();
+      const userId = String(
+        snapshot?.userId || ''
+      ).trim();
+
+      const subjectIds = new Set(
+        (Array.isArray(records) ? records : [])
+          .map(record =>
+            String(record?.id || '').trim()
+          )
+          .filter(Boolean)
+      );
+
+      subjectIds.forEach(id => {
+        result.set(id, []);
+      });
+
+      if (!userId || !subjectIds.size) {
+        return result;
+      }
+
+      try {
+        const scopeOwner = String(
+          localStorage.getItem(
+            'atlas::persistenceTrust::scopeOwner::v1'
+          ) || ''
+        ).trim();
+
+        if (scopeOwner !== 'user:' + userId) {
+          return result;
+        }
+
+        const prefix =
+          'atlas::tutorSubjects::sessionSubjects::';
+
+        for (
+          let index = 0;
+          index < localStorage.length;
+          index += 1
+        ) {
+          const key = localStorage.key(index);
+
+          if (!key || !key.startsWith(prefix)) {
+            continue;
+          }
+
+          let sessionId = '';
+
+          try {
+            sessionId = decodeURIComponent(
+              key.slice(prefix.length)
+            );
+          } catch {
+            continue;
+          }
+
+          if (!sessionId) continue;
+
+          let refs = [];
+
+          try {
+            const raw = JSON.parse(
+              localStorage.getItem(key) || '[]'
+            );
+
+            refs = Array.isArray(raw) ? raw : [];
+          } catch {
+            refs = [];
+          }
+
+          refs.forEach(ref => {
+            if (
+              ref?.kind !== 'my-subject'
+            ) {
+              return;
+            }
+
+            const id = String(
+              ref?.id || ''
+            ).trim();
+
+            if (!subjectIds.has(id)) {
+              return;
+            }
+
+            const homes =
+              result.get(id) || [];
+
+            if (!homes.includes(sessionId)) {
+              homes.push(sessionId);
+              result.set(id, homes);
+            }
+          });
+        }
+      } catch { }
+
+      return result;
     }
 
     async function getOwnedSubjects() {
@@ -4243,9 +4374,15 @@
         return [];
       }
 
-      const subjectSessionIds = new Map();
+      let subjectSessionIds = new Map();
 
-      if (
+      if (cloudAuthorityPending) {
+        subjectSessionIds =
+          getCachedOwnedSubjectSessionIds(
+            records,
+            getCompassInitialAccountSnapshot()
+          );
+      } else if (
         typeof Subjects.getSubjectSessionIds === 'function'
       ) {
         await Promise.all(
