@@ -29,8 +29,14 @@ html[data-atlas-account-hint="anonymous"] .mobile-header-btn.atlas-account-contr
     color: var(--control-text, var(--text-body, #504b43));
 }
 
-.mobile-header-btn.atlas-account-control[data-account-state="sign-in"] {
-    color: var(--text-muted, #7b7469);
+.mobile-header-btn.atlas-account-control[data-account-state="sign-in"],
+html[data-atlas-account-hint="anonymous"]
+.mobile-header-btn.atlas-account-control[data-account-state="pending"] {
+    border-radius: 20px;
+    font-size: 0.76rem;
+    font-weight: 500;
+    padding-inline: 0.7rem;
+    color: var(--text-body, #504b43);
 }
 
 .atlas-account-control:disabled {
