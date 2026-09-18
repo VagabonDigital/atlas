@@ -2071,13 +2071,39 @@
        ================================================================ */
     function setSessionLabels() {
       const s = getActiveSession();
-      const name = AtlasSessionPanel.getSessionDisplayName(s);
+      const authenticated =
+        Boolean(
+          getStoredPresentationUserId()
+        );
+
+      const name = authenticated
+        ? AtlasSessionPanel
+            .getSessionDisplayName(s)
+        : 'Add learner';
+
+      const ariaLabel = authenticated
+        ? 'Open session panel. Working with ' + name
+        : 'Add learner. A free account keeps learner progress and continuity.';
+
       ['spine-session-name', 'mobile-session-name', 'drawer-session-name'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) {
-          el.textContent = name;
-          const trigger = el.closest('button');
-          if (trigger) trigger.setAttribute('aria-label', 'Open session panel. Working with ' + name);
+
+        if (!el) return;
+
+        el.textContent = name;
+
+        const trigger = el.closest('button');
+
+        if (trigger) {
+          trigger.setAttribute(
+            'aria-label',
+            ariaLabel
+          );
+
+          trigger.dataset.atlasLearnerEntry =
+            authenticated
+              ? 'account'
+              : 'anonymous';
         }
       });
     }
