@@ -13297,173 +13297,6 @@
       input.focus();
     }
 
-    const ANONYMOUS_COMPASS_PREVIEW_IDEAS = Object.freeze({
-      surprise: [
-        {
-          title: 'Why We Keep Things We Never Use',
-          reason: 'A familiar habit that opens into memory, identity and the strange logic of possessions.'
-        },
-        {
-          title: 'Could You Live Without Knowing the Time?',
-          reason: 'A simple imaginary constraint that naturally creates opinions, stories and practical language.'
-        },
-        {
-          title: 'The Tiny Decisions That Change a Day',
-          reason: 'A flexible route into routines, chance, regret and the choices people barely notice.'
-        }
-      ],
-      'current-affairs': [
-        {
-          title: 'When One Story Dominates the Headlines',
-          reason: 'Explore why some events take over public attention while others disappear almost immediately.'
-        },
-        {
-          title: 'When Two Headlines Tell Different Stories',
-          reason: 'Compare framing, missing context and how language changes the way the same event feels.'
-        },
-        {
-          title: 'What Happens After the Headline?',
-          reason: 'Move beyond breaking news into consequences, uncertainty and what people expect next.'
-        }
-      ],
-      'science-nature': [
-        {
-          title: 'Why Some Animals Can Regrow Body Parts',
-          reason: 'A strange biological ability that leads naturally into adaptation, medicine and human limits.'
-        },
-        {
-          title: 'Why Déjà Vu Feels So Convincing',
-          reason: 'A mysterious everyday experience for discussing memory, perception and competing explanations.'
-        },
-        {
-          title: 'Could We Bring Back an Extinct Species?',
-          reason: 'A concrete science question with ethical trade-offs, practical limits and strong opinions.'
-        }
-      ],
-      'technology-future': [
-        {
-          title: 'What Happens When Nobody Needs to Type?',
-          reason: 'Imagine interfaces after keyboards and explore convenience, privacy and changing communication habits.'
-        },
-        {
-          title: 'Would You Trust an AI to Negotiate for You?',
-          reason: 'A practical future scenario with clear stakes, trade-offs and useful persuasive language.'
-        },
-        {
-          title: 'The Last Job a Robot Could Replace',
-          reason: 'A provocative way into automation, human strengths and what people value in work.'
-        }
-      ],
-      'culture-society': [
-        {
-          title: 'Why Some Rules Feel Rude to Break',
-          reason: 'Compare unwritten social rules across places and unpack where manners actually come from.'
-        },
-        {
-          title: 'When Does a Trend Become a Tradition?',
-          reason: 'A useful route into culture, generations and how repeated habits acquire meaning.'
-        },
-        {
-          title: 'Why Do Strangers Behave Differently in Crowds?',
-          reason: 'Explore anonymity, social pressure and the surprising ways groups change individual behaviour.'
-        }
-      ],
-      'history-civilization': [
-        {
-          title: 'What Did a Normal Day Feel Like 500 Years Ago?',
-          reason: 'Use ordinary life rather than famous events to make history concrete, personal and discussable.'
-        },
-        {
-          title: 'The Invention That Quietly Changed Everything',
-          reason: 'Choose an overlooked technology and trace how it altered daily life, power and expectations.'
-        },
-        {
-          title: 'Why Do Civilizations Build Monumental Things?',
-          reason: 'A visual route into status, belief, politics and what societies want future people to remember.'
-        }
-      ],
-      'business-politics': [
-        {
-          title: 'When a Meeting Should Have Been an Email',
-          reason: 'A practical workplace question about attention, decision-making and communication culture.'
-        },
-        {
-          title: 'What Makes a Bad Policy Sound Good?',
-          reason: 'Explore framing, incentives and how persuasive language can hide weak practical outcomes.'
-        },
-        {
-          title: 'Who Should Make the Final Decision?',
-          reason: 'A flexible scenario for discussing authority, expertise, responsibility and disagreement.'
-        }
-      ],
-      'travel-experiences': [
-        {
-          title: 'The Place That Was Better Than Its Reputation',
-          reason: 'A natural storytelling prompt about expectations, surprise and how places get labelled.'
-        },
-        {
-          title: 'Would You Travel Somewhere With No Reviews?',
-          reason: 'A modern travel dilemma involving trust, risk, spontaneity and online influence.'
-        },
-        {
-          title: 'What Makes a Place Feel Like Home?',
-          reason: 'Move beyond tourism into belonging, routine, people and the small details that create attachment.'
-        }
-      ]
-    });
-
-    function getAnonymousCompassPreviewSuggestions(
-      modeId,
-      topicFocus = ''
-    ) {
-      const mode =
-        String(modeId || '').trim();
-
-      const focus =
-        String(topicFocus || '')
-          .trim()
-          .slice(0, 120);
-
-      if (focus) {
-        return {
-          message:
-            'Here are three directions Compass could take around “' +
-            focus +
-            '”.',
-          ideas: [
-            {
-              title:
-                focus + ': The Surprising Part',
-              reason:
-                'Find the part people do not usually expect, then use it to open a more interesting conversation.'
-            },
-            {
-              title:
-                focus + ': What People Get Wrong',
-              reason:
-                'Build the subject around assumptions, disagreement and the gap between first impressions and reality.'
-            },
-            {
-              title:
-                focus + ': The Bigger Question',
-              reason:
-                'Use the topic as a doorway into a broader human, cultural or practical question.'
-            }
-          ]
-        };
-      }
-
-      const ideas =
-        ANONYMOUS_COMPASS_PREVIEW_IDEAS[mode] ||
-        ANONYMOUS_COMPASS_PREVIEW_IDEAS.surprise;
-
-      return {
-        message:
-          'Three directions Compass could take this lesson.',
-        ideas
-      };
-    }
-
     async function askCompassForSubjects(
       button,
       requestedModeId = ''
@@ -13489,7 +13322,10 @@
 
       if (
         !context ||
-        !region
+        !region ||
+        !window.AtlasAI ||
+        typeof window.AtlasAI
+          .suggestSubjectIdeas !== 'function'
       ) {
         showToast(
           'Compass suggestions are unavailable.'
@@ -13553,55 +13389,30 @@
         selectedMode.id
       );
 
-      if (
+      const anonymousSuggestionPreview =
         ownedSubjectDialogState?.mode ===
           'create' &&
         ownedSubjectDialogState
-          .anonymousPreview
-      ) {
-        region.innerHTML =
-          renderCompassRecommendationResult(
-            getAnonymousCompassPreviewSuggestions(
-              selectedMode.id,
-              topicFocus
-            )
+          .anonymousPreview;
+
+      if (!anonymousSuggestionPreview) {
+        const aiAccess =
+          await requireCompassSubjectCapability(
+            'canCreateWithAI',
+            'capability',
+            'suggest-subject-ideas',
+            { mode: selectedMode.id },
+            button
           );
 
-        if (label) {
-          label.textContent =
-            'Ask again';
+        if (
+          !compassSubjectCapabilityAllows(
+            aiAccess,
+            'Compass suggestions are unavailable right now.'
+          )
+        ) {
+          return;
         }
-
-        return;
-      }
-
-      if (
-        !window.AtlasAI ||
-        typeof window.AtlasAI
-          .suggestSubjectIdeas !== 'function'
-      ) {
-        showToast(
-          'Compass suggestions are unavailable.'
-        );
-        return;
-      }
-
-      const aiAccess =
-        await requireCompassSubjectCapability(
-          'canCreateWithAI',
-          'capability',
-          'suggest-subject-ideas',
-          { mode: selectedMode.id },
-          button
-        );
-
-      if (
-        !compassSubjectCapabilityAllows(
-          aiAccess,
-          'Compass suggestions are unavailable right now.'
-        )
-      ) {
-        return;
       }
 
       const requestId =
