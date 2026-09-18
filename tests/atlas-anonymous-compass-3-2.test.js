@@ -170,6 +170,18 @@ assert.match(
 );
 assert.match(
     compass,
+    /function syncAnonymousCreatePreviewState\([\s\S]*?Ready to build\. Create and save this subject with a free Atlas account\.[\s\S]*?Create this subject/
+);
+assert.match(
+    compass,
+    /input\?\.addEventListener\([\s\S]*?'input'[\s\S]*?syncAnonymousCreatePreviewState\(/
+);
+assert.match(
+    compass,
+    /function chooseCompassSubjectIdea\([\s\S]*?syncAnonymousCreatePreviewState\(\s*dialog\s*\)/
+);
+assert.match(
+    compass,
     /const anonymousPreview =\s*options\.anonymousPreview === true\s*&&\s*!getStoredCompassAccountUserId\(\);/
 );
 assert.match(
@@ -191,6 +203,18 @@ assert.match(
 assert.match(
     compass,
     /context\.operation ===\s*'continue-create-preview'[\s\S]*?consumeCompassCreatePreviewDraft[\s\S]*?openCreateSubjectDialog/
+);
+assert.match(
+    compass,
+    /context\.operation ===\s*'continue-create-preview'[\s\S]*?draft\.createMode === 'blank'[\s\S]*?confirmOwnedSubjectDialog\(/
+);
+assert.match(
+    compass,
+    /function renderAnonymousCreationHero\(\)[\s\S]*?Create a subject/
+);
+assert.doesNotMatch(
+    compass,
+    /function renderAnonymousCreationHero\(\)[\s\S]*?Preview creation/
 );
 assert.doesNotMatch(
     compass,
@@ -311,5 +335,5 @@ assert.match(
 );
 
 console.log(
-    'Stage 3.2 anonymous Compass contract passed: real catalogue, four full subjects, preview routing, anonymous creation preview with live API suggestions, protected creation boundary, authenticated AI capability gating outside the public preview, return-intent restoration, and Search visibility.'
+    'Stage 3.2 anonymous Compass contract passed: real catalogue, four full subjects, preview routing, live anonymous creation exploration and API suggestions, clear ready-to-build state, protected creation boundary with automatic post-auth resume, authenticated AI capability gating outside the public preview, and Search visibility.'
 );
