@@ -290,7 +290,7 @@
 
         if (!container.querySelector('[data-atlas-inside-account]')) {
             container.innerHTML = `
-            <a class="atlas-inside-account-action atlas-inside-account-explore" href="/">Explore Atlas</a>
+            <a class="atlas-inside-account-action atlas-inside-account-explore" href="/?entry=product" data-atlas-product-entry>Explore Atlas</a>
             <button class="atlas-inside-account-action atlas-inside-account-sign-in" type="button" data-atlas-inside-sign-in>
                 Sign in
             </button>
