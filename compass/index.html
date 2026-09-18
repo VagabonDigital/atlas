@@ -6396,6 +6396,24 @@
                     initialDraft: draft
                   }
                 );
+
+                if (
+                  draft &&
+                  String(
+                    draft.title || ''
+                  ).trim() &&
+                  ownedSubjectDialogState?.mode ===
+                    'create' &&
+                  !ownedSubjectDialogState
+                    .anonymousPreview
+                ) {
+                  await confirmOwnedSubjectDialog(
+                    draft.createMode === 'blank'
+                      ? 'blank'
+                      : 'generate'
+                  );
+                }
+
                 return;
               }
 
@@ -6743,6 +6761,55 @@
       button.setAttribute('aria-expanded', 'true');
     }
 
+    function syncAnonymousCreatePreviewState(
+      dialog = document.getElementById(
+        'owned-subject-dialog'
+      )
+    ) {
+      if (
+        !dialog ||
+        ownedSubjectDialogState?.mode !==
+          'create' ||
+        !ownedSubjectDialogState
+          .anonymousPreview
+      ) {
+        return;
+      }
+
+      const input = dialog.querySelector(
+        '#owned-subject-dialog-input'
+      );
+
+      const copy = dialog.querySelector(
+        '#owned-subject-dialog-copy'
+      );
+
+      const confirm = dialog.querySelector(
+        '#owned-subject-dialog-confirm'
+      );
+
+      const hasDirection =
+        Boolean(
+          String(
+            input?.value || ''
+          ).trim()
+        );
+
+      if (copy) {
+        copy.textContent =
+          hasDirection
+            ? 'Ready to build. Create and save this subject with a free Atlas account.'
+            : 'Explore a direction, tune the lesson, or ask Compass for an idea. You only need an account when you’re ready to create it.';
+      }
+
+      if (confirm) {
+        confirm.textContent =
+          hasDirection
+            ? 'Create this subject'
+            : 'Create subject';
+      }
+    }
+
     function ensureOwnedSubjectDialog() {
       let dialog = document.getElementById(
         'owned-subject-dialog'
@@ -6873,6 +6940,15 @@
 
       const input = dialog.querySelector(
         '#owned-subject-dialog-input'
+      );
+
+      input?.addEventListener(
+        'input',
+        () => {
+          syncAnonymousCreatePreviewState(
+            dialog
+          );
+        }
       );
 
       input?.addEventListener('keydown', event => {
@@ -7918,7 +7994,9 @@
       title.textContent = 'Create subject';
 
       copy.textContent =
-        'Start with a topic and a few teaching preferences. Atlas will build a complete first draft you can change afterwards.';
+        anonymousPreview
+          ? 'Explore a direction, tune the lesson, or ask Compass for an idea. You only need an account when you’re ready to create it.'
+          : 'Start with a topic and a few teaching preferences. Atlas will build a complete first draft you can change afterwards.';
 
       field.hidden = false;
 
@@ -8000,6 +8078,10 @@
       confirm.className = 'btn-primary';
       confirm.textContent = 'Create subject';
       confirm.disabled = false;
+
+      syncAnonymousCreatePreviewState(
+        dialog
+      );
 
       ownedSubjectDialogPreviousBodyOverflow =
         document.body.style.overflow;
@@ -13285,6 +13367,10 @@
         )
       );
 
+      syncAnonymousCreatePreviewState(
+        dialog
+      );
+
       if (region) {
         region.innerHTML = '';
       }
@@ -14016,7 +14102,7 @@
         'Start with any topic, situation, film or idea. Choose the level, style and lesson size, or ask Compass for a direction.' +
         '</span>' +
         '<span class="anonymous-create-hero-action">' +
-        'Preview creation' +
+        'Create a subject' +
         '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">' +
         '<path d="M2.5 6h7M6.5 3l3 3-3 3" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>' +
         '</svg>' +
