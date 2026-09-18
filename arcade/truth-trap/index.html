@@ -2194,6 +2194,7 @@
   <script src="../../shared/atlas-bridge.js"></script>
   <script src="../../shared/atlas-session-panel.js?v=20260916-runtime3"></script>
   <script src="../../shared/compass-catalog-data.js"></script>
+  <script src="../../shared/arcade-catalog-data.js"></script>
   <script src="../../shared/atlas-content-registry.js?v=20260916-access1"></script>
   <script src="../../shared/atlas-search.js"></script>
   <script src="../shared/arcade-game-chrome.js?v=20260721"></script>
@@ -2948,6 +2949,11 @@
           title: 'Truth Trap',
           premise: 'Two facts are true. One is a lie. Spot the fake and explain your reasoning.',
           status: 'available',
+          publicAccess:
+            window.ArcadeCatalogData
+              ?.getArcadeGamePublicAccess?.(
+                REGISTRY_ID
+              ) || 'full',
           unitLabel: 'Cases',
           total: TOTAL_CASES,
           formatLabel: 'Trivia',
