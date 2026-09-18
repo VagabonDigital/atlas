@@ -2105,7 +2105,7 @@
       </nav>
       <div class="atlas-inside-account-entry" data-atlas-account-entry data-account-state="pending"
         aria-label="Atlas account actions">
-        <a class="atlas-inside-account-action atlas-inside-account-explore" href="/?entry=product">Explore Atlas</a>
+        <a class="atlas-inside-account-action atlas-inside-account-explore" href="/?entry=product" data-atlas-product-entry>Explore Atlas</a>
         <button class="atlas-inside-account-action atlas-inside-account-sign-in" type="button"
           data-atlas-inside-sign-in>Sign in</button>
         <button class="atlas-inside-account-action atlas-inside-account-create" type="button"
@@ -2145,7 +2145,7 @@
         <p class="hero-lede">A creative teaching workspace for recurring one-to-one English lessons. Create or choose
           material, shape it around the learner, and return with context, language and momentum already there.</p>
         <div class="hero-actions">
-          <a class="product-entry-primary" href="/?entry=product">Explore Atlas</a>
+          <a class="product-entry-primary" href="/?entry=product" data-atlas-product-entry>Explore Atlas</a>
         </div>
         <div class="power-rail" aria-label="Core Atlas capabilities">
           <div class="power"><strong>Create</strong><span>Turn any topic, question, goal or spark into lesson-ready material in
@@ -2317,7 +2317,7 @@
               <p>Structured teaching material you can create, edit, own and return to — organised into Overview,
                 Discussion, Cultural Lens and Reflection.</p>
               <div class="world-line">Create it, shape it, teach it, keep it.</div>
-              <a class="world-entry world-entry--compass" href="../compass/index.html">Explore Compass <span aria-hidden="true">→</span></a>
+              <a class="world-entry world-entry--compass" href="../compass/index.html" data-atlas-product-entry>Explore Compass <span aria-hidden="true">→</span></a>
             </div>
             <div class="world-ui">
               <div class="compass-shell">
@@ -2339,7 +2339,7 @@
               <p>Fast, low-friction conversation games for the moments when a different rhythm is exactly what the
                 lesson needs.</p>
               <div class="world-line">Open a game and start. No setup required.</div>
-              <a class="world-entry world-entry--arcade" href="../arcade/index.html">Explore Arcade <span aria-hidden="true">→</span></a>
+              <a class="world-entry world-entry--arcade" href="../arcade/index.html" data-atlas-product-entry>Explore Arcade <span aria-hidden="true">→</span></a>
             </div>
             <div class="world-ui">
               <div class="arcade-list">
@@ -2599,7 +2599,7 @@
           <h2 id="product-entry-final-title">Ready to try it?</h2>
           <p>Open Atlas, choose a subject or game, and use it in your next lesson.</p>
         </div>
-        <a class="product-entry-primary" href="/?entry=product">Explore Atlas</a>
+        <a class="product-entry-primary" href="/?entry=product" data-atlas-product-entry>Explore Atlas</a>
       </div>
     </section>
   </main>
@@ -3236,6 +3236,47 @@
           revealObserver.observe(section);
         });
       }
+
+      function markProductEntered() {
+        try {
+          localStorage.setItem(
+            "atlas::welcomeSeen:v1",
+            "1"
+          );
+          localStorage.setItem(
+            "atlas::publicEntryStage:v1",
+            "product"
+          );
+        } catch (e) { }
+      }
+
+      document.addEventListener(
+        "pointerdown",
+        function (event) {
+          if (
+            event.target.closest(
+              "[data-atlas-product-entry]"
+            )
+          ) {
+            markProductEntered();
+          }
+        },
+        true
+      );
+
+      document.addEventListener(
+        "click",
+        function (event) {
+          if (
+            event.target.closest(
+              "[data-atlas-product-entry]"
+            )
+          ) {
+            markProductEntered();
+          }
+        },
+        true
+      );
 
       var navLinks = Array.prototype.slice.call(document.querySelectorAll(".nav a"));
       var sectionLinks = navLinks.filter(function (link) { return link.getAttribute("href") !== "#top"; });
