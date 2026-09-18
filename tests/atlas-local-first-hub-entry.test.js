@@ -85,7 +85,7 @@ assert.match(
 );
 assert.match(
     compass,
-    /if \(!useInitialSnapshot\) \{\s*sessionSubjectRefs =\s*await syncAtlasOriginalSessionSubjects/
+    /if \(authenticated && !useInitialSnapshot\) \{\s*sessionSubjectRefs =\s*await syncAtlasOriginalSessionSubjects/
 );
 assert.match(
     compass,

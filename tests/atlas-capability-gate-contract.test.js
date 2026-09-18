@@ -200,6 +200,73 @@ async function testAnonymousCreatesIntentAndOpensGate() {
     );
 }
 
+async function testAnonymousAuthenticationRequirementCreatesIntent() {
+    const harness = makeHarness({
+        ready: true,
+        status: 'ready',
+        authenticated: false,
+        tier: 'anonymous',
+        capabilities: {}
+    });
+
+    const result = await harness.window.AtlasCapabilityGate
+        .requireAuthentication({
+            action: 'open-gated-content',
+            context: {
+                operation: 'begin-compass-subject',
+                subjectId: 'game-theory'
+            },
+            mode: 'create'
+        });
+
+    assert.equal(result.outcome, 'auth-required');
+    assert.equal(harness.created.length, 1);
+    assert.equal(
+        harness.created[0].action,
+        'open-gated-content'
+    );
+    assert.equal(
+        harness.created[0].context.operation,
+        'begin-compass-subject'
+    );
+    assert.equal(
+        harness.created[0].context.subjectId,
+        'game-theory'
+    );
+    assert.equal(
+        Object.prototype.hasOwnProperty.call(
+            harness.created[0].context,
+            'capability'
+        ),
+        false
+    );
+    assert.equal(harness.opened.length, 1);
+    assert.equal(harness.opened[0].mode, 'create');
+    assert.equal(
+        harness.opened[0].returnIntentId,
+        result.returnIntentId
+    );
+}
+
+async function testAuthenticatedAuthenticationRequirementPasses() {
+    const harness = makeHarness({
+        ready: true,
+        status: 'ready',
+        authenticated: true,
+        tier: 'free',
+        capabilities: {}
+    });
+
+    const result = await harness.window.AtlasCapabilityGate
+        .requireAuthentication({
+            action: 'open-gated-content'
+        });
+
+    assert.equal(result.outcome, 'allowed');
+    assert.equal(harness.created.length, 0);
+    assert.equal(harness.opened.length, 0);
+}
+
 async function testAuthenticatedDenialDoesNotShowLogin() {
     const harness = makeHarness({
         ready: true,
@@ -382,6 +449,8 @@ async function testUnknownCapabilityFailsClosed() {
 async function run() {
     await testAllowedPassesWithoutAuthUI();
     await testAnonymousCreatesIntentAndOpensGate();
+    await testAnonymousAuthenticationRequirementCreatesIntent();
+    await testAuthenticatedAuthenticationRequirementPasses();
     await testAuthenticatedDenialDoesNotShowLogin();
     await testAiExhaustionNormalizesAsLimited();
     await testAiCapabilityTrueStillRespectsExhaustedAllowance();
@@ -402,12 +471,12 @@ async function run() {
 
     assert.match(
         bootstrap,
-        /atlas-capability-gate\.js\?v=20260917-capability1/
+        /atlas-capability-gate\.js\?v=20260918-authgate1/
     );
     assert.match(bootstrap, /prepareCapabilityGate/);
     assert.match(
         registry,
-        /atlas-access-bootstrap\.js\?v=20260917-postpaint1/
+        /atlas-access-bootstrap\.js\?v=20260918-publicaccess1/
     );
 
     console.log(

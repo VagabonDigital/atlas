@@ -145,18 +145,18 @@ assert.equal(
 
 assert.match(
     atlas,
-    /atlas-content-registry\.js\?v=20260917-postpaint1/,
-    'Atlas must load the post-paint Content Registry'
+    /atlas-content-registry\.js\?v=20260918-publicaccess1/,
+    'Atlas must load the public-access Content Registry'
 );
 assert.match(
     compass,
-    /atlas-content-registry\.js\?v=20260917-liveauth1/,
-    'Compass must load the live-auth Content Registry revision'
+    /atlas-content-registry\.js\?v=20260918-publicaccess1/,
+    'Compass must load the public-access Content Registry'
 );
 assert.match(
     arcade,
-    /atlas-content-registry\.js\?v=20260917-postpaint1/,
-    'Arcade must load the post-paint Content Registry'
+    /atlas-content-registry\.js\?v=20260918-publicaccess1/,
+    'Arcade must load the public-access Content Registry'
 );
 
 console.log(

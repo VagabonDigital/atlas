@@ -3660,7 +3660,7 @@
   <script src="../shared/atlas-original-curation.js"></script>
   <script src="../shared/atlas-ai.js"></script>
   <script src="../shared/compass-catalog-data.js?v=5"></script>
-  <script src="../shared/atlas-content-registry.js?v=20260917-liveauth1"></script>
+  <script src="../shared/atlas-content-registry.js?v=20260918-publicaccess1"></script>
   <script src="../shared/atlas-session-panel.js?v=20260916-runtime3"></script>
   <script src="../shared/atlas-search.js"></script>
   <script>
@@ -4752,6 +4752,19 @@
     }
 
     function getSubjectCardState(subject) {
+      if (
+        !subject.isOwned &&
+        subject.publicAccess === 'preview' &&
+        !getStoredCompassAccountUserId()
+      ) {
+        return {
+          mode: 'new',
+          actionLabel: 'Preview',
+          progressLabel: '',
+          progressPercent: 0
+        };
+      }
+
       const progress = subject.state && subject.state.progress
         ? subject.state.progress
         : {};
@@ -4862,6 +4875,10 @@
               registryId: subject.registryId,
               title: item?.title || subject.title,
               launchUrl,
+              publicAccess:
+                subject.publicAccess === 'full'
+                  ? 'full'
+                  : 'preview',
               artId: subject.artId || '',
               hook: hasMyVersion &&
                 item &&
@@ -13042,12 +13059,27 @@
       );
       const session = getActiveSession();
       const atlasSubjects = getAtlasSubjects();
-      const ownedSubjects = await getOwnedSubjects({
-        initialSnapshot
-      });
+      const authenticated =
+        Boolean(getStoredCompassAccountUserId());
 
-      const Subjects = window.AtlasTutorSubjects;
+      document.documentElement.dataset
+        .atlasCompassAccessState =
+          authenticated
+            ? 'authenticated'
+            : 'anonymous';
+
+      const ownedSubjects = authenticated
+        ? await getOwnedSubjects({
+            initialSnapshot
+          })
+        : [];
+
+      const Subjects = authenticated
+        ? window.AtlasTutorSubjects
+        : null;
+
       const cloudAuthorityPending =
+        authenticated &&
         isCompassCloudAuthorityPending();
 
       let sessionSubjectRefs = [];
@@ -13107,7 +13139,7 @@
         return;
       }
 
-      if (!useInitialSnapshot) {
+      if (authenticated && !useInitialSnapshot) {
         sessionSubjectRefs =
           await syncAtlasOriginalSessionSubjects(
             session,
@@ -13270,18 +13302,25 @@
       renderDrawerHubNav();
 
       const nextHubContentMarkup =
-        renderSubjectCollection(
-          sessionSubjects,
-          getActiveSessionSubjectCollectionTitle(),
-          {
-            canAdd: true
-          }
-        ) +
-        ownedLibraryHtml +
-        renderSubjectCollection(
-          remainingAtlasSubjects,
-          'Atlas Subjects'
-        );
+        authenticated
+          ? (
+            renderSubjectCollection(
+              sessionSubjects,
+              getActiveSessionSubjectCollectionTitle(),
+              {
+                canAdd: true
+              }
+            ) +
+            ownedLibraryHtml +
+            renderSubjectCollection(
+              remainingAtlasSubjects,
+              'Atlas Subjects'
+            )
+          )
+          : renderSubjectCollection(
+              remainingAtlasSubjects,
+              'Atlas Subjects'
+            );
 
       /*
        * The intro contains a time-derived animation phase so the complete
@@ -13312,7 +13351,10 @@
       }
 
       const nextHubMarkup =
-        renderIntro(session) +
+        renderIntro(
+          session,
+          { anonymous: !authenticated }
+        ) +
         nextHubContentMarkup;
 
       CompassHoverForensics.noteRender(
@@ -13389,7 +13431,10 @@
       return slotStart + settledOffset;
     }
 
-    function renderIntro(session) {
+    function renderIntro(
+      session,
+      { anonymous = false } = {}
+    ) {
       const topicPhaseMs =
         getCompassTopicPhaseMs();
 
@@ -13411,7 +13456,13 @@
         '<span class="hub-topic" style="--topic-delay: 72s;">why certain songs give us chills.</span>' +
         '</span>' +
         '</h1>' +
-        '<p class="hub-desc">Explore Atlas Subjects or create your own, then see where the conversation goes.</p>' +
+        '<p class="hub-desc">' +
+        (
+          anonymous
+            ? 'Explore real Atlas Subjects and see where the conversation goes.'
+            : 'Explore Atlas Subjects or create your own, then see where the conversation goes.'
+        ) +
+        '</p>' +
         '</div>' +
         '</div>'
       );
@@ -13985,7 +14036,9 @@
 
       if (!subject.isOwned && subject.registryId) {
         const managementHtml =
-          '<div class="subject-card-management">' +
+          getStoredCompassAccountUserId()
+            ? (
+              '<div class="subject-card-management">' +
 
           '<button class="subject-card-manage-btn" ' +
           'type="button" ' +
@@ -14086,7 +14139,9 @@
             )) +
 
           '</div>' +
-          '</div>';
+          '</div>'
+            )
+            : '';
 
         return (
           '<article class="' +

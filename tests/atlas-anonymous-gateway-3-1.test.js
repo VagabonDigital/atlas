@@ -147,11 +147,11 @@ assert.match(
 );
 assert.match(
     panel,
-    /\+ Add learner/
+    /\+ Add student/
 );
 assert.match(
     panel,
-    /Learner name/
+    /Student name/
 );
 assert.match(
     panel,

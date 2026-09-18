@@ -100,6 +100,10 @@
         const status = subject.status === 'available' ? 'available' : 'soon';
         const categoryId = subject.categoryId || '';
         const categoryTitle = subject.categoryTitle || categoryTitles[categoryId] || 'Compass';
+        const publicAccess =
+            subject.publicAccess === 'full'
+                ? 'full'
+                : 'preview';
 
         const launchUrl = status === 'available'
             ? (subject.launchUrl || `compass/${id}/index.html`)
@@ -121,6 +125,7 @@
             title,
             navTitle: subject.navTitle || title,
             status,
+            publicAccess,
             launchUrl,
             categoryId,
             categoryTitle,
@@ -812,7 +817,7 @@
         }
 
         const src =
-            '/shared/atlas-access-bootstrap.js?v=20260917-postpaint1';
+            '/shared/atlas-access-bootstrap.js?v=20260918-publicaccess1';
 
         if (document.readyState === 'loading') {
             document.write(

@@ -281,6 +281,144 @@
         });
     }
 
+    async function interruptForAuthentication({
+        action,
+        destination,
+        context,
+        trigger,
+        mode
+    }) {
+        let intent = null;
+
+        try {
+            const ReturnIntent = await ensureReturnIntent();
+            const suppliedContext =
+                context &&
+                typeof context === 'object' &&
+                !Array.isArray(context)
+                    ? context
+                    : {};
+
+            intent = ReturnIntent.create({
+                action,
+                destination,
+                context: suppliedContext
+            });
+
+            const Gate = await ensureAccountGate();
+
+            await Gate.open({
+                mode,
+                trigger,
+                returnIntentId: intent.id
+            });
+
+            return {
+                intent,
+                error: null
+            };
+        } catch (error) {
+            if (intent?.id) {
+                try {
+                    window.AtlasReturnIntent?.discard?.(
+                        intent.id
+                    );
+                } catch { }
+            }
+
+            return {
+                intent: null,
+                error
+            };
+        }
+    }
+
+    async function requireAuthentication({
+        action = 'open-gated-content',
+        destination = window.location.href,
+        context = {},
+        trigger = null,
+        mode = 'sign-in'
+    } = {}) {
+        const resolved = await resolveAccessState();
+        const access = resolved.state;
+
+        if (!access) {
+            return outcome(
+                OUTCOMES.UNAVAILABLE,
+                null,
+                null,
+                {
+                    error:
+                        resolved.error?.message ||
+                        'Atlas access state is unavailable.'
+                }
+            );
+        }
+
+        if (access.status === 'error') {
+            return outcome(
+                OUTCOMES.UNAVAILABLE,
+                null,
+                access,
+                {
+                    error:
+                        access.error ||
+                        resolved.error?.message ||
+                        'Atlas access state is unavailable.'
+                }
+            );
+        }
+
+        if (!access.ready) {
+            return outcome(
+                OUTCOMES.RESOLVING,
+                null,
+                access
+            );
+        }
+
+        if (access.authenticated) {
+            return outcome(
+                OUTCOMES.ALLOWED,
+                null,
+                access
+            );
+        }
+
+        const interruption =
+            await interruptForAuthentication({
+                action,
+                destination,
+                context,
+                trigger,
+                mode
+            });
+
+        if (interruption.error) {
+            return outcome(
+                OUTCOMES.UNAVAILABLE,
+                null,
+                access,
+                {
+                    error:
+                        interruption.error?.message ||
+                        String(interruption.error)
+                }
+            );
+        }
+
+        return outcome(
+            OUTCOMES.AUTH_REQUIRED,
+            null,
+            access,
+            {
+                returnIntentId:
+                    interruption.intent.id
+            }
+        );
+    }
+
     async function requireCapability(
         name,
         {
@@ -345,50 +483,34 @@
         }
 
         if (!access.authenticated) {
-            let intent = null;
+            const suppliedContext =
+                context &&
+                typeof context === 'object' &&
+                !Array.isArray(context)
+                    ? context
+                    : {};
 
-            try {
-                const ReturnIntent = await ensureReturnIntent();
-                const suppliedContext =
-                    context &&
-                    typeof context === 'object' &&
-                    !Array.isArray(context)
-                        ? context
-                        : context;
-
-                intent = ReturnIntent.create({
+            const interruption =
+                await interruptForAuthentication({
                     action,
                     destination,
                     context: {
-                        ...(suppliedContext || {}),
+                        ...suppliedContext,
                         capability
-                    }
-                });
-
-                const Gate = await ensureAccountGate();
-
-                await Gate.open({
-                    mode,
+                    },
                     trigger,
-                    returnIntentId: intent.id
+                    mode
                 });
-            } catch (error) {
-                if (intent?.id) {
-                    try {
-                        window.AtlasReturnIntent?.discard?.(
-                            intent.id
-                        );
-                    } catch { }
-                }
 
+            if (interruption.error) {
                 return outcome(
                     OUTCOMES.UNAVAILABLE,
                     capability,
                     access,
                     {
                         error:
-                            error?.message ||
-                            String(error)
+                            interruption.error?.message ||
+                            String(interruption.error)
                     }
                 );
             }
@@ -398,7 +520,8 @@
                 capability,
                 access,
                 {
-                    returnIntentId: intent.id
+                    returnIntentId:
+                        interruption.intent.id
                 }
             );
         }
@@ -603,6 +726,7 @@
 
     window.AtlasCapabilityGate = Object.freeze({
         OUTCOMES,
+        requireAuthentication,
         requireCapability,
         subscribeResume,
         hydrateQueuedResume,

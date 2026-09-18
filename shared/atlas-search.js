@@ -221,6 +221,36 @@
 
         return '';
     }
+    function hasStoredAtlasAccountSession() {
+        try {
+            return Boolean(
+                localStorage.getItem(
+                    'sb-jnhjfpagectprceswvqn-auth-token'
+                )
+            );
+        } catch {
+            return false;
+        }
+    }
+
+    function itemContextLabel(item) {
+        const ownership =
+            itemOwnershipLabel(item);
+
+        if (ownership) return ownership;
+
+        if (
+            !hasStoredAtlasAccountSession() &&
+            item?.world === 'compass' &&
+            item?.type === 'subject' &&
+            item?.publicAccess === 'preview'
+        ) {
+            return 'Preview';
+        }
+
+        return '';
+    }
+
     // Search only includes items that can be opened immediately.
     // Planned catalog entries remain available to roadmap and registry systems,
     // but do not appear as selectable Search results.
@@ -277,7 +307,7 @@
                     group: 'Recent',
                     registryId: activity.registryId,
                     title: item.title || item.navTitle || 'Untitled',
-                    sub: itemOwnershipLabel(item),
+                    sub: itemContextLabel(item),
                     type: itemIconType(item),
                     hub: false,
                     planned: false,
@@ -349,7 +379,7 @@
             .map(item => ({
                 group: itemGroupLabel(item),
                 title: item.title || item.navTitle || 'Untitled',
-                sub: itemOwnershipLabel(item),
+                sub: itemContextLabel(item),
                 type: itemIconType(item),
                 hub: false,
                 planned: false,

@@ -17,7 +17,7 @@ assert.match(compass, /const nextHubContentMarkup =/);
 assert.match(compass, /const hubMarkupChanged =\s*nextHubContentMarkup !==\s*lastCommittedHubContentMarkup/);
 assert.match(compass, /if \(!hubMarkupChanged\) \{\s*return;\s*\}/);
 assert.doesNotMatch(compass, /nextHubMarkup === lastCommittedHubMarkup/);
-assert.match(compass, /renderIntro\(session\) \+\s*nextHubContentMarkup/);
+assert.match(compass, /renderIntro\(\s*session,\s*\{ anonymous: !authenticated \}\s*\) \+\s*nextHubContentMarkup/);
 
 assert.match(arcade, /let lastCommittedArcadeContentMarkup = null;/);
 assert.match(arcade, /const nextArcadeContentMarkup =/);

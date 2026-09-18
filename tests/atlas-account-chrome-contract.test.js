@@ -105,7 +105,7 @@ function runPlacementProof() {
     );
     assert.match(
         registry,
-        /atlas-access-bootstrap\.js\?v=20260917-postpaint1/,
+        /atlas-access-bootstrap\.js\?v=20260918-publicaccess1/,
         'Hub access bootstrap must use the account-gate-capable cache version.'
     );
 
@@ -155,7 +155,7 @@ function runPlacementProof() {
     );
     assert.match(
         inside,
-        /atlas-access-bootstrap\.js\?v=20260917-postpaint1/,
+        /atlas-access-bootstrap\.js\?v=20260918-publicaccess1/,
         'Inside Atlas must load canonical access state.'
     );
     assert.match(

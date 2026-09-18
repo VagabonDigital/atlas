@@ -519,6 +519,54 @@ function isOwnedSubjectRuntime() {
     return getCompassSubjectRuntime().source === 'owned';
 }
 
+function getCompassSubjectPublicAccess() {
+    if (isOwnedSubjectRuntime()) {
+        return 'full';
+    }
+
+    const Catalog = window.CompassCatalogData;
+
+    if (
+        Catalog &&
+        typeof Catalog.getCompassSubjectPublicAccess ===
+            'function'
+    ) {
+        return Catalog.getCompassSubjectPublicAccess(
+            MODULE.id
+        );
+    }
+
+    return 'preview';
+}
+
+function hasCompassAccountSession() {
+    const access =
+        window.AtlasAccess?.getState?.() || null;
+
+    if (access?.ready === true) {
+        return access.authenticated === true;
+    }
+
+    try {
+        return Boolean(
+            localStorage.getItem(
+                'sb-jnhjfpagectprceswvqn-auth-token'
+            )
+        );
+    } catch {
+        return false;
+    }
+}
+
+function isAnonymousCompassSubjectPreview() {
+    return (
+        !isOwnedSubjectRuntime() &&
+        getCompassSubjectPublicAccess() !== 'full' &&
+        !hasCompassAccountSession()
+    );
+}
+
+let compassPublicAccessResumeUnsubscribe = null;
 let subjectAuthoringCapabilityGatePromise = null;
 let subjectAuthoringResumeUnsubscribe = null;
 let subjectAuthoringAIGuardInstalled = false;
@@ -552,6 +600,119 @@ async function ensureSubjectAuthoringCapabilityGate() {
         });
 
     return subjectAuthoringCapabilityGatePromise;
+}
+
+async function requestCompassSubjectAccess(
+    trigger = null
+) {
+    if (!isAnonymousCompassSubjectPreview()) {
+        return {
+            outcome: 'allowed'
+        };
+    }
+
+    try {
+        const Gate =
+            await ensureSubjectAuthoringCapabilityGate();
+
+        if (
+            !Gate ||
+            typeof Gate.requireAuthentication !==
+                'function'
+        ) {
+            throw new Error(
+                'Atlas authentication gate is unavailable.'
+            );
+        }
+
+        return Gate.requireAuthentication({
+            action: 'open-gated-content',
+            destination: window.location.href,
+            context: {
+                operation: 'begin-compass-subject',
+                subjectId: MODULE.id
+            },
+            trigger,
+            mode: 'create'
+        });
+    } catch (error) {
+        return {
+            outcome: 'unavailable',
+            error
+        };
+    }
+}
+
+async function installCompassPublicAccessResume() {
+    try {
+        const Gate =
+            await ensureSubjectAuthoringCapabilityGate();
+
+        compassPublicAccessResumeUnsubscribe?.();
+
+        compassPublicAccessResumeUnsubscribe =
+            Gate.subscribeResume(
+                payload => {
+                    const intent =
+                        payload?.intent || null;
+                    const context =
+                        intent?.context || {};
+
+                    if (
+                        intent?.action ===
+                            'open-gated-content' &&
+                        context.operation ===
+                            'begin-compass-subject' &&
+                        context.subjectId === MODULE.id
+                    ) {
+                        applySubjectIdentityChrome();
+                        applyCompassPublicAccessChrome();
+                        updateCoverActionUI();
+
+                        beginModule({
+                            skipPublicAccessGate: true
+                        });
+                    }
+                },
+                {
+                    action:
+                        'open-gated-content',
+                    replay: true
+                }
+            );
+    } catch (error) {
+        console.warn(
+            '[Compass] public subject resume unavailable:',
+            error
+        );
+    }
+}
+
+function applyCompassPublicAccessChrome() {
+    const preview =
+        isAnonymousCompassSubjectPreview();
+
+    document.documentElement.dataset
+        .atlasCompassPublicAccess =
+          preview ? 'preview' : 'full';
+
+    document
+        .querySelector(
+            '.cover-tutor-tools-btn'
+        )
+        ?.toggleAttribute(
+            'hidden',
+            preview
+        );
+
+    document
+        .querySelector(
+            '.cover-session-btn'
+        )
+        ?.toggleAttribute(
+            'hidden',
+            preview
+        );
 }
 
 async function requireSubjectAuthoringCapability(
@@ -12389,11 +12550,13 @@ function applySubjectIdentityChrome() {
 
     setText(
         'cover-eyebrow-label',
-        ownedSubject
-            ? 'MY SUBJECT'
-            : hasSavedMyVersion()
-                ? 'MY VERSION'
-                : 'COMPASS SUBJECT'
+        isAnonymousCompassSubjectPreview()
+            ? 'COMPASS SUBJECT · PREVIEW'
+            : ownedSubject
+                ? 'MY SUBJECT'
+                : hasSavedMyVersion()
+                    ? 'MY VERSION'
+                    : 'COMPASS SUBJECT'
     );
 }
 
@@ -13974,7 +14137,22 @@ function renderMobileDrawerNav() {
 // VIEW NAVIGATION
 // ============================================================
 
-function beginModule() {
+function beginModule({
+    skipPublicAccessGate = false
+} = {}) {
+    if (
+        !skipPublicAccessGate &&
+        isAnonymousCompassSubjectPreview()
+    ) {
+        void requestCompassSubjectAccess(
+            document.getElementById(
+                'cover-begin-btn'
+            )
+        );
+
+        return;
+    }
+
     window.AtlasAnalytics?.compassLessonBegin({
         subjectSource:
             isOwnedSubjectRuntime()
@@ -13983,10 +14161,30 @@ function beginModule() {
     });
 
     document.body.classList.add('module-active');
-    goToView('view-orientation');
+    goToView(
+        'view-orientation',
+        { skipPublicAccessGate }
+    );
 }
 
-function goToView(viewId) {
+function goToView(
+    viewId,
+    { skipPublicAccessGate = false } = {}
+) {
+    if (
+        viewId !== 'view-cover' &&
+        !skipPublicAccessGate &&
+        isAnonymousCompassSubjectPreview()
+    ) {
+        void requestCompassSubjectAccess(
+            document.getElementById(
+                'cover-begin-btn'
+            )
+        );
+
+        return;
+    }
+
     closeCompassWrapUp({ restoreScroll: false });
     closeDiscussionFocus({
         restoreScroll: false,
@@ -15781,13 +15979,16 @@ function updateCoverActionUI() {
     const button = document.getElementById('cover-begin-btn');
 
     if (button) {
-        const label = myVersionAuthoringOpen
-            ? 'Open subject'
-            : isLessonComplete()
-                ? 'Review lesson'
-                : progress.explored.size > 0
-                    ? 'Continue lesson'
-                    : 'Begin lesson';
+        const label =
+            isAnonymousCompassSubjectPreview()
+                ? 'Create free account to explore'
+                : myVersionAuthoringOpen
+                    ? 'Open subject'
+                    : isLessonComplete()
+                        ? 'Review lesson'
+                        : progress.explored.size > 0
+                            ? 'Continue lesson'
+                            : 'Begin lesson';
 
         button.innerHTML = `
                 ${label}
@@ -21754,9 +21955,11 @@ async function init() {
     applySubjectCopy();
     renderAllCompassNavigation();
     applySubjectIdentityChrome();
+    applyCompassPublicAccessChrome();
     mountSessionPanel();
 
     void installDurableSaveResume();
+    void installCompassPublicAccessResume();
     void installSubjectAuthoringResume();
     installSubjectAuthoringAIGuard();
 
@@ -21838,6 +22041,15 @@ async function init() {
         'atlas:appearance-change',
         () => {
             updateAppearanceToggleUI();
+        }
+    );
+
+    window.addEventListener(
+        'atlas:account-change',
+        () => {
+            applySubjectIdentityChrome();
+            applyCompassPublicAccessChrome();
+            updateCoverActionUI();
         }
     );
 

@@ -44,6 +44,13 @@
         'octopuses-change-colour'
     ];
 
+    const COMPASS_PUBLIC_FULL_SUBJECT_IDS = new Set([
+        'odyssey-worth-the-hype',
+        'octopuses-change-colour',
+        'business-meetings-clear-updates',
+        'words-that-stick'
+    ]);
+
     const COMPASS_SUBJECT_ART = {
         'travel-route': `
             <svg class="subject-artwork subject-artwork--travel"
@@ -1414,6 +1421,11 @@
             order: subject.order,
             durationLabel: subject.durationLabel || '45–60 min',
             status: available ? 'available' : 'soon',
+            publicAccess:
+                available &&
+                COMPASS_PUBLIC_FULL_SUBJECT_IDS.has(subject.id)
+                    ? 'full'
+                    : 'preview',
             launchUrl: available ? `compass/${subject.id}/index.html` : '',
             artId: subject.artId || '',
             hook: subject.hook || '',
@@ -1465,6 +1477,18 @@
         return COMPASS_SUBJECT_ART[artId] || '';
     }
 
+    function getCompassSubjectPublicAccess(subjectId) {
+        const id = String(subjectId || '')
+            .replace(/^compass:/, '')
+            .trim();
+
+        const subject = COMPASS_SUBJECTS.find(
+            item => item.id === id
+        );
+
+        return subject?.publicAccess || 'preview';
+    }
+
     function getBuiltCompassSubjectSlugs() {
         const availableIds = new Set(
             COMPASS_SUBJECTS
@@ -1482,6 +1506,7 @@
         getCompassSubjects,
         getCompassCatalogMap,
         getCompassSubjectArt,
+        getCompassSubjectPublicAccess,
         getBuiltCompassSubjectSlugs
     };
 })();
