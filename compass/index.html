@@ -13437,14 +13437,6 @@
         discardCompassCreatePreviewDraft(
           previewDraftId
         );
-
-        if (
-          ownedSubjectDialogState?.mode ===
-          'create'
-        ) {
-          ownedSubjectDialogState
-            .anonymousPreview = false;
-        }
       } else if (
         aiAccess?.outcome !== 'auth-required'
       ) {
