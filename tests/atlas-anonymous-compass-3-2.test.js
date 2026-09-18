@@ -158,7 +158,7 @@ assert.match(
 
 assert.match(
     compass,
-    /function renderAnonymousCreationHero\(\)[\s\S]*?<h2 class="subject-library-title">My Subjects<\/h2>[\s\S]*?Create exactly what your lesson needs\.[\s\S]*?Preview creation/
+    /function renderAnonymousCreationHero\(\)[\s\S]*?<h2 class="subject-library-title">My Subjects<\/h2>[\s\S]*?Create exactly what your lesson needs\.[\s\S]*?Create a subject/
 );
 assert.match(
     compass,
