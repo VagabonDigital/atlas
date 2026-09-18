@@ -408,8 +408,44 @@
         };
     }
 
+    function getVisibleSessions() {
+        const Bridge = getBridge();
+        const sessions = Bridge.readSessions();
+
+        if (hasStoredAtlasAccountSession()) {
+            return sessions;
+        }
+
+        return sessions.filter(
+            session =>
+                session.id ===
+                Bridge.defaultSessionId
+        );
+    }
+
+    function getVisibleActiveSession() {
+        const Bridge = getBridge();
+
+        if (hasStoredAtlasAccountSession()) {
+            return Bridge.readActiveSession();
+        }
+
+        return (
+            getVisibleSessions().find(
+                session =>
+                    session.id ===
+                    Bridge.defaultSessionId
+            ) ||
+            {
+                id: Bridge.defaultSessionId,
+                name: 'Shared'
+            }
+        );
+    }
+
     function updateSafeView() {
-        const activeSession = getBridge().readActiveSession();
+        const activeSession =
+            getVisibleActiveSession();
         const displaySession = getDisplaySession(activeSession);
         const elements = getElements();
         const contextTitle = resolveOption(options.contextTitle, displaySession);
@@ -448,7 +484,7 @@
     function getFilteredSessions() {
         const query = getElements().searchInput?.value.trim().toLowerCase() || '';
 
-        return getBridge().readSessions().filter(session =>
+        return getVisibleSessions().filter(session =>
             !query || getSessionDisplayName(session).toLowerCase().includes(query)
         );
     }
@@ -961,7 +997,8 @@
 
         const Bridge = getBridge();
         const elements = getElements();
-        const activeSession = Bridge.readActiveSession();
+        const activeSession =
+            getVisibleActiveSession();
         const sessions = getFilteredSessions();
 
         if (!elements.sessionList || !elements.searchEmpty) return;
@@ -970,7 +1007,7 @@
         elements.searchEmpty.hidden = sessions.length > 0;
 
         if (expandedSessionId) {
-            const expandedSession = Bridge.readSessions().find(
+            const expandedSession = getVisibleSessions().find(
                 session => session.id === expandedSessionId
             );
             const availableActions = expandedSession
