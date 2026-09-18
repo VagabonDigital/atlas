@@ -157,6 +157,55 @@ assert.match(
 );
 
 assert.match(
+    compass,
+    /function renderAnonymousCreationHero\(\)[\s\S]*?<h2 class="subject-library-title">My Subjects<\/h2>[\s\S]*?Create exactly what your lesson needs\.[\s\S]*?Preview creation/
+);
+assert.match(
+    compass,
+    /renderAnonymousCreationHero\(\)\s*\+\s*renderSubjectCollection\(\s*remainingAtlasSubjects,\s*'Atlas Subjects'/
+);
+assert.match(
+    compass,
+    /function openAnonymousCreatePreview\([\s\S]*?openCreateSubjectDialog\([\s\S]*?anonymousPreview: true/
+);
+assert.match(
+    compass,
+    /const anonymousPreview =\s*options\.anonymousPreview === true\s*&&\s*!getStoredCompassAccountUserId\(\);/
+);
+assert.match(
+    compass,
+    /!options\.skipCapabilityGate\s*&&\s*!anonymousPreview[\s\S]*?'canCreateSubject'[\s\S]*?'open-create-dialog'/
+);
+assert.match(
+    compass,
+    /state\.anonymousPreview[\s\S]*?requireAnonymousCreatePreviewAccess\([\s\S]*?createMode[\s\S]*?confirm/
+);
+assert.match(
+    compass,
+    /requireAnonymousCreatePreviewAccess[\s\S]*?'canCreateSubject'[\s\S]*?'create-subject'[\s\S]*?'continue-create-preview'/
+);
+assert.match(
+    compass,
+    /COMPASS_CREATE_PREVIEW_DRAFT_PREFIX[\s\S]*?collectCompassCreateDialogDraft[\s\S]*?storeCompassCreatePreviewDraft[\s\S]*?consumeCompassCreatePreviewDraft/
+);
+assert.match(
+    compass,
+    /context\.operation ===\s*'continue-create-preview'[\s\S]*?consumeCompassCreatePreviewDraft[\s\S]*?openCreateSubjectDialog/
+);
+assert.match(
+    compass,
+    /'canCreateWithAI'[\s\S]*?'suggest-subject-ideas'[\s\S]*?draftId/
+);
+assert.match(
+    compass,
+    /context\.operation ===\s*'suggest-subject-ideas'[\s\S]*?consumeCompassCreatePreviewDraft[\s\S]*?askCompassForSubjects/
+);
+assert.doesNotMatch(
+    compass,
+    /aiAccess\?\.outcome === 'allowed'[\s\S]{0,320}anonymousPreview = false/
+);
+
+assert.match(
     engine,
     /function getCompassSubjectPublicAccess\(\)/
 );
@@ -250,5 +299,5 @@ assert.match(
 );
 
 console.log(
-    'Stage 3.2 anonymous Compass contract passed: real catalogue, four full subjects, preview routing, contextual account gate, and Search visibility.'
+    'Stage 3.2 anonymous Compass contract passed: real catalogue, four full subjects, preview routing, anonymous creation preview, capability-safe creation/AI boundaries, return-intent restoration, and Search visibility.'
 );
