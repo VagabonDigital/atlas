@@ -289,7 +289,7 @@
 
     <section class="card">
       <div id="status" class="status" role="status" aria-live="polite">
-        Checking your Atlas account…
+        Checking your account…
       </div>
 
       <div id="guest-view" class="view" hidden>
@@ -339,7 +339,7 @@
 
       <div id="recovery-view" class="view" hidden>
         <h2 class="view-title">Choose a new password</h2>
-        <p class="view-copy">Your reset link is verified. Set a new password for this Atlas account.</p>
+        <p class="view-copy">Your reset link is verified. Set a new password for your account.</p>
 
         <form id="recovery-form">
           <label for="recovery-password">New password</label>
@@ -423,7 +423,7 @@
         setStatus(
           guestMode === 'create'
             ? 'Create a free account to make your own subjects, add students and build your teaching workspace.'
-            : 'Sign in to access your Atlas account.',
+            : 'Sign in to access your account.',
           'info',
           false
         );
@@ -463,7 +463,7 @@
         }
 
         if (!transientStatus) {
-          setStatus('Your Atlas account is connected.', 'success', false);
+          setStatus('Your account is connected.', 'success', false);
         }
         return;
       }
@@ -572,7 +572,7 @@
       }
 
       setButtonBusy(button, true, 'Creating account…', 'Create account');
-      setStatus('Creating your Atlas account…');
+      setStatus('Creating your account…');
 
       try {
         const result = await AtlasAccount.createAccount(
@@ -588,8 +588,8 @@
         if (result.confirmationRequired) {
           setStatus(
             AtlasReturnHandoff.getPendingId()
-              ? 'Check your email to confirm your Atlas account. After confirmation, Atlas will take you back to what you were doing.'
-              : 'Check your email to confirm your Atlas account. After confirmation, you’ll return here.',
+              ? 'Check your email to confirm your account. After confirmation, Atlas will take you back to what you were doing.'
+              : 'Check your email to confirm your account. After confirmation, you’ll return here.',
             'success'
           );
         } else {
@@ -613,7 +613,7 @@
       try {
         await AtlasAccount.requestPasswordReset(email);
         setStatus(
-          'If an Atlas account exists for that email, a password reset link is on its way.',
+          'If an account exists for that email, a password reset link is on its way.',
           'success'
         );
       } catch (error) {
@@ -646,7 +646,7 @@
         await AtlasAccount.completePasswordRecovery(password);
         document.getElementById('recovery-password').value = '';
         document.getElementById('recovery-password-confirm').value = '';
-        setStatus('Password updated. Your Atlas account is ready.', 'success');
+        setStatus('Password updated. Your account is ready.', 'success');
         render(AtlasAccount.getState());
       } catch (error) {
         setStatus(error.message || String(error), 'error');
