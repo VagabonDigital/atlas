@@ -4,7 +4,7 @@
   SmartStudy™ Methodology
   Understanding Game Theory: Strategy, Trust & Choice
   ---------------------------------------------------------------------------
-  A B2 concept-learning subject that introduces strategic interdependence,
+  A concept-learning subject that introduces strategic interdependence,
   incentives, cooperation, competition, repeated interaction, reputation and
   trust through clear examples, applied reasoning and tutor-led discussion.
   Compass active subject · contentVersion 1.0.0
@@ -30,7 +30,7 @@ const subjectCopy = {
     overview: {
         heading: `The Choice Behind the Choice`,
         intro: [
-            `Designed for B2 learners, this subject introduces game theory: the study of choices where your outcome depends partly on what other people choose. Through everyday examples, you will explore incentives, cooperation, competition, trust and strategic interdependence, then use the ideas to explain and predict real decisions.`
+            `This subject introduces game theory: the study of choices where your outcome depends partly on what other people choose. Through everyday examples, you will explore incentives, cooperation, competition, trust and strategic interdependence, then use the ideas to explain and predict real decisions.`
         ],
         question: `Can you think of a situation where working together gave you a better result than competing?`
     },
