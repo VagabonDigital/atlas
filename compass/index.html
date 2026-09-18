@@ -1691,6 +1691,147 @@
       line-height: 1.6;
     }
 
+    .anonymous-create-hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 1.5rem;
+      width: 100%;
+      min-height: 172px;
+      padding: 1.45rem 1.55rem;
+      overflow: hidden;
+      border: var(--card-border-width) solid rgba(var(--accent-rgb), 0.24);
+      border-radius: 20px;
+      background:
+        linear-gradient(
+          135deg,
+          rgba(var(--accent-rgb), 0.09),
+          rgba(var(--accent-rgb), 0.025) 48%,
+          transparent 72%
+        ),
+        var(--card-surface);
+      color: var(--text-body);
+      text-align: left;
+      box-shadow: var(--card-shadow);
+      cursor: pointer;
+      transition: var(--t);
+    }
+
+    .anonymous-create-hero:hover {
+      border-color: rgba(var(--accent-rgb), 0.44);
+      background:
+        linear-gradient(
+          135deg,
+          rgba(var(--accent-rgb), 0.13),
+          rgba(var(--accent-rgb), 0.04) 48%,
+          transparent 72%
+        ),
+        var(--card-surface-hover);
+      box-shadow:
+        0 0 0 var(--card-emphasis-ring-width)
+          rgba(var(--accent-rgb), 0.12),
+        var(--card-hover-shadow);
+      transform: translateY(-2px);
+    }
+
+    .anonymous-create-hero:focus-visible {
+      outline: 3px solid rgba(var(--accent-rgb), 0.34);
+      outline-offset: 3px;
+    }
+
+    .anonymous-create-hero-copy {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      gap: 0.58rem;
+      max-width: 640px;
+    }
+
+    .anonymous-create-hero-kicker {
+      color: var(--accent);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.11em;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    .anonymous-create-hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.28rem, 2.2vw, 1.52rem);
+      font-weight: 400;
+      line-height: 1.24;
+      color: var(--text-heading);
+    }
+
+    .anonymous-create-hero-description {
+      max-width: 580px;
+      color: var(--text-muted);
+      font-size: 0.84rem;
+      line-height: 1.62;
+    }
+
+    .anonymous-create-hero-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.38rem;
+      width: fit-content;
+      margin-top: 0.12rem;
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 650;
+      line-height: 1.2;
+    }
+
+    .anonymous-create-hero-action svg {
+      transition: transform var(--t);
+    }
+
+    .anonymous-create-hero:hover
+    .anonymous-create-hero-action svg {
+      transform: translateX(2px);
+    }
+
+    .anonymous-create-hero-mark {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      width: 104px;
+      height: 104px;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 1px solid rgba(var(--accent-rgb), 0.2);
+      border-radius: 50%;
+      background: rgba(var(--accent-rgb), 0.07);
+      color: var(--accent);
+      box-shadow:
+        inset 0 0 0 16px rgba(var(--accent-rgb), 0.025);
+    }
+
+    .anonymous-create-hero-mark::before,
+    .anonymous-create-hero-mark::after {
+      position: absolute;
+      content: '';
+      border: 1px solid rgba(var(--accent-rgb), 0.13);
+      border-radius: 50%;
+    }
+
+    .anonymous-create-hero-mark::before {
+      inset: 14px;
+    }
+
+    .anonymous-create-hero-mark::after {
+      inset: 28px;
+    }
+
+    .anonymous-create-hero-mark svg {
+      position: relative;
+      z-index: 2;
+      width: 34px;
+      height: 34px;
+    }
+
     .subject-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3405,6 +3546,20 @@
 
       .subject-grid {
         grid-template-columns: 1fr;
+      }
+
+      .anonymous-create-hero {
+        grid-template-columns: 1fr;
+        min-height: 0;
+        padding: 1.28rem 1.25rem 1.3rem;
+      }
+
+      .anonymous-create-hero-copy {
+        max-width: none;
+      }
+
+      .anonymous-create-hero-mark {
+        display: none;
       }
 
       .owned-subject-dialog-create-grid {
@@ -13772,10 +13927,13 @@
               'Atlas Subjects'
             )
           )
-          : renderSubjectCollection(
+          : (
+            renderAnonymousCreationHero() +
+            renderSubjectCollection(
               remainingAtlasSubjects,
               'Atlas Subjects'
-            );
+            )
+          );
 
       /*
        * The intro contains a time-derived animation phase so the complete
@@ -13920,6 +14078,39 @@
         '</p>' +
         '</div>' +
         '</div>'
+      );
+    }
+
+    function renderAnonymousCreationHero() {
+      return (
+        '<section class="subject-library subject-library--anonymous-create">' +
+        '<div class="subject-library-header">' +
+        '<h2 class="subject-library-title">My Subjects</h2>' +
+        '</div>' +
+        '<button class="anonymous-create-hero" type="button" ' +
+        'onclick="openAnonymousCreatePreview(event)">' +
+        '<span class="anonymous-create-hero-copy">' +
+        '<span class="anonymous-create-hero-kicker">Create in Compass</span>' +
+        '<span class="anonymous-create-hero-title">Create exactly what your lesson needs.</span>' +
+        '<span class="anonymous-create-hero-description">' +
+        'Start with any topic, situation, film or idea. Choose the level, style and lesson size, or ask Compass for a direction.' +
+        '</span>' +
+        '<span class="anonymous-create-hero-action">' +
+        'Preview creation' +
+        '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">' +
+        '<path d="M2.5 6h7M6.5 3l3 3-3 3" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+        '</span>' +
+        '</span>' +
+        '<span class="anonymous-create-hero-mark" aria-hidden="true">' +
+        '<svg viewBox="0 0 36 36" fill="none">' +
+        '<circle cx="18" cy="18" r="12.5" stroke="currentColor" stroke-width="1.25"/>' +
+        '<path d="M23.5 12.5 19.8 19.8 12.5 23.5 16.2 16.2 23.5 12.5Z" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/>' +
+        '<path d="M23.5 12.5 19.8 19.8 16.2 16.2Z" fill="currentColor"/>' +
+        '</svg>' +
+        '</span>' +
+        '</button>' +
+        '</section>'
       );
     }
 
