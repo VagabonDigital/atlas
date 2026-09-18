@@ -1238,11 +1238,16 @@
             };
         }
 
-        window.getAtlasSubjects = function (options) {
-            return sortSubjects(
-                originalGetAtlasSubjects(options)
-            );
-        };
+        if (
+            originalGetAtlasSubjects
+                .__atlasCurationSorted !== true
+        ) {
+            window.getAtlasSubjects = function (options) {
+                return sortSubjects(
+                    originalGetAtlasSubjects(options)
+                );
+            };
+        }
 
         if (typeof originalDuplicateOwnedSubject === 'function') {
             window.duplicateOwnedSubject = async function (
