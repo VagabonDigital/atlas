@@ -333,6 +333,24 @@
         return gateLayer;
     }
 
+    function getAccountSettingsHref() {
+        const body = document.body;
+        const surface = body?.dataset?.atlasSurface || '';
+        const world = body?.dataset?.atlasWorld || '';
+
+        let from = 'atlas';
+
+        if (surface === 'inside-atlas') {
+            from = 'inside-atlas';
+        } else if (world === 'compass') {
+            from = 'compass';
+        } else if (world === 'arcade') {
+            from = 'arcade';
+        }
+
+        return `/account/?from=${encodeURIComponent(from)}`;
+    }
+
     function ensureMenu() {
         if (accountMenu) return accountMenu;
 
@@ -348,13 +366,19 @@
             <p class="atlas-account-menu-email" data-account-menu-email></p>
             <span class="atlas-account-menu-plan" data-account-menu-plan></span>
             <div class="atlas-account-menu-actions">
-                <a class="atlas-account-menu-action" href="/account/">Account settings</a>
+                <a class="atlas-account-menu-action" href="/account/" data-account-settings>Account settings</a>
                 <button class="atlas-account-menu-action" type="button" data-account-menu-sign-out>Sign out</button>
             </div>
             <p class="atlas-account-menu-status" data-account-menu-status role="status" aria-live="polite" hidden></p>
         `;
 
         document.body.appendChild(accountMenu);
+
+        const accountSettingsLink =
+            accountMenu.querySelector('[data-account-settings]');
+        if (accountSettingsLink) {
+            accountSettingsLink.href = getAccountSettingsHref();
+        }
 
         accountMenu.querySelector('[data-account-menu-sign-out]')
             ?.addEventListener('click', handleSignOut);
