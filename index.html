@@ -160,11 +160,17 @@
           ) === '1';
 
         var storedAccountSession = false;
-        var storedAuth = JSON.parse(
-          localStorage.getItem(
-            'sb-jnhjfpagectprceswvqn-auth-token'
-          ) || 'null'
-        );
+        var storedAuth = null;
+
+        try {
+          storedAuth = JSON.parse(
+            localStorage.getItem(
+              'sb-jnhjfpagectprceswvqn-auth-token'
+            ) || 'null'
+          );
+        } catch (e) {
+          storedAuth = null;
+        }
 
         if (storedAuth && typeof storedAuth === 'object') {
           var sessionCandidates = [
