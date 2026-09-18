@@ -145,6 +145,10 @@
       document.documentElement.dataset.theme = (m === 'night') ? 'night' : 'light';
 
       try {
+        var entryUrl = new URL(window.location.href);
+        var explicitProductEntry =
+          entryUrl.searchParams.get('entry') === 'product';
+
         var welcomeSeen =
           localStorage.getItem('atlas::welcomeSeen:v1') === '1';
         var storedAccountSession = false;
@@ -173,9 +177,44 @@
           );
         }
 
+        if (explicitProductEntry) {
+          try {
+            localStorage.setItem(
+              'atlas::welcomeSeen:v1',
+              '1'
+            );
+          } catch (e) { }
+
+          document.documentElement.dataset.atlasWelcome =
+            'seen';
+
+          entryUrl.searchParams.delete('entry');
+
+          window.history.replaceState(
+            null,
+            '',
+            entryUrl.pathname +
+              (
+                entryUrl.searchParams.toString()
+                  ? '?' + entryUrl.searchParams.toString()
+                  : ''
+              ) +
+              entryUrl.hash
+          );
+
+          return;
+        }
+
         if (welcomeSeen || storedAccountSession) {
           document.documentElement.dataset.atlasWelcome = 'seen';
+          return;
         }
+
+        window.location.replace(
+          './tutors/' +
+            window.location.search +
+            window.location.hash
+        );
       } catch (e) { }
 
       // Register animatable custom colors in JS rather than inline @property.
@@ -5303,11 +5342,11 @@
     function renderTutorEntry() {
       return '' +
         '<a class="tutor-entry" href="./tutors/" aria-labelledby="tutor-entry-title">' +
-        '<div class="tutor-entry-eyebrow">For tutors · Pilot</div>' +
+        '<div class="tutor-entry-eyebrow">For tutors</div>' +
         '<div class="tutor-entry-content">' +
         '<div>' +
         '<h2 class="tutor-entry-title" id="tutor-entry-title">Inside Atlas</h2>' +
-        '<p class="tutor-entry-desc">See how Atlas works, make it yours, and help shape what comes next.</p>' +
+        '<p class="tutor-entry-desc">See how Atlas works, from creating and teaching to ownership and continuity.</p>' +
         '</div>' +
         '<span class="tutor-entry-action" aria-hidden="true">' +
         '<span>Explore</span>' +
