@@ -3709,12 +3709,16 @@
 
       const startedAt = performance.now();
       const entries = [];
+      const criticalEntries = [];
       const nodeIds = new WeakMap();
       let nextNodeId = 1;
+      let nextEntrySeq = 1;
       let trackedCard = null;
       let trackedKey = '';
       let pointerX = null;
       let pointerY = null;
+      let lastPointerMoveAt = performance.now();
+      let incident = null;
 
       function elapsed() {
         return Number(
@@ -3867,9 +3871,28 @@
         }
       }
 
+      function isCriticalType(type) {
+        return (
+          type === 'track-card' ||
+          type === 'mutation' ||
+          type === 'pointerover' ||
+          type === 'pointerenter' ||
+          type === 'pointerout' ||
+          type === 'pointerleave' ||
+          type === 'mouseover' ||
+          type === 'mouseenter' ||
+          type === 'mouseout' ||
+          type === 'mouseleave' ||
+          type.startsWith('render:') ||
+          type === 'render-request' ||
+          type.startsWith('event:') ||
+          type.startsWith('fonts:')
+        );
+      }
+
       function log(type, detail = {}) {
         const entry = {
-          seq: entries.length + 1,
+          seq: nextEntrySeq++,
           t: elapsed(),
           type,
           ...safeDetail(detail)
@@ -3881,12 +3904,54 @@
           entries.shift();
         }
 
+        if (isCriticalType(type)) {
+          criticalEntries.push(entry);
+
+          if (criticalEntries.length > 250) {
+            criticalEntries.shift();
+          }
+        }
+
         console.log(
           '[CompassHover]',
           entry
         );
 
         return entry;
+      }
+
+      function freezeIncident(
+        reason,
+        detail = {}
+      ) {
+        if (incident) {
+          return incident;
+        }
+
+        incident = {
+          reason,
+          t: elapsed(),
+          pointerStationaryMs:
+            Number(
+              (
+                performance.now() -
+                lastPointerMoveAt
+              ).toFixed(1)
+            ),
+          detail:
+            safeDetail(detail),
+          tracked:
+            cardSnapshot(),
+          timeline:
+            criticalEntries.slice(-80)
+        };
+
+        console.warn(
+          '[CompassHover INCIDENT]',
+          incident
+        );
+
+        return incident;
       }
 
       function relationKey(node) {
@@ -3929,8 +3994,17 @@
           Number.isFinite(event?.clientX) &&
           Number.isFinite(event?.clientY)
         ) {
+          const moved =
+            event.clientX !== pointerX ||
+            event.clientY !== pointerY;
+
           pointerX = event.clientX;
           pointerY = event.clientY;
+
+          if (moved) {
+            lastPointerMoveAt =
+              performance.now();
+          }
         }
       }
 
@@ -3994,16 +4068,50 @@
                 type === 'mouseout' ||
                 type === 'mouseleave'
               ) {
+                const stationaryMs =
+                  performance.now() -
+                  lastPointerMoveAt;
+
                 requestAnimationFrame(
                   () => {
+                    const snapshot =
+                      cardSnapshot();
+
                     log(
                       type +
                         ':next-frame',
                       {
                         tracked:
-                          cardSnapshot()
+                          snapshot
                       }
                     );
+
+                    if (
+                      stationaryMs >= 250 &&
+                      !snapshot.hovered
+                    ) {
+                      freezeIncident(
+                        'stationary-pointer-hover-loss',
+                        {
+                          eventType: type,
+                          stationaryMs:
+                            Number(
+                              stationaryMs
+                                .toFixed(1)
+                            ),
+                          targetNodeId:
+                            getNodeId(card),
+                          targetKey:
+                            cardKey(card),
+                          relatedKey:
+                            relationKey(
+                              event.relatedTarget
+                            ),
+                          afterFrame:
+                            snapshot
+                        }
+                      );
+                    }
                   }
                 );
               }
@@ -4031,17 +4139,9 @@
         document.addEventListener(
           type,
           event => {
-            const card =
-              event.target?.closest?.(
-                '.subject-card'
-              ) || null;
-
             if (
               !trackedCard ||
-              (
-                card !== trackedCard &&
-                cardKey(card) !== trackedKey
-              )
+              event.target !== trackedCard
             ) {
               return;
             }
@@ -4060,7 +4160,9 @@
                     event.elapsedTime || 0
                   ),
                 targetNodeId:
-                  getNodeId(card),
+                  getNodeId(
+                    trackedCard
+                  ),
                 tracked:
                   cardSnapshot()
               }
@@ -4254,33 +4356,42 @@
                 attributes.length ||
                 childListCount
               ) {
+                const mutationDetail = {
+                  childListCount,
+                  removedTracked,
+                  replacement:
+                    addedReplacement
+                      ? {
+                          nodeId:
+                            getNodeId(
+                              addedReplacement
+                            ),
+                          key:
+                            cardKey(
+                              addedReplacement
+                            ),
+                          rect:
+                            rectOf(
+                              addedReplacement
+                            )
+                        }
+                      : null,
+                  attributes,
+                  tracked:
+                    cardSnapshot()
+                };
+
                 log(
                   'mutation',
-                  {
-                    childListCount,
-                    removedTracked,
-                    replacement:
-                      addedReplacement
-                        ? {
-                            nodeId:
-                              getNodeId(
-                                addedReplacement
-                              ),
-                            key:
-                              cardKey(
-                                addedReplacement
-                              ),
-                            rect:
-                              rectOf(
-                                addedReplacement
-                              )
-                          }
-                        : null,
-                    attributes,
-                    tracked:
-                      cardSnapshot()
-                  }
+                  mutationDetail
                 );
+
+                if (removedTracked) {
+                  freezeIncident(
+                    'tracked-card-removed',
+                    mutationDetail
+                  );
+                }
               }
             }
           );
@@ -4422,6 +4533,8 @@
             null,
           tracked:
             cardSnapshot(),
+          incident,
+          criticalEntries,
           entries
         };
 
@@ -4458,7 +4571,24 @@
         log,
         noteRender,
         noteMarkupDecision,
-        report
+        report,
+        incident: () => {
+          const result = {
+            incident,
+            criticalEntries
+          };
+
+          console.log(
+            '[CompassHover incident]',
+            result
+          );
+
+          return JSON.stringify(
+            result,
+            null,
+            2
+          );
+        }
       };
     })();
 
