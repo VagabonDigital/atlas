@@ -1096,6 +1096,58 @@
         );
     }
 
+    let observedCompassAccountAuthenticated =
+        hasStoredAtlasAccountSession();
+    let observedCompassAccountUserId = '';
+
+    function installCompassHubLiveAccountBootstrap() {
+        if (!isCompassHubPath()) {
+            return;
+        }
+
+        window.addEventListener(
+            'atlas:account-change',
+            event => {
+                const detail = event?.detail || {};
+                const nextAuthenticated =
+                    detail.authenticated === true;
+                const nextUserId =
+                    String(detail.userId || '').trim();
+
+                const identityChanged =
+                    observedCompassAccountAuthenticated !==
+                        nextAuthenticated ||
+                    (
+                        nextAuthenticated &&
+                        observedCompassAccountUserId &&
+                        nextUserId &&
+                        observedCompassAccountUserId !==
+                            nextUserId
+                    );
+
+                observedCompassAccountAuthenticated =
+                    nextAuthenticated;
+                observedCompassAccountUserId =
+                    nextAuthenticated ? nextUserId : '';
+
+                if (
+                    !identityChanged ||
+                    !nextAuthenticated
+                ) {
+                    return;
+                }
+
+                /*
+                 * Anonymous Compass startup intentionally skips account-owned
+                 * cloud authorities. A successful live sign-in must install
+                 * those same authorities in this document; requiring a reload
+                 * would leave My Subjects/library state absent until refresh.
+                 */
+                scheduleCompassHubCloudAuthorityScripts();
+            }
+        );
+    }
+
     function writeCloudAuthorityScripts() {
         if (
             !window.location.pathname.startsWith('/compass/') ||
@@ -1189,6 +1241,7 @@
     };
 
     writeAtlasRootRuntimeScript();
+    installCompassHubLiveAccountBootstrap();
     writeCloudAuthorityScripts();
     writeAtlasAccessBootstrapScript();
     writeAtlasAccountChromeScript();
