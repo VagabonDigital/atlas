@@ -209,12 +209,6 @@
           document.documentElement.dataset.atlasWelcome = 'seen';
           return;
         }
-
-        window.location.replace(
-          './tutors/' +
-            window.location.search +
-            window.location.hash
-        );
       } catch (e) { }
 
       // Register animatable custom colors in JS rather than inline @property.
@@ -3833,20 +3827,16 @@
     function enterAtlasFromWelcome() {
       const root = document.documentElement;
 
-      // Remove the Welcome from view before the Hub becomes the active page.
-      // This keeps the Welcome composition completely independent of the
-      // Hub's scrollbar geometry.
       root.dataset.atlasWelcome = 'exiting';
 
-      window.requestAnimationFrame(() => {
-        window.scrollTo(0, 0);
+      try {
+        localStorage.setItem(
+          'atlas::welcomeSeen:v1',
+          '1'
+        );
+      } catch (e) { }
 
-        try {
-          localStorage.setItem('atlas::welcomeSeen:v1', '1');
-        } catch (e) { }
-
-        root.dataset.atlasWelcome = 'seen';
-      });
+      window.location.href = './tutors/';
     }
   </script>
 
@@ -5346,7 +5336,7 @@
         '<div class="tutor-entry-content">' +
         '<div>' +
         '<h2 class="tutor-entry-title" id="tutor-entry-title">Inside Atlas</h2>' +
-        '<p class="tutor-entry-desc">See how Atlas works, from creating and teaching to ownership and continuity.</p>' +
+        '<p class="tutor-entry-desc">See how Atlas works, create your own material, and keep each student’s lessons connected.</p>' +
         '</div>' +
         '<span class="tutor-entry-action" aria-hidden="true">' +
         '<span>Explore</span>' +
