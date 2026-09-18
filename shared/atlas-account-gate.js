@@ -710,7 +710,7 @@
             if (result?.confirmationRequired) {
                 showMessage(
                     'Check your email',
-                    `We sent a confirmation link to ${result.email || email}. Open it to finish creating your Atlas account.`
+                    `We sent a confirmation link to ${result.email || email}. Open it to finish creating your account.`
                 );
                 return;
             }
@@ -739,7 +739,7 @@
             setBusy(false);
             showMessage(
                 'Check your email',
-                `If ${email} is linked to an Atlas account, a password reset link is on its way.`
+                `If ${email} is linked to an account, a password reset link is on its way.`
             );
         } catch (error) {
             setBusy(false);
