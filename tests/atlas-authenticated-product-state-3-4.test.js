@@ -67,6 +67,14 @@ const accountChromeCss = fs.readFileSync(
     'shared/atlas-account-chrome.css',
     'utf8'
 );
+const accountChrome = fs.readFileSync(
+    'shared/atlas-account-chrome.js',
+    'utf8'
+);
+const personalization = fs.readFileSync(
+    'shared/atlas-hub-personalization-cloud-authority.js',
+    'utf8'
+);
 
 // ---------------------------------------------------------------------------
 // Atlas gateway: one product, authenticated state replaces acquisition state.
@@ -124,6 +132,11 @@ assert.match(
 assert.match(
     sessionPanel,
     /function getVisibleActiveSession\(\)[\s\S]*?hasStoredAtlasAccountSession\(\)[\s\S]*?Bridge\.defaultSessionId/
+);
+
+assert.match(
+    sessionPanel,
+    /const searchable =\s*hasStoredAtlasAccountSession\(\)[\s\S]*?searchLabel\.hidden =\s*!searchable[\s\S]*?searchInput\.hidden =\s*!searchable/
 );
 
 assert.match(
@@ -328,6 +341,35 @@ assert.match(
 assert.match(
     accountChromeCss,
     /mobile-header-btn\.atlas-account-control\[data-account-state="sign-in"\][\s\S]*?border-radius: 20px;[\s\S]*?font-size: 0\.76rem;[\s\S]*?font-weight: 500;[\s\S]*?padding-inline: 0\.7rem;/
+);
+
+const mobileAccountIndex = root.indexOf(
+    'data-atlas-account-control="mobile"'
+);
+const mobileSearchIndex = root.indexOf(
+    'data-atlas-search',
+    mobileAccountIndex
+);
+const mobileMenuIndex = root.indexOf(
+    'aria-label="Menu"',
+    mobileSearchIndex
+);
+
+assert.ok(
+    mobileAccountIndex >= 0 &&
+    mobileSearchIndex > mobileAccountIndex &&
+    mobileMenuIndex > mobileSearchIndex,
+    'Mobile account control should precede Search, with Search beside Menu'
+);
+
+assert.match(
+    accountChrome,
+    /const searchButton =\s*mobileActions\.querySelector\([\s\S]*?\[data-atlas-search\][\s\S]*?insertBefore\(\s*control,\s*searchButton\s*\)/
+);
+
+assert.match(
+    personalization,
+    /if \(!userId\)[\s\S]*?if \(previousUserId\)[\s\S]*?writeLocalState\(emptyState\(\)\)[\s\S]*?writeCacheOwner\(''\)/
 );
 
 const drawerSettingsIndex = root.indexOf(
