@@ -28,8 +28,8 @@
     ];
 
     const COMPASS_PILOT_ORDER = [
-        'game-theory',
         'odyssey-worth-the-hype',
+        'game-theory',
         'stories-screen',
         'work-purpose',
         'business-meetings-clear-updates',
