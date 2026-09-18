@@ -145,7 +145,35 @@
       document.documentElement.dataset.theme = (m === 'night') ? 'night' : 'light';
 
       try {
-        if (localStorage.getItem('atlas::welcomeSeen:v1') === '1') {
+        var welcomeSeen =
+          localStorage.getItem('atlas::welcomeSeen:v1') === '1';
+        var storedAccountSession = false;
+        var storedAuth = JSON.parse(
+          localStorage.getItem(
+            'sb-jnhjfpagectprceswvqn-auth-token'
+          ) || 'null'
+        );
+
+        if (storedAuth && typeof storedAuth === 'object') {
+          var sessionCandidates = [
+            storedAuth,
+            storedAuth.session,
+            storedAuth.currentSession,
+            storedAuth.data && storedAuth.data.session
+          ];
+
+          storedAccountSession = sessionCandidates.some(
+            function (candidate) {
+              return Boolean(
+                candidate &&
+                candidate.user &&
+                String(candidate.user.id || '').trim()
+              );
+            }
+          );
+        }
+
+        if (welcomeSeen || storedAccountSession) {
           document.documentElement.dataset.atlasWelcome = 'seen';
         }
       } catch (e) { }
