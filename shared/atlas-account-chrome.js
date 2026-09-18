@@ -247,12 +247,30 @@
 
             if (!control) {
                 control = createHubControl('mobile');
+                const searchButton =
+                    mobileActions.querySelector(
+                        '[data-atlas-search]'
+                    );
+
                 const menuButton = Array.from(
                     mobileActions.querySelectorAll('button')
-                ).find(button => button.getAttribute('aria-label') === 'Menu');
+                ).find(
+                    button =>
+                        button.getAttribute(
+                            'aria-label'
+                        ) === 'Menu'
+                );
 
-                if (menuButton) {
-                    mobileActions.insertBefore(control, menuButton);
+                if (searchButton) {
+                    mobileActions.insertBefore(
+                        control,
+                        searchButton
+                    );
+                } else if (menuButton) {
+                    mobileActions.insertBefore(
+                        control,
+                        menuButton
+                    );
                 } else {
                     mobileActions.appendChild(control);
                 }
