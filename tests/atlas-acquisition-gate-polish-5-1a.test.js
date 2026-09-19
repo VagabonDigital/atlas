@@ -74,6 +74,12 @@ assert.match(
   /intent\?\.action !== 'create-learner'[\s\S]*?setCreateExpanded\([\s\S]*?false,[\s\S]*?reset:\s*true[\s\S]*?close\(\)/
 );
 
+assert.ok(
+  gateCss.includes(
+    '.atlas-account-gate-card[data-account-view="message"] .atlas-account-gate-body {\n    padding-top: 4px;'
+  )
+);
+
 console.log(
   'Atlas 5.1 acquisition gate polish contract passed.'
 );
