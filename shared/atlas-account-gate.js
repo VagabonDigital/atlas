@@ -369,7 +369,9 @@
     }
 
     async function openFeedbackFromAccount() {
-        closeMenu();
+        closeAccountMenu({
+            restoreFocus: false
+        });
 
         try {
             const Feedback =
