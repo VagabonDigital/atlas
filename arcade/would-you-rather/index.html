@@ -1711,13 +1711,38 @@
         void ArcadePublicAccess
           .subscribeGameResume(
             REGISTRY_ID,
-            async () => {
+            () => {
               session =
                 Bridge.readActiveSession();
 
-              await startGame({
-                skipPublicAccessGate: true
-              });
+              const saved =
+                readBridgeState();
+
+              const savedUsed =
+                saved?.used &&
+                typeof saved.used === 'object'
+                  ? saved.used
+                  : {};
+
+              const completedCount =
+                Object.keys(savedUsed).length;
+
+              const savedCovered =
+                Number(
+                  saved?.progress?.covered
+                );
+
+              const covered =
+                Number.isFinite(savedCovered)
+                  ? Math.max(
+                      savedCovered,
+                      completedCount
+                    )
+                  : completedCount;
+
+              updateStartButton(
+                covered
+              );
             }
           );
       }

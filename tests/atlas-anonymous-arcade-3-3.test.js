@@ -184,9 +184,14 @@ for (const [
         )
     );
 
-    assert.match(
+    assert.doesNotMatch(
         source,
         /subscribeGameResume\([\s\S]*?startGame\(\{[\s\S]*?skipPublicAccessGate: true/
+    );
+
+    assert.match(
+        source,
+        /subscribeGameResume\([\s\S]*?readActiveSession\(\)[\s\S]*?readBridgeState\(\)[\s\S]*?update(?:Launch|Start)Button/
     );
 
     assert.match(
@@ -223,5 +228,5 @@ assert.match(
 );
 
 console.log(
-    'Stage 3.3 anonymous Arcade contract passed: real catalogue visible, Truth Trap fully public, other games preview their real intros, gameplay gates at Start, post-auth resume is automatic, and Search exposes preview context.'
+    'Stage 3.3 anonymous Arcade contract passed: real catalogue visible, Truth Trap fully public, other games preview their real intros, gameplay gates at Start, post-auth return unlocks the cover without auto-starting, and Search exposes preview context.'
 );

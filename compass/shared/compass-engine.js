@@ -679,10 +679,6 @@ async function installCompassPublicAccessResume() {
                         applySubjectIdentityChrome();
                         applyCompassPublicAccessChrome();
                         updateCoverActionUI();
-
-                        beginModule({
-                            skipPublicAccessGate: true
-                        });
                     }
                 },
                 {

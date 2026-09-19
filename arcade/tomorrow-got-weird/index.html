@@ -2531,13 +2531,19 @@
         void ArcadePublicAccess
           .subscribeGameResume(
             REGISTRY_ID,
-            async () => {
+            () => {
               session =
                 Bridge.readActiveSession();
 
-              await startGame({
-                skipPublicAccessGate: true
-              });
+              const saved =
+                readBridgeState();
+
+              const timeline =
+                getTimelineProgress(saved);
+
+              updateLaunchButton(
+                timeline.covered
+              );
             }
           );
       }
