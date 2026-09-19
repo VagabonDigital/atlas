@@ -4,6 +4,60 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Atlas Account</title>
+  <meta name="color-scheme" content="light dark">
+  <script>
+    (function () {
+      'use strict';
+
+      function readAtlasAppearance() {
+        var mode = null;
+
+        try {
+          var sessionId =
+            sessionStorage.getItem(
+              'atlas::activeSessionId'
+            ) || 'default';
+
+          var bySession = JSON.parse(
+            localStorage.getItem(
+              'atlas::appearanceBySession'
+            ) || '{}'
+          );
+
+          if (
+            bySession &&
+            typeof bySession === 'object' &&
+            !Array.isArray(bySession)
+          ) {
+            mode = bySession[sessionId] || null;
+          }
+
+          if (
+            mode !== 'light' &&
+            mode !== 'night'
+          ) {
+            mode = localStorage.getItem(
+              'atlas::appearanceMode'
+            );
+          }
+        } catch (error) {
+          mode = null;
+        }
+
+        return mode === 'night'
+          ? 'night'
+          : 'light';
+      }
+
+      window.AtlasAccountAppearance =
+        Object.freeze({
+          read: readAtlasAppearance
+        });
+
+      document.documentElement.dataset.theme =
+        readAtlasAppearance();
+    })();
+  </script>
   <link
     rel="icon"
     type="image/svg+xml"
@@ -15,15 +69,51 @@
   <style>
     :root {
       font-family: 'DM Sans', system-ui, sans-serif;
-      color: #2b2926;
-      background: #f3f0e9;
+      color: var(--text);
+      background: var(--canvas);
+      --canvas: #f3f0e9;
       --surface: #fffdf9;
+      --surface-soft: rgba(49,45,38,.025);
+      --surface-control: #ffffff;
+      --surface-status: rgba(77,113,132,.08);
+      --surface-segmented: rgba(49,45,38,.035);
       --border: rgba(49,45,38,.14);
+      --text: #2b2926;
+      --text-secondary: #4f4a43;
+      --back-link: #625c53;
       --muted: #7b7469;
       --accent: #4d7184;
       --accent-soft: #6f8e9e;
+      --accent-ring: rgba(77,113,132,.10);
       --danger: #a43d32;
+      --danger-surface: #fbf1f0;
       --success: #4f7664;
+      --success-surface: #eef6f1;
+      --shadow: 0 18px 48px rgba(42,37,29,.08);
+      --page-glow: rgba(77,113,132,.10);
+    }
+
+    html[data-theme="night"] {
+      --canvas: #1b1d1c;
+      --surface: #252826;
+      --surface-soft: rgba(235,233,228,.035);
+      --surface-control: #202321;
+      --surface-status: rgba(143,178,194,.11);
+      --surface-segmented: rgba(235,233,228,.045);
+      --border: rgba(235,233,228,.14);
+      --text: #ebe9e4;
+      --text-secondary: #c7c2b8;
+      --back-link: #a9a39a;
+      --muted: #918b82;
+      --accent: #8fb2c2;
+      --accent-soft: #a7c3d0;
+      --accent-ring: rgba(143,178,194,.16);
+      --danger: #e2978e;
+      --danger-surface: rgba(164,61,50,.16);
+      --success: #9bc4ad;
+      --success-surface: rgba(79,118,100,.18);
+      --shadow: 0 18px 48px rgba(0,0,0,.24);
+      --page-glow: rgba(143,178,194,.08);
     }
 
     * { box-sizing: border-box; }
@@ -35,8 +125,8 @@
       place-items: center;
       padding: 24px;
       background:
-        radial-gradient(circle at 20% 0%, rgba(77,113,132,.10), transparent 28rem),
-        #f3f0e9;
+        radial-gradient(circle at 20% 0%, var(--page-glow), transparent 28rem),
+        var(--canvas);
     }
 
     button, input { font: inherit; }
@@ -56,7 +146,7 @@
     }
 
     .back-link {
-      color: #625c53;
+      color: var(--back-link);
       text-decoration: none;
       font-size: .9rem;
       font-weight: 600;
@@ -87,26 +177,26 @@
       border: 1px solid var(--border);
       border-radius: 20px;
       padding: 24px;
-      box-shadow: 0 18px 48px rgba(42,37,29,.08);
+      box-shadow: var(--shadow);
     }
 
     .status {
       margin-bottom: 18px;
       padding: 12px 14px;
       border-radius: 12px;
-      background: rgba(77,113,132,.08);
-      color: #4f4a43;
+      background: var(--surface-status);
+      color: var(--text-secondary);
       line-height: 1.45;
       min-height: 46px;
     }
 
     .status.error {
-      background: #fbf1f0;
+      background: var(--danger-surface);
       color: var(--danger);
     }
 
     .status.success {
-      background: #eef6f1;
+      background: var(--success-surface);
       color: var(--success);
     }
 
@@ -120,7 +210,7 @@
       margin-bottom: 18px;
       border: 1px solid var(--border);
       border-radius: 13px;
-      background: rgba(49,45,38,.035);
+      background: var(--surface-segmented);
     }
 
     .segmented button {
@@ -134,8 +224,8 @@
 
     .segmented button.active {
       background: var(--surface);
-      color: #2b2926;
-      box-shadow: 0 1px 5px rgba(42,37,29,.08);
+      color: var(--text);
+      box-shadow: 0 1px 5px rgba(0,0,0,.08);
     }
 
     label {
@@ -154,14 +244,14 @@
     input {
       padding: 0 13px;
       border: 1px solid var(--border);
-      background: white;
-      color: #2b2926;
+      background: var(--surface-control);
+      color: var(--text);
       outline: none;
     }
 
     input:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(77,113,132,.10);
+      box-shadow: 0 0 0 3px var(--accent-ring);
     }
 
     .button {
@@ -180,7 +270,7 @@
 
     .secondary {
       background: transparent;
-      color: #4f4a43;
+      color: var(--text-secondary);
       border: 1px solid var(--border);
     }
 
@@ -222,7 +312,7 @@
       padding: 16px;
       border: 1px solid var(--border);
       border-radius: 14px;
-      background: rgba(49,45,38,.025);
+      background: var(--surface-soft);
     }
 
     .identity-label {
@@ -255,7 +345,7 @@
     .plan-chip {
       padding: 5px 9px;
       border-radius: 999px;
-      background: rgba(77,113,132,.10);
+      background: var(--accent-ring);
       color: var(--accent);
       font-size: .82rem;
       font-weight: 600;
@@ -264,12 +354,84 @@
     .actions { display: grid; gap: 10px; margin-top: 18px; }
     .actions .button { margin-top: 0; }
 
+    html,
+    body,
+    .card,
+    .status,
+    .segmented,
+    .segmented button,
+    input,
+    .identity,
+    .plan-chip,
+    .button {
+      transition:
+        background-color 180ms ease,
+        background 180ms ease,
+        color 180ms ease,
+        border-color 180ms ease,
+        box-shadow 180ms ease;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html,
+      body,
+      .card,
+      .status,
+      .segmented,
+      .segmented button,
+      input,
+      .identity,
+      .plan-chip,
+      .button {
+        transition: none;
+      }
+    }
+
     @media (max-width: 560px) {
       body { padding: 18px; align-items: start; }
       .shell { padding-top: 20px; }
       .card { padding: 20px; }
     }
   </style>
+
+  <script>
+    (function () {
+      'use strict';
+
+      function refreshAccountAppearance() {
+        var Appearance =
+          window.AtlasAccountAppearance;
+
+        document.documentElement.dataset.theme =
+          Appearance
+            ? Appearance.read()
+            : 'light';
+      }
+
+      window.addEventListener(
+        'pageshow',
+        refreshAccountAppearance
+      );
+
+      window.addEventListener(
+        'focus',
+        refreshAccountAppearance
+      );
+
+      window.addEventListener(
+        'storage',
+        function (event) {
+          if (
+            !event ||
+            event.key === 'atlas::appearanceMode' ||
+            event.key === 'atlas::appearanceBySession'
+          ) {
+            refreshAccountAppearance();
+          }
+        }
+      );
+    })();
+  </script>
 
   <script src="../shared/atlas-cloud.js?v=20260916-account1"></script>
   <script src="../shared/atlas-account.js?v=20260916-returnintent2"></script>
