@@ -125,6 +125,33 @@
             min-height: 100%;
         }
 
+        html,
+        .memory-textarea {
+            scrollbar-width: thin;
+            scrollbar-color:
+                rgba(var(--accent-rgb), 0.46)
+                transparent;
+        }
+
+        html::-webkit-scrollbar,
+        .memory-textarea::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        html::-webkit-scrollbar-track,
+        .memory-textarea::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        html::-webkit-scrollbar-thumb,
+        .memory-textarea::-webkit-scrollbar-thumb {
+            border: 2px solid transparent;
+            border-radius: 999px;
+            background:
+                rgba(var(--accent-rgb), 0.46);
+            background-clip: padding-box;
+        }
+
         body {
             margin: 0;
 

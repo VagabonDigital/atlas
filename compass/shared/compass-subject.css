@@ -8991,7 +8991,13 @@ html,
 .discussion-focus-main,
 .vb-list,
 .mobile-drawer-nav,
-.compass-wrap-up-canvas {
+.compass-wrap-up-canvas,
+.atlas-cover-picker-results-column,
+.atlas-cover-picker-url-panel,
+.atlas-cover-picker-layout,
+.atlas-my-version-dialog-panel,
+.atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-actions,
+textarea {
     scrollbar-width: thin;
     scrollbar-color:
         rgba(var(--accent-rgb), 0.46) transparent;
@@ -9003,7 +9009,13 @@ html::-webkit-scrollbar,
 .discussion-focus-main::-webkit-scrollbar,
 .vb-list::-webkit-scrollbar,
 .mobile-drawer-nav::-webkit-scrollbar,
-.compass-wrap-up-canvas::-webkit-scrollbar {
+.compass-wrap-up-canvas::-webkit-scrollbar,
+.atlas-cover-picker-results-column::-webkit-scrollbar,
+.atlas-cover-picker-url-panel::-webkit-scrollbar,
+.atlas-cover-picker-layout::-webkit-scrollbar,
+.atlas-my-version-dialog-panel::-webkit-scrollbar,
+.atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-actions::-webkit-scrollbar,
+textarea::-webkit-scrollbar {
     width: 10px;
 }
 
@@ -9013,7 +9025,13 @@ html::-webkit-scrollbar-track,
 .discussion-focus-main::-webkit-scrollbar-track,
 .vb-list::-webkit-scrollbar-track,
 .mobile-drawer-nav::-webkit-scrollbar-track,
-.compass-wrap-up-canvas::-webkit-scrollbar-track {
+.compass-wrap-up-canvas::-webkit-scrollbar-track,
+.atlas-cover-picker-results-column::-webkit-scrollbar-track,
+.atlas-cover-picker-url-panel::-webkit-scrollbar-track,
+.atlas-cover-picker-layout::-webkit-scrollbar-track,
+.atlas-my-version-dialog-panel::-webkit-scrollbar-track,
+.atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-actions::-webkit-scrollbar-track,
+textarea::-webkit-scrollbar-track {
     background: transparent;
 }
 
@@ -9023,7 +9041,13 @@ html::-webkit-scrollbar-thumb,
 .discussion-focus-main::-webkit-scrollbar-thumb,
 .vb-list::-webkit-scrollbar-thumb,
 .mobile-drawer-nav::-webkit-scrollbar-thumb,
-.compass-wrap-up-canvas::-webkit-scrollbar-thumb {
+.compass-wrap-up-canvas::-webkit-scrollbar-thumb,
+.atlas-cover-picker-results-column::-webkit-scrollbar-thumb,
+.atlas-cover-picker-url-panel::-webkit-scrollbar-thumb,
+.atlas-cover-picker-layout::-webkit-scrollbar-thumb,
+.atlas-my-version-dialog-panel::-webkit-scrollbar-thumb,
+.atlas-my-version-bar.is-mobile-tools-open .atlas-my-version-actions::-webkit-scrollbar-thumb,
+textarea::-webkit-scrollbar-thumb {
     border: 2px solid transparent;
     border-radius: 999px;
     background: rgba(var(--accent-rgb), 0.46);

@@ -17,6 +17,7 @@
             --border: rgba(23, 34, 31, 0.12);
             --accent: #4f7772;
             --accent-text: #ffffff;
+            --scrollbar-thumb: rgba(79, 119, 114, 0.46);
         }
 
         @media (prefers-color-scheme: dark) {
@@ -28,6 +29,7 @@
                 --border: rgba(237, 243, 240, 0.12);
                 --accent: #78a49d;
                 --accent-text: #0d1513;
+                --scrollbar-thumb: rgba(120, 164, 157, 0.46);
             }
         }
 
@@ -39,6 +41,28 @@
         body {
             min-height: 100%;
             margin: 0;
+        }
+
+        html {
+            scrollbar-width: thin;
+            scrollbar-color:
+                var(--scrollbar-thumb)
+                transparent;
+        }
+
+        html::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        html::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        html::-webkit-scrollbar-thumb {
+            border: 2px solid transparent;
+            border-radius: 999px;
+            background: var(--scrollbar-thumb);
+            background-clip: padding-box;
         }
 
         body {

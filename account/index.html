@@ -126,6 +126,7 @@
       --back-link: #625c53;
       --muted: #7b7469;
       --accent: #4d7184;
+      --accent-rgb: 77,113,132;
       --accent-soft: #6f8e9e;
       --accent-ring: rgba(77,113,132,.10);
       --danger: #a43d32;
@@ -149,6 +150,7 @@
       --back-link: #a9a39a;
       --muted: #918b82;
       --accent: #8fb2c2;
+      --accent-rgb: 143,178,194;
       --accent-soft: #a7c3d0;
       --accent-ring: rgba(143,178,194,.16);
       --danger: #e2978e;
@@ -160,6 +162,28 @@
     }
 
     * { box-sizing: border-box; }
+
+    html {
+      scrollbar-gutter: stable;
+      scrollbar-width: thin;
+      scrollbar-color:
+        rgba(var(--accent-rgb), .46) transparent;
+    }
+
+    html::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    html::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    html::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background: rgba(var(--accent-rgb), .46);
+      background-clip: padding-box;
+    }
 
     body {
       margin: 0;

@@ -272,6 +272,24 @@
     html {
       scroll-behavior: smooth;
       -webkit-text-size-adjust: 100%;
+      scrollbar-width: thin;
+      scrollbar-color:
+        rgba(var(--accent-rgb), .46) transparent;
+    }
+
+    html::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    html::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    html::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background: rgba(var(--accent-rgb), .46);
+      background-clip: padding-box;
     }
 
     body {

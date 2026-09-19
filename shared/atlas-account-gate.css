@@ -31,12 +31,38 @@
     width: min(440px, 100%);
     max-height: min(720px, calc(100vh - 40px));
     overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color:
+        var(--atlas-modal-scrollbar, rgba(105, 113, 128, 0.34))
+        transparent;
     border: 1px solid var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, 0.16)));
     border-radius: var(--atlas-modal-radius-lg, 18px);
     background: var(--atlas-modal-surface, var(--surface-panel, #fffdf9));
     color: var(--atlas-modal-text, var(--text-body, #504b43));
     box-shadow: var(--atlas-modal-shadow, 0 24px 70px rgba(22, 25, 34, 0.18));
     font-family: var(--atlas-modal-font-body, 'DM Sans', system-ui, sans-serif);
+}
+
+.atlas-account-gate-card::-webkit-scrollbar {
+    width: 10px;
+}
+
+.atlas-account-gate-card::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.atlas-account-gate-card::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background:
+        var(--atlas-modal-scrollbar, rgba(105, 113, 128, 0.34));
+    background-clip: padding-box;
+}
+
+.atlas-account-gate-card::-webkit-scrollbar-thumb:hover {
+    background:
+        var(--atlas-modal-scrollbar-hover, rgba(105, 113, 128, 0.52));
+    background-clip: padding-box;
 }
 
 .atlas-account-gate-head {

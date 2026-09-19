@@ -607,7 +607,12 @@
        Compass page and mobile drawer use the active Compass accent.
        ============================================================ */
     html,
-    .drawer-nav {
+    .drawer-nav,
+    .owned-subject-dialog-panel,
+    .subject-artwork-studio,
+    .subject-artwork-studio-body,
+    .owned-subject-dialog-create-field textarea,
+    .subject-artwork-idea-input {
       scrollbar-width: thin;
       scrollbar-color:
         rgba(var(--accent-rgb), 0.46)
@@ -615,17 +620,32 @@
     }
 
     html::-webkit-scrollbar,
-    .drawer-nav::-webkit-scrollbar {
+    .drawer-nav::-webkit-scrollbar,
+    .owned-subject-dialog-panel::-webkit-scrollbar,
+    .subject-artwork-studio::-webkit-scrollbar,
+    .subject-artwork-studio-body::-webkit-scrollbar,
+    .owned-subject-dialog-create-field textarea::-webkit-scrollbar,
+    .subject-artwork-idea-input::-webkit-scrollbar {
       width: 10px;
     }
 
     html::-webkit-scrollbar-track,
-    .drawer-nav::-webkit-scrollbar-track {
+    .drawer-nav::-webkit-scrollbar-track,
+    .owned-subject-dialog-panel::-webkit-scrollbar-track,
+    .subject-artwork-studio::-webkit-scrollbar-track,
+    .subject-artwork-studio-body::-webkit-scrollbar-track,
+    .owned-subject-dialog-create-field textarea::-webkit-scrollbar-track,
+    .subject-artwork-idea-input::-webkit-scrollbar-track {
       background: transparent;
     }
 
     html::-webkit-scrollbar-thumb,
-    .drawer-nav::-webkit-scrollbar-thumb {
+    .drawer-nav::-webkit-scrollbar-thumb,
+    .owned-subject-dialog-panel::-webkit-scrollbar-thumb,
+    .subject-artwork-studio::-webkit-scrollbar-thumb,
+    .subject-artwork-studio-body::-webkit-scrollbar-thumb,
+    .owned-subject-dialog-create-field textarea::-webkit-scrollbar-thumb,
+    .subject-artwork-idea-input::-webkit-scrollbar-thumb {
       border: 2px solid transparent;
       border-radius: 999px;
       background: rgba(var(--accent-rgb), 0.46);

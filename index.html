@@ -525,24 +525,28 @@
        Atlas page and mobile drawer use the active Atlas accent.
        ============================================================ */
     html,
-    .drawer-nav {
+    .drawer-nav,
+    .modal-body {
       scrollbar-width: thin;
       scrollbar-color:
         rgba(var(--accent-rgb), 0.46) transparent;
     }
 
     html::-webkit-scrollbar,
-    .drawer-nav::-webkit-scrollbar {
+    .drawer-nav::-webkit-scrollbar,
+    .modal-body::-webkit-scrollbar {
       width: 10px;
     }
 
     html::-webkit-scrollbar-track,
-    .drawer-nav::-webkit-scrollbar-track {
+    .drawer-nav::-webkit-scrollbar-track,
+    .modal-body::-webkit-scrollbar-track {
       background: transparent;
     }
 
     html::-webkit-scrollbar-thumb,
-    .drawer-nav::-webkit-scrollbar-thumb {
+    .drawer-nav::-webkit-scrollbar-thumb,
+    .modal-body::-webkit-scrollbar-thumb {
       border: 2px solid transparent;
       border-radius: 999px;
       background: rgba(var(--accent-rgb), 0.46);
