@@ -7352,32 +7352,41 @@
       ownedSubjectDialogReturnFocus = null;
     }
 
+    function closePendingCreateSubjectUI(
+      event
+    ) {
+      const returnIntentId =
+        String(
+          event?.detail?.returnIntentId || ''
+        ).trim();
+
+      const intent =
+        event?.detail?.returnIntent ||
+        window.AtlasReturnIntent?.get?.(
+          returnIntentId
+        ) ||
+        null;
+
+      if (
+        intent?.action !== 'create-subject' ||
+        intent?.context?.operation !==
+          'continue-create-preview'
+      ) {
+        return;
+      }
+
+      closeOwnedSubjectDialog(false);
+      closeOwnedSubjectMenus();
+    }
+
+    window.addEventListener(
+      'atlas:account-confirmation-acknowledged',
+      closePendingCreateSubjectUI
+    );
+
     window.addEventListener(
       'atlas:account-confirmed-elsewhere',
-      event => {
-        const returnIntentId =
-          String(
-            event?.detail?.returnIntentId || ''
-          ).trim();
-
-        const intent =
-          event?.detail?.returnIntent ||
-          window.AtlasReturnIntent?.get?.(
-            returnIntentId
-          ) ||
-          null;
-
-        if (
-          intent?.action !== 'create-subject' ||
-          intent?.context?.operation !==
-            'continue-create-preview'
-        ) {
-          return;
-        }
-
-        closeOwnedSubjectDialog(false);
-        closeOwnedSubjectMenus();
-      }
+      closePendingCreateSubjectUI
     );
 
     async function openCreateCategoryDialog(event, options = {}) {

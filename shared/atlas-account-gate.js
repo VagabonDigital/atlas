@@ -189,6 +189,26 @@
         }
     }
 
+    function dispatchConfirmationAcknowledged(
+        returnIntentId,
+        returnIntent = null
+    ) {
+        try {
+            window.dispatchEvent(new CustomEvent(
+                'atlas:account-confirmation-acknowledged',
+                {
+                    detail: {
+                        returnIntentId:
+                            String(returnIntentId || '').trim(),
+                        returnIntent
+                    }
+                }
+            ));
+        } catch {
+            // The pending confirmation remains canonical.
+        }
+    }
+
     function installAccountStateObserver() {
         if (
             accountStateUnsubscribe ||
@@ -538,7 +558,21 @@
             ?.addEventListener('click', () => setGateMode('sign-in'));
 
         gateLayer.querySelector('[data-account-message-close]')
-            ?.addEventListener('click', () => close());
+            ?.addEventListener('click', () => {
+                if (confirmationPendingIntentId) {
+                    dispatchConfirmationAcknowledged(
+                        confirmationPendingIntentId,
+                        confirmationPendingIntent
+                    );
+
+                    close({
+                        restoreFocus: false
+                    });
+                    return;
+                }
+
+                close();
+            });
 
         gateLayer.querySelector('[data-account-form="sign-in"]')
             ?.addEventListener('submit', handleSignIn);
