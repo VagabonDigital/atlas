@@ -1182,6 +1182,22 @@
       button.textContent = busy ? busyText : idleText;
     }
 
+    function getAuthReturnType() {
+      const hash = String(window.location.hash || '');
+
+      if (!hash) return '';
+
+      try {
+        return String(
+          new URLSearchParams(
+            hash.replace(/^#/, '')
+          ).get('type') || ''
+        ).trim();
+      } catch {
+        return '';
+      }
+    }
+
     function scrubAuthFragment() {
       const hash = String(window.location.hash || '');
       if (!hash || !/(access_token|refresh_token|type=recovery|type=signup|type=email_change)/.test(hash)) {
@@ -1203,10 +1219,50 @@
 
     (async () => {
       try {
+        const authReturnType =
+          getAuthReturnType();
+
         await AtlasAccount.initialize();
+
+        let emailChangeUser = null;
+
+        if (
+          authReturnType === 'email_change' &&
+          window.AtlasCloud &&
+          typeof AtlasCloud.getUser === 'function'
+        ) {
+          try {
+            emailChangeUser =
+              await AtlasCloud.getUser();
+          } catch {
+            emailChangeUser = null;
+          }
+        }
+
         scrubAuthFragment();
         transientStatus = false;
         render(AtlasAccount.getState());
+
+        if (
+          authReturnType === 'email_change'
+        ) {
+          const pendingEmail =
+            String(
+              emailChangeUser?.new_email || ''
+            ).trim();
+
+          if (pendingEmail) {
+            setStatus(
+              `One email confirmation is complete. Confirm the link sent to your other address to finish changing your Atlas email to ${pendingEmail}.`,
+              'success'
+            );
+          } else {
+            setStatus(
+              'Email address confirmed. Your Atlas account email is updated.',
+              'success'
+            );
+          }
+        }
       } catch (error) {
         finishReturnHandoff();
         setStatus(humanizeAccountError(error), 'error');
