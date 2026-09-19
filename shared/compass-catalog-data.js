@@ -51,6 +51,19 @@
         'words-that-stick'
     ]);
 
+    const COMPASS_SUBJECT_SHARE_GRANTS = Object.freeze({
+        'game-theory': 's1_f2N7qK4mV9xR',
+        'stories-screen': 's1_w8J3pT6cL2zQ',
+        'work-purpose': 's1_k5R9vB3nH7dM',
+        'food-table': 's1_q4C8yF2tN6pW',
+        'technology-innovation': 's1_m7V3xK9rD5jA',
+        'modal-verbs-real-situations': 's1_h2P8nW4cT7yL',
+        'toefl-writing': 's1_z6M3qR9vK2bF',
+        'travel-exploration': 's1_t9D4wJ7mP3xN',
+        'humour-wit': 's1_c5L8rV2qH6kY',
+        'job-interviews-clear-answers': 's1_b3X7nT9mQ4pK'
+    });
+
     const COMPASS_SUBJECT_ART = {
         'travel-route': `
             <svg class="subject-artwork subject-artwork--travel"
@@ -1489,6 +1502,14 @@
         return subject?.publicAccess || 'preview';
     }
 
+    function getCompassSubjectShareGrant(subjectId) {
+        const id = String(subjectId || '')
+            .replace(/^compass:/, '')
+            .trim();
+
+        return COMPASS_SUBJECT_SHARE_GRANTS[id] || '';
+    }
+
     function getBuiltCompassSubjectSlugs() {
         const availableIds = new Set(
             COMPASS_SUBJECTS
@@ -1507,6 +1528,7 @@
         getCompassCatalogMap,
         getCompassSubjectArt,
         getCompassSubjectPublicAccess,
+        getCompassSubjectShareGrant,
         getBuiltCompassSubjectSlugs
     };
 })();

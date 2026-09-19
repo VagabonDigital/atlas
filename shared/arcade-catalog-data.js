@@ -265,6 +265,11 @@
         }
     ];
 
+    const ARCADE_GAME_SHARE_GRANTS = Object.freeze({
+        'arcade:tomorrow-got-weird': 'g1_r7K2vM9xC4qT',
+        'arcade:would-you-rather': 'g1_p4W8nD3yL6sV'
+    });
+
     function clone(value) {
         return JSON.parse(JSON.stringify(value));
     }
@@ -293,6 +298,13 @@
             : 'preview';
     }
 
+    function getArcadeGameShareGrant(registryId) {
+        const id = String(registryId || '')
+            .trim();
+
+        return ARCADE_GAME_SHARE_GRANTS[id] || '';
+    }
+
     function getArcadeGameArt(artId) {
         return ARCADE_GAME_ART[artId] || '';
     }
@@ -301,6 +313,7 @@
         getArcadeGames,
         getArcadeGameMap,
         getArcadeGamePublicAccess,
+        getArcadeGameShareGrant,
         getArcadeGameArt
     };
 })();

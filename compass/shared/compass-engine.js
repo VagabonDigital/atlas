@@ -558,10 +558,21 @@ function hasCompassAccountSession() {
     }
 }
 
+function hasCompassShareGrant() {
+    return (
+        window.AtlasResourceShare
+            ?.accept?.({
+                world: 'compass',
+                resourceId: MODULE.id
+            }) === true
+    );
+}
+
 function isAnonymousCompassSubjectPreview() {
     return (
         !isOwnedSubjectRuntime() &&
         getCompassSubjectPublicAccess() !== 'full' &&
+        !hasCompassShareGrant() &&
         !hasCompassAccountSession()
     );
 }

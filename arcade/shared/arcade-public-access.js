@@ -55,11 +55,24 @@
         return 'preview';
     }
 
+    function hasSharedResourceGrant(
+        registryId
+    ) {
+        return (
+            window.AtlasResourceShare
+                ?.accept?.({
+                    world: 'arcade',
+                    resourceId: registryId
+                }) === true
+        );
+    }
+
     function isAnonymousPreview(registryId) {
         return (
             !hasStoredAtlasAccountSession() &&
             getPublicAccess(registryId) ===
-                'preview'
+                'preview' &&
+            !hasSharedResourceGrant(registryId)
         );
     }
 
