@@ -82,6 +82,16 @@
     line-height: 1.15;
 }
 
+.atlas-account-gate-card[data-account-view="message"] .atlas-account-gate-head {
+    position: relative;
+}
+
+.atlas-account-gate-card[data-account-view="message"] .atlas-account-gate-close {
+    position: absolute;
+    top: 22px;
+    right: 22px;
+}
+
 .atlas-account-gate-card[data-account-view="message"] .atlas-account-gate-heading {
     color: var(--atlas-modal-faint, var(--text-subtle, #9b9489));
     font-family: var(--atlas-modal-font-body, 'DM Sans', system-ui, sans-serif);
@@ -305,7 +315,7 @@
 }
 
 .atlas-account-gate-card[data-account-view="message"] .atlas-account-gate-body {
-    padding-top: 4px;
+    padding-top: 14px;
 }
 
 .atlas-account-gate-message h3 {
@@ -421,6 +431,11 @@
 
     .atlas-account-gate-head {
         padding: 20px 18px 0;
+    }
+
+    .atlas-account-gate-card[data-account-view="message"] .atlas-account-gate-close {
+        top: 20px;
+        right: 18px;
     }
 
     .atlas-account-gate-body {

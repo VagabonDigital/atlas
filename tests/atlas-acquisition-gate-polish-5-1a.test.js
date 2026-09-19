@@ -76,7 +76,13 @@ assert.match(
 
 assert.ok(
   gateCss.includes(
-    '.atlas-account-gate-card[data-account-view="message"] .atlas-account-gate-body {\n    padding-top: 4px;'
+    '.atlas-account-gate-card[data-account-view="message"] .atlas-account-gate-body {\n    padding-top: 14px;'
+  )
+);
+
+assert.ok(
+  gateCss.includes(
+    '.atlas-account-gate-card[data-account-view="message"] .atlas-account-gate-close {\n    position: absolute;'
   )
 );
 
