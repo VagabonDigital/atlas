@@ -111,6 +111,32 @@
         return data;
     }
 
+    async function updateEmail(email, redirectTo) {
+        requireAtlasCloud();
+
+        const nextEmail = normalizeEmail(email);
+
+        if (!nextEmail) {
+            throw new Error(
+                'Enter the new email address for this Atlas account.'
+            );
+        }
+
+        const client = await AtlasCloud.getClient();
+        const { data, error } = await client.auth.updateUser(
+            {
+                email: nextEmail
+            },
+            {
+                emailRedirectTo:
+                    normalizeRedirectUrl(redirectTo)
+            }
+        );
+
+        if (error) throw error;
+        return data;
+    }
+
     async function updatePassword(password) {
         requireAtlasCloud();
         const client = await AtlasCloud.getClient();
@@ -216,6 +242,7 @@
     window.AtlasAccountCloud = Object.freeze({
         signUpWithPassword,
         requestPasswordReset,
+        updateEmail,
         updatePassword,
         signOutCurrentSession,
         reconcileCurrentSession,

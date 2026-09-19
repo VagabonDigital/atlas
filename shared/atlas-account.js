@@ -13,7 +13,7 @@
     if (window.AtlasAccount) return;
 
     const ACCOUNT_CLOUD_SRC =
-        '/shared/atlas-account-cloud.js?v=20260916-account2';
+        '/shared/atlas-account-cloud.js?v=20260919-accountmanagement1';
     const PERSISTENCE_TRUST_SRC =
         '/shared/atlas-persistence-trust.js?v=20260916-trust2';
     const RECOVERY_SESSION_KEY = 'atlas::accountPasswordRecovery';
@@ -588,6 +588,85 @@
         return true;
     }
 
+    async function changeEmail(email) {
+        await initialize();
+
+        if (!state.authenticated || !state.userId) {
+            const error = new Error(
+                'Sign in before changing your Atlas account email.'
+            );
+            error.code = 'ATLAS_AUTH_REQUIRED';
+            throw error;
+        }
+
+        const nextEmail =
+            String(email || '').trim();
+
+        if (!nextEmail) {
+            throw new Error(
+                'Enter a new email address.'
+            );
+        }
+
+        if (
+            state.email &&
+            nextEmail.toLowerCase() ===
+                state.email.toLowerCase()
+        ) {
+            throw new Error(
+                'That is already your Atlas account email.'
+            );
+        }
+
+        const AccountCloud =
+            await ensureAccountCloud();
+
+        const data =
+            await AccountCloud.updateEmail(
+                nextEmail,
+                accountReturnUrl()
+            );
+
+        return {
+            state: snapshot(),
+            pendingEmail:
+                String(
+                    data?.user?.new_email ||
+                    nextEmail
+                ).trim()
+        };
+    }
+
+    async function changePassword(password) {
+        await initialize();
+
+        if (!state.authenticated || !state.userId) {
+            const error = new Error(
+                'Sign in before changing your Atlas account password.'
+            );
+            error.code = 'ATLAS_AUTH_REQUIRED';
+            throw error;
+        }
+
+        const nextPassword =
+            String(password || '');
+
+        if (nextPassword.length < 8) {
+            throw new Error(
+                'Use a password with at least 8 characters.'
+            );
+        }
+
+        const AccountCloud =
+            await ensureAccountCloud();
+
+        await AccountCloud.updatePassword(
+            nextPassword
+        );
+
+        return snapshot();
+    }
+
     async function completePasswordRecovery(password) {
         await initialize();
 
@@ -793,6 +872,8 @@
         signIn,
         createAccount,
         requestPasswordReset,
+        changeEmail,
+        changePassword,
         completePasswordRecovery,
         signOut,
         reconcileSessionAfterCloudError,

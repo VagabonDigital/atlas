@@ -20,7 +20,7 @@
     const SOURCES = Object.freeze({
         access: '/shared/atlas-access.js?v=20260916-access1',
         cloud: '/shared/atlas-cloud.js?v=20260916-access1',
-        account: '/shared/atlas-account.js?v=20260916-returnintent2',
+        account: '/shared/atlas-account.js?v=20260919-accountmanagement1',
         capabilityGate: '/shared/atlas-capability-gate.js?v=20260918-authgate1'
     });
 

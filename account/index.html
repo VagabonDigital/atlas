@@ -382,6 +382,65 @@
       font-weight: 600;
     }
 
+    .account-management {
+      margin-top: 18px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface-soft);
+    }
+
+    .account-management-section + .account-management-section {
+      border-top: 1px solid var(--border);
+    }
+
+    .account-management-trigger {
+      width: 100%;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 0 16px;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .account-management-trigger:hover,
+    .account-management-trigger:focus-visible {
+      background: var(--accent-ring);
+    }
+
+    .account-management-trigger span:last-child {
+      color: var(--accent);
+      font-size: .86rem;
+      font-weight: 600;
+    }
+
+    .account-management-form {
+      padding: 0 16px 16px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .account-management-form[hidden] {
+      display: none;
+    }
+
+    .account-management-copy {
+      margin: 14px 0 4px;
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.5;
+    }
+
+    .account-management-form .button {
+      margin-top: 16px;
+    }
+
     .actions { display: grid; gap: 10px; margin-top: 18px; }
     .actions .button { margin-top: 0; }
 
@@ -394,6 +453,9 @@
     input,
     .identity,
     .plan-chip,
+    .account-management,
+    .account-management-trigger,
+    .account-management-form,
     .button {
       transition:
         background-color 180ms ease,
@@ -413,6 +475,9 @@
       input,
       .identity,
       .plan-chip,
+      .account-management,
+      .account-management-trigger,
+      .account-management-form,
       .button {
         transition: none;
       }
@@ -465,7 +530,7 @@
   </script>
 
   <script src="../shared/atlas-cloud.js?v=20260916-account1"></script>
-  <script src="../shared/atlas-account.js?v=20260916-returnintent2"></script>
+  <script src="../shared/atlas-account.js?v=20260919-accountmanagement1"></script>
   <script src="../shared/atlas-return-intent.js?v=20260917-capability1"></script>
   <script src="../shared/atlas-return-handoff.js?v=20260917-capability1"></script>
 </head>
@@ -557,6 +622,66 @@
           </div>
         </div>
 
+        <div class="account-management" aria-label="Account access">
+          <section class="account-management-section">
+            <button
+              id="show-change-email"
+              class="account-management-trigger"
+              type="button"
+              aria-expanded="false"
+              aria-controls="change-email-form"
+            >
+              <span>Change email</span>
+              <span>Change</span>
+            </button>
+
+            <form id="change-email-form" class="account-management-form" hidden>
+              <p class="account-management-copy">
+                We’ll email you to verify the change before your sign-in address is updated.
+              </p>
+
+              <label for="change-email">New email</label>
+              <input id="change-email" type="email" autocomplete="email" required>
+
+              <button id="change-email-submit" class="button primary" type="submit">
+                Send confirmation
+              </button>
+              <button id="cancel-change-email" class="text-button" type="button">Cancel</button>
+            </form>
+          </section>
+
+          <section class="account-management-section">
+            <button
+              id="show-change-password"
+              class="account-management-trigger"
+              type="button"
+              aria-expanded="false"
+              aria-controls="change-password-form"
+            >
+              <span>Change password</span>
+              <span>Change</span>
+            </button>
+
+            <form id="change-password-form" class="account-management-form" hidden>
+              <p class="account-management-copy">
+                Choose a new password. Atlas may ask you to verify your identity if your session is no longer recent.
+              </p>
+
+              <label for="change-password">New password</label>
+              <input id="change-password" type="password" autocomplete="new-password" minlength="8" required>
+              <p class="hint">Use at least 8 characters.</p>
+
+              <label for="change-password-confirm">Confirm new password</label>
+              <input id="change-password-confirm" type="password" autocomplete="new-password" minlength="8" required>
+
+              <button id="change-password-submit" class="button primary" type="submit">
+                Update password
+              </button>
+              <button id="cancel-change-password" class="text-button" type="button">Cancel</button>
+            </form>
+          </section>
+        </div>
+
         <div class="actions">
           <button id="return" class="button primary" type="button">Return to Atlas</button>
           <button id="sign-out" class="button secondary" type="button">Sign out</button>
@@ -602,6 +727,15 @@
     const AccountView = document.getElementById('account-view');
     const AccountEmail = document.getElementById('account-email');
     const AccountPlan = document.getElementById('account-plan');
+
+    const ChangeEmailTrigger =
+      document.getElementById('show-change-email');
+    const ChangeEmailForm =
+      document.getElementById('change-email-form');
+    const ChangePasswordTrigger =
+      document.getElementById('show-change-password');
+    const ChangePasswordForm =
+      document.getElementById('change-password-form');
 
     const ModeSignIn = document.getElementById('mode-sign-in');
     const ModeCreate = document.getElementById('mode-create');
@@ -675,6 +809,28 @@
         return 'Confirm your email before signing in.';
       }
 
+      if (
+        lower.includes('already registered') ||
+        lower.includes('already been registered') ||
+        lower.includes('email exists')
+      ) {
+        return 'That email is already linked to another Atlas account.';
+      }
+
+      if (
+        lower.includes('same password') ||
+        lower.includes('different from the old password')
+      ) {
+        return 'Choose a different password.';
+      }
+
+      if (
+        lower.includes('reauth') ||
+        lower.includes('nonce')
+      ) {
+        return 'For security, sign in again or use a password reset email before changing your password.';
+      }
+
       if (lower.includes('network') || lower.includes('fetch')) {
         return 'Atlas could not reach the account service. Check your connection and try again.';
       }
@@ -726,6 +882,36 @@
         .forEach(item => { item.hidden = item !== view; });
     }
 
+    function setAccountManagementView(kind = '') {
+      const emailOpen = kind === 'email';
+      const passwordOpen = kind === 'password';
+
+      ChangeEmailForm.hidden = !emailOpen;
+      ChangePasswordForm.hidden = !passwordOpen;
+
+      ChangeEmailTrigger.setAttribute(
+        'aria-expanded',
+        String(emailOpen)
+      );
+
+      ChangePasswordTrigger.setAttribute(
+        'aria-expanded',
+        String(passwordOpen)
+      );
+
+      if (emailOpen) {
+        window.setTimeout(
+          () => document.getElementById('change-email')?.focus(),
+          0
+        );
+      } else if (passwordOpen) {
+        window.setTimeout(
+          () => document.getElementById('change-password')?.focus(),
+          0
+        );
+      }
+    }
+
     function render(state) {
       if (!state.ready) return;
 
@@ -771,7 +957,7 @@
 
     function scrubAuthFragment() {
       const hash = String(window.location.hash || '');
-      if (!hash || !/(access_token|refresh_token|type=recovery|type=signup)/.test(hash)) {
+      if (!hash || !/(access_token|refresh_token|type=recovery|type=signup|type=email_change)/.test(hash)) {
         return;
       }
 
@@ -965,6 +1151,127 @@
         setStatus(humanizeAccountError(error), 'error');
       } finally {
         button.disabled = false;
+      }
+    });
+
+    ChangeEmailTrigger.addEventListener('click', () => {
+      setAccountManagementView(
+        ChangeEmailForm.hidden
+          ? 'email'
+          : ''
+      );
+    });
+
+    ChangePasswordTrigger.addEventListener('click', () => {
+      setAccountManagementView(
+        ChangePasswordForm.hidden
+          ? 'password'
+          : ''
+      );
+    });
+
+    document.getElementById('cancel-change-email')
+      .addEventListener('click', () => {
+        document.getElementById('change-email').value = '';
+        setAccountManagementView('');
+      });
+
+    document.getElementById('cancel-change-password')
+      .addEventListener('click', () => {
+        document.getElementById('change-password').value = '';
+        document.getElementById('change-password-confirm').value = '';
+        setAccountManagementView('');
+      });
+
+    ChangeEmailForm.addEventListener('submit', async event => {
+      event.preventDefault();
+
+      const button =
+        document.getElementById('change-email-submit');
+      const email =
+        document.getElementById('change-email').value.trim();
+
+      setButtonBusy(
+        button,
+        true,
+        'Sending…',
+        'Send confirmation'
+      );
+      setStatus('Preparing your email change…');
+
+      try {
+        const result =
+          await AtlasAccount.changeEmail(email);
+
+        document.getElementById('change-email').value = '';
+        setAccountManagementView('');
+
+        setStatus(
+          `Check your email for the confirmation message required to change your sign-in address to ${result.pendingEmail || email}. If Atlas asks you to verify both addresses, confirm both.`,
+          'success'
+        );
+      } catch (error) {
+        setStatus(humanizeAccountError(error), 'error');
+      } finally {
+        setButtonBusy(
+          button,
+          false,
+          'Sending…',
+          'Send confirmation'
+        );
+      }
+    });
+
+    ChangePasswordForm.addEventListener('submit', async event => {
+      event.preventDefault();
+
+      const button =
+        document.getElementById('change-password-submit');
+      const password =
+        document.getElementById('change-password').value;
+      const confirm =
+        document.getElementById('change-password-confirm').value;
+
+      if (password.length < 8) {
+        setStatus(
+          'Use a password with at least 8 characters.',
+          'error'
+        );
+        return;
+      }
+
+      if (password !== confirm) {
+        setStatus(
+          'Those passwords do not match.',
+          'error'
+        );
+        return;
+      }
+
+      setButtonBusy(
+        button,
+        true,
+        'Updating…',
+        'Update password'
+      );
+      setStatus('Updating your password…');
+
+      try {
+        await AtlasAccount.changePassword(password);
+
+        document.getElementById('change-password').value = '';
+        document.getElementById('change-password-confirm').value = '';
+        setAccountManagementView('');
+        setStatus('Password updated.', 'success');
+      } catch (error) {
+        setStatus(humanizeAccountError(error), 'error');
+      } finally {
+        setButtonBusy(
+          button,
+          false,
+          'Updating…',
+          'Update password'
+        );
       }
     });
 
