@@ -47,6 +47,26 @@ assert.ok(
 );
 assert.ok(
   cloud.includes(
+    'async function refreshCurrentSession()'
+  )
+);
+assert.ok(
+  cloud.includes(
+    'client.auth.refreshSession()'
+  )
+);
+assert.ok(
+  account.includes(
+    'async function refreshIdentitySession()'
+  )
+);
+assert.ok(
+  page.includes(
+    '.refreshIdentitySession();'
+  )
+);
+assert.ok(
+  cloud.includes(
     'async function updatePasswordWithCurrentCredentials('
   )
 );
@@ -62,7 +82,7 @@ assert.ok(
 );
 assert.ok(
   account.includes(
-    'changeEmail,\n        changePassword,'
+    'changeEmail,\n        refreshIdentitySession,\n        changePassword,'
   )
 );
 assert.ok(
@@ -102,12 +122,12 @@ assert.ok(
 );
 assert.ok(
   page.includes(
-    'atlas-account.js?v=20260919-accountmanagement2'
+    'atlas-account.js?v=20260919-emailchange3'
   )
 );
 assert.ok(
   account.includes(
-    'atlas-account-cloud.js?v=20260919-accountmanagement2'
+    'atlas-account-cloud.js?v=20260919-emailchange3'
   )
 );
 

@@ -13,7 +13,7 @@
     if (window.AtlasAccount) return;
 
     const ACCOUNT_CLOUD_SRC =
-        '/shared/atlas-account-cloud.js?v=20260919-accountmanagement2';
+        '/shared/atlas-account-cloud.js?v=20260919-emailchange3';
     const PERSISTENCE_TRUST_SRC =
         '/shared/atlas-persistence-trust.js?v=20260916-trust2';
     const RECOVERY_SESSION_KEY = 'atlas::accountPasswordRecovery';
@@ -637,6 +637,46 @@
         };
     }
 
+    async function refreshIdentitySession() {
+        await initialize();
+
+        if (!state.authenticated || !state.userId) {
+            const error = new Error(
+                'Sign in before refreshing your Atlas account.'
+            );
+            error.code = 'ATLAS_AUTH_REQUIRED';
+            throw error;
+        }
+
+        const AccountCloud =
+            await ensureAccountCloud();
+
+        const data =
+            await AccountCloud.refreshCurrentSession();
+
+        const session =
+            data?.session ||
+            await AtlasCloud.getSession();
+
+        if (!session?.user) {
+            const error = new Error(
+                'Atlas could not refresh your account session.'
+            );
+            error.code = 'ATLAS_SESSION_REFRESH_FAILED';
+            throw error;
+        }
+
+        syncPersistenceScopeForSession(session);
+        publish(
+            stateForSession(
+                session,
+                { recovery: state.recovery }
+            )
+        );
+
+        return snapshot();
+    }
+
     async function changePassword(
         currentPassword,
         password
@@ -908,6 +948,7 @@
         createAccount,
         requestPasswordReset,
         changeEmail,
+        refreshIdentitySession,
         changePassword,
         completePasswordRecovery,
         signOut,

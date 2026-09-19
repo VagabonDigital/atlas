@@ -202,6 +202,17 @@
         return data;
     }
 
+    async function refreshCurrentSession() {
+        requireAtlasCloud();
+
+        const client = await AtlasCloud.getClient();
+        const { data, error } =
+            await client.auth.refreshSession();
+
+        if (error) throw error;
+        return data;
+    }
+
     async function signOutCurrentSession() {
         requireAtlasCloud();
         const client = await AtlasCloud.getClient();
@@ -299,6 +310,7 @@
         updateEmail,
         updatePassword,
         updatePasswordWithCurrentCredentials,
+        refreshCurrentSession,
         signOutCurrentSession,
         reconcileCurrentSession,
         isAuthSessionError,
