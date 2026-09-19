@@ -16,9 +16,139 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    (function () {
+      try {
+        var queueRaw =
+          sessionStorage.getItem(
+            'atlas::returnIntentResume::v1'
+          );
+
+        if (!queueRaw) return;
+
+        var queued = JSON.parse(queueRaw);
+        var id = String(
+          queued && queued.id || ''
+        ).trim();
+
+        if (!/^ri_[A-Za-z0-9_-]{20,80}$/.test(id)) {
+          return;
+        }
+
+        var intentRaw =
+          localStorage.getItem(
+            'atlas::returnIntent::v1::' + id
+          );
+
+        if (!intentRaw) return;
+
+        var intent = JSON.parse(intentRaw);
+        var context =
+          intent && intent.context || {};
+
+        if (
+          !intent ||
+          intent.action !== 'create-subject' ||
+          context.operation !==
+            'continue-create-preview'
+        ) {
+          return;
+        }
+
+        var destination =
+          new URL(
+            String(intent.destination || ''),
+            window.location.href
+          );
+
+        var current =
+          new URL(window.location.href);
+
+        if (
+          destination.origin !== current.origin ||
+          destination.pathname !== current.pathname ||
+          destination.search !== current.search ||
+          destination.hash !== current.hash
+        ) {
+          return;
+        }
+
+        var draftId =
+          String(context.draftId || '').trim();
+
+        var draft = null;
+
+        if (draftId) {
+          var draftRaw =
+            localStorage.getItem(
+              'atlas::compassCreatePreviewDraft::v1::' +
+              draftId
+            );
+
+          draft = draftRaw
+            ? JSON.parse(draftRaw)
+            : null;
+        }
+
+        document.documentElement.dataset
+          .atlasResumeTransition =
+            draft &&
+            draft.createMode === 'blank'
+              ? 'creating-subject'
+              : 'building-subject';
+      } catch (e) { }
+    })();
+  </script>
   <style>
-    html:not([data-atlas-local-presentation-ready="true"]) body {
+    html:not([data-atlas-local-presentation-ready="true"]):not([data-atlas-resume-transition]) body {
       visibility: hidden;
+    }
+
+    html[data-atlas-resume-transition] body {
+      visibility: visible !important;
+      overflow: hidden !important;
+    }
+
+    html[data-atlas-resume-transition] body > * {
+      visibility: hidden !important;
+    }
+
+    html[data-atlas-resume-transition] body::before,
+    html[data-atlas-resume-transition] body::after {
+      position: fixed;
+      left: 50%;
+      z-index: 99999;
+      visibility: visible !important;
+      transform: translateX(-50%);
+      text-align: center;
+      pointer-events: none;
+    }
+
+    html[data-atlas-resume-transition] body::before {
+      top: calc(50% - 34px);
+      width: min(88vw, 620px);
+      color: var(--text-heading, #1e1b16);
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: clamp(1.75rem, 4vw, 2.45rem);
+      line-height: 1.15;
+    }
+
+    html[data-atlas-resume-transition="building-subject"] body::before {
+      content: 'Building your subject…';
+    }
+
+    html[data-atlas-resume-transition="creating-subject"] body::before {
+      content: 'Creating your subject…';
+    }
+
+    html[data-atlas-resume-transition] body::after {
+      top: calc(50% + 20px);
+      width: min(84vw, 520px);
+      color: var(--text-muted, #7a7268);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      content: 'Restoring your choices and preparing the subject.';
     }
   </style>
   <title>Compass</title>
@@ -6326,7 +6456,8 @@
       action,
       operation,
       context = {},
-      trigger = null
+      trigger = null,
+      mode = 'sign-in'
     ) {
       try {
         const Gate = await ensureCompassCapabilityGate();
@@ -6340,7 +6471,8 @@
               operation,
               ...context
             },
-            trigger
+            trigger,
+            mode
           }
         );
       } catch (error) {
@@ -6375,6 +6507,21 @@
 
       showToast(unavailableMessage);
       return false;
+    }
+
+    function setCompassResumeTransition(
+      createMode = 'generate'
+    ) {
+      document.documentElement.dataset
+        .atlasResumeTransition =
+          createMode === 'blank'
+            ? 'creating-subject'
+            : 'building-subject';
+    }
+
+    function clearCompassResumeTransition() {
+      delete document.documentElement.dataset
+        .atlasResumeTransition;
     }
 
     async function installSubjectCapabilityResume() {
@@ -6413,21 +6560,43 @@
                     context.draftId || ''
                   );
 
+                const canAutoResume =
+                  Boolean(
+                    draft &&
+                    String(
+                      draft.title || ''
+                    ).trim()
+                  );
+
+                const silentResume =
+                  payload?.source ===
+                    'account-confirmation' &&
+                  canAutoResume;
+
+                if (silentResume) {
+                  setCompassResumeTransition(
+                    draft.createMode
+                  );
+                } else if (
+                  payload?.source ===
+                    'account-confirmation'
+                ) {
+                  clearCompassResumeTransition();
+                }
+
                 await openCreateSubjectDialog(
                   null,
                   draft?.sessionId || '',
                   null,
                   draft?.categoryId || '',
                   {
-                    initialDraft: draft
+                    initialDraft: draft,
+                    silentResume
                   }
                 );
 
                 if (
-                  draft &&
-                  String(
-                    draft.title || ''
-                  ).trim() &&
+                  canAutoResume &&
                   ownedSubjectDialogState?.mode ===
                     'create' &&
                   !ownedSubjectDialogState
@@ -7090,6 +7259,34 @@
 
       ownedSubjectDialogReturnFocus = null;
     }
+
+    window.addEventListener(
+      'atlas:account-confirmed-elsewhere',
+      event => {
+        const returnIntentId =
+          String(
+            event?.detail?.returnIntentId || ''
+          ).trim();
+
+        const intent =
+          event?.detail?.returnIntent ||
+          window.AtlasReturnIntent?.get?.(
+            returnIntentId
+          ) ||
+          null;
+
+        if (
+          intent?.action !== 'create-subject' ||
+          intent?.context?.operation !==
+            'continue-create-preview'
+        ) {
+          return;
+        }
+
+        closeOwnedSubjectDialog(false);
+        closeOwnedSubjectMenus();
+      }
+    );
 
     async function openCreateCategoryDialog(event, options = {}) {
       event?.preventDefault();
@@ -7816,7 +8013,8 @@
               ? { draftId }
               : {})
           },
-          trigger
+          trigger,
+          'create'
         );
 
       if (access?.outcome === 'allowed') {
@@ -8024,7 +8222,9 @@
           initialDraft?.suggestion &&
           typeof initialDraft.suggestion === 'object'
             ? initialDraft.suggestion
-            : null
+            : null,
+        silentResume:
+          options.silentResume === true
       };
 
       const kicker = dialog.querySelector(
@@ -8126,6 +8326,11 @@
       syncAnonymousCreatePreviewState(
         dialog
       );
+
+      if (options.silentResume === true) {
+        dialog.hidden = true;
+        return;
+      }
 
       ownedSubjectDialogPreviousBodyOverflow =
         document.body.style.overflow;
@@ -9250,6 +9455,23 @@
             '[Compass] Subject creation failed:',
             creationError
           );
+
+          if (state.silentResume) {
+            state.silentResume = false;
+            clearCompassResumeTransition();
+
+            ownedSubjectDialogPreviousBodyOverflow =
+              document.body.style.overflow;
+
+            document.body.style.overflow =
+              'hidden';
+
+            dialog.hidden = false;
+
+            requestAnimationFrame(() => {
+              input?.focus();
+            });
+          }
 
           error.hidden = false;
           error.textContent =

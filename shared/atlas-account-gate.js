@@ -36,6 +36,10 @@
     let returnIntentPromise = null;
     let feedbackPromise = null;
     let activeReturnIntentId = null;
+    let confirmationPendingIntentId = null;
+    let confirmationPendingIntent = null;
+    let accountStateUnsubscribe = null;
+    let localAuthenticationInProgress = false;
 
     const state = {
         gateOpen: false,
@@ -165,15 +169,81 @@
         return intent;
     }
 
+    function dispatchConfirmationCompletedElsewhere(
+        returnIntentId,
+        returnIntent = null
+    ) {
+        try {
+            window.dispatchEvent(new CustomEvent(
+                'atlas:account-confirmed-elsewhere',
+                {
+                    detail: {
+                        returnIntentId:
+                            String(returnIntentId || '').trim(),
+                        returnIntent
+                    }
+                }
+            ));
+        } catch {
+            // Product surfaces can continue from their canonical state.
+        }
+    }
+
+    function installAccountStateObserver() {
+        if (
+            accountStateUnsubscribe ||
+            !window.AtlasAccount ||
+            typeof window.AtlasAccount.subscribe !== 'function'
+        ) {
+            return;
+        }
+
+        accountStateUnsubscribe =
+            window.AtlasAccount.subscribe(
+                account => {
+                    if (
+                        !confirmationPendingIntentId ||
+                        localAuthenticationInProgress ||
+                        !account?.authenticated
+                    ) {
+                        return;
+                    }
+
+                    const returnIntentId =
+                        confirmationPendingIntentId;
+                    const returnIntent =
+                        confirmationPendingIntent;
+
+                    confirmationPendingIntentId = null;
+                    confirmationPendingIntent = null;
+
+                    if (state.gateOpen) {
+                        close({
+                            restoreFocus: false
+                        });
+                    }
+
+                    dispatchConfirmationCompletedElsewhere(
+                        returnIntentId,
+                        returnIntent
+                    );
+                },
+                {
+                    immediate: false
+                }
+            );
+    }
+
     async function prepareAccount() {
+        let prepared = null;
+
         if (
             window.AtlasAccessBootstrap &&
             typeof window.AtlasAccessBootstrap.prepareAccount === 'function'
         ) {
-            return window.AtlasAccessBootstrap.prepareAccount();
-        }
-
-        if (
+            prepared =
+                await window.AtlasAccessBootstrap.prepareAccount();
+        } else if (
             window.AtlasAccount &&
             window.AtlasAccess &&
             typeof window.AtlasAccount.initialize === 'function' &&
@@ -181,15 +251,19 @@
         ) {
             await window.AtlasAccount.initialize();
             await window.AtlasAccess.initialize();
-            return {
+
+            prepared = {
                 account: window.AtlasAccount.getState?.() || null,
                 access: window.AtlasAccess.getState?.() || null
             };
+        } else {
+            throw new Error(
+                'Atlas account support is not available on this surface.'
+            );
         }
 
-        throw new Error(
-            'Atlas account support is not available on this surface.'
-        );
+        installAccountStateObserver();
+        return prepared;
     }
 
     function ensureFeedback() {
@@ -593,6 +667,7 @@
         const message = gateLayer.querySelector('[data-account-message]');
 
         if (title) {
+            title.hidden = false;
             title.textContent = nextMode === 'create'
                 ? 'Create a free account to make your own subjects, add students and build your teaching workspace.'
                 : nextMode === 'forgot'
@@ -628,6 +703,16 @@
         ensureGate();
 
         state.gateMode = 'message';
+
+        const accountCopy =
+            gateLayer.querySelector('[data-account-copy]');
+        const messageClose =
+            gateLayer.querySelector('[data-account-message-close]');
+
+        if (accountCopy) {
+            accountCopy.hidden = true;
+        }
+
         gateLayer.querySelector('[data-account-tabs]').hidden = true;
         gateLayer.querySelectorAll('[data-account-form]')
             .forEach(form => {
@@ -637,13 +722,16 @@
         const message = gateLayer.querySelector('[data-account-message]');
         gateLayer.querySelector('[data-account-message-title]').textContent = title;
         gateLayer.querySelector('[data-account-message-copy]').textContent = copy;
+
+        if (messageClose) {
+            messageClose.textContent = 'Got it';
+        }
+
         message.hidden = false;
         setGateStatus('', kind);
 
         window.setTimeout(() => {
-            focusWithoutScroll(
-                gateLayer.querySelector('[data-account-message-close]')
-            );
+            focusWithoutScroll(messageClose);
         }, 0);
     }
 
@@ -807,6 +895,14 @@
         const intentId = activeReturnIntentId;
         let returnIntent = null;
 
+        if (
+            confirmationPendingIntentId &&
+            confirmationPendingIntentId === intentId
+        ) {
+            confirmationPendingIntentId = null;
+            confirmationPendingIntent = null;
+        }
+
         if (account?.authenticated && intentId) {
             try {
                 const ReturnIntent = await ensureReturnIntent();
@@ -839,6 +935,7 @@
 
         setGateStatus('');
         setBusy(true, 'Signing in…');
+        localAuthenticationInProgress = true;
 
         try {
             await prepareAccount();
@@ -847,6 +944,8 @@
         } catch (error) {
             setBusy(false);
             setGateStatus(humanizeError(error), 'error');
+        } finally {
+            localAuthenticationInProgress = false;
         }
     }
 
@@ -872,6 +971,7 @@
 
         setGateStatus('');
         setBusy(true, 'Creating account…');
+        localAuthenticationInProgress = true;
 
         try {
             await prepareAccount();
@@ -886,9 +986,19 @@
             setBusy(false);
 
             if (result?.confirmationRequired) {
+                confirmationPendingIntentId =
+                    activeReturnIntentId;
+
+                confirmationPendingIntent =
+                    activeReturnIntentId
+                        ? window.AtlasReturnIntent?.get?.(
+                            activeReturnIntentId
+                          ) || null
+                        : null;
+
                 showMessage(
                     'Check your email',
-                    `We sent a confirmation link to ${result.email || email}. Open it to finish creating your account.`
+                    `We sent a confirmation link to ${result.email || email}. Confirm your email address to activate your Atlas account.`
                 );
                 return;
             }
@@ -897,6 +1007,8 @@
         } catch (error) {
             setBusy(false);
             setGateStatus(humanizeError(error), 'error');
+        } finally {
+            localAuthenticationInProgress = false;
         }
     }
 
