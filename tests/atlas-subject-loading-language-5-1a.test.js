@@ -32,6 +32,11 @@ assert.ok(
   )
 );
 
+assert.match(
+  subjectPage,
+  /html:has\(body > #compass-subject-load-status\)\s*\{\s*overflow-y: hidden;\s*scrollbar-gutter: auto;\s*\}/
+);
+
 console.log(
   'Atlas 5.1 subject loading language contract passed.'
 );
