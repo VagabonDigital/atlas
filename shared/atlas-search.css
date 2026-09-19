@@ -272,3 +272,10 @@
         animation: none;
     }
 }
+
+/* An open Search modal owns scroll; the page behind it never does. */
+html:has(.atlas-search-overlay.open),
+body:has(.atlas-search-overlay.open) {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+}

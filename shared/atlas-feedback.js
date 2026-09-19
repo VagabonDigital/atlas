@@ -74,8 +74,21 @@
                 display: none;
             }
 
+            html:has(#${IDS.overlay}:not([hidden])),
+            body:has(#${IDS.overlay}:not([hidden])) {
+                overflow: hidden !important;
+                overscroll-behavior: none;
+            }
+
             .atlas-feedback-panel {
                 width: min(520px, 100%);
+                max-height: calc(100dvh - 2rem);
+                overflow-y: auto;
+                overscroll-behavior: contain;
+                scrollbar-width: thin;
+                scrollbar-color:
+                    var(--atlas-modal-scrollbar, rgba(105, 113, 128, 0.34))
+                    transparent;
                 padding: 1.35rem;
                 border:
                     1px solid
@@ -94,6 +107,22 @@
                         system-ui,
                         sans-serif
                     );
+            }
+
+            .atlas-feedback-panel::-webkit-scrollbar {
+                width: 10px;
+            }
+
+            .atlas-feedback-panel::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .atlas-feedback-panel::-webkit-scrollbar-thumb {
+                border: 3px solid transparent;
+                border-radius: 999px;
+                background:
+                    var(--atlas-modal-scrollbar, rgba(105, 113, 128, 0.34));
+                background-clip: padding-box;
             }
 
             .atlas-feedback-header {

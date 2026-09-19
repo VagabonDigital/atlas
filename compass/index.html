@@ -811,6 +811,18 @@
         opacity var(--hub-theme-motion);
     }
 
+    /*
+     * Modal invariant: when a Compass Hub dialog is visible, only the
+     * dialog may scroll. The document behind it stays fixed.
+     */
+    html:has(#owned-subject-dialog:not([hidden])),
+    body:has(#owned-subject-dialog:not([hidden])),
+    html:has(#subject-artwork-studio-backdrop:not([hidden])),
+    body:has(#subject-artwork-studio-backdrop:not([hidden])) {
+      overflow: hidden !important;
+      overscroll-behavior: none;
+    }
+
     /* ============================================================
        DESKTOP SPINE AND WORLD NAVIGATION
        ============================================================ */

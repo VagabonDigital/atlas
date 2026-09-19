@@ -8979,6 +8979,16 @@ button:focus-visible,
     outline-offset: 2px;
 }
 
+/*
+ * Modal invariant: My Version dialogs own any required scrolling.
+ * The lesson/document behind them remains fixed.
+ */
+html:has(.atlas-my-version-dialog:not([hidden])),
+body:has(.atlas-my-version-dialog:not([hidden])) {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+}
+
 /* ============================================================
 THEMED SCROLLBARS
 Shared Compass subject scrollbar for day and night modes.

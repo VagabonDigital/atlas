@@ -749,3 +749,11 @@
         transform: translateY(0) scale(1);
     }
 }
+
+
+/* An open Students modal owns scroll; the page behind it never does. */
+html:has(.atlas-session-overlay.is-open),
+body:has(.atlas-session-overlay.is-open) {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+}

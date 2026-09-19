@@ -6,8 +6,11 @@
    then falls back to the host surface tokens used by Inside Atlas.
    ============================================================ */
 
+html:has(.atlas-account-gate-layer:not([hidden])),
+body:has(.atlas-account-gate-layer:not([hidden])),
 .atlas-account-gate-open {
-    overflow: hidden;
+    overflow: hidden !important;
+    overscroll-behavior: none;
 }
 
 .atlas-account-gate-layer[hidden],
