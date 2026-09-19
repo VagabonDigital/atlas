@@ -369,6 +369,9 @@
     }
 
     async function openFeedbackFromAccount() {
+        const returnFocus =
+            menuAnchor;
+
         closeAccountMenu({
             restoreFocus: false
         });
@@ -377,7 +380,9 @@
             const Feedback =
                 await ensureFeedback();
 
-            Feedback.open();
+            Feedback.open({
+                returnFocus
+            });
         } catch (error) {
             console.error(
                 '[AtlasAccountGate] feedback UI failed:',

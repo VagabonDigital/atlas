@@ -33,6 +33,8 @@
         textarea: 'atlas-feedback-message',
         name: 'atlas-feedback-name',
         email: 'atlas-feedback-email',
+        account: 'atlas-feedback-account',
+        anonymousContact: 'atlas-feedback-anonymous-contact',
         status: 'atlas-feedback-status',
         submit: 'atlas-feedback-submit'
     };
@@ -65,9 +67,10 @@
                 align-items: center;
                 justify-content: center;
                 padding: 1rem;
-                background: rgba(16, 15, 13, 0.48);
-                backdrop-filter: blur(4px);
-                -webkit-backdrop-filter: blur(4px);
+                background:
+                    var(--atlas-modal-overlay-bg, rgba(17, 18, 24, 0.52));
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
             }
 
             #${IDS.overlay}[hidden] {
@@ -92,21 +95,17 @@
                 padding: 1.35rem;
                 border:
                     1px solid
-                    var(--border-subtle, rgba(61, 56, 48, 0.16));
-                border-radius: 18px;
+                    var(--atlas-modal-border, rgba(34, 39, 54, 0.12));
+                border-radius:
+                    var(--atlas-modal-radius-lg, 18px);
                 background:
-                    var(--surface-raised, #fffdf9);
+                    var(--atlas-modal-surface, #f7f8fa);
                 color:
-                    var(--text-body, #504b43);
+                    var(--atlas-modal-text, #4b5160);
                 box-shadow:
-                    0 24px 70px rgba(20, 17, 12, 0.18);
+                    var(--atlas-modal-shadow, 0 24px 70px rgba(22, 25, 34, 0.18));
                 font-family:
-                    var(
-                        --font-body,
-                        'DM Sans',
-                        system-ui,
-                        sans-serif
-                    );
+                    var(--atlas-modal-font-body, 'DM Sans', system-ui, sans-serif);
             }
 
             .atlas-feedback-panel::-webkit-scrollbar {
@@ -136,14 +135,9 @@
             .atlas-feedback-title {
                 margin: 0;
                 color:
-                    var(--text-heading, #211f1b);
+                    var(--atlas-modal-heading, #20232d);
                 font-family:
-                    var(
-                        --font-display,
-                        'DM Serif Display',
-                        Georgia,
-                        serif
-                    );
+                    var(--atlas-modal-font-display, 'DM Serif Display', Georgia, serif);
                 font-size: 1.55rem;
                 font-weight: 400;
             }
@@ -213,6 +207,26 @@
                 box-shadow:
                     0 0 0 3px
                     rgba(var(--accent-rgb, 77, 113, 132), 0.12);
+            }
+
+            .atlas-feedback-account {
+                margin: 0.9rem 0 0;
+                padding: 0.72rem 0.82rem;
+                border:
+                    1px solid
+                    var(--atlas-modal-border, rgba(34, 39, 54, 0.12));
+                border-radius: 10px;
+                background:
+                    var(--atlas-modal-accent-bg, rgba(89, 97, 125, 0.09));
+                color:
+                    var(--atlas-modal-muted, #747b89);
+                font-size: 0.78rem;
+                line-height: 1.45;
+            }
+
+            .atlas-feedback-account[hidden],
+            .atlas-feedback-anonymous-contact[hidden] {
+                display: none !important;
             }
 
             .atlas-feedback-contact-field {
@@ -371,7 +385,7 @@
                         class="atlas-feedback-title"
                         id="atlas-feedback-title"
                     >
-                        Message the Atlas team
+                        Message Atlas
                     </h2>
 
                     <button
@@ -404,15 +418,25 @@
                 </label>
 
                 <p class="atlas-feedback-copy">
-                    Questions, ideas, problems, feature requests, or something that worked particularly well — we'd love to hear it!
+                    Questions, ideas, problems, feature requests — or anything else you want us to know.
                 </p>
 
                 <textarea
                     id="${IDS.textarea}"
                     maxlength="5000"
-                    placeholder="Share a question, idea, problem, suggestion, or anything else…"
+                    placeholder="Write your message…"
                 ></textarea>
 
+                <p
+                    class="atlas-feedback-account"
+                    id="${IDS.account}"
+                    hidden
+                ></p>
+
+                <div
+                    class="atlas-feedback-anonymous-contact"
+                    id="${IDS.anonymousContact}"
+                >
                 <div class="atlas-feedback-contact-field">
                     <label
                         class="atlas-feedback-contact-label"
@@ -453,6 +477,7 @@
                         Only used if you'd like us to respond.
                     </p>
                 </div>
+                </div>
 
                 <div class="atlas-feedback-footer">
                     <div
@@ -465,7 +490,7 @@
                         id="${IDS.submit}"
                         type="button"
                     >
-                        Send
+                        Send message
                     </button>
                 </div>
             </div>
@@ -505,7 +530,92 @@
         );
     }
 
-    function open() {
+    function getSignedInAccount() {
+        const account =
+            window.AtlasAccount?.getState?.() ||
+            null;
+
+        const email =
+            String(account?.email || '').trim();
+
+        if (
+            !account?.authenticated ||
+            !email
+        ) {
+            return null;
+        }
+
+        return {
+            userId:
+                String(account.userId || '').trim(),
+            email
+        };
+    }
+
+    function syncContactIdentity() {
+        const account =
+            getSignedInAccount();
+
+        const accountCopy =
+            document.getElementById(
+                IDS.account
+            );
+
+        const anonymousContact =
+            document.getElementById(
+                IDS.anonymousContact
+            );
+
+        const nameInput =
+            document.getElementById(
+                IDS.name
+            );
+
+        const emailInput =
+            document.getElementById(
+                IDS.email
+            );
+
+        if (account) {
+            if (accountCopy) {
+                accountCopy.textContent =
+                    'Sending from your Atlas account · ' +
+                    account.email;
+                accountCopy.hidden = false;
+            }
+
+            if (anonymousContact) {
+                anonymousContact.hidden = true;
+            }
+
+            if (nameInput) {
+                nameInput.value =
+                    account.email;
+            }
+
+            if (emailInput) {
+                emailInput.value =
+                    account.email;
+            }
+
+            return account;
+        }
+
+        if (accountCopy) {
+            accountCopy.textContent = '';
+            accountCopy.hidden = true;
+        }
+
+        if (anonymousContact) {
+            anonymousContact.hidden = false;
+        }
+
+        return null;
+    }
+
+    function open({
+        returnFocus = null
+    } = {}) {
         installStyles();
         mountOverlay();
 
@@ -532,7 +642,12 @@
         }
 
         previousFocus =
-            document.activeElement;
+            returnFocus &&
+            typeof returnFocus.focus === 'function'
+                ? returnFocus
+                : document.activeElement;
+
+        syncContactIdentity();
 
         previousBodyOverflow =
             document.body.style.overflow;
@@ -610,15 +725,22 @@
                 textarea?.value || ''
             ).trim();
 
+        const account =
+            getSignedInAccount();
+
         const replyName =
-            String(
-                nameInput?.value || ''
-            ).trim();
+            account
+                ? account.email
+                : String(
+                    nameInput?.value || ''
+                  ).trim();
 
         const replyEmail =
-            String(
-                emailInput?.value || ''
-            ).trim();
+            account
+                ? account.email
+                : String(
+                    emailInput?.value || ''
+                  ).trim();
 
         if (!message) {
             if (status) {
@@ -641,6 +763,7 @@
         }
 
         if (
+            !account &&
             replyEmail &&
             emailInput &&
             !emailInput.checkValidity()
@@ -706,11 +829,11 @@
 
             textarea.value = '';
 
-            if (nameInput) {
+            if (!account && nameInput) {
                 nameInput.value = '';
             }
 
-            if (emailInput) {
+            if (!account && emailInput) {
                 emailInput.value = '';
             }
 
@@ -737,7 +860,7 @@
             if (button) {
                 button.disabled = false;
                 button.textContent =
-                    'Send';
+                    'Send message';
             }
         }
     }
@@ -832,23 +955,62 @@
         );
     }
 
-    function handleKeydown(event) {
-        if (
-            event.key !== 'Escape'
-        ) {
-            return;
-        }
+    function visibleFocusable(container) {
+        return Array.from(
+            container.querySelectorAll(
+                'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+            )
+        ).filter(
+            element =>
+                !element.closest('[hidden]') &&
+                element.getClientRects().length > 0
+        );
+    }
 
+    function handleKeydown(event) {
         const overlay =
             document.getElementById(
                 IDS.overlay
             );
 
         if (
-            overlay &&
-            !overlay.hidden
+            !overlay ||
+            overlay.hidden
         ) {
+            return;
+        }
+
+        if (event.key === 'Escape') {
+            event.preventDefault();
             close();
+            return;
+        }
+
+        if (event.key !== 'Tab') {
+            return;
+        }
+
+        const items =
+            visibleFocusable(overlay);
+
+        if (!items.length) return;
+
+        const first = items[0];
+        const last =
+            items[items.length - 1];
+
+        if (
+            event.shiftKey &&
+            document.activeElement === first
+        ) {
+            event.preventDefault();
+            last.focus();
+        } else if (
+            !event.shiftKey &&
+            document.activeElement === last
+        ) {
+            event.preventDefault();
+            first.focus();
         }
     }
 

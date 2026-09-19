@@ -28,7 +28,7 @@ assert.ok(
 
 assert.ok(
   gate.includes(
-    'Feedback.open();'
+    'Feedback.open({\n                returnFocus\n            });'
   )
 );
 
