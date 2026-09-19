@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>Atlas — Link unavailable</title>
+    <link rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='5' y='5' width='90' height='90' rx='24' fill='%234F7772'/%3E%3Ccircle cx='50' cy='50' r='28' fill='none' stroke='%23DFF4EE' stroke-width='7'/%3E%3Cpath d='M71 29L57 57L29 71L43 43Z' fill='%23FFFFFF' stroke='%23FFFFFF' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M71 29L57 57L50 50Z' fill='%23A9D9CF'/%3E%3C/svg%3E">
+    <style>
+        :root {
+            color-scheme: light dark;
+            --page: #f3f5f3;
+            --panel: rgba(255, 255, 255, 0.82);
+            --text: #17221f;
+            --muted: #66716d;
+            --border: rgba(23, 34, 31, 0.12);
+            --accent: #4f7772;
+            --accent-text: #ffffff;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --page: #111715;
+                --panel: rgba(28, 36, 33, 0.86);
+                --text: #edf3f0;
+                --muted: #a2ada8;
+                --border: rgba(237, 243, 240, 0.12);
+                --accent: #78a49d;
+                --accent-text: #0d1513;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            min-height: 100%;
+            margin: 0;
+        }
+
+        body {
+            min-height: 100svh;
+            display: grid;
+            place-items: center;
+            padding: 28px;
+            background:
+                radial-gradient(circle at 50% 15%, rgba(79, 119, 114, 0.12), transparent 34rem),
+                var(--page);
+            color: var(--text);
+            font-family:
+                "DM Sans",
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+        }
+
+        main {
+            width: min(100%, 560px);
+            padding: clamp(28px, 6vw, 48px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            background: var(--panel);
+            text-align: center;
+            box-shadow: 0 24px 70px rgba(20, 31, 27, 0.08);
+            backdrop-filter: blur(14px);
+        }
+
+        .atlas-mark {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 22px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            color: var(--accent);
+            font-size: 21px;
+            line-height: 1;
+        }
+
+        .eyebrow {
+            margin: 0 0 10px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(30px, 7vw, 44px);
+            font-weight: 400;
+            line-height: 1.06;
+            letter-spacing: -0.03em;
+        }
+
+        p {
+            max-width: 430px;
+            margin: 16px auto 0;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.65;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        a {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 650;
+            text-decoration: none;
+        }
+
+        .primary {
+            background: var(--accent);
+            color: var(--accent-text);
+        }
+
+        .secondary {
+            border: 1px solid var(--border);
+            color: var(--text);
+            background: transparent;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <div class="atlas-mark" aria-hidden="true">⌁</div>
+        <p class="eyebrow">Atlas</p>
+        <h1 id="not-found-title">This Atlas page isn’t available.</h1>
+        <p id="not-found-message">
+            The link may be old, incomplete, or no longer available.
+        </p>
+
+        <div class="actions">
+            <a class="primary" id="not-found-primary" href="/?entry=product">
+                Explore Atlas
+            </a>
+            <a class="secondary" href="/tutors/">
+                Inside Atlas
+            </a>
+        </div>
+    </main>
+
+    <script>
+        (function () {
+            'use strict';
+
+            const pathname =
+                String(window.location.pathname || '')
+                    .toLowerCase();
+
+            const title =
+                document.getElementById(
+                    'not-found-title'
+                );
+
+            const message =
+                document.getElementById(
+                    'not-found-message'
+                );
+
+            const primary =
+                document.getElementById(
+                    'not-found-primary'
+                );
+
+            if (
+                pathname === '/compass' ||
+                pathname.startsWith('/compass/')
+            ) {
+                document.title =
+                    'Atlas — Subject unavailable';
+
+                title.textContent =
+                    'This subject isn’t available.';
+
+                message.textContent =
+                    'This Compass link may be old, incomplete, or point to a subject that is no longer available.';
+
+                primary.textContent =
+                    'Explore Compass';
+
+                primary.href =
+                    '/compass/';
+
+                return;
+            }
+
+            if (
+                pathname === '/arcade' ||
+                pathname.startsWith('/arcade/')
+            ) {
+                document.title =
+                    'Atlas — Game unavailable';
+
+                title.textContent =
+                    'This game isn’t available.';
+
+                message.textContent =
+                    'This Arcade link may be old, incomplete, or point to a game that is no longer available.';
+
+                primary.textContent =
+                    'Explore Arcade';
+
+                primary.href =
+                    '/arcade/';
+            }
+        })();
+    </script>
+</body>
+</html>
