@@ -50,7 +50,12 @@ assert.match(
 // authoritative. A successful browser-local write is not an acceptable fallback.
 assert.match(
     engine,
-    /async function ensureSubjectAuthoringCloudAuthorityReady\([\s\S]*?ensureCompassCloudAuthority\(\)[\s\S]*?subjectAuthoringCloudAuthorityReady\(kind\)/
+    /function hasSignedInSubjectAuthoringAccount\(\)[\s\S]*?AtlasAccount\?\.getState\?\.\(\)[\s\S]*?sb-jnhjfpagectprceswvqn-auth-token[\s\S]*?hasCompassAccountSession\(\)/
+);
+
+assert.match(
+    engine,
+    /async function ensureSubjectAuthoringCloudAuthorityReady\([\s\S]*?hasSignedInSubjectAuthoringAccount\(\)[\s\S]*?ensureCompassCloudAuthority\(\)[\s\S]*?subjectAuthoringCloudAuthorityReady\(kind\)/
 );
 
 assert.match(

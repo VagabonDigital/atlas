@@ -780,10 +780,31 @@ function subjectAuthoringCloudAuthorityReady(
     );
 }
 
+function hasSignedInSubjectAuthoringAccount() {
+    const account =
+        window.AtlasAccount?.getState?.() || null;
+
+    if (account?.authenticated === true) {
+        return true;
+    }
+
+    try {
+        if (
+            localStorage.getItem(
+                'sb-jnhjfpagectprceswvqn-auth-token'
+            )
+        ) {
+            return true;
+        }
+    } catch { }
+
+    return hasCompassAccountSession();
+}
+
 async function ensureSubjectAuthoringCloudAuthorityReady(
     kind = getSubjectAuthoringAuthorityKind()
 ) {
-    if (!hasCompassAccountSession()) {
+    if (!hasSignedInSubjectAuthoringAccount()) {
         return true;
     }
 
