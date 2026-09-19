@@ -13,7 +13,7 @@
     if (window.AtlasAccount) return;
 
     const ACCOUNT_CLOUD_SRC =
-        '/shared/atlas-account-cloud.js?v=20260919-emailchange3';
+        '/shared/atlas-account-cloud.js?v=20260919-emailchange4';
     const PERSISTENCE_TRUST_SRC =
         '/shared/atlas-persistence-trust.js?v=20260916-trust2';
     const RECOVERY_SESSION_KEY = 'atlas::accountPasswordRecovery';
@@ -588,15 +588,31 @@
         return true;
     }
 
-    async function changeEmail(email) {
+    async function changeEmail(
+        currentPassword,
+        email
+    ) {
         await initialize();
 
-        if (!state.authenticated || !state.userId) {
+        if (
+            !state.authenticated ||
+            !state.userId ||
+            !state.email
+        ) {
             const error = new Error(
                 'Sign in before changing your Atlas account email.'
             );
             error.code = 'ATLAS_AUTH_REQUIRED';
             throw error;
+        }
+
+        const current =
+            String(currentPassword || '');
+
+        if (!current) {
+            throw new Error(
+                'Enter your current password.'
+            );
         }
 
         const nextEmail =
@@ -622,10 +638,13 @@
             await ensureAccountCloud();
 
         const data =
-            await AccountCloud.updateEmail(
-                nextEmail,
-                accountReturnUrl()
-            );
+            await AccountCloud
+                .updateEmailWithCurrentCredentials(
+                    state.email,
+                    current,
+                    nextEmail,
+                    accountReturnUrl()
+                );
 
         return {
             state: snapshot(),

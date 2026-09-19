@@ -111,7 +111,12 @@
         return data;
     }
 
-    async function updateEmail(email, redirectTo) {
+    async function updateEmailWithCurrentCredentials(
+        currentEmail,
+        currentPassword,
+        email,
+        redirectTo
+    ) {
         requireAtlasCloud();
 
         const nextEmail = normalizeEmail(email);
@@ -123,15 +128,54 @@
         }
 
         const client = await AtlasCloud.getClient();
-        const { data, error } = await client.auth.updateUser(
-            {
-                email: nextEmail
-            },
-            {
-                emailRedirectTo:
-                    normalizeRedirectUrl(redirectTo)
+        const signInResult =
+            await client.auth.signInWithPassword({
+                email: normalizeEmail(currentEmail),
+                password:
+                    normalizePassword(
+                        currentPassword
+                    )
+            });
+
+        if (signInResult?.error) {
+            const message =
+                String(
+                    signInResult.error?.message ||
+                    signInResult.error ||
+                    ''
+                ).toLowerCase();
+
+            if (
+                message.includes(
+                    'invalid login credentials'
+                ) ||
+                message.includes(
+                    'invalid email or password'
+                )
+            ) {
+                const error = new Error(
+                    'Your current password is incorrect.'
+                );
+                error.code =
+                    'ATLAS_CURRENT_PASSWORD_INVALID';
+                throw error;
             }
-        );
+
+            throw signInResult.error;
+        }
+
+        const { data, error } =
+            await client.auth.updateUser(
+                {
+                    email: nextEmail
+                },
+                {
+                    emailRedirectTo:
+                        normalizeRedirectUrl(
+                            redirectTo
+                        )
+                }
+            );
 
         if (error) throw error;
         return data;
@@ -307,7 +351,7 @@
     window.AtlasAccountCloud = Object.freeze({
         signUpWithPassword,
         requestPasswordReset,
-        updateEmail,
+        updateEmailWithCurrentCredentials,
         updatePassword,
         updatePasswordWithCurrentCredentials,
         refreshCurrentSession,
