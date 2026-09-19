@@ -560,6 +560,30 @@
       line-height: 1.5;
     }
 
+    .account-management-status {
+      margin: 12px 0 4px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--surface-status);
+      color: var(--text-secondary);
+      font-size: .86rem;
+      line-height: 1.45;
+    }
+
+    .account-management-status[hidden] {
+      display: none;
+    }
+
+    .account-management-status.error {
+      background: var(--danger-surface);
+      color: var(--danger);
+    }
+
+    .account-management-status.success {
+      background: var(--success-surface);
+      color: var(--success);
+    }
+
     .account-management-form .button {
       margin-top: 16px;
     }
@@ -782,8 +806,16 @@
 
             <form id="change-email-form" class="account-management-form" hidden>
               <p class="account-management-copy">
-                We’ll email you to verify the change before your sign-in address is updated.
+                We’ll send confirmation links to your current email and your new email. Your sign-in address changes only after you confirm both.
               </p>
+
+              <p
+                id="change-email-status"
+                class="account-management-status"
+                role="status"
+                aria-live="polite"
+                hidden
+              ></p>
 
               <label for="change-email">New email</label>
               <input id="change-email" type="email" autocomplete="email" required>
@@ -811,6 +843,14 @@
               <p class="account-management-copy">
                 Enter your current password, then choose a new one.
               </p>
+
+              <p
+                id="change-password-status"
+                class="account-management-status"
+                role="status"
+                aria-live="polite"
+                hidden
+              ></p>
 
               <label for="change-password-current">Current password</label>
               <input id="change-password-current" type="password" autocomplete="current-password" required>
@@ -1040,6 +1080,30 @@
     function showOnly(view) {
       [GuestView, ForgotView, RecoveryView, AccountView]
         .forEach(item => { item.hidden = item !== view; });
+    }
+
+    function setAccountManagementStatus(
+      kind,
+      message = '',
+      type = 'info'
+    ) {
+      const node =
+        document.getElementById(
+          `change-${kind}-status`
+        );
+
+      if (!node) return;
+
+      node.textContent = message;
+      node.hidden = !message;
+      node.classList.toggle(
+        'error',
+        type === 'error'
+      );
+      node.classList.toggle(
+        'success',
+        type === 'success'
+      );
     }
 
     function setAccountManagementView(kind = '') {
@@ -1337,6 +1401,7 @@
     document.getElementById('cancel-change-email')
       .addEventListener('click', () => {
         document.getElementById('change-email').value = '';
+        setAccountManagementStatus('email');
         setAccountManagementView('');
       });
 
@@ -1345,6 +1410,7 @@
         document.getElementById('change-password-current').value = '';
         document.getElementById('change-password').value = '';
         document.getElementById('change-password-confirm').value = '';
+        setAccountManagementStatus('password');
         setAccountManagementView('');
       });
 
@@ -1362,21 +1428,36 @@
         'Sending…',
         'Send confirmation'
       );
-      setStatus('Preparing your email change…');
+      setAccountManagementStatus(
+        'email',
+        'Sending confirmation links…'
+      );
 
       try {
+        const currentEmail =
+          AtlasAccount.getState()?.email ||
+          AccountEmail.textContent ||
+          'your current email';
+
         const result =
           await AtlasAccount.changeEmail(email);
 
-        document.getElementById('change-email').value = '';
-        setAccountManagementView('');
+        const pendingEmail =
+          result.pendingEmail || email;
 
-        setStatus(
-          `Check your email for the confirmation message required to change your sign-in address to ${result.pendingEmail || email}. If Atlas asks you to verify both addresses, confirm both.`,
+        document.getElementById('change-email').value = '';
+
+        setAccountManagementStatus(
+          'email',
+          `Confirmation links sent. Confirm the messages at ${currentEmail} and ${pendingEmail}. Your sign-in email changes after both are confirmed.`,
           'success'
         );
       } catch (error) {
-        setStatus(humanizeAccountError(error), 'error');
+        setAccountManagementStatus(
+          'email',
+          humanizeAccountError(error),
+          'error'
+        );
       } finally {
         setButtonBusy(
           button,
@@ -1400,7 +1481,8 @@
         document.getElementById('change-password-confirm').value;
 
       if (!currentPassword) {
-        setStatus(
+        setAccountManagementStatus(
+          'password',
           'Enter your current password.',
           'error'
         );
@@ -1408,7 +1490,8 @@
       }
 
       if (password.length < 8) {
-        setStatus(
+        setAccountManagementStatus(
+          'password',
           'Use a password with at least 8 characters.',
           'error'
         );
@@ -1416,7 +1499,8 @@
       }
 
       if (password !== confirm) {
-        setStatus(
+        setAccountManagementStatus(
+          'password',
           'Those passwords do not match.',
           'error'
         );
@@ -1429,7 +1513,10 @@
         'Updating…',
         'Update password'
       );
-      setStatus('Updating your password…');
+      setAccountManagementStatus(
+        'password',
+        'Updating your password…'
+      );
 
       try {
         await AtlasAccount.changePassword(
@@ -1440,10 +1527,15 @@
         document.getElementById('change-password-current').value = '';
         document.getElementById('change-password').value = '';
         document.getElementById('change-password-confirm').value = '';
+        setAccountManagementStatus('password');
         setAccountManagementView('');
         setStatus('Password updated.', 'success');
       } catch (error) {
-        setStatus(humanizeAccountError(error), 'error');
+        setAccountManagementStatus(
+          'password',
+          humanizeAccountError(error),
+          'error'
+        );
       } finally {
         setButtonBusy(
           button,
