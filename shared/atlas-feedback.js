@@ -385,7 +385,7 @@
                         class="atlas-feedback-title"
                         id="atlas-feedback-title"
                     >
-                        Message Atlas
+                        Message the Atlas team
                     </h2>
 
                     <button
@@ -418,7 +418,7 @@
                 </label>
 
                 <p class="atlas-feedback-copy">
-                    Questions, ideas, problems, feature requests — or anything else you want us to know.
+                    Questions, ideas, problems, feature requests — or anything else you’d like to share about your experience.
                 </p>
 
                 <textarea

@@ -9,7 +9,13 @@ const feedback = fs.readFileSync(
 );
 
 assert.ok(
-  feedback.includes('Message Atlas')
+  feedback.includes('Message the Atlas team')
+);
+
+assert.ok(
+  feedback.includes(
+    'Questions, ideas, problems, feature requests — or anything else you’d like to share about your experience.'
+  )
 );
 
 assert.ok(
