@@ -56,6 +56,49 @@
 
       document.documentElement.dataset.theme =
         readAtlasAppearance();
+
+      try {
+        var returnIntentId =
+          new URL(window.location.href)
+            .searchParams
+            .get('ri') || '';
+
+        if (
+          /^ri_[A-Za-z0-9_-]{20,80}$/.test(
+            returnIntentId
+          )
+        ) {
+          var storedIntent = JSON.parse(
+            localStorage.getItem(
+              'atlas::returnIntent::v1::' +
+              returnIntentId
+            ) || 'null'
+          );
+
+          if (
+            storedIntent &&
+            storedIntent.id === returnIntentId &&
+            Number(storedIntent.expiresAt) >
+              Date.now()
+          ) {
+            document.documentElement.dataset
+              .atlasReturnHandoff = 'true';
+
+            if (
+              storedIntent.action ===
+                'create-subject' &&
+              storedIntent.context?.operation ===
+                'continue-create-preview'
+            ) {
+              document.documentElement.dataset
+                .atlasReturnHandoffKind =
+                  'building-subject';
+            }
+          }
+        }
+      } catch (error) {
+        // Normal Account UI is the safe fallback.
+      }
     })();
   </script>
   <link
@@ -127,6 +170,86 @@
       background:
         radial-gradient(circle at 20% 0%, var(--page-glow), transparent 28rem),
         var(--canvas);
+    }
+
+    .account-return-handoff {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      place-items: center;
+      padding: 2rem;
+      background: var(--canvas);
+    }
+
+    html[data-atlas-return-handoff="true"] .account-return-handoff {
+      display: grid;
+    }
+
+    html[data-atlas-return-handoff="true"] .shell {
+      visibility: hidden;
+    }
+
+    .account-return-handoff-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .8rem;
+      text-align: center;
+    }
+
+    .account-return-handoff-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .42rem;
+      height: 1rem;
+    }
+
+    .account-return-handoff-dot {
+      width: .46rem;
+      height: .46rem;
+      border-radius: 50%;
+      background: var(--accent);
+      animation:
+        account-return-handoff-bounce
+        .9s ease-in-out infinite;
+    }
+
+    .account-return-handoff-dot:nth-child(2) {
+      animation-delay: .12s;
+    }
+
+    .account-return-handoff-dot:nth-child(3) {
+      animation-delay: .24s;
+    }
+
+    .account-return-handoff-message {
+      margin: 0;
+      color: var(--muted);
+      font-size: .9rem;
+      font-weight: 400;
+    }
+
+    .account-return-handoff-message::before {
+      content: 'Continuing in Atlas…';
+    }
+
+    html[data-atlas-return-handoff-kind="building-subject"]
+      .account-return-handoff-message::before {
+      content: 'Building your subject…';
+    }
+
+    @keyframes account-return-handoff-bounce {
+      0%,
+      60%,
+      100% {
+        transform: translateY(0);
+      }
+
+      30% {
+        transform: translateY(-4px);
+      }
     }
 
     button, input { font: inherit; }
@@ -466,6 +589,10 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
+      .account-return-handoff-dot {
+        animation: none;
+      }
+
       html,
       body,
       .card,
@@ -535,6 +662,24 @@
   <script src="../shared/atlas-return-handoff.js?v=20260917-capability1"></script>
 </head>
 <body>
+  <div
+    class="account-return-handoff"
+    aria-live="polite"
+    aria-busy="true"
+  >
+    <div class="account-return-handoff-state">
+      <div
+        class="account-return-handoff-dots"
+        aria-hidden="true"
+      >
+        <span class="account-return-handoff-dot"></span>
+        <span class="account-return-handoff-dot"></span>
+        <span class="account-return-handoff-dot"></span>
+      </div>
+      <p class="account-return-handoff-message"></p>
+    </div>
+  </div>
+
   <main class="shell">
     <div class="topline">
       <a class="back-link" href="/">← Back</a>
@@ -843,7 +988,19 @@
 
     installPasswordVisibilityToggles();
 
-    AtlasReturnHandoff.initialize();
+    const PendingReturnIntent =
+      AtlasReturnHandoff.initialize();
+
+    function finishReturnHandoff() {
+      delete document.documentElement.dataset
+        .atlasReturnHandoff;
+      delete document.documentElement.dataset
+        .atlasReturnHandoffKind;
+    }
+
+    if (!PendingReturnIntent) {
+      finishReturnHandoff();
+    }
 
     function setStatus(message, type = 'info', transient = true) {
       Status.textContent = message;
@@ -919,6 +1076,7 @@
       if (!state.ready) return;
 
       if (state.authenticated && state.recovery) {
+        finishReturnHandoff();
         showOnly(RecoveryView);
         if (!transientStatus) {
           setStatus('Password recovery is ready.', 'info', false);
@@ -931,6 +1089,7 @@
           return;
         }
 
+        finishReturnHandoff();
         showOnly(AccountView);
         AccountEmail.textContent = state.email || state.userId || 'Atlas account';
 
@@ -948,6 +1107,7 @@
         return;
       }
 
+      finishReturnHandoff();
       AccountEmail.textContent = '';
       showOnly(GuestView);
       setGuestMode(guestMode);
@@ -984,6 +1144,7 @@
         transientStatus = false;
         render(AtlasAccount.getState());
       } catch (error) {
+        finishReturnHandoff();
         setStatus(humanizeAccountError(error), 'error');
       }
     })();

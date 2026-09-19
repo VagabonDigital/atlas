@@ -104,6 +104,16 @@
       visibility: hidden;
     }
 
+    .atlas-resume-handoff {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: none;
+      place-items: center;
+      padding: 2rem;
+      background: var(--surface-canvas, #f5f1e9);
+    }
+
     html[data-atlas-resume-transition] body {
       visibility: visible !important;
       overflow: hidden !important;
@@ -113,42 +123,78 @@
       visibility: hidden !important;
     }
 
-    html[data-atlas-resume-transition] body::before,
-    html[data-atlas-resume-transition] body::after {
-      position: fixed;
-      left: 50%;
-      z-index: 99999;
+    html[data-atlas-resume-transition]
+      .atlas-resume-handoff {
+      display: grid;
       visibility: visible !important;
-      transform: translateX(-50%);
+    }
+
+    .atlas-resume-handoff-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8rem;
       text-align: center;
-      pointer-events: none;
     }
 
-    html[data-atlas-resume-transition] body::before {
-      top: calc(50% - 34px);
-      width: min(88vw, 620px);
-      color: var(--text-heading, #1e1b16);
-      font-family: 'DM Serif Display', Georgia, serif;
-      font-size: clamp(1.75rem, 4vw, 2.45rem);
-      line-height: 1.15;
+    .atlas-resume-handoff-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.42rem;
+      height: 1rem;
     }
 
-    html[data-atlas-resume-transition="building-subject"] body::before {
+    .atlas-resume-handoff-dot {
+      width: 0.46rem;
+      height: 0.46rem;
+      border-radius: 50%;
+      background: var(--accent, #4f7772);
+      animation:
+        atlas-resume-handoff-bounce
+        0.9s ease-in-out infinite;
+    }
+
+    .atlas-resume-handoff-dot:nth-child(2) {
+      animation-delay: 0.12s;
+    }
+
+    .atlas-resume-handoff-dot:nth-child(3) {
+      animation-delay: 0.24s;
+    }
+
+    .atlas-resume-handoff-message {
+      margin: 0;
+      color: var(--text-muted, #7a7268);
+      font-size: 0.9rem;
+      font-weight: 400;
+    }
+
+    .atlas-resume-handoff-message::before {
       content: 'Building your subject…';
     }
 
-    html[data-atlas-resume-transition="creating-subject"] body::before {
+    html[data-atlas-resume-transition="creating-subject"]
+      .atlas-resume-handoff-message::before {
       content: 'Creating your subject…';
     }
 
-    html[data-atlas-resume-transition] body::after {
-      top: calc(50% + 20px);
-      width: min(84vw, 520px);
-      color: var(--text-muted, #7a7268);
-      font-family: 'DM Sans', system-ui, sans-serif;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      content: 'Restoring your choices and preparing the subject.';
+    @keyframes atlas-resume-handoff-bounce {
+      0%,
+      60%,
+      100% {
+        transform: translateY(0);
+      }
+
+      30% {
+        transform: translateY(-4px);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .atlas-resume-handoff-dot {
+        animation: none;
+      }
     }
   </style>
   <title>Compass</title>
@@ -3760,6 +3806,23 @@
 </head>
 
 <body data-atlas-world="compass" data-atlas-surface="hub">
+  <div
+    class="atlas-resume-handoff"
+    aria-live="polite"
+    aria-busy="true"
+  >
+    <div class="atlas-resume-handoff-state">
+      <div
+        class="atlas-resume-handoff-dots"
+        aria-hidden="true"
+      >
+        <span class="atlas-resume-handoff-dot"></span>
+        <span class="atlas-resume-handoff-dot"></span>
+        <span class="atlas-resume-handoff-dot"></span>
+      </div>
+      <p class="atlas-resume-handoff-message"></p>
+    </div>
+  </div>
   <!-- ============================================================ DESKTOP SPINE -->
   <header class="spine" role="banner">
     <div class="spine-mark">Compass<span>.</span></div>
