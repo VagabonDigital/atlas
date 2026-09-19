@@ -13,7 +13,7 @@
     if (window.AtlasAccount) return;
 
     const ACCOUNT_CLOUD_SRC =
-        '/shared/atlas-account-cloud.js?v=20260919-accountmanagement1';
+        '/shared/atlas-account-cloud.js?v=20260919-accountmanagement2';
     const PERSISTENCE_TRUST_SRC =
         '/shared/atlas-persistence-trust.js?v=20260916-trust2';
     const RECOVERY_SESSION_KEY = 'atlas::accountPasswordRecovery';
@@ -637,10 +637,17 @@
         };
     }
 
-    async function changePassword(password) {
+    async function changePassword(
+        currentPassword,
+        password
+    ) {
         await initialize();
 
-        if (!state.authenticated || !state.userId) {
+        if (
+            !state.authenticated ||
+            !state.userId ||
+            !state.email
+        ) {
             const error = new Error(
                 'Sign in before changing your Atlas account password.'
             );
@@ -648,8 +655,16 @@
             throw error;
         }
 
+        const current =
+            String(currentPassword || '');
         const nextPassword =
             String(password || '');
+
+        if (!current) {
+            throw new Error(
+                'Enter your current password.'
+            );
+        }
 
         if (nextPassword.length < 8) {
             throw new Error(
@@ -657,11 +672,31 @@
             );
         }
 
+        if (current === nextPassword) {
+            throw new Error(
+                'Choose a different password.'
+            );
+        }
+
         const AccountCloud =
             await ensureAccountCloud();
 
-        await AccountCloud.updatePassword(
-            nextPassword
+        await AccountCloud
+            .updatePasswordWithCurrentCredentials(
+                state.email,
+                current,
+                nextPassword
+            );
+
+        const session =
+            await AtlasCloud.getSession();
+
+        syncPersistenceScopeForSession(session);
+        publish(
+            stateForSession(
+                session,
+                { recovery: false }
+            )
         );
 
         return snapshot();

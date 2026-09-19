@@ -530,7 +530,7 @@
   </script>
 
   <script src="../shared/atlas-cloud.js?v=20260916-account1"></script>
-  <script src="../shared/atlas-account.js?v=20260919-accountmanagement1"></script>
+  <script src="../shared/atlas-account.js?v=20260919-accountmanagement2"></script>
   <script src="../shared/atlas-return-intent.js?v=20260917-capability1"></script>
   <script src="../shared/atlas-return-handoff.js?v=20260917-capability1"></script>
 </head>
@@ -664,8 +664,11 @@
 
             <form id="change-password-form" class="account-management-form" hidden>
               <p class="account-management-copy">
-                Choose a new password. Atlas may ask you to verify your identity if your session is no longer recent.
+                Enter your current password, then choose a new one.
               </p>
+
+              <label for="change-password-current">Current password</label>
+              <input id="change-password-current" type="password" autocomplete="current-password" required>
 
               <label for="change-password">New password</label>
               <input id="change-password" type="password" autocomplete="new-password" minlength="8" required>
@@ -906,7 +909,7 @@
         );
       } else if (passwordOpen) {
         window.setTimeout(
-          () => document.getElementById('change-password')?.focus(),
+          () => document.getElementById('change-password-current')?.focus(),
           0
         );
       }
@@ -1178,6 +1181,7 @@
 
     document.getElementById('cancel-change-password')
       .addEventListener('click', () => {
+        document.getElementById('change-password-current').value = '';
         document.getElementById('change-password').value = '';
         document.getElementById('change-password-confirm').value = '';
         setAccountManagementView('');
@@ -1227,10 +1231,20 @@
 
       const button =
         document.getElementById('change-password-submit');
+      const currentPassword =
+        document.getElementById('change-password-current').value;
       const password =
         document.getElementById('change-password').value;
       const confirm =
         document.getElementById('change-password-confirm').value;
+
+      if (!currentPassword) {
+        setStatus(
+          'Enter your current password.',
+          'error'
+        );
+        return;
+      }
 
       if (password.length < 8) {
         setStatus(
@@ -1257,8 +1271,12 @@
       setStatus('Updating your password…');
 
       try {
-        await AtlasAccount.changePassword(password);
+        await AtlasAccount.changePassword(
+          currentPassword,
+          password
+        );
 
+        document.getElementById('change-password-current').value = '';
         document.getElementById('change-password').value = '';
         document.getElementById('change-password-confirm').value = '';
         setAccountManagementView('');

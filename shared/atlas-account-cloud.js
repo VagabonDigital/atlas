@@ -148,6 +148,60 @@
         return data;
     }
 
+    async function updatePasswordWithCurrentCredentials(
+        email,
+        currentPassword,
+        password
+    ) {
+        requireAtlasCloud();
+
+        const client = await AtlasCloud.getClient();
+        const signInResult =
+            await client.auth.signInWithPassword({
+                email: normalizeEmail(email),
+                password:
+                    normalizePassword(
+                        currentPassword
+                    )
+            });
+
+        if (signInResult?.error) {
+            const message =
+                String(
+                    signInResult.error?.message ||
+                    signInResult.error ||
+                    ''
+                ).toLowerCase();
+
+            if (
+                message.includes(
+                    'invalid login credentials'
+                ) ||
+                message.includes(
+                    'invalid email or password'
+                )
+            ) {
+                const error = new Error(
+                    'Your current password is incorrect.'
+                );
+                error.code =
+                    'ATLAS_CURRENT_PASSWORD_INVALID';
+                throw error;
+            }
+
+            throw signInResult.error;
+        }
+
+        const { data, error } =
+            await client.auth.updateUser({
+                password:
+                    normalizePassword(password)
+            });
+
+        if (error) throw error;
+        return data;
+    }
+
     async function signOutCurrentSession() {
         requireAtlasCloud();
         const client = await AtlasCloud.getClient();
@@ -244,6 +298,7 @@
         requestPasswordReset,
         updateEmail,
         updatePassword,
+        updatePasswordWithCurrentCredentials,
         signOutCurrentSession,
         reconcileCurrentSession,
         isAuthSessionError,

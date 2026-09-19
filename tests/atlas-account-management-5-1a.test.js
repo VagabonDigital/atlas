@@ -42,7 +42,22 @@ assert.ok(
 );
 assert.ok(
   account.includes(
-    'async function changePassword(password)'
+    'async function changePassword(\n        currentPassword,\n        password\n    )'
+  )
+);
+assert.ok(
+  cloud.includes(
+    'async function updatePasswordWithCurrentCredentials('
+  )
+);
+assert.ok(
+  cloud.includes(
+    'client.auth.signInWithPassword'
+  )
+);
+assert.ok(
+  cloud.includes(
+    'Your current password is incorrect.'
   )
 );
 assert.ok(
@@ -67,7 +82,12 @@ assert.ok(
 );
 assert.ok(
   page.includes(
-    'AtlasAccount.changePassword(password)'
+    'id="change-password-current"'
+  )
+);
+assert.ok(
+  page.includes(
+    'AtlasAccount.changePassword(\n          currentPassword,\n          password\n        )'
   )
 );
 assert.ok(
@@ -81,8 +101,13 @@ assert.ok(
   )
 );
 assert.ok(
-  bootstrap.includes(
-    'atlas-account.js?v=20260919-accountmanagement1'
+  page.includes(
+    'atlas-account.js?v=20260919-accountmanagement2'
+  )
+);
+assert.ok(
+  account.includes(
+    'atlas-account-cloud.js?v=20260919-accountmanagement2'
   )
 );
 
