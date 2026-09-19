@@ -69,25 +69,40 @@
             backdrop-filter: blur(14px);
         }
 
+        .atlas-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin: 0 0 18px;
+        }
+
         .atlas-mark {
             width: 42px;
             height: 42px;
             display: grid;
             place-items: center;
-            margin: 0 auto 22px;
+            margin: 0;
             border: 1px solid var(--border);
             border-radius: 14px;
             color: var(--accent);
-            font-size: 21px;
-            line-height: 1;
+        }
+
+        .atlas-mark svg {
+            width: 18px;
+            height: 18px;
+            display: block;
         }
 
         .eyebrow {
-            margin: 0 0 10px;
+            display: inline-block;
+            margin: 0;
             color: var(--muted);
             font-size: 12px;
             font-weight: 700;
+            line-height: 1;
             letter-spacing: 0.12em;
+            text-indent: 0.12em;
             text-transform: uppercase;
         }
 
@@ -143,8 +158,16 @@
 
 <body>
     <main>
-        <div class="atlas-mark" aria-hidden="true">⌁</div>
-        <p class="eyebrow">Atlas</p>
+        <div class="atlas-brand">
+            <div class="atlas-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="7.25" stroke="currentColor" stroke-width="1.35"/>
+                    <path d="M15.8 8.2l-2.55 5.05-5.05 2.55 2.55-5.05L15.8 8.2Z" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/>
+                    <path d="M15.8 8.2l-2.55 5.05-2.5-2.5L15.8 8.2Z" fill="currentColor"/>
+                </svg>
+            </div>
+            <p class="eyebrow">Atlas</p>
+        </div>
         <h1 id="not-found-title">This Atlas page isn’t available.</h1>
         <p id="not-found-message">
             The link may be old, incomplete, or no longer available.

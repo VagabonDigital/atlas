@@ -55,6 +55,11 @@ const accountPageSource =
 const notFoundSource =
     read('404.html');
 
+const frontendDeployConfig =
+    JSON.parse(
+        read('wrangler.atlas-web.jsonc')
+    );
+
 class FakeStorage {
     constructor() {
         this.values = new Map();
@@ -695,6 +700,32 @@ function testAuthAndRecoveryPreserveOpaqueIntent() {
 }
 
 function testInvalidAndStaleLinksFailHonestly() {
+    assert.equal(
+        frontendDeployConfig.name,
+        'atlas'
+    );
+
+    assert.equal(
+        frontendDeployConfig.assets?.directory,
+        '.'
+    );
+
+    assert.equal(
+        frontendDeployConfig.assets?.not_found_handling,
+        '404-page',
+        'Atlas frontend deployment must serve the committed 404.html for unmatched asset routes.'
+    );
+
+    assert.match(
+        notFoundSource,
+        /class="atlas-brand"/
+    );
+
+    assert.match(
+        notFoundSource,
+        /text-indent: 0\.12em/
+    );
+
     assert.match(
         notFoundSource,
         /This subject isn’t available\./
