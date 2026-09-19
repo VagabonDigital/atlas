@@ -114,9 +114,18 @@
       background: var(--surface-canvas, #f5f1e9);
     }
 
+    html[data-atlas-resume-transition] {
+      height: 100%;
+      overflow: hidden !important;
+      overscroll-behavior: none;
+      scrollbar-gutter: auto;
+    }
+
     html[data-atlas-resume-transition] body {
+      height: 100%;
       visibility: visible !important;
       overflow: hidden !important;
+      overscroll-behavior: none;
     }
 
     html[data-atlas-resume-transition] body > * {

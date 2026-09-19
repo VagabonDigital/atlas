@@ -14309,6 +14309,11 @@ function goToView(
         return;
     }
 
+    if (viewId !== 'view-cover') {
+        delete document.documentElement.dataset
+            .atlasSubjectBuildHandoff;
+    }
+
     closeCompassWrapUp({ restoreScroll: false });
     closeDiscussionFocus({
         restoreScroll: false,

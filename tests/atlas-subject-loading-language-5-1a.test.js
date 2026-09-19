@@ -32,9 +32,28 @@ assert.ok(
   )
 );
 
-assert.match(
-  subjectPage,
-  /html:has\(body > #compass-subject-load-status\)\s*\{\s*overflow-y: hidden;\s*scrollbar-gutter: auto;\s*\}/
+assert.ok(
+  subjectPage.includes(
+    ".get('author') === 'generate'"
+  )
+);
+
+assert.ok(
+  subjectPage.includes(
+    '.atlasSubjectBuildHandoff = \'true\''
+  )
+);
+
+assert.ok(
+  subjectPage.includes(
+    'html[data-atlas-subject-build-handoff="true"]'
+  )
+);
+
+assert.ok(
+  subjectPage.includes(
+    'overflow: hidden !important;'
+  )
 );
 
 console.log(

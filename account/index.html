@@ -206,6 +206,19 @@
       background: var(--canvas);
     }
 
+    html[data-atlas-return-handoff="true"] {
+      height: 100%;
+      overflow: hidden !important;
+      overscroll-behavior: none;
+      scrollbar-gutter: auto;
+    }
+
+    html[data-atlas-return-handoff="true"] body {
+      height: 100%;
+      overflow: hidden !important;
+      overscroll-behavior: none;
+    }
+
     html[data-atlas-return-handoff="true"] .account-return-handoff {
       display: grid;
     }

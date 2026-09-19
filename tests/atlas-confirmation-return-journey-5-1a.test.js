@@ -38,6 +38,18 @@ assert.ok(
 );
 
 assert.ok(
+  account.includes(
+    'html[data-atlas-return-handoff="true"] {'
+  )
+);
+
+assert.ok(
+  account.includes(
+    'overflow: hidden !important;'
+  )
+);
+
+assert.ok(
   compass.includes(
     'class="atlas-resume-handoff"'
   )
@@ -70,6 +82,12 @@ assert.ok(
 assert.ok(
   compass.includes(
     'atlasResumeTransition'
+  )
+);
+
+assert.ok(
+  compass.includes(
+    'html[data-atlas-resume-transition] {'
   )
 );
 
