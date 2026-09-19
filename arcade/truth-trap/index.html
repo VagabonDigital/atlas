@@ -2890,6 +2890,23 @@
     /* ================================================================
        OPENING / INIT FLOW
        ================================================================ */
+    function updateStartButton(covered = 0) {
+      const startBtn =
+        document.getElementById('btn-start');
+
+      if (!startBtn) return;
+
+      startBtn.innerHTML =
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+        '<path d="M3 2l9 5-9 5V2z" fill="currentColor"/>' +
+        '</svg>' +
+        (
+          covered > 0
+            ? 'CONTINUE INVESTIGATION'
+            : 'ENTER THE TRAP'
+        );
+    }
+
     function startGame() {
       if (!Bridge || !session || !ST) return;
 
@@ -3008,16 +3025,7 @@
           return;
         }
 
-        const startBtn = document.getElementById('btn-start');
-
-        if (startBtn && covered > 0) {
-          startBtn.innerHTML =
-            '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
-            '<path d="M3 2l9 5-9 5V2z" fill="currentColor"/>' +
-            '</svg>' +
-            'CONTINUE INVESTIGATION';
-        }
-
+        updateStartButton(covered);
         return;
       }
 
@@ -3071,29 +3079,95 @@
       document.documentElement.dataset.theme = mode;
     });
 
-    window.addEventListener('atlas:session-change', () => {
-      session = Bridge.readActiveSession();
+    window.addEventListener('atlas:session-change', event => {
+      const opening =
+        document.getElementById('opening');
 
-      // Pull state for the newly selected student
+      const game =
+        document.getElementById('game');
+
+      const airlock =
+        document.getElementById('airlock');
+
+      const gameWasVisible =
+        game?.classList.contains('visible') === true;
+
+      session =
+        (event.detail && event.detail.session) ||
+        Bridge.readActiveSession();
+
+      // Pull state for the newly selected student.
       const saved = readBridgeState();
+
       if (saved) {
         ST = saved;
-        if (ST.status === 'complete') {
-          document.getElementById('opening').style.display = 'none';
-          document.getElementById('game').classList.remove('visible');
-          document.getElementById('airlock').classList.add('visible');
-          return;
+
+        if (!ST.cases || typeof ST.cases !== 'object') {
+          ST.cases = {};
+        }
+
+        for (let i = 0; i < TOTAL_CASES; i++) {
+          if (!ST.cases[String(i)]) {
+            ST.cases[String(i)] = {
+              playerAnswer: null,
+              revealed: false,
+              solved: false,
+              correct: null
+            };
+          }
         }
       } else {
         ST = getDefaultState();
       }
 
-      // Ensure gameplay view is active if they switch from a completed student to a new one
-      document.getElementById('airlock').classList.remove('visible');
-      document.getElementById('opening').style.display = 'none';
-      document.getElementById('game').classList.add('visible');
+      const solvedCount =
+        Object.values(ST.cases || {}).filter(
+          caseState =>
+            caseState &&
+            caseState.solved
+        ).length;
 
-      render();
+      const savedCovered = Number(
+        ST.progress &&
+        ST.progress.covered
+      );
+
+      const covered =
+        Number.isFinite(savedCovered)
+          ? Math.max(
+              savedCovered,
+              solvedCount
+            )
+          : solvedCount;
+
+      const isComplete =
+        covered >= TOTAL_CASES ||
+        ST.status === 'complete' ||
+        ST.status === 'completed';
+
+      if (isComplete) {
+        opening.style.display = 'none';
+        game.classList.remove('visible');
+        airlock.classList.add('visible');
+        return;
+      }
+
+      airlock.classList.remove('visible');
+      updateStartButton(covered);
+
+      if (gameWasVisible) {
+        opening.style.display = 'none';
+        opening.classList.remove('fade-out');
+        game.classList.add('visible');
+        render();
+        return;
+      }
+
+      // A session change can fire during initial page setup.
+      // Preserve the cover unless the tutor had already entered the game.
+      opening.classList.remove('fade-out');
+      opening.style.display = '';
+      game.classList.remove('visible');
     });
 
     /* ================================================================
