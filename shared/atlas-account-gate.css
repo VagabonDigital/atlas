@@ -169,6 +169,38 @@
     box-shadow: 0 0 0 3px var(--atlas-modal-accent-bg, rgba(89, 97, 125, 0.09));
 }
 
+.atlas-account-password-field { position: relative; }
+.atlas-account-password-field .atlas-account-gate-input { padding-right: 46px; }
+
+.atlas-account-password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    transform: translateY(-50%);
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--atlas-modal-muted, var(--text-muted, #7b7469));
+    cursor: pointer;
+}
+
+.atlas-account-password-toggle:hover:not(:disabled) {
+    background: var(--atlas-modal-accent-bg, rgba(89, 97, 125, 0.09));
+    color: var(--atlas-modal-accent, #59617d);
+}
+
+.atlas-account-password-toggle:focus-visible {
+    outline: 2px solid var(--atlas-modal-accent, #59617d);
+    outline-offset: 1px;
+}
+
+.atlas-account-password-toggle svg { width: 19px; height: 19px; }
+
 .atlas-account-gate-hint {
     margin: 7px 0 0;
     color: var(--atlas-modal-faint, var(--text-subtle, #9b9489));

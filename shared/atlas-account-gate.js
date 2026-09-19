@@ -316,6 +316,13 @@
             return 'An account already exists for that email. Try signing in.';
         }
 
+        if (
+            lower.includes('email rate limit exceeded') ||
+            lower.includes('email rate limit')
+        ) {
+            return 'Too many account emails have been sent. Please try again shortly.';
+        }
+
         if (lower.includes('password') && lower.includes('8')) {
             return 'Use a password with at least 8 characters.';
         }
@@ -325,6 +332,43 @@
         }
 
         return message || 'Atlas could not complete that account action. Please try again.';
+    }
+
+    function passwordVisibilityIcon(visible) {
+        return visible
+            ? `<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.2 10s2.8-4.2 7.8-4.2 7.8 4.2 7.8 4.2-2.8 4.2-7.8 4.2S2.2 10 2.2 10Z" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.1" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M4 4l12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`
+            : `<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.2 10s2.8-4.2 7.8-4.2 7.8 4.2 7.8 4.2-2.8 4.2-7.8 4.2S2.2 10 2.2 10Z" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="2.1" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>`;
+    }
+
+    function installPasswordVisibilityToggles(root) {
+        root?.querySelectorAll('input[type="password"]').forEach(input => {
+            if (input.closest('.atlas-account-password-field')) return;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'atlas-account-password-field';
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'atlas-account-password-toggle';
+            button.setAttribute('aria-label', 'Show password');
+            button.setAttribute('aria-pressed', 'false');
+            button.title = 'Show password';
+            button.innerHTML = passwordVisibilityIcon(false);
+
+            button.addEventListener('click', () => {
+                const visible = input.type === 'text';
+                input.type = visible ? 'password' : 'text';
+                const nowVisible = !visible;
+                const label = nowVisible ? 'Hide password' : 'Show password';
+                button.setAttribute('aria-label', label);
+                button.setAttribute('aria-pressed', String(nowVisible));
+                button.title = label;
+                button.innerHTML = passwordVisibilityIcon(nowVisible);
+            });
+
+            wrapper.appendChild(button);
+        });
     }
 
     function ensureGate() {
@@ -397,6 +441,7 @@
         `;
 
         document.body.appendChild(gateLayer);
+        installPasswordVisibilityToggles(gateLayer);
 
         gateLayer.addEventListener('click', event => {
             if (event.target === gateLayer) close();
