@@ -868,7 +868,13 @@
 
         try {
             await prepareAccount();
-            await window.AtlasAccount.requestPasswordReset(email);
+            await window.AtlasAccount.requestPasswordReset(
+                email,
+                {
+                    returnIntentId:
+                        activeReturnIntentId
+                }
+            );
             setBusy(false);
             showMessage(
                 'Check your email',

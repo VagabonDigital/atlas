@@ -190,21 +190,41 @@ function testIntegrationBoundaries() {
         'utf8'
     );
 
-    assert.match(account, /searchParams\.set\('ri', intentId\)/);
-    assert.match(account, /accountReturnUrl\(\{ returnIntentId \}\)/);
     assert.match(
         account,
-        /requestPasswordReset\([\s\S]*?accountReturnUrl\(\)/
+        /searchParams\.set\('ri', intentId\)/
     );
-    assert.match(gate, /returnIntentId: activeReturnIntentId/);
+
+    assert.match(
+        account,
+        /createAccount\([\s\S]*?accountReturnUrl\(\{ returnIntentId \}\)/
+    );
+
+    assert.match(
+        account,
+        /requestPasswordReset\([\s\S]*?\{ returnIntentId = null \}[\s\S]*?accountReturnUrl\(\{ returnIntentId \}\)/
+    );
+
+    assert.match(
+        gate,
+        /requestPasswordReset\([\s\S]*?returnIntentId:[\s\S]*?activeReturnIntentId/
+    );
+
+    assert.match(
+        page,
+        /requestPasswordReset\([\s\S]*?returnIntentId:[\s\S]*?AtlasReturnHandoff\.getPendingId\(\)/
+    );
+
     assert.match(
         page,
         /atlas-return-handoff\.js\?v=20260917-capability1/
     );
+
     assert.match(
         page,
-        /AtlasReturnHandoff\.resumeIfAuthenticated\(state\)/
+        /state\.authenticated && state\.recovery[\s\S]*?AtlasReturnHandoff\.resumeIfAuthenticated\(state\)/
     );
+
     assert.doesNotMatch(
         page,
         /new URLSearchParams[\s\S]*?window\.location\.href\s*=\s*.*ri/

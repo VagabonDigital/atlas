@@ -638,7 +638,13 @@
       setStatus('Sending password reset email…');
 
       try {
-        await AtlasAccount.requestPasswordReset(email);
+        await AtlasAccount.requestPasswordReset(
+          email,
+          {
+            returnIntentId:
+              AtlasReturnHandoff.getPendingId()
+          }
+        );
         setStatus(
           'If an account exists for that email, a password reset link is on its way.',
           'success'

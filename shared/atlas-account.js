@@ -575,12 +575,15 @@
         };
     }
 
-    async function requestPasswordReset(email) {
+    async function requestPasswordReset(
+        email,
+        { returnIntentId = null } = {}
+    ) {
         await initialize();
         const AccountCloud = await ensureAccountCloud();
         await AccountCloud.requestPasswordReset(
             email,
-            accountReturnUrl()
+            accountReturnUrl({ returnIntentId })
         );
         return true;
     }
