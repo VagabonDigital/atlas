@@ -36,14 +36,14 @@ assert.doesNotMatch(root, /const rootCloudAuthorityBootstrapPromise/);
 assert.match(registry, /atlas-root-runtime\.js\?v=20260917-postpaint1/);
 assert.match(registry, /atlas-access-bootstrap\.js\?v=20260918-publicaccess1/);
 assert.match(registry, /function scheduleCompassHubCloudAuthorityScripts\(\)[\s\S]*atlas:compass-first-paint-ready/);
-assert.match(registry, /function installCompassHubLiveAccountBootstrap\(\)/);
+assert.match(registry, /function installCompassLiveAccountBootstrap\(\)/);
 assert.match(
   registry,
-  /installCompassHubLiveAccountBootstrap[\s\S]*atlas:account-change[\s\S]*identityChanged[\s\S]*scheduleCompassHubCloudAuthorityScripts\(\)/
+  /installCompassLiveAccountBootstrap[\s\S]*atlas:account-change[\s\S]*identityChanged[\s\S]*isCompassHubPath\(\)[\s\S]*scheduleCompassHubCloudAuthorityScripts\(\)[\s\S]*loadCompassCloudAuthorityScripts\(\)/
 );
 assert.match(
   registry,
-  /installCompassHubLiveAccountBootstrap\(\);\s*\n\s*writeCloudAuthorityScripts\(\);/
+  /installCompassLiveAccountBootstrap\(\);\s*\n\s*writeCloudAuthorityScripts\(\);/
 );
 
 assert.match(tutors, /class="atlas-fonts-pending"/);

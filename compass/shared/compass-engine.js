@@ -757,6 +757,78 @@ async function requireSubjectAuthoringCapability(
     }
 }
 
+function getSubjectAuthoringAuthorityKind() {
+    return isOwnedSubjectRuntime()
+        ? 'subjects'
+        : 'tutor-content';
+}
+
+function subjectAuthoringCloudAuthorityReady(
+    kind = getSubjectAuthoringAuthorityKind()
+) {
+    if (kind === 'subjects') {
+        return Boolean(
+            window.AtlasTutorSubjectsCloudAuthority?.active === true &&
+            window.AtlasTutorSubjects?.cloudWriteAuthority === true
+        );
+    }
+
+    return Boolean(
+        window.AtlasTutorContentCloudAuthority?.active === true &&
+        window.AtlasTutorContent?.__atlasCloudAuthority === true &&
+        window.AtlasTutorContent?.__atlasCloudSync === true
+    );
+}
+
+async function ensureSubjectAuthoringCloudAuthorityReady(
+    kind = getSubjectAuthoringAuthorityKind()
+) {
+    if (!hasCompassAccountSession()) {
+        return true;
+    }
+
+    if (subjectAuthoringCloudAuthorityReady(kind)) {
+        return true;
+    }
+
+    try {
+        const Registry =
+            window.AtlasContentRegistry;
+
+        if (
+            Registry &&
+            typeof Registry.ensureCompassCloudAuthority ===
+                'function'
+        ) {
+            await Registry.ensureCompassCloudAuthority();
+        }
+    } catch (error) {
+        console.error(
+            '[Compass] signed-in authorship cloud authority failed:',
+            error
+        );
+    }
+
+    return subjectAuthoringCloudAuthorityReady(kind);
+}
+
+function showSubjectAuthoringPersistenceUnavailable(
+    message =
+        'Your Atlas account is still getting ready. Try again.'
+) {
+    const status = document.getElementById(
+        'atlas-my-version-status'
+    );
+
+    if (status) {
+        status.textContent = message;
+    }
+
+    try {
+        showToast(message);
+    } catch { }
+}
+
 function subjectAuthoringCapabilityAllows(access, message) {
     if (access?.outcome === 'allowed') {
         return true;
@@ -2796,6 +2868,14 @@ async function saveMyVersion(options = {}) {
         }
     }
 
+    const authorityReady =
+        await ensureSubjectAuthoringCloudAuthorityReady();
+
+    if (!authorityReady) {
+        showSubjectAuthoringPersistenceUnavailable();
+        return;
+    }
+
     const activeElement = document.activeElement;
 
     if (isLiveTutorContentTarget(activeElement)) {
@@ -4352,6 +4432,18 @@ async function createSubjectFromMyVersion(options = {}) {
         ) {
             return;
         }
+    }
+
+    const authorityReady =
+        await ensureSubjectAuthoringCloudAuthorityReady(
+            'subjects'
+        );
+
+    if (!authorityReady) {
+        showSubjectAuthoringPersistenceUnavailable(
+            'Your Atlas account is still getting ready. Try creating the subject again.'
+        );
+        return;
     }
 
     const button = document.getElementById(

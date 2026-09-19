@@ -885,7 +885,7 @@
         document.head.appendChild(script);
     }
 
-    let compassHubCloudAuthorityPromise = null;
+    let compassCloudAuthorityPromise = null;
 
     function isCompassHubPath() {
         const path = String(
@@ -991,12 +991,12 @@
         requestCompassHubRefresh('cloud-authority');
     }
 
-    async function loadCompassHubCloudAuthorityScripts() {
-        if (compassHubCloudAuthorityPromise) {
-            return compassHubCloudAuthorityPromise;
+    async function loadCompassCloudAuthorityScripts() {
+        if (compassCloudAuthorityPromise) {
+            return compassCloudAuthorityPromise;
         }
 
-        compassHubCloudAuthorityPromise = (async () => {
+        compassCloudAuthorityPromise = (async () => {
             const needsSubjects = Boolean(
                 window.AtlasTutorSubjects &&
                 !window.AtlasTutorSubjectsCloudAuthority
@@ -1061,7 +1061,7 @@
             signalCompassCloudAuthorityReady();
             return true;
         })().catch(error => {
-            compassHubCloudAuthorityPromise = null;
+            compassCloudAuthorityPromise = null;
             console.error(
                 '[AtlasContentRegistry] Compass cloud authority failed:',
                 error
@@ -1069,7 +1069,7 @@
             return false;
         });
 
-        return compassHubCloudAuthorityPromise;
+        return compassCloudAuthorityPromise;
     }
 
     function scheduleCompassHubCloudAuthorityScripts() {
@@ -1081,7 +1081,7 @@
 
             window.requestAnimationFrame(() => {
                 window.setTimeout(() => {
-                    void loadCompassHubCloudAuthorityScripts();
+                    void loadCompassCloudAuthorityScripts();
                 }, 0);
             });
         };
@@ -1105,8 +1105,12 @@
         hasStoredAtlasAccountSession();
     let observedCompassAccountUserId = '';
 
-    function installCompassHubLiveAccountBootstrap() {
-        if (!isCompassHubPath()) {
+    function installCompassLiveAccountBootstrap() {
+        if (
+            !String(
+                window.location.pathname || ''
+            ).startsWith('/compass/')
+        ) {
             return;
         }
 
@@ -1145,10 +1149,17 @@
                 /*
                  * Anonymous Compass startup intentionally skips account-owned
                  * cloud authorities. A successful live sign-in must install
-                 * those same authorities in this document; requiring a reload
-                 * would leave My Subjects/library state absent until refresh.
+                 * those same authorities in the current document. Hub pages
+                 * keep their post-paint scheduling; subject pages begin the
+                 * upgrade immediately so resumed authorship cannot write
+                 * signed-in work through the anonymous local projection.
                  */
-                scheduleCompassHubCloudAuthorityScripts();
+                if (isCompassHubPath()) {
+                    scheduleCompassHubCloudAuthorityScripts();
+                    return;
+                }
+
+                void loadCompassCloudAuthorityScripts();
             }
         );
     }
@@ -1242,11 +1253,13 @@
     window.AtlasContentRegistry = {
         registerAll,
         registerCompass,
-        requestCompassHubRefresh
+        requestCompassHubRefresh,
+        ensureCompassCloudAuthority:
+            loadCompassCloudAuthorityScripts
     };
 
     writeAtlasRootRuntimeScript();
-    installCompassHubLiveAccountBootstrap();
+    installCompassLiveAccountBootstrap();
     writeCloudAuthorityScripts();
     writeAtlasAccessBootstrapScript();
     writeAtlasAccountChromeScript();

@@ -248,12 +248,12 @@ assert.match(
 // Live anonymous -> authenticated Compass must load the same cloud authorities.
 assert.match(
     contentRegistry,
-    /function installCompassHubLiveAccountBootstrap\(\)[\s\S]*?atlas:account-change[\s\S]*?scheduleCompassHubCloudAuthorityScripts\(\)/
+    /function installCompassLiveAccountBootstrap\(\)[\s\S]*?atlas:account-change[\s\S]*?isCompassHubPath\(\)[\s\S]*?scheduleCompassHubCloudAuthorityScripts\(\)[\s\S]*?loadCompassCloudAuthorityScripts\(\)/
 );
 
 assert.match(
     contentRegistry,
-    /loadCompassHubCloudAuthorityScripts\([\s\S]*?AtlasTutorSubjectsCloudAuthority[\s\S]*?AtlasTutorContentCloudAuthority[\s\S]*?signalCompassCloudAuthorityReady\(\)/
+    /loadCompassCloudAuthorityScripts\([\s\S]*?AtlasTutorSubjectsCloudAuthority[\s\S]*?AtlasTutorContentCloudAuthority[\s\S]*?signalCompassCloudAuthorityReady\(\)/
 );
 
 // ---------------------------------------------------------------------------
