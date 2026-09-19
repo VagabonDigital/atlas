@@ -1533,7 +1533,8 @@
                         source: String(source || 'session-panel')
                             .slice(0, 80)
                     },
-                    trigger
+                    trigger,
+                    mode: 'create'
                 }
             );
         } catch (error) {
@@ -1594,6 +1595,29 @@
             };
         }
     }
+
+    window.addEventListener(
+        'atlas:account-confirmed-elsewhere',
+        event => {
+            const intent =
+                event?.detail?.returnIntent || null;
+
+            if (
+                intent?.action !== 'create-learner'
+            ) {
+                return;
+            }
+
+            if (mounted) {
+                setCreateExpanded(
+                    false,
+                    { reset: true }
+                );
+
+                close();
+            }
+        }
+    );
 
     async function installLearnerCapabilityResume() {
         try {

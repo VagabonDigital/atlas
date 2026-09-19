@@ -661,6 +661,15 @@
         state.gateMode = nextMode;
         setGateStatus('');
 
+        const card =
+            gateLayer.querySelector(
+                '.atlas-account-gate-card'
+            );
+
+        if (card) {
+            card.dataset.accountView = 'auth';
+        }
+
         const isAuthMode = nextMode === 'sign-in' || nextMode === 'create';
         const title = gateLayer.querySelector('[data-account-copy]');
         const tabs = gateLayer.querySelector('[data-account-tabs]');
@@ -703,6 +712,15 @@
         ensureGate();
 
         state.gateMode = 'message';
+
+        const card =
+            gateLayer.querySelector(
+                '.atlas-account-gate-card'
+            );
+
+        if (card) {
+            card.dataset.accountView = 'message';
+        }
 
         const accountCopy =
             gateLayer.querySelector('[data-account-copy]');
