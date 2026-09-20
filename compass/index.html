@@ -2939,6 +2939,7 @@
     }
 
     .owned-subject-dialog-create-field {
+      position: relative;
       display: grid;
       gap: 0.42rem;
     }
@@ -2958,25 +2959,62 @@
 
     .owned-subject-dialog-info {
       display: inline-grid;
-      width: 15px;
-      height: 15px;
-      flex: 0 0 15px;
+      width: 16px;
+      height: 16px;
+      flex: 0 0 16px;
+      padding: 0;
       place-items: center;
       border: 1px solid var(--border-subtle);
       border-radius: 50%;
+      background: transparent;
       color: var(--text-muted);
+      font: inherit;
       font-size: 0.62rem;
-      font-style: normal;
       font-weight: 700;
       line-height: 1;
-      cursor: help;
+      cursor: pointer;
     }
 
     .owned-subject-dialog-info:hover,
-    .owned-subject-dialog-info:focus-visible {
+    .owned-subject-dialog-info:focus-visible,
+    .owned-subject-dialog-info[aria-expanded="true"] {
       border-color: rgba(var(--accent-rgb), 0.5);
       color: var(--accent);
       outline: none;
+    }
+
+    .owned-subject-dialog-info-popover {
+      position: absolute;
+      z-index: 20;
+      top: 1.65rem;
+      right: 0;
+      width: min(230px, calc(100vw - 2rem));
+      padding: 0.72rem 0.78rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      background: var(--surface-panel);
+      color: var(--text-body);
+      box-shadow: var(--shadow-md);
+      font-size: 0.72rem;
+      font-weight: 400;
+      line-height: 1.45;
+    }
+
+    .owned-subject-dialog-info-popover[hidden] {
+      display: none;
+    }
+
+    .owned-subject-dialog-info-popover strong {
+      color: var(--text-heading);
+      font-weight: 650;
+    }
+
+    .owned-subject-dialog-info-popover p {
+      margin: 0;
+    }
+
+    .owned-subject-dialog-info-popover p + p {
+      margin-top: 0.38rem;
     }
 
     .owned-subject-dialog-create-field select,
@@ -7199,6 +7237,32 @@
       }
     }
 
+    function toggleOwnedSubjectDialogLanguageHelp(
+      button,
+      event
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      const dialog = document.getElementById(
+        'owned-subject-dialog'
+      );
+
+      const popover = dialog?.querySelector(
+        '#owned-subject-dialog-language-help'
+      );
+
+      if (!popover || !button) return;
+
+      const opening = popover.hidden;
+
+      popover.hidden = !opening;
+      button.setAttribute(
+        'aria-expanded',
+        String(opening)
+      );
+    }
+
     function ensureOwnedSubjectDialog() {
       let dialog = document.getElementById(
         'owned-subject-dialog'
@@ -7303,16 +7367,21 @@
         '</select>' +
         '</label>' +
 
-        '<label class="owned-subject-dialog-create-field">' +
-        '<span class="owned-subject-dialog-create-label">Language ' +
-        '<i class="owned-subject-dialog-info" tabindex="0" aria-label="Language support: Key adds selected high-value language, All adds language throughout, and None leaves language support out." title="Key adds selected high-value language. All adds language throughout. None leaves language support out.">i</i>' +
+        '<div class="owned-subject-dialog-create-field">' +
+        '<span class="owned-subject-dialog-create-label" id="owned-subject-dialog-language-label">Language ' +
+        '<button class="owned-subject-dialog-info" type="button" aria-label="About language support" aria-expanded="false" aria-controls="owned-subject-dialog-language-help" onclick="toggleOwnedSubjectDialogLanguageHelp(this, event)">i</button>' +
         '</span>' +
-        '<select id="owned-subject-dialog-language-support">' +
+        '<div class="owned-subject-dialog-info-popover" id="owned-subject-dialog-language-help" role="tooltip" hidden>' +
+        '<p><strong>Key</strong> — selected high-value language only.</p>' +
+        '<p><strong>All</strong> — language support throughout the subject.</p>' +
+        '<p><strong>None</strong> — no built-in language support.</p>' +
+        '</div>' +
+        '<select id="owned-subject-dialog-language-support" aria-labelledby="owned-subject-dialog-language-label">' +
         '<option value="key" selected>Key</option>' +
         '<option value="all">All</option>' +
         '<option value="off">None</option>' +
         '</select>' +
-        '</label>' +
+        '</div>' +
 
         '</div>' +
 
@@ -7335,6 +7404,32 @@
       dialog.addEventListener('click', event => {
         if (event.target === dialog) {
           closeOwnedSubjectDialog();
+          return;
+        }
+
+        if (
+          !event.target.closest(
+            '.owned-subject-dialog-info'
+          ) &&
+          !event.target.closest(
+            '.owned-subject-dialog-info-popover'
+          )
+        ) {
+          const infoButton = dialog.querySelector(
+            '.owned-subject-dialog-info'
+          );
+
+          const infoPopover = dialog.querySelector(
+            '.owned-subject-dialog-info-popover'
+          );
+
+          if (infoButton && infoPopover) {
+            infoPopover.hidden = true;
+            infoButton.setAttribute(
+              'aria-expanded',
+              'false'
+            );
+          }
         }
       });
 
@@ -7379,6 +7474,22 @@
       );
 
       if (!dialog || dialog.hidden) return;
+
+      const infoButton = dialog.querySelector(
+        '.owned-subject-dialog-info'
+      );
+
+      const infoPopover = dialog.querySelector(
+        '.owned-subject-dialog-info-popover'
+      );
+
+      if (infoButton && infoPopover) {
+        infoPopover.hidden = true;
+        infoButton.setAttribute(
+          'aria-expanded',
+          'false'
+        );
+      }
 
       dialog.hidden = true;
       document.body.style.overflow =
