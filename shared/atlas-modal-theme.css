@@ -1,3 +1,7 @@
+html {
+    -webkit-tap-highlight-color: transparent;
+}
+
 /* ============================================================
    ATLAS MODAL THEME
    Shared semantic theme contract for Atlas Search and Session.
