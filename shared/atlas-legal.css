@@ -48,6 +48,9 @@ a:hover {
 }
 
 .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   border-bottom: 1px solid var(--border);
   background: rgba(243, 240, 233, 0.88);
   backdrop-filter: blur(16px);
