@@ -203,6 +203,7 @@
             let settled = false;
             let observer = null;
             let fallbackTimer = null;
+            let settleTimer = null;
 
             const finish = () => {
                 if (settled) return;
@@ -216,9 +217,37 @@
                     );
                 }
 
+                if (settleTimer) {
+                    window.clearTimeout(
+                        settleTimer
+                    );
+                }
+
                 requestAnimationFrame(() => {
                     requestAnimationFrame(resolve);
                 });
+            };
+
+            const settleAfterLoad = () => {
+                if (settled) return;
+
+                if (settleTimer) {
+                    window.clearTimeout(
+                        settleTimer
+                    );
+                }
+
+                /*
+                 * Google's iframe can fire load before its webfont has
+                 * completed first paint. Keep it off-screen for a short,
+                 * deterministic settle window so Atlas never exposes that
+                 * internal font swap.
+                 */
+                settleTimer =
+                    window.setTimeout(
+                        finish,
+                        420
+                    );
             };
 
             const watch = () => {
@@ -229,19 +258,21 @@
 
                 iframe.addEventListener(
                     'load',
-                    finish,
+                    settleAfterLoad,
                     { once: true }
                 );
 
                 /*
-                 * If Google inserted an already-loaded iframe before the
-                 * listener attached, give it a short settle window instead
-                 * of exposing its intermediate typography.
+                 * Cross-origin iframes do not expose a reliable "already
+                 * loaded" flag. This fallback is deliberately long enough
+                 * to cover an iframe inserted after its load event fired;
+                 * unlike the old 140ms fallback it cannot win the race
+                 * against a normal cold Google render.
                  */
                 fallbackTimer =
                     window.setTimeout(
                         finish,
-                        140
+                        1000
                     );
 
                 return true;
@@ -267,11 +298,10 @@
             fallbackTimer =
                 window.setTimeout(
                     finish,
-                    1200
+                    1600
                 );
         });
     }
-
 
     async function renderButton(
         container,
@@ -318,6 +348,7 @@
                 text,
                 shape: 'rectangular',
                 logo_alignment: 'left',
+                locale: 'en',
                 width: Math.max(
                     200,
                     Math.min(400, measuredWidth)
