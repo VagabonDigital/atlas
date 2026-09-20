@@ -510,21 +510,8 @@ body:has(.atlas-account-gate-layer:not([hidden]):not(.is-prewarming)),
 }
 
 @media (prefers-reduced-motion: no-preference) {
-    .atlas-account-gate-card {
-        animation: atlas-account-gate-enter 120ms ease-out both;
-    }
-
     .atlas-account-menu {
         animation: atlas-account-menu-enter 160ms ease-out both;
-    }
-
-    @keyframes atlas-account-gate-enter {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
     }
 
     @keyframes atlas-account-menu-enter {
