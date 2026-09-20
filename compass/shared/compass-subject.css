@@ -7095,6 +7095,12 @@ DISCUSSION SETS AND MOMENTS
     }
 }
 
+@media (max-width: 680px) {
+    .discussion-sets.discussion-sets--three .set-icon {
+        display: none;
+    }
+}
+
 .set-card {
     position: relative;
     display: flex;
