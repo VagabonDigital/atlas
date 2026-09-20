@@ -96,6 +96,7 @@ async function run() {
     assert.equal(state.capabilities.canCreateSubject, true);
     assert.equal(state.capabilities.canEditSubject, true);
     assert.equal(state.capabilities.canCreateWithAI, true);
+    assert.equal(state.capabilities.canUseAI, true);
     assert.equal(state.capabilities.canAccessAccountLibrary, true);
     assert.equal(state.creationAllowance.status, 'available');
     assert.equal(state.creationAllowance.allowed, true);
@@ -139,9 +140,35 @@ async function run() {
     assert.equal(state.ready, true);
     assert.equal(state.tier, 'free');
     assert.equal(state.capabilities.canCreateWithAI, false);
+    assert.equal(state.capabilities.canUseAI, true);
     assert.equal(state.creationAllowance.status, 'blocked');
     assert.equal(state.creationAllowance.allowed, false);
     assert.equal(state.capabilities.canCreateSubject, true);
+
+    emitAccount({
+        ready: true,
+        authenticated: true,
+        userId: 'account-b',
+        email: 'b@example.com',
+        recovery: false,
+        entitlementReady: true,
+        planCode: 'free',
+        capabilities: {
+            creationAllowance: {
+                allowed: false,
+                remaining: 0,
+                limit: 8,
+                resetAt: null
+            }
+        },
+        entitlementError: null
+    });
+
+    state = window.AtlasAccess.getState();
+    assert.equal(state.capabilities.canCreateWithAI, false);
+    assert.equal(state.capabilities.canUseAI, true);
+    assert.equal(state.creationAllowance.status, 'exhausted');
+    assert.equal(state.creationAllowance.remaining, 0);
 
     emitAccount({
         ready: true,
