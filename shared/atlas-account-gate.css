@@ -6,8 +6,8 @@
    then falls back to the host surface tokens used by Inside Atlas.
    ============================================================ */
 
-html:has(.atlas-account-gate-layer:not([hidden])),
-body:has(.atlas-account-gate-layer:not([hidden])),
+html:has(.atlas-account-gate-layer:not([hidden]):not(.is-prewarming)),
+body:has(.atlas-account-gate-layer:not([hidden]):not(.is-prewarming)),
 .atlas-account-gate-open {
     overflow: hidden !important;
     overscroll-behavior: none;
@@ -28,6 +28,18 @@ body:has(.atlas-account-gate-layer:not([hidden])),
     background: var(--atlas-modal-overlay-bg, rgba(17, 18, 24, 0.52));
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+}
+
+.atlas-account-gate-layer.is-prewarming {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.atlas-account-gate-layer.is-prewarming .atlas-account-gate-card {
+    animation: none !important;
 }
 
 .atlas-account-gate-card {
