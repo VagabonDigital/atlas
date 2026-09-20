@@ -418,6 +418,64 @@
       box-shadow: 0 0 0 3px var(--accent-ring);
     }
 
+    .auth-provider {
+      margin-bottom: 18px;
+    }
+
+    .google-button {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface-control);
+      color: var(--text);
+    }
+
+    .google-button:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: var(--accent-ring);
+    }
+
+    .google-mark {
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      background: var(--surface);
+      font-size: .86rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: .76rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      height: 1px;
+      flex: 1;
+      background: var(--border);
+    }
+
+    .identity-value {
+      color: var(--text-secondary);
+      font-size: .9rem;
+      font-weight: 600;
+    }
+
     .password-field { position: relative; }
     .password-field input { padding-right: 46px; }
 
@@ -723,7 +781,7 @@
 
   <script src="/shared/atlas-analytics.js?v=20260919-observability1"></script>
   <script src="../shared/atlas-cloud.js?v=20260916-account1"></script>
-  <script src="../shared/atlas-account.js?v=20260919-emailchange4"></script>
+  <script src="../shared/atlas-account.js?v=20260920-googleauth1"></script>
   <script src="../shared/atlas-return-intent.js?v=20260917-capability1"></script>
   <script src="../shared/atlas-return-handoff.js?v=20260917-capability1"></script>
 </head>
@@ -765,6 +823,16 @@
         <div class="segmented" aria-label="Account action">
           <button id="mode-sign-in" type="button" class="active">Sign in</button>
           <button id="mode-create" type="button">Create account</button>
+        </div>
+
+        <div id="google-provider" class="auth-provider" hidden>
+          <button id="continue-google" class="button google-button" type="button">
+            <span class="google-mark" aria-hidden="true">G</span>
+            <span id="continue-google-label">Continue with Google</span>
+          </button>
+          <div class="auth-divider" aria-hidden="true">
+            <span>or</span>
+          </div>
         </div>
 
         <form id="sign-in-form" class="form-panel">
@@ -831,10 +899,14 @@
             <span class="plan-label">Plan</span>
             <span id="account-plan" class="plan-chip">Checking…</span>
           </div>
+          <div class="plan-row">
+            <span class="plan-label">Sign-in method</span>
+            <span id="account-sign-in-method" class="identity-value"></span>
+          </div>
         </div>
 
-        <div class="account-management" aria-label="Account access">
-          <section class="account-management-section">
+        <div id="account-management" class="account-management" aria-label="Account access">
+          <section class="account-management-section" data-password-management>
             <button
               id="show-change-email"
               class="account-management-trigger"
@@ -872,7 +944,7 @@
             </form>
           </section>
 
-          <section class="account-management-section">
+          <section class="account-management-section" data-password-management>
             <button
               id="show-change-password"
               class="account-management-trigger"
@@ -960,6 +1032,21 @@
     const AccountView = document.getElementById('account-view');
     const AccountEmail = document.getElementById('account-email');
     const AccountPlan = document.getElementById('account-plan');
+    const AccountSignInMethod =
+      document.getElementById('account-sign-in-method');
+    const AccountManagement =
+      document.getElementById('account-management');
+    const GoogleProvider =
+      document.getElementById('google-provider');
+    const GoogleButton =
+      document.getElementById('continue-google');
+    const GoogleButtonLabel =
+      document.getElementById('continue-google-label');
+
+    if (GoogleProvider) {
+      GoogleProvider.hidden =
+        AtlasAccount.googleAuthEnabled?.() !== true;
+    }
 
     const ChangeEmailTrigger =
       document.getElementById('show-change-email');
@@ -1104,6 +1191,32 @@
       return value.charAt(0).toUpperCase() + value.slice(1);
     }
 
+    function formatSignInMethod(state) {
+      const providers =
+        new Set(
+          Array.isArray(state?.providers)
+            ? state.providers
+            : []
+        );
+
+      if (
+        providers.has('google') &&
+        state?.hasPassword
+      ) {
+        return 'Google + password';
+      }
+
+      if (providers.has('google')) {
+        return 'Google';
+      }
+
+      if (state?.hasPassword) {
+        return 'Email + password';
+      }
+
+      return 'Connected account';
+    }
+
     function setGuestMode(mode) {
       guestMode = mode === 'create' ? 'create' : 'sign-in';
       ModeSignIn.classList.toggle('active', guestMode === 'sign-in');
@@ -1201,6 +1314,17 @@
         finishReturnHandoff();
         showOnly(AccountView);
         AccountEmail.textContent = state.email || state.userId || 'Atlas account';
+        AccountSignInMethod.textContent =
+          formatSignInMethod(state);
+
+        if (AccountManagement) {
+          AccountManagement.hidden =
+            state.hasPassword !== true;
+
+          if (state.hasPassword !== true) {
+            setAccountManagementView('');
+          }
+        }
 
         if (!state.entitlementReady) {
           AccountPlan.textContent = 'Checking…';
@@ -1218,6 +1342,10 @@
 
       finishReturnHandoff();
       AccountEmail.textContent = '';
+      AccountSignInMethod.textContent = '';
+      if (AccountManagement) {
+        AccountManagement.hidden = false;
+      }
       showOnly(GuestView);
       setGuestMode(guestMode);
     }
@@ -1336,6 +1464,45 @@
         setStatus(humanizeAccountError(error), 'error');
       }
     })();
+
+    GoogleButton?.addEventListener('click', async event => {
+      const button = event.currentTarget;
+
+      button.disabled = true;
+
+      if (GoogleButtonLabel) {
+        GoogleButtonLabel.textContent =
+          'Opening Google…';
+      }
+
+      setStatus('Opening Google sign-in…');
+
+      try {
+        await AtlasAccount.signInWithGoogle({
+          returnIntentId:
+            AtlasReturnHandoff.getPendingId(),
+          redirectTo:
+            window.location.href
+        });
+      } catch (error) {
+        window.AtlasAnalytics?.authFailure({
+          action: 'google_oauth',
+          error
+        });
+
+        button.disabled = false;
+
+        if (GoogleButtonLabel) {
+          GoogleButtonLabel.textContent =
+            'Continue with Google';
+        }
+
+        setStatus(
+          humanizeAccountError(error),
+          'error'
+        );
+      }
+    });
 
     ModeSignIn.addEventListener('click', () => {
       transientStatus = false;

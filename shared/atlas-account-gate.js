@@ -21,7 +21,7 @@
     if (window.AtlasAccountGate) return;
 
     const STYLE_HREF =
-        '/shared/atlas-account-gate.css?v=20260916-accountgate2';
+        '/shared/atlas-account-gate.css?v=20260920-googleauth1';
     const RETURN_INTENT_SRC =
         '/shared/atlas-return-intent.js?v=20260916-returnintent1';
     const FEEDBACK_SRC =
@@ -500,6 +500,16 @@
 
                     <p class="atlas-account-gate-status" data-account-status role="status" aria-live="polite" hidden></p>
 
+                    <div class="atlas-account-gate-provider" data-account-provider hidden>
+                        <button class="atlas-account-google" type="button" data-account-google>
+                            <span class="atlas-account-google-mark" aria-hidden="true">G</span>
+                            <span data-account-google-label>Continue with Google</span>
+                        </button>
+                        <div class="atlas-account-gate-divider" aria-hidden="true">
+                            <span>or</span>
+                        </div>
+                    </div>
+
                     <form class="atlas-account-gate-form" data-account-form="sign-in">
                         <label class="atlas-account-gate-label" for="atlas-account-sign-in-email">Email</label>
                         <input class="atlas-account-gate-input" id="atlas-account-sign-in-email" name="email" type="email" autocomplete="username" required>
@@ -557,6 +567,9 @@
                     setGateMode(button.dataset.accountMode);
                 });
             });
+
+        gateLayer.querySelector('[data-account-google]')
+            ?.addEventListener('click', handleGoogleSignIn);
 
         gateLayer.querySelector('[data-account-forgot]')
             ?.addEventListener('click', () => setGateMode('forgot'));
@@ -692,6 +705,24 @@
         });
     }
 
+    function updateGoogleProviderVisibility() {
+        const provider =
+            gateLayer?.querySelector(
+                '[data-account-provider]'
+            );
+
+        if (!provider) return;
+
+        const isAuthMode =
+            state.gateMode === 'sign-in' ||
+            state.gateMode === 'create';
+
+        provider.hidden =
+            !isAuthMode ||
+            window.AtlasAccount
+                ?.googleAuthEnabled?.() !== true;
+    }
+
     function setGateMode(mode) {
         ensureGate();
 
@@ -727,6 +758,7 @@
 
         if (tabs) tabs.hidden = !isAuthMode;
         if (message) message.hidden = true;
+        updateGoogleProviderVisibility();
 
         gateLayer.querySelectorAll('[data-account-mode]')
             .forEach(button => {
@@ -854,6 +886,7 @@
                 await bindReturnIntent(returnIntentId);
 
             await prepareAccount();
+            updateGoogleProviderVisibility();
             const account = window.AtlasAccount?.getState?.() || null;
 
             if (account?.authenticated) {
@@ -988,6 +1021,55 @@
         dispatchReturnIntentResume(returnIntent);
 
         return returnIntent;
+    }
+
+    async function handleGoogleSignIn(event) {
+        event.preventDefault();
+        if (busy) return;
+
+        const button = event.currentTarget;
+        const label =
+            button?.querySelector(
+                '[data-account-google-label]'
+            );
+
+        setGateStatus('');
+        setBusy(true);
+        localAuthenticationInProgress = true;
+
+        if (label) {
+            label.textContent = 'Opening Google…';
+        }
+
+        try {
+            await prepareAccount();
+
+            await window.AtlasAccount
+                .signInWithGoogle({
+                    returnIntentId:
+                        activeReturnIntentId,
+                    redirectTo:
+                        window.location.href
+                });
+        } catch (error) {
+            window.AtlasAnalytics?.authFailure({
+                action: 'google_oauth',
+                error
+            });
+
+            setBusy(false);
+            setGateStatus(
+                humanizeError(error),
+                'error'
+            );
+
+            if (label) {
+                label.textContent =
+                    'Continue with Google';
+            }
+        } finally {
+            localAuthenticationInProgress = false;
+        }
     }
 
     async function handleSignIn(event) {

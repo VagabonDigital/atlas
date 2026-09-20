@@ -34,7 +34,7 @@ assert.match(root, /scheduleInitialRootCloudBootstrap\(\s*storedSessionUserId\(\
 assert.doesNotMatch(root, /const rootCloudAuthorityBootstrapPromise/);
 
 assert.match(registry, /atlas-root-runtime\.js\?v=20260917-postpaint1/);
-assert.match(registry, /atlas-access-bootstrap\.js\?v=20260918-publicaccess1/);
+assert.match(registry, /atlas-access-bootstrap\.js\?v=20260920-googleauth1/);
 assert.match(registry, /function scheduleCompassHubCloudAuthorityScripts\(\)[\s\S]*atlas:compass-first-paint-ready/);
 assert.match(registry, /function installCompassLiveAccountBootstrap\(\)/);
 assert.match(

@@ -13,10 +13,17 @@
     if (window.AtlasAccount) return;
 
     const ACCOUNT_CLOUD_SRC =
-        '/shared/atlas-account-cloud.js?v=20260919-emailchange4';
+        '/shared/atlas-account-cloud.js?v=20260920-googleauth1';
     const PERSISTENCE_TRUST_SRC =
         '/shared/atlas-persistence-trust.js?v=20260916-trust2';
     const RECOVERY_SESSION_KEY = 'atlas::accountPasswordRecovery';
+
+    /*
+     * Keep Google hidden until the hosted Supabase provider has its Google
+     * client ID/secret configured. This prevents a dead public auth control
+     * while the external provider setup is still incomplete.
+     */
+    const GOOGLE_AUTH_ENABLED = false;
     const listeners = new Set();
 
     let state = Object.freeze({
@@ -24,6 +31,8 @@
         authenticated: false,
         userId: null,
         email: null,
+        providers: Object.freeze([]),
+        hasPassword: false,
         recovery: readRecoveryHint(),
         entitlementReady: false,
         planCode: null,
@@ -66,6 +75,53 @@
         }
     }
 
+    function copyProviders(value) {
+        const providers =
+            Array.isArray(value)
+                ? value
+                : [];
+
+        return Array.from(
+            new Set(
+                providers
+                    .map(provider =>
+                        String(provider || '')
+                            .trim()
+                            .toLowerCase()
+                    )
+                    .filter(Boolean)
+            )
+        ).sort();
+    }
+
+    function identityProvidersForUser(user) {
+        if (!user || typeof user !== 'object') {
+            return [];
+        }
+
+        const providers = [];
+
+        if (Array.isArray(user.identities)) {
+            user.identities.forEach(identity => {
+                providers.push(identity?.provider);
+            });
+        }
+
+        if (Array.isArray(user.app_metadata?.providers)) {
+            providers.push(
+                ...user.app_metadata.providers
+            );
+        }
+
+        if (user.app_metadata?.provider) {
+            providers.push(
+                user.app_metadata.provider
+            );
+        }
+
+        return copyProviders(providers);
+    }
+
     function copyCapabilities(value) {
         if (!value || typeof value !== 'object' || Array.isArray(value)) {
             return {};
@@ -77,6 +133,10 @@
     function freezeState(nextState) {
         return Object.freeze({
             ...nextState,
+            providers: Object.freeze(
+                copyProviders(nextState.providers)
+            ),
+            hasPassword: Boolean(nextState.hasPassword),
             capabilities: Object.freeze(
                 copyCapabilities(nextState.capabilities)
             )
@@ -86,6 +146,7 @@
     function snapshot() {
         return {
             ...state,
+            providers: [...state.providers],
             capabilities: copyCapabilities(state.capabilities)
         };
     }
@@ -104,6 +165,8 @@
                 authenticated: false,
                 userId: null,
                 email: null,
+                providers: [],
+                hasPassword: false,
                 recovery: false,
                 entitlementReady: true,
                 planCode: null,
@@ -112,11 +175,16 @@
             });
         }
 
+        const providers =
+            identityProvidersForUser(user);
+
         return freezeState({
             ready: true,
             authenticated: true,
             userId: user.id,
             email: user.email || null,
+            providers,
+            hasPassword: providers.includes('email'),
             recovery: Boolean(recovery),
             entitlementReady: sameUser
                 ? state.entitlementReady
@@ -140,6 +208,9 @@
             normalized.authenticated !== state.authenticated ||
             normalized.userId !== state.userId ||
             normalized.email !== state.email ||
+            normalized.hasPassword !== state.hasPassword ||
+            JSON.stringify(normalized.providers) !==
+                JSON.stringify(state.providers) ||
             normalized.recovery !== state.recovery ||
             normalized.entitlementReady !== state.entitlementReady ||
             normalized.planCode !== state.planCode ||
@@ -476,6 +547,8 @@
                 authenticated: false,
                 userId: null,
                 email: null,
+                providers: [],
+                hasPassword: false,
                 recovery: false,
                 entitlementReady: true,
                 planCode: null,
@@ -530,6 +603,72 @@
         }
 
         return url.href;
+    }
+
+    function googleAuthEnabled() {
+        return GOOGLE_AUTH_ENABLED;
+    }
+
+    function oauthReturnUrl({
+        returnIntentId = null,
+        redirectTo = null
+    } = {}) {
+        const intentId =
+            normalizeReturnIntentId(returnIntentId);
+
+        if (intentId) {
+            return accountReturnUrl({
+                returnIntentId: intentId
+            });
+        }
+
+        const candidate = new URL(
+            String(
+                redirectTo ||
+                window.location.href
+            ),
+            window.location.origin
+        );
+
+        if (
+            candidate.origin !==
+            window.location.origin
+        ) {
+            throw new Error(
+                'Atlas Google sign-in return URL must stay on Atlas.'
+            );
+        }
+
+        candidate.hash = '';
+        return candidate.href;
+    }
+
+    async function signInWithGoogle({
+        returnIntentId = null,
+        redirectTo = null
+    } = {}) {
+        await initialize();
+
+        if (!GOOGLE_AUTH_ENABLED) {
+            const error = new Error(
+                'Google sign-in is not available yet.'
+            );
+            error.code =
+                'ATLAS_GOOGLE_AUTH_DISABLED';
+            throw error;
+        }
+
+        writeRecoveryHint(false);
+
+        const AccountCloud =
+            await ensureAccountCloud();
+
+        return AccountCloud.signInWithGoogle(
+            oauthReturnUrl({
+                returnIntentId,
+                redirectTo
+            })
+        );
     }
 
     async function signIn(email, password) {
@@ -963,6 +1102,8 @@
         initialize,
         getState,
         subscribe,
+        googleAuthEnabled,
+        signInWithGoogle,
         signIn,
         createAccount,
         requestPasswordReset,

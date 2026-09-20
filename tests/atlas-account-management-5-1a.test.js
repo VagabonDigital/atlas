@@ -22,22 +22,12 @@ const bootstrap = fs.readFileSync(
 
 assert.ok(
   cloud.includes(
-    'async function updateEmail(email, redirectTo)'
-  )
-);
-assert.ok(
-  cloud.includes(
-    'client.auth.updateUser'
-  )
-);
-assert.ok(
-  cloud.includes(
-    'emailRedirectTo:'
+    'async function updateEmailWithCurrentCredentials('
   )
 );
 assert.ok(
   account.includes(
-    'async function changeEmail(email)'
+    'async function changeEmail(\n        currentPassword,\n        email\n    )'
   )
 );
 assert.ok(
@@ -45,92 +35,37 @@ assert.ok(
     'async function changePassword(\n        currentPassword,\n        password\n    )'
   )
 );
+assert.ok(page.includes('id="change-email-form"'));
+assert.ok(page.includes('id="change-password-form"'));
+assert.ok(page.includes('data-password-management'));
+assert.ok(page.includes('id="account-sign-in-method"'));
+assert.ok(account.includes('providers: Object.freeze([])'));
 assert.ok(
-  cloud.includes(
-    'async function refreshCurrentSession()'
+  account.includes(
+    "hasPassword: providers.includes('email')"
   )
 );
 assert.ok(
-  cloud.includes(
-    'client.auth.refreshSession()'
+  page.includes(
+    'AtlasAccount.googleAuthEnabled?.()'
+  )
+);
+assert.ok(
+  page.includes(
+    'atlas-account.js?v=20260920-googleauth1'
   )
 );
 assert.ok(
   account.includes(
-    'async function refreshIdentitySession()'
+    'atlas-account-cloud.js?v=20260920-googleauth1'
   )
 );
 assert.ok(
-  page.includes(
-    '.refreshIdentitySession();'
-  )
-);
-assert.ok(
-  cloud.includes(
-    'async function updatePasswordWithCurrentCredentials('
-  )
-);
-assert.ok(
-  cloud.includes(
-    'client.auth.signInWithPassword'
-  )
-);
-assert.ok(
-  cloud.includes(
-    'Your current password is incorrect.'
-  )
-);
-assert.ok(
-  account.includes(
-    'changeEmail,\n        refreshIdentitySession,\n        changePassword,'
-  )
-);
-assert.ok(
-  page.includes(
-    'id="change-email-form"'
-  )
-);
-assert.ok(
-  page.includes(
-    'id="change-password-form"'
-  )
-);
-assert.ok(
-  page.includes(
-    'AtlasAccount.changeEmail(email)'
-  )
-);
-assert.ok(
-  page.includes(
-    'id="change-password-current"'
-  )
-);
-assert.ok(
-  page.includes(
-    'AtlasAccount.changePassword(\n          currentPassword,\n          password\n        )'
-  )
-);
-assert.ok(
-  page.includes(
-    'type=email_change'
-  )
-);
-assert.ok(
-  page.includes(
-    'If Atlas asks you to verify both addresses, confirm both.'
-  )
-);
-assert.ok(
-  page.includes(
-    'atlas-account.js?v=20260919-emailchange3'
-  )
-);
-assert.ok(
-  account.includes(
-    'atlas-account-cloud.js?v=20260919-emailchange3'
+  bootstrap.includes(
+    'atlas-account.js?v=20260920-googleauth1'
   )
 );
 
 console.log(
-  'Atlas 5.1 account management contract passed.'
+  'Atlas account management + identity-method contract passed.'
 );

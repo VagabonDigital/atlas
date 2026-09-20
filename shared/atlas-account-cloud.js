@@ -97,6 +97,20 @@
         return data;
     }
 
+    async function signInWithGoogle(redirectTo) {
+        requireAtlasCloud();
+        const client = await AtlasCloud.getClient();
+        const { data, error } = await client.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: normalizeRedirectUrl(redirectTo)
+            }
+        });
+
+        if (error) throw error;
+        return data;
+    }
+
     async function requestPasswordReset(email, redirectTo) {
         requireAtlasCloud();
         const client = await AtlasCloud.getClient();
@@ -350,6 +364,7 @@
 
     window.AtlasAccountCloud = Object.freeze({
         signUpWithPassword,
+        signInWithGoogle,
         requestPasswordReset,
         updateEmailWithCurrentCredentials,
         updatePassword,
