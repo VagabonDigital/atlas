@@ -7706,6 +7706,18 @@ async function generateMyVersionFullSubject({
 
             if (!saved && myVersionEditing) {
                 myVersionAutoSavingFullSubject = false;
+
+                try {
+                    await setMyVersionAiBuildStatus(
+                        'paused'
+                    );
+                } catch (pauseError) {
+                    console.warn(
+                        '[Compass] Completed AI build reservation release failed:',
+                        pauseError
+                    );
+                }
+
                 myVersionFullSubjectGenerationError =
                     'Subject complete, but automatic save failed. Save manually.';
 
