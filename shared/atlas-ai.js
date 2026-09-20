@@ -68,6 +68,100 @@
         return error;
     }
 
+    function createAtlasAIRequestId() {
+        if (
+            window.crypto &&
+            typeof window.crypto.randomUUID === 'function'
+        ) {
+            return window.crypto.randomUUID();
+        }
+
+        return [
+            'atlas-ai',
+            Date.now().toString(36),
+            Math.random().toString(36).slice(2, 12)
+        ].join('-');
+    }
+
+    function getAtlasAISubjectId() {
+        const runtime =
+            window.AtlasCompassSubjectRuntime;
+
+        if (
+            !runtime ||
+            runtime.source !== 'owned'
+        ) {
+            return '';
+        }
+
+        return cleanString(
+            runtime.subjectId ||
+            window.MODULE?.id ||
+            ''
+        );
+    }
+
+    async function createAtlasAIRequestHeaders(
+        requestInit,
+        requestId
+    ) {
+        const Cloud = window.AtlasCloud;
+
+        if (
+            !Cloud ||
+            typeof Cloud.getSession !== 'function'
+        ) {
+            const error = new Error(
+                'Atlas AI requires a signed-in Atlas account.'
+            );
+            error.code = 'ATLAS_AI_AUTH_REQUIRED';
+            throw error;
+        }
+
+        const session = await Cloud.getSession();
+        const accessToken =
+            cleanString(session?.access_token);
+
+        if (!accessToken) {
+            const error = new Error(
+                'Atlas AI requires a signed-in Atlas account.'
+            );
+            error.code = 'ATLAS_AI_AUTH_REQUIRED';
+            throw error;
+        }
+
+        const headers =
+            new Headers(
+                requestInit.headers || {}
+            );
+
+        headers.set(
+            'Authorization',
+            `Bearer ${accessToken}`
+        );
+
+        headers.set(
+            'X-Atlas-Request-Id',
+            requestId
+        );
+
+        const subjectId =
+            getAtlasAISubjectId();
+
+        if (subjectId) {
+            headers.set(
+                'X-Atlas-Subject-Id',
+                subjectId
+            );
+        } else {
+            headers.delete(
+                'X-Atlas-Subject-Id'
+            );
+        }
+
+        return headers;
+    }
+
     async function requestAtlasAI(
         input,
         init = {}
@@ -80,6 +174,15 @@
 
         const callerSignal =
             requestInit.signal || null;
+
+        const requestId =
+            createAtlasAIRequestId();
+
+        const requestHeaders =
+            await createAtlasAIRequestHeaders(
+                requestInit,
+                requestId
+            );
 
         let lastTransientError = null;
 
@@ -130,6 +233,7 @@
                     input,
                     {
                         ...requestInit,
+                        headers: requestHeaders,
                         signal: controller.signal
                     }
                 );
