@@ -331,7 +331,7 @@ assert.match(
 
 assert.match(
     originalEntry,
-    /atlas-content-registry\\.js\\?v=20260920-googleauth1/
+    /atlas-content-registry\\.js\\?v=20260920-googleid1/
 );
 
 console.log(
