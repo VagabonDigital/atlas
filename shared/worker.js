@@ -2,7 +2,9 @@
    ATLAS AI — DEVELOPMENT WORKER
 
    Owns:
-   - OpenAI credential protection
+   - provider credential protection
+   - authenticated Atlas account verification
+   - server-owned AI abuse guardrails and usage telemetry
    - narrow AI requests
    - structured provider output
 
@@ -10,7 +12,7 @@
    - Atlas IDs
    - subject persistence
    - document mutation
-   - ownership
+   - commercial entitlement activation
    ============================================================ */
 
 const ATLAS_AI_REQUEST_ID_HEADER =
