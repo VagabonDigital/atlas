@@ -123,13 +123,7 @@ a:hover {
 
 .header-back,
 .appearance-toggle {
-  height: 38px;
-  min-height: 38px;
-  border: 1px solid var(--control-border);
-  border-radius: 12px;
-  background: var(--control-surface);
   color: var(--control-icon);
-  box-shadow: var(--shadow-sm);
   transition:
     color 220ms cubic-bezier(.2, .75, .2, 1),
     background 220ms cubic-bezier(.2, .75, .2, 1),
@@ -141,7 +135,12 @@ a:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 12px;
+  min-height: 38px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  box-shadow: none;
   font-size: 0.78rem;
   font-weight: 600;
   line-height: 1;
@@ -155,12 +154,22 @@ a:hover {
   align-items: center;
   justify-content: center;
   width: 38px;
+  height: 38px;
+  min-height: 38px;
   flex: 0 0 38px;
   padding: 0;
+  border: 1px solid var(--control-border);
+  border-radius: 12px;
+  background: var(--control-surface);
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
 }
 
-.header-back:hover,
+.header-back:hover {
+  color: var(--control-text-hover);
+  background: color-mix(in srgb, var(--control-surface) 58%, transparent);
+}
+
 .appearance-toggle:hover {
   color: var(--control-text-hover);
   border-color: var(--control-border-hover);
@@ -283,12 +292,7 @@ li + li {
 
 strong,
 b {
-  color: var(--heading);
-}
-
-html.theme-changing strong,
-html.theme-changing b {
-  transition: color var(--theme-motion) !important;
+  color: inherit;
 }
 
 .legal-note {
