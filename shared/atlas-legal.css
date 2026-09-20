@@ -21,8 +21,6 @@
   --control-icon: var(--soft);
   --control-text-hover: var(--heading);
   --theme-motion: 280ms cubic-bezier(0.4, 0, 0.2, 1);
-  --theme-heading-motion: 280ms cubic-bezier(0.4, 0.12, 0.2, 1);
-  --theme-secondary-motion: 280ms cubic-bezier(0.4, 0.08, 0.2, 1);
   --frame: 860px;
   --serif: "DM Serif Display", Georgia, "Times New Roman", serif;
   --sans: "DM Sans", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -365,86 +363,28 @@ b {
 
 
 /*
- * One paint clock for theme changes.
- * Do not transition inherited color on every descendant: nested text
- * (especially <strong>/<b>) otherwise chases its parent and appears late.
+ * One paint clock for every theme-painted element.
+ * Scope the universal transition to the short-lived theme-changing state so
+ * normal hover/focus interactions keep their own timing.
  */
-html.theme-changing body,
-html.theme-changing body *,
-html.theme-changing body *::before,
-html.theme-changing body *::after {
-  transition:
-    background-color var(--theme-motion),
-    background var(--theme-motion),
-    border-color var(--theme-motion),
-    outline-color var(--theme-motion),
-    box-shadow var(--theme-motion);
-}
-
-/*
- * Color is limited to elements that actually own a theme color.
- * Ordinary copy and nested bold text inherit the root color transition
- * directly, so every text layer finishes on the same 280ms clock.
- */
-html.theme-changing a,
-html.theme-changing h1,
-html.theme-changing h2,
-html.theme-changing h3,
-html.theme-changing .legal-kicker,
-html.theme-changing .legal-lede,
-html.theme-changing .legal-meta,
-html.theme-changing .legal-footer,
-html.theme-changing .appearance-toggle,
-html.theme-changing .brand span {
+html.theme-changing,
+html.theme-changing *,
+html.theme-changing *::before,
+html.theme-changing *::after {
   transition:
     background-color var(--theme-motion),
     background var(--theme-motion),
     color var(--theme-motion),
     border-color var(--theme-motion),
     outline-color var(--theme-motion),
-    box-shadow var(--theme-motion);
-}
-
-/*
- * Large heading-color changes get only a gentle perceptual correction.
- * The endpoint remains the same 280ms as the rest of the page.
- */
-html.theme-changing h1,
-html.theme-changing h2,
-html.theme-changing h3,
-html.theme-changing .brand,
-html.theme-changing .legal-footer-links a[aria-current="page"] {
-  transition:
-    background-color var(--theme-motion),
-    background var(--theme-motion),
-    color var(--theme-heading-motion),
-    border-color var(--theme-motion),
-    outline-color var(--theme-motion),
-    box-shadow var(--theme-motion);
-}
-
-/*
- * The kicker/accent and faint metadata have smaller palette shifts that can
- * visually linger at the tail. Nudge them forward very slightly while keeping
- * the same 280ms endpoint.
- */
-html.theme-changing .legal-kicker,
-html.theme-changing .legal-meta {
-  transition:
-    background-color var(--theme-motion),
-    background var(--theme-motion),
-    color var(--theme-secondary-motion),
-    border-color var(--theme-motion),
-    outline-color var(--theme-motion),
-    box-shadow var(--theme-motion);
+    box-shadow var(--theme-motion),
+    fill var(--theme-motion),
+    stroke var(--theme-motion);
 }
 
 html.theme-changing {
-  transition:
-    background-color var(--theme-motion),
-    background var(--theme-motion),
-    color var(--theme-motion),
-    scrollbar-color var(--theme-motion);
+  scrollbar-color:
+    rgba(var(--accent-rgb), 0.46) transparent;
 }
 
 html.theme-changing::-webkit-scrollbar-thumb {
@@ -453,10 +393,9 @@ html.theme-changing::-webkit-scrollbar-thumb {
 
 @media (prefers-reduced-motion: reduce) {
   html.theme-changing,
-  html.theme-changing body,
-  html.theme-changing body *,
-  html.theme-changing body *::before,
-  html.theme-changing body *::after,
+  html.theme-changing *,
+  html.theme-changing *::before,
+  html.theme-changing *::after,
   html.theme-changing::-webkit-scrollbar-thumb {
     transition-duration: 0.01ms !important;
   }
