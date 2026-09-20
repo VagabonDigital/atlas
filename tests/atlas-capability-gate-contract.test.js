@@ -471,12 +471,12 @@ async function run() {
 
     assert.match(
         bootstrap,
-        /atlas-capability-gate\\.js\\?v=20260920-googleauth1/
+        /atlas-capability-gate\\.js\\?v=20260920-googleid1/
     );
     assert.match(bootstrap, /prepareCapabilityGate/);
     assert.match(
         registry,
-        /atlas-access-bootstrap\.js\?v=20260920-oauthreturn1/
+        /atlas-access-bootstrap\.js\?v=20260920-googleid1/
     );
 
     console.log(
