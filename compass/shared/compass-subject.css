@@ -413,8 +413,7 @@ html[data-theme="night"] .mobile-menu-btn,
 html[data-theme="night"] .mobile-session-btn,
 html[data-theme="night"] .mobile-drawer-close,
 html[data-theme="night"] .vb-close-btn,
-html[data-theme="night"] .vb-print-btn,
-html[data-theme="night"] .modal-close-x {
+html[data-theme="night"] .vb-print-btn {
     background: var(--surface-raised);
     border-color: var(--border-subtle);
     color: var(--text-muted);
@@ -430,8 +429,7 @@ html[data-theme="night"] .mobile-menu-btn:hover,
 html[data-theme="night"] .mobile-session-btn:hover,
 html[data-theme="night"] .mobile-drawer-close:hover,
 html[data-theme="night"] .vb-close-btn:hover,
-html[data-theme="night"] .vb-print-btn:hover,
-html[data-theme="night"] .modal-close-x:hover {
+html[data-theme="night"] .vb-print-btn:hover {
     background: var(--surface-raised-hover);
     color: var(--accent-soft);
     border-color: var(--accent);
@@ -2944,11 +2942,11 @@ CULTURAL LENS DIALOG
 }
 
 .modal-close-x {
-    width: 34px;
-    height: 34px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-subtle);
-    background: var(--surface-panel);
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
     color: var(--text-muted);
     display: flex;
     align-items: center;
@@ -2959,9 +2957,16 @@ CULTURAL LENS DIALOG
     margin-top: -0.25rem;
 }
 
-.modal-close-x:hover {
+.modal-close-x:hover,
+.modal-close-x:focus-visible {
+    border-color: var(--border-subtle);
     background: var(--surface-muted);
     color: var(--text-body);
+}
+
+.modal-close-x:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 .modal-location {
@@ -4851,12 +4856,12 @@ body.atlas-my-version-editing .cover-hook[data-atlas-live-editable="true"]:focus
 }
 
 .atlas-cover-picker-close {
-    width: 2.35rem;
-    height: 2.35rem;
+    width: 2rem;
+    height: 2rem;
     flex: 0 0 auto;
-    border: 1px solid var(--border-subtle);
+    border: 1px solid transparent;
     border-radius: 999px;
-    background: var(--surface-raised);
+    background: transparent;
     color: var(--text-muted);
     font-family: var(--font-body);
     font-size: 1.35rem;
@@ -4865,9 +4870,16 @@ body.atlas-my-version-editing .cover-hook[data-atlas-live-editable="true"]:focus
     transition: var(--transition);
 }
 
-.atlas-cover-picker-close:hover {
-    border-color: rgba(var(--accent-rgb), 0.42);
-    color: var(--accent);
+.atlas-cover-picker-close:hover,
+.atlas-cover-picker-close:focus-visible {
+    border-color: var(--border-subtle);
+    background: var(--surface-muted);
+    color: var(--text-body);
+}
+
+.atlas-cover-picker-close:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 .atlas-cover-picker-providers {
