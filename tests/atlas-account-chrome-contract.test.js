@@ -105,7 +105,7 @@ function runPlacementProof() {
     );
     assert.match(
         registry,
-        /atlas-access-bootstrap\.js\?v=20260920-oauthreturn1/,
+        /atlas-access-bootstrap\.js\?v=20260920-googleid1/,
         'Hub access bootstrap must use the account-gate-capable cache version.'
     );
 
@@ -155,17 +155,17 @@ function runPlacementProof() {
     );
     assert.match(
         inside,
-        /atlas-access-bootstrap\.js\?v=20260920-oauthreturn1/,
+        /atlas-access-bootstrap\.js\?v=20260920-googleid1/,
         'Inside Atlas must load canonical access state.'
     );
     assert.match(
         inside,
-        /atlas-account-chrome\\.js\\?v=20260920-googleauth1/,
+        /atlas-account-chrome\\.js\\?v=20260920-googleid1/,
         'Inside Atlas must load shared account chrome.'
     );
     assert.match(
         inside,
-        /atlas-account-chrome\\.css\\?v=20260920-googleauth1[\s\S]*?data-atlas-account-chrome-styles/,
+        /atlas-account-chrome\\.css\\?v=20260920-googleid1[\s\S]*?data-atlas-account-chrome-styles/,
         'Inside Atlas must load account chrome styles in the document head before hydration.'
     );
     assert.match(
