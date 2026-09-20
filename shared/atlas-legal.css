@@ -9,6 +9,7 @@
   --soft: #7b7469;
   --faint: #9b9489;
   --accent: #4d7184;
+  --accent-rgb: 77, 113, 132;
   --accent-soft: rgba(77, 113, 132, 0.09);
   --accent-hover: #315568;
   --header-surface: rgba(243, 240, 233, 0.72);
@@ -36,6 +37,7 @@ html[data-theme="night"] {
   --soft: #89847b;
   --faint: #55534e;
   --accent: #8fb2c2;
+  --accent-rgb: 143, 178, 194;
   --accent-soft: rgba(143, 178, 194, 0.10);
   --accent-hover: #aac6d2;
   --header-surface: rgba(27, 29, 28, 0.76);
@@ -61,6 +63,24 @@ html {
     radial-gradient(circle at 12% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 34rem);
   color: var(--text);
   -webkit-text-size-adjust: 100%;
+  scrollbar-width: thin;
+  scrollbar-color:
+    rgba(var(--accent-rgb), 0.46) transparent;
+}
+
+html::-webkit-scrollbar {
+  width: 10px;
+}
+
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(var(--accent-rgb), 0.46);
+  background-clip: padding-box;
 }
 
 body {
@@ -342,35 +362,66 @@ b {
 }
 
 
-html.theme-changing,
+/*
+ * One paint clock for theme changes.
+ * Do not transition inherited color on every descendant: nested text
+ * (especially <strong>/<b>) otherwise chases its parent and appears late.
+ */
 html.theme-changing body,
-html.theme-changing .site-header,
-html.theme-changing .site-header *,
-html.theme-changing .legal-main,
-html.theme-changing .legal-main *,
-html.theme-changing .legal-note,
+html.theme-changing body *,
+html.theme-changing body *::before,
+html.theme-changing body *::after {
+  transition:
+    background-color var(--theme-motion),
+    background var(--theme-motion),
+    border-color var(--theme-motion),
+    outline-color var(--theme-motion),
+    box-shadow var(--theme-motion);
+}
+
+/*
+ * Color is limited to elements that actually own a theme color.
+ * Ordinary copy and nested bold text inherit the root color transition
+ * directly, so every text layer finishes on the same 280ms clock.
+ */
+html.theme-changing a,
+html.theme-changing h1,
+html.theme-changing h2,
+html.theme-changing h3,
+html.theme-changing .legal-kicker,
+html.theme-changing .legal-lede,
+html.theme-changing .legal-meta,
 html.theme-changing .legal-footer,
-html.theme-changing .legal-footer * {
+html.theme-changing .appearance-toggle,
+html.theme-changing .brand span {
   transition:
     background-color var(--theme-motion),
     background var(--theme-motion),
     color var(--theme-motion),
     border-color var(--theme-motion),
-    box-shadow var(--theme-motion),
-    fill var(--theme-motion),
-    stroke var(--theme-motion);
+    outline-color var(--theme-motion),
+    box-shadow var(--theme-motion);
+}
+
+html.theme-changing {
+  transition:
+    background-color var(--theme-motion),
+    background var(--theme-motion),
+    color var(--theme-motion),
+    scrollbar-color var(--theme-motion);
+}
+
+html.theme-changing::-webkit-scrollbar-thumb {
+  transition: background-color var(--theme-motion);
 }
 
 @media (prefers-reduced-motion: reduce) {
   html.theme-changing,
   html.theme-changing body,
-  html.theme-changing .site-header,
-  html.theme-changing .site-header *,
-  html.theme-changing .legal-main,
-  html.theme-changing .legal-main *,
-  html.theme-changing .legal-note,
-  html.theme-changing .legal-footer,
-  html.theme-changing .legal-footer * {
+  html.theme-changing body *,
+  html.theme-changing body *::before,
+  html.theme-changing body *::after,
+  html.theme-changing::-webkit-scrollbar-thumb {
     transition-duration: 0.01ms !important;
   }
 }
