@@ -21,13 +21,13 @@
     if (window.AtlasAccountGate) return;
 
     const STYLE_HREF =
-        '/shared/atlas-account-gate.css?v=20260920-googleid1';
+        '/shared/atlas-account-gate.css?v=20260920-accountstable1';
     const RETURN_INTENT_SRC =
         '/shared/atlas-return-intent.js?v=20260916-returnintent1';
     const FEEDBACK_SRC =
         '/shared/atlas-feedback.js?v=20260918-publicentry1';
     const GOOGLE_IDENTITY_SRC =
-        '/shared/atlas-google-identity.js?v=20260920-googleid1';
+        '/shared/atlas-google-identity.js?v=20260920-accountstable1';
 
     let gateLayer = null;
     let accountMenu = null;
@@ -38,6 +38,7 @@
     let returnIntentPromise = null;
     let feedbackPromise = null;
     let googleIdentityPromise = null;
+    let stylePromise = null;
     let activeReturnIntentId = null;
     let confirmationPendingIntentId = null;
     let confirmationPendingIntent = null;
@@ -65,19 +66,66 @@
     }
 
     function ensureStyles() {
-        if (
-            document.querySelector(
-                'link[data-atlas-account-gate-styles]'
-            )
-        ) {
-            return;
-        }
+        if (stylePromise) return stylePromise;
 
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = STYLE_HREF;
-        link.setAttribute('data-atlas-account-gate-styles', 'true');
-        document.head.appendChild(link);
+        stylePromise = new Promise((resolve, reject) => {
+            let link = document.querySelector(
+                'link[data-atlas-account-gate-styles]'
+            );
+
+            function complete() {
+                resolve(true);
+            }
+
+            function fail() {
+                stylePromise = null;
+                reject(new Error(
+                    'Atlas account styles could not load.'
+                ));
+            }
+
+            if (link) {
+                try {
+                    if (link.sheet) {
+                        complete();
+                        return;
+                    }
+                } catch { }
+
+                link.addEventListener(
+                    'load',
+                    complete,
+                    { once: true }
+                );
+                link.addEventListener(
+                    'error',
+                    fail,
+                    { once: true }
+                );
+                return;
+            }
+
+            link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = STYLE_HREF;
+            link.setAttribute(
+                'data-atlas-account-gate-styles',
+                'true'
+            );
+            link.addEventListener(
+                'load',
+                complete,
+                { once: true }
+            );
+            link.addEventListener(
+                'error',
+                fail,
+                { once: true }
+            );
+            document.head.appendChild(link);
+        });
+
+        return stylePromise;
     }
 
     function existingScriptFor(src) {
@@ -799,6 +847,8 @@
             return;
         }
 
+        provider.dataset.googleReady = 'false';
+
         try {
             const GoogleIdentity =
                 await ensureGoogleIdentity();
@@ -807,7 +857,7 @@
                 !state.gateOpen ||
                 provider.hidden
             ) {
-                return;
+                return false;
             }
 
             await GoogleIdentity.renderButton(
@@ -835,11 +885,16 @@
                     }
                 }
             );
+
+            provider.dataset.googleReady = 'true';
+            return true;
         } catch (error) {
+            provider.dataset.googleReady = 'true';
             setGateStatus(
                 humanizeError(error),
                 'error'
             );
+            return false;
         }
     }
 
@@ -1018,12 +1073,17 @@
         closeAccountMenu({ restoreFocus: false });
         rememberTrigger(trigger);
 
-        gateLayer.hidden = false;
-        document.body.classList.add('atlas-account-gate-open');
+        /*
+         * Build the gate while hidden so first paint is already final:
+         * styles loaded, account mode resolved, and Google button settled.
+         */
+        gateLayer.hidden = true;
         state.gateOpen = true;
         setGateMode(mode);
 
         try {
+            await ensureStyles();
+
             const returnIntent =
                 await bindReturnIntent(returnIntentId);
 
@@ -1042,6 +1102,31 @@
                 return snapshot();
             }
 
+            const provider =
+                gateLayer.querySelector(
+                    '[data-account-provider]'
+                );
+
+            if (
+                provider &&
+                !provider.hidden
+            ) {
+                await renderGoogleProviderButton();
+            }
+
+            gateLayer.hidden = false;
+            document.body.classList.add(
+                'atlas-account-gate-open'
+            );
+
+            requestAnimationFrame(() => {
+                const target =
+                    gateLayer?.querySelector(
+                        `[data-account-form="${state.gateMode}"] input`
+                    );
+                focusWithoutScroll(target);
+            });
+
             window.AtlasAnalytics?.accountGate({
                 mode,
                 action:
@@ -1049,17 +1134,17 @@
                     'account'
             });
 
-            /*
-             * Opening the gate must stay immediately usable. If the tutor
-             * already submitted while account preparation was finishing,
-             * leave that submit-owned busy state alone.
-             */
             if (!busy) {
                 setGateStatus('');
             }
 
             return snapshot();
         } catch (error) {
+            gateLayer.hidden = false;
+            document.body.classList.add(
+                'atlas-account-gate-open'
+            );
+
             if (!busy) {
                 setGateStatus(humanizeError(error), 'error');
             }
