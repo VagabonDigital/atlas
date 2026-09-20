@@ -23,13 +23,15 @@ function mountCompassSubjectShell() {
             : null;
 
     /*
-     * The dynamic shell replaces document.body. Detach the build gate first
-     * so a generated subject keeps its intentional loading state while the
-     * teaching shell initializes underneath it.
+     * Build the teaching shell off-DOM, then replace the body atomically.
+     * When a generated subject is still building, keep the existing handoff
+     * node in the same replaceChildren operation so there is never an
+     * intermediate frame without the transition surface.
      */
-    buildHandoffStatus?.remove();
+    const shellTemplate =
+        document.createElement('template');
 
-    document.body.innerHTML = `
+    shellTemplate.innerHTML = `
     <!-- ============================================================
      VIEW 1: COVER
      ============================================================ -->
@@ -1599,8 +1601,13 @@ function mountCompassSubjectShell() {
     `;
 
     if (buildHandoffStatus) {
-        document.body.appendChild(
+        document.body.replaceChildren(
+            shellTemplate.content,
             buildHandoffStatus
+        );
+    } else {
+        document.body.replaceChildren(
+            shellTemplate.content
         );
     }
 }
