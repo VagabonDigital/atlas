@@ -23,6 +23,37 @@
         })();
     </script>
 
+    <script>
+        (function () {
+            var mode = null;
+
+            try {
+                var sessionId =
+                    sessionStorage.getItem(
+                        'atlas::activeSessionId'
+                    ) || 'default';
+
+                var sessionModes =
+                    JSON.parse(
+                        localStorage.getItem(
+                            'atlas::appearanceBySession'
+                        ) || '{}'
+                    );
+
+                mode =
+                    sessionModes[sessionId] ||
+                    localStorage.getItem(
+                        'atlas::appearanceMode'
+                    );
+            } catch { }
+
+            document.documentElement.dataset.theme =
+                mode === 'night'
+                    ? 'night'
+                    : 'light';
+        })();
+    </script>
+
     <script src="../../shared/atlas-bridge.js"></script>
     <script src="/shared/atlas-analytics.js?v=20260919-observability1"></script>
     <script src="../../shared/atlas-tutor-content.js"></script>
@@ -68,7 +99,32 @@
             inset: 0;
             z-index: 99999;
             min-height: 0;
-            background: var(--surface-canvas, #f5f1e9);
+            background: #f5f1e9;
+        }
+
+        html[data-theme="night"][data-atlas-subject-build-handoff="true"]
+            #compass-subject-load-status {
+            background: #221f1b;
+        }
+
+        html[data-atlas-subject-build-handoff="true"]
+            .compass-subject-load-dot {
+            background: #4f7772;
+        }
+
+        html[data-atlas-subject-build-handoff="true"]
+            .compass-subject-load-message {
+            color: #7a7268;
+        }
+
+        html[data-theme="night"][data-atlas-subject-build-handoff="true"]
+            .compass-subject-load-dot {
+            background: #84cabf;
+        }
+
+        html[data-theme="night"][data-atlas-subject-build-handoff="true"]
+            .compass-subject-load-message {
+            color: #cfc7ba;
         }
 
         .compass-subject-load-state {
