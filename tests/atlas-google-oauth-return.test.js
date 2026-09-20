@@ -39,7 +39,7 @@ assert.match(
 );
 assert.match(
   registry,
-  /atlas-access-bootstrap\.js\?v=20260920-oauthreturn1/
+  /atlas-access-bootstrap\.js\?v=20260920-googleid1/
 );
 
 [atlas, compass, arcade, tutors].forEach((source, index) => {
