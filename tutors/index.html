@@ -246,13 +246,11 @@
       --arcade-soft: rgba(223, 87, 47, .09);
       --shadow-sm: 0 6px 20px rgba(33, 31, 27, .05);
       --shadow-md: 0 16px 42px rgba(33, 31, 27, .07);
-      --control-border: rgba(33, 31, 27, .15);
-      --control-border-hover: rgba(33, 31, 27, .24);
-      --control-surface: #fffdf9;
-      --control-icon: #7b7469;
-      --control-text-hover: #211f1b;
-      --control-shadow: 0 3px 10px rgba(33, 31, 27, .045);
-      --control-hover-shadow: 0 5px 14px rgba(33, 31, 27, .07);
+      --control-surface: var(--surface-raised);
+      --control-border: var(--border-faint);
+      --control-border-hover: var(--border-subtle);
+      --control-icon: var(--text-muted);
+      --control-text-hover: var(--text-heading);
       --radius-sm: 7px;
       --radius-md: 12px;
       --radius-lg: 18px;
@@ -292,13 +290,11 @@
       --arcade-soft: rgba(255, 129, 93, .11);
       --shadow-sm: 0 6px 20px rgba(0, 0, 0, .16);
       --shadow-md: 0 16px 42px rgba(0, 0, 0, .22);
-      --control-border: rgba(235, 233, 228, .15);
-      --control-border-hover: rgba(235, 233, 228, .24);
-      --control-surface: #252826;
-      --control-icon: #918b82;
-      --control-text-hover: #ebe9e4;
-      --control-shadow: 0 3px 10px rgba(0, 0, 0, .14);
-      --control-hover-shadow: 0 5px 16px rgba(0, 0, 0, .2);
+      --control-surface: var(--surface-raised);
+      --control-border: var(--border-faint);
+      --control-border-hover: var(--border-subtle);
+      --control-icon: var(--text-muted);
+      --control-text-hover: var(--text-heading);
     }
 
     html {
@@ -654,7 +650,7 @@
       border-radius: 12px;
       background: var(--control-surface);
       color: var(--control-icon);
-      box-shadow: var(--control-shadow);
+      box-shadow: var(--shadow-sm);
       transition: var(--motion);
     }
 
@@ -685,7 +681,7 @@
     .theme-toggle:hover {
       color: var(--control-text-hover);
       border-color: var(--control-border-hover);
-      box-shadow: var(--control-hover-shadow);
+      box-shadow: var(--shadow-md);
     }
 
     .theme-toggle .appearance-icon {
@@ -2795,7 +2791,6 @@
       root.dataset.theme =
         Appearance ? Appearance.read() : "light";
       var THEME_TRANSITION_MS = 280;
-      var THEME_TRANSITION_CLEANUP_BUFFER_MS = 100;
       var themeTransitionTimer = null;
 
       function beginThemeTransition() {
@@ -2817,7 +2812,7 @@
         themeTransitionTimer = window.setTimeout(function () {
           root.classList.remove("theme-changing");
           themeTransitionTimer = null;
-        }, THEME_TRANSITION_MS + THEME_TRANSITION_CLEANUP_BUFFER_MS);
+        }, THEME_TRANSITION_MS);
       }
 
       function syncTheme() {
