@@ -19,7 +19,17 @@
 (function () {
     'use strict';
 
-    if (window.AtlasAnalytics) return;
+    if (
+        typeof window.AtlasAnalytics?.getDebugState === 'function'
+    ) {
+        return;
+    }
+
+    const legacyAnalytics =
+        window.AtlasAnalytics &&
+        typeof window.AtlasAnalytics === 'object'
+            ? window.AtlasAnalytics
+            : null;
 
     const EVENT_VERSION = 1;
     const MAX_RECENT_EVENTS = 20;
@@ -805,6 +815,7 @@
 
     window.AtlasAnalytics =
         Object.freeze({
+            ...(legacyAnalytics || {}),
             send,
             productEntry,
             resourceOpen,
