@@ -904,7 +904,9 @@
                 '[data-account-provider]'
             );
 
-        if (!provider) return;
+        if (!provider) {
+            return Promise.resolve(false);
+        }
 
         const isAuthMode =
             state.gateMode === 'sign-in' ||
@@ -915,9 +917,11 @@
             window.AtlasAccount
                 ?.googleAuthEnabled?.() !== true;
 
-        if (!provider.hidden) {
-            void renderGoogleProviderButton();
+        if (provider.hidden) {
+            return Promise.resolve(false);
         }
+
+        return renderGoogleProviderButton();
     }
 
     function setGateMode(mode) {
@@ -1088,7 +1092,8 @@
                 await bindReturnIntent(returnIntentId);
 
             await prepareAccount();
-            updateGoogleProviderVisibility();
+            const googleProviderReady =
+                updateGoogleProviderVisibility();
             const account = window.AtlasAccount?.getState?.() || null;
 
             if (account?.authenticated) {
@@ -1102,17 +1107,7 @@
                 return snapshot();
             }
 
-            const provider =
-                gateLayer.querySelector(
-                    '[data-account-provider]'
-                );
-
-            if (
-                provider &&
-                !provider.hidden
-            ) {
-                await renderGoogleProviderButton();
-            }
+            await googleProviderReady;
 
             gateLayer.hidden = false;
             document.body.classList.add(
