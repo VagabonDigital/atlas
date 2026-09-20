@@ -106,22 +106,28 @@ body:has(.atlas-account-gate-layer:not([hidden])),
 }
 
 .atlas-account-gate-close {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     flex: 0 0 auto;
     display: grid;
     place-items: center;
-    border: 1px solid var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, 0.16)));
-    border-radius: 50%;
-    background: var(--atlas-modal-control-surface, var(--surface-raised, #fffdf9));
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: transparent;
     color: var(--atlas-modal-muted, var(--text-muted, #7b7469));
     cursor: pointer;
 }
 
 .atlas-account-gate-close:hover,
 .atlas-account-gate-close:focus-visible {
+    border-color: var(--atlas-modal-border-strong, var(--border-subtle, rgba(49, 45, 38, 0.16)));
     background: var(--atlas-modal-control-hover, var(--surface-muted, #ebe7de));
     color: var(--atlas-modal-heading, var(--text-heading, #211f1b));
+}
+
+.atlas-account-gate-close:focus-visible {
+    outline: 2px solid var(--atlas-modal-accent, var(--accent, currentColor));
+    outline-offset: 2px;
 }
 
 .atlas-account-gate-body {
