@@ -63,12 +63,12 @@ assert.ok(
 );
 assert.ok(
   registry.includes(
-    'atlas-account-chrome.js?v=20260920-oauthreturn1'
+    'atlas-account-chrome.js?v=20260920-googleauth1'
   )
 );
 assert.ok(
   capabilityGate.includes(
-    'atlas-account-gate.js?v=20260920-oauthreturn1'
+    'atlas-account-gate.js?v=20260920-googleauth1'
   )
 );
 

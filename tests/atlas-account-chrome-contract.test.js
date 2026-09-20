@@ -160,12 +160,12 @@ function runPlacementProof() {
     );
     assert.match(
         inside,
-        /atlas-account-chrome\.js\?v=20260920-oauthreturn1/,
+        /atlas-account-chrome\\.js\\?v=20260920-googleauth1/,
         'Inside Atlas must load shared account chrome.'
     );
     assert.match(
         inside,
-        /atlas-account-chrome\.css\?v=20260920-oauthreturn1[\s\S]*?data-atlas-account-chrome-styles/,
+        /atlas-account-chrome\\.css\\?v=20260920-googleauth1[\s\S]*?data-atlas-account-chrome-styles/,
         'Inside Atlas must load account chrome styles in the document head before hydration.'
     );
     assert.match(

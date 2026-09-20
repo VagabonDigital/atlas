@@ -471,7 +471,7 @@ async function run() {
 
     assert.match(
         bootstrap,
-        /atlas-capability-gate\.js\?v=20260920-oauthreturn1/
+        /atlas-capability-gate\\.js\\?v=20260920-googleauth1/
     );
     assert.match(bootstrap, /prepareCapabilityGate/);
     assert.match(
