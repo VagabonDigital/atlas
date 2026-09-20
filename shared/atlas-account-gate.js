@@ -898,7 +898,9 @@
         }
     }
 
-    function updateGoogleProviderVisibility() {
+    function updateGoogleProviderVisibility({
+        render = false
+    } = {}) {
         const provider =
             gateLayer?.querySelector(
                 '[data-account-provider]'
@@ -918,6 +920,16 @@
                 ?.googleAuthEnabled?.() !== true;
 
         if (provider.hidden) {
+            return Promise.resolve(false);
+        }
+
+        if (
+            provider.dataset.googleReady === 'true'
+        ) {
+            return Promise.resolve(true);
+        }
+
+        if (!render) {
             return Promise.resolve(false);
         }
 
@@ -959,7 +971,9 @@
 
         if (tabs) tabs.hidden = !isAuthMode;
         if (message) message.hidden = true;
-        updateGoogleProviderVisibility();
+        updateGoogleProviderVisibility({
+            render: false
+        });
 
         gateLayer.querySelectorAll('[data-account-mode]')
             .forEach(button => {
@@ -973,6 +987,15 @@
             .forEach(form => {
                 form.hidden = form.dataset.accountForm !== nextMode;
             });
+
+        if (
+            !gateLayer.hidden &&
+            isAuthMode
+        ) {
+            void updateGoogleProviderVisibility({
+                render: true
+            });
+        }
 
         window.setTimeout(() => {
             const target = gateLayer?.querySelector(
@@ -1093,7 +1116,9 @@
 
             await prepareAccount();
             const googleProviderReady =
-                updateGoogleProviderVisibility();
+                updateGoogleProviderVisibility({
+                    render: true
+                });
             const account = window.AtlasAccount?.getState?.() || null;
 
             if (account?.authenticated) {
