@@ -30,7 +30,7 @@ For signed-in tutors, durable account-owned state is stored in Supabase, includi
 
 Email/password signup requires email confirmation. Signup confirmation and password-recovery links return to `/account/`, which handles normal sign-in, account creation and recovery states without introducing a separate auth product.
 
-`account_entitlements` is the minimal server-owned foundation for future Free/Pro capability state. Authenticated browser clients can read only their own entitlement row; they cannot mutate entitlement data. A missing row intentionally means the Free baseline. Product code should consume capability-shaped account APIs rather than scatter `plan === 'pro'` checks through Atlas. This foundation does not yet constitute server-side AI quota enforcement.
+`account_entitlements` owns Free/Pro entitlement state, while the AI subject-creation policy, usage state and reservation events are server-owned and not directly readable or writable by browser roles. A missing entitlement row intentionally means the Free baseline. The initial configurable creation policy is 8 lifetime successful AI subject builds for Free and 100 successful builds per active Pro billing period. Fresh generated subjects reserve capacity when the durable owned-subject shell is created, release that reservation when generation pauses/fails, and consume it exactly once only when the completed subject is durably committed. `atlas_get_account_access_v1()` projects the resulting allowance into the existing account/access contract, so product code consumes capabilities rather than scattering `plan === 'pro'` or browser counters through Atlas.
 
 ## Canonical access state
 
@@ -42,7 +42,7 @@ Anonymous access resolves locally with all account-owned capabilities blocked. A
 
 `atlas-access-bootstrap.js` makes this state available through the shared content-registry seam across the Atlas gateway, Compass hub and subjects, and Arcade hub and games. Batch 2.1 establishes state only: shared account gates, return-to-intent and feature-level interception are later Stage 2 responsibilities.
 
-The executable state proof lives at `tests/atlas-access-contract.test.js` and can be run with `node tests/atlas-access-contract.test.js`. It covers anonymous → Free, account switching through a resolving state, entitlement-read failure, simulated future Pro allowance state and sign-out back to anonymous.
+The executable access-state proof lives at `tests/atlas-access-contract.test.js`. The Stage 6.2 quota wiring proof lives at `tests/atlas-ai-subject-quota-6-2.test.js`. Together they cover anonymous → Free access resolution, allowance projection, exhausted-limit gating, fresh AI-build lifecycle wiring and the source-controlled server enforcement contract.
 
 ## Shared account gate foundation
 
