@@ -1,6 +1,6 @@
 /* ============================================================
-   ATLAS FEEDBACK
-   Shared pilot contact boundary.
+   ATLAS MESSAGING
+   Shared message boundary.
 
    Owns:
    - contact overlay
@@ -25,7 +25,7 @@
     const OWNER_MODE_KEY =
         'atlas::ownerMode';
 
-    const ADMIN_URL =
+    const INBOX_URL =
         './tutors/admin.html';
 
     const IDS = {
@@ -906,21 +906,21 @@
                 );
                 mark.setAttribute(
                     'aria-label',
-                    'Open Atlas Admin'
+                    'Open Atlas Inbox'
                 );
                 mark.setAttribute(
                     'title',
-                    'Atlas Admin'
+                    'Atlas Inbox'
                 );
 
-                const openAdmin = () => {
+                const openInbox = () => {
                     window.location.href =
-                        ADMIN_URL;
+                        INBOX_URL;
                 };
 
                 mark.addEventListener(
                     'click',
-                    openAdmin
+                    openInbox
                 );
 
                 mark.addEventListener(
@@ -931,7 +931,7 @@
                             event.key === ' '
                         ) {
                             event.preventDefault();
-                            openAdmin();
+                            openInbox();
                         }
                     }
                 );
