@@ -451,6 +451,18 @@
       line-height: 1;
     }
 
+    .google-button-host {
+      width: 100%;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .google-button-host > div {
+      max-width: 100%;
+    }
+
     .auth-divider {
       display: flex;
       align-items: center;
@@ -781,7 +793,8 @@
 
   <script src="/shared/atlas-analytics.js?v=20260919-observability1"></script>
   <script src="../shared/atlas-cloud.js?v=20260916-account1"></script>
-  <script src="../shared/atlas-account.js?v=20260920-googleauth1"></script>
+  <script src="../shared/atlas-account.js?v=20260920-googleid1"></script>
+  <script src="../shared/atlas-google-identity.js?v=20260920-googleid1"></script>
   <script src="../shared/atlas-return-intent.js?v=20260917-capability1"></script>
   <script src="../shared/atlas-return-handoff.js?v=20260917-capability1"></script>
 </head>
@@ -826,10 +839,7 @@
         </div>
 
         <div id="google-provider" class="auth-provider" hidden>
-          <button id="continue-google" class="button google-button" type="button">
-            <span class="google-mark" aria-hidden="true">G</span>
-            <span id="continue-google-label">Continue with Google</span>
-          </button>
+          <div id="continue-google" class="google-button-host"></div>
           <div class="auth-divider" aria-hidden="true">
             <span>or</span>
           </div>
@@ -1040,13 +1050,89 @@
       document.getElementById('google-provider');
     const GoogleButton =
       document.getElementById('continue-google');
-    const GoogleButtonLabel =
-      document.getElementById('continue-google-label');
-
     if (GoogleProvider) {
       GoogleProvider.hidden =
         AtlasAccount.googleAuthEnabled?.() !== true;
     }
+
+    async function renderGoogleIdentityButton() {
+      if (
+        !GoogleProvider ||
+        GoogleProvider.hidden ||
+        !GoogleButton ||
+        !window.AtlasGoogleIdentity
+      ) {
+        return;
+      }
+
+      try {
+        await AtlasGoogleIdentity.renderButton(
+          GoogleButton,
+          {
+            text: 'continue_with',
+            onClick: () => {
+              setStatus(
+                'Waiting for Google…'
+              );
+            },
+            onCredential:
+              async credential => {
+                setStatus(
+                  'Signing in with Google…'
+                );
+
+                try {
+                  await AtlasAccount
+                    .signInWithGoogleIdToken(
+                      credential
+                    );
+
+                  transientStatus = false;
+                  render(
+                    AtlasAccount.getState()
+                  );
+                } catch (error) {
+                  window.AtlasAnalytics
+                    ?.authFailure({
+                      action:
+                        'google_id_token',
+                      error
+                    });
+
+                  setStatus(
+                    humanizeAccountError(
+                      error
+                    ),
+                    'error'
+                  );
+                }
+              },
+            onError: error => {
+              window.AtlasAnalytics
+                ?.authFailure({
+                  action:
+                    'google_id_token',
+                  error
+                });
+
+              setStatus(
+                humanizeAccountError(
+                  error
+                ),
+                'error'
+              );
+            }
+          }
+        );
+      } catch (error) {
+        setStatus(
+          humanizeAccountError(error),
+          'error'
+        );
+      }
+    }
+
+    void renderGoogleIdentityButton();
 
     const ChangeEmailTrigger =
       document.getElementById('show-change-email');
@@ -1464,45 +1550,6 @@
         setStatus(humanizeAccountError(error), 'error');
       }
     })();
-
-    GoogleButton?.addEventListener('click', async event => {
-      const button = event.currentTarget;
-
-      button.disabled = true;
-
-      if (GoogleButtonLabel) {
-        GoogleButtonLabel.textContent =
-          'Opening Google…';
-      }
-
-      setStatus('Opening Google sign-in…');
-
-      try {
-        await AtlasAccount.signInWithGoogle({
-          returnIntentId:
-            AtlasReturnHandoff.getPendingId(),
-          redirectTo:
-            window.location.href
-        });
-      } catch (error) {
-        window.AtlasAnalytics?.authFailure({
-          action: 'google_oauth',
-          error
-        });
-
-        button.disabled = false;
-
-        if (GoogleButtonLabel) {
-          GoogleButtonLabel.textContent =
-            'Continue with Google';
-        }
-
-        setStatus(
-          humanizeAccountError(error),
-          'error'
-        );
-      }
-    });
 
     ModeSignIn.addEventListener('click', () => {
       transientStatus = false;
