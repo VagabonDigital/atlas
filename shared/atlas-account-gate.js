@@ -970,26 +970,21 @@
             const previousMode =
                 state.gateMode;
 
-            state.gateMode = 'sign-in';
-
-            const provider =
-                gateLayer?.querySelector(
-                    '[data-account-provider]'
-                );
-
-            if (!provider) {
-                state.gateMode = previousMode;
-                return false;
-            }
-
-            provider.hidden =
-                window.AtlasAccount
-                    ?.googleAuthEnabled?.() !== true;
-
-            if (provider.hidden) {
-                state.gateMode = previousMode;
-                return false;
-            }
+            /*
+             * Give Google a real layout box during prewarm. A hidden
+             * (display:none) iframe defers first layout/paint until the
+             * tutor clicks, which is exactly the one-time glitch.
+             */
+            gateLayer.hidden = true;
+            setGateMode('sign-in');
+            gateLayer.classList.add(
+                'is-prewarming'
+            );
+            gateLayer.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+            gateLayer.hidden = false;
 
             const ready =
                 await updateGoogleProviderVisibility({
@@ -998,12 +993,35 @@
                     silent: true
                 });
 
+            /*
+             * Let the iframe survive a few real rendered frames before it
+             * can ever become visible.
+             */
+            await new Promise(resolve =>
+                requestAnimationFrame(() =>
+                    requestAnimationFrame(() =>
+                        requestAnimationFrame(resolve)
+                    )
+                )
+            );
+
             state.gateMode =
                 previousMode;
 
             return ready;
         })().catch(error => {
             prewarmPromise = null;
+
+            if (gateLayer) {
+                gateLayer.hidden = true;
+                gateLayer.classList.remove(
+                    'is-prewarming'
+                );
+                gateLayer.removeAttribute(
+                    'aria-hidden'
+                );
+            }
+
             console.error(
                 '[AtlasAccountGate] prewarm failed:',
                 error
@@ -1185,7 +1203,13 @@
          */
         await prewarm();
 
-        gateLayer.hidden = true;
+        gateLayer.classList.remove(
+            'is-prewarming'
+        );
+        gateLayer.removeAttribute(
+            'aria-hidden'
+        );
+        gateLayer.hidden = false;
         state.gateOpen = true;
         setGateMode(mode);
 
@@ -1215,7 +1239,6 @@
 
             await googleProviderReady;
 
-            gateLayer.hidden = false;
             document.body.classList.add(
                 'atlas-account-gate-open'
             );
@@ -1266,6 +1289,12 @@
         if (!gateLayer || gateLayer.hidden) return;
 
         gateLayer.hidden = true;
+        gateLayer.classList.remove(
+            'is-prewarming'
+        );
+        gateLayer.removeAttribute(
+            'aria-hidden'
+        );
         document.body.classList.remove('atlas-account-gate-open');
         setBusy(false);
         setGateStatus('');
