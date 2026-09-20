@@ -203,45 +203,16 @@ body:has(.atlas-account-gate-layer:not([hidden])),
     margin: 0 0 18px;
 }
 
-.atlas-account-google {
+.atlas-account-google-host {
     width: 100%;
     min-height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    padding: 0 14px;
-    border: 1px solid var(--atlas-modal-border-strong, var(--border-subtle, rgba(49, 45, 38, 0.16)));
-    border-radius: 10px;
-    background: var(--atlas-modal-control-surface, var(--surface-raised, #fffdf9));
-    color: var(--atlas-modal-heading, var(--text-heading, #211f1b));
-    cursor: pointer;
-    font: inherit;
-    font-weight: 600;
 }
 
-.atlas-account-google:hover:not(:disabled),
-.atlas-account-google:focus-visible {
-    border-color: var(--atlas-modal-accent, #59617d);
-    background: var(--atlas-modal-accent-bg, rgba(89, 97, 125, 0.09));
-}
-
-.atlas-account-google:focus-visible {
-    outline: 2px solid var(--atlas-modal-accent, #59617d);
-    outline-offset: 2px;
-}
-
-.atlas-account-google-mark {
-    width: 22px;
-    height: 22px;
-    display: grid;
-    place-items: center;
-    border: 1px solid var(--atlas-modal-border-strong, var(--border-subtle, rgba(49, 45, 38, 0.16)));
-    border-radius: 50%;
-    background: var(--atlas-modal-surface-raised, var(--surface-raised, #fffdf9));
-    font-size: 0.86rem;
-    font-weight: 700;
-    line-height: 1;
+.atlas-account-google-host > div {
+    max-width: 100%;
 }
 
 .atlas-account-gate-divider {
