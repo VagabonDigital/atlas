@@ -119,6 +119,9 @@
       color: var(--text);
       background: var(--canvas);
       --canvas: #f3f0e9;
+      --atlas-transition-canvas: #f5f1e9;
+      --atlas-transition-accent: #4f7772;
+      --atlas-transition-muted: #7a7268;
       --surface: #fffdf9;
       --surface-soft: rgba(49,45,38,.025);
       --surface-control: #ffffff;
@@ -143,6 +146,9 @@
 
     html[data-theme="night"] {
       --canvas: #1b1d1c;
+      --atlas-transition-canvas: #221f1b;
+      --atlas-transition-accent: #84cabf;
+      --atlas-transition-muted: #cfc7ba;
       --surface: #252826;
       --surface-soft: rgba(235,233,228,.035);
       --surface-control: #202321;
@@ -207,7 +213,7 @@
       display: none;
       place-items: center;
       padding: 2rem;
-      background: var(--canvas);
+      background: var(--atlas-transition-canvas);
     }
 
     html[data-atlas-return-handoff="true"] {
@@ -251,7 +257,7 @@
       width: .46rem;
       height: .46rem;
       border-radius: 50%;
-      background: var(--accent);
+      background: var(--atlas-transition-accent);
       animation:
         account-return-handoff-bounce
         .9s ease-in-out infinite;
@@ -267,7 +273,7 @@
 
     .account-return-handoff-message {
       margin: 0;
-      color: var(--muted);
+      color: var(--atlas-transition-muted);
       font-size: .9rem;
       font-weight: 400;
     }
