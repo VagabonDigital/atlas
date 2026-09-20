@@ -35,6 +35,7 @@ function getAtlasWorkerSupabaseConfig(env) {
 
     const serviceRoleKey =
         String(
+            env.ATLAS_SUPABASE_SECRET_KEY ||
             env.ATLAS_SUPABASE_SERVICE_ROLE_KEY ||
             ''
         ).trim();
