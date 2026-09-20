@@ -25,6 +25,7 @@
         'canCreateSubject',
         'canEditSubject',
         'canCreateWithAI',
+        'canUseAI',
         'canAccessAccountLibrary'
     ]);
 
@@ -34,6 +35,7 @@
         canCreateSubject: false,
         canEditSubject: false,
         canCreateWithAI: false,
+        canUseAI: false,
         canAccessAccountLibrary: false
     });
 
@@ -43,6 +45,7 @@
         canCreateSubject: true,
         canEditSubject: true,
         canCreateWithAI: true,
+        canUseAI: true,
         canAccessAccountLibrary: true
     });
 
