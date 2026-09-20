@@ -1241,6 +1241,62 @@
         };
     }
 
+    function selectFallbackKeyLanguageOpportunities(
+        candidates,
+        limit
+    ) {
+        const ids =
+            Array.isArray(candidates)
+                ? candidates
+                    .map(item =>
+                        cleanString(item?.id)
+                    )
+                    .filter(Boolean)
+                : [];
+
+        const targetCount =
+            Math.min(
+                Math.max(
+                    0,
+                    Math.floor(
+                        Number(limit) || 0
+                    )
+                ),
+                ids.length
+            );
+
+        if (!targetCount) {
+            return [];
+        }
+
+        if (targetCount >= ids.length) {
+            return ids.slice();
+        }
+
+        return Array.from(
+            {
+                length: targetCount
+            },
+            (_, index) => {
+                const position =
+                    Math.floor(
+                        (
+                            index + 0.5
+                        ) *
+                        ids.length /
+                        targetCount
+                    );
+
+                return ids[
+                    Math.min(
+                        ids.length - 1,
+                        position
+                    )
+                ];
+            }
+        );
+    }
+
     async function selectKeyLanguageOpportunities(
         input = {}
     ) {
@@ -1304,6 +1360,17 @@
                 })
             }
         );
+
+        if (response.status === 404) {
+            console.warn(
+                '[AtlasAI] Key Language planner is not deployed yet; using a deterministic fallback selection.'
+            );
+
+            return selectFallbackKeyLanguageOpportunities(
+                candidates,
+                limit
+            );
+        }
 
         let result = null;
 
