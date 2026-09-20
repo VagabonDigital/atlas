@@ -867,6 +867,13 @@
                 return snapshot();
             }
 
+            window.AtlasAnalytics?.accountGate({
+                mode,
+                action:
+                    returnIntent?.action ||
+                    'account'
+            });
+
             /*
              * Opening the gate must stay immediately usable. If the tutor
              * already submitted while account preparation was finishing,
@@ -1001,6 +1008,11 @@
             await window.AtlasAccount.signIn(email, password);
             await completeAuthenticatedFlow();
         } catch (error) {
+            window.AtlasAnalytics?.authFailure({
+                action: 'sign_in',
+                error
+            });
+
             setBusy(false);
             setGateStatus(humanizeError(error), 'error');
         } finally {
@@ -1029,6 +1041,11 @@
         }
 
         setGateStatus('');
+
+        window.AtlasAnalytics?.signupStart({
+            source: 'account-gate'
+        });
+
         setBusy(true, 'Creating account…');
         localAuthenticationInProgress = true;
 
@@ -1043,6 +1060,12 @@
             );
 
             setBusy(false);
+
+            window.AtlasAnalytics?.signupCreated({
+                source: 'account-gate',
+                confirmationRequired:
+                    result?.confirmationRequired === true
+            });
 
             if (result?.confirmationRequired) {
                 confirmationPendingIntentId =
@@ -1062,8 +1085,17 @@
                 return;
             }
 
+            window.AtlasAnalytics?.signupComplete({
+                source: 'account-gate'
+            });
+
             await completeAuthenticatedFlow();
         } catch (error) {
+            window.AtlasAnalytics?.authFailure({
+                action: 'sign_up',
+                error
+            });
+
             setBusy(false);
             setGateStatus(humanizeError(error), 'error');
         } finally {
@@ -1097,6 +1129,11 @@
                 `If ${email} is linked to an account, a password reset link is on its way.`
             );
         } catch (error) {
+            window.AtlasAnalytics?.authFailure({
+                action: 'password_reset_request',
+                error
+            });
+
             setBusy(false);
             setGateStatus(humanizeError(error), 'error');
         }

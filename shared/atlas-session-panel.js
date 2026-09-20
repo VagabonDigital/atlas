@@ -1578,6 +1578,10 @@
                 };
             }
 
+            window.AtlasAnalytics?.learnerAdded({
+                source
+            });
+
             refresh();
             window.renderHome?.();
 

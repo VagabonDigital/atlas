@@ -780,6 +780,29 @@
         }
     );
 
+    window.addEventListener(
+        'atlas:account-session-ended',
+        event => {
+            const detail =
+                event?.detail || {};
+
+            sendFailure(
+                'atlas_auth_failure',
+                {
+                    action: 'session_ended',
+                    error_category:
+                        'session_ended',
+                    error_code:
+                        cleanString(
+                            detail.code ||
+                            'unknown',
+                            40
+                        )
+                }
+            );
+        }
+    );
+
     window.AtlasAnalytics =
         Object.freeze({
             send,

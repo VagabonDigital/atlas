@@ -6123,6 +6123,10 @@
         if (preview) preview.hidden = false;
         setBackupStatus('', false);
       } catch (error) {
+        window.AtlasAnalytics?.restoreFailure({
+          phase: 'validation'
+        });
+
         setBackupStatus(
           error && error.message
             ? error.message
@@ -6160,6 +6164,10 @@
         setBackupStatus('Restore complete. Reloading Atlas…', false);
         window.location.reload();
       } catch (error) {
+        window.AtlasAnalytics?.restoreFailure({
+          phase: 'restore'
+        });
+
         setBackupStatus(
           error && error.message
             ? 'Restore could not finish. ' + error.message

@@ -9475,6 +9475,13 @@
           }
         }
 
+        window.AtlasAnalytics?.subjectCreateAttempt({
+          creationMode:
+            generateFullSubject
+              ? 'generate'
+              : 'create'
+        });
+
         try {
           const created =
             await Subjects.createSubject({

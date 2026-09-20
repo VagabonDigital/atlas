@@ -434,7 +434,7 @@
         const access = resolved.state;
 
         if (!access) {
-            return outcome(
+            const result = outcome(
                 OUTCOMES.UNAVAILABLE,
                 capability,
                 null,
@@ -444,10 +444,19 @@
                         'Atlas access state is unavailable.'
                 }
             );
+
+            window.AtlasAnalytics?.capabilityFailure({
+                action,
+                capability,
+                outcome: result.outcome,
+                reason: 'access_state'
+            });
+
+            return result;
         }
 
         if (access.status === 'error') {
-            return outcome(
+            const result = outcome(
                 OUTCOMES.UNAVAILABLE,
                 capability,
                 access,
@@ -458,6 +467,15 @@
                         'Atlas access state is unavailable.'
                 }
             );
+
+            window.AtlasAnalytics?.capabilityFailure({
+                action,
+                capability,
+                outcome: result.outcome,
+                reason: 'access_error'
+            });
+
+            return result;
         }
 
         if (!access.ready) {
@@ -503,7 +521,7 @@
                 });
 
             if (interruption.error) {
-                return outcome(
+                const result = outcome(
                     OUTCOMES.UNAVAILABLE,
                     capability,
                     access,
@@ -513,6 +531,15 @@
                             String(interruption.error)
                     }
                 );
+
+                window.AtlasAnalytics?.capabilityFailure({
+                    action,
+                    capability,
+                    outcome: result.outcome,
+                    reason: 'auth_interruption'
+                });
+
+                return result;
             }
 
             return outcome(
@@ -535,7 +562,7 @@
             allowance &&
             allowance.status === 'exhausted'
         ) {
-            return outcome(
+            const result = outcome(
                 OUTCOMES.LIMITED,
                 capability,
                 access,
@@ -544,6 +571,15 @@
                     allowance
                 }
             );
+
+            window.AtlasAnalytics?.capabilityFailure({
+                action,
+                capability,
+                outcome: result.outcome,
+                reason: allowance.status
+            });
+
+            return result;
         }
 
         if (
@@ -558,7 +594,7 @@
             );
         }
 
-        return outcome(
+        const result = outcome(
             OUTCOMES.BLOCKED,
             capability,
             access,
@@ -569,6 +605,17 @@
                 allowance
             }
         );
+
+        window.AtlasAnalytics?.capabilityFailure({
+            action,
+            capability,
+            outcome: result.outcome,
+            reason:
+                allowance?.status ||
+                'blocked'
+        });
+
+        return result;
     }
 
     function publishResume(intent, source) {

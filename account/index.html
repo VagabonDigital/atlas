@@ -1292,6 +1292,15 @@
         render(AtlasAccount.getState());
 
         if (
+          authReturnType === 'signup' &&
+          AtlasAccount.getState()?.authenticated
+        ) {
+          window.AtlasAnalytics?.signupComplete({
+            source: 'email-confirmation'
+          });
+        }
+
+        if (
           authReturnType === 'email_change'
         ) {
           const pendingEmail =
@@ -1364,6 +1373,11 @@
         transientStatus = false;
         render(AtlasAccount.getState());
       } catch (error) {
+        window.AtlasAnalytics?.authFailure({
+          action: 'sign_in',
+          error
+        });
+
         setStatus(humanizeAccountError(error), 'error');
       } finally {
         setButtonBusy(button, false, 'Signing in…', 'Sign in');
@@ -1387,6 +1401,10 @@
         return;
       }
 
+      window.AtlasAnalytics?.signupStart({
+        source: 'account-page'
+      });
+
       setButtonBusy(button, true, 'Creating account…', 'Create account');
       setStatus('Creating your account…');
 
@@ -1401,6 +1419,12 @@
         document.getElementById('create-password').value = '';
         document.getElementById('create-password-confirm').value = '';
 
+        window.AtlasAnalytics?.signupCreated({
+          source: 'account-page',
+          confirmationRequired:
+            result.confirmationRequired === true
+        });
+
         if (result.confirmationRequired) {
           setStatus(
             AtlasReturnHandoff.getPendingId()
@@ -1409,10 +1433,19 @@
             'success'
           );
         } else {
+          window.AtlasAnalytics?.signupComplete({
+            source: 'account-page'
+          });
+
           transientStatus = false;
           render(AtlasAccount.getState());
         }
       } catch (error) {
+        window.AtlasAnalytics?.authFailure({
+          action: 'sign_up',
+          error
+        });
+
         setStatus(humanizeAccountError(error), 'error');
       } finally {
         setButtonBusy(button, false, 'Creating account…', 'Create account');
@@ -1439,6 +1472,11 @@
           'success'
         );
       } catch (error) {
+        window.AtlasAnalytics?.authFailure({
+          action: 'password_reset_request',
+          error
+        });
+
         setStatus(humanizeAccountError(error), 'error');
       } finally {
         setButtonBusy(button, false, 'Sending…', 'Send reset link');
@@ -1471,6 +1509,11 @@
         setStatus('Password updated. Your account is ready.', 'success');
         render(AtlasAccount.getState());
       } catch (error) {
+        window.AtlasAnalytics?.authFailure({
+          action: 'password_recovery_complete',
+          error
+        });
+
         setStatus(humanizeAccountError(error), 'error');
       } finally {
         setButtonBusy(button, false, 'Updating…', 'Update password');

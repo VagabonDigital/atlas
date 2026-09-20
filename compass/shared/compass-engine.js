@@ -3012,6 +3012,13 @@ async function saveMyVersion(options = {}) {
             .clearWorkingDraft(contentId);
     }
 
+    window.AtlasAnalytics?.durableSave({
+        kind:
+            ownedSubject
+                ? 'owned_subject_edit'
+                : 'my_version'
+    });
+
     finishMyVersionEditingState();
     renderAllTutorContentSurfaces();
     publishAtlasCompassItem('updated');
@@ -14555,6 +14562,20 @@ function finishCompassWrapUp() {
         console.warn('[Compass] Handoff write failed.');
         return;
     }
+
+    window.AtlasAnalytics?.teachingUse({
+        action: 'wrap_up',
+        resourceSource:
+            isOwnedSubjectRuntime()
+                ? 'owned'
+                : hasSavedMyVersion()
+                    ? 'my-version'
+                    : 'atlas',
+        exploredCount:
+            evidence.exploredItems.length,
+        savedLanguageCount:
+            evidence.savedLanguageEntryIds.size
+    });
 
     clearWrapUpEvidence(activeSession.id);
     window.location.assign(getAtlasHomeUrl());
