@@ -13,7 +13,7 @@
     if (window.AtlasAccount) return;
 
     const ACCOUNT_CLOUD_SRC =
-        '/shared/atlas-account-cloud.js?v=20260920-googleauth1';
+        '/shared/atlas-account-cloud.js?v=20260920-googleid1';
     const PERSISTENCE_TRUST_SRC =
         '/shared/atlas-persistence-trust.js?v=20260916-trust2';
     const RECOVERY_SESSION_KEY = 'atlas::accountPasswordRecovery';
@@ -671,6 +671,50 @@
         );
     }
 
+    async function signInWithGoogleIdToken(idToken) {
+        await initialize();
+
+        if (!GOOGLE_AUTH_ENABLED) {
+            const error = new Error(
+                'Google sign-in is not available yet.'
+            );
+            error.code =
+                'ATLAS_GOOGLE_AUTH_DISABLED';
+            throw error;
+        }
+
+        writeRecoveryHint(false);
+
+        const AccountCloud =
+            await ensureAccountCloud();
+
+        const data =
+            await AccountCloud
+                .signInWithGoogleIdToken(
+                    idToken
+                );
+
+        const session =
+            data?.session ||
+            await AtlasCloud.getSession();
+
+        syncPersistenceScopeForSession(session);
+        publish(
+            stateForSession(
+                session,
+                { recovery: false }
+            )
+        );
+
+        if (session?.user?.id) {
+            await refreshEntitlement(
+                session.user.id
+            );
+        }
+
+        return snapshot();
+    }
+
     async function signIn(email, password) {
         await initialize();
         writeRecoveryHint(false);
@@ -1104,6 +1148,7 @@
         subscribe,
         googleAuthEnabled,
         signInWithGoogle,
+        signInWithGoogleIdToken,
         signIn,
         createAccount,
         requestPasswordReset,
