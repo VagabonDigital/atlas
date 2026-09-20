@@ -4411,6 +4411,15 @@
       try { return Bridge.readLedger(); }
       catch (e) { return { entries: {} }; }
     }
+    function getLatestHandoff(sessionId) {
+      try {
+        return typeof Bridge.readLatestHandoff === 'function'
+          ? Bridge.readLatestHandoff(sessionId)
+          : null;
+      } catch (e) {
+        return null;
+      }
+    }
     function isDefaultSession(session) {
       return session && session.id === (Bridge.defaultSessionId || 'default');
     }
@@ -4609,6 +4618,24 @@
 
       return item.world || '';
     }
+
+    function getMatchingCompassHandoff(item, handoff) {
+      if (!item || !handoff) return null;
+      if (item.world !== COMPASS_ID || handoff.world !== COMPASS_ID) return null;
+
+      const subjectId = typeof handoff.subjectId === 'string'
+        ? handoff.subjectId.trim()
+        : '';
+
+      if (!subjectId) return null;
+
+      const matchesSubjectId = item.id === subjectId;
+      const matchesRegistryId = item.registryId === COMPASS_ID + ':' + subjectId;
+
+      return matchesSubjectId || matchesRegistryId ? handoff : null;
+    }
+
+    let expandedContinueHandoffId = null;
 
     // ================================================================
     // LANGUAGE REVIEW — saved language entries for the active session
@@ -5042,6 +5069,8 @@
       const authenticated =
         hasAuthenticatedAccountContext();
       const continueItem = getContinueItem(reg, session.id);
+      const latestHandoff = continueItem ? getLatestHandoff(session.id) : null;
+      const continueHandoff = getMatchingCompassHandoff(continueItem, latestHandoff);
       const reviewSet = getReviewSet(ledger, session.id);
       const hasContinue = !!continueItem;
       const hasReview = reviewSet.length > 0;
@@ -5049,17 +5078,23 @@
       document.documentElement.dataset.atlasGatewayState =
         authenticated ? 'authenticated' : 'anonymous';
 
+      if (!continueHandoff || continueHandoff.id !== expandedContinueHandoffId) {
+        expandedContinueHandoffId = null;
+      }
+
       const nextHomeMarkup = authenticated
         ? renderGateway(
           session,
           isDefault,
           continueItem,
+          continueHandoff,
           hasContinue,
           reviewSet,
           hasReview
         )
         : renderAnonymousGateway(
           continueItem,
+          continueHandoff,
           hasContinue,
           reviewSet,
           hasReview
@@ -5078,6 +5113,7 @@
 
     function renderAnonymousGateway(
       continueItem,
+      continueHandoff,
       hasContinue,
       reviewSet,
       hasReview
@@ -5096,14 +5132,14 @@
         ) +
         '</p>' +
         '</div>' +
-        (hasContinue ? renderContinueCard(continueItem, reviewSet.length) : '') +
-        (hasReview && !hasContinue ? renderReviewRow(reviewSet.length) : '') +
+        (hasContinue ? renderContinueCard(continueItem, continueHandoff) : '') +
+        (hasReview ? renderReviewRow(reviewSet.length) : '') +
         (hasLocalContext ? '<p class="doors-label">Choose a world</p>' : '') +
         renderDoors() +
         renderTutorEntry();
     }
 
-    function renderGateway(session, isDefault, continueItem, hasContinue, reviewSet, hasReview) {
+    function renderGateway(session, isDefault, continueItem, continueHandoff, hasContinue, reviewSet, hasReview) {
       // Greeting copy — warm, plain, no system language.
       let welcomeMain, welcomeSub;
       if (hasContinue) {
@@ -5119,8 +5155,8 @@
         '<h1 class="welcome-line">' + welcomeMain + '</h1>' +
         (welcomeSub ? '<p class="welcome-sub">' + welcomeSub + '</p>' : '') +
         '</div>' +
-        (hasContinue ? renderContinueCard(continueItem, reviewSet.length) : '') +
-        (hasReview && !hasContinue ? renderReviewRow(reviewSet.length) : '') +
+        (hasContinue ? renderContinueCard(continueItem, continueHandoff) : '') +
+        (hasReview ? renderReviewRow(reviewSet.length) : '') +
         '<p class="doors-label">Choose a world</p>' +
         renderDoors() +
         renderTutorEntry();
@@ -5155,7 +5191,7 @@
       return '';
     }
 
-    function renderContinueCard(item, savedLanguageCount = 0) {
+    function renderContinueCard(item, handoff) {
       const url = item.launchUrl || '';
       const meta = continueLabel(item);
       const world = itemWorldLabel(item);
@@ -5166,10 +5202,58 @@
           : '';
       const metaLine = world ? meta + ' \u00b7 ' + world : meta;
       const pct = continueCoverage(item);
-      const reviewCount = Math.max(
-        0,
-        Math.floor(Number(savedLanguageCount) || 0)
+      const exploredItems = handoff && Array.isArray(handoff.exploredItems)
+        ? handoff.exploredItems.filter(explored =>
+          explored && typeof explored.title === 'string' && explored.title.trim()
+        )
+        : [];
+      const savedLanguageCount = handoff
+        ? Math.max(0, Math.floor(Number(handoff.savedLanguageCount) || 0))
+        : 0;
+      const pickupLabel = handoff && typeof handoff.pickupLabel === 'string'
+        ? handoff.pickupLabel.trim()
+        : '';
+      const pickupRef = handoff && typeof handoff.pickupRef === 'string'
+        ? handoff.pickupRef.trim()
+        : '';
+      const finalExploredItem = exploredItems[exploredItems.length - 1] || null;
+      const anchorLabel = pickupLabel || (finalExploredItem
+        ? finalExploredItem.title.trim()
+        : '');
+      let anchorIndex = -1;
+
+      if (anchorLabel && exploredItems.length) {
+        if (pickupRef) {
+          anchorIndex = exploredItems.map(explored => explored.id).lastIndexOf(pickupRef);
+        }
+
+        if (anchorIndex < 0 && pickupLabel) {
+          anchorIndex = exploredItems.map(explored => explored.title.trim()).lastIndexOf(pickupLabel);
+        }
+
+        if (anchorIndex < 0 && !pickupLabel) {
+          anchorIndex = exploredItems.length - 1;
+        }
+      }
+
+      const recapExploredItems = !anchorLabel || exploredItems.length === 0
+        ? exploredItems
+        : exploredItems.length === 1
+          ? []
+          : anchorIndex >= 0
+            ? exploredItems.slice(0, anchorIndex)
+            : exploredItems;
+      const hasRecapEvidence = exploredItems.length > 0 || savedLanguageCount > 0;
+      const handoffId = handoff && typeof handoff.id === 'string'
+        ? handoff.id
+        : '';
+      const recapExpanded = Boolean(
+        hasRecapEvidence && handoffId && expandedContinueHandoffId === handoffId
       );
+      const recapId = 'continue-recap-region';
+      const subjectTitle = handoff && typeof handoff.subjectTitle === 'string' && handoff.subjectTitle.trim()
+        ? handoff.subjectTitle.trim()
+        : itemTitle(item);
 
       const rail = (pct !== null)
         ? '<div class="continue-rail' + (pct >= 100 ? ' is-complete' : '') + '" aria-hidden="true">' +
@@ -5177,11 +5261,48 @@
         '</div>'
         : '';
 
-      const reviewButton = reviewCount > 0
-        ? '<button type="button" class="continue-action" ' +
-        'onclick="openLanguageReview()" ' +
-        'aria-label="Review ' + reviewCount + ' saved language item' + (reviewCount === 1 ? '' : 's') + '">' +
-        'Review language \u00b7 ' + reviewCount +
+      const pickup = anchorLabel
+        ? '<div class="continue-pickup"><span class="continue-pickup-label">Pick up from</span> \u2014 ' + escHtml(anchorLabel) + '</div>'
+        : '';
+
+      const exploredSection = recapExploredItems.length
+        ? '<div class="continue-recap-section">' +
+        '<h3 class="continue-recap-heading">You explored</h3>' +
+        '<ul class="continue-recap-list">' + recapExploredItems.map(explored =>
+          '<li>' + escHtml(explored.title.trim()) + '</li>'
+        ).join('') + '</ul>' +
+        '</div>'
+        : '';
+
+      const savedLanguageSection = savedLanguageCount > 0
+        ? '<div class="continue-recap-section">' +
+        '<h3 class="continue-recap-heading">Saved language</h3>' +
+        '<p class="continue-recap-copy">' + savedLanguageCount + ' item' + (savedLanguageCount === 1 ? '' : 's') + ' saved</p>' +
+        '</div>'
+        : '';
+
+      const endedOnSection = anchorLabel
+        ? '<div class="continue-recap-section">' +
+        '<h3 class="continue-recap-heading">We ended on</h3>' +
+        '<p class="continue-recap-copy">' + escHtml(anchorLabel) + '</p>' +
+        '</div>'
+        : '';
+
+      const recap = hasRecapEvidence
+        ? '<section class="continue-recap" id="' + recapId + '" role="region" aria-label="Last lesson recap for ' + escAttr(subjectTitle) + '"' + (recapExpanded ? '' : ' hidden') + '>' +
+        '<div class="continue-recap-kicker">Last lesson \u00b7 ' + escHtml(subjectTitle) + '</div>' +
+        exploredSection +
+        savedLanguageSection +
+        endedOnSection +
+        '</section>'
+        : '';
+
+      const recapToggle = hasRecapEvidence
+        ? '<button type="button" class="continue-action" id="continue-recap-toggle" ' +
+        'data-handoff-id="' + escAttr(handoffId) + '" ' +
+        'aria-expanded="' + String(recapExpanded) + '" aria-controls="' + recapId + '" ' +
+        'onclick="toggleContinueRecapFromButton(this)">' +
+        (recapExpanded ? 'Close recap' : 'Open recap') +
         '</button>'
         : '';
 
@@ -5193,15 +5314,10 @@
         '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8h8M9 5l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
         '</span>' +
         '</button>';
-
-      const continueActions =
-        '<div class="continue-actions">' +
-        reviewButton +
-        continueButton +
-        '</div>';
+      const continueActions = '<div class="continue-actions">' + recapToggle + continueButton + '</div>';
 
       return '' +
-        '<div class="continue-card' + worldClass + (rail ? ' has-rail' : '') + '">' +
+        '<div class="continue-card' + worldClass + (rail ? ' has-rail' : '') + (recapExpanded ? ' is-expanded' : '') + '">' +
         '<div class="continue-summary">' +
         '<div class="continue-icon" aria-hidden="true">' +
         getContinueItemArt(item) +
@@ -5210,11 +5326,33 @@
         '<div class="continue-kicker">Continue</div>' +
         '<div class="continue-title">' + escHtml(itemTitle(item)) + '</div>' +
         '<div class="continue-meta">' + escHtml(metaLine) + '</div>' +
+        pickup +
         '</div>' +
-        continueActions +
+        (recapExpanded ? '' : continueActions) +
         '</div>' +
+        recap +
+        (recapExpanded ? continueActions : '') +
         rail +
         '</div>';
+    }
+
+    function toggleContinueRecapFromButton(button) {
+      const handoffId = button && button.dataset
+        ? button.dataset.handoffId || ''
+        : '';
+
+      if (!handoffId) return;
+
+      expandedContinueHandoffId = expandedContinueHandoffId === handoffId
+        ? null
+        : handoffId;
+
+      renderHome();
+
+      window.requestAnimationFrame(() => {
+        const toggle = document.getElementById('continue-recap-toggle');
+        if (toggle) toggle.focus({ preventScroll: true });
+      });
     }
 
     function navigateFromContinueButton(button) {
