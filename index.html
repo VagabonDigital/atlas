@@ -1183,6 +1183,27 @@
       gap: 0.5rem;
     }
 
+    .drawer-legal-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      padding: 0.15rem 0 0;
+      font-size: 0.7rem;
+    }
+
+    .drawer-legal-links a {
+      color: var(--text-subtle);
+      text-decoration: none;
+    }
+
+    .drawer-legal-links a:hover,
+    .drawer-legal-links a:focus-visible {
+      color: var(--text-heading);
+      text-decoration: underline;
+      text-underline-offset: 0.16em;
+    }
+
     .drawer-session-btn {
       flex: 1;
       display: flex;
@@ -3448,6 +3469,28 @@
       outline-offset: 4px;
     }
 
+    .atlas-welcome-legal {
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      color: var(--text-subtle);
+      font-size: 0.72rem;
+    }
+
+    .atlas-welcome-legal a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    .atlas-welcome-legal a:hover,
+    .atlas-welcome-legal a:focus-visible {
+      color: var(--text-heading);
+      text-decoration: underline;
+      text-underline-offset: 0.18em;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .atlas-welcome-screen,
       .atlas-welcome-enter {
@@ -3885,6 +3928,11 @@
       <h1 class="atlas-welcome-title" id="atlas-welcome-title">Welcome to Atlas</h1>
       <p class="atlas-welcome-copy" id="atlas-welcome-copy">A creative teaching workspace for one-to-one English tutors.</p>
       <button class="atlas-welcome-enter" type="button" onclick="enterAtlasFromWelcome()">Enter Atlas</button>
+      <nav class="atlas-welcome-legal" aria-label="Legal">
+        <a href="/privacy/">Privacy</a>
+        <span aria-hidden="true">·</span>
+        <a href="/terms/">Terms</a>
+      </nav>
     </div>
   </section>
 
@@ -4087,6 +4135,10 @@
           </svg>
         </button>
       </div>
+      <nav class="drawer-legal-links" aria-label="Legal">
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+      </nav>
     </div>
   </nav>
 
