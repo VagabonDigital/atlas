@@ -7196,6 +7196,22 @@ function getMyVersionFullSubjectGenerationStatus() {
     );
 }
 
+function releaseCompassSubjectBuildHandoff() {
+    if (
+        document.documentElement.dataset
+            .atlasSubjectBuildHandoff !== 'true'
+    ) {
+        return;
+    }
+
+    delete document.documentElement.dataset
+        .atlasSubjectBuildHandoff;
+
+    document.getElementById(
+        'compass-subject-load-status'
+    )?.remove();
+}
+
 function getMyVersionLanguageSupportMode() {
     const mode =
         String(
@@ -7272,6 +7288,14 @@ async function generateMyVersionFullSubject({
     myVersionFullSubjectGenerationError = '';
     myVersionFullSubjectGenerationNotice = '';
 
+    /*
+     * A resumed build whose framing already exists can reveal the cover
+     * immediately. A fresh build keeps the gate until step 1 completes.
+     */
+    if (completedStep >= 1) {
+        releaseCompassSubjectBuildHandoff();
+    }
+
     try {
         await checkpointMyVersionFullSubjectGeneration(
             completedStep,
@@ -7299,6 +7323,12 @@ async function generateMyVersionFullSubject({
                 completedStep,
                 autoSaveOnComplete
             );
+
+            /*
+             * The cover now has its real hook/introduction. Move the tutor
+             * into the subject while the remaining lesson continues building.
+             */
+            releaseCompassSubjectBuildHandoff();
         }
 
         if (completedStep < 2) {
@@ -7609,6 +7639,12 @@ async function generateMyVersionFullSubject({
             '[Compass] Full subject generation paused:',
             error
         );
+
+        /*
+         * Never strand the tutor behind the build gate when generation pauses.
+         * The partial subject and its recovery controls are more useful.
+         */
+        releaseCompassSubjectBuildHandoff();
 
         if (myVersionEditing) {
             const failedAt =
@@ -22700,6 +22736,13 @@ async function init() {
         myVersionEditing
     ) {
         setMyVersionAuthorBarMinimized(false);
+    }
+
+    if (
+        ownedSubjectAuthoringIntent === 'generate' &&
+        !myVersionEditing
+    ) {
+        releaseCompassSubjectBuildHandoff();
     }
 
     const resumableFullSubjectBuild =

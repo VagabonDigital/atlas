@@ -11,6 +11,24 @@
    ============================================================ */
 
 function mountCompassSubjectShell() {
+    const preserveBuildHandoff =
+        document.documentElement.dataset
+            .atlasSubjectBuildHandoff === 'true';
+
+    const buildHandoffStatus =
+        preserveBuildHandoff
+            ? document.getElementById(
+                'compass-subject-load-status'
+            )
+            : null;
+
+    /*
+     * The dynamic shell replaces document.body. Detach the build gate first
+     * so a generated subject keeps its intentional loading state while the
+     * teaching shell initializes underneath it.
+     */
+    buildHandoffStatus?.remove();
+
     document.body.innerHTML = `
     <!-- ============================================================
      VIEW 1: COVER
@@ -1579,4 +1597,10 @@ function mountCompassSubjectShell() {
     <!-- Shared safe-first session panel mounts here. -->
     <div id="atlas-session-panel-root"></div>
     `;
+
+    if (buildHandoffStatus) {
+        document.body.appendChild(
+            buildHandoffStatus
+        );
+    }
 }

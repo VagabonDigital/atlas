@@ -62,6 +62,15 @@
             padding: 2rem;
         }
 
+        html[data-atlas-subject-build-handoff="true"]
+            #compass-subject-load-status {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            min-height: 0;
+            background: var(--surface-canvas, #f5f1e9);
+        }
+
         .compass-subject-load-state {
             display: flex;
             flex-direction: column;

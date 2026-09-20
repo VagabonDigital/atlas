@@ -9731,6 +9731,17 @@
               : 'create'
         });
 
+        /*
+         * Leave the modal/hub immediately. Subject persistence can take long
+         * enough for the blank registry projection to become visible behind
+         * the dialog, which makes creation feel like a UI glitch.
+         */
+        setCompassResumeTransition(
+          generateFullSubject
+            ? 'generate'
+            : 'blank'
+        );
+
         try {
           const created =
             await Subjects.createSubject({
@@ -9827,9 +9838,10 @@
             creationError
           );
 
+          clearCompassResumeTransition();
+
           if (state.silentResume) {
             state.silentResume = false;
-            clearCompassResumeTransition();
 
             ownedSubjectDialogPreviousBodyOverflow =
               document.body.style.overflow;
