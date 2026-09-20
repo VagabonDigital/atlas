@@ -7563,8 +7563,6 @@ async function generateMyVersionFullSubject({
         refreshMyVersionFullSubjectReadyNotice(
             true,
             languageSupport
-        );        refreshMyVersionFullSubjectReadyNotice(
-            true
         );
 
         if (autoSaveOnComplete) {
