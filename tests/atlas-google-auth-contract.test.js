@@ -41,7 +41,7 @@ assert.ok(account.includes('returnIntentId'));
 assert.ok(account.includes('candidate.origin !=='));
 assert.ok(
   account.includes(
-    'const GOOGLE_AUTH_ENABLED = false;'
+    'const GOOGLE_AUTH_ENABLED = true;'
   )
 );
 assert.ok(
@@ -58,17 +58,17 @@ assert.ok(page.includes('Sign-in method'));
 assert.ok(page.includes('state.hasPassword !== true'));
 assert.ok(
   registry.includes(
-    'atlas-access-bootstrap.js?v=20260920-googleauth1'
+    'atlas-access-bootstrap.js?v=20260920-oauthreturn1'
   )
 );
 assert.ok(
   registry.includes(
-    'atlas-account-chrome.js?v=20260920-googleauth1'
+    'atlas-account-chrome.js?v=20260920-oauthreturn1'
   )
 );
 assert.ok(
   capabilityGate.includes(
-    'atlas-account-gate.js?v=20260920-googleauth1'
+    'atlas-account-gate.js?v=20260920-oauthreturn1'
   )
 );
 

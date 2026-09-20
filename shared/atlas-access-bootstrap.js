@@ -36,6 +36,26 @@
         }
     }
 
+    function hasOAuthSessionInUrl() {
+        try {
+            const hash = String(
+                window.location.hash || ''
+            ).replace(/^#/, '');
+
+            if (!hash) return false;
+
+            const params =
+                new URLSearchParams(hash);
+
+            return Boolean(
+                params.get('access_token') &&
+                params.get('refresh_token')
+            );
+        } catch {
+            return false;
+        }
+    }
+
     function isHubSurface() {
         const surface = String(
             document.body?.dataset?.atlasSurface || ''
@@ -267,7 +287,10 @@
                 return Access.getState();
             }
 
-            if (!hasStoredAccountSession()) {
+            if (
+                !hasStoredAccountSession() &&
+                !hasOAuthSessionInUrl()
+            ) {
                 return Access.bootstrapAnonymous();
             }
 

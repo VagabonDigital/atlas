@@ -145,17 +145,17 @@ assert.equal(
 
 assert.match(
     atlas,
-    /atlas-content-registry\.js\?v=20260920-googleauth1/,
+    /atlas-content-registry\.js\?v=20260920-oauthreturn1/,
     'Atlas must load the public-access Content Registry'
 );
 assert.match(
     compass,
-    /atlas-content-registry\.js\?v=20260920-googleauth1/,
+    /atlas-content-registry\.js\?v=20260920-oauthreturn1/,
     'Compass must load the public-access Content Registry'
 );
 assert.match(
     arcade,
-    /atlas-content-registry\.js\?v=20260920-googleauth1/,
+    /atlas-content-registry\.js\?v=20260920-oauthreturn1/,
     'Arcade must load the public-access Content Registry'
 );
 

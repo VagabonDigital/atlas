@@ -40,7 +40,7 @@
 
   <script src="../shared/atlas-bridge.js"></script>
   <script src="/shared/atlas-analytics.js?v=20260919-observability1"></script>
-  <script>(function(){var h=false;try{h=Boolean(localStorage.getItem('sb-jnhjfpagectprceswvqn-auth-token'));}catch(e){}document.documentElement.dataset.atlasAccountHint=h?'account':'anonymous';})();</script>
+  <script>(function(){var h=false,o=false;try{h=Boolean(localStorage.getItem('sb-jnhjfpagectprceswvqn-auth-token'));var p=new URLSearchParams(String(window.location.hash||'').replace(/^#/,''));o=Boolean(p.get('access_token')&&p.get('refresh_token'));}catch(e){}document.documentElement.dataset.atlasAccountHint=(h||o)?'account':'anonymous';})();</script>
 
   <!-- Anti-flash: apply the active session theme before first paint -->
   <script>
@@ -1803,7 +1803,7 @@
   <!-- ============================================================ SCRIPTS -->
   <script src="../shared/compass-catalog-data.js"></script>
   <script src="../shared/arcade-catalog-data.js"></script>
-  <script src="../shared/atlas-content-registry.js?v=20260920-googleauth1"></script>
+  <script src="../shared/atlas-content-registry.js?v=20260920-oauthreturn1"></script>
   <script src="../shared/atlas-session-panel.js?v=20260916-runtime3"></script>
   <script src="../shared/atlas-search.js"></script>
   <script>

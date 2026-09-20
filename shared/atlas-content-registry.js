@@ -817,7 +817,7 @@
         }
 
         const src =
-            '/shared/atlas-access-bootstrap.js?v=20260920-googleauth1';
+            '/shared/atlas-access-bootstrap.js?v=20260920-oauthreturn1';
 
         if (document.readyState === 'loading') {
             document.write(

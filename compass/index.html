@@ -271,7 +271,21 @@
         }
       } catch (e) { }
 
-      var h = Boolean(authRaw);
+      var oauthReturn = false;
+
+      try {
+        var oauthParams = new URLSearchParams(
+          String(window.location.hash || '')
+            .replace(/^#/, '')
+        );
+
+        oauthReturn = Boolean(
+          oauthParams.get('access_token') &&
+          oauthParams.get('refresh_token')
+        );
+      } catch (e) { }
+
+      var h = Boolean(authRaw) || oauthReturn;
 
       document.documentElement.dataset.atlasAccountHint =
         h ? 'account' : 'anonymous';
@@ -4131,7 +4145,7 @@
   <script src="../shared/atlas-original-curation.js?v=20260918-menufix1"></script>
   <script src="../shared/atlas-ai.js"></script>
   <script src="../shared/compass-catalog-data.js?v=5"></script>
-  <script src="../shared/atlas-content-registry.js?v=20260920-googleauth1"></script>
+  <script src="../shared/atlas-content-registry.js?v=20260920-oauthreturn1"></script>
   <script src="../shared/atlas-session-panel.js?v=20260916-runtime3"></script>
   <script src="../shared/atlas-search.js"></script>
   <script>
