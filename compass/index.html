@@ -9766,7 +9766,12 @@
                 navTitle: nextTitle,
                 description: '',
                 coverImage: '',
-                generationContext
+                generationContext,
+                ...(generateFullSubject
+                  ? {
+                    aiBuildStatus: 'building'
+                  }
+                  : {})
               },
 
               libraryPlacement: state.sessionId
@@ -9785,7 +9790,10 @@
               document,
 
               provenance: {
-                kind: 'blank-structured'
+                kind:
+                  generateFullSubject
+                    ? 'ai-subject-build'
+                    : 'blank-structured'
               }
             });
 
@@ -9870,9 +9878,25 @@
             });
           }
 
+          const creationLimitReached =
+            String(
+              creationError?.message || ''
+            ).includes(
+              'ATLAS_AI_CREATION_LIMIT_REACHED'
+            );
+
+          if (creationLimitReached) {
+            try {
+              await window.AtlasAccount
+                ?.refreshEntitlement?.();
+            } catch { }
+          }
+
           error.hidden = false;
           error.textContent =
-            'Couldn’t create this subject.';
+            creationLimitReached
+              ? 'Your AI subject creation allowance is exhausted.'
+              : 'Couldn’t create this subject.';
 
           confirm.disabled = false;
           confirm.textContent = 'Create subject';
