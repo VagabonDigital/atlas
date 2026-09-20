@@ -31,7 +31,10 @@ body:has(.atlas-account-gate-layer:not([hidden]):not(.is-prewarming)),
 }
 
 .atlas-account-gate-layer.is-prewarming {
-    opacity: 0 !important;
+    inset: 0 auto auto -200vw !important;
+    width: 100vw;
+    height: 100vh;
+    opacity: 1 !important;
     pointer-events: none !important;
     background: transparent !important;
     backdrop-filter: none !important;
@@ -221,13 +224,17 @@ body:has(.atlas-account-gate-layer:not([hidden]):not(.is-prewarming)),
 
 .atlas-account-google-host {
     width: 100%;
+    height: 44px;
     min-height: 44px;
+    max-height: 44px;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .atlas-account-google-host > div {
+    width: 100% !important;
     max-width: 100%;
 }
 
