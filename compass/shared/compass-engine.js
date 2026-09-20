@@ -989,7 +989,7 @@ function installSubjectAuthoringAIGuard() {
 
                 const access =
                     await requireSubjectAuthoringCapability(
-                        'canCreateWithAI',
+                        'canUseAI',
                         'capability',
                         'ai-authoring',
                         { method: String(property) }
