@@ -9928,6 +9928,13 @@ async function enrichMyVersionDiscussionFromUI({
                 false,
                 mode
             );
+
+            /*
+             * Full enrichment changes whether the teaching-time
+             * Off / Key / All control is meaningful. Re-evaluate it
+             * immediately rather than waiting for a view change.
+             */
+            applyUpgradeVisibilityPreference();
             updateMyVersionAuthorBar();
         }
     }
@@ -10393,6 +10400,12 @@ async function enrichMyVersionCulturalLensFromUI({
                 false,
                 mode
             );
+
+            /*
+             * When the final missing Cultural Lens upgrade lands,
+             * expose the teaching-time visibility control immediately.
+             */
+            applyUpgradeVisibilityPreference();
             updateMyVersionAuthorBar();
         }
     }
