@@ -38,7 +38,7 @@
     const RETURN_INTENT_SRC =
         '/shared/atlas-return-intent.js?v=20260917-capability1';
     const ACCOUNT_GATE_SRC =
-        '/shared/atlas-account-gate.js?v=20260920-googleid1';
+        '/shared/atlas-account-gate.js?v=20260920-accountstable1';
     const ACCESS_WAIT_MS = 8000;
 
     let returnIntentPromise = null;
