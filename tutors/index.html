@@ -246,6 +246,13 @@
       --arcade-soft: rgba(223, 87, 47, .09);
       --shadow-sm: 0 6px 20px rgba(33, 31, 27, .05);
       --shadow-md: 0 16px 42px rgba(33, 31, 27, .07);
+      --control-border: rgba(33, 31, 27, .15);
+      --control-border-hover: rgba(33, 31, 27, .24);
+      --control-surface: #fffdf9;
+      --control-icon: #7b7469;
+      --control-text-hover: #211f1b;
+      --control-shadow: 0 3px 10px rgba(33, 31, 27, .045);
+      --control-hover-shadow: 0 5px 14px rgba(33, 31, 27, .07);
       --radius-sm: 7px;
       --radius-md: 12px;
       --radius-lg: 18px;
@@ -285,6 +292,13 @@
       --arcade-soft: rgba(255, 129, 93, .11);
       --shadow-sm: 0 6px 20px rgba(0, 0, 0, .16);
       --shadow-md: 0 16px 42px rgba(0, 0, 0, .22);
+      --control-border: rgba(235, 233, 228, .15);
+      --control-border-hover: rgba(235, 233, 228, .24);
+      --control-surface: #252826;
+      --control-icon: #918b82;
+      --control-text-hover: #ebe9e4;
+      --control-shadow: 0 3px 10px rgba(0, 0, 0, .14);
+      --control-hover-shadow: 0 5px 16px rgba(0, 0, 0, .2);
     }
 
     html {
@@ -355,24 +369,75 @@
        Inside Atlas is a static public surface, so synchronising the
        page paint contract here avoids per-component timing drift.
        ============================================================ */
+    /*
+     * One paint clock for theme changes.
+     * Do not transition inherited color on every descendant: nested text
+     * (especially <strong>) otherwise chases its parent and appears late.
+     */
     html.theme-changing body,
-    html.theme-changing body *,
-    html.theme-changing body *::before,
-    html.theme-changing body *::after {
+    html.theme-changing .site-header,
+    html.theme-changing .site-header *,
+    html.theme-changing main,
+    html.theme-changing main > *,
+    html.theme-changing section,
+    html.theme-changing article,
+    html.theme-changing figure,
+    html.theme-changing footer,
+    html.theme-changing button,
+    html.theme-changing a,
+    html.theme-changing input,
+    html.theme-changing textarea {
       transition:
         background-color var(--hub-theme-motion),
         background var(--hub-theme-motion),
-        color var(--hub-theme-motion),
         border-color var(--hub-theme-motion),
         outline-color var(--hub-theme-motion),
-        box-shadow var(--hub-theme-motion),
+        box-shadow var(--hub-theme-motion);
+    }
+
+    html.theme-changing body,
+    html.theme-changing h1,
+    html.theme-changing h2,
+    html.theme-changing h3,
+    html.theme-changing p,
+    html.theme-changing li,
+    html.theme-changing .kicker,
+    html.theme-changing .brand,
+    html.theme-changing .brand span,
+    html.theme-changing .nav a,
+    html.theme-changing .revolver-wrap,
+    html.theme-changing .power strong,
+    html.theme-changing .power span,
+    html.theme-changing .starting-point strong,
+    html.theme-changing .direction-head strong,
+    html.theme-changing .direction-demo-head strong,
+    html.theme-changing .direction-category strong,
+    html.theme-changing .direction-category span,
+    html.theme-changing .arcade-game strong,
+    html.theme-changing .arcade-game span,
+    html.theme-changing .learner-card strong,
+    html.theme-changing .learner-card span,
+    html.theme-changing .atlas-inside-account-action,
+    html.theme-changing .inside-utility,
+    html.theme-changing .theme-toggle {
+      transition:
+        color var(--hub-theme-motion),
+        background-color var(--hub-theme-motion),
+        background var(--hub-theme-motion),
+        border-color var(--hub-theme-motion),
+        box-shadow var(--hub-theme-motion);
+    }
+
+    html.theme-changing svg,
+    html.theme-changing svg * {
+      transition:
+        color var(--hub-theme-motion),
         fill var(--hub-theme-motion),
         stroke var(--hub-theme-motion);
     }
 
     html.theme-changing body::before,
-    html.theme-changing body::after,
-    html.theme-changing .theme-toggle .appearance-icon {
+    html.theme-changing body::after {
       transition: opacity var(--hub-theme-motion);
     }
 
@@ -573,25 +638,72 @@
       background: var(--accent-soft);
     }
 
-    .theme-toggle {
-      width: 38px;
-      height: 38px;
+    .header-utilities {
       flex: 0 0 auto;
-      display: grid;
-      place-items: center;
-      border: 1px solid var(--border-subtle);
-      border-radius: 50%;
-      background: var(--surface-panel);
-      cursor: pointer;
-      box-shadow: var(--shadow-sm);
-      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 4px;
     }
 
-    .theme-toggle .appearance-icon { position: absolute; top: 50%; left: 50%; display: block; pointer-events: none; transform: translate(-50%, -50%); transition: opacity var(--motion); }
-    html[data-theme="light"] .theme-toggle .appearance-icon--moon { opacity: 1; }
-    html[data-theme="light"] .theme-toggle .appearance-icon--sun { opacity: 0; }
-    html[data-theme="night"] .theme-toggle .appearance-icon--moon { opacity: 0; }
-    html[data-theme="night"] .theme-toggle .appearance-icon--sun { opacity: 1; }
+    .inside-utility,
+    .theme-toggle {
+      height: 38px;
+      min-height: 38px;
+      border: 1px solid var(--control-border);
+      border-radius: 12px;
+      background: var(--control-surface);
+      color: var(--control-icon);
+      box-shadow: var(--control-shadow);
+      transition: var(--motion);
+    }
+
+    .inside-utility {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+      font-size: .78rem;
+      font-weight: 600;
+      line-height: 1;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .theme-toggle {
+      position: relative;
+      width: 38px;
+      flex: 0 0 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .inside-utility:hover,
+    .theme-toggle:hover {
+      color: var(--control-text-hover);
+      border-color: var(--control-border-hover);
+      box-shadow: var(--control-hover-shadow);
+    }
+
+    .theme-toggle .appearance-icon {
+      display: block;
+      flex-shrink: 0;
+    }
+
+    .theme-toggle .appearance-icon--sun {
+      display: none;
+    }
+
+    html[data-theme="night"] .theme-toggle .appearance-icon--moon {
+      display: none;
+    }
+
+    html[data-theme="night"] .theme-toggle .appearance-icon--sun {
+      display: block;
+    }
 
     .hero {
       padding: 52px 0 88px;
@@ -2001,8 +2113,12 @@
         margin-left: .5rem;
       }
 
-      .theme-toggle {
+      .header-utilities {
         margin-left: .25rem;
+      }
+
+      .inside-utility {
+        padding-inline: 10px;
       }
 
       .hero {
@@ -2174,10 +2290,13 @@
           </svg>
         </button>
       </div>
-      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch theme" title="Switch theme">
-        <svg class="appearance-icon appearance-icon--moon" width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true"><path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <svg class="appearance-icon appearance-icon--sun" width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35"/><path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>
-      </button>
+      <div class="header-utilities">
+        <a class="inside-utility" href="#top" aria-current="page">Inside Atlas</a>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch theme" title="Switch theme">
+          <svg class="appearance-icon appearance-icon--moon" width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true"><path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg class="appearance-icon appearance-icon--sun" width="16" height="16" viewBox="0 0 17 17" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35"/><path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>
+        </button>
+      </div>
     </div>
   </header>
 
