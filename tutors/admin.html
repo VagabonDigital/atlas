@@ -13,7 +13,7 @@
     :root{--surface:#f5f1e9;--raised:#fffdf9;--muted-surface:#ece7de;--border:rgba(61,56,48,.14);--heading:#1e1b16;--body:#514b42;--muted:#7a7268;--accent:#4f7772;--danger:#b43b32;--display:'DM Serif Display',Georgia,serif;--font:'DM Sans',system-ui,sans-serif}
     *{box-sizing:border-box}html{-webkit-tap-highlight-color:transparent}html,body{min-height:100%}body{margin:0;background:var(--surface);color:var(--body);font-family:var(--font)}[hidden]{display:none!important}
     .memory-header{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 1.5rem;border-bottom:1px solid rgba(49,45,38,.10);background:rgba(243,240,233,.88);backdrop-filter:blur(18px) saturate(1.08);-webkit-backdrop-filter:blur(18px) saturate(1.08)}
-    .memory-brand{font-family:var(--display);font-size:1.22rem;color:#211f1b;letter-spacing:-.01em;text-decoration:none}.memory-brand span{color:#4d7184}.memory-back{color:#7b7469;font-size:.78rem;font-weight:500;text-decoration:none;transition:color .18s ease,transform .18s ease}.memory-back:hover{color:#211f1b;transform:translateX(-2px)}
+    .memory-brand{font-family:var(--display);font-size:1.22rem;color:#211f1b;letter-spacing:-.01em;text-decoration:none}.memory-brand span{color:#4d7184}.inbox-lock{display:inline-flex;align-items:center;gap:.42rem;padding:.42rem .62rem;border:1px solid transparent;border-radius:999px;background:transparent;color:#7b7469;font-size:.76rem;font-weight:600;letter-spacing:.01em;transition:color .18s ease,background .18s ease,border-color .18s ease,transform .18s ease}.inbox-lock svg{width:13px;height:13px;transition:transform .18s ease}.inbox-lock:hover{border-color:rgba(77,113,132,.14);background:rgba(77,113,132,.07);color:#315568;transform:translateY(-1px)}.inbox-lock:hover svg{transform:translateY(-1px)}.inbox-lock:focus-visible{outline:2px solid rgba(77,113,132,.34);outline-offset:2px}
     .inbox-main{min-height:calc(100svh - 56px)}.access-screen{min-height:calc(100svh - 56px);display:grid;place-items:center;padding:2.5rem 1rem 5rem}.access-inner{width:min(540px,100%);text-align:center;transform:translateY(-2vh)}.access-kicker{margin-bottom:.75rem;color:var(--accent);font-size:.68rem;font-weight:600;letter-spacing:.17em;text-transform:uppercase}.access-title{margin:0;color:var(--heading);font-family:var(--display);font-size:clamp(2.9rem,7vw,4.65rem);font-weight:400;line-height:1.02;letter-spacing:-.02em}.access-copy{max-width:34rem;margin:1rem auto 1.8rem;color:var(--muted);font-size:1rem;line-height:1.6}.access-form{width:min(430px,100%);margin:0 auto}.access-row{display:flex;align-items:stretch;gap:.6rem}.password-wrap{position:relative;flex:1;min-width:0}.password-wrap input{height:48px;padding-right:3rem}.password-toggle{position:absolute;top:50%;right:.42rem;width:38px;height:38px;padding:0;transform:translateY(-50%);display:grid;place-items:center;border:0;border-radius:9px;background:transparent;color:var(--muted);box-shadow:none}.password-toggle:hover{background:var(--muted-surface);color:var(--heading)}.password-toggle svg{display:block}.password-toggle .eye-off{display:none}.password-toggle.is-visible .eye-on{display:none}.password-toggle.is-visible .eye-off{display:block}.open-inbox{min-width:118px;white-space:nowrap}.login-status{min-height:1.3rem;margin:.8rem 0 0;color:var(--muted);font-size:.82rem}.login-status:empty{visibility:hidden}.login-status.error{color:var(--danger)}
     .inbox-shell{width:min(860px,calc(100% - 2rem));margin:0 auto;padding:4rem 0 6rem}.inbox-title{margin:0;color:var(--heading);font-family:var(--display);font-size:clamp(2.8rem,7vw,4.8rem);font-weight:400;line-height:1}.lede{margin:1rem 0 2.25rem;color:var(--muted)}.inbox-status{margin:-1.25rem 0 1.5rem;color:var(--muted);font-size:.86rem}.inbox-status:empty{display:none}.inbox-status.error{color:var(--danger)}
     input{width:100%;min-width:0;padding:.78rem .88rem;border:1px solid var(--border);border-radius:10px;outline:none;background:var(--raised);color:var(--heading);font:inherit}input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,119,114,.08)}
@@ -27,7 +27,13 @@
 <body>
   <header class="memory-header">
     <a class="memory-brand" href="../index.html">Atlas<span>.</span></a>
-    <a class="memory-back" href="../index.html">← Back to Atlas</a>
+    <button class="inbox-lock" id="lock-inbox" type="button" hidden aria-label="Lock Atlas inbox">
+      <svg viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <rect x="2.5" y="6" width="9" height="6" rx="2" stroke="currentColor" stroke-width="1.25"/>
+        <path d="M4.5 6V4.7a2.5 2.5 0 0 1 5 0V6" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+      </svg>
+      <span>Lock inbox</span>
+    </button>
   </header>
 
   <main class="inbox-main">
@@ -93,6 +99,7 @@
     const accessForm=$('access-form');
     const keyInput=$('inbox-key');
     const passwordToggle=$('password-toggle');
+    const lockInboxButton=$('lock-inbox');
     const loadButton=$('load-button');
     const loginStatus=$('login-status');
     const shell=$('inbox-shell');
@@ -229,6 +236,7 @@
         passwordToggle.title='Show password';
         access.hidden=true;
         shell.hidden=false;
+        lockInboxButton.hidden=false;
         setLoginStatus('');
         setInboxStatus('');
         window.scrollTo({top:0});
@@ -246,6 +254,27 @@
       }finally{
         loadButton.disabled=false;
       }
+    }
+
+    function lockInbox(){
+      sessionStorage.removeItem(KEY_STORE);
+      activeKey='';
+      messages=[];
+      messageList.innerHTML='';
+      messageCount.textContent='';
+      shell.hidden=true;
+      access.hidden=false;
+      lockInboxButton.hidden=true;
+      keyInput.value='';
+      keyInput.type='password';
+      passwordToggle.classList.remove('is-visible');
+      passwordToggle.setAttribute('aria-pressed','false');
+      passwordToggle.setAttribute('aria-label','Show password');
+      passwordToggle.title='Show password';
+      setInboxStatus('');
+      setLoginStatus('');
+      window.scrollTo({top:0});
+      requestAnimationFrame(()=>keyInput.focus({preventScroll:true}));
     }
 
     async function openInbox(){
@@ -298,6 +327,7 @@
     });
 
     accessForm.addEventListener('submit',event=>{event.preventDefault();openInbox()});
+    lockInboxButton.addEventListener('click',lockInbox);
     refreshButton.addEventListener('click',async()=>{
       try{
         setInboxStatus('Refreshing…');
