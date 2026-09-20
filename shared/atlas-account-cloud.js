@@ -362,28 +362,48 @@
             return null;
         }
 
-        const { data, error } = await client
-            .from('account_entitlements')
-            .select('schema_version, plan_code, capabilities, updated_at')
-            .eq('owner_user_id', user.id)
-            .maybeSingle();
+        const { data, error } = await client.rpc(
+            'atlas_get_account_access_v1'
+        );
 
         if (error) throw error;
-        if (!data) return null;
+
+        const entitlement =
+            data &&
+            typeof data === 'object' &&
+            !Array.isArray(data)
+                ? data
+                : null;
+
+        if (!entitlement) {
+            throw new Error(
+                'Atlas account access state is unavailable.'
+            );
+        }
 
         return {
             schemaVersion: Math.max(
                 1,
-                Math.floor(Number(data.schema_version) || 1)
+                Math.floor(
+                    Number(entitlement.schemaVersion) || 1
+                )
             ),
-            planCode: String(data.plan_code || '').trim() || 'free',
+            planCode:
+                String(
+                    entitlement.planCode || ''
+                ).trim() || 'free',
             capabilities:
-                data.capabilities &&
-                typeof data.capabilities === 'object' &&
-                !Array.isArray(data.capabilities)
-                    ? JSON.parse(JSON.stringify(data.capabilities))
+                entitlement.capabilities &&
+                typeof entitlement.capabilities === 'object' &&
+                !Array.isArray(entitlement.capabilities)
+                    ? JSON.parse(
+                        JSON.stringify(
+                            entitlement.capabilities
+                        )
+                    )
                     : {},
-            updatedAt: Date.parse(data.updated_at) || 0
+            updatedAt:
+                Date.parse(entitlement.updatedAt) || 0
         };
     }
 
