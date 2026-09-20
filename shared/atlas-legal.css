@@ -12,6 +12,13 @@
   --accent-soft: rgba(77, 113, 132, 0.09);
   --accent-hover: #315568;
   --header-surface: rgba(243, 240, 233, 0.72);
+  --shadow-sm: 0 6px 20px rgba(33, 31, 27, 0.05);
+  --shadow-md: 0 16px 42px rgba(33, 31, 27, 0.07);
+  --control-surface: var(--panel);
+  --control-border: rgba(33, 31, 27, 0.08);
+  --control-border-hover: rgba(33, 31, 27, 0.15);
+  --control-icon: var(--soft);
+  --control-text-hover: var(--heading);
   --theme-motion: 280ms cubic-bezier(0.4, 0, 0.2, 1);
   --frame: 860px;
   --serif: "DM Serif Display", Georgia, "Times New Roman", serif;
@@ -32,6 +39,13 @@ html[data-theme="night"] {
   --accent-soft: rgba(143, 178, 194, 0.10);
   --accent-hover: #aac6d2;
   --header-surface: rgba(27, 29, 28, 0.76);
+  --shadow-sm: 0 6px 20px rgba(0, 0, 0, 0.16);
+  --shadow-md: 0 16px 42px rgba(0, 0, 0, 0.22);
+  --control-surface: #2a2d2a;
+  --control-border: rgba(235, 233, 228, 0.08);
+  --control-border-hover: rgba(235, 233, 228, 0.15);
+  --control-icon: var(--soft);
+  --control-text-hover: var(--heading);
 }
 
 *,
@@ -104,29 +118,56 @@ a:hover {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 6px;
+}
+
+.header-back,
+.appearance-toggle {
+  height: 38px;
+  min-height: 38px;
+  border: 1px solid var(--control-border);
+  border-radius: 12px;
+  background: var(--control-surface);
+  color: var(--control-icon);
+  box-shadow: var(--shadow-sm);
+  transition:
+    color 220ms cubic-bezier(.2, .75, .2, 1),
+    background 220ms cubic-bezier(.2, .75, .2, 1),
+    border-color 220ms cubic-bezier(.2, .75, .2, 1),
+    box-shadow 220ms cubic-bezier(.2, .75, .2, 1);
+}
+
+.header-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .appearance-toggle {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  flex: 0 0 38px;
   padding: 0;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  background: transparent;
-  color: var(--soft);
   cursor: pointer;
 }
 
-.appearance-toggle:hover,
-.appearance-toggle:focus-visible {
-  border-color: var(--border);
-  background: var(--muted);
-  color: var(--heading);
+.header-back:hover,
+.appearance-toggle:hover {
+  color: var(--control-text-hover);
+  border-color: var(--control-border-hover);
+  box-shadow: var(--shadow-md);
 }
 
+.header-back:focus-visible,
 .appearance-toggle:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--accent) 38%, transparent);
   outline-offset: 2px;
@@ -147,13 +188,6 @@ html[data-theme="night"] .appearance-icon--moon {
 
 html[data-theme="night"] .appearance-icon--sun {
   display: block;
-}
-
-.header-back {
-  color: var(--soft);
-  font-size: 0.86rem;
-  font-weight: 600;
-  text-decoration: none;
 }
 
 .legal-main {
@@ -247,8 +281,14 @@ li + li {
   margin-top: 8px;
 }
 
-strong {
+strong,
+b {
   color: var(--heading);
+}
+
+html.theme-changing strong,
+html.theme-changing b {
+  transition: color var(--theme-motion) !important;
 }
 
 .legal-note {
