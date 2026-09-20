@@ -392,7 +392,7 @@ html.theme-changing h2,
 html.theme-changing h3,
 html.theme-changing strong,
 html.theme-changing b {
-  transition-duration: 240ms;
+  transition-duration: 140ms;
 }
 
 html.theme-changing {
