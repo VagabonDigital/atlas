@@ -50,7 +50,7 @@ Every cost-bearing Atlas AI request is authenticated at the Worker boundary. The
 
 Fresh subject construction remains one commercial creation even though it performs many internal AI operations. An active server-side subject-build reservation classifies those internal calls as `subject_build_internal`; the launch safety ceiling is 60 successful internal operations per build. Outside an active build, hidden server policy protects ordinary AI shaping (100 successful actions/day, 500/month), web-backed actions (30/day, 150/month), cover search (200/day), and short-window attempts (30/minute, or 60/minute for an active subject build). Current Affairs Read More is one successful generation per owned subject. These are abuse guardrails, not tutor-facing credits.
 
-The Worker requires `ATLAS_SUPABASE_URL` and the secret `ATLAS_SUPABASE_SERVICE_ROLE_KEY`. The guardrail tables are not exposed to browser roles, and their begin/finish RPCs are executable only by `service_role`. The executable source contract lives at `tests/atlas-ai-operation-guardrails-6-2b.test.js`.
+The Worker requires `ATLAS_SUPABASE_URL` and the server-only `ATLAS_SUPABASE_SECRET_KEY` (`sb_secret_…`, preferred). `ATLAS_SUPABASE_SERVICE_ROLE_KEY` remains a legacy fallback. The guardrail tables are not exposed to browser roles, and their begin/finish RPCs are executable only by `service_role`. The executable source contract lives at `tests/atlas-ai-operation-guardrails-6-2b.test.js`.
 
 ## Shared account gate foundation
 
