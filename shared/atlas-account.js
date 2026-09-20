@@ -23,7 +23,7 @@
      * client ID/secret configured. This prevents a dead public auth control
      * while the external provider setup is still incomplete.
      */
-    const GOOGLE_AUTH_ENABLED = false;
+    const GOOGLE_AUTH_ENABLED = true;
     const listeners = new Set();
 
     let state = Object.freeze({
