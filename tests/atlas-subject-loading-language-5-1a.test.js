@@ -8,6 +8,17 @@ const subjectPage = fs.readFileSync(
   'utf8'
 );
 
+
+const compass = fs.readFileSync(
+  'compass/index.html',
+  'utf8'
+);
+
+const account = fs.readFileSync(
+  'account/index.html',
+  'utf8'
+);
+
 assert.ok(
   subjectPage.includes(
     ".get('author') === 'generate'"
@@ -53,6 +64,31 @@ assert.ok(
 assert.ok(
   subjectPage.includes(
     'overflow: hidden !important;'
+  )
+);
+
+
+[
+  compass,
+  subjectPage,
+  account
+].forEach(source => {
+  assert.ok(
+    source.includes(
+      '--atlas-transition-canvas: #f5f1e9;'
+    )
+  );
+
+  assert.ok(
+    source.includes(
+      '--atlas-transition-canvas: #221f1b;'
+    )
+  );
+});
+
+assert.ok(
+  subjectPage.includes(
+    'background: var(--atlas-transition-canvas);'
   )
 );
 
