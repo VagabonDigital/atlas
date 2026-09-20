@@ -198,6 +198,81 @@
             .atlasGoogleIdentityState;
     }
 
+    function waitForRenderedButton(container) {
+        return new Promise(resolve => {
+            let settled = false;
+            let observer = null;
+            let fallbackTimer = null;
+
+            const finish = () => {
+                if (settled) return;
+                settled = true;
+
+                observer?.disconnect();
+
+                if (fallbackTimer) {
+                    window.clearTimeout(
+                        fallbackTimer
+                    );
+                }
+
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(resolve);
+                });
+            };
+
+            const watch = () => {
+                const iframe =
+                    container.querySelector('iframe');
+
+                if (!iframe) return false;
+
+                iframe.addEventListener(
+                    'load',
+                    finish,
+                    { once: true }
+                );
+
+                /*
+                 * If Google inserted an already-loaded iframe before the
+                 * listener attached, give it a short settle window instead
+                 * of exposing its intermediate typography.
+                 */
+                fallbackTimer =
+                    window.setTimeout(
+                        finish,
+                        140
+                    );
+
+                return true;
+            };
+
+            if (watch()) return;
+
+            observer =
+                new MutationObserver(() => {
+                    if (watch()) {
+                        observer.disconnect();
+                    }
+                });
+
+            observer.observe(
+                container,
+                {
+                    childList: true,
+                    subtree: true
+                }
+            );
+
+            fallbackTimer =
+                window.setTimeout(
+                    finish,
+                    1200
+                );
+        });
+    }
+
+
     async function renderButton(
         container,
         {
@@ -256,6 +331,10 @@
                     }
                 }
             }
+        );
+
+        await waitForRenderedButton(
+            container
         );
 
         return state;
