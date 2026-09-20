@@ -1,0 +1,43 @@
+/* ============================================================
+   ATLAS TRANSITION STATE
+   Canonical full-screen transition canvas shared across Atlas handoffs.
+
+   Used by:
+   - Compass subject creation handoff
+   - Compass subject opening/building
+   - Account return-to-Atlas handoff
+   ============================================================ */
+
+:root {
+  --atlas-transition-canvas: #f5f1e9;
+  --atlas-transition-accent: #4f7772;
+  --atlas-transition-muted: #7a7268;
+}
+
+html[data-theme="night"] {
+  --atlas-transition-canvas: #221f1b;
+  --atlas-transition-accent: #84cabf;
+  --atlas-transition-muted: #cfc7ba;
+}
+
+/*
+ * While a handoff owns the viewport, the document beneath it must use the
+ * same canvas. This prevents a one-frame color seam between ownership layers.
+ */
+html[data-atlas-resume-transition],
+html[data-atlas-resume-transition] body,
+html[data-atlas-return-handoff="true"],
+html[data-atlas-return-handoff="true"] body,
+html[data-atlas-subject-build-handoff="true"],
+html[data-atlas-subject-build-handoff="true"] body,
+html:has(body > #compass-subject-load-status),
+body:has(> #compass-subject-load-status) {
+  background-color: var(--atlas-transition-canvas) !important;
+  background-image: none !important;
+}
+
+.atlas-resume-handoff,
+.account-return-handoff,
+#compass-subject-load-status {
+  background: var(--atlas-transition-canvas) !important;
+}
