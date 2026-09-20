@@ -1241,19 +1241,23 @@
         rememberTrigger(trigger);
 
         /*
-         * Cold-start work is normally completed before the tutor clicks.
-         * If the click wins the race, await the same prewarm here so the
-         * first visible frame is still the settled frame.
+         * Keep every layout-affecting operation invisible. The gate already
+         * has a real layout box from prewarm, so this is about finalizing
+         * viewport width, mode, provider and fonts before first paint.
          */
         await prewarm();
 
-        gateLayer.classList.remove(
-            'is-prewarming'
-        );
-        gateLayer.removeAttribute(
-            'aria-hidden'
-        );
-        gateLayer.hidden = false;
+        if (gateLayer.hidden) {
+            gateLayer.classList.add(
+                'is-prewarming'
+            );
+            gateLayer.setAttribute(
+                'aria-hidden',
+                'true'
+            );
+            gateLayer.hidden = false;
+        }
+
         state.gateOpen = true;
         setGateMode(mode);
 
@@ -1261,14 +1265,22 @@
             await ensureStyles();
 
             const returnIntent =
-                await bindReturnIntent(returnIntentId);
+                await bindReturnIntent(
+                    returnIntentId
+                );
 
             await prepareAccount();
+
             const googleProviderReady =
                 updateGoogleProviderVisibility({
-                    render: true
+                    render: true,
+                    allowClosed: true
                 });
-            const account = window.AtlasAccount?.getState?.() || null;
+
+            const account =
+                window.AtlasAccount
+                    ?.getState?.() ||
+                null;
 
             if (account?.authenticated) {
                 if (returnIntent) {
@@ -1276,23 +1288,70 @@
                     return snapshot();
                 }
 
-                close({ restoreFocus: false });
-                await openAccountMenu(trigger || activeTrigger || previousFocus);
+                close({
+                    restoreFocus: false
+                });
+
+                await openAccountMenu(
+                    trigger ||
+                    activeTrigger ||
+                    previousFocus
+                );
+
                 return snapshot();
             }
 
             await googleProviderReady;
 
+            /*
+             * Scroll-lock changes the desktop viewport width. Do it before
+             * reveal so the centered card never paints at the old width and
+             * then recenters/reflows one frame later.
+             */
             document.body.classList.add(
                 'atlas-account-gate-open'
             );
 
-            window.AtlasAnalytics?.accountGate({
-                mode,
-                action:
-                    returnIntent?.action ||
-                    'account'
+            if (
+                document.fonts &&
+                document.fonts.ready
+            ) {
+                try {
+                    await document.fonts.ready;
+                } catch { }
+            }
+
+            await new Promise(resolve =>
+                requestAnimationFrame(() =>
+                    requestAnimationFrame(resolve)
+                )
+            );
+
+            gateLayer.classList.remove(
+                'is-prewarming'
+            );
+            gateLayer.removeAttribute(
+                'aria-hidden'
+            );
+
+            requestAnimationFrame(() => {
+                const target =
+                    gateLayer?.querySelector(
+                        `[data-account-form="${state.gateMode}"] input`
+                    );
+
+                focusWithoutScroll(
+                    target
+                );
             });
+
+            window.AtlasAnalytics
+                ?.accountGate({
+                    mode,
+                    action:
+                        returnIntent?.action ||
+                        'account'
+                });
 
             if (!busy) {
                 setGateStatus('');
@@ -1300,13 +1359,23 @@
 
             return snapshot();
         } catch (error) {
-            gateLayer.hidden = false;
             document.body.classList.add(
                 'atlas-account-gate-open'
             );
 
+            gateLayer.classList.remove(
+                'is-prewarming'
+            );
+            gateLayer.removeAttribute(
+                'aria-hidden'
+            );
+            gateLayer.hidden = false;
+
             if (!busy) {
-                setGateStatus(humanizeError(error), 'error');
+                setGateStatus(
+                    humanizeError(error),
+                    'error'
+                );
             }
 
             return snapshot();
