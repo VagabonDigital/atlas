@@ -100,6 +100,18 @@
     })();
   </script>
   <style>
+    :root {
+      --atlas-transition-canvas: #f5f1e9;
+      --atlas-transition-accent: #4f7772;
+      --atlas-transition-muted: #7a7268;
+    }
+
+    html[data-theme="night"] {
+      --atlas-transition-canvas: #221f1b;
+      --atlas-transition-accent: #84cabf;
+      --atlas-transition-muted: #cfc7ba;
+    }
+
     html:not([data-atlas-local-presentation-ready="true"]):not([data-atlas-resume-transition]) body {
       visibility: hidden;
     }
@@ -111,7 +123,7 @@
       display: none;
       place-items: center;
       padding: 2rem;
-      background: var(--surface-canvas, #f5f1e9);
+      background: var(--atlas-transition-canvas);
     }
 
     html[data-atlas-resume-transition] {
@@ -158,7 +170,7 @@
       width: 0.46rem;
       height: 0.46rem;
       border-radius: 50%;
-      background: var(--accent, #4f7772);
+      background: var(--atlas-transition-accent);
       animation:
         atlas-resume-handoff-bounce
         0.9s ease-in-out infinite;
@@ -174,7 +186,7 @@
 
     .atlas-resume-handoff-message {
       margin: 0;
-      color: var(--text-muted, #7a7268);
+      color: var(--atlas-transition-muted);
       font-size: 0.9rem;
       font-weight: 400;
     }
