@@ -2192,6 +2192,7 @@
 
   <!-- ============================================================ SCRIPTS -->
   <script src="../../shared/atlas-bridge.js"></script>
+  <script src="/shared/atlas-analytics.js?v=20260919-observability1"></script>
   <script src="../../shared/atlas-session-panel.js?v=20260916-runtime3"></script>
   <script src="../../shared/compass-catalog-data.js"></script>
   <script src="../../shared/arcade-catalog-data.js"></script>
@@ -2930,6 +2931,12 @@
 
     function init() {
       if (!Bridge) return;
+
+      window.AtlasAnalytics?.resourceOpen({
+        resourceType: 'game',
+        resourceSource: 'arcade',
+        resourceId: 'truth-trap'
+      });
 
       const mode = Bridge.readAppearanceMode();
       document.documentElement.dataset.theme = mode;

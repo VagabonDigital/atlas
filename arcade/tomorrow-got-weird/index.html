@@ -1638,6 +1638,7 @@
      JAVASCRIPT
      ============================================================ -->
   <script src="../../shared/atlas-bridge.js"></script>
+  <script src="/shared/atlas-analytics.js?v=20260919-observability1"></script>
   <script src="../../shared/atlas-session-panel.js?v=20260916-runtime3"></script>
   <script src="../../shared/compass-catalog-data.js"></script>
   <script src="../../shared/arcade-catalog-data.js"></script>
@@ -2514,6 +2515,12 @@
           '<p class="launch-copy">The shared Atlas runtime did not load. Check shared/atlas-bridge.js.</p>';
         return;
       }
+
+      window.AtlasAnalytics?.resourceOpen({
+        resourceType: 'game',
+        resourceSource: 'arcade',
+        resourceId: 'tomorrow-got-weird'
+      });
 
       const mode = Bridge.readAppearanceMode();
       document.documentElement.dataset.theme = mode;

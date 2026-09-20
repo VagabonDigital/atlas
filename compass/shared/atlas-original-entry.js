@@ -209,6 +209,7 @@
 
         document.write(
             '<script src="../../shared/atlas-bridge.js"><\/script>' +
+            '<script src="/shared/atlas-analytics.js?v=20260919-observability1"><\/script>' +
             '<script src="../../shared/atlas-tutor-content.js"><\/script>' +
             '<script src="../../shared/atlas-tutor-subjects.js"><\/script>' +
             '<script src="../../shared/atlas-structured-subject.js"><\/script>' +

@@ -14277,7 +14277,9 @@ function beginModule({
         subjectSource:
             isOwnedSubjectRuntime()
                 ? 'owned'
-                : 'atlas'
+                : hasSavedMyVersion()
+                    ? 'my-version'
+                    : 'atlas'
     });
 
     document.body.classList.add('module-active');
@@ -22065,6 +22067,20 @@ async function init() {
     loadSessions();
     loadProgress();
     await loadTutorContentState();
+
+    window.AtlasAnalytics?.resourceOpen({
+        resourceType: 'subject',
+        resourceSource:
+            isOwnedSubjectRuntime()
+                ? 'owned'
+                : hasSavedMyVersion()
+                    ? 'my-version'
+                    : 'atlas',
+        resourceId:
+            isOwnedSubjectRuntime()
+                ? ''
+                : MODULE.id
+    });
 
     const ownedSubjectAuthoringIntent =
         consumeOwnedSubjectAuthoringIntent();
