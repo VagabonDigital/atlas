@@ -20,8 +20,8 @@
     const SOURCES = Object.freeze({
         access: '/shared/atlas-access.js?v=20260916-access1',
         cloud: '/shared/atlas-cloud.js?v=20260916-access1',
-        account: '/shared/atlas-account.js?v=20260920-accountstable2',
-        capabilityGate: '/shared/atlas-capability-gate.js?v=20260920-accountstable2'
+        account: '/shared/atlas-account.js?v=20260920-accountstable3',
+        capabilityGate: '/shared/atlas-capability-gate.js?v=20260920-accountstable3'
     });
 
     let initPromise = null;
