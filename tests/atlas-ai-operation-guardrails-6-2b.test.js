@@ -111,7 +111,7 @@ assert.match(
 
 assert.match(
     worker,
-    /ATLAS_SUPABASE_SERVICE_ROLE_KEY/
+    /ATLAS_SUPABASE_SECRET_KEY[\s\S]*?ATLAS_SUPABASE_SERVICE_ROLE_KEY/
 );
 
 assert.match(
