@@ -99,6 +99,43 @@
       } catch (e) { }
     })();
   </script>
+
+  <!-- Anti-flash: resolve the active-session theme before the transition
+       canvas can paint. This keeps account returns and subject-build handoffs
+       on the correct day/night canvas from their very first frame. -->
+  <script>
+    (function () {
+      var mode = null;
+
+      try {
+        var sessionId =
+          sessionStorage.getItem(
+            'atlas::activeSessionId'
+          ) || 'default';
+
+        var sessionModes =
+          JSON.parse(
+            localStorage.getItem(
+              'atlas::appearanceBySession'
+            ) || '{}'
+          );
+
+        mode =
+          sessionModes[sessionId] ||
+          localStorage.getItem(
+            'atlas::appearanceMode'
+          );
+      } catch (e) {
+        mode = null;
+      }
+
+      document.documentElement.dataset.theme =
+        mode === 'night'
+          ? 'night'
+          : 'light';
+    })();
+  </script>
+
   <link rel="stylesheet" href="/shared/atlas-transition-state.css?v=20260920-transition1">
   <style>
     html:not([data-atlas-local-presentation-ready="true"]):not([data-atlas-resume-transition]) body {
