@@ -220,25 +220,17 @@ assert.doesNotMatch(
     compass,
     /ANONYMOUS_COMPASS_PREVIEW_IDEAS|getAnonymousCompassPreviewSuggestions/
 );
-assert.match(
+assert.doesNotMatch(
     compass,
-    /const anonymousSuggestionPreview =\s*ownedSubjectDialogState\?\.mode ===\s*'create'[\s\S]*?anonymousPreview/
+    /const anonymousSuggestionPreview =/
 );
 assert.match(
     compass,
-    /if \(!anonymousSuggestionPreview\) \{[\s\S]*?'canCreateWithAI'[\s\S]*?'suggest-subject-ideas'[\s\S]*?\}/
+    /askCompassForSubjects[\s\S]*?'canUseAI'[\s\S]*?'suggest-subject-ideas'/
 );
 assert.match(
     compass,
     /await window\.AtlasAI\s*\.suggestSubjectIdeas\(\{[\s\S]*?mode:[\s\S]*?selectedMode\.id[\s\S]*?topicFocus[\s\S]*?languageLevel/
-);
-assert.match(
-    compass,
-    /anonymousSuggestionPreview[\s\S]*?const requestId =[\s\S]*?await window\.AtlasAI\s*\.suggestSubjectIdeas/
-);
-assert.doesNotMatch(
-    compass,
-    /context\.operation ===\s*'suggest-subject-ideas'[\s\S]*?consumeCompassCreatePreviewDraft/
 );
 
 assert.match(
@@ -335,5 +327,5 @@ assert.match(
 );
 
 console.log(
-    'Stage 3.2 anonymous Compass contract passed: real catalogue, four full subjects, preview routing, live anonymous creation exploration and API suggestions, clear ready-to-build state, protected creation boundary with automatic post-auth resume, authenticated AI capability gating outside the public preview, and Search visibility.'
+    'Stage 3.2 anonymous Compass contract passed: real catalogue, four full subjects, preview routing, anonymous creation exploration, authenticated AI suggestions, clear ready-to-build state, protected creation boundary with automatic post-auth resume, and Search visibility.'
 );
