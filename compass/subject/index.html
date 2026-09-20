@@ -72,6 +72,18 @@
     <link rel="stylesheet" href="../../shared/atlas-session-panel.css?v=20260721-world-modals">
 
     <style>
+        :root {
+            --atlas-transition-canvas: #f5f1e9;
+            --atlas-transition-accent: #4f7772;
+            --atlas-transition-muted: #7a7268;
+        }
+
+        html[data-theme="night"] {
+            --atlas-transition-canvas: #221f1b;
+            --atlas-transition-accent: #84cabf;
+            --atlas-transition-muted: #cfc7ba;
+        }
+
         html:has(body > #compass-subject-load-status),
         html[data-atlas-subject-build-handoff="true"] {
             height: 100%;
@@ -91,6 +103,12 @@
             display: grid;
             place-items: center;
             padding: 2rem;
+            background: var(--atlas-transition-canvas);
+        }
+
+        html:has(body > #compass-subject-load-status),
+        body:has(> #compass-subject-load-status) {
+            background: var(--atlas-transition-canvas) !important;
         }
 
         html[data-atlas-subject-build-handoff="true"]
@@ -99,32 +117,17 @@
             inset: 0;
             z-index: 99999;
             min-height: 0;
-            background: #f5f1e9;
-        }
-
-        html[data-theme="night"][data-atlas-subject-build-handoff="true"]
-            #compass-subject-load-status {
-            background: #221f1b;
+            background: var(--atlas-transition-canvas);
         }
 
         html[data-atlas-subject-build-handoff="true"]
             .compass-subject-load-dot {
-            background: #4f7772;
+            background: var(--atlas-transition-accent);
         }
 
         html[data-atlas-subject-build-handoff="true"]
             .compass-subject-load-message {
-            color: #7a7268;
-        }
-
-        html[data-theme="night"][data-atlas-subject-build-handoff="true"]
-            .compass-subject-load-dot {
-            background: #84cabf;
-        }
-
-        html[data-theme="night"][data-atlas-subject-build-handoff="true"]
-            .compass-subject-load-message {
-            color: #cfc7ba;
+            color: var(--atlas-transition-muted);
         }
 
         .compass-subject-load-state {
@@ -147,7 +150,7 @@
             width: 0.46rem;
             height: 0.46rem;
             border-radius: 50%;
-            background: var(--accent);
+            background: var(--atlas-transition-accent);
             animation: compass-subject-load-bounce 0.9s ease-in-out infinite;
         }
 
@@ -161,7 +164,7 @@
 
         .compass-subject-load-message {
             margin: 0;
-            color: var(--text-muted);
+            color: var(--atlas-transition-muted);
             font-size: 0.9rem;
             font-weight: 400;
         }
