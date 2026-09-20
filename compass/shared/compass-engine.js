@@ -441,6 +441,7 @@ let myVersionAutoSavingFullSubject = false;
 let myVersionFullSubjectGenerationError = '';
 let myVersionFullSubjectGenerationProgress = null;
 let myVersionFullSubjectGenerationNotice = '';
+let myVersionFullSubjectReadyForCommit = false;
 
 let currentAffairsReadMoreEnrichmentPromise = null;
 let currentAffairsPreviousBodyOverflow = '';
@@ -2825,6 +2826,7 @@ function finishMyVersionEditingState() {
     myVersionFullSubjectGenerationError = '';
     myVersionFullSubjectGenerationProgress = null;
     myVersionFullSubjectGenerationNotice = '';
+    myVersionFullSubjectReadyForCommit = false;
     tutorContentWorkingDraft = null;
     applyTutorSubjectDocument(
         getPublishedTutorSubjectDocument()
@@ -2924,6 +2926,9 @@ async function saveMyVersion(options = {}) {
     const includedSessionId =
         myVersionIncludedLiveSessionId;
     const ownedSubject = isOwnedSubjectRuntime();
+    const completesAiSubjectBuild =
+        ownedSubject &&
+        myVersionFullSubjectReadyForCommit;
 
     let saved = null;
 
@@ -2960,7 +2965,13 @@ async function saveMyVersion(options = {}) {
                         coverImage:
                             String(
                                 document.module?.bgImage || ''
-                            ).trim()
+                            ).trim(),
+                        ...(completesAiSubjectBuild
+                            ? {
+                                aiBuildStatus:
+                                    'complete'
+                            }
+                            : {})
                     },
                     document
                 }
@@ -2997,6 +3008,18 @@ async function saveMyVersion(options = {}) {
 
     if (ownedSubject) {
         syncOwnedSubjectRuntime(saved);
+
+        if (completesAiSubjectBuild) {
+            try {
+                await window.AtlasAccount
+                    ?.refreshEntitlement?.();
+            } catch (error) {
+                console.warn(
+                    '[Compass] AI creation allowance refresh failed:',
+                    error
+                );
+            }
+        }
     } else {
         tutorContentVersion = saved;
     }
@@ -7243,6 +7266,59 @@ function getMyVersionKeyLanguageLimit(section) {
         : limits.discussion;
 }
 
+async function setMyVersionAiBuildStatus(status) {
+    if (!isOwnedSubjectRuntime()) {
+        return null;
+    }
+
+    const nextStatus =
+        String(status || '').trim();
+
+    if (
+        !['building', 'paused', 'complete']
+            .includes(nextStatus)
+    ) {
+        throw new Error(
+            'Atlas AI subject build status is invalid.'
+        );
+    }
+
+    const saved =
+        await queueTutorContentWrite(
+            async () =>
+                requireAtlasTutorSubjects()
+                    .updateSubject(
+                        MODULE.id,
+                        {
+                            metadata: {
+                                aiBuildStatus:
+                                    nextStatus
+                            }
+                        }
+                    )
+        );
+
+    if (!saved) {
+        throw new Error(
+            'Atlas AI subject build state could not be saved.'
+        );
+    }
+
+    syncOwnedSubjectRuntime(saved);
+
+    try {
+        await window.AtlasAccount
+            ?.refreshEntitlement?.();
+    } catch (error) {
+        console.warn(
+            '[Compass] AI creation allowance refresh failed:',
+            error
+        );
+    }
+
+    return saved;
+}
+
 async function generateMyVersionFullSubject({
     autoSaveOnComplete = false,
     resumeFromStep = 0
@@ -7287,6 +7363,8 @@ async function generateMyVersionFullSubject({
     myVersionAutoSavingFullSubject = false;
     myVersionFullSubjectGenerationError = '';
     myVersionFullSubjectGenerationNotice = '';
+    myVersionFullSubjectReadyForCommit =
+        completedStep >= 18;
 
     /*
      * A resumed build whose framing already exists can reveal the cover
@@ -7297,6 +7375,10 @@ async function generateMyVersionFullSubject({
     }
 
     try {
+        await setMyVersionAiBuildStatus(
+            'building'
+        );
+
         await checkpointMyVersionFullSubjectGeneration(
             completedStep,
             autoSaveOnComplete
@@ -7590,6 +7672,8 @@ async function generateMyVersionFullSubject({
             );
         }
 
+        myVersionFullSubjectReadyForCommit = true;
+
         refreshMyVersionFullSubjectReadyNotice(
             true,
             languageSupport
@@ -7639,6 +7723,24 @@ async function generateMyVersionFullSubject({
             '[Compass] Full subject generation paused:',
             error
         );
+
+        /*
+         * A failed or incomplete build must not consume creation capacity.
+         * Pause releases the server reservation while the local checkpoint
+         * remains available for a later resume.
+         */
+        if (!myVersionFullSubjectReadyForCommit) {
+            try {
+                await setMyVersionAiBuildStatus(
+                    'paused'
+                );
+            } catch (pauseError) {
+                console.warn(
+                    '[Compass] AI creation reservation release failed:',
+                    pauseError
+                );
+            }
+        }
 
         /*
          * Never strand the tutor behind the build gate when generation pauses.
