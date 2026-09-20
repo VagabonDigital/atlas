@@ -97,6 +97,16 @@ assert.ok(
   )
 );
 
+assert.ok(
+  compass.indexOf(
+    'document.documentElement.dataset.theme'
+  ) <
+  compass.indexOf(
+    '/shared/atlas-transition-state.css?v=20260920-transition1'
+  ),
+  'Compass must resolve day/night appearance before the shared loading canvas can paint.'
+);
+
 assert.match(
   transitionCss,
   /html\[data-atlas-resume-transition\][\s\S]*?html\[data-atlas-return-handoff="true"\][\s\S]*?html\[data-atlas-subject-build-handoff="true"\][\s\S]*?background-color:\s*var\(--atlas-transition-canvas\)\s*!important;/
