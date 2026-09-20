@@ -66,24 +66,13 @@
     <script src="../../shared/compass-catalog-data.js"></script>
     <script src="../../shared/atlas-content-registry.js?v=20260916-access1"></script>
 
+    <link rel="stylesheet" href="/shared/atlas-transition-state.css?v=20260920-transition1">
     <link rel="stylesheet" href="../shared/compass-subject.css">
     <link rel="stylesheet" href="../../shared/atlas-modal-theme.css?v=20260721-world-modals">
     <link rel="stylesheet" href="../../shared/atlas-search.css?v=20260721-world-modals">
     <link rel="stylesheet" href="../../shared/atlas-session-panel.css?v=20260721-world-modals">
 
     <style>
-        :root {
-            --atlas-transition-canvas: #f5f1e9;
-            --atlas-transition-accent: #4f7772;
-            --atlas-transition-muted: #7a7268;
-        }
-
-        html[data-theme="night"] {
-            --atlas-transition-canvas: #221f1b;
-            --atlas-transition-accent: #84cabf;
-            --atlas-transition-muted: #cfc7ba;
-        }
-
         html:has(body > #compass-subject-load-status),
         html[data-atlas-subject-build-handoff="true"] {
             height: 100%;
