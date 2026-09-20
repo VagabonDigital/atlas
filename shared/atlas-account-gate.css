@@ -222,15 +222,72 @@ body:has(.atlas-account-gate-layer:not([hidden]):not(.is-prewarming)),
     visibility: hidden;
 }
 
+.atlas-account-google-shell {
+    position: relative;
+    width: 100%;
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    border: 1px solid var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, 0.16)));
+    border-radius: 8px;
+    background: var(--atlas-modal-surface-raised, var(--surface-raised, #fffdf9));
+    overflow: hidden;
+    transition:
+        background-color 140ms ease,
+        border-color 140ms ease,
+        box-shadow 140ms ease;
+}
+
+.atlas-account-google-shell:hover {
+    background: var(--atlas-modal-surface-low, var(--surface-muted, #f4f1ea));
+}
+
+.atlas-account-google-shell:focus-within {
+    border-color: var(--atlas-modal-accent, #59617d);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--atlas-modal-accent, #59617d) 12%, transparent);
+}
+
+.atlas-account-google-visual {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--atlas-modal-heading, var(--text-heading, #211f1b));
+    font-family: var(--atlas-modal-font-body, 'DM Sans', system-ui, sans-serif);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.atlas-account-google-mark {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+}
+
 .atlas-account-google-host {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
     width: 100%;
     height: 44px;
     min-height: 44px;
     max-height: 44px;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    opacity: 0.001;
+}
+
+.atlas-account-google-host > div,
+.atlas-account-google-host iframe {
+    width: 100% !important;
+    max-width: none !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
 }
 
 .atlas-account-google-host > div {
