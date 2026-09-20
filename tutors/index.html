@@ -1937,6 +1937,25 @@
       flex-wrap: wrap;
     }
 
+    .footer-links {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    .footer-links a:hover,
+    .footer-links a:focus-visible {
+      color: var(--text-heading);
+      text-decoration: underline;
+      text-underline-offset: .16em;
+    }
+
     @media (max-width: 940px) {
 
       .why-grid,
@@ -2641,7 +2660,14 @@
   </main>
 
   <footer class="footer">
-    <div class="frame footer-inner"><span>Atlas</span><span>Create. Shape. Teach.</span></div>
+    <div class="frame footer-inner">
+      <span>Atlas · Create. Shape. Teach.</span>
+      <nav class="footer-links" aria-label="Legal">
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+        <a href="mailto:support@atlasfortutors.com">Support</a>
+      </nav>
+    </div>
   </footer>
 
   <script src="/shared/atlas-analytics.js?v=20260919-observability1"></script>
