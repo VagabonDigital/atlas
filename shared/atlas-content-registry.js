@@ -817,7 +817,7 @@
         }
 
         const src =
-            '/shared/atlas-access-bootstrap.js?v=20260920-googleid1';
+            '/shared/atlas-access-bootstrap.js?v=20260920-accountstable1';
 
         if (document.readyState === 'loading') {
             document.write(
@@ -866,7 +866,7 @@
         }
 
         const src =
-            '/shared/atlas-account-chrome.js?v=20260920-googleid1';
+            '/shared/atlas-account-chrome.js?v=20260920-accountstable1';
 
         if (document.readyState === 'loading') {
             document.write(
