@@ -225,6 +225,8 @@ strong {
   text-decoration: none;
 }
 
+.legal-footer-links a:hover,
+.legal-footer-links a:focus-visible,
 .legal-footer-links a[aria-current="page"] {
   color: var(--heading);
   font-weight: 700;
