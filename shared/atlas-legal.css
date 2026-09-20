@@ -58,13 +58,15 @@ a:hover {
 }
 
 .header-inner {
-  width: min(calc(100% - 36px), 1120px);
-  min-height: 62px;
-  margin-inline: auto;
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: 1.5rem;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  gap: 0.5rem;
 }
 
 .brand {
