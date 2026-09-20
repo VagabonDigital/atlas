@@ -36,13 +36,21 @@ Email/password signup requires email confirmation. Signup confirmation and passw
 
 `AtlasAccess` is the product-level access resolver above `AtlasAccount`. `AtlasAccount` continues to own identity and raw server entitlement state; `AtlasAccess` converts that into one semantic access contract for Atlas, Compass and Arcade. Product surfaces should consume `AtlasAccess` capabilities rather than inspect Supabase state or `plan_code`.
 
-The canonical tiers are `anonymous`, `free` and future `pro`. The shared capability vocabulary currently covers durable saving, learner creation, subject creation, subject editing, AI-assisted creation and access to the account library. AI creation also carries a normalized creation-allowance state (`available`, `limited`, `exhausted`, `blocked` or `unknown`) so future quota policy can evolve without changing feature call sites.
+The canonical tiers are `anonymous`, `free` and future `pro`. The shared capability vocabulary covers durable saving, learner creation, subject creation, subject editing, fresh AI-assisted subject creation (`canCreateWithAI`), ordinary AI shaping/discovery (`canUseAI`) and access to the account library. Fresh AI creation carries a normalized creation-allowance state (`available`, `limited`, `exhausted`, `blocked` or `unknown`). Exhausting the fresh-subject allowance must not disable ordinary AI shaping of work the tutor already owns.
 
 Anonymous access resolves locally with all account-owned capabilities blocked. A stored signed-in session upgrades through `AtlasCloud` → `AtlasAccount` → `AtlasAccess`; anonymous visitors do not load the Supabase/auth stack merely to resolve the anonymous tier. While an authenticated account is still resolving entitlement state, or if that entitlement read fails, Atlas preserves authenticated identity but keeps access not-ready and capability checks fail closed rather than misclassifying the tutor as anonymous.
 
 `atlas-access-bootstrap.js` makes this state available through the shared content-registry seam across the Atlas gateway, Compass hub and subjects, and Arcade hub and games. Batch 2.1 establishes state only: shared account gates, return-to-intent and feature-level interception are later Stage 2 responsibilities.
 
 The executable access-state proof lives at `tests/atlas-access-contract.test.js`. The Stage 6.2 quota wiring proof lives at `tests/atlas-ai-subject-quota-6-2.test.js`. Together they cover anonymous → Free access resolution, allowance projection, exhausted-limit gating, fresh AI-build lifecycle wiring and the source-controlled server enforcement contract.
+
+### Authenticated AI operation boundary
+
+Every cost-bearing Atlas AI request is authenticated at the Worker boundary. The browser sends the current Supabase access token, one stable request ID per human AI action, and the owned subject ID when relevant. The Worker verifies the Atlas account before invoking external providers, then uses Worker-only Supabase service credentials to reserve and finalize hidden operational usage.
+
+Fresh subject construction remains one commercial creation even though it performs many internal AI operations. An active server-side subject-build reservation classifies those internal calls as `subject_build_internal`; the launch safety ceiling is 60 successful internal operations per build. Outside an active build, hidden server policy protects ordinary AI shaping (100 successful actions/day, 500/month), web-backed actions (30/day, 150/month), cover search (200/day), and short-window attempts (30/minute, or 60/minute for an active subject build). Current Affairs Read More is one successful generation per owned subject. These are abuse guardrails, not tutor-facing credits.
+
+The Worker requires `ATLAS_SUPABASE_URL` and the secret `ATLAS_SUPABASE_SERVICE_ROLE_KEY`. The guardrail tables are not exposed to browser roles, and their begin/finish RPCs are executable only by `service_role`. The executable source contract lives at `tests/atlas-ai-operation-guardrails-6-2b.test.js`.
 
 ## Shared account gate foundation
 
