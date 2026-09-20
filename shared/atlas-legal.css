@@ -382,6 +382,19 @@ html.theme-changing *::after {
     stroke var(--theme-motion);
 }
 
+/*
+ * Larger/heavier text has a stronger perceived tail during the same color
+ * interpolation. Let emphasis settle slightly earlier while preserving the
+ * universal theme-transition contract everywhere else.
+ */
+html.theme-changing h1,
+html.theme-changing h2,
+html.theme-changing h3,
+html.theme-changing strong,
+html.theme-changing b {
+  transition-duration: 240ms;
+}
+
 html.theme-changing {
   scrollbar-color:
     rgba(var(--accent-rgb), 0.46) transparent;
