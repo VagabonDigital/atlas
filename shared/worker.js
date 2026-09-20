@@ -13,6 +13,256 @@
    - ownership
    ============================================================ */
 
+const ATLAS_AI_REQUEST_ID_HEADER =
+    'X-Atlas-Request-Id';
+
+const ATLAS_AI_SUBJECT_ID_HEADER =
+    'X-Atlas-Subject-Id';
+
+function normalizeAtlasSupabaseUrl(value) {
+    return String(value || '')
+        .trim()
+        .replace(/\/+$/, '');
+}
+
+function getAtlasWorkerSupabaseConfig(env) {
+    const url =
+        normalizeAtlasSupabaseUrl(
+            env.ATLAS_SUPABASE_URL
+        );
+
+    const serviceRoleKey =
+        String(
+            env.ATLAS_SUPABASE_SERVICE_ROLE_KEY ||
+            ''
+        ).trim();
+
+    if (!url || !serviceRoleKey) {
+        return null;
+    }
+
+    return {
+        url,
+        serviceRoleKey
+    };
+}
+
+function getAtlasBearerAuthorization(request) {
+    const authorization =
+        String(
+            request.headers.get(
+                'Authorization'
+            ) || ''
+        ).trim();
+
+    if (
+        !authorization ||
+        !/^Bearer\s+\S+$/i.test(
+            authorization
+        )
+    ) {
+        return '';
+    }
+
+    return authorization;
+}
+
+async function authenticateAtlasAIRequest(
+    request,
+    env
+) {
+    const config =
+        getAtlasWorkerSupabaseConfig(env);
+
+    if (!config) {
+        return {
+            ok: false,
+            status: 503,
+            error:
+                'Atlas AI account verification is unavailable.'
+        };
+    }
+
+    const authorization =
+        getAtlasBearerAuthorization(request);
+
+    if (!authorization) {
+        return {
+            ok: false,
+            status: 401,
+            error:
+                'Sign in to use Atlas AI.'
+        };
+    }
+
+    let response = null;
+
+    try {
+        response = await fetch(
+            `${config.url}/auth/v1/user`,
+            {
+                method: 'GET',
+                headers: {
+                    'apikey':
+                        config.serviceRoleKey,
+                    'Authorization':
+                        authorization
+                }
+            }
+        );
+    } catch (error) {
+        console.error(
+            '[Atlas AI] Account verification request failed:',
+            error
+        );
+
+        return {
+            ok: false,
+            status: 503,
+            error:
+                'Atlas AI account verification is unavailable.'
+        };
+    }
+
+    if (!response.ok) {
+        return {
+            ok: false,
+            status: 401,
+            error:
+                'Sign in to use Atlas AI.'
+        };
+    }
+
+    const user =
+        await response.json();
+
+    const userId =
+        String(user?.id || '').trim();
+
+    if (!userId) {
+        return {
+            ok: false,
+            status: 401,
+            error:
+                'Sign in to use Atlas AI.'
+        };
+    }
+
+    return {
+        ok: true,
+        userId
+    };
+}
+
+async function callAtlasUsageRpc(
+    env,
+    functionName,
+    payload
+) {
+    const config =
+        getAtlasWorkerSupabaseConfig(env);
+
+    if (!config) {
+        throw new Error(
+            'Atlas AI usage accounting is not configured.'
+        );
+    }
+
+    const response = await fetch(
+        `${config.url}/rest/v1/rpc/${functionName}`,
+        {
+            method: 'POST',
+            headers: {
+                'apikey':
+                    config.serviceRoleKey,
+                'Authorization':
+                    `Bearer ${config.serviceRoleKey}`,
+                'Content-Type':
+                    'application/json'
+            },
+            body:
+                JSON.stringify(
+                    payload || {}
+                )
+        }
+    );
+
+    let result = null;
+
+    try {
+        result = await response.json();
+    } catch {
+        result = null;
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            `Atlas AI usage RPC failed with status ${response.status}.`
+        );
+    }
+
+    return result;
+}
+
+function atlasAIGuardrailResponse(reason) {
+    const code =
+        String(reason || '').trim();
+
+    if (
+        code === 'rate_limited' ||
+        code === 'shape_guardrail' ||
+        code === 'web_guardrail' ||
+        code === 'cover_guardrail'
+    ) {
+        return {
+            status: 429,
+            error:
+                'Atlas AI is temporarily unavailable. Try again later.'
+        };
+    }
+
+    if (code === 'build_guardrail') {
+        return {
+            status: 429,
+            error:
+                'This subject build stopped for safety. Try creating it again.'
+        };
+    }
+
+    if (code === 'one_shot_used') {
+        return {
+            status: 409,
+            error:
+                'Read More has already been generated for this subject.'
+        };
+    }
+
+    if (
+        code === 'request_in_progress' ||
+        code === 'request_already_completed'
+    ) {
+        return {
+            status: 409,
+            error:
+                'This Atlas AI request has already been handled.'
+        };
+    }
+
+    if (code === 'owned_subject_required') {
+        return {
+            status: 403,
+            error:
+                'This AI action requires an owned Atlas subject.'
+        };
+    }
+
+    return {
+        status: 503,
+        error:
+            'Atlas AI usage protection is unavailable.'
+    };
+}
+
 export default {
     async fetch(request, env) {
         const url = new URL(request.url);
@@ -46,16 +296,78 @@ export default {
                 'GET, POST, DELETE, OPTIONS',
 
             'Access-Control-Allow-Headers':
-                'Content-Type, Authorization',
+                'Content-Type, Authorization, X-Atlas-Request-Id, X-Atlas-Subject-Id',
 
             'Vary':
                 'Origin'
         };
 
-        function json(
+        let aiUsageContext = null;
+
+        async function json(
             body,
             status = 200
         ) {
+            if (
+                aiUsageContext &&
+                aiUsageContext.finalized !== true
+            ) {
+                const succeeded =
+                    status >= 200 &&
+                    status < 300 &&
+                    body?.ok === true;
+
+                aiUsageContext.finalized = true;
+
+                try {
+                    const finished =
+                        await callAtlasUsageRpc(
+                            env,
+                            'atlas_finish_ai_operation_v1',
+                            {
+                                p_owner_user_id:
+                                    aiUsageContext.userId,
+                                p_request_id:
+                                    aiUsageContext.requestId,
+                                p_succeeded:
+                                    succeeded,
+                                p_provider_status:
+                                    Number(
+                                        body?.providerStatus ||
+                                        status
+                                    ) || null
+                            }
+                        );
+
+                    if (finished?.ok !== true) {
+                        throw new Error(
+                            'Atlas AI usage reservation could not be finalized.'
+                        );
+                    }
+                } catch (error) {
+                    console.error(
+                        '[Atlas AI] Usage finalization failed:',
+                        error
+                    );
+
+                    return new Response(
+                        JSON.stringify({
+                            ok: false,
+                            error:
+                                'Atlas AI usage protection is unavailable.'
+                        }),
+                        {
+                            status: 503,
+                            headers: {
+                                'Content-Type':
+                                    'application/json; charset=utf-8',
+                                ...corsHeaders
+                            }
+                        }
+                    );
+                }
+            }
+
             return new Response(
                 JSON.stringify(body),
                 {
@@ -356,6 +668,117 @@ export default {
                     ok: true
                 });
             }
+
+            const authenticated =
+                await authenticateAtlasAIRequest(
+                    request,
+                    env
+                );
+
+            if (!authenticated.ok) {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            authenticated.error
+                    },
+                    authenticated.status
+                );
+            }
+
+            const requestId =
+                String(
+                    request.headers.get(
+                        ATLAS_AI_REQUEST_ID_HEADER
+                    ) || ''
+                )
+                    .trim()
+                    .slice(0, 160);
+
+            const subjectId =
+                String(
+                    request.headers.get(
+                        ATLAS_AI_SUBJECT_ID_HEADER
+                    ) || ''
+                )
+                    .trim()
+                    .slice(0, 240);
+
+            let usageDecision = null;
+
+            try {
+                usageDecision =
+                    await callAtlasUsageRpc(
+                        env,
+                        'atlas_begin_ai_operation_v1',
+                        {
+                            p_owner_user_id:
+                                authenticated.userId,
+                            p_request_id:
+                                requestId,
+                            p_subject_id:
+                                subjectId || null,
+                            p_endpoint:
+                                url.pathname,
+                            p_mode:
+                                url.pathname ===
+                                    '/suggest-subject-ideas'
+                                    ? String(
+                                        body?.mode || ''
+                                    ).trim()
+                                    : null
+                        }
+                    );
+            } catch (error) {
+                console.error(
+                    '[Atlas AI] Usage preflight failed:',
+                    error
+                );
+
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'Atlas AI usage protection is unavailable.'
+                    },
+                    503
+                );
+            }
+
+            if (
+                !usageDecision ||
+                usageDecision.allowed !== true
+            ) {
+                const blocked =
+                    atlasAIGuardrailResponse(
+                        usageDecision?.reason
+                    );
+
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            blocked.error,
+                        code:
+                            String(
+                                usageDecision?.reason ||
+                                'usage_unavailable'
+                            )
+                    },
+                    blocked.status
+                );
+            }
+
+            aiUsageContext = {
+                userId:
+                    authenticated.userId,
+                requestId,
+                usageClass:
+                    usageDecision.usageClass || null,
+                actionType:
+                    usageDecision.actionType || null,
+                finalized: false
+            };
 
             if (
                 url.pathname ===
