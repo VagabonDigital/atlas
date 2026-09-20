@@ -497,9 +497,25 @@
             renderAll(window.AtlasAccess?.getState?.() || null);
         }
 
-        return getPresentation(
-            window.AtlasAccess?.getState?.() || null
-        );
+        const presentation =
+            getPresentation(
+                window.AtlasAccess?.getState?.() || null
+            );
+
+        if (presentation.kind === 'sign-in') {
+            void ensureGate()
+                .then(Gate =>
+                    Gate.prewarm?.()
+                )
+                .catch(error => {
+                    console.error(
+                        '[AtlasAccountChrome] account prewarm failed:',
+                        error
+                    );
+                });
+        }
+
+        return presentation;
     }
 
     window.AtlasAccountChrome = Object.freeze({
