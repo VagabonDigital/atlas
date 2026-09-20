@@ -21,13 +21,13 @@
     if (window.AtlasAccountGate) return;
 
     const STYLE_HREF =
-        '/shared/atlas-account-gate.css?v=20260920-accountstable4';
+        '/shared/atlas-account-gate.css?v=20260920-accountstable5';
     const RETURN_INTENT_SRC =
         '/shared/atlas-return-intent.js?v=20260916-returnintent1';
     const FEEDBACK_SRC =
         '/shared/atlas-feedback.js?v=20260918-publicentry1';
     const GOOGLE_IDENTITY_SRC =
-        '/shared/atlas-google-identity.js?v=20260920-accountstable4';
+        '/shared/atlas-google-identity.js?v=20260920-accountstable5';
 
     let gateLayer = null;
     let accountMenu = null;
