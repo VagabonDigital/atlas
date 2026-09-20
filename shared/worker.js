@@ -118,7 +118,7 @@ export default {
                     {
                         ok: false,
                         error:
-                            'Feedback admin access is not configured.'
+                            'Inbox access is not configured.'
                     },
                     503
                 );
@@ -265,7 +265,7 @@ export default {
                         {
                             ok: false,
                             error:
-                                'Feedback storage is not configured.'
+                                'Message storage is not configured.'
                         },
                         503
                     );
