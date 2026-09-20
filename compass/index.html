@@ -2855,6 +2855,12 @@
       box-shadow: var(--shadow-lg);
     }
 
+    .owned-subject-dialog:has(
+      #owned-subject-dialog-create-fields:not([hidden])
+    ) .owned-subject-dialog-panel {
+      width: min(620px, 100%);
+    }
+
     .owned-subject-dialog-kicker {
       margin-bottom: 0.48rem;
       color: var(--accent);
@@ -2923,8 +2929,9 @@
 
     .owned-subject-dialog-create-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 0.8rem;
+      grid-template-columns:
+        1.05fr 1fr 0.85fr 1.1fr;
+      gap: 0.72rem;
     }
 
     .owned-subject-dialog-create-fields[hidden] {
@@ -7266,6 +7273,15 @@
         '</select>' +
         '</label>' +
 
+        '<label class="owned-subject-dialog-create-field">' +
+        '<span>Language support</span>' +
+        '<select id="owned-subject-dialog-language-support">' +
+        '<option value="key" selected>Key</option>' +
+        '<option value="all">All</option>' +
+        '<option value="off">None</option>' +
+        '</select>' +
+        '</label>' +
+
         '</div>' +
 
         '<label class="owned-subject-dialog-create-field">' +
@@ -8034,6 +8050,12 @@
               '#owned-subject-dialog-size'
             )?.value || 'standard'
           ).trim(),
+        languageSupport:
+          String(
+            dialog.querySelector(
+              '#owned-subject-dialog-language-support'
+            )?.value || 'key'
+          ).trim(),
         brief:
           String(
             dialog.querySelector(
@@ -8327,6 +8349,11 @@
         '#owned-subject-dialog-size'
       );
 
+      const languageSupportSelect =
+        dialog.querySelector(
+          '#owned-subject-dialog-language-support'
+        );
+
       const briefInput = dialog.querySelector(
         '#owned-subject-dialog-brief'
       );
@@ -8452,6 +8479,18 @@
         sizeSelect,
         initialDraft?.subjectSize,
         'standard'
+      );
+
+      setCreateSelectValue(
+        languageSupportSelect,
+        initialDraft?.languageSupport ||
+          (
+            typeof Bridge.readSubjectLanguageSupport ===
+              'function'
+              ? Bridge.readSubjectLanguageSupport()
+              : 'key'
+          ),
+        'key'
       );
 
       briefInput.value =
@@ -8746,6 +8785,11 @@
       const sizeSelect = dialog.querySelector(
         '#owned-subject-dialog-size'
       );
+
+      const languageSupportSelect =
+        dialog.querySelector(
+          '#owned-subject-dialog-language-support'
+        );
 
       const briefInput = dialog.querySelector(
         '#owned-subject-dialog-brief'
@@ -9399,6 +9443,12 @@
           'practical'
         ]);
 
+        const allowedLanguageSupport = new Set([
+          'off',
+          'key',
+          'all'
+        ]);
+
         const generationContext = {
           version: 1,
 
@@ -9416,6 +9466,13 @@
             sizeSelect?.value === 'compact'
               ? 'compact'
               : 'standard',
+
+          languageSupport:
+            allowedLanguageSupport.has(
+              languageSupportSelect?.value
+            )
+              ? languageSupportSelect.value
+              : 'key',
 
           style:
             allowedStyles.has(styleSelect?.value)
@@ -9450,6 +9507,15 @@
             briefInput?.value || ''
           ).trim()
         };
+
+        if (
+          typeof Bridge.setSubjectLanguageSupport ===
+            'function'
+        ) {
+          Bridge.setSubjectLanguageSupport(
+            generationContext.languageSupport
+          );
+        }
 
         const targetSessionId =
           String(state.sessionId || '').trim();

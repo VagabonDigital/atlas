@@ -226,6 +226,7 @@ export default {
                 '/generate-discussion-framing',
                 '/generate-cultural-lens-framing',
                 '/generate-reflection',
+                '/select-key-language-opportunities',
                 '/generate-moment-upgrade',
                 '/generate-cultural-lens-upgrade',
                 '/generate-make-it-real',
@@ -3876,6 +3877,388 @@ export default {
                     payload: {
                         title,
                         prompt
+                    }
+                });
+            }
+
+            if (
+                url.pathname ===
+                '/select-key-language-opportunities'
+            ) {
+                const section =
+                    body?.section ===
+                        'cultural-lens'
+                        ? 'cultural-lens'
+                        : 'discussion';
+
+                const limit =
+                    Math.max(
+                        0,
+                        Math.min(
+                            12,
+                            Math.floor(
+                                Number(
+                                    body?.limit
+                                ) || 0
+                            )
+                        )
+                    );
+
+                const candidates =
+                    Array.isArray(
+                        body?.candidates
+                    )
+                        ? body.candidates
+                            .slice(0, 40)
+                            .map(item => ({
+                                id:
+                                    String(
+                                        item?.id ||
+                                        ''
+                                    ).trim(),
+
+                                stage:
+                                    String(
+                                        item?.stage ||
+                                        ''
+                                    ).trim(),
+
+                                title:
+                                    String(
+                                        item?.title ||
+                                        ''
+                                    ).trim(),
+
+                                preview:
+                                    String(
+                                        item?.preview ||
+                                        ''
+                                    ).trim(),
+
+                                question:
+                                    String(
+                                        item?.question ||
+                                        ''
+                                    ).trim(),
+
+                                contextLine:
+                                    String(
+                                        item?.contextLine ||
+                                        ''
+                                    ).trim(),
+
+                                teaser:
+                                    String(
+                                        item?.teaser ||
+                                        ''
+                                    ).trim(),
+
+                                context:
+                                    String(
+                                        item?.context ||
+                                        ''
+                                    ).trim(),
+
+                                questions:
+                                    Array.isArray(
+                                        item?.questions
+                                    )
+                                        ? item.questions
+                                            .slice(0, 4)
+                                            .map(question =>
+                                                String(
+                                                    question ||
+                                                    ''
+                                                ).trim()
+                                            )
+                                            .filter(Boolean)
+                                        : []
+                            }))
+                            .filter(item =>
+                                item.id
+                            )
+                        : [];
+
+                const uniqueCandidates = [];
+                const seenIds = new Set();
+
+                candidates.forEach(item => {
+                    if (
+                        seenIds.has(item.id)
+                    ) {
+                        return;
+                    }
+
+                    seenIds.add(item.id);
+                    uniqueCandidates.push(item);
+                });
+
+                const targetCount =
+                    Math.min(
+                        limit,
+                        uniqueCandidates.length
+                    );
+
+                if (!targetCount) {
+                    return json({
+                        ok: true,
+                        model:
+                            env.ATLAS_AI_MODEL ||
+                            'gpt-5.6-luna',
+                        payload: {
+                            ids: []
+                        }
+                    });
+                }
+
+                const candidateIds =
+                    uniqueCandidates.map(
+                        item => item.id
+                    );
+
+                const context = {
+                    section,
+                    targetCount,
+                    candidates:
+                        uniqueCandidates,
+
+                    brief:
+                        String(
+                            body?.brief || ''
+                        ).trim()
+                };
+
+                const openaiResponse =
+                    await fetch(
+                        'https://api.openai.com/v1/responses',
+                        {
+                            method: 'POST',
+
+                            headers: {
+                                'Authorization':
+                                    `Bearer ${env.OPENAI_API_KEY}`,
+
+                                'Content-Type':
+                                    'application/json'
+                            },
+
+                            body: JSON.stringify({
+                                model:
+                                    env.ATLAS_AI_MODEL ||
+                                    'gpt-5.6-luna',
+
+                                reasoning: {
+                                    effort: 'low'
+                                },
+
+                                instructions: [
+                                    'You select the strongest opportunities for Key Language support in one existing Atlas Compass section.',
+                                    'Atlas is a tutor-led adult English speaking product.',
+                                    '',
+                                    'Do not invent vocabulary and do not write Language Upgrades. Only choose which authored items deserve foregrounded Key Language support.',
+                                    'Key means deliberately selective: the items most worth interrupting the conversation to teach because they offer especially reusable, natural spoken English at a useful stretch for the learner.',
+                                    'Prefer opportunities that can support transferable language rather than narrow factual terminology, specialist labels, or vocabulary that is only useful for this topic.',
+                                    'Compare the candidates against each other. Do not treat every useful item as Key.',
+                                    'Spread the selection across the section when quality allows instead of clustering everything in one Discussion set or one narrow idea.',
+                                    '',
+                                    'Return exactly targetCount existing candidate IDs. Never invent an ID.',
+                                    'Use the learner-level and tutor-intent guidance in brief when supplied.',
+                                    '',
+                                    'Return only the requested structured payload.'
+                                ].join('\n'),
+
+                                input:
+                                    JSON.stringify(
+                                        context,
+                                        null,
+                                        2
+                                    ),
+
+                                max_output_tokens:
+                                    240,
+
+                                text: {
+                                    format: {
+                                        type:
+                                            'json_schema',
+
+                                        name:
+                                            'atlas_key_language_selection',
+
+                                        strict: true,
+
+                                        schema: {
+                                            type:
+                                                'object',
+
+                                            properties: {
+                                                ids: {
+                                                    type:
+                                                        'array',
+
+                                                    minItems:
+                                                        targetCount,
+
+                                                    maxItems:
+                                                        targetCount,
+
+                                                    items: {
+                                                        type:
+                                                            'string',
+
+                                                        enum:
+                                                            candidateIds
+                                                    }
+                                                }
+                                            },
+
+                                            required: [
+                                                'ids'
+                                            ],
+
+                                            additionalProperties:
+                                                false
+                                        }
+                                    }
+                                }
+                            })
+                        }
+                    );
+
+                const result =
+                    await openaiResponse.json();
+
+                if (!openaiResponse.ok) {
+                    console.error(
+                        '[Atlas AI] OpenAI error:',
+                        result
+                    );
+
+                    const providerMessage =
+                        String(
+                            result?.error?.message ||
+                            'OpenAI generation failed.'
+                        ).trim();
+
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                providerMessage,
+                            providerStatus:
+                                openaiResponse.status
+                        },
+                        502
+                    );
+                }
+
+                let outputText = '';
+                let refusal = '';
+
+                for (
+                    const item of
+                    result.output || []
+                ) {
+                    if (
+                        item?.type !== 'message'
+                    ) {
+                        continue;
+                    }
+
+                    for (
+                        const content of
+                        item.content || []
+                    ) {
+                        if (
+                            content?.type ===
+                            'output_text'
+                        ) {
+                            outputText =
+                                String(
+                                    content.text || ''
+                                ).trim();
+                        }
+
+                        if (
+                            content?.type ===
+                            'refusal'
+                        ) {
+                            refusal =
+                                String(
+                                    content.refusal || ''
+                                ).trim();
+                        }
+                    }
+                }
+
+                if (refusal) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Generation was refused.'
+                        },
+                        400
+                    );
+                }
+
+                if (!outputText) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'No generated content was returned.'
+                        },
+                        502
+                    );
+                }
+
+                const generated =
+                    JSON.parse(outputText);
+
+                const ids =
+                    Array.isArray(
+                        generated.ids
+                    )
+                        ? generated.ids
+                            .map(id =>
+                                String(
+                                    id || ''
+                                ).trim()
+                            )
+                        : [];
+
+                const uniqueIds =
+                    Array.from(
+                        new Set(ids)
+                    );
+
+                if (
+                    uniqueIds.length !==
+                        targetCount ||
+                    uniqueIds.some(id =>
+                        !seenIds.has(id)
+                    )
+                ) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Key Language selection is incomplete.'
+                        },
+                        502
+                    );
+                }
+
+                return json({
+                    ok: true,
+
+                    model:
+                        env.ATLAS_AI_MODEL ||
+                        'gpt-5.6-luna',
+
+                    payload: {
+                        ids: uniqueIds
                     }
                 });
             }

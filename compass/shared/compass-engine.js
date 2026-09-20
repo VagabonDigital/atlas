@@ -422,6 +422,17 @@ const FULL_SUBJECT_DISCUSSION_STAGES = [
 ];
 
 const FULL_SUBJECT_CULTURAL_LENS_CARD_COUNT = 6;
+const FULL_SUBJECT_KEY_LANGUAGE_LIMITS = Object.freeze({
+    standard: {
+        discussion: 6,
+        culturalLens: 2
+    },
+
+    compact: {
+        discussion: 4,
+        culturalLens: 1
+    }
+});
 const FULL_SUBJECT_GENERATION_STAGE_COUNT = 9;
 const FULL_SUBJECT_COMPLETION_HOLD_MS = 900;
 
@@ -491,6 +502,7 @@ function requireAtlasAI() {
         typeof window.AtlasAI.generateDiscussionFraming !== 'function' ||
         typeof window.AtlasAI.generateCulturalLensFraming !== 'function' ||
         typeof window.AtlasAI.generateReflection !== 'function' ||
+        typeof window.AtlasAI.selectKeyLanguageOpportunities !== 'function' ||
         typeof window.AtlasAI.generateMomentUpgrade !== 'function' ||
         typeof window.AtlasAI.generateCulturalLensUpgrade !== 'function' ||
         typeof window.AtlasAI.generateMakeItReal !== 'function' ||
@@ -947,6 +959,7 @@ function installSubjectAuthoringAIGuard() {
         'generateDiscussionFraming',
         'generateCulturalLensFraming',
         'generateReflection',
+        'selectKeyLanguageOpportunities',
         'generateMomentUpgrade',
         'generateCulturalLensUpgrade',
         'generateMakeItReal',
@@ -7183,6 +7196,37 @@ function getMyVersionFullSubjectGenerationStatus() {
     );
 }
 
+function getMyVersionLanguageSupportMode() {
+    const mode =
+        String(
+            window.AtlasGenerationContext?.languageSupport ||
+            'key'
+        ).trim();
+
+    return ['off', 'key', 'all'].includes(mode)
+        ? mode
+        : 'key';
+}
+
+function getMyVersionKeyLanguageLimit(section) {
+    const subjectSize =
+        String(
+            window.AtlasGenerationContext?.subjectSize ||
+            'standard'
+        ).trim() === 'compact'
+            ? 'compact'
+            : 'standard';
+
+    const limits =
+        FULL_SUBJECT_KEY_LANGUAGE_LIMITS[
+            subjectSize
+        ];
+
+    return section === 'cultural-lens'
+        ? limits.culturalLens
+        : limits.discussion;
+}
+
 async function generateMyVersionFullSubject({
     autoSaveOnComplete = false,
     resumeFromStep = 0
@@ -7199,6 +7243,9 @@ async function generateMyVersionFullSubject({
     const subjectSize = String(
         window.AtlasGenerationContext?.subjectSize || 'standard'
     ).trim();
+
+    const languageSupport =
+        getMyVersionLanguageSupportMode();
 
     const discussionStages =
         subjectSize === 'compact'
@@ -7431,20 +7478,33 @@ async function generateMyVersionFullSubject({
 
         /*
          * The complete teaching environment now exists.
-         * Enrichment is deliberately the finishing layer.
+         * Activities remain part of the core subject. Language depth follows
+         * the tutor's creation preference: none, curated Key, or full.
          */
 
         if (completedStep < 17) {
+            const discussionLabel =
+                languageSupport === 'off'
+                    ? 'Adding Discussion activities'
+                    : languageSupport === 'key'
+                        ? 'Adding key Discussion language + activities'
+                        : 'Adding Discussion language + activities';
+
             setMyVersionFullSubjectGenerationProgress(
                 8,
-                'Adding Discussion language + activities'
+                discussionLabel
             );
 
-            await enrichMyVersionDiscussionFromUI();
+            await enrichMyVersionDiscussionFromUI({
+                languageMode:
+                    languageSupport
+            });
 
             const remainingDiscussionEnrichment =
-                getMyVersionDiscussionLanguageUpgradeCandidateIds()
-                    .length +
+                getMyVersionRemainingLanguageCount(
+                    'discussion',
+                    languageSupport
+                ) +
                 getMyVersionDiscussionMakeItRealCandidateSetIds()
                     .length;
 
@@ -7463,16 +7523,28 @@ async function generateMyVersionFullSubject({
         }
 
         if (completedStep < 18) {
+            const culturalLensLabel =
+                languageSupport === 'off'
+                    ? 'Finishing Cultural Lens'
+                    : languageSupport === 'key'
+                        ? 'Adding key Cultural Lens language'
+                        : 'Adding Cultural Lens language';
+
             setMyVersionFullSubjectGenerationProgress(
                 9,
-                'Adding Cultural Lens language'
+                culturalLensLabel
             );
 
-            await enrichMyVersionCulturalLensFromUI();
+            await enrichMyVersionCulturalLensFromUI({
+                languageMode:
+                    languageSupport
+            });
 
             const remainingCulturalLensEnrichment =
-                getMyVersionCulturalLensLanguageUpgradeCandidateIds()
-                    .length;
+                getMyVersionRemainingLanguageCount(
+                    'cultural-lens',
+                    languageSupport
+                );
 
             if (remainingCulturalLensEnrichment > 0) {
                 throw new Error(
@@ -7489,6 +7561,9 @@ async function generateMyVersionFullSubject({
         }
 
         refreshMyVersionFullSubjectReadyNotice(
+            true,
+            languageSupport
+        );        refreshMyVersionFullSubjectReadyNotice(
             true
         );
 
@@ -9213,7 +9288,12 @@ async function generateMyVersionMomentUpgrade(
                         generated.upgraded,
 
                     priority:
-                        generated.priority,
+                        (
+                            options?.priority === 'key' ||
+                            options?.priority === 'standard'
+                        )
+                            ? options.priority
+                            : generated.priority,
 
                     atlasPrompt:
                         generated.atlasPrompt
@@ -9241,7 +9321,7 @@ async function generateMyVersionMomentUpgrade(
     return committed.upgrade;
 }
 
-function getMyVersionDiscussionLanguageUpgradeCandidateIds() {
+function getMyVersionDiscussionLanguageOpportunityIds() {
     if (
         !myVersionEditing ||
         !isOwnedSubjectRuntime()
@@ -9270,11 +9350,111 @@ function getMyVersionDiscussionLanguageUpgradeCandidateIds() {
                 !starterMoment ||
                 moment.id !== starterMoment.id
             )
-            .filter(moment =>
-                !moment.upgrade
-            )
             .map(moment => moment.id);
     });
+}
+
+function getMyVersionDiscussionLanguageUpgradeCandidateIds() {
+    return getMyVersionDiscussionLanguageOpportunityIds()
+        .filter(momentId =>
+            !getEffectiveUpgradeSourceFromContextId(
+                `moment-${momentId}`
+            )?.upgrade
+        );
+}
+
+function getMyVersionDiscussionKeyUpgradeCount() {
+    return getMyVersionDiscussionLanguageOpportunityIds()
+        .filter(momentId =>
+            getEffectiveUpgradeSourceFromContextId(
+                `moment-${momentId}`
+            )?.upgrade?.priority === 'key'
+        )
+        .length;
+}
+
+function getMyVersionDiscussionKeyLanguageCandidates(
+    candidateIds
+) {
+    const allowed =
+        new Set(
+            Array.isArray(candidateIds)
+                ? candidateIds
+                : []
+        );
+
+    return discussionSets.flatMap(set => {
+        const contextSet =
+            materializeMyVersionDiscussionSet(
+                set
+            );
+
+        if (!contextSet) return [];
+
+        return (
+            Array.isArray(contextSet.moments)
+                ? contextSet.moments
+                : []
+        )
+            .filter(moment =>
+                allowed.has(moment.id)
+            )
+            .map(moment => ({
+                id:
+                    moment.id,
+
+                stage:
+                    String(
+                        contextSet.stage || ''
+                    ).trim(),
+
+                title:
+                    String(
+                        contextSet.title || ''
+                    ).trim(),
+
+                preview:
+                    String(
+                        moment.preview || ''
+                    ).trim(),
+
+                question:
+                    String(
+                        moment.question || ''
+                    ).trim()
+            }));
+    });
+}
+
+async function selectMyVersionKeyLanguageOpportunityIds(
+    section,
+    candidates,
+    limit
+) {
+    const targetLimit =
+        Math.max(
+            0,
+            Math.min(
+                Math.floor(
+                    Number(limit) || 0
+                ),
+                Array.isArray(candidates)
+                    ? candidates.length
+                    : 0
+            )
+        );
+
+    if (!targetLimit) {
+        return [];
+    }
+
+    return requireAtlasAI()
+        .selectKeyLanguageOpportunities({
+            section,
+            limit:
+                targetLimit,
+            candidates
+        });
 }
 
 function getMyVersionDiscussionMakeItRealCandidateSetIds() {
@@ -9504,19 +9684,26 @@ async function runMyVersionEnrichmentOperationWithRetry(
     return null;
 }
 
-function getMyVersionRemainingEnrichmentCount() {
+function getMyVersionRemainingEnrichmentCount(
+    languageMode = getMyVersionLanguageSupportMode()
+) {
     return (
-        getMyVersionDiscussionLanguageUpgradeCandidateIds()
-            .length +
+        getMyVersionRemainingLanguageCount(
+            'discussion',
+            languageMode
+        ) +
         getMyVersionDiscussionMakeItRealCandidateSetIds()
             .length +
-        getMyVersionCulturalLensLanguageUpgradeCandidateIds()
-            .length
+        getMyVersionRemainingLanguageCount(
+            'cultural-lens',
+            languageMode
+        )
     );
 }
 
 function refreshMyVersionFullSubjectReadyNotice(
-    force = false
+    force = false,
+    languageMode = getMyVersionLanguageSupportMode()
 ) {
     if (
         !force &&
@@ -9526,7 +9713,9 @@ function refreshMyVersionFullSubjectReadyNotice(
     }
 
     const remaining =
-        getMyVersionRemainingEnrichmentCount();
+        getMyVersionRemainingEnrichmentCount(
+            languageMode
+        );
 
     myVersionFullSubjectGenerationNotice =
         remaining > 0
@@ -9536,7 +9725,9 @@ function refreshMyVersionFullSubjectReadyNotice(
     updateMyVersionAuthorBar();
 }
 
-async function enrichMyVersionDiscussionFromUI() {
+async function enrichMyVersionDiscussionFromUI({
+    languageMode = 'all'
+} = {}) {
     if (
         !myVersionEditing ||
         myVersionSaving ||
@@ -9547,11 +9738,67 @@ async function enrichMyVersionDiscussionFromUI() {
         return null;
     }
 
+    const mode =
+        ['off', 'key', 'all'].includes(
+            languageMode
+        )
+            ? languageMode
+            : 'all';
+
+    const languageCandidateIds =
+        getMyVersionDiscussionLanguageUpgradeCandidateIds();
+
+    const remainingKeySlots =
+        Math.max(
+            0,
+            getMyVersionKeyLanguageLimit(
+                'discussion'
+            ) -
+                getMyVersionDiscussionKeyUpgradeCount()
+        );
+
+    const keySelectionTarget =
+        mode === 'off'
+            ? 0
+            : Math.min(
+                remainingKeySlots,
+                languageCandidateIds.length
+            );
+
+    let selectedKeyIds = [];
+
+    if (keySelectionTarget > 0) {
+        selectedKeyIds =
+            await selectMyVersionKeyLanguageOpportunityIds(
+                'discussion',
+                getMyVersionDiscussionKeyLanguageCandidates(
+                    languageCandidateIds
+                ),
+                keySelectionTarget
+            );
+    }
+
+    const selectedKeySet =
+        new Set(selectedKeyIds);
+
+    const languageIds =
+        mode === 'off'
+            ? []
+            : mode === 'key'
+                ? selectedKeyIds
+                : languageCandidateIds;
+
     const operations = [
-        ...getMyVersionDiscussionLanguageUpgradeCandidateIds()
+        ...languageIds
             .map(momentId => ({
                 kind: 'upgrade',
-                id: momentId
+                id: momentId,
+                priority:
+                    selectedKeySet.has(
+                        momentId
+                    )
+                        ? 'key'
+                        : 'standard'
             })),
 
         ...getMyVersionDiscussionMakeItRealCandidateSetIds()
@@ -9562,7 +9809,10 @@ async function enrichMyVersionDiscussionFromUI() {
     ];
 
     if (!operations.length) {
-        refreshMyVersionFullSubjectReadyNotice();
+        refreshMyVersionFullSubjectReadyNotice(
+            false,
+            mode
+        );
         return [];
     }
 
@@ -9606,7 +9856,11 @@ async function enrichMyVersionDiscussionFromUI() {
                             ? generateMyVersionMomentUpgrade(
                                 operation.id,
                                 '',
-                                { reveal: false }
+                                {
+                                    reveal: false,
+                                    priority:
+                                        operation.priority
+                                }
                             )
                             : generateMyVersionMakeItReal(
                                 operation.id
@@ -9636,7 +9890,10 @@ async function enrichMyVersionDiscussionFromUI() {
         myVersionDiscussionEnrichmentProgress = null;
 
         if (myVersionEditing) {
-            refreshMyVersionFullSubjectReadyNotice();
+            refreshMyVersionFullSubjectReadyNotice(
+                false,
+                mode
+            );
             updateMyVersionAuthorBar();
         }
     }
@@ -9790,7 +10047,12 @@ async function generateMyVersionCulturalLensUpgrade(
                         generated.upgraded,
 
                     priority:
-                        generated.priority,
+                        (
+                            options?.priority === 'key' ||
+                            options?.priority === 'standard'
+                        )
+                            ? options.priority
+                            : generated.priority,
 
                     atlasPrompt:
                         generated.atlasPrompt
@@ -9818,7 +10080,7 @@ async function generateMyVersionCulturalLensUpgrade(
     return committed.upgrade;
 }
 
-function getMyVersionCulturalLensLanguageUpgradeCandidateIds() {
+function getMyVersionCulturalLensLanguageOpportunityIds() {
     if (
         !myVersionEditing ||
         !isOwnedSubjectRuntime()
@@ -9840,13 +10102,126 @@ function getMyVersionCulturalLensLanguageUpgradeCandidateIds() {
             !starterCard ||
             card.id !== starterCard.id
         )
-        .filter(card =>
-            !card.upgrade
-        )
         .map(card => card.id);
 }
 
-async function enrichMyVersionCulturalLensFromUI() {
+function getMyVersionCulturalLensLanguageUpgradeCandidateIds() {
+    return getMyVersionCulturalLensLanguageOpportunityIds()
+        .filter(cardId =>
+            !getEffectiveUpgradeSourceFromContextId(
+                `cl-${cardId}`
+            )?.upgrade
+        );
+}
+
+function getMyVersionCulturalLensKeyUpgradeCount() {
+    return getMyVersionCulturalLensLanguageOpportunityIds()
+        .filter(cardId =>
+            getEffectiveUpgradeSourceFromContextId(
+                `cl-${cardId}`
+            )?.upgrade?.priority === 'key'
+        )
+        .length;
+}
+
+function getMyVersionCulturalLensKeyLanguageCandidates(
+    candidateIds
+) {
+    const allowed =
+        new Set(
+            Array.isArray(candidateIds)
+                ? candidateIds
+                : []
+        );
+
+    return clCards
+        .map(card =>
+            materializeMyVersionCulturalLensCard(
+                card
+            )
+        )
+        .filter(Boolean)
+        .filter(card =>
+            allowed.has(card.id)
+        )
+        .map(card => ({
+            id:
+                card.id,
+
+            title:
+                String(
+                    card.title || ''
+                ).trim(),
+
+            contextLine:
+                String(
+                    card.contextLine || ''
+                ).trim(),
+
+            teaser:
+                String(
+                    card.teaser || ''
+                ).trim(),
+
+            context:
+                String(
+                    card.context || ''
+                ).trim(),
+
+            questions:
+                Array.isArray(
+                    card.questions
+                )
+                    ? card.questions.slice()
+                    : []
+        }));
+}
+
+function getMyVersionRemainingLanguageCount(
+    section,
+    languageMode = getMyVersionLanguageSupportMode()
+) {
+    const mode =
+        ['off', 'key', 'all'].includes(
+            languageMode
+        )
+            ? languageMode
+            : 'key';
+
+    if (mode === 'off') {
+        return 0;
+    }
+
+    const candidateCount =
+        section === 'cultural-lens'
+            ? getMyVersionCulturalLensLanguageUpgradeCandidateIds()
+                .length
+            : getMyVersionDiscussionLanguageUpgradeCandidateIds()
+                .length;
+
+    if (mode === 'all') {
+        return candidateCount;
+    }
+
+    const keyCount =
+        section === 'cultural-lens'
+            ? getMyVersionCulturalLensKeyUpgradeCount()
+            : getMyVersionDiscussionKeyUpgradeCount();
+
+    return Math.min(
+        candidateCount,
+        Math.max(
+            0,
+            getMyVersionKeyLanguageLimit(
+                section
+            ) - keyCount
+        )
+    );
+}
+
+async function enrichMyVersionCulturalLensFromUI({
+    languageMode = 'all'
+} = {}) {
     if (
         !myVersionEditing ||
         myVersionSaving ||
@@ -9857,11 +10232,61 @@ async function enrichMyVersionCulturalLensFromUI() {
         return null;
     }
 
+    const mode =
+        ['off', 'key', 'all'].includes(
+            languageMode
+        )
+            ? languageMode
+            : 'all';
+
     const candidateIds =
         getMyVersionCulturalLensLanguageUpgradeCandidateIds();
 
-    if (!candidateIds.length) {
-        refreshMyVersionFullSubjectReadyNotice();
+    const remainingKeySlots =
+        Math.max(
+            0,
+            getMyVersionKeyLanguageLimit(
+                'cultural-lens'
+            ) -
+                getMyVersionCulturalLensKeyUpgradeCount()
+        );
+
+    const keySelectionTarget =
+        mode === 'off'
+            ? 0
+            : Math.min(
+                remainingKeySlots,
+                candidateIds.length
+            );
+
+    let selectedKeyIds = [];
+
+    if (keySelectionTarget > 0) {
+        selectedKeyIds =
+            await selectMyVersionKeyLanguageOpportunityIds(
+                'cultural-lens',
+                getMyVersionCulturalLensKeyLanguageCandidates(
+                    candidateIds
+                ),
+                keySelectionTarget
+            );
+    }
+
+    const selectedKeySet =
+        new Set(selectedKeyIds);
+
+    const idsToGenerate =
+        mode === 'off'
+            ? []
+            : mode === 'key'
+                ? selectedKeyIds
+                : candidateIds;
+
+    if (!idsToGenerate.length) {
+        refreshMyVersionFullSubjectReadyNotice(
+            false,
+            mode
+        );
         return [];
     }
 
@@ -9872,7 +10297,7 @@ async function enrichMyVersionCulturalLensFromUI() {
     myVersionEnrichingCulturalLens = true;
     myVersionCulturalLensEnrichmentProgress = {
         current: 0,
-        total: candidateIds.length
+        total: idsToGenerate.length
     };
 
     updateMyVersionAuthorBar();
@@ -9880,14 +10305,15 @@ async function enrichMyVersionCulturalLensFromUI() {
     try {
         for (
             let index = 0;
-            index < candidateIds.length;
+            index < idsToGenerate.length;
             index += 1
         ) {
-            const cardId = candidateIds[index];
+            const cardId =
+                idsToGenerate[index];
 
             myVersionCulturalLensEnrichmentProgress = {
                 current: index + 1,
-                total: candidateIds.length
+                total: idsToGenerate.length
             };
 
             updateMyVersionAuthorBar();
@@ -9898,7 +10324,15 @@ async function enrichMyVersionCulturalLensFromUI() {
                         generateMyVersionCulturalLensUpgrade(
                             cardId,
                             '',
-                            { reveal: false }
+                            {
+                                reveal: false,
+                                priority:
+                                    selectedKeySet.has(
+                                        cardId
+                                    )
+                                        ? 'key'
+                                        : 'standard'
+                            }
                         ),
                     `Cultural Lens language upgrade ${index + 1}`
                 );
@@ -9921,7 +10355,10 @@ async function enrichMyVersionCulturalLensFromUI() {
         myVersionCulturalLensEnrichmentProgress = null;
 
         if (myVersionEditing) {
-            refreshMyVersionFullSubjectReadyNotice();
+            refreshMyVersionFullSubjectReadyNotice(
+                false,
+                mode
+            );
             updateMyVersionAuthorBar();
         }
     }
@@ -14586,6 +15023,71 @@ function finishCompassWrapUp() {
 // UPGRADE VISIBILITY
 // ============================================================
 
+function getDiscussionLanguageCoverage() {
+    const momentIds =
+        discussionSets.flatMap(set =>
+            Array.isArray(set.moments)
+                ? set.moments
+                    .map(moment =>
+                        String(
+                            moment?.id || ''
+                        ).trim()
+                    )
+                    .filter(Boolean)
+                : []
+        );
+
+    const supported =
+        momentIds.filter(momentId =>
+            getEffectiveUpgradeSourceFromContextId(
+                `moment-${momentId}`
+            )?.upgrade
+        ).length;
+
+    return {
+        total:
+            momentIds.length,
+        supported
+    };
+}
+
+function getCulturalLensLanguageCoverage() {
+    const cardIds =
+        clCards
+            .map(card =>
+                String(
+                    card?.id || ''
+                ).trim()
+            )
+            .filter(Boolean);
+
+    const supported =
+        cardIds.filter(cardId =>
+            getEffectiveUpgradeSourceFromContextId(
+                `cl-${cardId}`
+            )?.upgrade
+        ).length;
+
+    return {
+        total:
+            cardIds.length,
+        supported
+    };
+}
+
+function hasFullLanguageCoverage(scope) {
+    const coverage =
+        scope === 'cultural-lens'
+            ? getCulturalLensLanguageCoverage()
+            : getDiscussionLanguageCoverage();
+
+    return (
+        coverage.total > 0 &&
+        coverage.supported ===
+            coverage.total
+    );
+}
+
 function getUpgradeVisibility() {
     const Bridge = requireAtlasBridge();
 
@@ -14596,8 +15098,18 @@ function getUpgradeVisibility() {
     return 'key';
 }
 
-function shouldShowInlineUpgrade(upgrade) {
+function shouldShowInlineUpgrade(
+    upgrade,
+    scope = ''
+) {
     if (!upgrade) return false;
+
+    if (
+        scope &&
+        !hasFullLanguageCoverage(scope)
+    ) {
+        return true;
+    }
 
     const mode = getUpgradeVisibility();
 
@@ -14697,13 +15209,37 @@ function renderUpgradeVisibilityControls() {
     );
 
     if (discussionMount) {
+        const showDiscussionControl =
+            hasFullLanguageCoverage(
+                'discussion'
+            );
+
+        discussionMount.hidden =
+            !showDiscussionControl;
+
         discussionMount.innerHTML =
-            buildUpgradeVisibilityControl('discussion');
+            showDiscussionControl
+                ? buildUpgradeVisibilityControl(
+                    'discussion'
+                )
+                : '';
     }
 
     if (culturalLensMount) {
+        const showCulturalLensControl =
+            hasFullLanguageCoverage(
+                'cultural-lens'
+            );
+
+        culturalLensMount.hidden =
+            !showCulturalLensControl;
+
         culturalLensMount.innerHTML =
-            buildUpgradeVisibilityControl('cultural-lens');
+            showCulturalLensControl
+                ? buildUpgradeVisibilityControl(
+                    'cultural-lens'
+                )
+                : '';
     }
 }
 
@@ -15872,7 +16408,19 @@ async function toggleSavedLanguage(contextId, event) {
 }
 
 function buildUpgradeChip(upgrade, contextId) {
-    if (!shouldShowInlineUpgrade(upgrade)) return '';
+    const scope =
+        String(contextId || '').startsWith('cl-')
+            ? 'cultural-lens'
+            : 'discussion';
+
+    if (
+        !shouldShowInlineUpgrade(
+            upgrade,
+            scope
+        )
+    ) {
+        return '';
+    }
 
     const saved = isUpgradeSaved(contextId);
 
@@ -16729,7 +17277,10 @@ function getCulturalLensFocusUpgrade() {
         return upgrade || null;
     }
 
-    return shouldShowInlineUpgrade(upgrade)
+    return shouldShowInlineUpgrade(
+        upgrade,
+        'cultural-lens'
+    )
         ? upgrade
         : null;
 }
@@ -17931,7 +18482,10 @@ function getDiscussionFocusUpgrade() {
         return upgrade || null;
     }
 
-    return shouldShowInlineUpgrade(upgrade)
+    return shouldShowInlineUpgrade(
+        upgrade,
+        'discussion'
+    )
         ? upgrade
         : null;
 }

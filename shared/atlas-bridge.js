@@ -1267,7 +1267,8 @@
     function createDefaultPreferences() {
         return {
             schemaVersion: 1,
-            upgradeVisibility: 'key'
+            upgradeVisibility: 'key',
+            subjectLanguageSupport: 'key'
         };
     }
 
@@ -1282,11 +1283,16 @@
             ? preferences.upgradeVisibility
             : fallback.upgradeVisibility;
 
+        const subjectLanguageSupport = ['off', 'key', 'all'].includes(preferences.subjectLanguageSupport)
+            ? preferences.subjectLanguageSupport
+            : fallback.subjectLanguageSupport;
+
         return {
             ...fallback,
             ...preferences,
             schemaVersion: 1,
-            upgradeVisibility
+            upgradeVisibility,
+            subjectLanguageSupport
         };
     }
 
@@ -1324,6 +1330,30 @@
         }));
 
         return upgradeVisibility;
+    }
+
+    function readSubjectLanguageSupport() {
+        return readPreferences().subjectLanguageSupport;
+    }
+
+    function setSubjectLanguageSupport(mode) {
+        const subjectLanguageSupport = ['off', 'key', 'all'].includes(mode)
+            ? mode
+            : 'key';
+
+        const preferences = writePreferences({
+            ...readPreferences(),
+            subjectLanguageSupport
+        });
+
+        window.dispatchEvent(new CustomEvent('atlas:preferences-change', {
+            detail: {
+                preferences,
+                subjectLanguageSupport
+            }
+        }));
+
+        return subjectLanguageSupport;
     }
 
     // ============================================================
@@ -1508,6 +1538,8 @@
         writePreferences,
         readUpgradeVisibility,
         setUpgradeVisibility,
+        readSubjectLanguageSupport,
+        setSubjectLanguageSupport,
 
         readAppearanceMode,
         applyAppearanceMode,

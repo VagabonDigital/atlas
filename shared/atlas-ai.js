@@ -1241,6 +1241,122 @@
         };
     }
 
+    async function selectKeyLanguageOpportunities(
+        input = {}
+    ) {
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const section =
+            candidate.section === 'cultural-lens'
+                ? 'cultural-lens'
+                : 'discussion';
+
+        const limit =
+            Math.max(
+                0,
+                Math.min(
+                    12,
+                    Math.floor(
+                        Number(candidate.limit) || 0
+                    )
+                )
+            );
+
+        const candidates =
+            Array.isArray(candidate.candidates)
+                ? candidate.candidates
+                    .filter(item =>
+                        item &&
+                        typeof item === 'object' &&
+                        !Array.isArray(item) &&
+                        cleanString(item.id)
+                    )
+                    .slice(0, 40)
+                : [];
+
+        if (!limit || !candidates.length) {
+            return [];
+        }
+
+        const response = await requestAtlasAI(
+            `${BASE_URL}/select-key-language-opportunities`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json'
+                },
+
+                body: JSON.stringify({
+                    section,
+                    limit,
+                    candidates,
+                    brief:
+                        cleanString(
+                            candidate.brief
+                        )
+                })
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+        }
+
+        const allowedIds =
+            new Set(
+                candidates.map(item =>
+                    cleanString(item.id)
+                )
+            );
+
+        const ids =
+            Array.isArray(result.payload?.ids)
+                ? result.payload.ids
+                    .map(cleanString)
+                    .filter(id =>
+                        id &&
+                        allowedIds.has(id)
+                    )
+                : [];
+
+        const uniqueIds =
+            Array.from(new Set(ids));
+
+        if (
+            uniqueIds.length !==
+            Math.min(
+                limit,
+                allowedIds.size
+            )
+        ) {
+            throw new Error(
+                'Atlas AI returned an invalid Key language selection.'
+            );
+        }
+
+        return uniqueIds;
+    }
+
     async function generateCulturalLensUpgrade(
         input = {}
     ) {
@@ -2468,6 +2584,9 @@
 
         generateReflection:
             withGenerationContext(generateReflection),
+
+        selectKeyLanguageOpportunities:
+            withGenerationContext(selectKeyLanguageOpportunities),
 
         generateMomentUpgrade:
             withGenerationContext(generateMomentUpgrade),
