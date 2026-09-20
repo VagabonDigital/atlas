@@ -8,6 +8,7 @@ const inside = fs.readFileSync('tutors/index.html', 'utf8');
 const privacy = fs.readFileSync('privacy/index.html', 'utf8');
 const terms = fs.readFileSync('terms/index.html', 'utf8');
 const css = fs.readFileSync('shared/atlas-legal.css', 'utf8');
+const appearance = fs.readFileSync('shared/atlas-legal-appearance.js', 'utf8');
 
 assert.match(
   atlas,
@@ -105,11 +106,27 @@ assert.match(
 
 assert.match(
   privacy,
-  /atlas-legal\.css\?v=20260920-legal1/
+  /atlas-legal\.css\?v=20260920-legal-theme1/
 );
 assert.match(
   terms,
-  /atlas-legal\.css\?v=20260920-legal1/
+  /atlas-legal\.css\?v=20260920-legal-theme1/
+);
+assert.match(
+  privacy,
+  /data-legal-appearance/
+);
+assert.match(
+  terms,
+  /data-legal-appearance/
+);
+assert.match(
+  privacy,
+  /atlas-legal-appearance\.js\?v=20260920-legal-theme1/
+);
+assert.match(
+  terms,
+  /atlas-legal-appearance\.js\?v=20260920-legal-theme1/
 );
 assert.match(
   css,
@@ -118,6 +135,22 @@ assert.match(
 assert.match(
   css,
   /\.legal-footer-links/
+);
+assert.match(
+  css,
+  /html\[data-theme="night"\]/
+);
+assert.match(
+  css,
+  /--theme-motion:\s*280ms cubic-bezier\(0\.4, 0, 0\.2, 1\)/
+);
+assert.match(
+  appearance,
+  /atlas::appearanceBySession/
+);
+assert.match(
+  appearance,
+  /TRANSITION_MS = 280/
 );
 
 console.log(
