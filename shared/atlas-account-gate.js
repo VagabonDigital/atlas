@@ -39,6 +39,7 @@
     let feedbackPromise = null;
     let googleIdentityPromise = null;
     let stylePromise = null;
+    let prewarmPromise = null;
     let activeReturnIntentId = null;
     let confirmationPendingIntentId = null;
     let confirmationPendingIntent = null;
@@ -829,7 +830,10 @@
         });
     }
 
-    async function renderGoogleProviderButton() {
+    async function renderGoogleProviderButton({
+        allowClosed = false,
+        silent = false
+    } = {}) {
         const provider =
             gateLayer?.querySelector(
                 '[data-account-provider]'
@@ -854,7 +858,7 @@
                 await ensureGoogleIdentity();
 
             if (
-                !state.gateOpen ||
+                (!allowClosed && !state.gateOpen) ||
                 provider.hidden
             ) {
                 return false;
@@ -890,16 +894,22 @@
             return true;
         } catch (error) {
             provider.dataset.googleReady = 'true';
-            setGateStatus(
-                humanizeError(error),
-                'error'
-            );
+
+            if (!silent) {
+                setGateStatus(
+                    humanizeError(error),
+                    'error'
+                );
+            }
+
             return false;
         }
     }
 
     function updateGoogleProviderVisibility({
-        render = false
+        render = false,
+        allowClosed = false,
+        silent = false
     } = {}) {
         const provider =
             gateLayer?.querySelector(
@@ -933,7 +943,75 @@
             return Promise.resolve(false);
         }
 
-        return renderGoogleProviderButton();
+        return renderGoogleProviderButton({
+            allowClosed,
+            silent
+        });
+    }
+
+    function prewarm() {
+        if (prewarmPromise) {
+            return prewarmPromise;
+        }
+
+        prewarmPromise = (async () => {
+            ensureGate();
+            await ensureStyles();
+            await prepareAccount();
+
+            const account =
+                window.AtlasAccount?.getState?.() ||
+                null;
+
+            if (account?.authenticated) {
+                return false;
+            }
+
+            const previousMode =
+                state.gateMode;
+
+            state.gateMode = 'sign-in';
+
+            const provider =
+                gateLayer?.querySelector(
+                    '[data-account-provider]'
+                );
+
+            if (!provider) {
+                state.gateMode = previousMode;
+                return false;
+            }
+
+            provider.hidden =
+                window.AtlasAccount
+                    ?.googleAuthEnabled?.() !== true;
+
+            if (provider.hidden) {
+                state.gateMode = previousMode;
+                return false;
+            }
+
+            const ready =
+                await updateGoogleProviderVisibility({
+                    render: true,
+                    allowClosed: true,
+                    silent: true
+                });
+
+            state.gateMode =
+                previousMode;
+
+            return ready;
+        })().catch(error => {
+            prewarmPromise = null;
+            console.error(
+                '[AtlasAccountGate] prewarm failed:',
+                error
+            );
+            return false;
+        });
+
+        return prewarmPromise;
     }
 
     function setGateMode(mode) {
@@ -1101,9 +1179,12 @@
         rememberTrigger(trigger);
 
         /*
-         * Build the gate while hidden so first paint is already final:
-         * styles loaded, account mode resolved, and Google button settled.
+         * Cold-start work is normally completed before the tutor clicks.
+         * If the click wins the race, await the same prewarm here so the
+         * first visible frame is still the settled frame.
          */
+        await prewarm();
+
         gateLayer.hidden = true;
         state.gateOpen = true;
         setGateMode(mode);
@@ -1605,6 +1686,7 @@
         openAccountMenu,
         close,
         closeAccountMenu,
+        prewarm,
         getState: snapshot
     });
 })();
