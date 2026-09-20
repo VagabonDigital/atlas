@@ -2988,14 +2988,14 @@
       z-index: 20;
       top: 1.65rem;
       right: 0;
-      width: min(230px, calc(100vw - 2rem));
-      padding: 0.72rem 0.78rem;
+      width: min(260px, calc(100vw - 2rem));
+      padding: 0.78rem 0.82rem;
       border: 1px solid var(--border-subtle);
       border-radius: 10px;
       background: var(--surface-panel);
       color: var(--text-body);
       box-shadow: var(--shadow-md);
-      font-size: 0.72rem;
+      font-size: 0.73rem;
       font-weight: 400;
       line-height: 1.45;
     }
@@ -3014,7 +3014,13 @@
     }
 
     .owned-subject-dialog-info-popover p + p {
-      margin-top: 0.38rem;
+      margin-top: 0.42rem;
+    }
+
+    .owned-subject-dialog-info-popover-intro {
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-muted);
     }
 
     .owned-subject-dialog-create-field select,
@@ -7368,18 +7374,19 @@
         '</label>' +
 
         '<div class="owned-subject-dialog-create-field">' +
-        '<span class="owned-subject-dialog-create-label" id="owned-subject-dialog-language-label">Language ' +
-        '<button class="owned-subject-dialog-info" type="button" aria-label="About language support" aria-expanded="false" aria-controls="owned-subject-dialog-language-help" onclick="toggleOwnedSubjectDialogLanguageHelp(this, event)">i</button>' +
+        '<span class="owned-subject-dialog-create-label" id="owned-subject-dialog-language-label">Language upgrades ' +
+        '<button class="owned-subject-dialog-info" type="button" aria-label="About language upgrades" aria-expanded="false" aria-controls="owned-subject-dialog-language-help" onclick="toggleOwnedSubjectDialogLanguageHelp(this, event)">i</button>' +
         '</span>' +
         '<div class="owned-subject-dialog-info-popover" id="owned-subject-dialog-language-help" role="tooltip" hidden>' +
-        '<p><strong>Key</strong> — selected high-value language only.</p>' +
-        '<p><strong>All</strong> — language support throughout the subject.</p>' +
-        '<p><strong>None</strong> — no built-in language support.</p>' +
+        '<p class="owned-subject-dialog-info-popover-intro">Choose how much language support Atlas generates with this subject.</p>' +
+        '<p><strong>Off</strong> — no language upgrades.</p>' +
+        '<p><strong>Key</strong> — selected high-value upgrades.</p>' +
+        '<p><strong>All</strong> — upgrades throughout the subject.</p>' +
         '</div>' +
         '<select id="owned-subject-dialog-language-support" aria-labelledby="owned-subject-dialog-language-label">' +
+        '<option value="off">Off</option>' +
         '<option value="key" selected>Key</option>' +
         '<option value="all">All</option>' +
-        '<option value="off">None</option>' +
         '</select>' +
         '</div>' +
 
