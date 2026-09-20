@@ -1924,13 +1924,14 @@
     }
 
     .footer {
-      padding: 32px 0 44px;
       border-top: 1px solid var(--border-faint);
       color: var(--text-muted);
     }
 
     .footer-inner {
+      min-height: 82px;
       display: flex;
+      align-items: center;
       justify-content: space-between;
       gap: 20px;
       flex-wrap: wrap;
@@ -1947,6 +1948,12 @@
     .footer-links a {
       color: var(--text-muted);
       text-decoration: none;
+    }
+
+    .footer-links a:hover,
+    .footer-links a:focus-visible {
+      color: var(--text-heading);
+      font-weight: 700;
     }
 
     @media (max-width: 940px) {
