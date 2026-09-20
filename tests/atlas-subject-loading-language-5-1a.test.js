@@ -19,6 +19,11 @@ const account = fs.readFileSync(
   'utf8'
 );
 
+const transitionCss = fs.readFileSync(
+  'shared/atlas-transition-state.css',
+  'utf8'
+);
+
 assert.ok(
   subjectPage.includes(
     ".get('author') === 'generate'"
@@ -75,21 +80,31 @@ assert.ok(
 ].forEach(source => {
   assert.ok(
     source.includes(
-      '--atlas-transition-canvas: #f5f1e9;'
-    )
-  );
-
-  assert.ok(
-    source.includes(
-      '--atlas-transition-canvas: #221f1b;'
+      '/shared/atlas-transition-state.css?v=20260920-transition1'
     )
   );
 });
 
 assert.ok(
-  subjectPage.includes(
-    'background: var(--atlas-transition-canvas);'
+  transitionCss.includes(
+    '--atlas-transition-canvas: #f5f1e9;'
   )
+);
+
+assert.ok(
+  transitionCss.includes(
+    '--atlas-transition-canvas: #221f1b;'
+  )
+);
+
+assert.match(
+  transitionCss,
+  /html\[data-atlas-resume-transition\][\s\S]*?html\[data-atlas-return-handoff="true"\][\s\S]*?html\[data-atlas-subject-build-handoff="true"\][\s\S]*?background-color:\s*var\(--atlas-transition-canvas\)\s*!important;/
+);
+
+assert.match(
+  transitionCss,
+  /\.atlas-resume-handoff,[\s\S]*?\.account-return-handoff,[\s\S]*?#compass-subject-load-status[\s\S]*?background:\s*var\(--atlas-transition-canvas\)\s*!important;/
 );
 
 console.log(
