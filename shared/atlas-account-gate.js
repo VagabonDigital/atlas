@@ -21,11 +21,13 @@
     if (window.AtlasAccountGate) return;
 
     const STYLE_HREF =
-        '/shared/atlas-account-gate.css?v=20260920-googleauth1';
+        '/shared/atlas-account-gate.css?v=20260920-googleid1';
     const RETURN_INTENT_SRC =
         '/shared/atlas-return-intent.js?v=20260916-returnintent1';
     const FEEDBACK_SRC =
         '/shared/atlas-feedback.js?v=20260918-publicentry1';
+    const GOOGLE_IDENTITY_SRC =
+        '/shared/atlas-google-identity.js?v=20260920-googleid1';
 
     let gateLayer = null;
     let accountMenu = null;
@@ -35,6 +37,7 @@
     let busy = false;
     let returnIntentPromise = null;
     let feedbackPromise = null;
+    let googleIdentityPromise = null;
     let activeReturnIntentId = null;
     let confirmationPendingIntentId = null;
     let confirmationPendingIntent = null;
@@ -286,6 +289,85 @@
         return prepared;
     }
 
+    function ensureGoogleIdentity() {
+        if (window.AtlasGoogleIdentity) {
+            return Promise.resolve(
+                window.AtlasGoogleIdentity
+            );
+        }
+
+        if (googleIdentityPromise) {
+            return googleIdentityPromise;
+        }
+
+        googleIdentityPromise =
+            new Promise((resolve, reject) => {
+                const existing =
+                    existingScriptFor(
+                        GOOGLE_IDENTITY_SRC
+                    );
+
+                function complete() {
+                    if (window.AtlasGoogleIdentity) {
+                        resolve(
+                            window.AtlasGoogleIdentity
+                        );
+                    } else {
+                        googleIdentityPromise = null;
+                        reject(new Error(
+                            'Atlas Google sign-in did not initialize.'
+                        ));
+                    }
+                }
+
+                function fail() {
+                    googleIdentityPromise = null;
+                    reject(new Error(
+                        'Atlas could not load Google sign-in.'
+                    ));
+                }
+
+                if (existing) {
+                    existing.addEventListener(
+                        'load',
+                        complete,
+                        { once: true }
+                    );
+                    existing.addEventListener(
+                        'error',
+                        fail,
+                        { once: true }
+                    );
+                    return;
+                }
+
+                const script =
+                    document.createElement(
+                        'script'
+                    );
+
+                script.src =
+                    GOOGLE_IDENTITY_SRC;
+                script.async = false;
+                script.addEventListener(
+                    'load',
+                    complete,
+                    { once: true }
+                );
+                script.addEventListener(
+                    'error',
+                    fail,
+                    { once: true }
+                );
+
+                document.head.appendChild(
+                    script
+                );
+            });
+
+        return googleIdentityPromise;
+    }
+
     function ensureFeedback() {
         if (window.AtlasFeedback) {
             return Promise.resolve(
@@ -501,10 +583,7 @@
                     <p class="atlas-account-gate-status" data-account-status role="status" aria-live="polite" hidden></p>
 
                     <div class="atlas-account-gate-provider" data-account-provider hidden>
-                        <button class="atlas-account-google" type="button" data-account-google>
-                            <span class="atlas-account-google-mark" aria-hidden="true">G</span>
-                            <span data-account-google-label>Continue with Google</span>
-                        </button>
+                        <div class="atlas-account-google-host" data-account-google></div>
                         <div class="atlas-account-gate-divider" aria-hidden="true">
                             <span>or</span>
                         </div>
@@ -567,9 +646,6 @@
                     setGateMode(button.dataset.accountMode);
                 });
             });
-
-        gateLayer.querySelector('[data-account-google]')
-            ?.addEventListener('click', handleGoogleSignIn);
 
         gateLayer.querySelector('[data-account-forgot]')
             ?.addEventListener('click', () => setGateMode('forgot'));
@@ -705,6 +781,68 @@
         });
     }
 
+    async function renderGoogleProviderButton() {
+        const provider =
+            gateLayer?.querySelector(
+                '[data-account-provider]'
+            );
+        const host =
+            gateLayer?.querySelector(
+                '[data-account-google]'
+            );
+
+        if (
+            !provider ||
+            provider.hidden ||
+            !host
+        ) {
+            return;
+        }
+
+        try {
+            const GoogleIdentity =
+                await ensureGoogleIdentity();
+
+            if (
+                !state.gateOpen ||
+                provider.hidden
+            ) {
+                return;
+            }
+
+            await GoogleIdentity.renderButton(
+                host,
+                {
+                    text: 'continue_with',
+                    onClick: () => {
+                        setGateStatus('');
+                    },
+                    onCredential:
+                        handleGoogleCredential,
+                    onError: error => {
+                        window.AtlasAnalytics
+                            ?.authFailure({
+                                action:
+                                    'google_id_token',
+                                error
+                            });
+
+                        setBusy(false);
+                        setGateStatus(
+                            humanizeError(error),
+                            'error'
+                        );
+                    }
+                }
+            );
+        } catch (error) {
+            setGateStatus(
+                humanizeError(error),
+                'error'
+            );
+        }
+    }
+
     function updateGoogleProviderVisibility() {
         const provider =
             gateLayer?.querySelector(
@@ -721,6 +859,10 @@
             !isAuthMode ||
             window.AtlasAccount
                 ?.googleAuthEnabled?.() !== true;
+
+        if (!provider.hidden) {
+            void renderGoogleProviderButton();
+        }
     }
 
     function setGateMode(mode) {
@@ -1023,37 +1165,29 @@
         return returnIntent;
     }
 
-    async function handleGoogleSignIn(event) {
-        event.preventDefault();
+    async function handleGoogleCredential(
+        credential
+    ) {
         if (busy) return;
 
-        const button = event.currentTarget;
-        const label =
-            button?.querySelector(
-                '[data-account-google-label]'
-            );
-
-        setGateStatus('');
+        setGateStatus(
+            'Signing in with Google…'
+        );
         setBusy(true);
         localAuthenticationInProgress = true;
-
-        if (label) {
-            label.textContent = 'Opening Google…';
-        }
 
         try {
             await prepareAccount();
 
             await window.AtlasAccount
-                .signInWithGoogle({
-                    returnIntentId:
-                        activeReturnIntentId,
-                    redirectTo:
-                        window.location.href
-                });
+                .signInWithGoogleIdToken(
+                    credential
+                );
+
+            await completeAuthenticatedFlow();
         } catch (error) {
             window.AtlasAnalytics?.authFailure({
-                action: 'google_oauth',
+                action: 'google_id_token',
                 error
             });
 
@@ -1062,11 +1196,6 @@
                 humanizeError(error),
                 'error'
             );
-
-            if (label) {
-                label.textContent =
-                    'Continue with Google';
-            }
         } finally {
             localAuthenticationInProgress = false;
         }
