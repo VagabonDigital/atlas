@@ -52,17 +52,17 @@ assert.ok(
 );
 assert.ok(
   page.includes(
-    'atlas-account.js?v=20260920-googleauth1'
+    'atlas-account.js?v=20260920-googleid1'
   )
 );
 assert.ok(
   account.includes(
-    'atlas-account-cloud.js?v=20260920-googleauth1'
+    'atlas-account-cloud.js?v=20260920-googleid1'
   )
 );
 assert.ok(
   bootstrap.includes(
-    'atlas-account.js?v=20260920-googleauth1'
+    'atlas-account.js?v=20260920-googleid1'
   )
 );
 
