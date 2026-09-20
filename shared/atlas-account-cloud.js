@@ -111,6 +111,31 @@
         return data;
     }
 
+    async function signInWithGoogleIdToken(idToken) {
+        requireAtlasCloud();
+
+        const token =
+            String(idToken || '').trim();
+
+        if (!token) {
+            throw new Error(
+                'Google did not return a sign-in credential.'
+            );
+        }
+
+        const client =
+            await AtlasCloud.getClient();
+
+        const { data, error } =
+            await client.auth.signInWithIdToken({
+                provider: 'google',
+                token
+            });
+
+        if (error) throw error;
+        return data;
+    }
+
     async function requestPasswordReset(email, redirectTo) {
         requireAtlasCloud();
         const client = await AtlasCloud.getClient();
@@ -365,6 +390,7 @@
     window.AtlasAccountCloud = Object.freeze({
         signUpWithPassword,
         signInWithGoogle,
+        signInWithGoogleIdToken,
         requestPasswordReset,
         updateEmailWithCurrentCredentials,
         updatePassword,
