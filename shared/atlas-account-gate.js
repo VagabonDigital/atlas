@@ -66,6 +66,30 @@
         }
     }
 
+    function waitForAccountFonts() {
+        if (
+            !document.fonts ||
+            typeof document.fonts.load !== 'function'
+        ) {
+            return Promise.resolve();
+        }
+
+        return Promise.all([
+            document.fonts.load(
+                '400 32px "DM Serif Display"'
+            ),
+            document.fonts.load(
+                '400 16px "DM Sans"'
+            ),
+            document.fonts.load(
+                '600 14px "DM Sans"'
+            )
+        ]).then(
+            () => undefined,
+            () => undefined
+        );
+    }
+
     function ensureStyles() {
         if (stylePromise) return stylePromise;
 
@@ -957,6 +981,7 @@
         prewarmPromise = (async () => {
             ensureGate();
             await ensureStyles();
+            await waitForAccountFonts();
             await prepareAccount();
 
             const account =
@@ -1093,12 +1118,20 @@
             });
         }
 
-        window.setTimeout(() => {
-            const target = gateLayer?.querySelector(
-                `[data-account-form="${nextMode}"] input`
-            );
-            focusWithoutScroll(target);
-        }, 0);
+        if (
+            state.gateOpen &&
+            !gateLayer.classList.contains(
+                'is-prewarming'
+            )
+        ) {
+            window.setTimeout(() => {
+                const target =
+                    gateLayer?.querySelector(
+                        `[data-account-form="${nextMode}"] input`
+                    );
+                focusWithoutScroll(target);
+            }, 0);
+        }
     }
 
     function showMessage(title, copy, kind = 'success') {
@@ -1242,14 +1275,6 @@
             document.body.classList.add(
                 'atlas-account-gate-open'
             );
-
-            requestAnimationFrame(() => {
-                const target =
-                    gateLayer?.querySelector(
-                        `[data-account-form="${state.gateMode}"] input`
-                    );
-                focusWithoutScroll(target);
-            });
 
             window.AtlasAnalytics?.accountGate({
                 mode,
