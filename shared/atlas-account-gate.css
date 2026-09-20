@@ -203,6 +203,10 @@ body:has(.atlas-account-gate-layer:not([hidden])),
     margin: 0 0 18px;
 }
 
+.atlas-account-gate-provider[data-google-ready="false"] {
+    visibility: hidden;
+}
+
 .atlas-account-google-host {
     width: 100%;
     min-height: 44px;
@@ -494,12 +498,24 @@ body:has(.atlas-account-gate-layer:not([hidden])),
 }
 
 @media (prefers-reduced-motion: no-preference) {
-    .atlas-account-gate-card,
-    .atlas-account-menu {
-        animation: atlas-account-enter 160ms ease-out both;
+    .atlas-account-gate-card {
+        animation: atlas-account-gate-enter 120ms ease-out both;
     }
 
-    @keyframes atlas-account-enter {
+    .atlas-account-menu {
+        animation: atlas-account-menu-enter 160ms ease-out both;
+    }
+
+    @keyframes atlas-account-gate-enter {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes atlas-account-menu-enter {
         from {
             opacity: 0;
             transform: translateY(5px) scale(0.99);
