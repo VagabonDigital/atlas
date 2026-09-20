@@ -21,7 +21,8 @@
   --control-icon: var(--soft);
   --control-text-hover: var(--heading);
   --theme-motion: 280ms cubic-bezier(0.4, 0, 0.2, 1);
-  --theme-heading-motion: 280ms cubic-bezier(0.4, 0.48, 0.2, 1);
+  --theme-heading-motion: 280ms cubic-bezier(0.4, 0.12, 0.2, 1);
+  --theme-secondary-motion: 280ms cubic-bezier(0.4, 0.08, 0.2, 1);
   --frame: 860px;
   --serif: "DM Serif Display", Georgia, "Times New Roman", serif;
   --sans: "DM Sans", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -405,9 +406,8 @@ html.theme-changing .brand span {
 }
 
 /*
- * Heading colors travel much farther between the day/night palettes than
- * ordinary copy. Keep the same 280ms endpoint, but front-load their color
- * interpolation so the larger visual delta settles with the rest of the page.
+ * Large heading-color changes get only a gentle perceptual correction.
+ * The endpoint remains the same 280ms as the rest of the page.
  */
 html.theme-changing h1,
 html.theme-changing h2,
@@ -418,6 +418,22 @@ html.theme-changing .legal-footer-links a[aria-current="page"] {
     background-color var(--theme-motion),
     background var(--theme-motion),
     color var(--theme-heading-motion),
+    border-color var(--theme-motion),
+    outline-color var(--theme-motion),
+    box-shadow var(--theme-motion);
+}
+
+/*
+ * The kicker/accent and faint metadata have smaller palette shifts that can
+ * visually linger at the tail. Nudge them forward very slightly while keeping
+ * the same 280ms endpoint.
+ */
+html.theme-changing .legal-kicker,
+html.theme-changing .legal-meta {
+  transition:
+    background-color var(--theme-motion),
+    background var(--theme-motion),
+    color var(--theme-secondary-motion),
     border-color var(--theme-motion),
     outline-color var(--theme-motion),
     box-shadow var(--theme-motion);
