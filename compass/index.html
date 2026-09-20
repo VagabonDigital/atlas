@@ -7047,13 +7047,46 @@
         document.documentElement.clientHeight;
       const viewportPadding = 12;
       const menuGap = 8;
+
+      const visibleHeaderBottom =
+        ['.spine', '.mobile-header']
+          .map(selector =>
+            document.querySelector(selector)
+          )
+          .filter(header => {
+            if (!header) return false;
+
+            const style =
+              window.getComputedStyle(header);
+
+            return (
+              style.display !== 'none' &&
+              style.visibility !== 'hidden'
+            );
+          })
+          .reduce(
+            (bottom, header) =>
+              Math.max(
+                bottom,
+                header.getBoundingClientRect().bottom
+              ),
+            0
+          );
+
+      const usableViewportTop =
+        Math.max(
+          viewportPadding,
+          visibleHeaderBottom +
+          viewportPadding
+        );
+
       const spaceBelow =
         viewportHeight -
         buttonRect.bottom -
         viewportPadding;
       const spaceAbove =
         buttonRect.top -
-        viewportPadding;
+        usableViewportTop;
       const openAbove =
         menuRect.height > spaceBelow &&
         spaceAbove > spaceBelow;
