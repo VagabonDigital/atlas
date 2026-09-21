@@ -1017,26 +1017,39 @@ function installSubjectAuthoringAIGuard() {
     subjectAuthoringAIGuardInstalled = true;
 }
 
-function consumeOwnedSubjectAuthoringIntent() {
+function getOwnedSubjectAuthoringIntent() {
     if (!isOwnedSubjectRuntime()) {
         return '';
     }
 
     try {
-        const url = new URL(window.location.href);
         const intent =
-            url.searchParams.get('author');
+            new URL(window.location.href)
+                .searchParams
+                .get('author');
 
-        if (
-            ![
-                'create',
-                'edit',
-                'generate'
-            ].includes(intent)
-        ) {
-            return '';
-        }
+        return [
+            'create',
+            'edit',
+            'generate'
+        ].includes(intent)
+            ? intent
+            : '';
+    } catch {
+        return '';
+    }
+}
 
+function consumeOwnedSubjectAuthoringIntent() {
+    const intent =
+        getOwnedSubjectAuthoringIntent();
+
+    if (!intent) {
+        return '';
+    }
+
+    try {
+        const url = new URL(window.location.href);
         url.searchParams.delete('author');
 
         try {
@@ -22866,18 +22879,23 @@ async function init() {
     loadSessions();
     loadProgress();
 
-    const ownedSubjectAuthoringIntent =
-        consumeOwnedSubjectAuthoringIntent();
+    const pendingOwnedSubjectAuthoringIntent =
+        getOwnedSubjectAuthoringIntent();
 
     const freshOwnedSubjectBuild =
         isOwnedSubjectRuntime() &&
-        ownedSubjectAuthoringIntent === 'generate';
+        pendingOwnedSubjectAuthoringIntent ===
+            'generate';
 
     if (freshOwnedSubjectBuild) {
         const runtimeLayersReady =
             await waitForOwnedSubjectRuntimeLayersReady();
 
         if (!runtimeLayersReady) {
+            /*
+             * Keep ?author=generate intact. The loader owns the visible
+             * failure state, and Retry must still know this is a fresh build.
+             */
             return;
         }
 
@@ -22894,6 +22912,9 @@ async function init() {
     } else {
         await loadTutorContentState();
     }
+
+    const ownedSubjectAuthoringIntent =
+        consumeOwnedSubjectAuthoringIntent();
 
     window.AtlasAnalytics?.resourceOpen({
         resourceType: 'subject',
