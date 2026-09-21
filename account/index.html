@@ -688,9 +688,6 @@
     }
 
     .subscription-actions {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
       margin-top: 16px;
     }
 
@@ -698,20 +695,6 @@
       min-height: 42px;
       margin: 0;
       font-size: .86rem;
-    }
-
-    .subscription-actions .billing-danger {
-      color: var(--danger);
-    }
-
-    .subscription-actions #billing-keep:not([hidden]) {
-      grid-column: 1 / -1;
-    }
-
-    @media (max-width: 430px) {
-      .subscription-actions {
-        grid-template-columns: 1fr;
-      }
     }
 
     .account-management {
@@ -1028,17 +1011,8 @@
           <p id="subscription-period" class="subscription-period"></p>
 
           <div class="subscription-actions">
-            <button id="billing-payment-method" class="button secondary" type="button">
-              Update payment method
-            </button>
-            <button id="billing-history" class="button secondary" type="button">
-              Billing history
-            </button>
-            <button id="billing-keep" class="button primary" type="button" hidden>
-              Keep subscription
-            </button>
-            <button id="billing-cancel" class="button secondary billing-danger" type="button" hidden>
-              Cancel subscription
+            <button id="manage-subscription" class="button secondary" type="button">
+              Manage subscription
             </button>
           </div>
         </section>
@@ -1178,14 +1152,8 @@
       document.getElementById('subscription-copy');
     const SubscriptionPeriod =
       document.getElementById('subscription-period');
-    const BillingPaymentMethod =
-      document.getElementById('billing-payment-method');
-    const BillingHistory =
-      document.getElementById('billing-history');
-    const BillingKeep =
-      document.getElementById('billing-keep');
-    const BillingCancel =
-      document.getElementById('billing-cancel');
+    const ManageSubscriptionButton =
+      document.getElementById('manage-subscription');
     const AccountSignInMethod =
       document.getElementById('account-sign-in-method');
     const AccountManagement =
@@ -1713,21 +1681,12 @@
       SubscriptionPeriod.hidden =
         !SubscriptionPeriod.textContent;
 
-      BillingKeep.hidden =
-        !scheduledCancel;
-
-      BillingCancel.hidden =
-        status !== 'active' ||
-        scheduledCancel;
-
-      BillingPaymentMethod.hidden =
-        status === 'canceled';
-
       SubscriptionCard.hidden = false;
     }
 
     async function refreshBillingManagement(
-      state
+      state,
+      { force = false } = {}
     ) {
       const userId =
         state?.authenticated
@@ -1747,7 +1706,10 @@
         return;
       }
 
-      if (billingManagementUserId === userId) {
+      if (
+        !force &&
+        billingManagementUserId === userId
+      ) {
         return;
       }
 
@@ -1899,6 +1861,30 @@
     }
 
     AtlasAccount.subscribe(render);
+
+    window.addEventListener(
+      'pageshow',
+      event => {
+        if (!event.persisted) return;
+
+        const state =
+          AtlasAccount.getState();
+
+        if (
+          !state?.ready ||
+          !state.authenticated
+        ) {
+          return;
+        }
+
+        billingManagementUserId = '';
+
+        void refreshBillingManagement(
+          state,
+          { force: true }
+        );
+      }
+    );
 
     (async () => {
       try {
@@ -2413,47 +2399,14 @@
       }
     }
 
-    BillingPaymentMethod
-      ?.addEventListener(
-        'click',
-        () => openBillingAction(
-          'update_payment_method',
-          BillingPaymentMethod,
-          'Opening…',
-          'Update payment method'
-        )
-      );
-
-    BillingHistory
+    ManageSubscriptionButton
       ?.addEventListener(
         'click',
         () => openBillingAction(
           'overview',
-          BillingHistory,
+          ManageSubscriptionButton,
           'Opening…',
-          'Billing history'
-        )
-      );
-
-    BillingKeep
-      ?.addEventListener(
-        'click',
-        () => openBillingAction(
-          'keep_subscription',
-          BillingKeep,
-          'Opening…',
-          'Keep subscription'
-        )
-      );
-
-    BillingCancel
-      ?.addEventListener(
-        'click',
-        () => openBillingAction(
-          'cancel_subscription',
-          BillingCancel,
-          'Opening…',
-          'Cancel subscription'
+          'Manage subscription'
         )
       );
 
