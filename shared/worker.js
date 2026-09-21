@@ -350,19 +350,53 @@ async function createAtlasPaddlePortalSession(
         );
     }
 
-    const portalUrl =
+    const overviewUrl =
         String(
             payload?.data?.urls?.general?.overview ||
             ''
         ).trim();
 
-    if (!isTrustedPaddlePortalUrl(portalUrl)) {
+    const subscriptionUrls =
+        Array.isArray(
+            payload?.data?.urls?.subscriptions
+        )
+            ? payload.data.urls.subscriptions
+                .find(item =>
+                    String(item?.id || '') ===
+                    subscriptionId
+                )
+            : null;
+
+    const cancelUrl =
+        String(
+            subscriptionUrls?.cancel_subscription ||
+            ''
+        ).trim();
+
+    const updatePaymentMethodUrl =
+        String(
+            subscriptionUrls
+                ?.update_subscription_payment_method ||
+            ''
+        ).trim();
+
+    if (
+        !isTrustedPaddlePortalUrl(overviewUrl) ||
+        !isTrustedPaddlePortalUrl(cancelUrl) ||
+        !isTrustedPaddlePortalUrl(
+            updatePaymentMethodUrl
+        )
+    ) {
         throw new Error(
-            'Paddle returned an invalid customer portal URL.'
+            'Paddle returned invalid customer portal links.'
         );
     }
 
-    return portalUrl;
+    return {
+        overviewUrl,
+        cancelUrl,
+        updatePaymentMethodUrl
+    };
 }
 
 function constantTimeEqualText(left, right) {
@@ -941,11 +975,33 @@ export default {
                 return jsonNoStore({
                     ok: true,
                     available,
-                    status:
+                    billing:
                         available
-                            ? String(
-                                context?.status || ''
-                            )
+                            ? {
+                                status:
+                                    String(
+                                        context?.status ||
+                                        ''
+                                    ),
+                                currentPeriodStart:
+                                    context
+                                        ?.currentPeriodStart ||
+                                    null,
+                                currentPeriodEnd:
+                                    context
+                                        ?.currentPeriodEnd ||
+                                    null,
+                                scheduledAction:
+                                    String(
+                                        context
+                                            ?.scheduledAction ||
+                                        ''
+                                    ) || null,
+                                scheduledEffectiveAt:
+                                    context
+                                        ?.scheduledEffectiveAt ||
+                                    null
+                            }
                             : null
                 });
             }
@@ -977,8 +1033,78 @@ export default {
                 );
             }
 
+            let body = null;
+
             try {
-                const portalUrl =
+                body =
+                    await request.json();
+            } catch {
+                body = {};
+            }
+
+            const action =
+                String(
+                    body?.action || 'overview'
+                )
+                    .trim()
+                    .toLowerCase();
+
+            const supportedActions =
+                new Set([
+                    'overview',
+                    'update_payment_method',
+                    'cancel_subscription',
+                    'keep_subscription'
+                ]);
+
+            if (!supportedActions.has(action)) {
+                return jsonNoStore(
+                    {
+                        ok: false,
+                        error:
+                            'Unsupported Atlas billing action.'
+                    },
+                    400
+                );
+            }
+
+            const scheduledAction =
+                String(
+                    context?.scheduledAction || ''
+                ).trim();
+
+            if (
+                action ===
+                    'cancel_subscription' &&
+                scheduledAction === 'cancel'
+            ) {
+                return jsonNoStore(
+                    {
+                        ok: false,
+                        error:
+                            'This Atlas Pro subscription is already scheduled to cancel.'
+                    },
+                    409
+                );
+            }
+
+            if (
+                action ===
+                    'keep_subscription' &&
+                scheduledAction !== 'cancel'
+            ) {
+                return jsonNoStore(
+                    {
+                        ok: false,
+                        error:
+                            'This Atlas Pro subscription is not scheduled to cancel.'
+                    },
+                    409
+                );
+            }
+
+            try {
+                const portalUrls =
                     await createAtlasPaddlePortalSession(
                         env,
                         paddleEnvironment,
@@ -992,8 +1118,19 @@ export default {
                         )
                     );
 
+                const portalUrl =
+                    action ===
+                        'update_payment_method'
+                        ? portalUrls
+                            .updatePaymentMethodUrl
+                        : action ===
+                            'cancel_subscription'
+                            ? portalUrls.cancelUrl
+                            : portalUrls.overviewUrl;
+
                 return jsonNoStore({
                     ok: true,
+                    action,
                     url: portalUrl
                 });
             } catch (error) {
