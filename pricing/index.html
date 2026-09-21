@@ -7,6 +7,8 @@
   <meta name="description" content="Start with a real Atlas teaching workspace for free. Atlas Pro expands fresh AI-assisted subject creation to 100 subjects each month.">
   <meta name="color-scheme" content="light dark">
   <link rel="canonical" href="https://atlasfortutors.com/pricing/">
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+  <script src="/shared/atlas-paddle-config.js?v=20260921-sandbox1"></script>
   <link rel="icon" type="image/svg+xml" href="/shared/atlas-favicon.svg?v=20260920-legal1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -575,8 +577,8 @@
             <h3 class="plan-title" id="pro-title">More room to create.</h3>
             <p class="plan-sub">For tutors who want the freedom to create around the learner in front of them — whenever the lesson calls for something more specific.</p>
             <div class="price-line">
-              <span class="price">$12</span>
-              <span class="price-note">USD / month</span>
+              <span class="price" data-paddle-pro-price>$12</span>
+              <span class="price-note" data-paddle-pro-price-note>USD / month</span>
             </div>
             <div class="capacity">
               <strong>100 fresh AI-built subjects each month</strong>
@@ -592,8 +594,9 @@
               <li>Your saved work remains yours if you cancel</li>
             </ul>
             <div class="plan-action">
-              <a class="button button-primary" href="/?entry=product&amp;plan=pro" data-atlas-plan="pro">Choose Pro</a>
+              <button class="button button-primary" type="button" data-atlas-plan="pro">Choose Pro</button>
               <p class="plan-foot">Monthly subscription. Cancel anytime; access continues through the paid period.</p>
+              <p class="plan-foot" data-paddle-status aria-live="polite"></p>
             </div>
           </article>
         </div>
@@ -715,6 +718,103 @@
   <script src="/shared/atlas-legal-appearance.js?v=20260920-legal-theme1"></script>
   <script src="/shared/atlas-access-bootstrap.js?v=20260921-insideheader1"></script>
   <script src="/shared/atlas-account-chrome.js?v=20260921-insideheader1"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var button = document.querySelector('[data-atlas-plan="pro"]');
+      var status = document.querySelector('[data-paddle-status]');
+      var config = window.AtlasPaddleConfig;
+      var paddleReady = false;
+
+      function setStatus(message) {
+        if (status) status.textContent = message || '';
+      }
+
+      function initPaddle() {
+        if (paddleReady) return true;
+        if (!window.Paddle || !config) return false;
+
+        Paddle.Environment.set('sandbox');
+        Paddle.Initialize({ token: config.clientToken });
+        paddleReady = true;
+        return true;
+      }
+
+      async function localizePrice() {
+        try {
+          if (!initPaddle()) return;
+          var result = await Paddle.PricePreview({
+            items: [{ priceId: config.prices.proMonthly, quantity: 1 }]
+          });
+          var item = result && result.data && result.data.details &&
+            result.data.details.lineItems && result.data.details.lineItems[0];
+          var formatted = item && item.formattedTotals && item.formattedTotals.subtotal;
+          if (!formatted) return;
+
+          var amount = document.querySelector('[data-paddle-pro-price]');
+          var note = document.querySelector('[data-paddle-pro-price-note]');
+          if (amount) amount.textContent = formatted;
+          if (note) note.textContent = '/ month';
+        } catch (error) {
+          console.warn('[AtlasPricing] Paddle price preview unavailable', error);
+        }
+      }
+
+      async function openCheckout() {
+        try {
+          await window.AtlasAccessBootstrap.initialize();
+        } catch (error) {
+          console.error('[AtlasPricing] Atlas account bootstrap failed', error);
+        }
+
+        var account = window.AtlasAccount && window.AtlasAccount.getState
+          ? window.AtlasAccount.getState()
+          : null;
+
+        if (!account || !account.authenticated || !account.userId) {
+          setStatus('Sign in or create a free Atlas account before choosing Pro.');
+          var create = document.querySelector('[data-atlas-inside-create]');
+          var signIn = document.querySelector('[data-atlas-inside-sign-in]');
+          if (create && !create.hidden) create.click();
+          else if (signIn && !signIn.hidden) signIn.click();
+          return;
+        }
+
+        if (!initPaddle()) {
+          setStatus('Checkout could not initialize. Please try again.');
+          return;
+        }
+
+        setStatus('');
+
+        Paddle.Checkout.open({
+          settings: {
+            displayMode: 'overlay',
+            variant: 'one-page',
+            theme: document.documentElement.dataset.theme === 'night' ? 'dark' : 'light'
+          },
+          items: [{ priceId: config.prices.proMonthly, quantity: 1 }],
+          customer: { email: account.email },
+          customData: {
+            atlas_user_id: account.userId,
+            atlas_plan_code: 'pro',
+            atlas_checkout_source: 'pricing'
+          }
+        });
+      }
+
+      if (button) {
+        button.addEventListener('click', openCheckout);
+      }
+
+      void localizePrice();
+      window.AtlasPaddleCheckout = Object.freeze({
+        openCheckout: openCheckout,
+        localizePrice: localizePrice
+      });
+    })();
+  </script>
   <script>
     (function () {
       var items = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
