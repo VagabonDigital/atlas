@@ -105,7 +105,8 @@
 
     async function createAtlasAIRequestHeaders(
         requestInit,
-        requestId
+        requestId,
+        subjectIdOverride = ''
     ) {
         const Cloud = window.AtlasCloud;
 
@@ -148,6 +149,9 @@
         );
 
         const subjectId =
+            cleanString(
+                subjectIdOverride
+            ) ||
             getAtlasAISubjectId();
 
         if (subjectId) {
@@ -205,7 +209,8 @@
         const requestHeaders =
             await createAtlasAIRequestHeaders(
                 requestInit,
-                requestId
+                requestId,
+                requestOptions.subjectId
             );
 
         let lastTransientError = null;
@@ -2459,6 +2464,92 @@
         };
     }
 
+    async function generateSubjectArtwork(
+        input = {}
+    ) {
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const subject = {
+            title:
+                cleanString(
+                    candidate.subject?.title
+                ),
+
+            description:
+                cleanString(
+                    candidate.subject?.description
+                )
+        };
+
+        if (!subject.title) {
+            throw new Error(
+                'A subject title is required.'
+            );
+        }
+
+        const response = await requestAtlasAI(
+            `${BASE_URL}/generate-subject-artwork`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json'
+                },
+
+                body: JSON.stringify({
+                    subject,
+
+                    idea:
+                        cleanString(
+                            candidate.idea
+                        ).slice(0, 240)
+                })
+            },
+            {
+                subjectId:
+                    cleanString(
+                        candidate.subjectId
+                    )
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            throw new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+        }
+
+        const svg =
+            cleanString(
+                result.payload?.svg
+            );
+
+        if (!svg) {
+            throw new Error(
+                'Atlas AI returned invalid subject artwork.'
+            );
+        }
+
+        return { svg };
+    }
+
     async function generateCurrentAffairsReading(
         input = {}
     ) {
@@ -2826,6 +2917,8 @@
 
         generateDiscussionPathway:
             withGenerationContext(generateDiscussionPathway),
+
+        generateSubjectArtwork,
 
         generateCurrentAffairsReading,
 
