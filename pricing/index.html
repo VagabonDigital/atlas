@@ -741,11 +741,6 @@
           eventCallback: function (event) {
             var name = String(event && event.name || '');
 
-            if (name === 'checkout.loaded') {
-              document.documentElement.dataset.paddleCheckoutOpen = 'true';
-              document.body.style.overflow = 'hidden';
-            }
-
             if (
               name === 'checkout.closed' ||
               name === 'checkout.completed'
@@ -812,20 +807,30 @@
 
         setStatus('');
 
-        Paddle.Checkout.open({
-          settings: {
-            displayMode: 'overlay',
-            variant: 'one-page',
-            theme: document.documentElement.dataset.theme === 'night' ? 'dark' : 'light'
-          },
+        document.documentElement.dataset.paddleCheckoutOpen = 'true';
+        document.body.style.overflow = 'hidden';
+
+        try {
+          Paddle.Checkout.open({
+            settings: {
+              displayMode: 'overlay',
+              variant: 'one-page',
+              theme: document.documentElement.dataset.theme === 'night' ? 'dark' : 'light'
+            },
           items: [{ priceId: config.prices.proMonthly, quantity: 1 }],
           customer: { email: account.email },
-          customData: {
-            atlas_user_id: account.userId,
-            atlas_plan_code: 'pro',
-            atlas_checkout_source: 'pricing'
-          }
-        });
+            customData: {
+              atlas_user_id: account.userId,
+              atlas_plan_code: 'pro',
+              atlas_checkout_source: 'pricing'
+            }
+          });
+        } catch (error) {
+          delete document.documentElement.dataset.paddleCheckoutOpen;
+          document.body.style.overflow = '';
+          setStatus('Checkout could not open. Please try again.');
+          console.error('[AtlasPricing] Paddle checkout failed', error);
+        }
       }
 
       if (button) {
