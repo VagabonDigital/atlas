@@ -6550,6 +6550,18 @@
       reviewState = null;
       refreshFromBridge();
     });
+
+    // Named-learner subject refs and continuity can hydrate after Atlas has
+    // already painted. Re-read when either cloud authority becomes ready so
+    // a valid handoff fallback can resolve without requiring focus/reload.
+    window.addEventListener(
+      'atlas:learner-cloud-ready',
+      refreshFromBridge
+    );
+    window.addEventListener(
+      'atlas:learner-continuity-cloud-ready',
+      refreshFromBridge
+    );
     window.addEventListener('atlas:appearance-change', e => {
       const mode = (e.detail && e.detail.mode) || Bridge.readAppearanceMode();
       updateAppearanceButtons(mode);
