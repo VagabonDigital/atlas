@@ -4592,6 +4592,177 @@
 
       return candidates[0] || null;
     }
+    // If the resumable session-state projection is missing, recover the most
+    // recent Compass handoff that still points at content the learner can
+    // actually open. This keeps Review + Continue coherent after continuity
+    // migrations without reviving deleted/archived subjects.
+    function getHandoffFallbackContinue(reg, sessionId) {
+      const cleanSessionId = String(sessionId || '').trim();
+
+      if (!cleanSessionId) return null;
+
+      let handoffs = {};
+
+      try {
+        handoffs = Bridge.readJson(
+          Bridge.keys.handoffs,
+          {}
+        ) || {};
+      } catch {
+        handoffs = {};
+      }
+
+      const candidates = Object.values(handoffs)
+        .filter(handoff =>
+          handoff &&
+          handoff.world === COMPASS_ID &&
+          String(handoff.sessionId || '').trim() === cleanSessionId &&
+          String(handoff.subjectId || '').trim()
+        )
+        .sort((a, b) =>
+          (Number(b.completedAt) || 0) -
+          (Number(a.completedAt) || 0)
+        );
+
+      if (!candidates.length) return null;
+
+      const Subjects = window.AtlasTutorSubjects;
+      const Curation = window.AtlasOriginalCuration;
+
+      let sessionSubjectRefs = [];
+
+      try {
+        sessionSubjectRefs =
+          Subjects &&
+          typeof Subjects.getSessionSubjects === 'function'
+            ? Subjects.getSessionSubjects(cleanSessionId)
+            : [];
+      } catch {
+        sessionSubjectRefs = [];
+      }
+
+      let catalog = {};
+
+      try {
+        catalog =
+          CompassCatalog &&
+          typeof CompassCatalog.getCompassCatalogMap === 'function'
+            ? CompassCatalog.getCompassCatalogMap()
+            : {};
+      } catch {
+        catalog = {};
+      }
+
+      for (const handoff of candidates) {
+        const subjectId = String(handoff.subjectId || '').trim();
+        const registryId = COMPASS_ID + ':' + subjectId;
+        const registryItem = (reg.items || {})[registryId] || {};
+
+        if (registryItem.archived === true) {
+          continue;
+        }
+
+        const subjectRef = sessionSubjectRefs.find(ref =>
+          ref &&
+          String(ref.id || '').trim() === subjectId
+        ) || null;
+
+        const owned =
+          subjectRef?.kind === 'my-subject' ||
+          registryItem.ownershipKind === 'my-subject';
+
+        if (owned) {
+          if (
+            !subjectRef ||
+            subjectRef.kind !== 'my-subject' ||
+            !Subjects ||
+            typeof Subjects.getSubject !== 'function'
+          ) {
+            continue;
+          }
+
+          let subject = null;
+
+          try {
+            subject = Subjects.getSubject(subjectId);
+          } catch {
+            subject = null;
+          }
+
+          if (!subject) {
+            continue;
+          }
+
+          const destination = new URL(
+            './compass/subject/index.html',
+            window.location.href
+          );
+
+          destination.searchParams.set('id', subjectId);
+
+          const title =
+            String(
+              handoff.subjectTitle ||
+              subject.metadata?.title ||
+              subject.document?.module?.title ||
+              registryItem.navTitle ||
+              registryItem.title ||
+              'Untitled Subject'
+            ).trim();
+
+          return {
+            item: {
+              ...registryItem,
+              id: subjectId,
+              registryId,
+              world: COMPASS_ID,
+              ownershipKind: 'my-subject',
+              title,
+              navTitle: title,
+              launchUrl: destination.href,
+              status: 'in-progress',
+              lastTouchedAt:
+                Number(handoff.completedAt) || 0
+            },
+            handoff
+          };
+        }
+
+        const catalogSubject = catalog[registryId];
+
+        if (
+          !catalogSubject ||
+          !catalogSubject.launchUrl
+        ) {
+          continue;
+        }
+
+        if (
+          Curation &&
+          typeof Curation.isHidden === 'function' &&
+          Curation.isHidden(registryId)
+        ) {
+          continue;
+        }
+
+        return {
+          item: {
+            ...registryItem,
+            ...catalogSubject,
+            id: subjectId,
+            registryId,
+            world: COMPASS_ID,
+            status: 'in-progress',
+            lastTouchedAt:
+              Number(handoff.completedAt) || 0
+          },
+          handoff
+        };
+      }
+
+      return null;
+    }
+
     // Qualitative label only — never detailed progress counts.
     function continueLabel(item) {
       return 'In progress';
@@ -5095,9 +5266,28 @@
       const isDefault = isDefaultSession(session);
       const authenticated =
         hasAuthenticatedAccountContext();
-      const continueItem = getContinueItem(reg, session.id);
-      const latestHandoff = continueItem ? getLatestHandoff(session.id) : null;
-      const continueHandoff = getMatchingCompassHandoff(continueItem, latestHandoff);
+      const primaryContinueItem = getContinueItem(reg, session.id);
+      let continueItem = primaryContinueItem;
+      let continueHandoff = null;
+
+      if (continueItem) {
+        const latestHandoff = getLatestHandoff(session.id);
+        continueHandoff =
+          getMatchingCompassHandoff(
+            continueItem,
+            latestHandoff
+          );
+      } else {
+        const fallback =
+          getHandoffFallbackContinue(
+            reg,
+            session.id
+          );
+
+        continueItem = fallback?.item || null;
+        continueHandoff = fallback?.handoff || null;
+      }
+
       const reviewSet = getReviewSet(ledger, session.id);
       const hasContinue = !!continueItem;
       const hasReview = reviewSet.length > 0;
