@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Refund & Cancellation Policy | Atlas</title>
+  <meta name="description" content="How Atlas subscriptions can be cancelled and how refund requests are handled.">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    (function () {
+      try {
+        var sessionId =
+          sessionStorage.getItem('atlas::activeSessionId') ||
+          'default';
+        var sessions =
+          JSON.parse(
+            localStorage.getItem('atlas::sessions') ||
+            '[]'
+          );
+        if (
+          !Array.isArray(sessions) ||
+          !sessions.some(function (session) {
+            return String(session && session.id || '') === sessionId;
+          })
+        ) {
+          sessionId = 'default';
+        }
+        var modes =
+          JSON.parse(
+            localStorage.getItem('atlas::appearanceBySession') ||
+            '{}'
+          );
+        var mode =
+          modes && modes[sessionId] === 'night'
+            ? 'night'
+            : modes && modes[sessionId] === 'light'
+              ? 'light'
+              : localStorage.getItem('atlas::appearanceMode') === 'night'
+                ? 'night'
+                : 'light';
+        document.documentElement.dataset.theme = mode;
+        document.documentElement.style.colorScheme =
+          mode === 'night' ? 'dark' : 'light';
+      } catch (error) {
+        document.documentElement.dataset.theme = 'light';
+        document.documentElement.style.colorScheme = 'light';
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="canonical" href="https://atlasfortutors.com/refunds/">
+  <link rel="icon" type="image/svg+xml" href="/shared/atlas-favicon.svg?v=20260920-legal1">
+  <link rel="stylesheet" href="/shared/atlas-legal.css?v=20260920-legal-theme12">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="Atlas home">Atlas<span>.</span></a>
+      <div class="header-actions">
+        <a class="header-back" href="/tutors/">Inside Atlas</a>
+        <button class="appearance-toggle" type="button" data-legal-appearance aria-label="Switch to night mode" title="Switch to night mode">
+          <svg class="appearance-icon appearance-icon--moon" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+            <path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <svg class="appearance-icon appearance-icon--sun" viewBox="0 0 17 17" fill="none" aria-hidden="true">
+            <circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35"/>
+            <path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="legal-main">
+    <p class="legal-kicker">Atlas · Legal</p>
+    <h1>Refund &amp; Cancellation Policy</h1>
+    <p class="legal-lede">
+      A clear guide to cancelling Atlas Pro, requesting a refund, and what happens to your workspace when paid access ends.
+    </p>
+    <p class="legal-meta">Last updated: September 21, 2026</p>
+    <hr class="legal-rule">
+
+    <section class="legal-section">
+      <h2>1. Scope</h2>
+      <p>
+        This policy applies to paid Atlas subscriptions purchased through Atlas. It should be read together with the <a href="/terms/">Terms of Service</a> and any purchase conditions shown at checkout.
+      </p>
+      <p>
+        Paddle acts as Merchant of Record for Atlas purchases. This means Paddle processes the payment, applicable transaction taxes, receipts, subscription billing, cancellations, and approved refunds for the transaction.
+      </p>
+    </section>
+
+    <section class="legal-section">
+      <h2>2. Cancelling Atlas Pro</h2>
+      <p>
+        You can cancel an Atlas Pro subscription at any time through the subscription-management link provided by Paddle. Cancellation stops future renewals and normally takes effect at the end of the billing period you have already paid for.
+      </p>
+      <p>
+        Unless a refund or other adjustment applies, Pro access continues until that paid period ends. Afterward, your Atlas account returns to the Free plan.
+      </p>
+      <div class="legal-note">
+        <p><strong>Your workspace is not deleted when you cancel.</strong></p>
+        <p>
+          Tutor-owned subjects, learner continuity, saved teaching material, manual editing, reuse, and other capabilities included in the Free plan remain available after a paid subscription ends.
+        </p>
+      </div>
+    </section>
+
+    <section class="legal-section">
+      <h2>3. Refund requests</h2>
+      <p>
+        Cancelling a subscription does not automatically refund the current billing period. If you want to request a refund, you can use the support or refund link provided by Paddle in your transaction receipt or billing portal, or contact <a href="mailto:support@atlasfortutors.com">support@atlasfortutors.com</a> and we will help route the request.
+      </p>
+      <p>
+        Refund eligibility is assessed under Paddle’s applicable buyer terms and refund policy, together with any mandatory consumer rights that apply to you. Nothing in this policy limits rights that cannot lawfully be excluded or waived.
+      </p>
+      <p>
+        Where appropriate, Atlas may support a full or partial refund request for circumstances such as duplicate billing, an incorrect charge, or a material service problem. Paddle remains responsible for processing the transaction refund as Merchant of Record.
+      </p>
+    </section>
+
+    <section class="legal-section">
+      <h2>4. What happens after a refund</h2>
+      <p>
+        A full refund may end or adjust the paid entitlement associated with the refunded billing period. If paid access ends, the account returns to the Free plan rather than losing its saved workspace.
+      </p>
+      <p>
+        A refund and a subscription cancellation are separate actions. If you do not want future renewals, make sure the subscription is also cancelled.
+      </p>
+    </section>
+
+    <section class="legal-section">
+      <h2>5. Failed or disputed payments</h2>
+      <p>
+        If a renewal payment fails, Paddle may retry the payment or ask you to update your payment method. Atlas may temporarily preserve or restrict Pro access while the payment is being resolved according to the billing state shown by Paddle.
+      </p>
+      <p>
+        If a payment is reversed, charged back, refunded, or otherwise no longer supports an active paid period, Atlas may adjust the corresponding Pro entitlement. This does not remove non-paid workspace data that remains available under the Free plan.
+      </p>
+    </section>
+
+    <section class="legal-section">
+      <h2>6. Processing times</h2>
+      <p>
+        Approved refunds are returned through Paddle using the original payment method where possible. The time before funds appear can depend on the payment method, bank, card network, and Paddle’s processing timelines.
+      </p>
+    </section>
+
+    <section class="legal-section">
+      <h2>7. Changes to this policy</h2>
+      <p>
+        We may update this policy as Atlas, its subscription model, or applicable payment requirements change. Material changes will be reflected by updating the date shown above and, where appropriate, by providing additional notice.
+      </p>
+    </section>
+
+    <section class="legal-section">
+      <h2>8. Contact</h2>
+      <p>
+        Questions about Atlas billing, cancellations, or refunds can be sent to <a href="mailto:support@atlasfortutors.com">support@atlasfortutors.com</a>.
+      </p>
+    </section>
+  </main>
+
+  <footer class="legal-footer">
+    <div class="legal-footer-inner">
+      <span>Atlas · Create. Shape. Teach.</span>
+      <nav class="legal-footer-links" aria-label="Legal">
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+        <a href="/refunds/" aria-current="page">Refunds</a>
+        <a href="/">Atlas</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="/shared/atlas-legal-appearance.js?v=20260920-legal-theme1"></script>
+</body>
+</html>
