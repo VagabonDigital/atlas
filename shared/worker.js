@@ -5,6 +5,7 @@
    - provider credential protection
    - authenticated Atlas account verification
    - server-owned AI abuse guardrails and usage telemetry
+   - verified Paddle billing webhooks
    - narrow AI requests
    - structured provider output
 
@@ -12,7 +13,6 @@
    - Atlas IDs
    - subject persistence
    - document mutation
-   - commercial entitlement activation
    ============================================================ */
 
 const ATLAS_AI_REQUEST_ID_HEADER =
@@ -207,6 +207,185 @@ async function callAtlasUsageRpc(
     return result;
 }
 
+async function callAtlasServerRpc(
+    env,
+    functionName,
+    payload
+) {
+    const config =
+        getAtlasWorkerSupabaseConfig(env);
+
+    if (!config) {
+        throw new Error(
+            'Atlas server database access is not configured.'
+        );
+    }
+
+    const response = await fetch(
+        `${config.url}/rest/v1/rpc/${functionName}`,
+        {
+            method: 'POST',
+            headers: {
+                'apikey':
+                    config.serviceRoleKey,
+                'Authorization':
+                    `Bearer ${config.serviceRoleKey}`,
+                'Content-Type':
+                    'application/json'
+            },
+            body:
+                JSON.stringify(
+                    payload || {}
+                )
+        }
+    );
+
+    let result = null;
+
+    try {
+        result = await response.json();
+    } catch {
+        result = null;
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            `Atlas server RPC failed with status ${response.status}.`
+        );
+    }
+
+    return result;
+}
+
+function constantTimeEqualText(left, right) {
+    const a = String(left || '');
+    const b = String(right || '');
+    let mismatch = a.length ^ b.length;
+    const length = Math.max(a.length, b.length);
+
+    for (let index = 0; index < length; index += 1) {
+        mismatch |=
+            (a.charCodeAt(index) || 0) ^
+            (b.charCodeAt(index) || 0);
+    }
+
+    return mismatch === 0;
+}
+
+async function verifyPaddleWebhookSignature(
+    request,
+    secret,
+    rawBody
+) {
+    const signatureHeader =
+        String(
+            request.headers.get(
+                'Paddle-Signature'
+            ) || ''
+        ).trim();
+
+    const secretValue =
+        String(secret || '').trim();
+
+    if (
+        !signatureHeader ||
+        !secretValue
+    ) {
+        return false;
+    }
+
+    let timestamp = '';
+    const signatures = [];
+
+    signatureHeader
+        .split(';')
+        .map(part => part.trim())
+        .filter(Boolean)
+        .forEach(part => {
+            const separator =
+                part.indexOf('=');
+
+            if (separator <= 0) return;
+
+            const key =
+                part.slice(0, separator);
+            const value =
+                part.slice(separator + 1);
+
+            if (key === 'ts') {
+                timestamp = value;
+            }
+
+            if (key === 'h1') {
+                signatures.push(value);
+            }
+        });
+
+    const unixTime =
+        Number(timestamp);
+
+    if (
+        !Number.isInteger(unixTime) ||
+        unixTime <= 0 ||
+        signatures.length === 0
+    ) {
+        return false;
+    }
+
+    const nowSeconds =
+        Math.floor(Date.now() / 1000);
+
+    if (
+        Math.abs(
+            nowSeconds - unixTime
+        ) > 5
+    ) {
+        return false;
+    }
+
+    const encoder =
+        new TextEncoder();
+
+    const key =
+        await crypto.subtle.importKey(
+            'raw',
+            encoder.encode(secretValue),
+            {
+                name: 'HMAC',
+                hash: 'SHA-256'
+            },
+            false,
+            ['sign']
+        );
+
+    const signed =
+        await crypto.subtle.sign(
+            'HMAC',
+            key,
+            encoder.encode(
+                `${timestamp}:${rawBody}`
+            )
+        );
+
+    const expected =
+        Array.from(
+            new Uint8Array(signed)
+        )
+            .map(byte =>
+                byte
+                    .toString(16)
+                    .padStart(2, '0')
+            )
+            .join('');
+
+    return signatures.some(signature =>
+        constantTimeEqualText(
+            expected,
+            signature
+        )
+    );
+}
+
 function atlasAIGuardrailResponse(reason) {
     const code =
         String(reason || '').trim();
@@ -396,6 +575,141 @@ export default {
                     env.ATLAS_AI_MODEL ||
                     'gpt-5.6-luna'
             });
+        }
+
+        if (
+            request.method === 'POST' &&
+            url.pathname === '/paddle/webhook'
+        ) {
+            const paddleEnvironment =
+                String(
+                    env.ATLAS_PADDLE_ENVIRONMENT ||
+                    ''
+                )
+                    .trim()
+                    .toLowerCase();
+
+            const webhookSecret =
+                String(
+                    env.ATLAS_PADDLE_WEBHOOK_SECRET ||
+                    ''
+                ).trim();
+
+            if (
+                !['sandbox', 'live'].includes(
+                    paddleEnvironment
+                ) ||
+                !webhookSecret
+            ) {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'Atlas Paddle webhook is not configured.'
+                    },
+                    503
+                );
+            }
+
+            const rawBody =
+                await request.text();
+
+            let verified = false;
+
+            try {
+                verified =
+                    await verifyPaddleWebhookSignature(
+                        request,
+                        webhookSecret,
+                        rawBody
+                    );
+            } catch (error) {
+                console.error(
+                    '[Atlas Paddle] Signature verification failed:',
+                    error
+                );
+            }
+
+            if (!verified) {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'Invalid Paddle webhook signature.'
+                    },
+                    401
+                );
+            }
+
+            let event = null;
+
+            try {
+                event =
+                    JSON.parse(rawBody);
+            } catch {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'Invalid Paddle webhook payload.'
+                    },
+                    400
+                );
+            }
+
+            const eventType =
+                String(
+                    event?.event_type || ''
+                ).trim();
+
+            if (
+                eventType !==
+                    'transaction.completed' &&
+                !eventType.startsWith(
+                    'subscription.'
+                )
+            ) {
+                return json({
+                    ok: true,
+                    ignored: true,
+                    eventType
+                });
+            }
+
+            try {
+                const result =
+                    await callAtlasServerRpc(
+                        env,
+                        'atlas_apply_paddle_event_v1',
+                        {
+                            p_environment:
+                                paddleEnvironment,
+                            p_event:
+                                event
+                        }
+                    );
+
+                return json({
+                    ok: true,
+                    eventType,
+                    billing:
+                        result || null
+                });
+            } catch (error) {
+                console.error(
+                    '[Atlas Paddle] Webhook processing failed:',
+                    error
+                );
+
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'Atlas billing synchronization failed.'
+                    },
+                    500
+                );
+            }
         }
 
         if (!allowedOrigins.has(origin)) {
