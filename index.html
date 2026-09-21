@@ -4737,14 +4737,6 @@
           (reg.items || {})[registryId] || {};
 
         if (registryItem.archived === true) {
-          recoveredContinueBySessionId.set(
-            cleanSessionId,
-            {
-              token,
-              item: null,
-              handoff: null
-            }
-          );
           return;
         }
 
@@ -4826,14 +4818,6 @@
             : null;
 
         if (!subjectRef) {
-          recoveredContinueBySessionId.set(
-            cleanSessionId,
-            {
-              token,
-              item: null,
-              handoff: null
-            }
-          );
           return;
         }
 
@@ -4856,14 +4840,6 @@
           !subject ||
           placement?.archived === true
         ) {
-          recoveredContinueBySessionId.set(
-            cleanSessionId,
-            {
-              token,
-              item: null,
-              handoff: null
-            }
-          );
           return;
         }
 
