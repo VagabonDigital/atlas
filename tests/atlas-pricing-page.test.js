@@ -19,6 +19,19 @@ assert.match(pricing, /Your saved work remains yours if you cancel/);
 assert.match(pricing, /unused Free creation bank stays preserved/);
 assert.match(pricing, /AI-assisted shaping of existing subjects/);
 assert.match(pricing, /failed, incomplete or malformed build does not use the allowance/);
+assert.match(pricing, /exact learner, goal, question or moment/);
+assert.match(pricing, /during a lesson or just before it starts/);
+assert.match(pricing, /substantial teaching library around individual learners/);
+assert.doesNotMatch(
+  pricing,
+  /<article class="plan plan--pro"[\s\S]*?<li>No learner cap<\/li>/
+);
+assert.match(pricing, /data-atlas-account-entry/);
+assert.match(pricing, /data-atlas-inside-sign-in/);
+assert.match(pricing, /data-atlas-inside-create/);
+assert.match(pricing, /data-atlas-inside-account/);
+assert.match(pricing, /atlas-access-bootstrap\.js/);
+assert.match(pricing, /atlas-account-chrome\.js/);
 assert.match(pricing, /href="\/refunds\/"/);
 assert.match(pricing, /href="\/terms\/"/);
 assert.match(pricing, /href="\/privacy\/"/);
