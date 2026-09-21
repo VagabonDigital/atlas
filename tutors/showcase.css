@@ -1,0 +1,326 @@
+/* The approved product study, scoped to this section. Keep the stage light
+   and the product surfaces warm in both surrounding page themes. */
+.atlas-showcase {
+  --showcase-ink: #211f1b;
+  --showcase-muted: #7b7469;
+  --showcase-accent: #4d7184;
+  color-scheme: light;
+  background: #fdfdfc;
+  color: var(--showcase-ink);
+  padding: 48px 48px 128px;
+  scroll-margin-top: 76px;
+}
+
+.atlas-showcase p,
+.atlas-showcase h2,
+.atlas-showcase figure { margin: 0; }
+
+.atlas-showcase .showcase-stage-heading {
+  max-width: 1200px;
+  margin: 0 auto 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.atlas-showcase .kicker {
+  color: var(--showcase-accent);
+  font: italic 500 16px "Playfair Display", Georgia, serif;
+}
+
+.showcase-stage-heading > span:last-child {
+  font-size: 12px;
+  color: var(--showcase-muted);
+}
+
+.showcase-stage-heading b {
+  font-weight: 400;
+  color: #a9b6b8;
+  padding: 0 16px;
+}
+
+.showcase-sequence {
+  max-width: 1200px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  isolation: isolate;
+}
+
+/* Bottom anchoring lets the front card leave upward, revealing the next.
+   The section bounds release all three cards before the overview video. */
+.atlas-showcase .showcase-card {
+  position: sticky;
+  bottom: 104px;
+  z-index: 3;
+  background: #f3f0e9;
+  border: 1px solid #e8e3d9;
+  border-radius: 22px;
+  padding: 30px 32px 32px;
+  box-shadow: 0 32px 54px -16px #29251d40,
+    0 9px 18px -12px #29251d35, inset 0 1px 0 #fff9;
+  overflow: hidden;
+}
+
+.atlas-showcase .showcase-overview { bottom: 74px; z-index: 2; }
+.atlas-showcase .showcase-focus { bottom: 44px; z-index: 1; }
+
+.showcase-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 0 4px 26px;
+}
+
+.atlas-showcase h2 {
+  font-family: "DM Serif Display", Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(27px, 2.7vw, 39px);
+  line-height: 1.15;
+  letter-spacing: -.025em;
+  color: var(--showcase-ink);
+}
+
+.atlas-showcase .showcase-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--showcase-accent);
+  margin-bottom: 9px;
+}
+
+.showcase-eyebrow span { margin-left: 16px; }
+.showcase-card-heading > p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--showcase-muted);
+  max-width: 345px;
+}
+
+.showcase-product-view {
+  position: relative;
+  container-type: inline-size;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #e9e5de;
+  box-shadow: 0 12px 28px -12px #25231e38;
+  outline: 1px solid #211f1b0c;
+}
+
+.showcase-product-view img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2.024;
+  object-fit: cover;
+  object-position: top;
+}
+
+/* Content-state labels scale with the original screenshot coordinates.
+   These are illustrative UI, not interactive controls. */
+.showcase-learner {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5cqw;
+  width: 6.48cqw;
+  height: 2.55cqw;
+  border-radius: 3cqw;
+  border: .053cqw solid #48535b;
+  background: #24313a;
+  color: #abb2b6;
+  font: 600 .95cqw/1 "DM Sans", sans-serif;
+  top: 1.31cqw;
+  right: 1.15cqw;
+}
+
+.showcase-learner svg { width: 1.05cqw; height: 1.05cqw; flex: none; }
+.showcase-overview .showcase-learner {
+  top: .68cqw;
+  right: 10.89cqw;
+  background: #fffdf9;
+  border-color: #e8e4de;
+  color: #504b43;
+  font-weight: 500;
+}
+
+@media (min-width: 1000px) and (max-height: 790px) {
+  .showcase-sequence {
+    max-width: min(1200px, calc((100svh - 210px) * 2.024 + 64px));
+  }
+  .atlas-showcase .showcase-card { bottom: 76px; padding-top: 22px; padding-bottom: 24px; }
+  .atlas-showcase .showcase-overview { bottom: 52px; }
+  .atlas-showcase .showcase-focus { bottom: 28px; }
+  .showcase-card-heading { padding-bottom: 20px; }
+  .atlas-showcase h2 { font-size: 30px; }
+  .showcase-card-heading > p { font-size: 12px; }
+  .atlas-showcase .showcase-eyebrow { margin-bottom: 6px; }
+}
+
+@media (max-width: 1190px) {
+  .showcase-card-heading > p { max-width: 285px; font-size: 12px; }
+}
+
+.showcase-mobile-chrome,
+.showcase-mobile-structure,
+.showcase-mobile-lesson { display: none; }
+
+/* Compact portrait stage: the same bottom-reveal story, but with readable
+   product details and a bounded card height rather than miniature desktops.
+   svh keeps the cards stable while mobile browser controls expand/collapse. */
+@media (max-width: 760px) {
+  .atlas-showcase { padding: 28px 14px 64px; }
+  .atlas-showcase .showcase-stage-heading { margin-bottom: 28px; }
+  .showcase-stage-heading > span:last-child { display: none; }
+  .showcase-sequence { gap: 24px; }
+  .atlas-showcase .showcase-card {
+    position: sticky;
+    height: min(590px, calc(100svh - 130px));
+    bottom: 54px;
+    padding: 22px 14px 14px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 26px 38px -16px #29251d45, inset 0 1px 0 #fff9;
+  }
+  .atlas-showcase .showcase-overview {
+    bottom: 36px;
+    height: auto;
+    max-height: min(590px, calc(100svh - 130px));
+  }
+  .atlas-showcase .showcase-focus { bottom: 18px; height: min(520px, calc(100svh - 130px)); }
+  .showcase-card-heading { display: block; padding: 0 6px 20px; flex: none; }
+  .atlas-showcase .showcase-eyebrow { font-size: 10px; margin-bottom: 10px; }
+  .atlas-showcase h2 { font-size: clamp(27px, 7.4vw, 32px); max-width: 300px; }
+  .showcase-card-heading > p { margin-top: 12px; font-size: 13px; line-height: 1.5; max-width: none; }
+  .showcase-card-heading > p br { display: none; }
+  .showcase-product-view { flex: 1; min-height: 0; border-radius: 12px; }
+  .showcase-product-view .showcase-learner { display: none; }
+  .showcase-mobile-chrome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    height: 38px;
+    padding: 0 12px;
+    font-size: 10px;
+    color: #504b43;
+    background: #f7f4ef;
+    position: relative;
+    z-index: 1;
+  }
+  .showcase-cover .showcase-mobile-chrome { background: #172c37; color: #bcc9cb; }
+  .showcase-cover .showcase-product-view img {
+    width: 100%;
+    height: calc(100% - 38px);
+    max-width: none;
+    aspect-ratio: auto;
+    object-fit: cover;
+    object-position: 50% 50%;
+  }
+  .showcase-overview .showcase-product-view {
+    background: #e6e2dc;
+    /* Let the existing screenshot determine the height; don't stretch an
+       empty product surface beneath it on narrow, tall viewports. */
+    flex-basis: auto;
+  }
+  .showcase-overview .showcase-product-view img {
+    width: 220%;
+    max-width: none;
+    height: auto;
+    aspect-ratio: auto;
+    margin-left: -46%;
+    margin-top: -30px;
+  }
+  .showcase-mobile-structure {
+    display: flex;
+    position: absolute;
+    bottom: 0;
+    inset-inline: 0;
+    justify-content: space-around;
+    padding: 14px 5px;
+    font-size: 9px;
+    color: #4c8381;
+    background: #f7f4ef;
+    border-top: 1px solid #dfdbd2;
+  }
+  .showcase-focus > .showcase-product-view { display: none; }
+  .showcase-mobile-lesson {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #e8e6e5;
+    box-shadow: 0 12px 28px -12px #25231e38;
+  }
+  .showcase-mobile-lesson .showcase-mobile-chrome { flex: none; color: #4c8381; }
+  .showcase-lesson-paper { flex: 1; min-height: 0; margin: 12px; padding: 12px; background: #fdfcfb; border-radius: 12px; }
+  /* Keep the original title crop, but make its window scale with the image.
+     The baked-in question begins at 31cqw; this window ends at 26cqw. */
+  .showcase-lesson-title {
+    position: relative;
+    container-type: inline-size;
+    height: auto;
+    aspect-ratio: 100 / 26;
+    max-height: 85px;
+    overflow: hidden;
+    margin: -2px -4px 6px;
+  }
+  .showcase-lesson-title img { position: absolute; width: 245%; max-width: none; height: auto; left: -39%; top: -28cqw; }
+  .atlas-showcase .showcase-lesson-paper > p { font-size: 14px; line-height: 1.5; color: #504b43; }
+  .showcase-lesson-deeper { display: block; margin-top: 12px; font-size: 12px; color: #4c8381; font-weight: 600; }
+  .showcase-lesson-deeper > span { margin-left: 10px; }
+  .showcase-lesson-upgrade { display: block; border-top: 1px solid #e6e1d8; margin-top: 12px; padding-top: 12px; font-size: 10px; color: #4c8381; }
+  .showcase-lesson-footer { height: 32px; }
+}
+
+@media (max-width: 760px) and (max-height: 740px) {
+  .atlas-showcase .showcase-card { padding-top: 16px; }
+  .showcase-card-heading { padding-bottom: 14px; }
+  .showcase-card-heading > p { display: none; }
+  .showcase-lesson-paper { margin: 8px; padding: 10px; }
+}
+
+@media (max-width: 760px) and (max-height: 640px) {
+  .atlas-showcase .showcase-lesson-paper > p { font-size: 13px; line-height: 1.4; }
+  .showcase-lesson-upgrade { display: none; }
+  .showcase-lesson-deeper { margin-top: 8px; }
+}
+
+/* Landscape stays a sequence too. Use the available horizontal space for
+   copy + intact product views instead of abandoning the staged interaction. */
+@media (max-width: 999px) and (max-height: 500px) and (orientation: landscape) {
+  .atlas-showcase { padding: 22px 20px 48px; }
+  .atlas-showcase .showcase-stage-heading { margin-bottom: 22px; }
+  .showcase-stage-heading > span:last-child { display: none; }
+  .showcase-sequence { gap: 20px; }
+  .atlas-showcase .showcase-card {
+    position: sticky;
+    height: calc(100svh - 110px);
+    bottom: 40px;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 32% 1fr;
+    align-items: center;
+    gap: 16px;
+    border-radius: 16px;
+  }
+  .atlas-showcase .showcase-overview { bottom: 26px; height: calc(100svh - 110px); max-height: none; }
+  .atlas-showcase .showcase-focus { bottom: 12px; }
+  .showcase-card-heading { display: block; padding: 0; }
+  .atlas-showcase h2 { font-size: clamp(21px, 3vw, 28px); }
+  .atlas-showcase .showcase-eyebrow { font-size: 9px; margin-bottom: 8px; }
+  .showcase-eyebrow span { margin-left: 6px; }
+  .showcase-card-heading > p { display: none; }
+  .showcase-mobile-chrome, .showcase-mobile-lesson, .showcase-mobile-structure { display: none; }
+  .showcase-focus > .showcase-product-view { display: block; }
+  .showcase-product-view { width: 100%; min-height: 0; max-height: 100%; }
+  .atlas-showcase .showcase-product-view img { width: 100%; height: auto; margin: 0; aspect-ratio: 2.024; object-fit: cover; }
+  .showcase-product-view .showcase-learner { display: flex; }
+}
