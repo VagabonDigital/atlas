@@ -192,7 +192,7 @@
     height: auto;
     max-height: min(590px, calc(100svh - 130px));
   }
-  .atlas-showcase .showcase-focus { bottom: 18px; }
+  .atlas-showcase .showcase-focus { bottom: 18px; height: min(520px, calc(100svh - 130px)); }
   .showcase-card-heading { display: block; padding: 0 6px 20px; flex: none; }
   .atlas-showcase .showcase-eyebrow { font-size: 10px; margin-bottom: 10px; }
   .atlas-showcase h2 { font-size: clamp(27px, 7.4vw, 32px); max-width: 300px; }
