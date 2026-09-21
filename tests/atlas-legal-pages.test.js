@@ -7,6 +7,7 @@ const atlas = fs.readFileSync('index.html', 'utf8');
 const inside = fs.readFileSync('tutors/index.html', 'utf8');
 const privacy = fs.readFileSync('privacy/index.html', 'utf8');
 const terms = fs.readFileSync('terms/index.html', 'utf8');
+const refunds = fs.readFileSync('refunds/index.html', 'utf8');
 const css = fs.readFileSync('shared/atlas-legal.css', 'utf8');
 const appearance = fs.readFileSync('shared/atlas-legal-appearance.js', 'utf8');
 
@@ -17,13 +18,13 @@ assert.match(
 );
 assert.match(
   atlas,
-  /class="drawer-legal-links"[\s\S]*?href="\/privacy\/"[\s\S]*?href="\/terms\/"/,
-  'Atlas product navigation must retain legal links after entry.'
+  /class="drawer-legal-links"[\s\S]*?href="\/privacy\/"[\s\S]*?href="\/terms\/"[\s\S]*?href="\/refunds\/"/,
+  'Atlas product navigation must retain Privacy, Terms, and Refunds after entry.'
 );
 assert.match(
   inside,
-  /class="footer-links"[\s\S]*?href="\/privacy\/"[\s\S]*?href="\/terms\/"[\s\S]*?support@atlasfortutors\.com/,
-  'Inside Atlas must expose Privacy, Terms, and Support publicly.'
+  /class="footer-links"[\s\S]*?href="\/privacy\/"[\s\S]*?href="\/terms\/"[\s\S]*?href="\/refunds\/"[\s\S]*?support@atlasfortutors\.com/,
+  'Inside Atlas must expose Privacy, Terms, Refunds, and Support publicly.'
 );
 
 assert.match(
@@ -72,6 +73,14 @@ assert.match(
 );
 assert.match(
   privacy,
+  /Paddle/
+);
+assert.match(
+  privacy,
+  /Merchant of Record/
+);
+assert.match(
+  privacy,
   /does not currently provide a self-service “Delete account” button/
 );
 assert.match(
@@ -103,6 +112,43 @@ assert.match(
   terms,
   /Nothing in these Terms limits liability that cannot lawfully be limited/
 );
+assert.match(
+  terms,
+  /Paid features and subscriptions/
+);
+assert.match(
+  terms,
+  /Paddle acts as Merchant of Record/
+);
+assert.match(
+  terms,
+  /href="\/refunds\/"/
+);
+
+assert.match(
+  refunds,
+  /https:\/\/atlasfortutors\.com\/refunds\//
+);
+assert.match(
+  refunds,
+  /Refund &amp; Cancellation Policy/
+);
+assert.match(
+  refunds,
+  /Paddle acts as Merchant of Record/
+);
+assert.match(
+  refunds,
+  /Cancellation stops future renewals/
+);
+assert.match(
+  refunds,
+  /Your workspace is not deleted when you cancel/
+);
+assert.match(
+  refunds,
+  /support@atlasfortutors\.com/
+);
 
 assert.match(
   privacy,
@@ -113,11 +159,19 @@ assert.match(
   /atlas-legal\.css\?v=20260920-legal-theme1/
 );
 assert.match(
+  refunds,
+  /atlas-legal\.css\?v=20260920-legal-theme1/
+);
+assert.match(
   privacy,
   /data-legal-appearance/
 );
 assert.match(
   terms,
+  /data-legal-appearance/
+);
+assert.match(
+  refunds,
   /data-legal-appearance/
 );
 assert.match(
@@ -126,6 +180,10 @@ assert.match(
 );
 assert.match(
   terms,
+  /atlas-legal-appearance\.js\?v=20260920-legal-theme1/
+);
+assert.match(
+  refunds,
   /atlas-legal-appearance\.js\?v=20260920-legal-theme1/
 );
 assert.match(
@@ -154,5 +212,5 @@ assert.match(
 );
 
 console.log(
-  'Atlas legal-page contract passed: public discovery, Google-data disclosure, support contact, ownership, and AI terms are present.'
+  'Atlas legal-page contract passed: public discovery, billing/refund disclosure, Google-data disclosure, support contact, ownership, and AI terms are present.'
 );
