@@ -203,9 +203,7 @@ html[data-theme="night"] .showcase-product-view {
   .showcase-card-heading > p { max-width: 285px; font-size: 12px; }
 }
 
-.showcase-mobile-chrome,
-.showcase-mobile-structure,
-.showcase-mobile-lesson { display: none; }
+.showcase-mobile-chrome { display: none; }
 
 /* Compact portrait stage: the same bottom-reveal story, but with readable
    product details and a bounded card height rather than miniature desktops.
@@ -228,9 +226,13 @@ html[data-theme="night"] .showcase-product-view {
   .atlas-showcase .showcase-overview {
     bottom: 36px;
     height: auto;
-    max-height: min(590px, calc(100svh - 130px));
+    max-height: none;
   }
-  .atlas-showcase .showcase-focus { bottom: 18px; height: min(520px, calc(100svh - 130px)); }
+  .atlas-showcase .showcase-focus {
+    bottom: 18px;
+    height: auto;
+    max-height: none;
+  }
   .showcase-card-heading { display: block; padding: 0 6px 20px; flex: none; }
   .atlas-showcase .showcase-eyebrow { font-size: 10px; margin-bottom: 10px; }
   .atlas-showcase h2 { font-size: clamp(27px, 7.4vw, 32px); max-width: 300px; }
@@ -260,76 +262,29 @@ html[data-theme="night"] .showcase-product-view {
     object-fit: cover;
     object-position: 50% 50%;
   }
-  .showcase-overview .showcase-product-view {
+  .showcase-overview .showcase-product-view,
+  .showcase-focus .showcase-product-view {
+    flex: none;
     background: #e6e2dc;
-    /* Let the existing screenshot determine the height; don't stretch an
-       empty product surface beneath it on narrow, tall viewports. */
-    flex-basis: auto;
   }
-  .showcase-overview .showcase-product-view img {
-    width: 220%;
+  .showcase-overview .showcase-product-view img,
+  .showcase-focus .showcase-product-view img {
+    width: 100%;
     max-width: none;
     height: auto;
     aspect-ratio: auto;
-    margin-left: -46%;
-    margin-top: -30px;
+    object-fit: contain;
+    object-position: top;
+    margin: 0;
   }
-  .showcase-mobile-structure {
-    display: flex;
-    position: absolute;
-    bottom: 0;
-    inset-inline: 0;
-    justify-content: space-around;
-    padding: 14px 5px;
-    font-size: 9px;
-    color: #4c8381;
-    background: #f7f4ef;
-    border-top: 1px solid #dfdbd2;
-  }
-  .showcase-focus > .showcase-product-view { display: none; }
-  .showcase-mobile-lesson {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #e8e6e5;
-    box-shadow: 0 12px 28px -12px #25231e38;
-  }
-  .showcase-mobile-lesson .showcase-mobile-chrome { flex: none; color: #4c8381; }
-  .showcase-lesson-paper { flex: 1; min-height: 0; margin: 12px; padding: 12px; background: #fdfcfb; border-radius: 12px; }
-  /* Keep the original title crop, but make its window scale with the image.
-     The baked-in question begins at 31cqw; this window ends at 26cqw. */
-  .showcase-lesson-title {
-    position: relative;
-    container-type: inline-size;
-    height: auto;
-    aspect-ratio: 100 / 26;
-    max-height: 85px;
-    overflow: hidden;
-    margin: -2px -4px 6px;
-  }
-  .showcase-lesson-title img { position: absolute; width: 245%; max-width: none; height: auto; left: -39%; top: -28cqw; }
-  .atlas-showcase .showcase-lesson-paper > p { font-size: 14px; line-height: 1.5; color: #504b43; }
-  .showcase-lesson-deeper { display: block; margin-top: 12px; font-size: 12px; color: #4c8381; font-weight: 600; }
-  .showcase-lesson-deeper > span { margin-left: 10px; }
-  .showcase-lesson-upgrade { display: block; border-top: 1px solid #e6e1d8; margin-top: 12px; padding-top: 12px; font-size: 10px; color: #4c8381; }
-  .showcase-lesson-footer { height: 32px; }
 }
 
 @media (max-width: 760px) and (max-height: 740px) {
   .atlas-showcase .showcase-card { padding-top: 16px; }
   .showcase-card-heading { padding-bottom: 14px; }
   .showcase-card-heading > p { display: none; }
-  .showcase-lesson-paper { margin: 8px; padding: 10px; }
 }
 
-@media (max-width: 760px) and (max-height: 640px) {
-  .atlas-showcase .showcase-lesson-paper > p { font-size: 13px; line-height: 1.4; }
-  .showcase-lesson-upgrade { display: none; }
-  .showcase-lesson-deeper { margin-top: 8px; }
-}
 
 /* Landscape stays a sequence too. Use the available horizontal space for
    copy + intact product views instead of abandoning the staged interaction. */
@@ -356,8 +311,7 @@ html[data-theme="night"] .showcase-product-view {
   .atlas-showcase .showcase-eyebrow { font-size: 9px; margin-bottom: 8px; }
   .showcase-eyebrow span { margin-left: 6px; }
   .showcase-card-heading > p { display: none; }
-  .showcase-mobile-chrome, .showcase-mobile-lesson, .showcase-mobile-structure { display: none; }
-  .showcase-focus > .showcase-product-view { display: block; }
+  .showcase-mobile-chrome { display: none; }
   .showcase-product-view { width: 100%; min-height: 0; max-height: 100%; }
   .atlas-showcase .showcase-product-view img { width: 100%; height: auto; margin: 0; aspect-ratio: 2.024; object-fit: cover; }
   .showcase-product-view .showcase-learner { display: flex; }
