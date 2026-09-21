@@ -379,12 +379,16 @@
 
     .footer { border-top:1px solid var(--border); color:var(--text-muted); }
     .footer-inner {
-      min-height:84px; display:flex; align-items:center; justify-content:space-between;
-      gap:20px; flex-wrap:wrap; font-size:12px;
+      min-height:82px; display:flex; align-items:center; justify-content:space-between;
+      gap:20px; flex-wrap:wrap; font-size:.82rem;
     }
-    .footer-links { display:flex; gap:16px; flex-wrap:wrap; }
+    .footer-links { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
     .footer-links a { color:var(--text-muted); text-decoration:none; }
     .footer-links a:hover { color:var(--text-heading); }
+    .footer-links a[aria-current="page"] {
+      color:var(--text-heading);
+      font-weight:700;
+    }
 
     .reveal { opacity:0; transform:translateY(20px); transition:opacity 700ms ease,transform 700ms cubic-bezier(.2,.7,.2,1); }
     .reveal.is-visible { opacity:1; transform:none; }
