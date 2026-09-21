@@ -574,7 +574,13 @@
         }
 
         invalidateSnapshot();
-        return AtlasCloud.getOwnedSubject(created.id);
+
+        /*
+         * createOwnedSubject() already returned the authoritative inserted
+         * row. Library placement does not mutate that subject record, so a
+         * second network read here only delays the creation handoff.
+         */
+        return cloneJson(created);
     }
 
     async function updateSubject(subjectId, patch = {}) {
