@@ -31,6 +31,26 @@
       }
     })();
   </script>
+  <link rel="stylesheet" href="/shared/atlas-account-chrome.css?v=20260921-insideheader1" data-atlas-account-chrome-styles>
+  <script>
+    (function () {
+      var hasAccount = false;
+      var hasOAuthReturn = false;
+      try {
+        hasAccount = Boolean(
+          localStorage.getItem('sb-jnhjfpagectprceswvqn-auth-token')
+        );
+        var params = new URLSearchParams(
+          String(window.location.hash || '').replace(/^#/, '')
+        );
+        hasOAuthReturn = Boolean(
+          params.get('access_token') && params.get('refresh_token')
+        );
+      } catch (e) { }
+      document.documentElement.dataset.atlasAccountHint =
+        (hasAccount || hasOAuthReturn) ? 'account' : 'anonymous';
+    })();
+  </script>
   <style>
     :root {
       --surface: #f3f0e9;
@@ -119,24 +139,32 @@
     .header-inner {
       min-height:56px; display:flex; align-items:center; gap:10px;
     }
+    .atlas-inside-account-entry { margin-left:4px; }
     .brand {
       color:var(--text-heading); font-family:var(--font-display);
       font-size:1.22rem; text-decoration:none; letter-spacing:-.01em;
     }
     .brand span { color:var(--accent); }
-    .header-spacer { flex:1; }
-    .header-link {
-      padding:8px 10px; border-radius:999px; color:var(--text-muted);
-      font-size:13px; font-weight:600; text-decoration:none;
+    .nav {
+      margin-left:auto;
+      display:flex;
+      align-items:center;
+      gap:4px;
+    }
+    .nav a {
+      white-space:nowrap;
+      padding:7px 9px;
+      border-radius:999px;
+      color:var(--text-muted);
+      font-size:13px;
+      text-decoration:none;
       transition:color var(--motion),background var(--motion);
     }
-    .header-link:hover { color:var(--text-heading); background:var(--accent-pale); }
-    .header-cta {
-      padding:9px 14px; border-radius:999px; background:var(--text-heading);
-      color:var(--surface); font-size:13px; font-weight:700; text-decoration:none;
-      transition:transform var(--motion),opacity var(--motion);
+    .nav a:hover,
+    .nav a[aria-current="page"] {
+      color:var(--text-heading);
+      background:var(--accent-pale);
     }
-    .header-cta:hover { transform:translateY(-1px); opacity:.9; }
     .appearance-toggle {
       width:38px; height:38px; display:grid; place-items:center; padding:0;
       border:1px solid var(--border); border-radius:12px;
@@ -382,8 +410,8 @@
     }
     @media (max-width:720px) {
       .frame { width:min(calc(100% - 30px),var(--frame)); }
-      .header-link { display:none; }
-      .header-cta { margin-left:auto; }
+      .nav { display:none; }
+      .atlas-inside-account-entry { margin-left:auto; }
       .hero { padding:76px 0 66px; }
       h1 { font-size:clamp(43px,13vw,62px); }
       .hero-lede { font-size:17px; }
@@ -411,7 +439,6 @@
     }
     @media (max-width:470px) {
       .promise-rail { grid-template-columns:1fr; }
-      .header-cta { padding-inline:11px; }
       .workspace-stack { min-height:340px; }
       .workspace-caption { display:none; }
       .change-row { grid-template-columns:1fr 62px 62px; }
@@ -424,13 +451,35 @@
     }
   </style>
 </head>
-<body>
+<body data-atlas-world="atlas" data-atlas-surface="inside-atlas">
   <header class="site-header">
     <div class="frame header-inner">
       <a class="brand" href="/" aria-label="Atlas home">Atlas<span>.</span></a>
-      <div class="header-spacer"></div>
-      <a class="header-link" href="/tutors/">Inside Atlas</a>
-      <a class="header-cta" href="/?entry=product">Explore Atlas</a>
+      <nav class="nav" aria-label="Atlas">
+        <a href="/tutors/">Inside Atlas</a>
+        <a href="/pricing/" aria-current="page">Pricing</a>
+      </nav>
+      <div class="atlas-inside-account-entry" data-atlas-account-entry data-account-state="pending"
+        aria-label="Atlas account actions">
+        <a class="atlas-inside-account-action atlas-inside-account-explore" href="/?entry=product" data-atlas-product-entry>Explore Atlas</a>
+        <button class="atlas-inside-account-action atlas-inside-account-sign-in" type="button"
+          data-atlas-inside-sign-in>Sign in</button>
+        <button class="atlas-inside-account-action atlas-inside-account-create" type="button"
+          data-atlas-inside-create>
+          <span class="atlas-account-create-label-full">Create free account</span>
+          <span class="atlas-account-create-label-short">Create account</span>
+        </button>
+        <button class="atlas-inside-account-action atlas-inside-account-icon" type="button"
+          data-atlas-inside-account aria-haspopup="dialog" aria-expanded="false" aria-label="Atlas account"
+          title="Atlas account">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.15" stroke="currentColor" stroke-width="1.15" />
+            <circle cx="8" cy="6.05" r="1.95" stroke="currentColor" stroke-width="1.15" />
+            <path d="M4.65 11.85c.52-1.72 1.8-2.68 3.35-2.68s2.83.96 3.35 2.68" stroke="currentColor"
+              stroke-width="1.15" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
       <button class="appearance-toggle" type="button" data-legal-appearance aria-label="Switch to night mode" title="Switch to night mode">
         <svg class="appearance-icon appearance-icon--moon" viewBox="0 0 17 17" fill="none" aria-hidden="true"><path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <svg class="appearance-icon appearance-icon--sun" viewBox="0 0 17 17" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35"/><path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>
@@ -524,7 +573,7 @@
           <article class="plan plan--pro reveal" aria-labelledby="pro-title">
             <span class="plan-label">Atlas Pro</span>
             <h3 class="plan-title" id="pro-title">More room to create.</h3>
-            <p class="plan-sub">For tutors using Atlas regularly and creating fresh material across their teaching week.</p>
+            <p class="plan-sub">For tutors who want the freedom to create around the learner in front of them — whenever the lesson calls for something more specific.</p>
             <div class="price-line">
               <span class="price">$12</span>
               <span class="price-note">USD / month</span>
@@ -534,11 +583,12 @@
               <span>Your Pro creation allowance refreshes each billing month. Any applicable taxes are shown at checkout.</span>
             </div>
             <ul class="plan-list">
-              <li>Everything in Atlas Free</li>
+              <li>Create a fresh subject for the exact learner, goal, question or moment in front of you</li>
+              <li>Build something new during a lesson or just before it starts, instead of searching for something close enough</li>
+              <li>Follow unexpected interests and lesson directions without rationing every new idea</li>
+              <li>Grow a substantial teaching library around individual learners, recurring needs and the subjects you actually want to teach</li>
               <li>100 successful fresh AI subject creations per billing month</li>
               <li>Your unused Free creation bank stays preserved while Pro is active</li>
-              <li>AI-assisted shaping stays available without spending another fresh creation</li>
-              <li>No learner cap</li>
               <li>Your saved work remains yours if you cancel</li>
             </ul>
             <div class="plan-action">
@@ -555,16 +605,15 @@
         <div class="same-copy reveal">
           <p class="kicker">What actually changes?</p>
           <h2>The workspace doesn’t shrink. The creation allowance grows.</h2>
-          <p>Free is deliberately useful enough to own the ongoing teaching relationship. Pro does not unlock a different Atlas; it gives repeated professional creation capacity to tutors who need it.</p>
-          <p class="quiet">Same learners. Same library. Same teaching worlds. More fresh creation.</p>
+          <p>Free is deliberately useful enough to own the ongoing teaching relationship. Pro does not unlock a different Atlas; it removes the pressure to save fresh creation for only the most obvious lessons.</p>
+          <p class="quiet">Same workspace. Far more freedom to make the next lesson exactly what it needs to be.</p>
         </div>
 
         <div class="change-card reveal" aria-label="Atlas Free and Pro comparison">
           <div class="change-head">
             <span>Free → Pro</span>
-            <h3>One commercial difference should be easy to understand.</h3>
+            <h3>One commercial difference. A very different creative rhythm.</h3>
           </div>
-          <div class="change-row"><strong>Learners</strong><span class="yes">Unlimited</span><span class="yes">Unlimited</span></div>
           <div class="change-row"><strong>Compass + Arcade</strong><span class="yes">Included</span><span class="yes">Included</span></div>
           <div class="change-row"><strong>Save, edit &amp; reuse</strong><span class="yes">Included</span><span class="yes">Included</span></div>
           <div class="change-row"><strong>Continuity</strong><span class="yes">Included</span><span class="yes">Included</span></div>
@@ -664,6 +713,8 @@
   </footer>
 
   <script src="/shared/atlas-legal-appearance.js?v=20260920-legal-theme1"></script>
+  <script src="/shared/atlas-access-bootstrap.js?v=20260921-insideheader1"></script>
+  <script src="/shared/atlas-account-chrome.js?v=20260921-insideheader1"></script>
   <script>
     (function () {
       var items = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
