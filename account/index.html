@@ -608,6 +608,10 @@
 
     .plan-label { color: var(--muted); font-size: .9rem; }
 
+    .plan-row .text-button {
+      margin-top: 0;
+    }
+
     .plan-chip {
       padding: 5px 9px;
       border-radius: 999px;
@@ -910,6 +914,12 @@
             <span class="plan-label">Plan</span>
             <span id="account-plan" class="plan-chip">Checking…</span>
           </div>
+          <div id="billing-row" class="plan-row" hidden>
+            <span class="plan-label">Billing</span>
+            <button id="manage-subscription" class="text-button" type="button">
+              Manage subscription
+            </button>
+          </div>
           <div class="plan-row">
             <span class="plan-label">Sign-in method</span>
             <span id="account-sign-in-method" class="identity-value"></span>
@@ -1043,6 +1053,9 @@
     const AccountView = document.getElementById('account-view');
     const AccountEmail = document.getElementById('account-email');
     const AccountPlan = document.getElementById('account-plan');
+    const BillingRow = document.getElementById('billing-row');
+    const ManageSubscriptionButton =
+      document.getElementById('manage-subscription');
     const AccountSignInMethod =
       document.getElementById('account-sign-in-method');
     const AccountManagement =
@@ -1151,8 +1164,13 @@
     const ForgotForm = document.getElementById('forgot-form');
     const RecoveryForm = document.getElementById('recovery-form');
 
+    const ATLAS_BILLING_BACKEND =
+      'https://atlas-ai.savvy989.workers.dev';
+
     let guestMode = 'sign-in';
     let transientStatus = false;
+    let billingManagementUserId = '';
+    let billingManagementRequestId = 0;
 
     function passwordVisibilityIcon(visible) {
       return visible
@@ -1381,6 +1399,127 @@
       }
     }
 
+    async function requestBillingManagement(
+      method = 'GET'
+    ) {
+      if (
+        !window.AtlasCloud ||
+        typeof AtlasCloud.getSession !== 'function'
+      ) {
+        throw new Error(
+          'Atlas subscription management requires a signed-in account.'
+        );
+      }
+
+      const session =
+        await AtlasCloud.getSession();
+      const accessToken =
+        String(
+          session?.access_token || ''
+        ).trim();
+
+      if (!accessToken) {
+        throw new Error(
+          'Sign in to manage your Atlas subscription.'
+        );
+      }
+
+      const response =
+        await fetch(
+          `${ATLAS_BILLING_BACKEND}/paddle/customer-portal`,
+          {
+            method,
+            headers: {
+              'Authorization':
+                `Bearer ${accessToken}`
+            },
+            cache: 'no-store'
+          }
+        );
+
+      let result = null;
+
+      try {
+        result = await response.json();
+      } catch {
+        result = null;
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error ||
+          'Atlas subscription management is unavailable.'
+        );
+      }
+
+      return result || {};
+    }
+
+    async function refreshBillingManagement(
+      state
+    ) {
+      const userId =
+        state?.authenticated
+          ? String(state.userId || '').trim()
+          : '';
+
+      const requestId =
+        ++billingManagementRequestId;
+
+      if (!userId) {
+        billingManagementUserId = '';
+
+        if (BillingRow) {
+          BillingRow.hidden = true;
+        }
+
+        return;
+      }
+
+      if (billingManagementUserId === userId) {
+        return;
+      }
+
+      billingManagementUserId = userId;
+
+      if (BillingRow) {
+        BillingRow.hidden = true;
+      }
+
+      try {
+        const result =
+          await requestBillingManagement(
+            'GET'
+          );
+
+        if (
+          requestId !==
+            billingManagementRequestId ||
+          AtlasAccount.getState()?.userId !==
+            userId
+        ) {
+          return;
+        }
+
+        if (BillingRow) {
+          BillingRow.hidden =
+            result.available !== true;
+        }
+      } catch (error) {
+        if (
+          requestId ===
+            billingManagementRequestId
+        ) {
+          billingManagementUserId = '';
+        }
+
+        console.error(
+          '[Atlas Account] Billing management lookup failed:',
+          error
+        );
+      }
+    }
+
     function render(state) {
       if (!state.ready) return;
 
@@ -1421,12 +1560,19 @@
           AccountPlan.textContent = titleCasePlan(state.planCode || 'free');
         }
 
+        void refreshBillingManagement(
+          state
+        );
+
         if (!transientStatus) {
           setStatus('Your account is connected.', 'success', false);
         }
         return;
       }
 
+      void refreshBillingManagement(
+        state
+      );
       finishReturnHandoff();
       AccountEmail.textContent = '';
       AccountSignInMethod.textContent = '';
@@ -1929,6 +2075,64 @@
         );
       }
     });
+
+    ManageSubscriptionButton
+      ?.addEventListener(
+        'click',
+        async () => {
+          setButtonBusy(
+            ManageSubscriptionButton,
+            true,
+            'Opening…',
+            'Manage subscription'
+          );
+          setStatus(
+            'Opening secure subscription management…'
+          );
+
+          try {
+            const result =
+              await requestBillingManagement(
+                'POST'
+              );
+
+            const portalUrl =
+              new URL(
+                String(result?.url || '')
+              );
+
+            if (
+              portalUrl.protocol !== 'https:' ||
+              ![
+                'customer-portal.paddle.com',
+                'sandbox-customer-portal.paddle.com'
+              ].includes(
+                portalUrl.hostname
+              )
+            ) {
+              throw new Error(
+                'Atlas received an invalid subscription management link.'
+              );
+            }
+
+            window.location.assign(
+              portalUrl.href
+            );
+          } catch (error) {
+            setStatus(
+              humanizeAccountError(error),
+              'error'
+            );
+          } finally {
+            setButtonBusy(
+              ManageSubscriptionButton,
+              false,
+              'Opening…',
+              'Manage subscription'
+            );
+          }
+        }
+      );
 
     document.getElementById('sign-out').addEventListener('click', async () => {
       const button = document.getElementById('sign-out');
