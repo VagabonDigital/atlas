@@ -68,11 +68,11 @@
    cards and source screenshots remain visually truthful. */
 html[data-theme="night"] .atlas-showcase {
   background:
-    radial-gradient(circle at 50% 12%, rgba(143, 178, 194, .10), transparent 34rem),
-    linear-gradient(180deg, #171a19 0%, #1a1d1c 52%, #171918 100%);
+    radial-gradient(circle at 50% 10%, rgba(143, 178, 194, .115), transparent 32rem),
+    linear-gradient(180deg, #202423 0%, #222726 48%, #202423 100%);
   box-shadow:
-    inset 0 1px 0 rgba(235, 233, 228, .055),
-    inset 0 -1px 0 rgba(235, 233, 228, .045);
+    inset 0 1px 0 rgba(168, 197, 210, .10),
+    inset 0 -1px 0 rgba(168, 197, 210, .07);
 }
 
 html[data-theme="night"] .atlas-showcase .kicker {
