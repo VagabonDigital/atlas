@@ -12232,6 +12232,84 @@ function removeSavedLanguageFromWrapUp(sessionId, entryId) {
     persistWrapUpEvidence(sessionId);
 }
 
+function publishCompassContinuityHandoff(
+    Bridge,
+    activeSession,
+    publishedTitle,
+    action
+) {
+    const progressChanged =
+        action === 'progress-updated' ||
+        action === 'opened';
+
+    const languageChanged =
+        action === 'language-saved' ||
+        action === 'language-unsaved';
+
+    if (!progressChanged && !languageChanged) {
+        return null;
+    }
+
+    const evidence =
+        getWrapUpEvidence(activeSession.id, false);
+
+    const evidenceExploredItems =
+        evidence && Array.isArray(evidence.exploredItems)
+            ? evidence.exploredItems
+            : [];
+
+    // Saved language is learner continuity and remains a separate Atlas
+    // activity. Only refresh the subject handoff from a language mutation
+    // when this teaching window already contains explored subject material.
+    if (
+        languageChanged &&
+        evidenceExploredItems.length === 0
+    ) {
+        return null;
+    }
+
+    let exploredItems = evidenceExploredItems;
+
+    // Wrap Up evidence is intentionally transient. If it has expired (or this
+    // is an older in-progress subject being reopened), derive only the latest
+    // durable explored anchor so Atlas can still offer "Pick up from" without
+    // making Wrap Up a prerequisite.
+    if (
+        progressChanged &&
+        exploredItems.length === 0
+    ) {
+        exploredItems = [...progress.explored]
+            .map(getExploredItemSummary)
+            .filter(Boolean)
+            .slice(-1);
+    }
+
+    if (exploredItems.length === 0) {
+        return null;
+    }
+
+    const pickupItem =
+        getCompassWrapUpRecap(exploredItems).anchor ||
+        exploredItems[exploredItems.length - 1] ||
+        null;
+
+    return Bridge.writeHandoff({
+        v: 1,
+        sessionId: activeSession.id,
+        subjectId: MODULE.id,
+        subjectTitle: publishedTitle,
+        world: COMPASS_WORLD_ID,
+        exploredItems,
+        savedLanguageCount:
+            evidence?.savedLanguageEntryIds instanceof Set
+                ? evidence.savedLanguageEntryIds.size
+                : 0,
+        pickupLabel: pickupItem?.title || null,
+        pickupRef: pickupItem?.id || null,
+        completedAt: Date.now()
+    });
+}
+
 function publishAtlasCompassItem(action = 'updated') {
     try {
         const Bridge = requireAtlasBridge();
@@ -12355,6 +12433,13 @@ function publishAtlasCompassItem(action = 'updated') {
         }
 
         Bridge.upsertSessionState(activeSession.id, registryId, sessionState);
+
+        publishCompassContinuityHandoff(
+            Bridge,
+            activeSession,
+            publishedTitle,
+            action
+        );
 
         Bridge.touchRecentActivity({
             registryId,

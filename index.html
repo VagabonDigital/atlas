@@ -4662,6 +4662,36 @@
       return matchesSubjectId || matchesRegistryId ? handoff : null;
     }
 
+    function getContinueHandoff(sessionId, item) {
+      if (!item || item.world !== COMPASS_ID) return null;
+
+      const subjectId = typeof item.id === 'string' && item.id.trim()
+        ? item.id.trim()
+        : typeof item.registryId === 'string' &&
+          item.registryId.startsWith(COMPASS_ID + ':')
+          ? item.registryId.slice((COMPASS_ID + ':').length).trim()
+          : '';
+
+      if (subjectId && typeof Bridge.readHandoff === 'function') {
+        try {
+          const specificHandoff =
+            Bridge.readHandoff(sessionId, subjectId);
+
+          const matchingSpecific =
+            getMatchingCompassHandoff(item, specificHandoff);
+
+          if (matchingSpecific) {
+            return matchingSpecific;
+          }
+        } catch { }
+      }
+
+      return getMatchingCompassHandoff(
+        item,
+        getLatestHandoff(sessionId)
+      );
+    }
+
     let expandedContinueHandoffId = null;
 
     // ================================================================
@@ -5096,8 +5126,9 @@
       const authenticated =
         hasAuthenticatedAccountContext();
       const continueItem = getContinueItem(reg, session.id);
-      const latestHandoff = continueItem ? getLatestHandoff(session.id) : null;
-      const continueHandoff = getMatchingCompassHandoff(continueItem, latestHandoff);
+      const continueHandoff = continueItem
+        ? getContinueHandoff(session.id, continueItem)
+        : null;
       const reviewSet = getReviewSet(ledger, session.id);
       const hasContinue = !!continueItem;
       const hasReview = reviewSet.length > 0;
