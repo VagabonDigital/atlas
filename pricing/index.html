@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atlas Pricing | Free & Pro</title>
+  <meta name="description" content="Start with a real Atlas teaching workspace for free. Atlas Pro expands fresh AI-assisted subject creation to 100 subjects each month.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="canonical" href="https://atlasfortutors.com/pricing/">
+  <link rel="icon" type="image/svg+xml" href="/shared/atlas-favicon.svg?v=20260920-legal1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@1,500&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      try {
+        var sessionId = sessionStorage.getItem('atlas::activeSessionId') || 'default';
+        var sessions = JSON.parse(localStorage.getItem('atlas::sessions') || '[]');
+        if (!Array.isArray(sessions) || !sessions.some(function (session) {
+          return String(session && session.id || '') === sessionId;
+        })) sessionId = 'default';
+        var modes = JSON.parse(localStorage.getItem('atlas::appearanceBySession') || '{}');
+        var mode = modes && modes[sessionId] === 'night' ? 'night'
+          : modes && modes[sessionId] === 'light' ? 'light'
+          : localStorage.getItem('atlas::appearanceMode') === 'night' ? 'night' : 'light';
+        document.documentElement.dataset.theme = mode;
+        document.documentElement.style.colorScheme = mode === 'night' ? 'dark' : 'light';
+      } catch (error) {
+        document.documentElement.dataset.theme = 'light';
+        document.documentElement.style.colorScheme = 'light';
+      }
+    })();
+  </script>
+  <style>
+    :root {
+      --surface: #f3f0e9;
+      --surface-panel: #fffdf9;
+      --surface-muted: #ebe7de;
+      --surface-raised: #fffaf3;
+      --border: rgba(33,31,27,.09);
+      --border-strong: rgba(33,31,27,.16);
+      --text-heading: #211f1b;
+      --text-body: #504b43;
+      --text-muted: #7b7469;
+      --text-subtle: #9b9489;
+      --accent: #4d7184;
+      --accent-rgb: 77,113,132;
+      --accent-ink: #315568;
+      --accent-soft: rgba(77,113,132,.11);
+      --accent-pale: rgba(77,113,132,.055);
+      --compass: #4a7c78;
+      --compass-soft: rgba(74,124,120,.10);
+      --arcade: #df572f;
+      --arcade-soft: rgba(223,87,47,.09);
+      --shadow-sm: 0 7px 24px rgba(33,31,27,.055);
+      --shadow-lg: 0 30px 80px rgba(33,31,27,.10);
+      --font-display: "DM Serif Display", Georgia, serif;
+      --font-body: "DM Sans", system-ui, sans-serif;
+      --font-accent: "Playfair Display", Georgia, serif;
+      --frame: 1180px;
+      --copy: 730px;
+      --motion: 220ms cubic-bezier(.2,.75,.2,1);
+      --theme-motion: 280ms cubic-bezier(.4,0,.2,1);
+    }
+
+    html[data-theme="night"] {
+      --surface: #1b1d1c;
+      --surface-panel: #252826;
+      --surface-muted: #212421;
+      --surface-raised: #2a2d2a;
+      --border: rgba(235,233,228,.08);
+      --border-strong: rgba(235,233,228,.15);
+      --text-heading: #ebe9e4;
+      --text-body: #bdb8ae;
+      --text-muted: #918b82;
+      --text-subtle: #706c64;
+      --accent: #8fb2c2;
+      --accent-rgb: 143,178,194;
+      --accent-ink: #bfd5df;
+      --accent-soft: rgba(143,178,194,.14);
+      --accent-pale: rgba(143,178,194,.075);
+      --compass: #84cabf;
+      --compass-soft: rgba(132,202,191,.11);
+      --arcade: #ff815d;
+      --arcade-soft: rgba(255,129,93,.10);
+      --shadow-sm: 0 7px 24px rgba(0,0,0,.16);
+      --shadow-lg: 0 30px 80px rgba(0,0,0,.30);
+    }
+
+    *,*::before,*::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; background: var(--surface); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text-body);
+      background:
+        radial-gradient(circle at 16% -5%, rgba(var(--accent-rgb),.075), transparent 30rem),
+        var(--surface);
+      font-family: var(--font-body);
+      line-height: 1.62;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    button { font: inherit; color: inherit; }
+    img,svg { display:block; max-width:100%; }
+    h1,h2,h3,p,ul { margin:0; }
+    ul { padding:0; list-style:none; }
+    ::selection { background: var(--accent-soft); color: var(--text-heading); }
+    :focus-visible { outline: 3px solid rgba(var(--accent-rgb),.34); outline-offset:3px; }
+    .frame { width:min(calc(100% - 48px),var(--frame)); margin-inline:auto; }
+
+    .site-header {
+      position:sticky; top:0; z-index:50;
+      border-bottom:1px solid var(--border);
+      background:color-mix(in srgb,var(--surface) 75%,transparent);
+      backdrop-filter:blur(16px) saturate(1.1);
+      -webkit-backdrop-filter:blur(16px) saturate(1.1);
+    }
+    .header-inner {
+      min-height:56px; display:flex; align-items:center; gap:10px;
+    }
+    .brand {
+      color:var(--text-heading); font-family:var(--font-display);
+      font-size:1.22rem; text-decoration:none; letter-spacing:-.01em;
+    }
+    .brand span { color:var(--accent); }
+    .header-spacer { flex:1; }
+    .header-link {
+      padding:8px 10px; border-radius:999px; color:var(--text-muted);
+      font-size:13px; font-weight:600; text-decoration:none;
+      transition:color var(--motion),background var(--motion);
+    }
+    .header-link:hover { color:var(--text-heading); background:var(--accent-pale); }
+    .header-cta {
+      padding:9px 14px; border-radius:999px; background:var(--text-heading);
+      color:var(--surface); font-size:13px; font-weight:700; text-decoration:none;
+      transition:transform var(--motion),opacity var(--motion);
+    }
+    .header-cta:hover { transform:translateY(-1px); opacity:.9; }
+    .appearance-toggle {
+      width:38px; height:38px; display:grid; place-items:center; padding:0;
+      border:1px solid var(--border); border-radius:12px;
+      background:var(--surface-panel); color:var(--text-muted); box-shadow:var(--shadow-sm);
+      cursor:pointer;
+    }
+    .appearance-icon { width:16px; height:16px; }
+    .appearance-icon--sun { display:none; }
+    html[data-theme="night"] .appearance-icon--moon { display:none; }
+    html[data-theme="night"] .appearance-icon--sun { display:block; }
+
+    .hero { padding:104px 0 86px; }
+    .kicker {
+      margin-bottom:14px; color:var(--accent); font-family:var(--font-accent);
+      font-style:italic; font-size:15px;
+    }
+    h1,h2,h3 {
+      color:var(--text-heading); font-family:var(--font-display); font-weight:400;
+      letter-spacing:-.02em;
+    }
+    h1 { max-width:980px; font-size:clamp(48px,7vw,82px); line-height:.99; }
+    h2 { font-size:clamp(34px,4.6vw,54px); line-height:1.05; }
+    h3 { font-size:clamp(23px,2.7vw,31px); line-height:1.14; }
+    .hero-lede {
+      width:min(100%,760px); margin-top:28px; color:var(--text-body);
+      font-size:clamp(18px,2vw,21px); line-height:1.6;
+    }
+    .hero-actions { margin-top:34px; display:flex; gap:10px; flex-wrap:wrap; }
+    .button {
+      min-height:46px; display:inline-flex; align-items:center; justify-content:center;
+      padding:0 18px; border:1px solid var(--border-strong); border-radius:999px;
+      font-size:13px; font-weight:700; text-decoration:none;
+      transition:transform var(--motion),background var(--motion),border-color var(--motion);
+    }
+    .button:hover { transform:translateY(-1px); }
+    .button-primary { background:var(--text-heading); border-color:var(--text-heading); color:var(--surface); }
+    .button-secondary { background:var(--surface-panel); color:var(--text-heading); }
+
+    .promise-rail {
+      margin-top:70px; padding-top:24px; border-top:1px solid var(--border);
+      display:grid; grid-template-columns:repeat(4,1fr); gap:28px;
+    }
+    .promise strong {
+      display:block; color:var(--text-heading); font-size:13px; font-weight:700;
+    }
+    .promise span { display:block; margin-top:6px; color:var(--text-muted); font-size:12px; line-height:1.5; }
+
+    .story-stage {
+      position:relative; padding:22px 0 105px; overflow:hidden;
+    }
+    .story-copy { max-width:760px; margin-bottom:42px; }
+    .story-copy p:not(.kicker) { margin-top:18px; color:var(--text-muted); font-size:18px; }
+
+    .workspace-stack {
+      position:relative; min-height:620px; display:grid; place-items:center;
+    }
+    .workspace-card {
+      position:absolute; width:min(94%,980px); overflow:hidden;
+      border:1px solid var(--border-strong); border-radius:28px;
+      background:var(--surface-panel); box-shadow:var(--shadow-lg);
+      transform-origin:center bottom;
+    }
+    .workspace-card--back {
+      top:20px; transform:translateY(0) scale(.94) rotate(-1.5deg); opacity:.58;
+    }
+    .workspace-card--mid {
+      top:70px; transform:translateX(18px) scale(.97) rotate(1deg); opacity:.76;
+    }
+    .workspace-card--front { top:130px; z-index:3; }
+    .workspace-bar {
+      height:46px; display:flex; align-items:center; gap:9px;
+      padding:0 16px; border-bottom:1px solid var(--border);
+      color:var(--text-muted); font-size:11px;
+    }
+    .workspace-dot { width:7px; height:7px; border-radius:50%; background:var(--border-strong); }
+    .workspace-label { margin-left:auto; }
+    .workspace-card img { width:100%; height:auto; display:block; }
+    .workspace-caption {
+      position:absolute; z-index:6; left:50%; bottom:0; transform:translateX(-50%);
+      width:min(calc(100% - 48px),860px);
+      display:flex; justify-content:space-between; align-items:center; gap:24px;
+      padding:20px 24px; border:1px solid var(--border-strong); border-radius:18px;
+      background:color-mix(in srgb,var(--surface-panel) 90%,transparent);
+      box-shadow:var(--shadow-sm); backdrop-filter:blur(18px);
+    }
+    .workspace-caption strong { color:var(--text-heading); font-family:var(--font-display); font-size:20px; font-weight:400; }
+    .workspace-caption span { color:var(--text-muted); font-size:12px; text-align:right; }
+
+    .pricing-section { padding:110px 0; border-top:1px solid var(--border); }
+    .pricing-head { max-width:780px; }
+    .pricing-head .lede { margin-top:20px; color:var(--text-muted); font-size:18px; }
+    .plans {
+      margin-top:52px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px;
+    }
+    .plan {
+      position:relative; min-height:590px; display:flex; flex-direction:column;
+      padding:36px; border:1px solid var(--border-strong); border-radius:28px;
+      background:var(--surface-panel); box-shadow:var(--shadow-sm);
+    }
+    .plan--pro {
+      background:
+        radial-gradient(circle at 88% 2%,var(--accent-soft),transparent 21rem),
+        var(--surface-panel);
+      border-color:rgba(var(--accent-rgb),.34);
+      box-shadow:0 22px 64px rgba(var(--accent-rgb),.09),var(--shadow-sm);
+    }
+    .plan-label {
+      color:var(--text-muted); font-size:11px; font-weight:700;
+      letter-spacing:.12em; text-transform:uppercase;
+    }
+    .plan--pro .plan-label { color:var(--accent); }
+    .plan-title { margin-top:10px; font-size:40px; }
+    .plan-sub { min-height:56px; margin-top:12px; color:var(--text-muted); max-width:470px; }
+    .price-line {
+      margin-top:30px; padding-top:26px; border-top:1px solid var(--border);
+      display:flex; align-items:flex-end; gap:8px;
+    }
+    .price { color:var(--text-heading); font-family:var(--font-display); font-size:56px; line-height:.9; }
+    .price-note { padding-bottom:5px; color:var(--text-muted); font-size:13px; }
+    .capacity {
+      margin-top:24px; padding:19px 20px; border-radius:16px;
+      background:var(--accent-pale); border:1px solid rgba(var(--accent-rgb),.13);
+    }
+    .capacity strong { display:block; color:var(--text-heading); font-size:17px; }
+    .capacity span { display:block; margin-top:5px; color:var(--text-muted); font-size:12px; }
+    .plan-list { margin-top:27px; display:grid; gap:13px; }
+    .plan-list li { position:relative; padding-left:22px; color:var(--text-body); font-size:13px; }
+    .plan-list li::before {
+      content:""; position:absolute; left:0; top:.55em; width:8px; height:4px;
+      border-left:1.5px solid var(--accent); border-bottom:1.5px solid var(--accent);
+      transform:rotate(-45deg);
+    }
+    .plan-action { margin-top:auto; padding-top:30px; }
+    .plan-action .button { width:100%; }
+    .plan-foot { margin-top:12px; color:var(--text-subtle); font-size:11px; text-align:center; }
+
+    .same-section { padding:110px 0; border-top:1px solid var(--border); }
+    .same-grid {
+      margin-top:54px; display:grid; grid-template-columns:.82fr 1.18fr; gap:80px; align-items:start;
+    }
+    .same-copy p { margin-top:20px; color:var(--text-muted); font-size:17px; }
+    .same-copy .quiet {
+      margin-top:30px; padding-top:20px; border-top:1px solid var(--border);
+      color:var(--text-heading); font-family:var(--font-display); font-size:24px; line-height:1.3;
+    }
+    .change-card {
+      overflow:hidden; border:1px solid var(--border-strong); border-radius:26px;
+      background:var(--surface-panel); box-shadow:var(--shadow-sm);
+    }
+    .change-head { padding:26px 28px; border-bottom:1px solid var(--border); }
+    .change-head span { color:var(--accent); font-size:11px; font-weight:700; letter-spacing:.11em; text-transform:uppercase; }
+    .change-head h3 { margin-top:7px; }
+    .change-row {
+      display:grid; grid-template-columns:1.2fr .75fr .75fr; align-items:center;
+      min-height:66px; padding:0 28px; border-bottom:1px solid var(--border);
+      font-size:13px;
+    }
+    .change-row:last-child { border-bottom:0; }
+    .change-row strong { color:var(--text-heading); font-weight:600; }
+    .change-row span { color:var(--text-muted); }
+    .change-row .yes { color:var(--text-heading); }
+    .change-row--hero {
+      min-height:96px; background:var(--accent-pale);
+    }
+    .change-row--hero strong { font-family:var(--font-display); font-size:20px; font-weight:400; }
+    .change-row--hero span { color:var(--accent-ink); font-weight:700; }
+
+    .ownership-section { padding:105px 0; border-top:1px solid var(--border); }
+    .ownership-grid {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:46px;
+    }
+    .ownership-card {
+      padding:28px; border:1px solid var(--border); border-radius:22px;
+      background:var(--surface-panel);
+    }
+    .ownership-card .number {
+      display:block; color:var(--accent); font-family:var(--font-display); font-size:28px;
+    }
+    .ownership-card h3 { margin-top:24px; font-size:24px; }
+    .ownership-card p { margin-top:12px; color:var(--text-muted); font-size:13px; }
+
+    .faq-section { padding:105px 0; border-top:1px solid var(--border); }
+    .faq-layout { display:grid; grid-template-columns:.7fr 1.3fr; gap:80px; align-items:start; }
+    .faq-list { border-top:1px solid var(--border-strong); }
+    details { border-bottom:1px solid var(--border-strong); }
+    summary {
+      position:relative; cursor:pointer; list-style:none; padding:23px 38px 23px 0;
+      color:var(--text-heading); font-family:var(--font-display); font-size:20px;
+    }
+    summary::-webkit-details-marker { display:none; }
+    summary::after {
+      content:"+"; position:absolute; right:2px; top:21px;
+      color:var(--accent); font-family:var(--font-body); font-size:20px;
+    }
+    details[open] summary::after { content:"−"; }
+    details p { padding:0 46px 23px 0; color:var(--text-muted); font-size:14px; }
+
+    .final-section { padding:105px 0 112px; border-top:1px solid var(--border); }
+    .final-card {
+      position:relative; overflow:hidden; padding:58px;
+      border:1px solid rgba(var(--accent-rgb),.24); border-radius:30px;
+      background:
+        radial-gradient(circle at 86% 10%,var(--accent-soft),transparent 24rem),
+        var(--surface-panel);
+      box-shadow:var(--shadow-sm);
+    }
+    .final-card h2 { max-width:780px; }
+    .final-card p { max-width:680px; margin-top:18px; color:var(--text-muted); font-size:17px; }
+    .final-actions { margin-top:30px; display:flex; gap:10px; flex-wrap:wrap; }
+
+    .footer { border-top:1px solid var(--border); color:var(--text-muted); }
+    .footer-inner {
+      min-height:84px; display:flex; align-items:center; justify-content:space-between;
+      gap:20px; flex-wrap:wrap; font-size:12px;
+    }
+    .footer-links { display:flex; gap:16px; flex-wrap:wrap; }
+    .footer-links a { color:var(--text-muted); text-decoration:none; }
+    .footer-links a:hover { color:var(--text-heading); }
+
+    .reveal { opacity:0; transform:translateY(20px); transition:opacity 700ms ease,transform 700ms cubic-bezier(.2,.7,.2,1); }
+    .reveal.is-visible { opacity:1; transform:none; }
+
+    html.theme-changing,
+    html.theme-changing *,
+    html.theme-changing *::before,
+    html.theme-changing *::after {
+      transition:
+        background-color var(--theme-motion),
+        background var(--theme-motion),
+        color var(--theme-motion),
+        border-color var(--theme-motion),
+        box-shadow var(--theme-motion),
+        fill var(--theme-motion),
+        stroke var(--theme-motion);
+    }
+
+    @media (max-width:900px) {
+      .promise-rail { grid-template-columns:repeat(2,1fr); }
+      .same-grid,.faq-layout { grid-template-columns:1fr; gap:42px; }
+      .ownership-grid { grid-template-columns:1fr; }
+      .workspace-stack { min-height:520px; }
+      .workspace-card--front { top:105px; }
+    }
+    @media (max-width:720px) {
+      .frame { width:min(calc(100% - 30px),var(--frame)); }
+      .header-link { display:none; }
+      .header-cta { margin-left:auto; }
+      .hero { padding:76px 0 66px; }
+      h1 { font-size:clamp(43px,13vw,62px); }
+      .hero-lede { font-size:17px; }
+      .promise-rail { margin-top:52px; grid-template-columns:1fr 1fr; gap:22px 16px; }
+      .story-stage,.pricing-section,.same-section,.ownership-section,.faq-section,.final-section { padding:78px 0; }
+      .workspace-stack { min-height:420px; }
+      .workspace-card { width:100%; border-radius:18px; }
+      .workspace-card--back { top:8px; transform:scale(.94) rotate(-1deg); }
+      .workspace-card--mid { top:38px; transform:scale(.97) rotate(.7deg); }
+      .workspace-card--front { top:72px; }
+      .workspace-bar { height:34px; }
+      .workspace-caption {
+        bottom:8px; width:calc(100% - 24px); padding:15px 16px; gap:12px;
+      }
+      .workspace-caption strong { font-size:16px; }
+      .workspace-caption span { max-width:150px; font-size:10px; }
+      .plans { grid-template-columns:1fr; }
+      .plan { min-height:0; padding:28px 24px; }
+      .plan-sub { min-height:0; }
+      .change-row { grid-template-columns:1fr 72px 72px; padding:0 16px; font-size:11px; }
+      .change-head { padding:22px 18px; }
+      .change-row--hero strong { font-size:17px; }
+      .final-card { padding:36px 24px; }
+      .footer-inner { padding:22px 0; align-items:flex-start; flex-direction:column; gap:10px; }
+    }
+    @media (max-width:470px) {
+      .promise-rail { grid-template-columns:1fr; }
+      .header-cta { padding-inline:11px; }
+      .workspace-stack { min-height:340px; }
+      .workspace-caption { display:none; }
+      .change-row { grid-template-columns:1fr 62px 62px; }
+      .change-row span { text-align:center; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      html { scroll-behavior:auto; }
+      .reveal { opacity:1; transform:none; transition:none; }
+      html.theme-changing,html.theme-changing *,html.theme-changing *::before,html.theme-changing *::after { transition-duration:.01ms!important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="frame header-inner">
+      <a class="brand" href="/" aria-label="Atlas home">Atlas<span>.</span></a>
+      <div class="header-spacer"></div>
+      <a class="header-link" href="/tutors/">Inside Atlas</a>
+      <a class="header-cta" href="/?entry=product">Explore Atlas</a>
+      <button class="appearance-toggle" type="button" data-legal-appearance aria-label="Switch to night mode" title="Switch to night mode">
+        <svg class="appearance-icon appearance-icon--moon" viewBox="0 0 17 17" fill="none" aria-hidden="true"><path d="M14.5 10.2A7 7 0 0 1 6.8 2.5a7 7 0 1 0 7.7 7.7Z" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg class="appearance-icon appearance-icon--sun" viewBox="0 0 17 17" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="3" stroke="currentColor" stroke-width="1.35"/><path d="M8.5 1.5v2M8.5 13.5v2M1.5 8.5h2M13.5 8.5h2M3.7 3.7l1.4 1.4M11.9 11.9l1.4 1.4M11.9 5.1l1.4-1.4M3.7 13.3l1.4-1.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="frame">
+        <p class="kicker">Atlas pricing</p>
+        <h1>Start with Atlas.<br>Grow when you need more room to create.</h1>
+        <p class="hero-lede">Free is a real teaching workspace, not a timed trial. Keep your learners, your library, Compass, Arcade and the thread between lessons. Pro expands fresh AI-assisted creation when Atlas becomes part of how you teach.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#plans">See Free &amp; Pro</a>
+          <a class="button button-secondary" href="/tutors/">Experience Atlas first</a>
+        </div>
+        <div class="promise-rail" aria-label="Included across Atlas">
+          <div class="promise"><strong>Your learners</strong><span>No learner cap. Keep continuity across recurring lessons.</span></div>
+          <div class="promise"><strong>Your library</strong><span>Save, edit, reuse and build on the material you create.</span></div>
+          <div class="promise"><strong>Compass + Arcade</strong><span>Structured subjects and conversational games stay part of Atlas.</span></div>
+          <div class="promise"><strong>Your work</strong><span>Paid access can end. Your saved teaching workspace does not disappear.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="story-stage reveal" aria-labelledby="story-title">
+      <div class="frame">
+        <div class="story-copy">
+          <p class="kicker">The whole workspace</p>
+          <h2 id="story-title">The useful part of Atlas is not kept behind Pro.</h2>
+          <p>Choose material, shape it around a learner, teach from it, play, save what matters and come back next lesson with context already there. That relationship with your teaching belongs on Free too.</p>
+        </div>
+        <div class="workspace-stack" aria-label="Atlas teaching workspace preview">
+          <div class="workspace-card workspace-card--back" aria-hidden="true">
+            <div class="workspace-bar"><span class="workspace-dot"></span><span class="workspace-dot"></span><span class="workspace-dot"></span><span class="workspace-label">Arcade</span></div>
+            <img src="/tutors/assets/showcase/focus-mode-discussion.png" alt="">
+          </div>
+          <div class="workspace-card workspace-card--mid" aria-hidden="true">
+            <div class="workspace-bar"><span class="workspace-dot"></span><span class="workspace-dot"></span><span class="workspace-dot"></span><span class="workspace-label">Compass</span></div>
+            <img src="/tutors/assets/showcase/cover-hero-forest-glow.png" alt="">
+          </div>
+          <div class="workspace-card workspace-card--front">
+            <div class="workspace-bar"><span class="workspace-dot"></span><span class="workspace-dot"></span><span class="workspace-dot"></span><span class="workspace-label">Atlas · Live teaching</span></div>
+            <img src="/tutors/assets/showcase/overview-toefl-wide.png" alt="Atlas Compass subject shown as a real teaching workspace.">
+          </div>
+          <div class="workspace-caption">
+            <strong>One workspace. Two levels of creation capacity.</strong>
+            <span>Pro expands how often Atlas builds something new for you.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pricing-section" id="plans">
+      <div class="frame">
+        <div class="pricing-head reveal">
+          <p class="kicker">Free &amp; Pro</p>
+          <h2>Use Atlas for free. Upgrade for more creation.</h2>
+          <p class="lede">Both plans keep the teaching relationship intact. Pro is for tutors who want Atlas generating fresh lesson-ready subjects again and again.</p>
+        </div>
+
+        <div class="plans">
+          <article class="plan reveal" aria-labelledby="free-title">
+            <span class="plan-label">Atlas Free</span>
+            <h3 class="plan-title" id="free-title">A real place to teach.</h3>
+            <p class="plan-sub">Start using Atlas, build your learner context and keep the workspace useful without a subscription.</p>
+            <div class="price-line">
+              <span class="price">$0</span>
+              <span class="price-note">forever</span>
+            </div>
+            <div class="capacity">
+              <strong>8 fresh AI-built subjects</strong>
+              <span>A lifetime creation bank for your account. Successful fresh builds count; failed builds do not.</span>
+            </div>
+            <ul class="plan-list">
+              <li>Unlimited learners</li>
+              <li>Compass subjects and Atlas Originals</li>
+              <li>Arcade conversational games</li>
+              <li>Save, edit, duplicate and reuse your teaching material</li>
+              <li>Learner and lesson continuity</li>
+              <li>AI-assisted shaping of existing subjects</li>
+              <li>Portable export of supported account data</li>
+            </ul>
+            <div class="plan-action">
+              <a class="button button-secondary" href="/?entry=product&amp;plan=free">Start free</a>
+              <p class="plan-foot">No card required to start Atlas Free.</p>
+            </div>
+          </article>
+
+          <article class="plan plan--pro reveal" aria-labelledby="pro-title">
+            <span class="plan-label">Atlas Pro</span>
+            <h3 class="plan-title" id="pro-title">More room to create.</h3>
+            <p class="plan-sub">For tutors using Atlas regularly and creating fresh material across their teaching week.</p>
+            <div class="price-line">
+              <span class="price">$12</span>
+              <span class="price-note">USD / month</span>
+            </div>
+            <div class="capacity">
+              <strong>100 fresh AI-built subjects each month</strong>
+              <span>Your Pro creation allowance refreshes each billing month. Any applicable taxes are shown at checkout.</span>
+            </div>
+            <ul class="plan-list">
+              <li>Everything in Atlas Free</li>
+              <li>100 successful fresh AI subject creations per billing month</li>
+              <li>Your unused Free creation bank stays preserved while Pro is active</li>
+              <li>AI-assisted shaping stays available without spending another fresh creation</li>
+              <li>No learner cap</li>
+              <li>Your saved work remains yours if you cancel</li>
+            </ul>
+            <div class="plan-action">
+              <a class="button button-primary" href="/?entry=product&amp;plan=pro" data-atlas-plan="pro">Choose Pro</a>
+              <p class="plan-foot">Monthly subscription. Cancel anytime; access continues through the paid period.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="same-section">
+      <div class="frame same-grid">
+        <div class="same-copy reveal">
+          <p class="kicker">What actually changes?</p>
+          <h2>The workspace doesn’t shrink. The creation allowance grows.</h2>
+          <p>Free is deliberately useful enough to own the ongoing teaching relationship. Pro does not unlock a different Atlas; it gives repeated professional creation capacity to tutors who need it.</p>
+          <p class="quiet">Same learners. Same library. Same teaching worlds. More fresh creation.</p>
+        </div>
+
+        <div class="change-card reveal" aria-label="Atlas Free and Pro comparison">
+          <div class="change-head">
+            <span>Free → Pro</span>
+            <h3>One commercial difference should be easy to understand.</h3>
+          </div>
+          <div class="change-row"><strong>Learners</strong><span class="yes">Unlimited</span><span class="yes">Unlimited</span></div>
+          <div class="change-row"><strong>Compass + Arcade</strong><span class="yes">Included</span><span class="yes">Included</span></div>
+          <div class="change-row"><strong>Save, edit &amp; reuse</strong><span class="yes">Included</span><span class="yes">Included</span></div>
+          <div class="change-row"><strong>Continuity</strong><span class="yes">Included</span><span class="yes">Included</span></div>
+          <div class="change-row"><strong>AI shaping</strong><span class="yes">Included</span><span class="yes">Included</span></div>
+          <div class="change-row change-row--hero"><strong>Fresh AI-built subjects</strong><span>8 lifetime</span><span>100 / month</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ownership-section">
+      <div class="frame">
+        <div class="reveal">
+          <p class="kicker">Built around ownership</p>
+          <h2>Subscription status should not hold your teaching history hostage.</h2>
+        </div>
+        <div class="ownership-grid">
+          <article class="ownership-card reveal">
+            <span class="number">01</span>
+            <h3>Cancel without losing the thread.</h3>
+            <p>When Pro ends, your account returns to Free. Learner continuity and saved teaching material remain available.</p>
+          </article>
+          <article class="ownership-card reveal">
+            <span class="number">02</span>
+            <h3>Your Free bank waits for you.</h3>
+            <p>Upgrading does not consume the unused part of your lifetime Free creation bank. If Pro ends, that remaining bank is still there.</p>
+          </article>
+          <article class="ownership-card reveal">
+            <span class="number">03</span>
+            <h3>Shape without counting every move.</h3>
+            <p>Editing, duplicating and reshaping existing material does not spend another fresh subject creation. The meter is for genuinely new AI-built subjects.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq-section">
+      <div class="frame faq-layout">
+        <div class="reveal">
+          <p class="kicker">A few useful answers</p>
+          <h2>Pricing without the small-print maze.</h2>
+        </div>
+        <div class="faq-list reveal">
+          <details>
+            <summary>What counts as one AI subject creation?</summary>
+            <p>One successful fresh AI-built subject counts as one creation. A failed, incomplete or malformed build does not use the allowance.</p>
+          </details>
+          <details>
+            <summary>Does changing an existing subject use another creation?</summary>
+            <p>No. Manual editing, duplication and AI-assisted shaping of an existing subject do not spend another fresh subject creation.</p>
+          </details>
+          <details>
+            <summary>Does Atlas Free expire?</summary>
+            <p>No. Atlas Free is not a timed trial. Your lifetime bank of eight successful fresh AI-created subjects does not expire simply because time passes.</p>
+          </details>
+          <details>
+            <summary>What happens if I cancel Pro?</summary>
+            <p>Your Pro access continues through the paid billing period, then the account returns to Free. Your saved workspace remains, and any unused part of your lifetime Free creation bank becomes available again.</p>
+          </details>
+          <details>
+            <summary>Can I use Atlas with as many learners as I want?</summary>
+            <p>Yes. Atlas does not use learner limits to separate Free and Pro.</p>
+          </details>
+          <details>
+            <summary>Are Compass and Arcade only for Pro?</summary>
+            <p>No. Atlas is designed so the teaching workspace remains useful on Free. Pro expands fresh AI-assisted subject creation rather than turning the rest of Atlas into locked scenery.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-section">
+      <div class="frame">
+        <div class="final-card reveal">
+          <p class="kicker">Start where you are</p>
+          <h2>Try Atlas in a real lesson before deciding whether you need Pro.</h2>
+          <p>Explore the workspace, open a subject or game, create something for a learner and see whether Atlas belongs in the way you teach.</p>
+          <div class="final-actions">
+            <a class="button button-primary" href="/?entry=product&amp;plan=free">Start free</a>
+            <a class="button button-secondary" href="/tutors/">Go inside Atlas</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="frame footer-inner">
+      <span>Atlas · Create. Shape. Teach.</span>
+      <nav class="footer-links" aria-label="Atlas links">
+        <a href="/tutors/">Inside Atlas</a>
+        <a href="/pricing/" aria-current="page">Pricing</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+        <a href="/refunds/">Refunds</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="/shared/atlas-legal-appearance.js?v=20260920-legal-theme1"></script>
+  <script>
+    (function () {
+      var items = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+      if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        items.forEach(function (item) { item.classList.add('is-visible'); });
+        return;
+      }
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: .12, rootMargin: '0px 0px -5% 0px' });
+      items.forEach(function (item) { observer.observe(item); });
+    })();
+  </script>
+</body>
+</html>
