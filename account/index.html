@@ -608,10 +608,6 @@
 
     .plan-label { color: var(--muted); font-size: .9rem; }
 
-    .plan-row .text-button {
-      margin-top: 0;
-    }
-
     .plan-chip {
       padding: 5px 9px;
       border-radius: 999px;
@@ -619,6 +615,99 @@
       color: var(--accent);
       font-size: .82rem;
       font-weight: 600;
+    }
+
+    .subscription-card {
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface-soft);
+    }
+
+    .subscription-card[hidden] {
+      display: none;
+    }
+
+    .subscription-card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .subscription-kicker {
+      margin: 0 0 4px;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .subscription-name {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 600;
+    }
+
+    .subscription-price {
+      color: var(--muted);
+      font-size: .9rem;
+      font-weight: 500;
+    }
+
+    .subscription-status {
+      flex: 0 0 auto;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--success-surface);
+      color: var(--success);
+      font-size: .78rem;
+      font-weight: 600;
+    }
+
+    .subscription-status[data-state="ending"],
+    .subscription-status[data-state="attention"] {
+      background: var(--accent-ring);
+      color: var(--accent);
+    }
+
+    .subscription-copy {
+      margin: 14px 0 0;
+      color: var(--text-secondary);
+      font-size: .9rem;
+      line-height: 1.5;
+    }
+
+    .subscription-period {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: .82rem;
+      line-height: 1.45;
+    }
+
+    .subscription-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .subscription-actions .button {
+      min-height: 42px;
+      margin: 0;
+      font-size: .86rem;
+    }
+
+    .subscription-actions .billing-danger {
+      color: var(--danger);
+    }
+
+    @media (max-width: 430px) {
+      .subscription-actions {
+        grid-template-columns: 1fr;
+      }
     }
 
     .account-management {
@@ -914,17 +1003,41 @@
             <span class="plan-label">Plan</span>
             <span id="account-plan" class="plan-chip">Checking…</span>
           </div>
-          <div id="billing-row" class="plan-row" hidden>
-            <span class="plan-label">Billing</span>
-            <button id="manage-subscription" class="text-button" type="button">
-              Manage subscription
-            </button>
-          </div>
           <div class="plan-row">
             <span class="plan-label">Sign-in method</span>
             <span id="account-sign-in-method" class="identity-value"></span>
           </div>
         </div>
+
+        <section id="subscription-card" class="subscription-card" aria-label="Atlas subscription" hidden>
+          <div class="subscription-card-head">
+            <div>
+              <p class="subscription-kicker">Subscription</p>
+              <p class="subscription-name">
+                Atlas Pro <span class="subscription-price">· $12/month</span>
+              </p>
+            </div>
+            <span id="subscription-status" class="subscription-status">Active</span>
+          </div>
+
+          <p id="subscription-copy" class="subscription-copy"></p>
+          <p id="subscription-period" class="subscription-period"></p>
+
+          <div class="subscription-actions">
+            <button id="billing-payment-method" class="button secondary" type="button">
+              Update payment method
+            </button>
+            <button id="billing-history" class="button secondary" type="button">
+              Billing history
+            </button>
+            <button id="billing-keep" class="button primary" type="button" hidden>
+              Keep subscription
+            </button>
+            <button id="billing-cancel" class="button secondary billing-danger" type="button" hidden>
+              Cancel subscription
+            </button>
+          </div>
+        </section>
 
         <div id="account-management" class="account-management" aria-label="Account access">
           <section class="account-management-section" data-password-management>
@@ -1053,9 +1166,22 @@
     const AccountView = document.getElementById('account-view');
     const AccountEmail = document.getElementById('account-email');
     const AccountPlan = document.getElementById('account-plan');
-    const BillingRow = document.getElementById('billing-row');
-    const ManageSubscriptionButton =
-      document.getElementById('manage-subscription');
+    const SubscriptionCard =
+      document.getElementById('subscription-card');
+    const SubscriptionStatus =
+      document.getElementById('subscription-status');
+    const SubscriptionCopy =
+      document.getElementById('subscription-copy');
+    const SubscriptionPeriod =
+      document.getElementById('subscription-period');
+    const BillingPaymentMethod =
+      document.getElementById('billing-payment-method');
+    const BillingHistory =
+      document.getElementById('billing-history');
+    const BillingKeep =
+      document.getElementById('billing-keep');
+    const BillingCancel =
+      document.getElementById('billing-cancel');
     const AccountSignInMethod =
       document.getElementById('account-sign-in-method');
     const AccountManagement =
@@ -1400,7 +1526,8 @@
     }
 
     async function requestBillingManagement(
-      method = 'GET'
+      method = 'GET',
+      action = ''
     ) {
       if (
         !window.AtlasCloud ||
@@ -1431,8 +1558,22 @@
             method,
             headers: {
               'Authorization':
-                `Bearer ${accessToken}`
+                `Bearer ${accessToken}`,
+              ...(method === 'POST'
+                ? {
+                    'Content-Type':
+                      'application/json'
+                  }
+                : {})
             },
+            ...(method === 'POST'
+              ? {
+                  body:
+                    JSON.stringify({
+                      action
+                    })
+                }
+              : {}),
             cache: 'no-store'
           }
         );
@@ -1455,6 +1596,132 @@
       return result || {};
     }
 
+    function formatBillingDate(value) {
+      const timestamp =
+        Date.parse(String(value || ''));
+
+      if (!Number.isFinite(timestamp)) {
+        return '';
+      }
+
+      return new Intl.DateTimeFormat(
+        undefined,
+        {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        }
+      ).format(
+        new Date(timestamp)
+      );
+    }
+
+    function renderBillingManagement(
+      billing
+    ) {
+      const details =
+        billing &&
+        typeof billing === 'object'
+          ? billing
+          : {};
+
+      const status =
+        String(details.status || '')
+          .trim()
+          .toLowerCase();
+
+      const scheduledAction =
+        String(
+          details.scheduledAction || ''
+        )
+          .trim()
+          .toLowerCase();
+
+      const periodStart =
+        formatBillingDate(
+          details.currentPeriodStart
+        );
+      const periodEnd =
+        formatBillingDate(
+          details.currentPeriodEnd
+        );
+      const effectiveDate =
+        formatBillingDate(
+          details.scheduledEffectiveAt
+        ) || periodEnd;
+
+      const scheduledCancel =
+        status === 'active' &&
+        scheduledAction === 'cancel';
+
+      SubscriptionStatus.dataset.state =
+        scheduledCancel
+          ? 'ending'
+          : status === 'active'
+            ? 'active'
+            : 'attention';
+
+      if (scheduledCancel) {
+        SubscriptionStatus.textContent =
+          effectiveDate
+            ? `Ends ${effectiveDate}`
+            : 'Ending';
+
+        SubscriptionCopy.textContent =
+          effectiveDate
+            ? `Scheduled to cancel on ${effectiveDate}. Your subscription stays active through the paid period.`
+            : 'This subscription is scheduled to cancel at the end of the paid period.';
+      } else if (status === 'active') {
+        SubscriptionStatus.textContent =
+          'Active';
+
+        SubscriptionCopy.textContent =
+          periodEnd
+            ? `Your Atlas Pro subscription renews on ${periodEnd}.`
+            : 'Your Atlas Pro subscription is active.';
+      } else if (status === 'past_due') {
+        SubscriptionStatus.textContent =
+          'Payment due';
+        SubscriptionCopy.textContent =
+          'Your subscription needs payment attention. Update your payment method to keep Atlas Pro active.';
+      } else if (status === 'paused') {
+        SubscriptionStatus.textContent =
+          'Paused';
+        SubscriptionCopy.textContent =
+          'Your Atlas Pro subscription is paused.';
+      } else if (status === 'canceled') {
+        SubscriptionStatus.textContent =
+          'Canceled';
+        SubscriptionCopy.textContent =
+          'This Atlas Pro subscription has ended.';
+      } else {
+        SubscriptionStatus.textContent =
+          'Subscription';
+        SubscriptionCopy.textContent =
+          'Your Atlas Pro billing relationship is connected.';
+      }
+
+      SubscriptionPeriod.textContent =
+        periodStart && periodEnd
+          ? `Current period · ${periodStart} – ${periodEnd}`
+          : '';
+
+      SubscriptionPeriod.hidden =
+        !SubscriptionPeriod.textContent;
+
+      BillingKeep.hidden =
+        !scheduledCancel;
+
+      BillingCancel.hidden =
+        status !== 'active' ||
+        scheduledCancel;
+
+      BillingPaymentMethod.hidden =
+        status === 'canceled';
+
+      SubscriptionCard.hidden = false;
+    }
+
     async function refreshBillingManagement(
       state
     ) {
@@ -1469,8 +1736,8 @@
       if (!userId) {
         billingManagementUserId = '';
 
-        if (BillingRow) {
-          BillingRow.hidden = true;
+        if (SubscriptionCard) {
+          SubscriptionCard.hidden = true;
         }
 
         return;
@@ -1482,8 +1749,8 @@
 
       billingManagementUserId = userId;
 
-      if (BillingRow) {
-        BillingRow.hidden = true;
+      if (SubscriptionCard) {
+        SubscriptionCard.hidden = true;
       }
 
       try {
@@ -1501,9 +1768,15 @@
           return;
         }
 
-        if (BillingRow) {
-          BillingRow.hidden =
-            result.available !== true;
+        if (
+          result.available === true &&
+          result.billing
+        ) {
+          renderBillingManagement(
+            result.billing
+          );
+        } else if (SubscriptionCard) {
+          SubscriptionCard.hidden = true;
         }
       } catch (error) {
         if (
@@ -2076,62 +2349,108 @@
       }
     });
 
-    ManageSubscriptionButton
+    async function openBillingAction(
+      action,
+      button,
+      busyText,
+      idleText
+    ) {
+      setButtonBusy(
+        button,
+        true,
+        busyText,
+        idleText
+      );
+      setStatus(
+        'Opening secure billing management…'
+      );
+
+      try {
+        const result =
+          await requestBillingManagement(
+            'POST',
+            action
+          );
+
+        const portalUrl =
+          new URL(
+            String(result?.url || '')
+          );
+
+        if (
+          portalUrl.protocol !== 'https:' ||
+          ![
+            'customer-portal.paddle.com',
+            'sandbox-customer-portal.paddle.com'
+          ].includes(
+            portalUrl.hostname
+          )
+        ) {
+          throw new Error(
+            'Atlas received an invalid billing management link.'
+          );
+        }
+
+        window.location.assign(
+          portalUrl.href
+        );
+      } catch (error) {
+        setStatus(
+          humanizeAccountError(error),
+          'error'
+        );
+
+        setButtonBusy(
+          button,
+          false,
+          busyText,
+          idleText
+        );
+      }
+    }
+
+    BillingPaymentMethod
       ?.addEventListener(
         'click',
-        async () => {
-          setButtonBusy(
-            ManageSubscriptionButton,
-            true,
-            'Opening…',
-            'Manage subscription'
-          );
-          setStatus(
-            'Opening secure subscription management…'
-          );
+        () => openBillingAction(
+          'update_payment_method',
+          BillingPaymentMethod,
+          'Opening…',
+          'Update payment method'
+        )
+      );
 
-          try {
-            const result =
-              await requestBillingManagement(
-                'POST'
-              );
+    BillingHistory
+      ?.addEventListener(
+        'click',
+        () => openBillingAction(
+          'overview',
+          BillingHistory,
+          'Opening…',
+          'Billing history'
+        )
+      );
 
-            const portalUrl =
-              new URL(
-                String(result?.url || '')
-              );
+    BillingKeep
+      ?.addEventListener(
+        'click',
+        () => openBillingAction(
+          'keep_subscription',
+          BillingKeep,
+          'Opening…',
+          'Keep subscription'
+        )
+      );
 
-            if (
-              portalUrl.protocol !== 'https:' ||
-              ![
-                'customer-portal.paddle.com',
-                'sandbox-customer-portal.paddle.com'
-              ].includes(
-                portalUrl.hostname
-              )
-            ) {
-              throw new Error(
-                'Atlas received an invalid subscription management link.'
-              );
-            }
-
-            window.location.assign(
-              portalUrl.href
-            );
-          } catch (error) {
-            setStatus(
-              humanizeAccountError(error),
-              'error'
-            );
-          } finally {
-            setButtonBusy(
-              ManageSubscriptionButton,
-              false,
-              'Opening…',
-              'Manage subscription'
-            );
-          }
-        }
+    BillingCancel
+      ?.addEventListener(
+        'click',
+        () => openBillingAction(
+          'cancel_subscription',
+          BillingCancel,
+          'Opening…',
+          'Cancel subscription'
+        )
       );
 
     document.getElementById('sign-out').addEventListener('click', async () => {
