@@ -1497,10 +1497,11 @@
                 }
             );
         } catch (error) {
-            if (
-                error?.name === 'AbortError' ||
-                error?.code === 'ATLAS_AI_AUTH_REQUIRED'
-            ) {
+            const transientPlannerFailure =
+                error?.name === 'AtlasAIRequestTimeoutError' ||
+                error?.name === 'TypeError';
+
+            if (!transientPlannerFailure) {
                 throw error;
             }
 
