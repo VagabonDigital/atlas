@@ -39,9 +39,13 @@ assert.match(pricing, /data-atlas-plan="pro"/);
 assert.match(pricing, /Paddle\.Environment\.set\('sandbox'\)/);
 assert.match(pricing, /Paddle\.PricePreview/);
 assert.match(pricing, /Paddle\.Checkout\.open/);
-assert.match(pricing, /checkout\.loaded/);
+assert.doesNotMatch(pricing, /name === 'checkout\.loaded'[\s\S]*?style\.overflow = 'hidden'/);
 assert.match(pricing, /checkout\.closed/);
-assert.match(pricing, /document\.body\.style\.overflow = 'hidden'/);
+assert.match(
+  pricing,
+  /document\.body\.style\.overflow = 'hidden'[\s\S]*?Paddle\.Checkout\.open/,
+  'Atlas must lock host scrolling before Paddle mounts checkout.'
+);
 assert.match(pricing, /atlas_user_id/);
 assert.match(pricing, /customer: \{ email: account\.email \}/);
 assert.match(pricing, /Sign in or create a free Atlas account before choosing Pro/);
