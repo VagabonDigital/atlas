@@ -15,7 +15,7 @@ assert.match(
 
 assert.match(
   root,
-  /getHandoffFallbackContinue[\s\S]*?Subjects\.getSessionSubjects\(cleanSessionId\)[\s\S]*?Subjects\.getSubject\(subjectId\)/
+  /getHandoffFallbackContinue[\s\S]*?Subjects\.getSessionSubjects\(cleanSessionId\)[\s\S]*?Array\.isArray\(refs\)[\s\S]*?registryItem\.ownershipKind !== 'my-subject'/
 );
 
 assert.match(
@@ -35,5 +35,5 @@ assert.match(
 );
 
 console.log(
-  'Atlas Continue handoff fallback contract passed: saved-language-only continuity can recover a valid Compass Continue card without reviving removed content.'
+  'Atlas Continue handoff fallback contract passed: saved-language-only continuity can recover a valid Compass Continue card synchronously without reviving removed content.'
 );
