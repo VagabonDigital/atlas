@@ -356,6 +356,10 @@ b {
   text-decoration: none;
 }
 
+.legal-footer-links a:hover {
+  color: var(--heading);
+}
+
 .legal-footer-links a[aria-current="page"] {
   color: var(--heading);
   font-weight: 700;
