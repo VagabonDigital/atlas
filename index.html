@@ -4664,6 +4664,273 @@
 
     let expandedContinueHandoffId = null;
 
+    // Continue recovery is deliberately post-paint. The normal synchronous
+    // session-state path always renders first; if that projection is missing,
+    // Atlas validates the latest Compass handoff asynchronously and only then
+    // promotes it into a transient Continue card.
+    const recoveredContinueBySessionId = new Map();
+    const continueRecoveryPending = new Set();
+
+    function getContinueHandoffToken(handoff) {
+      if (!handoff || handoff.world !== COMPASS_ID) {
+        return '';
+      }
+
+      const subjectId = String(
+        handoff.subjectId || ''
+      ).trim();
+
+      if (!subjectId) return '';
+
+      return [
+        String(handoff.id || ''),
+        subjectId,
+        String(Number(handoff.completedAt) || 0)
+      ].join('::');
+    }
+
+    async function recoverContinueFromLatestHandoff(sessionId) {
+      const cleanSessionId = String(
+        sessionId || ''
+      ).trim();
+
+      if (
+        !cleanSessionId ||
+        continueRecoveryPending.has(cleanSessionId)
+      ) {
+        return;
+      }
+
+      const handoff = getLatestHandoff(
+        cleanSessionId
+      );
+
+      const token = getContinueHandoffToken(
+        handoff
+      );
+
+      if (!token) return;
+
+      const cached =
+        recoveredContinueBySessionId.get(
+          cleanSessionId
+        );
+
+      if (cached?.token === token) {
+        return;
+      }
+
+      continueRecoveryPending.add(
+        cleanSessionId
+      );
+
+      try {
+        const subjectId = String(
+          handoff.subjectId || ''
+        ).trim();
+
+        const registryId =
+          COMPASS_ID + ':' + subjectId;
+
+        const reg = getRegistry();
+        const registryItem =
+          (reg.items || {})[registryId] || {};
+
+        if (registryItem.archived === true) {
+          recoveredContinueBySessionId.set(
+            cleanSessionId,
+            {
+              token,
+              item: null,
+              handoff: null
+            }
+          );
+          return;
+        }
+
+        let catalog = {};
+
+        try {
+          catalog =
+            CompassCatalog &&
+            typeof CompassCatalog.getCompassCatalogMap ===
+              'function'
+              ? CompassCatalog.getCompassCatalogMap()
+              : {};
+        } catch {
+          catalog = {};
+        }
+
+        const catalogSubject =
+          catalog[registryId];
+
+        const Curation =
+          window.AtlasOriginalCuration;
+
+        if (
+          catalogSubject &&
+          catalogSubject.launchUrl &&
+          !(
+            Curation &&
+            typeof Curation.isHidden === 'function' &&
+            Curation.isHidden(registryId)
+          )
+        ) {
+          recoveredContinueBySessionId.set(
+            cleanSessionId,
+            {
+              token,
+              item: {
+                ...registryItem,
+                ...catalogSubject,
+                id: subjectId,
+                registryId,
+                world: COMPASS_ID,
+                status: 'in-progress',
+                lastTouchedAt:
+                  Number(handoff.completedAt) ||
+                  0
+              },
+              handoff
+            }
+          );
+
+          return;
+        }
+
+        const Subjects =
+          window.AtlasTutorSubjects;
+
+        if (
+          !Subjects ||
+          typeof Subjects.getSessionSubjects !==
+            'function' ||
+          typeof Subjects.getSubject !== 'function'
+        ) {
+          return;
+        }
+
+        const refs = await Promise.resolve(
+          Subjects.getSessionSubjects(
+            cleanSessionId
+          )
+        );
+
+        const subjectRef =
+          Array.isArray(refs)
+            ? refs.find(ref =>
+                ref &&
+                ref.kind === 'my-subject' &&
+                String(ref.id || '').trim() ===
+                  subjectId
+              )
+            : null;
+
+        if (!subjectRef) {
+          recoveredContinueBySessionId.set(
+            cleanSessionId,
+            {
+              token,
+              item: null,
+              handoff: null
+            }
+          );
+          return;
+        }
+
+        const [subject, placement] =
+          await Promise.all([
+            Promise.resolve(
+              Subjects.getSubject(subjectId)
+            ),
+            typeof Subjects.getSubjectLibraryState ===
+              'function'
+              ? Promise.resolve(
+                  Subjects.getSubjectLibraryState(
+                    subjectId
+                  )
+                )
+              : Promise.resolve(null)
+          ]);
+
+        if (
+          !subject ||
+          placement?.archived === true
+        ) {
+          recoveredContinueBySessionId.set(
+            cleanSessionId,
+            {
+              token,
+              item: null,
+              handoff: null
+            }
+          );
+          return;
+        }
+
+        const destination = new URL(
+          './compass/subject/index.html',
+          window.location.href
+        );
+
+        destination.searchParams.set(
+          'id',
+          subjectId
+        );
+
+        const title = String(
+          handoff.subjectTitle ||
+          subject.metadata?.title ||
+          subject.document?.module?.title ||
+          registryItem.navTitle ||
+          registryItem.title ||
+          'Untitled Subject'
+        ).trim();
+
+        recoveredContinueBySessionId.set(
+          cleanSessionId,
+          {
+            token,
+            item: {
+              ...registryItem,
+              id: subjectId,
+              registryId,
+              world: COMPASS_ID,
+              ownershipKind: 'my-subject',
+              title,
+              navTitle: title,
+              launchUrl: destination.href,
+              status: 'in-progress',
+              lastTouchedAt:
+                Number(handoff.completedAt) ||
+                0
+            },
+            handoff
+          }
+        );
+      } catch (error) {
+        console.warn(
+          '[Atlas] Continue recovery skipped.',
+          error
+        );
+        return;
+      } finally {
+        continueRecoveryPending.delete(
+          cleanSessionId
+        );
+      }
+
+      const active = getActiveSession();
+
+      if (
+        active?.id === cleanSessionId &&
+        recoveredContinueBySessionId
+          .get(cleanSessionId)?.item
+      ) {
+        renderHome();
+      }
+    }
+
     // ================================================================
     // LANGUAGE REVIEW — saved language entries for the active session
     // Filter: sessionId match, kind === 'language', status === 'saved'.
@@ -5095,12 +5362,72 @@
       const isDefault = isDefaultSession(session);
       const authenticated =
         hasAuthenticatedAccountContext();
-      const continueItem = getContinueItem(reg, session.id);
-      const latestHandoff = continueItem ? getLatestHandoff(session.id) : null;
-      const continueHandoff = getMatchingCompassHandoff(continueItem, latestHandoff);
-      const reviewSet = getReviewSet(ledger, session.id);
+      const primaryContinueItem =
+        getContinueItem(
+          reg,
+          session.id
+        );
+
+      const latestHandoff =
+        getLatestHandoff(
+          session.id
+        );
+
+      const latestHandoffToken =
+        getContinueHandoffToken(
+          latestHandoff
+        );
+
+      const recoveredContinue =
+        recoveredContinueBySessionId.get(
+          session.id
+        );
+
+      const validRecoveredContinue =
+        !primaryContinueItem &&
+        latestHandoffToken &&
+        recoveredContinue?.token ===
+          latestHandoffToken
+          ? recoveredContinue
+          : null;
+
+      const continueItem =
+        primaryContinueItem ||
+        validRecoveredContinue?.item ||
+        null;
+
+      const continueHandoff =
+        primaryContinueItem
+          ? getMatchingCompassHandoff(
+              primaryContinueItem,
+              latestHandoff
+            )
+          : (
+              validRecoveredContinue?.handoff ||
+              null
+            );
+
+      const reviewSet =
+        getReviewSet(
+          ledger,
+          session.id
+        );
+
       const hasContinue = !!continueItem;
       const hasReview = reviewSet.length > 0;
+
+      if (
+        authenticated &&
+        !primaryContinueItem &&
+        !validRecoveredContinue &&
+        latestHandoffToken
+      ) {
+        window.requestAnimationFrame(() => {
+          void recoverContinueFromLatestHandoff(
+            session.id
+          );
+        });
+      }
 
       document.documentElement.dataset.atlasGatewayState =
         authenticated ? 'authenticated' : 'anonymous';
