@@ -26,8 +26,6 @@
     const MAX_SVG_LENGTH = 16000;
     const MAX_ELEMENTS = 90;
     const MAX_IDEA_LENGTH = 240;
-    const AI_BASE_URL =
-        'https://atlas-ai.savvy989.workers.dev';
     const ARTWORK_DISPLAY_KEY =
         'atlas::compass::artworkDisplay';
 
@@ -339,73 +337,28 @@
     async function generateSubjectArtwork(
         input = {}
     ) {
-        const candidate =
-            input &&
-            typeof input === 'object' &&
-            !Array.isArray(input)
-                ? input
-                : {};
-
-        const subject = {
-            title:
-                cleanString(
-                    candidate.subject?.title
-                ),
-
-            description:
-                cleanString(
-                    candidate.subject?.description
-                )
-        };
-
-        if (!subject.title) {
-            throw new Error(
-                'A subject title is required.'
-            );
-        }
-
-        const response = await fetch(
-            `${AI_BASE_URL}/generate-subject-artwork`,
-            {
-                method: 'POST',
-
-                headers: {
-                    'Content-Type':
-                        'application/json'
-                },
-
-                body: JSON.stringify({
-                    subject,
-                    idea:
-                        cleanString(
-                            candidate.idea
-                        ).slice(
-                            0,
-                            MAX_IDEA_LENGTH
-                        )
-                })
-            }
-        );
-
-        let result = null;
-
-        try {
-            result = await response.json();
-        } catch { }
+        const AI =
+            window.AtlasAI;
 
         if (
-            !response.ok ||
-            result?.ok !== true
+            !AI ||
+            typeof AI.generateSubjectArtwork !==
+                'function'
         ) {
             throw new Error(
-                result?.error ||
-                `Atlas AI request failed with status ${response.status}.`
+                'Atlas AI artwork generation is unavailable.'
             );
         }
 
-        const svg = sanitizeSvg(
-            result.payload?.svg
-        );
+        const generated =
+            await AI.generateSubjectArtwork(
+                input
+            );
+
+        const svg =
+            sanitizeSvg(
+                generated?.svg
+            );
 
         if (!svg) {
             throw new Error(
@@ -857,18 +810,6 @@
         const Artwork =
             window.AtlasSubjectArtwork;
 
-        const AI =
-            window.AtlasAI;
-
-        if (
-            AI &&
-            typeof AI.generateSubjectArtwork !==
-                'function'
-        ) {
-            AI.generateSubjectArtwork =
-                generateSubjectArtwork;
-        }
-
         if (
             compassRuntimeInstalled ||
             typeof window
@@ -1061,6 +1002,9 @@
                 try {
                     const generated =
                         await generateSubjectArtwork({
+                            subjectId:
+                                state.subjectId || '',
+
                             subject: {
                                 title:
                                     state.subject?.title || '',
