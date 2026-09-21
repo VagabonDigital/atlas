@@ -122,6 +122,15 @@
         if (button) button.hidden = !show;
     }
 
+    function setRecoveryPresentationActive(active) {
+        document.getElementById(
+            'atlas-my-version-bar'
+        )?.classList.toggle(
+            'is-recovering-full-subject',
+            Boolean(active)
+        );
+    }
+
     function resetRecoveryState() {
         clearRecoveryTimer();
         recoveryWakeRequested = false;
@@ -129,6 +138,7 @@
         recoveryAttemptsAtStep = 0;
         recoveryPending = false;
         lastCheckpointAttempt = null;
+        setRecoveryPresentationActive(false);
         showRetryButton(false);
     }
 
@@ -278,6 +288,7 @@
         }
 
         recoveryPending = true;
+        setRecoveryPresentationActive(true);
         showRetryButton(false);
 
         const completedStep = Math.max(
@@ -383,6 +394,7 @@
         }
 
         recoveryPending = true;
+        setRecoveryPresentationActive(false);
         showRetryButton(false);
 
         myVersionFullSubjectGenerationError = '';
