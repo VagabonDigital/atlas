@@ -801,7 +801,7 @@
           });
           var item = result && result.data && result.data.details &&
             result.data.details.lineItems && result.data.details.lineItems[0];
-          var formatted = item && item.formattedTotals && item.formattedTotals.subtotal;
+          var formatted = item && item.formattedTotals && item.formattedTotals.total;
           if (!formatted) return;
 
           var amount = document.querySelector('[data-paddle-pro-price]');
