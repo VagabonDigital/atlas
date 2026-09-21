@@ -35,7 +35,12 @@ assert.match(
 
 assert.match(
   engine,
-  /freshOwnedSubjectBuild\s*=\s*isOwnedSubjectRuntime\(\)[\s\S]*?ownedSubjectAuthoringIntent === 'generate'/
+  /pendingOwnedSubjectAuthoringIntent\s*=\s*getOwnedSubjectAuthoringIntent\(\)[\s\S]*?freshOwnedSubjectBuild[\s\S]*?pendingOwnedSubjectAuthoringIntent ===[\s\S]*?'generate'/
+);
+
+assert.match(
+  engine,
+  /if \(!runtimeLayersReady\) \{[\s\S]*?Keep \?author=generate intact[\s\S]*?return;[\s\S]*?const ownedSubjectAuthoringIntent =\s*consumeOwnedSubjectAuthoringIntent\(\);/
 );
 
 assert.match(
