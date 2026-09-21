@@ -1443,31 +1443,57 @@
             return [];
         }
 
-        const response = await requestAtlasAI(
-            `${BASE_URL}/select-key-language-opportunities`,
-            {
-                method: 'POST',
+        let response = null;
 
-                headers: {
-                    'Content-Type':
-                        'application/json'
-                },
+        try {
+            response = await requestAtlasAI(
+                `${BASE_URL}/select-key-language-opportunities`,
+                {
+                    method: 'POST',
 
-                body: JSON.stringify({
-                    section,
-                    limit,
-                    candidates,
-                    brief:
-                        cleanString(
-                            candidate.brief
-                        )
-                })
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        section,
+                        limit,
+                        candidates,
+                        brief:
+                            cleanString(
+                                candidate.brief
+                            )
+                    })
+                }
+            );
+        } catch (error) {
+            if (
+                error?.name === 'AbortError' ||
+                error?.code === 'ATLAS_AI_AUTH_REQUIRED'
+            ) {
+                throw error;
             }
-        );
 
-        if (response.status === 404) {
             console.warn(
-                '[AtlasAI] Key Language planner is not deployed yet; using a deterministic fallback selection.'
+                '[AtlasAI] Key Language planner was unavailable; using a deterministic fallback selection.',
+                error
+            );
+
+            return selectFallbackKeyLanguageOpportunities(
+                candidates,
+                limit
+            );
+        }
+
+        if (
+            response.status === 404 ||
+            isTransientAtlasAIStatus(
+                response.status
+            )
+        ) {
+            console.warn(
+                '[AtlasAI] Key Language planner was unavailable; using a deterministic fallback selection.'
             );
 
             return selectFallbackKeyLanguageOpportunities(
