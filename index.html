@@ -4794,15 +4794,15 @@
               handoff
             }
           );
-
-          return;
+        } else {
         }
 
-        const Subjects =
-          window.AtlasTutorSubjects;
+        if (!catalogSubject) {
+          const Subjects =
+            window.AtlasTutorSubjects;
 
-        if (
-          !Subjects ||
+          if (
+            !Subjects ||
           typeof Subjects.getSessionSubjects !==
             'function' ||
           typeof Subjects.getSubject !== 'function'
@@ -4887,27 +4887,28 @@
           'Untitled Subject'
         ).trim();
 
-        recoveredContinueBySessionId.set(
-          cleanSessionId,
-          {
-            token,
-            item: {
-              ...registryItem,
-              id: subjectId,
-              registryId,
-              world: COMPASS_ID,
-              ownershipKind: 'my-subject',
-              title,
-              navTitle: title,
-              launchUrl: destination.href,
-              status: 'in-progress',
-              lastTouchedAt:
-                Number(handoff.completedAt) ||
-                0
-            },
-            handoff
-          }
-        );
+          recoveredContinueBySessionId.set(
+            cleanSessionId,
+            {
+              token,
+              item: {
+                ...registryItem,
+                id: subjectId,
+                registryId,
+                world: COMPASS_ID,
+                ownershipKind: 'my-subject',
+                title,
+                navTitle: title,
+                launchUrl: destination.href,
+                status: 'in-progress',
+                lastTouchedAt:
+                  Number(handoff.completedAt) ||
+                  0
+              },
+              handoff
+            }
+          );
+        }
       } catch (error) {
         console.warn(
           '[Atlas] Continue recovery skipped.',
