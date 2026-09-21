@@ -3151,6 +3151,34 @@
       font-size: 0.76rem;
     }
 
+    .owned-subject-dialog-upgrade {
+      display: grid;
+      gap: 0.45rem;
+      margin: -0.15rem 0 1rem;
+      padding: 0.9rem 1rem;
+      border: 1px solid rgba(var(--accent-rgb), 0.22);
+      border-radius: 12px;
+      background: var(--accent-dim);
+    }
+
+    .owned-subject-dialog-upgrade[hidden] {
+      display: none;
+    }
+
+    .owned-subject-dialog-upgrade strong {
+      color: var(--text-heading);
+      font-size: 0.9rem;
+      font-weight: 650;
+      line-height: 1.35;
+    }
+
+    .owned-subject-dialog-upgrade p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+
     .owned-subject-dialog-actions {
       display: flex;
       justify-content: flex-end;
@@ -6722,6 +6750,101 @@
       }
     }
 
+    function showCompassCreationUpgrade(
+      dialog,
+      access
+    ) {
+      if (!dialog) return false;
+
+      const panel = dialog.querySelector(
+        '#owned-subject-dialog-upgrade'
+      );
+      const panelTitle = dialog.querySelector(
+        '#owned-subject-dialog-upgrade-title'
+      );
+      const error = dialog.querySelector(
+        '#owned-subject-dialog-error'
+      );
+      const secondary = dialog.querySelector(
+        '#owned-subject-dialog-secondary'
+      );
+      const confirm = dialog.querySelector(
+        '#owned-subject-dialog-confirm'
+      );
+
+      if (
+        !panel ||
+        !panelTitle ||
+        !secondary ||
+        !confirm ||
+        ownedSubjectDialogState?.mode !== 'create'
+      ) {
+        return false;
+      }
+
+      const allowance =
+        access?.allowance &&
+        typeof access.allowance === 'object'
+          ? access.allowance
+          : {};
+
+      const numericLimit =
+        Number(allowance.limit);
+
+      const limit =
+        Number.isFinite(numericLimit) &&
+        numericLimit > 0
+          ? Math.floor(numericLimit)
+          : null;
+
+      panelTitle.textContent =
+        limit
+          ? `You’ve used your ${limit} free AI builds.`
+          : 'You’ve used your free AI builds.';
+
+      panel.hidden = false;
+
+      if (error) {
+        error.hidden = true;
+        error.textContent = '';
+      }
+
+      ownedSubjectDialogState.upgradePrompt = true;
+
+      secondary.hidden = false;
+      secondary.className = 'btn-ghost';
+      secondary.textContent = 'Start blank';
+      secondary.disabled = false;
+
+      confirm.className = 'btn-primary';
+      confirm.textContent = 'See Atlas Pro';
+      confirm.disabled = false;
+
+      requestAnimationFrame(() => {
+        confirm.focus();
+      });
+
+      return true;
+    }
+
+    function openCompassCreationUpgradePricing() {
+      const draftId =
+        storeCompassCreatePreviewDraft(
+          'generate'
+        );
+
+      const params =
+        new URLSearchParams({
+          from: 'compass-create',
+          ...(draftId
+            ? { draft: draftId }
+            : {})
+        });
+
+      window.location.href =
+        '/pricing/?' + params.toString();
+    }
+
     function compassSubjectCapabilityAllows(
       access,
       unavailableMessage = 'This subject action is unavailable right now.'
@@ -7449,6 +7572,11 @@
         '<textarea id="owned-subject-dialog-brief" maxlength="2400" placeholder="Add any useful direction for this subject."></textarea>' +
         '</label>' +
 
+        '</div>' +
+
+        '<div class="owned-subject-dialog-upgrade" id="owned-subject-dialog-upgrade" hidden>' +
+        '<strong id="owned-subject-dialog-upgrade-title"></strong>' +
+        '<p>Nothing in your workspace is locked. You can keep teaching, editing and reusing what you already own, or start this subject blank. Atlas Pro expands fresh AI creation for regular use.</p>' +
         '</div>' +
 
         '<p class="owned-subject-dialog-error" id="owned-subject-dialog-error" hidden></p>' +
@@ -8560,6 +8688,10 @@
         '#owned-subject-dialog-brief'
       );
 
+      const upgrade = dialog.querySelector(
+        '#owned-subject-dialog-upgrade'
+      );
+
       const error = dialog.querySelector(
         '#owned-subject-dialog-error'
       );
@@ -8601,7 +8733,8 @@
             ? initialDraft.suggestion
             : null,
         silentResume:
-          options.silentResume === true
+          options.silentResume === true,
+        upgradePrompt: false
       };
 
       const kicker = dialog.querySelector(
@@ -8699,6 +8832,10 @@
         String(
           initialDraft?.brief || ''
         ).slice(0, 2400);
+
+      if (upgrade) {
+        upgrade.hidden = true;
+      }
 
       error.hidden = true;
       error.textContent = '';
@@ -9010,6 +9147,15 @@
       );
 
       if (!Subjects || !confirm) return;
+
+      if (
+        state.mode === 'create' &&
+        state.upgradePrompt === true &&
+        createMode !== 'blank'
+      ) {
+        openCompassCreationUpgradePricing();
+        return;
+      }
 
       if (state.mode === 'atlas-delete-original') {
         confirm.disabled = true;
@@ -9621,6 +9767,17 @@
             );
 
           if (
+            aiAccess?.outcome === 'limited' &&
+            aiAccess?.reason === 'exhausted'
+          ) {
+            showCompassCreationUpgrade(
+              dialog,
+              aiAccess
+            );
+            return;
+          }
+
+          if (
             !compassSubjectCapabilityAllows(
               aiAccess,
               'AI-assisted subject creation is unavailable right now.'
@@ -9928,13 +10085,30 @@
               await window.AtlasAccount
                 ?.refreshEntitlement?.();
             } catch { }
+
+            const access =
+              window.AtlasAccess?.getState?.() ||
+              null;
+
+            if (
+              showCompassCreationUpgrade(
+                dialog,
+                {
+                  outcome: 'limited',
+                  reason: 'exhausted',
+                  allowance:
+                    access?.creationAllowance ||
+                    null
+                }
+              )
+            ) {
+              return;
+            }
           }
 
           error.hidden = false;
           error.textContent =
-            creationLimitReached
-              ? 'Your AI subject creation allowance is exhausted.'
-              : 'Couldn’t create this subject.';
+            'Couldn’t create this subject.';
 
           confirm.disabled = false;
           confirm.textContent = 'Create subject';
