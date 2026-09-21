@@ -1936,20 +1936,32 @@ function updateMyVersionAuthorBar() {
                         ? 'Generating discussion framing…'
                         : myVersionEnrichingDiscussion
                             ? `${
-                                myVersionDiscussionEnrichmentProgress?.kind ===
-                                    'make-it-real'
-                                    ? 'Adding Discussion activities'
-                                    : 'Adding Discussion language'
+                                myVersionDiscussionEnrichmentProgress?.phase ===
+                                    'selecting-key'
+                                    ? 'Choosing key Discussion language'
+                                    : myVersionDiscussionEnrichmentProgress?.kind ===
+                                        'make-it-real'
+                                        ? 'Adding Discussion activities'
+                                        : 'Adding Discussion language'
                             }${
-                                myVersionDiscussionEnrichmentProgress
+                                myVersionDiscussionEnrichmentProgress &&
+                                myVersionDiscussionEnrichmentProgress.phase !==
+                                    'selecting-key'
                                     ? ` · ${myVersionDiscussionEnrichmentProgress.current} of ${myVersionDiscussionEnrichmentProgress.total}`
                                     : ''
                             }…`
                             : myVersionGeneratingCulturalLensFraming
                             ? 'Generating Cultural Lens framing…'
                             : myVersionEnrichingCulturalLens
-                                ? `Adding Cultural Lens language${
-                                    myVersionCulturalLensEnrichmentProgress
+                                ? `${
+                                    myVersionCulturalLensEnrichmentProgress?.phase ===
+                                        'selecting-key'
+                                        ? 'Choosing key Cultural Lens language'
+                                        : 'Adding Cultural Lens language'
+                                }${
+                                    myVersionCulturalLensEnrichmentProgress &&
+                                    myVersionCulturalLensEnrichmentProgress.phase !==
+                                        'selecting-key'
                                         ? ` · ${myVersionCulturalLensEnrichmentProgress.current} of ${myVersionCulturalLensEnrichmentProgress.total}`
                                         : ''
                                 }…`
