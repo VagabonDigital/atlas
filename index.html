@@ -4632,10 +4632,15 @@
       let sessionSubjectRefs = [];
 
       try {
-        sessionSubjectRefs =
+        const refs =
           Subjects &&
           typeof Subjects.getSessionSubjects === 'function'
             ? Subjects.getSessionSubjects(cleanSessionId)
+            : [];
+
+        sessionSubjectRefs =
+          Array.isArray(refs)
+            ? refs
             : [];
       } catch {
         sessionSubjectRefs = [];
@@ -4675,21 +4680,8 @@
           if (
             !subjectRef ||
             subjectRef.kind !== 'my-subject' ||
-            !Subjects ||
-            typeof Subjects.getSubject !== 'function'
+            registryItem.ownershipKind !== 'my-subject'
           ) {
-            continue;
-          }
-
-          let subject = null;
-
-          try {
-            subject = Subjects.getSubject(subjectId);
-          } catch {
-            subject = null;
-          }
-
-          if (!subject) {
             continue;
           }
 
@@ -4703,8 +4695,6 @@
           const title =
             String(
               handoff.subjectTitle ||
-              subject.metadata?.title ||
-              subject.document?.module?.title ||
               registryItem.navTitle ||
               registryItem.title ||
               'Untitled Subject'
