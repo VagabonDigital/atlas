@@ -43,8 +43,18 @@ assert.doesNotMatch(pricing, /name === 'checkout\.loaded'[\s\S]*?style\.overflow
 assert.match(pricing, /checkout\.closed/);
 assert.match(
   pricing,
-  /document\.body\.style\.overflow = 'hidden'[\s\S]*?Paddle\.Checkout\.open/,
-  'Atlas must lock host scrolling before Paddle mounts checkout.'
+  /window\.innerWidth - document\.documentElement\.clientWidth/,
+  'Atlas must measure the disappearing scrollbar before locking checkout.'
+);
+assert.match(
+  pricing,
+  /document\.body\.style\.paddingRight[\s\S]*?document\.body\.style\.overflow = 'hidden'[\s\S]*?Paddle\.Checkout\.open/,
+  'Atlas must preserve layout width, then lock host scrolling before Paddle mounts checkout.'
+);
+assert.match(
+  pricing,
+  /document\.body\.style\.paddingRight = checkoutScrollState\.bodyPaddingRight/,
+  'Atlas must restore the original layout after Paddle closes.'
 );
 assert.match(pricing, /atlas_user_id/);
 assert.match(pricing, /customer: \{ email: account\.email \}/);
