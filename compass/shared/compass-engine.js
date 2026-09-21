@@ -7263,6 +7263,24 @@ function releaseCompassSubjectBuildHandoff() {
     )?.remove();
 }
 
+async function waitForOwnedSubjectRuntimeLayersReady() {
+    const ready =
+        window.AtlasCompassOwnedSubjectRuntimeLayersReady;
+
+    if (
+        !ready ||
+        typeof ready.then !== 'function'
+    ) {
+        return true;
+    }
+
+    try {
+        return await ready === true;
+    } catch {
+        return false;
+    }
+}
+
 function getMyVersionLanguageSupportMode() {
     const mode =
         String(
@@ -7394,14 +7412,6 @@ async function generateMyVersionFullSubject({
     myVersionFullSubjectReadyForCommit =
         completedStep >= 18;
 
-    /*
-     * A resumed build whose framing already exists can reveal the cover
-     * immediately. A fresh build keeps the gate until step 1 completes.
-     */
-    if (completedStep >= 1) {
-        releaseCompassSubjectBuildHandoff();
-    }
-
     try {
         await setMyVersionAiBuildStatus(
             'building'
@@ -7434,11 +7444,6 @@ async function generateMyVersionFullSubject({
                 autoSaveOnComplete
             );
 
-            /*
-             * The cover now has its real hook/introduction. Move the tutor
-             * into the subject while the remaining lesson continues building.
-             */
-            releaseCompassSubjectBuildHandoff();
         }
 
         if (completedStep < 2) {
@@ -22860,7 +22865,35 @@ async function init() {
 
     loadSessions();
     loadProgress();
-    await loadTutorContentState();
+
+    const ownedSubjectAuthoringIntent =
+        consumeOwnedSubjectAuthoringIntent();
+
+    const freshOwnedSubjectBuild =
+        isOwnedSubjectRuntime() &&
+        ownedSubjectAuthoringIntent === 'generate';
+
+    if (freshOwnedSubjectBuild) {
+        const runtimeLayersReady =
+            await waitForOwnedSubjectRuntimeLayersReady();
+
+        if (!runtimeLayersReady) {
+            return;
+        }
+
+        /*
+         * A freshly-created subject cannot already have a working draft,
+         * live draft, or generation checkpoint for its new ID. Keep the
+         * server-created subject document as the initial authority and avoid
+         * defensive reads that only matter on reload/resume paths.
+         */
+        tutorContentVersion = null;
+        tutorContentWorkingDraft = null;
+        tutorContentLiveDraft = null;
+        updateLiveTutorContentControl();
+    } else {
+        await loadTutorContentState();
+    }
 
     window.AtlasAnalytics?.resourceOpen({
         resourceType: 'subject',
@@ -22876,11 +22909,9 @@ async function init() {
                 : MODULE.id
     });
 
-    const ownedSubjectAuthoringIntent =
-        consumeOwnedSubjectAuthoringIntent();
-
     const ownedSubjectBuildState =
-        isOwnedSubjectRuntime()
+        isOwnedSubjectRuntime() &&
+        !freshOwnedSubjectBuild
             ? await requireAtlasTutorSubjects()
                 .getBuildState(MODULE.id)
             : null;
@@ -22912,7 +22943,16 @@ async function init() {
     ) {
         await requestMyVersionEditing({
             expandAuthorBar:
-                ownedSubjectAuthoringIntent === 'edit'
+                ownedSubjectAuthoringIntent === 'edit',
+
+            /*
+             * Fresh generation is already the continuation of a successful
+             * create capability check. The AI guard still enforces canUseAI
+             * on generation calls, so repeating the edit gate here only adds
+             * latency without adding authority.
+             */
+            skipCapabilityGate:
+                freshOwnedSubjectBuild
         });
     }
 
@@ -22923,10 +22963,13 @@ async function init() {
         setMyVersionAuthorBarMinimized(false);
     }
 
-    if (
-        ownedSubjectAuthoringIntent === 'generate' &&
-        !myVersionEditing
-    ) {
+    if (freshOwnedSubjectBuild) {
+        /*
+         * The real owned-subject shell is now mounted, the generation
+         * presentation/recovery layers are installed, and the title plus
+         * intentional pending copy are renderable. AI framing is background
+         * construction from this point onward, not an entry prerequisite.
+         */
         releaseCompassSubjectBuildHandoff();
     }
 
