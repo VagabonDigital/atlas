@@ -6,6 +6,7 @@
    - authenticated Atlas account verification
    - server-owned AI abuse guardrails and usage telemetry
    - verified Paddle billing webhooks
+   - authenticated Paddle customer portal sessions
    - narrow AI requests
    - structured provider output
 
@@ -255,6 +256,113 @@ async function callAtlasServerRpc(
     }
 
     return result;
+}
+
+function getAtlasPaddleEnvironment(env) {
+    return String(
+        env.ATLAS_PADDLE_ENVIRONMENT || ''
+    )
+        .trim()
+        .toLowerCase();
+}
+
+function getAtlasPaddleApiBase(environment) {
+    return environment === 'sandbox'
+        ? 'https://sandbox-api.paddle.com'
+        : 'https://api.paddle.com';
+}
+
+function isTrustedPaddlePortalUrl(value) {
+    try {
+        const candidate =
+            new URL(String(value || ''));
+
+        return (
+            candidate.protocol === 'https:' &&
+            (
+                candidate.hostname ===
+                    'customer-portal.paddle.com' ||
+                candidate.hostname ===
+                    'sandbox-customer-portal.paddle.com'
+            )
+        );
+    } catch {
+        return false;
+    }
+}
+
+async function createAtlasPaddlePortalSession(
+    env,
+    paddleEnvironment,
+    customerId,
+    subscriptionId
+) {
+    const apiKey =
+        String(
+            env.ATLAS_PADDLE_API_KEY || ''
+        ).trim();
+
+    if (!apiKey) {
+        throw new Error(
+            'Atlas Paddle API access is not configured.'
+        );
+    }
+
+    const response =
+        await fetch(
+            `${getAtlasPaddleApiBase(
+                paddleEnvironment
+            )}/customers/${encodeURIComponent(
+                customerId
+            )}/portal-sessions`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization':
+                        `Bearer ${apiKey}`,
+                    'Content-Type':
+                        'application/json',
+                    'Accept':
+                        'application/json',
+                    'Paddle-Version':
+                        '1'
+                },
+                body:
+                    JSON.stringify({
+                        subscription_ids: [
+                            subscriptionId
+                        ]
+                    })
+            }
+        );
+
+    let payload = null;
+
+    try {
+        payload = await response.json();
+    } catch {
+        payload = null;
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            `Paddle customer portal request failed with status ${response.status}.`
+        );
+    }
+
+    const portalUrl =
+        String(
+            payload?.data?.urls?.general?.overview ||
+            ''
+        ).trim();
+
+    if (!isTrustedPaddlePortalUrl(portalUrl)) {
+        throw new Error(
+            'Paddle returned an invalid customer portal URL.'
+        );
+    }
+
+    return portalUrl;
 }
 
 function constantTimeEqualText(left, right) {
@@ -564,6 +672,26 @@ export default {
             );
         }
 
+        function jsonNoStore(
+            body,
+            status = 200
+        ) {
+            return new Response(
+                JSON.stringify(body),
+                {
+                    status,
+                    headers: {
+                        'Content-Type':
+                            'application/json; charset=utf-8',
+                        'Cache-Control':
+                            'no-store',
+
+                        ...corsHeaders
+                    }
+                }
+            );
+        }
+
         if (
             request.method === 'GET' &&
             url.pathname === '/health'
@@ -730,6 +858,159 @@ export default {
                     headers: corsHeaders
                 }
             );
+        }
+
+        if (
+            (
+                request.method === 'GET' ||
+                request.method === 'POST'
+            ) &&
+            url.pathname ===
+                '/paddle/customer-portal'
+        ) {
+            const authenticated =
+                await authenticateAtlasAIRequest(
+                    request,
+                    env
+                );
+
+            if (!authenticated.ok) {
+                return jsonNoStore(
+                    {
+                        ok: false,
+                        error:
+                            'Sign in to manage your Atlas subscription.'
+                    },
+                    authenticated.status
+                );
+            }
+
+            const paddleEnvironment =
+                getAtlasPaddleEnvironment(env);
+
+            if (
+                !['sandbox', 'live'].includes(
+                    paddleEnvironment
+                )
+            ) {
+                return jsonNoStore(
+                    {
+                        ok: false,
+                        error:
+                            'Atlas subscription management is not configured.'
+                    },
+                    503
+                );
+            }
+
+            let context = null;
+
+            try {
+                context =
+                    await callAtlasServerRpc(
+                        env,
+                        'atlas_get_paddle_portal_context_v1',
+                        {
+                            p_owner_user_id:
+                                authenticated.userId,
+                            p_environment:
+                                paddleEnvironment
+                        }
+                    );
+            } catch (error) {
+                console.error(
+                    '[Atlas Paddle] Portal context lookup failed:',
+                    error
+                );
+
+                return jsonNoStore(
+                    {
+                        ok: false,
+                        error:
+                            'Atlas subscription management is unavailable.'
+                    },
+                    503
+                );
+            }
+
+            const available =
+                context?.ok === true &&
+                context?.available === true;
+
+            if (request.method === 'GET') {
+                return jsonNoStore({
+                    ok: true,
+                    available,
+                    status:
+                        available
+                            ? String(
+                                context?.status || ''
+                            )
+                            : null
+                });
+            }
+
+            if (!available) {
+                return jsonNoStore(
+                    {
+                        ok: false,
+                        error:
+                            'There is no Atlas subscription to manage.'
+                    },
+                    404
+                );
+            }
+
+            if (
+                !String(
+                    env.ATLAS_PADDLE_API_KEY ||
+                    ''
+                ).trim()
+            ) {
+                return jsonNoStore(
+                    {
+                        ok: false,
+                        error:
+                            'Atlas subscription management is not configured.'
+                    },
+                    503
+                );
+            }
+
+            try {
+                const portalUrl =
+                    await createAtlasPaddlePortalSession(
+                        env,
+                        paddleEnvironment,
+                        String(
+                            context.customerId ||
+                            ''
+                        ),
+                        String(
+                            context.subscriptionId ||
+                            ''
+                        )
+                    );
+
+                return jsonNoStore({
+                    ok: true,
+                    url: portalUrl
+                });
+            } catch (error) {
+                console.error(
+                    '[Atlas Paddle] Customer portal session failed:',
+                    error
+                );
+
+                return jsonNoStore(
+                    {
+                        ok: false,
+                        error:
+                            'Atlas could not open subscription management.'
+                    },
+                    502
+                );
+            }
         }
 
         if (
