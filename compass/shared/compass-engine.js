@@ -7195,23 +7195,39 @@ function getMyVersionFullSubjectGenerationStatus() {
         myVersionEnrichingDiscussion &&
         myVersionDiscussionEnrichmentProgress
     ) {
-        operationLabel =
-            myVersionDiscussionEnrichmentProgress.kind ===
-                'make-it-real'
-                ? 'Adding Discussion activities'
-                : 'Adding Discussion language';
+        if (
+            myVersionDiscussionEnrichmentProgress.phase ===
+                'selecting-key'
+        ) {
+            operationLabel =
+                'Choosing key Discussion language';
+        } else {
+            operationLabel =
+                myVersionDiscussionEnrichmentProgress.kind ===
+                    'make-it-real'
+                    ? 'Adding Discussion activities'
+                    : 'Adding Discussion language';
 
-        operationProgress =
-            ` · ${myVersionDiscussionEnrichmentProgress.current} of ${myVersionDiscussionEnrichmentProgress.total}`;
+            operationProgress =
+                ` · ${myVersionDiscussionEnrichmentProgress.current} of ${myVersionDiscussionEnrichmentProgress.total}`;
+        }
     } else if (
         myVersionEnrichingCulturalLens &&
         myVersionCulturalLensEnrichmentProgress
     ) {
-        operationLabel =
-            'Adding Cultural Lens language';
+        if (
+            myVersionCulturalLensEnrichmentProgress.phase ===
+                'selecting-key'
+        ) {
+            operationLabel =
+                'Choosing key Cultural Lens language';
+        } else {
+            operationLabel =
+                'Adding Cultural Lens language';
 
-        operationProgress =
-            ` · ${myVersionCulturalLensEnrichmentProgress.current} of ${myVersionCulturalLensEnrichmentProgress.total}`;
+            operationProgress =
+                ` · ${myVersionCulturalLensEnrichmentProgress.current} of ${myVersionCulturalLensEnrichmentProgress.total}`;
+        }
     }
 
     return (
@@ -9916,14 +9932,29 @@ async function enrichMyVersionDiscussionFromUI({
     let selectedKeyIds = [];
 
     if (keySelectionTarget > 0) {
-        selectedKeyIds =
-            await selectMyVersionKeyLanguageOpportunityIds(
-                'discussion',
-                getMyVersionDiscussionKeyLanguageCandidates(
-                    languageCandidateIds
-                ),
-                keySelectionTarget
-            );
+        myVersionDiscussionEnrichmentError = '';
+        myVersionEnrichingDiscussion = true;
+        myVersionDiscussionEnrichmentProgress = {
+            phase: 'selecting-key'
+        };
+
+        updateMyVersionAuthorBar();
+
+        try {
+            selectedKeyIds =
+                await selectMyVersionKeyLanguageOpportunityIds(
+                    'discussion',
+                    getMyVersionDiscussionKeyLanguageCandidates(
+                        languageCandidateIds
+                    ),
+                    keySelectionTarget
+                );
+        } catch (error) {
+            myVersionEnrichingDiscussion = false;
+            myVersionDiscussionEnrichmentProgress = null;
+            updateMyVersionAuthorBar();
+            throw error;
+        }
     }
 
     const selectedKeySet =
@@ -10417,14 +10448,29 @@ async function enrichMyVersionCulturalLensFromUI({
     let selectedKeyIds = [];
 
     if (keySelectionTarget > 0) {
-        selectedKeyIds =
-            await selectMyVersionKeyLanguageOpportunityIds(
-                'cultural-lens',
-                getMyVersionCulturalLensKeyLanguageCandidates(
-                    candidateIds
-                ),
-                keySelectionTarget
-            );
+        myVersionCulturalLensEnrichmentError = '';
+        myVersionEnrichingCulturalLens = true;
+        myVersionCulturalLensEnrichmentProgress = {
+            phase: 'selecting-key'
+        };
+
+        updateMyVersionAuthorBar();
+
+        try {
+            selectedKeyIds =
+                await selectMyVersionKeyLanguageOpportunityIds(
+                    'cultural-lens',
+                    getMyVersionCulturalLensKeyLanguageCandidates(
+                        candidateIds
+                    ),
+                    keySelectionTarget
+                );
+        } catch (error) {
+            myVersionEnrichingCulturalLens = false;
+            myVersionCulturalLensEnrichmentProgress = null;
+            updateMyVersionAuthorBar();
+            throw error;
+        }
     }
 
     const selectedKeySet =
