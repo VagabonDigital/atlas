@@ -112,14 +112,19 @@ async function verifyPlannerFallback() {
 
     assert.equal(
         requestCount,
-        3,
-        'The normal bounded Atlas AI retry policy should run before Key planning falls back.'
+        1,
+        'Optional Key planning should fall back after one transient attempt rather than delaying the build.'
     );
 }
 
 assert.match(
     atlasAI,
-    /select-key-language-opportunities[\s\S]*?isTransientAtlasAIStatus[\s\S]*?selectFallbackKeyLanguageOpportunities/
+    /select-key-language-opportunities[\s\S]*?retryTransient: false[\s\S]*?timeoutMs: 12000/
+);
+
+assert.match(
+    atlasAI,
+    /isTransientAtlasAIStatus[\s\S]*?selectFallbackKeyLanguageOpportunities/
 );
 
 assert.match(
