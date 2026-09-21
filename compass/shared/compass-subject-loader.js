@@ -14,6 +14,23 @@
 
     const SUBJECT_LOAD_TIMEOUT_MS = 15000;
 
+    let resolveOwnedSubjectRuntimeLayersReady = null;
+
+    window.AtlasCompassOwnedSubjectRuntimeLayersReady =
+        new Promise(resolve => {
+            resolveOwnedSubjectRuntimeLayersReady = resolve;
+        });
+
+    function signalOwnedSubjectRuntimeLayersReady(ready) {
+        if (!resolveOwnedSubjectRuntimeLayersReady) return;
+
+        const resolve =
+            resolveOwnedSubjectRuntimeLayersReady;
+
+        resolveOwnedSubjectRuntimeLayersReady = null;
+        resolve(Boolean(ready));
+    }
+
     function cloneJson(value) {
         try {
             return JSON.parse(JSON.stringify(value));
@@ -422,39 +439,46 @@
     }
 
     async function loadCompassEngine() {
-        await loadScript(
-            '../shared/compass-engine.js',
-            'Compass engine could not be loaded.'
-        );
-
-        installOwnedSubjectSaveGuard();
-
-        await loadScript(
-            '../shared/compass-generation-authority.js',
-            'Compass generation authority layer could not be loaded.'
-        );
-
-        await loadScript(
-            '../shared/compass-build-presentation.js',
-            'Compass build presentation layer could not be loaded.'
-        );
-
-        await loadScript(
-            '../shared/compass-generation-recovery.js',
-            'Compass generation recovery layer could not be loaded.'
-        );
-
-        const Recovery =
-            window.AtlasCompassGenerationRecovery;
-
-        if (
-            !Recovery ||
-            typeof Recovery.installRuntime !== 'function' ||
-            !Recovery.installRuntime()
-        ) {
-            throw new Error(
-                'Compass generation recovery could not initialize.'
+        try {
+            await loadScript(
+                '../shared/compass-engine.js',
+                'Compass engine could not be loaded.'
             );
+
+            installOwnedSubjectSaveGuard();
+
+            await loadScript(
+                '../shared/compass-generation-authority.js',
+                'Compass generation authority layer could not be loaded.'
+            );
+
+            await loadScript(
+                '../shared/compass-build-presentation.js',
+                'Compass build presentation layer could not be loaded.'
+            );
+
+            await loadScript(
+                '../shared/compass-generation-recovery.js',
+                'Compass generation recovery layer could not be loaded.'
+            );
+
+            const Recovery =
+                window.AtlasCompassGenerationRecovery;
+
+            if (
+                !Recovery ||
+                typeof Recovery.installRuntime !== 'function' ||
+                !Recovery.installRuntime()
+            ) {
+                throw new Error(
+                    'Compass generation recovery could not initialize.'
+                );
+            }
+
+            signalOwnedSubjectRuntimeLayersReady(true);
+        } catch (error) {
+            signalOwnedSubjectRuntimeLayersReady(false);
+            throw error;
         }
     }
 
