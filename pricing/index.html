@@ -736,7 +736,31 @@
         if (!window.Paddle || !config) return false;
 
         Paddle.Environment.set('sandbox');
-        Paddle.Initialize({ token: config.clientToken });
+        Paddle.Initialize({
+          token: config.clientToken,
+          eventCallback: function (event) {
+            var name = String(event && event.name || '');
+
+            if (name === 'checkout.loaded') {
+              document.documentElement.dataset.paddleCheckoutOpen = 'true';
+              document.body.style.overflow = 'hidden';
+            }
+
+            if (
+              name === 'checkout.closed' ||
+              name === 'checkout.completed'
+            ) {
+              delete document.documentElement.dataset.paddleCheckoutOpen;
+              document.body.style.overflow = '';
+            }
+
+            if (name === 'checkout.completed') {
+              setStatus(
+                'Payment completed. Atlas Pro will activate after server confirmation.'
+              );
+            }
+          }
+        });
         paddleReady = true;
         return true;
       }
