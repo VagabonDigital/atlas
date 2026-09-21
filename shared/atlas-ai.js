@@ -46,9 +46,11 @@
         });
     }
 
-    function createAtlasAITimeoutError() {
+    function createAtlasAITimeoutError(
+        timeoutMs = REQUEST_TIMEOUT_MS
+    ) {
         const error = new Error(
-            `Atlas AI request timed out after ${REQUEST_TIMEOUT_MS}ms.`
+            `Atlas AI request timed out after ${timeoutMs}ms.`
         );
 
         error.name = 'AtlasAIRequestTimeoutError';
@@ -164,7 +166,8 @@
 
     async function requestAtlasAI(
         input,
-        init = {}
+        init = {},
+        options = {}
     ) {
         const requestInit =
             init &&
@@ -172,8 +175,29 @@
                 ? init
                 : {};
 
+        const requestOptions =
+            options &&
+            typeof options === 'object'
+                ? options
+                : {};
+
         const callerSignal =
             requestInit.signal || null;
+
+        const retryDelays =
+            requestOptions.retryTransient === false
+                ? []
+                : REQUEST_RETRY_DELAYS_MS;
+
+        const timeoutMs =
+            Math.max(
+                1000,
+                Math.floor(
+                    Number(
+                        requestOptions.timeoutMs
+                    ) || REQUEST_TIMEOUT_MS
+                )
+            );
 
         const requestId =
             createAtlasAIRequestId();
@@ -188,7 +212,7 @@
 
         for (
             let attempt = 0;
-            attempt <= REQUEST_RETRY_DELAYS_MS.length;
+            attempt <= retryDelays.length;
             attempt += 1
         ) {
             if (callerSignal?.aborted) {
@@ -222,7 +246,7 @@
                         timedOut = true;
                         controller.abort();
                     },
-                    REQUEST_TIMEOUT_MS
+                    timeoutMs
                 );
 
             let response = null;
@@ -265,13 +289,13 @@
                         response.status
                     ) ||
                     attempt >=
-                        REQUEST_RETRY_DELAYS_MS.length
+                        retryDelays.length
                 ) {
                     return response;
                 }
 
                 await waitForAtlasAIRetry(
-                    REQUEST_RETRY_DELAYS_MS[
+                    retryDelays[
                         attempt
                     ]
                 );
@@ -290,18 +314,20 @@
             }
 
             lastTransientError = timedOut
-                ? createAtlasAITimeoutError()
+                ? createAtlasAITimeoutError(
+                    timeoutMs
+                )
                 : requestError;
 
             if (
                 attempt >=
-                REQUEST_RETRY_DELAYS_MS.length
+                retryDelays.length
             ) {
                 throw lastTransientError;
             }
 
             await waitForAtlasAIRetry(
-                REQUEST_RETRY_DELAYS_MS[
+                retryDelays[
                     attempt
                 ]
             );
@@ -311,7 +337,6 @@
             'Atlas AI request failed.'
         );
     }
-
     function cleanString(value) {
         return String(value ?? '').trim();
     }
@@ -1465,6 +1490,10 @@
                                 candidate.brief
                             )
                     })
+                },
+                {
+                    retryTransient: false,
+                    timeoutMs: 12000
                 }
             );
         } catch (error) {
