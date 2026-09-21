@@ -360,11 +360,6 @@ b {
   color: var(--heading);
 }
 
-.legal-footer-links a[aria-current="page"] {
-  color: var(--heading);
-  font-weight: 700;
-}
-
 
 /*
  * One paint clock for every theme-painted element.
