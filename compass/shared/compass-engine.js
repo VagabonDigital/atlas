@@ -23063,6 +23063,25 @@ async function init() {
     initAppearanceMode();
     restoreMyVersionWorkingDraftView();
 
+    if (freshOwnedSubjectBuild) {
+        /*
+         * Cover entry is a presentation boundary, not a persistence boundary.
+         * Reveal the wired owned-subject shell immediately, then prove cloud
+         * authority before authoring creates its first working draft.
+         */
+        releaseCompassSubjectBuildHandoff();
+
+        const cloudAuthorityReady =
+            await freshBuildCloudAuthorityPromise;
+
+        if (!cloudAuthorityReady) {
+            showSubjectAuthoringPersistenceUnavailable(
+                'Atlas could not prepare account persistence for this subject. Reload and try again.'
+            );
+            return;
+        }
+    }
+
     if (
         ownedSubjectAuthoringIntent &&
         !myVersionEditing
@@ -23090,28 +23109,17 @@ async function init() {
     }
 
     if (freshOwnedSubjectBuild) {
-        /*
-         * The real owned-subject shell is now mounted, the generation
-         * presentation/recovery layers are installed, and the title plus
-         * intentional pending copy are renderable. AI framing is background
-         * construction from this point onward, not an entry prerequisite.
-         */
-        releaseCompassSubjectBuildHandoff();
-
-        const cloudAuthorityReady =
-            await freshBuildCloudAuthorityPromise;
-
-        if (!cloudAuthorityReady) {
-            showSubjectAuthoringPersistenceUnavailable(
-                'Atlas could not prepare account persistence for this subject. Reload and try again.'
-            );
+        if (!myVersionEditing) {
+            /*
+             * Keep ?author=generate intact if authoring could not start.
+             * Reload can safely retry the fresh-build continuation.
+             */
             return;
         }
 
         /*
-         * Keep ?author=generate intact until account persistence is proven.
-         * A failed authority bootstrap can therefore recover on reload rather
-         * than silently losing the creation intent.
+         * Account persistence and authoring are now both live. Consume the
+         * fresh-build intent only when generation can safely begin.
          */
         consumeOwnedSubjectAuthoringIntent();
     }
