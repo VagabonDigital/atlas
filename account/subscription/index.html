@@ -203,11 +203,15 @@
 
     .mobile-payment-stage {
       position: relative;
-      min-height: 70vh;
+      min-height: min(58dvh, 520px);
       border: 1px solid var(--border);
       border-radius: 18px;
       background: var(--surface);
       overflow: hidden;
+    }
+
+    .mobile-payment[data-ready="true"] .mobile-payment-stage {
+      min-height: 0;
     }
 
     .payment-preparing {
@@ -228,12 +232,13 @@
     }
 
     .atlas-paddle-mobile-checkout {
-      min-height: 70vh;
+      min-height: min(58dvh, 520px);
       opacity: 0;
       visibility: hidden;
     }
 
     .mobile-payment[data-ready="true"] .atlas-paddle-mobile-checkout {
+      min-height: 0;
       opacity: 1;
       visibility: visible;
     }
@@ -1233,7 +1238,7 @@
                   frameTarget:
                     'atlas-paddle-mobile-checkout',
                   frameInitialHeight:
-                    '720',
+                    '520',
                   frameStyle:
                     'width: 100%; min-width: 312px; background-color: transparent; border: none;',
                   theme:
