@@ -346,10 +346,39 @@
       line-height: 1.5;
     }
 
+    .payment-method-summary {
+      margin-top: 18px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: var(--surface-soft);
+    }
+
+    .payment-method-summary[hidden] {
+      display: none;
+    }
+
+    .payment-method-label {
+      color: var(--muted);
+      font-size: .84rem;
+      font-weight: 600;
+    }
+
+    .payment-method-value {
+      color: var(--text-secondary);
+      font-size: .9rem;
+      font-weight: 700;
+      text-align: right;
+    }
+
     .subscription-actions {
       display: grid;
       gap: 10px;
-      margin-top: 22px;
+      margin-top: 14px;
     }
 
     .action-button {
@@ -434,6 +463,14 @@
       color: var(--muted);
       font-size: .86rem;
       line-height: 1.5;
+    }
+
+    .action-status[data-state="success"] {
+      padding: 11px 12px;
+      border-radius: 10px;
+      background: var(--success-surface);
+      color: var(--success);
+      font-weight: 600;
     }
 
     .billing-history {
@@ -599,6 +636,10 @@
         flex-direction: column;
       }
 
+      .payment-method-summary {
+        align-items: flex-start;
+      }
+
       .cancel-confirmation-controls {
         flex-direction: column;
       }
@@ -685,6 +726,11 @@
           <p id="summary" class="summary"></p>
           <p id="period" class="period"></p>
 
+          <div id="payment-method-summary" class="payment-method-summary" hidden>
+            <span class="payment-method-label">Payment method</span>
+            <span id="payment-method-value" class="payment-method-value"></span>
+          </div>
+
           <div class="subscription-actions">
             <button id="update-payment-method" class="action-button" type="button">
               Update payment method
@@ -757,6 +803,14 @@
       document.getElementById('summary');
     const Period =
       document.getElementById('period');
+    const PaymentMethodSummary =
+      document.getElementById(
+        'payment-method-summary'
+      );
+    const PaymentMethodValue =
+      document.getElementById(
+        'payment-method-value'
+      );
     const UpdatePaymentMethod =
       document.getElementById('update-payment-method');
     const CancelSubscription =
@@ -905,10 +959,13 @@
     }
 
     function setActionStatus(
-      message = ''
+      message = '',
+      state = ''
     ) {
       ActionStatus.textContent =
         message;
+      ActionStatus.dataset.state =
+        state;
       ActionStatus.hidden =
         !message;
     }
@@ -1396,9 +1453,7 @@
                 resetPaymentPreparation();
               }
 
-              setActionStatus(
-                'Payment method updated.'
-              );
+              void refreshPaymentMethodAfterUpdate();
             }
 
             if (
@@ -1582,6 +1637,107 @@
       }
     }
 
+    function formatPaymentMethod(
+      method
+    ) {
+      const details =
+        method &&
+        typeof method === 'object'
+          ? method
+          : {};
+
+      const type =
+        String(
+          details.type || ''
+        )
+          .trim()
+          .toLowerCase();
+
+      if (type === 'card') {
+        const last4 =
+          String(
+            details.last4 || ''
+          ).trim();
+
+        if (!/^\d{4}$/.test(last4)) {
+          return '';
+        }
+
+        const brands = {
+          american_express:
+            'American Express',
+          diners_club:
+            'Diners Club',
+          discover:
+            'Discover',
+          jcb:
+            'JCB',
+          mada:
+            'Mada',
+          maestro:
+            'Maestro',
+          mastercard:
+            'Mastercard',
+          union_pay:
+            'UnionPay',
+          visa:
+            'Visa'
+        };
+
+        const brand =
+          brands[
+            String(
+              details.brand || ''
+            )
+              .trim()
+              .toLowerCase()
+          ] || 'Card';
+
+        return `${brand} •••• ${last4}`;
+      }
+
+      if (type === 'paypal') {
+        return 'PayPal';
+      }
+
+      const labels = {
+        alipay: 'Alipay',
+        apple_pay: 'Apple Pay',
+        blik: 'BLIK',
+        google_pay: 'Google Pay',
+        kakao_pay: 'Kakao Pay',
+        korea_local:
+          'Korean payment method',
+        mb_way: 'MB WAY',
+        naver_pay: 'Naver Pay',
+        payco: 'Payco',
+        pix: 'Pix',
+        samsung_pay: 'Samsung Pay',
+        south_korea_local_card:
+          'Korean card',
+        upi: 'UPI',
+        wechat_pay: 'WeChat Pay'
+      };
+
+      return labels[type] || '';
+    }
+
+    function renderPaymentMethod(
+      method
+    ) {
+      const display =
+        formatPaymentMethod(
+          method
+        );
+
+      PaymentMethodValue.textContent =
+        display;
+      PaymentMethodSummary.hidden =
+        !display;
+
+      return display;
+    }
+
     function formatMoney(
       amountMinor,
       currencyCode
@@ -1705,11 +1861,15 @@
       });
     }
 
-    async function loadBillingHistory() {
-      BillingHistoryStatus.textContent =
-        'Loading…';
-      BillingHistoryEmpty.hidden =
-        true;
+    async function loadBillingHistory(
+      quiet = false
+    ) {
+      if (!quiet) {
+        BillingHistoryStatus.textContent =
+          'Loading…';
+        BillingHistoryEmpty.hidden =
+          true;
+      }
 
       try {
         const result =
@@ -1720,15 +1880,43 @@
         renderBillingHistory(
           result?.payments
         );
+
+        return renderPaymentMethod(
+          result?.paymentMethod
+        );
       } catch (error) {
-        BillingHistoryList
-          .replaceChildren();
+        if (!quiet) {
+          BillingHistoryList
+            .replaceChildren();
 
-        BillingHistoryEmpty.hidden =
-          true;
+          BillingHistoryEmpty.hidden =
+            true;
 
-        BillingHistoryStatus.textContent =
-          'Unavailable';
+          BillingHistoryStatus.textContent =
+            'Unavailable';
+        }
+
+        return '';
+      }
+    }
+
+    async function refreshPaymentMethodAfterUpdate() {
+      setActionStatus(
+        'Payment method updated successfully.',
+        'success'
+      );
+
+      for (const delay of [0, 500, 1200]) {
+        if (delay) {
+          await new Promise(resolve =>
+            window.setTimeout(
+              resolve,
+              delay
+            )
+          );
+        }
+
+        await loadBillingHistory(true);
       }
     }
 
