@@ -1043,7 +1043,7 @@
                 !window.AtlasTutorSubjectsCloudAuthority
             ) {
                 await loadRuntimeScript(
-                    '/shared/atlas-tutor-subjects-cloud-authority.js?v=20260922-checkpoint1',
+                    '/shared/atlas-tutor-subjects-cloud-authority.js?v=20260922-idb1',
                     'AtlasTutorSubjectsCloudAuthority'
                 );
             }
@@ -1216,7 +1216,7 @@
 
         if (needsSubjects) {
             scripts.push(
-                '<script src="/shared/atlas-tutor-subjects-cloud-authority.js?v=20260922-checkpoint1"><\/script>'
+                '<script src="/shared/atlas-tutor-subjects-cloud-authority.js?v=20260922-idb1"><\/script>'
             );
         }
 
