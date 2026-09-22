@@ -121,7 +121,6 @@
     }
 
     .card {
-      min-height: 560px;
       padding: 28px;
       border: 1px solid var(--border);
       border-radius: 20px;
@@ -1520,6 +1519,21 @@
               name ===
                 'checkout.completed'
             ) {
+              const completedMethod =
+                event?.data
+                  ?.payment
+                  ?.method_details;
+
+              if (
+                completedMethod &&
+                typeof completedMethod ===
+                  'object'
+              ) {
+                renderPaymentMethod(
+                  completedMethod
+                );
+              }
+
               if (
                 paymentCheckoutMode ===
                   'mobile-inline'
