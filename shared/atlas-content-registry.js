@@ -866,7 +866,7 @@
         }
 
         const src =
-            '/shared/atlas-account-chrome.js?v=20260920-accountstable6';
+            '/shared/atlas-account-chrome.js?v=20260922-allowance1';
 
         if (document.readyState === 'loading') {
             document.write(
