@@ -502,6 +502,41 @@ body:has(.atlas-account-gate-layer:not([hidden]):not(.is-prewarming)),
     font-weight: 600;
 }
 
+.atlas-account-menu-allowance {
+    margin-top: 13px;
+    padding: 11px 12px;
+    border: 1px solid var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, 0.16)));
+    border-radius: 10px;
+    background: var(--atlas-modal-control-bg, var(--surface-muted, rgba(235, 231, 222, 0.48)));
+}
+
+.atlas-account-menu-allowance[hidden] {
+    display: none;
+}
+
+.atlas-account-menu-allowance-label {
+    margin: 0 0 3px;
+    color: var(--atlas-modal-faint, var(--text-subtle, #9b9489));
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.atlas-account-menu-allowance-value {
+    margin: 0;
+    color: var(--atlas-modal-heading, var(--text-heading, #211f1b));
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.atlas-account-menu-allowance-meta {
+    margin: 3px 0 0;
+    color: var(--atlas-modal-faint, var(--text-subtle, #9b9489));
+    font-size: 0.75rem;
+    line-height: 1.35;
+}
+
 .atlas-account-menu-actions {
     display: grid;
     gap: 6px;
