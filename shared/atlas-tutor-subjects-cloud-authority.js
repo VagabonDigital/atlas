@@ -97,6 +97,52 @@
         }
     }
 
+    function decodeStorageSubjectId(key, prefix) {
+        try {
+            return decodeURIComponent(
+                String(key || '').slice(prefix.length)
+            );
+        } catch {
+            return '';
+        }
+    }
+
+    function isStorageQuotaError(error) {
+        return Boolean(
+            error &&
+            (
+                error.name === 'QuotaExceededError' ||
+                Number(error.code) === 22 ||
+                Number(error.code) === 1014
+            )
+        );
+    }
+
+    function createCheckpointStorageError(error) {
+        const quotaExceeded =
+            isStorageQuotaError(error);
+
+        const wrapped = new Error(
+            quotaExceeded
+                ? 'Atlas could not save the subject recovery checkpoint because browser storage is full.'
+                : 'Atlas could not save the subject recovery checkpoint in this browser.'
+        );
+
+        wrapped.name =
+            'AtlasCheckpointStorageError';
+
+        wrapped.code =
+            quotaExceeded
+                ? 'ATLAS_CHECKPOINT_STORAGE_QUOTA'
+                : 'ATLAS_CHECKPOINT_STORAGE_WRITE_FAILED';
+
+        wrapped.storageErrorName =
+            String(error?.name || '');
+
+        wrapped.cause = error || null;
+        return wrapped;
+    }
+
     function removeValue(key) {
         try {
             localStorage.removeItem(key);
@@ -1069,7 +1115,6 @@
         const storedDraft = normalizeWorkingDraft(readJson(workingDraftStorageKey(subject.id)), subject.id);
         const checkpoint = normalizeBuildCheckpoint(readJson(buildCheckpointStorageKey(subject.id)), subject.id);
         if (checkpoint && (!storedDraft || checkpoint.workingDraft.updatedAt > storedDraft.updatedAt)) {
-            writeJson(workingDraftStorageKey(subject.id), checkpoint.workingDraft);
             return cloneJson(checkpoint.workingDraft);
         }
         return cloneJson(storedDraft);
@@ -1116,7 +1161,6 @@
         const storedState = normalizeBuildState(readJson(buildStateStorageKey(subject.id)), subject.id);
         const checkpoint = normalizeBuildCheckpoint(readJson(buildCheckpointStorageKey(subject.id)), subject.id);
         if (checkpoint && (!storedState || checkpoint.buildState.updatedAt > storedState.updatedAt)) {
-            writeJson(buildStateStorageKey(subject.id), checkpoint.buildState);
             return cloneJson(checkpoint.buildState);
         }
         return cloneJson(storedState);
@@ -1139,6 +1183,123 @@
         }, subject.id);
         if (!next) return null;
         return writeJson(buildStateStorageKey(subject.id), next) ? cloneJson(next) : null;
+    }
+
+    function pruneRedundantGenerationMirrors() {
+        let removed = 0;
+
+        listKeysWithPrefix(
+            BUILD_CHECKPOINT_PREFIX
+        ).forEach(key => {
+            const subjectId =
+                decodeStorageSubjectId(
+                    key,
+                    BUILD_CHECKPOINT_PREFIX
+                );
+
+            if (!subjectId) return;
+
+            const checkpoint =
+                normalizeBuildCheckpoint(
+                    readJson(key),
+                    subjectId
+                );
+
+            if (!checkpoint) return;
+
+            const draftKey =
+                workingDraftStorageKey(
+                    subjectId
+                );
+
+            const storedDraft =
+                normalizeWorkingDraft(
+                    readJson(draftKey),
+                    subjectId
+                );
+
+            if (
+                storedDraft &&
+                Number(storedDraft.updatedAt || 0) <=
+                    Number(
+                        checkpoint
+                            .workingDraft
+                            .updatedAt || 0
+                    ) &&
+                removeValue(draftKey)
+            ) {
+                removed += 1;
+            }
+
+            const stateKey =
+                buildStateStorageKey(
+                    subjectId
+                );
+
+            const storedState =
+                normalizeBuildState(
+                    readJson(stateKey),
+                    subjectId
+                );
+
+            if (
+                storedState &&
+                Number(storedState.updatedAt || 0) <=
+                    Number(
+                        checkpoint
+                            .buildState
+                            .updatedAt || 0
+                    ) &&
+                removeValue(stateKey)
+            ) {
+                removed += 1;
+            }
+        });
+
+        return removed;
+    }
+
+    function writeBuildCheckpoint(
+        subjectId,
+        checkpoint
+    ) {
+        const key =
+            buildCheckpointStorageKey(
+                subjectId
+            );
+
+        const serialized =
+            JSON.stringify(checkpoint);
+
+        try {
+            localStorage.setItem(
+                key,
+                serialized
+            );
+
+            return true;
+        } catch (error) {
+            if (isStorageQuotaError(error)) {
+                pruneRedundantGenerationMirrors();
+
+                try {
+                    localStorage.setItem(
+                        key,
+                        serialized
+                    );
+
+                    return true;
+                } catch (retryError) {
+                    throw createCheckpointStorageError(
+                        retryError
+                    );
+                }
+            }
+
+            throw createCheckpointStorageError(
+                error
+            );
+        }
     }
 
     async function saveBuildCheckpoint(subjectId, checkpoint = {}) {
@@ -1192,9 +1353,17 @@
             buildState,
             updatedAt: timestamp
         };
-        if (!writeJson(buildCheckpointStorageKey(subject.id), next)) return null;
-        writeJson(workingDraftStorageKey(subject.id), workingDraft);
-        writeJson(buildStateStorageKey(subject.id), buildState);
+        /*
+         * The atomic checkpoint is the one full-document generation journal.
+         * getWorkingDraft() and getBuildState() can project from it directly,
+         * so mirroring the same document on every generation step only
+         * multiplies browser-storage pressure.
+         */
+        writeBuildCheckpoint(
+            subject.id,
+            next
+        );
+
         return cloneJson(next);
     }
 
