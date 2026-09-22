@@ -441,7 +441,7 @@
     async function loadCompassEngine() {
         try {
             await loadScript(
-                '../shared/compass-engine.js?v=20260922-checkpoint1',
+                '../shared/compass-engine.js?v=20260922-progress1',
                 'Compass engine could not be loaded.'
             );
 
