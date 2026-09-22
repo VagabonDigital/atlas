@@ -585,6 +585,148 @@ async function verifyUpdateBeatsOlderRevalidation() {
     );
 }
 
+async function verifyLibraryOrderBeatsMetadataRecency() {
+    const staleRows =
+        deferred();
+
+    const first = {
+        ...cachedSubject({
+            revision: 7
+        }),
+        id: 'subject-first',
+        updatedAt: 700
+    };
+
+    const second = {
+        ...cachedSubject({
+            revision: 8
+        }),
+        id: 'subject-second',
+        updatedAt: 800
+    };
+
+    const storage =
+        new StorageMock({
+            [AUTH_KEY]:
+                JSON.stringify({
+                    user: {
+                        id:
+                            'user-test'
+                    }
+                }),
+
+            [HUB_KEY]:
+                JSON.stringify({
+                    version: 3,
+                    kind:
+                        'compass-hub-presentation',
+                    ready: true,
+                    userId:
+                        'user-test',
+                    cachedAt: 1,
+
+                    // Simulate the server summary query after subject-second
+                    // received a cover/metadata update.
+                    summaries: [
+                        second,
+                        first
+                    ],
+
+                    library: {
+                        schemaVersion: 1,
+                        revision: 4,
+
+                        state: {
+                            order: [
+                                'subject-first',
+                                'subject-second'
+                            ],
+
+                            library: {
+                                schemaVersion: 1,
+                                defaultCategoryId:
+                                    'default',
+
+                                categories: [
+                                    {
+                                        id:
+                                            'default',
+                                        name:
+                                            'My Subjects'
+                                    }
+                                ],
+
+                                categoryOrder: [
+                                    'default'
+                                ],
+
+                                subjects: {
+                                    'subject-first': {
+                                        libraryIncluded:
+                                            true,
+                                        categoryId:
+                                            'default',
+                                        archived:
+                                            false
+                                    },
+
+                                    'subject-second': {
+                                        libraryIncluded:
+                                            true,
+                                        categoryId:
+                                            'default',
+                                        archived:
+                                            false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                })
+        });
+
+    const {
+        window
+    } =
+        makeContext({
+            staleRowsPromise:
+                staleRows.promise,
+            storage
+        });
+
+    const summaries =
+        await window.AtlasCloud
+            .listOwnedSubjectSummaries();
+
+    assert.deepEqual(
+        Array.from(
+            summaries,
+            subject => subject.id
+        ),
+        [
+            'subject-first',
+            'subject-second'
+        ],
+        'Metadata recency must not move an existing My Subject ahead of its stored library position.'
+    );
+
+    const snapshot =
+        window.AtlasCloudCache
+            .getCompassPresentationSnapshot();
+
+    assert.deepEqual(
+        Array.from(
+            snapshot.summaries,
+            subject => subject.id
+        ),
+        [
+            'subject-first',
+            'subject-second'
+        ],
+        'The persisted first-paint Compass snapshot must preserve canonical My Subjects ordering.'
+    );
+}
+
 assert.match(
     cacheSource,
     /const HUB_CACHE_VERSION = 3;/
@@ -612,7 +754,7 @@ assert.match(
 
 assert.match(
     registrySource,
-    /atlas-cloud-cache\.js\?v=20260922-delete1/
+    /atlas-cloud-cache\.js\?v=20260922-order1/
 );
 
 assert.match(
@@ -626,6 +768,9 @@ Promise.resolve()
     )
     .then(
         verifyUpdateBeatsOlderRevalidation
+    )
+    .then(
+        verifyLibraryOrderBeatsMetadataRecency
     )
     .then(() => {
         console.log(

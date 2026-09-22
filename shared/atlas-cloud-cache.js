@@ -62,6 +62,87 @@
         return JSON.parse(JSON.stringify(value));
     }
 
+    function orderSubjectSummaries(
+        summaries,
+        library = null
+    ) {
+        const list =
+            Array.isArray(summaries)
+                ? summaries.filter(Boolean)
+                : [];
+
+        const state =
+            library?.state &&
+            typeof library.state === 'object' &&
+            !Array.isArray(library.state)
+                ? library.state
+                : library;
+
+        const order =
+            Array.isArray(state?.order)
+                ? state.order
+                    .map(id =>
+                        String(id || '').trim()
+                    )
+                    .filter(Boolean)
+                : [];
+
+        if (!order.length || list.length < 2) {
+            return list.map(cloneJson);
+        }
+
+        const byId = new Map(
+            list
+                .map(subject => [
+                    String(
+                        subject?.id || ''
+                    ).trim(),
+                    subject
+                ])
+                .filter(([id]) => id)
+        );
+
+        const seen = new Set();
+        const ordered = [];
+
+        order.forEach(id => {
+            const subject = byId.get(id);
+
+            if (!subject || seen.has(id)) {
+                return;
+            }
+
+            seen.add(id);
+            ordered.push(subject);
+        });
+
+        const unlisted = list
+            .filter(subject => {
+                const id = String(
+                    subject?.id || ''
+                ).trim();
+
+                return (
+                    id &&
+                    !seen.has(id)
+                );
+            })
+            .sort(
+                (left, right) =>
+                    Number(
+                        right?.updatedAt || 0
+                    ) -
+                    Number(
+                        left?.updatedAt || 0
+                    )
+            );
+
+        return [
+            ...unlisted,
+            ...ordered
+        ].map(cloneJson);
+    }
+
     function readJson(storage, key) {
         try {
             const raw = storage.getItem(key);
@@ -205,7 +286,11 @@
                 0,
                 Number(value.cachedAt) || 0
             ),
-            summaries: cloneJson(value.summaries) || [],
+            summaries:
+                orderSubjectSummaries(
+                    value.summaries,
+                    value.library
+                ),
             library: cloneJson(value.library)
         };
     }
@@ -455,7 +540,12 @@
     }
 
     function cachedSummaryList() {
-        return Array.from(subjectSummaryById.values()).map(cloneJson);
+        return orderSubjectSummaries(
+            Array.from(
+                subjectSummaryById.values()
+            ),
+            libraryValue
+        );
     }
 
     async function fetchFreshSummaries(userId) {
@@ -998,11 +1088,16 @@
                     return fallbackListSubjects ? fallbackListSubjects() : [];
                 }
 
-                const [summaries, pendingDeletes] = await Promise.all([
+                const [
+                    summaries,
+                    pendingDeletes,
+                    libraryRow
+                ] = await Promise.all([
                     listOwnedSubjectSummaries(),
                     fallbackListPendingDeletes
                         ? fallbackListPendingDeletes()
-                        : []
+                        : [],
+                    getSubjectLibraryState()
                 ]);
 
                 const pendingIds = new Set(
@@ -1011,7 +1106,10 @@
                         .filter(Boolean)
                 );
 
-                return summaries.filter(subject =>
+                return orderSubjectSummaries(
+                    summaries,
+                    libraryRow
+                ).filter(subject =>
                     !pendingIds.has(String(subject?.id || '').trim())
                 );
             },

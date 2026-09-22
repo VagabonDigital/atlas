@@ -1033,7 +1033,7 @@
 
             if (needsSubjects && !window.AtlasCloudCache) {
                 await loadRuntimeScript(
-                    '/shared/atlas-cloud-cache.js?v=20260922-delete1',
+                    '/shared/atlas-cloud-cache.js?v=20260922-order1',
                     'AtlasCloudCache'
                 );
             }
@@ -1210,7 +1210,7 @@
 
         if (needsSubjects && !window.AtlasCloudCache) {
             scripts.push(
-                '<script src="/shared/atlas-cloud-cache.js?v=20260922-delete1"><\/script>'
+                '<script src="/shared/atlas-cloud-cache.js?v=20260922-order1"><\/script>'
             );
         }
 
