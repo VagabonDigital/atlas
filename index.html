@@ -4637,7 +4637,20 @@
     }
 
     function itemTitle(item) {
-      return item.navTitle || item.title || item.name || 'Untitled';
+      const owned = getOwnedHubSubjectSummary(item);
+      const metadata = owned?.metadata || {};
+      const module = owned?.document?.module || {};
+
+      return (
+        metadata.navTitle ||
+        metadata.title ||
+        module.navTitle ||
+        module.title ||
+        item.navTitle ||
+        item.title ||
+        item.name ||
+        'Untitled'
+      );
     }
 
     function itemWorldLabel(item) {
@@ -5229,18 +5242,37 @@
       'arcade:tomorrow-got-weird': './assets/hub/tomorrow-got-weird.webp'
     };
 
+    function getOwnedHubSubjectSummary(item) {
+      if (
+        !item ||
+        item.world !== COMPASS_ID ||
+        item.ownershipKind !== 'my-subject' ||
+        !item.id
+      ) {
+        return null;
+      }
+
+      // Reuse the account-scoped Compass presentation cache already prewarmed
+      // by AtlasRootRuntime. No lesson fetch, new cache, or storage authority.
+      const snapshot =
+        window.AtlasCloudCache?.getCompassPresentationSnapshot?.();
+
+      const userId = getStoredPresentationUserId();
+
+      if (!userId || snapshot?.userId !== userId) {
+        return null;
+      }
+
+      return snapshot.summaries?.find(
+        record => record.id === item.id
+      ) || null;
+    }
+
     function getHubItemCover(item) {
       if (item.world === ARCADE_ID) return GAME_COVERS[item.registryId] || '';
       if (item.world !== COMPASS_ID) return '';
 
-      // Reuse the account-scoped Compass presentation cache already prewarmed
-      // by AtlasRootRuntime. No lesson fetch, new cache, or storage authority.
-      const snapshot = window.AtlasCloudCache?.getCompassPresentationSnapshot();
-      const userId = getStoredPresentationUserId();
-      const owned = item.ownershipKind === 'my-subject' && userId &&
-        snapshot?.userId === userId
-        ? snapshot.summaries?.find(record => record.id === item.id)
-        : null;
+      const owned = getOwnedHubSubjectSummary(item);
       const published = getRegistry().items?.[item.registryId];
       const source = owned || (published &&
         Object.prototype.hasOwnProperty.call(published, 'coverImage')
