@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atlas Subscription</title>
+  <meta name="description" content="Manage your Atlas Pro subscription.">
+  <script>
+    (() => {
+      try {
+        const mode =
+          localStorage.getItem('atlas::appearanceMode') ||
+          'light';
+        document.documentElement.dataset.theme =
+          mode === 'night' ? 'night' : 'light';
+      } catch {
+        document.documentElement.dataset.theme = 'light';
+      }
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --canvas: #f3f0e9;
+      --surface: #fffdf9;
+      --surface-soft: rgba(49,45,38,.025);
+      --border: rgba(49,45,38,.14);
+      --text: #2b2926;
+      --text-secondary: #4f4a43;
+      --muted: #7b7469;
+      --accent: #4f7772;
+      --accent-rgb: 79,119,114;
+      --accent-ring: rgba(79,119,114,.10);
+      --success: #4f7664;
+      --success-surface: #eef6f1;
+      --attention: #8a6847;
+      --attention-surface: #f7f1e9;
+      --shadow: 0 18px 48px rgba(42,37,29,.08);
+      --page-glow: rgba(79,119,114,.10);
+    }
+
+    html[data-theme="night"] {
+      color-scheme: dark;
+      --canvas: #1b1d1c;
+      --surface: #252826;
+      --surface-soft: rgba(235,233,228,.035);
+      --border: rgba(235,233,228,.14);
+      --text: #ebe9e4;
+      --text-secondary: #c7c2b8;
+      --muted: #918b82;
+      --accent: #9bc4bd;
+      --accent-rgb: 155,196,189;
+      --accent-ring: rgba(155,196,189,.14);
+      --success: #9bc4ad;
+      --success-surface: rgba(79,118,100,.18);
+      --attention: #d1aa7c;
+      --attention-surface: rgba(138,104,71,.18);
+      --shadow: 0 18px 48px rgba(0,0,0,.24);
+      --page-glow: rgba(155,196,189,.07);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 20% 0%, var(--page-glow), transparent 28rem),
+        var(--canvas);
+      color: var(--text);
+    }
+
+    button, a { font: inherit; }
+
+    .shell {
+      width: min(860px, 100%);
+    }
+
+    .topline {
+      min-height: 28px;
+      margin-bottom: 18px;
+    }
+
+    .back-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 600;
+    }
+
+    .back-link:hover { color: var(--accent); }
+
+    .brand {
+      margin-bottom: 22px;
+      text-align: center;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.2rem, 5vw, 3rem);
+      font-weight: 400;
+      line-height: 1.05;
+    }
+
+    .brand p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .card {
+      min-height: 310px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .loading {
+      min-height: 250px;
+      display: grid;
+      place-items: center;
+    }
+
+    .loading[hidden],
+    .content[hidden],
+    .error[hidden] {
+      display: none;
+    }
+
+    .loading-state {
+      display: grid;
+      justify-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dots span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: .35;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    .dots span:nth-child(2) { animation-delay: .12s; }
+    .dots span:nth-child(3) { animation-delay: .24s; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: .3; transform: translateY(0); }
+      50% { opacity: .9; transform: translateY(-3px); }
+    }
+
+    .content {
+      display: grid;
+      gap: 18px;
+    }
+
+    .subscription {
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--surface-soft);
+    }
+
+    .subscription-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .kicker {
+      margin: 0 0 5px;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .plan {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .price {
+      color: var(--muted);
+      font-size: .95rem;
+      font-weight: 500;
+    }
+
+    .status {
+      flex: 0 0 auto;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--success-surface);
+      color: var(--success);
+      font-size: .8rem;
+      font-weight: 700;
+    }
+
+    .status[data-state="attention"] {
+      background: var(--attention-surface);
+      color: var(--attention);
+    }
+
+    .summary {
+      margin: 22px 0 0;
+      color: var(--text-secondary);
+      font-size: 1rem;
+      line-height: 1.55;
+    }
+
+    .period {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.5;
+    }
+
+    .provider {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px 20px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      color: var(--text-secondary);
+    }
+
+    .provider strong {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--text);
+      font-size: .95rem;
+    }
+
+    .provider span {
+      color: var(--muted);
+      font-size: .84rem;
+      line-height: 1.45;
+    }
+
+    .provider-badge {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 700;
+    }
+
+    .error {
+      min-height: 250px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+
+    .error-inner {
+      max-width: 430px;
+    }
+
+    .error h2 {
+      margin: 0 0 8px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.6rem;
+      font-weight: 400;
+    }
+
+    .error p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .button {
+      width: 100%;
+      min-height: 46px;
+      margin-top: 18px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      border-color: var(--accent);
+      background: var(--accent-ring);
+      color: var(--text);
+    }
+
+    @media (max-width: 620px) {
+      body {
+        padding: 18px;
+        align-items: start;
+      }
+
+      .card {
+        padding: 18px;
+      }
+
+      .subscription-head,
+      .provider {
+        align-items: flex-start;
+      }
+
+      .provider {
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .dots span { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="topline">
+      <a id="back" class="back-link" href="/account/">← Account</a>
+    </div>
+
+    <header class="brand">
+      <h1>Subscription</h1>
+      <p>Manage Atlas Pro without leaving your Atlas account.</p>
+    </header>
+
+    <section class="card">
+      <div id="loading" class="loading">
+        <div class="loading-state" role="status" aria-live="polite">
+          <div class="dots" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <span>Loading your subscription…</span>
+        </div>
+      </div>
+
+      <div id="content" class="content" hidden>
+        <section class="subscription" aria-label="Atlas Pro subscription">
+          <div class="subscription-head">
+            <div>
+              <p class="kicker">Subscription</p>
+              <p class="plan">Atlas Pro <span class="price">· $12/month</span></p>
+            </div>
+            <span id="status" class="status">Active</span>
+          </div>
+
+          <p id="summary" class="summary"></p>
+          <p id="period" class="period"></p>
+        </section>
+
+        <section class="provider" aria-label="Payment provider">
+          <div>
+            <strong>Billing handled securely by Paddle</strong>
+            <span>Atlas keeps your subscription state here; Paddle securely processes payments and billing records.</span>
+          </div>
+          <span class="provider-badge">Paddle</span>
+        </section>
+      </div>
+
+      <div id="error" class="error" hidden>
+        <div class="error-inner">
+          <h2>Subscription unavailable</h2>
+          <p id="error-copy">Atlas could not load your subscription right now.</p>
+          <button id="retry" class="button" type="button">Try again</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/shared/atlas-cloud.js?v=20260916-account1"></script>
+  <script src="/shared/atlas-account.js?v=20260920-googleid1"></script>
+  <script>
+    'use strict';
+
+    const BACKEND =
+      'https://atlas-ai.savvy989.workers.dev';
+
+    const Loading =
+      document.getElementById('loading');
+    const Content =
+      document.getElementById('content');
+    const ErrorView =
+      document.getElementById('error');
+    const ErrorCopy =
+      document.getElementById('error-copy');
+    const Status =
+      document.getElementById('status');
+    const Summary =
+      document.getElementById('summary');
+    const Period =
+      document.getElementById('period');
+
+    const query =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const from =
+      String(
+        query.get('from') || ''
+      ).trim();
+
+    const accountUrl =
+      from
+        ? `/account/?from=${encodeURIComponent(from)}`
+        : '/account/';
+
+    document.getElementById('back').href =
+      accountUrl;
+
+    function formatDate(value) {
+      const timestamp =
+        Date.parse(String(value || ''));
+
+      if (!Number.isFinite(timestamp)) {
+        return '';
+      }
+
+      return new Intl.DateTimeFormat(
+        undefined,
+        {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        }
+      ).format(
+        new Date(timestamp)
+      );
+    }
+
+    function show(view) {
+      Loading.hidden =
+        view !== 'loading';
+      Content.hidden =
+        view !== 'content';
+      ErrorView.hidden =
+        view !== 'error';
+    }
+
+    async function requestSubscription() {
+      if (
+        !window.AtlasCloud ||
+        typeof AtlasCloud.getSession !==
+          'function'
+      ) {
+        throw new Error(
+          'Atlas account services are unavailable.'
+        );
+      }
+
+      const session =
+        await AtlasCloud.getSession();
+
+      const token =
+        String(
+          session?.access_token || ''
+        ).trim();
+
+      if (!token) {
+        throw new Error(
+          'Sign in to manage your Atlas subscription.'
+        );
+      }
+
+      const response =
+        await fetch(
+          `${BACKEND}/paddle/customer-portal`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            },
+            cache: 'no-store'
+          }
+        );
+
+      const result =
+        await response.json()
+          .catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error ||
+          'Atlas could not load your subscription.'
+        );
+      }
+
+      return result || {};
+    }
+
+    function renderSubscription(billing) {
+      const details =
+        billing &&
+        typeof billing === 'object'
+          ? billing
+          : {};
+
+      const status =
+        String(
+          details.status || ''
+        )
+          .trim()
+          .toLowerCase();
+
+      const scheduledAction =
+        String(
+          details.scheduledAction || ''
+        )
+          .trim()
+          .toLowerCase();
+
+      const start =
+        formatDate(
+          details.currentPeriodStart
+        );
+
+      const end =
+        formatDate(
+          details.currentPeriodEnd
+        );
+
+      const effective =
+        formatDate(
+          details.scheduledEffectiveAt
+        ) || end;
+
+      const ending =
+        status === 'active' &&
+        scheduledAction === 'cancel';
+
+      Status.dataset.state =
+        status === 'active' && !ending
+          ? 'active'
+          : 'attention';
+
+      if (ending) {
+        Status.textContent =
+          effective
+            ? `Ends ${effective}`
+            : 'Ending';
+        Summary.textContent =
+          effective
+            ? `Your Atlas Pro subscription is scheduled to end on ${effective}.`
+            : 'Your Atlas Pro subscription is scheduled to end.';
+      } else if (status === 'active') {
+        Status.textContent = 'Active';
+        Summary.textContent =
+          end
+            ? `Your Atlas Pro subscription renews on ${end}.`
+            : 'Your Atlas Pro subscription is active.';
+      } else if (status === 'past_due') {
+        Status.textContent = 'Payment due';
+        Summary.textContent =
+          'Your subscription needs payment attention to keep Atlas Pro active.';
+      } else if (status === 'paused') {
+        Status.textContent = 'Paused';
+        Summary.textContent =
+          'Your Atlas Pro subscription is paused.';
+      } else if (status === 'canceled') {
+        Status.textContent = 'Canceled';
+        Summary.textContent =
+          'This Atlas Pro subscription has ended.';
+      } else {
+        Status.textContent = 'Subscription';
+        Summary.textContent =
+          'Your Atlas Pro billing relationship is connected.';
+      }
+
+      Period.textContent =
+        start && end
+          ? `Current period · ${start} – ${end}`
+          : '';
+
+      Period.hidden =
+        !Period.textContent;
+    }
+
+    async function load() {
+      show('loading');
+
+      try {
+        await AtlasAccount.initialize();
+
+        const state =
+          AtlasAccount.getState();
+
+        if (!state?.authenticated) {
+          window.location.replace(
+            accountUrl
+          );
+          return;
+        }
+
+        const result =
+          await requestSubscription();
+
+        if (
+          result.available !== true ||
+          !result.billing
+        ) {
+          throw new Error(
+            'There is no Atlas Pro subscription to manage.'
+          );
+        }
+
+        renderSubscription(
+          result.billing
+        );
+
+        show('content');
+      } catch (error) {
+        ErrorCopy.textContent =
+          String(
+            error?.message ||
+            'Atlas could not load your subscription right now.'
+          );
+
+        show('error');
+      }
+    }
+
+    document.getElementById('retry')
+      .addEventListener(
+        'click',
+        load
+      );
+
+    window.addEventListener(
+      'pageshow',
+      event => {
+        if (event.persisted) {
+          void load();
+        }
+      }
+    );
+
+    void load();
+  </script>
+</body>
+</html>
