@@ -24,6 +24,21 @@
         document.documentElement.dataset.theme = 'light';
       }
     })();
+
+    (() => {
+      try {
+        if (
+          new URLSearchParams(
+            window.location.search
+          ).get('payment') === 'updated'
+        ) {
+          document.documentElement.dataset
+            .paymentReturn = 'success';
+        }
+      } catch {
+        // Ignore malformed location state.
+      }
+    })();
   </script>
   <style>
     :root {
@@ -129,7 +144,7 @@
     }
 
     .loading {
-      min-height: 502px;
+      min-height: 474px;
       display: grid;
       place-items: center;
     }
@@ -215,6 +230,49 @@
 
     .mobile-payment-current[hidden] {
       display: none;
+    }
+
+    .payment-return-success {
+      position: fixed;
+      inset: 0;
+      z-index: 2147483647;
+      display: none;
+      place-items: center;
+      padding: 32px;
+      background: var(--canvas);
+      text-align: center;
+    }
+
+    html[data-payment-return="success"]
+      .payment-return-success {
+      display: grid;
+    }
+
+    .payment-return-success-mark {
+      width: 82px;
+      height: 82px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: var(--success-surface);
+      color: var(--success);
+      font-size: 2.6rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .payment-return-success h2 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2rem;
+      font-weight: 400;
+    }
+
+    .payment-return-success p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
     }
 
     .mobile-payment-success {
@@ -721,6 +779,14 @@
   </style>
 </head>
 <body>
+  <div class="payment-return-success" aria-live="polite">
+    <div>
+      <div class="payment-return-success-mark" aria-hidden="true">✓</div>
+      <h2>Payment method updated</h2>
+      <p>Your Atlas Pro billing details are ready.</p>
+    </div>
+  </div>
+
   <section id="mobile-payment" class="mobile-payment" data-ready="false" data-open="false" data-success="false" aria-hidden="true">
     <div class="mobile-payment-shell">
       <div class="mobile-payment-topline">
@@ -846,6 +912,41 @@
   <script src="/shared/atlas-account.js?v=20260920-googleid1"></script>
   <script>
     'use strict';
+
+    const paymentReturnSuccess =
+      new URLSearchParams(
+        window.location.search
+      ).get('payment') === 'updated';
+
+    if (paymentReturnSuccess) {
+      document.documentElement.dataset
+        .paymentReturn = 'success';
+
+      const cleanUrl =
+        new URL(
+          window.location.href
+        );
+
+      cleanUrl.searchParams.delete(
+        'payment'
+      );
+
+      window.history.replaceState(
+        null,
+        '',
+        cleanUrl.pathname +
+        cleanUrl.search +
+        cleanUrl.hash
+      );
+
+      window.setTimeout(
+        () => {
+          delete document.documentElement
+            .dataset.paymentReturn;
+        },
+        1800
+      );
+    }
 
     const BACKEND =
       'https://atlas-ai.savvy989.workers.dev';
@@ -1086,7 +1187,20 @@
             'false';
           setMobilePaymentOpen(false);
         },
-        1100
+        1800
+      );
+    }
+
+    function showDesktopPaymentSuccess() {
+      document.documentElement.dataset
+        .paymentReturn = 'success';
+
+      window.setTimeout(
+        () => {
+          delete document.documentElement
+            .dataset.paymentReturn;
+        },
+        1800
       );
     }
 
@@ -1556,15 +1670,8 @@
                   'desktop-overlay'
               ) {
                 paymentCheckoutMode = null;
-
-                try {
-                  Paddle.Checkout.close();
-                } catch {
-                  // The completed overlay may already be closing.
-                }
-
                 setActionBusy(false);
-                showMobilePaymentSuccess();
+                showDesktopPaymentSuccess();
               }
 
               void refreshPaymentMethodAfterUpdate();
@@ -1712,11 +1819,25 @@
             transactionId
           );
         } else {
+          const successUrl =
+            new URL(
+              window.location.href
+            );
+
+          successUrl.search = '';
+          successUrl.hash = '';
+          successUrl.searchParams.set(
+            'payment',
+            'updated'
+          );
+
           Paddle.Checkout.open({
             transactionId,
             settings: {
               displayMode: 'overlay',
               variant: 'one-page',
+              successUrl:
+                successUrl.toString(),
               theme:
                 document.documentElement
                   .dataset.theme ===
@@ -2308,6 +2429,13 @@
         );
 
         show('content');
+
+        if (paymentReturnSuccess) {
+          setActionStatus(
+            'Payment method updated successfully.',
+            'success'
+          );
+        }
       } catch (error) {
         ErrorCopy.textContent =
           String(
