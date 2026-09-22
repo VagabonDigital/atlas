@@ -16100,6 +16100,24 @@
         diagnosticSource: 'initial'
       });
 
+      /*
+       * Cached-first rendering must not leave Atlas's registry projection
+       * behind the canonical owned-subject record. If cloud authority was
+       * already ready before the initial snapshot render, no later ready
+       * event is guaranteed to fire, so reconcile once from authoritative
+       * subject data. When authority is still pending, the existing
+       * atlas:compass-cloud-authority-ready listener owns that rerender.
+       */
+      if (
+        initialSnapshot &&
+        getStoredCompassAccountUserId() &&
+        !isCompassCloudAuthorityPending()
+      ) {
+        void requestHubRender(
+          'initial-authority-reconcile'
+        );
+      }
+
       markLocalPresentationReady(
         initialSnapshot
           ? 'account-snapshot'
