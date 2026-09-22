@@ -207,6 +207,60 @@
       line-height: 1.5;
     }
 
+    .mobile-payment-current {
+      margin: 8px 0 0;
+      color: var(--text-secondary);
+      font-size: .88rem;
+      font-weight: 700;
+    }
+
+    .mobile-payment-current[hidden] {
+      display: none;
+    }
+
+    .mobile-payment-success {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: none;
+      place-items: center;
+      padding: 32px;
+      background: var(--canvas);
+      text-align: center;
+    }
+
+    .mobile-payment[data-success="true"]
+      .mobile-payment-success {
+      display: grid;
+    }
+
+    .mobile-payment-success-mark {
+      width: 82px;
+      height: 82px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: var(--success-surface);
+      color: var(--success);
+      font-size: 2.6rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .mobile-payment-success h2 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2rem;
+      font-weight: 400;
+    }
+
+    .mobile-payment-success p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
     .mobile-payment-stage {
       position: relative;
       height: 520px;
@@ -668,7 +722,7 @@
   </style>
 </head>
 <body>
-  <section id="mobile-payment" class="mobile-payment" data-ready="false" data-open="false" aria-hidden="true">
+  <section id="mobile-payment" class="mobile-payment" data-ready="false" data-open="false" data-success="false" aria-hidden="true">
     <div class="mobile-payment-shell">
       <div class="mobile-payment-topline">
         <button id="mobile-payment-close" class="mobile-payment-back" type="button">← Subscription</button>
@@ -677,6 +731,7 @@
       <header class="mobile-payment-heading">
         <h2>Update payment method</h2>
         <p>Payments securely processed by Paddle.</p>
+        <p id="mobile-payment-current" class="mobile-payment-current" hidden></p>
       </header>
 
       <div class="mobile-payment-stage">
@@ -689,6 +744,13 @@
           </div>
         </div>
         <div class="atlas-paddle-mobile-checkout"></div>
+      </div>
+      <div class="mobile-payment-success" aria-live="polite">
+        <div>
+          <div class="mobile-payment-success-mark" aria-hidden="true">✓</div>
+          <h2>Payment method updated</h2>
+          <p>Your Atlas Pro billing details are ready.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -842,6 +904,10 @@
     const MobilePaymentFrame =
       document.querySelector(
         '.atlas-paddle-mobile-checkout'
+      );
+    const MobilePaymentCurrent =
+      document.getElementById(
+        'mobile-payment-current'
       );
 
     let currentBilling = null;
@@ -1003,6 +1069,26 @@
       );
       document.body.style.overflow =
         open ? 'hidden' : '';
+
+      if (!open) {
+        MobilePayment.dataset.success =
+          'false';
+      }
+    }
+
+    function showMobilePaymentSuccess() {
+      MobilePayment.dataset.success =
+        'true';
+      setMobilePaymentOpen(true);
+
+      window.setTimeout(
+        () => {
+          MobilePayment.dataset.success =
+            'false';
+          setMobilePaymentOpen(false);
+        },
+        1100
+      );
     }
 
     function setPaymentPreparing(
@@ -1448,9 +1534,9 @@
                 }
 
                 setPaymentPreparing(false);
-                setMobilePaymentOpen(false);
                 setActionBusy(false);
                 resetPaymentPreparation();
+                showMobilePaymentSuccess();
               }
 
               void refreshPaymentMethodAfterUpdate();
@@ -1733,6 +1819,13 @@
       PaymentMethodValue.textContent =
         display;
       PaymentMethodSummary.hidden =
+        !display;
+
+      MobilePaymentCurrent.textContent =
+        display
+          ? `Current · ${display}`
+          : '';
+      MobilePaymentCurrent.hidden =
         !display;
 
       return display;
