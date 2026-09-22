@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Atlas Subscription</title>
   <meta name="description" content="Manage your Atlas Pro subscription.">
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20x%3D%275%27%20y%3D%275%27%20width%3D%2790%27%20height%3D%2790%27%20rx%3D%2724%27%20fill%3D%27%233F7FA3%27%2F%3E%3Cpath%20d%3D%27M20%2080V48C20%2028%2033%2015%2050%2015S80%2028%2080%2048V80H65V49C65%2039%2059%2033%2050%2033S35%2039%2035%2049V80Z%27%20fill%3D%27%23FFFFFF%27%2F%3E%3Cpath%20d%3D%27M16%2080H84%27%20stroke%3D%27%23DFF4FC%27%20stroke-width%3D%278%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E"
+  >
   <script>
     (() => {
       try {
@@ -170,10 +175,8 @@
     }
 
     .subscription {
-      padding: 22px;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: var(--surface-soft);
+      padding: 2px 2px 22px;
+      border-bottom: 1px solid var(--border);
     }
 
     .subscription-head {
@@ -234,34 +237,20 @@
     }
 
     .provider {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      padding: 18px 20px;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      color: var(--text-secondary);
+      margin-top: -2px;
+      color: var(--muted);
+      font-size: .8rem;
+      line-height: 1.5;
+      text-align: center;
     }
 
     .provider strong {
-      display: block;
-      margin-bottom: 3px;
-      color: var(--text);
-      font-size: .95rem;
-    }
-
-    .provider span {
-      color: var(--muted);
-      font-size: .84rem;
-      line-height: 1.45;
+      color: var(--text-secondary);
+      font-weight: 600;
     }
 
     .provider-badge {
-      flex: 0 0 auto;
-      color: var(--muted);
-      font-size: .82rem;
-      font-weight: 700;
+      display: none;
     }
 
     .error {
@@ -366,13 +355,10 @@
           <p id="period" class="period"></p>
         </section>
 
-        <section class="provider" aria-label="Payment provider">
-          <div>
-            <strong>Billing handled securely by Paddle</strong>
-            <span>Atlas keeps your subscription state here; Paddle securely processes payments and billing records.</span>
-          </div>
-          <span class="provider-badge">Paddle</span>
-        </section>
+        <p class="provider">
+          <strong>Payments securely processed by Paddle.</strong>
+          Atlas keeps your subscription state here.
+        </p>
       </div>
 
       <div id="error" class="error" hidden>
