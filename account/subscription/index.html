@@ -1372,6 +1372,7 @@
                   'mobile-inline'
               ) {
                 paymentUpdateCompleted = true;
+                paymentCheckoutMode = null;
 
                 try {
                   Paddle.Checkout.close();
@@ -1381,11 +1382,8 @@
 
                 setPaymentPreparing(false);
                 setMobilePaymentOpen(false);
-                preparedPaymentTransactionId = '';
-                paymentPrewarmPromise = null;
-                paymentPrewarmReady = false;
-                paymentCheckoutMode = null;
                 setActionBusy(false);
+                resetPaymentPreparation();
               }
 
               setActionStatus(
@@ -1433,14 +1431,15 @@
                 paymentCheckoutMode ===
                   'mobile-inline-prewarm'
               ) {
+                const wasOpen =
+                  MobilePayment.dataset.open ===
+                    'true';
+
                 setMobilePaymentOpen(false);
                 setActionBusy(false);
                 void cleanupPaymentPreparation();
 
-                if (
-                  MobilePayment.dataset.open ===
-                    'true'
-                ) {
+                if (wasOpen) {
                   setActionStatus(
                     'Secure payment update could not load. Please try again.'
                   );
