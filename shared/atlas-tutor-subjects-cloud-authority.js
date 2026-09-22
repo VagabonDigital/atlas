@@ -1440,10 +1440,29 @@
         if (!deleted) return false;
 
         clearPendingDeleteTimer(id);
-        removeValue(workingDraftStorageKey(id));
-        removeValue(buildStateStorageKey(id));
-        removeValue(buildCheckpointStorageKey(id));
-        removeValue(pendingDeleteStorageKey(id));
+
+        await Promise.all([
+            deleteBrowserSubjectState(
+                'working-draft',
+                id,
+                workingDraftStorageKey(id)
+            ),
+            deleteBrowserSubjectState(
+                'build-state',
+                id,
+                buildStateStorageKey(id)
+            ),
+            deleteBrowserSubjectState(
+                'build-checkpoint',
+                id,
+                buildCheckpointStorageKey(id)
+            )
+        ]);
+
+        removeValue(
+            pendingDeleteStorageKey(id)
+        );
+
         invalidateSnapshot();
 
         // Durable deletion already removed cloud-owned learner, Shared, and
@@ -1792,123 +1811,6 @@
             : null;
     }
 
-    function pruneRedundantGenerationMirrors() {
-        let removed = 0;
-
-        listKeysWithPrefix(
-            BUILD_CHECKPOINT_PREFIX
-        ).forEach(key => {
-            const subjectId =
-                decodeStorageSubjectId(
-                    key,
-                    BUILD_CHECKPOINT_PREFIX
-                );
-
-            if (!subjectId) return;
-
-            const checkpoint =
-                normalizeBuildCheckpoint(
-                    readJson(key),
-                    subjectId
-                );
-
-            if (!checkpoint) return;
-
-            const draftKey =
-                workingDraftStorageKey(
-                    subjectId
-                );
-
-            const storedDraft =
-                normalizeWorkingDraft(
-                    readJson(draftKey),
-                    subjectId
-                );
-
-            if (
-                storedDraft &&
-                Number(storedDraft.updatedAt || 0) <=
-                    Number(
-                        checkpoint
-                            .workingDraft
-                            .updatedAt || 0
-                    ) &&
-                removeValue(draftKey)
-            ) {
-                removed += 1;
-            }
-
-            const stateKey =
-                buildStateStorageKey(
-                    subjectId
-                );
-
-            const storedState =
-                normalizeBuildState(
-                    readJson(stateKey),
-                    subjectId
-                );
-
-            if (
-                storedState &&
-                Number(storedState.updatedAt || 0) <=
-                    Number(
-                        checkpoint
-                            .buildState
-                            .updatedAt || 0
-                    ) &&
-                removeValue(stateKey)
-            ) {
-                removed += 1;
-            }
-        });
-
-        return removed;
-    }
-
-    function writeBuildCheckpoint(
-        subjectId,
-        checkpoint
-    ) {
-        const key =
-            buildCheckpointStorageKey(
-                subjectId
-            );
-
-        const serialized =
-            JSON.stringify(checkpoint);
-
-        try {
-            localStorage.setItem(
-                key,
-                serialized
-            );
-
-            return true;
-        } catch (error) {
-            if (isStorageQuotaError(error)) {
-                pruneRedundantGenerationMirrors();
-
-                try {
-                    localStorage.setItem(
-                        key,
-                        serialized
-                    );
-
-                    return true;
-                } catch (retryError) {
-                    throw createCheckpointStorageError(
-                        retryError
-                    );
-                }
-            }
-
-            throw createCheckpointStorageError(
-                error
-            );
-        }
-    }
-
     async function saveBuildCheckpoint(subjectId, checkpoint = {}) {
         if (!(await useCloud())) {
             return original.saveBuildCheckpoint ? original.saveBuildCheckpoint(subjectId, checkpoint) : null;
@@ -2088,16 +1990,20 @@
         const pendingIds = new Set(listPendingDeleteRecords().map(record => record.subjectId));
         const subjects = snapshot.subjects.filter(subject => !pendingIds.has(subject.id));
         const subjectIds = new Set(subjects.map(subject => subject.id));
-        const workingDrafts = listKeysWithPrefix(WORKING_DRAFT_PREFIX)
-            .map(key => {
-                try {
-                    const id = decodeURIComponent(key.slice(WORKING_DRAFT_PREFIX.length));
-                    return normalizeWorkingDraft(readJson(key), id);
-                } catch {
-                    return null;
-                }
-            })
-            .filter(record => record && subjectIds.has(record.subjectId));
+        const workingDrafts = (
+            await Promise.all(
+                subjects.map(subject =>
+                    getWorkingDraft(
+                        subject.id
+                    )
+                )
+            )
+        ).filter(record =>
+            record &&
+            subjectIds.has(
+                record.subjectId
+            )
+        );
 
         const sessionSubjects = {};
         listKeysWithPrefix(SESSION_SUBJECTS_PREFIX).forEach(key => {
@@ -2183,6 +2089,22 @@
         refresh: invalidateSnapshot,
         getSnapshot: () => getCloudSnapshot(true)
     });
+
+    void (async () => {
+        try {
+            if (!(await useCloud())) {
+                return;
+            }
+
+            await migrateLegacyGenerationStorage();
+            await pruneCloudBackedLegacySubjects();
+        } catch (error) {
+            console.warn(
+                '[AtlasTutorSubjectsCloudAuthority] Browser subject storage migration failed:',
+                error
+            );
+        }
+    })();
 
     void reconcilePendingDeletes().catch(error => {
         console.warn('[AtlasTutorSubjectsCloudAuthority] Pending-delete reconciliation failed.', error);
