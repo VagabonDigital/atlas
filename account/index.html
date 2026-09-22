@@ -302,6 +302,10 @@
       width: min(520px, 100%);
     }
 
+    .shell.account-shell-authenticated {
+      width: min(920px, 100%);
+    }
+
     .topline {
       display: flex;
       justify-content: space-between;
@@ -618,7 +622,7 @@
     }
 
     .subscription-card {
-      margin-top: 18px;
+      margin-top: 0;
       padding: 16px;
       border: 1px solid var(--border);
       border-radius: 14px;
@@ -698,7 +702,7 @@
     }
 
     .account-management {
-      margin-top: 18px;
+      margin-top: 0;
       overflow: hidden;
       border: 1px solid var(--border);
       border-radius: 14px;
@@ -783,6 +787,123 @@
     .actions { display: grid; gap: 10px; margin-top: 18px; }
     .actions .button { margin-top: 0; }
 
+    .shell.account-shell-authenticated .brand {
+      margin-bottom: 18px;
+    }
+
+    .shell.account-shell-authenticated .card {
+      padding: 22px;
+    }
+
+    .account-loading-view {
+      min-height: 270px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+
+    .account-loading-view[hidden] {
+      display: none;
+    }
+
+    .account-loading-state {
+      display: grid;
+      justify-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .account-loading-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .account-loading-dots span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: .38;
+      animation: account-loading-pulse 1s ease-in-out infinite;
+    }
+
+    .account-loading-dots span:nth-child(2) {
+      animation-delay: .12s;
+    }
+
+    .account-loading-dots span:nth-child(3) {
+      animation-delay: .24s;
+    }
+
+    @keyframes account-loading-pulse {
+      0%,
+      100% {
+        opacity: .3;
+        transform: translateY(0);
+      }
+
+      50% {
+        opacity: .9;
+        transform: translateY(-3px);
+      }
+    }
+
+    .shell.account-shell-authenticated #account-view {
+      display: grid;
+      grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .shell.account-shell-authenticated #account-view[hidden] {
+      display: none;
+    }
+
+    .shell.account-shell-authenticated .identity,
+    .shell.account-shell-authenticated .subscription-card {
+      min-height: 100%;
+    }
+
+    .shell.account-shell-authenticated .account-management,
+    .shell.account-shell-authenticated .actions {
+      margin-top: 0;
+    }
+
+    .shell.account-shell-authenticated .actions {
+      align-self: start;
+    }
+
+    .shell.account-shell-authenticated
+      #account-view[data-has-subscription="false"]
+      .identity {
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 760px) {
+      .shell.account-shell-authenticated {
+        width: min(520px, 100%);
+      }
+
+      .shell.account-shell-authenticated #account-view {
+        grid-template-columns: 1fr;
+      }
+
+      .shell.account-shell-authenticated
+        #account-view[data-has-subscription="false"]
+        .identity {
+        grid-column: auto;
+      }
+
+      .shell.account-shell-authenticated .subscription-card,
+      .shell.account-shell-authenticated .account-management,
+      .shell.account-shell-authenticated .actions {
+        margin-top: 0;
+      }
+    }
+
     html,
     body,
     .card,
@@ -805,7 +926,8 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .account-return-handoff-dot {
+      .account-return-handoff-dot,
+      .account-loading-dots span {
         animation: none;
       }
 
@@ -913,6 +1035,17 @@
         Checking your account…
       </div>
 
+      <div id="account-loading-view" class="view account-loading-view">
+        <div class="account-loading-state" role="status" aria-live="polite">
+          <div class="account-loading-dots" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span>Loading your account…</span>
+        </div>
+      </div>
+
       <div id="guest-view" class="view" hidden>
         <div class="segmented" aria-label="Account action">
           <button id="mode-sign-in" type="button" class="active">Sign in</button>
@@ -982,7 +1115,7 @@
         <button id="cancel-recovery" class="text-button" type="button">Cancel password reset</button>
       </div>
 
-      <div id="account-view" class="view" hidden>
+      <div id="account-view" class="view" data-has-subscription="false" hidden>
         <div class="identity">
           <p class="identity-label">Signed in as</p>
           <p id="account-email" class="email"></p>
@@ -1141,6 +1274,9 @@
     const GuestView = document.getElementById('guest-view');
     const ForgotView = document.getElementById('forgot-view');
     const RecoveryView = document.getElementById('recovery-view');
+    const Shell = document.querySelector('.shell');
+    const AccountLoadingView =
+      document.getElementById('account-loading-view');
     const AccountView = document.getElementById('account-view');
     const AccountEmail = document.getElementById('account-email');
     const AccountPlan = document.getElementById('account-plan');
@@ -1269,6 +1405,8 @@
     let transientStatus = false;
     let billingManagementUserId = '';
     let billingManagementRequestId = 0;
+    let accountPresentationReadyUserId = '';
+    let accountPresentationPromise = null;
 
     function passwordVisibilityIcon(visible) {
       return visible
@@ -1379,6 +1517,7 @@
 
     function setStatus(message, type = 'info', transient = true) {
       Status.textContent = message;
+      Status.hidden = !message;
       Status.classList.toggle('error', type === 'error');
       Status.classList.toggle('success', type === 'success');
       transientStatus = transient;
@@ -1439,8 +1578,15 @@
     }
 
     function showOnly(view) {
-      [GuestView, ForgotView, RecoveryView, AccountView]
-        .forEach(item => { item.hidden = item !== view; });
+      [
+        AccountLoadingView,
+        GuestView,
+        ForgotView,
+        RecoveryView,
+        AccountView
+      ].forEach(item => {
+        item.hidden = item !== view;
+      });
     }
 
     function setAccountManagementStatus(
@@ -1681,6 +1827,7 @@
       SubscriptionPeriod.hidden =
         !SubscriptionPeriod.textContent;
 
+      AccountView.dataset.hasSubscription = 'true';
       SubscriptionCard.hidden = false;
     }
 
@@ -1703,6 +1850,7 @@
           SubscriptionCard.hidden = true;
         }
 
+        AccountView.dataset.hasSubscription = 'false';
         return;
       }
 
@@ -1715,8 +1863,12 @@
 
       billingManagementUserId = userId;
 
-      if (SubscriptionCard) {
+      if (
+        SubscriptionCard &&
+        accountPresentationReadyUserId !== userId
+      ) {
         SubscriptionCard.hidden = true;
+        AccountView.dataset.hasSubscription = 'false';
       }
 
       try {
@@ -1743,6 +1895,7 @@
           );
         } else if (SubscriptionCard) {
           SubscriptionCard.hidden = true;
+          AccountView.dataset.hasSubscription = 'false';
         }
       } catch (error) {
         if (
@@ -1756,6 +1909,61 @@
           '[Atlas Account] Billing management lookup failed:',
           error
         );
+      }
+    }
+
+    async function revealAuthenticatedAccount(
+      state
+    ) {
+      const userId =
+        String(state?.userId || '').trim();
+
+      if (!userId) return;
+
+      if (
+        accountPresentationReadyUserId === userId
+      ) {
+        showOnly(AccountView);
+        setStatus('', 'info', false);
+        return;
+      }
+
+      if (accountPresentationPromise) {
+        return accountPresentationPromise;
+      }
+
+      showOnly(AccountLoadingView);
+      setStatus('Loading your account…', 'info', false);
+
+      accountPresentationPromise =
+        (async () => {
+          await refreshBillingManagement(
+            state,
+            { force: true }
+          );
+
+          const latest =
+            AtlasAccount.getState();
+
+          if (
+            !latest?.authenticated ||
+            String(latest.userId || '').trim() !==
+              userId
+          ) {
+            return;
+          }
+
+          accountPresentationReadyUserId =
+            userId;
+
+          showOnly(AccountView);
+          setStatus('', 'info', false);
+        })();
+
+      try {
+        await accountPresentationPromise;
+      } finally {
+        accountPresentationPromise = null;
       }
     }
 
@@ -1777,7 +1985,9 @@
         }
 
         finishReturnHandoff();
-        showOnly(AccountView);
+        Shell?.classList.add(
+          'account-shell-authenticated'
+        );
         AccountEmail.textContent = state.email || state.userId || 'Atlas account';
         AccountSignInMethod.textContent =
           formatSignInMethod(state);
@@ -1799,16 +2009,30 @@
           AccountPlan.textContent = titleCasePlan(state.planCode || 'free');
         }
 
-        void refreshBillingManagement(
+        if (
+          !state.entitlementReady &&
+          !state.entitlementError
+        ) {
+          showOnly(AccountLoadingView);
+          setStatus(
+            'Loading your account…',
+            'info',
+            false
+          );
+          return;
+        }
+
+        void revealAuthenticatedAccount(
           state
         );
-
-        if (!transientStatus) {
-          setStatus('Your account is connected.', 'success', false);
-        }
         return;
       }
 
+      accountPresentationReadyUserId = '';
+      accountPresentationPromise = null;
+      Shell?.classList.remove(
+        'account-shell-authenticated'
+      );
       void refreshBillingManagement(
         state
       );
