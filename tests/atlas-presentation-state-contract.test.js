@@ -44,6 +44,12 @@ assert.equal(
     cacheVersionMatch[1],
     'Compass first paint must accept the current shared hub cache version.'
 );
+
+assert.doesNotMatch(
+    compass,
+    /snapshot\.version !== \d+/,
+    'The validated first-paint snapshot must not be rejected again by a stale duplicate version gate.'
+);
 assert.match(
     cache,
     /const HUB_CACHE_KIND = 'compass-hub-presentation';/
