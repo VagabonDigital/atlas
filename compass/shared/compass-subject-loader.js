@@ -441,7 +441,7 @@
     async function loadCompassEngine() {
         try {
             await loadScript(
-                '../shared/compass-engine.js?v=20260921-fresh-entry1',
+                '../shared/compass-engine.js?v=20260922-checkpoint1',
                 'Compass engine could not be loaded.'
             );
 
@@ -458,7 +458,7 @@
             );
 
             await loadScript(
-                '../shared/compass-generation-recovery.js',
+                '../shared/compass-generation-recovery.js?v=20260922-checkpoint1',
                 'Compass generation recovery layer could not be loaded.'
             );
 
