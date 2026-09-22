@@ -757,9 +757,12 @@
     }
 
     html.theme-changing .atmosphere-layer {
-      transition:
-        opacity var(--hub-theme-motion),
-        filter var(--hub-theme-motion);
+      /*
+       * Keep the full-screen filtered image out of the theme compositor pass.
+       * Animating this layer makes Chromium re-rasterize text above it and can
+       * make glyphs look temporarily compressed even though layout is stable.
+       */
+      transition: none;
     }
 
     html.theme-changing .drawer {

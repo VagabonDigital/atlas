@@ -24,6 +24,15 @@ assert.match(
   /background-color var\(--hub-theme-motion\)/
 );
 assert.match(
+  themeMotion,
+  /html\.theme-changing \.atmosphere-layer\s*\{[\s\S]*?transition:\s*none;/
+);
+assert.doesNotMatch(
+  themeMotion,
+  /html\.theme-changing \.atmosphere-layer\s*\{[\s\S]*?filter var\(--hub-theme-motion\)/
+);
+
+assert.match(
   html,
   /atlas-hub\.css\?v=20260922-theme-motion1/
 );
