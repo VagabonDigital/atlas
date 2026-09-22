@@ -651,43 +651,68 @@
 
     /* ============================================================
        THEME MOTION
-       Keep the modern Atlas content out of the transition compositor.
-       The page/chrome may interpolate, but Hub cards, copy, and imagery
-       always render at their final theme state.
+       Bridge owns theme state. Atlas owns how Atlas surfaces interpolate.
+       Source pattern for Compass and Arcade hub motion.
        ============================================================ */
 
     html.theme-changing,
     html.theme-changing body,
+    html.theme-changing .atmosphere-layer::after,
     html.theme-changing .spine,
-    html.theme-changing .spine-mark,
-    html.theme-changing .spine-mark span,
-    html.theme-changing .spine-worlds,
-    html.theme-changing .spine-world-btn,
-    html.theme-changing .spine-world-btn svg,
-    html.theme-changing .spine-session-pill,
-    html.theme-changing .spine-session-pill .pill-name,
-    html.theme-changing .spine-btn,
-    html.theme-changing .appearance-icon,
+    html.theme-changing .spine *,
     html.theme-changing .mobile-header,
-    html.theme-changing .mobile-header-mark,
-    html.theme-changing .mobile-header-mark span,
-    html.theme-changing .mobile-header-session,
-    html.theme-changing .mobile-header-session span,
-    html.theme-changing .mobile-header-btn,
+    html.theme-changing .mobile-header *,
     html.theme-changing .drawer-header,
     html.theme-changing .drawer-footer,
     html.theme-changing .drawer-title,
-    html.theme-changing .drawer-title span,
-    html.theme-changing .drawer-close,
+    html.theme-changing .drawer-title *,
     html.theme-changing .drawer-nav-label,
     html.theme-changing .drawer-nav-item,
-    html.theme-changing .drawer-nav-item .nav-soon,
     html.theme-changing .drawer-session-btn,
-    html.theme-changing .drawer-session-btn span,
+    html.theme-changing .drawer-session-btn *,
     html.theme-changing .drawer-appearance-btn,
-    html.theme-changing .drawer-legal-links a {
+    html.theme-changing .context-anchor::after,
+    html.theme-changing .today-label,
+    html.theme-changing .welcome-line,
+    html.theme-changing .welcome-sub,
+    html.theme-changing .continue-card,
+    html.theme-changing .continue-card *,
+    html.theme-changing .continue-recap,
+    html.theme-changing .continue-recap *,
+    html.theme-changing .continue-icon,
+    html.theme-changing .continue-rail,
+    html.theme-changing .continue-rail-fill,
+    html.theme-changing .review-row,
+    html.theme-changing .review-row *,
+    html.theme-changing .tutor-entry,
+    html.theme-changing .tutor-entry *,
+    html.theme-changing .tutor-entry::before,
+    html.theme-changing .door,
+    html.theme-changing .door *,
+    html.theme-changing .door::before,
+    html.theme-changing .door-soon-badge,
+    html.theme-changing .review-view,
+    html.theme-changing .review-view *,
+    html.theme-changing .recall-card,
+    html.theme-changing .recall-card *,
+    html.theme-changing .review-back,
+    html.theme-changing .review-nav-btn,
+    html.theme-changing .modal-panel,
+    html.theme-changing .modal-panel *,
+    html.theme-changing .modal-header,
+    html.theme-changing .session-input,
+    html.theme-changing .btn-primary,
+    html.theme-changing .btn-ghost,
+    html.theme-changing .atmosphere-preview,
+    html.theme-changing .atmosphere-preview *,
+    html.theme-changing .atmosphere-favorite-item,
+    html.theme-changing .atmosphere-mini-btn,
+    html.theme-changing .empty-setup,
+    html.theme-changing .empty-setup *,
+    html.theme-changing .atlas-toast {
       transition:
         background-color var(--hub-theme-motion),
+        background var(--hub-theme-motion),
         color var(--hub-theme-motion),
         border-color var(--hub-theme-motion),
         box-shadow var(--hub-theme-motion),
@@ -696,34 +721,57 @@
         stroke var(--hub-theme-motion);
     }
 
-    html.theme-changing body::before,
-    html.theme-changing body::after,
-    html.theme-changing .atmosphere-layer::before,
-    html.theme-changing .atmosphere-layer::after {
-      transition: opacity var(--hub-theme-motion);
-    }
-
     html.theme-changing .atmosphere-layer {
       transition:
         opacity var(--hub-theme-motion),
         filter var(--hub-theme-motion);
     }
 
-    html.theme-changing .atlas-main,
-    html.theme-changing .atlas-main *,
-    html.theme-changing .atlas-main *::before,
-    html.theme-changing .atlas-main *::after {
-      transition: none !important;
-    }
-
     html.theme-changing .drawer {
       transition:
         transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
         background-color var(--hub-theme-motion),
+        background var(--hub-theme-motion),
         color var(--hub-theme-motion),
         border-color var(--hub-theme-motion),
         box-shadow var(--hub-theme-motion),
         opacity var(--hub-theme-motion);
+    }
+
+    html.theme-changing .atmosphere-layer::before,
+    html.theme-changing .atmosphere-layer::after {
+      transition: opacity var(--hub-theme-motion);
+    }
+
+    html.theme-changing .door,
+    html.theme-changing .tutor-entry {
+      transition:
+        --door-c1 var(--hub-theme-motion),
+        --door-c2 var(--hub-theme-motion),
+        border-color var(--hub-theme-motion),
+        box-shadow var(--hub-theme-motion);
+    }
+
+    html.theme-changing .door::before,
+    html.theme-changing .tutor-entry::before {
+      transition:
+        --rail-1 var(--hub-theme-motion),
+        --rail-2 var(--hub-theme-motion),
+        opacity var(--hub-theme-motion);
+    }
+
+    /* Atlas Hub only: switch appearance atomically. The modern image-led
+       cards expose Chromium compositor snapping during the shared animated
+       theme pass, so the root Hub suppresses that pass rather than allowing
+       an intermediate compressed frame. */
+    html.atlas-theme-snap,
+    html.atlas-theme-snap body,
+    html.atlas-theme-snap body::before,
+    html.atlas-theme-snap body::after,
+    html.atlas-theme-snap *,
+    html.atlas-theme-snap *::before,
+    html.atlas-theme-snap *::after {
+      transition: none !important;
     }
 
     /* ============================================================
@@ -4701,7 +4749,20 @@
     function toggleAppearance() {
       const cur = Bridge.readAppearanceMode();
       const next = cur === 'night' ? 'light' : 'night';
+      const root = document.documentElement;
+
+      root.classList.add('atlas-theme-snap');
       Bridge.setAppearanceMode(next);
+
+      // Atlas switches atomically; other hubs still use Bridge's shared
+      // animated appearance transition.
+      root.classList.remove('theme-changing');
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          root.classList.remove('atlas-theme-snap');
+        });
+      });
     }
 
     function updateAppearanceButtons(mode) {
