@@ -1259,11 +1259,7 @@ export default {
                         {
                             ok: false,
                             error:
-                                String(
-                                    error?.message ||
-                                    ''
-                                ).trim() ||
-                                'Atlas could not update your subscription.'
+                                'Atlas could not update your subscription. Please try again.'
                         },
                         502
                     );
