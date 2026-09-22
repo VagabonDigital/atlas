@@ -524,6 +524,76 @@ async function updateAtlasPaddleSubscription(
     };
 }
 
+
+async function createAtlasPaddlePaymentMethodTransaction(
+    env,
+    paddleEnvironment,
+    subscriptionId
+) {
+    const apiKey =
+        String(
+            env.ATLAS_PADDLE_API_KEY || ''
+        ).trim();
+
+    if (!apiKey) {
+        throw new Error(
+            'Atlas Paddle API access is not configured.'
+        );
+    }
+
+    const response =
+        await fetch(
+            `${getAtlasPaddleApiBase(
+                paddleEnvironment
+            )}/subscriptions/${encodeURIComponent(
+                subscriptionId
+            )}/update-payment-method-transaction`,
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization':
+                        `Bearer ${apiKey}`,
+                    'Accept':
+                        'application/json',
+                    'Paddle-Version':
+                        '1'
+                }
+            }
+        );
+
+    let payload = null;
+
+    try {
+        payload =
+            await response.json();
+    } catch {
+        payload = null;
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            `Paddle payment-method transaction failed with status ${response.status}.`
+        );
+    }
+
+    const transactionId =
+        String(
+            payload?.data?.id || ''
+        ).trim();
+
+    if (
+        !/^txn_[a-z\d]{26}$/.test(
+            transactionId
+        )
+    ) {
+        throw new Error(
+            'Paddle returned an invalid payment-method transaction.'
+        );
+    }
+
+    return transactionId;
+}
+
 function constantTimeEqualText(left, right) {
     const a = String(left || '');
     const b = String(right || '');
@@ -1229,6 +1299,42 @@ export default {
             }
 
             if (
+                action === 'update_payment_method'
+            ) {
+                try {
+                    const transactionId =
+                        await createAtlasPaddlePaymentMethodTransaction(
+                            env,
+                            paddleEnvironment,
+                            String(
+                                context.subscriptionId ||
+                                ''
+                            )
+                        );
+
+                    return jsonNoStore({
+                        ok: true,
+                        action,
+                        transactionId
+                    });
+                } catch (error) {
+                    console.error(
+                        '[Atlas Paddle] Payment-method transaction failed:',
+                        error
+                    );
+
+                    return jsonNoStore(
+                        {
+                            ok: false,
+                            error:
+                                'Atlas could not start the payment-method update. Please try again.'
+                        },
+                        502
+                    );
+                }
+            }
+
+            if (
                 action === 'cancel_subscription' ||
                 action === 'keep_subscription'
             ) {
@@ -1282,14 +1388,7 @@ export default {
                     );
 
                 const portalUrl =
-                    action ===
-                        'update_payment_method'
-                        ? portalUrls
-                            .updatePaymentMethodUrl
-                        : action ===
-                            'cancel_subscription'
-                            ? portalUrls.cancelUrl
-                            : portalUrls.overviewUrl;
+                    portalUrls.overviewUrl;
 
                 return jsonNoStore({
                     ok: true,
