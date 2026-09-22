@@ -1112,6 +1112,12 @@
                 paymentCheckoutMode ===
                   'mobile-inline'
               ) {
+                try {
+                  Paddle.Checkout.close();
+                } catch {
+                  // The completed inline checkout may already be closing.
+                }
+
                 setPaymentPreparing(false);
                 setMobilePaymentOpen(false);
                 paymentCheckoutMode = null;
@@ -1706,11 +1712,14 @@
           try {
             Paddle.Checkout.close();
           } catch {
-            setPaymentPreparing(false);
-            setMobilePaymentOpen(false);
-            paymentCheckoutMode = null;
-            setActionBusy(false);
+            // The inline checkout may already be gone.
           }
+
+          setPaymentPreparing(false);
+          setMobilePaymentOpen(false);
+          paymentCheckoutMode = null;
+          setActionBusy(false);
+          setActionStatus('');
         }
       );
 
