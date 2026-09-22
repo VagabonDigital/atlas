@@ -1231,7 +1231,6 @@
         </div>
 
         <div class="actions">
-          <button id="return" class="button primary" type="button">Return to Atlas</button>
           <button id="sign-out" class="button secondary" type="button">Sign out</button>
         </div>
       </div>
@@ -1255,17 +1254,12 @@
 
     const AccountOrigin = getAccountOrigin();
     const BackLink = document.querySelector('.back-link');
-    const ReturnButton = document.getElementById('return');
 
     if (BackLink) {
       BackLink.href = AccountOrigin.href;
-      BackLink.textContent = '← Back';
+      BackLink.textContent = `← ${AccountOrigin.label}`;
       BackLink.setAttribute('aria-label', `Back to ${AccountOrigin.label}`);
       BackLink.title = `Back to ${AccountOrigin.label}`;
-    }
-
-    if (ReturnButton) {
-      ReturnButton.textContent = `Return to ${AccountOrigin.label}`;
     }
 
     const Status = document.getElementById('status');
@@ -2648,9 +2642,6 @@
       }
     });
 
-    document.getElementById('return').addEventListener('click', () => {
-      window.location.href = AccountOrigin.href;
-    });
   </script>
 </body>
 </html>
