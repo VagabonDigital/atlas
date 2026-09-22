@@ -7823,8 +7823,19 @@ async function generateMyVersionFullSubject({
                     ?.label ||
                 'this step';
 
+            const checkpointStorageFailure =
+                error?.code ===
+                    'ATLAS_CHECKPOINT_STORAGE_QUOTA' ||
+                error?.code ===
+                    'ATLAS_CHECKPOINT_STORAGE_WRITE_FAILED';
+
             myVersionFullSubjectGenerationError =
-                `Generation paused at ${failedAt}. Your work is autosaved — Atlas will continue from here when you return.`;
+                checkpointStorageFailure
+                    ? error?.code ===
+                        'ATLAS_CHECKPOINT_STORAGE_QUOTA'
+                        ? `Generation paused at ${failedAt}. Browser storage is full, so Atlas stopped before generating more.`
+                        : `Generation paused at ${failedAt}. Atlas could not save a recovery checkpoint in this browser.`
+                    : `Generation paused at ${failedAt}. Your work is autosaved — Atlas will continue from here when you return.`;
         }
 
         return null;
