@@ -45,6 +45,385 @@
 
     const cloudVersionReads = new Map();
 
+    const WORKING_DRAFT_DB_NAME =
+        'atlas-tutor-content';
+    const WORKING_DRAFT_DB_VERSION = 1;
+    const WORKING_DRAFT_STORE =
+        'working-drafts';
+    const LEGACY_WORKING_DRAFT_PREFIX =
+        'atlas::tutorContent::workingDraft::';
+
+    let workingDraftDbPromise = null;
+    let workingDraftMigrationPromise = null;
+
+    function openWorkingDraftDb() {
+        if (workingDraftDbPromise) {
+            return workingDraftDbPromise;
+        }
+
+        if (!window.indexedDB) {
+            return Promise.resolve(null);
+        }
+
+        workingDraftDbPromise =
+            new Promise((resolve, reject) => {
+                let request = null;
+
+                try {
+                    request =
+                        window.indexedDB.open(
+                            WORKING_DRAFT_DB_NAME,
+                            WORKING_DRAFT_DB_VERSION
+                        );
+                } catch (error) {
+                    reject(error);
+                    return;
+                }
+
+                request.onupgradeneeded = () => {
+                    const db = request.result;
+
+                    if (
+                        !db.objectStoreNames.contains(
+                            WORKING_DRAFT_STORE
+                        )
+                    ) {
+                        db.createObjectStore(
+                            WORKING_DRAFT_STORE
+                        );
+                    }
+                };
+
+                request.onsuccess = () => {
+                    resolve(request.result);
+                };
+
+                request.onerror = () => {
+                    reject(
+                        request.error ||
+                        new Error(
+                            'Atlas tutor draft storage could not open.'
+                        )
+                    );
+                };
+
+                request.onblocked = () => {
+                    reject(
+                        new Error(
+                            'Atlas tutor draft storage upgrade is blocked.'
+                        )
+                    );
+                };
+            })
+            .catch(error => {
+                workingDraftDbPromise = null;
+
+                console.warn(
+                    '[AtlasTutorContentCloudAuthority] IndexedDB working-draft storage is unavailable:',
+                    error
+                );
+
+                return null;
+            });
+
+        return workingDraftDbPromise;
+    }
+
+    async function readIndexedWorkingDraft(
+        contentId
+    ) {
+        const db =
+            await openWorkingDraftDb();
+
+        if (!db) return null;
+
+        return new Promise((resolve, reject) => {
+            const transaction =
+                db.transaction(
+                    WORKING_DRAFT_STORE,
+                    'readonly'
+                );
+
+            const request =
+                transaction
+                    .objectStore(
+                        WORKING_DRAFT_STORE
+                    )
+                    .get(
+                        String(
+                            contentId || ''
+                        ).trim()
+                    );
+
+            request.onsuccess = () => {
+                resolve(
+                    request.result === undefined
+                        ? null
+                        : cloneJson(
+                            request.result
+                        )
+                );
+            };
+
+            request.onerror = () => {
+                reject(
+                    request.error ||
+                    new Error(
+                        'Atlas tutor draft could not be read.'
+                    )
+                );
+            };
+        });
+    }
+
+    async function writeIndexedWorkingDraft(
+        contentId,
+        value
+    ) {
+        const db =
+            await openWorkingDraftDb();
+
+        if (!db) return false;
+
+        return new Promise((resolve, reject) => {
+            const transaction =
+                db.transaction(
+                    WORKING_DRAFT_STORE,
+                    'readwrite'
+                );
+
+            transaction.oncomplete = () => {
+                resolve(true);
+            };
+
+            transaction.onerror = () => {
+                reject(
+                    transaction.error ||
+                    new Error(
+                        'Atlas tutor draft could not be saved.'
+                    )
+                );
+            };
+
+            transaction.onabort = () => {
+                reject(
+                    transaction.error ||
+                    new Error(
+                        'Atlas tutor draft save was aborted.'
+                    )
+                );
+            };
+
+            transaction
+                .objectStore(
+                    WORKING_DRAFT_STORE
+                )
+                .put(
+                    cloneJson(value),
+                    String(
+                        contentId || ''
+                    ).trim()
+                );
+        });
+    }
+
+    async function deleteIndexedWorkingDraft(
+        contentId
+    ) {
+        const db =
+            await openWorkingDraftDb();
+
+        if (!db) return true;
+
+        return new Promise((resolve, reject) => {
+            const transaction =
+                db.transaction(
+                    WORKING_DRAFT_STORE,
+                    'readwrite'
+                );
+
+            transaction.oncomplete = () => {
+                resolve(true);
+            };
+
+            transaction.onerror = () => {
+                reject(
+                    transaction.error ||
+                    new Error(
+                        'Atlas tutor draft could not be cleared.'
+                    )
+                );
+            };
+
+            transaction.onabort = () => {
+                reject(
+                    transaction.error ||
+                    new Error(
+                        'Atlas tutor draft clear was aborted.'
+                    )
+                );
+            };
+
+            transaction
+                .objectStore(
+                    WORKING_DRAFT_STORE
+                )
+                .delete(
+                    String(
+                        contentId || ''
+                    ).trim()
+                );
+        });
+    }
+
+    async function listIndexedWorkingDrafts() {
+        const db =
+            await openWorkingDraftDb();
+
+        if (!db) return [];
+
+        return new Promise((resolve, reject) => {
+            const transaction =
+                db.transaction(
+                    WORKING_DRAFT_STORE,
+                    'readonly'
+                );
+
+            const request =
+                transaction
+                    .objectStore(
+                        WORKING_DRAFT_STORE
+                    )
+                    .getAll();
+
+            request.onsuccess = () => {
+                resolve(
+                    Array.isArray(
+                        request.result
+                    )
+                        ? cloneJson(
+                            request.result
+                        )
+                        : []
+                );
+            };
+
+            request.onerror = () => {
+                reject(
+                    request.error ||
+                    new Error(
+                        'Atlas tutor drafts could not be listed.'
+                    )
+                );
+            };
+        });
+    }
+
+    function listLegacyWorkingDraftKeys() {
+        const keys = [];
+
+        try {
+            for (
+                let index = 0;
+                index < localStorage.length;
+                index += 1
+            ) {
+                const key =
+                    localStorage.key(index);
+
+                if (
+                    key &&
+                    key.startsWith(
+                        LEGACY_WORKING_DRAFT_PREFIX
+                    )
+                ) {
+                    keys.push(key);
+                }
+            }
+        } catch { }
+
+        return keys;
+    }
+
+    async function migrateLegacyWorkingDrafts() {
+        if (workingDraftMigrationPromise) {
+            return workingDraftMigrationPromise;
+        }
+
+        workingDraftMigrationPromise =
+            (async () => {
+                let migrated = 0;
+
+                for (
+                    const key of
+                    listLegacyWorkingDraftKeys()
+                ) {
+                    let contentId = '';
+                    let record = null;
+
+                    try {
+                        contentId =
+                            decodeURIComponent(
+                                key.slice(
+                                    LEGACY_WORKING_DRAFT_PREFIX.length
+                                )
+                            );
+
+                        const raw =
+                            localStorage.getItem(
+                                key
+                            );
+
+                        record =
+                            raw
+                                ? JSON.parse(raw)
+                                : null;
+                    } catch {
+                        continue;
+                    }
+
+                    const normalized =
+                        normalizeWorkingDraft(
+                            record,
+                            contentId
+                        );
+
+                    if (!normalized) {
+                        continue;
+                    }
+
+                    try {
+                        const saved =
+                            await writeIndexedWorkingDraft(
+                                contentId,
+                                normalized
+                            );
+
+                        if (saved) {
+                            try {
+                                localStorage.removeItem(
+                                    key
+                                );
+                            } catch { }
+
+                            migrated += 1;
+                        }
+                    } catch (error) {
+                        console.warn(
+                            '[AtlasTutorContentCloudAuthority] Legacy tutor draft migration paused:',
+                            error
+                        );
+
+                        return migrated;
+                    }
+                }
+
+                return migrated;
+            })();
+
+        return workingDraftMigrationPromise;
+    }
+
     function cloneJson(value) {
         if (value === null || value === undefined) return value;
         return JSON.parse(JSON.stringify(value));
@@ -121,6 +500,61 @@
             ),
             overrides: normalizeOverrides(record.overrides),
             document: normalizeDocument(record.document)
+        };
+    }
+
+    function normalizeWorkingDraft(
+        record,
+        contentId
+    ) {
+        const normalized =
+            normalizeRecord(
+                record,
+                contentId
+            );
+
+        if (!normalized) {
+            return null;
+        }
+
+        return {
+            ...normalized,
+
+            includedLiveSessionId:
+                typeof record
+                    ?.includedLiveSessionId ===
+                    'string' &&
+                record
+                    .includedLiveSessionId
+                    .trim()
+                    ? record
+                        .includedLiveSessionId
+                        .trim()
+                    : null,
+
+            activeViewId:
+                typeof record
+                    ?.activeViewId ===
+                    'string' &&
+                record
+                    .activeViewId
+                    .trim()
+                    ? record
+                        .activeViewId
+                        .trim()
+                    : 'view-cover',
+
+            startedAt:
+                Math.max(
+                    0,
+                    Number(
+                        record?.startedAt
+                    ) ||
+                    Number(
+                        normalized.updatedAt
+                    ) ||
+                    Date.now()
+                )
         };
     }
 
@@ -235,28 +669,198 @@
         const id = String(contentId || '').trim();
         if (!id) return null;
 
-        const localDraft = await original.getWorkingDraft(id);
-        if (!localDraft) return null;
-
         if (!(await useCloud())) {
-            return localDraft;
+            return original.getWorkingDraft(id);
         }
 
-        const committed = await readCloudVersion(id);
-        if (!committed) return localDraft;
+        await migrateLegacyWorkingDrafts();
+
+        const draft =
+            normalizeWorkingDraft(
+                await readIndexedWorkingDraft(
+                    id
+                ),
+                id
+            );
+
+        if (!draft) {
+            return null;
+        }
+
+        const committed =
+            await readCloudVersion(id);
+
+        if (!committed) {
+            return draft;
+        }
 
         const draftUpdatedAt = Math.max(
             0,
-            Number(localDraft.updatedAt) || 0
+            Number(draft.updatedAt) || 0
         );
+
         const committedUpdatedAt = Math.max(
             0,
             Number(committed.updatedAt) || 0
         );
 
-        return committedUpdatedAt >= draftUpdatedAt
-            ? null
-            : localDraft;
+        if (
+            committedUpdatedAt >=
+            draftUpdatedAt
+        ) {
+            await deleteIndexedWorkingDraft(
+                id
+            ).catch(() => undefined);
+
+            return null;
+        }
+
+        return draft;
+    }
+
+    async function saveWorkingDraft(
+        contentId,
+        patch = {}
+    ) {
+        const id =
+            String(
+                contentId || ''
+            ).trim();
+
+        if (!id) return null;
+
+        if (!(await useCloud())) {
+            return original.saveWorkingDraft(
+                id,
+                patch
+            );
+        }
+
+        await migrateLegacyWorkingDrafts();
+
+        const current =
+            normalizeWorkingDraft(
+                await readIndexedWorkingDraft(
+                    id
+                ),
+                id
+            );
+
+        const nextPatch =
+            patch &&
+            typeof patch === 'object' &&
+            !Array.isArray(patch)
+                ? patch
+                : {};
+
+        const merged =
+            mergeRecord(
+                current,
+                nextPatch,
+                id
+            );
+
+        const next =
+            normalizeWorkingDraft(
+                {
+                    ...merged,
+
+                    includedLiveSessionId:
+                        Object.prototype
+                            .hasOwnProperty
+                            .call(
+                                nextPatch,
+                                'includedLiveSessionId'
+                            )
+                            ? (
+                                typeof nextPatch
+                                    .includedLiveSessionId ===
+                                    'string' &&
+                                nextPatch
+                                    .includedLiveSessionId
+                                    .trim()
+                                    ? nextPatch
+                                        .includedLiveSessionId
+                                        .trim()
+                                    : null
+                            )
+                            : current
+                                ?.includedLiveSessionId ||
+                                null,
+
+                    activeViewId:
+                        typeof nextPatch
+                            .activeViewId ===
+                            'string' &&
+                        nextPatch
+                            .activeViewId
+                            .trim()
+                            ? nextPatch
+                                .activeViewId
+                                .trim()
+                            : current
+                                ?.activeViewId ||
+                                'view-cover',
+
+                    startedAt:
+                        current?.startedAt ||
+                        Date.now()
+                },
+                id
+            );
+
+        if (
+            !next ||
+            !next.document
+        ) {
+            return null;
+        }
+
+        const saved =
+            await writeIndexedWorkingDraft(
+                id,
+                next
+            );
+
+        return saved
+            ? next
+            : null;
+    }
+
+    async function clearWorkingDraft(
+        contentId
+    ) {
+        const id =
+            String(
+                contentId || ''
+            ).trim();
+
+        if (!id) {
+            return false;
+        }
+
+        if (!(await useCloud())) {
+            return original.clearWorkingDraft(
+                id
+            );
+        }
+
+        const indexedRemoved =
+            await deleteIndexedWorkingDraft(
+                id
+            ).catch(
+                () => false
+            );
+
+        const legacyRemoved =
+            await original.clearWorkingDraft(
+                id
+            );
+
+        return (
+            indexedRemoved &&
+            legacyRemoved
+        );
     }
 
     async function saveVersion(contentId, patch = {}) {
@@ -335,10 +939,14 @@
             return original.exportPortableData();
         }
 
-        const [versions, localData] = await Promise.all([
-            AtlasCloud.listTutorContentVersions(),
-            original.exportPortableData()
-        ]);
+        await migrateLegacyWorkingDrafts();
+
+        const [versions, drafts] =
+            await Promise.all([
+                AtlasCloud
+                    .listTutorContentVersions(),
+                listIndexedWorkingDrafts()
+            ]);
 
         const payload = {
             schemaVersion: PORTABLE_SCHEMA_VERSION,
@@ -348,9 +956,14 @@
                     version?.contentId
                 ))
                 .filter(Boolean),
-            workingDrafts: Array.isArray(localData?.workingDrafts)
-                ? cloneJson(localData.workingDrafts)
-                : []
+            workingDrafts: (drafts || [])
+                .map(draft =>
+                    normalizeWorkingDraft(
+                        draft,
+                        draft?.contentId
+                    )
+                )
+                .filter(Boolean)
         };
 
         payload.versions.sort((left, right) =>
@@ -390,6 +1003,10 @@
 
     Local.getVersion = getVersion;
     Local.getWorkingDraft = getWorkingDraft;
+    Local.saveWorkingDraft =
+        saveWorkingDraft;
+    Local.clearWorkingDraft =
+        clearWorkingDraft;
     Local.saveVersion = saveVersion;
     Local.deleteVersion = deleteVersion;
     Local.exportPortableData = exportPortableData;
@@ -401,6 +1018,19 @@
         local: original,
         useCloud
     });
+
+    void (async () => {
+        try {
+            if (await useCloud()) {
+                await migrateLegacyWorkingDrafts();
+            }
+        } catch (error) {
+            console.warn(
+                '[AtlasTutorContentCloudAuthority] Tutor draft migration failed:',
+                error
+            );
+        }
+    })();
 })();
 
 /* ============================================================
