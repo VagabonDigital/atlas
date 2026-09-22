@@ -50,6 +50,8 @@
     const WORKING_DRAFT_DB_VERSION = 1;
     const WORKING_DRAFT_STORE =
         'working-drafts';
+    const LEGACY_VERSION_PREFIX =
+        'atlas::tutorContent::version::';
     const LEGACY_WORKING_DRAFT_PREFIX =
         'atlas::tutorContent::workingDraft::';
 
@@ -343,6 +345,135 @@
         } catch { }
 
         return keys;
+    }
+
+    function listLegacyVersionKeys() {
+        const keys = [];
+
+        try {
+            for (
+                let index = 0;
+                index < localStorage.length;
+                index += 1
+            ) {
+                const key =
+                    localStorage.key(index);
+
+                if (
+                    key &&
+                    key.startsWith(
+                        LEGACY_VERSION_PREFIX
+                    )
+                ) {
+                    keys.push(key);
+                }
+            }
+        } catch { }
+
+        return keys;
+    }
+
+    function comparableTutorVersion(
+        value,
+        contentId
+    ) {
+        const normalized =
+            normalizeRecord(
+                value,
+                contentId
+            );
+
+        if (!normalized) {
+            return null;
+        }
+
+        return {
+            baseContentVersion:
+                normalized.baseContentVersion,
+            overrides:
+                normalized.overrides,
+            document:
+                normalized.document
+        };
+    }
+
+    async function pruneExactCloudVersionDuplicates() {
+        let removed = 0;
+
+        for (
+            const key of
+            listLegacyVersionKeys()
+        ) {
+            let contentId = '';
+
+            try {
+                contentId =
+                    decodeURIComponent(
+                        key.slice(
+                            LEGACY_VERSION_PREFIX.length
+                        )
+                    );
+            } catch {
+                continue;
+            }
+
+            if (!contentId) {
+                continue;
+            }
+
+            const [
+                localVersion,
+                cloudVersion
+            ] = await Promise.all([
+                original.getVersion(
+                    contentId
+                ),
+                AtlasCloud
+                    .getTutorContentVersion(
+                        contentId
+                    )
+            ]);
+
+            const localComparable =
+                comparableTutorVersion(
+                    localVersion,
+                    contentId
+                );
+
+            const cloudComparable =
+                comparableTutorVersion(
+                    cloudVersion,
+                    contentId
+                );
+
+            if (
+                !localComparable ||
+                !cloudComparable
+            ) {
+                continue;
+            }
+
+            if (
+                JSON.stringify(
+                    localComparable
+                ) !==
+                JSON.stringify(
+                    cloudComparable
+                )
+            ) {
+                continue;
+            }
+
+            if (
+                await original.deleteVersion(
+                    contentId
+                )
+            ) {
+                removed += 1;
+            }
+        }
+
+        return removed;
     }
 
     async function migrateLegacyWorkingDrafts() {
@@ -1023,6 +1154,7 @@
         try {
             if (await useCloud()) {
                 await migrateLegacyWorkingDrafts();
+                await pruneExactCloudVersionDuplicates();
             }
         } catch (error) {
             console.warn(
