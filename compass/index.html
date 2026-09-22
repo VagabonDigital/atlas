@@ -870,6 +870,8 @@
      */
     html:has(#owned-subject-dialog:not([hidden])),
     body:has(#owned-subject-dialog:not([hidden])),
+    html:has(#hub-cover-picker-dialog:not([hidden])),
+    body:has(#hub-cover-picker-dialog:not([hidden])),
     html:has(#subject-artwork-studio-backdrop:not([hidden])),
     body:has(#subject-artwork-studio-backdrop:not([hidden])) {
       overflow: hidden !important;
@@ -3279,6 +3281,407 @@
     .btn-ghost:hover {
       border-color: var(--border-strong);
       color: var(--text-body);
+    }
+
+    /* ============================================================
+       HUB COVER PICKER
+       ============================================================ */
+
+    .hub-cover-picker-panel {
+      width: min(1120px, calc(100vw - 3rem));
+      height: min(820px, calc(100dvh - 3rem));
+      max-height: calc(100dvh - 3rem);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 1.35rem 1.5rem 1.5rem;
+    }
+
+    .hub-cover-picker-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .hub-cover-picker-kicker {
+      margin: 0 0 0.45rem;
+      color: var(--accent);
+      font-size: 0.68rem;
+      font-weight: 650;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .hub-cover-picker-title {
+      margin: 0;
+      color: var(--text-heading);
+      font-family: var(--font-display);
+      font-size: 1.55rem;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+
+    .hub-cover-picker-close {
+      width: 2rem;
+      height: 2rem;
+      flex: 0 0 auto;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 1.35rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: var(--t);
+    }
+
+    .hub-cover-picker-close:hover,
+    .hub-cover-picker-close:focus-visible {
+      border-color: var(--border-subtle);
+      background: var(--surface-muted);
+      color: var(--text-body);
+      outline: none;
+    }
+
+    .hub-cover-picker-close:focus-visible {
+      box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.22);
+    }
+
+    .hub-cover-picker-providers {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-top: 1rem;
+    }
+
+    .hub-cover-picker-provider {
+      min-height: 2.25rem;
+      padding: 0.4rem 0.75rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--t);
+    }
+
+    .hub-cover-picker-provider:hover,
+    .hub-cover-picker-provider:focus-visible {
+      border-color: rgba(var(--accent-rgb), 0.42);
+      color: var(--accent);
+      outline: none;
+    }
+
+    .hub-cover-picker-provider.is-active {
+      border-color: rgba(var(--accent-rgb), 0.42);
+      background: rgba(var(--accent-rgb), 0.10);
+      color: var(--accent);
+    }
+
+    .hub-cover-picker-search,
+    .hub-cover-picker-manual-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 0.55rem;
+      margin-top: 0.75rem;
+    }
+
+    .hub-cover-picker-search input,
+    .hub-cover-picker-manual-row input {
+      min-width: 0;
+      min-height: 2.7rem;
+      padding: 0.58rem 0.78rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      outline: none;
+      background: var(--surface-raised);
+      color: var(--text-body);
+      font-family: var(--font-body);
+      font-size: 0.86rem;
+      transition: var(--t);
+    }
+
+    .hub-cover-picker-search input:focus,
+    .hub-cover-picker-manual-row input:focus {
+      border-color: rgba(var(--accent-rgb), 0.58);
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.10);
+    }
+
+    .hub-cover-picker-search button,
+    .hub-cover-picker-manual-row button,
+    .hub-cover-picker-upload-button,
+    .hub-cover-picker-custom-use,
+    .hub-cover-picker-more {
+      min-height: 2.7rem;
+      padding: 0.55rem 0.9rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      background: var(--surface-raised);
+      color: var(--text-body);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--t);
+    }
+
+    .hub-cover-picker-search button:hover,
+    .hub-cover-picker-manual-row button:hover,
+    .hub-cover-picker-upload-button:hover,
+    .hub-cover-picker-custom-use:hover,
+    .hub-cover-picker-more:hover {
+      border-color: rgba(var(--accent-rgb), 0.42);
+      color: var(--accent);
+    }
+
+    .hub-cover-picker-layout {
+      min-width: 0;
+      min-height: 0;
+      flex: 1 1 auto;
+      margin-top: 1rem;
+      overflow: hidden;
+    }
+
+    .hub-cover-picker-results-column {
+      min-height: 0;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+      padding-right: 0.35rem;
+    }
+
+    .hub-cover-picker-status {
+      min-height: 1.4rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-subtle);
+      font-size: 0.74rem;
+    }
+
+    .hub-cover-picker-error {
+      margin: 0 0 0.75rem;
+      color: var(--danger-text);
+      font-size: 0.76rem;
+    }
+
+    .hub-cover-picker-error[hidden] {
+      display: none;
+    }
+
+    .hub-cover-picker-results {
+      display: block;
+      width: 100%;
+      column-count: 2;
+      column-gap: 1rem;
+      overflow: visible;
+      padding: 0.1rem 0 0.25rem;
+    }
+
+    .hub-cover-picker-result {
+      position: relative;
+      width: 100%;
+      min-width: 0;
+      display: block;
+      break-inside: avoid;
+      overflow: hidden;
+      margin: 0 0 1rem;
+      padding: 0;
+      border: 2px solid transparent;
+      border-radius: 11px;
+      background: var(--surface-muted);
+      cursor: pointer;
+      transition:
+        border-color 0.16s ease,
+        transform 0.16s ease,
+        box-shadow 0.16s ease;
+    }
+
+    .hub-cover-picker-result:hover,
+    .hub-cover-picker-result:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+      outline: none;
+    }
+
+    .hub-cover-picker-result img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .hub-cover-picker-result span {
+      position: absolute;
+      right: 0.35rem;
+      bottom: 0.35rem;
+      left: 0.35rem;
+      overflow: hidden;
+      padding: 0.26rem 0.4rem;
+      border-radius: 6px;
+      background: rgba(15, 13, 11, 0.68);
+      color: rgba(255, 255, 255, 0.92);
+      font-size: 0.62rem;
+      line-height: 1.25;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .hub-cover-picker-more {
+      display: block;
+      min-height: 2.4rem;
+      margin: 0.9rem auto 0.15rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 999px;
+      color: var(--text-muted);
+      font-size: 0.76rem;
+    }
+
+    .hub-cover-picker-url-panel {
+      flex: 1;
+      min-height: 0;
+      padding: 1.25rem 0 0.25rem;
+      overflow-y: auto;
+    }
+
+    .hub-cover-picker-search[hidden],
+    .hub-cover-picker-layout[hidden],
+    .hub-cover-picker-url-panel[hidden],
+    .hub-cover-picker-custom-preview[hidden] {
+      display: none !important;
+    }
+
+    .hub-cover-picker-your-image-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .hub-cover-picker-url-card {
+      width: 100%;
+      height: 100%;
+      padding: 1.35rem 1.4rem 1.45rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      background: var(--surface-raised);
+    }
+
+    .hub-cover-picker-url-title {
+      margin: 0;
+      color: var(--text-heading);
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      line-height: 1.3;
+    }
+
+    .hub-cover-picker-url-help {
+      max-width: 56ch;
+      margin: 0.45rem 0 0;
+      color: var(--text-muted);
+      font-size: 0.84rem;
+      line-height: 1.6;
+    }
+
+    .hub-cover-picker-upload-row {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      min-height: 2.7rem;
+      margin-top: 1rem;
+    }
+
+    .hub-cover-picker-upload-name {
+      min-width: 0;
+      overflow: hidden;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      line-height: 1.45;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .hub-cover-picker-custom-preview {
+      margin-top: 1.2rem;
+      padding: 0.8rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      background: var(--surface-raised);
+    }
+
+    .hub-cover-picker-custom-preview-frame {
+      width: 100%;
+      height: min(38vh, 370px);
+      min-height: 240px;
+      overflow: hidden;
+      border-radius: 12px;
+      background: var(--surface-muted);
+    }
+
+    .hub-cover-picker-custom-preview-frame img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 15%;
+    }
+
+    .hub-cover-picker-custom-preview-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.8rem 0.2rem 0.05rem;
+    }
+
+    .hub-cover-picker-custom-preview-label {
+      margin: 0;
+      color: var(--text-heading);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .hub-cover-picker-custom-preview-meta {
+      margin: 0.12rem 0 0;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+    }
+
+    @media (max-width: 800px) {
+      .hub-cover-picker-panel {
+        width: calc(100vw - 1rem);
+        height: calc(100dvh - 1rem);
+        max-height: calc(100dvh - 1rem);
+        padding: 1rem;
+      }
+
+      .hub-cover-picker-results {
+        column-count: 1;
+      }
+
+      .hub-cover-picker-your-image-grid,
+      .hub-cover-picker-manual-row {
+        grid-template-columns: 1fr;
+      }
+
+      .hub-cover-picker-upload-row,
+      .hub-cover-picker-custom-preview-footer {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .hub-cover-picker-upload-button,
+      .hub-cover-picker-custom-use,
+      .hub-cover-picker-manual-row button {
+        width: 100%;
+      }
+
+      .hub-cover-picker-custom-preview-frame {
+        min-height: 200px;
+        height: 32vh;
+      }
     }
 
     /* ============================================================
@@ -7244,6 +7647,19 @@
 
               if (
                 intent?.action === 'edit-subject' &&
+                context.operation === 'open-subject-cover' &&
+                context.subjectId
+              ) {
+                await openOwnedSubjectCoverPicker(
+                  context.subjectId,
+                  null,
+                  { skipCapabilityGate: true }
+                );
+                return;
+              }
+
+              if (
+                intent?.action === 'edit-subject' &&
                 context.operation === 'open-subject-artwork' &&
                 context.subjectId
               ) {
@@ -10546,6 +10962,831 @@
       }
 
       footer.prepend(editActions);
+    }
+
+    /* ================================================================
+       HUB COVER PICKER
+       Artwork Studio remains intact but is no longer the Hub entry point.
+       ================================================================ */
+
+    let hubCoverPickerState = null;
+    let hubCoverPickerReturnFocus = null;
+    let hubCoverPickerPreviousBodyOverflow = '';
+    let hubCoverPickerProvider = 'web';
+    let hubCoverPickerLoading = false;
+    let hubCoverPickerPendingCustomImage = null;
+    const hubCoverPickerCache = new Map();
+    let hubCoverPickerProviders = null;
+
+    const HUB_COVER_UPLOAD_MAX_FILE_BYTES = 10 * 1024 * 1024;
+    const HUB_COVER_UPLOAD_MAX_DATA_URL_LENGTH = 280000;
+    const HUB_COVER_UPLOAD_TYPES = new Set([
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/avif'
+    ]);
+
+    function createHubCoverPickerProviderState(query = '') {
+      return {
+        query,
+        searchedQuery: '',
+        page: 1,
+        photos: [],
+        hasMore: false,
+        hasSearched: false,
+        scrollTop: 0
+      };
+    }
+
+    function resetHubCoverPickerProviders(query = '') {
+      hubCoverPickerProvider = 'web';
+      hubCoverPickerLoading = false;
+      hubCoverPickerPendingCustomImage = null;
+      hubCoverPickerProviders = {
+        web: createHubCoverPickerProviderState(query),
+        pexels: createHubCoverPickerProviderState(query),
+        url: createHubCoverPickerProviderState('')
+      };
+    }
+
+    function getHubCoverPickerProviderState(provider = hubCoverPickerProvider) {
+      if (!hubCoverPickerProviders) resetHubCoverPickerProviders('');
+      return hubCoverPickerProviders[provider] || hubCoverPickerProviders.web;
+    }
+
+    function getHubCoverPickerCacheKey(provider, query, page) {
+      return [
+        String(provider || '').trim(),
+        String(query || '').trim().toLowerCase(),
+        Number(page) || 1
+      ].join('::');
+    }
+
+    function buildHubCoverSearchSeed(record) {
+      const title = getOwnedSubjectRecordTitle(record);
+      const context = [
+        title,
+        record?.metadata?.description,
+        record?.document?.module?.catalogDescription
+      ]
+        .map(value => String(value || '').trim())
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+
+      if (/(movie|film|cinema|screen|television|tv series|documentary|actor|actress|director)/.test(context)) {
+        return title + ' movie wallpaper';
+      }
+
+      if (/(album|song|music|musician|singer|band|concert|festival)/.test(context)) {
+        return title + ' music photography';
+      }
+
+      if (/(city|country|island|beach|mountain|forest|desert|ocean|river|lake|village|landscape|travel)/.test(context)) {
+        return title + ' landscape photography';
+      }
+
+      if (/(history|historical|civilization|civilisation|ancient|empire)/.test(context)) {
+        return title + ' historical art';
+      }
+
+      if (/(science|nature|animal|ocean|space|planet|biology|physics|environment)/.test(context)) {
+        return title + ' nature photography';
+      }
+
+      return title + ' photography';
+    }
+
+    function ensureHubCoverPicker() {
+      let dialog = document.getElementById('hub-cover-picker-dialog');
+      if (dialog) return dialog;
+
+      dialog = document.createElement('div');
+      dialog.id = 'hub-cover-picker-dialog';
+      dialog.className = 'owned-subject-dialog hub-cover-picker-dialog';
+      dialog.hidden = true;
+      dialog.setAttribute('role', 'dialog');
+      dialog.setAttribute('aria-modal', 'true');
+      dialog.setAttribute('aria-labelledby', 'hub-cover-picker-title');
+
+      dialog.innerHTML = [
+        '<div class="owned-subject-dialog-panel hub-cover-picker-panel">',
+          '<div class="hub-cover-picker-header">',
+            '<div>',
+              '<p class="hub-cover-picker-kicker">COVER</p>',
+              '<h2 class="hub-cover-picker-title" id="hub-cover-picker-title">Choose a cover</h2>',
+            '</div>',
+            '<button class="hub-cover-picker-close" type="button" onclick="closeHubCoverPicker()" aria-label="Close cover picker">×</button>',
+          '</div>',
+          '<div class="hub-cover-picker-providers" role="tablist" aria-label="Image source">',
+            '<button class="hub-cover-picker-provider is-active" id="hub-cover-picker-provider-web" type="button" role="tab" aria-selected="true" onclick="setHubCoverPickerProvider(\'web\')">Web images</button>',
+            '<button class="hub-cover-picker-provider" id="hub-cover-picker-provider-pexels" type="button" role="tab" aria-selected="false" onclick="setHubCoverPickerProvider(\'pexels\')">Pexels</button>',
+            '<button class="hub-cover-picker-provider" id="hub-cover-picker-provider-url" type="button" role="tab" aria-selected="false" onclick="setHubCoverPickerProvider(\'url\')">Your image</button>',
+          '</div>',
+          '<div class="hub-cover-picker-search" id="hub-cover-picker-search">',
+            '<input id="hub-cover-picker-query" type="search" autocomplete="off" placeholder="Search for images" aria-label="Search for cover images" onkeydown="if(event.key === \'Enter\') { event.preventDefault(); searchHubCoverPicker(); }">',
+            '<button type="button" onclick="searchHubCoverPicker()">Search</button>',
+          '</div>',
+          '<div class="hub-cover-picker-url-panel" id="hub-cover-picker-url-panel" hidden>',
+            '<div class="hub-cover-picker-your-image-grid">',
+              '<div class="hub-cover-picker-url-card">',
+                '<p class="hub-cover-picker-url-title">Upload an image</p>',
+                '<p class="hub-cover-picker-url-help">Choose a JPG, PNG, WebP or AVIF image from your computer.</p>',
+                '<input id="hub-cover-picker-upload-input" type="file" accept="image/jpeg,image/png,image/webp,image/avif" onchange="previewHubCoverPickerUpload(this.files?.[0] || null)" hidden>',
+                '<div class="hub-cover-picker-upload-row">',
+                  '<button class="hub-cover-picker-upload-button" id="hub-cover-picker-upload-button" type="button" onclick="openHubCoverPickerUpload()">Choose image</button>',
+                  '<span class="hub-cover-picker-upload-name" id="hub-cover-picker-upload-name">No image selected</span>',
+                '</div>',
+              '</div>',
+              '<div class="hub-cover-picker-url-card">',
+                '<p class="hub-cover-picker-url-title">Use an image URL</p>',
+                '<p class="hub-cover-picker-url-help">Paste a direct link to an image you already want to use.</p>',
+                '<div class="hub-cover-picker-manual-row">',
+                  '<input id="hub-cover-picker-manual-url" type="url" inputmode="url" autocomplete="off" placeholder="https://example.com/image.jpg" aria-label="Image URL" oninput="resetHubCoverPickerCustomPreview()" onkeydown="if(event.key === \'Enter\') { event.preventDefault(); previewHubCoverPickerUrl(); }">',
+                  '<button id="hub-cover-picker-url-preview" type="button" onclick="previewHubCoverPickerUrl()">Preview</button>',
+                '</div>',
+              '</div>',
+            '</div>',
+            '<p class="hub-cover-picker-error" id="hub-cover-picker-custom-error" hidden></p>',
+            '<div class="hub-cover-picker-custom-preview" id="hub-cover-picker-custom-preview" hidden>',
+              '<div class="hub-cover-picker-custom-preview-frame"><img id="hub-cover-picker-custom-preview-image" alt="Cover preview"></div>',
+              '<div class="hub-cover-picker-custom-preview-footer">',
+                '<div><p class="hub-cover-picker-custom-preview-label">Cover preview</p><p class="hub-cover-picker-custom-preview-meta" id="hub-cover-picker-custom-preview-meta"></p></div>',
+                '<button class="hub-cover-picker-custom-use" id="hub-cover-picker-custom-use" type="button" onclick="applyHubCoverPickerCustomPreview()">Use as cover</button>',
+              '</div>',
+            '</div>',
+          '</div>',
+          '<div class="hub-cover-picker-layout" id="hub-cover-picker-layout">',
+            '<div class="hub-cover-picker-results-column" id="hub-cover-picker-results-scroll">',
+              '<div class="hub-cover-picker-status" id="hub-cover-picker-status" role="status" aria-live="polite"></div>',
+              '<p class="hub-cover-picker-error" id="hub-cover-picker-error" hidden></p>',
+              '<div class="hub-cover-picker-results" id="hub-cover-picker-results"></div>',
+              '<button class="hub-cover-picker-more" id="hub-cover-picker-more" type="button" onclick="loadMoreHubCoverPicker()" hidden>More images</button>',
+            '</div>',
+          '</div>',
+        '</div>'
+      ].join('');
+
+      dialog.addEventListener('click', event => {
+        if (event.target === dialog) closeHubCoverPicker();
+      });
+
+      document.body.appendChild(dialog);
+      return dialog;
+    }
+
+    function setHubCoverPickerError(message = '', custom = false) {
+      const error = document.getElementById(
+        custom
+          ? 'hub-cover-picker-custom-error'
+          : 'hub-cover-picker-error'
+      );
+
+      if (!error) return;
+      error.textContent = message;
+      error.hidden = !message;
+    }
+
+    function resetHubCoverPickerCustomPreview() {
+      hubCoverPickerPendingCustomImage = null;
+      const preview = document.getElementById('hub-cover-picker-custom-preview');
+      const image = document.getElementById('hub-cover-picker-custom-preview-image');
+      const meta = document.getElementById('hub-cover-picker-custom-preview-meta');
+
+      if (preview) preview.hidden = true;
+      image?.removeAttribute('src');
+      if (meta) meta.textContent = '';
+      setHubCoverPickerError('', true);
+    }
+
+    function saveHubCoverPickerProviderState() {
+      const state = getHubCoverPickerProviderState();
+      const queryInput = document.getElementById('hub-cover-picker-query');
+      const scroller = document.getElementById('hub-cover-picker-results-scroll');
+
+      state.query = String(queryInput?.value || state.query || '').trim();
+      if (scroller) state.scrollTop = scroller.scrollTop;
+    }
+
+    function updateHubCoverPickerProviderUI() {
+      ['web', 'pexels', 'url'].forEach(provider => {
+        const button = document.getElementById('hub-cover-picker-provider-' + provider);
+        if (!button) return;
+
+        const active = provider === hubCoverPickerProvider;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+
+      const urlMode = hubCoverPickerProvider === 'url';
+      const search = document.getElementById('hub-cover-picker-search');
+      const layout = document.getElementById('hub-cover-picker-layout');
+      const urlPanel = document.getElementById('hub-cover-picker-url-panel');
+
+      if (search) search.hidden = urlMode;
+      if (layout) layout.hidden = urlMode;
+      if (urlPanel) urlPanel.hidden = !urlMode;
+    }
+
+    function restoreHubCoverPickerProviderState() {
+      const state = getHubCoverPickerProviderState();
+      const queryInput = document.getElementById('hub-cover-picker-query');
+      const scroller = document.getElementById('hub-cover-picker-results-scroll');
+
+      if (queryInput) {
+        queryInput.value = state.query || state.searchedQuery || '';
+      }
+
+      renderHubCoverPickerResults();
+
+      if (scroller) {
+        requestAnimationFrame(() => {
+          scroller.scrollTop = state.scrollTop || 0;
+        });
+      }
+    }
+
+    function renderHubCoverPickerResults() {
+      const results = document.getElementById('hub-cover-picker-results');
+      const status = document.getElementById('hub-cover-picker-status');
+      const moreButton = document.getElementById('hub-cover-picker-more');
+
+      if (!results || !status || !moreButton) return;
+
+      const state = getHubCoverPickerProviderState();
+      results.innerHTML = '';
+
+      if (hubCoverPickerLoading) {
+        status.textContent = state.photos.length
+          ? 'Loading more images…'
+          : 'Searching images…';
+      } else if (!state.photos.length && state.hasSearched) {
+        status.textContent = 'No images found. Try another search.';
+      } else if (!state.photos.length) {
+        status.textContent = hubCoverPickerProvider === 'web'
+          ? 'Search Web images for a cover.'
+          : 'Search Pexels for a cover.';
+      } else {
+        status.textContent = state.photos.length + ' images';
+      }
+
+      state.photos.forEach(photo => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'hub-cover-picker-result';
+
+        const image = document.createElement('img');
+        image.src = photo.previewUrl || photo.imageUrl;
+        image.alt = photo.alt || '';
+        image.loading = 'lazy';
+        image.referrerPolicy = 'no-referrer';
+
+        const meta = document.createElement('span');
+        meta.textContent =
+          photo.sourceDomain ||
+          photo.sourceName ||
+          photo.photographer ||
+          '';
+
+        button.append(image, meta);
+        button.addEventListener('click', () => {
+          saveHubCoverPickerImage(photo.imageUrl);
+        });
+
+        results.appendChild(button);
+      });
+
+      moreButton.hidden = !state.photos.length || !state.hasMore;
+      moreButton.disabled =
+        hubCoverPickerLoading ||
+        Boolean(hubCoverPickerState?.saving);
+    }
+
+    async function performHubCoverPickerSearch({ append = false } = {}) {
+      if (hubCoverPickerLoading || hubCoverPickerProvider === 'url') return;
+
+      const queryInput = document.getElementById('hub-cover-picker-query');
+      const providerState = getHubCoverPickerProviderState();
+      const query = String(
+        append ? providerState.searchedQuery : queryInput?.value || ''
+      ).trim();
+
+      if (!query) {
+        setHubCoverPickerError('Enter a search term.');
+        return;
+      }
+
+      setHubCoverPickerError('');
+
+      const page = append ? providerState.page + 1 : 1;
+      const cacheKey = getHubCoverPickerCacheKey(
+        hubCoverPickerProvider,
+        query,
+        page
+      );
+
+      hubCoverPickerLoading = true;
+
+      if (!append) {
+        providerState.page = 1;
+        providerState.photos = [];
+        providerState.hasMore = false;
+        providerState.query = query;
+        providerState.searchedQuery = query;
+        providerState.scrollTop = 0;
+      }
+
+      renderHubCoverPickerResults();
+
+      try {
+        let response = hubCoverPickerCache.get(cacheKey);
+
+        if (!response) {
+          if (
+            !window.AtlasAI ||
+            typeof window.AtlasAI.searchCovers !== 'function'
+          ) {
+            throw new Error('Cover search is unavailable.');
+          }
+
+          response = await window.AtlasAI.searchCovers({
+            provider: hubCoverPickerProvider,
+            query,
+            page
+          });
+
+          hubCoverPickerCache.set(cacheKey, response);
+        }
+
+        const incoming = Array.isArray(response?.photos)
+          ? response.photos
+          : [];
+
+        const existingUrls = new Set(
+          providerState.photos.map(photo => photo.imageUrl)
+        );
+
+        const uniqueIncoming = incoming.filter(
+          photo =>
+            photo?.imageUrl &&
+            !existingUrls.has(photo.imageUrl)
+        );
+
+        providerState.photos = append
+          ? [...providerState.photos, ...uniqueIncoming]
+          : uniqueIncoming;
+
+        providerState.page = Number(response?.page) || page;
+        providerState.hasMore = Boolean(response?.hasMore);
+        providerState.hasSearched = true;
+        providerState.query = String(queryInput?.value || query).trim();
+        providerState.searchedQuery = query;
+      } catch (error) {
+        console.error('[Compass] Hub cover search failed:', error);
+        setHubCoverPickerError('Couldn’t load images. Try again.');
+
+        if (!append) {
+          providerState.photos = [];
+          providerState.hasMore = false;
+        }
+      } finally {
+        hubCoverPickerLoading = false;
+        renderHubCoverPickerResults();
+      }
+    }
+
+    function searchHubCoverPicker() {
+      performHubCoverPickerSearch({ append: false });
+    }
+
+    function loadMoreHubCoverPicker() {
+      const state = getHubCoverPickerProviderState();
+      if (!state.hasMore) return;
+      performHubCoverPickerSearch({ append: true });
+    }
+
+    function setHubCoverPickerProvider(provider) {
+      if (
+        provider !== 'web' &&
+        provider !== 'pexels' &&
+        provider !== 'url'
+      ) {
+        return;
+      }
+
+      if (provider === hubCoverPickerProvider || hubCoverPickerLoading) return;
+
+      saveHubCoverPickerProviderState();
+      hubCoverPickerProvider = provider;
+      updateHubCoverPickerProviderUI();
+      restoreHubCoverPickerProviderState();
+
+      const state = getHubCoverPickerProviderState();
+      if (provider !== 'url' && !state.hasSearched) {
+        searchHubCoverPicker();
+      }
+    }
+
+    function loadHubCoverPreviewImage(source) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () =>
+          reject(new Error('Image could not be loaded.'));
+        image.src = source;
+      });
+    }
+
+    function renderHubCoverUploadDataUrl(
+      image,
+      { maxDimension, quality }
+    ) {
+      const sourceWidth = image.naturalWidth || image.width;
+      const sourceHeight = image.naturalHeight || image.height;
+
+      if (!sourceWidth || !sourceHeight) {
+        throw new Error('Image dimensions are unavailable.');
+      }
+
+      const scale = Math.min(
+        1,
+        maxDimension / Math.max(sourceWidth, sourceHeight)
+      );
+
+      const width = Math.max(1, Math.round(sourceWidth * scale));
+      const height = Math.max(1, Math.round(sourceHeight * scale));
+      const canvas = document.createElement('canvas');
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const context = canvas.getContext('2d');
+
+      if (!context) {
+        throw new Error('Image processing is unavailable.');
+      }
+
+      context.drawImage(image, 0, 0, width, height);
+      return canvas.toDataURL('image/webp', quality);
+    }
+
+    async function compressHubCoverUpload(file) {
+      const objectUrl = URL.createObjectURL(file);
+
+      try {
+        const image = await loadHubCoverPreviewImage(objectUrl);
+        const attempts = [
+          { maxDimension: 1600, quality: 0.80 },
+          { maxDimension: 1450, quality: 0.74 },
+          { maxDimension: 1280, quality: 0.68 },
+          { maxDimension: 1100, quality: 0.62 }
+        ];
+
+        for (const attempt of attempts) {
+          const dataUrl = renderHubCoverUploadDataUrl(image, attempt);
+
+          if (dataUrl.length <= HUB_COVER_UPLOAD_MAX_DATA_URL_LENGTH) {
+            return dataUrl;
+          }
+        }
+
+        throw new Error(
+          'That image is too large to store safely. Try a smaller image.'
+        );
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+      }
+    }
+
+    function showHubCoverPickerCustomPreview({
+      imageUrl,
+      meta = ''
+    }) {
+      const normalizedUrl = String(imageUrl || '').trim();
+      if (!normalizedUrl) return;
+
+      const preview = document.getElementById('hub-cover-picker-custom-preview');
+      const image = document.getElementById('hub-cover-picker-custom-preview-image');
+      const metaElement = document.getElementById('hub-cover-picker-custom-preview-meta');
+
+      hubCoverPickerPendingCustomImage = { imageUrl: normalizedUrl };
+
+      if (image) image.src = normalizedUrl;
+      if (metaElement) metaElement.textContent = meta;
+      if (preview) preview.hidden = false;
+      setHubCoverPickerError('', true);
+    }
+
+    function openHubCoverPickerUpload() {
+      const input = document.getElementById('hub-cover-picker-upload-input');
+      if (!input) return;
+      input.value = '';
+      input.click();
+    }
+
+    async function previewHubCoverPickerUpload(file) {
+      if (!hubCoverPickerState || hubCoverPickerState.saving || !file) return;
+
+      resetHubCoverPickerCustomPreview();
+
+      const button = document.getElementById('hub-cover-picker-upload-button');
+      const fileName = document.getElementById('hub-cover-picker-upload-name');
+
+      if (fileName) fileName.textContent = file.name;
+
+      if (!HUB_COVER_UPLOAD_TYPES.has(file.type)) {
+        setHubCoverPickerError(
+          'Choose a JPG, PNG, WebP or AVIF image.',
+          true
+        );
+        return;
+      }
+
+      if (file.size > HUB_COVER_UPLOAD_MAX_FILE_BYTES) {
+        setHubCoverPickerError(
+          'Choose an image smaller than 10 MB.',
+          true
+        );
+        return;
+      }
+
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Preparing…';
+      }
+
+      try {
+        const imageUrl = await compressHubCoverUpload(file);
+
+        showHubCoverPickerCustomPreview({
+          imageUrl,
+          meta: file.name
+        });
+      } catch (error) {
+        console.error('[Compass] Hub cover upload failed:', error);
+        setHubCoverPickerError(
+          error?.message ||
+          'That image could not be prepared. Try another image.',
+          true
+        );
+      } finally {
+        if (button) {
+          button.disabled = false;
+          button.textContent = 'Choose image';
+        }
+      }
+    }
+
+    async function previewHubCoverPickerUrl() {
+      if (!hubCoverPickerState || hubCoverPickerState.saving) return;
+
+      resetHubCoverPickerCustomPreview();
+
+      const input = document.getElementById('hub-cover-picker-manual-url');
+      const button = document.getElementById('hub-cover-picker-url-preview');
+      const rawUrl = String(input?.value || '').trim();
+
+      let parsedUrl = null;
+
+      try {
+        parsedUrl = new URL(rawUrl);
+      } catch {
+        parsedUrl = null;
+      }
+
+      if (
+        !parsedUrl ||
+        (
+          parsedUrl.protocol !== 'http:' &&
+          parsedUrl.protocol !== 'https:'
+        )
+      ) {
+        setHubCoverPickerError(
+          'Enter a valid direct image URL.',
+          true
+        );
+        input?.focus();
+        return;
+      }
+
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Checking…';
+      }
+
+      try {
+        await loadHubCoverPreviewImage(parsedUrl.href);
+
+        showHubCoverPickerCustomPreview({
+          imageUrl: parsedUrl.href,
+          meta: 'Image URL'
+        });
+      } catch {
+        setHubCoverPickerError(
+          'That image could not be loaded. Try another direct image link.',
+          true
+        );
+        input?.focus();
+      } finally {
+        if (button) {
+          button.disabled = false;
+          button.textContent = 'Preview';
+        }
+      }
+    }
+
+    function applyHubCoverPickerCustomPreview() {
+      if (!hubCoverPickerPendingCustomImage) return;
+
+      saveHubCoverPickerImage(
+        hubCoverPickerPendingCustomImage.imageUrl
+      );
+    }
+
+    async function saveHubCoverPickerImage(imageUrl) {
+      const state = hubCoverPickerState;
+      const normalizedUrl = String(imageUrl || '').trim();
+
+      if (!state || state.saving || !normalizedUrl) return;
+
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.getSubject !== 'function' ||
+        typeof Subjects.updateSubject !== 'function'
+      ) {
+        setHubCoverPickerError('Cover editing is unavailable.');
+        return;
+      }
+
+      state.saving = true;
+
+      const status = document.getElementById('hub-cover-picker-status');
+      if (status) status.textContent = 'Saving cover…';
+
+      try {
+        const latest = await Subjects.getSubject(state.subjectId);
+
+        if (!latest) {
+          throw new Error('Subject unavailable.');
+        }
+
+        const nextDocument = {
+          ...latest.document,
+          module: {
+            ...(latest.document?.module || {}),
+            bgImage: normalizedUrl
+          }
+        };
+
+        const saved = await Subjects.updateSubject(
+          state.subjectId,
+          {
+            metadata: {
+              ...latest.metadata,
+              coverImage: normalizedUrl
+            },
+            document: nextDocument
+          }
+        );
+
+        if (!saved) {
+          throw new Error('Cover save failed.');
+        }
+
+        closeHubCoverPicker({ force: true });
+        await renderHub();
+        showToast('Cover updated.');
+      } catch (error) {
+        console.error('[Compass] Hub cover save failed:', error);
+        state.saving = false;
+        setHubCoverPickerError('Couldn’t save this cover.');
+        renderHubCoverPickerResults();
+      }
+    }
+
+    async function openOwnedSubjectCoverPicker(
+      subjectId,
+      event,
+      options = {}
+    ) {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      if (!options.skipCapabilityGate) {
+        const access = await requireCompassSubjectCapability(
+          'canEditSubject',
+          'edit-subject',
+          'open-subject-cover',
+          {
+            subjectId: String(subjectId || '').trim()
+          },
+          event?.currentTarget || null
+        );
+
+        if (
+          !compassSubjectCapabilityAllows(
+            access,
+            'Subject editing is unavailable right now.'
+          )
+        ) {
+          return;
+        }
+      }
+
+      hubCoverPickerReturnFocus =
+        event?.currentTarget
+          ?.closest('.subject-card-management')
+          ?.querySelector('.subject-card-manage-btn') ||
+        document.activeElement;
+
+      closeOwnedSubjectMenus();
+
+      const Subjects = window.AtlasTutorSubjects;
+
+      if (
+        !Subjects ||
+        typeof Subjects.getSubject !== 'function'
+      ) {
+        showToast('Cover editing is unavailable.');
+        return;
+      }
+
+      let record = null;
+
+      try {
+        record = await Subjects.getSubject(subjectId);
+      } catch { }
+
+      if (!record) {
+        showToast('That subject could not be loaded.');
+        return;
+      }
+
+      hubCoverPickerState = {
+        subjectId: record.id,
+        record,
+        saving: false
+      };
+
+      resetHubCoverPickerProviders(
+        buildHubCoverSearchSeed(record)
+      );
+
+      const dialog = ensureHubCoverPicker();
+      const uploadInput = document.getElementById('hub-cover-picker-upload-input');
+      const uploadName = document.getElementById('hub-cover-picker-upload-name');
+      const urlInput = document.getElementById('hub-cover-picker-manual-url');
+
+      if (uploadInput) uploadInput.value = '';
+      if (uploadName) uploadName.textContent = 'No image selected';
+      if (urlInput) urlInput.value = '';
+
+      resetHubCoverPickerCustomPreview();
+      setHubCoverPickerError('');
+      updateHubCoverPickerProviderUI();
+      restoreHubCoverPickerProviderState();
+
+      hubCoverPickerPreviousBodyOverflow =
+        document.body.style.overflow;
+
+      document.body.style.overflow = 'hidden';
+      dialog.hidden = false;
+
+      requestAnimationFrame(() => {
+        dialog.querySelector('.hub-cover-picker-close')?.focus();
+      });
+
+      searchHubCoverPicker();
+    }
+
+    function closeHubCoverPicker({ force = false } = {}) {
+      const dialog = document.getElementById('hub-cover-picker-dialog');
+
+      if (
+        !dialog ||
+        dialog.hidden ||
+        (
+          hubCoverPickerState?.saving &&
+          !force
+        )
+      ) {
+        return;
+      }
+
+      saveHubCoverPickerProviderState();
+      resetHubCoverPickerCustomPreview();
+      dialog.hidden = true;
+      document.body.style.overflow =
+        hubCoverPickerPreviousBodyOverflow;
+
+      const returnFocus = hubCoverPickerReturnFocus;
+
+      hubCoverPickerState = null;
+      hubCoverPickerReturnFocus = null;
+      returnFocus?.focus?.();
     }
 
     function ensureSubjectArtworkStudio() {
@@ -15702,13 +16943,9 @@
           ', event)">Rename</button>' +
 
           '<button type="button" role="menuitem" ' +
-          'onclick="openSubjectArtworkStudio(' +
+          'onclick="openOwnedSubjectCoverPicker(' +
           jsArg(subject.subjectId) +
-          ', event)">' +
-          (subject.artwork
-            ? 'Change artwork'
-            : 'Add artwork') +
-          '</button>' +
+          ', event)">Change cover</button>' +
 
           '<button type="button" role="menuitem" ' +
           'onclick="duplicateOwnedSubject(' +
@@ -16077,6 +17314,19 @@
       if (e.defaultPrevented) return;
 
       if (e.key === 'Escape') {
+        const coverPicker =
+          document.getElementById(
+            'hub-cover-picker-dialog'
+          );
+
+        if (
+          coverPicker &&
+          !coverPicker.hidden
+        ) {
+          closeHubCoverPicker();
+          return;
+        }
+
         const artworkStudio =
           document.getElementById(
             'subject-artwork-studio-backdrop'
