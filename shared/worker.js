@@ -844,90 +844,209 @@ async function listAtlasPaddleSubscriptionPayments(
     }
 
     const transactions =
-        Array.isArray(payload?.data)
+        (Array.isArray(payload?.data)
             ? payload.data
-            : [];
-
-    return transactions
-        .filter(transaction =>
-            String(
-                transaction?.customer_id || ''
-            ) === customerId &&
-            String(
-                transaction?.subscription_id || ''
-            ) === subscriptionId
-        )
-        .map(transaction => {
-            const totalRaw =
+            : [])
+            .filter(transaction =>
                 String(
-                    transaction
-                        ?.details
-                        ?.totals
-                        ?.grand_total ??
-                    transaction
-                        ?.details
-                        ?.totals
-                        ?.total ??
-                    '0'
+                    transaction?.customer_id || ''
+                ) === customerId &&
+                String(
+                    transaction?.subscription_id || ''
+                ) === subscriptionId &&
+                String(
+                    transaction?.status || ''
+                ) === 'completed'
+            )
+            .sort((left, right) =>
+                String(
+                    right?.updated_at ||
+                    right?.created_at ||
+                    ''
+                ).localeCompare(
+                    String(
+                        left?.updated_at ||
+                        left?.created_at ||
+                        ''
+                    )
+                )
+            );
+
+    let paymentMethod = null;
+
+    for (const transaction of transactions) {
+        const attempts =
+            Array.isArray(transaction?.payments)
+                ? transaction.payments
+                : [];
+
+        const attempt =
+            attempts.find(payment =>
+                String(
+                    payment?.status || ''
+                ) === 'captured' &&
+                payment?.method_details &&
+                typeof payment.method_details ===
+                    'object'
+            ) ||
+            attempts.find(payment =>
+                payment?.method_details &&
+                typeof payment.method_details ===
+                    'object'
+            );
+
+        if (!attempt) {
+            continue;
+        }
+
+        const method =
+            attempt.method_details;
+
+        const type =
+            String(
+                method?.type || ''
+            ).trim();
+
+        if (type === 'card') {
+            const card =
+                method?.card &&
+                typeof method.card === 'object'
+                    ? method.card
+                    : {};
+
+            const last4 =
+                String(
+                    card?.last4 || ''
                 ).trim();
 
-            const amountMinor =
-                Number.parseInt(
-                    totalRaw,
-                    10
-                );
+            if (!/^\d{4}$/.test(last4)) {
+                continue;
+            }
 
-            return {
-                id:
+            paymentMethod = {
+                type: 'card',
+                brand:
                     String(
-                        transaction?.id || ''
+                        card?.type || ''
                     ).trim(),
-                status:
+                last4,
+                expiryMonth:
+                    Number.isInteger(
+                        card?.expiry_month
+                    )
+                        ? card.expiry_month
+                        : null,
+                expiryYear:
+                    Number.isInteger(
+                        card?.expiry_year
+                    )
+                        ? card.expiry_year
+                        : null
+            };
+
+            break;
+        }
+
+        if (type === 'paypal') {
+            paymentMethod = {
+                type: 'paypal',
+                email:
                     String(
-                        transaction?.status || ''
-                    ).trim(),
-                amountMinor:
-                    Number.isFinite(amountMinor)
-                        ? amountMinor
-                        : 0,
-                currencyCode:
+                        method?.paypal?.email ||
+                        ''
+                    ).trim() || null
+            };
+
+            break;
+        }
+
+        if (type) {
+            paymentMethod = {
+                type
+            };
+
+            break;
+        }
+    }
+
+    const payments =
+        transactions
+            .map(transaction => {
+                const totalRaw =
                     String(
                         transaction
                             ?.details
                             ?.totals
-                            ?.currency_code ||
-                        ''
-                    )
-                        .trim()
-                        .toUpperCase(),
-                billedAt:
-                    transaction?.billed_at ||
-                    transaction?.updated_at ||
-                    transaction?.created_at ||
-                    null
-            };
-        })
-        .filter(transaction =>
-            /^txn_[a-z\d]{26}$/.test(
-                transaction.id
-            ) &&
-            transaction.status ===
-                'completed' &&
-            transaction.amountMinor > 0 &&
-            /^[A-Z]{3}$/.test(
-                transaction.currencyCode
-            )
-        )
-        .sort((left, right) =>
-            String(
-                right.billedAt || ''
-            ).localeCompare(
-                String(
-                    left.billedAt || ''
+                            ?.grand_total ??
+                        transaction
+                            ?.details
+                            ?.totals
+                            ?.total ??
+                        '0'
+                    ).trim();
+
+                const amountMinor =
+                    Number.parseInt(
+                        totalRaw,
+                        10
+                    );
+
+                return {
+                    id:
+                        String(
+                            transaction?.id || ''
+                        ).trim(),
+                    status:
+                        String(
+                            transaction?.status || ''
+                        ).trim(),
+                    amountMinor:
+                        Number.isFinite(amountMinor)
+                            ? amountMinor
+                            : 0,
+                    currencyCode:
+                        String(
+                            transaction
+                                ?.details
+                                ?.totals
+                                ?.currency_code ||
+                            ''
+                        )
+                            .trim()
+                            .toUpperCase(),
+                    billedAt:
+                        transaction?.billed_at ||
+                        transaction?.updated_at ||
+                        transaction?.created_at ||
+                        null
+                };
+            })
+            .filter(transaction =>
+                /^txn_[a-z\d]{26}$/.test(
+                    transaction.id
+                ) &&
+                transaction.status ===
+                    'completed' &&
+                transaction.amountMinor > 0 &&
+                /^[A-Z]{3}$/.test(
+                    transaction.currencyCode
                 )
             )
-        )
-        .slice(0, 12);
+            .sort((left, right) =>
+                String(
+                    right.billedAt || ''
+                ).localeCompare(
+                    String(
+                        left.billedAt || ''
+                    )
+                )
+            )
+            .slice(0, 12);
+
+    return {
+        payments,
+        paymentMethod
+    };
 }
 
 async function createAtlasPaddleInvoiceUrl(
@@ -937,7 +1056,7 @@ async function createAtlasPaddleInvoiceUrl(
     subscriptionId,
     transactionId
 ) {
-    const payments =
+    const billing =
         await listAtlasPaddleSubscriptionPayments(
             env,
             paddleEnvironment,
@@ -946,7 +1065,7 @@ async function createAtlasPaddleInvoiceUrl(
         );
 
     const ownsTransaction =
-        payments.some(
+        billing.payments.some(
             payment =>
                 payment.id ===
                 transactionId
@@ -1735,7 +1854,7 @@ export default {
                 action === 'billing_history'
             ) {
                 try {
-                    const payments =
+                    const billing =
                         await listAtlasPaddleSubscriptionPayments(
                             env,
                             paddleEnvironment,
@@ -1752,7 +1871,10 @@ export default {
                     return jsonNoStore({
                         ok: true,
                         action,
-                        payments
+                        payments:
+                            billing.payments,
+                        paymentMethod:
+                            billing.paymentMethod
                     });
                 } catch (error) {
                     console.error(
