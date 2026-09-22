@@ -486,6 +486,14 @@
         flex-direction: column;
       }
 
+      .cancel-confirmation-controls {
+        flex-direction: column;
+      }
+
+      .cancel-confirmation-controls button {
+        width: 100%;
+      }
+
       .billing-row {
         grid-template-columns:
           minmax(0, 1fr)
@@ -513,7 +521,7 @@
 
     <header class="brand">
       <h1>Subscription</h1>
-      <p>Manage Atlas Pro without leaving your Atlas account.</p>
+      <p>Manage billing, payment details and renewal.</p>
     </header>
 
     <section class="card">
@@ -892,6 +900,12 @@
       );
 
       try {
+        if (!initPaddle()) {
+          throw new Error(
+            'Secure payment update could not initialize.'
+          );
+        }
+
         const result =
           await requestSubscriptionAction(
             'update_payment_method'
@@ -912,12 +926,6 @@
           );
         }
 
-        if (!initPaddle()) {
-          throw new Error(
-            'Secure payment update could not initialize.'
-          );
-        }
-
         Paddle.Checkout.open({
           transactionId,
           settings: {
@@ -931,6 +939,8 @@
                 : 'light'
           }
         });
+
+        setActionStatus('');
       } catch (error) {
         setActionStatus(
           String(
@@ -1429,6 +1439,7 @@
       }
     );
 
+    initPaddle();
     void load();
   </script>
 </body>
