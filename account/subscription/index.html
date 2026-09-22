@@ -1551,6 +1551,20 @@
                 setActionBusy(false);
                 resetPaymentPreparation();
                 showMobilePaymentSuccess();
+              } else if (
+                paymentCheckoutMode ===
+                  'desktop-overlay'
+              ) {
+                paymentCheckoutMode = null;
+
+                try {
+                  Paddle.Checkout.close();
+                } catch {
+                  // The completed overlay may already be closing.
+                }
+
+                setActionBusy(false);
+                showMobilePaymentSuccess();
               }
 
               void refreshPaymentMethodAfterUpdate();
