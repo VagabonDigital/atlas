@@ -745,19 +745,21 @@
 
     html.theme-changing .door,
     html.theme-changing .tutor-entry {
+      /*
+       * Modern Atlas cards no longer render from the legacy --door-c*
+       * gradient properties. Keep their theme motion on visible paint
+       * properties only so the image-led cards stay on a stable layer.
+       */
       transition:
-        --door-c1 var(--hub-theme-motion),
-        --door-c2 var(--hub-theme-motion),
+        background-color var(--hub-theme-motion),
+        color var(--hub-theme-motion),
         border-color var(--hub-theme-motion),
         box-shadow var(--hub-theme-motion);
     }
 
     html.theme-changing .door::before,
     html.theme-changing .tutor-entry::before {
-      transition:
-        --rail-1 var(--hub-theme-motion),
-        --rail-2 var(--hub-theme-motion),
-        opacity var(--hub-theme-motion);
+      transition: opacity var(--hub-theme-motion);
     }
 
     /* ============================================================

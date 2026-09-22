@@ -4,6 +4,23 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const { execFileSync } = require('node:child_process');
 const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
+const themeMotionStart = html.indexOf('THEME MOTION');
+const themeMotionEnd = html.indexOf('DESKTOP SPINE AND WORLD NAVIGATION', themeMotionStart);
+const themeMotion = html.slice(themeMotionStart, themeMotionEnd);
+assert.ok(themeMotionStart >= 0 && themeMotionEnd > themeMotionStart);
+assert.doesNotMatch(
+  themeMotion,
+  /--door-c[12]\s+var\(--hub-theme-motion\)/
+);
+assert.doesNotMatch(
+  themeMotion,
+  /--rail-[12]\s+var\(--hub-theme-motion\)/
+);
+assert.match(
+  themeMotion,
+  /html\.theme-changing \.door,[\s\S]*?background-color var\(--hub-theme-motion\)/
+);
+
 // Compile every inline script as well as exercising the actual selectors.
 for (const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)) new vm.Script(match[1]);
 execFileSync(process.execPath, ['scripts/sync-compass-covers.js', '--check'], { stdio: 'inherit' });
