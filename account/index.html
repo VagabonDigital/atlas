@@ -787,6 +787,10 @@
     .actions { display: grid; gap: 10px; margin-top: 18px; }
     .actions .button { margin-top: 0; }
 
+    .shell.account-shell-authenticated .topline {
+      display: none;
+    }
+
     .shell.account-shell-authenticated .brand {
       margin-bottom: 18px;
     }
@@ -1231,6 +1235,7 @@
         </div>
 
         <div class="actions">
+          <button id="return" class="button primary" type="button">Return to Atlas</button>
           <button id="sign-out" class="button secondary" type="button">Sign out</button>
         </div>
       </div>
@@ -1254,12 +1259,17 @@
 
     const AccountOrigin = getAccountOrigin();
     const BackLink = document.querySelector('.back-link');
+    const ReturnButton = document.getElementById('return');
 
     if (BackLink) {
       BackLink.href = AccountOrigin.href;
-      BackLink.textContent = `← ${AccountOrigin.label}`;
+      BackLink.textContent = '← Back';
       BackLink.setAttribute('aria-label', `Back to ${AccountOrigin.label}`);
       BackLink.title = `Back to ${AccountOrigin.label}`;
+    }
+
+    if (ReturnButton) {
+      ReturnButton.textContent = `Return to ${AccountOrigin.label}`;
     }
 
     const Status = document.getElementById('status');
@@ -2640,6 +2650,10 @@
       } finally {
         setButtonBusy(button, false, 'Signing out…', 'Sign out');
       }
+    });
+
+    ReturnButton?.addEventListener('click', () => {
+      window.location.href = AccountOrigin.href;
     });
 
   </script>
