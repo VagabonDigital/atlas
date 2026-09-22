@@ -1,5 +1,11 @@
 /* Atlas home presentation. Loaded only by the root Hub; shared chrome and
    teaching state remain owned by their existing modules. */
+:root {
+  --atlas-welcome-fluid-size: 3.7vw;
+  --atlas-continue-fluid-size: 2.5vw;
+  --atlas-door-fluid-size: 2.7vw;
+  --atlas-mobile-welcome-fluid-size: 8vw;
+}
 .atlas-main {
   max-width: 1184px;
   padding: 3.4rem 2rem 3rem;
@@ -13,7 +19,7 @@ html[data-theme="night"] .atlas-main {
   --home-shadow: 0 14px 34px -20px rgba(0, 0, 0, .55);
 }
 .context-anchor { margin-bottom: 2rem; }
-.welcome-line { font-size: clamp(2.25rem, 3.7vw, 3.4rem); letter-spacing: -.035em; line-height: 1.12; }
+.welcome-line { font-size: clamp(2.25rem, var(--atlas-welcome-fluid-size), 3.4rem); letter-spacing: -.035em; line-height: 1.12; }
 .welcome-sub { margin-top: .8rem; }
 .continue-card {
   border: 1px solid var(--home-border);
@@ -35,7 +41,7 @@ html[data-theme="night"] .atlas-main {
 .continue-content { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 1.7rem; padding: 2rem 2.25rem; min-width: 0; }
 .continue-body { flex: 0 1 auto; }
 .continue-kicker { letter-spacing: .18em; font-size: .66rem; margin-bottom: .65rem; }
-.continue-title { font-size: clamp(1.7rem, 2.5vw, 2.35rem); line-height: 1.12; letter-spacing: -.025em; overflow-wrap: anywhere; }
+.continue-title { font-size: clamp(1.7rem, var(--atlas-continue-fluid-size), 2.35rem); line-height: 1.12; letter-spacing: -.025em; overflow-wrap: anywhere; }
 .continue-meta { margin-top: .65rem; font-size: .83rem; }
 .continue-pickup { margin-top: 1.05rem; font-size: .85rem; line-height: 1.55; }
 .continue-actions { gap: .65rem; }
@@ -72,7 +78,7 @@ html[data-theme="night"] .atlas-main {
 .door > .door-copy { display: flex; flex-direction: column; align-items: flex-start; width: 58%; padding: 1.6rem 1.65rem; flex: 1; }
 .door-name { margin-bottom: .85rem; color: #3c7569; font-size: .59rem; font-weight: 700; letter-spacing: .17em; }
 .door-arcade .door-name { color: #c44828; }
-.door-title { font-size: clamp(2rem, 2.7vw, 2.65rem); letter-spacing: -.025em; line-height: 1.1; margin-bottom: .9rem; max-width: 10ch; }
+.door-title { font-size: clamp(2rem, var(--atlas-door-fluid-size), 2.65rem); letter-spacing: -.025em; line-height: 1.1; margin-bottom: .9rem; max-width: 10ch; }
 .door-desc { font-size: .82rem; line-height: 1.65; color: var(--text-body); margin-bottom: 1.5rem; }
 .door-action { display: inline-flex; align-items: center; gap: .8rem; font-size: .77rem; font-weight: 600; color: #315f54; padding: .4rem 0; border-radius: 0; background: transparent; margin-top: auto; }
 .door-arcade .door-action { color: #a83b21; }
@@ -115,7 +121,7 @@ html[data-theme="night"] .tutor-entry::before { opacity: 1; }
 @media (max-width: 720px) {
   .atlas-main { padding: 2.25rem 1rem 2rem; }
   .context-anchor { margin-bottom: 1.5rem; }
-  .welcome-line { font-size: clamp(2rem, 8vw, 2.65rem); }
+  .welcome-line { font-size: clamp(2rem, var(--atlas-mobile-welcome-fluid-size), 2.65rem); }
   .continue-summary { grid-template-columns: 1fr; padding: 0; }
   .continue-cover { min-height: 0; aspect-ratio: 16 / 8; }
   .continue-content { padding: 1.4rem; gap: 1.25rem; }

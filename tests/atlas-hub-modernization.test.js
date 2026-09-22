@@ -4,6 +4,37 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const { execFileSync } = require('node:child_process');
 const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
+const hubCss = fs.readFileSync('shared/atlas-hub.css', 'utf8').replace(/\r\n/g, '\n');
+
+assert.match(
+  html,
+  /--atlas-continue-fluid-size'[\s\S]*width \* 0\.025/,
+  'Atlas must snapshot fluid Hub type from the stable layout viewport width'
+);
+assert.match(
+  html,
+  /--atlas-mobile-welcome-fluid-size'[\s\S]*width \* 0\.08/
+);
+assert.match(
+  html,
+  /atlas-hub\.css\?v=20260922-fluid-type1/
+);
+assert.match(
+  hubCss,
+  /\.welcome-line \{ font-size: clamp\(2\.25rem, var\(--atlas-welcome-fluid-size\), 3\.4rem\);/
+);
+assert.match(
+  hubCss,
+  /\.continue-title \{ font-size: clamp\(1\.7rem, var\(--atlas-continue-fluid-size\), 2\.35rem\);/
+);
+assert.match(
+  hubCss,
+  /\.door-title \{ font-size: clamp\(2rem, var\(--atlas-door-fluid-size\), 2\.65rem\);/
+);
+assert.match(
+  hubCss,
+  /\.welcome-line \{ font-size: clamp\(2rem, var\(--atlas-mobile-welcome-fluid-size\), 2\.65rem\); \}/
+);
 // Compile every inline script as well as exercising the actual selectors.
 for (const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)) new vm.Script(match[1]);
 execFileSync(process.execPath, ['scripts/sync-compass-covers.js', '--check'], { stdio: 'inherit' });

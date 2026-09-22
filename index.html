@@ -137,6 +137,51 @@
   <!-- Anti-flash: apply the active session theme before first paint. -->
   <script>
     (function () {
+      var root = document.documentElement;
+      var atlasHubLayoutWidth = 0;
+
+      /*
+       * Chromium can briefly resolve viewport-relative type against a
+       * different scrollbar basis while the root theme is transitioning.
+       * Snapshot the layout viewport width into pixel lengths instead so
+       * theme paint never changes Hub typography geometry.
+       */
+      function syncAtlasHubFluidType() {
+        var width =
+          window.innerWidth ||
+          document.documentElement.clientWidth ||
+          0;
+
+        if (!width || width === atlasHubLayoutWidth) {
+          return;
+        }
+
+        atlasHubLayoutWidth = width;
+        root.style.setProperty(
+          '--atlas-welcome-fluid-size',
+          (width * 0.037) + 'px'
+        );
+        root.style.setProperty(
+          '--atlas-continue-fluid-size',
+          (width * 0.025) + 'px'
+        );
+        root.style.setProperty(
+          '--atlas-door-fluid-size',
+          (width * 0.027) + 'px'
+        );
+        root.style.setProperty(
+          '--atlas-mobile-welcome-fluid-size',
+          (width * 0.08) + 'px'
+        );
+      }
+
+      syncAtlasHubFluidType();
+      window.addEventListener(
+        'resize',
+        syncAtlasHubFluidType,
+        { passive: true }
+      );
+
       var m = null;
       try {
         var sessionId = sessionStorage.getItem('atlas::activeSessionId') || 'default';
@@ -3703,7 +3748,7 @@
 
   <!-- Shared, fixed geometry for the Atlas / Compass / Arcade rail -->
   <link rel="stylesheet" href="./shared/atlas-hub-nav.css?v=20260727-nav-stability">
-  <link rel="stylesheet" href="./shared/atlas-hub.css?v=20260922-home1">
+  <link rel="stylesheet" href="./shared/atlas-hub.css?v=20260922-fluid-type1">
 </head>
 
 <body data-atlas-world="atlas" data-atlas-surface="hub">
