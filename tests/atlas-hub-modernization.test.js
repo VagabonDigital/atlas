@@ -4,6 +4,21 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const { execFileSync } = require('node:child_process');
 const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
+const hubCss = fs.readFileSync('shared/atlas-hub.css', 'utf8').replace(/\r\n/g, '\n');
+const nightHomeTheme = hubCss.match(
+  /html\[data-theme="night"\] \.atlas-main \{([\s\S]*?)\}/
+);
+assert.ok(nightHomeTheme, 'Atlas Hub night theme block must remain inspectable');
+assert.match(
+  hubCss,
+  /--home-shadow:\s*0 12px 32px -22px var\(--home-shadow-color\),\s*0 2px 5px var\(--home-shadow-edge-color\);/
+);
+assert.doesNotMatch(
+  nightHomeTheme[1],
+  /--home-shadow\s*:/,
+  'Night mode may change Hub shadow colour, not shadow geometry'
+);
+
 // Compile every inline script as well as exercising the actual selectors.
 for (const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)) new vm.Script(match[1]);
 execFileSync(process.execPath, ['scripts/sync-compass-covers.js', '--check'], { stdio: 'inherit' });
