@@ -1033,7 +1033,7 @@
 
             if (needsSubjects && !window.AtlasCloudCache) {
                 await loadRuntimeScript(
-                    '/shared/atlas-cloud-cache.js?v=20260922-storage1',
+                    '/shared/atlas-cloud-cache.js?v=20260922-delete1',
                     'AtlasCloudCache'
                 );
             }
@@ -1043,7 +1043,7 @@
                 !window.AtlasTutorSubjectsCloudAuthority
             ) {
                 await loadRuntimeScript(
-                    '/shared/atlas-tutor-subjects-cloud-authority.js?v=20260922-idb1',
+                    '/shared/atlas-tutor-subjects-cloud-authority.js?v=20260922-delete1',
                     'AtlasTutorSubjectsCloudAuthority'
                 );
             }
@@ -1210,13 +1210,13 @@
 
         if (needsSubjects && !window.AtlasCloudCache) {
             scripts.push(
-                '<script src="/shared/atlas-cloud-cache.js?v=20260922-storage1"><\/script>'
+                '<script src="/shared/atlas-cloud-cache.js?v=20260922-delete1"><\/script>'
             );
         }
 
         if (needsSubjects) {
             scripts.push(
-                '<script src="/shared/atlas-tutor-subjects-cloud-authority.js?v=20260922-idb1"><\/script>'
+                '<script src="/shared/atlas-tutor-subjects-cloud-authority.js?v=20260922-delete1"><\/script>'
             );
         }
 
