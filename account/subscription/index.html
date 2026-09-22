@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Atlas Subscription</title>
   <meta name="description" content="Manage your Atlas Pro subscription.">
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+  <script src="/shared/atlas-paddle-config.js?v=20260921-sandbox1"></script>
   <link
     rel="icon"
     type="image/svg+xml"
@@ -445,6 +447,9 @@
           <p id="period" class="period"></p>
 
           <div class="subscription-actions">
+            <button id="update-payment-method" class="action-button" type="button">
+              Update payment method
+            </button>
             <button id="cancel-subscription" class="action-button" type="button">
               Cancel Atlas Pro
             </button>
@@ -504,6 +509,8 @@
       document.getElementById('summary');
     const Period =
       document.getElementById('period');
+    const UpdatePaymentMethod =
+      document.getElementById('update-payment-method');
     const CancelSubscription =
       document.getElementById('cancel-subscription');
     const KeepSubscription =
@@ -520,6 +527,7 @@
       document.getElementById('action-status');
 
     let currentBilling = null;
+    let paddleReady = false;
 
     const query =
       new URLSearchParams(
@@ -633,6 +641,7 @@
       busy
     ) {
       [
+        UpdatePaymentMethod,
         CancelSubscription,
         KeepSubscription,
         CancelConfirm,
@@ -692,6 +701,12 @@
       }
 
       if (
+        action === 'update_payment_method'
+      ) {
+        return result || {};
+      }
+
+      if (
         !result?.billing ||
         typeof result.billing !== 'object'
       ) {
@@ -701,6 +716,119 @@
       }
 
       return result.billing;
+    }
+
+    function initPaddle() {
+      if (paddleReady) return true;
+
+      const config =
+        window.AtlasPaddleConfig;
+
+      if (
+        !window.Paddle ||
+        !config?.clientToken
+      ) {
+        return false;
+      }
+
+      if (
+        config.environment === 'sandbox'
+      ) {
+        Paddle.Environment.set(
+          'sandbox'
+        );
+      }
+
+      Paddle.Initialize({
+        token:
+          config.clientToken,
+        eventCallback:
+          event => {
+            const name =
+              String(
+                event?.name || ''
+              );
+
+            if (
+              name ===
+                'checkout.completed'
+            ) {
+              setActionStatus(
+                'Payment method updated.'
+              );
+            }
+
+            if (
+              name ===
+                'checkout.closed' &&
+              ActionStatus.textContent ===
+                'Opening secure payment update…'
+            ) {
+              setActionStatus('');
+            }
+          }
+      });
+
+      paddleReady = true;
+      return true;
+    }
+
+    async function updatePaymentMethod() {
+      setActionBusy(true);
+      setActionStatus(
+        'Opening secure payment update…'
+      );
+
+      try {
+        const result =
+          await requestSubscriptionAction(
+            'update_payment_method'
+          );
+
+        const transactionId =
+          String(
+            result?.transactionId || ''
+          ).trim();
+
+        if (
+          !/^txn_[a-z\d]{26}$/.test(
+            transactionId
+          )
+        ) {
+          throw new Error(
+            'Atlas could not start the payment-method update.'
+          );
+        }
+
+        if (!initPaddle()) {
+          throw new Error(
+            'Secure payment update could not initialize.'
+          );
+        }
+
+        Paddle.Checkout.open({
+          transactionId,
+          settings: {
+            displayMode: 'overlay',
+            variant: 'one-page',
+            theme:
+              document.documentElement
+                .dataset.theme ===
+              'night'
+                ? 'dark'
+                : 'light'
+          }
+        });
+      } catch (error) {
+        setActionStatus(
+          String(
+            error?.message ||
+            'Atlas could not start the payment-method update.'
+          )
+        );
+      } finally {
+        setActionBusy(false);
+      }
     }
 
     function renderSubscription(billing) {
@@ -887,6 +1015,14 @@
         show('error');
       }
     }
+
+    UpdatePaymentMethod
+      .addEventListener(
+        'click',
+        () => {
+          void updatePaymentMethod();
+        }
+      );
 
     CancelSubscription
       .addEventListener(
