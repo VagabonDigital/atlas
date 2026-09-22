@@ -2628,12 +2628,22 @@
     ManageSubscriptionButton
       ?.addEventListener(
         'click',
-        () => openBillingAction(
-          'overview',
-          ManageSubscriptionButton,
-          'Opening…',
-          'Manage subscription'
-        )
+        () => {
+          const params =
+            new URLSearchParams(
+              window.location.search
+            );
+
+          const from =
+            String(
+              params.get('from') || ''
+            ).trim();
+
+          window.location.href =
+            from
+              ? `/account/subscription/?from=${encodeURIComponent(from)}`
+              : '/account/subscription/';
+        }
       );
 
     document.getElementById('sign-out').addEventListener('click', async () => {
