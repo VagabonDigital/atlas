@@ -1625,11 +1625,46 @@
         }
         const subject = await getSubject(subjectId);
         if (!subject) return null;
-        const storedDraft = normalizeWorkingDraft(readJson(workingDraftStorageKey(subject.id)), subject.id);
-        const checkpoint = normalizeBuildCheckpoint(readJson(buildCheckpointStorageKey(subject.id)), subject.id);
-        if (checkpoint && (!storedDraft || checkpoint.workingDraft.updatedAt > storedDraft.updatedAt)) {
-            return cloneJson(checkpoint.workingDraft);
+
+        await migrateLegacyGenerationStorage();
+
+        const storedDraft = normalizeWorkingDraft(
+            await readBrowserSubjectState(
+                'working-draft',
+                subject.id,
+                workingDraftStorageKey(
+                    subject.id
+                )
+            ),
+            subject.id
+        );
+
+        const checkpoint = normalizeBuildCheckpoint(
+            await readBrowserSubjectState(
+                'build-checkpoint',
+                subject.id,
+                buildCheckpointStorageKey(
+                    subject.id
+                )
+            ),
+            subject.id
+        );
+
+        if (
+            checkpoint &&
+            (
+                !storedDraft ||
+                checkpoint
+                    .workingDraft
+                    .updatedAt >
+                    storedDraft.updatedAt
+            )
+        ) {
+            return cloneJson(
+                checkpoint.workingDraft
+            );
         }
+
         return cloneJson(storedDraft);
     }
 
@@ -1662,7 +1697,19 @@
             startedAt: current?.startedAt || timestamp,
             updatedAt: timestamp
         };
-        return writeJson(workingDraftStorageKey(subject.id), next) ? cloneJson(next) : null;
+        const saved =
+            await writeBrowserSubjectState(
+                'working-draft',
+                subject.id,
+                next,
+                workingDraftStorageKey(
+                    subject.id
+                )
+            );
+
+        return saved
+            ? cloneJson(next)
+            : null;
     }
 
     async function getBuildState(subjectId) {
@@ -1671,11 +1718,46 @@
         }
         const subject = await getSubject(subjectId);
         if (!subject) return null;
-        const storedState = normalizeBuildState(readJson(buildStateStorageKey(subject.id)), subject.id);
-        const checkpoint = normalizeBuildCheckpoint(readJson(buildCheckpointStorageKey(subject.id)), subject.id);
-        if (checkpoint && (!storedState || checkpoint.buildState.updatedAt > storedState.updatedAt)) {
-            return cloneJson(checkpoint.buildState);
+
+        await migrateLegacyGenerationStorage();
+
+        const storedState = normalizeBuildState(
+            await readBrowserSubjectState(
+                'build-state',
+                subject.id,
+                buildStateStorageKey(
+                    subject.id
+                )
+            ),
+            subject.id
+        );
+
+        const checkpoint = normalizeBuildCheckpoint(
+            await readBrowserSubjectState(
+                'build-checkpoint',
+                subject.id,
+                buildCheckpointStorageKey(
+                    subject.id
+                )
+            ),
+            subject.id
+        );
+
+        if (
+            checkpoint &&
+            (
+                !storedState ||
+                checkpoint
+                    .buildState
+                    .updatedAt >
+                    storedState.updatedAt
+            )
+        ) {
+            return cloneJson(
+                checkpoint.buildState
+            );
         }
+
         return cloneJson(storedState);
     }
 
@@ -1695,7 +1777,19 @@
             updatedAt: timestamp
         }, subject.id);
         if (!next) return null;
-        return writeJson(buildStateStorageKey(subject.id), next) ? cloneJson(next) : null;
+        const saved =
+            await writeBrowserSubjectState(
+                'build-state',
+                subject.id,
+                next,
+                buildStateStorageKey(
+                    subject.id
+                )
+            );
+
+        return saved
+            ? cloneJson(next)
+            : null;
     }
 
     function pruneRedundantGenerationMirrors() {
@@ -1872,10 +1966,22 @@
          * so mirroring the same document on every generation step only
          * multiplies browser-storage pressure.
          */
-        writeBuildCheckpoint(
-            subject.id,
-            next
-        );
+        const saved =
+            await writeBrowserSubjectState(
+                'build-checkpoint',
+                subject.id,
+                next,
+                buildCheckpointStorageKey(
+                    subject.id
+                ),
+                {
+                    checkpoint: true
+                }
+            );
+
+        if (!saved) {
+            return null;
+        }
 
         return cloneJson(next);
     }
@@ -1886,10 +1992,33 @@
         }
         const id = String(subjectId || '').trim();
         if (!id) return false;
-        const draftRemoved = removeValue(workingDraftStorageKey(id));
-        const stateRemoved = removeValue(buildStateStorageKey(id));
-        const checkpointRemoved = removeValue(buildCheckpointStorageKey(id));
-        return draftRemoved && stateRemoved && checkpointRemoved;
+        const [
+            draftRemoved,
+            stateRemoved,
+            checkpointRemoved
+        ] = await Promise.all([
+            deleteBrowserSubjectState(
+                'working-draft',
+                id,
+                workingDraftStorageKey(id)
+            ),
+            deleteBrowserSubjectState(
+                'build-state',
+                id,
+                buildStateStorageKey(id)
+            ),
+            deleteBrowserSubjectState(
+                'build-checkpoint',
+                id,
+                buildCheckpointStorageKey(id)
+            )
+        ]);
+
+        return (
+            draftRemoved &&
+            stateRemoved &&
+            checkpointRemoved
+        );
     }
 
     async function clearBuildState(subjectId) {
@@ -1898,7 +2027,26 @@
         }
         const id = String(subjectId || '').trim();
         if (!id) return false;
-        return removeValue(buildStateStorageKey(id)) && removeValue(buildCheckpointStorageKey(id));
+        const [
+            stateRemoved,
+            checkpointRemoved
+        ] = await Promise.all([
+            deleteBrowserSubjectState(
+                'build-state',
+                id,
+                buildStateStorageKey(id)
+            ),
+            deleteBrowserSubjectState(
+                'build-checkpoint',
+                id,
+                buildCheckpointStorageKey(id)
+            )
+        ]);
+
+        return (
+            stateRemoved &&
+            checkpointRemoved
+        );
     }
 
     async function removeSessionSubject(sessionId, subjectRef) {
