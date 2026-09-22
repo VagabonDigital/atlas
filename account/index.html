@@ -1924,7 +1924,9 @@
         accountPresentationReadyUserId === userId
       ) {
         showOnly(AccountView);
-        setStatus('', 'info', false);
+        if (!transientStatus) {
+          setStatus('', 'info', false);
+        }
         return;
       }
 
@@ -1957,7 +1959,9 @@
             userId;
 
           showOnly(AccountView);
-          setStatus('', 'info', false);
+          if (!transientStatus) {
+            setStatus('', 'info', false);
+          }
         })();
 
       try {
