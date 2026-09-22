@@ -282,11 +282,48 @@ async function verifyTutorDraftSurvivesFullLocalStorage() {
             contentId
         );
 
+    const duplicateVersionId =
+        'compass:food-table';
+
+    const duplicateVersionKey =
+        'atlas::tutorContent::version::' +
+        encodeURIComponent(
+            duplicateVersionId
+        );
+
+    const duplicateVersion = {
+        schemaVersion: 2,
+        ownerId: 'local-tutor',
+        contentId:
+            duplicateVersionId,
+        baseContentVersion:
+            '1.0.0',
+        revision: 2,
+        updatedAt: 5,
+        overrides: {
+            'cover.hook':
+                'Same content'
+        },
+        document: {
+            schemaVersion: 1,
+
+            module: {
+                title:
+                    'Same Cloud Version'
+            }
+        }
+    };
+
     const storage =
         new FullLocalStorage({
             [legacyKey]:
                 JSON.stringify(
                     legacyDraft
+                ),
+
+            [duplicateVersionKey]:
+                JSON.stringify(
+                    duplicateVersion
                 )
         });
 
@@ -338,7 +375,15 @@ async function verifyTutorDraftSurvivesFullLocalStorage() {
     };
 
     const cloud = {
-        async getTutorContentVersion() {
+        async getTutorContentVersion(id) {
+            if (id === duplicateVersionId) {
+                return {
+                    ...duplicateVersion,
+                    revision: 7,
+                    updatedAt: 50
+                };
+            }
+
             return null;
         },
 
@@ -427,6 +472,15 @@ async function verifyTutorDraftSurvivesFullLocalStorage() {
         null,
         'Migrated tutor draft must be removed from quota-constrained localStorage.'
     );
+
+    assert.equal(
+        storage.getItem(
+            duplicateVersionKey
+        ),
+        null,
+        'Exact cloud-backed committed My Version duplicate should be reclaimed from localStorage.'
+    );
+
 
     const saved =
         await Store.saveWorkingDraft(
@@ -530,13 +584,13 @@ assert.match(
 
 assert.match(
     registrySource,
-    /atlas-tutor-content-cloud-authority\.js\?v=20260922-storage1/
+    /atlas-tutor-content-cloud-authority\.js\?v=20260922-storage2/
 );
 
 verifyTutorDraftSurvivesFullLocalStorage()
     .then(() => {
         console.log(
-            'Atlas storage hygiene contract passed: signed-in Tutor Content working drafts migrate to IndexedDB and remain writable when localStorage is completely full; the Compass hub reads the IndexedDB subject journal.'
+            'Atlas storage hygiene contract passed: signed-in Tutor Content working drafts migrate to IndexedDB and remain writable when localStorage is completely full; exact cloud-backed committed duplicates are reclaimed; the Compass hub reads the IndexedDB subject journal.'
         );
     })
     .catch(error => {
