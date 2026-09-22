@@ -24,13 +24,12 @@ const subjectPage = fs.readFileSync(
     'utf8'
 );
 
-class TestStorage {
-    constructor({
-        failCheckpointWrites = 0
-    } = {}) {
-        this.map = new Map();
-        this.failCheckpointWrites =
-            failCheckpointWrites;
+class FullLocalStorage {
+    constructor(initial = {}) {
+        this.map =
+            new Map(
+                Object.entries(initial)
+            );
     }
 
     get length() {
@@ -38,42 +37,31 @@ class TestStorage {
     }
 
     key(index) {
-        return Array.from(this.map.keys())[
-            index
-        ] ?? null;
+        return Array.from(
+            this.map.keys()
+        )[index] ?? null;
     }
 
     getItem(key) {
-        return this.map.has(key)
-            ? this.map.get(key)
+        const normalized =
+            String(key);
+
+        return this.map.has(normalized)
+            ? this.map.get(normalized)
             : null;
     }
 
-    setItem(key, value) {
-        if (
-            String(key).startsWith(
-                'atlas::tutorSubjects::buildCheckpoint::subject-active'
-            ) &&
-            this.failCheckpointWrites > 0
-        ) {
-            this.failCheckpointWrites -= 1;
+    setItem(key) {
+        const error =
+            new Error(
+                `Setting ${key} exceeded browser storage quota.`
+            );
 
-            const error =
-                new Error(
-                    'Storage quota exceeded.'
-                );
+        error.name =
+            'QuotaExceededError';
 
-            error.name =
-                'QuotaExceededError';
-
-            error.code = 22;
-            throw error;
-        }
-
-        this.map.set(
-            String(key),
-            String(value)
-        );
+        error.code = 22;
+        throw error;
     }
 
     removeItem(key) {
@@ -83,9 +71,117 @@ class TestStorage {
     }
 }
 
-function checkpointRecord(
+function createFakeIndexedDB() {
+    const records =
+        new Map();
+
+    const db = {
+        objectStoreNames: {
+            contains(name) {
+                return (
+                    name ===
+                    'browser-state'
+                );
+            }
+        },
+
+        createObjectStore() {},
+
+        transaction() {
+            const transaction = {
+                error: null,
+                oncomplete: null,
+                onerror: null,
+                onabort: null
+            };
+
+            transaction.objectStore =
+                () => ({
+                    get(key) {
+                        const request = {
+                            result: null,
+                            error: null,
+                            onsuccess: null,
+                            onerror: null
+                        };
+
+                        Promise.resolve()
+                            .then(() => {
+                                request.result =
+                                    records.get(
+                                        String(key)
+                                    );
+
+                                request.onsuccess?.();
+                            });
+
+                        return request;
+                    },
+
+                    put(value, key) {
+                        records.set(
+                            String(key),
+                            JSON.parse(
+                                JSON.stringify(
+                                    value
+                                )
+                            )
+                        );
+
+                        setTimeout(
+                            () =>
+                                transaction
+                                    .oncomplete?.(),
+                            0
+                        );
+                    },
+
+                    delete(key) {
+                        records.delete(
+                            String(key)
+                        );
+
+                        setTimeout(
+                            () =>
+                                transaction
+                                    .oncomplete?.(),
+                            0
+                        );
+                    }
+                });
+
+            return transaction;
+        }
+    };
+
+    return {
+        records,
+
+        open() {
+            const request = {
+                result: db,
+                error: null,
+                onupgradeneeded: null,
+                onsuccess: null,
+                onerror: null,
+                onblocked: null
+            };
+
+            setTimeout(
+                () => request.onsuccess?.(),
+                0
+            );
+
+            return request;
+        }
+    };
+}
+
+function buildCheckpoint(
     subjectId,
-    updatedAt = 10
+    title,
+    completedStep,
+    updatedAt
 ) {
     return {
         schemaVersion: 1,
@@ -97,12 +193,24 @@ function checkpointRecord(
             ownerId: 'local-tutor',
             format: 'structured',
             baseRevision: 1,
+
             document: {
-                schemaVersion: 1
+                schemaVersion: 1,
+
+                module: {
+                    title
+                }
             },
-            includedLiveSessionId: null,
-            activeViewId: 'view-cover',
-            startedAt: updatedAt,
+
+            includedLiveSessionId:
+                null,
+
+            activeViewId:
+                'view-cover',
+
+            startedAt:
+                updatedAt,
+
             updatedAt
         },
 
@@ -110,9 +218,11 @@ function checkpointRecord(
             schemaVersion: 1,
             subjectId,
             kind: 'full-subject',
-            completedStep: 4,
-            autoSaveOnComplete: true,
-            startedAt: updatedAt,
+            completedStep,
+            autoSaveOnComplete:
+                true,
+            startedAt:
+                updatedAt,
             updatedAt
         },
 
@@ -120,21 +230,65 @@ function checkpointRecord(
     };
 }
 
-function loadAuthority(storage) {
+async function loadAuthority({
+    storage,
+    indexedDB
+}) {
     const subject = {
         schemaVersion: 1,
         id: 'subject-active',
-        revision: 1,
+        revision: 3,
+
         metadata: {
             title: 'Test Subject'
         },
+
         document: {
-            schemaVersion: 1
+            schemaVersion: 1,
+
+            module: {
+                title: 'Test Subject'
+            }
+        }
+    };
+
+    const account = {
+        async initialize() {},
+
+        getState() {
+            return {
+                authenticated: true,
+                userId: 'user-test'
+            };
+        }
+    };
+
+    const cloud = {
+        async getOwnedSubject(id) {
+            return id === subject.id
+                ? JSON.parse(
+                    JSON.stringify(
+                        subject
+                    )
+                )
+                : null;
+        },
+
+        async listOwnedSubjects() {
+            return [
+                JSON.parse(
+                    JSON.stringify(
+                        subject
+                    )
+                )
+            ];
         }
     };
 
     const window = {
+        indexedDB,
         AtlasTutorSubjects: {},
+
         AtlasStructuredSubject: {
             validateDocument() {
                 return {
@@ -143,33 +297,25 @@ function loadAuthority(storage) {
                 };
             }
         },
-        AtlasAccount: {
-            async initialize() {},
-            getState() {
-                return {
-                    authenticated: true,
-                    userId: 'user-test'
-                };
-            }
-        },
-        AtlasCloud: {
-            async getOwnedSubject(id) {
-                return id === subject.id
-                    ? JSON.parse(
-                        JSON.stringify(
-                            subject
-                        )
-                    )
-                    : null;
-            }
-        },
+
+        AtlasAccount:
+            account,
+
+        AtlasCloud:
+            cloud,
+
         setTimeout,
         clearTimeout
     };
 
     const context = {
         window,
-        localStorage: storage,
+        localStorage:
+            storage,
+        AtlasAccount:
+            account,
+        AtlasCloud:
+            cloud,
         console,
         setTimeout,
         clearTimeout
@@ -184,58 +330,83 @@ function loadAuthority(storage) {
         }
     );
 
-    return window.AtlasTutorSubjects;
+    await new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                10
+            )
+    );
+
+    return {
+        Subjects:
+            window.AtlasTutorSubjects,
+        subject
+    };
 }
 
-async function verifyQuotaCleanupAndRetry() {
-    const storage =
-        new TestStorage({
-            failCheckpointWrites: 1
-        });
-
-    const oldId =
-        'subject-old';
-
-    const oldCheckpointKey =
-        `atlas::tutorSubjects::buildCheckpoint::${oldId}`;
-
-    const oldDraftKey =
-        `atlas::tutorSubjects::workingDraft::${oldId}`;
-
-    const oldStateKey =
-        `atlas::tutorSubjects::buildState::${oldId}`;
-
-    const oldCheckpoint =
-        checkpointRecord(
-            oldId,
+async function verifyFullLocalStorageDoesNotBlockGeneration() {
+    const legacy =
+        buildCheckpoint(
+            'subject-active',
+            'Legacy Subject',
+            2,
             10
         );
 
-    storage.map.set(
-        oldCheckpointKey,
-        JSON.stringify(
-            oldCheckpoint
-        )
-    );
+    const storage =
+        new FullLocalStorage({
+            'atlas::tutorSubjects::buildCheckpoint::subject-active':
+                JSON.stringify(
+                    legacy
+                ),
 
-    storage.map.set(
-        oldDraftKey,
-        JSON.stringify(
-            oldCheckpoint
-                .workingDraft
-        )
-    );
+            'atlas::tutorSubjects::workingDraft::subject-active':
+                JSON.stringify(
+                    legacy
+                        .workingDraft
+                ),
 
-    storage.map.set(
-        oldStateKey,
-        JSON.stringify(
-            oldCheckpoint
-                .buildState
-        )
-    );
+            'atlas::tutorSubjects::buildState::subject-active':
+                JSON.stringify(
+                    legacy
+                        .buildState
+                ),
 
-    const Subjects =
-        loadAuthority(storage);
+            'atlas::tutorSubjects::subject::subject-active':
+                JSON.stringify({
+                    id:
+                        'subject-active',
+
+                    document: {
+                        legacy:
+                            true
+                    }
+                })
+        });
+
+    const indexedDB =
+        createFakeIndexedDB();
+
+    const {
+        Subjects
+    } =
+        await loadAuthority({
+            storage,
+            indexedDB
+        });
+
+    const migrated =
+        await Subjects
+            .getBuildState(
+                'subject-active'
+            );
+
+    assert.equal(
+        migrated?.completedStep,
+        2,
+        'Legacy generation checkpoint should survive migration out of localStorage.'
+    );
 
     const saved =
         await Subjects
@@ -243,18 +414,25 @@ async function verifyQuotaCleanupAndRetry() {
                 'subject-active',
                 {
                     workingDraft: {
-                        baseRevision: 1,
+                        baseRevision: 3,
+
                         document: {
-                            schemaVersion: 1
+                            schemaVersion: 1,
+
+                            module: {
+                                title:
+                                    'Current Subject'
+                            }
                         },
+
                         activeViewId:
-                            'view-cover'
+                            'view-discussion'
                     },
 
                     buildState: {
                         kind:
                             'full-subject',
-                        completedStep: 0,
+                        completedStep: 3,
                         autoSaveOnComplete:
                             true
                     }
@@ -264,14 +442,29 @@ async function verifyQuotaCleanupAndRetry() {
     assert.equal(
         saved?.buildState
             ?.completedStep,
-        0
+        3,
+        'Generation checkpoint must save even when every localStorage write is rejected.'
     );
 
-    assert.ok(
+    const draft =
+        await Subjects
+            .getWorkingDraft(
+                'subject-active'
+            );
+
+    assert.equal(
+        draft?.document
+            ?.module
+            ?.title,
+        'Current Subject'
+    );
+
+    assert.equal(
         storage.getItem(
             'atlas::tutorSubjects::buildCheckpoint::subject-active'
         ),
-        'Atomic checkpoint should succeed after safe cleanup.'
+        null,
+        'Migrated checkpoint must be removed from quota-constrained localStorage.'
     );
 
     assert.equal(
@@ -279,7 +472,7 @@ async function verifyQuotaCleanupAndRetry() {
             'atlas::tutorSubjects::workingDraft::subject-active'
         ),
         null,
-        'Full working document must not be duplicated beside the checkpoint.'
+        'Migrated working draft must be removed from quota-constrained localStorage.'
     );
 
     assert.equal(
@@ -287,66 +480,49 @@ async function verifyQuotaCleanupAndRetry() {
             'atlas::tutorSubjects::buildState::subject-active'
         ),
         null,
-        'Build-state mirror must not be duplicated beside the checkpoint.'
+        'Migrated build state must be removed from quota-constrained localStorage.'
+    );
+
+    assert.equal(
+        storage.getItem(
+            'atlas::tutorSubjects::subject::subject-active'
+        ),
+        null,
+        'Cloud-backed legacy full subject copies must be reclaimed from localStorage.'
     );
 
     assert.ok(
-        storage.getItem(
-            oldCheckpointKey
+        indexedDB.records.has(
+            'build-checkpoint::subject-active'
         ),
-        'Existing authoritative checkpoint must be preserved.'
-    );
-
-    assert.equal(
-        storage.getItem(oldDraftKey),
-        null,
-        'Reconstructable working-draft mirror should be reclaimed.'
-    );
-
-    assert.equal(
-        storage.getItem(oldStateKey),
-        null,
-        'Reconstructable build-state mirror should be reclaimed.'
+        'Atomic generation checkpoint must live in IndexedDB.'
     );
 }
 
-async function verifyPersistentQuotaIsObservable() {
-    const storage =
-        new TestStorage({
-            failCheckpointWrites: 2
-        });
+assert.match(
+    authoritySource,
+    /BROWSER_STATE_DB_NAME = 'atlas-tutor-subjects'/
+);
 
-    const Subjects =
-        loadAuthority(storage);
+assert.match(
+    authoritySource,
+    /writeIndexedBrowserState[\s\S]*?BROWSER_STATE_STORE/
+);
 
-    await assert.rejects(
-        () =>
-            Subjects.saveBuildCheckpoint(
-                'subject-active',
-                {
-                    workingDraft: {
-                        baseRevision: 1,
-                        document: {
-                            schemaVersion: 1
-                        }
-                    },
+assert.match(
+    authoritySource,
+    /migrateLegacyGenerationStorage[\s\S]*?WORKING_DRAFT_PREFIX[\s\S]*?BUILD_CHECKPOINT_PREFIX/
+);
 
-                    buildState: {
-                        kind:
-                            'full-subject',
-                        completedStep: 0,
-                        autoSaveOnComplete:
-                            true
-                    }
-                }
-            ),
-        error =>
-            error?.code ===
-                'ATLAS_CHECKPOINT_STORAGE_QUOTA' &&
-            error?.name ===
-                'AtlasCheckpointStorageError'
-    );
-}
+assert.match(
+    authoritySource,
+    /pruneCloudBackedLegacySubjects[\s\S]*?SUBJECT_PREFIX/
+);
+
+assert.match(
+    authoritySource,
+    /saveBuildCheckpoint[\s\S]*?writeBrowserSubjectState\([\s\S]*?'build-checkpoint'/
+);
 
 assert.doesNotMatch(
     subjectPage,
@@ -360,30 +536,14 @@ assert.match(
 );
 
 assert.match(
-    engineSource,
-    /releaseCompassSubjectBuildHandoff\(\);[\s\S]*?await freshBuildCloudAuthorityPromise[\s\S]*?await requestMyVersionEditing/
-);
-
-assert.match(
     recoverySource,
     /isCheckpointStorageFailure[\s\S]*?showRetryButton\(true\)[\s\S]*?return;/
 );
 
-assert.match(
-    recoverySource,
-    /manual &&[\s\S]*?lastCheckpointFailure[\s\S]*?originalCheckpointFullSubject/
-);
-
-Promise.resolve()
-    .then(
-        verifyQuotaCleanupAndRetry
-    )
-    .then(
-        verifyPersistentQuotaIsObservable
-    )
+verifyFullLocalStorageDoesNotBlockGeneration()
     .then(() => {
         console.log(
-            'Atlas checkpoint persistence contract passed: the atomic journal is single-copy, quota cleanup only removes reconstructable mirrors, persistent storage failure remains observable, recovery does not auto-loop, cloud authority precedes authoring, and the stale 404 runtime is gone.'
+            'Atlas subject persistence contract passed: full localStorage no longer blocks signed-in subject generation, legacy full-document state migrates to IndexedDB, cloud-backed legacy subject copies are reclaimed, and checkpoint recovery remains explicit.'
         );
     })
     .catch(error => {
