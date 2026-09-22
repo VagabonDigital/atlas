@@ -594,6 +594,260 @@ async function createAtlasPaddlePaymentMethodTransaction(
     return transactionId;
 }
 
+
+async function listAtlasPaddleSubscriptionPayments(
+    env,
+    paddleEnvironment,
+    customerId,
+    subscriptionId
+) {
+    const apiKey =
+        String(
+            env.ATLAS_PADDLE_API_KEY || ''
+        ).trim();
+
+    if (!apiKey) {
+        throw new Error(
+            'Atlas Paddle API access is not configured.'
+        );
+    }
+
+    const url =
+        new URL(
+            `${getAtlasPaddleApiBase(
+                paddleEnvironment
+            )}/transactions`
+        );
+
+    url.searchParams.set(
+        'customer_id',
+        customerId
+    );
+    url.searchParams.set(
+        'subscription_id',
+        subscriptionId
+    );
+    url.searchParams.set(
+        'status',
+        'completed'
+    );
+    url.searchParams.set(
+        'per_page',
+        '30'
+    );
+
+    const response =
+        await fetch(
+            url.toString(),
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization':
+                        `Bearer ${apiKey}`,
+                    'Accept':
+                        'application/json',
+                    'Paddle-Version':
+                        '1'
+                }
+            }
+        );
+
+    let payload = null;
+
+    try {
+        payload =
+            await response.json();
+    } catch {
+        payload = null;
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            `Paddle transaction list failed with status ${response.status}.`
+        );
+    }
+
+    const transactions =
+        Array.isArray(payload?.data)
+            ? payload.data
+            : [];
+
+    return transactions
+        .filter(transaction =>
+            String(
+                transaction?.customer_id || ''
+            ) === customerId &&
+            String(
+                transaction?.subscription_id || ''
+            ) === subscriptionId
+        )
+        .map(transaction => {
+            const totalRaw =
+                String(
+                    transaction
+                        ?.details
+                        ?.totals
+                        ?.grand_total ??
+                    transaction
+                        ?.details
+                        ?.totals
+                        ?.total ??
+                    '0'
+                ).trim();
+
+            const amountMinor =
+                Number.parseInt(
+                    totalRaw,
+                    10
+                );
+
+            return {
+                id:
+                    String(
+                        transaction?.id || ''
+                    ).trim(),
+                status:
+                    String(
+                        transaction?.status || ''
+                    ).trim(),
+                amountMinor:
+                    Number.isFinite(amountMinor)
+                        ? amountMinor
+                        : 0,
+                currencyCode:
+                    String(
+                        transaction
+                            ?.details
+                            ?.totals
+                            ?.currency_code ||
+                        ''
+                    )
+                        .trim()
+                        .toUpperCase(),
+                billedAt:
+                    transaction?.billed_at ||
+                    transaction?.updated_at ||
+                    transaction?.created_at ||
+                    null
+            };
+        })
+        .filter(transaction =>
+            /^txn_[a-z\d]{26}$/.test(
+                transaction.id
+            ) &&
+            transaction.status ===
+                'completed' &&
+            transaction.amountMinor > 0 &&
+            /^[A-Z]{3}$/.test(
+                transaction.currencyCode
+            )
+        )
+        .sort((left, right) =>
+            String(
+                right.billedAt || ''
+            ).localeCompare(
+                String(
+                    left.billedAt || ''
+                )
+            )
+        )
+        .slice(0, 12);
+}
+
+async function createAtlasPaddleInvoiceUrl(
+    env,
+    paddleEnvironment,
+    customerId,
+    subscriptionId,
+    transactionId
+) {
+    const payments =
+        await listAtlasPaddleSubscriptionPayments(
+            env,
+            paddleEnvironment,
+            customerId,
+            subscriptionId
+        );
+
+    const ownsTransaction =
+        payments.some(
+            payment =>
+                payment.id ===
+                transactionId
+        );
+
+    if (!ownsTransaction) {
+        throw new Error(
+            'Atlas could not verify this billing record.'
+        );
+    }
+
+    const apiKey =
+        String(
+            env.ATLAS_PADDLE_API_KEY || ''
+        ).trim();
+
+    const response =
+        await fetch(
+            `${getAtlasPaddleApiBase(
+                paddleEnvironment
+            )}/transactions/${encodeURIComponent(
+                transactionId
+            )}/invoice?disposition=inline`,
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization':
+                        `Bearer ${apiKey}`,
+                    'Accept':
+                        'application/json',
+                    'Paddle-Version':
+                        '1'
+                }
+            }
+        );
+
+    let payload = null;
+
+    try {
+        payload =
+            await response.json();
+    } catch {
+        payload = null;
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            `Paddle invoice request failed with status ${response.status}.`
+        );
+    }
+
+    const invoiceUrl =
+        String(
+            payload?.data?.url || ''
+        ).trim();
+
+    let parsed = null;
+
+    try {
+        parsed =
+            new URL(invoiceUrl);
+    } catch {
+        parsed = null;
+    }
+
+    if (
+        !parsed ||
+        parsed.protocol !== 'https:'
+    ) {
+        throw new Error(
+            'Paddle returned an invalid invoice link.'
+        );
+    }
+
+    return invoiceUrl;
+}
+
 function constantTimeEqualText(left, right) {
     const a = String(left || '');
     const b = String(right || '');
@@ -1249,7 +1503,9 @@ export default {
                     'overview',
                     'update_payment_method',
                     'cancel_subscription',
-                    'keep_subscription'
+                    'keep_subscription',
+                    'billing_history',
+                    'invoice'
                 ]);
 
             if (!supportedActions.has(action)) {
@@ -1296,6 +1552,107 @@ export default {
                     },
                     409
                 );
+            }
+
+            if (
+                action === 'billing_history'
+            ) {
+                try {
+                    const payments =
+                        await listAtlasPaddleSubscriptionPayments(
+                            env,
+                            paddleEnvironment,
+                            String(
+                                context.customerId ||
+                                ''
+                            ),
+                            String(
+                                context.subscriptionId ||
+                                ''
+                            )
+                        );
+
+                    return jsonNoStore({
+                        ok: true,
+                        action,
+                        payments
+                    });
+                } catch (error) {
+                    console.error(
+                        '[Atlas Paddle] Billing history failed:',
+                        error
+                    );
+
+                    return jsonNoStore(
+                        {
+                            ok: false,
+                            error:
+                                'Atlas could not load billing history. Please try again.'
+                        },
+                        502
+                    );
+                }
+            }
+
+            if (
+                action === 'invoice'
+            ) {
+                const transactionId =
+                    String(
+                        body?.transactionId || ''
+                    ).trim();
+
+                if (
+                    !/^txn_[a-z\d]{26}$/.test(
+                        transactionId
+                    )
+                ) {
+                    return jsonNoStore(
+                        {
+                            ok: false,
+                            error:
+                                'Invalid billing record.'
+                        },
+                        400
+                    );
+                }
+
+                try {
+                    const url =
+                        await createAtlasPaddleInvoiceUrl(
+                            env,
+                            paddleEnvironment,
+                            String(
+                                context.customerId ||
+                                ''
+                            ),
+                            String(
+                                context.subscriptionId ||
+                                ''
+                            ),
+                            transactionId
+                        );
+
+                    return jsonNoStore({
+                        ok: true,
+                        action,
+                        url
+                    });
+                } catch (error) {
+                    console.error(
+                        '[Atlas Paddle] Invoice link failed:',
+                        error
+                    );
+
+                    return jsonNoStore(
+                        {
+                            ok: false,
+                            error:
+                                'Atlas could not open this invoice. Please try again.'
+                        },
+                        502
+                    );
+                }
             }
 
             if (
