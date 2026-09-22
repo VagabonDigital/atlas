@@ -24,9 +24,25 @@ const trust = fs.readFileSync(
     'utf8'
 );
 
-assert.match(
-    cache,
-    /const HUB_CACHE_VERSION = 2;/
+const cacheVersionMatch = cache.match(
+    /const HUB_CACHE_VERSION = (\\d+);/
+);
+const compassVersionMatch = compass.match(
+    /var hubCacheVersion = (\\d+);/
+);
+
+assert.ok(
+    cacheVersionMatch,
+    'Shared Compass hub cache version must remain inspectable.'
+);
+assert.ok(
+    compassVersionMatch,
+    'Compass first-paint hub cache version must remain inspectable.'
+);
+assert.equal(
+    compassVersionMatch[1],
+    cacheVersionMatch[1],
+    'Compass first paint must accept the current shared hub cache version.'
 );
 assert.match(
     cache,
@@ -53,10 +69,7 @@ assert.match(
     /getCompassPresentationSnapshot,\s*prepareCompassPresentation/
 );
 
-assert.match(
-    compass,
-    /var hubCacheVersion = 2;/
-);
+
 assert.match(
     compass,
     /cached\.kind !== hubCacheKind/

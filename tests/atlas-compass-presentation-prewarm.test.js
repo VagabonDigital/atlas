@@ -136,11 +136,11 @@ assert.equal(
 assert.equal(
     (
         registry.match(
-            /atlas-cloud-cache\.js\?v=20260917-presentation2/g
+            /atlas-cloud-cache\.js\?v=20260922-delete1/g
         ) || []
     ).length,
     2,
-    'both Cloud Cache loader paths must use the presentation cache revision'
+    'both Cloud Cache loader paths must use the deletion-safe cache revision'
 );
 
 assert.match(
