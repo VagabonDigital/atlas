@@ -1436,8 +1436,25 @@
         const current = await AtlasCloud.getOwnedSubject(id);
         if (!current) return false;
 
-        const deleted = await AtlasCloud.deleteOwnedSubject(id, current.revision);
-        if (!deleted) return false;
+        const deleted = await AtlasCloud.deleteOwnedSubject(
+            id,
+            current.revision
+        );
+
+        if (!deleted) {
+            /*
+             * Deletion is idempotent. A stale card, another tab, or another
+             * device may have removed the durable row first. Once the cloud
+             * confirms the subject no longer exists, finish local cleanup
+             * and report success instead of resurrecting or erroring.
+             */
+            const remaining =
+                await AtlasCloud.getOwnedSubject(id);
+
+            if (remaining) {
+                return false;
+            }
+        }
 
         clearPendingDeleteTimer(id);
 
