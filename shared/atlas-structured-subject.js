@@ -1037,8 +1037,18 @@
         return validateDocument(document).valid;
     }
 
+    // One cover fallback for subject presentation and Hub continuity. Accepts
+    // an owned record, a module, or the existing published registry projection.
+    function resolveCoverImage(source = {}) {
+        const module = source.document?.module || source.module || {};
+        return String(
+            module.bgImage || source.metadata?.coverImage || source.coverImage || ''
+        ).trim() || 'https://thumbs.dreamstime.com/b/compass-gold-center-blue-arrow-purple-compass-rose-set-against-rainbow-colors-vintage-compass-colorful-background-359049338.jpg?w=992';
+    }
+
     window.AtlasStructuredSubject = {
         schemaVersion: SCHEMA_VERSION,
+        resolveCoverImage,
 
         createId,
         createMoment,

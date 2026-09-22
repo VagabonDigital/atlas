@@ -13363,9 +13363,9 @@ function applySubjectIdentityChrome() {
 
 function applyCoverConfig() {
     const title = getEffectiveSubjectTitle();
-    const coverImage =
-        getEffectiveSubjectCoverImage() ||
-        'https://thumbs.dreamstime.com/b/compass-gold-center-blue-arrow-purple-compass-rose-set-against-rainbow-colors-vintage-compass-colorful-background-359049338.jpg?w=992';
+    const coverImage = requireAtlasStructuredSubject().resolveCoverImage({
+        coverImage: getEffectiveSubjectCoverImage()
+    });
 
     document.title = title;
 

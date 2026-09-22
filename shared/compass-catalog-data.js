@@ -1052,6 +1052,7 @@
         `
     };
 
+    // coverImage fields are projected from subject-data.js by scripts/sync-compass-covers.js.
     const RAW_SUBJECTS = [
         {
             id: 'personality-character-traits',
@@ -1168,6 +1169,7 @@
         },
         {
             id: 'humour-wit',
+            coverImage: "https://pub-13d93423376c4822820635b75cfbea29.r2.dev/images/humor-cover.png",
             title: 'Humour & Wit',
             categoryId: 'people-relationships',
             order: 90,
@@ -1220,6 +1222,7 @@
         },
         {
             id: 'technology-innovation',
+            coverImage: "https://static.wixstatic.com/media/c50469_bce6b50502f242c098f6edda48d2559b~mv2.jpeg/v1/fill/w_1110,h_662,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c50469_bce6b50502f242c098f6edda48d2559b~mv2.jpeg",
             title: 'Technology & Innovation',
             categoryId: 'society-the-world',
             order: 60,
@@ -1229,6 +1232,7 @@
         },
         {
             id: 'game-theory',
+            coverImage: "https://static.wixstatic.com/media/3eee0b_f7fae24af2bf4fdc8b705e7f35e943f7~mv2.png/v1/fill/w_568,h_316,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/3eee0b_f7fae24af2bf4fdc8b705e7f35e943f7~mv2.png",
             title: 'Understanding Game Theory: Strategy, Trust & Choice',
             navTitle: 'Game Theory',
             categoryId: 'society-the-world',
@@ -1246,6 +1250,7 @@
         },
         {
             id: 'travel-exploration',
+            coverImage: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi2lmdQM4psQaMkjfD9_oEcSyYotoHZLhcmLe6VSYRNsJIeMKss3ol57bH5E-UAKrYdF9zBzC2bqaxJYJj-8-IDp4umNP-PevoJpHPpH9lrIBisztiwq56af7NseoacPMmH3E3D1tG4olo/s2048/pexels-photo-3935702.jpeg",
             title: 'Travel & Exploration',
             categoryId: 'society-the-world',
             order: 80,
@@ -1262,6 +1267,7 @@
         },
         {
             id: 'octopuses-change-colour',
+            coverImage: "https://www.telegraph.co.uk/content/dam/news/2021/03/25/TELEMMGLPICT000120700160_trans_NvBQzQNjv4BqZgEkZX3M936N5BQK4Va8RWtT0gK_6EfZT336f62EI5U.jpeg?imwidth=640",
             title: 'How Octopuses Change Colour',
             navTitle: 'Octopuses',
             categoryId: 'society-the-world',
@@ -1273,6 +1279,7 @@
 
         {
             id: 'work-purpose',
+            coverImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhFkB7MkDcQS5edh6lz8gV33trxD9uWQ2_uiEwRevOErKxW6sFHoRo-FA&s=10",
             title: 'Work & Purpose',
             categoryId: 'work-time',
             order: 10,
@@ -1303,6 +1310,7 @@
         },
         {
             id: 'job-interviews-clear-answers',
+            coverImage: "https://pub-13d93423376c4822820635b75cfbea29.r2.dev/images/interview-cover.png",
             title: 'Job Interviews: Clear Answers Under Pressure',
             navTitle: 'Job Interviews',
             categoryId: 'work-time',
@@ -1313,6 +1321,7 @@
         },
         {
             id: 'business-meetings-clear-updates',
+            coverImage: "https://media.istockphoto.com/id/1355159388/photo/business-people-sitting-around-the-table-and-talking.jpg?s=612x612&w=0&k=20&c=w8pZYQMUG013b50faYS7RgvQ3Rmxc9Vet34AWoRb-_U=",
             title: 'Business Meetings: Clear Updates, Questions & Decisions',
             navTitle: 'Business Meetings',
             categoryId: 'work-time',
@@ -1331,6 +1340,7 @@
         },
         {
             id: 'food-table',
+            coverImage: "https://cdn.babyseo.ai/images/foodshot.ai/food-background-wallpaper/food-background-wallpaper-texture-samples-hero.webp",
             title: 'Food & The Table',
             categoryId: 'culture-life',
             order: 20,
@@ -1347,6 +1357,7 @@
         },
         {
             id: 'stories-screen',
+            coverImage: "https://images5.alphacoders.com/376/thumb-1920-376565.jpg",
             title: 'Stories & Screen',
             categoryId: 'culture-life',
             order: 40,
@@ -1370,6 +1381,7 @@
         },
         {
             id: 'odyssey-worth-the-hype',
+            coverImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2AfNTRW3tus24aRHMr7-C-SizCaIZWt6S5WfFslYLurTBVD-IxBa-zjx3&s=10",
             title: 'The Odyssey: Worth the Hype?',
             navTitle: 'The Odyssey',
             categoryId: 'culture-life',
@@ -1381,6 +1393,7 @@
 
         {
             id: 'modal-verbs-real-situations',
+            coverImage: "https://w0.peakpx.com/wallpaper/1/806/HD-wallpaper-multi-colored-chalk-chalk-pencils-choice-of-color-concepts-chalk-different-colors-of-chalk.jpg",
             title: 'Using Modal Verbs in Real Situations',
             navTitle: 'Modal Verbs',
             categoryId: 'language-communication',
@@ -1391,6 +1404,7 @@
         },
         {
             id: 'toefl-writing',
+            coverImage: "https://thumbs.dreamstime.com/b/woman-hands-laptop-student-typing-education-writing-report-essay-studying-exam-university-scholarship-college-266007255.jpg",
             title: 'TOEFL Writing: From Sentence to Argument',
             navTitle: 'TOEFL Writing',
             categoryId: 'language-communication',
@@ -1401,6 +1415,7 @@
         },
         {
             id: 'words-that-stick',
+            coverImage: "https://www.piqosity.com/wp-content/uploads/2022/02/Depositphotos_169103504_L-1024x612.jpg",
             title: 'Words That Stick: Vocabulary Through Roots & Stories',
             navTitle: 'Words That Stick',
             categoryId: 'language-communication',
@@ -1441,6 +1456,7 @@
                     : 'preview',
             launchUrl: available ? `compass/${subject.id}/index.html` : '',
             artId: subject.artId || '',
+            coverImage: subject.coverImage || '',
             hook: subject.hook || '',
             description: subject.hook || '',
             keywords: [
