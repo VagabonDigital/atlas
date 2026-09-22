@@ -149,6 +149,24 @@
       font-size: .9rem;
     }
 
+    .payment-preparing {
+      position: fixed;
+      inset: 0;
+      z-index: 2147483647;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: var(--canvas);
+    }
+
+    .payment-preparing[hidden] {
+      display: none;
+    }
+
+    .payment-preparing .loading-state {
+      text-align: center;
+    }
+
     .dots {
       display: flex;
       gap: 6px;
@@ -514,6 +532,15 @@
   </style>
 </head>
 <body>
+  <div id="payment-preparing" class="payment-preparing" role="status" aria-live="polite" hidden>
+    <div class="loading-state">
+      <div class="dots" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <span>Preparing secure payment…</span>
+    </div>
+  </div>
+
   <main class="shell">
     <div class="topline">
       <a id="back" class="back-link" href="/account/">← Account</a>
@@ -641,9 +668,13 @@
       document.getElementById('billing-history-status');
     const BillingHistoryEmpty =
       document.getElementById('billing-history-empty');
+    const PaymentPreparing =
+      document.getElementById('payment-preparing');
 
     let currentBilling = null;
     let paddleReady = false;
+    let paymentCheckoutPending = false;
+    let paymentCheckoutTimeout = null;
 
     const query =
       new URLSearchParams(
@@ -769,6 +800,67 @@
       });
     }
 
+    function setPaymentPreparing(
+      preparing
+    ) {
+      paymentCheckoutPending =
+        preparing;
+
+      PaymentPreparing.hidden =
+        !preparing;
+
+      if (!preparing) {
+        if (paymentCheckoutTimeout) {
+          window.clearTimeout(
+            paymentCheckoutTimeout
+          );
+          paymentCheckoutTimeout = null;
+        }
+
+        return;
+      }
+
+      if (paymentCheckoutTimeout) {
+        window.clearTimeout(
+          paymentCheckoutTimeout
+        );
+      }
+
+      paymentCheckoutTimeout =
+        window.setTimeout(
+          () => {
+            if (!paymentCheckoutPending) {
+              return;
+            }
+
+            setPaymentPreparing(false);
+
+            try {
+              Paddle.Checkout.close();
+            } catch {
+              // Paddle may not have created a checkout yet.
+            }
+
+            setActionStatus(
+              'Secure payment update could not load. Please try again.'
+            );
+          },
+          15000
+        );
+    }
+
+    function revealLoadedPaymentCheckout() {
+      window.requestAnimationFrame(
+        () => {
+          window.requestAnimationFrame(
+            () => {
+              setPaymentPreparing(false);
+            }
+          );
+        }
+      );
+    }
+
     async function requestSubscriptionAction(
       action,
       extra = {}
@@ -871,8 +963,17 @@
 
             if (
               name ===
+                'checkout.loaded' &&
+              paymentCheckoutPending
+            ) {
+              revealLoadedPaymentCheckout();
+            }
+
+            if (
+              name ===
                 'checkout.completed'
             ) {
+              setPaymentPreparing(false);
               setActionStatus(
                 'Payment method updated.'
               );
@@ -880,11 +981,23 @@
 
             if (
               name ===
-                'checkout.closed' &&
-              ActionStatus.textContent ===
-                'Opening secure payment update…'
+                'checkout.closed'
             ) {
-              setActionStatus('');
+              setPaymentPreparing(false);
+
+              if (
+                ActionStatus.textContent ===
+                  'Opening secure payment update…'
+              ) {
+                setActionStatus('');
+              }
+            }
+
+            if (
+              name ===
+                'checkout.error'
+            ) {
+              setPaymentPreparing(false);
             }
           }
       });
@@ -898,6 +1011,7 @@
       setActionStatus(
         'Opening secure payment update…'
       );
+      setPaymentPreparing(true);
 
       try {
         if (!initPaddle()) {
@@ -942,6 +1056,7 @@
 
         setActionStatus('');
       } catch (error) {
+        setPaymentPreparing(false);
         setActionStatus(
           String(
             error?.message ||
