@@ -595,6 +595,182 @@ async function createAtlasPaddlePaymentMethodTransaction(
 }
 
 
+async function cancelAtlasPaddlePaymentMethodPreparation(
+    env,
+    paddleEnvironment,
+    subscriptionId,
+    transactionId
+) {
+    const apiKey =
+        String(
+            env.ATLAS_PADDLE_API_KEY || ''
+        ).trim();
+
+    if (!apiKey) {
+        throw new Error(
+            'Atlas Paddle API access is not configured.'
+        );
+    }
+
+    const transactionUrl =
+        `${getAtlasPaddleApiBase(
+            paddleEnvironment
+        )}/transactions/${encodeURIComponent(
+            transactionId
+        )}`;
+
+    const readResponse =
+        await fetch(
+            transactionUrl,
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization':
+                        `Bearer ${apiKey}`,
+                    'Accept':
+                        'application/json',
+                    'Paddle-Version':
+                        '1'
+                }
+            }
+        );
+
+    let readPayload = null;
+
+    try {
+        readPayload =
+            await readResponse.json();
+    } catch {
+        readPayload = null;
+    }
+
+    if (!readResponse.ok) {
+        throw new Error(
+            `Paddle payment-method transaction lookup failed with status ${readResponse.status}.`
+        );
+    }
+
+    const transaction =
+        readPayload?.data &&
+        typeof readPayload.data === 'object'
+            ? readPayload.data
+            : {};
+
+    const belongsToSubscription =
+        String(
+            transaction?.subscription_id || ''
+        ) === subscriptionId;
+
+    const isPaymentMethodPreparation =
+        String(
+            transaction?.origin || ''
+        ) ===
+            'subscription_payment_method_change';
+
+    const status =
+        String(
+            transaction?.status || ''
+        ).trim();
+
+    const totalRaw =
+        String(
+            transaction
+                ?.details
+                ?.totals
+                ?.grand_total ??
+            transaction
+                ?.details
+                ?.totals
+                ?.total ??
+            '0'
+        ).trim();
+
+    const total =
+        Number.parseInt(
+            totalRaw,
+            10
+        );
+
+    if (
+        !belongsToSubscription ||
+        !isPaymentMethodPreparation ||
+        !Number.isFinite(total) ||
+        total !== 0
+    ) {
+        throw new Error(
+            'Paddle transaction is not an Atlas payment-method preparation.'
+        );
+    }
+
+    if (
+        status === 'canceled' ||
+        status === 'completed'
+    ) {
+        return {
+            canceled:
+                status === 'canceled',
+            status
+        };
+    }
+
+    if (
+        status !== 'draft' &&
+        status !== 'ready'
+    ) {
+        return {
+            canceled: false,
+            status
+        };
+    }
+
+    const cancelResponse =
+        await fetch(
+            transactionUrl,
+            {
+                method: 'PATCH',
+                headers: {
+                    'Authorization':
+                        `Bearer ${apiKey}`,
+                    'Content-Type':
+                        'application/json',
+                    'Accept':
+                        'application/json',
+                    'Paddle-Version':
+                        '1'
+                },
+                body:
+                    JSON.stringify({
+                        status: 'canceled'
+                    })
+            }
+        );
+
+    let cancelPayload = null;
+
+    try {
+        cancelPayload =
+            await cancelResponse.json();
+    } catch {
+        cancelPayload = null;
+    }
+
+    if (!cancelResponse.ok) {
+        throw new Error(
+            `Paddle payment-method transaction cancellation failed with status ${cancelResponse.status}.`
+        );
+    }
+
+    return {
+        canceled: true,
+        status:
+            String(
+                cancelPayload?.data?.status ||
+                'canceled'
+            ).trim()
+    };
+}
+
+
 async function listAtlasPaddleSubscriptionPayments(
     env,
     paddleEnvironment,
@@ -1502,6 +1678,7 @@ export default {
                 new Set([
                     'overview',
                     'update_payment_method',
+                    'cancel_payment_method_preparation',
                     'cancel_subscription',
                     'keep_subscription',
                     'billing_history',
@@ -1649,6 +1826,67 @@ export default {
                             ok: false,
                             error:
                                 'Atlas could not open this invoice. Please try again.'
+                        },
+                        502
+                    );
+                }
+            }
+
+            if (
+                action ===
+                    'cancel_payment_method_preparation'
+            ) {
+                const transactionId =
+                    String(
+                        body?.transactionId || ''
+                    ).trim();
+
+                if (
+                    !/^txn_[a-z\d]{26}$/.test(
+                        transactionId
+                    ) ||
+                    String(
+                        context?.status || ''
+                    ).trim() !== 'active'
+                ) {
+                    return jsonNoStore(
+                        {
+                            ok: false,
+                            error:
+                                'Invalid payment-method preparation.'
+                        },
+                        400
+                    );
+                }
+
+                try {
+                    const result =
+                        await cancelAtlasPaddlePaymentMethodPreparation(
+                            env,
+                            paddleEnvironment,
+                            String(
+                                context.subscriptionId ||
+                                ''
+                            ),
+                            transactionId
+                        );
+
+                    return jsonNoStore({
+                        ok: true,
+                        action,
+                        ...result
+                    });
+                } catch (error) {
+                    console.error(
+                        '[Atlas Paddle] Payment-method preparation cleanup failed:',
+                        error
+                    );
+
+                    return jsonNoStore(
+                        {
+                            ok: false,
+                            error:
+                                'Atlas could not clean up the payment-method preparation.'
                         },
                         502
                     );
