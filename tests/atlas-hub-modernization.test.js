@@ -19,6 +19,27 @@ assert.doesNotMatch(
   'Night mode may change Hub shadow colour, not shadow geometry'
 );
 
+const atlasNightTheme = html.match(
+  /html\[data-theme="night"\] \{([\s\S]*?)\n    \}/
+);
+assert.ok(atlasNightTheme, 'Atlas night theme block must remain inspectable');
+for (const geometryToken of [
+  '--shadow-sm:',
+  '--shadow-md:',
+  '--shadow-lg:',
+  '--continue-shadow:',
+  '--world-nav-hover-shadow:'
+]) {
+  assert.ok(
+    !atlasNightTheme[1].includes(geometryToken),
+    geometryToken + ' geometry must be shared across day and night'
+  );
+}
+assert.match(
+  html,
+  /atlas-hub\.css\?v=20260922-theme-stability1/
+);
+
 // Compile every inline script as well as exercising the actual selectors.
 for (const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)) new vm.Script(match[1]);
 execFileSync(process.execPath, ['scripts/sync-compass-covers.js', '--check'], { stdio: 'inherit' });

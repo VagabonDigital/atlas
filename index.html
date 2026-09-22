@@ -343,7 +343,8 @@
       --world-nav-border: var(--border-faint);
       --world-nav-hover: rgba(255, 253, 249, 0.72);
       --world-nav-hover-border: var(--border-faint);
-      --world-nav-hover-shadow: 0 5px 14px rgba(42, 37, 29, 0.045);
+      --world-nav-hover-shadow-color: rgba(42, 37, 29, 0.045);
+      --world-nav-hover-shadow: 0 5px 14px var(--world-nav-hover-shadow-color);
       --world-nav-active-surface: var(--surface-raised);
       --world-nav-active-border: var(--border-subtle);
       --world-nav-active-text: var(--text-heading);
@@ -360,9 +361,11 @@
       /* Continuation and review states */
       --continue-surface: rgba(255, 253, 248, 0.84);
       --continue-border: rgba(var(--accent-rgb), 0.16);
+      --continue-shadow-color: rgba(55, 47, 35, 0.10);
+      --continue-shadow-inset-color: rgba(255, 255, 255, 0.76);
       --continue-shadow:
-        0 22px 56px rgba(55, 47, 35, 0.10),
-        inset 0 1px 0 rgba(255, 255, 255, 0.76);
+        0 22px 56px var(--continue-shadow-color),
+        inset 0 1px 0 var(--continue-shadow-inset-color);
       --continue-action-surface: rgba(255, 255, 255, 0.34);
       --continue-action-hover: rgba(255, 255, 255, 0.72);
       --continue-primary-surface: var(--accent);
@@ -403,9 +406,12 @@
       --danger-border: rgba(178, 58, 46, 0.3);
 
       /* Elevation, geometry, typography, and motion */
-      --shadow-sm: 0 2px 8px rgba(42, 37, 29, 0.045);
-      --shadow-md: 0 10px 30px rgba(42, 37, 29, 0.075);
-      --shadow-lg: 0 20px 56px rgba(42, 37, 29, 0.11);
+      --shadow-sm-color: rgba(42, 37, 29, 0.045);
+      --shadow-md-color: rgba(42, 37, 29, 0.075);
+      --shadow-lg-color: rgba(42, 37, 29, 0.11);
+      --shadow-sm: 0 2px 8px var(--shadow-sm-color);
+      --shadow-md: 0 10px 30px var(--shadow-md-color);
+      --shadow-lg: 0 20px 56px var(--shadow-lg-color);
       --radius-sm: 5px;
       --radius-md: 10px;
       --radius-lg: 14px;
@@ -456,14 +462,13 @@
       --chrome-surface-mobile: rgba(27, 29, 28, 0.90);
       --world-nav-hover: rgba(255, 255, 255, 0.055);
       --world-nav-hover-border: rgba(255, 255, 255, 0.10);
-      --world-nav-hover-shadow: none;
+      --world-nav-hover-shadow-color: rgba(0, 0, 0, 0.14);
 
       /* Continuation and review states */
       --continue-surface: rgba(39, 45, 42, 0.88);
       --continue-border: rgba(var(--accent-rgb), 0.25);
-      --continue-shadow:
-        0 24px 60px rgba(0, 0, 0, 0.26),
-        inset 0 1px 0 rgba(255, 255, 255, 0.055);
+      --continue-shadow-color: rgba(0, 0, 0, 0.26);
+      --continue-shadow-inset-color: rgba(255, 255, 255, 0.055);
       --continue-action-surface: rgba(255, 255, 255, 0.045);
       --continue-action-hover: rgba(255, 255, 255, 0.085);
       --continue-primary-surface: var(--accent);
@@ -496,9 +501,9 @@
       --arcade-text: #ff815d;
 
       /* Elevation */
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.22);
-      --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.30);
-      --shadow-lg: 0 6px 26px rgba(0, 0, 0, 0.40);
+      --shadow-sm-color: rgba(0, 0, 0, 0.22);
+      --shadow-md-color: rgba(0, 0, 0, 0.30);
+      --shadow-lg-color: rgba(0, 0, 0, 0.40);
     }
 
     /* ============================================================
@@ -3703,7 +3708,7 @@
 
   <!-- Shared, fixed geometry for the Atlas / Compass / Arcade rail -->
   <link rel="stylesheet" href="./shared/atlas-hub-nav.css?v=20260727-nav-stability">
-  <link rel="stylesheet" href="./shared/atlas-hub.css?v=20260922-home1">
+  <link rel="stylesheet" href="./shared/atlas-hub.css?v=20260922-theme-stability1">
 </head>
 
 <body data-atlas-world="atlas" data-atlas-surface="hub">
