@@ -31,6 +31,14 @@
     const WORKING_DRAFT_PREFIX = 'atlas::tutorSubjects::workingDraft::';
     const BUILD_CHECKPOINT_PREFIX = 'atlas::tutorSubjects::buildCheckpoint::';
 
+    const SUBJECT_BROWSER_STATE_DB_NAME =
+        'atlas-tutor-subjects';
+    const SUBJECT_BROWSER_STATE_DB_VERSION = 1;
+    const SUBJECT_BROWSER_STATE_STORE =
+        'browser-state';
+
+    let subjectBrowserStateDbPromise = null;
+
     const subjectById = new Map();
     let subjectsLoaded = false;
     let subjectListPromise = null;
@@ -690,20 +698,198 @@
         return Boolean(fastStoredUserScope());
     }
 
-    function readHubWorkingDraft(subjectId) {
+    function openSubjectBrowserStateDb() {
+        if (subjectBrowserStateDbPromise) {
+            return subjectBrowserStateDbPromise;
+        }
+
+        if (!window.indexedDB) {
+            return Promise.resolve(null);
+        }
+
+        subjectBrowserStateDbPromise =
+            new Promise((resolve, reject) => {
+                let request = null;
+
+                try {
+                    request =
+                        window.indexedDB.open(
+                            SUBJECT_BROWSER_STATE_DB_NAME,
+                            SUBJECT_BROWSER_STATE_DB_VERSION
+                        );
+                } catch (error) {
+                    reject(error);
+                    return;
+                }
+
+                request.onsuccess = () => {
+                    resolve(request.result);
+                };
+
+                request.onerror = () => {
+                    reject(
+                        request.error ||
+                        new Error(
+                            'Atlas subject browser state could not open.'
+                        )
+                    );
+                };
+
+                request.onblocked = () => {
+                    reject(
+                        new Error(
+                            'Atlas subject browser state is blocked.'
+                        )
+                    );
+                };
+            })
+            .catch(() => {
+                subjectBrowserStateDbPromise = null;
+                return null;
+            });
+
+        return subjectBrowserStateDbPromise;
+    }
+
+    async function readSubjectBrowserState(
+        kind,
+        subjectId
+    ) {
+        const db =
+            await openSubjectBrowserStateDb();
+
+        if (
+            !db ||
+            !db.objectStoreNames.contains(
+                SUBJECT_BROWSER_STATE_STORE
+            )
+        ) {
+            return null;
+        }
+
+        return new Promise(resolve => {
+            const transaction =
+                db.transaction(
+                    SUBJECT_BROWSER_STATE_STORE,
+                    'readonly'
+                );
+
+            const request =
+                transaction
+                    .objectStore(
+                        SUBJECT_BROWSER_STATE_STORE
+                    )
+                    .get(
+                        [
+                            String(kind || '').trim(),
+                            String(subjectId || '').trim()
+                        ].join('::')
+                    );
+
+            request.onsuccess = () => {
+                resolve(
+                    request.result === undefined
+                        ? null
+                        : cloneJson(
+                            request.result
+                        )
+                );
+            };
+
+            request.onerror = () => {
+                resolve(null);
+            };
+        });
+    }
+
+    async function readHubWorkingDraft(subjectId) {
         const id = String(subjectId || '').trim();
         if (!id) return null;
 
-        const encoded = encodeURIComponent(id);
-        const stored = readJson(localStorage, `${WORKING_DRAFT_PREFIX}${encoded}`);
-        const checkpoint = readJson(localStorage, `${BUILD_CHECKPOINT_PREFIX}${encoded}`);
-        const checkpointDraft = checkpoint?.workingDraft || null;
+        const [
+            indexedDraft,
+            indexedCheckpoint
+        ] = await Promise.all([
+            readSubjectBrowserState(
+                'working-draft',
+                id
+            ),
+            readSubjectBrowserState(
+                'build-checkpoint',
+                id
+            )
+        ]);
+
+        const indexedCheckpointDraft =
+            indexedCheckpoint
+                ?.workingDraft ||
+            null;
+
+        if (
+            indexedCheckpointDraft &&
+            (
+                !indexedDraft ||
+                Number(
+                    indexedCheckpointDraft
+                        .updatedAt || 0
+                ) >
+                Number(
+                    indexedDraft
+                        .updatedAt || 0
+                )
+            )
+        ) {
+            return cloneJson(
+                indexedCheckpointDraft
+            );
+        }
+
+        if (indexedDraft) {
+            return cloneJson(
+                indexedDraft
+            );
+        }
+
+        /*
+         * Legacy fallback only. The signed-in subject authority migrates
+         * these records to IndexedDB and removes them from localStorage.
+         */
+        const encoded =
+            encodeURIComponent(id);
+
+        const stored =
+            readJson(
+                localStorage,
+                `${WORKING_DRAFT_PREFIX}${encoded}`
+            );
+
+        const checkpoint =
+            readJson(
+                localStorage,
+                `${BUILD_CHECKPOINT_PREFIX}${encoded}`
+            );
+
+        const checkpointDraft =
+            checkpoint?.workingDraft ||
+            null;
 
         if (
             checkpointDraft &&
-            (!stored || Number(checkpointDraft.updatedAt || 0) > Number(stored.updatedAt || 0))
+            (
+                !stored ||
+                Number(
+                    checkpointDraft
+                        .updatedAt || 0
+                ) >
+                Number(
+                    stored
+                        .updatedAt || 0
+                )
+            )
         ) {
-            return cloneJson(checkpointDraft);
+            return cloneJson(
+                checkpointDraft
+            );
         }
 
         return cloneJson(stored);
