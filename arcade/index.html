@@ -944,9 +944,9 @@
     .arcade-main {
       position: relative;
       z-index: 1;
-      max-width: 1020px;
+      max-width: 1240px;
       margin: 0 auto;
-      padding: 3.35rem 1.75rem 6rem;
+      padding: 3.8rem 1.75rem 6rem;
       animation: hubPageFadeIn 0.45s ease both;
     }
 
@@ -967,7 +967,7 @@
 
     .hub-title {
       font-family: var(--font-display);
-      font-size: clamp(2.05rem, 4.5vw, 2.85rem);
+      font-size: clamp(2.7rem, 4.7vw, 4rem);
       font-weight: 400;
       color: var(--text-heading);
       line-height: 1.08;
@@ -1018,7 +1018,7 @@
     }
 
     .hub-desc {
-      font-size: 0.95rem;
+      font-size: 1.15rem;
       color: var(--text-body);
       font-weight: 400;
       line-height: 1.68;
@@ -1048,95 +1048,130 @@
     /* ============================================================
        GAME LIBRARY
        ============================================================ */
-    .library-zone {
-      position: relative;
-      margin-top: 1.45rem;
-      padding: 1.6rem 1.75rem 1.75rem;
-      border: 1px solid var(--library-border);
-      border-radius: 30px;
-      background-color: var(--library-surface);
-      box-shadow: var(--library-shadow);
-    }
-
-    .library-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1.35rem;
-      gap: 1rem;
-    }
+    .library-zone { margin-top: 1.25rem; }
 
     .library-title {
-      font-family: var(--font-display);
-      font-size: 1.3rem;
-      font-weight: 400;
-      color: var(--text-heading);
-      line-height: 1.25;
-    }
-
-    .library-title-group {
-      display: flex;
-      align-items: baseline;
-      gap: 0.55rem;
-      min-width: 0;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
     }
 
     .game-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.35rem;
     }
 
-    /* ============================================================
-       GAME CARDS AND DECK PROGRESS STATES
-       ============================================================ */
     .game-card {
       display: flex;
       flex-direction: column;
-      min-height: 184px;
-      background-color: var(--card-surface);
-      border: var(--card-border-width) solid var(--card-border);
-      border-radius: 22px;
-      padding: 1.18rem 1.45rem 1.12rem;
-      transition: var(--motion-standard);
       position: relative;
+      min-width: 0;
       overflow: hidden;
       isolation: isolate;
+      border: 1px solid rgba(58, 36, 63, 0.07);
+      border-radius: 18px;
+      background: var(--surface-panel);
+      color: var(--text-heading);
       text-decoration: none;
-      cursor: pointer;
-      text-align: left;
-      font-family: var(--font-body);
-      box-shadow: var(--card-shadow);
+      box-shadow: 0 10px 28px rgba(58, 36, 63, 0.055);
+      transition: transform 220ms ease, box-shadow 220ms ease;
     }
 
-    .game-card:hover {
-      background: var(--card-surface-hover);
-      border-color: var(--card-hover-border);
-      box-shadow:
-        0 0 0 var(--card-emphasis-ring-width) var(--card-hover-border),
-        var(--card-hover-shadow);
-      transform: translateY(-2px);
+    .game-card-cover {
+      display: block;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: #24233e;
     }
 
-    .game-card--in-progress {
-      border-color: var(--card-inprogress-border);
-      box-shadow:
-        0 0 0 var(--card-emphasis-ring-width) var(--card-inprogress-border),
-        var(--card-shadow);
+    .game-card-cover img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    .game-card--exhausted {
-      border-color: var(--card-exhausted-border);
+    .game-card-content {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      padding: 1.2rem 1.35rem 1.3rem;
+    }
+
+    .game-card-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.35rem, 1.85vw, 1.6rem);
+      font-weight: 400;
+      line-height: 1.2;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.55rem;
+    }
+
+    .game-card-premise {
+      font-size: 0.92rem;
+      color: var(--text-body);
+      line-height: 1.55;
+    }
+
+    .game-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      margin-top: auto;
+      padding-top: 1.45rem;
+    }
+
+    .game-card-unit {
+      font-size: 0.8rem;
+      color: var(--text-body);
+      line-height: 1.4;
+      font-weight: 500;
+    }
+
+    .game-card-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      gap: 0.55rem;
+      min-height: 44px;
+      padding: 0.6rem 1.05rem;
+      border: 1px solid rgba(var(--accent-rgb), 0.2);
+      border-radius: 999px;
+      background: var(--accent-dim);
+      color: #bb3f1d;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background-color 220ms ease, box-shadow 220ms ease;
+    }
+
+    .game-card-action svg {
+      width: 13px;
+      height: 13px;
+      transition: transform 220ms ease;
+    }
+
+    .game-card--in-progress .game-card-action {
+      background: #ce4724;
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.16);
     }
 
     .game-card-progress-track {
       position: absolute;
-      z-index: 3;
+      bottom: 0;
       left: 0;
       right: 0;
-      bottom: 0;
       height: 3px;
-      overflow: hidden;
       background: var(--card-progress-track);
       pointer-events: none;
     }
@@ -1146,253 +1181,38 @@
       width: var(--game-progress);
       height: 100%;
       background: var(--game-accent);
-      transition: width var(--motion-standard);
     }
 
     .game-card:focus-visible {
-      outline: 3px solid rgba(var(--accent-rgb), 0.34);
-      outline-offset: 3px;
+      outline: 3px solid var(--accent);
+      outline-offset: 4px;
+      box-shadow: 0 16px 36px rgba(var(--accent-rgb), 0.12);
     }
 
-    .game-card-art {
-      position: absolute;
-      z-index: 1;
-      top: 1.15rem;
-      right: 1.15rem;
-      bottom: 3.7rem;
-      width: 32%;
-      max-width: 11rem;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      color: var(--game-accent);
-      opacity: 0;
-      pointer-events: none;
-      transform: translate3d(10px, 2px, 0) scale(0.96);
-      transform-origin: center right;
-      transition:
-        opacity 0.34s ease,
-        transform 0.52s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .game-card-art svg {
-      display: block;
-      width: 100%;
-      height: 100%;
-      max-height: 6.8rem;
-      overflow: visible;
-      transform-origin: center;
-    }
-
-    .game-artwork--tomorrow {
-      transform: translate(3px, 4px) scale(0.94);
-    }
-
-    .game-artwork--truth {
-      transform: translate(4px, 0) scale(0.86);
-    }
-
-    .game-artwork--choice {
-      transform: translate(3px, 1px) scale(0.91);
-    }
-
-    .game-card-art path,
-    .game-card-art circle,
-    .game-card-art ellipse,
-    .game-card-art rect,
-    .game-card-art line {
-      vector-effect: non-scaling-stroke;
-    }
-
-    .game-card:is(:hover, :focus-visible) .game-card-art {
-      opacity: 0.18;
-      transform: translate3d(0, 0, 0) scale(1);
-    }
-
-    html[data-theme="night"] .game-card-art {
-      opacity: 0;
-    }
-
-    html[data-theme="night"] .game-card:is(:hover, :focus-visible) .game-card-art {
-      opacity: 0.24;
-    }
-
-    .tomorrow-dial,
-    .tomorrow-hand,
-    .tomorrow-rift,
-    .tomorrow-spark,
-    .truth-card,
-    .truth-trapdoor,
-    .choice-option,
-    .choice-branch,
-    .choice-pivot {
-      transform-box: fill-box;
-      transform-origin: center;
-      transition:
-        transform 0.52s cubic-bezier(0.22, 1, 0.36, 1),
-        opacity 0.3s ease;
-    }
-
-    .truth-trapdoor--left {
-      transform-origin: right center;
-    }
-
-    .truth-trapdoor--right {
-      transform-origin: left center;
-    }
-
-    .game-card:is(:hover, :focus-visible) .tomorrow-dial {
-      transform: rotate(3deg);
-    }
-
-    .game-card:is(:hover, :focus-visible) .tomorrow-hand {
-      transform: rotate(11deg);
-    }
-
-    .game-card:is(:hover, :focus-visible) .tomorrow-rift {
-      transform: translate(-2px, 2px);
-    }
-
-    .game-card:is(:hover, :focus-visible) .tomorrow-spark {
-      transform: scale(1.12);
-    }
-
-    .game-card:is(:hover, :focus-visible) .truth-card--one {
-      transform: translateX(-1px);
-    }
-
-    .game-card:is(:hover, :focus-visible) .truth-card--two {
-      transform: translateX(1px);
-    }
-
-    .game-card:is(:hover, :focus-visible) .truth-card--lie {
-      transform: translate(3px, 6px) rotate(2.5deg);
-    }
-
-    .game-card:is(:hover, :focus-visible) .truth-trapdoor--left {
-      transform: translateX(-2px) rotate(3deg);
-    }
-
-    .game-card:is(:hover, :focus-visible) .truth-trapdoor--right {
-      transform: translateX(2px) rotate(-3deg);
-    }
-
-    .game-card:is(:hover, :focus-visible) .choice-option--left {
-      transform: translateX(-4px) rotate(-1.5deg);
-    }
-
-    .game-card:is(:hover, :focus-visible) .choice-option--right {
-      transform: translateX(4px) rotate(1.5deg);
-    }
-
-    .game-card:is(:hover, :focus-visible) .choice-pivot {
-      transform: scale(1.16);
-    }
-
-    @media (hover: none) and (pointer: coarse) {
-      .game-card {
-        min-height: 0;
+    @media (hover: hover) {
+      .game-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 38px rgba(58, 36, 63, 0.11);
       }
-
-      .game-card-title,
-      .game-card-premise {
-        max-width: none;
-      }
-
-      .game-card-art {
-        display: none;
-      }
+      .game-card:hover .game-card-cover img { transform: scale(1.025); }
+      .game-card:hover .game-card-action svg { transform: translateX(2px); }
+      .game-card:hover .game-card-action { box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.13); }
     }
 
-    .game-card-title {
-      position: relative;
-      z-index: 2;
-      max-width: 64%;
-      font-family: var(--font-display);
-      font-size: 1.12rem;
-      font-weight: 400;
-      color: var(--text-heading);
-      line-height: 1.25;
-      margin-bottom: 0.55rem;
+    html[data-theme="night"] .game-card {
+      background: #29252e;
+      border-color: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
     }
 
-    .game-card-premise {
-      position: relative;
-      z-index: 2;
-      max-width: 64%;
-      font-size: 0.84rem;
-      color: var(--card-premise-text);
-      opacity: 0.82;
-      line-height: 1.6;
+    html[data-theme="night"] .game-card-action { color: #ffac91; }
+    html[data-theme="night"] .game-card--in-progress .game-card-action {
+      background: #f18a68;
+      color: #24171b;
     }
 
-    html[data-theme="night"] .game-card-premise {
-      opacity: 0.95;
-    }
-
-    .game-card-footer {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-      width: 100%;
-      margin-top: auto;
-      padding-top: 0.65rem;
-    }
-
-    .game-card-unit {
-      min-width: 0;
-      font-size: 0.76rem;
-      color: var(--card-unit-text);
-      font-weight: 500;
-      line-height: 1.4;
-    }
-
-    html[data-theme="night"] .game-card-unit {
-      opacity: 0.96;
-    }
-
-    .game-card-action {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      min-height: 38px;
-      padding: 0.44rem 0.92rem;
-      border-radius: 999px;
-      background: var(--card-action-surface);
-      color: var(--card-action-text);
-      font-family: var(--font-body);
-      font-size: 0.76rem;
-      font-weight: 650;
-      border: 1px solid var(--card-action-border);
-      cursor: pointer;
-      transition: var(--motion-standard);
-      white-space: nowrap;
-      text-decoration: none;
-      box-shadow: var(--card-action-shadow);
-    }
-
-    html:not([data-theme="night"]) .game-card--in-progress .game-card-action {
-      background: var(--accent);
-      color: var(--accent-ink);
-      border-color: var(--accent);
-      box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.18);
-    }
-
-    .game-card:hover .game-card-action {
-      background: var(--card-action-hover-surface);
-      color: var(--card-action-ink);
-      border-color: var(--card-action-hover-border);
-      box-shadow: var(--card-action-hover-shadow);
-      transform: translateY(-1px);
-    }
-
-    html:not([data-theme="night"]) .game-card--in-progress:hover .game-card-action,
-    .game-card--in-progress:hover .game-card-action {
-      background: var(--accent-soft);
-      border-color: var(--accent-soft);
+    @media (prefers-reduced-motion: reduce) {
+      .game-card, .game-card-cover img, .game-card-action svg { transform: none !important; }
     }
 
     /* ============================================================
@@ -1608,7 +1428,7 @@
 
       .game-card {
         min-height: 0;
-        padding: 1.35rem 1.25rem 1.38rem;
+        padding: 0;
       }
 
       .jumpto-overlay {
@@ -1871,7 +1691,17 @@
       throw new Error('ArcadeCatalogData failed to load.');
     }
 
-    const GAME_CATALOGUE = ArcadeCatalog.getArcadeGames();
+    // Presentation order and covers belong to this Hub; shared game metadata
+    // and the Atlas Continue imagery keep their existing ownership.
+    const GAME_COVERS = {
+      'arcade:would-you-rather': '../assets/hub/would-you-rather.webp',
+      'arcade:truth-trap': '../assets/hub/truth-trap.webp',
+      'arcade:tomorrow-got-weird': '../assets/hub/tomorrow-got-weird.webp'
+    };
+    const GAME_CATALOGUE = ArcadeCatalog.getArcadeGames().sort(
+      (a, b) => Object.keys(GAME_COVERS).indexOf(a.registryId) -
+        Object.keys(GAME_COVERS).indexOf(b.registryId)
+    );
 
     /* ================================================================
        SAFE BRIDGE READS
@@ -2306,7 +2136,7 @@
         '<span class="hub-game-prompt" style="--prompt-delay: 54s;">change your mind at the last second?</span>' +
         '</span>' +
         '</h1>' +
-        '<p class="hub-desc">Think fast, speak freely, and see where the game takes you.</p>' +
+        '<p class="hub-desc">Games for curious minds. Real conversations. No scripts.</p>' +
         '</div>' +
         '</div>' +
         nextArcadeContentMarkup;
@@ -2343,10 +2173,7 @@
         !preview &&
         presentation.mode !== 'unstarted';
 
-      const artwork =
-        ArcadeCatalog.getArcadeGameArt(
-          game.artId
-        );
+      const cover = GAME_COVERS[game.registryId];
 
       const progressHtml = hasProgressBar
         ? '<span class="game-card-progress-track" aria-hidden="true">' +
@@ -2357,18 +2184,21 @@
       return '<a class="game-card game-card--' + escAttr(presentation.mode) + '"' +
         ' href="' + escAttr(game.launchUrl) + '"' +
         ' style="--game-accent:' + escAttr(game.accent) + ';--game-progress:' + presentation.progressPercent + '%"' +
-        ' aria-label="' + escAttr(presentation.actionLabel + ' ' + game.title) + '">' +
-        '<span class="game-card-art" aria-hidden="true">' + artwork + '</span>' +
+        ' aria-label="' + escAttr(presentation.actionLabel + ' ' + game.title) + '"' +
+        ' aria-describedby="' + escAttr(game.artId + '-premise ' + game.artId + '-position') + '">' +
+        '<span class="game-card-cover"><img src="' + escAttr(cover) + '" alt="" width="960" height="540" decoding="async"></span>' +
+        '<div class="game-card-content">' +
         '<div class="game-card-title">' + escHtml(game.title) + '</div>' +
-        '<p class="game-card-premise">' + escHtml(game.premise) + '</p>' +
+        '<p class="game-card-premise" id="' + escAttr(game.artId + '-premise') + '">' + escHtml(game.premise) + '</p>' +
         '<div class="game-card-footer">' +
-        '<span class="game-card-unit">' + escHtml(presentation.positionLabel) + '</span>' +
+        '<span class="game-card-unit" id="' + escAttr(game.artId + '-position') + '">' + escHtml(presentation.positionLabel) + '</span>' +
         '<span class="game-card-action">' +
         escHtml(presentation.actionLabel) +
         '<svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">' +
         '<path d="M2 5h6M5 2l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>' +
         '</svg>' +
         '</span>' +
+        '</div>' +
         '</div>' +
         progressHtml +
         '</a>';
