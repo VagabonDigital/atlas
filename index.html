@@ -760,20 +760,6 @@
         opacity var(--hub-theme-motion);
     }
 
-    /* Atlas Hub only: switch appearance atomically. The modern image-led
-       cards expose Chromium compositor snapping during the shared animated
-       theme pass, so the root Hub suppresses that pass rather than allowing
-       an intermediate compressed frame. */
-    html.atlas-theme-snap,
-    html.atlas-theme-snap body,
-    html.atlas-theme-snap body::before,
-    html.atlas-theme-snap body::after,
-    html.atlas-theme-snap *,
-    html.atlas-theme-snap *::before,
-    html.atlas-theme-snap *::after {
-      transition: none !important;
-    }
-
     /* ============================================================
        DESKTOP SPINE AND WORLD NAVIGATION
        ============================================================ */
@@ -4749,20 +4735,7 @@
     function toggleAppearance() {
       const cur = Bridge.readAppearanceMode();
       const next = cur === 'night' ? 'light' : 'night';
-      const root = document.documentElement;
-
-      root.classList.add('atlas-theme-snap');
       Bridge.setAppearanceMode(next);
-
-      // Atlas switches atomically; other hubs still use Bridge's shared
-      // animated appearance transition.
-      root.classList.remove('theme-changing');
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          root.classList.remove('atlas-theme-snap');
-        });
-      });
     }
 
     function updateAppearanceButtons(mode) {

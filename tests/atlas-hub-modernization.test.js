@@ -4,19 +4,6 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const { execFileSync } = require('node:child_process');
 const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
-assert.match(
-  html,
-  /html\.atlas-theme-snap[\s\S]*?transition:\s*none !important;/
-);
-assert.match(
-  html,
-  /root\.classList\.remove\('theme-changing'\)/
-);
-assert.match(
-  html,
-  /root\.classList\.remove\('atlas-theme-snap'\)/
-);
-
 // Compile every inline script as well as exercising the actual selectors.
 for (const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)) new vm.Script(match[1]);
 execFileSync(process.execPath, ['scripts/sync-compass-covers.js', '--check'], { stdio: 'inherit' });
