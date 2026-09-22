@@ -40,7 +40,17 @@ assert.match(
 
 assert.match(
   engine,
-  /if \(!runtimeLayersReady\) \{[\s\S]*?Keep \?author=generate intact[\s\S]*?return;[\s\S]*?const ownedSubjectAuthoringIntent =\s*consumeOwnedSubjectAuthoringIntent\(\);/
+  /freshBuildCloudAuthorityPromise[\s\S]*?ensureSubjectAuthoringCloudAuthorityReady\([\s\S]*?'subjects'[\s\S]*?\)/
+);
+
+assert.match(
+  engine,
+  /if \(!runtimeLayersReady\) \{[\s\S]*?Keep \?author=generate intact[\s\S]*?return;/
+);
+
+assert.match(
+  engine,
+  /const ownedSubjectAuthoringIntent =\s*freshOwnedSubjectBuild[\s\S]*?pendingOwnedSubjectAuthoringIntent[\s\S]*?: consumeOwnedSubjectAuthoringIntent\(\);/
 );
 
 assert.match(
@@ -59,7 +69,7 @@ assert.match(
 );
 
 const releaseIndex = engine.indexOf(
-  'if (freshOwnedSubjectBuild) {\n        /*\n         * The real owned-subject shell'
+  'if (freshOwnedSubjectBuild) {\n        /*\n         * Cover entry is a presentation boundary'
 );
 
 assert.ok(
@@ -75,6 +85,26 @@ const generationIndex = engine.indexOf(
 assert.ok(
   generationIndex > releaseIndex,
   'The cover handoff must release before full AI generation begins.'
+);
+
+const authorityAwaitIndex = engine.indexOf(
+  'await freshBuildCloudAuthorityPromise',
+  releaseIndex
+);
+
+const editRequestIndex = engine.indexOf(
+  'await requestMyVersionEditing({',
+  authorityAwaitIndex
+);
+
+assert.ok(
+  authorityAwaitIndex > releaseIndex,
+  'Fresh cover entry must not wait for cloud authority.'
+);
+
+assert.ok(
+  editRequestIndex > authorityAwaitIndex,
+  'Fresh authoring must wait until signed-in subject persistence is ready.'
 );
 
 const fullGenerationStart = engine.indexOf(
@@ -113,5 +143,5 @@ assert.doesNotMatch(
 );
 
 console.log(
-  'Atlas fresh subject entry contract passed: runtime layers gate safety, fresh-state reads are skipped, cover releases before AI framing, and create avoids the redundant cloud re-fetch.'
+  'Atlas fresh subject entry contract passed: runtime layers gate safety, the cover releases before persistence/AI work, signed-in authoring waits for cloud authority, fresh-state reads are skipped, and create avoids the redundant cloud re-fetch.'
 );
