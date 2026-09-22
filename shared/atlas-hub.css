@@ -29,7 +29,7 @@ html[data-theme="night"] .atlas-main {
 .continue-card.has-rail { padding-bottom: 0; }
 .continue-summary { display: grid; grid-template-columns: 39% minmax(0, 1fr); gap: 0; padding: 0; align-items: stretch; }
 .continue-cover { position: relative; min-height: 268px; background: #485f59; overflow: hidden; }
-.continue-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.continue-cover img { position: absolute; inset: 0 0 -1px; width: 100%; height: calc(100% + 1px); object-fit: cover; }
 .continue-card--arcade .continue-cover { background: #232d50; }
 .continue-card--arcade .continue-cover img { object-fit: cover; }
 .continue-content { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 1.7rem; padding: 2rem 2.25rem; min-width: 0; }
