@@ -155,10 +155,15 @@
       z-index: 2147483647;
       overflow-y: auto;
       background: var(--canvas);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
     }
 
-    .mobile-payment[hidden] {
-      display: none;
+    .mobile-payment[data-open="true"] {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
     }
 
     .mobile-payment-shell {
@@ -612,7 +617,7 @@
   </style>
 </head>
 <body>
-  <section id="mobile-payment" class="mobile-payment" data-ready="false" hidden>
+  <section id="mobile-payment" class="mobile-payment" data-ready="false" data-open="false" aria-hidden="true">
     <div class="mobile-payment-shell">
       <div class="mobile-payment-topline">
         <button id="mobile-payment-close" class="mobile-payment-back" type="button">← Subscription</button>
@@ -780,6 +785,13 @@
     let paymentCheckoutPending = false;
     let paymentCheckoutTimeout = null;
     let paymentCheckoutMode = null;
+    let cachedAccessToken = '';
+    let preparedPaymentTransactionId = '';
+    let paymentPrewarmPromise = null;
+    let paymentPrewarmResolve = null;
+    let paymentPrewarmTimeout = null;
+    let paymentPrewarmReady = false;
+    let paymentUpdateCompleted = false;
 
     const query =
       new URLSearchParams(
@@ -853,6 +865,8 @@
         );
       }
 
+      cachedAccessToken = token;
+
       const response =
         await fetch(
           `${BACKEND}/paddle/customer-portal`,
@@ -914,17 +928,14 @@
     function setMobilePaymentOpen(
       open
     ) {
-      MobilePayment.hidden =
-        !open;
-      MobilePayment.dataset.ready =
-        'false';
+      MobilePayment.dataset.open =
+        open ? 'true' : 'false';
+      MobilePayment.setAttribute(
+        'aria-hidden',
+        open ? 'false' : 'true'
+      );
       document.body.style.overflow =
         open ? 'hidden' : '';
-
-      if (!open) {
-        MobilePaymentFrame
-          .replaceChildren();
-      }
     }
 
     function setPaymentPreparing(
@@ -1022,6 +1033,8 @@
         );
       }
 
+      cachedAccessToken = token;
+
       const response =
         await fetch(
           `${BACKEND}/paddle/customer-portal`,
@@ -1055,6 +1068,8 @@
 
       if (
         action === 'update_payment_method' ||
+        action ===
+          'cancel_payment_method_preparation' ||
         action === 'billing_history' ||
         action === 'invoice'
       ) {
@@ -1071,6 +1086,230 @@
       }
 
       return result.billing;
+    }
+
+    function openMobilePaymentCheckout(
+      transactionId
+    ) {
+      Paddle.Checkout.open({
+        transactionId,
+        settings: {
+          displayMode: 'inline',
+          variant: 'one-page',
+          frameTarget:
+            'atlas-paddle-mobile-checkout',
+          frameInitialHeight:
+            '520',
+          frameStyle:
+            'width: 100%; min-width: 312px; background-color: transparent; border: none;',
+          theme:
+            document.documentElement
+              .dataset.theme ===
+            'night'
+              ? 'dark'
+              : 'light'
+        }
+      });
+    }
+
+    function settlePaymentPrewarm(
+      ready
+    ) {
+      paymentPrewarmReady = ready;
+
+      if (paymentPrewarmTimeout) {
+        window.clearTimeout(
+          paymentPrewarmTimeout
+        );
+        paymentPrewarmTimeout = null;
+      }
+
+      if (ready) {
+        MobilePayment.dataset.ready =
+          'true';
+        PaymentPreparing.hidden = true;
+      }
+
+      if (paymentPrewarmResolve) {
+        paymentPrewarmResolve(ready);
+        paymentPrewarmResolve = null;
+      }
+    }
+
+    function resetPaymentPreparation() {
+      preparedPaymentTransactionId = '';
+      paymentPrewarmPromise = null;
+      paymentPrewarmReady = false;
+      paymentUpdateCompleted = false;
+      paymentCheckoutPending = false;
+      paymentCheckoutMode = null;
+
+      if (paymentCheckoutTimeout) {
+        window.clearTimeout(
+          paymentCheckoutTimeout
+        );
+        paymentCheckoutTimeout = null;
+      }
+
+      if (paymentPrewarmTimeout) {
+        window.clearTimeout(
+          paymentPrewarmTimeout
+        );
+        paymentPrewarmTimeout = null;
+      }
+
+      paymentPrewarmResolve = null;
+      MobilePayment.dataset.ready =
+        'false';
+      PaymentPreparing.hidden = false;
+      MobilePaymentFrame
+        .replaceChildren();
+    }
+
+    async function cleanupPaymentPreparation(
+      keepalive = false
+    ) {
+      const transactionId =
+        preparedPaymentTransactionId;
+
+      if (
+        !/^txn_[a-z\d]{26}$/.test(
+          transactionId
+        ) ||
+        paymentUpdateCompleted
+      ) {
+        resetPaymentPreparation();
+        return;
+      }
+
+      const token =
+        cachedAccessToken;
+
+      resetPaymentPreparation();
+
+      if (!token) {
+        return;
+      }
+
+      try {
+        await fetch(
+          `${BACKEND}/paddle/customer-portal`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+              'Content-Type':
+                'application/json'
+            },
+            body:
+              JSON.stringify({
+                action:
+                  'cancel_payment_method_preparation',
+                transactionId
+              }),
+            cache: 'no-store',
+            keepalive
+          }
+        );
+      } catch {
+        // Cleanup is best-effort and must not block navigation.
+      }
+    }
+
+    function prewarmPaymentMethod() {
+      if (
+        !usesMobileInlinePayment()
+      ) {
+        return Promise.resolve(false);
+      }
+
+      if (paymentPrewarmReady) {
+        return Promise.resolve(true);
+      }
+
+      if (paymentPrewarmPromise) {
+        return paymentPrewarmPromise;
+      }
+
+      if (!initPaddle()) {
+        return Promise.resolve(false);
+      }
+
+      paymentCheckoutMode =
+        'mobile-inline-prewarm';
+      MobilePayment.dataset.ready =
+        'false';
+      PaymentPreparing.hidden = false;
+
+      paymentPrewarmPromise =
+        (async () => {
+          try {
+            const result =
+              await requestSubscriptionAction(
+                'update_payment_method'
+              );
+
+            const transactionId =
+              String(
+                result?.transactionId || ''
+              ).trim();
+
+            if (
+              !/^txn_[a-z\d]{26}$/.test(
+                transactionId
+              )
+            ) {
+              throw new Error(
+                'Invalid payment preparation.'
+              );
+            }
+
+            preparedPaymentTransactionId =
+              transactionId;
+            paymentUpdateCompleted = false;
+
+            const loaded =
+              new Promise(resolve => {
+                paymentPrewarmResolve =
+                  resolve;
+              });
+
+            paymentPrewarmTimeout =
+              window.setTimeout(
+                () => {
+                  settlePaymentPrewarm(
+                    false
+                  );
+                },
+                15000
+              );
+
+            openMobilePaymentCheckout(
+              transactionId
+            );
+
+            const ready =
+              await loaded;
+
+            if (!ready) {
+              try {
+                Paddle.Checkout.close();
+              } catch {
+                // Paddle may not have mounted the checkout.
+              }
+
+              await cleanupPaymentPreparation();
+            }
+
+            return ready;
+          } catch {
+            await cleanupPaymentPreparation();
+            return false;
+          }
+        })();
+
+      return paymentPrewarmPromise;
     }
 
     function initPaddle() {
@@ -1107,10 +1346,21 @@
             if (
               name ===
                 'checkout.loaded' &&
-              paymentCheckoutMode ===
-                'mobile-inline'
+              (
+                paymentCheckoutMode ===
+                  'mobile-inline' ||
+                paymentCheckoutMode ===
+                  'mobile-inline-prewarm'
+              )
             ) {
-              revealLoadedPaymentCheckout();
+              settlePaymentPrewarm(true);
+
+              if (
+                paymentCheckoutMode ===
+                  'mobile-inline'
+              ) {
+                revealLoadedPaymentCheckout();
+              }
             }
 
             if (
@@ -1121,6 +1371,8 @@
                 paymentCheckoutMode ===
                   'mobile-inline'
               ) {
+                paymentUpdateCompleted = true;
+
                 try {
                   Paddle.Checkout.close();
                 } catch {
@@ -1129,6 +1381,9 @@
 
                 setPaymentPreparing(false);
                 setMobilePaymentOpen(false);
+                preparedPaymentTransactionId = '';
+                paymentPrewarmPromise = null;
+                paymentPrewarmReady = false;
                 paymentCheckoutMode = null;
                 setActionBusy(false);
               }
@@ -1149,8 +1404,13 @@
                   'mobile-inline'
               ) {
                 setMobilePaymentOpen(false);
-                paymentCheckoutMode = null;
                 setActionBusy(false);
+
+                if (!paymentUpdateCompleted) {
+                  void cleanupPaymentPreparation();
+                } else {
+                  resetPaymentPreparation();
+                }
               }
 
               if (
@@ -1169,14 +1429,22 @@
 
               if (
                 paymentCheckoutMode ===
-                  'mobile-inline'
+                  'mobile-inline' ||
+                paymentCheckoutMode ===
+                  'mobile-inline-prewarm'
               ) {
                 setMobilePaymentOpen(false);
-                paymentCheckoutMode = null;
                 setActionBusy(false);
-                setActionStatus(
-                  'Secure payment update could not load. Please try again.'
-                );
+                void cleanupPaymentPreparation();
+
+                if (
+                  MobilePayment.dataset.open ===
+                    'true'
+                ) {
+                  setActionStatus(
+                    'Secure payment update could not load. Please try again.'
+                  );
+                }
               }
             }
           }
@@ -1190,19 +1458,45 @@
       const mobileInline =
         usesMobileInlinePayment();
 
-      paymentCheckoutMode =
-        mobileInline
-          ? 'mobile-inline'
-          : 'desktop-overlay';
-
       setActionBusy(true);
       setActionStatus(
         'Opening secure payment update…'
       );
 
+      if (
+        mobileInline &&
+        paymentPrewarmReady &&
+        preparedPaymentTransactionId
+      ) {
+        paymentCheckoutMode =
+          'mobile-inline';
+        setMobilePaymentOpen(true);
+        setActionStatus('');
+        return;
+      }
+
       if (mobileInline) {
+        paymentCheckoutMode =
+          'mobile-inline';
         setMobilePaymentOpen(true);
         setPaymentPreparing(true);
+
+        if (paymentPrewarmPromise) {
+          const ready =
+            await paymentPrewarmPromise;
+
+          if (
+            ready &&
+            preparedPaymentTransactionId
+          ) {
+            setPaymentPreparing(false);
+            setActionStatus('');
+            return;
+          }
+        }
+      } else {
+        paymentCheckoutMode =
+          'desktop-overlay';
       }
 
       try {
@@ -1232,37 +1526,28 @@
           );
         }
 
-        Paddle.Checkout.open({
-          transactionId,
-          settings:
-            mobileInline
-              ? {
-                  displayMode: 'inline',
-                  variant: 'one-page',
-                  frameTarget:
-                    'atlas-paddle-mobile-checkout',
-                  frameInitialHeight:
-                    '520',
-                  frameStyle:
-                    'width: 100%; min-width: 312px; background-color: transparent; border: none;',
-                  theme:
-                    document.documentElement
-                      .dataset.theme ===
-                    'night'
-                      ? 'dark'
-                      : 'light'
-                }
-              : {
-                  displayMode: 'overlay',
-                  variant: 'one-page',
-                  theme:
-                    document.documentElement
-                      .dataset.theme ===
-                    'night'
-                      ? 'dark'
-                      : 'light'
-                }
-        });
+        if (mobileInline) {
+          preparedPaymentTransactionId =
+            transactionId;
+          paymentUpdateCompleted = false;
+          openMobilePaymentCheckout(
+            transactionId
+          );
+        } else {
+          Paddle.Checkout.open({
+            transactionId,
+            settings: {
+              displayMode: 'overlay',
+              variant: 'one-page',
+              theme:
+                document.documentElement
+                  .dataset.theme ===
+                'night'
+                  ? 'dark'
+                  : 'light'
+            }
+          });
+        }
 
         setActionStatus('');
       } catch (error) {
@@ -1270,9 +1555,10 @@
 
         if (mobileInline) {
           setMobilePaymentOpen(false);
+          await cleanupPaymentPreparation();
+        } else {
+          paymentCheckoutMode = null;
         }
-
-        paymentCheckoutMode = null;
 
         setActionStatus(
           String(
@@ -1669,11 +1955,13 @@
           return;
         }
 
-        const [result] =
-          await Promise.all([
-            requestSubscription(),
-            loadBillingHistory()
-          ]);
+        const subscriptionPromise =
+          requestSubscription();
+        const historyPromise =
+          loadBillingHistory();
+
+        const result =
+          await subscriptionPromise;
 
         if (
           result.available !== true ||
@@ -1683,6 +1971,19 @@
             'There is no Atlas Pro subscription to manage.'
           );
         }
+
+        if (
+          usesMobileInlinePayment() &&
+          String(
+            result.billing?.status || ''
+          )
+            .trim()
+            .toLowerCase() === 'active'
+        ) {
+          void prewarmPaymentMethod();
+        }
+
+        await historyPromise;
 
         renderSubscription(
           result.billing
@@ -1728,9 +2029,14 @@
 
           setPaymentPreparing(false);
           setMobilePaymentOpen(false);
-          paymentCheckoutMode = null;
           setActionBusy(false);
           setActionStatus('');
+
+          if (!paymentUpdateCompleted) {
+            void cleanupPaymentPreparation();
+          } else {
+            resetPaymentPreparation();
+          }
         }
       );
 
@@ -1797,6 +2103,20 @@
       event => {
         if (event.persisted) {
           void load();
+        }
+      }
+    );
+
+    window.addEventListener(
+      'pagehide',
+      () => {
+        if (
+          preparedPaymentTransactionId &&
+          !paymentUpdateCompleted
+        ) {
+          void cleanupPaymentPreparation(
+            true
+          );
         }
       }
     );
