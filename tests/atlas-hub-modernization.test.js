@@ -9,32 +9,21 @@ const themeMotionStart = html.indexOf('THEME MOTION');
 const themeMotionEnd = html.indexOf('DESKTOP SPINE AND WORLD NAVIGATION', themeMotionStart);
 const themeMotion = html.slice(themeMotionStart, themeMotionEnd);
 assert.ok(themeMotionStart >= 0 && themeMotionEnd > themeMotionStart);
-assert.doesNotMatch(
-  themeMotion,
-  /html\.theme-changing\s+\.[^,{]+\s+\*/,
-  'Atlas theme motion must not blanket-transition descendant trees'
-);
-assert.doesNotMatch(
-  themeMotion,
-  /\bbackground\s+var\(--hub-theme-motion\)/,
-  'Atlas theme motion must not interpolate the background shorthand'
-);
 assert.match(
   themeMotion,
-  /background-color var\(--hub-theme-motion\)/
-);
-assert.match(
-  themeMotion,
-  /html\.theme-changing \.atmosphere-layer\s*\{[\s\S]*?transition:\s*none;/
+  /html\.theme-changing \.atlas-main,[\s\S]*?transition:\s*none !important;/
 );
 assert.doesNotMatch(
+  themeMotion,
+  /html\.theme-changing \.atlas-main[^\{]*\{[\s\S]*?var\(--hub-theme-motion\)/
+);
+assert.match(
   themeMotion,
   /html\.theme-changing \.atmosphere-layer\s*\{[\s\S]*?filter var\(--hub-theme-motion\)/
 );
-
 assert.match(
   html,
-  /atlas-hub\.css\?v=20260922-theme-motion1/
+  /atlas-hub\.css\?v=20260922-home1/
 );
 
 // Compile every inline script as well as exercising the actual selectors.

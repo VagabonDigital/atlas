@@ -651,9 +651,9 @@
 
     /* ============================================================
        THEME MOTION
-       Bridge owns theme state; Atlas owns paint interpolation.
-       Theme changes are paint-only: never blanket-transition descendants
-       and never transition the background shorthand.
+       Keep the modern Atlas content out of the transition compositor.
+       The page/chrome may interpolate, but Hub cards, copy, and imagery
+       always render at their final theme state.
        ============================================================ */
 
     html.theme-changing,
@@ -685,58 +685,7 @@
     html.theme-changing .drawer-session-btn,
     html.theme-changing .drawer-session-btn span,
     html.theme-changing .drawer-appearance-btn,
-    html.theme-changing .drawer-legal-links a,
-    html.theme-changing .today-label,
-    html.theme-changing .welcome-line,
-    html.theme-changing .welcome-sub,
-    html.theme-changing .continue-card,
-    html.theme-changing .continue-kicker,
-    html.theme-changing .continue-title,
-    html.theme-changing .continue-meta,
-    html.theme-changing .continue-pickup,
-    html.theme-changing .continue-action,
-    html.theme-changing .continue-recap,
-    html.theme-changing .continue-recap-kicker,
-    html.theme-changing .continue-recap-section,
-    html.theme-changing .continue-rail,
-    html.theme-changing .continue-rail-fill,
-    html.theme-changing .review-row,
-    html.theme-changing .review-row-icon,
-    html.theme-changing .review-row-name,
-    html.theme-changing .review-row-count,
-    html.theme-changing .doors-label,
-    html.theme-changing .door,
-    html.theme-changing .door-name,
-    html.theme-changing .door-title,
-    html.theme-changing .door-desc,
-    html.theme-changing .door-action,
-    html.theme-changing .hub-recent h2,
-    html.theme-changing .hub-recent-item,
-    html.theme-changing .hub-recent h3,
-    html.theme-changing .hub-recent p,
-    html.theme-changing .hub-recent time,
-    html.theme-changing .tutor-entry,
-    html.theme-changing .tutor-entry-eyebrow,
-    html.theme-changing .tutor-entry-title,
-    html.theme-changing .tutor-entry-desc,
-    html.theme-changing .tutor-entry-action,
-    html.theme-changing .review-view,
-    html.theme-changing .review-back,
-    html.theme-changing .review-nav-btn,
-    html.theme-changing .recall-card,
-    html.theme-changing .recall-prompt,
-    html.theme-changing .recall-answer,
-    html.theme-changing .modal-panel,
-    html.theme-changing .modal-header,
-    html.theme-changing .modal-close,
-    html.theme-changing .session-input,
-    html.theme-changing .btn-primary,
-    html.theme-changing .btn-ghost,
-    html.theme-changing .atmosphere-preview,
-    html.theme-changing .atmosphere-favorite-item,
-    html.theme-changing .atmosphere-mini-btn,
-    html.theme-changing .empty-setup,
-    html.theme-changing .atlas-toast {
+    html.theme-changing .drawer-legal-links a {
       transition:
         background-color var(--hub-theme-motion),
         color var(--hub-theme-motion),
@@ -750,19 +699,21 @@
     html.theme-changing body::before,
     html.theme-changing body::after,
     html.theme-changing .atmosphere-layer::before,
-    html.theme-changing .atmosphere-layer::after,
-    html.theme-changing .tutor-entry::before,
-    html.theme-changing .tutor-entry-image {
+    html.theme-changing .atmosphere-layer::after {
       transition: opacity var(--hub-theme-motion);
     }
 
     html.theme-changing .atmosphere-layer {
-      /*
-       * Keep the full-screen filtered image out of the theme compositor pass.
-       * Animating this layer makes Chromium re-rasterize text above it and can
-       * make glyphs look temporarily compressed even though layout is stable.
-       */
-      transition: none;
+      transition:
+        opacity var(--hub-theme-motion),
+        filter var(--hub-theme-motion);
+    }
+
+    html.theme-changing .atlas-main,
+    html.theme-changing .atlas-main *,
+    html.theme-changing .atlas-main *::before,
+    html.theme-changing .atlas-main *::after {
+      transition: none !important;
     }
 
     html.theme-changing .drawer {
@@ -3718,7 +3669,7 @@
 
   <!-- Shared, fixed geometry for the Atlas / Compass / Arcade rail -->
   <link rel="stylesheet" href="./shared/atlas-hub-nav.css?v=20260727-nav-stability">
-  <link rel="stylesheet" href="./shared/atlas-hub.css?v=20260922-theme-motion1">
+  <link rel="stylesheet" href="./shared/atlas-hub.css?v=20260922-home1">
 </head>
 
 <body data-atlas-world="atlas" data-atlas-surface="hub">
