@@ -1364,13 +1364,21 @@
     .hub-main {
       position: relative;
       z-index: 1;
-      max-width: 1020px;
+      max-width: 1480px;
       margin: 0 auto;
-      padding: 3.35rem 1.75rem 6rem;
+      padding: 2.6rem clamp(1.25rem, 3.5vw, 3.5rem) 6rem;
       animation: hubPageFadeIn 0.45s ease both;
     }
 
     /* Hub introduction */
+    .hub-eyebrow {
+      margin: 0 0 0.6rem;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
     .hub-intro {
       padding: 0 0 1.25rem;
       margin-bottom: 0;
@@ -1383,7 +1391,7 @@
 
     .hub-title {
       font-family: var(--font-display);
-      font-size: clamp(2rem, 4.4vw, 2.75rem);
+      font-size: clamp(2rem, 3.5vw, 3.25rem);
       color: var(--text-heading);
       font-weight: 400;
       line-height: 1.08;
@@ -1439,7 +1447,7 @@
       opacity: 0.68;
       font-weight: 400;
       line-height: 1.7;
-      max-width: 58ch;
+      max-width: 90ch;
     }
 
     .hub-intro-text {
@@ -1866,17 +1874,13 @@
        ============================================================ */
 
     .subject-library {
-      margin-top: 1.45rem;
-      padding: 1.7rem 1.75rem 1.85rem;
-      border: var(--library-border-width) solid var(--library-border);
-      border-radius: var(--radius-lg);
-      background: var(--library-surface);
-      box-shadow: var(--library-shadow);
+      margin-top: 2rem;
+      padding: 0;
     }
 
     .subject-library-header {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
       gap: 1rem;
       margin-bottom: 1.15rem;
@@ -1884,7 +1888,7 @@
 
     .subject-library-title {
       font-family: var(--font-display);
-      font-size: 1.24rem;
+      font-size: 1.65rem;
       line-height: 1.25;
       font-weight: 400;
       color: var(--text-heading);
@@ -2104,8 +2108,8 @@
 
     .subject-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.35rem;
     }
 
     /* ============================================================
@@ -3827,7 +3831,7 @@
     /* ============================================================
        RESPONSIVE LAYOUT
        ============================================================ */
-    @media (min-width: 681px) and (max-width: 920px) {
+    @media (min-width: 681px) and (max-width: 1100px) {
       .subject-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -3998,6 +4002,220 @@
       .drawer {
         display: none !important;
       }
+    }
+  </style>
+
+  <style>
+    /* Image-led Hub cards. SVG artwork previews retain their existing component. */
+    .subject-card--cover {
+      height: var(--subject-card-height, 370px);
+      min-height: 0;
+      padding: 0;
+      border-radius: 18px;
+      background: #fffefa;
+      border-color: rgba(74, 91, 84, 0.09);
+      box-shadow: 0 7px 24px rgba(52, 58, 48, 0.055);
+      transition: box-shadow 320ms ease, border-color 320ms ease, transform 320ms ease;
+    }
+
+    .subject-card-cover {
+      flex: 0 0 170px;
+      min-height: 0;
+      overflow: hidden;
+      border-radius: 17px 17px 0 0;
+      background: var(--surface-muted);
+      transition: flex-basis 360ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .subject-card-cover img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 45%;
+    }
+
+    .subject-card-content {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      padding: 1.1rem 1.2rem 1.15rem;
+    }
+
+    .subject-card--cover .subject-card-header {
+      padding: 0;
+      margin: 0 0 0.55rem;
+    }
+
+    .subject-card--cover .subject-card-title {
+      font-size: 1.16rem;
+      line-height: 1.24;
+      overflow-wrap: anywhere;
+    }
+
+    .subject-card-ownership {
+      color: var(--accent);
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .subject-card--cover .subject-card-hook {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      overflow: hidden;
+      flex-shrink: 0;
+      padding: 0;
+      margin: 0;
+      max-width: none;
+      font-size: 0.82rem;
+      line-height: 1.55;
+    }
+
+    .subject-card--cover .subject-card-footer {
+      position: relative;
+      inset: auto;
+      margin-top: auto;
+      padding-top: 0.85rem;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .subject-card--cover .subject-card-meta {
+      flex: 1;
+      gap: 0.5rem;
+      transform: none;
+    }
+
+    .subject-card--cover .subject-card-progress-track {
+      position: static;
+      display: block;
+      width: 100%;
+      height: 5px;
+      border-radius: 99px;
+      background: rgba(var(--accent-rgb), 0.15);
+    }
+
+    .subject-card--cover .subject-card-progress-fill {
+      border-radius: inherit;
+    }
+
+    .subject-card--cover .subject-card-progress-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .subject-card--cover .btn-launch {
+      min-height: 40px;
+      min-width: 104px;
+      padding-inline: 1rem;
+      font-weight: 500;
+      box-shadow: none;
+    }
+
+    .subject-card--cover.subject-card--inprogress {
+      border-color: rgba(var(--accent-rgb), 0.4);
+    }
+
+    .subject-card--cover.subject-card--inprogress .btn-launch {
+      box-shadow: 0 3px 10px rgba(var(--accent-rgb), 0.18);
+    }
+
+    .subject-card--cover .subject-card-management {
+      top: 0.75rem;
+      right: 0.75rem;
+    }
+
+    .subject-card--cover .subject-card-manage-btn {
+      background: #fffefa;
+      color: #294c47;
+      border-color: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 2px 10px #0002;
+    }
+
+    .subject-card--cover .subject-card-menu {
+      width: 190px;
+    }
+
+    .subject-library-create-btn {
+      min-height: 42px;
+      padding: 0.6rem 1.15rem;
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-ink);
+    }
+
+    .subject-library-create-btn:hover {
+      background: var(--accent-soft);
+      color: var(--accent-ink);
+    }
+
+    .subject-library-empty-note {
+      padding: 1.25rem;
+      border: 1px dashed var(--border-subtle);
+      border-radius: 14px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    html[data-theme="night"] .subject-card--cover {
+      background: #302e29;
+      border-color: #ffffff12;
+      box-shadow: 0 8px 26px #0002;
+    }
+
+    html[data-theme="night"] .subject-card--cover.subject-card--inprogress {
+      border-color: rgba(var(--accent-rgb), 0.45);
+    }
+
+    html[data-theme="night"] .subject-card--cover .subject-card-manage-btn {
+      background: #292e2b;
+      color: #e0ede8;
+      border-color: #ffffff25;
+    }
+
+    html[data-theme="night"] .subject-card--cover:not(.subject-card--inprogress) .btn-launch {
+      background: rgba(var(--accent-rgb), 0.12);
+      border-color: rgba(var(--accent-rgb), 0.16);
+      color: var(--accent-soft);
+    }
+
+    /* The fixed footprint and bottom action stay put as the image yields to copy. */
+    @media (hover: hover) and (pointer: fine) {
+      .subject-card--cover:is(:hover, :focus-within) {
+        border-color: rgba(var(--accent-rgb), 0.45);
+        box-shadow: 0 12px 30px rgba(35, 58, 48, 0.13);
+        transform: translateY(-2px);
+      }
+
+      .subject-card--cover:is(:hover, :focus-within) .subject-card-cover {
+        flex-basis: var(--subject-cover-expanded, 80px);
+      }
+
+      .subject-card--cover:is(:hover, :focus-within) .subject-card-hook {
+        -webkit-line-clamp: unset;
+        line-clamp: unset;
+        flex-shrink: 1;
+      }
+    }
+
+    @media (hover: none), (pointer: coarse) {
+      .subject-card--cover:hover { transform: none; }
+    }
+
+    @media (max-width: 680px) {
+      .subject-grid { gap: 1.25rem; }
+      .subject-card--cover { height: var(--subject-card-height, 370px); }
+      .subject-library-title { font-size: 1.45rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .subject-card--cover, .subject-card-cover { transition: none; }
+      .subject-card--cover:is(:hover, :focus-within) { transform: none; }
     }
   </style>
 
@@ -5432,6 +5650,8 @@
                   ? 'full'
                   : 'preview',
               artId: subject.artId || '',
+              coverImage: String(item?.coverImage || '').trim() ||
+                String(subject.coverImage || '').trim(),
               hook: hasMyVersion &&
                 item &&
                 Object.prototype.hasOwnProperty.call(
@@ -6125,6 +6345,11 @@
                 )
               : null;
 
+          const sourceRegistryId = record.provenance?.sourceWorld === COMPASS_ID
+            ? record.provenance.sourceContentId ||
+              (COMPASS_ID + ':' + record.provenance.sourceSubjectId)
+            : '';
+
           return {
             subjectId: id,
             isOwned: true,
@@ -6161,11 +6386,9 @@
               module.catalogDescription ||
               ''
             ).trim(),
-            coverImage: String(
-              metadata.coverImage ||
-              module.bgImage ||
-              ''
-            ).trim(),
+            coverImage: String(metadata.coverImage || '').trim() ||
+              String(module.bgImage || '').trim() ||
+              String(COMPASS_CATALOG[sourceRegistryId]?.coverImage || '').trim(),
             ownershipLabel: '',
             hasMyVersion: false,
             status: resolveStatus(state),
@@ -14877,6 +15100,7 @@
       );
 
       main.innerHTML = nextHubMarkup;
+      sizeHubSubjectCards(main);
       lastCommittedHubContentMarkup =
         nextHubContentMarkup;
 
@@ -14952,6 +15176,7 @@
       return (
         '<div class="hub-intro">' +
         '<div class="hub-intro-text">' +
+        '<p class="hub-eyebrow">Compass</p>' +
         '<h1 class="hub-title" aria-label="Let’s talk about anything.">' +
         'Let’s talk about' +
         '<span class="hub-topic-rotator" style="--topic-phase: ' + topicPhaseMs + 'ms;" aria-hidden="true">' +
@@ -15101,6 +15326,7 @@
 
           return renderSubjectCard({
             ...subject,
+            useHubCover: true,
 
             moveScope,
 
@@ -15263,8 +15489,67 @@
       );
     }
 
+    let hubCardResizeObserver;
+
+    function sizeHubSubjectCards(main) {
+      hubCardResizeObserver?.disconnect();
+      const grids = [...main.querySelectorAll('.subject-grid')];
+      const measure = grid => {
+        if (!grid.isConnected) return;
+        const cards = [...grid.querySelectorAll('.subject-card--cover')];
+        // Measure the unclamped copy at the actual column width. Reserve enough
+        // space for even a long owned description before any interaction occurs.
+        const sizes = cards.map(card => {
+          const content = card.querySelector('.subject-card-content');
+          const style = getComputedStyle(content);
+          const header = card.querySelector('.subject-card-header');
+          const hook = card.querySelector('.subject-card-hook');
+          const footer = card.querySelector('.subject-card-footer');
+          const fullHookHeight = hook?.scrollHeight || 0;
+          const compactHookHeight = hook
+            ? Math.min(fullHookHeight, parseFloat(getComputedStyle(hook).lineHeight) * 2)
+            : 0;
+          return {
+            card,
+            extraCopy: fullHookHeight - compactHookHeight,
+            body: parseFloat(style.paddingTop) + parseFloat(style.paddingBottom) +
+              header.offsetHeight + parseFloat(getComputedStyle(header).marginBottom) +
+              fullHookHeight + footer.offsetHeight
+          };
+        });
+        const height = Math.ceil(Math.max(370, ...sizes.map(size =>
+          Math.max(size.body + 82, size.body - size.extraCopy + 172))));
+        grid.style.setProperty('--subject-card-height', height + 'px');
+        sizes.forEach(({ card, body }) => {
+          card.style.setProperty('--subject-cover-expanded',
+            Math.max(80, Math.min(124, height - body - 2)) + 'px');
+        });
+      };
+      const widths = new WeakMap();
+      hubCardResizeObserver = new ResizeObserver(entries => {
+        entries.forEach(({ target, contentRect }) => {
+          if (widths.get(target) === contentRect.width) return;
+          widths.set(target, contentRect.width);
+          measure(target);
+        });
+      });
+      grids.forEach(grid => {
+        measure(grid);
+        hubCardResizeObserver.observe(grid);
+      });
+      document.fonts.ready.then(() => grids.forEach(measure));
+    }
+
     function renderSubjectCard(subject) {
       const cardState = getSubjectCardState(subject);
+      const useCover = subject.useHubCover === true;
+      const coverHtml = useCover
+        ? '<div class="subject-card-cover" aria-hidden="true">' +
+          '<img src="' + escHtml(AtlasStructuredSubject.resolveCoverImage(subject)) +
+          '" alt="" loading="lazy" decoding="async" ' +
+          'onerror="this.onerror=null;this.src=AtlasStructuredSubject.resolveCoverImage()">' +
+          '</div>'
+        : '';
 
       const ownedArtwork =
         subject.isOwned &&
@@ -15328,10 +15613,13 @@
         : '';
 
       const cardContents =
-        artworkHtml +
+        (useCover ? coverHtml + '<div class="subject-card-content">' : artworkHtml) +
 
         '<div class="subject-card-header">' +
         '<div class="subject-card-title-block">' +
+        (useCover && subject.isOwned
+          ? '<span class="subject-card-ownership">My subject</span>'
+          : '') +
         '<h3 class="subject-card-title">' +
         escHtml(subject.title) +
         '</h3>' +
@@ -15348,6 +15636,7 @@
 
         (progressMeta
           ? '<div class="subject-card-meta">' +
+            (useCover ? progressHtml : '') +
             progressMeta +
             '</div>'
           : '') +
@@ -15362,12 +15651,12 @@
         '</span>' +
         '</div>' +
 
-        progressHtml;
+        (useCover ? '</div>' : progressHtml);
 
       const cardClasses =
         'subject-card subject-card--' +
         escHtml(cardState.mode) +
-        artworkClass;
+        (useCover ? ' subject-card--cover' : artworkClass);
 
       const progressStyle =
         '--subject-progress:' +
