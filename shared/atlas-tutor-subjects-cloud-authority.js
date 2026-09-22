@@ -38,14 +38,21 @@
     const DEFAULT_CATEGORY_NAME = 'My Subjects';
     const LIBRARY_SCHEMA_VERSION = 1;
 
+    const SUBJECT_PREFIX = 'atlas::tutorSubjects::subject::';
     const WORKING_DRAFT_PREFIX = 'atlas::tutorSubjects::workingDraft::';
     const BUILD_STATE_PREFIX = 'atlas::tutorSubjects::buildState::';
     const BUILD_CHECKPOINT_PREFIX = 'atlas::tutorSubjects::buildCheckpoint::';
     const SESSION_SUBJECTS_PREFIX = 'atlas::tutorSubjects::sessionSubjects::';
     const PENDING_DELETE_PREFIX = 'atlas::tutorSubjects::pendingDelete::';
 
+    const BROWSER_STATE_DB_NAME = 'atlas-tutor-subjects';
+    const BROWSER_STATE_DB_VERSION = 1;
+    const BROWSER_STATE_STORE = 'browser-state';
+
     const pendingDeleteTimers = new Map();
     let snapshotPromise = null;
+    let browserStateDbPromise = null;
+    let browserStateMigrationPromise = null;
 
     const original = Object.fromEntries(
         Object.entries(Local).map(([key, value]) => [
@@ -161,6 +168,512 @@
             }
         } catch { }
         return keys.sort();
+    }
+
+    function browserStateRecordKey(
+        kind,
+        subjectId
+    ) {
+        return [
+            String(kind || '').trim(),
+            String(subjectId || '').trim()
+        ].join('::');
+    }
+
+    function openBrowserStateDb() {
+        if (browserStateDbPromise) {
+            return browserStateDbPromise;
+        }
+
+        if (!window.indexedDB) {
+            return Promise.resolve(null);
+        }
+
+        browserStateDbPromise =
+            new Promise((resolve, reject) => {
+                let request = null;
+
+                try {
+                    request =
+                        window.indexedDB.open(
+                            BROWSER_STATE_DB_NAME,
+                            BROWSER_STATE_DB_VERSION
+                        );
+                } catch (error) {
+                    reject(error);
+                    return;
+                }
+
+                request.onupgradeneeded = () => {
+                    const db = request.result;
+
+                    if (
+                        !db.objectStoreNames.contains(
+                            BROWSER_STATE_STORE
+                        )
+                    ) {
+                        db.createObjectStore(
+                            BROWSER_STATE_STORE
+                        );
+                    }
+                };
+
+                request.onsuccess = () => {
+                    resolve(request.result);
+                };
+
+                request.onerror = () => {
+                    reject(
+                        request.error ||
+                        new Error(
+                            'Atlas browser subject storage could not open.'
+                        )
+                    );
+                };
+
+                request.onblocked = () => {
+                    reject(
+                        new Error(
+                            'Atlas browser subject storage upgrade is blocked.'
+                        )
+                    );
+                };
+            })
+            .catch(error => {
+                browserStateDbPromise = null;
+
+                console.warn(
+                    '[AtlasTutorSubjectsCloudAuthority] IndexedDB subject storage is unavailable:',
+                    error
+                );
+
+                return null;
+            });
+
+        return browserStateDbPromise;
+    }
+
+    async function readIndexedBrowserState(
+        kind,
+        subjectId
+    ) {
+        const db =
+            await openBrowserStateDb();
+
+        if (!db) return null;
+
+        return new Promise((resolve, reject) => {
+            const transaction =
+                db.transaction(
+                    BROWSER_STATE_STORE,
+                    'readonly'
+                );
+
+            const request =
+                transaction
+                    .objectStore(
+                        BROWSER_STATE_STORE
+                    )
+                    .get(
+                        browserStateRecordKey(
+                            kind,
+                            subjectId
+                        )
+                    );
+
+            request.onsuccess = () => {
+                resolve(
+                    request.result === undefined
+                        ? null
+                        : cloneJson(
+                            request.result
+                        )
+                );
+            };
+
+            request.onerror = () => {
+                reject(
+                    request.error ||
+                    new Error(
+                        'Atlas browser subject state could not be read.'
+                    )
+                );
+            };
+        });
+    }
+
+    async function writeIndexedBrowserState(
+        kind,
+        subjectId,
+        value
+    ) {
+        const db =
+            await openBrowserStateDb();
+
+        if (!db) return false;
+
+        return new Promise((resolve, reject) => {
+            const transaction =
+                db.transaction(
+                    BROWSER_STATE_STORE,
+                    'readwrite'
+                );
+
+            transaction.oncomplete = () => {
+                resolve(true);
+            };
+
+            transaction.onerror = () => {
+                reject(
+                    transaction.error ||
+                    new Error(
+                        'Atlas browser subject state could not be saved.'
+                    )
+                );
+            };
+
+            transaction.onabort = () => {
+                reject(
+                    transaction.error ||
+                    new Error(
+                        'Atlas browser subject state save was aborted.'
+                    )
+                );
+            };
+
+            transaction
+                .objectStore(
+                    BROWSER_STATE_STORE
+                )
+                .put(
+                    cloneJson(value),
+                    browserStateRecordKey(
+                        kind,
+                        subjectId
+                    )
+                );
+        });
+    }
+
+    async function deleteIndexedBrowserState(
+        kind,
+        subjectId
+    ) {
+        const db =
+            await openBrowserStateDb();
+
+        if (!db) return true;
+
+        return new Promise((resolve, reject) => {
+            const transaction =
+                db.transaction(
+                    BROWSER_STATE_STORE,
+                    'readwrite'
+                );
+
+            transaction.oncomplete = () => {
+                resolve(true);
+            };
+
+            transaction.onerror = () => {
+                reject(
+                    transaction.error ||
+                    new Error(
+                        'Atlas browser subject state could not be cleared.'
+                    )
+                );
+            };
+
+            transaction.onabort = () => {
+                reject(
+                    transaction.error ||
+                    new Error(
+                        'Atlas browser subject state clear was aborted.'
+                    )
+                );
+            };
+
+            transaction
+                .objectStore(
+                    BROWSER_STATE_STORE
+                )
+                .delete(
+                    browserStateRecordKey(
+                        kind,
+                        subjectId
+                    )
+                );
+        });
+    }
+
+    async function readBrowserSubjectState(
+        kind,
+        subjectId,
+        legacyKey
+    ) {
+        const legacy =
+            readJson(legacyKey);
+
+        let indexed = null;
+
+        try {
+            indexed =
+                await readIndexedBrowserState(
+                    kind,
+                    subjectId
+                );
+        } catch (error) {
+            console.warn(
+                '[AtlasTutorSubjectsCloudAuthority] IndexedDB subject read failed:',
+                error
+            );
+        }
+
+        const legacyUpdatedAt =
+            Number(legacy?.updatedAt) || 0;
+
+        const indexedUpdatedAt =
+            Number(indexed?.updatedAt) || 0;
+
+        if (
+            legacy &&
+            (
+                !indexed ||
+                legacyUpdatedAt >
+                    indexedUpdatedAt
+            )
+        ) {
+            try {
+                const migrated =
+                    await writeIndexedBrowserState(
+                        kind,
+                        subjectId,
+                        legacy
+                    );
+
+                if (migrated) {
+                    removeValue(legacyKey);
+                    return cloneJson(legacy);
+                }
+            } catch (error) {
+                console.warn(
+                    '[AtlasTutorSubjectsCloudAuthority] Legacy browser subject state migration failed:',
+                    error
+                );
+            }
+
+            return cloneJson(legacy);
+        }
+
+        if (indexed) {
+            if (legacy) {
+                removeValue(legacyKey);
+            }
+
+            return cloneJson(indexed);
+        }
+
+        return cloneJson(legacy);
+    }
+
+    async function writeBrowserSubjectState(
+        kind,
+        subjectId,
+        value,
+        legacyKey,
+        {
+            checkpoint = false
+        } = {}
+    ) {
+        try {
+            const saved =
+                await writeIndexedBrowserState(
+                    kind,
+                    subjectId,
+                    value
+                );
+
+            if (saved) {
+                removeValue(legacyKey);
+                return true;
+            }
+        } catch (error) {
+            console.warn(
+                '[AtlasTutorSubjectsCloudAuthority] IndexedDB subject write failed; using legacy browser storage fallback:',
+                error
+            );
+        }
+
+        try {
+            localStorage.setItem(
+                legacyKey,
+                JSON.stringify(value)
+            );
+
+            return true;
+        } catch (error) {
+            if (checkpoint) {
+                throw createCheckpointStorageError(
+                    error
+                );
+            }
+
+            return false;
+        }
+    }
+
+    async function deleteBrowserSubjectState(
+        kind,
+        subjectId,
+        legacyKey
+    ) {
+        let indexedRemoved = true;
+
+        try {
+            indexedRemoved =
+                await deleteIndexedBrowserState(
+                    kind,
+                    subjectId
+                );
+        } catch (error) {
+            indexedRemoved = false;
+
+            console.warn(
+                '[AtlasTutorSubjectsCloudAuthority] IndexedDB subject clear failed:',
+                error
+            );
+        }
+
+        const legacyRemoved =
+            removeValue(legacyKey);
+
+        return (
+            indexedRemoved &&
+            legacyRemoved
+        );
+    }
+
+    async function migrateLegacyGenerationStorage() {
+        if (browserStateMigrationPromise) {
+            return browserStateMigrationPromise;
+        }
+
+        browserStateMigrationPromise =
+            (async () => {
+                const mappings = [
+                    {
+                        kind: 'working-draft',
+                        prefix:
+                            WORKING_DRAFT_PREFIX
+                    },
+                    {
+                        kind: 'build-state',
+                        prefix:
+                            BUILD_STATE_PREFIX
+                    },
+                    {
+                        kind: 'build-checkpoint',
+                        prefix:
+                            BUILD_CHECKPOINT_PREFIX
+                    }
+                ];
+
+                let migrated = 0;
+
+                for (const mapping of mappings) {
+                    const keys =
+                        listKeysWithPrefix(
+                            mapping.prefix
+                        );
+
+                    for (const key of keys) {
+                        const subjectId =
+                            decodeStorageSubjectId(
+                                key,
+                                mapping.prefix
+                            );
+
+                        const value =
+                            readJson(key);
+
+                        if (
+                            !subjectId ||
+                            !value
+                        ) {
+                            continue;
+                        }
+
+                        try {
+                            const saved =
+                                await writeIndexedBrowserState(
+                                    mapping.kind,
+                                    subjectId,
+                                    value
+                                );
+
+                            if (
+                                saved &&
+                                removeValue(key)
+                            ) {
+                                migrated += 1;
+                            }
+                        } catch (error) {
+                            console.warn(
+                                '[AtlasTutorSubjectsCloudAuthority] Legacy generation state migration paused:',
+                                error
+                            );
+
+                            return migrated;
+                        }
+                    }
+                }
+
+                return migrated;
+            })();
+
+        return browserStateMigrationPromise;
+    }
+
+    async function pruneCloudBackedLegacySubjects() {
+        if (!(await useCloud())) {
+            return 0;
+        }
+
+        const subjects =
+            await AtlasCloud.listOwnedSubjects();
+
+        const cloudIds =
+            new Set(
+                (subjects || [])
+                    .map(subject =>
+                        String(
+                            subject?.id || ''
+                        ).trim()
+                    )
+                    .filter(Boolean)
+            );
+
+        let removed = 0;
+
+        listKeysWithPrefix(
+            SUBJECT_PREFIX
+        ).forEach(key => {
+            const subjectId =
+                decodeStorageSubjectId(
+                    key,
+                    SUBJECT_PREFIX
+                );
+
+            if (
+                subjectId &&
+                cloudIds.has(subjectId) &&
+                removeValue(key)
+            ) {
+                removed += 1;
+            }
+        });
+
+        return removed;
     }
 
     function normalizeSubjectOrder(value) {
