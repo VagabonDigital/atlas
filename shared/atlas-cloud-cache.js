@@ -25,7 +25,7 @@
 
     const LOCAL_OWNER_ID = 'local-tutor';
     const AUTH_STORAGE_KEY = 'sb-jnhjfpagectprceswvqn-auth-token';
-    const HUB_CACHE_VERSION = 2;
+    const HUB_CACHE_VERSION = 3;
     const HUB_CACHE_KIND = 'compass-hub-presentation';
     const HUB_CACHE_PREFIX = 'atlas::compassHubCache::v1::';
     const WORKING_DRAFT_PREFIX = 'atlas::tutorSubjects::workingDraft::';
@@ -55,6 +55,7 @@
     let scopePromise = null;
     let revalidationPromise = null;
     let hydratedPersistentUserId = null;
+    let hubMutationRevision = 0;
 
     function cloneJson(value) {
         if (value === null || value === undefined) return value;
@@ -127,6 +128,28 @@
         clearLibraryCache();
         revalidationPromise = null;
         hydratedPersistentUserId = null;
+        hubMutationRevision += 1;
+    }
+
+    function markHubMutation() {
+        hubMutationRevision += 1;
+        return hubMutationRevision;
+    }
+
+    function removePersistentHubCache(
+        userId = activeUserId
+    ) {
+        const key =
+            hubCacheKey(userId);
+
+        if (!key) return false;
+
+        try {
+            localStorage.removeItem(key);
+            return true;
+        } catch {
+            return false;
+        }
     }
 
     function setUserScope(userId) {
@@ -214,7 +237,25 @@
         const key = hubCacheKey(activeUserId);
         if (!key) return false;
 
-        return writeJson(localStorage, key, snapshot);
+        const written =
+            writeJson(
+                localStorage,
+                key,
+                snapshot
+            );
+
+        if (!written) {
+            /*
+             * A stale first-paint snapshot is worse than no snapshot.
+             * If browser storage cannot accept the authoritative mutation,
+             * remove the previous cache so Compass falls back to fresh data.
+             */
+            removePersistentHubCache(
+                activeUserId
+            );
+        }
+
+        return written;
     }
 
     function hydratePersistentHubCache(userId) {
@@ -223,12 +264,26 @@
 
         hydratedPersistentUserId = id;
 
-        const cached = normalizePersistentSnapshot(
-            readJson(localStorage, hubCacheKey(id)),
-            id
-        );
+        const key =
+            hubCacheKey(id);
+
+        const raw =
+            readJson(
+                localStorage,
+                key
+            );
+
+        const cached =
+            normalizePersistentSnapshot(
+                raw,
+                id
+            );
 
         if (!cached) {
+            if (raw) {
+                removePersistentHubCache(id);
+            }
+
             return false;
         }
 
@@ -422,12 +477,21 @@
         const userId = activeUserId || fastStoredUserScope();
         if (!userId || revalidationPromise) return revalidationPromise;
 
+        const mutationRevisionAtStart =
+            hubMutationRevision;
+
         revalidationPromise = Promise.all([
             fetchFreshSummaries(userId),
             Base.getSubjectLibraryState()
         ])
             .then(([summaries, library]) => {
-                if (activeUserId !== userId) return false;
+                if (
+                    activeUserId !== userId ||
+                    hubMutationRevision !==
+                        mutationRevisionAtStart
+                ) {
+                    return false;
+                }
 
                 const previousSummaries = JSON.stringify(
                     cachedSummaryList()
@@ -554,8 +618,11 @@
         await syncUserScope();
         const created = await Base.createOwnedSubject(record);
         if (created) {
+            markHubMutation();
             storeSubject(created);
-            if (summariesLoaded) storeSummary(created);
+            if (summariesLoaded) {
+                storeSummary(created);
+            }
         }
         return cloneJson(created);
     }
@@ -566,8 +633,11 @@
         try {
             const updated = await Base.updateOwnedSubject(record, expectedRevision);
             if (updated) {
+                markHubMutation();
                 storeSubject(updated);
-                if (summariesLoaded) storeSummary(updated);
+                if (summariesLoaded) {
+                    storeSummary(updated);
+                }
             }
             return cloneJson(updated);
         } catch (error) {
@@ -588,6 +658,7 @@
         const deleted = await Base.deleteOwnedSubject(id, expectedRevision);
 
         if (deleted) {
+            markHubMutation();
             subjectById.delete(id);
             subjectSummaryById.delete(id);
             persistHubCache();
@@ -639,6 +710,11 @@
     async function createSubjectLibraryState(state, schemaVersion = 1) {
         await syncUserScope();
         const created = await Base.createSubjectLibraryState(state, schemaVersion);
+
+        if (created) {
+            markHubMutation();
+        }
+
         return storeLibrary(created);
     }
 
@@ -651,6 +727,11 @@
                 expectedRevision,
                 schemaVersion
             );
+
+            if (updated) {
+                markHubMutation();
+            }
+
             return storeLibrary(updated);
         } catch (error) {
             if (error?.code === 'ATLAS_REVISION_CONFLICT') {
