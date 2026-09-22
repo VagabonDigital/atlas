@@ -1031,9 +1031,7 @@
     </div>
 
     <section class="card">
-      <div id="status" class="status" role="status" aria-live="polite">
-        Checking your account…
-      </div>
+      <div id="status" class="status" role="status" aria-live="polite" hidden></div>
 
       <div id="account-loading-view" class="view account-loading-view">
         <div class="account-loading-state" role="status" aria-live="polite">
@@ -1935,7 +1933,7 @@
       }
 
       showOnly(AccountLoadingView);
-      setStatus('Loading your account…', 'info', false);
+      setStatus('', 'info', false);
 
       accountPresentationPromise =
         (async () => {
@@ -2018,11 +2016,7 @@
           !state.entitlementError
         ) {
           showOnly(AccountLoadingView);
-          setStatus(
-            'Loading your account…',
-            'info',
-            false
-          );
+          setStatus('', 'info', false);
           return;
         }
 
