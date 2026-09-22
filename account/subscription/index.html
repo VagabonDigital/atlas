@@ -121,7 +121,7 @@
     }
 
     .card {
-      min-height: 310px;
+      min-height: 560px;
       padding: 28px;
       border: 1px solid var(--border);
       border-radius: 20px;
@@ -130,7 +130,7 @@
     }
 
     .loading {
-      min-height: 250px;
+      min-height: 502px;
       display: grid;
       place-items: center;
     }
@@ -567,7 +567,12 @@
       }
 
       .card {
+        min-height: 620px;
         padding: 18px;
+      }
+
+      .loading {
+        min-height: 582px;
       }
 
       .subscription-head,
@@ -1664,8 +1669,11 @@
           return;
         }
 
-        const result =
-          await requestSubscription();
+        const [result] =
+          await Promise.all([
+            requestSubscription(),
+            loadBillingHistory()
+          ]);
 
         if (
           result.available !== true ||
@@ -1681,7 +1689,6 @@
         );
 
         show('content');
-        void loadBillingHistory();
       } catch (error) {
         ErrorCopy.textContent =
           String(
