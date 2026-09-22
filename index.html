@@ -4641,13 +4641,15 @@
       const metadata = owned?.metadata || {};
       const module = owned?.document?.module || {};
 
+      // Content surfaces use the full subject title. navTitle is a compact
+      // navigation label and may intentionally differ from the subject name.
       return (
-        metadata.navTitle ||
         metadata.title ||
-        module.navTitle ||
         module.title ||
-        item.navTitle ||
         item.title ||
+        metadata.navTitle ||
+        module.navTitle ||
+        item.navTitle ||
         item.name ||
         'Untitled'
       );
@@ -5399,9 +5401,7 @@
         hasRecapEvidence && handoffId && expandedContinueHandoffId === handoffId
       );
       const recapId = 'continue-recap-region';
-      const subjectTitle = handoff && typeof handoff.subjectTitle === 'string' && handoff.subjectTitle.trim()
-        ? handoff.subjectTitle.trim()
-        : itemTitle(item);
+      const subjectTitle = itemTitle(item);
 
       const rail = (pct !== null)
         ? '<div class="continue-rail' + (pct >= 100 ? ' is-complete' : '') + '" aria-hidden="true">' +
