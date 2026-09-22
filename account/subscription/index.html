@@ -149,14 +149,74 @@
       font-size: .9rem;
     }
 
-    .payment-preparing {
+    .mobile-payment {
       position: fixed;
       inset: 0;
       z-index: 2147483647;
+      overflow-y: auto;
+      background: var(--canvas);
+    }
+
+    .mobile-payment[hidden] {
+      display: none;
+    }
+
+    .mobile-payment-shell {
+      width: min(560px, 100%);
+      min-height: 100%;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .mobile-payment-topline {
+      min-height: 28px;
+      margin-bottom: 18px;
+    }
+
+    .mobile-payment-back {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--text-secondary);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .mobile-payment-heading {
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    .mobile-payment-heading h2 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2rem;
+      font-weight: 400;
+    }
+
+    .mobile-payment-heading p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.5;
+    }
+
+    .mobile-payment-stage {
+      position: relative;
+      min-height: 70vh;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .payment-preparing {
+      position: absolute;
+      inset: 0;
       display: grid;
       place-items: center;
       padding: 24px;
-      background: var(--canvas);
+      background: var(--surface);
     }
 
     .payment-preparing[hidden] {
@@ -165,6 +225,17 @@
 
     .payment-preparing .loading-state {
       text-align: center;
+    }
+
+    .atlas-paddle-mobile-checkout {
+      min-height: 70vh;
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .mobile-payment[data-ready="true"] .atlas-paddle-mobile-checkout {
+      opacity: 1;
+      visibility: visible;
     }
 
     .dots {
@@ -532,14 +603,30 @@
   </style>
 </head>
 <body>
-  <div id="payment-preparing" class="payment-preparing" role="status" aria-live="polite" hidden>
-    <div class="loading-state">
-      <div class="dots" aria-hidden="true">
-        <span></span><span></span><span></span>
+  <section id="mobile-payment" class="mobile-payment" data-ready="false" hidden>
+    <div class="mobile-payment-shell">
+      <div class="mobile-payment-topline">
+        <button id="mobile-payment-close" class="mobile-payment-back" type="button">← Subscription</button>
       </div>
-      <span>Preparing secure payment…</span>
+
+      <header class="mobile-payment-heading">
+        <h2>Update payment method</h2>
+        <p>Payments securely processed by Paddle.</p>
+      </header>
+
+      <div class="mobile-payment-stage">
+        <div id="payment-preparing" class="payment-preparing" role="status" aria-live="polite">
+          <div class="loading-state">
+            <div class="dots" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </div>
+            <span>Preparing secure payment…</span>
+          </div>
+        </div>
+        <div class="atlas-paddle-mobile-checkout"></div>
+      </div>
     </div>
-  </div>
+  </section>
 
   <main class="shell">
     <div class="topline">
@@ -670,11 +757,20 @@
       document.getElementById('billing-history-empty');
     const PaymentPreparing =
       document.getElementById('payment-preparing');
+    const MobilePayment =
+      document.getElementById('mobile-payment');
+    const MobilePaymentClose =
+      document.getElementById('mobile-payment-close');
+    const MobilePaymentFrame =
+      document.querySelector(
+        '.atlas-paddle-mobile-checkout'
+      );
 
     let currentBilling = null;
     let paddleReady = false;
     let paymentCheckoutPending = false;
     let paymentCheckoutTimeout = null;
+    let paymentCheckoutMode = null;
 
     const query =
       new URLSearchParams(
@@ -800,6 +896,28 @@
       });
     }
 
+    function usesMobileInlinePayment() {
+      return window.matchMedia(
+        '(max-width: 620px)'
+      ).matches;
+    }
+
+    function setMobilePaymentOpen(
+      open
+    ) {
+      MobilePayment.hidden =
+        !open;
+      MobilePayment.dataset.ready =
+        'false';
+      document.body.style.overflow =
+        open ? 'hidden' : '';
+
+      if (!open) {
+        MobilePaymentFrame
+          .replaceChildren();
+      }
+    }
+
     function setPaymentPreparing(
       preparing
     ) {
@@ -829,7 +947,11 @@
       paymentCheckoutTimeout =
         window.setTimeout(
           () => {
-            if (!paymentCheckoutPending) {
+            if (
+              !paymentCheckoutPending ||
+              paymentCheckoutMode !==
+                'mobile-inline'
+            ) {
               return;
             }
 
@@ -841,6 +963,9 @@
               // Paddle may not have created a checkout yet.
             }
 
+            setMobilePaymentOpen(false);
+            paymentCheckoutMode = null;
+            setActionBusy(false);
             setActionStatus(
               'Secure payment update could not load. Please try again.'
             );
@@ -850,10 +975,19 @@
     }
 
     function revealLoadedPaymentCheckout() {
+      if (
+        paymentCheckoutMode !==
+          'mobile-inline'
+      ) {
+        return;
+      }
+
       window.requestAnimationFrame(
         () => {
           window.requestAnimationFrame(
             () => {
+              MobilePayment.dataset.ready =
+                'true';
               setPaymentPreparing(false);
             }
           );
@@ -964,7 +1098,8 @@
             if (
               name ===
                 'checkout.loaded' &&
-              paymentCheckoutPending
+              paymentCheckoutMode ===
+                'mobile-inline'
             ) {
               revealLoadedPaymentCheckout();
             }
@@ -973,7 +1108,16 @@
               name ===
                 'checkout.completed'
             ) {
-              setPaymentPreparing(false);
+              if (
+                paymentCheckoutMode ===
+                  'mobile-inline'
+              ) {
+                setPaymentPreparing(false);
+                setMobilePaymentOpen(false);
+                paymentCheckoutMode = null;
+                setActionBusy(false);
+              }
+
               setActionStatus(
                 'Payment method updated.'
               );
@@ -984,6 +1128,15 @@
                 'checkout.closed'
             ) {
               setPaymentPreparing(false);
+
+              if (
+                paymentCheckoutMode ===
+                  'mobile-inline'
+              ) {
+                setMobilePaymentOpen(false);
+                paymentCheckoutMode = null;
+                setActionBusy(false);
+              }
 
               if (
                 ActionStatus.textContent ===
@@ -998,6 +1151,18 @@
                 'checkout.error'
             ) {
               setPaymentPreparing(false);
+
+              if (
+                paymentCheckoutMode ===
+                  'mobile-inline'
+              ) {
+                setMobilePaymentOpen(false);
+                paymentCheckoutMode = null;
+                setActionBusy(false);
+                setActionStatus(
+                  'Secure payment update could not load. Please try again.'
+                );
+              }
             }
           }
       });
@@ -1007,11 +1172,23 @@
     }
 
     async function updatePaymentMethod() {
+      const mobileInline =
+        usesMobileInlinePayment();
+
+      paymentCheckoutMode =
+        mobileInline
+          ? 'mobile-inline'
+          : 'desktop-overlay';
+
       setActionBusy(true);
       setActionStatus(
         'Opening secure payment update…'
       );
-      setPaymentPreparing(true);
+
+      if (mobileInline) {
+        setMobilePaymentOpen(true);
+        setPaymentPreparing(true);
+      }
 
       try {
         if (!initPaddle()) {
@@ -1042,21 +1219,46 @@
 
         Paddle.Checkout.open({
           transactionId,
-          settings: {
-            displayMode: 'overlay',
-            variant: 'one-page',
-            theme:
-              document.documentElement
-                .dataset.theme ===
-              'night'
-                ? 'dark'
-                : 'light'
-          }
+          settings:
+            mobileInline
+              ? {
+                  displayMode: 'inline',
+                  variant: 'one-page',
+                  frameTarget:
+                    'atlas-paddle-mobile-checkout',
+                  frameInitialHeight:
+                    '720',
+                  frameStyle:
+                    'width: 100%; min-width: 312px; background-color: transparent; border: none;',
+                  theme:
+                    document.documentElement
+                      .dataset.theme ===
+                    'night'
+                      ? 'dark'
+                      : 'light'
+                }
+              : {
+                  displayMode: 'overlay',
+                  variant: 'one-page',
+                  theme:
+                    document.documentElement
+                      .dataset.theme ===
+                    'night'
+                      ? 'dark'
+                      : 'light'
+                }
         });
 
         setActionStatus('');
       } catch (error) {
         setPaymentPreparing(false);
+
+        if (mobileInline) {
+          setMobilePaymentOpen(false);
+        }
+
+        paymentCheckoutMode = null;
+
         setActionStatus(
           String(
             error?.message ||
@@ -1064,7 +1266,9 @@
           )
         );
       } finally {
-        setActionBusy(false);
+        if (!mobileInline) {
+          setActionBusy(false);
+        }
       }
     }
 
@@ -1484,6 +1688,29 @@
         'click',
         () => {
           void updatePaymentMethod();
+        }
+      );
+
+    MobilePaymentClose
+      .addEventListener(
+        'click',
+        () => {
+          if (
+            paymentCheckoutMode !==
+              'mobile-inline'
+          ) {
+            setMobilePaymentOpen(false);
+            return;
+          }
+
+          try {
+            Paddle.Checkout.close();
+          } catch {
+            setPaymentPreparing(false);
+            setMobilePaymentOpen(false);
+            paymentCheckoutMode = null;
+            setActionBusy(false);
+          }
         }
       );
 
