@@ -21,7 +21,7 @@
     if (window.AtlasAccountGate) return;
 
     const STYLE_HREF =
-        '/shared/atlas-account-gate.css?v=20260921-insideheader1';
+        '/shared/atlas-account-gate.css?v=20260922-allowance1';
     const RETURN_INTENT_SRC =
         '/shared/atlas-return-intent.js?v=20260916-returnintent1';
     const FEEDBACK_SRC =
@@ -800,6 +800,11 @@
             <p class="atlas-account-menu-kicker">Signed in as</p>
             <p class="atlas-account-menu-email" data-account-menu-email></p>
             <span class="atlas-account-menu-plan" data-account-menu-plan></span>
+            <div class="atlas-account-menu-allowance" data-account-menu-allowance hidden>
+                <p class="atlas-account-menu-allowance-label">Subject creations</p>
+                <p class="atlas-account-menu-allowance-value" data-account-menu-allowance-value></p>
+                <p class="atlas-account-menu-allowance-meta" data-account-menu-allowance-meta></p>
+            </div>
             <div class="atlas-account-menu-actions">
                 <a class="atlas-account-menu-action" href="/account/" data-account-settings>Account settings</a>
                 <button class="atlas-account-menu-action" type="button" data-account-menu-feedback>Message Atlas</button>
@@ -1684,6 +1689,70 @@
 
         accountMenu.querySelector('[data-account-menu-email]').textContent = email;
         accountMenu.querySelector('[data-account-menu-plan]').textContent = tier;
+
+        const allowance =
+            access.creationAllowance &&
+            typeof access.creationAllowance === 'object'
+                ? access.creationAllowance
+                : null;
+        const allowancePanel =
+            accountMenu.querySelector('[data-account-menu-allowance]');
+        const allowanceValue =
+            accountMenu.querySelector('[data-account-menu-allowance-value]');
+        const allowanceMeta =
+            accountMenu.querySelector('[data-account-menu-allowance-meta]');
+        const remaining = Number(allowance?.remaining);
+        const limit = Number(allowance?.limit);
+        const hasAllowance =
+            Number.isFinite(remaining) &&
+            Number.isFinite(limit) &&
+            limit >= 0 &&
+            remaining >= 0;
+
+        if (
+            allowancePanel &&
+            allowanceValue &&
+            allowanceMeta &&
+            hasAllowance
+        ) {
+            const safeRemaining =
+                Math.min(
+                    Math.max(0, Math.floor(remaining)),
+                    Math.max(0, Math.floor(limit))
+                );
+            const safeLimit =
+                Math.max(0, Math.floor(limit));
+
+            allowanceValue.textContent =
+                `${safeRemaining} of ${safeLimit} remaining`;
+
+            if (access.tier === 'pro' && allowance?.resetAt) {
+                const resetAt = new Date(allowance.resetAt);
+                const resetLabel =
+                    Number.isFinite(resetAt.getTime())
+                        ? new Intl.DateTimeFormat(
+                            undefined,
+                            {
+                                month: 'short',
+                                day: 'numeric'
+                            }
+                        ).format(resetAt)
+                        : '';
+
+                allowanceMeta.textContent =
+                    resetLabel
+                        ? `Monthly allowance · resets ${resetLabel}`
+                        : 'Monthly allowance';
+            } else {
+                allowanceMeta.textContent =
+                    'Lifetime Free allowance';
+            }
+
+            allowancePanel.hidden = false;
+        } else if (allowancePanel) {
+            allowancePanel.hidden = true;
+        }
+
         const signOutButton = accountMenu.querySelector('[data-account-menu-sign-out]');
         if (signOutButton) signOutButton.disabled = false;
         const status = accountMenu.querySelector('[data-account-menu-status]');
