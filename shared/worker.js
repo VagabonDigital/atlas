@@ -399,6 +399,131 @@ async function createAtlasPaddlePortalSession(
     };
 }
 
+
+async function updateAtlasPaddleSubscription(
+    env,
+    paddleEnvironment,
+    subscriptionId,
+    action
+) {
+    const apiKey =
+        String(
+            env.ATLAS_PADDLE_API_KEY || ''
+        ).trim();
+
+    if (!apiKey) {
+        throw new Error(
+            'Atlas Paddle API access is not configured.'
+        );
+    }
+
+    const base =
+        `${getAtlasPaddleApiBase(
+            paddleEnvironment
+        )}/subscriptions/${encodeURIComponent(
+            subscriptionId
+        )}`;
+
+    const cancelling =
+        action === 'cancel_subscription';
+
+    const response =
+        await fetch(
+            cancelling
+                ? `${base}/cancel`
+                : base,
+            {
+                method:
+                    cancelling
+                        ? 'POST'
+                        : 'PATCH',
+                headers: {
+                    'Authorization':
+                        `Bearer ${apiKey}`,
+                    'Content-Type':
+                        'application/json',
+                    'Accept':
+                        'application/json',
+                    'Paddle-Version':
+                        '1'
+                },
+                body:
+                    JSON.stringify(
+                        cancelling
+                            ? {
+                                effective_from:
+                                    'next_billing_period'
+                            }
+                            : {
+                                scheduled_change:
+                                    null
+                            }
+                    )
+            }
+        );
+
+    let payload = null;
+
+    try {
+        payload =
+            await response.json();
+    } catch {
+        payload = null;
+    }
+
+    if (!response.ok) {
+        const detail =
+            String(
+                payload?.error?.detail ||
+                ''
+            ).trim();
+
+        throw new Error(
+            detail ||
+            `Paddle subscription update failed with status ${response.status}.`
+        );
+    }
+
+    const data =
+        payload?.data &&
+        typeof payload.data === 'object'
+            ? payload.data
+            : {};
+
+    const period =
+        data?.current_billing_period &&
+        typeof data.current_billing_period ===
+            'object'
+            ? data.current_billing_period
+            : {};
+
+    const scheduled =
+        data?.scheduled_change &&
+        typeof data.scheduled_change ===
+            'object'
+            ? data.scheduled_change
+            : null;
+
+    return {
+        status:
+            String(
+                data?.status || ''
+            ).trim(),
+        currentPeriodStart:
+            period?.starts_at || null,
+        currentPeriodEnd:
+            period?.ends_at || null,
+        scheduledAction:
+            scheduled
+                ? String(
+                    scheduled.action || ''
+                ).trim() || null
+                : null,
+        scheduledEffectiveAt:
+            scheduled?.effective_at || null
+    };
+}
+
 function constantTimeEqualText(left, right) {
     const a = String(left || '');
     const b = String(right || '');
@@ -1101,6 +1226,48 @@ export default {
                     },
                     409
                 );
+            }
+
+            if (
+                action === 'cancel_subscription' ||
+                action === 'keep_subscription'
+            ) {
+                try {
+                    const billing =
+                        await updateAtlasPaddleSubscription(
+                            env,
+                            paddleEnvironment,
+                            String(
+                                context.subscriptionId ||
+                                ''
+                            ),
+                            action
+                        );
+
+                    return jsonNoStore({
+                        ok: true,
+                        action,
+                        billing
+                    });
+                } catch (error) {
+                    console.error(
+                        '[Atlas Paddle] Subscription update failed:',
+                        error
+                    );
+
+                    return jsonNoStore(
+                        {
+                            ok: false,
+                            error:
+                                String(
+                                    error?.message ||
+                                    ''
+                                ).trim() ||
+                                'Atlas could not update your subscription.'
+                        },
+                        502
+                    );
+                }
             }
 
             try {
