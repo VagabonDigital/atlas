@@ -1478,43 +1478,50 @@ async function checkpointMyVersionFullSubjectGeneration(
             pending || myVersionDraftOverrides
         );
 
+    let checkpointError = null;
+
     const checkpoint =
         await queueTutorContentWrite(
             async () => {
-                const Subjects =
-                    requireAtlasTutorSubjects();
+                try {
+                    const Subjects =
+                        requireAtlasTutorSubjects();
 
-                if (
-                    typeof Subjects.saveBuildCheckpoint !==
-                    'function'
-                ) {
-                    throw new Error(
-                        'Atomic subject construction checkpoints are unavailable.'
-                    );
-                }
+                    if (
+                        typeof Subjects.saveBuildCheckpoint !==
+                        'function'
+                    ) {
+                        throw new Error(
+                            'Atomic subject construction checkpoints are unavailable.'
+                        );
+                    }
 
-                const saved =
-                    await Subjects.saveBuildCheckpoint(
-                        MODULE.id,
-                        {
-                            workingDraft,
-                            buildState: {
-                                kind: 'full-subject',
-                                completedStep,
-                                autoSaveOnComplete
+                    const saved =
+                        await Subjects.saveBuildCheckpoint(
+                            MODULE.id,
+                            {
+                                workingDraft,
+                                buildState: {
+                                    kind: 'full-subject',
+                                    completedStep,
+                                    autoSaveOnComplete
+                                }
                             }
-                        }
-                    );
+                        );
 
-                if (
-                    saved?.workingDraft &&
-                    myVersionEditing
-                ) {
-                    tutorContentWorkingDraft =
-                        saved.workingDraft;
+                    if (
+                        saved?.workingDraft &&
+                        myVersionEditing
+                    ) {
+                        tutorContentWorkingDraft =
+                            saved.workingDraft;
+                    }
+
+                    return saved;
+                } catch (error) {
+                    checkpointError = error;
+                    throw error;
                 }
-
-                return saved;
             }
         );
 
@@ -1522,6 +1529,10 @@ async function checkpointMyVersionFullSubjectGeneration(
         checkpoint?.buildState || null;
 
     if (!savedState) {
+        if (checkpointError) {
+            throw checkpointError;
+        }
+
         throw new Error(
             'Could not save subject construction checkpoint.'
         );
@@ -22972,6 +22983,13 @@ async function init() {
         pendingOwnedSubjectAuthoringIntent ===
             'generate';
 
+    const freshBuildCloudAuthorityPromise =
+        freshOwnedSubjectBuild
+            ? ensureSubjectAuthoringCloudAuthorityReady(
+                'subjects'
+            )
+            : null;
+
     if (freshOwnedSubjectBuild) {
         const runtimeLayersReady =
             await waitForOwnedSubjectRuntimeLayersReady();
@@ -22999,7 +23017,9 @@ async function init() {
     }
 
     const ownedSubjectAuthoringIntent =
-        consumeOwnedSubjectAuthoringIntent();
+        freshOwnedSubjectBuild
+            ? pendingOwnedSubjectAuthoringIntent
+            : consumeOwnedSubjectAuthoringIntent();
 
     window.AtlasAnalytics?.resourceOpen({
         resourceType: 'subject',
@@ -23077,6 +23097,23 @@ async function init() {
          * construction from this point onward, not an entry prerequisite.
          */
         releaseCompassSubjectBuildHandoff();
+
+        const cloudAuthorityReady =
+            await freshBuildCloudAuthorityPromise;
+
+        if (!cloudAuthorityReady) {
+            showSubjectAuthoringPersistenceUnavailable(
+                'Atlas could not prepare account persistence for this subject. Reload and try again.'
+            );
+            return;
+        }
+
+        /*
+         * Keep ?author=generate intact until account persistence is proven.
+         * A failed authority bootstrap can therefore recover on reload rather
+         * than silently losing the creation intent.
+         */
+        consumeOwnedSubjectAuthoringIntent();
     }
 
     const resumableFullSubjectBuild =
