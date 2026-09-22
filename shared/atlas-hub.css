@@ -5,15 +5,12 @@
   padding: 3.4rem 2rem 3rem;
   --home-surface: #fffdf9;
   --home-border: rgba(63, 65, 53, .10);
-  --home-shadow-color: rgba(39, 44, 37, .30);
-  --home-shadow-edge-color: rgba(39, 44, 37, .025);
-  --home-shadow: 0 12px 32px -22px var(--home-shadow-color), 0 2px 5px var(--home-shadow-edge-color);
+  --home-shadow: 0 12px 32px -22px rgba(39, 44, 37, .30), 0 2px 5px rgba(39, 44, 37, .025);
 }
 html[data-theme="night"] .atlas-main {
   --home-surface: #282e2b;
   --home-border: rgba(211, 225, 216, .12);
-  --home-shadow-color: rgba(0, 0, 0, .55);
-  --home-shadow-edge-color: rgba(0, 0, 0, .11);
+  --home-shadow: 0 14px 34px -20px rgba(0, 0, 0, .55);
 }
 .context-anchor { margin-bottom: 2rem; }
 .welcome-line { font-size: clamp(2.25rem, 3.7vw, 3.4rem); letter-spacing: -.035em; line-height: 1.12; }

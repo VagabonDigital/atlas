@@ -5,39 +5,27 @@ const vm = require('node:vm');
 const { execFileSync } = require('node:child_process');
 const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 const hubCss = fs.readFileSync('shared/atlas-hub.css', 'utf8').replace(/\r\n/g, '\n');
-const nightHomeTheme = hubCss.match(
-  /html\[data-theme="night"\] \.atlas-main \{([\s\S]*?)\}/
-);
-assert.ok(nightHomeTheme, 'Atlas Hub night theme block must remain inspectable');
-assert.match(
-  hubCss,
-  /--home-shadow:\s*0 12px 32px -22px var\(--home-shadow-color\),\s*0 2px 5px var\(--home-shadow-edge-color\);/
+const themeMotionStart = html.indexOf('THEME MOTION');
+const themeMotionEnd = html.indexOf('DESKTOP SPINE AND WORLD NAVIGATION', themeMotionStart);
+const themeMotion = html.slice(themeMotionStart, themeMotionEnd);
+assert.ok(themeMotionStart >= 0 && themeMotionEnd > themeMotionStart);
+assert.doesNotMatch(
+  themeMotion,
+  /html\.theme-changing\s+\.[^,{]+\s+\*/,
+  'Atlas theme motion must not blanket-transition descendant trees'
 );
 assert.doesNotMatch(
-  nightHomeTheme[1],
-  /--home-shadow\s*:/,
-  'Night mode may change Hub shadow colour, not shadow geometry'
+  themeMotion,
+  /\bbackground\s+var\(--hub-theme-motion\)/,
+  'Atlas theme motion must not interpolate the background shorthand'
 );
-
-const atlasNightTheme = html.match(
-  /html\[data-theme="night"\] \{([\s\S]*?)\n    \}/
+assert.match(
+  themeMotion,
+  /background-color var\(--hub-theme-motion\)/
 );
-assert.ok(atlasNightTheme, 'Atlas night theme block must remain inspectable');
-for (const geometryToken of [
-  '--shadow-sm:',
-  '--shadow-md:',
-  '--shadow-lg:',
-  '--continue-shadow:',
-  '--world-nav-hover-shadow:'
-]) {
-  assert.ok(
-    !atlasNightTheme[1].includes(geometryToken),
-    geometryToken + ' geometry must be shared across day and night'
-  );
-}
 assert.match(
   html,
-  /atlas-hub\.css\?v=20260922-theme-stability1/
+  /atlas-hub\.css\?v=20260922-theme-motion1/
 );
 
 // Compile every inline script as well as exercising the actual selectors.
