@@ -579,7 +579,7 @@ assert.match(
 
 assert.match(
     registrySource,
-    /atlas-cloud-cache\.js\?v=20260922-storage1/
+    /atlas-cloud-cache\.js\?v=20260922-delete1/
 );
 
 assert.match(
