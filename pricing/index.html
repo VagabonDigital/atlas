@@ -716,6 +716,7 @@
   </footer>
 
   <script src="/shared/atlas-legal-appearance.js?v=20260920-legal-theme1"></script>
+  <script src="/shared/atlas-return-intent.js?v=20260916-access1"></script>
   <script src="/shared/atlas-access-bootstrap.js?v=20260921-insideheader1"></script>
   <script src="/shared/atlas-account-chrome.js?v=20260921-insideheader1"></script>
   <script>
@@ -726,9 +727,167 @@
       var status = document.querySelector('[data-paddle-status]');
       var config = window.AtlasPaddleConfig;
       var paddleReady = false;
+      var proActivationPromise = null;
+      var pricingContext = readPricingContext();
 
       function setStatus(message) {
         if (status) status.textContent = message || '';
+      }
+
+      function readPricingContext() {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var source = String(params.get('from') || '').trim();
+          var draftId = String(params.get('draft') || '').trim();
+
+          if (!/^[A-Za-z0-9_-]{8,100}$/.test(draftId)) {
+            draftId = '';
+          }
+
+          return {
+            source: source,
+            draftId: draftId
+          };
+        } catch {
+          return {
+            source: '',
+            draftId: ''
+          };
+        }
+      }
+
+      function delay(ms) {
+        return new Promise(function (resolve) {
+          window.setTimeout(resolve, ms);
+        });
+      }
+
+      function queueCompassCreateResume() {
+        if (
+          pricingContext.source !== 'compass-create' ||
+          !pricingContext.draftId ||
+          !window.AtlasReturnIntent
+        ) {
+          return false;
+        }
+
+        var intent = window.AtlasReturnIntent.create({
+          action: 'create-subject',
+          destination: '/compass/',
+          context: {
+            operation: 'continue-create-preview',
+            draftId: pricingContext.draftId
+          }
+        });
+
+        return Boolean(
+          window.AtlasReturnIntent.queueResume(intent.id)
+        );
+      }
+
+      async function waitForProActivation() {
+        if (proActivationPromise) return proActivationPromise;
+
+        proActivationPromise = (async function () {
+          setStatus('Payment completed. Activating Atlas Pro…');
+
+          try {
+            await window.AtlasAccessBootstrap.initialize();
+          } catch (error) {
+            console.warn(
+              '[AtlasPricing] Atlas access refresh unavailable',
+              error
+            );
+          }
+
+          var account =
+            window.AtlasAccount &&
+            typeof window.AtlasAccount.getState === 'function'
+              ? window.AtlasAccount.getState()
+              : null;
+
+          if (!account || !account.authenticated || !account.userId) {
+            setStatus(
+              'Payment received. Sign in again to finish activating Atlas Pro.'
+            );
+            return false;
+          }
+
+          var startedAt = Date.now();
+          var deadline = startedAt + (2 * 60 * 1000);
+          var slowNoticeShown = false;
+
+          while (Date.now() < deadline) {
+            try {
+              if (
+                window.AtlasAccount &&
+                typeof window.AtlasAccount.refreshEntitlement === 'function'
+              ) {
+                await window.AtlasAccount.refreshEntitlement(account.userId);
+              }
+
+              var access =
+                window.AtlasAccess &&
+                typeof window.AtlasAccess.getState === 'function'
+                  ? window.AtlasAccess.getState()
+                  : null;
+
+              if (
+                access &&
+                access.ready &&
+                access.tier === 'pro'
+              ) {
+                if (pricingContext.source === 'compass-create') {
+                  if (!queueCompassCreateResume()) {
+                    setStatus(
+                      'Atlas Pro is active. Return to Compass to continue your subject.'
+                    );
+                    return true;
+                  }
+
+                  setStatus(
+                    'Atlas Pro is active. Returning to your subject…'
+                  );
+                  window.location.assign('/compass/');
+                  return true;
+                }
+
+                setStatus('Atlas Pro is active.');
+                return true;
+              }
+            } catch (error) {
+              console.warn(
+                '[AtlasPricing] Pro activation check failed',
+                error
+              );
+            }
+
+            if (
+              !slowNoticeShown &&
+              Date.now() - startedAt >= 15000
+            ) {
+              slowNoticeShown = true;
+              setStatus(
+                'Payment received. Atlas Pro is still activating…'
+              );
+            }
+
+            await delay(
+              Date.now() - startedAt < 15000
+                ? 1200
+                : 3000
+            );
+          }
+
+          setStatus(
+            'Payment received. Atlas Pro is still activating. Refresh this page in a moment.'
+          );
+          return false;
+        })().finally(function () {
+          proActivationPromise = null;
+        });
+
+        return proActivationPromise;
       }
 
       var checkoutScrollState = null;
@@ -783,9 +942,7 @@
             }
 
             if (name === 'checkout.completed') {
-              setStatus(
-                'Payment completed. Atlas Pro will activate after server confirmation.'
-              );
+              void waitForProActivation();
             }
           }
         });
@@ -855,7 +1012,10 @@
               atlas_user_id: account.userId,
               atlas_plan_code: 'pro',
               atlas_checkout_environment: config.environment,
-              atlas_checkout_source: 'pricing'
+              atlas_checkout_source:
+                pricingContext.source === 'compass-create'
+                  ? 'compass-create'
+                  : 'pricing'
             }
           });
         } catch (error) {
