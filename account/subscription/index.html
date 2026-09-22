@@ -236,6 +236,96 @@
       line-height: 1.5;
     }
 
+    .subscription-actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .action-button {
+      width: 100%;
+      min-height: 46px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .action-button:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: var(--accent-ring);
+      color: var(--text);
+    }
+
+    .action-button:disabled {
+      opacity: .58;
+      cursor: wait;
+    }
+
+    .action-button.keep {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .action-button.keep:hover:not(:disabled) {
+      background: var(--text-secondary);
+      border-color: var(--text-secondary);
+      color: #fff;
+    }
+
+    .cancel-confirmation {
+      margin-top: 14px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface-soft);
+    }
+
+    .cancel-confirmation[hidden],
+    .action-status[hidden] {
+      display: none;
+    }
+
+    .cancel-confirmation p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: .9rem;
+      line-height: 1.55;
+    }
+
+    .cancel-confirmation-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .cancel-confirmation-controls button {
+      flex: 1;
+      min-height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .cancel-confirmation-controls button:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: var(--accent-ring);
+    }
+
+    .action-status {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: .86rem;
+      line-height: 1.5;
+    }
+
     .provider {
       margin-top: -2px;
       color: var(--muted);
@@ -353,6 +443,27 @@
 
           <p id="summary" class="summary"></p>
           <p id="period" class="period"></p>
+
+          <div class="subscription-actions">
+            <button id="cancel-subscription" class="action-button" type="button">
+              Cancel Atlas Pro
+            </button>
+            <button id="keep-subscription" class="action-button keep" type="button" hidden>
+              Keep Atlas Pro
+            </button>
+          </div>
+
+          <div id="cancel-confirmation" class="cancel-confirmation" hidden>
+            <p id="cancel-confirmation-copy">
+              Your Pro access will continue through the end of your current paid period. You won’t be charged again after that.
+            </p>
+            <div class="cancel-confirmation-controls">
+              <button id="cancel-dismiss" type="button">Never mind</button>
+              <button id="cancel-confirm" type="button">Confirm cancellation</button>
+            </div>
+          </div>
+
+          <p id="action-status" class="action-status" role="status" aria-live="polite" hidden></p>
         </section>
 
         <p class="provider">
@@ -393,6 +504,22 @@
       document.getElementById('summary');
     const Period =
       document.getElementById('period');
+    const CancelSubscription =
+      document.getElementById('cancel-subscription');
+    const KeepSubscription =
+      document.getElementById('keep-subscription');
+    const CancelConfirmation =
+      document.getElementById('cancel-confirmation');
+    const CancelConfirmationCopy =
+      document.getElementById('cancel-confirmation-copy');
+    const CancelConfirm =
+      document.getElementById('cancel-confirm');
+    const CancelDismiss =
+      document.getElementById('cancel-dismiss');
+    const ActionStatus =
+      document.getElementById('action-status');
+
+    let currentBilling = null;
 
     const query =
       new URLSearchParams(
@@ -493,12 +620,97 @@
       return result || {};
     }
 
+    function setActionStatus(
+      message = ''
+    ) {
+      ActionStatus.textContent =
+        message;
+      ActionStatus.hidden =
+        !message;
+    }
+
+    function setActionBusy(
+      busy
+    ) {
+      [
+        CancelSubscription,
+        KeepSubscription,
+        CancelConfirm,
+        CancelDismiss
+      ].forEach(button => {
+        if (button) {
+          button.disabled = busy;
+        }
+      });
+    }
+
+    async function requestSubscriptionAction(
+      action
+    ) {
+      const session =
+        await AtlasCloud.getSession();
+
+      const token =
+        String(
+          session?.access_token || ''
+        ).trim();
+
+      if (!token) {
+        throw new Error(
+          'Sign in to manage your Atlas subscription.'
+        );
+      }
+
+      const response =
+        await fetch(
+          `${BACKEND}/paddle/customer-portal`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+              'Content-Type':
+                'application/json'
+            },
+            body:
+              JSON.stringify({
+                action
+              }),
+            cache: 'no-store'
+          }
+        );
+
+      const result =
+        await response.json()
+          .catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error ||
+          'Atlas could not update your subscription.'
+        );
+      }
+
+      if (
+        !result?.billing ||
+        typeof result.billing !== 'object'
+      ) {
+        throw new Error(
+          'Atlas subscription actions are not available yet.'
+        );
+      }
+
+      return result.billing;
+    }
+
     function renderSubscription(billing) {
       const details =
         billing &&
         typeof billing === 'object'
           ? billing
           : {};
+
+      currentBilling = details;
 
       const status =
         String(
@@ -578,6 +790,58 @@
 
       Period.hidden =
         !Period.textContent;
+
+      CancelConfirmation.hidden = true;
+      setActionStatus('');
+
+      if (ending) {
+        CancelSubscription.hidden = true;
+        KeepSubscription.hidden = false;
+      } else if (status === 'active') {
+        CancelSubscription.hidden = false;
+        KeepSubscription.hidden = true;
+      } else {
+        CancelSubscription.hidden = true;
+        KeepSubscription.hidden = true;
+      }
+    }
+
+    async function performSubscriptionAction(
+      action
+    ) {
+      setActionBusy(true);
+
+      setActionStatus(
+        action === 'cancel_subscription'
+          ? 'Scheduling cancellation…'
+          : 'Keeping Atlas Pro…'
+      );
+
+      try {
+        const billing =
+          await requestSubscriptionAction(
+            action
+          );
+
+        renderSubscription(
+          billing
+        );
+
+        setActionStatus(
+          action === 'cancel_subscription'
+            ? 'Cancellation scheduled.'
+            : 'Atlas Pro will continue.'
+        );
+      } catch (error) {
+        setActionStatus(
+          String(
+            error?.message ||
+            'Atlas could not update your subscription.'
+          )
+        );
+      } finally {
+        setActionBusy(false);
+      }
     }
 
     async function load() {
@@ -623,6 +887,58 @@
         show('error');
       }
     }
+
+    CancelSubscription
+      .addEventListener(
+        'click',
+        () => {
+          const effective =
+            formatDate(
+              currentBilling
+                ?.currentPeriodEnd
+            );
+
+          CancelConfirmationCopy.textContent =
+            effective
+              ? `Your Pro access will continue through ${effective}. You won’t be charged again after that.`
+              : 'Your Pro access will continue through the end of your current paid period. You won’t be charged again after that.';
+
+          CancelConfirmation.hidden =
+            false;
+          setActionStatus('');
+        }
+      );
+
+    CancelDismiss
+      .addEventListener(
+        'click',
+        () => {
+          CancelConfirmation.hidden =
+            true;
+        }
+      );
+
+    CancelConfirm
+      .addEventListener(
+        'click',
+        () => {
+          CancelConfirmation.hidden =
+            true;
+          void performSubscriptionAction(
+            'cancel_subscription'
+          );
+        }
+      );
+
+    KeepSubscription
+      .addEventListener(
+        'click',
+        () => {
+          void performSubscriptionAction(
+            'keep_subscription'
+          );
+        }
+      );
 
     document.getElementById('retry')
       .addEventListener(
