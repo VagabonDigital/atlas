@@ -25,10 +25,10 @@ const trust = fs.readFileSync(
 );
 
 const cacheVersionMatch = cache.match(
-    /const HUB_CACHE_VERSION = (\\d+);/
+    /const HUB_CACHE_VERSION = (\d+);/
 );
 const compassVersionMatch = compass.match(
-    /var hubCacheVersion = (\\d+);/
+    /var hubCacheVersion = (\d+);/
 );
 
 assert.ok(
@@ -68,7 +68,6 @@ assert.match(
     cache,
     /getCompassPresentationSnapshot,\s*prepareCompassPresentation/
 );
-
 
 assert.match(
     compass,
