@@ -10050,11 +10050,25 @@ async function enrichMyVersionDiscussionFromUI({
     const completedOperations = [];
     const failedOperations = [];
 
+    const operationTotals = operations.reduce(
+        (totals, operation) => {
+            totals[operation.kind] =
+                (totals[operation.kind] || 0) + 1;
+
+            return totals;
+        },
+        {}
+    );
+
+    const completedByKind = {};
+
     myVersionDiscussionEnrichmentError = '';
     myVersionEnrichingDiscussion = true;
     myVersionDiscussionEnrichmentProgress = {
         current: 0,
-        total: operations.length
+        total:
+            operationTotals.upgrade || 0,
+        kind: 'upgrade'
     };
 
     updateMyVersionAuthorBar();
@@ -10067,9 +10081,18 @@ async function enrichMyVersionDiscussionFromUI({
         ) {
             const operation = operations[index];
 
+            completedByKind[operation.kind] =
+                (completedByKind[operation.kind] || 0) + 1;
+
             myVersionDiscussionEnrichmentProgress = {
-                current: index + 1,
-                total: operations.length,
+                current:
+                    completedByKind[
+                        operation.kind
+                    ],
+                total:
+                    operationTotals[
+                        operation.kind
+                    ] || 0,
                 kind: operation.kind
             };
 
