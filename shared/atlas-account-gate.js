@@ -1701,9 +1701,25 @@
             accountMenu.querySelector('[data-account-menu-allowance-value]');
         const allowanceMeta =
             accountMenu.querySelector('[data-account-menu-allowance-meta]');
-        const remaining = Number(allowance?.remaining);
-        const limit = Number(allowance?.limit);
+        const hasRemaining =
+            allowance?.remaining !== null &&
+            allowance?.remaining !== undefined &&
+            allowance?.remaining !== '';
+        const hasLimit =
+            allowance?.limit !== null &&
+            allowance?.limit !== undefined &&
+            allowance?.limit !== '';
+        const remaining =
+            hasRemaining
+                ? Number(allowance.remaining)
+                : NaN;
+        const limit =
+            hasLimit
+                ? Number(allowance.limit)
+                : NaN;
         const hasAllowance =
+            hasRemaining &&
+            hasLimit &&
             Number.isFinite(remaining) &&
             Number.isFinite(limit) &&
             limit >= 0 &&
