@@ -1053,7 +1053,7 @@
                 !window.AtlasTutorContentCloudAuthority
             ) {
                 await loadRuntimeScript(
-                    '/shared/atlas-tutor-content-cloud-authority.js?v=20260922-storage1',
+                    '/shared/atlas-tutor-content-cloud-authority.js?v=20260922-storage2',
                     'AtlasTutorContentCloudAuthority'
                 );
             }
@@ -1222,7 +1222,7 @@
 
         if (needsTutorContent) {
             scripts.push(
-                '<script src="/shared/atlas-tutor-content-cloud-authority.js?v=20260922-storage1"><\/script>'
+                '<script src="/shared/atlas-tutor-content-cloud-authority.js?v=20260922-storage2"><\/script>'
             );
         }
 
