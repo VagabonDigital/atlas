@@ -30,6 +30,7 @@
     let recoveryAttemptsAtStep = 0;
     let recoveryPending = false;
     let lastCheckpointAttempt = null;
+    let lastCheckpointFailure = null;
     let originalUpdateMyVersionAuthorBar = null;
     let originalCheckpointFullSubject = null;
 
@@ -138,6 +139,7 @@
         recoveryAttemptsAtStep = 0;
         recoveryPending = false;
         lastCheckpointAttempt = null;
+        lastCheckpointFailure = null;
         setRecoveryPresentationActive(false);
         showRetryButton(false);
     }
@@ -151,6 +153,25 @@
         ) {
             originalUpdateMyVersionAuthorBar();
         }
+    }
+
+    function isCheckpointStorageFailure(error) {
+        return Boolean(
+            error &&
+            (
+                error.code ===
+                    'ATLAS_CHECKPOINT_STORAGE_QUOTA' ||
+                error.code ===
+                    'ATLAS_CHECKPOINT_STORAGE_WRITE_FAILED'
+            )
+        );
+    }
+
+    function checkpointStorageStatusMessage(error) {
+        return error?.code ===
+            'ATLAS_CHECKPOINT_STORAGE_QUOTA'
+            ? 'Generation paused · browser storage is full. Atlas stopped before generating more so recovery stays safe.'
+            : 'Generation paused · Atlas could not save a recovery checkpoint in this browser.';
     }
 
     function getFailedStageLabel() {
@@ -197,6 +218,14 @@
      * structural content cannot be duplicated.
      */
     async function repairLatestCheckpoint(state) {
+        if (
+            isCheckpointStorageFailure(
+                lastCheckpointFailure
+            )
+        ) {
+            return state;
+        }
+
         if (
             !lastCheckpointAttempt ||
             typeof originalCheckpointFullSubject !== 'function'
@@ -278,6 +307,23 @@
         }
 
         if (!isRecoveryEligible()) return;
+
+        if (
+            isCheckpointStorageFailure(
+                lastCheckpointFailure
+            )
+        ) {
+            clearRecoveryTimer();
+            recoveryPending = false;
+            setRecoveryPresentationActive(true);
+            setRecoveryStatus(
+                checkpointStorageStatusMessage(
+                    lastCheckpointFailure
+                )
+            );
+            showRetryButton(true);
+            return;
+        }
 
         let state = await readBuildState();
         state = await repairLatestCheckpoint(state);
@@ -361,7 +407,42 @@
         }
 
         let state = await readBuildState();
-        state = await repairLatestCheckpoint(state);
+
+        if (
+            manual &&
+            isCheckpointStorageFailure(
+                lastCheckpointFailure
+            ) &&
+            lastCheckpointAttempt &&
+            typeof originalCheckpointFullSubject ===
+                'function'
+        ) {
+            try {
+                await originalCheckpointFullSubject(
+                    lastCheckpointAttempt
+                        .completedStep,
+                    lastCheckpointAttempt
+                        .autoSaveOnComplete
+                );
+
+                lastCheckpointFailure = null;
+                state = await readBuildState();
+            } catch (error) {
+                lastCheckpointFailure = error;
+                setRecoveryPresentationActive(true);
+                setRecoveryStatus(
+                    checkpointStorageStatusMessage(
+                        error
+                    )
+                );
+                showRetryButton(true);
+                return false;
+            }
+        } else {
+            state = await repairLatestCheckpoint(
+                state
+            );
+        }
 
         if (!state || !isRecoveryEligible()) {
             if (!state) {
@@ -444,8 +525,17 @@
                     autoSaveOnComplete
                 };
 
-                return originalCheckpointFullSubject
-                    .apply(this, arguments);
+                try {
+                    const result =
+                        await originalCheckpointFullSubject
+                            .apply(this, arguments);
+
+                    lastCheckpointFailure = null;
+                    return result;
+                } catch (error) {
+                    lastCheckpointFailure = error;
+                    throw error;
+                }
             };
 
         window.updateMyVersionAuthorBar = function (...args) {
