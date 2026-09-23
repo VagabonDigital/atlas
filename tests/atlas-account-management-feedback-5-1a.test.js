@@ -9,12 +9,6 @@ const page = fs.readFileSync(
 );
 
 assert.ok(
-  page.includes(
-    'We’ll send confirmation links to your current email and your new email. Your sign-in address changes only after you confirm both.'
-  )
-);
-
-assert.ok(
   page.includes('id="change-email-status"')
 );
 
@@ -35,17 +29,37 @@ assert.ok(
 );
 
 assert.ok(
-  page.includes(
-    'Confirmation links sent. Confirm the messages at'
-  )
+  page.includes('id="change-email-success"')
+);
+
+assert.ok(
+  page.includes('id="change-password-success"')
+);
+
+assert.ok(
+  page.includes('Check your new email')
+);
+
+assert.ok(
+  page.includes('Password updated')
 );
 
 assert.ok(
   page.includes(
-    'Your sign-in email changes after both are confirmed.'
+    'Your Atlas sign-in email won’t change until you confirm it.'
   )
 );
 
+assert.match(
+  page,
+  /ChangeEmailFields\.hidden = true[\s\S]*?ChangeEmailSuccess\.hidden = false/
+);
+
+assert.match(
+  page,
+  /ChangePasswordFields\.hidden = true[\s\S]*?ChangePasswordSuccess\.hidden = false/
+);
+
 console.log(
-  'Atlas 5.1 account management feedback contract passed.'
+  'Atlas account management feedback contract passed: errors stay actionable and successful changes transform inside their modal.'
 );
