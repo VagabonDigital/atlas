@@ -1861,6 +1861,7 @@ export default {
                             available: false
                         }
             });
+        }
 
         if (!allowedOrigins.has(origin)) {
             return json(
