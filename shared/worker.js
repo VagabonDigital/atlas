@@ -393,10 +393,10 @@ function renderAtlasBillingEmail(job) {
             subject:
                 'Welcome to Atlas Pro',
             title:
-                'You’re now on Atlas Pro',
+                'Welcome to Atlas Pro',
             paragraphs: [
-                'Your Atlas Pro subscription is active.',
-                'You now have 100 subject creations available each billing month, alongside the Atlas workspace you already use.'
+                'You’re in.',
+                'You now have 100 subject creations each billing month, giving you more room to build around the students you teach.'
             ],
             buttonLabel:
                 'Open Atlas',
@@ -408,30 +408,22 @@ function renderAtlasBillingEmail(job) {
             subject:
                 'Atlas Pro payment received',
             title:
-                'Your Atlas Pro payment was successful',
+                'Payment received',
             paragraphs: [
                 'We received your latest Atlas Pro payment.',
-                'Your subscription continues as normal.'
-            ],
-            buttonLabel:
-                'View subscription',
-            buttonUrl:
-                accountUrl
+                'You’re all set for another month of Atlas Pro.'
+            ]
         };
     } else if (emailKind === 'payment_recovered') {
         message = {
             subject:
-                'Atlas Pro payment recovered',
+                'Your Atlas Pro payment went through',
             title:
                 'Your Atlas Pro payment went through',
             paragraphs: [
-                'Your Atlas Pro payment has now been completed successfully.',
-                'Your subscription is active and there’s nothing else you need to do.'
-            ],
-            buttonLabel:
-                'View subscription',
-            buttonUrl:
-                accountUrl
+                'The payment issue is resolved.',
+                'You’re all set — there’s nothing else you need to do.'
+            ]
         };
     } else if (emailKind === 'cancellation_scheduled') {
         message = {
@@ -455,10 +447,10 @@ function renderAtlasBillingEmail(job) {
             subject:
                 'Atlas Pro will continue',
             title:
-                'Your Atlas Pro subscription will continue',
+                'Atlas Pro will continue',
             paragraphs: [
-                'The scheduled cancellation has been removed.',
-                'Your Pro subscription will continue and renew as normal.'
+                'Your cancellation is no longer scheduled.',
+                'Your Pro access will continue, and your subscription will renew as usual.'
             ],
             buttonLabel:
                 'View subscription',
@@ -552,15 +544,22 @@ function renderAtlasBillingEmail(job) {
         ) +
         '</h1>' +
         htmlParagraphs +
-        '<a href="' +
-        escapeAtlasBillingEmailHtml(
+        (
+            message.buttonLabel &&
             message.buttonUrl
+                ? (
+                    '<a href="' +
+                    escapeAtlasBillingEmailHtml(
+                        message.buttonUrl
+                    ) +
+                    '" style="display:inline-block;padding:15px 24px;background:#4d7184;color:#fff;text-decoration:none;font-size:16px;font-weight:700;border-radius:12px;">' +
+                    keepAtlasBillingEmailEndingTogether(
+                        message.buttonLabel
+                    ) +
+                    '</a>'
+                )
+                : ''
         ) +
-        '" style="display:inline-block;padding:15px 24px;background:#4d7184;color:#fff;text-decoration:none;font-size:16px;font-weight:700;border-radius:12px;">' +
-        keepAtlasBillingEmailEndingTogether(
-            message.buttonLabel
-        ) +
-        '</a>' +
         htmlFootnote +
         '</div>' +
         '<div style="padding:20px 42px;border-top:1px solid #ece7df;font-size:12px;color:#9a9389;">Atlas · atlasfortutors.com</div>' +
@@ -573,9 +572,16 @@ function renderAtlasBillingEmail(job) {
         message.title,
         '',
         ...message.paragraphs,
-        '',
-        message.buttonLabel + ':',
-        message.buttonUrl,
+        ...(
+            message.buttonLabel &&
+            message.buttonUrl
+                ? [
+                    '',
+                    message.buttonLabel + ':',
+                    message.buttonUrl
+                ]
+                : []
+        ),
         ...(message.footnote
             ? [
                 '',
