@@ -291,6 +291,146 @@ function isTrustedPaddlePortalUrl(value) {
     }
 }
 
+
+function renderAtlasBillingEmail(job) {
+    const emailKind =
+        String(job?.emailKind || '').trim();
+
+    if (emailKind !== 'payment_issue') {
+        throw new Error(
+            'Atlas billing email kind is not supported.'
+        );
+    }
+
+    const accountUrl =
+        'https://atlasfortutors.com/account/subscription/';
+
+    return {
+        subject:
+            'Payment issue with Atlas Pro',
+        text: [
+            'Atlas — For Tutors',
+            '',
+            'There’s a problem with your Atlas Pro payment',
+            '',
+            'We couldn’t process your latest Atlas Pro payment.',
+            'Your Pro access remains available while payment is being retried.',
+            '',
+            'Review your payment details in Atlas:',
+            accountUrl,
+            '',
+            'If you’ve already updated your payment method, there’s nothing else you need to do.',
+            '',
+            'Atlas · atlasfortutors.com'
+        ].join('\n'),
+        html:
+            '<div style="margin:0;padding:40px 18px;background:#f3f0e9;font-family:Arial,Helvetica,sans-serif;color:#24211d;">' +
+            '<div style="max-width:560px;margin:0 auto;background:#fffdf9;border:1px solid #e2ddd4;border-radius:22px;overflow:hidden;">' +
+            '<div style="padding:38px 42px 42px;">' +
+            '<div style="font-family:Georgia,serif;font-size:36px;line-height:1;">Atlas</div>' +
+            '<div style="margin-top:9px;font-size:11px;font-weight:700;letter-spacing:2px;color:#7d766d;">FOR TUTORS</div>' +
+            '<div style="width:54px;height:6px;margin:22px 0 24px;background:#4d7184;border-radius:999px;"></div>' +
+            '<h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:30px;line-height:1.2;font-weight:400;">There’s a problem with your Atlas Pro payment</h1>' +
+            '<p style="margin:0 0 18px;font-size:16px;line-height:1.65;color:#625c53;">We couldn’t process your latest Atlas Pro payment.</p>' +
+            '<p style="margin:0 0 26px;font-size:16px;line-height:1.65;color:#625c53;">Your Pro access remains available while payment is being retried.</p>' +
+            '<a href="' + accountUrl + '" style="display:inline-block;padding:15px 24px;background:#4d7184;color:#fff;text-decoration:none;font-size:16px;font-weight:700;border-radius:12px;">Review payment details</a>' +
+            '<p style="margin:30px 0 0;font-size:13px;line-height:1.6;color:#8a8379;">If you’ve already updated your payment method, there’s nothing else you need to do.</p>' +
+            '</div>' +
+            '<div style="padding:20px 42px;border-top:1px solid #ece7df;font-size:12px;color:#9a9389;">Atlas · atlasfortutors.com</div>' +
+            '</div>' +
+            '</div>'
+    };
+}
+
+async function sendAtlasBillingEmail(env, job) {
+    const apiKey =
+        String(env.RESEND_API_KEY || '').trim();
+
+    const recipientEmail =
+        String(job?.recipientEmail || '').trim();
+
+    const idempotencyKey =
+        String(job?.idempotencyKey || '').trim();
+
+    if (
+        !apiKey ||
+        !recipientEmail ||
+        !idempotencyKey ||
+        idempotencyKey.length > 256
+    ) {
+        throw new Error(
+            'Atlas transactional email is not configured.'
+        );
+    }
+
+    const message =
+        renderAtlasBillingEmail(job);
+
+    const response =
+        await fetch(
+            'https://api.resend.com/emails',
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization':
+                        `Bearer ${apiKey}`,
+                    'Content-Type':
+                        'application/json',
+                    'Idempotency-Key':
+                        idempotencyKey
+                },
+                body:
+                    JSON.stringify({
+                        from:
+                            'Atlas <hello@atlasfortutors.com>',
+                        to: [
+                            recipientEmail
+                        ],
+                        reply_to:
+                            'hello@atlasfortutors.com',
+                        subject:
+                            message.subject,
+                        html:
+                            message.html,
+                        text:
+                            message.text
+                    })
+            }
+        );
+
+    let payload = null;
+
+    try {
+        payload =
+            await response.json();
+    } catch {
+        payload = null;
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            String(
+                payload?.message ||
+                payload?.error?.message ||
+                `Resend request failed with status ${response.status}.`
+            )
+        );
+    }
+
+    const resendEmailId =
+        String(payload?.id || '').trim();
+
+    if (!resendEmailId) {
+        throw new Error(
+            'Resend returned no email ID.'
+        );
+    }
+
+    return {
+        id: resendEmailId
+    };
+}
+
 async function createAtlasPaddlePortalSession(
     env,
     paddleEnvironment,
@@ -1582,8 +1722,10 @@ export default {
                 });
             }
 
+            let result = null;
+
             try {
-                const result =
+                result =
                     await callAtlasServerRpc(
                         env,
                         'atlas_apply_paddle_event_v1',
@@ -1594,13 +1736,6 @@ export default {
                                 event
                         }
                     );
-
-                return json({
-                    ok: true,
-                    eventType,
-                    billing:
-                        result || null
-                });
             } catch (error) {
                 console.error(
                     '[Atlas Paddle] Webhook processing failed:',
@@ -1616,7 +1751,116 @@ export default {
                     500
                 );
             }
-        }
+
+            let communication = null;
+
+            try {
+                communication =
+                    await callAtlasServerRpc(
+                        env,
+                        'atlas_prepare_billing_email_v1',
+                        {
+                            p_environment:
+                                paddleEnvironment,
+                            p_event_id:
+                                String(
+                                    event?.event_id ||
+                                    ''
+                                ).trim()
+                        }
+                    );
+
+                if (
+                    communication?.available ===
+                        true &&
+                    communication?.shouldSend ===
+                        true
+                ) {
+                    const delivery =
+                        await sendAtlasBillingEmail(
+                            env,
+                            communication
+                        );
+
+                    const marked =
+                        await callAtlasServerRpc(
+                            env,
+                            'atlas_mark_billing_email_sent_v1',
+                            {
+                                p_environment:
+                                    paddleEnvironment,
+                                p_event_id:
+                                    communication.eventId,
+                                p_email_kind:
+                                    communication.emailKind,
+                                p_resend_email_id:
+                                    delivery.id
+                            }
+                        );
+
+                    if (
+                        marked?.ok !== true ||
+                        marked?.found !== true
+                    ) {
+                        throw new Error(
+                            'Atlas billing email delivery could not be recorded.'
+                        );
+                    }
+
+                    communication = {
+                        ...communication,
+                        shouldSend: false,
+                        sent: true,
+                        sentAt:
+                            marked.sentAt || null
+                    };
+                }
+            } catch (error) {
+                console.error(
+                    '[Atlas Billing Email] Delivery failed:',
+                    error
+                );
+
+                return json(
+                    {
+                        ok: false,
+                        eventType,
+                        billing:
+                            result || null,
+                        error:
+                            'Atlas billing communication failed.'
+                    },
+                    500
+                );
+            }
+
+            return json({
+                ok: true,
+                eventType,
+                billing:
+                    result || null,
+                communication:
+                    communication?.available ===
+                        true
+                        ? {
+                            available: true,
+                            emailKind:
+                                communication.emailKind ||
+                                null,
+                            sent:
+                                communication.sent ===
+                                true,
+                            alreadySent:
+                                Boolean(
+                                    communication.sentAt
+                                ) &&
+                                communication.sent !==
+                                    true
+                        }
+                        : {
+                            available: false
+                        }
+            });
 
         if (!allowedOrigins.has(origin)) {
             return json(
