@@ -7,6 +7,18 @@ const source = fs.readFileSync(
     'compass/index.html',
     'utf8'
 );
+const engine = fs.readFileSync(
+    'compass/shared/compass-engine.js',
+    'utf8'
+);
+const originalEntry = fs.readFileSync(
+    'compass/shared/atlas-original-entry.js',
+    'utf8'
+);
+const subjectLoader = fs.readFileSync(
+    'compass/shared/compass-subject-loader.js',
+    'utf8'
+);
 
 const renderStart =
     source.indexOf(
@@ -79,6 +91,48 @@ assert.match(
     'Changing a cover must update the canonical subject cover.'
 );
 
+assert.match(
+    engine,
+    /function getMyVersionCoverPickerCurrentHttpUrl\(\)/,
+    'The subject cover picker must expose the current cover URL.'
+);
+
+assert.match(
+    engine,
+    /getEffectiveSubjectCoverImage\(\)/,
+    'Current cover URL must come from the effective subject cover.'
+);
+
+assert.match(
+    engine,
+    /parsedUrl\.protocol !== 'http:'[\s\S]*parsedUrl\.protocol !== 'https:'/,
+    'Only normal HTTP(S) covers should populate the URL field.'
+);
+
+assert.match(
+    engine,
+    /if \(urlMode\) \{\s*populateMyVersionCoverPickerCurrentUrl\(\);\s*\}/,
+    'Opening the URL provider must populate the current HTTP(S) cover when the field is empty.'
+);
+
+assert.match(
+    engine,
+    /!input \|\|[\s\S]*String\(input\.value \|\| ''\)\.trim\(\)/,
+    'Existing URL edits must not be overwritten when switching picker providers.'
+);
+
+assert.match(
+    originalEntry,
+    /compass-engine\.js\?v=20260923-currentcoverurl1/,
+    'Atlas Original subjects must load the current-cover URL picker engine revision.'
+);
+
+assert.match(
+    subjectLoader,
+    /compass-engine\.js\?v=20260923-currentcoverurl1/,
+    'Owned subjects must load the current-cover URL picker engine revision.'
+);
+
 console.log(
-    'Compass Hub cover-management contract verified.'
+    'Compass cover-management contract verified.'
 );
