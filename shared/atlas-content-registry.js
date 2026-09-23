@@ -767,6 +767,204 @@
         document.head.appendChild(link);
     }
 
+    const COMPASS_COVER_PREWARM_CONCURRENCY = 3;
+    const compassCoverPrewarmQueued = new Set();
+    const compassCoverPrewarmPending = new Map();
+    const compassCoverPrewarmQueue = [];
+    let compassCoverPrewarmActive = 0;
+    let compassCoverPrewarmScheduled = false;
+
+    function resolveCompassCoverPrewarmUrl(source) {
+        if (!source) return '';
+
+        const candidate =
+            typeof source === 'string'
+                ? source
+                : (
+                    source.document?.module?.bgImage ||
+                    source.module?.bgImage ||
+                    source.metadata?.coverImage ||
+                    source.coverImage ||
+                    source.src ||
+                    ''
+                );
+
+        const value = String(candidate || '').trim();
+        if (!value) return '';
+
+        try {
+            const url = new URL(
+                value,
+                window.location.href
+            );
+
+            if (
+                url.protocol !== 'http:' &&
+                url.protocol !== 'https:'
+            ) {
+                return '';
+            }
+
+            return url.href;
+        } catch {
+            return '';
+        }
+    }
+
+    function getCompassCatalogCoverSources() {
+        const Catalog =
+            window.CompassCatalogData;
+
+        if (
+            !Catalog ||
+            typeof Catalog.getCompassSubjects !==
+                'function'
+        ) {
+            return [];
+        }
+
+        try {
+            return Catalog.getCompassSubjects();
+        } catch {
+            return [];
+        }
+    }
+
+    function finishCompassCoverPrewarm(url) {
+        if (!compassCoverPrewarmPending.has(url)) {
+            return;
+        }
+
+        compassCoverPrewarmPending.delete(url);
+        compassCoverPrewarmActive =
+            Math.max(
+                0,
+                compassCoverPrewarmActive - 1
+            );
+
+        pumpCompassCoverPrewarm();
+    }
+
+    function pumpCompassCoverPrewarm() {
+        while (
+            compassCoverPrewarmActive <
+                COMPASS_COVER_PREWARM_CONCURRENCY &&
+            compassCoverPrewarmQueue.length
+        ) {
+            const url =
+                compassCoverPrewarmQueue.shift();
+
+            if (
+                !url ||
+                compassCoverPrewarmPending.has(url)
+            ) {
+                continue;
+            }
+
+            const image = new Image();
+            let settled = false;
+
+            const finish = () => {
+                if (settled) return;
+                settled = true;
+                finishCompassCoverPrewarm(url);
+            };
+
+            image.decoding = 'async';
+            image.loading = 'eager';
+
+            if ('fetchPriority' in image) {
+                image.fetchPriority = 'low';
+            }
+
+            image.onerror = finish;
+
+            compassCoverPrewarmPending.set(
+                url,
+                image
+            );
+            compassCoverPrewarmActive += 1;
+
+            image.src = url;
+
+            if (typeof image.decode === 'function') {
+                image.decode()
+                    .catch(() => {})
+                    .finally(finish);
+            } else {
+                image.onload = finish;
+            }
+        }
+    }
+
+    function prewarmCompassCoverImages(
+        sources = []
+    ) {
+        if (
+            navigator.connection?.saveData === true
+        ) {
+            return 0;
+        }
+
+        const extras =
+            Array.isArray(sources)
+                ? sources
+                : [sources];
+
+        const urls = [
+            ...getCompassCatalogCoverSources(),
+            ...extras
+        ]
+            .map(resolveCompassCoverPrewarmUrl)
+            .filter(Boolean);
+
+        let added = 0;
+
+        urls.forEach(url => {
+            if (
+                compassCoverPrewarmQueued.has(url) ||
+                compassCoverPrewarmPending.has(url)
+            ) {
+                return;
+            }
+
+            compassCoverPrewarmQueued.add(url);
+            compassCoverPrewarmQueue.push(url);
+            added += 1;
+        });
+
+        pumpCompassCoverPrewarm();
+        return added;
+    }
+
+    function scheduleCompassCoverPrewarm() {
+        if (compassCoverPrewarmScheduled) {
+            return;
+        }
+
+        compassCoverPrewarmScheduled = true;
+
+        const startAfterPaint = () => {
+            window.requestAnimationFrame(() => {
+                window.setTimeout(() => {
+                    compassCoverPrewarmScheduled = false;
+                    prewarmCompassCoverImages();
+                }, 0);
+            });
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener(
+                'DOMContentLoaded',
+                startAfterPaint,
+                { once: true }
+            );
+            return;
+        }
+
+        startAfterPaint();
+    }
+
     function writeAtlasRootRuntimeScript() {
         const path = String(
             window.location.pathname || '/'
@@ -1255,9 +1453,11 @@
         registerCompass,
         requestCompassHubRefresh,
         ensureCompassCloudAuthority:
-            loadCompassCloudAuthorityScripts
+            loadCompassCloudAuthorityScripts,
+        prewarmCompassCoverImages
     };
 
+    scheduleCompassCoverPrewarm();
     writeAtlasRootRuntimeScript();
     installCompassLiveAccountBootstrap();
     writeCloudAuthorityScripts();
