@@ -106,13 +106,17 @@
     async function createAtlasAIRequestHeaders(
         requestInit,
         requestId,
-        subjectIdOverride = ''
+        subjectIdOverride = '',
+        allowAnonymous = false
     ) {
         const Cloud = window.AtlasCloud;
 
         if (
-            !Cloud ||
-            typeof Cloud.getSession !== 'function'
+            (
+                !Cloud ||
+                typeof Cloud.getSession !== 'function'
+            ) &&
+            !allowAnonymous
         ) {
             const error = new Error(
                 'Atlas AI requires a signed-in Atlas account.'
@@ -121,11 +125,16 @@
             throw error;
         }
 
-        const session = await Cloud.getSession();
+        const session =
+            Cloud &&
+            typeof Cloud.getSession === 'function'
+                ? await Cloud.getSession()
+                : null;
+
         const accessToken =
             cleanString(session?.access_token);
 
-        if (!accessToken) {
+        if (!accessToken && !allowAnonymous) {
             const error = new Error(
                 'Atlas AI requires a signed-in Atlas account.'
             );
@@ -138,10 +147,14 @@
                 requestInit.headers || {}
             );
 
-        headers.set(
-            'Authorization',
-            `Bearer ${accessToken}`
-        );
+        if (accessToken) {
+            headers.set(
+                'Authorization',
+                `Bearer ${accessToken}`
+            );
+        } else {
+            headers.delete('Authorization');
+        }
 
         headers.set(
             'X-Atlas-Request-Id',
@@ -210,7 +223,8 @@
             await createAtlasAIRequestHeaders(
                 requestInit,
                 requestId,
-                requestOptions.subjectId
+                requestOptions.subjectId,
+                requestOptions.allowAnonymous === true
             );
 
         let lastTransientError = null;
@@ -2127,6 +2141,10 @@
                     existingSubjects,
                     recentSuggestions
                 })
+            },
+            {
+                allowAnonymous:
+                    candidate.allowAnonymous === true
             }
         );
 
