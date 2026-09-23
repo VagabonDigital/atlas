@@ -15980,22 +15980,30 @@
         selectedMode.id
       );
 
-      const aiAccess =
-        await requireCompassSubjectCapability(
-          'canUseAI',
-          'capability',
-          'suggest-subject-ideas',
-          { mode: selectedMode.id },
-          button
-        );
+      const anonymousSuggestionPreview =
+        ownedSubjectDialogState?.mode ===
+          'create' &&
+        ownedSubjectDialogState
+          .anonymousPreview === true;
 
-      if (
-        !compassSubjectCapabilityAllows(
-          aiAccess,
-          'Compass suggestions are unavailable right now.'
-        )
-      ) {
-        return;
+      if (!anonymousSuggestionPreview) {
+        const aiAccess =
+          await requireCompassSubjectCapability(
+            'canUseAI',
+            'capability',
+            'suggest-subject-ideas',
+            { mode: selectedMode.id },
+            button
+          );
+
+        if (
+          !compassSubjectCapabilityAllows(
+            aiAccess,
+            'Compass suggestions are unavailable right now.'
+          )
+        ) {
+          return;
+        }
       }
 
       const requestId =
@@ -16068,7 +16076,10 @@
               existingSubjects:
                 context.existingSubjects,
 
-              recentSuggestions
+              recentSuggestions,
+
+              allowAnonymous:
+                anonymousSuggestionPreview
             });
 
         if (
