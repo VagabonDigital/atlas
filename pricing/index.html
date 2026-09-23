@@ -139,9 +139,12 @@
       -webkit-backdrop-filter:blur(16px) saturate(1.1);
     }
     .header-inner {
-      min-height:56px; display:flex; align-items:center; gap:10px;
+      min-height:56px; display:flex; align-items:center; gap:8px;
     }
-    .atlas-inside-account-entry { margin-left:4px; }
+    .atlas-inside-account-entry {
+      margin-left:0;
+      gap:8px;
+    }
     .brand {
       color:var(--text-heading); font-family:var(--font-display);
       font-size:1.22rem; text-decoration:none; letter-spacing:-.01em;
@@ -151,24 +154,36 @@
       margin-left:auto;
       display:flex;
       align-items:center;
-      gap:4px;
+      gap:8px;
     }
     .nav a {
+      min-height:36px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
       white-space:nowrap;
-      padding:7px 9px;
+      padding:0 12px;
+      border:1px solid var(--border-strong);
       border-radius:999px;
-      color:var(--text-muted);
-      font-size:13px;
+      background:var(--surface-panel);
+      color:var(--text-body);
+      font-size:12px;
+      font-weight:600;
       text-decoration:none;
-      transition:color var(--motion),background var(--motion);
+      transition:
+        transform var(--motion),
+        color var(--motion),
+        background var(--motion),
+        border-color var(--motion);
     }
     .nav a:hover,
-    .nav a[aria-current="page"] {
+    .nav a:focus-visible {
+      transform:translateY(-1px);
       color:var(--text-heading);
-      background:var(--accent-pale);
+      background:var(--surface-muted);
     }
     .pricing-header-pro {
-      min-height:34px;
+      min-height:36px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
@@ -437,7 +452,6 @@
       .frame { width:min(calc(100% - 30px),var(--frame)); }
       .nav { display:none; }
       .pricing-header-pro { margin-left:auto; }
-      .atlas-inside-account-entry { margin-left:0; }
       .hero { padding:76px 0 66px; }
       h1 { font-size:clamp(43px,13vw,62px); }
       .hero-lede { font-size:17px; }
