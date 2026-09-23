@@ -94,9 +94,15 @@ assert.match(
     /const urls = extras\s*\.map\(resolveCompassCoverPrewarmUrl\)/,
     'Shared cover warming must operate only on URLs explicitly supplied by Compass.'
 );
+assert.doesNotMatch(
+    compass,
+    /prewarmHubCoverImages|prewarmCompassCoverImages/,
+    'Compass Hub must not explicitly prewarm cover images during the no-prewarm experiment.'
+);
 assert.match(
     compass,
-    /prewarmCompassCoverImages\?\.\(/
+    /loading="lazy" decoding="async"/,
+    'Compass Hub cover images must retain native lazy loading and async decoding.'
 );
 
 const initialBootstrapStart = root.indexOf(
