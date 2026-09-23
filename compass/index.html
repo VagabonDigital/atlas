@@ -4403,14 +4403,15 @@
   <style>
     /* Image-led Hub cards. SVG artwork previews retain their existing component. */
     .subject-card--cover {
+      --subject-cover-border: rgba(74, 91, 84, 0.09);
       height: var(--subject-card-height, 370px);
       min-height: 0;
       padding: 0;
       border-radius: 18px;
       background: #fffefa;
-      border-color: rgba(74, 91, 84, 0.09);
+      border-color: var(--subject-cover-border);
       box-shadow: 0 7px 24px rgba(52, 58, 48, 0.055);
-      transition: box-shadow 320ms ease, border-color 320ms ease;
+      transition: box-shadow 320ms ease;
     }
 
     .subject-card-cover {
@@ -4419,7 +4420,7 @@
       overflow: hidden;
       border-radius: 17px 17px 0 0;
       background: var(--surface-muted);
-      transition: flex-basis 360ms cubic-bezier(0.22, 1, 0.36, 1);
+      transition: flex-basis 420ms cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
     .subject-card-cover img {
@@ -4513,7 +4514,8 @@
     }
 
     .subject-card--cover.subject-card--inprogress {
-      border-color: rgba(var(--accent-rgb), 0.4);
+      --subject-cover-border: rgba(var(--accent-rgb), 0.4);
+      border-color: var(--subject-cover-border);
     }
 
     .subject-card--cover.subject-card--inprogress .btn-launch {
@@ -4558,13 +4560,15 @@
     }
 
     html[data-theme="night"] .subject-card--cover {
+      --subject-cover-border: #ffffff12;
       background: #302e29;
-      border-color: #ffffff12;
+      border-color: var(--subject-cover-border);
       box-shadow: 0 8px 26px #0002;
     }
 
     html[data-theme="night"] .subject-card--cover.subject-card--inprogress {
-      border-color: rgba(var(--accent-rgb), 0.45);
+      --subject-cover-border: rgba(var(--accent-rgb), 0.45);
+      border-color: var(--subject-cover-border);
     }
 
     html[data-theme="night"] .subject-card--cover .subject-card-manage-btn {
@@ -4582,7 +4586,7 @@
     /* The fixed footprint and bottom action stay put as the image yields to copy. */
     @media (hover: hover) and (pointer: fine) {
       .subject-card--cover:is(:hover, :has(:focus-visible)) {
-        border-color: rgba(var(--accent-rgb), 0.45);
+        border-color: var(--subject-cover-border);
         box-shadow: 0 12px 30px rgba(35, 58, 48, 0.13);
         transform: none;
       }
