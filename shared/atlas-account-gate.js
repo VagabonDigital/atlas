@@ -28,6 +28,8 @@
         '/shared/atlas-feedback.js?v=20260918-publicentry1';
     const GOOGLE_IDENTITY_SRC =
         '/shared/atlas-google-identity.js?v=20260921-insideheader1';
+    const PRO_CHECKOUT_SRC =
+        '/shared/atlas-pro-checkout.js?v=20260923-contextual1';
 
     let gateLayer = null;
     let accountMenu = null;
@@ -38,6 +40,7 @@
     let returnIntentPromise = null;
     let feedbackPromise = null;
     let googleIdentityPromise = null;
+    let proCheckoutPromise = null;
     let stylePromise = null;
     let prewarmPromise = null;
     let activeReturnIntentId = null;
@@ -441,6 +444,162 @@
         return googleIdentityPromise;
     }
 
+    function ensureProCheckout() {
+        if (window.AtlasProCheckout) {
+            return Promise.resolve(
+                window.AtlasProCheckout
+            );
+        }
+
+        if (proCheckoutPromise) {
+            return proCheckoutPromise;
+        }
+
+        proCheckoutPromise =
+            new Promise((resolve, reject) => {
+                const existing =
+                    existingScriptFor(
+                        PRO_CHECKOUT_SRC
+                    );
+
+                function complete() {
+                    if (window.AtlasProCheckout) {
+                        resolve(
+                            window.AtlasProCheckout
+                        );
+                    } else {
+                        proCheckoutPromise = null;
+                        reject(
+                            new Error(
+                                'Atlas checkout could not initialize.'
+                            )
+                        );
+                    }
+                }
+
+                function fail() {
+                    proCheckoutPromise = null;
+                    reject(
+                        new Error(
+                            'Atlas checkout could not load.'
+                        )
+                    );
+                }
+
+                if (existing) {
+                    existing.addEventListener(
+                        'load',
+                        complete,
+                        { once: true }
+                    );
+                    existing.addEventListener(
+                        'error',
+                        fail,
+                        { once: true }
+                    );
+                    return;
+                }
+
+                const script =
+                    document.createElement(
+                        'script'
+                    );
+
+                script.src =
+                    PRO_CHECKOUT_SRC;
+                script.async = false;
+                script.addEventListener(
+                    'load',
+                    complete,
+                    { once: true }
+                );
+                script.addEventListener(
+                    'error',
+                    fail,
+                    { once: true }
+                );
+
+                document.head.appendChild(
+                    script
+                );
+            });
+
+        return proCheckoutPromise;
+    }
+
+    async function openProCheckoutFromAccount(
+        event
+    ) {
+        const button =
+            event?.currentTarget || null;
+        const status =
+            accountMenu?.querySelector(
+                '[data-account-menu-status]'
+            );
+        const returnFocus =
+            menuAnchor || button;
+
+        if (button) {
+            button.disabled = true;
+        }
+
+        if (status) {
+            status.textContent =
+                'Opening secure checkout…';
+            status.hidden = false;
+        }
+
+        try {
+            const Checkout =
+                await ensureProCheckout();
+
+            const opened =
+                await Checkout.open({
+                    source:
+                        'account-menu',
+                    trigger:
+                        returnFocus,
+                    onStatus: (
+                        message,
+                        kind
+                    ) => {
+                        if (!status) return;
+                        status.textContent =
+                            message || '';
+                        status.hidden =
+                            !message;
+                        status.dataset.kind =
+                            kind || 'info';
+                    },
+                    onActivated:
+                        () => {
+                            renderAccountMenu();
+                        }
+                });
+
+            if (opened) {
+                closeAccountMenu({
+                    restoreFocus: false
+                });
+            }
+        } catch (error) {
+            console.error(
+                '[AtlasAccountGate] Pro checkout failed:',
+                error
+            );
+
+            if (status) {
+                status.textContent =
+                    humanizeError(error);
+                status.hidden = false;
+            }
+        } finally {
+            if (button) {
+                button.disabled = false;
+            }
+        }
+    }
+
     function ensureFeedback() {
         if (window.AtlasFeedback) {
             return Promise.resolve(
@@ -806,7 +965,8 @@
                 <p class="atlas-account-menu-allowance-meta" data-account-menu-allowance-meta></p>
             </div>
             <div class="atlas-account-menu-actions">
-                <a class="atlas-account-menu-action" href="/pricing/?checkout=pro&from=account-menu" data-account-menu-upgrade style="display:none">Upgrade to Pro</a>
+                <button class="atlas-account-menu-action" type="button" data-account-menu-upgrade style="display:none">Upgrade to Pro · $12/month</button>
+                <a class="atlas-account-menu-action" href="/pricing/?from=account-menu" data-account-menu-pricing>View pricing</a>
                 <a class="atlas-account-menu-action" href="/account/" data-account-settings>Account settings</a>
                 <button class="atlas-account-menu-action" type="button" data-account-menu-feedback>Message Atlas</button>
                 <button class="atlas-account-menu-action" type="button" data-account-menu-sign-out>Sign out</button>
@@ -821,6 +981,12 @@
         if (accountSettingsLink) {
             accountSettingsLink.href = getAccountSettingsHref();
         }
+
+        accountMenu.querySelector('[data-account-menu-upgrade]')
+            ?.addEventListener(
+                'click',
+                openProCheckoutFromAccount
+            );
 
         accountMenu.querySelector('[data-account-menu-feedback]')
             ?.addEventListener(
