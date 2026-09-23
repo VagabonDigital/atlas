@@ -772,6 +772,7 @@
     const compassCoverPrewarmPending = new Map();
     const compassCoverPrewarmQueue = [];
     let compassCoverPrewarmActive = 0;
+    let compassCoverPrewarmScheduled = false;
 
     function resolveCompassCoverPrewarmUrl(source) {
         if (!source) return '';
@@ -807,6 +808,25 @@
             return url.href;
         } catch {
             return '';
+        }
+    }
+
+    function getCompassCatalogCoverSources() {
+        const Catalog =
+            window.CompassCatalogData;
+
+        if (
+            !Catalog ||
+            typeof Catalog.getCompassSubjects !==
+                'function'
+        ) {
+            return [];
+        }
+
+        try {
+            return Catalog.getCompassSubjects();
+        } catch {
+            return [];
         }
     }
 
@@ -891,7 +911,10 @@
                 ? sources
                 : [sources];
 
-        const urls = extras
+        const urls = [
+            ...getCompassCatalogCoverSources(),
+            ...extras
+        ]
             .map(resolveCompassCoverPrewarmUrl)
             .filter(Boolean);
 
@@ -912,6 +935,34 @@
 
         pumpCompassCoverPrewarm();
         return added;
+    }
+
+    function scheduleCompassCoverPrewarm() {
+        if (compassCoverPrewarmScheduled) {
+            return;
+        }
+
+        compassCoverPrewarmScheduled = true;
+
+        const startAfterPaint = () => {
+            window.requestAnimationFrame(() => {
+                window.setTimeout(() => {
+                    compassCoverPrewarmScheduled = false;
+                    prewarmCompassCoverImages();
+                }, 0);
+            });
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener(
+                'DOMContentLoaded',
+                startAfterPaint,
+                { once: true }
+            );
+            return;
+        }
+
+        startAfterPaint();
     }
 
     function writeAtlasRootRuntimeScript() {
@@ -937,14 +988,14 @@
 
         if (document.readyState === 'loading') {
             document.write(
-                '<script data-atlas-root-runtime="true" src="/shared/atlas-root-runtime.js?v=20260923-compasslocalwarm1"><\/script>'
+                '<script data-atlas-root-runtime="true" src="/shared/atlas-root-runtime.js?v=20260923-coverprewarm2"><\/script>'
             );
             return;
         }
 
         const script = document.createElement('script');
         script.src =
-            '/shared/atlas-root-runtime.js?v=20260923-compasslocalwarm1';
+            '/shared/atlas-root-runtime.js?v=20260923-coverprewarm2';
         script.async = false;
         script.setAttribute(
             'data-atlas-root-runtime',
@@ -1406,6 +1457,7 @@
         prewarmCompassCoverImages
     };
 
+    scheduleCompassCoverPrewarm();
     writeAtlasRootRuntimeScript();
     installCompassLiveAccountBootstrap();
     writeCloudAuthorityScripts();
