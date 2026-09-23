@@ -292,53 +292,301 @@ function isTrustedPaddlePortalUrl(value) {
 }
 
 
+function escapeAtlasBillingEmailHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function keepAtlasBillingEmailEndingTogether(value) {
+    const escaped =
+        escapeAtlasBillingEmailHtml(value);
+
+    const lastSpace =
+        escaped.lastIndexOf(' ');
+
+    if (lastSpace <= 0) {
+        return escaped;
+    }
+
+    return (
+        escaped.slice(0, lastSpace) +
+        '&nbsp;' +
+        escaped.slice(lastSpace + 1)
+    );
+}
+
+function formatAtlasBillingEmailDate(value) {
+    const parsed =
+        new Date(String(value || '').trim());
+
+    if (
+        !String(value || '').trim() ||
+        Number.isNaN(parsed.getTime())
+    ) {
+        return null;
+    }
+
+    return new Intl.DateTimeFormat(
+        'en',
+        {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            timeZone: 'UTC'
+        }
+    ).format(parsed);
+}
+
 function renderAtlasBillingEmail(job) {
     const emailKind =
         String(job?.emailKind || '').trim();
 
-    if (emailKind !== 'payment_issue') {
+    const context =
+        job?.context &&
+        typeof job.context === 'object'
+            ? job.context
+            : {};
+
+    const accountUrl =
+        'https://atlasfortutors.com/account/subscription/';
+
+    const pricingUrl =
+        'https://atlasfortutors.com/pricing/';
+
+    const atlasUrl =
+        'https://atlasfortutors.com/';
+
+    const effectiveDate =
+        formatAtlasBillingEmailDate(
+            context.scheduledEffectiveAt
+        );
+
+    let message = null;
+
+    if (emailKind === 'payment_issue') {
+        message = {
+            subject:
+                'Payment issue with Atlas Pro',
+            title:
+                'There’s a problem with your Atlas Pro payment',
+            paragraphs: [
+                'We couldn’t process your latest Atlas Pro payment.',
+                'Your Pro access remains available while payment is being retried.'
+            ],
+            buttonLabel:
+                'Review payment details',
+            buttonUrl:
+                accountUrl,
+            footnote:
+                'If you’ve already updated your payment method, there’s nothing else you need to do.'
+        };
+    } else if (emailKind === 'pro_welcome') {
+        message = {
+            subject:
+                'Welcome to Atlas Pro',
+            title:
+                'You’re now on Atlas Pro',
+            paragraphs: [
+                'Your Atlas Pro subscription is active.',
+                'You now have 100 subject creations available each billing month, alongside the Atlas workspace you already use.'
+            ],
+            buttonLabel:
+                'Open Atlas',
+            buttonUrl:
+                atlasUrl
+        };
+    } else if (emailKind === 'payment_received') {
+        message = {
+            subject:
+                'Atlas Pro payment received',
+            title:
+                'Your Atlas Pro payment was successful',
+            paragraphs: [
+                'We received your latest Atlas Pro payment.',
+                'Your subscription continues as normal.'
+            ],
+            buttonLabel:
+                'View subscription',
+            buttonUrl:
+                accountUrl
+        };
+    } else if (emailKind === 'payment_recovered') {
+        message = {
+            subject:
+                'Atlas Pro payment recovered',
+            title:
+                'Your Atlas Pro payment went through',
+            paragraphs: [
+                'Your Atlas Pro payment has now been completed successfully.',
+                'Your subscription is active and there’s nothing else you need to do.'
+            ],
+            buttonLabel:
+                'View subscription',
+            buttonUrl:
+                accountUrl
+        };
+    } else if (emailKind === 'cancellation_scheduled') {
+        message = {
+            subject:
+                'Your Atlas Pro cancellation is scheduled',
+            title:
+                'Your Atlas Pro cancellation is scheduled',
+            paragraphs: [
+                effectiveDate
+                    ? `Your Atlas Pro subscription is scheduled to end on ${effectiveDate}.`
+                    : 'Your Atlas Pro subscription is scheduled to end at the close of your current billing period.',
+                'You’ll keep Pro access until then. Your Atlas workspace and subjects stay with you.'
+            ],
+            buttonLabel:
+                'Keep Pro',
+            buttonUrl:
+                accountUrl
+        };
+    } else if (emailKind === 'cancellation_reversed') {
+        message = {
+            subject:
+                'Atlas Pro will continue',
+            title:
+                'Your Atlas Pro subscription will continue',
+            paragraphs: [
+                'The scheduled cancellation has been removed.',
+                'Your Pro subscription will continue and renew as normal.'
+            ],
+            buttonLabel:
+                'View subscription',
+            buttonUrl:
+                accountUrl
+        };
+    } else if (emailKind === 'pro_ended') {
+        message = {
+            subject:
+                'Your Atlas Pro subscription has ended',
+            title:
+                'Your Atlas Pro subscription has ended',
+            paragraphs: [
+                'Your Atlas account has returned to Free.',
+                'Your workspace and subjects are still yours, including any unused Free subject creations you had before upgrading.'
+            ],
+            buttonLabel:
+                'View plans',
+            buttonUrl:
+                pricingUrl
+        };
+    } else if (emailKind === 'payment_method_updated') {
+        message = {
+            subject:
+                'Atlas Pro payment method updated',
+            title:
+                'Your payment method was updated',
+            paragraphs: [
+                'The payment method for your Atlas Pro subscription was updated successfully.'
+            ],
+            buttonLabel:
+                'View subscription',
+            buttonUrl:
+                accountUrl,
+            footnote:
+                'If you didn’t make this change, reply to this email so we can help secure your account.'
+        };
+    }
+
+    if (!message) {
         throw new Error(
             'Atlas billing email kind is not supported.'
         );
     }
 
-    const accountUrl =
-        'https://atlasfortutors.com/account/subscription/';
+    const htmlParagraphs =
+        message.paragraphs
+            .map((paragraph, index) =>
+                '<p style="' +
+                'margin:0 0 ' +
+                (
+                    index ===
+                    message.paragraphs.length - 1
+                        ? '26px'
+                        : '18px'
+                ) +
+                ';font-size:16px;line-height:1.65;color:#625c53;">' +
+                keepAtlasBillingEmailEndingTogether(
+                    paragraph
+                ) +
+                '</p>'
+            )
+            .join('');
+
+    const htmlFootnote =
+        message.footnote
+            ? (
+                '<p style="margin:30px 0 0;font-size:13px;line-height:1.6;color:#8a8379;">' +
+                keepAtlasBillingEmailEndingTogether(
+                    message.footnote
+                ) +
+                '</p>'
+            )
+            : '';
+
+    const html =
+        '<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">' +
+        keepAtlasBillingEmailEndingTogether(
+            message.paragraphs[0]
+        ) +
+        '</div>' +
+        '<div style="margin:0;padding:40px 18px;background:#f3f0e9;font-family:Arial,Helvetica,sans-serif;color:#24211d;">' +
+        '<div style="max-width:560px;margin:0 auto;background:#fffdf9;border:1px solid #e2ddd4;border-radius:22px;overflow:hidden;">' +
+        '<div style="padding:38px 42px 42px;">' +
+        '<div style="font-family:Georgia,serif;font-size:36px;line-height:1;">Atlas</div>' +
+        '<div style="margin-top:9px;font-size:11px;font-weight:700;letter-spacing:2px;color:#7d766d;">FOR TUTORS</div>' +
+        '<div style="width:54px;height:6px;margin:22px 0 24px;background:#4d7184;border-radius:999px;"></div>' +
+        '<h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:30px;line-height:1.2;font-weight:400;">' +
+        keepAtlasBillingEmailEndingTogether(
+            message.title
+        ) +
+        '</h1>' +
+        htmlParagraphs +
+        '<a href="' +
+        escapeAtlasBillingEmailHtml(
+            message.buttonUrl
+        ) +
+        '" style="display:inline-block;padding:15px 24px;background:#4d7184;color:#fff;text-decoration:none;font-size:16px;font-weight:700;border-radius:12px;">' +
+        keepAtlasBillingEmailEndingTogether(
+            message.buttonLabel
+        ) +
+        '</a>' +
+        htmlFootnote +
+        '</div>' +
+        '<div style="padding:20px 42px;border-top:1px solid #ece7df;font-size:12px;color:#9a9389;">Atlas · atlasfortutors.com</div>' +
+        '</div>' +
+        '</div>';
+
+    const text = [
+        'Atlas — For Tutors',
+        '',
+        message.title,
+        '',
+        ...message.paragraphs,
+        '',
+        message.buttonLabel + ':',
+        message.buttonUrl,
+        ...(message.footnote
+            ? [
+                '',
+                message.footnote
+            ]
+            : []),
+        '',
+        'Atlas · atlasfortutors.com'
+    ].join('\n');
 
     return {
         subject:
-            'Payment issue with Atlas Pro',
-        text: [
-            'Atlas — For Tutors',
-            '',
-            'There’s a problem with your Atlas Pro payment',
-            '',
-            'We couldn’t process your latest Atlas Pro payment.',
-            'Your Pro access remains available while payment is being retried.',
-            '',
-            'Review your payment details in Atlas:',
-            accountUrl,
-            '',
-            'If you’ve already updated your payment method, there’s nothing else you need to do.',
-            '',
-            'Atlas · atlasfortutors.com'
-        ].join('\n'),
-        html:
-            '<div style="margin:0;padding:40px 18px;background:#f3f0e9;font-family:Arial,Helvetica,sans-serif;color:#24211d;">' +
-            '<div style="max-width:560px;margin:0 auto;background:#fffdf9;border:1px solid #e2ddd4;border-radius:22px;overflow:hidden;">' +
-            '<div style="padding:38px 42px 42px;">' +
-            '<div style="font-family:Georgia,serif;font-size:36px;line-height:1;">Atlas</div>' +
-            '<div style="margin-top:9px;font-size:11px;font-weight:700;letter-spacing:2px;color:#7d766d;">FOR TUTORS</div>' +
-            '<div style="width:54px;height:6px;margin:22px 0 24px;background:#4d7184;border-radius:999px;"></div>' +
-            '<h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:30px;line-height:1.2;font-weight:400;">There’s a problem with your Atlas Pro payment</h1>' +
-            '<p style="margin:0 0 18px;font-size:16px;line-height:1.65;color:#625c53;">We couldn’t process your latest Atlas Pro payment.</p>' +
-            '<p style="margin:0 0 26px;font-size:16px;line-height:1.65;color:#625c53;">Your Pro access remains available while payment is being retried.</p>' +
-            '<a href="' + accountUrl + '" style="display:inline-block;padding:15px 24px;background:#4d7184;color:#fff;text-decoration:none;font-size:16px;font-weight:700;border-radius:12px;">Review payment details</a>' +
-            '<p style="margin:30px 0 0;font-size:13px;line-height:1.6;color:#8a8379;">If you’ve already updated your payment method, there’s nothing else you need to&nbsp;do.</p>' +
-            '</div>' +
-            '<div style="padding:20px 42px;border-top:1px solid #ece7df;font-size:12px;color:#9a9389;">Atlas · atlasfortutors.com</div>' +
-            '</div>' +
-            '</div>'
+            message.subject,
+        html,
+        text
     };
 }
 
