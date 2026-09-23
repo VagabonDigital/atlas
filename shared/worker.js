@@ -152,9 +152,13 @@ async function authenticateAtlasAIRequest(
         };
     }
 
+    const email =
+        String(user?.email || '').trim();
+
     return {
         ok: true,
-        userId
+        userId,
+        email
     };
 }
 
@@ -676,6 +680,125 @@ async function sendAtlasBillingEmail(env, job) {
 
     return {
         id: resendEmailId
+    };
+}
+
+async function sendAtlasBillingEmailGallery(
+    env,
+    recipientEmail,
+    userId
+) {
+    const apiKey =
+        String(env.RESEND_API_KEY || '').trim();
+
+    const to =
+        String(recipientEmail || '').trim();
+
+    const owner =
+        String(userId || '').trim();
+
+    if (!apiKey || !to || !owner) {
+        throw new Error(
+            'Atlas billing email gallery is not configured.'
+        );
+    }
+
+    const emailKinds = [
+        'pro_welcome',
+        'payment_received',
+        'payment_issue',
+        'payment_recovered',
+        'cancellation_scheduled',
+        'cancellation_reversed',
+        'pro_ended',
+        'payment_method_updated'
+    ];
+
+    const previewContext = {
+        scheduledEffectiveAt:
+            '2026-10-22T15:41:39Z'
+    };
+
+    const messages =
+        emailKinds.map(emailKind => {
+            const rendered =
+                renderAtlasBillingEmail({
+                    emailKind,
+                    context:
+                        previewContext
+                });
+
+            return {
+                from:
+                    'Atlas <hello@atlasfortutors.com>',
+                to: [
+                    to
+                ],
+                reply_to:
+                    'hello@atlasfortutors.com',
+                subject:
+                    rendered.subject,
+                html:
+                    rendered.html,
+                text:
+                    rendered.text
+            };
+        });
+
+    const response =
+        await fetch(
+            'https://api.resend.com/emails/batch',
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization':
+                        `Bearer ${apiKey}`,
+                    'Content-Type':
+                        'application/json',
+                    'Idempotency-Key':
+                        `atlas-billing-email-gallery:${owner}:v1`
+                },
+                body:
+                    JSON.stringify(
+                        messages
+                    )
+            }
+        );
+
+    let payload = null;
+
+    try {
+        payload =
+            await response.json();
+    } catch {
+        payload = null;
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            String(
+                payload?.message ||
+                payload?.error?.message ||
+                `Resend batch request failed with status ${response.status}.`
+            )
+        );
+    }
+
+    const delivered =
+        Array.isArray(payload?.data)
+            ? payload.data.length
+            : 0;
+
+    if (delivered !== emailKinds.length) {
+        throw new Error(
+            'Resend did not confirm every Atlas billing preview email.'
+        );
+    }
+
+    return {
+        count:
+            delivered,
+        emailKinds
     };
 }
 
@@ -1869,6 +1992,85 @@ export default {
                     env.ATLAS_AI_MODEL ||
                     'gpt-5.6-luna'
             });
+        }
+
+        if (
+            request.method === 'POST' &&
+            url.pathname ===
+                '/internal/billing-email-gallery'
+        ) {
+            if (
+                getAtlasPaddleEnvironment(env) !==
+                'sandbox'
+            ) {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'Atlas billing email gallery is unavailable.'
+                    },
+                    404
+                );
+            }
+
+            const auth =
+                await authenticateAtlasAIRequest(
+                    request,
+                    env
+                );
+
+            if (!auth.ok) {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            auth.error
+                    },
+                    auth.status
+                );
+            }
+
+            if (!auth.email) {
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'Your Atlas account has no email address.'
+                    },
+                    400
+                );
+            }
+
+            try {
+                const delivery =
+                    await sendAtlasBillingEmailGallery(
+                        env,
+                        auth.email,
+                        auth.userId
+                    );
+
+                return json({
+                    ok: true,
+                    count:
+                        delivery.count,
+                    emailKinds:
+                        delivery.emailKinds
+                });
+            } catch (error) {
+                console.error(
+                    '[Atlas Billing Email Gallery] Send failed:',
+                    error
+                );
+
+                return json(
+                    {
+                        ok: false,
+                        error:
+                            'Atlas billing email gallery could not be sent.'
+                    },
+                    500
+                );
+            }
         }
 
         if (
