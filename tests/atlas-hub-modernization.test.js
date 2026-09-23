@@ -17,7 +17,7 @@ assert.match(
 );
 assert.match(
   html,
-  /atlas-hub\.css\?v=20260922-hover-ease1/
+  /atlas-hub\.css\?v=20260922-hover-transform1/
 );
 assert.match(
   hubCss,
@@ -33,7 +33,7 @@ assert.match(
 );
 assert.match(
   hubCss,
-  /transition: transform 220ms cubic-bezier\(0\.22, 1, 0\.36, 1\);/
+  /transition: transform \.2s ease;/
 );
 assert.doesNotMatch(
   hubCss,
