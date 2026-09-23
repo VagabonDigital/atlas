@@ -87,6 +87,18 @@ assert.match(
 
 assert.match(
     source,
+    /\.subject-card--cover:is\(:hover, :has\(:focus-visible\)\) \{[\s\S]*?transform: none;/,
+    'Image-led card hover must not add whole-card lift during the reveal.'
+);
+
+assert.match(
+    source,
+    /\.subject-card--cover:hover \.btn-launch \{\s*transform: none;\s*\}/,
+    'Image-led card hover must not add a separate launch-button lift.'
+);
+
+assert.match(
+    source,
     /window\.AtlasAI\.searchCovers/,
     'The Hub cover picker must use the existing Atlas cover-search API.'
 );
