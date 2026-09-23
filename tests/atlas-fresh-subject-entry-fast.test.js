@@ -45,17 +45,17 @@ assert.match(
 
 assert.match(
   engine,
-  /if \(!runtimeLayersReady\) \{[\s\S]*?Keep \?author=generate intact[\s\S]*?return;/
+  /if \([\s\S]*?freshOwnedSubjectBuild \|\|[\s\S]*?recoveringOwnedSubjectBuild[\s\S]*?waitForOwnedSubjectRuntimeLayersReady\(\)[\s\S]*?if \(!runtimeLayersReady\) \{[\s\S]*?return;/
 );
 
 assert.match(
   engine,
-  /const ownedSubjectAuthoringIntent =\s*freshOwnedSubjectBuild[\s\S]*?pendingOwnedSubjectAuthoringIntent[\s\S]*?: consumeOwnedSubjectAuthoringIntent\(\);/
+  /const ownedSubjectAuthoringIntent =\s*freshOwnedSubjectBuild[\s\S]*?pendingOwnedSubjectAuthoringIntent[\s\S]*?: recoveringOwnedSubjectBuild[\s\S]*?\? 'generate'[\s\S]*?: consumeOwnedSubjectAuthoringIntent\(\);/
 );
 
 assert.match(
   engine,
-  /if \(freshOwnedSubjectBuild\) \{[\s\S]*?waitForOwnedSubjectRuntimeLayersReady\(\)[\s\S]*?tutorContentWorkingDraft = null;[\s\S]*?\} else \{\s*await loadTutorContentState\(\);/
+  /if \([\s\S]*?freshOwnedSubjectBuild \|\|[\s\S]*?recoveringOwnedSubjectBuild[\s\S]*?waitForOwnedSubjectRuntimeLayersReady\(\)[\s\S]*?if \(freshOwnedSubjectBuild\) \{[\s\S]*?tutorContentWorkingDraft = null;[\s\S]*?\} else \{[\s\S]*?await loadTutorContentState\(\);/
 );
 
 assert.match(
@@ -65,7 +65,7 @@ assert.match(
 
 assert.match(
   engine,
-  /skipCapabilityGate:\s*freshOwnedSubjectBuild/
+  /skipCapabilityGate:[\s\S]*?freshOwnedSubjectBuild \|\|[\s\S]*?recoveringOwnedSubjectBuild/
 );
 
 const releaseIndex = engine.indexOf(
