@@ -53,15 +53,13 @@ assert.match(
     root,
     /Cache\.prepareCompassPresentation\(\)/
 );
-assert.doesNotMatch(
+assert.match(
     root,
-    /Cache\.getCompassPresentationSnapshot/,
-    'Atlas root must not read Compass presentation snapshots just to warm images.'
+    /Cache\.getCompassPresentationSnapshot/
 );
-assert.doesNotMatch(
+assert.match(
     root,
-    /prewarmCompassCoverImages/,
-    'Atlas root must not warm Compass cover images.'
+    /prewarmCompassCoverImages\?\.\(/
 );
 assert.match(
     registry,
@@ -79,25 +77,29 @@ assert.match(
     registry,
     /image\.decode\(\)/
 );
-assert.doesNotMatch(
+assert.match(
     registry,
-    /scheduleCompassCoverPrewarm/,
-    'Content Registry must not schedule Atlas-wide cover warming.'
-);
-assert.doesNotMatch(
-    registry,
-    /getCompassCatalogCoverSources/,
-    'Cover warming must not implicitly pull the Compass catalog.'
+    /function getCompassCatalogCoverSources\(/
 );
 assert.match(
     registry,
-    /const urls = extras\s*\.map\(resolveCompassCoverPrewarmUrl\)/,
-    'Shared cover warming must operate only on URLs explicitly supplied by Compass.'
+    /scheduleCompassCoverPrewarm\(\);/
 );
-assert.doesNotMatch(
+assert.match(
     compass,
-    /prewarmHubCoverImages|prewarmCompassCoverImages/,
-    'Compass Hub must not explicitly prewarm cover images during the no-prewarm experiment.'
+    /function prewarmHubCoverImages\(main\)/
+);
+assert.match(
+    compass,
+    /prewarmCompassCoverImages\?\.\(/
+);
+assert.match(
+    compass,
+    /image\.loading = 'eager'/
+);
+assert.match(
+    compass,
+    /image\.decode\(\)/
 );
 assert.match(
     compass,
@@ -186,11 +188,11 @@ assert.match(
 assert.equal(
     (
         registry.match(
-            /atlas-root-runtime\.js\?v=20260923-compasslocalwarm1/g
+            /atlas-root-runtime\.js\?v=20260923-coverprewarm2/g
         ) || []
     ).length,
     2,
-    'both Root Runtime loader paths must use the Compass-local warming asset revision'
+    'both Root Runtime loader paths must use the restored cover-warming asset revision'
 );
 assert.equal(
     (
@@ -204,28 +206,28 @@ assert.equal(
 
 assert.match(
     atlas,
-    /atlas-content-registry\.js\?v=20260923-compasslocalwarm1/,
-    'Atlas must load the Compass-local warming Content Registry revision'
+    /atlas-content-registry\.js\?v=20260923-coverprewarm2/,
+    'Atlas must load the restored cover-warming Content Registry revision'
 );
 assert.match(
     compass,
-    /atlas-content-registry\.js\?v=20260923-compasslocalwarm1/,
-    'Compass must load the Compass-local warming Content Registry revision'
+    /atlas-content-registry\.js\?v=20260923-coverprewarm2/,
+    'Compass must load the restored cover-warming Content Registry revision'
 );
 assert.match(
     arcade,
-    /atlas-content-registry\.js\?v=20260923-compasslocalwarm1/,
-    'Arcade must load the Compass-local warming Content Registry revision'
+    /atlas-content-registry\.js\?v=20260923-coverprewarm2/,
+    'Arcade must load the restored cover-warming Content Registry revision'
 );
 assert.match(
     ownedSubject,
-    /atlas-content-registry\.js\?v=20260923-compasslocalwarm1/,
-    'Owned subject pages must load the Compass-local warming Content Registry revision'
+    /atlas-content-registry\.js\?v=20260923-coverprewarm2/,
+    'Owned subject pages must load the restored cover-warming Content Registry revision'
 );
 assert.match(
     atlasOriginalEntry,
-    /atlas-content-registry\.js\?v=20260923-compasslocalwarm1/,
-    'Atlas Original pages must load the Compass-local warming Content Registry revision'
+    /atlas-content-registry\.js\?v=20260923-coverprewarm2/,
+    'Atlas Original pages must load the restored cover-warming Content Registry revision'
 );
 
 console.log(
