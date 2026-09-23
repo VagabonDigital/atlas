@@ -309,17 +309,23 @@ function keepAtlasBillingEmailEndingTogether(value) {
     const escaped =
         escapeAtlasBillingEmailHtml(value);
 
+    const protectedDates =
+        escaped.replace(
+            /\b(January|February|March|April|May|June|July|August|September|October|November|December) (\d{1,2}), (\d{4})\b/g,
+            '$1&nbsp;$2,&nbsp;$3'
+        );
+
     const lastSpace =
-        escaped.lastIndexOf(' ');
+        protectedDates.lastIndexOf(' ');
 
     if (lastSpace <= 0) {
-        return escaped;
+        return protectedDates;
     }
 
     return (
-        escaped.slice(0, lastSpace) +
+        protectedDates.slice(0, lastSpace) +
         '&nbsp;' +
-        escaped.slice(lastSpace + 1)
+        protectedDates.slice(lastSpace + 1)
     );
 }
 
@@ -376,17 +382,17 @@ function renderAtlasBillingEmail(job) {
             subject:
                 'Payment issue with Atlas Pro',
             title:
-                'There’s a problem with your Atlas Pro payment',
+                'We couldn’t process your Atlas Pro payment',
             paragraphs: [
                 'We couldn’t process your latest Atlas Pro payment.',
-                'Your Pro access remains available while payment is being retried.'
+                'Your Pro access stays active while we try the payment again.'
             ],
             buttonLabel:
                 'Review payment details',
             buttonUrl:
                 accountUrl,
             footnote:
-                'If you’ve already updated your payment method, there’s nothing else you need to do.'
+                'If you’ve already updated your payment method, you’re all set.'
         };
     } else if (emailKind === 'pro_welcome') {
         message = {
@@ -433,9 +439,9 @@ function renderAtlasBillingEmail(job) {
                 'Your Atlas Pro cancellation is scheduled',
             paragraphs: [
                 effectiveDate
-                    ? `Your Atlas Pro subscription is scheduled to end on ${effectiveDate}.`
-                    : 'Your Atlas Pro subscription is scheduled to end at the close of your current billing period.',
-                'You’ll keep Pro access until then. Your Atlas workspace and subjects stay with you.'
+                    ? `Your Atlas Pro subscription will end on ${effectiveDate}.`
+                    : 'Your Atlas Pro subscription will end at the close of your current billing period.',
+                'You’ll keep Pro access until then. Your Atlas workspace and subjects will stay with you after Pro ends.'
             ],
             buttonLabel:
                 'Keep Pro',
@@ -464,7 +470,7 @@ function renderAtlasBillingEmail(job) {
             title:
                 'Your Atlas Pro subscription has ended',
             paragraphs: [
-                'Your Atlas account has returned to Free.',
+                'Your Atlas account is now on Free.',
                 'Your workspace and subjects are still yours, including any unused Free subject creations you had before upgrading.'
             ],
             buttonLabel:
@@ -475,18 +481,18 @@ function renderAtlasBillingEmail(job) {
     } else if (emailKind === 'payment_method_updated') {
         message = {
             subject:
-                'Atlas Pro payment method updated',
+                'Your Atlas Pro payment method was updated',
             title:
                 'Your payment method was updated',
             paragraphs: [
-                'The payment method for your Atlas Pro subscription was updated successfully.'
+                'Your Atlas Pro payment method was updated successfully.'
             ],
             buttonLabel:
                 'View subscription',
             buttonUrl:
                 accountUrl,
             footnote:
-                'If you didn’t make this change, reply to this email so we can help secure your account.'
+                'If you didn’t make this change, reply to this email and we’ll help.'
         };
     }
 
