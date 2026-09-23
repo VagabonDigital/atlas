@@ -16732,6 +16732,14 @@
 
       if (!images.length) return;
 
+      window.AtlasContentRegistry
+        ?.prewarmCompassCoverImages?.(
+          images.map(image =>
+            image.currentSrc ||
+            image.src
+          )
+        );
+
       const viewportHeight =
         window.innerHeight ||
         document.documentElement.clientHeight ||
