@@ -464,6 +464,85 @@
         stroke var(--theme-motion);
     }
 
+    .atlas-pro-activation[hidden] {
+      display: none;
+    }
+
+    .atlas-pro-activation {
+      position: fixed;
+      inset: 0;
+      z-index: 2147483646;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: var(--surface);
+    }
+
+    .atlas-pro-activation-card {
+      width: min(430px, 100%);
+      padding: 38px 32px 32px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--surface-panel);
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+    }
+
+    .atlas-pro-activation-brand {
+      margin: 0 0 24px;
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--text-heading);
+    }
+
+    .atlas-pro-activation-brand span {
+      color: var(--accent);
+    }
+
+    .atlas-pro-activation-mark {
+      width: 62px;
+      height: 62px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 1.9rem;
+      font-weight: 700;
+    }
+
+    .atlas-pro-activation-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 1.9rem;
+      font-weight: 400;
+      color: var(--text-heading);
+    }
+
+    .atlas-pro-activation-copy {
+      margin: 12px auto 0;
+      max-width: 340px;
+      color: var(--text-body);
+      line-height: 1.6;
+    }
+
+    .atlas-pro-activation-action {
+      width: 100%;
+      min-height: 48px;
+      margin-top: 26px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #fff;
+      font: 600 .95rem var(--font-body);
+      cursor: pointer;
+    }
+
+    .atlas-pro-activation-action[hidden] {
+      display: none;
+    }
+
     @media (max-width:900px) {
       .promise-rail { grid-template-columns:repeat(2,1fr); }
       .same-grid,.faq-layout { grid-template-columns:1fr; gap:42px; }
@@ -775,6 +854,43 @@
     </div>
   </footer>
 
+  <div
+    class="atlas-pro-activation"
+    data-atlas-pro-activation
+    hidden
+  >
+    <section
+      class="atlas-pro-activation-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="atlas-pro-activation-title"
+    >
+      <p class="atlas-pro-activation-brand">Atlas<span>.</span></p>
+      <div class="atlas-pro-activation-mark" aria-hidden="true">✓</div>
+      <h2
+        id="atlas-pro-activation-title"
+        class="atlas-pro-activation-title"
+        data-atlas-pro-activation-title
+      >
+        Payment received
+      </h2>
+      <p
+        class="atlas-pro-activation-copy"
+        data-atlas-pro-activation-copy
+      >
+        Activating Atlas Pro…
+      </p>
+      <button
+        class="atlas-pro-activation-action"
+        type="button"
+        data-atlas-pro-activation-action
+        hidden
+      >
+        Return to Atlas
+      </button>
+    </section>
+  </div>
+
   <script src="/shared/atlas-legal-appearance.js?v=20260920-legal-theme1"></script>
   <script src="/shared/atlas-return-intent.js?v=20260916-access1"></script>
   <script src="/shared/atlas-access-bootstrap.js?v=20260921-insideheader1"></script>
@@ -793,6 +909,14 @@
       var accessUnsubscribe = null;
       var autoCheckoutConsumed = false;
       var pricingContext = readPricingContext();
+      var proActivationLayer =
+        document.querySelector('[data-atlas-pro-activation]');
+      var proActivationTitle =
+        document.querySelector('[data-atlas-pro-activation-title]');
+      var proActivationCopy =
+        document.querySelector('[data-atlas-pro-activation-copy]');
+      var proActivationAction =
+        document.querySelector('[data-atlas-pro-activation-action]');
 
       function setStatus(message) {
         if (status) status.textContent = message || '';
@@ -924,6 +1048,85 @@
         return true;
       }
 
+      function getPricingReturnDestination() {
+        switch (pricingContext.source) {
+          case 'compass':
+          case 'compass-create':
+            return {
+              href: '/compass/',
+              label: 'Return to Compass'
+            };
+          case 'arcade':
+            return {
+              href: '/arcade/',
+              label: 'Return to Arcade'
+            };
+          case 'inside-atlas':
+            return {
+              href: '/tutors/',
+              label: 'Return to Inside Atlas'
+            };
+          default:
+            return {
+              href: '/',
+              label: 'Return to Atlas'
+            };
+        }
+      }
+
+      function showProActivationState(
+        title,
+        copy,
+        options
+      ) {
+        if (!proActivationLayer) return;
+
+        var action =
+          Boolean(options && options.action);
+
+        if (proActivationTitle) {
+          proActivationTitle.textContent =
+            title;
+        }
+
+        if (proActivationCopy) {
+          proActivationCopy.textContent =
+            copy;
+        }
+
+        if (proActivationAction) {
+          var destination =
+            getPricingReturnDestination();
+
+          proActivationAction.textContent =
+            destination.label;
+          proActivationAction.hidden =
+            !action;
+          proActivationAction.onclick =
+            action
+              ? function () {
+                  window.location.assign(
+                    destination.href
+                  );
+                }
+              : null;
+        }
+
+        proActivationLayer.hidden = false;
+
+        if (
+          action &&
+          proActivationAction
+        ) {
+          window.setTimeout(
+            function () {
+              proActivationAction.focus();
+            },
+            0
+          );
+        }
+      }
+
       function delay(ms) {
         return new Promise(function (resolve) {
           window.setTimeout(resolve, ms);
@@ -1009,20 +1212,27 @@
 
                 if (pricingContext.source === 'compass-create') {
                   if (!queueCompassCreateResume()) {
-                    setStatus(
-                      'Atlas Pro is active. Return to Compass to continue your subject.'
+                    showProActivationState(
+                      'Atlas Pro is active',
+                      'Return to Compass to continue your subject.',
+                      { action: true }
                     );
                     return true;
                   }
 
-                  setStatus(
-                    'Atlas Pro is active. Returning to your subject…'
+                  showProActivationState(
+                    'Atlas Pro is active',
+                    'Returning to your subject…'
                   );
                   window.location.assign('/compass/');
                   return true;
                 }
 
-                setStatus('Atlas Pro is active.');
+                showProActivationState(
+                  'Welcome to Atlas Pro',
+                  'Your Pro creation allowance is ready.',
+                  { action: true }
+                );
                 return true;
               }
             } catch (error) {
@@ -1037,8 +1247,9 @@
               Date.now() - startedAt >= 15000
             ) {
               slowNoticeShown = true;
-              setStatus(
-                'Payment received. Atlas Pro is still activating…'
+              showProActivationState(
+                'Payment received',
+                'Atlas Pro is still activating. This can take a moment.'
               );
             }
 
@@ -1049,8 +1260,10 @@
             );
           }
 
-          setStatus(
-            'Payment received. Atlas Pro is still activating. Refresh this page in a moment.'
+          showProActivationState(
+            'Payment received',
+            'Atlas Pro is still activating. You can return to Atlas and refresh in a moment if your plan has not updated yet.',
+            { action: true }
           );
           return false;
         })().finally(function () {
@@ -1113,6 +1326,15 @@
             }
 
             if (name === 'checkout.completed') {
+              try {
+                Paddle.Checkout.close();
+              } catch { }
+
+              showProActivationState(
+                'Payment received',
+                'Activating Atlas Pro…'
+              );
+
               void waitForProActivation();
             }
 
