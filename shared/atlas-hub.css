@@ -5,6 +5,8 @@
   --atlas-continue-fluid-size: 2.5vw;
   --atlas-door-fluid-size: 2.7vw;
   --atlas-mobile-welcome-fluid-size: 8vw;
+  --atlas-card-hover-motion: 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  --atlas-card-hover-fade: 200ms ease-out;
 }
 .atlas-main {
   max-width: 1184px;
@@ -69,7 +71,10 @@ html[data-theme="night"] .atlas-main {
   isolation: isolate;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  /* Keep hover movement compositor-friendly. The shadow stays raster-stable. */
+  transition:
+    transform var(--atlas-card-hover-motion),
+    border-color var(--atlas-card-hover-fade);
 }
 .door::before { display: none; }
 .door > .door-image { position: absolute; z-index: -2; inset: 0 0 0 auto; width: 42%; height: 100%; object-fit: cover; object-position: 50% center; }
@@ -82,7 +87,25 @@ html[data-theme="night"] .atlas-main {
 .door-desc { font-size: .82rem; line-height: 1.65; color: var(--text-body); margin-bottom: 1.5rem; }
 .door-action { display: inline-flex; align-items: center; gap: .8rem; font-size: .77rem; font-weight: 600; color: #315f54; padding: .4rem 0; border-radius: 0; background: transparent; margin-top: auto; }
 .door-arcade .door-action { color: #a83b21; }
-.door:hover, .door:focus-visible { transform: translateY(-3px); box-shadow: 0 19px 38px -22px rgba(39, 44, 37, .35); }
+.door:hover, .door:focus-visible { transform: translateY(-3px); box-shadow: var(--home-shadow); }
+html[data-theme="night"] .door-compass:hover,
+html[data-theme="night"] .door-arcade:hover,
+html[data-theme="night"] .door-compass:focus-visible,
+html[data-theme="night"] .door-arcade:focus-visible { box-shadow: var(--home-shadow); }
+
+/*
+ * All moving illustration geometry resolves on the same curve and duration.
+ * The previous 200/300/420/480/550ms mix made a single hover settle in waves.
+ */
+.door-icon {
+  transition:
+    opacity var(--atlas-card-hover-fade),
+    transform var(--atlas-card-hover-motion);
+}
+.compass-needle-group,
+.arcade-stick-group,
+.arcade-button--one { transition: transform var(--atlas-card-hover-motion); }
+.arcade-energy { transition: opacity var(--atlas-card-hover-fade); }
 .door:focus-visible, .hub-recent-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .hub-recent { margin-top: 2.1rem; }
 .hub-recent h2 { font-family: var(--font-display); font-size: 1.45rem; font-weight: 400; letter-spacing: -.015em; margin: 0 0 1rem; }

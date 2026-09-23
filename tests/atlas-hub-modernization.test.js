@@ -17,7 +17,7 @@ assert.match(
 );
 assert.match(
   html,
-  /atlas-hub\.css\?v=20260922-fluid-type1/
+  /atlas-hub\.css\?v=20260922-hover-motion1/
 );
 assert.match(
   hubCss,
@@ -30,6 +30,26 @@ assert.match(
 assert.match(
   hubCss,
   /\.door-title \{ font-size: clamp\(2rem, var\(--atlas-door-fluid-size\), 2\.65rem\);/
+);
+assert.match(
+  hubCss,
+  /--atlas-card-hover-motion: 240ms cubic-bezier\(0\.22, 1, 0\.36, 1\);/,
+  'Atlas card movement must use one compositor-friendly motion contract'
+);
+assert.match(
+  hubCss,
+  /\.door \{[\s\S]*?transition:\s*\n\s*transform var\(--atlas-card-hover-motion\),\s*\n\s*border-color var\(--atlas-card-hover-fade\);/,
+  'Atlas door hover must not animate box-shadow'
+);
+assert.match(
+  hubCss,
+  /\.compass-needle-group,\s*\n\.arcade-stick-group,\s*\n\.arcade-button--one \{ transition: transform var\(--atlas-card-hover-motion\); \}/,
+  'Atlas card illustration movement must settle with the card'
+);
+assert.match(
+  hubCss,
+  /\.door:hover, \.door:focus-visible \{ transform: translateY\(-3px\); box-shadow: var\(--home-shadow\); \}/,
+  'Atlas door shadow must remain raster-stable during hover movement'
 );
 assert.match(
   hubCss,
