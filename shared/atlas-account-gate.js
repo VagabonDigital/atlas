@@ -806,6 +806,7 @@
                 <p class="atlas-account-menu-allowance-meta" data-account-menu-allowance-meta></p>
             </div>
             <div class="atlas-account-menu-actions">
+                <a class="atlas-account-menu-action" href="/pricing/?from=account-menu" data-account-menu-upgrade style="display:none">Upgrade to Pro</a>
                 <a class="atlas-account-menu-action" href="/account/" data-account-settings>Account settings</a>
                 <button class="atlas-account-menu-action" type="button" data-account-menu-feedback>Message Atlas</button>
                 <button class="atlas-account-menu-action" type="button" data-account-menu-sign-out>Sign out</button>
@@ -1689,6 +1690,17 @@
 
         accountMenu.querySelector('[data-account-menu-email]').textContent = email;
         accountMenu.querySelector('[data-account-menu-plan]').textContent = tier;
+
+        const upgradeAction =
+            accountMenu.querySelector('[data-account-menu-upgrade]');
+        if (upgradeAction) {
+            upgradeAction.style.display =
+                access.ready &&
+                access.authenticated &&
+                access.tier === 'free'
+                    ? ''
+                    : 'none';
+        }
 
         const allowance =
             access.creationAllowance &&
