@@ -81,6 +81,36 @@ assert.match(
 
 assert.match(
     source,
+    /function getHubCoverPickerCurrentHttpUrl\(\)/,
+    'The Hub cover picker must resolve the currently applied cover URL.'
+);
+
+assert.match(
+    source,
+    /record\?\.document\?\.module\?\.bgImage \|\|[\s\S]*record\?\.metadata\?\.coverImage/,
+    'The Hub cover picker must read the canonical owned-subject cover.'
+);
+
+assert.match(
+    source,
+    /parsedUrl\.protocol !== 'http:'[\s\S]*parsedUrl\.protocol !== 'https:'/,
+    'The Hub cover picker must only expose normal HTTP(S) covers in the URL field.'
+);
+
+assert.match(
+    source,
+    /if \(urlMode\) \{\s*populateHubCoverPickerCurrentUrl\(\);\s*\}/,
+    'The Hub URL provider must populate the current cover when opened.'
+);
+
+assert.match(
+    source,
+    /!input \|\|[\s\S]*String\(input\.value \|\| ''\)\.trim\(\)/,
+    'The Hub URL provider must preserve an in-progress replacement URL.'
+);
+
+assert.match(
+    source,
     /coverImage:\s*normalizedUrl/,
     'Changing a cover must update subject cover metadata.'
 );
