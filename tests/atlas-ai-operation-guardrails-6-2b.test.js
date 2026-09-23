@@ -157,11 +157,26 @@ assert.match(
     /installSubjectAuthoringAIGuard[\s\S]*?'canUseAI'[\s\S]*?'ai-authoring'/
 );
 
-assert.doesNotMatch(
+assert.match(
     hub,
-    /const anonymousSuggestionPreview =/
+    /const anonymousSuggestionPreview =[\s\S]*?anonymousPreview === true/
+);
+
+assert.match(
+    atlasAI,
+    /allowAnonymous[\s\S]*?headers\.delete\('Authorization'\)/
+);
+
+assert.match(
+    worker,
+    /anonymousSuggestion[\s\S]*?'\/suggest-subject-ideas'[\s\S]*?allowAtlasAnonymousSuggestion/
+);
+
+assert.match(
+    worker,
+    /ATLAS_ANONYMOUS_SUGGESTION_LIMIT = 10/
 );
 
 console.log(
-    'Atlas 6.2B AI operation guardrail contract passed: authenticated Worker requests, centralized hidden abuse policy, one-shot Current Affairs Read More, and creation/shaping capability separation are present.'
+    'Atlas 6.2B AI operation guardrail contract passed: authenticated AI stays protected, the public Compass suggestion exception is rate-limited, and creation/shaping capability separation remains intact.'
 );
