@@ -23061,6 +23061,15 @@ async function init() {
         pendingOwnedSubjectAuthoringIntent ===
             'generate';
 
+    const incompleteOwnedSubjectBuild =
+        isOwnedSubjectRuntime() &&
+        getCompassSubjectRuntime()
+            .aiBuildIncomplete === true;
+
+    const recoveringOwnedSubjectBuild =
+        incompleteOwnedSubjectBuild &&
+        !freshOwnedSubjectBuild;
+
     const freshBuildCloudAuthorityPromise =
         freshOwnedSubjectBuild
             ? ensureSubjectAuthoringCloudAuthorityReady(
@@ -23068,18 +23077,31 @@ async function init() {
             )
             : null;
 
-    if (freshOwnedSubjectBuild) {
+    const recoveryBuildCloudAuthorityPromise =
+        recoveringOwnedSubjectBuild
+            ? ensureSubjectAuthoringCloudAuthorityReady(
+                'subjects'
+            )
+            : null;
+
+    if (
+        freshOwnedSubjectBuild ||
+        recoveringOwnedSubjectBuild
+    ) {
         const runtimeLayersReady =
             await waitForOwnedSubjectRuntimeLayersReady();
 
         if (!runtimeLayersReady) {
             /*
-             * Keep ?author=generate intact. The loader owns the visible
-             * failure state, and Retry must still know this is a fresh build.
+             * Fresh builds keep ?author=generate intact. Recovery builds keep
+             * their durable incomplete marker, so either path can retry after
+             * the runtime layers become available again.
              */
             return;
         }
+    }
 
+    if (freshOwnedSubjectBuild) {
         /*
          * A freshly-created subject cannot already have a working draft,
          * live draft, or generation checkpoint for its new ID. Keep the
@@ -23091,13 +23113,21 @@ async function init() {
         tutorContentLiveDraft = null;
         updateLiveTutorContentControl();
     } else {
+        /*
+         * Recovery must read browser-owned checkpoint state when it exists.
+         * If that checkpoint is gone, the durable incomplete marker below
+         * deliberately restarts generation from step 0 instead of exposing
+         * the starter document as a finished lesson.
+         */
         await loadTutorContentState();
     }
 
     const ownedSubjectAuthoringIntent =
         freshOwnedSubjectBuild
             ? pendingOwnedSubjectAuthoringIntent
-            : consumeOwnedSubjectAuthoringIntent();
+            : recoveringOwnedSubjectBuild
+                ? 'generate'
+                : consumeOwnedSubjectAuthoringIntent();
 
     window.AtlasAnalytics?.resourceOpen({
         resourceType: 'subject',
@@ -23160,6 +23190,18 @@ async function init() {
         }
     }
 
+    if (recoveringOwnedSubjectBuild) {
+        const cloudAuthorityReady =
+            await recoveryBuildCloudAuthorityPromise;
+
+        if (!cloudAuthorityReady) {
+            showSubjectAuthoringPersistenceUnavailable(
+                'Atlas could not prepare account persistence to continue this subject. Reload and try again.'
+            );
+            return;
+        }
+    }
+
     if (
         ownedSubjectAuthoringIntent &&
         !myVersionEditing
@@ -23175,7 +23217,8 @@ async function init() {
              * latency without adding authority.
              */
             skipCapabilityGate:
-                freshOwnedSubjectBuild
+                freshOwnedSubjectBuild ||
+                recoveringOwnedSubjectBuild
         });
     }
 
@@ -23186,15 +23229,21 @@ async function init() {
         setMyVersionAuthorBarMinimized(false);
     }
 
-    if (freshOwnedSubjectBuild) {
-        if (!myVersionEditing) {
-            /*
-             * Keep ?author=generate intact if authoring could not start.
-             * Reload can safely retry the fresh-build continuation.
-             */
-            return;
-        }
+    if (
+        (
+            freshOwnedSubjectBuild ||
+            recoveringOwnedSubjectBuild
+        ) &&
+        !myVersionEditing
+    ) {
+        /*
+         * Fresh builds keep their URL intent; recovery builds keep their
+         * durable incomplete marker. Either way a later open can retry.
+         */
+        return;
+    }
 
+    if (freshOwnedSubjectBuild) {
         /*
          * Account persistence and authoring are now both live. Consume the
          * fresh-build intent only when generation can safely begin.
