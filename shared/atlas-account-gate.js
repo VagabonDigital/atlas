@@ -945,6 +945,26 @@
         return `/account/?from=${encodeURIComponent(from)}`;
     }
 
+    function getPricingHref() {
+        const body = document.body;
+        const surface =
+            body?.dataset?.atlasSurface || '';
+        const world =
+            body?.dataset?.atlasWorld || '';
+
+        let from = 'atlas';
+
+        if (surface === 'inside-atlas') {
+            from = 'inside-atlas';
+        } else if (world === 'compass') {
+            from = 'compass';
+        } else if (world === 'arcade') {
+            from = 'arcade';
+        }
+
+        return `/pricing/?from=${encodeURIComponent(from)}`;
+    }
+
     function ensureMenu() {
         if (accountMenu) return accountMenu;
 
@@ -966,7 +986,7 @@
             </div>
             <div class="atlas-account-menu-actions">
                 <button class="atlas-account-menu-action" type="button" data-account-menu-upgrade style="display:none">Upgrade to Pro · $12/month</button>
-                <a class="atlas-account-menu-action" href="/pricing/?from=account-menu" data-account-menu-pricing>View pricing</a>
+                <a class="atlas-account-menu-action" href="/pricing/" data-account-menu-pricing>View pricing</a>
                 <a class="atlas-account-menu-action" href="/account/" data-account-settings>Account settings</a>
                 <button class="atlas-account-menu-action" type="button" data-account-menu-feedback>Message Atlas</button>
                 <button class="atlas-account-menu-action" type="button" data-account-menu-sign-out>Sign out</button>
@@ -980,6 +1000,12 @@
             accountMenu.querySelector('[data-account-settings]');
         if (accountSettingsLink) {
             accountSettingsLink.href = getAccountSettingsHref();
+        }
+
+        const pricingLink =
+            accountMenu.querySelector('[data-account-menu-pricing]');
+        if (pricingLink) {
+            pricingLink.href = getPricingHref();
         }
 
         accountMenu.querySelector('[data-account-menu-upgrade]')
