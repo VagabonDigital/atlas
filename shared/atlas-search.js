@@ -44,9 +44,10 @@
     const GROUP_PRIORITY = {
         'Recent': 0,
         'Go to': 1,
-        'Compass Subjects': 2,
-        'Arcade Games': 3,
-        'Other': 4
+        'Atlas Pages': 2,
+        'Compass Subjects': 3,
+        'Arcade Games': 4,
+        'Other': 5
     };
     function getBridge() {
         return window.AtlasBridge || null;
@@ -379,6 +380,55 @@
             }
         ];
     }
+    function buildUtilityRows() {
+        return [
+            {
+                group: 'Atlas Pages',
+                title: 'Pricing',
+                sub: 'Plans & billing',
+                type: 'item',
+                hub: false,
+                planned: false,
+                disabled: false,
+                searchText: 'pricing price plans free pro subscription billing cost upgrade',
+                action: () => navigateTo('pricing/index.html')
+            },
+            {
+                group: 'Atlas Pages',
+                title: 'Privacy',
+                sub: 'Privacy policy',
+                type: 'item',
+                hub: false,
+                planned: false,
+                disabled: false,
+                searchText: 'privacy policy data personal information security legal',
+                action: () => navigateTo('privacy/index.html')
+            },
+            {
+                group: 'Atlas Pages',
+                title: 'Terms',
+                sub: 'Terms of use',
+                type: 'item',
+                hub: false,
+                planned: false,
+                disabled: false,
+                searchText: 'terms terms of use conditions legal agreement',
+                action: () => navigateTo('terms/index.html')
+            },
+            {
+                group: 'Atlas Pages',
+                title: 'Refunds',
+                sub: 'Refund policy',
+                type: 'item',
+                hub: false,
+                planned: false,
+                disabled: false,
+                searchText: 'refund refunds refund policy billing payment cancellation legal',
+                action: () => navigateTo('refunds/index.html')
+            }
+        ];
+    }
+
     // Full searchable inventory — only built while typing.
     // `excludeIds` drops items already shown under Recent so nothing appears twice.
     function buildItemRows(items, excludeIds) {
@@ -450,7 +500,7 @@
             <div class="atlas-search-panel" id="${IDS.panel}" tabindex="-1">
                 <div class="atlas-search-input-row">
                     ${SEARCH_ICON}
-                    <input class="atlas-search-input" id="${IDS.input}" placeholder="Search subjects, games, and worlds…" autocomplete="off" autocorrect="off" spellcheck="false">
+                    <input class="atlas-search-input" id="${IDS.input}" placeholder="Search Atlas…" autocomplete="off" autocorrect="off" spellcheck="false">
                     <button class="atlas-search-close" type="button" aria-label="Close search">×</button>
                 </div>
                 <div class="atlas-search-results" id="${IDS.results}"></div>
@@ -543,7 +593,13 @@
             // No catalog before typing — built or planned.
             return [...recentRows, ...hubRows];
         }
-        const pool = [...recentRows, ...hubRows, ...buildItemRows(items, recentIds)];
+        const utilityRows = buildUtilityRows();
+        const pool = [
+            ...recentRows,
+            ...hubRows,
+            ...utilityRows,
+            ...buildItemRows(items, recentIds)
+        ];
         const scored = pool
             .map(row => ({ row, tier: matchTier(row, q) }))
             .filter(entry => entry.tier !== -1);
@@ -581,7 +637,7 @@
         const results = document.getElementById(IDS.results);
         if (!results) return;
         if (!ordered.length) {
-            results.innerHTML = '<div class="atlas-search-empty">No matches. Try a subject, game, or world name.</div>';
+            results.innerHTML = '<div class="atlas-search-empty">No matches. Try a subject, game, world, or page name.</div>';
             return;
         }
         let currentGroup = '';
