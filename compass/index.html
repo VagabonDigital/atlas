@@ -4581,17 +4581,17 @@
 
     /* The fixed footprint and bottom action stay put as the image yields to copy. */
     @media (hover: hover) and (pointer: fine) {
-      .subject-card--cover:is(:hover, :focus-within) {
+      .subject-card--cover:is(:hover, :has(:focus-visible)) {
         border-color: rgba(var(--accent-rgb), 0.45);
         box-shadow: 0 12px 30px rgba(35, 58, 48, 0.13);
         transform: translateY(-2px);
       }
 
-      .subject-card--cover:is(:hover, :focus-within) .subject-card-cover {
+      .subject-card--cover:is(:hover, :has(:focus-visible)) .subject-card-cover {
         flex-basis: var(--subject-cover-expanded, 80px);
       }
 
-      .subject-card--cover:is(:hover, :focus-within) .subject-card-hook {
+      .subject-card--cover:is(:hover, :has(:focus-visible)) .subject-card-hook {
         -webkit-line-clamp: unset;
         line-clamp: unset;
         flex-shrink: 1;
@@ -4610,7 +4610,7 @@
 
     @media (prefers-reduced-motion: reduce) {
       .subject-card--cover, .subject-card-cover { transition: none; }
-      .subject-card--cover:is(:hover, :focus-within) { transform: none; }
+      .subject-card--cover:is(:hover, :has(:focus-visible)) { transform: none; }
     }
   </style>
 
