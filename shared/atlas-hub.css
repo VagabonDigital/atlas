@@ -73,7 +73,6 @@ html[data-theme="night"] .atlas-main {
 }
 .door::before { display: none; }
 .door > .door-image { position: absolute; z-index: -2; inset: 0 0 0 auto; width: 42%; height: 100%; object-fit: cover; object-position: 50% center; }
-html[data-atlas-hover-test="noimages"] .door > .door-image { display: none; }
 .door::after { display: none; }
 .door-arcade > .door-image { object-position: 65% center; }
 .door > .door-copy { display: flex; flex-direction: column; align-items: flex-start; width: 58%; padding: 1.6rem 1.65rem; flex: 1; }

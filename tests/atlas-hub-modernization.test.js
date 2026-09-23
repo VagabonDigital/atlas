@@ -17,7 +17,7 @@ assert.match(
 );
 assert.match(
   html,
-  /atlas-hub\.css\?v=20260923-hover-image-diagnostic1/
+  /atlas-hub\.css\?v=20260922-hover-transform1/
 );
 assert.match(
   hubCss,
@@ -34,14 +34,6 @@ assert.match(
 assert.match(
   hubCss,
   /transition: transform \.2s ease;/
-);
-assert.match(
-  html,
-  /get\('hoverTest'\) === 'noimages'/
-);
-assert.match(
-  hubCss,
-  /html\[data-atlas-hover-test="noimages"\] \.door > \.door-image \{ display: none; \}/
 );
 assert.doesNotMatch(
   hubCss,
