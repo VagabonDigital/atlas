@@ -109,10 +109,40 @@ assert.match(
     'Image-led cards must not animate border color during hover.'
 );
 
+assert.doesNotMatch(
+    source,
+    /transition: flex-basis/,
+    'Image-led cover reveal must not animate flex-basis.'
+);
+
 assert.match(
     source,
-    /transition: flex-basis 420ms cubic-bezier\(0\.25, 0\.8, 0\.25, 1\);/,
-    'Image-led cover reveal must use the gentler 420ms timing curve.'
+    /\.subject-card-cover \{[\s\S]*?position: absolute;[\s\S]*?height: var\(--subject-cover-rest\)/,
+    'Image-led cover media must keep a fixed render box.'
+);
+
+assert.match(
+    source,
+    /\.subject-card-content::before \{[\s\S]*?transform: translate3d\([\s\S]*?var\(--subject-cover-shift\)/,
+    'The image/content seam must move on a translated content surface.'
+);
+
+assert.match(
+    source,
+    /\.subject-card--cover \.subject-card-header \{[\s\S]*?var\(--subject-cover-shift\)/,
+    'Card heading movement must use compositor transforms.'
+);
+
+assert.match(
+    source,
+    /\.subject-card--cover \.subject-card-hook \{[\s\S]*?var\(--subject-cover-shift\)/,
+    'Card hook movement must use compositor transforms.'
+);
+
+assert.match(
+    source,
+    /transform 420ms[\s\S]*cubic-bezier\(0\.25, 0\.8, 0\.25, 1\)/,
+    'The compositor reveal must retain the gentler 420ms timing curve.'
 );
 
 assert.match(
