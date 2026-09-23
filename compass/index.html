@@ -11101,7 +11101,7 @@
               '</div>',
               '<div class="hub-cover-picker-url-card">',
                 '<p class="hub-cover-picker-url-title">Use an image URL</p>',
-                '<p class="hub-cover-picker-url-help">Paste a direct link to an image you already want to use.</p>',
+                '<p class="hub-cover-picker-url-help">The current cover URL appears here when available. Paste a different direct link to replace it.</p>',
                 '<div class="hub-cover-picker-manual-row">',
                   '<input id="hub-cover-picker-manual-url" type="url" inputmode="url" autocomplete="off" placeholder="https://example.com/image.jpg" aria-label="Image URL" oninput="resetHubCoverPickerCustomPreview()" onkeydown="if(event.key === \'Enter\') { event.preventDefault(); previewHubCoverPickerUrl(); }">',
                   '<button id="hub-cover-picker-url-preview" type="button" onclick="previewHubCoverPickerUrl()">Preview</button>',
@@ -11169,6 +11169,48 @@
       if (scroller) state.scrollTop = scroller.scrollTop;
     }
 
+    function getHubCoverPickerCurrentHttpUrl() {
+      const record = hubCoverPickerState?.record;
+      const currentUrl = String(
+        record?.document?.module?.bgImage ||
+        record?.metadata?.coverImage ||
+        ''
+      ).trim();
+
+      if (!currentUrl) return '';
+
+      try {
+        const parsedUrl = new URL(currentUrl);
+
+        if (
+          parsedUrl.protocol !== 'http:' &&
+          parsedUrl.protocol !== 'https:'
+        ) {
+          return '';
+        }
+
+        return parsedUrl.href;
+      } catch {
+        return '';
+      }
+    }
+
+    function populateHubCoverPickerCurrentUrl() {
+      const input = document.getElementById(
+        'hub-cover-picker-manual-url'
+      );
+
+      if (
+        !input ||
+        String(input.value || '').trim()
+      ) {
+        return;
+      }
+
+      input.value =
+        getHubCoverPickerCurrentHttpUrl();
+    }
+
     function updateHubCoverPickerProviderUI() {
       ['web', 'pexels', 'url'].forEach(provider => {
         const button = document.getElementById('hub-cover-picker-provider-' + provider);
@@ -11187,6 +11229,10 @@
       if (search) search.hidden = urlMode;
       if (layout) layout.hidden = urlMode;
       if (urlPanel) urlPanel.hidden = !urlMode;
+
+      if (urlMode) {
+        populateHubCoverPickerCurrentUrl();
+      }
     }
 
     function restoreHubCoverPickerProviderState() {
