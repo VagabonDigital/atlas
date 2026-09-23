@@ -1428,15 +1428,16 @@
 
     .teach-track--compass {
       animation-name: teachMarqueeForward;
-      animation-duration: 68s;
+      animation-duration: var(--teach-duration, 88s);
     }
 
     .teach-track--arcade {
       animation-name: teachMarqueeReverse;
-      animation-duration: 46s;
+      animation-duration: var(--teach-duration, 54s);
     }
 
-    .teach-stage.is-paused .teach-track {
+    .teach-stage.is-paused .teach-track,
+    .teach-stage.is-inactive .teach-track {
       animation-play-state: paused;
     }
 
@@ -1482,8 +1483,7 @@
       transition: box-shadow 320ms ease, border-color 320ms ease, transform 320ms ease;
     }
 
-    .teach-compass-card:hover,
-    .teach-compass-card:focus-visible {
+    .teach-compass-card:is(:hover, :focus-within) {
       border-color: rgba(var(--compass-rgb), .45);
       box-shadow: 0 12px 30px rgba(35, 58, 48, .13);
       transform: translateY(-2px);
@@ -1496,7 +1496,7 @@
 
     .teach-compass-cover {
       position: relative;
-      flex: 0 0 155px;
+      flex: 0 0 170px;
       min-height: 0;
       overflow: hidden;
       border-radius: 17px 17px 0 0;
@@ -1504,8 +1504,7 @@
       transition: flex-basis 360ms cubic-bezier(.22, 1, .36, 1);
     }
 
-    .teach-compass-card:hover .teach-compass-cover,
-    .teach-compass-card:focus-visible .teach-compass-cover {
+    .teach-compass-card:is(:hover, :focus-within) .teach-compass-cover {
       flex-basis: var(--teach-compass-hover-cover);
     }
 
@@ -1522,8 +1521,8 @@
       right: 12px;
       display: grid;
       place-items: center;
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border: 1px solid rgba(255, 255, 255, .72);
       border-radius: 10px;
       background: #fffefa;
@@ -1580,9 +1579,7 @@
       line-clamp: 2;
     }
 
-    .teach-compass-card:hover .teach-compass-hook,
-    .teach-compass-card:focus-visible .teach-compass-hook,
-    .teach-compass-card.is-measuring .teach-compass-hook {
+    .teach-compass-card:is(:hover, :focus-within) .teach-compass-hook {
       display: block;
       overflow: visible;
       -webkit-line-clamp: unset;
@@ -1618,8 +1615,7 @@
       transition: 220ms cubic-bezier(.4, 0, .2, 1);
     }
 
-    .teach-compass-card:hover .teach-compass-action,
-    .teach-compass-card:focus-visible .teach-compass-action {
+    .teach-compass-card:is(:hover, :focus-within) .teach-compass-action {
       border-color: #4a7c78;
       background: #4a7c78;
       color: #fff;
@@ -1632,7 +1628,7 @@
     .teach-arcade-card {
       display: flex;
       flex-direction: column;
-      height: 350px;
+      height: auto;
       min-height: 350px;
       overflow: hidden;
       isolation: isolate;
@@ -1678,14 +1674,14 @@
       display: flex;
       flex: 1;
       flex-direction: column;
-      padding: 1rem 1.15rem 1.05rem;
+      padding: 1.2rem 1.35rem 1.3rem;
     }
 
     .teach-arcade-title {
       margin: 0 0 .55rem;
       color: #2d1f3d;
       font-family: var(--font-display);
-      font-size: clamp(1.3rem, 1.7vw, 1.48rem);
+      font-size: clamp(1.35rem, 1.85vw, 1.6rem);
       font-weight: 400;
       line-height: 1.2;
       letter-spacing: -.025em;
@@ -1694,13 +1690,8 @@
     .teach-arcade-premise {
       margin: 0;
       color: #5a4a6e;
-      display: -webkit-box;
-      overflow: hidden;
-      font-size: .86rem;
-      line-height: 1.5;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
+      font-size: .92rem;
+      line-height: 1.55;
     }
 
     .teach-arcade-footer {
@@ -1709,7 +1700,7 @@
       justify-content: space-between;
       gap: .65rem;
       margin-top: auto;
-      padding-top: .8rem;
+      padding-top: 1.45rem;
     }
 
     .teach-arcade-unit {
@@ -1822,13 +1813,6 @@
         padding-inline: 18px;
       }
 
-      .teach-track--compass {
-        animation-duration: 74s;
-      }
-
-      .teach-track--arcade {
-        animation-duration: 52s;
-      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1837,6 +1821,13 @@
         -webkit-mask-image: none;
         mask-image: none;
         scrollbar-width: none;
+        scroll-snap-type: x proximity;
+        overscroll-behavior-inline: contain;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .teach-card {
+        scroll-snap-align: start;
       }
 
       .teach-marquee::-webkit-scrollbar {
@@ -4042,6 +4033,10 @@
           renderTeachArcadeCard
         );
 
+        var reducedMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        );
+
         function syncPauseState() {
           var hasHover = Boolean(
             stage.querySelector(".teach-card:hover")
@@ -4059,6 +4054,31 @@
           );
         }
 
+        function syncTeachTrackSpeed() {
+          if (reducedMotion.matches) return;
+
+          var mobile = window.matchMedia("(max-width: 760px)").matches;
+          var pixelsPerSecond = mobile ? 30 : 36;
+
+          [compassTrack, arcadeTrack].forEach(function (track) {
+            var sequence = track.querySelector(".teach-sequence");
+            if (!sequence) return;
+
+            var width = sequence.getBoundingClientRect().width;
+            if (!width) return;
+
+            track.style.setProperty(
+              "--teach-duration",
+              Math.max(46, width / pixelsPerSecond).toFixed(2) + "s"
+            );
+          });
+        }
+
+        function syncTeachLayout() {
+          sizeTeachCompassCards();
+          syncTeachTrackSpeed();
+        }
+
         stage.addEventListener("pointerover", syncPauseState);
         stage.addEventListener("pointerout", function () {
           requestAnimationFrame(syncPauseState);
@@ -4068,13 +4088,66 @@
           requestAnimationFrame(syncPauseState);
         });
 
-        sizeTeachCompassCards();
+        stage.addEventListener("pointerdown", function (event) {
+          if (
+            event.pointerType === "touch" &&
+            event.target.closest(".teach-card")
+          ) {
+            stage.classList.add("is-paused");
+          }
+        });
 
-        if (document.fonts && document.fonts.ready) {
-          document.fonts.ready.then(sizeTeachCompassCards);
+        ["pointerup", "pointercancel"].forEach(function (type) {
+          stage.addEventListener(type, function () {
+            requestAnimationFrame(syncPauseState);
+          });
+        });
+
+        if ("IntersectionObserver" in window) {
+          var teachVisibilityObserver = new IntersectionObserver(
+            function (entries) {
+              entries.forEach(function (entry) {
+                stage.classList.toggle(
+                  "is-inactive",
+                  !entry.isIntersecting || document.hidden
+                );
+              });
+            },
+            { rootMargin: "180px 0px" }
+          );
+          teachVisibilityObserver.observe(stage);
         }
 
-        window.addEventListener("resize", sizeTeachCompassCards);
+        document.addEventListener("visibilitychange", function () {
+          stage.classList.toggle(
+            "is-inactive",
+            document.hidden ||
+            !stage.getBoundingClientRect ||
+            stage.getBoundingClientRect().bottom < -180 ||
+            stage.getBoundingClientRect().top > window.innerHeight + 180
+          );
+        });
+
+        syncTeachLayout();
+
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(syncTeachLayout);
+        }
+
+        if ("ResizeObserver" in window) {
+          var teachResizeFrame = 0;
+          var teachResizeObserver = new ResizeObserver(function () {
+            cancelAnimationFrame(teachResizeFrame);
+            teachResizeFrame = requestAnimationFrame(syncTeachLayout);
+          });
+          teachResizeObserver.observe(stage);
+        } else {
+          window.addEventListener("resize", syncTeachLayout);
+        }
+
+        if (typeof reducedMotion.addEventListener === "function") {
+          reducedMotion.addEventListener("change", syncTeachLayout);
+        }
       }
 
       setupTeachStage();
