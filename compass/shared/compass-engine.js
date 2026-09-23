@@ -3320,6 +3320,46 @@ function closeMyVersionCoverPicker() {
     }
 }
 
+function getMyVersionCoverPickerCurrentHttpUrl() {
+    const currentUrl = String(
+        getEffectiveSubjectCoverImage() || ''
+    ).trim();
+
+    if (!currentUrl) return '';
+
+    try {
+        const parsedUrl =
+            new URL(currentUrl);
+
+        if (
+            parsedUrl.protocol !== 'http:' &&
+            parsedUrl.protocol !== 'https:'
+        ) {
+            return '';
+        }
+
+        return parsedUrl.href;
+    } catch {
+        return '';
+    }
+}
+
+function populateMyVersionCoverPickerCurrentUrl() {
+    const input = document.getElementById(
+        'atlas-cover-picker-manual-url'
+    );
+
+    if (
+        !input ||
+        String(input.value || '').trim()
+    ) {
+        return;
+    }
+
+    input.value =
+        getMyVersionCoverPickerCurrentHttpUrl();
+}
+
 function updateMyVersionCoverPickerProviderUI() {
     [
         'web',
@@ -3378,6 +3418,10 @@ function updateMyVersionCoverPickerProviderUI() {
 
     if (urlPanel) {
         urlPanel.hidden = !urlMode;
+    }
+
+    if (urlMode) {
+        populateMyVersionCoverPickerCurrentUrl();
     }
 
     const rights = document.getElementById(
