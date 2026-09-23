@@ -6814,11 +6814,47 @@
         return Lifecycle.classify(record);
       }
 
+      /*
+       * Fail-safe only for a partially cached deploy. The shared lifecycle
+       * module is canonical, but the Hub must never disguise a durable
+       * unfinished build as a finished subject if that script failed to load.
+       */
+      const metadata =
+        record?.metadata &&
+        typeof record.metadata === 'object' &&
+        !Array.isArray(record.metadata)
+          ? record.metadata
+          : {};
+
+      const provenanceKind =
+        String(
+          record?.provenance?.kind || ''
+        ).trim();
+
+      const status =
+        String(
+          metadata.aiBuildStatus || ''
+        ).trim();
+
+      const legacyRecovery =
+        metadata.legacyAiBuildRecovery === true;
+
+      const knownAiLifecycle =
+        provenanceKind === 'ai-subject-build' ||
+        ['building', 'paused', 'complete']
+          .includes(status);
+
       return {
-        status: '',
-        provenanceKind: '',
-        legacyRecovery: false,
-        incomplete: false
+        status,
+        provenanceKind,
+        legacyRecovery,
+        incomplete:
+          status === 'complete'
+            ? false
+            : (
+                legacyRecovery ||
+                knownAiLifecycle
+              )
       };
     }
 
