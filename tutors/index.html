@@ -3997,11 +3997,11 @@
         var sharedHeight = Math.ceil(
           Math.max.apply(
             Math,
-            [340].concat(
+            [370].concat(
               sizes.map(function (size) {
                 return Math.max(
-                  size.body + 72,
-                  size.body - size.extraCopy + 152
+                  size.body + 82,
+                  size.body - size.extraCopy + 172
                 );
               })
             )
@@ -4016,8 +4016,8 @@
           size.card.style.setProperty(
             "--teach-compass-hover-cover",
             Math.max(
-              76,
-              Math.min(116, sharedHeight - size.body - 2)
+              80,
+              Math.min(124, sharedHeight - size.body - 2)
             ) + "px"
           );
         });
