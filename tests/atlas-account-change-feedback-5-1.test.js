@@ -10,12 +10,6 @@ const account = fs.readFileSync(
 
 assert.ok(
   account.includes(
-    'Your sign-in address changes only after you confirm both.'
-  )
-);
-
-assert.ok(
-  account.includes(
     "authReturnType === 'email_change'"
   )
 );
@@ -28,7 +22,7 @@ assert.ok(
 
 assert.ok(
   account.includes(
-    'One email confirmation is complete.'
+    'Email confirmation received, but the change to'
   )
 );
 
@@ -44,6 +38,18 @@ assert.ok(
   )
 );
 
+assert.ok(
+  account.includes(
+    'id="change-password-success"'
+  )
+);
+
+assert.ok(
+  account.includes(
+    'Your Atlas account is ready.'
+  )
+);
+
 console.log(
-  'Atlas 5.1 account change feedback contract passed.'
+  'Atlas account change feedback contract passed.'
 );
