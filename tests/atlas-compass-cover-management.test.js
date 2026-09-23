@@ -141,6 +141,30 @@ assert.match(
 
 assert.match(
     source,
+    /clip-path: inset\([\s\S]*?var\(--subject-hook-hidden, 0px\)[\s\S]*?\);/,
+    'The compact hook state must be clipped rather than line-clamped.'
+);
+
+assert.match(
+    source,
+    /--subject-hook-hidden/,
+    'Hub sizing must publish the measured hidden hook depth.'
+);
+
+assert.doesNotMatch(
+    source,
+    /\.subject-card--cover:is\(:hover, :has\(:focus-visible\)\)[\s\S]*?-webkit-line-clamp: unset/,
+    'Hover must not toggle line-clamp state for image-led cards.'
+);
+
+assert.match(
+    source,
+    /clip-path 420ms[\s\S]*cubic-bezier\(0\.25, 0\.8, 0\.25, 1\)/,
+    'The copy reveal must use the same compositor timing as the seam.'
+);
+
+assert.match(
+    source,
     /transform 420ms[\s\S]*cubic-bezier\(0\.25, 0\.8, 0\.25, 1\)/,
     'The compositor reveal must retain the gentler 420ms timing curve.'
 );
