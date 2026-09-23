@@ -165,6 +165,18 @@ assert.match(
 
 assert.match(
     source,
+    /\.subject-card-cover img \{[\s\S]*?transform: scale\(1\.035\);[\s\S]*?transition:[\s\S]*?transform 420ms/,
+    'Image-led cards may add character with compositor-only image scaling.'
+);
+
+assert.match(
+    source,
+    /\.subject-card--cover:is\(:hover, :has\(:focus-visible\)\)[\s\S]*?\.subject-card-cover img \{\s*transform: scale\(1\);/,
+    'Hover must settle the cover image without resizing its layout box.'
+);
+
+assert.match(
+    source,
     /transform 420ms[\s\S]*cubic-bezier\(0\.25, 0\.8, 0\.25, 1\)/,
     'The compositor reveal must retain the gentler 420ms timing curve.'
 );
