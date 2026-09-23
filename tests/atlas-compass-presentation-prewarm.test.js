@@ -24,6 +24,14 @@ const arcade = fs.readFileSync(
     'arcade/index.html',
     'utf8'
 );
+const ownedSubject = fs.readFileSync(
+    'compass/subject/index.html',
+    'utf8'
+);
+const atlasOriginalEntry = fs.readFileSync(
+    'compass/shared/atlas-original-entry.js',
+    'utf8'
+);
 
 assert.match(
     root,
@@ -168,11 +176,11 @@ assert.equal(
 assert.equal(
     (
         registry.match(
-            /atlas-cloud-cache\.js\?v=20260922-delete1/g
+            /atlas-cloud-cache\.js\?v=20260922-order1/g
         ) || []
     ).length,
     2,
-    'both Cloud Cache loader paths must use the deletion-safe cache revision'
+    'both Cloud Cache loader paths must use the current ordered-cache revision'
 );
 
 assert.match(
@@ -189,6 +197,16 @@ assert.match(
     arcade,
     /atlas-content-registry\.js\?v=20260923-coverprewarm1/,
     'Arcade must load the cover-prewarm Content Registry revision'
+);
+assert.match(
+    ownedSubject,
+    /atlas-content-registry\.js\?v=20260923-coverprewarm1/,
+    'Owned subject pages must load the cover-prewarm Content Registry revision'
+);
+assert.match(
+    atlasOriginalEntry,
+    /atlas-content-registry\.js\?v=20260923-coverprewarm1/,
+    'Atlas Original pages must load the cover-prewarm Content Registry revision'
 );
 
 console.log(
