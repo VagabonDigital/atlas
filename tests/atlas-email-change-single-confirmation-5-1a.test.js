@@ -33,8 +33,14 @@ assert.match(
 );
 
 assert.ok(
-  account.includes(
+  page.includes(
     'Enter your password.'
+  )
+);
+
+assert.ok(
+  page.includes(
+    'id="change-email-modal"'
   )
 );
 
@@ -59,6 +65,12 @@ assert.ok(
 assert.ok(
   page.includes(
     'id="change-email-success"'
+  )
+);
+
+assert.ok(
+  page.includes(
+    'id="change-email-done"'
   )
 );
 
@@ -92,5 +104,5 @@ assert.ok(
 );
 
 console.log(
-  'Atlas single-confirmation email change contract passed: successful requests replace the form with a clear pending-confirmation state.'
+  'Atlas single-confirmation email change contract passed: the modal transforms into a clear pending-confirmation state.'
 );
