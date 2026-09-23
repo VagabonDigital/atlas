@@ -16483,6 +16483,7 @@
 
       main.innerHTML = nextHubMarkup;
       sizeHubSubjectCards(main);
+      prewarmHubCoverImages(main);
       lastCommittedHubContentMarkup =
         nextHubContentMarkup;
 
@@ -16871,6 +16872,50 @@
     }
 
     let hubCardResizeObserver;
+
+    function prewarmHubCoverImages(main) {
+      const images = [
+        ...main.querySelectorAll(
+          '.subject-card--cover .subject-card-cover img'
+        )
+      ];
+
+      if (!images.length) return;
+
+      window.AtlasContentRegistry
+        ?.prewarmCompassCoverImages?.(
+          images.map(image =>
+            image.currentSrc ||
+            image.src
+          )
+        );
+
+      const viewportHeight =
+        window.innerHeight ||
+        document.documentElement.clientHeight ||
+        0;
+      const preloadDistance = Math.max(
+        240,
+        Math.min(600, viewportHeight * 0.75)
+      );
+
+      images.forEach(image => {
+        const rect = image.getBoundingClientRect();
+
+        if (
+          rect.bottom < -preloadDistance ||
+          rect.top > viewportHeight + preloadDistance
+        ) {
+          return;
+        }
+
+        image.loading = 'eager';
+
+        if (typeof image.decode === 'function') {
+          image.decode().catch(() => {});
+        }
+      });
+    }
 
     function sizeHubSubjectCards(main) {
       hubCardResizeObserver?.disconnect();
