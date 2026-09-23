@@ -1962,13 +1962,9 @@ function updateMyVersionAuthorBar() {
                         ? 'Generating discussion framing…'
                         : myVersionEnrichingDiscussion
                             ? `${
-                                myVersionDiscussionEnrichmentProgress?.phase ===
-                                    'selecting-key'
-                                    ? 'Choosing key Discussion language'
-                                    : myVersionDiscussionEnrichmentProgress?.kind ===
-                                        'make-it-real'
-                                        ? 'Adding Discussion activities'
-                                        : 'Adding Discussion language'
+                                getMyVersionDiscussionEnrichmentLabel(
+                                    myVersionDiscussionEnrichmentProgress
+                                )
                             }${
                                 myVersionDiscussionEnrichmentProgress &&
                                 myVersionDiscussionEnrichmentProgress.phase !==
@@ -1980,10 +1976,9 @@ function updateMyVersionAuthorBar() {
                             ? 'Generating Cultural Lens framing…'
                             : myVersionEnrichingCulturalLens
                                 ? `${
-                                    myVersionCulturalLensEnrichmentProgress?.phase ===
-                                        'selecting-key'
-                                        ? 'Choosing key Cultural Lens language'
-                                        : 'Adding Cultural Lens language'
+                                    getMyVersionCulturalLensEnrichmentLabel(
+                                        myVersionCulturalLensEnrichmentProgress
+                                    )
                                 }${
                                     myVersionCulturalLensEnrichmentProgress &&
                                     myVersionCulturalLensEnrichmentProgress.phase !==
@@ -7273,6 +7268,51 @@ function setMyVersionFullSubjectGenerationProgress(
     updateMyVersionAuthorBar();
 }
 
+function getMyVersionDiscussionEnrichmentLabel(
+    progress
+) {
+    const mode =
+        progress?.mode === 'key'
+            ? 'key'
+            : progress?.mode === 'all'
+                ? 'all'
+                : getMyVersionLanguageSupportMode();
+
+    if (progress?.phase === 'selecting-key') {
+        return mode === 'key'
+            ? 'Choosing key Discussion language'
+            : 'Adding Discussion language';
+    }
+
+    if (progress?.kind === 'make-it-real') {
+        return 'Adding Discussion activities';
+    }
+
+    return mode === 'key'
+        ? 'Adding key Discussion language'
+        : 'Adding Discussion language';
+}
+
+function getMyVersionCulturalLensEnrichmentLabel(
+    progress
+) {
+    const mode =
+        progress?.mode === 'key'
+            ? 'key'
+            : progress?.mode === 'all'
+                ? 'all'
+                : getMyVersionLanguageSupportMode();
+
+    if (progress?.phase === 'selecting-key') {
+        return mode === 'key'
+            ? 'Choosing key Cultural Lens language'
+            : 'Adding Cultural Lens language';
+    }
+
+    return mode === 'key'
+        ? 'Adding key Cultural Lens language'
+        : 'Adding Cultural Lens language';
+}
 function getMyVersionFullSubjectGenerationStatus() {
     const progress =
         myVersionFullSubjectGenerationProgress;
@@ -7288,19 +7328,15 @@ function getMyVersionFullSubjectGenerationStatus() {
         myVersionEnrichingDiscussion &&
         myVersionDiscussionEnrichmentProgress
     ) {
+        operationLabel =
+            getMyVersionDiscussionEnrichmentLabel(
+                myVersionDiscussionEnrichmentProgress
+            );
+
         if (
-            myVersionDiscussionEnrichmentProgress.phase ===
+            myVersionDiscussionEnrichmentProgress.phase !==
                 'selecting-key'
         ) {
-            operationLabel =
-                'Choosing key Discussion language';
-        } else {
-            operationLabel =
-                myVersionDiscussionEnrichmentProgress.kind ===
-                    'make-it-real'
-                    ? 'Adding Discussion activities'
-                    : 'Adding Discussion language';
-
             operationProgress =
                 ` · ${myVersionDiscussionEnrichmentProgress.current} of ${myVersionDiscussionEnrichmentProgress.total}`;
         }
@@ -7308,16 +7344,15 @@ function getMyVersionFullSubjectGenerationStatus() {
         myVersionEnrichingCulturalLens &&
         myVersionCulturalLensEnrichmentProgress
     ) {
+        operationLabel =
+            getMyVersionCulturalLensEnrichmentLabel(
+                myVersionCulturalLensEnrichmentProgress
+            );
+
         if (
-            myVersionCulturalLensEnrichmentProgress.phase ===
+            myVersionCulturalLensEnrichmentProgress.phase !==
                 'selecting-key'
         ) {
-            operationLabel =
-                'Choosing key Cultural Lens language';
-        } else {
-            operationLabel =
-                'Adding Cultural Lens language';
-
             operationProgress =
                 ` · ${myVersionCulturalLensEnrichmentProgress.current} of ${myVersionCulturalLensEnrichmentProgress.total}`;
         }
@@ -7327,7 +7362,6 @@ function getMyVersionFullSubjectGenerationStatus() {
         `Building subject · ${operationLabel}${operationProgress}`
     );
 }
-
 function releaseCompassSubjectBuildHandoff() {
     if (
         document.documentElement.dataset
@@ -10119,7 +10153,8 @@ async function enrichMyVersionDiscussionFromUI({
         myVersionDiscussionEnrichmentError = '';
         myVersionEnrichingDiscussion = true;
         myVersionDiscussionEnrichmentProgress = {
-            phase: 'selecting-key'
+            phase: 'selecting-key',
+            mode
         };
 
         updateMyVersionAuthorBar();
@@ -10200,7 +10235,8 @@ async function enrichMyVersionDiscussionFromUI({
         current: 0,
         total:
             operationTotals.upgrade || 0,
-        kind: 'upgrade'
+        kind: 'upgrade',
+        mode
     };
 
     updateMyVersionAuthorBar();
@@ -10225,7 +10261,8 @@ async function enrichMyVersionDiscussionFromUI({
                     operationTotals[
                         operation.kind
                     ] || 0,
-                kind: operation.kind
+                kind: operation.kind,
+                mode
             };
 
             updateMyVersionAuthorBar();
@@ -10658,7 +10695,8 @@ async function enrichMyVersionCulturalLensFromUI({
         myVersionCulturalLensEnrichmentError = '';
         myVersionEnrichingCulturalLens = true;
         myVersionCulturalLensEnrichmentProgress = {
-            phase: 'selecting-key'
+            phase: 'selecting-key',
+            mode
         };
 
         updateMyVersionAuthorBar();
@@ -10705,7 +10743,8 @@ async function enrichMyVersionCulturalLensFromUI({
     myVersionEnrichingCulturalLens = true;
     myVersionCulturalLensEnrichmentProgress = {
         current: 0,
-        total: idsToGenerate.length
+        total: idsToGenerate.length,
+        mode
     };
 
     updateMyVersionAuthorBar();
@@ -10721,7 +10760,8 @@ async function enrichMyVersionCulturalLensFromUI({
 
             myVersionCulturalLensEnrichmentProgress = {
                 current: index + 1,
-                total: idsToGenerate.length
+                total: idsToGenerate.length,
+                mode
             };
 
             updateMyVersionAuthorBar();
