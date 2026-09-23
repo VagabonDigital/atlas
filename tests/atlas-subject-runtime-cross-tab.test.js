@@ -45,7 +45,12 @@ assert.match(
 
 assert.match(
     runtimeChannel,
-    /function startBuildHeartbeat\([\s\S]*?build-heartbeat/
+    /function publishLocalHeartbeat\([\s\S]*?build-heartbeat/
+);
+
+assert.match(
+    runtimeChannel,
+    /function startBuildHeartbeat\([\s\S]*?publishLocalHeartbeat/
 );
 
 assert.match(
