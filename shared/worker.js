@@ -476,7 +476,7 @@ function renderAtlasBillingEmail(job) {
             title:
                 'Welcome to Atlas Pro',
             paragraphs: [
-                'You’re in.',
+                'Atlas Pro is active.',
                 'You now have 100 subject creations each billing month, giving you more room to build around the students you teach.'
             ],
             buttonLabel:
