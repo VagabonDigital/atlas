@@ -423,15 +423,16 @@
     html.theme-changing .direction-demo-head span,
     html.theme-changing .direction-category strong,
     html.theme-changing .direction-category span,
-    html.theme-changing .world-copy p,
-    html.theme-changing .world-copy .world-line,
-    html.theme-changing .world-entry,
-    html.theme-changing .compass-nav span,
-    html.theme-changing .compass-body .set,
-    html.theme-changing .compass-question,
-    html.theme-changing .compass-tools span,
-    html.theme-changing .arcade-game strong,
-    html.theme-changing .arcade-game span,
+    html.theme-changing .teach-world-name,
+    html.theme-changing .teach-world-kind,
+    html.theme-changing .teach-compass-title,
+    html.theme-changing .teach-compass-hook,
+    html.theme-changing .teach-compass-ownership,
+    html.theme-changing .teach-compass-action,
+    html.theme-changing .teach-arcade-title,
+    html.theme-changing .teach-arcade-premise,
+    html.theme-changing .teach-arcade-unit,
+    html.theme-changing .teach-arcade-action,
     html.theme-changing .ownership-copy .library-line,
     html.theme-changing .stage-tabs button,
     html.theme-changing .material-head,
@@ -1350,166 +1351,516 @@
 
     #teach h2 {
       max-width: none;
-      margin-bottom: 34px;
+      margin-bottom: 18px;
     }
 
-    .worlds {
-      margin-top: 46px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
+    #teach .lede {
+      max-width: 760px;
     }
 
-    .world-panel {
-      min-width: 0;
-      padding: 30px;
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-xl);
-      background: var(--surface-panel);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .world-panel--compass {
-      background: radial-gradient(circle at 92% 5%, var(--compass-soft), transparent 18rem), var(--surface-panel);
-    }
-
-    .world-panel--arcade {
-      background: radial-gradient(circle at 92% 5%, var(--arcade-soft), transparent 18rem), var(--surface-panel);
-    }
-
-    .world-copy p {
-      margin-top: 14px;
-      max-width: 430px;
-      color: var(--text-muted);
-    }
-
-    .world-copy .world-line {
-      margin-top: 22px;
-      padding-top: 15px;
-      border-top: 1px solid var(--border-faint);
-      color: var(--text-heading);
-      font-size: 13px;
-    }
-
-    .world-entry {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 18px;
-      color: var(--text-heading);
-      font-size: 13px;
-      font-weight: 600;
-      text-decoration: none;
-      transition:
-        color var(--motion) ease,
-        transform var(--motion) ease;
-    }
-
-    .world-entry:hover {
-      transform: translateX(2px);
-    }
-
-    .world-entry--compass {
-      color: var(--compass);
-    }
-
-    .world-entry--arcade {
-      color: var(--arcade);
-    }
-
-    .world-ui {
-      margin-top: 28px;
-      padding-top: 24px;
-      border-top: 1px solid var(--border-faint);
-    }
-
-    .compass-shell {
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      background: radial-gradient(circle at 90% 8%, var(--compass-soft), transparent 18rem), var(--surface-raised);
+    .teach-stage {
+      --teach-card-width: 282px;
+      --teach-gap: 18px;
+      margin-top: 34px;
+      padding: 18px 0 20px;
       overflow: hidden;
+      border: 1px solid var(--border-faint);
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(var(--compass-rgb), .07), transparent 22rem),
+        radial-gradient(circle at 92% 100%, rgba(var(--arcade-rgb), .07), transparent 22rem),
+        var(--surface-panel);
+      box-shadow:
+        0 18px 48px rgba(33, 31, 27, .065),
+        inset 0 1px 0 rgba(255, 255, 255, .72);
     }
 
-    .compass-nav {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      border-bottom: 1px solid var(--border-faint);
+    .teach-lane + .teach-lane {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-faint);
     }
 
-    .compass-nav span {
-      padding: 10px 7px;
-      text-align: center;
+    .teach-lane-head {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 0 20px 10px;
+    }
+
+    .teach-world-name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: -.015em;
+    }
+
+    .teach-lane--compass .teach-world-name {
+      color: var(--compass);
+    }
+
+    .teach-lane--arcade .teach-world-name {
+      color: var(--arcade);
+    }
+
+    .teach-world-kind {
       color: var(--text-muted);
       font-size: 11px;
-    }
-
-    .compass-nav span:nth-child(2) {
-      color: var(--compass);
-      background: var(--compass-soft);
-    }
-
-    .compass-body {
-      padding: 25px;
-    }
-
-    .compass-body .set {
-      color: var(--compass);
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .11em;
-    }
-
-    .compass-question {
-      margin-top: 10px;
-      max-width: 510px;
-      color: var(--text-heading);
-      font-family: var(--font-compass);
-      font-size: 24px;
-      line-height: 1.28;
-    }
-
-    .compass-tools {
-      margin-top: 20px;
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
-
-    .compass-tools span {
-      padding: 7px 9px;
-      border-radius: 999px;
-      background: var(--compass-soft);
-      color: var(--compass);
-      font-size: 11px;
       font-weight: 600;
+      letter-spacing: .09em;
+      text-transform: uppercase;
     }
 
-    .arcade-list {
+    .teach-marquee {
+      overflow: hidden;
+      padding: 4px 0 8px;
+      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 3%, #000 97%, transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0, #000 2.5%, #000 97.5%, transparent 100%);
+    }
+
+    .teach-track {
+      display: flex;
+      width: max-content;
+      will-change: transform;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+    }
+
+    .teach-track--compass {
+      animation-name: teachMarqueeForward;
+      animation-duration: 68s;
+    }
+
+    .teach-track--arcade {
+      animation-name: teachMarqueeReverse;
+      animation-duration: 46s;
+    }
+
+    .teach-stage.is-paused .teach-track {
+      animation-play-state: paused;
+    }
+
+    .teach-sequence {
+      display: flex;
+      flex: none;
+      gap: var(--teach-gap);
+      padding-right: var(--teach-gap);
+    }
+
+    .teach-card {
+      flex: 0 0 var(--teach-card-width);
+      width: var(--teach-card-width);
+      min-width: 0;
+      text-align: left;
+    }
+
+    @keyframes teachMarqueeForward {
+      from { transform: translate3d(0, 0, 0); }
+      to { transform: translate3d(-50%, 0, 0); }
+    }
+
+    @keyframes teachMarqueeReverse {
+      from { transform: translate3d(-50%, 0, 0); }
+      to { transform: translate3d(0, 0, 0); }
+    }
+
+    /* Compass cards: same image-led Hub contract. */
+    .teach-compass-card {
+      --teach-compass-card-height: 370px;
+      --teach-compass-hover-cover: 100px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      height: var(--teach-compass-card-height);
+      min-height: 0;
+      overflow: hidden;
+      border: 1px solid rgba(74, 91, 84, .09);
+      border-radius: 18px;
+      background: #fffefa;
+      color: #211f1b;
+      box-shadow: 0 7px 24px rgba(52, 58, 48, .055);
+      transition: box-shadow 320ms ease, border-color 320ms ease, transform 320ms ease;
+    }
+
+    .teach-compass-card:hover,
+    .teach-compass-card:focus-visible {
+      border-color: rgba(var(--compass-rgb), .45);
+      box-shadow: 0 12px 30px rgba(35, 58, 48, .13);
+      transform: translateY(-2px);
+    }
+
+    .teach-compass-card:focus-visible {
+      outline: 3px solid rgba(var(--compass-rgb), .34);
+      outline-offset: 3px;
+    }
+
+    .teach-compass-cover {
+      position: relative;
+      flex: 0 0 155px;
+      min-height: 0;
+      overflow: hidden;
+      border-radius: 17px 17px 0 0;
+      background: #ebe7de;
+      transition: flex-basis 360ms cubic-bezier(.22, 1, .36, 1);
+    }
+
+    .teach-compass-card:hover .teach-compass-cover,
+    .teach-compass-card:focus-visible .teach-compass-cover {
+      flex-basis: var(--teach-compass-hover-cover);
+    }
+
+    .teach-compass-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 45%;
+    }
+
+    .teach-compass-menu {
+      position: absolute;
+      top: 12px;
+      right: 12px;
       display: grid;
-      gap: 12px;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid rgba(255, 255, 255, .72);
+      border-radius: 10px;
+      background: #fffefa;
+      color: #294c47;
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 10px #0002;
     }
 
-    .arcade-game {
-      padding: 17px 18px;
-      border: 1px solid var(--border-faint);
-      border-radius: var(--radius-md);
-      background: var(--surface-raised);
+    .teach-compass-content {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      flex-direction: column;
+      padding: 1.1rem 1.2rem 1.15rem;
     }
 
-    .arcade-game strong {
+    .teach-compass-header {
+      margin: 0 0 .55rem;
+    }
+
+    .teach-compass-ownership {
       display: block;
-      margin-bottom: 4px;
-      color: var(--arcade);
-      font-size: 12px;
+      margin-bottom: .36rem;
+      color: #4a7c78;
+      font-size: .62rem;
+      font-weight: 600;
       letter-spacing: .08em;
       text-transform: uppercase;
     }
 
-    .arcade-game span {
-      color: var(--text-heading);
+    .teach-compass-title {
+      margin: 0;
+      color: #211f1b;
       font-family: var(--font-display);
-      font-size: 18px;
+      font-size: 1.16rem;
+      font-weight: 400;
+      line-height: 1.24;
+      overflow-wrap: anywhere;
+    }
+
+    .teach-compass-hook {
+      display: -webkit-box;
+      flex-shrink: 0;
+      margin: 0;
+      overflow: hidden;
+      color: #7b7469;
+      font-size: .82rem;
+      line-height: 1.55;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+    }
+
+    .teach-compass-card:hover .teach-compass-hook,
+    .teach-compass-card:focus-visible .teach-compass-hook,
+    .teach-compass-card.is-measuring .teach-compass-hook {
+      display: block;
+      overflow: visible;
+      -webkit-line-clamp: unset;
+      line-clamp: unset;
+    }
+
+    .teach-compass-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: auto;
+      padding-top: .85rem;
+    }
+
+    .teach-compass-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .3rem;
+      min-width: 104px;
+      min-height: 40px;
+      padding: .44rem 1rem;
+      border: 1px solid rgba(var(--compass-rgb), .24);
+      border-radius: 999px;
+      background: rgba(var(--compass-rgb), .10);
+      color: #4a7c78;
+      font-size: .75rem;
+      font-weight: 500;
+      line-height: 1;
+      white-space: nowrap;
+      box-shadow: none;
+      transition: 220ms cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .teach-compass-card:hover .teach-compass-action,
+    .teach-compass-card:focus-visible .teach-compass-action {
+      border-color: #4a7c78;
+      background: #4a7c78;
+      color: #fff;
+      box-shadow: 0 7px 17px rgba(var(--compass-rgb), .17);
+      transform: translateY(-1px);
+    }
+
+
+    /* Arcade cards: same Hub contract. */
+    .teach-arcade-card {
+      display: flex;
+      flex-direction: column;
+      height: 350px;
+      min-height: 350px;
+      overflow: hidden;
+      isolation: isolate;
+      border: 1px solid rgba(58, 36, 63, .07);
+      border-radius: 18px;
+      background: #fffdf9;
+      color: #2d1f3d;
+      box-shadow: 0 10px 28px rgba(58, 36, 63, .055);
+      transition: transform 220ms ease, box-shadow 220ms ease;
+    }
+
+    .teach-arcade-card:hover,
+    .teach-arcade-card:focus-visible {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 38px rgba(58, 36, 63, .11);
+    }
+
+    .teach-arcade-card:focus-visible {
+      outline: 3px solid rgba(var(--arcade-rgb), .34);
+      outline-offset: 3px;
+    }
+
+    .teach-arcade-cover {
+      display: block;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: #24233e;
+    }
+
+    .teach-arcade-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 350ms cubic-bezier(.22, 1, .36, 1);
+    }
+
+    .teach-arcade-card:hover .teach-arcade-cover img,
+    .teach-arcade-card:focus-visible .teach-arcade-cover img {
+      transform: scale(1.025);
+    }
+
+    .teach-arcade-content {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      padding: 1rem 1.15rem 1.05rem;
+    }
+
+    .teach-arcade-title {
+      margin: 0 0 .55rem;
+      color: #2d1f3d;
+      font-family: var(--font-display);
+      font-size: clamp(1.3rem, 1.7vw, 1.48rem);
+      font-weight: 400;
+      line-height: 1.2;
+      letter-spacing: -.025em;
+    }
+
+    .teach-arcade-premise {
+      margin: 0;
+      color: #5a4a6e;
+      display: -webkit-box;
+      overflow: hidden;
+      font-size: .86rem;
+      line-height: 1.5;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+    }
+
+    .teach-arcade-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .65rem;
+      margin-top: auto;
+      padding-top: .8rem;
+    }
+
+    .teach-arcade-unit {
+      color: #5a4a6e;
+      font-size: .8rem;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .teach-arcade-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      gap: .55rem;
+      min-height: 44px;
+      padding: .6rem 1.05rem;
+      border: 1px solid rgba(var(--arcade-rgb), .2);
+      border-radius: 999px;
+      background: #fdf0eb;
+      color: #bb3f1d;
+      font-size: .85rem;
+      font-weight: 600;
+      transition: background-color 220ms ease, box-shadow 220ms ease;
+    }
+
+    .teach-arcade-action svg {
+      width: 13px;
+      height: 13px;
+      transition: transform 220ms ease;
+    }
+
+    .teach-arcade-card:hover .teach-arcade-action,
+    .teach-arcade-card:focus-visible .teach-arcade-action {
+      box-shadow: 0 4px 12px rgba(var(--arcade-rgb), .13);
+    }
+
+    .teach-arcade-card:hover .teach-arcade-action svg,
+    .teach-arcade-card:focus-visible .teach-arcade-action svg {
+      transform: translateX(2px);
+    }
+
+    html[data-theme="night"] .teach-stage {
+      box-shadow:
+        0 18px 48px rgba(0, 0, 0, .22),
+        inset 0 1px 0 rgba(255, 255, 255, .04);
+    }
+
+    html[data-theme="night"] .teach-compass-card {
+      background: #302e29;
+      border-color: rgba(255, 255, 255, .10);
+    }
+
+    html[data-theme="night"] .teach-compass-title {
+      color: #f1eee8;
+    }
+
+    html[data-theme="night"] .teach-compass-hook {
+      color: #aaa49a;
+    }
+
+    html[data-theme="night"] .teach-compass-menu {
+      background: #302e29;
+      color: #84cabf;
+      border-color: rgba(255, 255, 255, .12);
+    }
+
+    html[data-theme="night"] .teach-compass-action {
+      color: #84cabf;
+      border-color: rgba(var(--compass-rgb), .25);
+      background: rgba(var(--compass-rgb), .12);
+    }
+
+    html[data-theme="night"] .teach-compass-card:hover .teach-compass-action,
+    html[data-theme="night"] .teach-compass-card:focus-visible .teach-compass-action {
+      background: #84cabf;
+      border-color: #84cabf;
+      color: #17211f;
+    }
+
+    html[data-theme="night"] .teach-arcade-card {
+      background: #29252e;
+      border-color: rgba(255, 255, 255, .10);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, .22);
+    }
+
+    html[data-theme="night"] .teach-arcade-title {
+      color: #f4edf5;
+    }
+
+    html[data-theme="night"] .teach-arcade-premise,
+    html[data-theme="night"] .teach-arcade-unit {
+      color: #cfc1d1;
+    }
+
+    html[data-theme="night"] .teach-arcade-action {
+      background: rgba(var(--arcade-rgb), .10);
+      color: #ffac91;
+    }
+
+    @media (max-width: 760px) {
+      .teach-stage {
+        --teach-card-width: 260px;
+        margin-top: 28px;
+        padding-block: 16px 18px;
+        border-radius: 22px;
+      }
+
+      .teach-lane-head {
+        padding-inline: 18px;
+      }
+
+      .teach-track--compass {
+        animation-duration: 74s;
+      }
+
+      .teach-track--arcade {
+        animation-duration: 52s;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .teach-marquee {
+        overflow-x: auto;
+        -webkit-mask-image: none;
+        mask-image: none;
+        scrollbar-width: none;
+      }
+
+      .teach-marquee::-webkit-scrollbar {
+        display: none;
+      }
+
+      .teach-track {
+        animation: none !important;
+        transform: none !important;
+      }
+
+      .teach-sequence[aria-hidden="true"] {
+        display: none;
+      }
+
+      .teach-compass-card,
+      .teach-compass-cover,
+      .teach-compass-action,
+      .teach-arcade-card,
+      .teach-arcade-cover img,
+      .teach-arcade-action,
+      .teach-arcade-action svg {
+        transition: none !important;
+      }
     }
 
     #own h2 {
@@ -2195,14 +2546,6 @@
         margin-left: 0;
       }
 
-      .world-panel {
-        padding: 24px;
-      }
-
-      .compass-nav {
-        grid-template-columns: 1fr 1fr;
-      }
-
       .stage-tabs {
         flex-wrap: nowrap;
         overflow-x: auto;
@@ -2524,51 +2867,30 @@
     <section class="section" id="teach">
       <div class="frame">
         <p class="kicker">Teach</p>
-        <h2>Two teaching environments. Same Atlas.</h2>
-        <p class="lede">Compass is structured material you can create, edit and teach through. Arcade is a set of faster
-          conversation games with a deliberately different feel.</p>
-        <div class="worlds">
-          <article class="world-panel world-panel--compass" aria-labelledby="compassHeading">
-            <div class="world-copy">
-              <h3 id="compassHeading">Compass</h3>
-              <p>Structured teaching material you can create, edit, own and return to — organised into Overview,
-                Discussion, Cultural Lens and Reflection.</p>
-              <div class="world-line">Create it, shape it, teach it, keep it.</div>
-              <a class="world-entry world-entry--compass" href="../compass/index.html" data-atlas-product-entry>Explore Compass <span aria-hidden="true">→</span></a>
+        <h2>Two teaching worlds. One Atlas.</h2>
+        <p class="lede">Compass gives you rich, image-led subjects to teach through. Arcade gives you conversation games
+          with a different rhythm. Two distinct worlds, ready when you are.</p>
+
+        <div class="teach-stage" id="teachStage" aria-label="Compass subjects and Arcade games">
+          <div class="teach-lane teach-lane--compass">
+            <div class="teach-lane-head">
+              <span class="teach-world-name">Compass</span>
+              <span class="teach-world-kind">Subjects</span>
             </div>
-            <div class="world-ui">
-              <div class="compass-shell">
-                <div class="compass-nav" aria-label="Compass sections">
-                  <span>Overview</span><span>Discussion</span><span>Cultural Lens</span><span>Reflection</span></div>
-                <div class="compass-body">
-                  <div class="set">Closer Look</div>
-                  <div class="compass-question">What is something humans made to make life easier that may have made it
-                    worse?</div>
-                  <div class="compass-tools"><span>Go deeper</span><span>Another angle</span><span>Add a
-                      twist</span><span>Make It Real</span></div>
-                </div>
-              </div>
+            <div class="teach-marquee" aria-label="Compass subject examples">
+              <div class="teach-track teach-track--compass" id="teachCompassTrack"></div>
             </div>
-          </article>
-          <article class="world-panel world-panel--arcade" aria-labelledby="arcadeHeading">
-            <div class="world-copy">
-              <h3 id="arcadeHeading">Arcade</h3>
-              <p>Fast, low-friction conversation games for the moments when a different rhythm is exactly what the
-                lesson needs.</p>
-              <div class="world-line">Open a game and start. No setup required.</div>
-              <a class="world-entry world-entry--arcade" href="../arcade/index.html" data-atlas-product-entry>Explore Arcade <span aria-hidden="true">→</span></a>
+          </div>
+
+          <div class="teach-lane teach-lane--arcade">
+            <div class="teach-lane-head">
+              <span class="teach-world-name">Arcade</span>
+              <span class="teach-world-kind">Games</span>
             </div>
-            <div class="world-ui">
-              <div class="arcade-list">
-                <div class="arcade-game"><strong>Tomorrow Got Weird</strong><span>25 strange futures to react to.</span>
-                </div>
-                <div class="arcade-game"><strong>Truth Trap</strong><span>Two truths. One lie. Explain the
-                    choice.</span></div>
-                <div class="arcade-game"><strong>Would You Rather</strong><span>50 choices with nowhere neutral to
-                    hide.</span></div>
-              </div>
+            <div class="teach-marquee" aria-label="Arcade game examples">
+              <div class="teach-track teach-track--arcade" id="teachArcadeTrack"></div>
             </div>
-          </article>
+          </div>
         </div>
       </div>
     </section>
@@ -3433,6 +3755,329 @@
         window.addEventListener("resize", syncLibraryDemoControls);
         syncLibraryDemoControls();
       }
+
+      var teachCompassSubjects = [
+        {
+          title: "The Trees That Share Resources",
+          hook: "Beneath the forest floor, fungal networks connect trees, prompting questions about how plants exchange resources and signals—and whether cooperation and competition can coexist in an ecosystem.",
+          cover: "https://media.istockphoto.com/id/1659684092/photo/a-view-up-into-the-trees-direction-sky.jpg?s=612x612&w=0&k=20&c=ct8yVwNCts5oyYSdUrq7BBGUX5pumjpdIpChM7qOn7Y=",
+          owned: true,
+          action: "Explore"
+        },
+        {
+          title: "When Buildings Flow: Zaha Hadid And Nature-Inspired Architecture",
+          hook: "Zaha Hadid’s flowing architecture opens a conversation about buildings shaped by dunes, waves and wind—and whether dramatic beauty can also create practical, comfortable spaces.",
+          cover: "https://miro.medium.com/v2/resize:fit:1400/1*fLrOihZ3vRwswPcyELAc7w.jpeg",
+          owned: true,
+          action: "Explore"
+        },
+        {
+          title: "The Forests That Glow at Night",
+          hook: "Explore the eerie world of fungi that glow in the dark — what their light reveals about forests, hidden ecosystems, and nature’s stranger forms of beauty.",
+          cover: "https://www.planetnatural.com/wp-content/uploads/2024/10/Plants-That-Glow-In-The-Dark.jpg",
+          owned: true,
+          action: "Explore"
+        },
+        {
+          title: "Technology & Innovation",
+          hook: "Everyday technology solves problems while creating new habits, dependencies, boundaries, and trade-offs — changing what feels easy, what we rely on, and what we are willing to give up in return.",
+          cover: "https://static.wixstatic.com/media/c50469_bce6b50502f242c098f6edda48d2559b~mv2.jpeg/v1/fill/w_1110,h_662,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/c50469_bce6b50502f242c098f6edda48d2559b~mv2.jpeg",
+          action: "Preview"
+        },
+        {
+          title: "Using Modal Verbs in Real Situations",
+          hook: "Designed for A2 learners, with everyday situations where modal verbs change meaning and tone: asking for help, giving advice, talking about rules, and expressing ability, possibility, or obligation.",
+          cover: "https://w0.peakpx.com/wallpaper/1/806/HD-wallpaper-multi-colored-chalk-chalk-pencils-choice-of-color-concepts-chalk-different-colors-of-chalk.jpg",
+          action: "Preview"
+        },
+        {
+          title: "TOEFL Writing: From Sentence to Argument",
+          hook: "A practical look at turning clear sentences into organised, developed responses, with attention to tone, accuracy, structure and the decisions strong timed writing demands.",
+          cover: "https://thumbs.dreamstime.com/b/woman-hands-laptop-student-typing-education-writing-report-essay-studying-exam-university-scholarship-college-266007255.jpg",
+          action: "Preview"
+        },
+        {
+          title: "Travel & Exploration",
+          hook: "A journey is shaped by more than a destination — surprises, problems, habits, people, and choices can challenge expectations, change a trip, and stay with us long after we return home.",
+          cover: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi2lmdQM4psQaMkjfD9_oEcSyYotoHZLhcmLe6VSYRNsJIeMKss3ol57bH5E-UAKrYdF9zBzC2bqaxJYJj-8-IDp4umNP-PevoJpHPpH9lrIBisztiwq56af7NseoacPMmH3E3D1tG4olo/s2048/pexels-photo-3935702.jpeg",
+          action: "Preview"
+        },
+        {
+          title: "Humour & Wit",
+          hook: "What makes something funny can change from one room to another — timing, trust, culture, power, and personality can turn the same joke into something brilliant, awkward, kind, cruel, or pointless.",
+          cover: "https://pub-13d93423376c4822820635b75cfbea29.r2.dev/images/humor-cover.png",
+          action: "Preview"
+        },
+        {
+          title: "The Odyssey: Worth the Hype?",
+          hook: "Explore why a film adaptation of The Odyssey might capture our imagination — through epic journeys, unforgettable characters, and timeless questions about home, loyalty, temptation, and survival.",
+          cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2AfNTRW3tus24aRHMr7-C-SizCaIZWt6S5WfFslYLurTBVD-IxBa-zjx3&s=10",
+          action: "Explore"
+        },
+        {
+          title: "Understanding Game Theory: Strategy, Trust & Choice",
+          hook: "Game theory reveals how incentives, trust, cooperation and competition shape choices in everyday relationships, business and society—and why the best strategy is not always obvious.",
+          cover: "https://static.wixstatic.com/media/3eee0b_f7fae24af2bf4fdc8b705e7f35e943f7~mv2.png/v1/fill/w_568,h_316,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/3eee0b_f7fae24af2bf4fdc8b705e7f35e943f7~mv2.png",
+          action: "Preview"
+        },
+        {
+          title: "Stories & Screen",
+          hook: "Some stories disappear quickly; others stay vivid for years. Characters, choices, endings, images, and tiny moments can pull us in, divide us, and keep changing meaning long after the story ends.",
+          cover: "https://images5.alphacoders.com/376/thumb-1920-376565.jpg",
+          action: "Preview"
+        },
+        {
+          title: "Food & The Table",
+          hook: "Meals carry more than food: sharing, table rules, hospitality, and who does the work can reveal care, status, belonging, family habits, generosity, and the memories people keep long afterwards.",
+          cover: "https://cdn.babyseo.ai/images/foodshot.ai/food-background-wallpaper/food-background-wallpaper-texture-samples-hero.webp",
+          action: "Preview"
+        }
+      ];
+
+      var teachArcadeGames = [
+        {
+          title: "Would You Rather",
+          premise: "Choose between impossible options and explain what made you decide.",
+          unit: "50 questions",
+          cover: "../assets/hub/would-you-rather.webp"
+        },
+        {
+          title: "Truth Trap",
+          premise: "Two facts are true. One is a lie. Spot the fake and explain your reasoning.",
+          unit: "20 rounds",
+          cover: "../assets/hub/truth-trap.webp"
+        },
+        {
+          title: "Tomorrow Got Weird",
+          premise: "Step into strange future scenarios and decide what you would do next.",
+          unit: "25 scenarios",
+          cover: "../assets/hub/tomorrow-got-weird.webp"
+        },
+        {
+          title: "Forbidden Words",
+          premise: "Describe the word without the obvious clues. Think fast, get creative, and keep the guesses coming.",
+          unit: "30 rounds",
+          cover: "../assets/hub/forbidden-words.webp"
+        },
+        {
+          title: "Absurd Sales Pitch",
+          premise: "Sell a ridiculous product to a skeptical customer. Pitch it, handle objections, and somehow close the deal.",
+          unit: "30 pitches",
+          cover: "../assets/hub/absurd-sales-pitch.webp"
+        },
+        {
+          title: "Deal Room",
+          premise: "Trade priorities, make offers, and negotiate a deal that works for both sides.",
+          unit: "20 deals",
+          cover: "../assets/hub/deal-room.webp"
+        },
+        {
+          title: "Split Scene",
+          premise: "Describe two versions of the same scene and work together to uncover every difference.",
+          unit: "20 scenes",
+          cover: "../assets/hub/split-scene.webp"
+        }
+      ];
+
+      function teachEscape(value) {
+        return String(value == null ? "" : value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function renderTeachCompassCard(subject, focusable) {
+        var ownership = subject.owned
+          ? '<span class="teach-compass-ownership">My Subject</span>'
+          : '';
+
+        var menu = subject.owned
+          ? '<span class="teach-compass-menu" aria-hidden="true">' +
+            '<svg width="16" height="16" viewBox="0 0 16 16" fill="none">' +
+            '<circle cx="3.2" cy="8" r="1.15" fill="currentColor"></circle>' +
+            '<circle cx="8" cy="8" r="1.15" fill="currentColor"></circle>' +
+            '<circle cx="12.8" cy="8" r="1.15" fill="currentColor"></circle>' +
+            '</svg></span>'
+          : '';
+
+        return '<article class="teach-card teach-compass-card"' +
+          (focusable ? ' tabindex="0"' : ' tabindex="-1"') +
+          ' aria-label="' + teachEscape(subject.title) + '">' +
+          '<div class="teach-compass-cover">' +
+          '<img src="' + teachEscape(subject.cover) + '" alt="" loading="lazy" decoding="async">' +
+          menu +
+          '</div>' +
+          '<div class="teach-compass-content">' +
+          '<header class="teach-compass-header">' +
+          ownership +
+          '<h3 class="teach-compass-title">' + teachEscape(subject.title) + '</h3>' +
+          '</header>' +
+          '<p class="teach-compass-hook">' + teachEscape(subject.hook) + '</p>' +
+          '<footer class="teach-compass-footer">' +
+          '<span class="teach-compass-action">' + teachEscape(subject.action || "Explore") +
+          '<span aria-hidden="true">→</span></span>' +
+          '</footer>' +
+          '</div>' +
+          '</article>';
+      }
+
+      function renderTeachArcadeCard(game, focusable) {
+        return '<article class="teach-card teach-arcade-card"' +
+          (focusable ? ' tabindex="0"' : ' tabindex="-1"') +
+          ' aria-label="' + teachEscape(game.title) + '">' +
+          '<span class="teach-arcade-cover">' +
+          '<img src="' + teachEscape(game.cover) + '" alt="" loading="lazy" decoding="async">' +
+          '</span>' +
+          '<div class="teach-arcade-content">' +
+          '<h3 class="teach-arcade-title">' + teachEscape(game.title) + '</h3>' +
+          '<p class="teach-arcade-premise">' + teachEscape(game.premise) + '</p>' +
+          '<div class="teach-arcade-footer">' +
+          '<span class="teach-arcade-unit">' + teachEscape(game.unit) + '</span>' +
+          '<span class="teach-arcade-action">Play' +
+          '<svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">' +
+          '<path d="M2 5h6M5 2l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>' +
+          '</svg></span>' +
+          '</div>' +
+          '</div>' +
+          '</article>';
+      }
+
+      function renderTeachTrack(track, items, renderer) {
+        if (!track) return;
+
+        var primary = items.map(function (item) {
+          return renderer(item, true);
+        }).join("");
+
+        var duplicate = items.map(function (item) {
+          return renderer(item, false);
+        }).join("");
+
+        track.innerHTML =
+          '<div class="teach-sequence">' + primary + '</div>' +
+          '<div class="teach-sequence" aria-hidden="true">' + duplicate + '</div>';
+      }
+
+      function sizeTeachCompassCards() {
+        var cards = Array.prototype.slice.call(
+          document.querySelectorAll(".teach-compass-card")
+        );
+
+        if (!cards.length) return;
+
+        var sizes = cards.map(function (card) {
+          var content = card.querySelector(".teach-compass-content");
+          var style = window.getComputedStyle(content);
+          var header = card.querySelector(".teach-compass-header");
+          var hook = card.querySelector(".teach-compass-hook");
+          var footer = card.querySelector(".teach-compass-footer");
+          var fullHookHeight = hook ? hook.scrollHeight : 0;
+          var compactHookHeight = hook
+            ? Math.min(
+                fullHookHeight,
+                parseFloat(window.getComputedStyle(hook).lineHeight) * 2
+              )
+            : 0;
+
+          return {
+            card: card,
+            extraCopy: fullHookHeight - compactHookHeight,
+            body:
+              parseFloat(style.paddingTop) +
+              parseFloat(style.paddingBottom) +
+              header.offsetHeight +
+              parseFloat(window.getComputedStyle(header).marginBottom) +
+              fullHookHeight +
+              footer.offsetHeight
+          };
+        });
+
+        var sharedHeight = Math.ceil(
+          Math.max.apply(
+            Math,
+            [340].concat(
+              sizes.map(function (size) {
+                return Math.max(
+                  size.body + 72,
+                  size.body - size.extraCopy + 152
+                );
+              })
+            )
+          )
+        );
+
+        sizes.forEach(function (size) {
+          size.card.style.setProperty(
+            "--teach-compass-card-height",
+            sharedHeight + "px"
+          );
+          size.card.style.setProperty(
+            "--teach-compass-hover-cover",
+            Math.max(
+              76,
+              Math.min(116, sharedHeight - size.body - 2)
+            ) + "px"
+          );
+        });
+      }
+
+      function setupTeachStage() {
+        var stage = document.getElementById("teachStage");
+        var compassTrack = document.getElementById("teachCompassTrack");
+        var arcadeTrack = document.getElementById("teachArcadeTrack");
+
+        if (!stage || !compassTrack || !arcadeTrack) return;
+
+        renderTeachTrack(
+          compassTrack,
+          teachCompassSubjects,
+          renderTeachCompassCard
+        );
+
+        renderTeachTrack(
+          arcadeTrack,
+          teachArcadeGames,
+          renderTeachArcadeCard
+        );
+
+        function syncPauseState() {
+          var hasHover = Boolean(
+            stage.querySelector(".teach-card:hover")
+          );
+          var active = document.activeElement;
+          var hasFocus = Boolean(
+            active &&
+            active.classList &&
+            active.classList.contains("teach-card")
+          );
+
+          stage.classList.toggle(
+            "is-paused",
+            hasHover || hasFocus
+          );
+        }
+
+        stage.addEventListener("pointerover", syncPauseState);
+        stage.addEventListener("pointerout", function () {
+          requestAnimationFrame(syncPauseState);
+        });
+        stage.addEventListener("focusin", syncPauseState);
+        stage.addEventListener("focusout", function () {
+          requestAnimationFrame(syncPauseState);
+        });
+
+        sizeTeachCompassCards();
+
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(sizeTeachCompassCards);
+        }
+
+        window.addEventListener("resize", sizeTeachCompassCards);
+      }
+
+      setupTeachStage();
 
       var revealSections = Array.prototype.slice.call(
         document.querySelectorAll(".section > .frame")
