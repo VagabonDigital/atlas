@@ -550,7 +550,9 @@
             name ===
             'checkout.completed'
         ) {
-            activeCheckout.completed = true;
+            if (activeCheckout) {
+                activeCheckout.completed = true;
+            }
 
             try {
                 window.Paddle
@@ -559,6 +561,27 @@
             } catch { }
 
             void waitForActivation();
+            return;
+        }
+
+        if (
+            name === 'checkout.closed'
+        ) {
+            if (
+                activeCheckout &&
+                !activeCheckout.completed
+            ) {
+                const trigger =
+                    activeCheckout.trigger;
+
+                activeCheckout = null;
+
+                window.setTimeout(
+                    () => trigger?.focus?.(),
+                    0
+                );
+            }
+
             return;
         }
 
