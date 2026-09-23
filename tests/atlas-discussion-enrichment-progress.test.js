@@ -13,6 +13,11 @@ const loader = fs.readFileSync(
     'utf8'
 );
 
+const subjectPage = fs.readFileSync(
+    'compass/subject/index.html',
+    'utf8'
+);
+
 assert.match(
     engine,
     /FULL_SUBJECT_KEY_LANGUAGE_LIMITS[\s\S]*?standard:\s*\{[\s\S]*?discussion:\s*6,[\s\S]*?culturalLens:\s*2/
@@ -35,9 +40,44 @@ assert.doesNotMatch(
 
 assert.match(
     loader,
-    /compass-engine\.js\?v=20260922-progress1/
+    /compass-engine\\.js\\?v=20260923-languagemode1/
+);
+
+assert.match(
+    engine,
+    /myVersionDiscussionEnrichmentProgress = \{[\s\S]*?phase: 'selecting-key',[\s\S]*?mode[\s\S]*?\}/
+);
+
+assert.match(
+    engine,
+    /myVersionCulturalLensEnrichmentProgress = \{[\s\S]*?phase: 'selecting-key',[\s\S]*?mode[\s\S]*?\}/
+);
+
+assert.match(
+    engine,
+    /getMyVersionDiscussionEnrichmentLabel[\s\S]*?mode === 'key'[\s\S]*?'Choosing key Discussion language'[\s\S]*?'Adding Discussion language'[\s\S]*?'Adding key Discussion language'/
+);
+
+assert.match(
+    engine,
+    /getMyVersionCulturalLensEnrichmentLabel[\s\S]*?mode === 'key'[\s\S]*?'Choosing key Cultural Lens language'[\s\S]*?'Adding Cultural Lens language'[\s\S]*?'Adding key Cultural Lens language'/
+);
+
+assert.match(
+    engine,
+    /progress\?\.kind === 'make-it-real'[\s\S]*?'Adding Discussion activities'/
+);
+
+assert.match(
+    loader,
+    /compass-engine\.js\?v=20260923-languagemode1/
+);
+
+assert.match(
+    subjectPage,
+    /compass-subject-loader\.js\?v=20260923-languagemode1/
 );
 
 console.log(
-    'Atlas Discussion progress contract passed: language upgrades and Make It Real activities use separate counters while the 6 + 2 key-language caps remain unchanged.'
+    'Atlas language progress contract passed: Key and All have distinct user-facing messaging while language and activity counters remain separate.'
 );
