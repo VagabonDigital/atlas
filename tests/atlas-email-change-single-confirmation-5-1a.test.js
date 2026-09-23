@@ -34,7 +34,7 @@ assert.match(
 
 assert.ok(
   account.includes(
-    'Enter your current password.'
+    'Enter your password.'
   )
 );
 
@@ -52,8 +52,31 @@ assert.ok(
 
 assert.ok(
   page.includes(
-    'Your sign-in email changes after you confirm it.'
+    'id="change-email-fields"'
   )
+);
+
+assert.ok(
+  page.includes(
+    'id="change-email-success"'
+  )
+);
+
+assert.ok(
+  page.includes(
+    'Check your new email'
+  )
+);
+
+assert.ok(
+  page.includes(
+    'Your Atlas sign-in email won’t change until you confirm it.'
+  )
+);
+
+assert.match(
+  page,
+  /ChangeEmailFields\.hidden = true[\s\S]*?ChangeEmailSuccess\.hidden = false/
 );
 
 assert.ok(
@@ -69,5 +92,5 @@ assert.ok(
 );
 
 console.log(
-  'Atlas single-confirmation email change contract passed.'
+  'Atlas single-confirmation email change contract passed: successful requests replace the form with a clear pending-confirmation state.'
 );
