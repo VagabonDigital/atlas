@@ -334,7 +334,7 @@ function renderAtlasBillingEmail(job) {
             '<p style="margin:0 0 18px;font-size:16px;line-height:1.65;color:#625c53;">We couldn’t process your latest Atlas Pro payment.</p>' +
             '<p style="margin:0 0 26px;font-size:16px;line-height:1.65;color:#625c53;">Your Pro access remains available while payment is being retried.</p>' +
             '<a href="' + accountUrl + '" style="display:inline-block;padding:15px 24px;background:#4d7184;color:#fff;text-decoration:none;font-size:16px;font-weight:700;border-radius:12px;">Review payment details</a>' +
-            '<p style="margin:30px 0 0;font-size:13px;line-height:1.6;color:#8a8379;">If you’ve already updated your payment method, there’s nothing else you need to do.</p>' +
+            '<p style="margin:30px 0 0;font-size:13px;line-height:1.6;color:#8a8379;">If you’ve already updated your payment method, there’s nothing else you need to&nbsp;do.</p>' +
             '</div>' +
             '<div style="padding:20px 42px;border-top:1px solid #ece7df;font-size:12px;color:#9a9389;">Atlas · atlasfortutors.com</div>' +
             '</div>' +
