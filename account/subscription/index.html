@@ -1716,12 +1716,6 @@
                 }
               }
 
-              if (
-                ActionStatus.textContent ===
-                  'Opening secure payment update…'
-              ) {
-                setActionStatus('');
-              }
             }
 
             if (
@@ -1763,9 +1757,6 @@
         usesMobileInlinePayment();
 
       setActionBusy(true);
-      setActionStatus(
-        'Opening secure payment update…'
-      );
 
       if (
         mobileInline &&
