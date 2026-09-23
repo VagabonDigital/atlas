@@ -73,6 +73,18 @@ assert.match(
     'Return-to-intent must support reopening the Hub cover picker.'
 );
 
+assert.doesNotMatch(
+    source,
+    /\.subject-card--cover:is\(:hover, :focus-within\)/,
+    'Pointer-restored focus must not pin an image-led card in its expanded state.'
+);
+
+assert.match(
+    source,
+    /\.subject-card--cover:is\(:hover, :has\(:focus-visible\)\)/,
+    'Keyboard-visible focus must continue to expose the expanded image-led card state.'
+);
+
 assert.match(
     source,
     /window\.AtlasAI\.searchCovers/,
