@@ -17,7 +17,7 @@ assert.match(
 );
 assert.match(
   html,
-  /atlas-hub\\.css\\?v=20260922-hover-transform1/
+  /atlas-hub\.css\?v=20260922-hover-transform1/
 );
 assert.match(
   hubCss,
