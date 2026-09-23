@@ -495,7 +495,7 @@
     async function loadCompassEngine() {
         try {
             await loadScript(
-                '../shared/compass-engine.js?v=20260923-currentcoverurl1',
+                '../shared/compass-engine.js?v=20260923-incompletebuild1',
                 'Compass engine could not be loaded.'
             );
 
