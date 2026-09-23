@@ -4404,23 +4404,42 @@
     /* Image-led Hub cards. SVG artwork previews retain their existing component. */
     .subject-card--cover {
       --subject-cover-border: rgba(74, 91, 84, 0.09);
+      --subject-cover-surface: #fffefa;
+      --subject-cover-rest: 170px;
+      --subject-cover-shift:
+        calc(
+          var(--subject-cover-rest) -
+          var(--subject-cover-expanded, 80px)
+        );
       height: var(--subject-card-height, 370px);
       min-height: 0;
       padding: 0;
       border-radius: 18px;
-      background: #fffefa;
+      background: var(--subject-cover-surface);
       border-color: var(--subject-cover-border);
       box-shadow: 0 7px 24px rgba(52, 58, 48, 0.055);
       transition: box-shadow 320ms ease;
     }
 
+    /*
+     * Compositor-first reveal:
+     * - the cover keeps a fixed 170px render box;
+     * - content is laid out once at its expanded position;
+     * - a surface layer and the copy translate between the two states.
+     *
+     * The moving image/content seam is therefore transform-driven rather
+     * than a flex-basis layout animation.
+     */
     .subject-card-cover {
-      flex: 0 0 170px;
+      position: absolute;
+      inset: 0 0 auto;
+      z-index: 0;
+      width: 100%;
+      height: var(--subject-cover-rest);
       min-height: 0;
       overflow: hidden;
       border-radius: 17px 17px 0 0;
       background: var(--surface-muted);
-      transition: flex-basis 420ms cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
     .subject-card-cover img {
@@ -4432,16 +4451,55 @@
     }
 
     .subject-card-content {
+      position: absolute;
+      inset:
+        var(--subject-cover-expanded, 80px)
+        0
+        0;
+      z-index: 1;
       display: flex;
       flex-direction: column;
-      flex: 1;
       min-height: 0;
       padding: 1.1rem 1.2rem 1.15rem;
+      background: transparent;
+      isolation: isolate;
+    }
+
+    .subject-card-content::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: var(--subject-cover-surface);
+      transform: translate3d(
+        0,
+        var(--subject-cover-shift),
+        0
+      );
+      transition:
+        transform 420ms
+        cubic-bezier(0.25, 0.8, 0.25, 1);
+      will-change: transform;
+    }
+
+    .subject-card-content > * {
+      position: relative;
+      z-index: 1;
     }
 
     .subject-card--cover .subject-card-header {
       padding: 0;
       margin: 0 0 0.55rem;
+      transform: translate3d(
+        0,
+        var(--subject-cover-shift),
+        0
+      );
+      transition:
+        transform 420ms
+        cubic-bezier(0.25, 0.8, 0.25, 1);
+      will-change: transform;
     }
 
     .subject-card--cover .subject-card-title {
@@ -4470,6 +4528,15 @@
       max-width: none;
       font-size: 0.82rem;
       line-height: 1.55;
+      transform: translate3d(
+        0,
+        var(--subject-cover-shift),
+        0
+      );
+      transition:
+        transform 420ms
+        cubic-bezier(0.25, 0.8, 0.25, 1);
+      will-change: transform;
     }
 
     .subject-card--cover .subject-card-footer {
@@ -4561,7 +4628,8 @@
 
     html[data-theme="night"] .subject-card--cover {
       --subject-cover-border: #ffffff12;
-      background: #302e29;
+      --subject-cover-surface: #302e29;
+      background: var(--subject-cover-surface);
       border-color: var(--subject-cover-border);
       box-shadow: 0 8px 26px #0002;
     }
@@ -4595,11 +4663,17 @@
         transform: none;
       }
 
-      .subject-card--cover:is(:hover, :has(:focus-visible)) .subject-card-cover {
-        flex-basis: var(--subject-cover-expanded, 80px);
+      .subject-card--cover:is(:hover, :has(:focus-visible))
+      .subject-card-content::before,
+      .subject-card--cover:is(:hover, :has(:focus-visible))
+      .subject-card-header,
+      .subject-card--cover:is(:hover, :has(:focus-visible))
+      .subject-card-hook {
+        transform: translate3d(0, 0, 0);
       }
 
-      .subject-card--cover:is(:hover, :has(:focus-visible)) .subject-card-hook {
+      .subject-card--cover:is(:hover, :has(:focus-visible))
+      .subject-card-hook {
         -webkit-line-clamp: unset;
         line-clamp: unset;
         flex-shrink: 1;
@@ -4617,8 +4691,16 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .subject-card--cover, .subject-card-cover { transition: none; }
-      .subject-card--cover:is(:hover, :has(:focus-visible)) { transform: none; }
+      .subject-card--cover,
+      .subject-card-content::before,
+      .subject-card--cover .subject-card-header,
+      .subject-card--cover .subject-card-hook {
+        transition: none;
+      }
+
+      .subject-card--cover:is(:hover, :has(:focus-visible)) {
+        transform: none;
+      }
     }
   </style>
 
