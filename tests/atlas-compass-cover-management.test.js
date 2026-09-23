@@ -99,6 +99,24 @@ assert.match(
 
 assert.match(
     source,
+    /--subject-cover-border: rgba\(74, 91, 84, 0\.09\);/,
+    'Image-led cards must retain a stable resting border during hover.'
+);
+
+assert.match(
+    source,
+    /transition: box-shadow 320ms ease;/,
+    'Image-led cards must not animate border color during hover.'
+);
+
+assert.match(
+    source,
+    /transition: flex-basis 420ms cubic-bezier\(0\.25, 0\.8, 0\.25, 1\);/,
+    'Image-led cover reveal must use the gentler 420ms timing curve.'
+);
+
+assert.match(
+    source,
     /window\.AtlasAI\.searchCovers/,
     'The Hub cover picker must use the existing Atlas cover-search API.'
 );
