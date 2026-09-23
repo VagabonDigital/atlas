@@ -4517,10 +4517,7 @@
     }
 
     .subject-card--cover .subject-card-hook {
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
+      display: block;
       overflow: hidden;
       flex-shrink: 0;
       padding: 0;
@@ -4528,6 +4525,12 @@
       max-width: none;
       font-size: 0.82rem;
       line-height: 1.55;
+      clip-path: inset(
+        0
+        0
+        var(--subject-hook-hidden, 0px)
+        0
+      );
       transform: translate3d(
         0,
         var(--subject-cover-shift),
@@ -4535,8 +4538,10 @@
       );
       transition:
         transform 420ms
-        cubic-bezier(0.25, 0.8, 0.25, 1);
-      will-change: transform;
+          cubic-bezier(0.25, 0.8, 0.25, 1),
+        clip-path 420ms
+          cubic-bezier(0.25, 0.8, 0.25, 1);
+      will-change: transform, clip-path;
     }
 
     .subject-card--cover .subject-card-footer {
@@ -4674,9 +4679,7 @@
 
       .subject-card--cover:is(:hover, :has(:focus-visible))
       .subject-card-hook {
-        -webkit-line-clamp: unset;
-        line-clamp: unset;
-        flex-shrink: 1;
+        clip-path: inset(0 0 0 0);
       }
     }
 
@@ -16924,6 +16927,12 @@
           return {
             card,
             extraCopy: fullHookHeight - compactHookHeight,
+            hookHidden:
+              Math.max(
+                0,
+                fullHookHeight -
+                compactHookHeight
+              ),
             body: parseFloat(style.paddingTop) + parseFloat(style.paddingBottom) +
               header.offsetHeight + parseFloat(getComputedStyle(header).marginBottom) +
               fullHookHeight + footer.offsetHeight
@@ -16932,9 +16941,21 @@
         const height = Math.ceil(Math.max(370, ...sizes.map(size =>
           Math.max(size.body + 82, size.body - size.extraCopy + 172))));
         grid.style.setProperty('--subject-card-height', height + 'px');
-        sizes.forEach(({ card, body }) => {
-          card.style.setProperty('--subject-cover-expanded',
-            Math.max(80, Math.min(124, height - body - 2)) + 'px');
+        sizes.forEach(({ card, body, hookHidden }) => {
+          card.style.setProperty(
+            '--subject-cover-expanded',
+            Math.max(
+              80,
+              Math.min(
+                124,
+                height - body - 2
+              )
+            ) + 'px'
+          );
+          card.style.setProperty(
+            '--subject-hook-hidden',
+            hookHidden + 'px'
+          );
         });
       };
       const widths = new WeakMap();
