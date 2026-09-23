@@ -4410,7 +4410,7 @@
       background: #fffefa;
       border-color: rgba(74, 91, 84, 0.09);
       box-shadow: 0 7px 24px rgba(52, 58, 48, 0.055);
-      transition: box-shadow 320ms ease, border-color 320ms ease, transform 320ms ease;
+      transition: box-shadow 320ms ease, border-color 320ms ease;
     }
 
     .subject-card-cover {
@@ -4584,7 +4584,11 @@
       .subject-card--cover:is(:hover, :has(:focus-visible)) {
         border-color: rgba(var(--accent-rgb), 0.45);
         box-shadow: 0 12px 30px rgba(35, 58, 48, 0.13);
-        transform: translateY(-2px);
+        transform: none;
+      }
+
+      .subject-card--cover:hover .btn-launch {
+        transform: none;
       }
 
       .subject-card--cover:is(:hover, :has(:focus-visible)) .subject-card-cover {
