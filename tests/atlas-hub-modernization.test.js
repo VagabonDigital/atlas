@@ -17,7 +17,7 @@ assert.match(
 );
 assert.match(
   html,
-  /atlas-hub\.css\?v=20260922-hover-transform1/
+  /atlas-hub\.css\?v=20260922-fluid-type1/
 );
 assert.match(
   hubCss,
@@ -30,22 +30,6 @@ assert.match(
 assert.match(
   hubCss,
   /\.door-title \{ font-size: clamp\(2rem, var\(--atlas-door-fluid-size\), 2\.65rem\);/
-);
-assert.match(
-  hubCss,
-  /transition: transform \.2s ease;/
-);
-assert.doesNotMatch(
-  hubCss,
-  /transition: transform \.2s ease, box-shadow/
-);
-assert.match(
-  hubCss,
-  /\.door:hover, \.door:focus-visible \{ transform: translateY\(-3px\); box-shadow: var\(--home-shadow\); border-color: var\(--home-border\); \}/
-);
-assert.match(
-  hubCss,
-  /html\[data-theme="night"\] \.door:hover, html\[data-theme="night"\] \.door:focus-visible \{ box-shadow: var\(--home-shadow\); border-color: var\(--home-border\); \}/
 );
 assert.match(
   hubCss,
