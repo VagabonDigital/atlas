@@ -150,6 +150,21 @@
     }
 
     function getOwnedSubjectAiBuildState(record) {
+        const Lifecycle =
+            window.AtlasAiSubjectBuildLifecycle;
+
+        if (
+            Lifecycle &&
+            typeof Lifecycle.classify === 'function'
+        ) {
+            return Lifecycle.classify(record);
+        }
+
+        /*
+         * Fail-safe only for a partially cached deploy. The shared lifecycle
+         * module is the canonical path; this preserves recovery rather than
+         * exposing an unfinished shell if that script failed to load.
+         */
         const metadata =
             record?.metadata &&
             typeof record.metadata === 'object' &&
@@ -179,7 +194,6 @@
             status,
             provenanceKind,
             legacyRecovery,
-
             incomplete:
                 status === 'complete'
                     ? false

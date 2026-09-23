@@ -19,8 +19,18 @@ const subjectPage = fs.readFileSync(
 );
 
 // Owned-subject loading must distinguish a durable unfinished AI build from
-// a normal Structured Subject. "complete" is authoritative and wins over any
-// legacy recovery marker that may remain on an old repaired record.
+// a normal Structured Subject. The loader delegates to the shared lifecycle
+// classifier; its inline fallback exists only for a partially cached deploy.
+assert.match(
+    subjectPage,
+    /atlas-ai-subject-build-lifecycle\.js\?v=20260923-buildprojection1/
+);
+
+assert.match(
+    loader,
+    /AtlasAiSubjectBuildLifecycle[\s\S]*?Lifecycle\.classify\(record\)/
+);
+
 assert.match(
     loader,
     /function getOwnedSubjectAiBuildState\(record\)/
@@ -101,7 +111,7 @@ assert.match(
 
 assert.match(
     subjectPage,
-    /compass-subject-loader\.js\?v=20260923-incompletebuild1/
+    /compass-subject-loader\.js\?v=20260923-buildprojection1/
 );
 
 console.log(

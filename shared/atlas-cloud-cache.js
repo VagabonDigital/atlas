@@ -626,6 +626,32 @@
         return revalidationPromise;
     }
 
+    async function refreshOwnedSubjectSummaries() {
+        const userId =
+            await syncUserScope();
+
+        if (!userId) return [];
+
+        /*
+         * A committed subject change may have happened in another tab.
+         * Incrementing the mutation revision prevents any older background
+         * revalidation from overwriting this explicit fresh read.
+         */
+        markHubMutation();
+
+        const summaries =
+            await fetchFreshSummaries(userId);
+
+        if (activeUserId !== userId) {
+            return [];
+        }
+
+        clearSubjectCache();
+        storeSummaryList(summaries);
+
+        return cachedSummaryList();
+    }
+
     async function listOwnedSubjects() {
         await syncUserScope();
 
@@ -1230,6 +1256,7 @@
         clear: clearCaches,
         getCompassPresentationSnapshot,
         prepareCompassPresentation,
+        refreshOwnedSubjectSummaries,
         stats() {
             return {
                 userId: activeUserId,

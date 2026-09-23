@@ -4521,6 +4521,56 @@
       text-transform: uppercase;
     }
 
+    .subject-card-ownership-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.52rem;
+      min-width: 0;
+    }
+
+    .subject-card-build-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.32rem;
+      color: var(--text-muted);
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.055em;
+      text-transform: uppercase;
+    }
+
+    .subject-card-build-dot {
+      width: 0.42rem;
+      height: 0.42rem;
+      flex: 0 0 0.42rem;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.48;
+      animation:
+        subject-card-build-pulse
+        1.55s
+        ease-in-out
+        infinite;
+    }
+
+    @keyframes subject-card-build-pulse {
+      0%,
+      100% {
+        opacity: 0.42;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .subject-card-build-dot {
+        animation: none;
+        opacity: 0.82;
+      }
+    }
+
     .subject-card--cover .subject-card-hook {
       display: block;
       overflow: hidden;
@@ -4923,6 +4973,7 @@
   <!-- ============================================================ SCRIPTS -->
   <script src="../shared/atlas-structured-subject.js?v=20260911-1"></script>
   <script src="../shared/atlas-tutor-content.js"></script>
+  <script src="../shared/atlas-ai-subject-build-lifecycle.js?v=20260923-buildprojection1"></script>
   <script src="../shared/atlas-subject-runtime-channel.js?v=20260923-buildcoord1"></script>
   <script src="../shared/atlas-tutor-subjects.js?v=20260911-1"></script>
   <script src="../shared/atlas-subject-artwork.js?v=20260921-artworkauth1"></script>
@@ -6035,6 +6086,27 @@
         };
       }
 
+      if (
+        subject.isOwned &&
+        subject.aiBuildIncomplete === true
+      ) {
+        if (subject.aiBuildLive === true) {
+          return {
+            mode: 'building',
+            actionLabel: 'Open',
+            progressLabel: '',
+            progressPercent: 0
+          };
+        }
+
+        return {
+          mode: 'unfinished',
+          actionLabel: 'Continue building',
+          progressLabel: '',
+          progressPercent: 0
+        };
+      }
+
       const progress = subject.state && subject.state.progress
         ? subject.state.progress
         : {};
@@ -6650,6 +6722,112 @@
       return result;
     }
 
+    const ownedSubjectBuildLiveness =
+      new Map();
+
+    const OWNED_SUBJECT_BUILD_PROBE_TTL_MS =
+      2200;
+
+    function getOwnedSubjectBuildLifecycle(record) {
+      const Lifecycle =
+        window.AtlasAiSubjectBuildLifecycle;
+
+      if (
+        Lifecycle &&
+        typeof Lifecycle.classify === 'function'
+      ) {
+        return Lifecycle.classify(record);
+      }
+
+      return {
+        status: '',
+        provenanceKind: '',
+        legacyRecovery: false,
+        incomplete: false
+      };
+    }
+
+    function noteOwnedSubjectBuildLiveness(
+      subjectId,
+      live
+    ) {
+      const id =
+        String(subjectId || '').trim();
+
+      if (!id) return;
+
+      ownedSubjectBuildLiveness.set(
+        id,
+        {
+          live: live === true,
+          checkedAt: Date.now()
+        }
+      );
+    }
+
+    async function resolveOwnedSubjectBuildLive(
+      subjectId
+    ) {
+      const id =
+        String(subjectId || '').trim();
+
+      const Runtime =
+        window.AtlasSubjectRuntimeChannel;
+
+      if (
+        !id ||
+        !Runtime
+      ) {
+        return false;
+      }
+
+      if (
+        typeof Runtime.isBuildActive ===
+          'function' &&
+        Runtime.isBuildActive(id)
+      ) {
+        noteOwnedSubjectBuildLiveness(
+          id,
+          true
+        );
+
+        return true;
+      }
+
+      const cached =
+        ownedSubjectBuildLiveness.get(id);
+
+      if (
+        cached &&
+        cached.live === false &&
+        Date.now() - cached.checkedAt <
+          OWNED_SUBJECT_BUILD_PROBE_TTL_MS
+      ) {
+        return false;
+      }
+
+      let live = false;
+
+      if (
+        typeof Runtime.probeActiveBuild ===
+          'function'
+      ) {
+        try {
+          live =
+            await Runtime.probeActiveBuild(id);
+        } catch {
+          live = false;
+        }
+      }
+
+      noteOwnedSubjectBuildLiveness(
+        id,
+        live
+      );
+
+      return live;
+    }
+
     async function getOwnedSubjects({
       initialSnapshot = null
     } = {}) {
@@ -6704,6 +6882,52 @@
         return [];
       }
 
+      const aiBuildStates =
+        new Map();
+
+      (Array.isArray(records) ? records : [])
+        .forEach(record => {
+          const id =
+            String(record?.id || '').trim();
+
+          if (!id) return;
+
+          aiBuildStates.set(
+            id,
+            getOwnedSubjectBuildLifecycle(
+              record
+            )
+          );
+        });
+
+      const liveBuildIds =
+        new Set();
+
+      const liveBuildPromise =
+        Promise.all(
+          (Array.isArray(records) ? records : [])
+            .map(async record => {
+              const id =
+                String(record?.id || '').trim();
+
+              if (
+                !id ||
+                aiBuildStates.get(id)
+                  ?.incomplete !== true
+              ) {
+                return;
+              }
+
+              if (
+                await resolveOwnedSubjectBuildLive(
+                  id
+                )
+              ) {
+                liveBuildIds.add(id);
+              }
+            })
+        );
+
       let subjectSessionIds = new Map();
 
       if (
@@ -6747,7 +6971,11 @@
         );
       }
 
-      const workingDraftDescriptions = new Map();
+      const workingDraftDescriptions =
+        new Map();
+
+      const workingDraftCovers =
+        new Map();
 
       if (
         !useInitialSnapshot &&
@@ -6762,6 +6990,9 @@
 
               if (!id) return;
 
+              const aiBuild =
+                aiBuildStates.get(id);
+
               const publishedDescription =
                 String(
                   record?.metadata?.description ||
@@ -6769,7 +7000,18 @@
                   ''
                 ).trim();
 
-              if (publishedDescription) return;
+              const needsDescription =
+                !publishedDescription;
+
+              const needsBuildDraft =
+                aiBuild?.incomplete === true;
+
+              if (
+                !needsDescription &&
+                !needsBuildDraft
+              ) {
+                return;
+              }
 
               try {
                 const draft =
@@ -6781,16 +7023,36 @@
                     ''
                   ).trim();
 
-                if (draftDescription) {
+                if (
+                  needsDescription &&
+                  draftDescription
+                ) {
                   workingDraftDescriptions.set(
                     id,
                     draftDescription
                   );
                 }
+
+                if (needsBuildDraft) {
+                  const draftCover =
+                    String(
+                      draft?.document?.module?.bgImage ||
+                      ''
+                    ).trim();
+
+                  if (draftCover) {
+                    workingDraftCovers.set(
+                      id,
+                      draftCover
+                    );
+                  }
+                }
               } catch { }
             })
         );
       }
+
+      await liveBuildPromise;
 
       const reg = getRegistry();
       const session = getActiveSession();
@@ -6805,6 +7067,11 @@
 
           const metadata = record.metadata || {};
           const module = record.document?.module || {};
+          const aiBuild =
+            aiBuildStates.get(id) ||
+            getOwnedSubjectBuildLifecycle(
+              record
+            );
 
           const registryId =
             typeof Bridge.getContentRegistryId === 'function'
@@ -6886,9 +7153,21 @@
               module.catalogDescription ||
               ''
             ).trim(),
-            coverImage: String(metadata.coverImage || '').trim() ||
+            coverImage:
+              String(
+                workingDraftCovers.get(id) ||
+                ''
+              ).trim() ||
+              String(metadata.coverImage || '').trim() ||
               String(module.bgImage || '').trim() ||
               String(COMPASS_CATALOG[sourceRegistryId]?.coverImage || '').trim(),
+            aiBuildStatus:
+              aiBuild.status,
+            aiBuildIncomplete:
+              aiBuild.incomplete === true,
+            aiBuildLive:
+              aiBuild.incomplete === true &&
+              liveBuildIds.has(id),
             ownershipLabel: '',
             hasMyVersion: false,
             status: resolveStatus(state),
@@ -17056,11 +17335,13 @@
             '</span>'
           : '';
 
-      const progressHtml = cardState.mode !== 'new'
-        ? '<span class="subject-card-progress-track" aria-hidden="true">' +
-          '<span class="subject-card-progress-fill"></span>' +
-          '</span>'
-        : '';
+      const progressHtml =
+        cardState.mode === 'inprogress' ||
+        cardState.mode === 'explored'
+          ? '<span class="subject-card-progress-track" aria-hidden="true">' +
+            '<span class="subject-card-progress-fill"></span>' +
+            '</span>'
+          : '';
 
       const progressMeta = cardState.progressLabel
         ? '<span class="subject-card-progress-label">' +
@@ -17068,14 +17349,27 @@
           '</span>'
         : '';
 
+      const ownershipHtml =
+        useCover && subject.isOwned
+          ? '<span class="subject-card-ownership-row">' +
+            '<span class="subject-card-ownership">My subject</span>' +
+            (
+              subject.aiBuildLive === true
+                ? '<span class="subject-card-build-state">' +
+                  '<span class="subject-card-build-dot" aria-hidden="true"></span>' +
+                  'Building' +
+                  '</span>'
+                : ''
+            ) +
+            '</span>'
+          : '';
+
       const cardContents =
         (useCover ? coverHtml + '<div class="subject-card-content">' : artworkHtml) +
 
         '<div class="subject-card-header">' +
         '<div class="subject-card-title-block">' +
-        (useCover && subject.isOwned
-          ? '<span class="subject-card-ownership">My subject</span>'
-          : '') +
+        ownershipHtml +
         '<h3 class="subject-card-title">' +
         escHtml(subject.title) +
         '</h3>' +
@@ -17675,6 +17969,88 @@
         syncCompassCloudAuthorityState();
         requestHubRender(event);
       }
+    );
+
+    async function handleSubjectRuntimeMessage(
+      event
+    ) {
+      const message =
+        event?.detail;
+
+      const subjectId =
+        String(
+          message?.subjectId || ''
+        ).trim();
+
+      if (!subjectId) return;
+
+      if (
+        message.type === 'build-heartbeat'
+      ) {
+        const wasLive =
+          ownedSubjectBuildLiveness
+            .get(subjectId)
+            ?.live === true;
+
+        noteOwnedSubjectBuildLiveness(
+          subjectId,
+          true
+        );
+
+        if (!wasLive) {
+          requestHubRender(event);
+        }
+
+        return;
+      }
+
+      if (message.type === 'build-stop') {
+        noteOwnedSubjectBuildLiveness(
+          subjectId,
+          false
+        );
+
+        requestHubRender(event);
+        return;
+      }
+
+      if (
+        message.type !==
+          'subject-changed'
+      ) {
+        return;
+      }
+
+      if (
+        message.detail?.change ===
+          'committed'
+      ) {
+        try {
+          await window.AtlasCloudCache
+            ?.refreshOwnedSubjectSummaries
+            ?.();
+        } catch (error) {
+          console.warn(
+            '[Compass] Cross-tab subject refresh failed:',
+            error
+          );
+        }
+
+        window.AtlasTutorSubjectsCloudAuthority
+          ?.refresh?.();
+      }
+
+      requestHubRender(event);
+    }
+
+    window.addEventListener(
+      'atlas:subject-runtime-message',
+      handleSubjectRuntimeMessage
+    );
+
+    window.addEventListener(
+      'atlas:compass-hub-cache-refreshed',
+      requestHubRender
     );
 
     function refresh(event = null) {
