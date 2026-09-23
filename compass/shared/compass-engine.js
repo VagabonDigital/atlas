@@ -7281,7 +7281,7 @@ function getMyVersionDiscussionEnrichmentLabel(
     if (progress?.phase === 'selecting-key') {
         return mode === 'key'
             ? 'Choosing key Discussion language'
-            : 'Adding Discussion language';
+            : 'Preparing Discussion language';
     }
 
     if (progress?.kind === 'make-it-real') {
@@ -7306,7 +7306,7 @@ function getMyVersionCulturalLensEnrichmentLabel(
     if (progress?.phase === 'selecting-key') {
         return mode === 'key'
             ? 'Choosing key Cultural Lens language'
-            : 'Adding Cultural Lens language';
+            : 'Preparing Cultural Lens language';
     }
 
     return mode === 'key'
