@@ -69,7 +69,7 @@ html[data-theme="night"] .atlas-main {
   isolation: isolate;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  transition: transform .2s ease;
 }
 .door::before { display: none; }
 .door > .door-image { position: absolute; z-index: -2; inset: 0 0 0 auto; width: 42%; height: 100%; object-fit: cover; object-position: 50% center; }
@@ -82,7 +82,8 @@ html[data-theme="night"] .atlas-main {
 .door-desc { font-size: .82rem; line-height: 1.65; color: var(--text-body); margin-bottom: 1.5rem; }
 .door-action { display: inline-flex; align-items: center; gap: .8rem; font-size: .77rem; font-weight: 600; color: #315f54; padding: .4rem 0; border-radius: 0; background: transparent; margin-top: auto; }
 .door-arcade .door-action { color: #a83b21; }
-.door:hover, .door:focus-visible { transform: translateY(-3px); box-shadow: 0 19px 38px -22px rgba(39, 44, 37, .35); }
+.door:hover, .door:focus-visible { transform: translateY(-3px); box-shadow: var(--home-shadow); border-color: var(--home-border); }
+html[data-theme="night"] .door:hover, html[data-theme="night"] .door:focus-visible { box-shadow: var(--home-shadow); border-color: var(--home-border); }
 .door:focus-visible, .hub-recent-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .hub-recent { margin-top: 2.1rem; }
 .hub-recent h2 { font-family: var(--font-display); font-size: 1.45rem; font-weight: 400; letter-spacing: -.015em; margin: 0 0 1rem; }
