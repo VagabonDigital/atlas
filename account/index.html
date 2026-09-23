@@ -780,6 +780,29 @@
       color: var(--success);
     }
 
+    .account-management-success {
+      margin: 14px 0 0;
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--success-surface);
+      color: var(--success);
+    }
+
+    .account-management-success[hidden] {
+      display: none;
+    }
+
+    .account-management-success-title {
+      margin: 0;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .account-management-success-copy {
+      margin: 6px 0 0;
+      line-height: 1.5;
+    }
+
     .account-management-form .button {
       margin-top: 16px;
     }
@@ -1181,16 +1204,34 @@
                 hidden
               ></p>
 
-              <label for="change-email-current-password">Password</label>
-              <input id="change-email-current-password" type="password" autocomplete="current-password" required>
+              <div id="change-email-fields">
+                <label for="change-email-current-password">Password</label>
+                <input id="change-email-current-password" type="password" autocomplete="current-password" required>
 
-              <label for="change-email">New email</label>
-              <input id="change-email" type="email" autocomplete="email" required>
+                <label for="change-email">New email</label>
+                <input id="change-email" type="email" autocomplete="email" required>
 
-              <button id="change-email-submit" class="button primary" type="submit">
-                Send confirmation
-              </button>
-              <button id="cancel-change-email" class="text-button" type="button">Cancel</button>
+                <button id="change-email-submit" class="button primary" type="submit">
+                  Send confirmation
+                </button>
+                <button id="cancel-change-email" class="text-button" type="button">Cancel</button>
+              </div>
+
+              <div
+                id="change-email-success"
+                class="account-management-success"
+                role="status"
+                aria-live="polite"
+                hidden
+              >
+                <p class="account-management-success-title">
+                  Check your new email
+                </p>
+                <p
+                  id="change-email-success-copy"
+                  class="account-management-success-copy"
+                ></p>
+              </div>
             </form>
           </section>
 
@@ -1391,6 +1432,16 @@
       document.getElementById('show-change-email');
     const ChangeEmailForm =
       document.getElementById('change-email-form');
+    const ChangeEmailFields =
+      document.getElementById('change-email-fields');
+    const ChangeEmailSuccess =
+      document.getElementById('change-email-success');
+    const ChangeEmailSuccessCopy =
+      document.getElementById('change-email-success-copy');
+    const ChangeEmailInstructions =
+      ChangeEmailForm?.querySelector(
+        '.account-management-copy'
+      );
     const ChangePasswordTrigger =
       document.getElementById('show-change-password');
     const ChangePasswordForm =
@@ -1616,6 +1667,24 @@
         'success',
         type === 'success'
       );
+    }
+
+    function resetChangeEmailSuccess() {
+      if (ChangeEmailFields) {
+        ChangeEmailFields.hidden = false;
+      }
+
+      if (ChangeEmailInstructions) {
+        ChangeEmailInstructions.hidden = false;
+      }
+
+      if (ChangeEmailSuccess) {
+        ChangeEmailSuccess.hidden = true;
+      }
+
+      if (ChangeEmailSuccessCopy) {
+        ChangeEmailSuccessCopy.textContent = '';
+      }
     }
 
     function setAccountManagementView(kind = '') {
@@ -2414,6 +2483,7 @@
         document.getElementById('change-email-current-password').value = '';
         document.getElementById('change-email').value = '';
         setAccountManagementStatus('email');
+        resetChangeEmailSuccess();
         setAccountManagementView('');
       });
 
@@ -2469,11 +2539,24 @@
         document.getElementById('change-email-current-password').value = '';
         document.getElementById('change-email').value = '';
 
-        setAccountManagementStatus(
-          'email',
-          `Confirmation sent to ${pendingEmail}. Your sign-in email changes after you confirm it.`,
-          'success'
-        );
+        setAccountManagementStatus('email');
+
+        if (ChangeEmailFields) {
+          ChangeEmailFields.hidden = true;
+        }
+
+        if (ChangeEmailInstructions) {
+          ChangeEmailInstructions.hidden = true;
+        }
+
+        if (ChangeEmailSuccessCopy) {
+          ChangeEmailSuccessCopy.textContent =
+            `We sent a confirmation link to ${pendingEmail}. Your Atlas sign-in email won’t change until you confirm it.`;
+        }
+
+        if (ChangeEmailSuccess) {
+          ChangeEmailSuccess.hidden = false;
+        }
       } catch (error) {
         setAccountManagementStatus(
           'email',
