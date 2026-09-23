@@ -985,13 +985,20 @@
 
             if (
               name === 'checkout.closed' ||
-              name === 'checkout.completed'
+              name === 'checkout.completed' ||
+              name === 'checkout.error'
             ) {
               unlockPricingPage();
             }
 
             if (name === 'checkout.completed') {
               void waitForProActivation();
+            }
+
+            if (name === 'checkout.error') {
+              setStatus(
+                'Checkout could not load. Please try again.'
+              );
             }
           }
         });
