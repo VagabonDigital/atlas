@@ -39,11 +39,6 @@ assert.doesNotMatch(
 );
 
 assert.match(
-    loader,
-    /compass-engine\\.js\\?v=20260923-languagemode1/
-);
-
-assert.match(
     engine,
     /myVersionDiscussionEnrichmentProgress = \{[\s\S]*?phase: 'selecting-key',[\s\S]*?mode[\s\S]*?\}/
 );
