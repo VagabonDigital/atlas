@@ -1170,7 +1170,7 @@
 
             <form id="change-email-form" class="account-management-form" hidden>
               <p class="account-management-copy">
-                Enter your current password, then we’ll send a confirmation link to your new email address.
+                Enter your password to confirm it’s you, then we’ll send a confirmation link to your new email address.
               </p>
 
               <p
@@ -1181,7 +1181,7 @@
                 hidden
               ></p>
 
-              <label for="change-email-current-password">Current password</label>
+              <label for="change-email-current-password">Password</label>
               <input id="change-email-current-password" type="password" autocomplete="current-password" required>
 
               <label for="change-email">New email</label>
@@ -2439,7 +2439,7 @@
       if (!currentPassword) {
         setAccountManagementStatus(
           'email',
-          'Enter your current password.',
+          'Enter your password.',
           'error'
         );
         return;
