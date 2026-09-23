@@ -220,17 +220,17 @@ assert.doesNotMatch(
     compass,
     /ANONYMOUS_COMPASS_PREVIEW_IDEAS|getAnonymousCompassPreviewSuggestions/
 );
-assert.doesNotMatch(
+assert.match(
     compass,
-    /const anonymousSuggestionPreview =/
+    /const anonymousSuggestionPreview =[\s\S]*?anonymousPreview === true/
 );
 assert.match(
     compass,
-    /askCompassForSubjects[\s\S]*?'canUseAI'[\s\S]*?'suggest-subject-ideas'/
+    /if \(!anonymousSuggestionPreview\) \{[\s\S]*?'canUseAI'[\s\S]*?'suggest-subject-ideas'[\s\S]*?\}/
 );
 assert.match(
     compass,
-    /await window\.AtlasAI\s*\.suggestSubjectIdeas\(\{[\s\S]*?mode:[\s\S]*?selectedMode\.id[\s\S]*?topicFocus[\s\S]*?languageLevel/
+    /await window\.AtlasAI\s*\.suggestSubjectIdeas\(\{[\s\S]*?mode:[\s\S]*?selectedMode\.id[\s\S]*?topicFocus[\s\S]*?languageLevel[\s\S]*?allowAnonymous:[\s\S]*?anonymousSuggestionPreview/
 );
 
 assert.match(
@@ -327,5 +327,5 @@ assert.match(
 );
 
 console.log(
-    'Stage 3.2 anonymous Compass contract passed: real catalogue, four full subjects, preview routing, anonymous creation exploration, authenticated AI suggestions, clear ready-to-build state, protected creation boundary with automatic post-auth resume, and Search visibility.'
+    'Stage 3.2 anonymous Compass contract passed: real catalogue, four full subjects, preview routing, live anonymous suggestion exploration, clear ready-to-build state, protected creation boundary with automatic post-auth resume, and Search visibility.'
 );
