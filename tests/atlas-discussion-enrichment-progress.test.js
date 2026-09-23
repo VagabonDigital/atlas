@@ -50,12 +50,12 @@ assert.match(
 
 assert.match(
     engine,
-    /getMyVersionDiscussionEnrichmentLabel[\s\S]*?mode === 'key'[\s\S]*?'Choosing key Discussion language'[\s\S]*?'Adding Discussion language'[\s\S]*?'Adding key Discussion language'/
+    /getMyVersionDiscussionEnrichmentLabel[\s\S]*?mode === 'key'[\s\S]*?'Choosing key Discussion language'[\s\S]*?'Preparing Discussion language'[\s\S]*?'Adding key Discussion language'[\s\S]*?'Adding Discussion language'/
 );
 
 assert.match(
     engine,
-    /getMyVersionCulturalLensEnrichmentLabel[\s\S]*?mode === 'key'[\s\S]*?'Choosing key Cultural Lens language'[\s\S]*?'Adding Cultural Lens language'[\s\S]*?'Adding key Cultural Lens language'/
+    /getMyVersionCulturalLensEnrichmentLabel[\s\S]*?mode === 'key'[\s\S]*?'Choosing key Cultural Lens language'[\s\S]*?'Preparing Cultural Lens language'[\s\S]*?'Adding key Cultural Lens language'[\s\S]*?'Adding Cultural Lens language'/
 );
 
 assert.match(
@@ -65,12 +65,12 @@ assert.match(
 
 assert.match(
     loader,
-    /compass-engine\.js\?v=20260923-languagemode1/
+    /compass-engine\.js\?v=20260923-languagemode2/
 );
 
 assert.match(
     subjectPage,
-    /compass-subject-loader\.js\?v=20260923-languagemode1/
+    /compass-subject-loader\.js\?v=20260923-languagemode2/
 );
 
 console.log(
