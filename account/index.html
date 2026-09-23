@@ -739,25 +739,90 @@
       font-weight: 600;
     }
 
-    .account-management-form {
-      padding: 0 16px 16px;
-      border-top: 1px solid var(--border);
-      background: var(--surface);
+    body.account-modal-open {
+      overflow: hidden;
     }
 
-    .account-management-form[hidden] {
+    .account-modal[hidden] {
       display: none;
     }
 
-    .account-management-copy {
-      margin: 14px 0 4px;
+    .account-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(24, 23, 20, .34);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+
+    .account-modal-card {
+      width: min(460px, 100%);
+      max-height: min(720px, calc(100svh - 48px));
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface);
+      box-shadow: 0 26px 72px rgba(31, 28, 23, .2);
+    }
+
+    .account-modal-header {
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .account-modal-title {
+      margin: 0;
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 1.45rem;
+      font-weight: 400;
+    }
+
+    .account-modal-close {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      padding: 0;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
       color: var(--muted);
-      font-size: .88rem;
-      line-height: 1.5;
+    }
+
+    .account-modal-close:hover,
+    .account-modal-close:focus-visible {
+      background: var(--accent-ring);
+      color: var(--accent);
+    }
+
+    .account-modal-close svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .account-modal-form {
+      padding: 20px;
+    }
+
+    .account-management-copy {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.55;
     }
 
     .account-management-status {
-      margin: 12px 0 4px;
+      margin: 14px 0 4px;
       padding: 10px 12px;
       border-radius: 10px;
       background: var(--surface-status);
@@ -780,31 +845,65 @@
       color: var(--success);
     }
 
-    .account-management-success {
-      margin: 14px 0 0;
-      padding: 14px;
-      border-radius: 12px;
-      background: var(--success-surface);
-      color: var(--success);
-    }
-
+    .account-modal-fields[hidden],
     .account-management-success[hidden] {
       display: none;
     }
 
-    .account-management-success-title {
-      margin: 0;
-      color: var(--text);
+    .account-modal-form .button {
+      margin-top: 18px;
+    }
+
+    .account-modal-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .account-modal-actions .button {
+      flex: 1;
+    }
+
+    .account-management-success {
+      min-height: 250px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 12px;
+      padding: 18px 8px 8px;
+      text-align: center;
+    }
+
+    .account-management-success-mark {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--success-surface);
+      color: var(--success);
+      font-size: 1.7rem;
       font-weight: 600;
     }
 
-    .account-management-success-copy {
-      margin: 6px 0 0;
-      line-height: 1.5;
+    .account-management-success-title {
+      margin: 2px 0 0;
+      color: var(--text);
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 1.55rem;
+      font-weight: 400;
     }
 
-    .account-management-form .button {
-      margin-top: 16px;
+    .account-management-success-copy {
+      max-width: 360px;
+      margin: 0;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .account-management-success .button {
+      width: min(220px, 100%);
+      margin-top: 8px;
     }
 
     .actions { display: grid; gap: 10px; margin-top: 18px; }
@@ -1184,14 +1283,60 @@
               id="show-change-email"
               class="account-management-trigger"
               type="button"
-              aria-expanded="false"
-              aria-controls="change-email-form"
+              aria-haspopup="dialog"
+              aria-controls="change-email-modal"
             >
               <span>Change email</span>
               <span>Change</span>
             </button>
+          </section>
 
-            <form id="change-email-form" class="account-management-form" hidden>
+          <section class="account-management-section" data-password-management>
+            <button
+              id="show-change-password"
+              class="account-management-trigger"
+              type="button"
+              aria-haspopup="dialog"
+              aria-controls="change-password-modal"
+            >
+              <span>Change password</span>
+              <span>Change</span>
+            </button>
+          </section>
+        </div>
+
+        <div
+          id="change-email-modal"
+          class="account-modal"
+          hidden
+          aria-hidden="true"
+        >
+          <section
+            class="account-modal-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="change-email-modal-title"
+          >
+            <div class="account-modal-header">
+              <h2
+                id="change-email-modal-title"
+                class="account-modal-title"
+              >
+                Change email
+              </h2>
+              <button
+                class="account-modal-close"
+                type="button"
+                data-account-modal-close
+                aria-label="Close change email"
+              >
+                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+
+            <form id="change-email-form" class="account-modal-form">
               <p class="account-management-copy">
                 Enter your password to confirm it’s you, then we’ll send a confirmation link to your new email address.
               </p>
@@ -1204,17 +1349,21 @@
                 hidden
               ></p>
 
-              <div id="change-email-fields">
+              <div id="change-email-fields" class="account-modal-fields">
                 <label for="change-email-current-password">Password</label>
                 <input id="change-email-current-password" type="password" autocomplete="current-password" required>
 
                 <label for="change-email">New email</label>
                 <input id="change-email" type="email" autocomplete="email" required>
 
-                <button id="change-email-submit" class="button primary" type="submit">
-                  Send confirmation
-                </button>
-                <button id="cancel-change-email" class="text-button" type="button">Cancel</button>
+                <div class="account-modal-actions">
+                  <button id="change-email-submit" class="button primary" type="submit">
+                    Send confirmation
+                  </button>
+                  <button id="cancel-change-email" class="text-button" type="button">
+                    Cancel
+                  </button>
+                </div>
               </div>
 
               <div
@@ -1224,6 +1373,7 @@
                 aria-live="polite"
                 hidden
               >
+                <div class="account-management-success-mark" aria-hidden="true">✓</div>
                 <p class="account-management-success-title">
                   Check your new email
                 </p>
@@ -1231,23 +1381,50 @@
                   id="change-email-success-copy"
                   class="account-management-success-copy"
                 ></p>
+                <button
+                  id="change-email-done"
+                  class="button primary"
+                  type="button"
+                >
+                  Done
+                </button>
               </div>
             </form>
           </section>
+        </div>
 
-          <section class="account-management-section" data-password-management>
-            <button
-              id="show-change-password"
-              class="account-management-trigger"
-              type="button"
-              aria-expanded="false"
-              aria-controls="change-password-form"
-            >
-              <span>Change password</span>
-              <span>Change</span>
-            </button>
+        <div
+          id="change-password-modal"
+          class="account-modal"
+          hidden
+          aria-hidden="true"
+        >
+          <section
+            class="account-modal-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="change-password-modal-title"
+          >
+            <div class="account-modal-header">
+              <h2
+                id="change-password-modal-title"
+                class="account-modal-title"
+              >
+                Change password
+              </h2>
+              <button
+                class="account-modal-close"
+                type="button"
+                data-account-modal-close
+                aria-label="Close change password"
+              >
+                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
 
-            <form id="change-password-form" class="account-management-form" hidden>
+            <form id="change-password-form" class="account-modal-form">
               <p class="account-management-copy">
                 Enter your current password, then choose a new one.
               </p>
@@ -1260,20 +1437,49 @@
                 hidden
               ></p>
 
-              <label for="change-password-current">Current password</label>
-              <input id="change-password-current" type="password" autocomplete="current-password" required>
+              <div id="change-password-fields" class="account-modal-fields">
+                <label for="change-password-current">Current password</label>
+                <input id="change-password-current" type="password" autocomplete="current-password" required>
 
-              <label for="change-password">New password</label>
-              <input id="change-password" type="password" autocomplete="new-password" minlength="8" required>
-              <p class="hint">Use at least 8 characters.</p>
+                <label for="change-password">New password</label>
+                <input id="change-password" type="password" autocomplete="new-password" minlength="8" required>
+                <p class="hint">Use at least 8 characters.</p>
 
-              <label for="change-password-confirm">Confirm new password</label>
-              <input id="change-password-confirm" type="password" autocomplete="new-password" minlength="8" required>
+                <label for="change-password-confirm">Confirm new password</label>
+                <input id="change-password-confirm" type="password" autocomplete="new-password" minlength="8" required>
 
-              <button id="change-password-submit" class="button primary" type="submit">
-                Update password
-              </button>
-              <button id="cancel-change-password" class="text-button" type="button">Cancel</button>
+                <div class="account-modal-actions">
+                  <button id="change-password-submit" class="button primary" type="submit">
+                    Update password
+                  </button>
+                  <button id="cancel-change-password" class="text-button" type="button">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+
+              <div
+                id="change-password-success"
+                class="account-management-success"
+                role="status"
+                aria-live="polite"
+                hidden
+              >
+                <div class="account-management-success-mark" aria-hidden="true">✓</div>
+                <p class="account-management-success-title">
+                  Password updated
+                </p>
+                <p class="account-management-success-copy">
+                  Your Atlas account is ready.
+                </p>
+                <button
+                  id="change-password-done"
+                  class="button primary"
+                  type="button"
+                >
+                  Done
+                </button>
+              </div>
             </form>
           </section>
         </div>
@@ -1430,6 +1636,8 @@
 
     const ChangeEmailTrigger =
       document.getElementById('show-change-email');
+    const ChangeEmailModal =
+      document.getElementById('change-email-modal');
     const ChangeEmailForm =
       document.getElementById('change-email-form');
     const ChangeEmailFields =
@@ -1444,8 +1652,18 @@
       );
     const ChangePasswordTrigger =
       document.getElementById('show-change-password');
+    const ChangePasswordModal =
+      document.getElementById('change-password-modal');
     const ChangePasswordForm =
       document.getElementById('change-password-form');
+    const ChangePasswordFields =
+      document.getElementById('change-password-fields');
+    const ChangePasswordSuccess =
+      document.getElementById('change-password-success');
+    const ChangePasswordInstructions =
+      ChangePasswordForm?.querySelector(
+        '.account-management-copy'
+      );
 
     const ModeSignIn = document.getElementById('mode-sign-in');
     const ModeCreate = document.getElementById('mode-create');
@@ -1669,6 +1887,9 @@
       );
     }
 
+    let activeAccountModal = null;
+    let accountModalReturnFocus = null;
+
     function resetChangeEmailSuccess() {
       if (ChangeEmailFields) {
         ChangeEmailFields.hidden = false;
@@ -1687,34 +1908,135 @@
       }
     }
 
-    function setAccountManagementView(kind = '') {
-      const emailOpen = kind === 'email';
-      const passwordOpen = kind === 'password';
-
-      ChangeEmailForm.hidden = !emailOpen;
-      ChangePasswordForm.hidden = !passwordOpen;
-
-      ChangeEmailTrigger.setAttribute(
-        'aria-expanded',
-        String(emailOpen)
-      );
-
-      ChangePasswordTrigger.setAttribute(
-        'aria-expanded',
-        String(passwordOpen)
-      );
-
-      if (emailOpen) {
-        window.setTimeout(
-          () => document.getElementById('change-email-current-password')?.focus(),
-          0
-        );
-      } else if (passwordOpen) {
-        window.setTimeout(
-          () => document.getElementById('change-password-current')?.focus(),
-          0
-        );
+    function resetChangePasswordSuccess() {
+      if (ChangePasswordFields) {
+        ChangePasswordFields.hidden = false;
       }
+
+      if (ChangePasswordInstructions) {
+        ChangePasswordInstructions.hidden = false;
+      }
+
+      if (ChangePasswordSuccess) {
+        ChangePasswordSuccess.hidden = true;
+      }
+    }
+
+    function closeAccountManagementModal({
+      reset = true
+    } = {}) {
+      const modal = activeAccountModal;
+
+      if (!modal) {
+        return;
+      }
+
+      modal.hidden = true;
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove(
+        'account-modal-open'
+      );
+
+      if (reset) {
+        if (modal === ChangeEmailModal) {
+          document.getElementById(
+            'change-email-current-password'
+          ).value = '';
+          document.getElementById(
+            'change-email'
+          ).value = '';
+          setAccountManagementStatus('email');
+          resetChangeEmailSuccess();
+        } else if (modal === ChangePasswordModal) {
+          document.getElementById(
+            'change-password-current'
+          ).value = '';
+          document.getElementById(
+            'change-password'
+          ).value = '';
+          document.getElementById(
+            'change-password-confirm'
+          ).value = '';
+          setAccountManagementStatus('password');
+          resetChangePasswordSuccess();
+        }
+      }
+
+      activeAccountModal = null;
+
+      const returnFocus =
+        accountModalReturnFocus;
+
+      accountModalReturnFocus = null;
+
+      window.setTimeout(
+        () => returnFocus?.focus?.(),
+        0
+      );
+    }
+
+    function openAccountManagementModal(kind) {
+      const modal =
+        kind === 'email'
+          ? ChangeEmailModal
+          : kind === 'password'
+            ? ChangePasswordModal
+            : null;
+
+      if (!modal) {
+        closeAccountManagementModal();
+        return;
+      }
+
+      if (
+        activeAccountModal &&
+        activeAccountModal !== modal
+      ) {
+        closeAccountManagementModal();
+      }
+
+      accountModalReturnFocus =
+        document.activeElement;
+
+      if (modal === ChangeEmailModal) {
+        resetChangeEmailSuccess();
+        setAccountManagementStatus('email');
+      } else {
+        resetChangePasswordSuccess();
+        setAccountManagementStatus('password');
+      }
+
+      activeAccountModal = modal;
+      modal.hidden = false;
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add(
+        'account-modal-open'
+      );
+
+      window.setTimeout(
+        () => {
+          const target =
+            modal === ChangeEmailModal
+              ? document.getElementById(
+                  'change-email-current-password'
+                )
+              : document.getElementById(
+                  'change-password-current'
+                );
+
+          target?.focus?.();
+        },
+        0
+      );
+    }
+
+    function setAccountManagementView(kind = '') {
+      if (!kind) {
+        closeAccountManagementModal();
+        return;
+      }
+
+      openAccountManagementModal(kind);
     }
 
     async function requestBillingManagement(
@@ -2075,7 +2397,7 @@
             state.hasPassword !== true;
 
           if (state.hasPassword !== true) {
-            setAccountManagementView('');
+            closeAccountManagementModal();
           }
         }
 
@@ -2462,39 +2784,72 @@
       }
     });
 
-    ChangeEmailTrigger.addEventListener('click', () => {
-      setAccountManagementView(
-        ChangeEmailForm.hidden
-          ? 'email'
-          : ''
+    ChangeEmailTrigger.addEventListener(
+      'click',
+      () => openAccountManagementModal('email')
+    );
+
+    ChangePasswordTrigger.addEventListener(
+      'click',
+      () => openAccountManagementModal('password')
+    );
+
+    document.querySelectorAll(
+      '[data-account-modal-close]'
+    ).forEach(button => {
+      button.addEventListener(
+        'click',
+        () => closeAccountManagementModal()
       );
     });
 
-    ChangePasswordTrigger.addEventListener('click', () => {
-      setAccountManagementView(
-        ChangePasswordForm.hidden
-          ? 'password'
-          : ''
-      );
-    });
+    [ChangeEmailModal, ChangePasswordModal]
+      .forEach(modal => {
+        modal?.addEventListener(
+          'click',
+          event => {
+            if (event.target === modal) {
+              closeAccountManagementModal();
+            }
+          }
+        );
+      });
+
+    document.addEventListener(
+      'keydown',
+      event => {
+        if (
+          event.key === 'Escape' &&
+          activeAccountModal
+        ) {
+          closeAccountManagementModal();
+        }
+      }
+    );
 
     document.getElementById('cancel-change-email')
-      .addEventListener('click', () => {
-        document.getElementById('change-email-current-password').value = '';
-        document.getElementById('change-email').value = '';
-        setAccountManagementStatus('email');
-        resetChangeEmailSuccess();
-        setAccountManagementView('');
-      });
+      .addEventListener(
+        'click',
+        () => closeAccountManagementModal()
+      );
 
     document.getElementById('cancel-change-password')
-      .addEventListener('click', () => {
-        document.getElementById('change-password-current').value = '';
-        document.getElementById('change-password').value = '';
-        document.getElementById('change-password-confirm').value = '';
-        setAccountManagementStatus('password');
-        setAccountManagementView('');
-      });
+      .addEventListener(
+        'click',
+        () => closeAccountManagementModal()
+      );
+
+    document.getElementById('change-email-done')
+      .addEventListener(
+        'click',
+        () => closeAccountManagementModal()
+      );
+
+    document.getElementById('change-password-done')
+      .addEventListener(
+        'click',
+        () => closeAccountManagementModal()
+      );
 
     ChangeEmailForm.addEventListener('submit', async event => {
       event.preventDefault();
@@ -2633,8 +2988,18 @@
         document.getElementById('change-password').value = '';
         document.getElementById('change-password-confirm').value = '';
         setAccountManagementStatus('password');
-        setAccountManagementView('');
-        setStatus('Password updated.', 'success');
+
+        if (ChangePasswordFields) {
+          ChangePasswordFields.hidden = true;
+        }
+
+        if (ChangePasswordInstructions) {
+          ChangePasswordInstructions.hidden = true;
+        }
+
+        if (ChangePasswordSuccess) {
+          ChangePasswordSuccess.hidden = false;
+        }
       } catch (error) {
         setAccountManagementStatus(
           'password',
