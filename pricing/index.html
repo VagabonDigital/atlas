@@ -51,6 +51,18 @@
       } catch (e) { }
       document.documentElement.dataset.atlasAccountHint =
         (hasAccount || hasOAuthReturn) ? 'account' : 'anonymous';
+
+      try {
+        var planHint =
+          localStorage.getItem(
+            'atlas::pricingPlanPresentationHint'
+          );
+
+        if (planHint === 'pro' || planHint === 'free') {
+          document.documentElement.dataset.atlasPricingPlanHint =
+            planHint;
+        }
+      } catch (e) { }
     })();
   </script>
   <style>
@@ -203,6 +215,17 @@
     }
     .pricing-header-pro:hover {
       transform:translateY(-1px);
+    }
+    .pricing-header-pro-label--manage {
+      display:none;
+    }
+    html[data-atlas-pricing-plan-hint="pro"]
+    .pricing-header-pro-label--get {
+      display:none;
+    }
+    html[data-atlas-pricing-plan-hint="pro"]
+    .pricing-header-pro-label--manage {
+      display:inline;
     }
     .appearance-toggle {
       width:38px; height:38px; display:grid; place-items:center; padding:0;
@@ -498,7 +521,7 @@
       <nav class="nav" aria-label="Atlas">
         <a href="/tutors/">Inside Atlas</a>
       </nav>
-      <button class="pricing-header-pro" type="button" data-pricing-header-pro style="visibility:hidden">Get Pro</button>
+      <button class="pricing-header-pro" type="button" data-pricing-header-pro><span class="pricing-header-pro-label--get">Get Pro</span><span class="pricing-header-pro-label--manage">Manage Pro</span></button>
       <div class="atlas-inside-account-entry" data-atlas-account-entry data-account-state="pending"
         aria-label="Atlas account actions">
         <a class="atlas-inside-account-action atlas-inside-account-explore" href="/?entry=product" data-atlas-product-entry>Explore Atlas</a>
@@ -798,8 +821,16 @@
           headerProButton.textContent = activePro
             ? 'Manage Pro'
             : 'Get Pro';
-          headerProButton.style.visibility = 'visible';
         }
+
+        try {
+          localStorage.setItem(
+            'atlas::pricingPlanPresentationHint',
+            activePro ? 'pro' : 'free'
+          );
+          document.documentElement.dataset.atlasPricingPlanHint =
+            activePro ? 'pro' : 'free';
+        } catch { }
       }
 
       async function initializePlanAction() {
@@ -830,9 +861,11 @@
             button.style.visibility = 'visible';
           }
 
-          if (headerProButton) {
+          if (
+            headerProButton &&
+            document.documentElement.dataset.atlasPricingPlanHint !== 'pro'
+          ) {
             headerProButton.textContent = 'Get Pro';
-            headerProButton.style.visibility = 'visible';
           }
 
           // Checkout performs its own fail-closed entitlement check.
