@@ -149,6 +149,47 @@
         return window.AtlasTutorSubjects;
     }
 
+    function getOwnedSubjectAiBuildState(record) {
+        const metadata =
+            record?.metadata &&
+            typeof record.metadata === 'object' &&
+            !Array.isArray(record.metadata)
+                ? record.metadata
+                : {};
+
+        const provenanceKind =
+            String(
+                record?.provenance?.kind || ''
+            ).trim();
+
+        const status =
+            String(
+                metadata.aiBuildStatus || ''
+            ).trim();
+
+        const legacyRecovery =
+            metadata.legacyAiBuildRecovery === true;
+
+        const knownAiLifecycle =
+            provenanceKind === 'ai-subject-build' ||
+            ['building', 'paused', 'complete']
+                .includes(status);
+
+        return {
+            status,
+            provenanceKind,
+            legacyRecovery,
+
+            incomplete:
+                status === 'complete'
+                    ? false
+                    : (
+                        legacyRecovery ||
+                        knownAiLifecycle
+                    )
+        };
+    }
+
     function normalizeOwnedStructuredSubject(record) {
         if (
             !record ||
@@ -216,6 +257,9 @@
             ''
         ).trim();
 
+        const aiBuild =
+            getOwnedSubjectAiBuildState(record);
+
         return {
             runtime: {
                 source: 'owned',
@@ -226,7 +270,17 @@
                 generationContext:
                     cloneJson(
                         record.metadata?.generationContext
-                    ) || {}
+                    ) || {},
+                aiBuildStatus:
+                    aiBuild.status,
+                aiBuildIncomplete:
+                    aiBuild.incomplete,
+                aiBuildRecoverySource:
+                    aiBuild.legacyRecovery
+                        ? 'legacy-explicit'
+                        : aiBuild.incomplete
+                            ? 'durable-status'
+                            : ''
             },
 
             module: {
@@ -526,7 +580,8 @@
             }
 
             window.AtlasSubjectBuildPresentationRequested =
-                getBuildPresentationRequest();
+                getBuildPresentationRequest() ||
+                subject.runtime?.aiBuildIncomplete === true;
 
             installRuntimeSubject(subject);
             await loadCompassEngine();
