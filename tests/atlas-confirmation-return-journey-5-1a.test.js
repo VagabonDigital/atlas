@@ -13,6 +13,11 @@ const compass = fs.readFileSync(
   'utf8'
 );
 
+const returnHandoff = fs.readFileSync(
+  'shared/atlas-return-handoff.js',
+  'utf8'
+);
+
 assert.ok(
   account.includes(
     'data-atlas-return-handoff'
@@ -99,6 +104,63 @@ assert.match(
 assert.ok(
   compass.includes(
     'atlas:account-confirmation-acknowledged'
+  )
+);
+
+assert.match(
+  returnHandoff,
+  /PRESENTATION_KEY[\s\S]*?atlas::returnHandoffPresentation::v1/
+);
+
+assert.match(
+  returnHandoff,
+  /queuePresentationHandoff\(intent\)[\s\S]*?window\.location\.replace\(intent\.destination\)/
+);
+
+const firstCompassScriptEnd =
+  compass.indexOf('</script>');
+
+const transitionStylesheet =
+  compass.indexOf(
+    '/shared/atlas-transition-state.css'
+  );
+
+assert.ok(
+  firstCompassScriptEnd >= 0 &&
+  transitionStylesheet > firstCompassScriptEnd,
+  'Compass return-paint lock must be resolved before styles or Hub content can paint.'
+);
+
+const firstCompassScript =
+  compass.slice(
+    0,
+    firstCompassScriptEnd
+  );
+
+assert.match(
+  firstCompassScript,
+  /atlas::returnHandoffPresentation::v1/
+);
+
+assert.match(
+  firstCompassScript,
+  /sessionStorage\.removeItem\([\s\S]*?presentationKey/
+);
+
+assert.match(
+  firstCompassScript,
+  /atlasResumeTransition/
+);
+
+assert.match(
+  firstCompassScript,
+  /atlas::returnIntentResume::v1/,
+  'Queued return intent must remain the fallback if the presentation marker is unavailable.'
+);
+
+assert.ok(
+  account.includes(
+    'atlas-return-handoff.js?v=20260923-returnpaint1'
   )
 );
 

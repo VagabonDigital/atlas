@@ -22,6 +22,8 @@
     if (window.AtlasReturnHandoff) return;
 
     const PARAM = 'ri';
+    const PRESENTATION_KEY =
+        'atlas::returnHandoffPresentation::v1';
     let initialized = false;
     let pendingId = null;
     let navigating = false;
@@ -91,6 +93,25 @@
         return window.AtlasReturnIntent?.get?.(pendingId) || null;
     }
 
+    function queuePresentationHandoff(intent) {
+        if (!intent) return;
+
+        try {
+            window.sessionStorage.setItem(
+                PRESENTATION_KEY,
+                JSON.stringify({
+                    version: 1,
+                    id: intent.id,
+                    destination:
+                        intent.destination,
+                    queuedAt: Date.now()
+                })
+            );
+        } catch {
+            // The queued return intent remains the functional fallback.
+        }
+    }
+
     function resumeIfAuthenticated(accountState) {
         if (!initialized) initialize();
 
@@ -119,6 +140,14 @@
         if (!queued) {
             return null;
         }
+
+        /*
+         * Lock the destination's first paint before navigation begins.
+         * Compass consumes this one-shot marker in its first head script,
+         * so the Hub cannot appear between account confirmation and the
+         * returning/building handoff.
+         */
+        queuePresentationHandoff(intent);
 
         pendingId = null;
         scrubIntentParameter();

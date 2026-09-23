@@ -19,17 +19,92 @@
   <script>
     (function () {
       try {
-        var queueRaw =
+        var presentationKey =
+          'atlas::returnHandoffPresentation::v1';
+
+        var presentationRaw =
           sessionStorage.getItem(
-            'atlas::returnIntentResume::v1'
+            presentationKey
           );
 
-        if (!queueRaw) return;
+        var presentation = null;
 
-        var queued = JSON.parse(queueRaw);
-        var id = String(
-          queued && queued.id || ''
-        ).trim();
+        if (presentationRaw) {
+          try {
+            presentation =
+              JSON.parse(presentationRaw);
+          } catch (e) {
+            presentation = null;
+          }
+
+          /*
+           * This marker exists only to own the destination's first paint.
+           * Consume it immediately so a later ordinary Compass visit can
+           * never inherit a stale loading state.
+           */
+          try {
+            sessionStorage.removeItem(
+              presentationKey
+            );
+          } catch (e) { }
+        }
+
+        var id = '';
+
+        if (
+          presentation &&
+          presentation.version === 1 &&
+          /^ri_[A-Za-z0-9_-]{20,80}$/.test(
+            String(presentation.id || '')
+          ) &&
+          Number.isFinite(
+            Number(presentation.queuedAt)
+          ) &&
+          Date.now() -
+            Number(presentation.queuedAt) <=
+              60 * 1000
+        ) {
+          var markedDestination =
+            new URL(
+              String(
+                presentation.destination || ''
+              ),
+              window.location.href
+            );
+
+          var markedCurrent =
+            new URL(window.location.href);
+
+          if (
+            markedDestination.origin ===
+              markedCurrent.origin &&
+            markedDestination.pathname ===
+              markedCurrent.pathname &&
+            markedDestination.search ===
+              markedCurrent.search &&
+            markedDestination.hash ===
+              markedCurrent.hash
+          ) {
+            id = String(
+              presentation.id || ''
+            ).trim();
+          }
+        }
+
+        if (!id) {
+          var queueRaw =
+            sessionStorage.getItem(
+              'atlas::returnIntentResume::v1'
+            );
+
+          if (!queueRaw) return;
+
+          var queued = JSON.parse(queueRaw);
+
+          id = String(
+            queued && queued.id || ''
+          ).trim();
+        }
 
         if (!/^ri_[A-Za-z0-9_-]{20,80}$/.test(id)) {
           return;
