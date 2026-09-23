@@ -91,6 +91,17 @@ assert.ok(
   )
 );
 
+assert.match(
+  compass,
+  /function closePendingCreateSubjectUI\([\s\S]*?continue-create-preview[\s\S]*?closeOwnedSubjectDialog\(false\)/
+);
+
+assert.ok(
+  compass.includes(
+    'atlas:account-confirmation-acknowledged'
+  )
+);
+
 console.log(
   'Atlas 5.1 confirmation return journey contract passed.'
 );
