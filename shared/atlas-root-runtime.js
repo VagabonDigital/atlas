@@ -381,6 +381,29 @@
             return Promise.resolve(null);
         }
 
+        const prewarmSnapshotCovers = snapshot => {
+            if (
+                !snapshot ||
+                String(snapshot.userId || '').trim() !== id
+            ) {
+                return;
+            }
+
+            window.AtlasContentRegistry
+                ?.prewarmCompassCoverImages?.(
+                    Array.isArray(snapshot.summaries)
+                        ? snapshot.summaries
+                        : []
+                );
+        };
+
+        prewarmSnapshotCovers(
+            typeof Cache.getCompassPresentationSnapshot ===
+                'function'
+                ? Cache.getCompassPresentationSnapshot()
+                : null
+        );
+
         compassPresentationPrewarmUserId = id;
 
         const request = Promise.resolve(
@@ -398,6 +421,7 @@
                     return null;
                 }
 
+                prewarmSnapshotCovers(snapshot);
                 return snapshot || null;
             })
             .catch(error => {
