@@ -437,6 +437,8 @@ const FULL_SUBJECT_GENERATION_STAGE_COUNT = 9;
 const FULL_SUBJECT_COMPLETION_HOLD_MS = 900;
 
 let myVersionGeneratingFullSubject = false;
+let myVersionFullSubjectBuildLease = null;
+let stopMyVersionFullSubjectBuildHeartbeat = null;
 let myVersionAutoSavingFullSubject = false;
 let myVersionFullSubjectGenerationError = '';
 let myVersionFullSubjectGenerationProgress = null;
@@ -7257,6 +7259,17 @@ function setMyVersionFullSubjectGenerationProgress(
         label
     };
 
+    window.AtlasSubjectRuntimeChannel
+        ?.pulseBuildHeartbeat?.(
+            MODULE.id,
+            {
+                current,
+                total:
+                    FULL_SUBJECT_GENERATION_STAGE_COUNT,
+                label
+            }
+        );
+
     updateMyVersionAuthorBar();
 }
 
@@ -7446,6 +7459,45 @@ async function generateMyVersionFullSubject({
         return null;
     }
 
+    const RuntimeChannel =
+        window.AtlasSubjectRuntimeChannel;
+
+    if (
+        RuntimeChannel &&
+        typeof RuntimeChannel.acquireBuildLease ===
+            'function'
+    ) {
+        try {
+            myVersionFullSubjectBuildLease =
+                await RuntimeChannel
+                    .acquireBuildLease(
+                        MODULE.id
+                    );
+        } catch (error) {
+            myVersionFullSubjectBuildLease = null;
+
+            console.warn(
+                '[Compass] Cross-tab build coordination was unavailable:',
+                error
+            );
+        }
+
+        if (
+            myVersionFullSubjectBuildLease &&
+            myVersionFullSubjectBuildLease
+                .acquired === false
+        ) {
+            myVersionFullSubjectGenerationNotice =
+                'This subject is already building in another tab.';
+
+            releaseCompassSubjectBuildHandoff();
+            updateMyVersionAuthorBar();
+
+            myVersionFullSubjectBuildLease = null;
+            return null;
+        }
+    }
+
     const subjectSize = String(
         window.AtlasGenerationContext?.subjectSize || 'standard'
     ).trim();
@@ -7474,6 +7526,33 @@ async function generateMyVersionFullSubject({
     );
 
     myVersionGeneratingFullSubject = true;
+
+    if (
+        RuntimeChannel &&
+        typeof RuntimeChannel.startBuildHeartbeat ===
+            'function'
+    ) {
+        stopMyVersionFullSubjectBuildHeartbeat =
+            RuntimeChannel
+                .startBuildHeartbeat(
+                    MODULE.id,
+                    () => ({
+                        current:
+                            myVersionFullSubjectGenerationProgress
+                                ?.current ||
+                            null,
+                        total:
+                            myVersionFullSubjectGenerationProgress
+                                ?.total ||
+                            FULL_SUBJECT_GENERATION_STAGE_COUNT,
+                        label:
+                            myVersionFullSubjectGenerationProgress
+                                ?.label ||
+                            'Starting subject build'
+                    })
+                );
+    }
+
     myVersionAutoSavingFullSubject = false;
     myVersionFullSubjectGenerationError = '';
     myVersionFullSubjectGenerationNotice = '';
@@ -7884,6 +7963,15 @@ async function generateMyVersionFullSubject({
 
         return null;
     } finally {
+        stopMyVersionFullSubjectBuildHeartbeat
+            ?.('generation-ended');
+
+        stopMyVersionFullSubjectBuildHeartbeat = null;
+
+        myVersionFullSubjectBuildLease
+            ?.release?.();
+
+        myVersionFullSubjectBuildLease = null;
         myVersionGeneratingFullSubject = false;
         myVersionFullSubjectGenerationProgress = null;
 

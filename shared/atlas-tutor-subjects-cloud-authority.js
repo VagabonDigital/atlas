@@ -66,6 +66,32 @@
         return JSON.parse(JSON.stringify(value));
     }
 
+    function publishSubjectRuntimeChanged(
+        subjectId,
+        change,
+        detail = {}
+    ) {
+        const id = String(subjectId || '').trim();
+
+        if (!id) return;
+
+        window.AtlasSubjectRuntimeChannel
+            ?.publishSubjectChanged?.(
+                id,
+                {
+                    change:
+                        String(change || '').trim(),
+                    ...(
+                        detail &&
+                        typeof detail === 'object' &&
+                        !Array.isArray(detail)
+                            ? detail
+                            : {}
+                    )
+                }
+            );
+    }
+
     function encodePart(value) {
         return encodeURIComponent(String(value || ''));
     }
@@ -1184,6 +1210,17 @@
             current.revision
         );
         invalidateSnapshot();
+
+        publishSubjectRuntimeChanged(
+            current.id,
+            'committed',
+            {
+                revision:
+                    Number(updated?.revision) ||
+                    null
+            }
+        );
+
         return updated;
     }
 
@@ -1743,6 +1780,17 @@
                 )
             );
 
+        if (saved) {
+            publishSubjectRuntimeChanged(
+                subject.id,
+                'working-draft',
+                {
+                    updatedAt:
+                        next.updatedAt
+                }
+            );
+        }
+
         return saved
             ? cloneJson(next)
             : null;
@@ -1901,6 +1949,19 @@
         if (!saved) {
             return null;
         }
+
+        publishSubjectRuntimeChanged(
+            subject.id,
+            'build-checkpoint',
+            {
+                completedStep:
+                    next.buildState
+                        ?.completedStep ||
+                    0,
+                updatedAt:
+                    next.updatedAt
+            }
+        );
 
         return cloneJson(next);
     }
