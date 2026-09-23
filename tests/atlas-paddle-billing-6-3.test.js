@@ -21,6 +21,9 @@ assert.match(worker, /ATLAS_PADDLE_WEBHOOK_SECRET/);
 assert.match(worker, /ATLAS_PADDLE_ENVIRONMENT/);
 assert.match(worker, /atlas_apply_paddle_event_v1/);
 assert.match(worker, /transaction\.completed/);
+assert.match(worker, /Atlas Pro is active\./);
+assert.match(worker, /100 fresh subject creations each billing month/);
+assert.doesNotMatch(worker, /You’re in\./);
 assert.match(worker, /eventType\.startsWith\([\s\S]*'subscription\.'/);
 assert.match(
   worker,
