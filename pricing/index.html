@@ -595,7 +595,7 @@
               <li>Your saved work remains yours if you cancel</li>
             </ul>
             <div class="plan-action">
-              <button class="button button-primary" type="button" data-atlas-plan="pro">Choose Pro</button>
+              <button class="button button-primary" type="button" data-atlas-plan="pro" style="visibility:hidden">Choose Pro</button>
               <p class="plan-foot">Monthly subscription. Cancel anytime; access continues through the paid period.</p>
               <p class="plan-foot" data-paddle-status aria-live="polite"></p>
             </div>
@@ -736,18 +736,21 @@
       }
 
       function syncPlanAction(access) {
-        if (!button) return;
+        if (
+          !button ||
+          !access ||
+          !access.ready
+        ) {
+          return;
+        }
 
-        var activePro = Boolean(
-          access &&
-          access.ready &&
+        button.textContent =
           access.authenticated &&
           access.tier === 'pro'
-        );
+            ? 'Manage Pro'
+            : 'Choose Pro';
 
-        button.textContent = activePro
-          ? 'Manage Pro'
-          : 'Choose Pro';
+        button.style.visibility = 'visible';
       }
 
       async function initializePlanAction() {
@@ -769,6 +772,11 @@
               );
           }
         } catch {
+          if (button) {
+            button.textContent = 'Choose Pro';
+            button.style.visibility = 'visible';
+          }
+
           // Checkout performs its own fail-closed entitlement check.
         }
       }
