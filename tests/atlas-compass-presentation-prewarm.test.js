@@ -45,6 +45,38 @@ assert.match(
     root,
     /Cache\.prepareCompassPresentation\(\)/
 );
+assert.match(
+    root,
+    /Cache\.getCompassPresentationSnapshot/
+);
+assert.match(
+    root,
+    /prewarmCompassCoverImages\?\.\(/
+);
+assert.match(
+    registry,
+    /const COMPASS_COVER_PREWARM_CONCURRENCY = 3;/
+);
+assert.match(
+    registry,
+    /function prewarmCompassCoverImages\(/
+);
+assert.match(
+    registry,
+    /navigator\.connection\?\.saveData === true/
+);
+assert.match(
+    registry,
+    /image\.decode\(\)/
+);
+assert.match(
+    registry,
+    /scheduleCompassCoverPrewarm\(\);/
+);
+assert.match(
+    compass,
+    /prewarmCompassCoverImages\?\.\(/
+);
 
 const initialBootstrapStart = root.indexOf(
     'function startInitialRootCloudBootstrap(userId)'
@@ -127,11 +159,11 @@ assert.match(
 assert.equal(
     (
         registry.match(
-            /atlas-root-runtime\.js\?v=20260917-postpaint1/g
+            /atlas-root-runtime\.js\?v=20260923-coverprewarm1/g
         ) || []
     ).length,
     2,
-    'both Root Runtime loader paths must use the post-paint asset revision'
+    'both Root Runtime loader paths must use the cover-prewarm asset revision'
 );
 assert.equal(
     (
@@ -145,18 +177,18 @@ assert.equal(
 
 assert.match(
     atlas,
-    /atlas-content-registry\.js\?v=20260920-googleid1/,
-    'Atlas must load the public-access Content Registry'
+    /atlas-content-registry\.js\?v=20260923-coverprewarm1/,
+    'Atlas must load the cover-prewarm Content Registry revision'
 );
 assert.match(
     compass,
-    /atlas-content-registry\.js\?v=20260920-googleid1/,
-    'Compass must load the public-access Content Registry'
+    /atlas-content-registry\.js\?v=20260923-coverprewarm1/,
+    'Compass must load the cover-prewarm Content Registry revision'
 );
 assert.match(
     arcade,
-    /atlas-content-registry\.js\?v=20260920-googleid1/,
-    'Arcade must load the public-access Content Registry'
+    /atlas-content-registry\.js\?v=20260923-coverprewarm1/,
+    'Arcade must load the cover-prewarm Content Registry revision'
 );
 
 console.log(
