@@ -167,6 +167,28 @@
       color:var(--text-heading);
       background:var(--accent-pale);
     }
+    .pricing-header-pro {
+      min-height:34px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:0 12px;
+      border:1px solid var(--text-heading);
+      border-radius:999px;
+      background:var(--text-heading);
+      color:var(--surface);
+      font-size:12px;
+      font-weight:700;
+      white-space:nowrap;
+      cursor:pointer;
+      transition:
+        transform var(--motion),
+        background var(--motion),
+        border-color var(--motion);
+    }
+    .pricing-header-pro:hover {
+      transform:translateY(-1px);
+    }
     .appearance-toggle {
       width:38px; height:38px; display:grid; place-items:center; padding:0;
       border:1px solid var(--border); border-radius:12px;
@@ -414,7 +436,8 @@
     @media (max-width:720px) {
       .frame { width:min(calc(100% - 30px),var(--frame)); }
       .nav { display:none; }
-      .atlas-inside-account-entry { margin-left:auto; }
+      .pricing-header-pro { margin-left:auto; }
+      .atlas-inside-account-entry { margin-left:0; }
       .hero { padding:76px 0 66px; }
       h1 { font-size:clamp(43px,13vw,62px); }
       .hero-lede { font-size:17px; }
@@ -460,8 +483,8 @@
       <a class="brand" href="/" aria-label="Atlas home">Atlas<span>.</span></a>
       <nav class="nav" aria-label="Atlas">
         <a href="/tutors/">Inside Atlas</a>
-        <a href="/pricing/" aria-current="page">Pricing</a>
       </nav>
+      <button class="pricing-header-pro" type="button" data-pricing-header-pro style="visibility:hidden">Get Pro</button>
       <div class="atlas-inside-account-entry" data-atlas-account-entry data-account-state="pending"
         aria-label="Atlas account actions">
         <a class="atlas-inside-account-action atlas-inside-account-explore" href="/?entry=product" data-atlas-product-entry>Explore Atlas</a>
@@ -724,11 +747,14 @@
       'use strict';
 
       var button = document.querySelector('[data-atlas-plan="pro"]');
+      var headerProButton =
+        document.querySelector('[data-pricing-header-pro]');
       var status = document.querySelector('[data-paddle-status]');
       var config = window.AtlasPaddleConfig;
       var paddleReady = false;
       var proActivationPromise = null;
       var accessUnsubscribe = null;
+      var autoCheckoutConsumed = false;
       var pricingContext = readPricingContext();
 
       function setStatus(message) {
@@ -737,20 +763,29 @@
 
       function syncPlanAction(access) {
         if (
-          !button ||
           !access ||
           !access.ready
         ) {
           return;
         }
 
-        button.textContent =
+        var activePro =
           access.authenticated &&
-          access.tier === 'pro'
+          access.tier === 'pro';
+
+        if (button) {
+          button.textContent = activePro
             ? 'Manage Pro'
             : 'Choose Pro';
+          button.style.visibility = 'visible';
+        }
 
-        button.style.visibility = 'visible';
+        if (headerProButton) {
+          headerProButton.textContent = activePro
+            ? 'Manage Pro'
+            : 'Get Pro';
+          headerProButton.style.visibility = 'visible';
+        }
       }
 
       async function initializePlanAction() {
@@ -771,10 +806,19 @@
                 { immediate: false }
               );
           }
+
+          if (consumeAutoCheckoutRequest()) {
+            await openCheckout();
+          }
         } catch {
           if (button) {
             button.textContent = 'Choose Pro';
             button.style.visibility = 'visible';
+          }
+
+          if (headerProButton) {
+            headerProButton.textContent = 'Get Pro';
+            headerProButton.style.visibility = 'visible';
           }
 
           // Checkout performs its own fail-closed entitlement check.
@@ -793,14 +837,44 @@
 
           return {
             source: source,
-            draftId: draftId
+            draftId: draftId,
+            checkout:
+              String(params.get('checkout') || '').trim()
           };
         } catch {
           return {
             source: '',
-            draftId: ''
+            draftId: '',
+            checkout: ''
           };
         }
+      }
+
+      function consumeAutoCheckoutRequest() {
+        if (
+          autoCheckoutConsumed ||
+          pricingContext.checkout !== 'pro'
+        ) {
+          return false;
+        }
+
+        autoCheckoutConsumed = true;
+
+        try {
+          var url = new URL(window.location.href);
+          url.searchParams.delete('checkout');
+          window.history.replaceState(
+            window.history.state,
+            '',
+            url.pathname +
+              (url.search ? url.search : '') +
+              url.hash
+          );
+        } catch {
+          // The in-memory guard still keeps this one-shot.
+        }
+
+        return true;
       }
 
       function delay(ms) {
@@ -1139,6 +1213,13 @@
 
       if (button) {
         button.addEventListener('click', openCheckout);
+      }
+
+      if (headerProButton) {
+        headerProButton.addEventListener(
+          'click',
+          openCheckout
+        );
       }
 
       void initializePlanAction();
