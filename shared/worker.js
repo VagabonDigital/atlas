@@ -22,6 +22,81 @@ const ATLAS_AI_REQUEST_ID_HEADER =
 const ATLAS_AI_SUBJECT_ID_HEADER =
     'X-Atlas-Subject-Id';
 
+const ATLAS_ANONYMOUS_SUGGESTION_WINDOW_MS =
+    10 * 60 * 1000;
+const ATLAS_ANONYMOUS_SUGGESTION_LIMIT = 10;
+const atlasAnonymousSuggestionBuckets =
+    new Map();
+
+async function allowAtlasAnonymousSuggestion(
+    request,
+    env
+) {
+    const address =
+        String(
+            request.headers.get(
+                'CF-Connecting-IP'
+            ) || 'unknown'
+        )
+            .trim()
+            .slice(0, 120);
+
+    const key =
+        `compass-suggestions:${address}`;
+
+    const configuredLimiter =
+        env.ATLAS_ANONYMOUS_SUGGESTION_RATE_LIMITER;
+
+    if (
+        configuredLimiter &&
+        typeof configuredLimiter.limit === 'function'
+    ) {
+        try {
+            const decision =
+                await configuredLimiter.limit({
+                    key
+                });
+
+            return decision?.success === true;
+        } catch (error) {
+            console.error(
+                '[Atlas AI] Anonymous suggestion limiter failed:',
+                error
+            );
+
+            return false;
+        }
+    }
+
+    const now = Date.now();
+    const current =
+        atlasAnonymousSuggestionBuckets.get(
+            key
+        );
+
+    if (
+        !current ||
+        now - current.startedAt >=
+            ATLAS_ANONYMOUS_SUGGESTION_WINDOW_MS
+    ) {
+        atlasAnonymousSuggestionBuckets.set(
+            key,
+            {
+                startedAt: now,
+                count: 1
+            }
+        );
+        return true;
+    }
+
+    current.count += 1;
+
+    return (
+        current.count <=
+        ATLAS_ANONYMOUS_SUGGESTION_LIMIT
+    );
+}
+
 function normalizeAtlasSupabaseUrl(value) {
     return String(value || '')
         .trim()
@@ -3093,116 +3168,147 @@ export default {
                 });
             }
 
-            const authenticated =
-                await authenticateAtlasAIRequest(
-                    request,
-                    env
+            const bearerAuthorization =
+                getAtlasBearerAuthorization(
+                    request
                 );
 
-            if (!authenticated.ok) {
-                return json(
-                    {
-                        ok: false,
-                        error:
-                            authenticated.error
-                    },
-                    authenticated.status
-                );
-            }
+            const anonymousSuggestion =
+                url.pathname ===
+                    '/suggest-subject-ideas' &&
+                !bearerAuthorization;
 
-            const requestId =
-                String(
-                    request.headers.get(
-                        ATLAS_AI_REQUEST_ID_HEADER
-                    ) || ''
-                )
-                    .trim()
-                    .slice(0, 160);
+            let authenticated = null;
 
-            const subjectId =
-                String(
-                    request.headers.get(
-                        ATLAS_AI_SUBJECT_ID_HEADER
-                    ) || ''
-                )
-                    .trim()
-                    .slice(0, 240);
+            if (anonymousSuggestion) {
+                const allowed =
+                    await allowAtlasAnonymousSuggestion(
+                        request,
+                        env
+                    );
 
-            let usageDecision = null;
-
-            try {
-                usageDecision =
-                    await callAtlasUsageRpc(
-                        env,
-                        'atlas_begin_ai_operation_v1',
+                if (!allowed) {
+                    return json(
                         {
-                            p_owner_user_id:
-                                authenticated.userId,
-                            p_request_id:
-                                requestId,
-                            p_subject_id:
-                                subjectId || null,
-                            p_endpoint:
-                                url.pathname,
-                            p_mode:
-                                url.pathname ===
-                                    '/suggest-subject-ideas'
-                                    ? String(
-                                        body?.mode || ''
-                                    ).trim()
-                                    : null
-                        }
+                            ok: false,
+                            error:
+                                'Compass suggestions are temporarily limited. Try again shortly.'
+                        },
+                        429
                     );
-            } catch (error) {
-                console.error(
-                    '[Atlas AI] Usage preflight failed:',
-                    error
-                );
-
-                return json(
-                    {
-                        ok: false,
-                        error:
-                            'Atlas AI usage protection is unavailable.'
-                    },
-                    503
-                );
-            }
-
-            if (
-                !usageDecision ||
-                usageDecision.allowed !== true
-            ) {
-                const blocked =
-                    atlasAIGuardrailResponse(
-                        usageDecision?.reason
+                }
+            } else {
+                authenticated =
+                    await authenticateAtlasAIRequest(
+                        request,
+                        env
                     );
 
-                return json(
-                    {
-                        ok: false,
-                        error:
-                            blocked.error,
-                        code:
-                            String(
-                                usageDecision?.reason ||
-                                'usage_unavailable'
-                            )
-                    },
-                    blocked.status
-                );
-            }
+                if (!authenticated.ok) {
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                authenticated.error
+                        },
+                        authenticated.status
+                    );
+                }
 
-            aiUsageContext = {
-                userId:
-                    authenticated.userId,
-                requestId,
-                usageClass:
-                    usageDecision.usageClass || null,
-                actionType:
-                    usageDecision.actionType || null,
-                finalized: false
-            };
+                const requestId =
+                    String(
+                        request.headers.get(
+                            ATLAS_AI_REQUEST_ID_HEADER
+                        ) || ''
+                    )
+                        .trim()
+                        .slice(0, 160);
+
+                const subjectId =
+                    String(
+                        request.headers.get(
+                            ATLAS_AI_SUBJECT_ID_HEADER
+                        ) || ''
+                    )
+                        .trim()
+                        .slice(0, 240);
+
+                let usageDecision = null;
+
+                try {
+                    usageDecision =
+                        await callAtlasUsageRpc(
+                            env,
+                            'atlas_begin_ai_operation_v1',
+                            {
+                                p_owner_user_id:
+                                    authenticated.userId,
+                                p_request_id:
+                                    requestId,
+                                p_subject_id:
+                                    subjectId || null,
+                                p_endpoint:
+                                    url.pathname,
+                                p_mode:
+                                    url.pathname ===
+                                        '/suggest-subject-ideas'
+                                        ? String(
+                                            body?.mode || ''
+                                        ).trim()
+                                        : null
+                            }
+                        );
+                } catch (error) {
+                    console.error(
+                        '[Atlas AI] Usage preflight failed:',
+                        error
+                    );
+
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                'Atlas AI usage protection is unavailable.'
+                        },
+                        503
+                    );
+                }
+
+                if (
+                    !usageDecision ||
+                    usageDecision.allowed !== true
+                ) {
+                    const blocked =
+                        atlasAIGuardrailResponse(
+                            usageDecision?.reason
+                        );
+
+                    return json(
+                        {
+                            ok: false,
+                            error:
+                                blocked.error,
+                            code:
+                                String(
+                                    usageDecision?.reason ||
+                                    'usage_unavailable'
+                                )
+                        },
+                        blocked.status
+                    );
+                }
+
+                aiUsageContext = {
+                    userId:
+                        authenticated.userId,
+                    requestId,
+                    usageClass:
+                        usageDecision.usageClass || null,
+                    actionType:
+                        usageDecision.actionType || null,
+                    finalized: false
+                };
+            }
 
             if (
                 url.pathname ===
