@@ -1174,6 +1174,10 @@
             accountCopy.hidden = true;
         }
 
+        updateGoogleProviderVisibility({
+            render: false
+        });
+
         gateLayer.querySelector('[data-account-tabs]').hidden = true;
         gateLayer.querySelectorAll('[data-account-form]')
             .forEach(form => {
