@@ -141,6 +141,20 @@
       var atlasHubLayoutWidth = 0;
 
       /*
+       * Temporary hover diagnostic: ?hoverTest=noimages removes only the
+       * raster world-card images so animation can be compared against the
+       * identical card geometry and motion.
+       */
+      try {
+        if (
+          new URLSearchParams(window.location.search)
+            .get('hoverTest') === 'noimages'
+        ) {
+          root.dataset.atlasHoverTest = 'noimages';
+        }
+      } catch (e) { }
+
+      /*
        * Chromium can briefly resolve viewport-relative type against a
        * different scrollbar basis while the root theme is transitioning.
        * Snapshot the layout viewport width into pixel lengths instead so
@@ -3748,7 +3762,7 @@
 
   <!-- Shared, fixed geometry for the Atlas / Compass / Arcade rail -->
   <link rel="stylesheet" href="./shared/atlas-hub-nav.css?v=20260727-nav-stability">
-  <link rel="stylesheet" href="./shared/atlas-hub.css?v=20260922-hover-transform1">
+  <link rel="stylesheet" href="./shared/atlas-hub.css?v=20260923-hover-image-diagnostic1">
 </head>
 
 <body data-atlas-world="atlas" data-atlas-surface="hub">
