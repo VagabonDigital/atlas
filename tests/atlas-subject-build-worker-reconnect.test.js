@@ -338,7 +338,7 @@ async function testWorkerReconnectAndAccountSwitch() {
         at:
             Date.now(),
         workerVersion:
-            '20260924-buildworker6'
+            '20260924-buildworker9'
     });
 
     workers[0].onerror?.({
@@ -480,7 +480,7 @@ async function testWorkerReconnectAndAccountSwitch() {
             'worker-ready',
         queue: [],
         workerVersion:
-            '20260924-buildworker6'
+            '20260924-buildworker9'
     });
 
     const enqueueCountAfterReady =
