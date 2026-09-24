@@ -82,15 +82,15 @@ assert.match(
 );
 assert.match(
   pricing,
-  /atlas-paddle-config\.js\?v=20260924-livecatalog1/
+  /atlas-paddle-config\.js\?v=20260924-livecredentials1/
 );
 assert.match(
   checkout,
-  /atlas-paddle-config\.js\?v=20260924-livecatalog1/
+  /atlas-paddle-config\.js\?v=20260924-livecredentials1/
 );
 assert.match(
   subscription,
-  /atlas-paddle-config\.js\?v=20260924-livecatalog1/
+  /atlas-paddle-config\.js\?v=20260924-livecredentials1/
 );
 assert.doesNotMatch(
   pricing + checkout + subscription,
