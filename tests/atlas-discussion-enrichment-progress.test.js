@@ -85,7 +85,7 @@ assert.match(
 
 assert.match(
     subjectPage,
-    /compass-subject-loader\.js\?v=20260924-foreground2/
+    /compass-subject-loader\.js\?v=20260924-foreground3/
 );
 
 console.log(
