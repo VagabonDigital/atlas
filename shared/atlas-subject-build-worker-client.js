@@ -23,7 +23,7 @@
     }
 
     const WORKER_URL =
-        '/shared/atlas-subject-build-shared-worker.js?v=20260924-buildworker3';
+        '/shared/atlas-subject-build-shared-worker.js?v=20260924-buildworker4';
 
     const WORKER_NAME =
         'atlas-subject-builds';
@@ -740,6 +740,58 @@
 
         if (
             type ===
+                'foreground-granted'
+        ) {
+            settleRequest(
+                message.requestId,
+                {
+                    subjectId:
+                        message.subjectId ||
+                        null,
+                    completedStep:
+                        Number.isFinite(
+                            Number(
+                                message.completedStep
+                            )
+                        )
+                            ? Number(
+                                message.completedStep
+                            )
+                            : null,
+                    readyToCommit:
+                        message.readyToCommit ===
+                        true,
+                    generationContext:
+                        cloneJson(
+                            message
+                                .generationContext ||
+                            null
+                        ),
+                    noWorkerJob:
+                        message.noWorkerJob ===
+                        true
+                }
+            );
+        }
+
+        if (
+            type ===
+                'foreground-denied'
+        ) {
+            settleRequest(
+                message.requestId,
+                null,
+                new Error(
+                    String(
+                        message.reason ||
+                        'Atlas could not hand this build to the foreground page.'
+                    )
+                )
+            );
+        }
+
+        if (
+            type ===
                 'checkpoint-result'
         ) {
             settleRequest(
@@ -1258,7 +1310,11 @@
 
     function request(
         type,
-        detail = {}
+        detail = {},
+        {
+            timeoutMs =
+                REQUEST_TIMEOUT_MS
+        } = {}
     ) {
         if (
             !state.authenticated ||
@@ -1290,7 +1346,13 @@
                                 )
                             );
                         },
-                        REQUEST_TIMEOUT_MS
+                        Math.max(
+                            1000,
+                            Number(
+                                timeoutMs
+                            ) ||
+                            REQUEST_TIMEOUT_MS
+                        )
                     );
 
                 pendingRequests.set(
@@ -1405,6 +1467,76 @@
                     reason || ''
                 ).trim() ||
                 'cancelled'
+        });
+    }
+
+    function requestForegroundOwnership(
+        subjectId,
+        {
+            reason =
+                'subject-open',
+            timeoutMs =
+                90000
+        } = {}
+    ) {
+        const id =
+            String(
+                subjectId || ''
+            ).trim();
+
+        if (!id) {
+            return Promise.reject(
+                new Error(
+                    'Atlas foreground ownership requires a subject ID.'
+                )
+            );
+        }
+
+        return request(
+            'request-foreground-ownership',
+            {
+                subjectId:
+                    id,
+                reason:
+                    String(
+                        reason || ''
+                    ).trim() ||
+                    'subject-open'
+            },
+            {
+                timeoutMs
+            }
+        );
+    }
+
+    function releaseForegroundOwnership(
+        subjectId,
+        reason =
+            'foreground-release'
+    ) {
+        const id =
+            String(
+                subjectId || ''
+            ).trim();
+
+        if (
+            !id ||
+            !state.authenticated ||
+            !state.connected
+        ) {
+            return false;
+        }
+
+        return safePost({
+            type:
+                'release-foreground-ownership',
+            subjectId:
+                id,
+            reason:
+                String(
+                    reason || ''
+                ).trim() ||
+                'foreground-release'
         });
     }
 
@@ -1597,6 +1729,8 @@
                 connectWorker,
             enqueueSubject,
             cancelSubject,
+            requestForegroundOwnership,
+            releaseForegroundOwnership,
             requestCheckpoint,
             requestWorkerState,
             sendCurrentAuth,
