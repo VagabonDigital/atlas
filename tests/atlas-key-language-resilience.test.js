@@ -92,7 +92,7 @@ async function verifyPlannerFallback() {
     );
 
     const selected =
-        await window.AtlasAI
+        await context.AtlasAI
             .selectKeyLanguageOpportunities({
                 section: 'discussion',
                 limit: 2,
