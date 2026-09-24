@@ -1132,6 +1132,19 @@ async function testRealWorkerGeneration() {
         true
     );
 
+    assert.equal(
+        finalCheckpoint
+            .buildState
+            .generationContext
+            .premise,
+        initialCheckpoint
+            .buildState
+            .generationContext
+            ?.premise ||
+        generationContext.premise,
+        'Worker-owned generation context must remain inside the canonical checkpoint so all-pages-close recovery cannot lose it.'
+    );
+
     const finalDocument =
         finalCheckpoint
             .workingDraft
