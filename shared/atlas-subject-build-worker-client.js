@@ -1200,12 +1200,7 @@
         disconnectWorker(
             event?.persisted
                 ? 'page-suspended'
-                : 'page-hidden',
-            {
-                closePort:
-                    event?.persisted !==
-                    true
-            }
+                : 'page-hidden'
         );
     }
 
