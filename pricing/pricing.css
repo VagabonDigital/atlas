@@ -128,10 +128,20 @@ html[data-theme="night"] .proof-image { color-scheme: light; }
   .offer { padding: 25px; }
   h1 { font-size: 64px; }
 }
+.pricing-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+body[data-atlas-surface="inside-atlas"] .pricing-header-actions .atlas-inside-account-entry {
+  margin-left: 0;
+}
+@media (max-width: 980px) {
+  .pricing-header-actions { margin-left: auto; }
+}
 @media (max-width: 760px) {
   .header-inner { gap: 6px; }
   .nav { display: none; }
-  .pricing-header-pro { margin-left: auto; }
   .hero { padding: 38px 0 28px; }
   .hero-grid { grid-template-columns: 1fr; gap: 28px; }
   .hero-copy { padding: 0; }
@@ -183,8 +193,7 @@ html[data-theme="night"] .proof-image { color-scheme: light; }
 @media (max-width: 720px) {
   .frame { width: min(calc(100% - 30px), var(--frame)); }
   .header-inner { width: 100%; height: 56px; min-height: 0; padding: 0 15px; gap: 4px; }
-  .pricing-header-pro { margin-left: auto; }
-  body[data-atlas-surface="inside-atlas"] .site-header .atlas-inside-account-entry { margin-left: 0; }
+  .pricing-header-actions { gap: 4px; }
   .appearance-toggle { display: none; }
 }
 @media (max-width: 360px) {
