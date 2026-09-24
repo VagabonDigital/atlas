@@ -91,6 +91,21 @@ async function verifyPlannerFallback() {
         }
     );
 
+    context.AtlasAI
+        .configureRuntime({
+            getAccessToken:
+                async () =>
+                    'test-token',
+            getSubjectId:
+                () =>
+                    'subject-test',
+            getGenerationContext:
+                () =>
+                    null,
+            fetch:
+                window.fetch
+        });
+
     const selected =
         await context.AtlasAI
             .selectKeyLanguageOpportunities({
