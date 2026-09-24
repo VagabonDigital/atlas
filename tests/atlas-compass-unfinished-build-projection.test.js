@@ -169,6 +169,16 @@ assert.match(
 );
 
 assert.match(
+    hub,
+    /AtlasSubjectBuildResurrection[\s\S]*?isEstablishing\?\.\([\s\S]*?lifecycleStatus/
+);
+
+assert.match(
+    hub,
+    /atlas:subject-build-resurrection-state[\s\S]*?requestHubRender/
+);
+
+assert.match(
     cloudCache,
     /async function refreshOwnedSubjectSummaries\(\)[\s\S]*?markHubMutation\(\)[\s\S]*?fetchFreshSummaries\(userId\)[\s\S]*?clearSubjectCache\(\)[\s\S]*?storeSummaryList\(summaries\)/
 );
