@@ -177,8 +177,8 @@ html[data-theme="night"] .proof-image { color-scheme: light; }
   .answers h2 { font-size: 34px; }
   .answers-note { max-width: 340px; margin-top: 16px; }
   .faq-list summary { font-size: 14px; min-height: 66px; }
-  .footer-inner { padding-block: 26px; align-items: start; flex-direction: column; gap: 16px; }
-  .footer-links { gap: 20px; }
+  .footer-inner { padding-block: 22px; align-items: flex-start; flex-direction: column; gap: 10px; }
+  .footer-links { gap: 16px; }
 }
 @media (max-width: 720px) {
   .frame { width: min(calc(100% - 30px), var(--frame)); }
