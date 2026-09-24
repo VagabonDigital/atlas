@@ -769,6 +769,28 @@
 
                     if (
                         subject.runtime
+                            ?.aiBuildIncomplete ===
+                            true &&
+                        grant
+                            ?.generationContext &&
+                        typeof grant
+                            .generationContext ===
+                            'object' &&
+                        !Array.isArray(
+                            grant
+                                .generationContext
+                        )
+                    ) {
+                        subject.runtime
+                            .generationContext =
+                            cloneJson(
+                                grant
+                                    .generationContext
+                            );
+                    }
+
+                    if (
+                        subject.runtime
                             ?.aiBuildIncomplete !==
                             true
                     ) {
