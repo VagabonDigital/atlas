@@ -6972,13 +6972,26 @@
       const id =
         String(subjectId || '').trim();
 
+      if (!id) {
+        return false;
+      }
+
+      if (
+        window.AtlasSubjectBuildResurrection
+          ?.isEstablishing?.(id)
+      ) {
+        noteOwnedSubjectBuildLiveness(
+          id,
+          true
+        );
+
+        return true;
+      }
+
       const Runtime =
         window.AtlasSubjectRuntimeChannel;
 
-      if (
-        !id ||
-        !Runtime
-      ) {
+      if (!Runtime) {
         return false;
       }
 
@@ -18609,6 +18622,11 @@
 
     window.addEventListener(
       'atlas:compass-hub-cache-refreshed',
+      requestHubRender
+    );
+
+    window.addEventListener(
+      'atlas:subject-build-resurrection-state',
       requestHubRender
     );
 
