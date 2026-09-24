@@ -438,6 +438,7 @@ const FULL_SUBJECT_COMPLETION_HOLD_MS = 900;
 
 let myVersionGeneratingFullSubject = false;
 let myVersionFullSubjectBuildLease = null;
+let myVersionFullSubjectLeasePreacquired = false;
 let stopMyVersionFullSubjectBuildHeartbeat = null;
 let myVersionAutoSavingFullSubject = false;
 let myVersionFullSubjectGenerationError = '';
@@ -6888,6 +6889,146 @@ function getMyVersionKeyLanguageLimit(section) {
         : limits.discussion;
 }
 
+function getMyVersionForegroundBuildHandoff() {
+    const handoff =
+        window
+            .AtlasForegroundSubjectBuildHandoff;
+
+    if (
+        !handoff ||
+        typeof handoff !==
+            'object' ||
+        Array.isArray(handoff) ||
+        String(
+            handoff.subjectId ||
+            ''
+        ).trim() !==
+            String(
+                MODULE.id ||
+                ''
+            ).trim()
+    ) {
+        return null;
+    }
+
+    return handoff;
+}
+
+function releaseMyVersionForegroundBuildHandoff(
+    reason =
+        'foreground-handoff-ended'
+) {
+    if (
+        myVersionFullSubjectLeasePreacquired
+    ) {
+        myVersionFullSubjectBuildLease
+            ?.release?.();
+
+        myVersionFullSubjectBuildLease =
+            null;
+
+        myVersionFullSubjectLeasePreacquired =
+            false;
+    }
+
+    const handoff =
+        getMyVersionForegroundBuildHandoff();
+
+    if (handoff) {
+        window
+            .AtlasSubjectBuildWorkerClient
+            ?.releaseForegroundOwnership
+            ?.(
+                MODULE.id,
+                reason
+            );
+    }
+
+    delete window
+        .AtlasForegroundSubjectBuildHandoff;
+}
+
+async function acquireMyVersionForegroundBuildHandoffLease() {
+    const handoff =
+        getMyVersionForegroundBuildHandoff();
+
+    if (!handoff) {
+        return false;
+    }
+
+    if (
+        myVersionFullSubjectBuildLease
+            ?.acquired ===
+            true
+    ) {
+        myVersionFullSubjectLeasePreacquired =
+            true;
+
+        return true;
+    }
+
+    const RuntimeChannel =
+        window
+            .AtlasSubjectRuntimeChannel;
+
+    if (
+        !RuntimeChannel ||
+        typeof RuntimeChannel
+            .acquireBuildLease !==
+            'function'
+    ) {
+        releaseMyVersionForegroundBuildHandoff(
+            'foreground-lock-unavailable'
+        );
+
+        return false;
+    }
+
+    let lease = null;
+
+    try {
+        lease =
+            await RuntimeChannel
+                .acquireBuildLease(
+                    MODULE.id
+                );
+    } catch (error) {
+        console.warn(
+            '[Compass] Foreground subject build lock was unavailable:',
+            error
+        );
+    }
+
+    if (
+        !lease ||
+        lease.acquired !==
+            true
+    ) {
+        lease?.release?.();
+
+        window
+            .AtlasSubjectBuildWorkerClient
+            ?.releaseForegroundOwnership
+            ?.(
+                MODULE.id,
+                'foreground-lock-not-acquired'
+            );
+
+        delete window
+            .AtlasForegroundSubjectBuildHandoff;
+
+        return false;
+    }
+
+    myVersionFullSubjectBuildLease =
+        lease;
+
+    myVersionFullSubjectLeasePreacquired =
+        true;
+
+    return true;
+}
+
 function registerMyVersionFullSubjectWithWorker(
     autoSaveOnComplete =
         myVersionFullSubjectAutoSaveOnComplete
@@ -7074,6 +7215,12 @@ async function generateMyVersionFullSubject({
         window.AtlasSubjectRuntimeChannel;
 
     if (
+        !(
+            myVersionFullSubjectBuildLease
+                ?.acquired ===
+                true &&
+            myVersionFullSubjectLeasePreacquired
+        ) &&
         RuntimeChannel &&
         typeof RuntimeChannel.acquireBuildLease ===
             'function'
@@ -7108,6 +7255,12 @@ async function generateMyVersionFullSubject({
             return null;
         }
     }
+
+    myVersionFullSubjectLeasePreacquired =
+        false;
+
+    delete window
+        .AtlasForegroundSubjectBuildHandoff;
 
     const subjectSize = String(
         window.AtlasGenerationContext?.subjectSize || 'standard'
@@ -21722,6 +21875,13 @@ async function init() {
         }
     }
 
+    if (
+        recoveringOwnedSubjectBuild &&
+        getMyVersionForegroundBuildHandoff()
+    ) {
+        await acquireMyVersionForegroundBuildHandoffLease();
+    }
+
     if (freshOwnedSubjectBuild) {
         /*
          * A freshly-created subject cannot already have a working draft,
@@ -21816,6 +21976,10 @@ async function init() {
             await recoveryBuildCloudAuthorityPromise;
 
         if (!cloudAuthorityReady) {
+            releaseMyVersionForegroundBuildHandoff(
+                'cloud-authority-unavailable'
+            );
+
             showSubjectAuthoringPersistenceUnavailable(
                 'Atlas could not prepare account persistence to continue this subject. Reload and try again.'
             );
@@ -21857,6 +22021,14 @@ async function init() {
         ) &&
         !myVersionEditing
     ) {
+        if (
+            recoveringOwnedSubjectBuild
+        ) {
+            releaseMyVersionForegroundBuildHandoff(
+                'foreground-editing-unavailable'
+            );
+        }
+
         /*
          * Fresh builds keep their URL intent; recovery builds keep their
          * durable incomplete marker. Either way a later open can retry.
