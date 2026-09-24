@@ -1239,12 +1239,17 @@
         }
 
         const id = String(subjectId || '').trim();
-        const revision = Math.max(
-            1,
-            Math.floor(Number(expectedRevision) || 0)
-        );
+        const revision =
+            Math.floor(
+                Number(
+                    expectedRevision
+                ) || 0
+            );
 
-        if (!id || !revision) {
+        if (
+            !id ||
+            revision < 1
+        ) {
             const error = new Error(
                 'Revision-specific subject update requires a subject and expected revision.'
             );
