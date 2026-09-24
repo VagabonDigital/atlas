@@ -44,7 +44,12 @@
     let runtimePromise = null;
     let scanPromise = null;
     let currentUserId = '';
-    let bootstrapping = hasStoredSession();
+    let bootstrapping =
+        Boolean(
+            window.AtlasAccount ||
+            hasStoredSession() ||
+            hasOAuthSessionInUrl()
+        );
 
     function cloneJson(value) {
         if (value === null || value === undefined) {
@@ -70,6 +75,44 @@
         } catch {
             return false;
         }
+    }
+
+    function hasOAuthSessionInUrl() {
+        try {
+            const url =
+                new URL(
+                    window.location.href
+                );
+
+            return Boolean(
+                url.searchParams.get('code') ||
+                url.hash.includes(
+                    'access_token='
+                ) ||
+                url.hash.includes(
+                    'refresh_token='
+                )
+            );
+        } catch {
+            return false;
+        }
+    }
+
+    function hasAuthenticatedRuntimeHint() {
+        if (
+            window.AtlasAccount
+                ?.getState?.()
+                ?.authenticated ===
+            true
+        ) {
+            return true;
+        }
+
+        return Boolean(
+            window.AtlasAccount ||
+            hasStoredSession() ||
+            hasOAuthSessionInUrl()
+        );
     }
 
     function snapshot() {
@@ -459,6 +502,14 @@
     async function scan() {
         if (scanPromise) {
             return scanPromise;
+        }
+
+        if (
+            !currentUserId &&
+            !hasAuthenticatedRuntimeHint()
+        ) {
+            setBootstrapping(false);
+            return false;
         }
 
         setBootstrapping(true);
@@ -1263,7 +1314,13 @@
         );
 
         runtimePromise = null;
-        void scan();
+
+        if (
+            currentUserId ||
+            hasAuthenticatedRuntimeHint()
+        ) {
+            void scan();
+        }
     }
 
     function subscribe(
