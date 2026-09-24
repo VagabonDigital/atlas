@@ -344,10 +344,9 @@ function publishRuntimeSignal(
             activeBuild.userId,
             'build-liveness',
             {
-                ...message,
-                detail:
+                runtimeMessage:
                     cloneJson(
-                        message.detail
+                        message
                     )
             }
         );
