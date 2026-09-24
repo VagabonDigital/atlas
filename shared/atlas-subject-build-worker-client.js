@@ -635,42 +635,77 @@
             type ===
                 'build-liveness'
         ) {
-            const detail =
-                message.detail;
+            const runtimeMessage =
+                isObject(
+                    message
+                        .runtimeMessage
+                )
+                    ? message
+                        .runtimeMessage
+                    : null;
 
-            if (
-                detail &&
-                typeof detail ===
-                    'object'
-            ) {
-                publish({
-                    activeBuild: {
-                        subjectId:
-                            message
-                                .subjectId ||
-                            state
-                                .activeBuild
-                                ?.subjectId ||
-                            null,
-                        completedStep:
-                            Number(
-                                detail
-                                    .completedStep
-                            ) ||
-                            0,
-                        progress: {
-                            current:
-                                detail.current ||
+            if (runtimeMessage) {
+                window
+                    .AtlasSubjectRuntimeChannel
+                    ?.ingestExternalMessage
+                    ?.(
+                        runtimeMessage
+                    );
+
+                const detail =
+                    runtimeMessage
+                        .detail;
+
+                if (
+                    runtimeMessage.type ===
+                        'build-heartbeat' &&
+                    isObject(detail)
+                ) {
+                    publish({
+                        activeBuild: {
+                            subjectId:
+                                runtimeMessage
+                                    .subjectId ||
+                                state
+                                    .activeBuild
+                                    ?.subjectId ||
                                 null,
-                            total:
-                                detail.total ||
-                                9,
-                            label:
-                                detail.label ||
-                                'Building subject'
+                            completedStep:
+                                Number(
+                                    detail
+                                        .completedStep
+                                ) ||
+                                0,
+                            progress: {
+                                current:
+                                    detail
+                                        .current ||
+                                    null,
+                                total:
+                                    detail
+                                        .total ||
+                                    9,
+                                label:
+                                    detail
+                                        .label ||
+                                    'Building subject'
+                            }
                         }
-                    }
-                });
+                    });
+                } else if (
+                    runtimeMessage.type ===
+                        'build-stop' &&
+                    state
+                        .activeBuild
+                        ?.subjectId ===
+                        runtimeMessage
+                            .subjectId
+                ) {
+                    publish({
+                        activeBuild:
+                            null
+                    });
+                }
             }
         }
 
