@@ -1045,7 +1045,7 @@
         }
 
         const src =
-            '/shared/atlas-subject-build-worker-client.js?v=20260924-buildworker8';
+            '/shared/atlas-subject-build-worker-client.js?v=20260924-buildworker9';
 
         if (document.readyState === 'loading') {
             document.write(
@@ -1082,7 +1082,7 @@
         }
 
         const src =
-            '/shared/atlas-subject-build-resurrection.js?v=20260924-resurrection3';
+            '/shared/atlas-subject-build-resurrection.js?v=20260924-resurrection4';
 
         if (document.readyState === 'loading') {
             document.write(
@@ -1315,7 +1315,7 @@
                 !window.AtlasTutorSubjectsCloudAuthority
             ) {
                 await loadRuntimeScript(
-                    '/shared/atlas-tutor-subjects-cloud-authority.js?v=20260924-resurrection1',
+                    '/shared/atlas-tutor-subjects-cloud-authority.js?v=20260924-revisionguard1',
                     'AtlasTutorSubjectsCloudAuthority'
                 );
             }
@@ -1488,7 +1488,7 @@
 
         if (needsSubjects) {
             scripts.push(
-                '<script src="/shared/atlas-tutor-subjects-cloud-authority.js?v=20260924-resurrection1"><\/script>'
+                '<script src="/shared/atlas-tutor-subjects-cloud-authority.js?v=20260924-revisionguard1"><\/script>'
             );
         }
 
