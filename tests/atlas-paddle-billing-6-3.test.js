@@ -23,7 +23,18 @@ assert.match(worker, /crypto\.subtle\.sign/);
 assert.match(worker, /\`\$\{timestamp\}:\$\{rawBody\}\`/);
 assert.match(worker, /Math\.abs\([\s\S]*nowSeconds - unixTime[\s\S]*\) > 5/);
 assert.match(worker, /ATLAS_PADDLE_WEBHOOK_SECRET/);
+assert.match(worker, /ATLAS_PADDLE_LIVE_WEBHOOK_SECRET/);
+assert.match(worker, /ATLAS_PADDLE_API_KEY/);
+assert.match(worker, /ATLAS_PADDLE_LIVE_API_KEY/);
 assert.match(worker, /ATLAS_PADDLE_ENVIRONMENT/);
+assert.match(
+  worker,
+  /paddleEnvironment === 'live'[\s\S]*ATLAS_PADDLE_LIVE_API_KEY/
+);
+assert.match(
+  worker,
+  /paddleEnvironment === 'live'[\s\S]*ATLAS_PADDLE_LIVE_WEBHOOK_SECRET/
+);
 assert.match(worker, /atlas_apply_paddle_event_v1/);
 assert.match(worker, /transaction\.completed/);
 assert.match(worker, /Atlas Pro is active\./);
