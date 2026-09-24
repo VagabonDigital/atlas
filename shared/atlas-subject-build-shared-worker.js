@@ -2068,6 +2068,23 @@ async function executeBuild(job) {
         );
     }
 
+    const checkpointGenerationContext =
+        normalizeGenerationContext(
+            latest
+                .buildState
+                .generationContext
+        );
+
+    if (checkpointGenerationContext) {
+        job.build = {
+            ...normalizeBuildDescriptor(
+                job.build
+            ),
+            generationContext:
+                checkpointGenerationContext
+        };
+    }
+
     const resumeFromStep =
         normalizeCompletedStep(
             latest
