@@ -1018,6 +1018,33 @@ async function testRealWorkerGeneration() {
         }
     });
 
+    arcadePage.send({
+        type:
+            'enqueue-subject',
+        subjectId:
+            'subject-worker-resume',
+        build: {
+            generationContext: {
+                version: 1,
+                languageLevel:
+                    'b2',
+                subjectSize:
+                    'standard',
+                languageSupport:
+                    'key',
+                style:
+                    'balanced',
+                premise:
+                    'Resume safely.',
+                brief:
+                    ''
+            },
+            autoSaveOnComplete:
+                true,
+            revision: 4
+        }
+    });
+
     const blocked =
         await waitUntil(
             () =>
@@ -1039,6 +1066,24 @@ async function testRealWorkerGeneration() {
         blocked,
         true,
         'Worker must wait while the foreground subject page owns the build lock.'
+    );
+
+    const duplicateQueue =
+        arcadePage
+            .latest(
+                'queue-state'
+            )
+            ?.queue
+            ?.filter(
+                item =>
+                    item.subjectId ===
+                    'subject-worker-resume'
+            ) || [];
+
+    assert.equal(
+        duplicateQueue.length,
+        1,
+        'Two authenticated Atlas pages may rediscover the same unfinished subject, but the SharedWorker must keep one user/subject queue job.'
     );
 
     assert.equal(
