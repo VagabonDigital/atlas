@@ -21,7 +21,7 @@
     if (window.AtlasAccountGate) return;
 
     const STYLE_HREF =
-        '/shared/atlas-account-gate.css?v=20260922-allowance2';
+        '/shared/atlas-account-gate.css?v=20260923-prohierarchy1';
     const RETURN_INTENT_SRC =
         '/shared/atlas-return-intent.js?v=20260916-returnintent1';
     const FEEDBACK_SRC =
@@ -29,7 +29,7 @@
     const GOOGLE_IDENTITY_SRC =
         '/shared/atlas-google-identity.js?v=20260921-insideheader1';
     const PRO_CHECKOUT_SRC =
-        '/shared/atlas-pro-checkout.js?v=20260923-contextual1';
+        '/shared/atlas-pro-checkout.js?v=20260923-scroll1';
 
     let gateLayer = null;
     let accountMenu = null;
@@ -986,7 +986,7 @@
             </div>
             <div class="atlas-account-menu-actions">
                 <button class="atlas-account-menu-action" type="button" data-account-menu-upgrade style="display:none">Upgrade to Pro · $12/month</button>
-                <a class="atlas-account-menu-action" href="/pricing/" data-account-menu-pricing>View pricing</a>
+                <a class="atlas-account-menu-action" href="/pricing/" data-account-menu-pricing>The magic of Atlas Pro</a>
                 <a class="atlas-account-menu-action" href="/account/" data-account-settings>Account settings</a>
                 <button class="atlas-account-menu-action" type="button" data-account-menu-feedback>Message Atlas</button>
                 <button class="atlas-account-menu-action" type="button" data-account-menu-sign-out>Sign out</button>
@@ -1879,7 +1879,7 @@
         const access = window.AtlasAccess?.getState?.() || {};
         const email = account.email || 'Atlas account';
         const tier = access.tier === 'pro'
-            ? 'Pro'
+            ? 'Atlas Pro'
             : access.tier === 'free'
                 ? 'Free account'
                 : 'Account';

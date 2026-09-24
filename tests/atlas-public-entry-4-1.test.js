@@ -63,6 +63,17 @@ assert.match(
   /Ready to try it\?[\s\S]*?Open Atlas, choose a subject or game, and use it in your next lesson\./
 );
 
+
+assert.match(
+  inside,
+  /Compass gives you substantial, structured subjects to teach through\.[\s\S]*?Arcade gives you conversation games[\s\S]*?Two distinct teaching worlds, ready when you are\./
+);
+
+assert.doesNotMatch(
+  inside,
+  /image-led subjects|library-authorship-demo|library-demo-card|libraryDemoPrev|libraryDemoNext/
+);
+
 assert.match(
   root,
   /See how Atlas works, create your own material, and keep each student’s lessons connected\./

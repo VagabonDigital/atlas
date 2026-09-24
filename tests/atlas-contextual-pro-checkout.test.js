@@ -15,6 +15,10 @@ const chrome = fs.readFileSync(
   'shared/atlas-account-chrome.js',
   'utf8'
 );
+const gateCss = fs.readFileSync(
+  'shared/atlas-account-gate.css',
+  'utf8'
+);
 const registry = fs.readFileSync(
   'shared/atlas-content-registry.js',
   'utf8'
@@ -44,7 +48,17 @@ assert.match(
 
 assert.match(
   gate,
-  /data-account-menu-pricing[\s\S]*?View pricing/
+  /data-account-menu-pricing[\s\S]*?The magic of Atlas Pro/
+);
+
+assert.match(
+  gateCss,
+  /data-account-menu-upgrade[\s\S]*?background: var\(--atlas-modal-accent-bg[\s\S]*?font-weight: 700/
+);
+
+assert.match(
+  gateCss,
+  /data-account-menu-upgrade\]:hover[\s\S]*?background: var\(--atlas-modal-accent[\s\S]*?color: var\(--atlas-modal-accent-ink/
 );
 
 
@@ -88,14 +102,35 @@ assert.match(
   /name === 'checkout\.closed'[\s\S]*?!activeCheckout\.completed/
 );
 
+
+assert.match(
+  checkout,
+  /data-atlas-pro-checkout-open="true"[\s\S]*?overflow: hidden !important/
+);
+
+assert.match(
+  checkout,
+  /setCheckoutScrollLocked\([\s\S]*?true[\s\S]*?Paddle[\s\S]*?Checkout[\s\S]*?\.open\(/
+);
+
+assert.match(
+  checkout,
+  /name === 'checkout\.closed'[\s\S]*?setCheckoutScrollLocked\([\s\S]*?false/
+);
+
+assert.match(
+  checkout,
+  /Checkout failed'[\s\S]*?setCheckoutScrollLocked\([\s\S]*?false|setCheckoutScrollLocked\([\s\S]*?false[\s\S]*?Checkout failed'/
+);
+
 assert.match(
   chrome,
-  /atlas-account-gate\.js\?v=20260923-procheckout2/
+  /atlas-account-gate\.js\?v=20260923-prohierarchy1/
 );
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260923-procheckout2/
+  /atlas-account-chrome\.js\?v=20260923-prohierarchy1/
 );
 
 assert.match(
@@ -168,7 +203,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260923-contextual1/
+  /atlas-pro-checkout\.js\?v=20260923-scroll1/
 );
 
 assert.match(

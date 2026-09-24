@@ -565,6 +565,18 @@ body:has(.atlas-account-gate-layer:not([hidden]):not(.is-prewarming)),
     color: var(--atlas-modal-heading, var(--text-heading, #211f1b));
 }
 
+.atlas-account-menu-action[data-account-menu-upgrade] {
+    background: var(--atlas-modal-accent-bg, rgba(89, 97, 125, 0.09));
+    color: var(--atlas-modal-accent, #59617d);
+    font-weight: 700;
+}
+
+.atlas-account-menu-action[data-account-menu-upgrade]:hover,
+.atlas-account-menu-action[data-account-menu-upgrade]:focus-visible {
+    background: var(--atlas-modal-accent, #59617d);
+    color: var(--atlas-modal-accent-ink, #fff);
+}
+
 .atlas-account-menu-status {
     margin: 8px 2px 0;
     color: var(--atlas-modal-danger-text, #b23a2e);
