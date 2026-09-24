@@ -76,6 +76,12 @@ async function verifyPlannerFallback() {
         window,
         Headers,
         AbortController,
+        crypto:
+            window.crypto,
+        setTimeout:
+            window.setTimeout,
+        clearTimeout:
+            window.clearTimeout,
         console: {
             warn() {},
             error() {},
