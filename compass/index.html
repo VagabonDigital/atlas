@@ -3265,18 +3265,20 @@
 
     .owned-subject-dialog-actions {
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       flex-wrap: wrap;
       gap: 0.7rem 0.9rem;
     }
 
     .owned-subject-dialog-allowance-status {
+      display: grid;
+      gap: 0.12rem;
       margin-right: auto;
-      color: var(--text-muted);
-      font-size: 0.72rem;
-      font-weight: 500;
-      line-height: 1.35;
-      letter-spacing: 0.005em;
+      padding: 0.45rem 0.62rem 0.48rem;
+      border: 1px solid var(--border-faint);
+      border-radius: 9px;
+      background: var(--surface-raised);
+      box-shadow: var(--shadow-xs);
       white-space: nowrap;
     }
 
@@ -3284,9 +3286,27 @@
       display: none;
     }
 
-    .owned-subject-dialog-allowance-status.is-low {
+    .owned-subject-dialog-allowance-label {
+      color: var(--text-subtle);
+      font-size: 0.56rem;
+      font-weight: 650;
+      line-height: 1.2;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .owned-subject-dialog-allowance-value {
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      font-weight: 550;
+      line-height: 1.3;
+      letter-spacing: 0.005em;
+    }
+
+    .owned-subject-dialog-allowance-status.is-low
+    .owned-subject-dialog-allowance-value {
       color: var(--allowance-low-text);
-      font-weight: 600;
+      font-weight: 650;
     }
 
     .owned-subject-dialog-action-buttons {
@@ -4468,7 +4488,9 @@
 
       .owned-subject-dialog-allowance-status {
         flex: 0 0 100%;
+        width: 100%;
         margin-right: 0;
+        padding: 0.5rem 0.65rem 0.52rem;
       }
 
       .owned-subject-dialog-action-buttons {
@@ -8032,6 +8054,9 @@
       const allowanceStatus = dialog.querySelector(
         '#owned-subject-dialog-allowance-status'
       );
+      const allowanceValue = dialog.querySelector(
+        '#owned-subject-dialog-allowance-value'
+      );
       const error = dialog.querySelector(
         '#owned-subject-dialog-error'
       );
@@ -8060,10 +8085,13 @@
 
       if (allowanceStatus) {
         allowanceStatus.hidden = true;
-        allowanceStatus.textContent = '';
         allowanceStatus.classList.remove(
           'is-low'
         );
+      }
+
+      if (allowanceValue) {
+        allowanceValue.textContent = '';
       }
 
       panel.hidden = false;
@@ -8140,12 +8168,16 @@
       const allowanceStatus = dialog.querySelector(
         '#owned-subject-dialog-allowance-status'
       );
+      const allowanceValue = dialog.querySelector(
+        '#owned-subject-dialog-allowance-value'
+      );
 
       if (
         !panel ||
         !panelTitle ||
         !panelCopy ||
         !allowanceStatus ||
+        !allowanceValue ||
         ownedSubjectDialogState?.mode !== 'create'
       ) {
         return false;
@@ -8157,7 +8189,7 @@
       panelCopy.hidden = true;
 
       allowanceStatus.hidden = true;
-      allowanceStatus.textContent = '';
+      allowanceValue.textContent = '';
       allowanceStatus.classList.remove(
         'is-low'
       );
@@ -8192,7 +8224,7 @@
         resolved.tier === 'free' &&
         resolved.remaining <= 3
       ) {
-        allowanceStatus.textContent =
+        allowanceValue.textContent =
           `Free · ${resolved.remaining} left`;
 
         if (resolved.remaining <= 2) {
@@ -8209,14 +8241,17 @@
         resolved.tier === 'pro' &&
         resolved.remaining <= 10
       ) {
-        allowanceStatus.textContent =
+        allowanceValue.textContent =
           resolved.resetLabel
             ? `Pro · ${resolved.remaining} left · resets ${resolved.resetLabel}`
             : `Pro · ${resolved.remaining} left`;
 
-        allowanceStatus.classList.add(
-          'is-low'
-        );
+        if (resolved.remaining <= 5) {
+          allowanceStatus.classList.add(
+            'is-low'
+          );
+        }
+
         allowanceStatus.hidden = false;
         return true;
       }
@@ -9081,7 +9116,10 @@
         '<p class="owned-subject-dialog-error" id="owned-subject-dialog-error" hidden></p>' +
 
         '<div class="owned-subject-dialog-actions">' +
-        '<span class="owned-subject-dialog-allowance-status" id="owned-subject-dialog-allowance-status" hidden></span>' +
+        '<div class="owned-subject-dialog-allowance-status" id="owned-subject-dialog-allowance-status" hidden>' +
+        '<span class="owned-subject-dialog-allowance-label">Creation allowance</span>' +
+        '<strong class="owned-subject-dialog-allowance-value" id="owned-subject-dialog-allowance-value"></strong>' +
+        '</div>' +
         '<div class="owned-subject-dialog-action-buttons">' +
         '<button class="btn-ghost" type="button" onclick="closeOwnedSubjectDialog()">Cancel</button>' +
         '<button class="btn-ghost" id="owned-subject-dialog-secondary" type="button" onclick="runOwnedSubjectDialogSecondary()" hidden></button>' +
@@ -9237,13 +9275,19 @@
       const allowanceStatus = dialog.querySelector(
         '#owned-subject-dialog-allowance-status'
       );
+      const allowanceValue = dialog.querySelector(
+        '#owned-subject-dialog-allowance-value'
+      );
 
       if (allowanceStatus) {
         allowanceStatus.hidden = true;
-        allowanceStatus.textContent = '';
         allowanceStatus.classList.remove(
           'is-low'
         );
+      }
+
+      if (allowanceValue) {
+        allowanceValue.textContent = '';
       }
 
       ownedSubjectDialogState = null;
