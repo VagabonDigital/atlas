@@ -37,8 +37,14 @@ assert.match(
 );
 
 assert.match(config, /const environment = 'sandbox'/);
-assert.match(config, /const clientToken = 'test_/);
-assert.match(config, /const proMonthly = 'pri_01m32eh22evm0xjtcrm71yndnx'/);
+assert.match(
+  config,
+  /sandbox:[\s\S]*clientToken:[\s\S]*'test_4daba62599c4c2a77ca0bed2f0e'[\s\S]*proMonthly:[\s\S]*'pri_01m32eh22evm0xjtcrm71yndnx'/
+);
+assert.match(
+  config,
+  /live:[\s\S]*clientToken:\s*''[\s\S]*proMonthly:[\s\S]*'pri_01m3apem2h7h1g2bt44j2hnxqp'/
+);
 assert.match(
   config,
   /environment === 'sandbox'[\s\S]*clientToken\.startsWith\('test_'\)/
