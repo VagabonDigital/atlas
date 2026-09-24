@@ -1866,7 +1866,8 @@
         async function enrichDiscussion({
             languageMode = 'all',
             subjectSize = 'standard',
-            onEvent = null
+            onEvent = null,
+            shouldStop = null
         } = {}) {
             const plan =
                 await getDiscussionEnrichmentPlan({
@@ -2095,6 +2096,14 @@
                         operation
                     );
                 }
+
+                if (
+                    typeof shouldStop ===
+                        'function' &&
+                    shouldStop() === true
+                ) {
+                    break;
+                }
             }
 
             const remainingPlan =
@@ -2136,7 +2145,12 @@
                     ),
                 remainingCount,
                 complete:
-                    remainingCount === 0
+                    remainingCount === 0,
+                stopped:
+                    remainingCount > 0 &&
+                    typeof shouldStop ===
+                        'function' &&
+                    shouldStop() === true
             };
 
             onEvent?.({
@@ -2160,7 +2174,8 @@
         async function enrichCulturalLens({
             languageMode = 'all',
             subjectSize = 'standard',
-            onEvent = null
+            onEvent = null,
+            shouldStop = null
         } = {}) {
             const plan =
                 await getCulturalLensEnrichmentPlan({
@@ -2316,6 +2331,14 @@
                         cardId
                     );
                 }
+
+                if (
+                    typeof shouldStop ===
+                        'function' &&
+                    shouldStop() === true
+                ) {
+                    break;
+                }
             }
 
             const remainingPlan =
@@ -2347,7 +2370,12 @@
                     failedIds.slice(),
                 remainingCount,
                 complete:
-                    remainingCount === 0
+                    remainingCount === 0,
+                stopped:
+                    remainingCount > 0 &&
+                    typeof shouldStop ===
+                        'function' &&
+                    shouldStop() === true
             };
 
             onEvent?.({
