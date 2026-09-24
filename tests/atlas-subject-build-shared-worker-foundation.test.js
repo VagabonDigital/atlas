@@ -252,7 +252,29 @@ async function testSharedWorkerRuntime() {
             'build-checkpoint::subject-step-nine':
                 checkpoint,
             'build-checkpoint::subject-held':
-                heldCheckpoint
+                heldCheckpoint,
+            'build-checkpoint::subject-no-lock':
+                {
+                    ...clone(checkpoint),
+                    subjectId:
+                        'subject-no-lock',
+                    workingDraft: {
+                        ...clone(
+                            checkpoint
+                                .workingDraft
+                        ),
+                        subjectId:
+                            'subject-no-lock'
+                    },
+                    buildState: {
+                        ...clone(
+                            checkpoint
+                                .buildState
+                        ),
+                        subjectId:
+                            'subject-no-lock'
+                    }
+                }
         });
 
     const heldLocks =
