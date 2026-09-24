@@ -708,6 +708,30 @@
                     foregroundOwnershipSubjectId =
                         subject.runtime
                             .subjectId;
+
+                    window
+                        .AtlasForegroundSubjectBuildHandoff = {
+                            subjectId:
+                                foregroundOwnershipSubjectId,
+                            completedStep:
+                                Number.isFinite(
+                                    Number(
+                                        grant.completedStep
+                                    )
+                                )
+                                    ? Math.max(
+                                        0,
+                                        Math.floor(
+                                            Number(
+                                                grant.completedStep
+                                            )
+                                        )
+                                    )
+                                    : null,
+                            readyToCommit:
+                                grant.readyToCommit ===
+                                true
+                        };
                 }
             }
 
@@ -724,6 +748,9 @@
                         foregroundOwnershipSubjectId,
                         'subject-bootstrap-failed'
                     );
+
+                delete window
+                    .AtlasForegroundSubjectBuildHandoff;
             }
 
             console.error(
