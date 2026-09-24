@@ -759,7 +759,7 @@ assert.match(
 
 assert.match(
     registrySource,
-    /atlas-tutor-subjects-cloud-authority\\.js\\?v=20260924-resurrection1/
+    /atlas-tutor-subjects-cloud-authority\.js\?v=20260924-resurrection1/
 );
 
 Promise.resolve()
