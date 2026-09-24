@@ -63,6 +63,22 @@ assert.match(
   worker,
   /environment === 'sandbox'[\s\S]*'https:\/\/sandbox-api\.paddle\.com'[\s\S]*'https:\/\/api\.paddle\.com'/
 );
+assert.match(
+  pricing,
+  /atlas-paddle-config\.js\?v=20260924-cutover1/
+);
+assert.match(
+  checkout,
+  /atlas-paddle-config\.js\?v=20260924-cutover1/
+);
+assert.match(
+  subscription,
+  /atlas-paddle-config\.js\?v=20260924-cutover1/
+);
+assert.doesNotMatch(
+  pricing + checkout + subscription,
+  /20260921-sandbox1/
+);
 
 assert.match(pricing, /atlas_checkout_environment: config\.environment/);
 assert.match(pricing, /atlas_user_id: account\.userId/);
