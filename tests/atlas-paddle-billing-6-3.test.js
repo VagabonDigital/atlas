@@ -23,7 +23,18 @@ assert.match(worker, /crypto\.subtle\.sign/);
 assert.match(worker, /\`\$\{timestamp\}:\$\{rawBody\}\`/);
 assert.match(worker, /Math\.abs\([\s\S]*nowSeconds - unixTime[\s\S]*\) > 5/);
 assert.match(worker, /ATLAS_PADDLE_WEBHOOK_SECRET/);
+assert.match(worker, /ATLAS_PADDLE_LIVE_WEBHOOK_SECRET/);
+assert.match(worker, /ATLAS_PADDLE_API_KEY/);
+assert.match(worker, /ATLAS_PADDLE_LIVE_API_KEY/);
 assert.match(worker, /ATLAS_PADDLE_ENVIRONMENT/);
+assert.match(
+  worker,
+  /paddleEnvironment === 'live'[\s\S]*ATLAS_PADDLE_LIVE_API_KEY/
+);
+assert.match(
+  worker,
+  /paddleEnvironment === 'live'[\s\S]*ATLAS_PADDLE_LIVE_WEBHOOK_SECRET/
+);
 assert.match(worker, /atlas_apply_paddle_event_v1/);
 assert.match(worker, /transaction\.completed/);
 assert.match(worker, /Atlas Pro is active\./);
@@ -37,8 +48,14 @@ assert.match(
 );
 
 assert.match(config, /const environment = 'sandbox'/);
-assert.match(config, /const clientToken = 'test_/);
-assert.match(config, /const proMonthly = 'pri_01m32eh22evm0xjtcrm71yndnx'/);
+assert.match(
+  config,
+  /sandbox:[\s\S]*clientToken:[\s\S]*'test_4daba62599c4c2a77ca0bed2f0e'[\s\S]*proMonthly:[\s\S]*'pri_01m32eh22evm0xjtcrm71yndnx'/
+);
+assert.match(
+  config,
+  /live:[\s\S]*clientToken:\s*''[\s\S]*proMonthly:[\s\S]*'pri_01m3apem2h7h1g2bt44j2hnxqp'/
+);
 assert.match(
   config,
   /environment === 'sandbox'[\s\S]*clientToken\.startsWith\('test_'\)/
@@ -65,15 +82,15 @@ assert.match(
 );
 assert.match(
   pricing,
-  /atlas-paddle-config\.js\?v=20260924-cutover1/
+  /atlas-paddle-config\.js\?v=20260924-livecatalog1/
 );
 assert.match(
   checkout,
-  /atlas-paddle-config\.js\?v=20260924-cutover1/
+  /atlas-paddle-config\.js\?v=20260924-livecatalog1/
 );
 assert.match(
   subscription,
-  /atlas-paddle-config\.js\?v=20260924-cutover1/
+  /atlas-paddle-config\.js\?v=20260924-livecatalog1/
 );
 assert.doesNotMatch(
   pricing + checkout + subscription,

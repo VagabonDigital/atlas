@@ -85,19 +85,61 @@ assert.match(
 assert.match(
   checkout,
   /name === 'checkout\.loaded'[\s\S]*?revealCheckoutWhenReady\(\)/,
-  'Contextual Pro checkout must keep Atlas visible after checkout.loaded until presentation readiness is proven.'
+  'Contextual Pro checkout must keep the Atlas loading veil until Paddle reports checkout.loaded.'
 );
 
 assert.match(
   checkout,
-  /captureCheckoutFrameBaseline\(\);[\s\S]*?showCheckoutLoading\(\);[\s\S]*?\.Checkout[\s\S]*?\.open\(\{/,
-  'Contextual checkout must snapshot existing frames before Paddle mounts its checkout frame.'
+  /inlineMobile:[\s\S]*?isMobileCheckoutPresentation\(\)/,
+  'Contextual checkout must choose its presentation mode from the current device layout.'
 );
 
 assert.match(
   checkout,
-  /rect\.height >=[\s\S]*?viewport\.height \* 0\.94[\s\S]*?stableFrames >= 4[\s\S]*?minimumSettle/,
-  'Mobile checkout must reach full viewport geometry, remain stable, and clear the post-load settle window before Atlas reveals Paddle.'
+  /activeCheckout\.inlineMobile[\s\S]*?displayMode:[\s\S]*?'inline'[\s\S]*?frameTarget:[\s\S]*?'atlas-pro-checkout-inline-frame'/,
+  'Mobile checkout must use Paddle inline mode inside the Atlas-owned full-screen shell.'
+);
+
+assert.match(
+  checkout,
+  /displayMode:[\s\S]*?'overlay'[\s\S]*?variant:[\s\S]*?'one-page'/,
+  'Desktop checkout must retain the working Paddle overlay presentation.'
+);
+
+assert.match(
+  checkout,
+  /atlas-pro-checkout-mobile-shell[\s\S]*?position: fixed;[\s\S]*?inset: 0;/,
+  'Atlas must own the entire mobile checkout viewport while Paddle is inline.'
+);
+
+assert.match(
+  checkout,
+  /activeCheckout\?\.inlineMobile[\s\S]*?\? 1600[\s\S]*?: 120/,
+  'Mobile inline checkout must keep the Atlas veil up through Paddle’s internal loading-to-form transition.'
+);
+
+assert.match(
+  checkout,
+  /atlas-pro-checkout-mobile-context[\s\S]*?Secure checkout[\s\S]*?atlas-pro-checkout-mobile-stage/,
+  'Mobile checkout shell must provide stable Atlas-owned context and a centered checkout surface.'
+);
+
+assert.match(
+  checkout,
+  /Back to Atlas/,
+  'Mobile checkout must provide an explicit Atlas-owned way back instead of a generic close icon.'
+);
+
+assert.equal(
+  (checkout.match(/showAddTaxId:/g) || []).length,
+  2,
+  'Tax ID entry must be hidden in both mobile inline and desktop overlay checkout modes.'
+);
+
+assert.doesNotMatch(
+  checkout,
+  /captureCheckoutFrameBaseline|checkoutFrameCoversViewport|stableFrames >= 4/,
+  'Atlas must not infer readiness from the outer Paddle iframe geometry.'
 );
 
 assert.match(
@@ -161,12 +203,12 @@ assert.match(
 
 assert.match(
   chrome,
-  /atlas-account-gate\.js\?v=20260924-checkoutsettle1/
+  /atlas-account-gate\.js\?v=20260924-mobilecheckout3/
 );
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260924-checkoutsettle1/
+  /atlas-account-chrome\.js\?v=20260924-mobilecheckout3/
 );
 
 assert.match(
@@ -239,7 +281,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260924-checkoutsettle1/
+  /atlas-pro-checkout\.js\?v=20260924-mobilecheckout3/
 );
 
 assert.match(

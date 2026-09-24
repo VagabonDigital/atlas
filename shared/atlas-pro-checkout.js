@@ -14,13 +14,15 @@
     const PADDLE_SRC =
         'https://cdn.paddle.com/paddle/v2/paddle.js';
     const CONFIG_SRC =
-        '/shared/atlas-paddle-config.js?v=20260924-cutover1';
+        '/shared/atlas-paddle-config.js?v=20260924-livecatalog1';
     const STYLE_ID =
         'atlas-pro-checkout-success-style';
     const SCROLL_STYLE_ID =
         'atlas-pro-checkout-scroll-lock-style';
     const LOADING_STYLE_ID =
         'atlas-pro-checkout-loading-style';
+    const MOBILE_SHELL_STYLE_ID =
+        'atlas-pro-checkout-mobile-shell-style';
 
     let paddlePromise = null;
     let configPromise = null;
@@ -31,9 +33,7 @@
     let checkoutLoadingLayer = null;
     let checkoutLoadingTimer = null;
     let checkoutRevealTimer = null;
-    let checkoutPresentationRaf = null;
-    let checkoutFrameBaseline =
-        new Set();
+    let mobileCheckoutShell = null;
 
     function clean(value) {
         return String(value || '').trim();
@@ -398,12 +398,6 @@
             checkoutRevealTimer = null;
         }
 
-        if (checkoutPresentationRaf) {
-            window.cancelAnimationFrame(
-                checkoutPresentationRaf
-            );
-            checkoutPresentationRaf = null;
-        }
     }
 
     function hideCheckoutLoading() {
@@ -427,17 +421,6 @@
         );
     }
 
-    function captureCheckoutFrameBaseline() {
-        checkoutFrameBaseline =
-            new Set(
-                Array.from(
-                    document.querySelectorAll(
-                        'iframe'
-                    )
-                )
-            );
-    }
-
     function isMobileCheckoutPresentation() {
         return Boolean(
             window.matchMedia?.(
@@ -449,244 +432,253 @@
         );
     }
 
-    function checkoutViewportBox() {
-        const viewport =
-            window.visualViewport;
-
-        return {
-            left:
-                Math.max(
-                    0,
-                    Number(
-                        viewport?.offsetLeft
-                    ) || 0
-                ),
-            top:
-                Math.max(
-                    0,
-                    Number(
-                        viewport?.offsetTop
-                    ) || 0
-                ),
-            width:
-                Math.max(
-                    1,
-                    Number(
-                        viewport?.width
-                    ) ||
-                    Number(
-                        window.innerWidth
-                    ) ||
-                    1
-                ),
-            height:
-                Math.max(
-                    1,
-                    Number(
-                        viewport?.height
-                    ) ||
-                    Number(
-                        window.innerHeight
-                    ) ||
-                    1
-                )
-        };
+    function mobileCheckoutFrameHeight() {
+        return '620';
     }
 
-    function findCheckoutFrame() {
-        const candidates =
-            Array.from(
-                document.querySelectorAll(
-                    'iframe'
-                )
+    function ensureMobileCheckoutShellStyles() {
+        if (
+            document.getElementById(
+                MOBILE_SHELL_STYLE_ID
             )
-                .filter(frame =>
-                    !checkoutFrameBaseline
-                        .has(frame)
-                )
-                .map(frame => ({
-                    frame,
-                    rect:
-                        frame
-                            .getBoundingClientRect()
-                }))
-                .filter(candidate =>
-                    candidate.rect.width > 0 &&
-                    candidate.rect.height > 0
-                )
-                .sort(
-                    (a, b) =>
-                        (
-                            b.rect.width *
-                            b.rect.height
-                        ) -
-                        (
-                            a.rect.width *
-                            a.rect.height
-                        )
-                );
-
-        return candidates[0] || null;
-    }
-
-    function checkoutFrameCoversViewport(
-        rect
-    ) {
-        if (!rect) return false;
-
-        const viewport =
-            checkoutViewportBox();
-        const tolerance = 18;
-
-        return (
-            rect.width >=
-                viewport.width * 0.94 &&
-            rect.height >=
-                viewport.height * 0.94 &&
-            rect.left <=
-                viewport.left +
-                    tolerance &&
-            rect.top <=
-                viewport.top +
-                    tolerance &&
-            rect.right >=
-                viewport.left +
-                    viewport.width -
-                    tolerance &&
-            rect.bottom >=
-                viewport.top +
-                    viewport.height -
-                    tolerance
-        );
-    }
-
-    function rectIsStable(
-        previous,
-        current
-    ) {
-        if (!previous || !current) {
-            return false;
+        ) {
+            return;
         }
 
-        const epsilon = 1.5;
+        const style =
+            document.createElement('style');
 
-        return (
-            Math.abs(
-                previous.width -
-                current.width
-            ) <= epsilon &&
-            Math.abs(
-                previous.height -
-                current.height
-            ) <= epsilon &&
-            Math.abs(
-                previous.top -
-                current.top
-            ) <= epsilon &&
-            Math.abs(
-                previous.left -
-                current.left
-            ) <= epsilon
+        style.id = MOBILE_SHELL_STYLE_ID;
+        style.textContent = `
+            .atlas-pro-checkout-mobile-shell[hidden] {
+                display: none !important;
+            }
+
+            .atlas-pro-checkout-mobile-shell {
+                position: fixed;
+                inset: 0;
+                z-index: 2147483645;
+                display: flex;
+                min-width: 0;
+                flex-direction: column;
+                overflow: hidden;
+                background:
+                    var(--atlas-modal-surface, var(--surface, #fffdf9));
+                color:
+                    var(--atlas-modal-heading, var(--text-heading, #211f1b));
+                font-family:
+                    "DM Sans", system-ui, sans-serif;
+            }
+
+            .atlas-pro-checkout-mobile-head {
+                min-height: 64px;
+                display: flex;
+                flex: 0 0 auto;
+                align-items: center;
+                justify-content: space-between;
+                gap: 16px;
+                padding:
+                    max(10px, env(safe-area-inset-top))
+                    14px
+                    10px;
+                border-bottom: 1px solid
+                    var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .16)));
+                background:
+                    var(--atlas-modal-surface, var(--surface, #fffdf9));
+            }
+
+            .atlas-pro-checkout-mobile-identity {
+                min-width: 0;
+                display: flex;
+                align-items: baseline;
+                gap: 9px;
+            }
+
+            .atlas-pro-checkout-mobile-brand {
+                margin: 0;
+                font-family:
+                    "DM Serif Display", Georgia, serif;
+                font-size: 1.45rem;
+                line-height: 1;
+                font-weight: 400;
+                color:
+                    var(--atlas-modal-heading, var(--text-heading, #211f1b));
+            }
+
+            .atlas-pro-checkout-mobile-brand span {
+                color:
+                    var(--atlas-modal-accent, var(--accent, #59617d));
+            }
+
+            .atlas-pro-checkout-mobile-context {
+                color:
+                    var(--atlas-modal-muted, var(--text-muted, #7b7469));
+                font-size: .78rem;
+                font-weight: 600;
+                white-space: nowrap;
+            }
+
+            .atlas-pro-checkout-mobile-close {
+                min-height: 40px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                flex: 0 0 auto;
+                padding: 0 12px;
+                border: 1px solid
+                    var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .16)));
+                border-radius: 12px;
+                background:
+                    var(--atlas-modal-control-surface, transparent);
+                color:
+                    var(--atlas-modal-heading, var(--text-heading, #211f1b));
+                cursor: pointer;
+                font: 600 .78rem/1 "DM Sans", system-ui, sans-serif;
+            }
+
+            .atlas-pro-checkout-mobile-close:hover,
+            .atlas-pro-checkout-mobile-close:focus-visible {
+                border-color:
+                    var(--atlas-modal-border-strong, rgba(49, 45, 38, .26));
+                background:
+                    var(--atlas-modal-control-hover, rgba(49, 45, 38, .05));
+            }
+
+            .atlas-pro-checkout-mobile-body {
+                min-height: 0;
+                flex: 1 1 auto;
+                padding: 12px 10px 28px;
+                overflow-y: auto;
+                overscroll-behavior: contain;
+                -webkit-overflow-scrolling: touch;
+                background:
+                    var(--atlas-modal-surface-low, var(--surface-muted, #f5f1e9));
+            }
+
+            .atlas-pro-checkout-mobile-stage {
+                width: min(100%, 520px);
+                min-height: 0;
+                margin: 0 auto;
+                overflow: hidden;
+                border: 1px solid
+                    var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .14)));
+                border-radius: 18px;
+                background:
+                    var(--atlas-modal-surface, var(--surface, #fffdf9));
+                box-shadow:
+                    0 10px 34px rgba(31, 28, 23, .08);
+            }
+
+            .atlas-pro-checkout-inline-frame {
+                width: 100%;
+                min-height: 0;
+                background:
+                    var(--atlas-modal-surface, var(--surface, #fffdf9));
+            }
+        `;
+
+        document.head.appendChild(style);
+    }
+
+    function ensureMobileCheckoutShell() {
+        if (mobileCheckoutShell) {
+            return mobileCheckoutShell;
+        }
+
+        ensureMobileCheckoutShellStyles();
+
+        mobileCheckoutShell =
+            document.createElement('section');
+
+        mobileCheckoutShell.className =
+            'atlas-pro-checkout-mobile-shell';
+        mobileCheckoutShell.hidden = true;
+        mobileCheckoutShell.setAttribute(
+            'aria-label',
+            'Atlas Pro checkout'
         );
+        mobileCheckoutShell.innerHTML = `
+            <header class="atlas-pro-checkout-mobile-head">
+                <div class="atlas-pro-checkout-mobile-identity">
+                    <p class="atlas-pro-checkout-mobile-brand">
+                        Atlas<span>.</span>
+                    </p>
+                    <span class="atlas-pro-checkout-mobile-context">
+                        Secure checkout
+                    </span>
+                </div>
+                <button
+                    class="atlas-pro-checkout-mobile-close"
+                    type="button"
+                    aria-label="Close checkout"
+                    data-atlas-pro-checkout-mobile-close
+                >
+                    <span aria-hidden="true">←</span>
+                    Back to Atlas
+                </button>
+            </header>
+            <div class="atlas-pro-checkout-mobile-body">
+                <div class="atlas-pro-checkout-mobile-stage">
+                    <div class="atlas-pro-checkout-inline-frame"></div>
+                </div>
+            </div>
+        `;
+
+        mobileCheckoutShell
+            .querySelector(
+                '[data-atlas-pro-checkout-mobile-close]'
+            )
+            ?.addEventListener(
+                'click',
+                () => {
+                    try {
+                        window.Paddle
+                            ?.Checkout
+                            ?.close?.();
+                    } catch {
+                        hideMobileCheckoutShell();
+                        hideCheckoutLoading();
+                        setCheckoutScrollLocked(
+                            false
+                        );
+                    }
+                }
+            );
+
+        document.body.appendChild(
+            mobileCheckoutShell
+        );
+
+        return mobileCheckoutShell;
+    }
+
+    function showMobileCheckoutShell() {
+        const shell =
+            ensureMobileCheckoutShell();
+
+        shell.hidden = false;
+    }
+
+    function hideMobileCheckoutShell() {
+        if (!mobileCheckoutShell) {
+            return;
+        }
+
+        mobileCheckoutShell.hidden = true;
     }
 
     function waitForCheckoutPresentation() {
-        if (
-            !isMobileCheckoutPresentation()
-        ) {
-            return new Promise(resolve => {
-                checkoutRevealTimer =
-                    window.setTimeout(
-                        () => resolve(true),
-                        180
-                    );
-            });
-        }
+        const delay =
+            activeCheckout?.inlineMobile
+                ? 1600
+                : 120;
 
         return new Promise(resolve => {
-            const startedAt =
-                performance.now();
-            const minimumSettle = 520;
-            const fallbackAfter = 1800;
-            let stableFrames = 0;
-            let previousRect = null;
-
-            function inspect() {
-                if (
-                    !activeCheckout ||
-                    activeCheckout
-                        .presentationSettled
-                ) {
-                    checkoutPresentationRaf =
-                        null;
-                    resolve(false);
-                    return;
-                }
-
-                const candidate =
-                    findCheckoutFrame();
-                const rect =
-                    candidate?.rect || null;
-                const covers =
-                    checkoutFrameCoversViewport(
-                        rect
-                    );
-
-                if (covers) {
-                    stableFrames =
-                        rectIsStable(
-                            previousRect,
-                            rect
-                        )
-                            ? stableFrames + 1
-                            : 1;
-                    previousRect = {
-                        width:
-                            rect.width,
-                        height:
-                            rect.height,
-                        top:
-                            rect.top,
-                        left:
-                            rect.left
-                    };
-
-                    if (
-                        stableFrames >= 4 &&
-                        performance.now() -
-                            startedAt >=
-                            minimumSettle
-                    ) {
-                        checkoutPresentationRaf =
-                            null;
-                        resolve(true);
-                        return;
-                    }
-                } else {
-                    stableFrames = 0;
-                    previousRect = null;
-                }
-
-                if (
-                    performance.now() -
-                        startedAt >=
-                    fallbackAfter
-                ) {
-                    checkoutPresentationRaf =
-                        null;
-                    resolve(true);
-                    return;
-                }
-
-                checkoutPresentationRaf =
-                    window.requestAnimationFrame(
-                        inspect
-                    );
-            }
-
-            checkoutPresentationRaf =
-                window.requestAnimationFrame(
-                    inspect
+            checkoutRevealTimer =
+                window.setTimeout(
+                    () => resolve(true),
+                    delay
                 );
         });
     }
@@ -1163,6 +1155,7 @@
                 true
             );
             hideCheckoutLoading();
+            hideMobileCheckoutShell();
             if (activeCheckout) {
                 activeCheckout.completed = true;
             }
@@ -1184,6 +1177,7 @@
                 false
             );
             hideCheckoutLoading();
+            hideMobileCheckoutShell();
             setCheckoutScrollLocked(
                 false
             );
@@ -1228,6 +1222,7 @@
                     false
                 );
                 hideCheckoutLoading();
+                hideMobileCheckoutShell();
                 setCheckoutScrollLocked(
                     false
                 );
@@ -1292,7 +1287,9 @@
             onActivated,
             completed: false,
             presentationSettled: false,
-            resolvePresentation: null
+            resolvePresentation: null,
+            inlineMobile:
+                isMobileCheckoutPresentation()
         };
 
         let access = null;
@@ -1383,30 +1380,61 @@
                             resolve;
                 });
 
-            captureCheckoutFrameBaseline();
+            if (
+                activeCheckout.inlineMobile
+            ) {
+                showMobileCheckoutShell();
+            }
+
             showCheckoutLoading();
 
             setCheckoutScrollLocked(
                 true
             );
 
-            window.Paddle
-                .Checkout
-                .open({
-                    settings: {
+            const checkoutTheme =
+                document
+                    .documentElement
+                    .dataset
+                    .theme ===
+                'night'
+                    ? 'dark'
+                    : 'light';
+
+            const checkoutSettings =
+                activeCheckout.inlineMobile
+                    ? {
+                        displayMode:
+                            'inline',
+                        variant:
+                            'one-page',
+                        theme:
+                            checkoutTheme,
+                        showAddTaxId:
+                            false,
+                        frameTarget:
+                            'atlas-pro-checkout-inline-frame',
+                        frameInitialHeight:
+                            mobileCheckoutFrameHeight(),
+                        frameStyle:
+                            'width:100%;min-width:312px;background-color:transparent;border:none;'
+                    }
+                    : {
                         displayMode:
                             'overlay',
                         variant:
                             'one-page',
                         theme:
-                            document
-                                .documentElement
-                                .dataset
-                                .theme ===
-                            'night'
-                                ? 'dark'
-                                : 'light'
-                    },
+                            checkoutTheme,
+                        showAddTaxId:
+                            false
+                    };
+
+            window.Paddle
+                .Checkout
+                .open({
+                    settings:
+                        checkoutSettings,
                     items: [
                         {
                             priceId:
@@ -1438,6 +1466,7 @@
                 false
             );
             hideCheckoutLoading();
+            hideMobileCheckoutShell();
             setCheckoutScrollLocked(
                 false
             );
