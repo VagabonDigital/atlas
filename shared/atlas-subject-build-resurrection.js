@@ -900,6 +900,39 @@
                             return false;
                         }
 
+                        const workerJob =
+                            runtime.Client
+                                ?.getState?.()
+                                ?.queue
+                                ?.find?.(
+                                    job =>
+                                        String(
+                                            job?.subjectId ||
+                                            ''
+                                        ).trim() === id
+                                ) ||
+                            null;
+
+                        if (
+                            [
+                                'foreground-owned',
+                                'yielding-to-foreground'
+                            ].includes(
+                                String(
+                                    workerJob?.status ||
+                                    ''
+                                ).trim()
+                            )
+                        ) {
+                            /*
+                             * The subject page has already claimed the build.
+                             * Let the foreground completion path finish under
+                             * the same canonical lock rather than racing a
+                             * second page-side durable commit.
+                             */
+                            return false;
+                        }
+
                         const subject =
                             await runtime.Subjects
                                 .getSubject(id);
