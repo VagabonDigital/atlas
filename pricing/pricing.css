@@ -1,6 +1,6 @@
 /* Pricing: a personal teaching proposition, with the offer in the opening. */
 body { background: var(--surface); }
-.frame { width: min(1180px, calc(100% - 80px)); }
+.frame { width: min(calc(100% - 48px), var(--frame)); margin-inline: auto; }
 main { overflow: clip; }
 h1, h2, h3 { color: var(--text-heading); font-family: var(--font-display); font-weight: 400; letter-spacing: -.035em; }
 h1 { font-size: clamp(58px, 6.4vw, 88px); line-height: 1.02; }
@@ -89,10 +89,10 @@ html[data-atlas-account-hint="account"] .free-entry { display: none; }
 .faq-list summary::after { content: '+'; flex-shrink: 0; font-size: 20px; font-weight: 400; color: var(--accent-ink); }
 .faq-list details[open] summary::after { content: '−'; }
 .faq-list details p { padding: 0 30px 22px 0; font-size: 14px; line-height: 1.8; }
-.footer { border-top: 1px solid var(--border); }
-.footer-inner { min-height: 85px; display: flex; align-items: center; justify-content: space-between; gap: 22px; font-size: 12px; color: var(--text-muted); }
-.footer-links { display: flex; gap: 22px; flex-wrap: wrap; }
-.footer-links a { text-decoration: none; }
+.footer { border-top: 1px solid var(--border); color: var(--text-muted); }
+.footer-inner { min-height: 82px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: .82rem; }
+.footer-links { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.footer-links a { color: var(--text-muted); text-decoration: none; }
 .footer-links a:hover { color: var(--text-heading); }
 section[id] { scroll-margin-top: 84px; }
 html[data-theme="night"] .offer { background: #294b46; border: 1px solid #60867b; }
@@ -105,13 +105,9 @@ html[data-theme="night"] .proof-image { color-scheme: light; }
   h1 { font-size: 64px; }
 }
 @media (max-width: 760px) {
-  .frame { width: calc(100% - 40px); }
-  .header-inner { gap: 6px; min-height: 60px; }
+  .header-inner { gap: 6px; }
   .nav { display: none; }
   .pricing-header-pro { margin-left: auto; }
-  .header-inner .atlas-inside-account-explore { display: none !important; }
-  .header-inner .atlas-inside-account-create { display: none !important; }
-  .appearance-toggle { width: 34px; height: 34px; box-shadow: none; }
   .hero { padding: 38px 0 28px; }
   .hero-grid { grid-template-columns: 1fr; gap: 28px; }
   .hero-copy { padding: 0; }
@@ -158,6 +154,11 @@ html[data-theme="night"] .proof-image { color-scheme: light; }
   .faq-list summary { font-size: 14px; min-height: 66px; }
   .footer-inner { padding-block: 26px; align-items: start; flex-direction: column; gap: 16px; }
   .footer-links { gap: 20px; }
+}
+@media (max-width: 720px) {
+  .frame { width: min(calc(100% - 30px), var(--frame)); }
+  .header-inner { width: 100%; height: 56px; min-height: 0; padding: 0 15px; }
+  .appearance-toggle { display: none; }
 }
 @media (max-width: 360px) {
   h1 { font-size: 39px; }

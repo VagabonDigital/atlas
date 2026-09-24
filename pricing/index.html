@@ -33,7 +33,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="/shared/atlas-account-chrome.css?v=20260921-insideheader1" data-atlas-account-chrome-styles>
+  <link rel="stylesheet" href="/shared/atlas-account-chrome.css?v=20260924-returnlabel1" data-atlas-account-chrome-styles>
   <script>
     (function () {
       var hasAccount = false;
@@ -91,7 +91,7 @@
       --font-display: "DM Serif Display", Georgia, serif;
       --font-body: "DM Sans", system-ui, sans-serif;
       --font-accent: "Playfair Display", Georgia, serif;
-      --frame: 1180px;
+      --frame: 1120px;
       --copy: 730px;
       --motion: 220ms cubic-bezier(.2,.75,.2,1);
       --theme-motion: 280ms cubic-bezier(.4,0,.2,1);
@@ -151,7 +151,15 @@
       -webkit-backdrop-filter:blur(16px) saturate(1.1);
     }
     .header-inner {
-      min-height:56px; display:flex; align-items:center; gap:8px;
+      width:100%;
+      max-width:none;
+      margin-inline:0;
+      padding-inline:1.5rem;
+      height:56px;
+      min-height:0;
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
     .atlas-inside-account-entry {
       margin-left:0;
@@ -166,33 +174,21 @@
       margin-left:auto;
       display:flex;
       align-items:center;
-      gap:8px;
+      gap:4px;
     }
     .nav a {
-      min-height:36px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
       white-space:nowrap;
-      padding:0 12px;
-      border:1px solid var(--border-strong);
+      padding:7px 9px;
       border-radius:999px;
-      background:var(--surface-panel);
-      color:var(--text-body);
-      font-size:12px;
-      font-weight:600;
+      color:var(--text-muted);
+      font-size:13px;
       text-decoration:none;
-      transition:
-        transform var(--motion),
-        color var(--motion),
-        background var(--motion),
-        border-color var(--motion);
+      transition:color var(--motion),background var(--motion);
     }
     .nav a:hover,
     .nav a:focus-visible {
-      transform:translateY(-1px);
       color:var(--text-heading);
-      background:var(--surface-muted);
+      background:var(--accent-soft);
     }
     .pricing-header-pro {
       min-height:36px;
@@ -228,10 +224,18 @@
       display:inline;
     }
     .appearance-toggle {
-      width:38px; height:38px; display:grid; place-items:center; padding:0;
+      width:38px; height:38px; min-width:38px; min-height:38px;
+      display:grid; place-items:center; padding:0;
       border:1px solid var(--border); border-radius:12px;
       background:var(--surface-panel); color:var(--text-muted); box-shadow:var(--shadow-sm);
       cursor:pointer;
+      transition:var(--motion);
+    }
+    .appearance-toggle:hover,
+    .appearance-toggle:focus-visible {
+      color:var(--text-heading);
+      border-color:var(--border-strong);
+      background:var(--surface-panel);
     }
     .appearance-icon { width:16px; height:16px; }
     .appearance-icon--sun { display:none; }
@@ -344,7 +348,7 @@
       <button class="pricing-header-pro" type="button" data-pricing-header-pro><span class="pricing-header-pro-label--get">Get Pro</span><span class="pricing-header-pro-label--manage">Manage Pro</span></button>
       <div class="atlas-inside-account-entry" data-atlas-account-entry data-account-state="pending"
         aria-label="Atlas account actions">
-        <a class="atlas-inside-account-action atlas-inside-account-explore" href="/?entry=product" data-atlas-product-entry>Explore Atlas</a>
+        <a class="atlas-inside-account-action atlas-inside-account-explore" href="/?entry=product" data-atlas-product-entry><span class="atlas-inside-account-explore-label">Explore Atlas</span><span class="atlas-inside-account-return-label">Return to Atlas</span></a>
         <button class="atlas-inside-account-action atlas-inside-account-sign-in" type="button"
           data-atlas-inside-sign-in>Sign in</button>
         <button class="atlas-inside-account-action atlas-inside-account-create" type="button"
@@ -511,7 +515,7 @@
   <script src="/shared/atlas-legal-appearance.js?v=20260920-legal-theme1"></script>
   <script src="/shared/atlas-return-intent.js?v=20260916-access1"></script>
   <script src="/shared/atlas-access-bootstrap.js?v=20260921-insideheader1"></script>
-  <script src="/shared/atlas-account-chrome.js?v=20260923-prohierarchy1"></script>
+  <script src="/shared/atlas-account-chrome.js?v=20260924-returnlabel1"></script>
   <script>
     (function () {
       'use strict';
