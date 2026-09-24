@@ -1,0 +1,32 @@
+name: Batch 5 SharedWorker Experiment
+
+on:
+  push:
+    branches:
+      - experiment/service-worker-subject-builds
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run Batch 0-5 subject-build contracts
+        run: |
+          set -euo pipefail
+          node tests/atlas-subject-build-runner-foundation.test.js
+          node tests/atlas-subject-build-worker-neutral.test.js
+          node tests/atlas-subject-build-shared-worker-foundation.test.js
+          node tests/atlas-subject-build-shared-worker-generation.test.js
+          node tests/atlas-subject-build-foreground-handoff.test.js
+          node tests/atlas-incomplete-ai-subject-recovery.test.js
+          node tests/atlas-compass-unfinished-build-lifecycle.test.js
+          node tests/atlas-compass-unfinished-build-projection.test.js
+          node tests/atlas-subject-runtime-cross-tab.test.js
+          node tests/atlas-subject-checkpoint-persistence.test.js
+          node tests/atlas-key-language-resilience.test.js
+          node tests/atlas-ai-subject-quota-6-2.test.js
+          node tests/atlas-subject-build-resurrection.test.js
