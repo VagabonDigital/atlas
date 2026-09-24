@@ -904,7 +904,7 @@ async function testWorkerClient() {
         supported
             .workerCalls[0]
             .url,
-        '/shared/atlas-subject-build-shared-worker.js?v=20260924-buildworker3'
+        '/shared/atlas-subject-build-shared-worker.js?v=20260924-buildworker4'
     );
 
     assert.equal(
@@ -957,7 +957,7 @@ async function testWorkerClient() {
                 reason:
                     'token-expiring',
                 workerVersion:
-                    '20260924-buildworker3'
+                    '20260924-buildworker4'
             }
         });
 
@@ -1025,7 +1025,7 @@ function testBootstrapContract() {
 
     assert.match(
         registrySource,
-        /atlas-subject-build-worker-client\.js\?v=20260924-buildworker3/
+        /atlas-subject-build-worker-client\.js\?v=20260924-buildworker4/
     );
 
     assert.match(
@@ -1043,7 +1043,7 @@ function testBootstrapContract() {
 
             assert.match(
                 source,
-                /atlas-content-registry\.js\?v=20260924-buildworker3/,
+                /atlas-content-registry\.js\?v=20260924-buildworker4/,
                 `${path} must load the shared SharedWorker bootstrap.`
             );
         }
