@@ -941,7 +941,9 @@ function handleAuth(
                     {}
                 ),
             updatedAt:
-                now()
+                now(),
+            refreshRequestedAt:
+                null
         }
     );
 
@@ -1222,11 +1224,59 @@ self.setInterval(
             }
         );
 
+        const currentTime =
+            now();
+
+        authByUser.forEach(
+            (auth, userId) => {
+                const expiresAtMs =
+                    Number(
+                        auth?.expiresAt
+                    ) > 0
+                        ? Number(
+                            auth.expiresAt
+                        ) * 1000
+                        : null;
+
+                if (
+                    !expiresAtMs ||
+                    expiresAtMs -
+                        currentTime >
+                        60000
+                ) {
+                    return;
+                }
+
+                const requestedAt =
+                    Number(
+                        auth
+                            ?.refreshRequestedAt
+                    ) || 0;
+
+                if (
+                    requestedAt &&
+                    currentTime -
+                        requestedAt <
+                        30000
+                ) {
+                    return;
+                }
+
+                auth.refreshRequestedAt =
+                    currentTime;
+
+                requestAuthForUser(
+                    userId,
+                    'token-expiring'
+                );
+            }
+        );
+
         broadcast(
             'worker-heartbeat',
             {
                 at:
-                    now(),
+                    currentTime,
                 pageCount:
                     connections.size,
                 queueSize:
