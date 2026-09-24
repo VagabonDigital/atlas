@@ -347,7 +347,9 @@ function publishRuntimeSignal(
                 runtimeMessage:
                     cloneJson(
                         message
-                    )
+                    ),
+                relayRequired:
+                    !runtimeChannel
             }
         );
     }
