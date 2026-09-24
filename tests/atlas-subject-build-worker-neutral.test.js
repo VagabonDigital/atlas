@@ -42,6 +42,26 @@ assert.doesNotMatch(
     /\bdocument\.(?:getElementById|querySelector|createElement|activeElement|body|head)\b/
 );
 
+assert.doesNotMatch(
+    engineSource,
+    /async function runMyVersionEnrichmentOperationWithRetry\(/
+);
+
+assert.doesNotMatch(
+    engineSource,
+    /async function selectMyVersionKeyLanguageOpportunityIds\(/
+);
+
+assert.doesNotMatch(
+    engineSource,
+    /function getMyVersionDiscussionKeyLanguageCandidates\(/
+);
+
+assert.doesNotMatch(
+    engineSource,
+    /function getMyVersionCulturalLensKeyLanguageCandidates\(/
+);
+
 assert.match(
     aiSource,
     /configureRuntime/
