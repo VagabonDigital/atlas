@@ -1045,7 +1045,7 @@
         }
 
         const src =
-            '/shared/atlas-subject-build-worker-client.js?v=20260924-buildworker5';
+            '/shared/atlas-subject-build-worker-client.js?v=20260924-buildworker6';
 
         if (document.readyState === 'loading') {
             document.write(
@@ -1063,6 +1063,43 @@
         script.async = false;
         script.setAttribute(
             'data-atlas-subject-build-worker-client',
+            'true'
+        );
+
+        document.head.appendChild(
+            script
+        );
+    }
+
+    function writeAtlasSubjectBuildResurrectionScript() {
+        if (
+            window.AtlasSubjectBuildResurrection ||
+            document.querySelector(
+                'script[data-atlas-subject-build-resurrection]'
+            )
+        ) {
+            return;
+        }
+
+        const src =
+            '/shared/atlas-subject-build-resurrection.js?v=20260924-resurrection1';
+
+        if (document.readyState === 'loading') {
+            document.write(
+                `<script data-atlas-subject-build-resurrection="true" src="${src}"><\/script>`
+            );
+            return;
+        }
+
+        const script =
+            document.createElement(
+                'script'
+            );
+
+        script.src = src;
+        script.async = false;
+        script.setAttribute(
+            'data-atlas-subject-build-resurrection',
             'true'
         );
 
@@ -1493,6 +1530,8 @@
             loadCompassCloudAuthorityScripts,
         ensureSubjectBuildWorkerClient:
             writeAtlasSubjectBuildWorkerClientScript,
+        ensureSubjectBuildResurrection:
+            writeAtlasSubjectBuildResurrectionScript,
         prewarmCompassCoverImages
     };
 
@@ -1502,6 +1541,7 @@
     writeCloudAuthorityScripts();
     writeAtlasAccessBootstrapScript();
     writeAtlasSubjectBuildWorkerClientScript();
+    writeAtlasSubjectBuildResurrectionScript();
     writeAtlasAccountChromeScript();
     installTutorCreateHandoff();
     registerAll();
