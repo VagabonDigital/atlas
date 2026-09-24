@@ -1045,7 +1045,7 @@
         }
 
         const src =
-            '/shared/atlas-subject-build-worker-client.js?v=20260924-buildworker7';
+            '/shared/atlas-subject-build-worker-client.js?v=20260924-buildworker8';
 
         if (document.readyState === 'loading') {
             document.write(
@@ -1082,7 +1082,7 @@
         }
 
         const src =
-            '/shared/atlas-subject-build-resurrection.js?v=20260924-resurrection2';
+            '/shared/atlas-subject-build-resurrection.js?v=20260924-resurrection3';
 
         if (document.readyState === 'loading') {
             document.write(
