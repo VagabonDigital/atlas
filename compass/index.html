@@ -580,6 +580,7 @@
       --danger-bg-hover: #fee2e2;
       --danger-text: #dc2626;
       --danger-border: #fca5a5;
+      --allowance-low-text: #9a6a2f;
       --dialog-border: 1px solid transparent;
 
       /* Elevation, geometry, typography, and motion */
@@ -706,6 +707,7 @@
         0 7px 18px rgba(var(--accent-rgb), 0.20);
       --launch-inprogress-shadow: var(--launch-shadow);
       --page-bg: var(--page-bg-night);
+      --allowance-low-text: #d6a766;
       --dialog-border: 1px solid var(--border-faint);
       --subject-art-hover-opacity: 0.23;
       --subject-art-preview-opacity: 0.25;
@@ -3280,6 +3282,11 @@
 
     .owned-subject-dialog-allowance-status[hidden] {
       display: none;
+    }
+
+    .owned-subject-dialog-allowance-status.is-low {
+      color: var(--allowance-low-text);
+      font-weight: 600;
     }
 
     .owned-subject-dialog-action-buttons {
@@ -8041,6 +8048,9 @@
       if (allowanceStatus) {
         allowanceStatus.hidden = true;
         allowanceStatus.textContent = '';
+        allowanceStatus.classList.remove(
+          'is-low'
+        );
       }
 
       panel.hidden = false;
@@ -8135,6 +8145,9 @@
 
       allowanceStatus.hidden = true;
       allowanceStatus.textContent = '';
+      allowanceStatus.classList.remove(
+        'is-low'
+      );
 
       if (
         ownedSubjectDialogState
@@ -8166,6 +8179,12 @@
         allowanceStatus.textContent =
           `Free · ${resolved.remaining} left`;
 
+        if (resolved.remaining <= 2) {
+          allowanceStatus.classList.add(
+            'is-low'
+          );
+        }
+
         allowanceStatus.hidden = false;
         return true;
       }
@@ -8179,6 +8198,9 @@
             ? `Pro · ${resolved.remaining} left · resets ${resolved.resetLabel}`
             : `Pro · ${resolved.remaining} left`;
 
+        allowanceStatus.classList.add(
+          'is-low'
+        );
         allowanceStatus.hidden = false;
         return true;
       }
@@ -9203,6 +9225,9 @@
       if (allowanceStatus) {
         allowanceStatus.hidden = true;
         allowanceStatus.textContent = '';
+        allowanceStatus.classList.remove(
+          'is-low'
+        );
       }
 
       ownedSubjectDialogState = null;
