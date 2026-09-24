@@ -519,12 +519,13 @@
             }
 
             .atlas-pro-checkout-mobile-close {
-                width: 40px;
-                height: 40px;
-                display: inline-grid;
-                place-items: center;
+                min-height: 40px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
                 flex: 0 0 auto;
-                padding: 0;
+                padding: 0 12px;
                 border: 1px solid
                     var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .16)));
                 border-radius: 12px;
@@ -533,7 +534,15 @@
                 color:
                     var(--atlas-modal-heading, var(--text-heading, #211f1b));
                 cursor: pointer;
-                font: 400 1.4rem/1 system-ui, sans-serif;
+                font: 600 .78rem/1 "DM Sans", system-ui, sans-serif;
+            }
+
+            .atlas-pro-checkout-mobile-close:hover,
+            .atlas-pro-checkout-mobile-close:focus-visible {
+                border-color:
+                    var(--atlas-modal-border-strong, rgba(49, 45, 38, .26));
+                background:
+                    var(--atlas-modal-control-hover, rgba(49, 45, 38, .05));
             }
 
             .atlas-pro-checkout-mobile-body {
@@ -605,7 +614,8 @@
                     aria-label="Close checkout"
                     data-atlas-pro-checkout-mobile-close
                 >
-                    ×
+                    <span aria-hidden="true">←</span>
+                    Back to Atlas
                 </button>
             </header>
             <div class="atlas-pro-checkout-mobile-body">
@@ -1400,6 +1410,8 @@
                             'one-page',
                         theme:
                             checkoutTheme,
+                        showAddTaxId:
+                            false,
                         frameTarget:
                             'atlas-pro-checkout-inline-frame',
                         frameInitialHeight:
@@ -1413,7 +1425,9 @@
                         variant:
                             'one-page',
                         theme:
-                            checkoutTheme
+                            checkoutTheme,
+                        showAddTaxId:
+                            false
                     };
 
             window.Paddle

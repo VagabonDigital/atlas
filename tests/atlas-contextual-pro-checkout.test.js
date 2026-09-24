@@ -124,6 +124,18 @@ assert.match(
   'Mobile checkout shell must provide stable Atlas-owned context and a centered checkout surface.'
 );
 
+assert.match(
+  checkout,
+  /Back to Atlas/,
+  'Mobile checkout must provide an explicit Atlas-owned way back instead of a generic close icon.'
+);
+
+assert.equal(
+  (checkout.match(/showAddTaxId:/g) || []).length,
+  2,
+  'Tax ID entry must be hidden in both mobile inline and desktop overlay checkout modes.'
+);
+
 assert.doesNotMatch(
   checkout,
   /captureCheckoutFrameBaseline|checkoutFrameCoversViewport|stableFrames >= 4/,
@@ -191,12 +203,12 @@ assert.match(
 
 assert.match(
   chrome,
-  /atlas-account-gate\.js\?v=20260924-mobilecheckout2/
+  /atlas-account-gate\.js\?v=20260924-mobilecheckout3/
 );
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260924-mobilecheckout2/
+  /atlas-account-chrome\.js\?v=20260924-mobilecheckout3/
 );
 
 assert.match(
@@ -269,7 +281,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260924-mobilecheckout2/
+  /atlas-pro-checkout\.js\?v=20260924-mobilecheckout3/
 );
 
 assert.match(
