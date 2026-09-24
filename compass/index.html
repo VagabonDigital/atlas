@@ -3282,16 +3282,16 @@
       display: none;
     }
 
-    .owned-subject-dialog-allowance-status.is-low {
-      color: var(--accent);
-      font-weight: 600;
-    }
-
     .owned-subject-dialog-action-buttons {
       display: flex;
       align-items: center;
       gap: 0.55rem;
       margin-left: auto;
+    }
+
+    .owned-subject-dialog-action-buttons .btn-primary,
+    .owned-subject-dialog-action-buttons .btn-ghost {
+      white-space: nowrap;
     }
 
     .owned-subject-dialog-choice-fields {
@@ -4453,6 +4453,17 @@
 
       .owned-subject-dialog-create-grid {
         grid-template-columns: 1fr;
+      }
+
+      .owned-subject-dialog-action-buttons {
+        gap: 0.4rem;
+      }
+
+      .owned-subject-dialog-action-buttons .btn-primary,
+      .owned-subject-dialog-action-buttons .btn-ghost {
+        min-width: 0;
+        padding-inline: 0.7rem;
+        font-size: 0.78rem;
       }
 
       .subject-card {
@@ -8030,9 +8041,6 @@
       if (allowanceStatus) {
         allowanceStatus.hidden = true;
         allowanceStatus.textContent = '';
-        allowanceStatus.classList.remove(
-          'is-low'
-        );
       }
 
       panel.hidden = false;
@@ -8127,9 +8135,6 @@
 
       allowanceStatus.hidden = true;
       allowanceStatus.textContent = '';
-      allowanceStatus.classList.remove(
-        'is-low'
-      );
 
       if (
         ownedSubjectDialogState
@@ -8161,12 +8166,6 @@
         allowanceStatus.textContent =
           `Free · ${resolved.remaining} left`;
 
-        if (resolved.remaining <= 2) {
-          allowanceStatus.classList.add(
-            'is-low'
-          );
-        }
-
         allowanceStatus.hidden = false;
         return true;
       }
@@ -8180,9 +8179,6 @@
             ? `Pro · ${resolved.remaining} left · resets ${resolved.resetLabel}`
             : `Pro · ${resolved.remaining} left`;
 
-        allowanceStatus.classList.add(
-          'is-low'
-        );
         allowanceStatus.hidden = false;
         return true;
       }
@@ -9207,9 +9203,6 @@
       if (allowanceStatus) {
         allowanceStatus.hidden = true;
         allowanceStatus.textContent = '';
-        allowanceStatus.classList.remove(
-          'is-low'
-        );
       }
 
       ownedSubjectDialogState = null;
