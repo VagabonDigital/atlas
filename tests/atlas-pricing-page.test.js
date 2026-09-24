@@ -213,6 +213,22 @@ assert.doesNotMatch(
 assert.match(pricing, /Paddle\.PricePreview/);
 assert.match(pricing, /Paddle\.Checkout\.open/);
 assert.match(pricing, /checkout\.closed/);
+assert.match(pricing, /data-atlas-checkout-loading/);
+assert.match(
+  pricing,
+  /name === 'checkout\.loaded'[\s\S]*?scheduleCheckoutReveal\(\)/,
+  'Atlas must keep Paddle checkout covered until Paddle reports checkout.loaded.'
+);
+assert.match(
+  pricing,
+  /lockPricingPage\(\);[\s\S]*?showCheckoutLoading\(\);[\s\S]*?Paddle\.Checkout\.open/,
+  'Atlas must show its checkout-loading veil before Paddle mounts the overlay.'
+);
+assert.match(
+  pricing,
+  /20000[\s\S]*?Paddle\.Checkout\.close\(\)[\s\S]*?Checkout took too long to load/,
+  'Atlas must abort a checkout that never reaches the loaded state instead of exposing a partial provider shell.'
+);
 assert.match(
   pricing,
   /window\.innerWidth - document\.documentElement\.clientWidth/,
