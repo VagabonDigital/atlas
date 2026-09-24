@@ -95,8 +95,11 @@ assert.match(
     'generateMomentUpgrade',
     'generateMakeItReal',
     'generateCulturalLensUpgrade',
-    'getDiscussionEnrichmentPlan',
-    'getCulturalLensEnrichmentPlan',
+    /*
+     * Planning is intentionally internal to the shared enrichment
+     * operations. Compass delegates the complete enrichment operation;
+     * the executable assertions below verify the shared planner directly.
+     */
     'enrichDiscussion',
     'enrichCulturalLens',
     'generateCurrentAffairsReading'
