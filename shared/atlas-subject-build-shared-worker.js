@@ -2051,11 +2051,11 @@ async function runJobWithLock(job) {
             'held';
         job.updatedAt =
             now();
-
-        publishQueueState(
-            job.userId
-        );
     }
+
+    publishQueueState(
+        job.userId
+    );
 
     return acquired;
 }
