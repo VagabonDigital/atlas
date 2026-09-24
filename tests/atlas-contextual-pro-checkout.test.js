@@ -23,6 +23,10 @@ const pricing = fs.readFileSync(
   'pricing/index.html',
   'utf8'
 );
+const compass = fs.readFileSync(
+  'compass/index.html',
+  'utf8'
+);
 
 assert.doesNotMatch(
   gate,
@@ -102,6 +106,46 @@ assert.match(
 assert.match(
   pricing,
   /Welcome to Atlas Pro/
+);
+
+assert.match(
+  compass,
+  /atlas-pro-checkout\.js\?v=20260923-contextual1/
+);
+
+assert.match(
+  compass,
+  /free subject creations remaining\./
+);
+
+assert.match(
+  compass,
+  /resolved\.tier === 'pro'[\s\S]*?resolved\.remaining <= 10/
+);
+
+assert.match(
+  compass,
+  /Fresh subject creations reset \$\{resolved\.resetLabel\}/
+);
+
+assert.match(
+  compass,
+  /upgradePrompt =\s*'pro-exhausted'[\s\S]*?confirm\.hidden = true/
+);
+
+assert.match(
+  compass,
+  /Upgrade to Pro · \$12\/month/
+);
+
+assert.match(
+  compass,
+  /source:\s*'compass-create'/
+);
+
+assert.doesNotMatch(
+  compass,
+  /openCompassCreationUpgradePricing/
 );
 
 console.log(
