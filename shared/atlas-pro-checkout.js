@@ -17,6 +17,8 @@
         '/shared/atlas-paddle-config.js?v=20260921-sandbox1';
     const STYLE_ID =
         'atlas-pro-checkout-success-style';
+    const SCROLL_STYLE_ID =
+        'atlas-pro-checkout-scroll-lock-style';
 
     let paddlePromise = null;
     let configPromise = null;
@@ -185,6 +187,50 @@
         return paddlePromise;
     }
 
+    function ensureCheckoutScrollStyles() {
+        if (
+            document.getElementById(
+                SCROLL_STYLE_ID
+            )
+        ) {
+            return;
+        }
+
+        const style =
+            document.createElement('style');
+
+        style.id = SCROLL_STYLE_ID;
+        style.textContent = `
+            html[data-atlas-pro-checkout-open="true"] {
+                overflow: hidden !important;
+                overscroll-behavior: none;
+                scrollbar-gutter: auto !important;
+            }
+
+            html[data-atlas-pro-checkout-open="true"] body {
+                overflow: hidden !important;
+                overscroll-behavior: none;
+            }
+        `;
+
+        document.head.appendChild(style);
+    }
+
+    function setCheckoutScrollLocked(
+        locked
+    ) {
+        if (locked) {
+            ensureCheckoutScrollStyles();
+            document.documentElement.dataset
+                .atlasProCheckoutOpen =
+                    'true';
+            return;
+        }
+
+        delete document.documentElement
+            .dataset.atlasProCheckoutOpen;
+    }
+
     function ensureSuccessStyles() {
         if (
             document.getElementById(
@@ -344,6 +390,9 @@
                 'click',
                 () => {
                     successLayer.hidden = true;
+                    setCheckoutScrollLocked(
+                        false
+                    );
                     activeCheckout?.trigger
                         ?.focus?.();
                     activeCheckout = null;
@@ -567,6 +616,10 @@
         if (
             name === 'checkout.closed'
         ) {
+            setCheckoutScrollLocked(
+                false
+            );
+
             if (
                 activeCheckout &&
                 !activeCheckout.completed
@@ -738,6 +791,10 @@
 
             notifyStatus('');
 
+            setCheckoutScrollLocked(
+                true
+            );
+
             window.Paddle
                 .Checkout
                 .open({
@@ -782,6 +839,10 @@
 
             return true;
         } catch (error) {
+            setCheckoutScrollLocked(
+                false
+            );
+
             console.error(
                 '[AtlasProCheckout] Checkout failed',
                 error
