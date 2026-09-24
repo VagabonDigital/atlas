@@ -3077,7 +3077,18 @@ async function saveMyVersion(options = {}) {
                         ...(completesAiSubjectBuild
                             ? {
                                 aiBuildStatus:
-                                    'complete'
+                                    'complete',
+                                generationContext:
+                                    window.AtlasGenerationContext &&
+                                    typeof window.AtlasGenerationContext ===
+                                        'object' &&
+                                    !Array.isArray(
+                                        window.AtlasGenerationContext
+                                    )
+                                        ? cloneTutorSubjectDocument(
+                                            window.AtlasGenerationContext
+                                        )
+                                        : {}
                             }
                             : {})
                     },
