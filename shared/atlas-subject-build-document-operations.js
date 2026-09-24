@@ -1787,6 +1787,587 @@
             };
         }
 
+        async function runEnrichmentOperationWithRetry(
+            operation,
+            {
+                label = 'Enrichment operation',
+                onEvent = null,
+                event = {}
+            } = {}
+        ) {
+            let lastError = null;
+
+            for (
+                let attempt = 1;
+                attempt <= 2;
+                attempt += 1
+            ) {
+                try {
+                    const result =
+                        await operation();
+
+                    if (result) {
+                        onEvent?.({
+                            type:
+                                'operation-complete',
+                            ...event,
+                            attempt
+                        });
+
+                        return result;
+                    }
+
+                    lastError =
+                        new Error(
+                            `${label} returned no result.`
+                        );
+                } catch (error) {
+                    lastError = error;
+                }
+
+                if (attempt === 1) {
+                    root.console?.warn?.(
+                        `[AtlasSubjectBuildDocumentOperations] ${label} failed. Retrying once.`,
+                        lastError
+                    );
+
+                    onEvent?.({
+                        type:
+                            'operation-retry',
+                        ...event,
+                        attempt,
+                        delayMs: 600
+                    });
+
+                    await new Promise(resolve => {
+                        root.setTimeout(
+                            resolve,
+                            600
+                        );
+                    });
+                }
+            }
+
+            root.console?.error?.(
+                `[AtlasSubjectBuildDocumentOperations] ${label} failed after retry:`,
+                lastError
+            );
+
+            onEvent?.({
+                type:
+                    'operation-failed',
+                ...event,
+                attempts: 2
+            });
+
+            return null;
+        }
+
+        async function enrichDiscussion({
+            languageMode = 'all',
+            subjectSize = 'standard',
+            onEvent = null
+        } = {}) {
+            const plan =
+                await getDiscussionEnrichmentPlan({
+                    languageMode,
+                    subjectSize
+                });
+
+            const mode =
+                plan.mode;
+
+            const candidateIds =
+                Array.isArray(
+                    plan.candidateIds
+                )
+                    ? plan.candidateIds
+                    : [];
+
+            const keySelectionTarget =
+                Math.max(
+                    0,
+                    Math.floor(
+                        Number(
+                            plan.keySelectionTarget
+                        ) || 0
+                    )
+                );
+
+            let selectedKeyIds = [];
+
+            if (keySelectionTarget > 0) {
+                onEvent?.({
+                    type:
+                        'selection-start',
+                    section:
+                        'discussion',
+                    mode,
+                    target:
+                        keySelectionTarget
+                });
+
+                selectedKeyIds =
+                    await selectKeyLanguageOpportunities({
+                        section:
+                            'discussion',
+                        candidates:
+                            Array.isArray(
+                                plan.keyCandidates
+                            )
+                                ? plan.keyCandidates
+                                : [],
+                        limit:
+                            keySelectionTarget
+                    });
+
+                onEvent?.({
+                    type:
+                        'selection-complete',
+                    section:
+                        'discussion',
+                    mode,
+                    selectedIds:
+                        selectedKeyIds.slice()
+                });
+            }
+
+            const selectedKeySet =
+                new Set(
+                    selectedKeyIds
+                );
+
+            const languageIds =
+                mode === 'off'
+                    ? []
+                    : mode === 'key'
+                        ? selectedKeyIds
+                        : candidateIds;
+
+            const operations = [
+                ...languageIds
+                    .map(momentId => ({
+                        kind:
+                            'upgrade',
+                        id:
+                            momentId,
+                        priority:
+                            selectedKeySet
+                                .has(
+                                    momentId
+                                )
+                                ? 'key'
+                                : 'standard'
+                    })),
+
+                ...(
+                    Array.isArray(
+                        plan.makeItRealSetIds
+                    )
+                        ? plan.makeItRealSetIds
+                        : []
+                ).map(setId => ({
+                    kind:
+                        'make-it-real',
+                    id:
+                        setId
+                }))
+            ];
+
+            const completedOperations = [];
+            const failedOperations = [];
+
+            const operationTotals =
+                operations.reduce(
+                    (totals, operation) => {
+                        totals[
+                            operation.kind
+                        ] =
+                            (
+                                totals[
+                                    operation.kind
+                                ] || 0
+                            ) + 1;
+
+                        return totals;
+                    },
+                    {}
+                );
+
+            const completedByKind = {};
+
+            if (operations.length) {
+                onEvent?.({
+                    type:
+                        'operations-start',
+                    section:
+                        'discussion',
+                    mode,
+                    operationTotals: {
+                        ...operationTotals
+                    },
+                    total:
+                        operations.length
+                });
+            }
+
+            for (
+                let index = 0;
+                index < operations.length;
+                index += 1
+            ) {
+                const operation =
+                    operations[index];
+
+                completedByKind[
+                    operation.kind
+                ] =
+                    (
+                        completedByKind[
+                            operation.kind
+                        ] || 0
+                    ) + 1;
+
+                const progress = {
+                    section:
+                        'discussion',
+                    mode,
+                    kind:
+                        operation.kind,
+                    id:
+                        operation.id,
+                    current:
+                        completedByKind[
+                            operation.kind
+                        ],
+                    total:
+                        operationTotals[
+                            operation.kind
+                        ] || 0,
+                    operationIndex:
+                        index + 1,
+                    operationCount:
+                        operations.length
+                };
+
+                onEvent?.({
+                    type:
+                        'operation-start',
+                    ...progress
+                });
+
+                const label =
+                    operation.kind ===
+                        'upgrade'
+                        ? `Discussion language upgrade ${index + 1}`
+                        : `Discussion activity ${index + 1}`;
+
+                const result =
+                    await runEnrichmentOperationWithRetry(
+                        () =>
+                            operation.kind ===
+                                'upgrade'
+                                ? generateMomentUpgrade({
+                                    momentId:
+                                        operation.id,
+                                    priority:
+                                        operation
+                                            .priority
+                                })
+                                : generateMakeItReal({
+                                    setId:
+                                        operation.id
+                                }),
+                        {
+                            label,
+                            onEvent,
+                            event:
+                                progress
+                        }
+                    );
+
+                if (result) {
+                    completedOperations.push(
+                        operation
+                    );
+                } else {
+                    failedOperations.push(
+                        operation
+                    );
+                }
+            }
+
+            const remainingPlan =
+                await getDiscussionEnrichmentPlan({
+                    languageMode:
+                        mode,
+                    subjectSize
+                });
+
+            const remainingLanguage =
+                mode === 'off'
+                    ? 0
+                    : mode === 'all'
+                        ? remainingPlan
+                            .candidateIds
+                            .length
+                        : remainingPlan
+                            .keySelectionTarget;
+
+            const remainingCount =
+                remainingLanguage +
+                remainingPlan
+                    .makeItRealSetIds
+                    .length;
+
+            const result = {
+                section:
+                    'discussion',
+                mode,
+                selectedKeyIds:
+                    selectedKeyIds.slice(),
+                completedOperations:
+                    cloneJson(
+                        completedOperations
+                    ),
+                failedOperations:
+                    cloneJson(
+                        failedOperations
+                    ),
+                remainingCount,
+                complete:
+                    remainingCount === 0
+            };
+
+            onEvent?.({
+                type:
+                    'enrichment-complete',
+                section:
+                    'discussion',
+                mode,
+                completedCount:
+                    completedOperations.length,
+                failedCount:
+                    failedOperations.length,
+                remainingCount,
+                complete:
+                    result.complete
+            });
+
+            return result;
+        }
+
+        async function enrichCulturalLens({
+            languageMode = 'all',
+            subjectSize = 'standard',
+            onEvent = null
+        } = {}) {
+            const plan =
+                await getCulturalLensEnrichmentPlan({
+                    languageMode,
+                    subjectSize
+                });
+
+            const mode =
+                plan.mode;
+
+            const candidateIds =
+                Array.isArray(
+                    plan.candidateIds
+                )
+                    ? plan.candidateIds
+                    : [];
+
+            const keySelectionTarget =
+                Math.max(
+                    0,
+                    Math.floor(
+                        Number(
+                            plan.keySelectionTarget
+                        ) || 0
+                    )
+                );
+
+            let selectedKeyIds = [];
+
+            if (keySelectionTarget > 0) {
+                onEvent?.({
+                    type:
+                        'selection-start',
+                    section:
+                        'cultural-lens',
+                    mode,
+                    target:
+                        keySelectionTarget
+                });
+
+                selectedKeyIds =
+                    await selectKeyLanguageOpportunities({
+                        section:
+                            'cultural-lens',
+                        candidates:
+                            Array.isArray(
+                                plan.keyCandidates
+                            )
+                                ? plan.keyCandidates
+                                : [],
+                        limit:
+                            keySelectionTarget
+                    });
+
+                onEvent?.({
+                    type:
+                        'selection-complete',
+                    section:
+                        'cultural-lens',
+                    mode,
+                    selectedIds:
+                        selectedKeyIds.slice()
+                });
+            }
+
+            const selectedKeySet =
+                new Set(
+                    selectedKeyIds
+                );
+
+            const idsToGenerate =
+                mode === 'off'
+                    ? []
+                    : mode === 'key'
+                        ? selectedKeyIds
+                        : candidateIds;
+
+            const completedIds = [];
+            const failedIds = [];
+
+            if (idsToGenerate.length) {
+                onEvent?.({
+                    type:
+                        'operations-start',
+                    section:
+                        'cultural-lens',
+                    mode,
+                    total:
+                        idsToGenerate.length
+                });
+            }
+
+            for (
+                let index = 0;
+                index < idsToGenerate.length;
+                index += 1
+            ) {
+                const cardId =
+                    idsToGenerate[index];
+
+                const progress = {
+                    section:
+                        'cultural-lens',
+                    mode,
+                    kind:
+                        'upgrade',
+                    id:
+                        cardId,
+                    current:
+                        index + 1,
+                    total:
+                        idsToGenerate.length,
+                    operationIndex:
+                        index + 1,
+                    operationCount:
+                        idsToGenerate.length
+                };
+
+                onEvent?.({
+                    type:
+                        'operation-start',
+                    ...progress
+                });
+
+                const upgrade =
+                    await runEnrichmentOperationWithRetry(
+                        () =>
+                            generateCulturalLensUpgrade({
+                                cardId,
+                                priority:
+                                    selectedKeySet
+                                        .has(
+                                            cardId
+                                        )
+                                        ? 'key'
+                                        : 'standard'
+                            }),
+                        {
+                            label:
+                                `Cultural Lens language upgrade ${index + 1}`,
+                            onEvent,
+                            event:
+                                progress
+                        }
+                    );
+
+                if (upgrade) {
+                    completedIds.push(
+                        cardId
+                    );
+                } else {
+                    failedIds.push(
+                        cardId
+                    );
+                }
+            }
+
+            const remainingPlan =
+                await getCulturalLensEnrichmentPlan({
+                    languageMode:
+                        mode,
+                    subjectSize
+                });
+
+            const remainingCount =
+                mode === 'off'
+                    ? 0
+                    : mode === 'all'
+                        ? remainingPlan
+                            .candidateIds
+                            .length
+                        : remainingPlan
+                            .keySelectionTarget;
+
+            const result = {
+                section:
+                    'cultural-lens',
+                mode,
+                selectedKeyIds:
+                    selectedKeyIds.slice(),
+                completedIds:
+                    completedIds.slice(),
+                failedIds:
+                    failedIds.slice(),
+                remainingCount,
+                complete:
+                    remainingCount === 0
+            };
+
+            onEvent?.({
+                type:
+                    'enrichment-complete',
+                section:
+                    'cultural-lens',
+                mode,
+                completedCount:
+                    completedIds.length,
+                failedCount:
+                    failedIds.length,
+                remainingCount,
+                complete:
+                    result.complete
+            });
+
+            return result;
+        }
+
         async function generateCurrentAffairsReading({
             generationContext = null
         } = {}) {
@@ -1925,6 +2506,8 @@
             selectKeyLanguageOpportunities,
             getDiscussionEnrichmentPlan,
             getCulturalLensEnrichmentPlan,
+            enrichDiscussion,
+            enrichCulturalLens,
             generateCurrentAffairsReading
         });
     }
