@@ -181,7 +181,12 @@ assert.match(
 
 assert.match(
   compass,
-  /@media \(max-width: 680px\)[\s\S]*?owned-subject-dialog-action-buttons[\s\S]*?padding-inline: 0\.7rem/
+  /@media \(max-width: 680px\)[\s\S]*?owned-subject-dialog-action-buttons[\s\S]*?width: 100%;[\s\S]*?margin-left: 0;/
+);
+
+assert.match(
+  compass,
+  /owned-subject-dialog-action-buttons \.btn-primary,[\s\S]*?flex: 1 1 0;/
 );
 
 assert.match(
