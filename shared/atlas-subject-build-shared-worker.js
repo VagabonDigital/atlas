@@ -775,6 +775,14 @@ async function enqueueSubject(
     ) {
         status =
             'blocked-by-owner';
+    } else if (
+        lock?.state ===
+            'unsupported' ||
+        lock?.state ===
+            'unknown'
+    ) {
+        status =
+            'lock-unavailable';
     }
 
     if (checkpointError) {
