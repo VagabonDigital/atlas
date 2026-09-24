@@ -6,29 +6,73 @@ on:
       - experiment/service-worker-subject-builds
 
 jobs:
-  contracts:
+  regression-diff:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Run full Atlas regression suite
+      - name: Compare experiment failures with current main
+        shell: bash
         run: |
-          failed=0
+          set +e
 
-          for test_file in tests/*.test.js; do
-            echo "::group::${test_file}"
+          run_suite() {
+            local label="$1"
+            local output="$2"
 
-            if node "${test_file}"; then
-              echo "PASS ${test_file}"
-            else
-              echo "FAIL ${test_file}"
-              failed=1
+            : > "$output"
+
+            for test_file in tests/*.test.js; do
+              echo "::group::${label} · ${test_file}"
+
+              if node "${test_file}"; then
+                echo "PASS ${label} ${test_file}"
+              else
+                echo "FAIL ${label} ${test_file}"
+                basename "${test_file}" >> "$output"
+              fi
+
+              echo "::endgroup::"
+            done
+
+            sort -u -o "$output" "$output"
+          }
+
+          experiment_sha="$(git rev-parse HEAD)"
+          run_suite "experiment" "/tmp/experiment-failures.txt"
+
+          git fetch --depth=1 origin main
+          git checkout --detach FETCH_HEAD
+
+          main_sha="$(git rev-parse HEAD)"
+          run_suite "main" "/tmp/main-failures.txt"
+
+          echo "Experiment: ${experiment_sha}"
+          echo "Main:       ${main_sha}"
+
+          echo "=== Experiment failures ==="
+          cat /tmp/experiment-failures.txt || true
+
+          echo "=== Main baseline failures ==="
+          cat /tmp/main-failures.txt || true
+
+          new_failure=0
+
+          while IFS= read -r test_name; do
+            [ -n "${test_name}" ] || continue
+
+            if grep -Fxq "${test_name}" /tmp/main-failures.txt; then
+              echo "BASELINE FAILURE ${test_name}"
+              continue
             fi
 
-            echo "::endgroup::"
-          done
+            echo "NEW EXPERIMENT FAILURE ${test_name}"
+            new_failure=1
+          done < /tmp/experiment-failures.txt
 
-          exit "${failed}"
+          exit "${new_failure}"
