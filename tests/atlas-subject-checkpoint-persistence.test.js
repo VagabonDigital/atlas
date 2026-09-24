@@ -221,6 +221,12 @@ function buildCheckpoint(
             completedStep,
             autoSaveOnComplete:
                 true,
+            generationContext: {
+                version:
+                    1,
+                premise:
+                    'Legacy context'
+            },
             startedAt:
                 updatedAt,
             updatedAt
@@ -434,7 +440,17 @@ async function verifyFullLocalStorageDoesNotBlockGeneration() {
                             'full-subject',
                         completedStep: 3,
                         autoSaveOnComplete:
-                            true
+                            true,
+                        generationContext: {
+                            version:
+                                1,
+                            premise:
+                                'Current Affairs context',
+                            source: {
+                                readMore:
+                                    'Persist this across all pages closing.'
+                            }
+                        }
                     }
                 }
             );
@@ -444,6 +460,29 @@ async function verifyFullLocalStorageDoesNotBlockGeneration() {
             ?.completedStep,
         3,
         'Generation checkpoint must save even when every localStorage write is rejected.'
+    );
+
+    assert.equal(
+        saved?.buildState
+            ?.generationContext
+            ?.source
+            ?.readMore,
+        'Persist this across all pages closing.',
+        'Generation context must remain inside the canonical build checkpoint.'
+    );
+
+    const persistedBuildState =
+        await Subjects
+            .getBuildState(
+                'subject-active'
+            );
+
+    assert.equal(
+        persistedBuildState
+            ?.generationContext
+            ?.premise,
+        'Current Affairs context',
+        'Checkpoint reads must restore the latest generation context after browser resurrection.'
     );
 
     const draft =
