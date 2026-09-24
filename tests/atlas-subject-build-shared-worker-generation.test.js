@@ -1044,14 +1044,36 @@ async function testRealWorkerGeneration() {
 
     const completed =
         await waitUntil(
-            () =>
-                records
-                    .get(
-                        'build-checkpoint::subject-worker-resume'
-                    )
-                    ?.buildState
-                    ?.completedStep ===
-                18,
+            () => {
+                const checkpointComplete =
+                    records
+                        .get(
+                            'build-checkpoint::subject-worker-resume'
+                        )
+                        ?.buildState
+                        ?.completedStep ===
+                    18;
+
+                const projectedJob =
+                    arcadePage
+                        .latest(
+                            'queue-state'
+                        )
+                        ?.queue
+                        ?.find(
+                            item =>
+                                item.subjectId ===
+                                'subject-worker-resume'
+                        );
+
+                return (
+                    checkpointComplete &&
+                    projectedJob?.status ===
+                        'ready-to-commit' &&
+                    projectedJob?.lockState ===
+                        'available'
+                );
+            },
             {
                 timeoutMs: 5000,
                 stepMs: 10
