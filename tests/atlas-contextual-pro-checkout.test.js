@@ -150,6 +150,22 @@ assert.match(
   /@media \(max-width: 620px\)[\s\S]*?\.card \{[\s\S]*?min-height: 539px;[\s\S]*?\.loading \{[\s\S]*?min-height: 501px;/
 );
 
+
+assert.doesNotMatch(
+  subscription,
+  /payment-return-success|showDesktopPaymentSuccess|data-payment-return/
+);
+
+assert.match(
+  subscription,
+  /mobile-payment-success/
+);
+
+assert.match(
+  subscription,
+  /Payment method updated successfully\./
+);
+
 assert.match(
   compass,
   /atlas-pro-checkout\.js\?v=20260923-contextual1/
