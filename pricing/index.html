@@ -304,6 +304,73 @@
         stroke var(--theme-motion);
     }
 
+    .atlas-checkout-loading {
+      width: 100vw;
+      max-width: none;
+      height: 100dvh;
+      max-height: none;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: var(--surface);
+      color: var(--text-heading);
+    }
+
+    .atlas-checkout-loading[open] {
+      display: grid;
+      place-items: center;
+    }
+
+    .atlas-checkout-loading::backdrop {
+      background: var(--surface);
+    }
+
+    .atlas-checkout-loading-content {
+      display: grid;
+      justify-items: center;
+      gap: 18px;
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .atlas-checkout-loading-brand {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--text-heading);
+    }
+
+    .atlas-checkout-loading-brand span {
+      color: var(--accent);
+    }
+
+    .atlas-checkout-loading-spinner {
+      width: 42px;
+      height: 42px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: atlas-checkout-loading-spin 800ms linear infinite;
+    }
+
+    .atlas-checkout-loading-copy {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+
+    @keyframes atlas-checkout-loading-spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .atlas-checkout-loading-spinner {
+        animation: none;
+      }
+    }
+
     .atlas-pro-activation[hidden] {
       display: none;
     }
@@ -539,6 +606,23 @@
     </div>
   </footer>
 
+  <dialog
+    class="atlas-checkout-loading"
+    data-atlas-checkout-loading
+    aria-labelledby="atlas-checkout-loading-copy"
+  >
+    <div class="atlas-checkout-loading-content">
+      <p class="atlas-checkout-loading-brand">Atlas<span>.</span></p>
+      <div class="atlas-checkout-loading-spinner" aria-hidden="true"></div>
+      <p
+        id="atlas-checkout-loading-copy"
+        class="atlas-checkout-loading-copy"
+      >
+        Preparing secure checkout…
+      </p>
+    </div>
+  </dialog>
+
   <div
     class="atlas-pro-activation"
     data-atlas-pro-activation
@@ -595,6 +679,9 @@
       var accessUnsubscribe = null;
       var autoCheckoutConsumed = false;
       var pricingContext = readPricingContext();
+      var checkoutLoadingDialog =
+        document.querySelector('[data-atlas-checkout-loading]');
+      var checkoutLoadingTimer = null;
       var proActivationLayer =
         document.querySelector('[data-atlas-pro-activation]');
       var proActivationTitle =
@@ -999,6 +1086,69 @@
         checkoutScrollState = null;
       }
 
+      function hideCheckoutLoading() {
+        if (checkoutLoadingTimer) {
+          window.clearTimeout(checkoutLoadingTimer);
+          checkoutLoadingTimer = null;
+        }
+
+        if (!checkoutLoadingDialog) return;
+
+        if (
+          typeof checkoutLoadingDialog.close === 'function' &&
+          checkoutLoadingDialog.open
+        ) {
+          checkoutLoadingDialog.close();
+          return;
+        }
+
+        checkoutLoadingDialog.removeAttribute('open');
+      }
+
+      function scheduleCheckoutReveal() {
+        if (checkoutLoadingTimer) {
+          window.clearTimeout(checkoutLoadingTimer);
+        }
+
+        checkoutLoadingTimer = window.setTimeout(
+          hideCheckoutLoading,
+          120
+        );
+      }
+
+      function showCheckoutLoading() {
+        if (!checkoutLoadingDialog) return;
+
+        if (
+          typeof checkoutLoadingDialog.showModal === 'function'
+        ) {
+          if (!checkoutLoadingDialog.open) {
+            checkoutLoadingDialog.showModal();
+          }
+        } else {
+          checkoutLoadingDialog.setAttribute('open', '');
+        }
+
+        if (checkoutLoadingTimer) {
+          window.clearTimeout(checkoutLoadingTimer);
+        }
+
+        checkoutLoadingTimer = window.setTimeout(
+          function () {
+            try {
+              Paddle.Checkout.close();
+            } catch { }
+
+            hideCheckoutLoading();
+            unlockPricingPage();
+            setStatus(
+              'Checkout took too long to load. Please try again.'
+            );
+          },
+          20000
+        );
+      }
+
       function initPaddle() {
         if (paddleReady) return true;
         if (!window.Paddle || !config) return false;
@@ -1011,11 +1161,16 @@
           eventCallback: function (event) {
             var name = String(event && event.name || '');
 
+            if (name === 'checkout.loaded') {
+              scheduleCheckoutReveal();
+            }
+
             if (
               name === 'checkout.closed' ||
               name === 'checkout.completed' ||
               name === 'checkout.error'
             ) {
+              hideCheckoutLoading();
               unlockPricingPage();
             }
 
@@ -1149,6 +1304,7 @@
         setStatus('');
 
         lockPricingPage();
+        showCheckoutLoading();
 
         try {
           Paddle.Checkout.open({
@@ -1170,6 +1326,7 @@
             }
           });
         } catch (error) {
+          hideCheckoutLoading();
           unlockPricingPage();
           setStatus('Checkout could not open. Please try again.');
           console.error('[AtlasPricing] Paddle checkout failed', error);
