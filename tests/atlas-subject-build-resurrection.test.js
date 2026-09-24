@@ -553,6 +553,28 @@ async function testAutomaticWakeAndCompletion() {
         }
     );
 
+    assert.equal(
+        box.windowObject
+            .AtlasSubjectBuildResurrection
+            .isEstablishing(
+                'subject-resume',
+                'building'
+            ),
+        true,
+        'A normal building subject may project Building while authenticated resurrection is being established.'
+    );
+
+    assert.equal(
+        box.windowObject
+            .AtlasSubjectBuildResurrection
+            .isEstablishing(
+                'subject-paused',
+                'paused'
+            ),
+        false,
+        'A deliberately paused recovery subject must never be disguised as Building during resurrection bootstrap.'
+    );
+
     await flush();
     await flush();
     await flush();
@@ -789,6 +811,113 @@ async function testOfflineFailureRetriesOnReconnect() {
     );
 }
 
+async function testSeveralUnfinishedSubjectsPreserveDiscoveryOrder() {
+    const box =
+        createSandbox();
+
+    box.subjects.push(
+        makeSubject(
+            'subject-second',
+            'building',
+            5
+        )
+    );
+
+    box.buildStates.set(
+        'subject-second',
+        {
+            kind:
+                'full-subject',
+            completedStep:
+                1,
+            autoSaveOnComplete:
+                true,
+            generationContext: {
+                version:
+                    1,
+                premise:
+                    'Second queued build'
+            }
+        }
+    );
+
+    vm.runInNewContext(
+        resurrectionSource,
+        box.context
+    );
+
+    await flush();
+    await flush();
+    await flush();
+
+    assert.deepEqual(
+        box.enqueued
+            .map(item =>
+                item.subjectId
+            ),
+        [
+            'subject-resume',
+            'subject-second'
+        ],
+        'Shared discovery should enqueue several unfinished subjects in authoritative list order; the worker remains responsible for serial execution.'
+    );
+}
+
+async function testRepeatedWorkerFailurePausesDurableLifecycle() {
+    const box =
+        createSandbox();
+
+    vm.runInNewContext(
+        resurrectionSource,
+        box.context
+    );
+
+    await flush();
+    await flush();
+
+    const enqueueCount =
+        box.enqueued.length;
+
+    box.windowObject
+        .dispatchEvent(
+            new box.context
+                .CustomEvent(
+                    'atlas:subject-build-worker-message',
+                    {
+                        detail: {
+                            type:
+                                'build-failed',
+                            subjectId:
+                                'subject-resume'
+                        }
+                    }
+                )
+        );
+
+    await flush();
+    await flush();
+
+    assert.equal(
+        box.updates
+            .at(-1)
+            ?.patch
+            ?.metadata
+            ?.aiBuildStatus,
+        'paused',
+        'A terminal worker generation failure should release the durable AI-build reservation into paused recovery.'
+    );
+
+    await box.windowObject
+        .AtlasSubjectBuildResurrection
+        .scan();
+
+    assert.equal(
+        box.enqueued.length,
+        enqueueCount,
+        'Paused recovery must not immediately auto-resurrect into a failure loop.'
+    );
+}
+
 async function testUnsupportedWorkerPreservesFallback() {
     const box =
         createSandbox({
@@ -949,6 +1078,8 @@ async function testSignOutClearsResurrectionProjection() {
     await testAutomaticWakeAndCompletion();
     await testRevisionConflictFailsClosed();
     await testOfflineFailureRetriesOnReconnect();
+    await testSeveralUnfinishedSubjectsPreserveDiscoveryOrder();
+    await testRepeatedWorkerFailurePausesDurableLifecycle();
     await testUnsupportedWorkerPreservesFallback();
     await testNoWebLocksFailsCompletionClosed();
     await testSignOutClearsResurrectionProjection();
