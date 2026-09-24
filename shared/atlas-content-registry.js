@@ -1315,7 +1315,7 @@
                 !window.AtlasTutorSubjectsCloudAuthority
             ) {
                 await loadRuntimeScript(
-                    '/shared/atlas-tutor-subjects-cloud-authority.js?v=20260922-delete1',
+                    '/shared/atlas-tutor-subjects-cloud-authority.js?v=20260924-resurrection1',
                     'AtlasTutorSubjectsCloudAuthority'
                 );
             }
@@ -1488,7 +1488,7 @@
 
         if (needsSubjects) {
             scripts.push(
-                '<script src="/shared/atlas-tutor-subjects-cloud-authority.js?v=20260922-delete1"><\/script>'
+                '<script src="/shared/atlas-tutor-subjects-cloud-authority.js?v=20260924-resurrection1"><\/script>'
             );
         }
 
