@@ -48,7 +48,11 @@ const context = vm.createContext({ window, console, URL, Date, COMPASS_ID: 'comp
 for (const file of ['shared/atlas-structured-subject.js', 'shared/compass-catalog-data.js', 'shared/arcade-catalog-data.js']) {
   vm.runInContext(fs.readFileSync(file, 'utf8'), context);
 }
-Object.assign(context, { AtlasStructuredSubject: window.AtlasStructuredSubject, CompassCatalog: window.CompassCatalogData, ArcadeCatalog: window.ArcadeCatalogData });
+window.AtlasStructuredSubject = context.AtlasStructuredSubject;
+Object.assign(context, {
+  CompassCatalog: window.CompassCatalogData,
+  ArcadeCatalog: window.ArcadeCatalogData
+});
 vm.runInContext(html.slice(html.indexOf('    function getContinueItem('), html.indexOf('    // ================================================================\n    // APPEARANCE')), context);
 vm.runInContext(html.slice(html.indexOf('    const GAME_COVERS'), html.indexOf('    function toggleContinueRecapFromButton')), context);
 const sourceTravel = window.CompassCatalogData.getCompassCatalogMap()['compass:travel-exploration'];
