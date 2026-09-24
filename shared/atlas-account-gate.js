@@ -1898,6 +1898,15 @@
                     : 'none';
         }
 
+        const pricingAction =
+            accountMenu.querySelector('[data-account-menu-pricing]');
+        if (pricingAction) {
+            pricingAction.style.display =
+                access.tier === 'pro'
+                    ? 'none'
+                    : '';
+        }
+
         const allowance =
             access.creationAllowance &&
             typeof access.creationAllowance === 'object'
