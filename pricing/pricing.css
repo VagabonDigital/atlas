@@ -113,11 +113,32 @@ html[data-atlas-account-hint="account"] .free-entry { display: none; }
 .faq-list summary::after { content: '+'; flex-shrink: 0; font-size: 20px; font-weight: 400; color: var(--accent-ink); }
 .faq-list details[open] summary::after { content: '−'; }
 .faq-list details p { padding: 0 30px 22px 0; font-size: 14px; line-height: 1.8; }
-.footer { border-top: 1px solid var(--border); color: var(--text-muted); }
-.footer-inner { min-height: 82px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: .82rem; }
+.footer {
+  --atlas-footer-border: rgba(49, 45, 38, 0.14);
+  --atlas-footer-soft: #7b7469;
+  --atlas-footer-heading: #211f1b;
+  border-top: 1px solid var(--atlas-footer-border);
+  color: var(--atlas-footer-soft);
+}
+html[data-theme="night"] .footer {
+  --atlas-footer-border: rgba(255, 255, 255, 0.08);
+  --atlas-footer-soft: #89847b;
+  --atlas-footer-heading: #ebe9e4;
+}
+.footer-inner {
+  width: min(calc(100% - 36px), 1120px);
+  min-height: 82px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: .82rem;
+}
 .footer-links { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.footer-links a { color: var(--text-muted); text-decoration: none; }
-.footer-links a:hover { color: var(--text-heading); }
+.footer-links a { color: var(--atlas-footer-soft); text-decoration: none; }
+.footer-links a:hover { color: var(--atlas-footer-heading); }
 section[id] { scroll-margin-top: 84px; }
 html[data-theme="night"] .offer { background: #294b46; border: 1px solid #60867b; }
 html[data-theme="night"] .proof-image { color-scheme: light; }
@@ -127,17 +148,6 @@ html[data-theme="night"] .proof-image { color-scheme: light; }
   .section-intro, .learner-payoff, .prep-grid, .answers-grid { gap: 50px; }
   .offer { padding: 25px; }
   h1 { font-size: 64px; }
-}
-.pricing-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-body[data-atlas-surface="inside-atlas"] .pricing-header-actions .atlas-inside-account-entry {
-  margin-left: 0;
-}
-@media (max-width: 980px) {
-  .pricing-header-actions { margin-left: auto; }
 }
 @media (max-width: 760px) {
   .header-inner { gap: 6px; }
@@ -187,19 +197,24 @@ body[data-atlas-surface="inside-atlas"] .pricing-header-actions .atlas-inside-ac
   .answers h2 { font-size: 34px; }
   .answers-note { max-width: 340px; margin-top: 16px; }
   .faq-list summary { font-size: 14px; min-height: 66px; }
-  .footer-inner { padding-block: 22px; align-items: flex-start; flex-direction: column; gap: 10px; }
-  .footer-links { gap: 16px; }
 }
 @media (max-width: 720px) {
   .frame { width: min(calc(100% - 30px), var(--frame)); }
   .header-inner { width: 100%; height: 56px; min-height: 0; padding: 0 15px; gap: 4px; }
-  .pricing-header-actions { gap: 4px; }
   .appearance-toggle { display: none; }
 }
 @media (max-width: 360px) {
   h1 { font-size: 39px; }
   .hero-lede { font-size: 15px; }
   .offer-top .eyebrow { font-size: 8px; }
+}
+@media (max-width: 640px) {
+  .footer-inner {
+    padding: 22px 0;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
