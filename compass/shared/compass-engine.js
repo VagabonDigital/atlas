@@ -8703,90 +8703,6 @@ function getMyVersionDiscussionKeyUpgradeCount() {
         .length;
 }
 
-function getMyVersionDiscussionKeyLanguageCandidates(
-    candidateIds
-) {
-    const allowed =
-        new Set(
-            Array.isArray(candidateIds)
-                ? candidateIds
-                : []
-        );
-
-    return discussionSets.flatMap(set => {
-        const contextSet =
-            materializeMyVersionDiscussionSet(
-                set
-            );
-
-        if (!contextSet) return [];
-
-        return (
-            Array.isArray(contextSet.moments)
-                ? contextSet.moments
-                : []
-        )
-            .filter(moment =>
-                allowed.has(moment.id)
-            )
-            .map(moment => ({
-                id:
-                    moment.id,
-
-                stage:
-                    String(
-                        contextSet.stage || ''
-                    ).trim(),
-
-                title:
-                    String(
-                        contextSet.title || ''
-                    ).trim(),
-
-                preview:
-                    String(
-                        moment.preview || ''
-                    ).trim(),
-
-                question:
-                    String(
-                        moment.question || ''
-                    ).trim()
-            }));
-    });
-}
-
-async function selectMyVersionKeyLanguageOpportunityIds(
-    section,
-    candidates,
-    limit
-) {
-    const targetLimit =
-        Math.max(
-            0,
-            Math.min(
-                Math.floor(
-                    Number(limit) || 0
-                ),
-                Array.isArray(candidates)
-                    ? candidates.length
-                    : 0
-            )
-        );
-
-    if (!targetLimit) {
-        return [];
-    }
-
-    return getMyVersionBuildDocumentOperations()
-        .selectKeyLanguageOpportunities({
-            section,
-            candidates,
-            limit:
-                targetLimit
-        });
-}
-
 function getMyVersionDiscussionMakeItRealCandidateSetIds() {
     if (
         !myVersionEditing ||
@@ -8832,51 +8748,6 @@ async function generateMyVersionMakeItReal(
             setId,
             brief
         });
-}
-
-async function runMyVersionEnrichmentOperationWithRetry(
-    operation,
-    label
-) {
-    let lastError = null;
-
-    for (
-        let attempt = 1;
-        attempt <= 2;
-        attempt += 1
-    ) {
-        try {
-            const result = await operation();
-
-            if (result) {
-                return result;
-            }
-
-            lastError = new Error(
-                `${label} returned no result.`
-            );
-        } catch (error) {
-            lastError = error;
-        }
-
-        if (attempt === 1) {
-            console.warn(
-                `[Compass] ${label} failed. Retrying once.`,
-                lastError
-            );
-
-            await new Promise(resolve => {
-                window.setTimeout(resolve, 600);
-            });
-        }
-    }
-
-    console.error(
-        `[Compass] ${label} failed after retry:`,
-        lastError
-    );
-
-    return null;
 }
 
 function getMyVersionRemainingEnrichmentCount(
@@ -9121,59 +8992,6 @@ function getMyVersionCulturalLensKeyUpgradeCount() {
             )?.upgrade?.priority === 'key'
         )
         .length;
-}
-
-function getMyVersionCulturalLensKeyLanguageCandidates(
-    candidateIds
-) {
-    const allowed =
-        new Set(
-            Array.isArray(candidateIds)
-                ? candidateIds
-                : []
-        );
-
-    return clCards
-        .map(card =>
-            materializeMyVersionCulturalLensCard(
-                card
-            )
-        )
-        .filter(Boolean)
-        .filter(card =>
-            allowed.has(card.id)
-        )
-        .map(card => ({
-            id:
-                card.id,
-
-            title:
-                String(
-                    card.title || ''
-                ).trim(),
-
-            contextLine:
-                String(
-                    card.contextLine || ''
-                ).trim(),
-
-            teaser:
-                String(
-                    card.teaser || ''
-                ).trim(),
-
-            context:
-                String(
-                    card.context || ''
-                ).trim(),
-
-            questions:
-                Array.isArray(
-                    card.questions
-                )
-                    ? card.questions.slice()
-                    : []
-        }));
 }
 
 function getMyVersionRemainingLanguageCount(
