@@ -672,7 +672,7 @@
                 return;
             }
 
-            const subject =
+            let subject =
                 normalizeOwnedStructuredSubject(record);
 
             if (!subject) {
@@ -731,6 +731,61 @@
                                 grant.readyToCommit ===
                                 true
                         };
+
+                    /*
+                     * A non-subject Atlas page may have completed step 18
+                     * while this page was negotiating foreground ownership.
+                     * Revalidate the durable row after the worker handoff so
+                     * an old "incomplete" read cannot restart a subject that
+                     * has just been committed elsewhere.
+                     */
+                    window.AtlasCloudCache
+                        ?.clear?.();
+
+                    window
+                        .AtlasTutorSubjectsCloudAuthority
+                        ?.refresh?.();
+
+                    const latestRecord =
+                        await withTimeout(
+                            requireAtlasTutorSubjects()
+                                .getSubject(subjectId),
+                            'Subject refresh timed out.'
+                        );
+
+                    const latestSubject =
+                        normalizeOwnedStructuredSubject(
+                            latestRecord
+                        );
+
+                    if (!latestSubject) {
+                        throw new Error(
+                            'Atlas could not revalidate subject ownership after build handoff.'
+                        );
+                    }
+
+                    subject =
+                        latestSubject;
+
+                    if (
+                        subject.runtime
+                            ?.aiBuildIncomplete !==
+                            true
+                    ) {
+                        window
+                            .AtlasSubjectBuildWorkerClient
+                            ?.releaseForegroundOwnership
+                            ?.(
+                                foregroundOwnershipSubjectId,
+                                'subject-completed-during-handoff'
+                            );
+
+                        foregroundOwnershipSubjectId =
+                            '';
+
+                        delete window
+                            .AtlasForegroundSubjectBuildHandoff;
+                    }
                 }
             }
 
