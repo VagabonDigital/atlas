@@ -123,6 +123,34 @@
         );
     }
 
+    function supportsBackgroundOwnership() {
+        const clientState =
+            window
+                .AtlasSubjectBuildWorkerClient
+                ?.getState?.() ||
+            null;
+
+        const sharedWorkerSupported =
+            clientState
+                ? clientState.supported !==
+                    false
+                : typeof window.SharedWorker ===
+                    'function';
+
+        const locksSupported =
+            Boolean(
+                navigator.locks &&
+                typeof navigator.locks
+                    .request ===
+                    'function'
+            );
+
+        return (
+            sharedWorkerSupported &&
+            locksSupported
+        );
+    }
+
     function snapshot() {
         return {
             bootstrapping,
@@ -513,8 +541,11 @@
         }
 
         if (
-            !currentUserId &&
-            !hasAuthenticatedRuntimeHint()
+            (
+                !currentUserId &&
+                !hasAuthenticatedRuntimeHint()
+            ) ||
+            !supportsBackgroundOwnership()
         ) {
             setBootstrapping(false);
             return false;
@@ -1408,6 +1439,7 @@
                             .has(id) ||
                         (
                             bootstrapping &&
+                            supportsBackgroundOwnership() &&
                             status !== 'paused' &&
                             !blockedSubjects
                                 .has(id)
