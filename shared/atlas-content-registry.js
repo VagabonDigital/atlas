@@ -1045,7 +1045,7 @@
         }
 
         const src =
-            '/shared/atlas-subject-build-worker-client.js?v=20260924-buildworker4';
+            '/shared/atlas-subject-build-worker-client.js?v=20260924-buildworker5';
 
         if (document.readyState === 'loading') {
             document.write(
