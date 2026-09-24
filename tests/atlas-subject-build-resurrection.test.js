@@ -918,6 +918,89 @@ async function testRepeatedWorkerFailurePausesDurableLifecycle() {
     );
 }
 
+async function testSignedOutLoadedAccountStaysDormant() {
+    const box =
+        createSandbox();
+
+    box.windowObject
+        .AtlasAccount
+        .getState = () => ({
+            ready:
+                true,
+            authenticated:
+                false,
+            userId:
+                null
+        });
+
+    vm.runInNewContext(
+        resurrectionSource,
+        box.context
+    );
+
+    await flush();
+    await flush();
+
+    assert.equal(
+        box.enqueued.length,
+        0,
+        'A loaded but authoritatively signed-out account runtime must not wake unfinished work from stale browser hints.'
+    );
+
+    assert.equal(
+        box.windowObject
+            .AtlasSubjectBuildResurrection
+            .isBootstrapping(),
+        false
+    );
+}
+
+async function testReadyCompletionIsSurfaceIndependent() {
+    for (
+        const pathname of
+        [
+            '/',
+            '/compass/',
+            '/arcade/'
+        ]
+    ) {
+        const box =
+            createSandbox();
+
+        box.windowObject
+            .location = {
+                href:
+                    `https://atlas.test${pathname}`,
+                pathname
+            };
+
+        box.buildStates
+            .get('subject-resume')
+            .completedStep =
+            18;
+
+        vm.runInNewContext(
+            resurrectionSource,
+            box.context
+        );
+
+        await flush();
+        await flush();
+        await flush();
+        await flush();
+
+        assert.equal(
+            box.updates
+                .at(-1)
+                ?.patch
+                ?.metadata
+                ?.aiBuildStatus,
+            'complete',
+            `Ready-to-commit resurrection should finish durably from ${pathname} without opening the subject page.`
+        );
+    }
+}
+
 async function testUnsupportedWorkerPreservesFallback() {
     const box =
         createSandbox({
@@ -1080,6 +1163,8 @@ async function testSignOutClearsResurrectionProjection() {
     await testOfflineFailureRetriesOnReconnect();
     await testSeveralUnfinishedSubjectsPreserveDiscoveryOrder();
     await testRepeatedWorkerFailurePausesDurableLifecycle();
+    await testSignedOutLoadedAccountStaysDormant();
+    await testReadyCompletionIsSurfaceIndependent();
     await testUnsupportedWorkerPreservesFallback();
     await testNoWebLocksFailsCompletionClosed();
     await testSignOutClearsResurrectionProjection();
