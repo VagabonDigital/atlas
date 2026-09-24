@@ -1476,7 +1476,7 @@
             reason =
                 'subject-open',
             timeoutMs =
-                90000
+                150000
         } = {}
     ) {
         const id =
