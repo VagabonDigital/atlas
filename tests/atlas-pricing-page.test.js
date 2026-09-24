@@ -30,8 +30,22 @@ assert.match(
   /100 fresh subject creations[\s\S]*each billing month/,
   'Pro must state the recurring billing-month allowance.'
 );
-assert.match(pricing, /Only successful fresh creations count/);
-assert.match(pricing, /Failed, incomplete or malformed attempts do not count/);
+assert.match(pricing, /Only completed fresh creations count/);
+assert.match(
+  pricing,
+  /A fresh subject uses one creation when Atlas finishes creating it/,
+  'Pricing should explain the allowance in tutor-facing completion language.'
+);
+assert.match(
+  pricing,
+  /If creation doesn’t complete, it doesn’t use your allowance/,
+  'An incomplete creation must be described as allowance-safe without internal failure terminology.'
+);
+assert.doesNotMatch(
+  pricing,
+  /successful(?:ly)? fresh|successfully created fresh subject|malformed attempts/,
+  'Pricing must not frame normal subject creation as a probabilistic success condition or expose internal failure language.'
+);
 assert.match(
   pricing,
   /Editing, duplicating, reshaping and reusing existing material do not spend another fresh creation/
