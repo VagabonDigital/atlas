@@ -1931,6 +1931,33 @@
                     selectedIds:
                         selectedKeyIds.slice()
                 });
+
+                if (
+                    typeof shouldStop ===
+                        'function' &&
+                    shouldStop() === true
+                ) {
+                    return {
+                        section:
+                            'discussion',
+                        mode,
+                        selectedKeyIds:
+                            selectedKeyIds.slice(),
+                        completedOperations: [],
+                        failedOperations: [],
+                        remainingCount:
+                            candidateIds.length +
+                            (
+                                Array.isArray(
+                                    plan.makeItRealSetIds
+                                )
+                                    ? plan.makeItRealSetIds.length
+                                    : 0
+                            ),
+                        complete: false,
+                        stopped: true
+                    };
+                }
             }
 
             const selectedKeySet =
@@ -2239,6 +2266,26 @@
                     selectedIds:
                         selectedKeyIds.slice()
                 });
+
+                if (
+                    typeof shouldStop ===
+                        'function' &&
+                    shouldStop() === true
+                ) {
+                    return {
+                        section:
+                            'cultural-lens',
+                        mode,
+                        selectedKeyIds:
+                            selectedKeyIds.slice(),
+                        completedIds: [],
+                        failedIds: [],
+                        remainingCount:
+                            candidateIds.length,
+                        complete: false,
+                        stopped: true
+                    };
+                }
             }
 
             const selectedKeySet =
