@@ -33,7 +33,7 @@
         lifecycle:
             '/shared/atlas-ai-subject-build-lifecycle.js?v=20260923-buildprojection1',
         cloudAuthority:
-            '/shared/atlas-tutor-subjects-cloud-authority.js?v=20260924-resurrection1'
+            '/shared/atlas-tutor-subjects-cloud-authority.js?v=20260924-revisionguard1'
     });
 
     const listeners = new Set();
