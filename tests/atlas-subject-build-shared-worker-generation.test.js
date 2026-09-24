@@ -1137,11 +1137,7 @@ async function testRealWorkerGeneration() {
             .buildState
             .generationContext
             .premise,
-        initialCheckpoint
-            .buildState
-            .generationContext
-            ?.premise ||
-        generationContext.premise,
+        'Resume safely.',
         'Worker-owned generation context must remain inside the canonical checkpoint so all-pages-close recovery cannot lose it.'
     );
 
