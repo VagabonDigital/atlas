@@ -57,17 +57,17 @@ assert.match(pricing, /data-atlas-inside-create/);
 assert.match(pricing, /data-atlas-inside-account/);
 assert.match(
   pricing,
-  /atlas-inside-account-explore-label">Explore Atlas<\/span><span class="atlas-inside-account-return-label">Return to Atlas<\/span>/,
-  'Pricing must share the anonymous Explore Atlas / authenticated Return to Atlas account-entry contract.'
+  /atlas-inside-account-explore-label">Explore Atlas<\/span><span class="atlas-inside-account-enter-label">Enter Atlas<\/span>/,
+  'Pricing must share the anonymous Explore Atlas / authenticated Enter Atlas account-entry contract.'
 );
 assert.match(
   pricing,
-  /atlas-account-chrome\.css\?v=20260924-returnlabel1/,
+  /atlas-account-chrome\.css\?v=20260924-enterlabel1/,
   'Pricing must load the current shared account chrome styles.'
 );
 assert.match(
   pricing,
-  /atlas-account-chrome\.js\?v=20260924-returnlabel1/,
+  /atlas-account-chrome\.js\?v=20260924-enterlabel1/,
   'Pricing must load the current shared account chrome runtime.'
 );
 
@@ -91,9 +91,20 @@ assert.match(
   /\.site-header \{[\s\S]*?border-bottom:1px solid var\(--border-faint\);[\s\S]*?color-mix\(in srgb,var\(--surface\) 72%,transparent\)/,
   'Pricing sticky header surface must match Inside Atlas.'
 );
+
+assert.doesNotMatch(
+  pricing,
+  /Return to Atlas/,
+  'Pricing must not use journey-assuming Return to Atlas language.'
+);
+assert.match(
+  pricing,
+  /\.pricing-header-pro \{[\s\S]*?border:1px solid var\(--border-subtle\);[\s\S]*?background:var\(--surface-panel\);[\s\S]*?font-weight:600;/,
+  'Pricing Pro management shortcut should remain visually secondary to authenticated Enter Atlas.'
+);
 assert.match(
   inside,
-  /atlas-inside-account-return-label">Return to Atlas<\/span>/,
+  /atlas-inside-account-enter-label">Enter Atlas<\/span>/,
   'Inside Atlas must retain the same authenticated return language.'
 );
 
