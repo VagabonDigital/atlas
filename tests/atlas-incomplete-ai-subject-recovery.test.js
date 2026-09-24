@@ -106,7 +106,7 @@ assert.match(
 
 assert.match(
     loader,
-    /compass-engine\.js\?v=20260923-incompletebuild1/
+    /compass-engine\.js\?v=20260924-foreground2/
 );
 
 assert.match(
