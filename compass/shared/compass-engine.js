@@ -17216,7 +17216,7 @@ function updateCoverActionUI() {
     if (button) {
         const label =
             isAnonymousCompassSubjectPreview()
-                ? 'Create free account to explore'
+                ? 'Explore with free account'
                 : myVersionAuthoringOpen
                     ? 'Open subject'
                     : isLessonComplete()
