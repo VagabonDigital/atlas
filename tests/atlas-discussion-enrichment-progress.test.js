@@ -75,7 +75,7 @@ assert.match(
 
 assert.match(
     loader,
-    /atlas-subject-build-document-operations\.js\?v=20260924-revisionguard1/
+    /atlas-subject-build-document-operations\.js\?v=20260924-foreground2/
 );
 
 assert.match(
