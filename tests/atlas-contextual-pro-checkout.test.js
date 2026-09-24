@@ -115,7 +115,7 @@ assert.match(
 
 assert.match(
   compass,
-  /free subject creations remaining\./
+  /free creations remaining/
 );
 
 assert.match(
