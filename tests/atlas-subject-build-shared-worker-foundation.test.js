@@ -385,6 +385,7 @@ async function testSharedWorkerRuntime() {
     });
 
     await flush();
+    await flush();
 
     const checkpointResult =
         first.latest(
