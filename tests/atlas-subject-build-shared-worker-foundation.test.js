@@ -148,7 +148,7 @@ function createFakeIndexedDB(
                                     null
                             };
 
-                            queueMicrotask(
+                            setTimeout(
                                 () => {
                                     request.result =
                                         records.get(
@@ -160,7 +160,8 @@ function createFakeIndexedDB(
                                     request
                                         .onsuccess
                                         ?.();
-                                }
+                                },
+                                0
                             );
 
                             return request;
@@ -190,11 +191,12 @@ function createFakeIndexedDB(
                 onsuccess: null
             };
 
-            queueMicrotask(
+            setTimeout(
                 () =>
                     request
                         .onsuccess
-                        ?.()
+                        ?.(),
+                0
             );
 
             return request;
