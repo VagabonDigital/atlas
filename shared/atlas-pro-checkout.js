@@ -433,23 +433,7 @@
     }
 
     function mobileCheckoutFrameHeight() {
-        const viewportHeight =
-            Number(
-                window.visualViewport?.height
-            ) ||
-            Number(
-                window.innerHeight
-            ) ||
-            700;
-
-        return String(
-            Math.max(
-                520,
-                Math.round(
-                    viewportHeight - 58
-                )
-            )
-        );
+        return '620';
     }
 
     function ensureMobileCheckoutShellStyles() {
@@ -487,7 +471,7 @@
             }
 
             .atlas-pro-checkout-mobile-head {
-                min-height: 58px;
+                min-height: 64px;
                 display: flex;
                 flex: 0 0 auto;
                 align-items: center;
@@ -501,6 +485,13 @@
                     var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .16)));
                 background:
                     var(--atlas-modal-surface, var(--surface, #fffdf9));
+            }
+
+            .atlas-pro-checkout-mobile-identity {
+                min-width: 0;
+                display: flex;
+                align-items: baseline;
+                gap: 9px;
             }
 
             .atlas-pro-checkout-mobile-brand {
@@ -517,6 +508,14 @@
             .atlas-pro-checkout-mobile-brand span {
                 color:
                     var(--atlas-modal-accent, var(--accent, #59617d));
+            }
+
+            .atlas-pro-checkout-mobile-context {
+                color:
+                    var(--atlas-modal-muted, var(--text-muted, #7b7469));
+                font-size: .78rem;
+                font-weight: 600;
+                white-space: nowrap;
             }
 
             .atlas-pro-checkout-mobile-close {
@@ -540,16 +539,33 @@
             .atlas-pro-checkout-mobile-body {
                 min-height: 0;
                 flex: 1 1 auto;
+                padding: 12px 10px 28px;
                 overflow-y: auto;
                 overscroll-behavior: contain;
                 -webkit-overflow-scrolling: touch;
                 background:
+                    var(--atlas-modal-surface-low, var(--surface-muted, #f5f1e9));
+            }
+
+            .atlas-pro-checkout-mobile-stage {
+                width: min(100%, 520px);
+                min-height: 0;
+                margin: 0 auto;
+                overflow: hidden;
+                border: 1px solid
+                    var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .14)));
+                border-radius: 18px;
+                background:
                     var(--atlas-modal-surface, var(--surface, #fffdf9));
+                box-shadow:
+                    0 10px 34px rgba(31, 28, 23, .08);
             }
 
             .atlas-pro-checkout-inline-frame {
                 width: 100%;
-                min-height: 100%;
+                min-height: 0;
+                background:
+                    var(--atlas-modal-surface, var(--surface, #fffdf9));
             }
         `;
 
@@ -575,9 +591,14 @@
         );
         mobileCheckoutShell.innerHTML = `
             <header class="atlas-pro-checkout-mobile-head">
-                <p class="atlas-pro-checkout-mobile-brand">
-                    Atlas<span>.</span>
-                </p>
+                <div class="atlas-pro-checkout-mobile-identity">
+                    <p class="atlas-pro-checkout-mobile-brand">
+                        Atlas<span>.</span>
+                    </p>
+                    <span class="atlas-pro-checkout-mobile-context">
+                        Secure checkout
+                    </span>
+                </div>
                 <button
                     class="atlas-pro-checkout-mobile-close"
                     type="button"
@@ -588,7 +609,9 @@
                 </button>
             </header>
             <div class="atlas-pro-checkout-mobile-body">
-                <div class="atlas-pro-checkout-inline-frame"></div>
+                <div class="atlas-pro-checkout-mobile-stage">
+                    <div class="atlas-pro-checkout-inline-frame"></div>
+                </div>
             </div>
         `;
 
@@ -638,7 +661,7 @@
     function waitForCheckoutPresentation() {
         const delay =
             activeCheckout?.inlineMobile
-                ? 240
+                ? 1600
                 : 120;
 
         return new Promise(resolve => {

@@ -112,6 +112,18 @@ assert.match(
   'Atlas must own the entire mobile checkout viewport while Paddle is inline.'
 );
 
+assert.match(
+  checkout,
+  /activeCheckout\?\.inlineMobile[\s\S]*?\? 1600[\s\S]*?: 120/,
+  'Mobile inline checkout must keep the Atlas veil up through Paddle’s internal loading-to-form transition.'
+);
+
+assert.match(
+  checkout,
+  /atlas-pro-checkout-mobile-context[\s\S]*?Secure checkout[\s\S]*?atlas-pro-checkout-mobile-stage/,
+  'Mobile checkout shell must provide stable Atlas-owned context and a centered checkout surface.'
+);
+
 assert.doesNotMatch(
   checkout,
   /captureCheckoutFrameBaseline|checkoutFrameCoversViewport|stableFrames >= 4/,
@@ -179,12 +191,12 @@ assert.match(
 
 assert.match(
   chrome,
-  /atlas-account-gate\.js\?v=20260924-mobileinline1/
+  /atlas-account-gate\.js\?v=20260924-mobilecheckout2/
 );
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260924-mobileinline1/
+  /atlas-account-chrome\.js\?v=20260924-mobilecheckout2/
 );
 
 assert.match(
@@ -257,7 +269,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260924-mobileinline1/
+  /atlas-pro-checkout\.js\?v=20260924-mobilecheckout2/
 );
 
 assert.match(

@@ -1064,7 +1064,7 @@
         }
 
         const src =
-            '/shared/atlas-account-chrome.js?v=20260924-mobileinline1';
+            '/shared/atlas-account-chrome.js?v=20260924-mobilecheckout2';
 
         if (document.readyState === 'loading') {
             document.write(
