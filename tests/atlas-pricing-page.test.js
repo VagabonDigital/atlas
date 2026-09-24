@@ -88,6 +88,22 @@ assert.match(
   /\.frame\s*\{\s*width:\s*min\(calc\(100% - 48px\), var\(--frame\)\)/,
   'Pricing desktop frame should match Inside Atlas.'
 );
+
+assert.match(
+  pricingCss,
+  /\.site-header \.header-inner \{[\s\S]*?width: 100%;[\s\S]*?max-width: none;[\s\S]*?margin-inline: 0;[\s\S]*?padding-inline: 1\.5rem;/,
+  'Pricing header must break out of the editorial frame and match Inside Atlas full-width chrome.'
+);
+assert.match(
+  pricingCss,
+  /scrollbar-width: thin;[\s\S]*?scrollbar-color: rgba\(var\(--accent-rgb\), \.46\) transparent;/,
+  'Pricing must use the same custom Firefox scrollbar treatment as Inside Atlas.'
+);
+assert.match(
+  pricingCss,
+  /html::\-webkit-scrollbar \{ width: 10px; \}[\s\S]*?html::\-webkit-scrollbar-thumb \{[\s\S]*?border: 2px solid transparent;[\s\S]*?border-radius: 999px;[\s\S]*?background: rgba\(var\(--accent-rgb\), \.46\);[\s\S]*?background-clip: padding-box;/,
+  'Pricing must use the same custom WebKit scrollbar treatment as Inside Atlas.'
+);
 assert.match(
   pricingCss,
   /@media \(max-width: 720px\)[\s\S]*?\.frame \{ width: min\(calc\(100% - 30px\), var\(--frame\)\); \}/,
