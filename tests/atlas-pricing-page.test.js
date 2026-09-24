@@ -70,6 +70,27 @@ assert.match(
   /atlas-account-chrome\.js\?v=20260924-returnlabel1/,
   'Pricing must load the current shared account chrome runtime.'
 );
+
+assert.match(
+  pricing,
+  /\.atlas-inside-account-entry \{[\s\S]*?margin-left:4px;[\s\S]*?gap:6px;/,
+  'Pricing account controls must use the same cluster spacing as Inside Atlas.'
+);
+assert.match(
+  pricing,
+  /\.appearance-toggle,[\s\S]*?\.atlas-inside-account-icon \{[\s\S]*?width:38px;[\s\S]*?height:38px;[\s\S]*?border-radius:12px;[\s\S]*?box-shadow:var\(--shadow-sm\);/,
+  'Pricing theme and profile controls must use the same 38px squircle treatment as Inside Atlas.'
+);
+assert.match(
+  pricing,
+  /\.appearance-toggle:hover,[\s\S]*?\.atlas-inside-account-icon:focus-visible \{[\s\S]*?border-color:var\(--control-border-hover\);[\s\S]*?box-shadow:var\(--shadow-md\);/,
+  'Pricing shared header controls must use the same hover/focus elevation contract as Inside Atlas.'
+);
+assert.match(
+  pricing,
+  /\.site-header \{[\s\S]*?border-bottom:1px solid var\(--border-faint\);[\s\S]*?color-mix\(in srgb,var\(--surface\) 72%,transparent\)/,
+  'Pricing sticky header surface must match Inside Atlas.'
+);
 assert.match(
   inside,
   /atlas-inside-account-return-label">Return to Atlas<\/span>/,
