@@ -93,6 +93,22 @@ function runPlacementProof() {
         /data-atlas-account-entry/,
         'Inside Atlas must use the same shared account chrome module.'
     );
+
+    assert.match(
+        chrome,
+        /authenticated: Enter Atlas \+ compact account icon/,
+        'Shared public account chrome must describe authenticated product entry as Enter Atlas.'
+    );
+    assert.match(
+        chrome,
+        /atlas-inside-account-enter-label">Enter Atlas<\/span>/,
+        'Shared account chrome must generate Enter Atlas for authenticated public surfaces.'
+    );
+    assert.doesNotMatch(
+        chrome,
+        /Return to Atlas/,
+        'Shared account chrome must not use journey-assuming Return to Atlas language.'
+    );
     assert.match(
         registry,
         /atlas-account-chrome\.js/,
@@ -237,6 +253,27 @@ function runPlacementProof() {
         chromeCss,
         /data-atlas-account-hint="anonymous"/,
         'Inside Atlas account CSS must honor the synchronous anonymous first-paint hint.'
+    );
+
+    assert.match(
+        chromeCss,
+        /data-account-state="account"[\s\S]*?atlas-inside-account-explore[\s\S]*?background: var\(--accent/,
+        'Authenticated Enter Atlas must use the primary account-action treatment.'
+    );
+    assert.match(
+        chromeCss,
+        /@media \(max-width: 720px\)[\s\S]*?data-account-state="account"[\s\S]*?atlas-inside-account-explore[\s\S]*?display: inline-flex/,
+        'Authenticated Enter Atlas must remain visible on mobile public surfaces.'
+    );
+    assert.match(
+        inside,
+        /atlas-inside-account-enter-label">Enter Atlas<\/span>/,
+        'Inside Atlas must ship Enter Atlas in its first-paint authenticated shell.'
+    );
+    assert.doesNotMatch(
+        inside,
+        /Return to Atlas/,
+        'Inside Atlas must not retain Return to Atlas language.'
     );
 }
 
