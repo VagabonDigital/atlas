@@ -26,7 +26,7 @@
 'use strict';
 
 const WORKER_VERSION =
-    '20260924-buildworker5';
+    '20260924-buildworker6';
 
 const DEPENDENCY_VERSION =
     '20260924-workerbuild3';
@@ -1202,6 +1202,14 @@ async function writeBuildCheckpoint(
                     .buildState
                     .autoSaveOnComplete !==
                     false,
+        generationContext:
+            cloneJson(
+                job?.build?.generationContext ||
+                previous
+                    .buildState
+                    .generationContext ||
+                null
+            ),
         updatedAt:
             timestamp
     };
