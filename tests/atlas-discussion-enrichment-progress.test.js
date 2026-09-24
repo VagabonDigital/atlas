@@ -8,6 +8,11 @@ const engine = fs.readFileSync(
     'utf8'
 );
 
+const operations = fs.readFileSync(
+    'shared/atlas-subject-build-document-operations.js',
+    'utf8'
+);
+
 const loader = fs.readFileSync(
     'compass/shared/compass-subject-loader.js',
     'utf8'
@@ -24,13 +29,18 @@ assert.match(
 );
 
 assert.match(
-    engine,
-    /const operationTotals = operations\.reduce\([\s\S]*?totals\[operation\.kind\]/
+    operations,
+    /const operationTotals =[\s\S]*?operations\.reduce\([\s\S]*?totals\[[\s\S]*?operation\.kind/
+);
+
+assert.match(
+    operations,
+    /completedByKind\[[\s\S]*?operation\.kind[\s\S]*?current:[\s\S]*?completedByKind[\s\S]*?total:[\s\S]*?operationTotals/
 );
 
 assert.match(
     engine,
-    /completedByKind\[operation\.kind\][\s\S]*?current:[\s\S]*?completedByKind[\s\S]*?total:[\s\S]*?operationTotals/
+    /event\?\.type ===[\s\S]*?'operations-start'[\s\S]*?event[\s\S]*?\.operationTotals[\s\S]*?event\?\.type ===[\s\S]*?'operation-start'/
 );
 
 assert.doesNotMatch(
@@ -65,12 +75,17 @@ assert.match(
 
 assert.match(
     loader,
-    /compass-engine\.js\?v=20260923-languagemode2/
+    /atlas-subject-build-document-operations\.js\?v=20260924-foreground2/
+);
+
+assert.match(
+    loader,
+    /compass-engine\.js\?v=20260924-foreground2/
 );
 
 assert.match(
     subjectPage,
-    /compass-subject-loader\.js\?v=20260923-languagemode2/
+    /compass-subject-loader\.js\?v=20260924-foreground2/
 );
 
 console.log(
