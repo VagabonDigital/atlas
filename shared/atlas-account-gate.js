@@ -69,6 +69,21 @@
         }
     }
 
+    function shouldAvoidInitialKeyboard() {
+        if (typeof window.matchMedia !== 'function') {
+            return false;
+        }
+
+        return (
+            window.matchMedia(
+                '(max-width: 640px)'
+            ).matches ||
+            window.matchMedia(
+                '(hover: none) and (pointer: coarse)'
+            ).matches
+        );
+    }
+
     function waitForAccountFonts() {
         if (
             !document.fonts ||
@@ -795,7 +810,7 @@
         gateLayer.className = 'atlas-account-gate-layer';
         gateLayer.hidden = true;
         gateLayer.innerHTML = `
-            <section class="atlas-account-gate-card" role="dialog" aria-modal="true" aria-labelledby="atlas-account-gate-title">
+            <section class="atlas-account-gate-card" role="dialog" aria-modal="true" aria-labelledby="atlas-account-gate-title" tabindex="-1">
                 <div class="atlas-account-gate-head">
                     <h2 class="atlas-account-gate-heading" id="atlas-account-gate-title">Atlas account</h2>
                     <button class="atlas-account-gate-close" type="button" data-account-close aria-label="Close account dialog">
@@ -1537,6 +1552,15 @@
             );
 
             requestAnimationFrame(() => {
+                if (shouldAvoidInitialKeyboard()) {
+                    focusWithoutScroll(
+                        gateLayer?.querySelector(
+                            '.atlas-account-gate-card'
+                        )
+                    );
+                    return;
+                }
+
                 const target =
                     gateLayer?.querySelector(
                         `[data-account-form="${state.gateMode}"] input`

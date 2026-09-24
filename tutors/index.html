@@ -2136,12 +2136,23 @@
     }
 
     .footer {
-      border-top: 1px solid var(--border-faint);
-      color: var(--text-muted);
+      --atlas-footer-border: rgba(49, 45, 38, 0.14);
+      --atlas-footer-soft: #7b7469;
+      --atlas-footer-heading: #211f1b;
+      border-top: 1px solid var(--atlas-footer-border);
+      color: var(--atlas-footer-soft);
+    }
+
+    html[data-theme="night"] .footer {
+      --atlas-footer-border: rgba(255, 255, 255, 0.08);
+      --atlas-footer-soft: #89847b;
+      --atlas-footer-heading: #ebe9e4;
     }
 
     .footer-inner {
+      width: min(calc(100% - 36px), 1120px);
       min-height: 82px;
+      margin-inline: auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -2158,12 +2169,12 @@
     }
 
     .footer-links a {
-      color: var(--text-muted);
+      color: var(--atlas-footer-soft);
       text-decoration: none;
     }
 
     .footer-links a:hover {
-      color: var(--text-heading);
+      color: var(--atlas-footer-heading);
     }
 
 
@@ -2198,6 +2209,15 @@
 
       .learner-board {
         grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .footer-inner {
+        padding: 22px 0;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
       }
     }
 

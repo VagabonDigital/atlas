@@ -251,7 +251,7 @@ assert.match(
 );
 assert.match(
     engine,
-    /Create free account to explore/
+    /Explore with free account/
 );
 assert.match(
     engine,
