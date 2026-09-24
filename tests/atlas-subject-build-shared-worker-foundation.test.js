@@ -457,6 +457,37 @@ async function testSharedWorkerRuntime() {
         'held'
     );
 
+    sharedSelf.navigator.locks =
+        null;
+
+    first.send({
+        type:
+            'enqueue-subject',
+        subjectId:
+            'subject-no-lock'
+    });
+
+    await flush();
+    await flush();
+
+    const noLock =
+        first
+            .latest(
+                'queue-state'
+            )
+            .queue
+            .find(
+                job =>
+                    job.subjectId ===
+                    'subject-no-lock'
+            );
+
+    assert.equal(
+        noLock.status,
+        'lock-unavailable',
+        'SharedWorker support without a usable build lock must fail safe instead of becoming a second writer.'
+    );
+
     const second =
         new FakePort();
 
