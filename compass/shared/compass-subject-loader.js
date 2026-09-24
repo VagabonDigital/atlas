@@ -692,8 +692,7 @@
             if (
                 subject.runtime
                     ?.aiBuildIncomplete ===
-                    true &&
-                !getBuildPresentationRequest()
+                    true
             ) {
                 const grant =
                     await requestForegroundBuildOwnership(
