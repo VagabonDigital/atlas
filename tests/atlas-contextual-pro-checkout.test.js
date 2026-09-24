@@ -88,6 +88,27 @@ assert.match(
   /name === 'checkout\.closed'[\s\S]*?!activeCheckout\.completed/
 );
 
+
+assert.match(
+  checkout,
+  /data-atlas-pro-checkout-open="true"[\s\S]*?overflow: hidden !important/
+);
+
+assert.match(
+  checkout,
+  /setCheckoutScrollLocked\([\s\S]*?true[\s\S]*?Paddle[\s\S]*?Checkout[\s\S]*?\.open\(/
+);
+
+assert.match(
+  checkout,
+  /name === 'checkout\.closed'[\s\S]*?setCheckoutScrollLocked\([\s\S]*?false/
+);
+
+assert.match(
+  checkout,
+  /Checkout failed'[\s\S]*?setCheckoutScrollLocked\([\s\S]*?false|setCheckoutScrollLocked\([\s\S]*?false[\s\S]*?Checkout failed'/
+);
+
 assert.match(
   chrome,
   /atlas-account-gate\.js\?v=20260923-procheckout2/
@@ -168,7 +189,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260923-contextual1/
+  /atlas-pro-checkout\.js\?v=20260923-scroll1/
 );
 
 assert.match(
