@@ -1272,6 +1272,23 @@
             subjectId
         ) {
             if (
+                message.retryable ===
+                    true
+            ) {
+                /*
+                 * Auth/session generation failures are worker-retryable.
+                 * The worker separately requests a fresh page-owned access
+                 * token; do not convert that temporary state into durable
+                 * paused recovery.
+                 */
+                markEstablishing(
+                    subjectId,
+                    true
+                );
+                return;
+            }
+
+            if (
                 navigator.onLine ===
                     false
             ) {
