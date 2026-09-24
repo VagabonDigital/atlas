@@ -3252,6 +3252,25 @@
       line-height: 1.55;
     }
 
+    .owned-subject-dialog-upgrade.is-allowance {
+      display: flex;
+      align-items: baseline;
+      gap: 0.35rem;
+      padding: 0.65rem 0.8rem;
+      border-color: var(--border-subtle);
+      background: var(--surface-muted);
+    }
+
+    .owned-subject-dialog-upgrade.is-allowance strong {
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .owned-subject-dialog-upgrade.is-allowance.is-low {
+      border-color: rgba(var(--accent-rgb), 0.22);
+      background: var(--accent-dim);
+    }
+
     .owned-subject-dialog-actions {
       display: flex;
       justify-content: flex-end;
@@ -5056,6 +5075,7 @@
   <script src="../shared/atlas-ai.js?v=20260921-artworkauth1"></script>
   <script src="../shared/compass-catalog-data.js?v=5"></script>
   <script src="../shared/atlas-content-registry.js?v=20260923-coverprewarm2"></script>
+  <script src="/shared/atlas-pro-checkout.js?v=20260923-contextual1"></script>
   <script src="../shared/atlas-session-panel.js?v=20260916-runtime3"></script>
   <script src="../shared/atlas-search.js"></script>
   <script>
@@ -7862,7 +7882,91 @@
       }
     }
 
-    function showCompassCreationUpgrade(
+    function formatCompassCreationResetDate(value) {
+      const resetAt =
+        new Date(String(value || '').trim());
+
+      if (!Number.isFinite(resetAt.getTime())) {
+        return '';
+      }
+
+      return new Intl.DateTimeFormat(
+        undefined,
+        {
+          month: 'short',
+          day: 'numeric'
+        }
+      ).format(resetAt);
+    }
+
+    function resolveCompassCreationAllowance(
+      access
+    ) {
+      const liveAccess =
+        window.AtlasAccess?.getState?.() ||
+        null;
+
+      const accessState =
+        access?.access &&
+        typeof access.access === 'object'
+          ? access.access
+          : (
+              access &&
+              typeof access === 'object' &&
+              access.tier
+                ? access
+                : liveAccess
+            );
+
+      const allowance =
+        access?.allowance &&
+        typeof access.allowance === 'object'
+          ? access.allowance
+          : (
+              accessState?.creationAllowance &&
+              typeof accessState.creationAllowance ===
+                'object'
+                ? accessState.creationAllowance
+                : (
+                    liveAccess?.creationAllowance &&
+                    typeof liveAccess.creationAllowance ===
+                      'object'
+                      ? liveAccess.creationAllowance
+                      : null
+                  )
+            );
+
+      const remaining =
+        Number(allowance?.remaining);
+      const limit =
+        Number(allowance?.limit);
+
+      return {
+        tier:
+          String(
+            accessState?.tier ||
+            liveAccess?.tier ||
+            ''
+          ).trim(),
+        allowance,
+        remaining:
+          Number.isFinite(remaining) &&
+          remaining >= 0
+            ? Math.floor(remaining)
+            : null,
+        limit:
+          Number.isFinite(limit) &&
+          limit > 0
+            ? Math.floor(limit)
+            : null,
+        resetLabel:
+          formatCompassCreationResetDate(
+            allowance?.resetAt
+          )
+      };
+    }
+
+    function showCompassCreationExhausted(
       dialog,
       access
     ) {
@@ -7873,6 +7977,9 @@
       );
       const panelTitle = dialog.querySelector(
         '#owned-subject-dialog-upgrade-title'
+      );
+      const panelCopy = dialog.querySelector(
+        '#owned-subject-dialog-upgrade-copy'
       );
       const error = dialog.querySelector(
         '#owned-subject-dialog-error'
@@ -7887,6 +7994,7 @@
       if (
         !panel ||
         !panelTitle ||
+        !panelCopy ||
         !secondary ||
         !confirm ||
         ownedSubjectDialogState?.mode !== 'create'
@@ -7894,42 +8002,67 @@
         return false;
       }
 
-      const allowance =
-        access?.allowance &&
-        typeof access.allowance === 'object'
-          ? access.allowance
-          : {};
+      const resolved =
+        resolveCompassCreationAllowance(
+          access
+        );
 
-      const numericLimit =
-        Number(allowance.limit);
-
-      const limit =
-        Number.isFinite(numericLimit) &&
-        numericLimit > 0
-          ? Math.floor(numericLimit)
-          : null;
-
-      panelTitle.textContent =
-        limit
-          ? `You’ve used your ${limit} free subject creations.`
-          : 'You’ve used your free subject creations.';
+      panel.classList.remove(
+        'is-allowance',
+        'is-low'
+      );
 
       panel.hidden = false;
+      panelCopy.hidden = false;
 
       if (error) {
         error.hidden = true;
         error.textContent = '';
       }
 
-      ownedSubjectDialogState.upgradePrompt = true;
-
       secondary.hidden = false;
       secondary.className = 'btn-ghost';
       secondary.textContent = 'Start blank';
       secondary.disabled = false;
 
+      if (resolved.tier === 'pro') {
+        panelTitle.textContent =
+          resolved.limit
+            ? `You’ve used your ${resolved.limit} subject creations for this billing month.`
+            : 'You’ve used your subject creations for this billing month.';
+
+        panelCopy.textContent =
+          resolved.resetLabel
+            ? `Fresh subject creations reset ${resolved.resetLabel}. You can keep teaching, editing and reusing what you own, or start this subject blank.`
+            : 'You can keep teaching, editing and reusing what you own, or start this subject blank. Fresh subject creations return with your next billing period.';
+
+        ownedSubjectDialogState.upgradePrompt =
+          'pro-exhausted';
+
+        confirm.hidden = true;
+
+        requestAnimationFrame(() => {
+          secondary.focus();
+        });
+
+        return true;
+      }
+
+      panelTitle.textContent =
+        resolved.limit
+          ? `You’ve used your ${resolved.limit} free subject creations.`
+          : 'You’ve used your free subject creations.';
+
+      panelCopy.textContent =
+        'You can keep teaching, editing and reusing what you own, or start this subject blank. Upgrade to Atlas Pro for 100 fresh subject creations each billing month.';
+
+      ownedSubjectDialogState.upgradePrompt =
+        'free-exhausted';
+
+      confirm.hidden = false;
       confirm.className = 'btn-primary';
-      confirm.textContent = 'See Atlas Pro';
+      confirm.textContent =
+        'Upgrade to Pro · $12/month';
       confirm.disabled = false;
 
       requestAnimationFrame(() => {
@@ -7939,24 +8072,211 @@
       return true;
     }
 
-    function openCompassCreationUpgradePricing() {
-      const draftId =
-        storeCompassCreatePreviewDraft(
-          'generate'
+    function syncCompassCreationAllowanceNotice(
+      dialog,
+      access = null
+    ) {
+      if (!dialog) return false;
+
+      const panel = dialog.querySelector(
+        '#owned-subject-dialog-upgrade'
+      );
+      const panelTitle = dialog.querySelector(
+        '#owned-subject-dialog-upgrade-title'
+      );
+      const panelCopy = dialog.querySelector(
+        '#owned-subject-dialog-upgrade-copy'
+      );
+
+      if (
+        !panel ||
+        !panelTitle ||
+        !panelCopy ||
+        ownedSubjectDialogState?.mode !== 'create'
+      ) {
+        return false;
+      }
+
+      panel.hidden = true;
+      panel.classList.remove(
+        'is-allowance',
+        'is-low'
+      );
+      panelTitle.textContent = '';
+      panelCopy.textContent = '';
+      panelCopy.hidden = true;
+
+      if (
+        ownedSubjectDialogState
+          ?.anonymousPreview
+      ) {
+        return false;
+      }
+
+      const resolved =
+        resolveCompassCreationAllowance(
+          access
         );
 
-      const params =
-        new URLSearchParams({
-          from: 'compass-create',
-          ...(draftId
-            ? { draft: draftId }
-            : {})
+      if (
+        resolved.remaining === null ||
+        resolved.limit === null
+      ) {
+        return false;
+      }
+
+      if (resolved.remaining === 0) {
+        return showCompassCreationExhausted(
+          dialog,
+          access
+        );
+      }
+
+      if (resolved.tier === 'free') {
+        panelTitle.textContent =
+          `${resolved.remaining} of ${resolved.limit} free subject creations remaining.`;
+
+        panel.classList.add(
+          'is-allowance'
+        );
+
+        if (resolved.remaining <= 2) {
+          panel.classList.add('is-low');
+        }
+
+        panel.hidden = false;
+        return true;
+      }
+
+      if (
+        resolved.tier === 'pro' &&
+        resolved.remaining <= 10
+      ) {
+        panelTitle.textContent =
+          `${resolved.remaining} of ${resolved.limit} subject creations remaining this billing month.`;
+
+        if (resolved.resetLabel) {
+          panelCopy.textContent =
+            `Resets ${resolved.resetLabel}.`;
+          panelCopy.hidden = false;
+        }
+
+        panel.classList.add(
+          'is-allowance',
+          'is-low'
+        );
+        panel.hidden = false;
+        return true;
+      }
+
+      return false;
+    }
+
+    async function openCompassCreationUpgradeCheckout(
+      dialog
+    ) {
+      const confirm = dialog?.querySelector(
+        '#owned-subject-dialog-confirm'
+      );
+      const error = dialog?.querySelector(
+        '#owned-subject-dialog-error'
+      );
+
+      if (
+        !dialog ||
+        !confirm ||
+        !window.AtlasProCheckout ||
+        typeof window.AtlasProCheckout.open !==
+          'function'
+      ) {
+        if (error) {
+          error.hidden = false;
+          error.textContent =
+            'Secure checkout is unavailable right now.';
+        }
+        return false;
+      }
+
+      confirm.disabled = true;
+      confirm.textContent =
+        'Opening secure checkout…';
+
+      const opened =
+        await window.AtlasProCheckout.open({
+          source:
+            'compass-create',
+          trigger:
+            confirm,
+          onStatus: (
+            message,
+            kind
+          ) => {
+            if (!error) return;
+
+            if (
+              kind === 'error' &&
+              message
+            ) {
+              error.hidden = false;
+              error.textContent = message;
+              return;
+            }
+
+            error.hidden = true;
+            error.textContent = '';
+          },
+          onActivated:
+            accessState => {
+              if (
+                ownedSubjectDialogState?.mode !==
+                  'create'
+              ) {
+                return;
+              }
+
+              ownedSubjectDialogState
+                .upgradePrompt = false;
+
+              const secondary =
+                dialog.querySelector(
+                  '#owned-subject-dialog-secondary'
+                );
+
+              if (secondary) {
+                secondary.hidden = false;
+                secondary.className =
+                  'btn-ghost';
+                secondary.textContent =
+                  'Start blank';
+                secondary.disabled = false;
+              }
+
+              confirm.hidden = false;
+              confirm.className =
+                'btn-primary';
+              confirm.textContent =
+                'Create subject';
+              confirm.disabled = false;
+
+              syncCompassCreationAllowanceNotice(
+                dialog,
+                accessState
+              );
+            }
         });
 
-      window.location.href =
-        '/pricing/?' +
-        params.toString() +
-        '#plans';
+      if (
+        ownedSubjectDialogState?.mode ===
+          'create' &&
+        ownedSubjectDialogState
+          .upgradePrompt === 'free-exhausted'
+      ) {
+        confirm.disabled = false;
+        confirm.textContent =
+          'Upgrade to Pro · $12/month';
+      }
+
+      return opened;
     }
 
     function compassSubjectCapabilityAllows(
@@ -8703,7 +9023,7 @@
 
         '<div class="owned-subject-dialog-upgrade" id="owned-subject-dialog-upgrade" hidden>' +
         '<strong id="owned-subject-dialog-upgrade-title"></strong>' +
-        '<p>Your workspace and everything you’ve created stay available. Keep teaching, editing and reusing what you own, or start blank. Atlas Pro gives you 100 fresh subject creations each month, so creating specifically for the learner in front of you can become part of how you teach.</p>' +
+        '<p id="owned-subject-dialog-upgrade-copy"></p>' +
         '</div>' +
 
         '<p class="owned-subject-dialog-error" id="owned-subject-dialog-error" hidden></p>' +
@@ -9962,6 +10282,10 @@
 
       if (upgrade) {
         upgrade.hidden = true;
+        upgrade.classList.remove(
+          'is-allowance',
+          'is-low'
+        );
       }
 
       error.hidden = true;
@@ -9972,11 +10296,16 @@
       secondary.textContent = 'Start blank';
       secondary.disabled = false;
 
+      confirm.hidden = false;
       confirm.className = 'btn-primary';
       confirm.textContent = 'Create subject';
       confirm.disabled = false;
 
       syncAnonymousCreatePreviewState(
+        dialog
+      );
+
+      syncCompassCreationAllowanceNotice(
         dialog
       );
 
@@ -10277,10 +10606,22 @@
 
       if (
         state.mode === 'create' &&
-        state.upgradePrompt === true &&
+        state.upgradePrompt ===
+          'free-exhausted' &&
         createMode !== 'blank'
       ) {
-        openCompassCreationUpgradePricing();
+        await openCompassCreationUpgradeCheckout(
+          dialog
+        );
+        return;
+      }
+
+      if (
+        state.mode === 'create' &&
+        state.upgradePrompt ===
+          'pro-exhausted' &&
+        createMode !== 'blank'
+      ) {
         return;
       }
 
@@ -10897,7 +11238,7 @@
             aiAccess?.outcome === 'limited' &&
             aiAccess?.reason === 'exhausted'
           ) {
-            showCompassCreationUpgrade(
+            showCompassCreationExhausted(
               dialog,
               aiAccess
             );
@@ -11218,7 +11559,7 @@
               null;
 
             if (
-              showCompassCreationUpgrade(
+              showCompassCreationExhausted(
                 dialog,
                 {
                   outcome: 'limited',
