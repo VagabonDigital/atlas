@@ -989,6 +989,11 @@ function testBatchFourStaticContracts() {
     );
 
     assert.match(
+        operationsSource,
+        /selection-complete[\s\S]*?shouldStop\(\) === true[\s\S]*?stopped: true/
+    );
+
+    assert.match(
         workerSource,
         /requestForegroundOwnership/
     );
@@ -1021,6 +1026,26 @@ function testBatchFourStaticContracts() {
     assert.match(
         loaderSource,
         /requestForegroundBuildOwnership\([\s\S]*?installRuntimeSubject\(subject\)/
+    );
+
+    assert.match(
+        loaderSource,
+        /AtlasForegroundSubjectBuildHandoff/
+    );
+
+    assert.match(
+        engineSource,
+        /acquireMyVersionForegroundBuildHandoffLease\(\)[\s\S]*?await loadTutorContentState\(\)/
+    );
+
+    assert.match(
+        engineSource,
+        /myVersionFullSubjectLeasePreacquired[\s\S]*?acquireBuildLease/
+    );
+
+    assert.match(
+        engineSource,
+        /releaseMyVersionForegroundBuildHandoff\([\s\S]*?'runtime-layers-unavailable'/
     );
 
     assert.match(
