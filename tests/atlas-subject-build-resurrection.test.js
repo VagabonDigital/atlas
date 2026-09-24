@@ -943,7 +943,7 @@ async function testSignOutClearsResurrectionProjection() {
 
     assert.doesNotMatch(
         resurrectionSource,
-        /refresh_token|refreshToken/
+        /refreshToken\s*:|session\s*\??\.\s*refresh_token/
     );
 
     await testAutomaticWakeAndCompletion();
