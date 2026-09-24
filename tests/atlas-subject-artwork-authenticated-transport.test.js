@@ -63,18 +63,23 @@ async function verifyAuthenticatedArtworkRequest() {
         clearTimeout
     };
 
+    const aiContext = {
+        window,
+        Headers,
+        AbortController,
+        console
+    };
+
     vm.runInNewContext(
         atlasAI,
-        {
-            window,
-            Headers,
-            AbortController,
-            console
-        },
+        aiContext,
         {
             filename: 'shared/atlas-ai.js'
         }
     );
+
+    window.AtlasAI =
+        aiContext.AtlasAI;
 
     const generated =
         await window.AtlasAI
