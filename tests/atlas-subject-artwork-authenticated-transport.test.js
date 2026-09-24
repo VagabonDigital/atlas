@@ -64,11 +64,21 @@ async function verifyAuthenticatedArtworkRequest() {
     };
 
     const aiContext = {
-        window,
+        fetch:
+            window.fetch,
+        AtlasCloud:
+            window.AtlasCloud,
+        crypto:
+            window.crypto,
+        setTimeout,
+        clearTimeout,
         Headers,
         AbortController,
         console
     };
+
+    aiContext.window =
+        aiContext;
 
     vm.runInNewContext(
         atlasAI,
@@ -78,11 +88,8 @@ async function verifyAuthenticatedArtworkRequest() {
         }
     );
 
-    window.AtlasAI =
-        aiContext.AtlasAI;
-
     const generated =
-        await window.AtlasAI
+        await aiContext.AtlasAI
             .generateSubjectArtwork({
                 subjectId:
                     'subject-test-owned-123',
