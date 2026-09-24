@@ -1039,6 +1039,11 @@ function testBatchFourStaticContracts() {
     );
 
     assert.match(
+        loaderSource,
+        /subject =\s*latestSubject;[\s\S]*?grant[\s\S]*?generationContext[\s\S]*?subject\.runtime[\s\S]*?generationContext/
+    );
+
+    assert.match(
         engineSource,
         /acquireMyVersionForegroundBuildHandoffLease\(\)[\s\S]*?await loadTutorContentState\(\)/
     );
