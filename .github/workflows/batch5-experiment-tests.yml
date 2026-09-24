@@ -14,28 +14,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Run Batch 0-5 subject-build contracts
+      - name: Run full Atlas regression suite
         run: |
-          tests=(
-            tests/atlas-subject-build-runner-foundation.test.js
-            tests/atlas-subject-build-worker-neutral.test.js
-            tests/atlas-subject-build-shared-worker-foundation.test.js
-            tests/atlas-subject-build-shared-worker-generation.test.js
-            tests/atlas-subject-build-foreground-handoff.test.js
-            tests/atlas-incomplete-ai-subject-recovery.test.js
-            tests/atlas-compass-unfinished-build-lifecycle.test.js
-            tests/atlas-compass-unfinished-build-projection.test.js
-            tests/atlas-subject-runtime-cross-tab.test.js
-            tests/atlas-subject-checkpoint-persistence.test.js
-            tests/atlas-key-language-resilience.test.js
-            tests/atlas-ai-subject-quota-6-2.test.js
-            tests/atlas-subject-build-resurrection.test.js
-            tests/atlas-subject-build-worker-reconnect.test.js
-          )
-
           failed=0
 
-          for test_file in "${tests[@]}"; do
+          for test_file in tests/*.test.js; do
             echo "::group::${test_file}"
 
             if node "${test_file}"; then
