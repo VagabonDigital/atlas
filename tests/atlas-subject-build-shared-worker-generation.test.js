@@ -703,12 +703,20 @@ async function testRealWorkerGeneration() {
     let foregroundOwnsLock =
         true;
 
-    let workerHeldLocks = 0;
+    const workerHeldLockNames =
+        new Set();
+
+    let concurrentWorkerBuilds = 0;
     let maxWorkerHeldLocks = 0;
 
     const Locks = {
         async query() {
-            const held = [];
+            const held =
+                Array.from(
+                    workerHeldLockNames
+                ).map(name => ({
+                    name
+                }));
 
             if (
                 foregroundOwnsLock
@@ -736,20 +744,29 @@ async function testRealWorkerGeneration() {
                 true
             );
 
+            const pageOwnsThisLock =
+                foregroundOwnsLock &&
+                name ===
+                    'atlas-subject-build:subject-worker-resume';
+
             if (
-                foregroundOwnsLock ||
-                workerHeldLocks > 0
+                pageOwnsThisLock ||
+                workerHeldLockNames
+                    .has(name)
             ) {
                 return callback(
                     null
                 );
             }
 
-            workerHeldLocks += 1;
+            workerHeldLockNames
+                .add(name);
+
+            concurrentWorkerBuilds += 1;
             maxWorkerHeldLocks =
                 Math.max(
                     maxWorkerHeldLocks,
-                    workerHeldLocks
+                    concurrentWorkerBuilds
                 );
 
             try {
@@ -757,7 +774,9 @@ async function testRealWorkerGeneration() {
                     name
                 });
             } finally {
-                workerHeldLocks -= 1;
+                concurrentWorkerBuilds -= 1;
+                workerHeldLockNames
+                    .delete(name);
             }
         }
     };
@@ -1254,6 +1273,163 @@ async function testRealWorkerGeneration() {
         job?.status,
         'ready-to-commit',
         'Batch 3 must stop at ready-to-commit rather than becoming a Supabase completion authority.'
+    );
+
+    /*
+     * Queue two additional unfinished subjects while the same SharedWorker
+     * remains alive. The fake Web Locks implementation permits different
+     * subject lock names concurrently, so maxWorkerHeldLocks > 1 would prove
+     * the worker itself had parallelized full builds.
+     */
+    function checkpointFor(subjectId) {
+        const next =
+            clone(
+                initialCheckpoint
+            );
+
+        next.subjectId =
+            subjectId;
+        next.workingDraft.subjectId =
+            subjectId;
+        next.buildState.subjectId =
+            subjectId;
+
+        return next;
+    }
+
+    records.set(
+        'build-checkpoint::subject-serial-a',
+        checkpointFor(
+            'subject-serial-a'
+        )
+    );
+
+    records.set(
+        'build-checkpoint::subject-serial-b',
+        checkpointFor(
+            'subject-serial-b'
+        )
+    );
+
+    const descriptor = {
+        generationContext: {
+            version: 1,
+            languageLevel:
+                'b2',
+            subjectSize:
+                'standard',
+            languageSupport:
+                'key',
+            style:
+                'balanced',
+            premise:
+                'Serial queue safety.',
+            brief:
+                ''
+        },
+        autoSaveOnComplete:
+            true,
+        revision: 4
+    };
+
+    arcadePage.send({
+        type:
+            'enqueue-subject',
+        subjectId:
+            'subject-serial-a',
+        build:
+            descriptor
+    });
+
+    arcadePage.send({
+        type:
+            'enqueue-subject',
+        subjectId:
+            'subject-serial-b',
+        build:
+            descriptor
+    });
+
+    const bothCompleted =
+        await waitUntil(
+            () => {
+                const queue =
+                    arcadePage
+                        .latest(
+                            'queue-state'
+                        )
+                        ?.queue ||
+                    [];
+
+                const first =
+                    queue.find(
+                        item =>
+                            item.subjectId ===
+                            'subject-serial-a'
+                    );
+
+                const second =
+                    queue.find(
+                        item =>
+                            item.subjectId ===
+                            'subject-serial-b'
+                    );
+
+                return (
+                    first?.status ===
+                        'ready-to-commit' &&
+                    first?.lockState ===
+                        'available' &&
+                    second?.status ===
+                        'ready-to-commit' &&
+                    second?.lockState ===
+                        'available'
+                );
+            },
+            {
+                timeoutMs: 7000,
+                stepMs: 10
+            }
+        );
+
+    assert.equal(
+        bothCompleted,
+        true,
+        'Multiple unfinished subjects should drain from the worker queue.'
+    );
+
+    assert.equal(
+        maxWorkerHeldLocks,
+        1,
+        'SharedWorker must serialize full subject builds even when different Web Locks could be acquired concurrently.'
+    );
+
+    const starts =
+        arcadePage
+            .messages
+            .filter(
+                message =>
+                    message.type ===
+                    'build-started' &&
+                    [
+                        'subject-serial-a',
+                        'subject-serial-b'
+                    ].includes(
+                        message.subjectId
+                    )
+            )
+            .map(
+                message =>
+                    message.subjectId
+            );
+
+    assert.deepEqual(
+        starts,
+        [
+            'subject-serial-a',
+            'subject-serial-b'
+        ],
+        'Background subjects should run in queue order.'
     );
 }
 
