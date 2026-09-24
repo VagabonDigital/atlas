@@ -986,7 +986,7 @@
             </div>
             <div class="atlas-account-menu-actions">
                 <button class="atlas-account-menu-action" type="button" data-account-menu-upgrade style="display:none">Upgrade to Pro · $12/month</button>
-                <a class="atlas-account-menu-action" href="/pricing/" data-account-menu-pricing>View pricing</a>
+                <a class="atlas-account-menu-action" href="/pricing/" data-account-menu-pricing>The magic of Atlas Pro</a>
                 <a class="atlas-account-menu-action" href="/account/" data-account-settings>Account settings</a>
                 <button class="atlas-account-menu-action" type="button" data-account-menu-feedback>Message Atlas</button>
                 <button class="atlas-account-menu-action" type="button" data-account-menu-sign-out>Sign out</button>
