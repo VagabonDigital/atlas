@@ -196,7 +196,7 @@ for (const [
 
     assert.match(
         source,
-        /Create free account to play/
+        /Play with free account/
     );
 
     assert.match(
