@@ -1200,6 +1200,10 @@
                     ''
                 ).trim();
 
+            const latestAccountState =
+                Account?.getState?.() ||
+                null;
+
             if (
                 !userId ||
                 !accessToken ||
@@ -1207,6 +1211,15 @@
                     String(
                         accountState
                             .userId
+                    ).trim() ||
+                latestAccountState
+                    ?.authenticated !==
+                    true ||
+                userId !==
+                    String(
+                        latestAccountState
+                            ?.userId ||
+                        ''
                     ).trim()
             ) {
                 throw new Error(
