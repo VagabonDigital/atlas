@@ -6,6 +6,11 @@ const vm = require('node:vm');
 
 async function testGateApi() {
     const source = fs.readFileSync('shared/atlas-account-gate.js', 'utf8');
+
+    assert.match(
+        source,
+        /access\.tier === 'pro'[\s\S]*?\? 'Atlas Pro'[\s\S]*?access\.tier === 'free'[\s\S]*?\? 'Free account'/
+    );
     const context = {
         console,
         window: {}
