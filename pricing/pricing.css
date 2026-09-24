@@ -92,14 +92,17 @@ html[data-atlas-account-hint="account"] .free-entry { display: none; }
 .teaching-rhythm li::before { content: ''; position: absolute; left: -4px; top: 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--compass); }
 .teaching-rhythm h3 { font-size: 25px; margin-bottom: 9px; }
 .teaching-rhythm p { font-size: 14px; line-height: 1.8; max-width: 415px; }
-.decision { display: flex; justify-content: space-between; align-items: center; gap: 30px; margin-top: 58px; padding-top: 30px; border-top: 1px solid var(--border-strong); }
-.decision p { font: 400 28px/1.2 var(--font-display); color: var(--text-heading); letter-spacing: -.02em; }
-.decision-price { display: block; margin-top: 10px; font-size: 12px; color: var(--text-muted); }
-.decision .button { flex-shrink: 0; }
+.decision-band { background: var(--surface-panel); }
+.decision { min-height: 190px; display: flex; justify-content: space-between; align-items: center; gap: 48px; padding: 42px 0 44px; }
+.decision-copy { max-width: 700px; }
+.decision-copy .kicker { margin-bottom: 10px; }
+.decision h2 { max-width: 650px; font-size: clamp(34px, 3.6vw, 48px); line-height: 1.08; }
+.decision-price { display: block; margin-top: 14px; font-size: 13px; color: var(--text-muted); }
+.decision .button { flex-shrink: 0; min-width: 190px; }
 .decision-action { flex-shrink: 0; max-width: 320px; }
 .decision .repeat-status { margin-top: 12px; font: 400 13px/1.6 var(--font-body); letter-spacing: 0; color: var(--text-body); }
 .repeat-status:empty { display: none; }
-.answers { padding: 68px 0 84px; border-top: 1px solid var(--border-strong); }
+.answers { padding: 68px 0 84px; }
 .answers-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 100px; }
 .answers h2 { font-size: 38px; margin-top: 16px; }
 .answers-note { max-width: 285px; margin-top: 20px; color: var(--text-muted); font-size: 13px; }
@@ -165,8 +168,9 @@ html[data-theme="night"] .proof-image { color-scheme: light; }
   .prep-copy > p:not(.kicker) { font-size: 15px; }
   .teaching-rhythm { margin: 12px 0 0 4px; }
   .teaching-rhythm li { padding-left: 27px; }
-  .decision { margin-top: 33px; padding-top: 27px; align-items: start; flex-direction: column; gap: 20px; }
-  .decision p { font-size: 26px; }
+  .decision { min-height: 0; padding: 36px 0 38px; align-items: start; flex-direction: column; gap: 24px; }
+  .decision h2 { font-size: 34px; }
+  .decision-price { margin-top: 11px; line-height: 1.6; }
   .decision .button { width: 100%; }
   .decision-action { width: 100%; max-width: none; }
   .answers { padding: 45px 0 52px; }
