@@ -15,6 +15,12 @@ const resurrectionSource =
         'utf8'
     );
 
+const loaderSource =
+    fs.readFileSync(
+        'compass/shared/compass-subject-loader.js',
+        'utf8'
+    );
+
 function clone(value) {
     return JSON.parse(
         JSON.stringify(value)
@@ -114,6 +120,7 @@ function createSandbox({
     const cancelled = [];
     const updates = [];
     const cleared = [];
+    const workerQueue = [];
 
     let entitlementRefreshes = 0;
 
@@ -321,7 +328,11 @@ function createSandbox({
                 authenticated:
                     true,
                 userId:
-                    'user-one'
+                    'user-one',
+                queue:
+                    clone(
+                        workerQueue
+                    )
             };
         },
 
@@ -533,6 +544,7 @@ function createSandbox({
         subjects,
         buildStates,
         drafts,
+        workerQueue,
 
         entitlementRefreshes() {
             return entitlementRefreshes;
@@ -674,6 +686,55 @@ async function testAutomaticWakeAndCompletion() {
     assert.equal(
         box.entitlementRefreshes(),
         1
+    );
+}
+
+async function testForegroundClaimWinsReadyCompletionRace() {
+    const box =
+        createSandbox();
+
+    vm.runInNewContext(
+        resurrectionSource,
+        box.context
+    );
+
+    await flush();
+    await flush();
+
+    box.buildStates
+        .get('subject-resume')
+        .completedStep =
+        18;
+
+    box.workerQueue.push({
+        subjectId:
+            'subject-resume',
+        status:
+            'foreground-owned'
+    });
+
+    const completed =
+        await box.windowObject
+            .AtlasSubjectBuildResurrection
+            .completeReadyBuild(
+                'subject-resume'
+            );
+
+    assert.equal(
+        completed,
+        false,
+        'Background completion must yield once a subject page has claimed foreground ownership.'
+    );
+
+    assert.equal(
+        box.updates.length,
+        0,
+        'The background broker must not commit behind a foreground-owned subject.'
+    );
+
+    assert.equal(
+        box.cleared.length,
+        0
     );
 }
 
@@ -1304,12 +1365,23 @@ async function testSignOutClearsResurrectionProjection() {
         /updateSubjectAtRevision/
     );
 
+    assert.match(
+        resurrectionSource,
+        /foreground-owned[\s\S]*?yielding-to-foreground[\s\S]*?return false/
+    );
+
+    assert.match(
+        loaderSource,
+        /requestForegroundBuildOwnership\([\s\S]*?AtlasCloudCache[\s\S]*?\.clear\?\.\(\)[\s\S]*?getSubject\(subjectId\)[\s\S]*?aiBuildIncomplete/
+    );
+
     assert.doesNotMatch(
         resurrectionSource,
         /refreshToken\s*:|session\s*\??\.\s*refresh_token/
     );
 
     await testAutomaticWakeAndCompletion();
+    await testForegroundClaimWinsReadyCompletionRace();
     await testRevisionConflictFailsClosed();
     await testOfflineFailureRetriesOnReconnect();
     await testSeveralUnfinishedSubjectsPreserveDiscoveryOrder();
