@@ -92,7 +92,7 @@ async function readBrowserState(key) {
 
 function checkpointKey(subjectId) {
     return (
-        'build-checkpoint:' +
+        'build-checkpoint::' +
         String(subjectId || '').trim()
     );
 }

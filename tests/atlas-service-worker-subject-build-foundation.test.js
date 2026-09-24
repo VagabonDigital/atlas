@@ -70,6 +70,11 @@ assert.match(
 );
 
 assert.match(
+    swSource,
+    /['"]build-checkpoint::['"]/
+);
+
+assert.match(
     clientSource,
     /register\([\s\S]*?\/atlas-subject-build-sw\.js[\s\S]*?scope:\s*['"]\/['"]/
 );
