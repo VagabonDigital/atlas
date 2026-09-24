@@ -1063,6 +1063,16 @@ function testBatchFourStaticContracts() {
         /completesAiSubjectBuild[\s\S]*?aiBuildStatus:[\s\S]*?'complete'[\s\S]*?generationContext:/
     );
 
+    assert.match(
+        engineSource,
+        /function updateOwnedSubjectAtRuntimeRevision[\s\S]*?getCompassSubjectRuntime\(\)[\s\S]*?revision[\s\S]*?updateSubjectAtRevision\([\s\S]*?MODULE\.id[\s\S]*?expectedRevision/
+    );
+
+    assert.doesNotMatch(
+        engineSource,
+        /requireAtlasTutorSubjects\(\)[\s\S]{0,120}?\.updateSubject\([\s\S]{0,120}?MODULE\.id/
+    );
+
     assert.doesNotMatch(
         workerSource,
         /AtlasCloud|AtlasTutorSubjects|supabase\.co|refresh_token/
