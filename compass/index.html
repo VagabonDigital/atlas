@@ -8188,7 +8188,10 @@
         );
       }
 
-      if (resolved.tier === 'free') {
+      if (
+        resolved.tier === 'free' &&
+        resolved.remaining <= 3
+      ) {
         allowanceStatus.textContent =
           `Free · ${resolved.remaining} left`;
 
