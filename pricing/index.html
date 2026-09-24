@@ -33,7 +33,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="/shared/atlas-account-chrome.css?v=20260924-returnlabel1" data-atlas-account-chrome-styles>
+  <link rel="stylesheet" href="/shared/atlas-account-chrome.css?v=20260924-enterlabel1" data-atlas-account-chrome-styles>
   <script>
     (function () {
       var hasAccount = false;
@@ -218,21 +218,29 @@
       align-items:center;
       justify-content:center;
       padding:0 12px;
-      border:1px solid var(--text-heading);
+      border:1px solid var(--border-subtle);
       border-radius:999px;
-      background:var(--text-heading);
-      color:var(--surface);
+      background:var(--surface-panel);
+      color:var(--text-body);
+      box-shadow:var(--shadow-sm);
       font-size:12px;
-      font-weight:700;
+      font-weight:600;
       white-space:nowrap;
       cursor:pointer;
       transition:
         transform var(--motion),
+        color var(--motion),
         background var(--motion),
-        border-color var(--motion);
+        border-color var(--motion),
+        box-shadow var(--motion);
     }
-    .pricing-header-pro:hover {
+    .pricing-header-pro:hover,
+    .pricing-header-pro:focus-visible {
       transform:translateY(-1px);
+      color:var(--text-heading);
+      background:var(--surface-muted);
+      border-color:var(--border-subtle);
+      box-shadow:var(--shadow-md);
     }
     .pricing-header-pro-label--manage {
       display:none;
@@ -388,7 +396,7 @@
       <button class="pricing-header-pro" type="button" data-pricing-header-pro><span class="pricing-header-pro-label--get">Get Pro</span><span class="pricing-header-pro-label--manage">Manage Pro</span></button>
       <div class="atlas-inside-account-entry" data-atlas-account-entry data-account-state="pending"
         aria-label="Atlas account actions">
-        <a class="atlas-inside-account-action atlas-inside-account-explore" href="/?entry=product" data-atlas-product-entry><span class="atlas-inside-account-explore-label">Explore Atlas</span><span class="atlas-inside-account-return-label">Return to Atlas</span></a>
+        <a class="atlas-inside-account-action atlas-inside-account-explore" href="/?entry=product" data-atlas-product-entry><span class="atlas-inside-account-explore-label">Explore Atlas</span><span class="atlas-inside-account-enter-label">Enter Atlas</span></a>
         <button class="atlas-inside-account-action atlas-inside-account-sign-in" type="button"
           data-atlas-inside-sign-in>Sign in</button>
         <button class="atlas-inside-account-action atlas-inside-account-create" type="button"
@@ -547,7 +555,7 @@
         data-atlas-pro-activation-action
         hidden
       >
-        Return to Atlas
+        Enter Atlas
       </button>
     </section>
   </div>
@@ -555,7 +563,7 @@
   <script src="/shared/atlas-legal-appearance.js?v=20260920-legal-theme1"></script>
   <script src="/shared/atlas-return-intent.js?v=20260916-access1"></script>
   <script src="/shared/atlas-access-bootstrap.js?v=20260921-insideheader1"></script>
-  <script src="/shared/atlas-account-chrome.js?v=20260924-returnlabel1"></script>
+  <script src="/shared/atlas-account-chrome.js?v=20260924-enterlabel1"></script>
   <script>
     (function () {
       'use strict';
