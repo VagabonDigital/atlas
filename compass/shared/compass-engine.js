@@ -566,17 +566,14 @@ async function updateOwnedSubjectAtRuntimeRevision(
     }
 
     const expectedRevision =
-        Math.max(
-            1,
-            Math.floor(
-                Number(
-                    getCompassSubjectRuntime()
-                        ?.revision
-                ) || 0
-            )
+        Math.floor(
+            Number(
+                getCompassSubjectRuntime()
+                    ?.revision
+            ) || 0
         );
 
-    if (!expectedRevision) {
+    if (expectedRevision < 1) {
         const error = new Error(
             'Atlas owned-subject save is missing its revision boundary.'
         );
