@@ -239,7 +239,7 @@ html[data-atlas-account-hint="account"]
     }
 
     .atlas-inside-account-entry {
-        gap: 4px;
+        gap: 6px;
     }
 
     .atlas-inside-account-action {
