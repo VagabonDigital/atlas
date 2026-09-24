@@ -509,7 +509,12 @@
     async function loadCompassEngine() {
         try {
             await loadScript(
-                '../shared/compass-engine.js?v=20260923-languagemode2',
+                '../../shared/atlas-subject-build-runner.js?v=20260923-swbuild1',
+                'Atlas subject build runner could not be loaded.'
+            );
+
+            await loadScript(
+                '../shared/compass-engine.js?v=20260923-swbuild1',
                 'Compass engine could not be loaded.'
             );
 

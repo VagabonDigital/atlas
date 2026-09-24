@@ -7539,25 +7539,22 @@ async function generateMyVersionFullSubject({
     const languageSupport =
         getMyVersionLanguageSupportMode();
 
-    const discussionStages =
-        subjectSize === 'compact'
-            ? FULL_SUBJECT_DISCUSSION_STAGES.slice(0, 2)
-            : FULL_SUBJECT_DISCUSSION_STAGES;
+    const BuildRunner =
+        window.AtlasSubjectBuildRunner;
 
-    const culturalLensCardCount =
-        subjectSize === 'compact'
-            ? 3
-            : FULL_SUBJECT_CULTURAL_LENS_CARD_COUNT;
+    if (
+        !BuildRunner ||
+        typeof BuildRunner.run !== 'function'
+    ) {
+        throw new Error(
+            'Atlas subject build runner is unavailable.'
+        );
+    }
 
-    let completedStep = Math.min(
-        18,
-        Math.max(
-            0,
-            Math.floor(
-                Number(resumeFromStep) || 0
-            )
-        )
-    );
+    let completedStep =
+        BuildRunner.normalizeStep(
+            resumeFromStep
+        );
 
     myVersionGeneratingFullSubject = true;
 
@@ -7598,293 +7595,105 @@ async function generateMyVersionFullSubject({
             'building'
         );
 
-        await checkpointMyVersionFullSubjectGeneration(
-            completedStep,
-            autoSaveOnComplete
-        );
+        const buildResult =
+            await BuildRunner.run({
+                resumeFromStep:
+                    completedStep,
+                subjectSize,
+                languageSupport,
 
-        if (completedStep < 1) {
-            setMyVersionFullSubjectGenerationProgress(
-                1,
-                'Hook and introduction'
-            );
+                operations: {
+                    generateSubjectFraming:
+                        () =>
+                            generateMyVersionSubjectFraming(),
 
-            const framing =
-                await generateMyVersionSubjectFraming();
+                    generateOverview:
+                        () =>
+                            generateMyVersionOverview(),
 
-            if (!framing) {
-                throw new Error(
-                    'Subject framing generation failed.'
-                );
-            }
+                    enrichCurrentAffairs:
+                        async () => {
+                            await startCurrentAffairsReadMoreEnrichment();
+                            return true;
+                        },
 
-            completedStep = 1;
+                    generateDiscussionFraming:
+                        () =>
+                            generateMyVersionDiscussionFraming(),
 
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
+                    generateDiscussionSet:
+                        ({ brief }) =>
+                            generateMyVersionDiscussionSet(
+                                brief,
+                                {
+                                    reveal: false
+                                }
+                            ),
 
-        }
+                    generateCulturalLensFraming:
+                        () =>
+                            generateMyVersionCulturalLensFraming(),
 
-        if (completedStep < 2) {
-            setMyVersionFullSubjectGenerationProgress(
-                2,
-                'Overview'
-            );
+                    generateCulturalLensCard:
+                        () =>
+                            generateMyVersionCulturalLensCard(),
 
-            const overview =
-                await generateMyVersionOverview();
+                    generateReflection:
+                        () =>
+                            generateMyVersionReflection(),
 
-            if (!overview) {
-                throw new Error(
-                    'Overview generation failed.'
-                );
-            }
+                    enrichDiscussion:
+                        async ({ languageSupport }) => {
+                            await enrichMyVersionDiscussionFromUI({
+                                languageMode:
+                                    languageSupport
+                            });
 
-            completedStep = 2;
+                            const remaining =
+                                getMyVersionRemainingLanguageCount(
+                                    'discussion',
+                                    languageSupport
+                                ) +
+                                getMyVersionDiscussionMakeItRealCandidateSetIds()
+                                    .length;
 
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-        }
+                            return remaining === 0;
+                        },
 
-        if (completedStep >= 2) {
-            setMyVersionFullSubjectGenerationProgress(
-                3,
-                'Adding source context'
-            );
+                    enrichCulturalLens:
+                        async ({ languageSupport }) => {
+                            await enrichMyVersionCulturalLensFromUI({
+                                languageMode:
+                                    languageSupport
+                            });
 
-            await startCurrentAffairsReadMoreEnrichment();
-        }
+                            return (
+                                getMyVersionRemainingLanguageCount(
+                                    'cultural-lens',
+                                    languageSupport
+                                ) === 0
+                            );
+                        }
+                },
 
-        if (completedStep < 3) {
-            setMyVersionFullSubjectGenerationProgress(
-                3,
-                'Discussion framing'
-            );
+                onProgress:
+                    ({ current, label }) => {
+                        setMyVersionFullSubjectGenerationProgress(
+                            current,
+                            label
+                        );
+                    },
 
-            const discussionFraming =
-                await generateMyVersionDiscussionFraming();
-
-            if (!discussionFraming) {
-                throw new Error(
-                    'Discussion framing generation failed.'
-                );
-            }
-
-            completedStep = 3;
-
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-        }
-
-        for (
-            let index = 0;
-            index < discussionStages.length;
-            index += 1
-        ) {
-            const step = 4 + index;
-
-            if (completedStep >= step) {
-                continue;
-            }
-
-            const stage =
-                discussionStages[index];
-
-            setMyVersionFullSubjectGenerationProgress(
-                4,
-                `${stage} · ${index + 1} of ${discussionStages.length}`
-            );
-
-            const set =
-                await generateMyVersionDiscussionSet(
-                    `Create the ${stage} discussion set.`,
-                    {
-                        reveal: false
-                    }
-                );
-
-            if (!set) {
-                throw new Error(
-                    `${stage} generation failed.`
-                );
-            }
-
-            completedStep = step;
-
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-        }
-
-        if (completedStep < 7) {
-            setMyVersionFullSubjectGenerationProgress(
-                5,
-                'Cultural Lens framing'
-            );
-
-            const culturalLensFraming =
-                await generateMyVersionCulturalLensFraming();
-
-            if (!culturalLensFraming) {
-                throw new Error(
-                    'Cultural Lens framing generation failed.'
-                );
-            }
-
-            completedStep = 7;
-
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-        }
-
-        for (
-            let index = 0;
-            index < culturalLensCardCount;
-            index += 1
-        ) {
-            const step = 8 + index;
-
-            if (completedStep >= step) {
-                continue;
-            }
-
-            setMyVersionFullSubjectGenerationProgress(
-                6,
-                `Cultural Lens card ${index + 1} of ${culturalLensCardCount}`
-            );
-
-            const card =
-                await generateMyVersionCulturalLensCard();
-
-            if (!card) {
-                throw new Error(
-                    `Cultural Lens card ${index + 1} generation failed.`
-                );
-            }
-
-            completedStep = step;
-
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-        }
-
-        if (completedStep < 16) {
-            setMyVersionFullSubjectGenerationProgress(
-                7,
-                'Reflection'
-            );
-
-            const reflection =
-                await generateMyVersionReflection();
-
-            if (!reflection) {
-                throw new Error(
-                    'Reflection generation failed.'
-                );
-            }
-
-            completedStep = 16;
-
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-        }
-
-        /*
-         * The complete teaching environment now exists.
-         * Activities remain part of the core subject. Language depth follows
-         * the tutor's creation preference: none, curated Key, or full.
-         */
-
-        if (completedStep < 17) {
-            const discussionLabel =
-                languageSupport === 'off'
-                    ? 'Adding Discussion activities'
-                    : languageSupport === 'key'
-                        ? 'Adding key Discussion language + activities'
-                        : 'Adding Discussion language + activities';
-
-            setMyVersionFullSubjectGenerationProgress(
-                8,
-                discussionLabel
-            );
-
-            await enrichMyVersionDiscussionFromUI({
-                languageMode:
-                    languageSupport
+                onCheckpoint:
+                    step =>
+                        checkpointMyVersionFullSubjectGeneration(
+                            step,
+                            autoSaveOnComplete
+                        )
             });
 
-            const remainingDiscussionEnrichment =
-                getMyVersionRemainingLanguageCount(
-                    'discussion',
-                    languageSupport
-                ) +
-                getMyVersionDiscussionMakeItRealCandidateSetIds()
-                    .length;
-
-            if (remainingDiscussionEnrichment > 0) {
-                throw new Error(
-                    'Discussion enrichment did not finish.'
-                );
-            }
-
-            completedStep = 17;
-
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-        }
-
-        if (completedStep < 18) {
-            const culturalLensLabel =
-                languageSupport === 'off'
-                    ? 'Finishing Cultural Lens'
-                    : languageSupport === 'key'
-                        ? 'Adding key Cultural Lens language'
-                        : 'Adding Cultural Lens language';
-
-            setMyVersionFullSubjectGenerationProgress(
-                9,
-                culturalLensLabel
-            );
-
-            await enrichMyVersionCulturalLensFromUI({
-                languageMode:
-                    languageSupport
-            });
-
-            const remainingCulturalLensEnrichment =
-                getMyVersionRemainingLanguageCount(
-                    'cultural-lens',
-                    languageSupport
-                );
-
-            if (remainingCulturalLensEnrichment > 0) {
-                throw new Error(
-                    'Cultural Lens enrichment did not finish.'
-                );
-            }
-
-            completedStep = 18;
-
-            await checkpointMyVersionFullSubjectGeneration(
-                completedStep,
-                autoSaveOnComplete
-            );
-        }
+        completedStep =
+            buildResult.completedStep;
 
         myVersionFullSubjectReadyForCommit = true;
 
