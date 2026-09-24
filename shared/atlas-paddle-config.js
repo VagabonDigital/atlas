@@ -24,8 +24,9 @@
                     'pri_01m32eh22evm0xjtcrm71yndnx'
             })
         }),
-        live: Object.freeze({
-            clientToken: '',
+         live: Object.freeze({
+             clientToken:
+                 'live_1239e49a4bf7fd64a67cfed8a11',
             prices: Object.freeze({
                 proMonthly:
                     'pri_01m3apem2h7h1g2bt44j2hnxqp'
