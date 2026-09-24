@@ -923,13 +923,40 @@
                             return false;
                         }
 
+                        const persistedGenerationContext =
+                            buildState
+                                ?.generationContext &&
+                            typeof buildState
+                                .generationContext ===
+                                'object' &&
+                            !Array.isArray(
+                                buildState
+                                    .generationContext
+                            )
+                                ? cloneJson(
+                                    buildState
+                                        .generationContext
+                                )
+                                : null;
+
+                        const hintedGenerationContext =
+                            generationContextHint &&
+                            typeof generationContextHint ===
+                                'object' &&
+                            !Array.isArray(
+                                generationContextHint
+                            )
+                                ? cloneJson(
+                                    generationContextHint
+                                )
+                                : null;
+
                         const generationContext =
+                            persistedGenerationContext ||
+                            hintedGenerationContext ||
                             buildContext(
                                 subject,
-                                buildState
-                            ) ||
-                            cloneJson(
-                                generationContextHint
+                                null
                             ) ||
                             {};
 
@@ -1103,9 +1130,15 @@
                 'build-started' &&
             subjectId
         ) {
+            /*
+             * Keep the auto-resurrection projection active through the
+             * worker handoff. The runtime heartbeat will shortly provide
+             * independent liveness, but clearing this flag here can expose a
+             * brief "Continue building" frame between those two messages.
+             */
             markEstablishing(
                 subjectId,
-                false
+                true
             );
             return;
         }
