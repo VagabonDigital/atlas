@@ -322,6 +322,86 @@
         };
     }
 
+    async function requestForegroundBuildOwnership(
+        subject
+    ) {
+        if (
+            !subject
+                ?.runtime
+                ?.aiBuildIncomplete
+        ) {
+            return null;
+        }
+
+        const Client =
+            window
+                .AtlasSubjectBuildWorkerClient;
+
+        if (
+            !Client ||
+            typeof Client
+                .requestForegroundOwnership !==
+                'function'
+        ) {
+            return null;
+        }
+
+        try {
+            await Client.initialize?.();
+
+            const state =
+                Client.getState?.();
+
+            if (
+                state &&
+                state.supported ===
+                    false
+            ) {
+                return null;
+            }
+
+            const grant =
+                await Client
+                    .requestForegroundOwnership(
+                        subject
+                            .runtime
+                            .subjectId,
+                        {
+                            reason:
+                                'subject-open'
+                        }
+                    );
+
+            if (
+                grant
+                    ?.generationContext &&
+                typeof grant
+                    .generationContext ===
+                    'object' &&
+                !Array.isArray(
+                    grant
+                        .generationContext
+                )
+            ) {
+                subject.runtime
+                    .generationContext =
+                    cloneJson(
+                        grant
+                            .generationContext
+                    );
+            }
+
+            return grant || null;
+        } catch (error) {
+            console.warn(
+                '[Compass] SharedWorker foreground handoff was unavailable:',
+                error
+            );
+
+            return null;
+        }
+    }
+
     function installRuntimeSubject(subject) {
         window.AtlasCompassSubjectRuntime = subject.runtime;
 
@@ -573,6 +653,8 @@
             return;
         }
 
+        let foregroundOwnershipSubjectId = '';
+
         try {
             const record = await withTimeout(
                 requireAtlasTutorSubjects()
@@ -607,9 +689,43 @@
                 getBuildPresentationRequest() ||
                 subject.runtime?.aiBuildIncomplete === true;
 
+            if (
+                subject.runtime
+                    ?.aiBuildIncomplete ===
+                    true &&
+                !getBuildPresentationRequest()
+            ) {
+                const grant =
+                    await requestForegroundBuildOwnership(
+                        subject
+                    );
+
+                if (
+                    grant &&
+                    grant.noWorkerJob !==
+                        true
+                ) {
+                    foregroundOwnershipSubjectId =
+                        subject.runtime
+                            .subjectId;
+                }
+            }
+
             installRuntimeSubject(subject);
             await loadCompassEngine();
         } catch (error) {
+            if (
+                foregroundOwnershipSubjectId
+            ) {
+                window
+                    .AtlasSubjectBuildWorkerClient
+                    ?.releaseForegroundOwnership
+                    ?.(
+                        foregroundOwnershipSubjectId,
+                        'subject-bootstrap-failed'
+                    );
+            }
+
             console.error(
                 '[Compass] Subject bootstrap failed:',
                 error
