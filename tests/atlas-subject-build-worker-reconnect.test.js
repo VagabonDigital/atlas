@@ -76,6 +76,9 @@ async function testWorkerReconnectAndAccountSwitch() {
         entitlementReady: true
     };
 
+    let deferNextSession = false;
+    let resolveDeferredSession = null;
+
     function FakeSharedWorker(
         url,
         options
@@ -114,13 +117,16 @@ async function testWorkerReconnectAndAccountSwitch() {
 
         AtlasCloud: {
             async getSession() {
-                return {
+                const sessionUserId =
+                    accountState.userId;
+
+                const session = {
                     user: {
                         id:
-                            accountState.userId
+                            sessionUserId
                     },
                     access_token:
-                        `token-${accountState.userId}`,
+                        `token-${sessionUserId}`,
                     refresh_token:
                         'must-never-cross-the-port',
                     expires_at:
@@ -129,6 +135,25 @@ async function testWorkerReconnectAndAccountSwitch() {
                             1000
                         ) + 3600
                 };
+
+                if (deferNextSession) {
+                    deferNextSession =
+                        false;
+
+                    return new Promise(
+                        resolve => {
+                            resolveDeferredSession =
+                                () =>
+                                    resolve(
+                                        clone(
+                                            session
+                                        )
+                                    );
+                        }
+                    );
+                }
+
+                return session;
             }
         },
 
@@ -471,6 +496,202 @@ async function testWorkerReconnectAndAccountSwitch() {
         'Old-account registered builds must not replay after an account switch.'
     );
 
+    const raceStart =
+        replacementMessages.length;
+
+    deferNextSession =
+        true;
+
+    const staleAuth =
+        Client.sendCurrentAuth(
+            'account-race'
+        );
+
+    await flush();
+
+    accountState = {
+        ...accountState,
+        userId:
+            'user-three'
+    };
+
+    windowListeners
+        .get(
+            'atlas:account-change'
+        )
+        ?.forEach(listener =>
+            listener({
+                detail:
+                    clone(
+                        accountState
+                    )
+            })
+        );
+
+    await flush();
+    await flush();
+
+    resolveDeferredSession?.();
+
+    assert.equal(
+        await staleAuth,
+        false,
+        'An old session lookup must be rejected if the account changes before it resolves.'
+    );
+
+    const raceMessages =
+        replacementMessages.slice(
+            raceStart
+        );
+
+    assert.ok(
+        raceMessages.some(
+            message =>
+                message.type ===
+                    'auth' &&
+                message.userId ===
+                    'user-three'
+        ),
+        'The current account must win an in-flight authentication race.'
+    );
+
+    assert.equal(
+        raceMessages.filter(
+            message =>
+                message.type ===
+                    'auth' &&
+                message.userId ===
+                    'user-two'
+        ).length,
+        0,
+        'A stale session lookup must never re-authenticate the worker as the previous account.'
+    );
+
+    Client.enqueueSubject(
+        'subject-bfcache',
+        {
+            generationContext: {
+                premise:
+                    'Survive BFCache'
+            },
+            autoSaveOnComplete:
+                true,
+            revision:
+                8
+        }
+    );
+
+    const workerCountBeforeSuspend =
+        workers.length;
+
+    windowListeners
+        .get('pagehide')
+        ?.forEach(listener =>
+            listener({
+                persisted:
+                    true
+            })
+        );
+
+    assert.equal(
+        workers.at(-1)
+            .port
+            .closed,
+        true,
+        'BFCache suspension should close only the page connection, not discard registered unfinished work.'
+    );
+
+    windowListeners
+        .get('pageshow')
+        ?.forEach(listener =>
+            listener({
+                persisted:
+                    true
+            })
+        );
+
+    await flush();
+    await flush();
+
+    assert.equal(
+        workers.length,
+        workerCountBeforeSuspend + 1,
+        'BFCache restore should reconnect the page to the SharedWorker.'
+    );
+
+    const restoredMessages =
+        workers.at(-1)
+            .port
+            .messages;
+
+    assert.ok(
+        restoredMessages.some(
+            message =>
+                message.type ===
+                    'auth' &&
+                message.userId ===
+                    'user-three'
+        ),
+        'BFCache restore must re-authenticate the page connection.'
+    );
+
+    assert.ok(
+        restoredMessages.some(
+            message =>
+                message.type ===
+                    'enqueue-subject' &&
+                message.subjectId ===
+                    'subject-bfcache'
+        ),
+        'BFCache restore must replay unfinished registered work.'
+    );
+
+    const workerCountBeforeRapidNav =
+        workers.length;
+
+    windowListeners
+        .get('pagehide')
+        ?.forEach(listener =>
+            listener({
+                persisted:
+                    false
+            })
+        );
+
+    windowListeners
+        .get('pageshow')
+        ?.forEach(listener =>
+            listener({
+                persisted:
+                    false
+            })
+        );
+
+    await flush();
+    await flush();
+
+    assert.equal(
+        workers.length,
+        workerCountBeforeRapidNav + 1,
+        'Rapid leave/return navigation should reconnect cleanly without losing the build registration.'
+    );
+
+    assert.equal(
+        workers.at(-1)
+            .port
+            .messages
+            .filter(
+                message =>
+                    message.type ===
+                        'enqueue-subject' &&
+                    message.subjectId ===
+                        'subject-bfcache'
+            )
+            .length,
+        1,
+        'Each fresh page connection should replay one registration; worker-side user/subject dedupe remains the single queue authority.'
+    );
+
     Client.destroy();
 }
 
@@ -478,7 +699,7 @@ async function testWorkerReconnectAndAccountSwitch() {
     await testWorkerReconnectAndAccountSwitch();
 
     console.log(
-        'Atlas SharedWorker reconnect passed: crash recovery recreates the worker, resets heartbeat age, re-authenticates with access-token-only state, replays registered unfinished work, and clears registrations across account switches.'
+        'Atlas SharedWorker reconnect passed: crash recovery recreates the worker, resets heartbeat age, rejects stale in-flight account auth, re-authenticates with access-token-only state, replays registered unfinished work, clears registrations across account switches, and survives BFCache plus rapid navigation.'
     );
 })().catch(error => {
     console.error(error);
