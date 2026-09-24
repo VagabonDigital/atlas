@@ -1,6 +1,27 @@
 /* Pricing: a personal teaching proposition, with the offer in the opening. */
 body { background: var(--surface); }
 .frame { width: min(calc(100% - 48px), var(--frame)); margin-inline: auto; }
+
+.site-header .header-inner {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: 1.5rem;
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--accent-rgb), .46) transparent;
+}
+html::-webkit-scrollbar { width: 10px; }
+html::-webkit-scrollbar-track { background: transparent; }
+html::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(var(--accent-rgb), .46);
+  background-clip: padding-box;
+}
+
 main { overflow: clip; }
 h1, h2, h3 { color: var(--text-heading); font-family: var(--font-display); font-weight: 400; letter-spacing: -.035em; }
 h1 { font-size: clamp(58px, 6.4vw, 88px); line-height: 1.02; }

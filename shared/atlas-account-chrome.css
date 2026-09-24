@@ -113,7 +113,7 @@ html[data-atlas-account-hint="anonymous"] .atlas-account-control[data-account-st
     padding: 0 12px;
 }
 
-.atlas-inside-account-return-label {
+.atlas-inside-account-enter-label {
     display: none;
 }
 
@@ -123,7 +123,7 @@ html[data-atlas-account-hint="anonymous"] .atlas-account-control[data-account-st
 }
 
 .atlas-inside-account-entry[data-account-state="account"]
-.atlas-inside-account-return-label {
+.atlas-inside-account-enter-label {
     display: inline;
 }
 
@@ -135,12 +135,20 @@ html[data-atlas-account-hint="account"]
 
 html[data-atlas-account-hint="account"]
 .atlas-inside-account-entry[data-account-state="pending"]
-.atlas-inside-account-return-label {
+.atlas-inside-account-enter-label {
     display: inline;
 }
 
 .atlas-inside-account-create {
     padding: 0 13px;
+}
+
+.atlas-inside-account-create,
+.atlas-inside-account-entry[data-account-state="account"]
+.atlas-inside-account-explore,
+html[data-atlas-account-hint="account"]
+.atlas-inside-account-entry[data-account-state="pending"]
+.atlas-inside-account-explore {
     border: 1px solid var(--accent, #4d7184);
     background: var(--accent, #4d7184);
     color: var(--surface-panel, #fffdf9);
@@ -181,7 +189,13 @@ html[data-atlas-account-hint="anonymous"]
     background: var(--surface-muted, #ebe7de);
 }
 
-.atlas-inside-account-create:hover {
+.atlas-inside-account-create:hover,
+.atlas-inside-account-entry[data-account-state="account"]
+.atlas-inside-account-explore:hover,
+html[data-atlas-account-hint="account"]
+.atlas-inside-account-entry[data-account-state="pending"]
+.atlas-inside-account-explore:hover {
+    color: var(--surface-panel, #fffdf9);
     background: var(--accent, #4d7184);
     border-color: var(--accent, #4d7184);
     box-shadow: 0 6px 18px rgba(var(--accent-rgb, 77, 113, 132), 0.18);
@@ -214,6 +228,14 @@ html[data-atlas-account-hint="anonymous"]
 @media (max-width: 720px) {
     .atlas-inside-account-explore {
         display: none;
+    }
+
+    .atlas-inside-account-entry[data-account-state="account"]
+    .atlas-inside-account-explore,
+    html[data-atlas-account-hint="account"]
+    .atlas-inside-account-entry[data-account-state="pending"]
+    .atlas-inside-account-explore {
+        display: inline-flex;
     }
 
     .atlas-inside-account-entry {

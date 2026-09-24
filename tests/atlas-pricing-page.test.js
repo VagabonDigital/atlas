@@ -57,22 +57,54 @@ assert.match(pricing, /data-atlas-inside-create/);
 assert.match(pricing, /data-atlas-inside-account/);
 assert.match(
   pricing,
-  /atlas-inside-account-explore-label">Explore Atlas<\/span><span class="atlas-inside-account-return-label">Return to Atlas<\/span>/,
-  'Pricing must share the anonymous Explore Atlas / authenticated Return to Atlas account-entry contract.'
+  /atlas-inside-account-explore-label">Explore Atlas<\/span><span class="atlas-inside-account-enter-label">Enter Atlas<\/span>/,
+  'Pricing must share the anonymous Explore Atlas / authenticated Enter Atlas account-entry contract.'
 );
 assert.match(
   pricing,
-  /atlas-account-chrome\.css\?v=20260924-returnlabel1/,
+  /atlas-account-chrome\.css\?v=20260924-enterlabel1/,
   'Pricing must load the current shared account chrome styles.'
 );
 assert.match(
   pricing,
-  /atlas-account-chrome\.js\?v=20260924-returnlabel1/,
+  /atlas-account-chrome\.js\?v=20260924-enterlabel1/,
   'Pricing must load the current shared account chrome runtime.'
+);
+
+assert.match(
+  pricing,
+  /\.atlas-inside-account-entry \{[\s\S]*?margin-left:4px;[\s\S]*?gap:6px;/,
+  'Pricing account controls must use the same cluster spacing as Inside Atlas.'
+);
+assert.match(
+  pricing,
+  /\.appearance-toggle,[\s\S]*?\.atlas-inside-account-icon \{[\s\S]*?width:38px;[\s\S]*?height:38px;[\s\S]*?border-radius:12px;[\s\S]*?box-shadow:var\(--shadow-sm\);/,
+  'Pricing theme and profile controls must use the same 38px squircle treatment as Inside Atlas.'
+);
+assert.match(
+  pricing,
+  /\.appearance-toggle:hover,[\s\S]*?\.atlas-inside-account-icon:focus-visible \{[\s\S]*?border-color:var\(--control-border-hover\);[\s\S]*?box-shadow:var\(--shadow-md\);/,
+  'Pricing shared header controls must use the same hover/focus elevation contract as Inside Atlas.'
+);
+assert.match(
+  pricing,
+  /\.site-header \{[\s\S]*?border-bottom:1px solid var\(--border-faint\);[\s\S]*?color-mix\(in srgb,var\(--surface\) 72%,transparent\)/,
+  'Pricing sticky header surface must match Inside Atlas.'
+);
+
+assert.doesNotMatch(
+  pricing,
+  /Return to Atlas/,
+  'Pricing must not use journey-assuming Return to Atlas language.'
+);
+assert.match(
+  pricing,
+  /\.pricing-header-pro \{[\s\S]*?border:1px solid var\(--border-subtle\);[\s\S]*?background:var\(--surface-panel\);[\s\S]*?font-weight:600;/,
+  'Pricing Pro management shortcut should remain visually secondary to authenticated Enter Atlas.'
 );
 assert.match(
   inside,
-  /atlas-inside-account-return-label">Return to Atlas<\/span>/,
+  /atlas-inside-account-enter-label">Enter Atlas<\/span>/,
   'Inside Atlas must retain the same authenticated return language.'
 );
 
@@ -87,6 +119,22 @@ assert.match(
   pricingCss,
   /\.frame\s*\{\s*width:\s*min\(calc\(100% - 48px\), var\(--frame\)\)/,
   'Pricing desktop frame should match Inside Atlas.'
+);
+
+assert.match(
+  pricingCss,
+  /\.site-header \.header-inner \{[\s\S]*?width: 100%;[\s\S]*?max-width: none;[\s\S]*?margin-inline: 0;[\s\S]*?padding-inline: 1\.5rem;/,
+  'Pricing header must break out of the editorial frame and match Inside Atlas full-width chrome.'
+);
+assert.match(
+  pricingCss,
+  /scrollbar-width: thin;[\s\S]*?scrollbar-color: rgba\(var\(--accent-rgb\), \.46\) transparent;/,
+  'Pricing must use the same custom Firefox scrollbar treatment as Inside Atlas.'
+);
+assert.match(
+  pricingCss,
+  /html::\-webkit-scrollbar \{ width: 10px; \}[\s\S]*?html::\-webkit-scrollbar-thumb \{[\s\S]*?border: 2px solid transparent;[\s\S]*?border-radius: 999px;[\s\S]*?background: rgba\(var\(--accent-rgb\), \.46\);[\s\S]*?background-clip: padding-box;/,
+  'Pricing must use the same custom WebKit scrollbar treatment as Inside Atlas.'
 );
 assert.match(
   pricingCss,
