@@ -650,6 +650,181 @@ function clearQueueForUser(userId) {
     }
 }
 
+function findConnectionByPage(
+    userId,
+    pageId
+) {
+    const uid =
+        clean(userId);
+
+    const pid =
+        clean(pageId);
+
+    if (!uid || !pid) {
+        return null;
+    }
+
+    return Array.from(
+        connections.values()
+    ).find(
+        connection =>
+            clean(
+                connection.userId
+            ) === uid &&
+            clean(
+                connection.pageId
+            ) === pid
+    ) || null;
+}
+
+function releaseForegroundOwnershipForPage(
+    userId,
+    pageId,
+    reason = 'page-left'
+) {
+    const uid =
+        clean(userId);
+
+    const pid =
+        clean(pageId);
+
+    if (!uid || !pid) {
+        return false;
+    }
+
+    let released = false;
+
+    queueByKey.forEach(
+        job => {
+            if (
+                job?.userId !== uid ||
+                clean(
+                    job.foregroundOwnerPageId
+                ) !== pid
+            ) {
+                return;
+            }
+
+            job.foregroundOwnerPageId = '';
+            job.foregroundRequestId = '';
+            job.foregroundReason =
+                clean(reason);
+            job.updatedAt =
+                now();
+
+            if (
+                activeBuild &&
+                activeBuild.userId ===
+                    uid &&
+                activeBuild.subjectId ===
+                    job.subjectId &&
+                clean(
+                    activeBuild
+                        .yieldPageId
+                ) === pid
+            ) {
+                activeBuild.yieldRequested =
+                    false;
+                activeBuild.yieldPageId =
+                    '';
+                activeBuild.yieldRequestId =
+                    '';
+            }
+
+            job.status =
+                job.completedStep >= 18
+                    ? 'ready-to-commit'
+                    : 'queued';
+
+            released = true;
+
+            publishQueueState(
+                uid
+            );
+        }
+    );
+
+    if (released) {
+        scheduleQueuePump();
+    }
+
+    return released;
+}
+
+function finalizeForegroundGrant(job) {
+    const pageId =
+        clean(
+            job?.foregroundOwnerPageId
+        );
+
+    const requestId =
+        clean(
+            job?.foregroundRequestId
+        );
+
+    if (
+        !job ||
+        !pageId ||
+        !requestId
+    ) {
+        return false;
+    }
+
+    const connection =
+        findConnectionByPage(
+            job.userId,
+            pageId
+        );
+
+    if (!connection) {
+        releaseForegroundOwnershipForPage(
+            job.userId,
+            pageId,
+            'requester-gone'
+        );
+
+        return false;
+    }
+
+    job.status =
+        'foreground-owned';
+    job.lockState =
+        'available';
+    job.progress =
+        null;
+    job.updatedAt =
+        now();
+
+    safePost(
+        connection.port,
+        'foreground-granted',
+        {
+            requestId,
+            subjectId:
+                job.subjectId,
+            completedStep:
+                normalizeCompletedStep(
+                    job.completedStep
+                ),
+            readyToCommit:
+                job.completedStep >= 18,
+            generationContext:
+                cloneJson(
+                    job
+                        .build
+                        ?.generationContext ||
+                    null
+                )
+        }
+    );
+
+    publishQueueState(
+        job.userId
+    );
+
+    return true;
+}
+
 function pruneAuthForUser(userId) {
     const id =
         clean(userId);
@@ -684,6 +859,12 @@ function removeConnection(
         now();
     connection.disconnectReason =
         clean(reason);
+
+    releaseForegroundOwnershipForPage(
+        previousUserId,
+        connection.pageId,
+        reason
+    );
 
     pruneAuthForUser(
         previousUserId
@@ -1316,6 +1497,30 @@ async function refreshJobReadiness(job) {
             lock?.state
         ) || 'unknown';
 
+    if (
+        clean(
+            job.foregroundOwnerPageId
+        )
+    ) {
+        job.status =
+            activeBuild &&
+            activeBuild.userId ===
+                job.userId &&
+            activeBuild.subjectId ===
+                job.subjectId
+                ? 'yielding-to-foreground'
+                : 'foreground-owned';
+
+        job.error = '';
+        job.updatedAt =
+            now();
+
+        return {
+            checkpoint,
+            lock
+        };
+    }
+
     if (checkpointError) {
         job.status =
             'checkpoint-error';
@@ -1394,6 +1599,9 @@ function jobHasExecutionContext(job) {
 function jobMayRetry(job) {
     return Boolean(
         job &&
+        !clean(
+            job.foregroundOwnerPageId
+        ) &&
         jobHasExecutionContext(job) &&
         ![
             'ready-to-commit',
@@ -1450,6 +1658,57 @@ function isAuthGenerationError(error) {
             'signed-in atlas account'
         )
     );
+}
+
+function isForegroundYieldError(error) {
+    return (
+        clean(
+            error?.code
+        ) ===
+        'ATLAS_WORKER_FOREGROUND_YIELD'
+    );
+}
+
+function createForegroundYieldError() {
+    const error =
+        new Error(
+            'Atlas worker yielded subject generation to the foreground page.'
+        );
+
+    error.code =
+        'ATLAS_WORKER_FOREGROUND_YIELD';
+
+    return error;
+}
+
+function shouldYieldActiveJob(job) {
+    return Boolean(
+        activeBuild &&
+        activeBuild.userId ===
+            job?.userId &&
+        activeBuild.subjectId ===
+            job?.subjectId &&
+        activeBuild.yieldRequested ===
+            true
+    );
+}
+
+async function checkpointForegroundYield(
+    job,
+    document
+) {
+    await writeBuildCheckpoint(
+        job,
+        document,
+        normalizeCompletedStep(
+            activeBuild
+                ?.completedStep ||
+            job
+                ?.completedStep
+        )
+    );
+
+    throw createForegroundYieldError();
 }
 
 function configureAIForJob(job) {
@@ -1582,6 +1841,17 @@ function createWorkerOperations(
                         );
                 }
 
+                if (
+                    shouldYieldActiveJob(
+                        job
+                    )
+                ) {
+                    await checkpointForegroundYield(
+                        job,
+                        getDocument()
+                    );
+                }
+
                 return true;
             },
 
@@ -1628,8 +1898,26 @@ function createWorkerOperations(
                                         .generationContext
                                         ?.subjectSize
                                 ) ||
-                                'standard'
+                                'standard',
+                            shouldStop:
+                                () =>
+                                    shouldYieldActiveJob(
+                                        job
+                                    )
                         });
+
+                if (
+                    result?.stopped ===
+                        true &&
+                    shouldYieldActiveJob(
+                        job
+                    )
+                ) {
+                    await checkpointForegroundYield(
+                        job,
+                        getDocument()
+                    );
+                }
 
                 return (
                     result?.complete ===
@@ -1653,8 +1941,26 @@ function createWorkerOperations(
                                         .generationContext
                                         ?.subjectSize
                                 ) ||
-                                'standard'
+                                'standard',
+                            shouldStop:
+                                () =>
+                                    shouldYieldActiveJob(
+                                        job
+                                    )
                         });
+
+                if (
+                    result?.stopped ===
+                        true &&
+                    shouldYieldActiveJob(
+                        job
+                    )
+                ) {
+                    await checkpointForegroundYield(
+                        job,
+                        getDocument()
+                    );
+                }
 
                 return (
                     result?.complete ===
@@ -1747,7 +2053,21 @@ async function executeBuild(job) {
             resumeFromStep,
         progress: null,
         cancelRequested:
-            false
+            false,
+        yieldRequested:
+            Boolean(
+                clean(
+                    job.foregroundOwnerPageId
+                )
+            ),
+        yieldPageId:
+            clean(
+                job.foregroundOwnerPageId
+            ),
+        yieldRequestId:
+            clean(
+                job.foregroundRequestId
+            )
     };
 
     job.status =
@@ -1864,6 +2184,13 @@ async function executeBuild(job) {
                                     normalizeCompletedStep(
                                         step
                                     );
+                            }
+
+                            if (
+                                activeBuild
+                                    ?.yieldRequested
+                            ) {
+                                throw createForegroundYieldError();
                             }
 
                             if (
@@ -1986,64 +2313,95 @@ async function runJobWithLock(job) {
                 );
             } catch (error) {
                 if (
-                    error?.code ===
-                        'ATLAS_WORKER_BUILD_CANCELLED'
-                ) {
-                    job.status =
-                        'cancelled';
-                } else if (
-                    isAuthGenerationError(
+                    isForegroundYieldError(
                         error
                     )
                 ) {
                     job.status =
-                        'waiting-auth';
+                        'foreground-owned';
+                    job.error = '';
+                    job.progress =
+                        null;
+                    job.updatedAt =
+                        now();
 
-                    requestAuthForUser(
-                        job.userId,
-                        'generation-auth'
+                    publishQueueState(
+                        job.userId
                     );
                 } else {
-                    job.status =
-                        'failed';
-                }
+                    if (
+                        error?.code ===
+                            'ATLAS_WORKER_BUILD_CANCELLED'
+                    ) {
+                        job.status =
+                            'cancelled';
+                    } else if (
+                        isAuthGenerationError(
+                            error
+                        )
+                    ) {
+                        job.status =
+                            'waiting-auth';
 
-                job.error =
-                    clean(
-                        error?.message ||
-                        error
+                        requestAuthForUser(
+                            job.userId,
+                            'generation-auth'
+                        );
+                    } else {
+                        job.status =
+                            'failed';
+                    }
+
+                    job.error =
+                        clean(
+                            error?.message ||
+                            error
+                        );
+
+                    job.progress =
+                        null;
+                    job.updatedAt =
+                        now();
+
+                    broadcastToUser(
+                        job.userId,
+                        'build-failed',
+                        {
+                            subjectId:
+                                job.subjectId,
+                            completedStep:
+                                job.completedStep,
+                            retryable:
+                                job.status ===
+                                    'waiting-auth',
+                            error:
+                                job.error
+                        }
                     );
 
-                job.progress =
-                    null;
-                job.updatedAt =
-                    now();
-
-                broadcastToUser(
-                    job.userId,
-                    'build-failed',
-                    {
-                        subjectId:
-                            job.subjectId,
-                        completedStep:
-                            job.completedStep,
-                        retryable:
-                            job.status ===
-                                'waiting-auth',
-                        error:
-                            job.error
-                    }
-                );
-
-                publishQueueState(
-                    job.userId
-                );
+                    publishQueueState(
+                        job.userId
+                    );
+                }
             } finally {
                 job.lockState =
                     'available';
             }
         }
     );
+
+    if (
+        acquired &&
+        clean(
+            job.foregroundOwnerPageId
+        ) &&
+        job.status ===
+            'foreground-owned'
+    ) {
+        finalizeForegroundGrant(
+            job
+        );
+    }
 
     if (!acquired) {
         job.status =
@@ -2222,6 +2580,21 @@ async function enqueueSubject(
         error:
             existing?.error ||
             '',
+        foregroundOwnerPageId:
+            clean(
+                existing
+                    ?.foregroundOwnerPageId
+            ),
+        foregroundRequestId:
+            clean(
+                existing
+                    ?.foregroundRequestId
+            ),
+        foregroundReason:
+            clean(
+                existing
+                    ?.foregroundReason
+            ),
         enqueuedAt:
             existing
                 ?.enqueuedAt ||
@@ -2276,6 +2649,260 @@ async function enqueueSubject(
     }
 
     return job;
+}
+
+function requestForegroundOwnership(
+    connection,
+    message
+) {
+    const userId =
+        clean(
+            connection?.userId
+        );
+
+    const subjectId =
+        clean(
+            message?.subjectId
+        );
+
+    const requestId =
+        clean(
+            message?.requestId
+        );
+
+    if (
+        !userId ||
+        !subjectId ||
+        !requestId
+    ) {
+        safePost(
+            connection?.port,
+            'foreground-denied',
+            {
+                requestId:
+                    requestId ||
+                    null,
+                subjectId:
+                    subjectId ||
+                    null,
+                reason:
+                    !userId
+                        ? 'auth-required'
+                        : 'invalid-request'
+            }
+        );
+
+        return false;
+    }
+
+    const key =
+        queueKey(
+            userId,
+            subjectId
+        );
+
+    const job =
+        queueByKey.get(key);
+
+    if (!job) {
+        safePost(
+            connection.port,
+            'foreground-granted',
+            {
+                requestId,
+                subjectId,
+                completedStep:
+                    null,
+                readyToCommit:
+                    false,
+                generationContext:
+                    null,
+                noWorkerJob:
+                    true
+            }
+        );
+
+        return true;
+    }
+
+    const currentOwner =
+        clean(
+            job.foregroundOwnerPageId
+        );
+
+    if (
+        currentOwner &&
+        currentOwner !==
+            clean(
+                connection.pageId
+            )
+    ) {
+        safePost(
+            connection.port,
+            'foreground-denied',
+            {
+                requestId,
+                subjectId,
+                reason:
+                    'foreground-owned-elsewhere'
+            }
+        );
+
+        return false;
+    }
+
+    job.foregroundOwnerPageId =
+        clean(
+            connection.pageId
+        );
+
+    job.foregroundRequestId =
+        requestId;
+
+    job.foregroundReason =
+        clean(
+            message?.reason
+        ) ||
+        'subject-open';
+
+    job.updatedAt =
+        now();
+
+    const workerOwnsSubject =
+        (
+            activeBuild &&
+            activeBuild.userId ===
+                userId &&
+            activeBuild.subjectId ===
+                subjectId
+        ) ||
+        job.lockState ===
+            'held-by-worker';
+
+    if (workerOwnsSubject) {
+        job.status =
+            'yielding-to-foreground';
+
+        if (
+            activeBuild &&
+            activeBuild.userId ===
+                userId &&
+            activeBuild.subjectId ===
+                subjectId
+        ) {
+            activeBuild.yieldRequested =
+                true;
+            activeBuild.yieldPageId =
+                job.foregroundOwnerPageId;
+            activeBuild.yieldRequestId =
+                requestId;
+        }
+
+        safePost(
+            connection.port,
+            'foreground-yield-pending',
+            {
+                requestId,
+                subjectId,
+                completedStep:
+                    normalizeCompletedStep(
+                        job.completedStep
+                    )
+            }
+        );
+
+        publishQueueState(
+            userId
+        );
+
+        return true;
+    }
+
+    job.status =
+        'foreground-owned';
+
+    finalizeForegroundGrant(
+        job
+    );
+
+    return true;
+}
+
+function releaseForegroundOwnership(
+    connection,
+    message
+) {
+    const userId =
+        clean(
+            connection?.userId
+        );
+
+    const subjectId =
+        clean(
+            message?.subjectId
+        );
+
+    if (
+        !userId ||
+        !subjectId
+    ) {
+        return false;
+    }
+
+    const job =
+        queueByKey.get(
+            queueKey(
+                userId,
+                subjectId
+            )
+        );
+
+    if (
+        !job ||
+        clean(
+            job.foregroundOwnerPageId
+        ) !==
+            clean(
+                connection.pageId
+            )
+    ) {
+        return false;
+    }
+
+    job.foregroundOwnerPageId = '';
+    job.foregroundRequestId = '';
+    job.foregroundReason =
+        clean(
+            message?.reason
+        ) ||
+        'foreground-release';
+    job.updatedAt =
+        now();
+
+    job.status =
+        job.completedStep >= 18
+            ? 'ready-to-commit'
+            : 'queued';
+
+    safePost(
+        connection.port,
+        'foreground-released',
+        {
+            subjectId,
+            completedStep:
+                normalizeCompletedStep(
+                    job.completedStep
+                )
+        }
+    );
+
+    publishQueueState(
+        userId
+    );
+
+    scheduleQueuePump();
+
+    return true;
 }
 
 function cancelSubject(
@@ -2661,6 +3288,30 @@ function handleMessage(
 
     if (type === 'enqueue-subject') {
         void enqueueSubject(
+            connection,
+            message
+        );
+
+        return;
+    }
+
+    if (
+        type ===
+            'request-foreground-ownership'
+    ) {
+        requestForegroundOwnership(
+            connection,
+            message
+        );
+
+        return;
+    }
+
+    if (
+        type ===
+            'release-foreground-ownership'
+    ) {
+        releaseForegroundOwnership(
             connection,
             message
         );
