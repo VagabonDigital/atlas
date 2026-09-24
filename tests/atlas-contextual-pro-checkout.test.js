@@ -115,7 +115,7 @@ assert.match(
 
 assert.match(
   compass,
-  /free creations remaining/
+  /Free · \$\{resolved\.remaining\} left/
 );
 
 assert.match(
@@ -125,7 +125,27 @@ assert.match(
 
 assert.match(
   compass,
-  /Fresh subject creations reset \$\{resolved\.resetLabel\}/
+  /Pro · \$\{resolved\.remaining\} left · resets \$\{resolved\.resetLabel\}/
+);
+
+assert.match(
+  compass,
+  /Free creations used/
+);
+
+assert.match(
+  compass,
+  /Monthly creations used/
+);
+
+assert.match(
+  compass,
+  /owned-subject-dialog-allowance-status/
+);
+
+assert.doesNotMatch(
+  compass,
+  /owned-subject-dialog-upgrade\.is-allowance/
 );
 
 assert.match(
