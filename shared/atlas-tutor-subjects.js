@@ -985,6 +985,12 @@
             ),
             autoSaveOnComplete:
                 record.autoSaveOnComplete !== false,
+            generationContext:
+                record.generationContext &&
+                typeof record.generationContext === 'object' &&
+                !Array.isArray(record.generationContext)
+                    ? cloneJson(record.generationContext)
+                    : null,
             startedAt: Math.max(
                 0,
                 Number(record.startedAt) ||
