@@ -1224,6 +1224,142 @@
         return updated;
     }
 
+
+    async function updateSubjectAtRevision(
+        subjectId,
+        patch = {},
+        expectedRevision
+    ) {
+        if (!(await useCloud())) {
+            const error = new Error(
+                'Revision-specific subject updates require authenticated cloud authority.'
+            );
+            error.code = 'ATLAS_CLOUD_AUTHORITY_REQUIRED';
+            throw error;
+        }
+
+        const id = String(subjectId || '').trim();
+        const revision = Math.max(
+            1,
+            Math.floor(Number(expectedRevision) || 0)
+        );
+
+        if (!id || !revision) {
+            const error = new Error(
+                'Revision-specific subject update requires a subject and expected revision.'
+            );
+            error.code = 'ATLAS_REVISION_REQUIRED';
+            throw error;
+        }
+
+        const current =
+            await getSubject(id);
+
+        if (!current) return null;
+
+        if (
+            Math.max(
+                1,
+                Math.floor(Number(current.revision) || 1)
+            ) !== revision
+        ) {
+            const conflict = new Error(
+                'This My Subject changed elsewhere before your save completed.'
+            );
+            conflict.code = 'ATLAS_REVISION_CONFLICT';
+            throw conflict;
+        }
+
+        const nextPatch =
+            patch &&
+            typeof patch === 'object' &&
+            !Array.isArray(patch)
+                ? patch
+                : {};
+
+        let document =
+            cloneJson(current.document);
+
+        if (
+            Object.prototype.hasOwnProperty.call(
+                nextPatch,
+                'document'
+            )
+        ) {
+            document =
+                cloneJson(nextPatch.document);
+
+            if (
+                !document ||
+                typeof document !== 'object' ||
+                Array.isArray(document)
+            ) {
+                return null;
+            }
+        }
+
+        validateDocument(
+            document,
+            'revision-specific update'
+        );
+
+        const metadata =
+            Object.prototype.hasOwnProperty.call(
+                nextPatch,
+                'metadata'
+            )
+                ? normalizeMetadata({
+                    ...current.metadata,
+                    ...(
+                        nextPatch.metadata &&
+                        typeof nextPatch.metadata === 'object' &&
+                        !Array.isArray(nextPatch.metadata)
+                            ? nextPatch.metadata
+                            : {}
+                    )
+                })
+                : current.metadata;
+
+        const provenance =
+            Object.prototype.hasOwnProperty.call(
+                nextPatch,
+                'provenance'
+            )
+                ? (
+                    nextPatch.provenance &&
+                    typeof nextPatch.provenance === 'object' &&
+                    !Array.isArray(nextPatch.provenance)
+                        ? cloneJson(nextPatch.provenance)
+                        : null
+                )
+                : current.provenance;
+
+        const updated =
+            await AtlasCloud.updateOwnedSubject(
+                {
+                    ...current,
+                    metadata,
+                    document,
+                    provenance
+                },
+                revision
+            );
+
+        invalidateSnapshot();
+
+        publishSubjectRuntimeChanged(
+            current.id,
+            'committed',
+            {
+                revision:
+                    Number(updated?.revision) ||
+                    null
+            }
+        );
+
+        return updated;
+    }
+
     async function renameSubject(subjectId, nextTitle) {
         if (!(await useCloud())) {
             return original.renameSubject ? original.renameSubject(subjectId, nextTitle) : null;
@@ -2129,6 +2265,7 @@
         listSubjects,
         createSubject,
         updateSubject,
+        updateSubjectAtRevision,
         renameSubject,
         duplicateSubject,
         deleteSubject,
