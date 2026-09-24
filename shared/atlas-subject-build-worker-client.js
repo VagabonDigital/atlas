@@ -23,7 +23,7 @@
     }
 
     const WORKER_URL =
-        '/shared/atlas-subject-build-shared-worker.js?v=20260924-buildworker5';
+        '/shared/atlas-subject-build-shared-worker.js?v=20260924-buildworker6';
 
     const WORKER_NAME =
         'atlas-subject-builds';
@@ -33,6 +33,9 @@
 
     const PAGE_HEARTBEAT_MS =
         15000;
+
+    const WORKER_STALE_MS =
+        45000;
 
     const REQUEST_TIMEOUT_MS =
         5000;
@@ -55,6 +58,7 @@
     let worker = null;
     let port = null;
     let heartbeatTimer = null;
+    let reconnectTimer = null;
     let requestSequence = 0;
 
     let state = {
@@ -426,6 +430,24 @@
         heartbeatTimer =
             window.setInterval(
                 () => {
+                    const lastHeartbeat =
+                        Number(
+                            state.lastWorkerHeartbeat
+                        ) || 0;
+
+                    if (
+                        state.authenticated &&
+                        lastHeartbeat > 0 &&
+                        Date.now() -
+                            lastHeartbeat >
+                            WORKER_STALE_MS
+                    ) {
+                        scheduleReconnect(
+                            'worker-heartbeat-stale'
+                        );
+                        return;
+                    }
+
                     safePost({
                         type:
                             'page-heartbeat',
@@ -910,6 +932,20 @@
                     });
                 };
 
+            if (worker) {
+                worker.onerror =
+                    () => {
+                        publish({
+                            lastError:
+                                'Atlas SharedWorker stopped unexpectedly.'
+                        });
+
+                        scheduleReconnect(
+                            'worker-error'
+                        );
+                    };
+            }
+
             if (
                 typeof port.start ===
                     'function'
@@ -997,6 +1033,45 @@
                 null,
             queue: []
         });
+    }
+
+    function scheduleReconnect(
+        reason = 'worker-reconnect'
+    ) {
+        if (
+            reconnectTimer !== null ||
+            !state.authenticated
+        ) {
+            return;
+        }
+
+        reconnectTimer =
+            window.setTimeout(
+                async () => {
+                    reconnectTimer = null;
+
+                    disconnectWorker(reason);
+
+                    if (!connectWorker()) {
+                        return;
+                    }
+
+                    try {
+                        await sendCurrentAuth(
+                            reason
+                        );
+                    } catch (error) {
+                        publish({
+                            lastError:
+                                String(
+                                    error?.message ||
+                                    error
+                                )
+                        });
+                    }
+                },
+                750
+            );
     }
 
     async function ensureAccountRuntime() {
