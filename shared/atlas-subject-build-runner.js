@@ -16,7 +16,7 @@
    - tutor editing state
 
    The same runner can therefore be hosted by the Compass subject page
-   or by the Atlas subject-build Service Worker.
+   or by the Atlas subject-build SharedWorker.
    ============================================================ */
 
 (function (root) {
