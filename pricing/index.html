@@ -1002,7 +1002,9 @@
         if (paddleReady) return true;
         if (!window.Paddle || !config) return false;
 
-        Paddle.Environment.set('sandbox');
+        if (config.environment === 'sandbox') {
+          Paddle.Environment.set('sandbox');
+        }
         Paddle.Initialize({
           token: config.clientToken,
           eventCallback: function (event) {
