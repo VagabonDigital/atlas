@@ -54,7 +54,7 @@ assert.match(
 );
 assert.match(
   config,
-  /live:[\s\S]*clientToken:\s*''[\s\S]*proMonthly:[\s\S]*'pri_01m3apem2h7h1g2bt44j2hnxqp'/
+  /live:[\s\S]*clientToken:[\s\S]*'live_[^']+'[\s\S]*proMonthly:[\s\S]*'pri_01m3apem2h7h1g2bt44j2hnxqp'/
 );
 assert.match(
   config,
