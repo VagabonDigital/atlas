@@ -6967,7 +6967,8 @@
     }
 
     async function resolveOwnedSubjectBuildLive(
-      subjectId
+      subjectId,
+      lifecycleStatus = ''
     ) {
       const id =
         String(subjectId || '').trim();
@@ -6978,7 +6979,10 @@
 
       if (
         window.AtlasSubjectBuildResurrection
-          ?.isEstablishing?.(id)
+          ?.isEstablishing?.(
+            id,
+            lifecycleStatus
+          )
       ) {
         noteOwnedSubjectBuildLiveness(
           id,
@@ -7134,7 +7138,9 @@
 
               if (
                 await resolveOwnedSubjectBuildLive(
-                  id
+                  id,
+                  aiBuildStates.get(id)
+                    ?.status || ''
                 )
               ) {
                 liveBuildIds.add(id);
