@@ -74,7 +74,10 @@ assert.match(
     'generateReflection',
     'generateMomentUpgrade',
     'generateMakeItReal',
-    'generateCulturalLensUpgrade'
+    'generateCulturalLensUpgrade',
+    'getDiscussionEnrichmentPlan',
+    'getCulturalLensEnrichmentPlan',
+    'generateCurrentAffairsReading'
 ].forEach(name => {
     assert.ok(
         engineSource.includes(
@@ -351,7 +354,12 @@ const FakeAI = {
             );
     },
 
-    async generateCurrentAffairsReading() {
+    async generateCurrentAffairsReading(input) {
+        calls.push([
+            'current-affairs-reading',
+            input
+        ]);
+
         return {
             readMore:
                 'Reading',
@@ -528,6 +536,50 @@ async function testDocumentOperations() {
         lensPlan
             .candidateIds
             .length > 0
+    );
+
+    const currentAffairs =
+        await Operations
+            .generateCurrentAffairsReading({
+                generationContext: {
+                    ideaMode:
+                        'current-affairs',
+                    languageLevel:
+                        'b2',
+                    source: {
+                        publisher:
+                            'Example News',
+                        title:
+                            'Example development',
+                        url:
+                            'https://example.com/story',
+                        summary:
+                            'A supported summary.',
+                        keyFacts: [
+                            'Fact one.',
+                            'Fact two.'
+                        ]
+                    }
+                }
+            });
+
+    assert.equal(
+        currentAffairs
+            .generationContext
+            .source
+            .readMore,
+        'Reading'
+    );
+
+    assert.deepEqual(
+        currentAffairs
+            .generationContext
+            .source
+            .readMoreQuestions,
+        [
+            'One?',
+            'Two?'
+        ]
     );
 
     assert.ok(
