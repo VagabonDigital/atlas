@@ -924,6 +924,62 @@ async function testSeveralUnfinishedSubjectsPreserveDiscoveryOrder() {
     );
 }
 
+async function testRetryableAuthFailureStaysResumable() {
+    const box =
+        createSandbox();
+
+    vm.runInNewContext(
+        resurrectionSource,
+        box.context
+    );
+
+    await flush();
+    await flush();
+
+    const updateCount =
+        box.updates.length;
+
+    box.windowObject
+        .dispatchEvent(
+            new box.context
+                .CustomEvent(
+                    'atlas:subject-build-worker-message',
+                    {
+                        detail: {
+                            type:
+                                'build-failed',
+                            subjectId:
+                                'subject-resume',
+                            retryable:
+                                true,
+                            error:
+                                'status 401'
+                        }
+                    }
+                )
+        );
+
+    await flush();
+    await flush();
+
+    assert.equal(
+        box.updates.length,
+        updateCount,
+        'A retryable worker auth failure must not durably pause the subject.'
+    );
+
+    assert.equal(
+        box.windowObject
+            .AtlasSubjectBuildResurrection
+            .isEstablishing(
+                'subject-resume',
+                'building'
+            ),
+        true,
+        'Retryable auth recovery should keep the subject projected as an active build while the page refreshes worker auth.'
+    );
+}
+
 async function testRepeatedWorkerFailurePausesDurableLifecycle() {
     const box =
         createSandbox();
@@ -1385,6 +1441,7 @@ async function testSignOutClearsResurrectionProjection() {
     await testRevisionConflictFailsClosed();
     await testOfflineFailureRetriesOnReconnect();
     await testSeveralUnfinishedSubjectsPreserveDiscoveryOrder();
+    await testRetryableAuthFailureStaysResumable();
     await testRepeatedWorkerFailurePausesDurableLifecycle();
     await testColdOpenOfflineRetriesAfterReconnect();
     await testMissingCheckpointPreservesManualRecovery();
@@ -1395,7 +1452,7 @@ async function testSignOutClearsResurrectionProjection() {
     await testSignOutClearsResurrectionProjection();
 
     console.log(
-        'Atlas Batch 5 resurrection passed: authenticated shared discovery wakes unfinished building subjects, paused recovery remains manual, worker generation context survives through checkpoint completion, exact cloud revisions guard automatic completion, and offline failure retries after reconnect.'
+        'Atlas Batch 5 resurrection passed: authenticated shared discovery wakes unfinished building subjects, retryable auth failures remain resumable, terminal failures pause cleanly, paused recovery remains manual, worker generation context survives through checkpoint completion, exact cloud revisions guard automatic completion, and offline failure retries after reconnect.'
     );
 })().catch(error => {
     console.error(error);
