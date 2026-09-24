@@ -8945,25 +8945,36 @@ async function enrichMyVersionDiscussionFromUI({
             ? languageMode
             : 'all';
 
-    const languageCandidateIds =
-        getMyVersionDiscussionLanguageUpgradeCandidateIds();
+    const plan =
+        await getMyVersionBuildDocumentOperations()
+            .getDiscussionEnrichmentPlan({
+                languageMode:
+                    mode,
+                subjectSize:
+                    String(
+                        window.AtlasGenerationContext
+                            ?.subjectSize ||
+                        'standard'
+                    ).trim()
+            });
 
-    const remainingKeySlots =
-        Math.max(
-            0,
-            getMyVersionKeyLanguageLimit(
-                'discussion'
-            ) -
-                getMyVersionDiscussionKeyUpgradeCount()
-        );
+    const languageCandidateIds =
+        Array.isArray(
+            plan?.candidateIds
+        )
+            ? plan.candidateIds
+            : [];
 
     const keySelectionTarget =
-        mode === 'off'
-            ? 0
-            : Math.min(
-                remainingKeySlots,
-                languageCandidateIds.length
-            );
+        Math.max(
+            0,
+            Math.floor(
+                Number(
+                    plan
+                        ?.keySelectionTarget
+                ) || 0
+            )
+        );
 
     let selectedKeyIds = [];
 
@@ -8981,9 +8992,11 @@ async function enrichMyVersionDiscussionFromUI({
             selectedKeyIds =
                 await selectMyVersionKeyLanguageOpportunityIds(
                     'discussion',
-                    getMyVersionDiscussionKeyLanguageCandidates(
-                        languageCandidateIds
-                    ),
+                    Array.isArray(
+                        plan?.keyCandidates
+                    )
+                        ? plan.keyCandidates
+                        : [],
                     keySelectionTarget
                 );
         } catch (error) {
@@ -9017,11 +9030,16 @@ async function enrichMyVersionDiscussionFromUI({
                         : 'standard'
             })),
 
-        ...getMyVersionDiscussionMakeItRealCandidateSetIds()
-            .map(setId => ({
-                kind: 'make-it-real',
-                id: setId
-            }))
+        ...(
+            Array.isArray(
+                plan?.makeItRealSetIds
+            )
+                ? plan.makeItRealSetIds
+                : []
+        ).map(setId => ({
+            kind: 'make-it-real',
+            id: setId
+        }))
     ];
 
     if (!operations.length) {
@@ -9065,10 +9083,13 @@ async function enrichMyVersionDiscussionFromUI({
             index < operations.length;
             index += 1
         ) {
-            const operation = operations[index];
+            const operation =
+                operations[index];
 
             completedByKind[operation.kind] =
-                (completedByKind[operation.kind] || 0) + 1;
+                (completedByKind[
+                    operation.kind
+                ] || 0) + 1;
 
             myVersionDiscussionEnrichmentProgress = {
                 current:
@@ -9079,7 +9100,8 @@ async function enrichMyVersionDiscussionFromUI({
                     operationTotals[
                         operation.kind
                     ] || 0,
-                kind: operation.kind,
+                kind:
+                    operation.kind,
                 mode
             };
 
@@ -9098,9 +9120,11 @@ async function enrichMyVersionDiscussionFromUI({
                                 operation.id,
                                 '',
                                 {
-                                    reveal: false,
+                                    reveal:
+                                        false,
                                     priority:
-                                        operation.priority
+                                        operation
+                                            .priority
                                 }
                             )
                             : generateMyVersionMakeItReal(
@@ -9136,11 +9160,6 @@ async function enrichMyVersionDiscussionFromUI({
                 mode
             );
 
-            /*
-             * Full enrichment changes whether the teaching-time
-             * Off / Key / All control is meaningful. Re-evaluate it
-             * immediately rather than waiting for a view change.
-             */
             applyUpgradeVisibilityPreference();
             updateMyVersionAuthorBar();
         }
@@ -9343,25 +9362,36 @@ async function enrichMyVersionCulturalLensFromUI({
             ? languageMode
             : 'all';
 
-    const candidateIds =
-        getMyVersionCulturalLensLanguageUpgradeCandidateIds();
+    const plan =
+        await getMyVersionBuildDocumentOperations()
+            .getCulturalLensEnrichmentPlan({
+                languageMode:
+                    mode,
+                subjectSize:
+                    String(
+                        window.AtlasGenerationContext
+                            ?.subjectSize ||
+                        'standard'
+                    ).trim()
+            });
 
-    const remainingKeySlots =
-        Math.max(
-            0,
-            getMyVersionKeyLanguageLimit(
-                'cultural-lens'
-            ) -
-                getMyVersionCulturalLensKeyUpgradeCount()
-        );
+    const candidateIds =
+        Array.isArray(
+            plan?.candidateIds
+        )
+            ? plan.candidateIds
+            : [];
 
     const keySelectionTarget =
-        mode === 'off'
-            ? 0
-            : Math.min(
-                remainingKeySlots,
-                candidateIds.length
-            );
+        Math.max(
+            0,
+            Math.floor(
+                Number(
+                    plan
+                        ?.keySelectionTarget
+                ) || 0
+            )
+        );
 
     let selectedKeyIds = [];
 
@@ -9379,9 +9409,11 @@ async function enrichMyVersionCulturalLensFromUI({
             selectedKeyIds =
                 await selectMyVersionKeyLanguageOpportunityIds(
                     'cultural-lens',
-                    getMyVersionCulturalLensKeyLanguageCandidates(
-                        candidateIds
-                    ),
+                    Array.isArray(
+                        plan?.keyCandidates
+                    )
+                        ? plan.keyCandidates
+                        : [],
                     keySelectionTarget
                 );
         } catch (error) {
@@ -9417,7 +9449,8 @@ async function enrichMyVersionCulturalLensFromUI({
     myVersionEnrichingCulturalLens = true;
     myVersionCulturalLensEnrichmentProgress = {
         current: 0,
-        total: idsToGenerate.length,
+        total:
+            idsToGenerate.length,
         mode
     };
 
@@ -9433,8 +9466,10 @@ async function enrichMyVersionCulturalLensFromUI({
                 idsToGenerate[index];
 
             myVersionCulturalLensEnrichmentProgress = {
-                current: index + 1,
-                total: idsToGenerate.length,
+                current:
+                    index + 1,
+                total:
+                    idsToGenerate.length,
                 mode
             };
 
@@ -9447,11 +9482,13 @@ async function enrichMyVersionCulturalLensFromUI({
                             cardId,
                             '',
                             {
-                                reveal: false,
+                                reveal:
+                                    false,
                                 priority:
-                                    selectedKeySet.has(
-                                        cardId
-                                    )
+                                    selectedKeySet
+                                        .has(
+                                            cardId
+                                        )
                                         ? 'key'
                                         : 'standard'
                             }
@@ -9460,9 +9497,13 @@ async function enrichMyVersionCulturalLensFromUI({
                 );
 
             if (upgrade) {
-                completedIds.push(cardId);
+                completedIds.push(
+                    cardId
+                );
             } else {
-                failedIds.push(cardId);
+                failedIds.push(
+                    cardId
+                );
             }
         }
 
@@ -9482,10 +9523,6 @@ async function enrichMyVersionCulturalLensFromUI({
                 mode
             );
 
-            /*
-             * When the final missing Cultural Lens upgrade lands,
-             * expose the teaching-time visibility control immediately.
-             */
             applyUpgradeVisibilityPreference();
             updateMyVersionAuthorBar();
         }
@@ -12665,149 +12702,57 @@ function startCurrentAffairsReadMoreEnrichment() {
 
     const context =
         window.AtlasGenerationContext &&
-        typeof window.AtlasGenerationContext === 'object' &&
+        typeof window.AtlasGenerationContext ===
+            'object' &&
         !Array.isArray(
             window.AtlasGenerationContext
         )
             ? window.AtlasGenerationContext
             : {};
 
-    const ideaMode =
-        String(
-            context.ideaMode || ''
-        ).trim();
-
-    const source =
-        context.source &&
-        typeof context.source === 'object' &&
-        !Array.isArray(context.source)
-            ? context.source
-            : null;
-
-    if (
-        !source ||
-        (
-            ideaMode &&
-            ideaMode !== 'current-affairs'
-        )
-    ) {
-        return null;
-    }
-
-    const existingQuestions =
-        Array.isArray(
-            source.readMoreQuestions
-        )
-            ? source.readMoreQuestions
-                .map(question =>
-                    String(
-                        question || ''
-                    ).trim()
-                )
-                .filter(Boolean)
-                .slice(0, 2)
-            : [];
-
-    if (
-        String(
-            source.readMore || ''
-        ).trim() &&
-        existingQuestions.length === 2
-    ) {
-        renderCurrentAffairsReadMore();
-        return null;
-    }
-
-    const keyFacts =
-        Array.isArray(source.keyFacts)
-            ? source.keyFacts
-                .map(fact =>
-                    String(
-                        fact || ''
-                    ).trim()
-                )
-                .filter(Boolean)
-                .slice(0, 4)
-            : [];
-
-    if (
-        !String(
-            source.publisher || ''
-        ).trim() ||
-        !String(
-            source.title || ''
-        ).trim() ||
-        !String(
-            source.url || ''
-        ).trim() ||
-        !String(
-            source.summary || ''
-        ).trim() ||
-        keyFacts.length < 2
-    ) {
-        return null;
-    }
-
-    const AI =
-        window.AtlasAI;
-
-    if (
-        !AI ||
-        typeof AI.generateCurrentAffairsReading !==
-            'function'
-    ) {
-        return null;
-    }
-
     currentAffairsReadMoreEnrichmentPromise =
         (async () => {
             try {
-                const reading =
-                    await AI
+                const result =
+                    await getMyVersionBuildDocumentOperations()
                         .generateCurrentAffairsReading({
-                            source: {
-                                ...source,
-                                keyFacts
-                            },
-
-                            languageLevel:
-                                String(
-                                    context.languageLevel ||
-                                    'b2'
-                                ).trim() || 'b2'
+                            generationContext:
+                                context
                         });
 
-                const readMore =
-                    String(
-                        reading?.readMore || ''
-                    ).trim();
-
-                const readMoreQuestions =
-                    Array.isArray(
-                        reading?.readMoreQuestions
-                    )
-                        ? reading.readMoreQuestions
-                            .map(question =>
-                                String(
-                                    question || ''
-                                ).trim()
-                            )
-                            .filter(Boolean)
-                            .slice(0, 2)
-                        : [];
-
-                const imageUrl =
-                    String(
-                        reading?.imageUrl || ''
-                    ).trim();
+                if (!result) {
+                    return null;
+                }
 
                 if (
-                    !readMore ||
-                    readMoreQuestions.length !== 2
+                    result.alreadyComplete === true
                 ) {
-                    throw new Error(
-                        'Atlas returned an incomplete Current Affairs reading.'
-                    );
+                    renderCurrentAffairsReadMore();
+                    return result.reading;
+                }
+
+                const generatedContext =
+                    result.generationContext &&
+                    typeof result.generationContext ===
+                        'object' &&
+                    !Array.isArray(
+                        result.generationContext
+                    )
+                        ? result.generationContext
+                        : {};
+
+                const generatedSource =
+                    generatedContext.source &&
+                    typeof generatedContext.source ===
+                        'object' &&
+                    !Array.isArray(
+                        generatedContext.source
+                    )
+                        ? generatedContext.source
+                        : null;
+
+                if (!generatedSource) {
+                    return null;
                 }
 
                 const latestContext =
@@ -12828,16 +12773,40 @@ function startCurrentAffairsReadMoreEnrichment() {
                         latestContext.source
                     )
                         ? latestContext.source
-                        : source;
+                        : {};
 
                 const nextGenerationContext = {
                     ...latestContext,
 
                     source: {
                         ...latestSource,
-                        readMore,
-                        readMoreQuestions,
-                        imageUrl
+
+                        readMore:
+                            String(
+                                generatedSource
+                                    .readMore ||
+                                ''
+                            ).trim(),
+
+                        readMoreQuestions:
+                            Array.isArray(
+                                generatedSource
+                                    .readMoreQuestions
+                            )
+                                ? generatedSource
+                                    .readMoreQuestions
+                                    .slice(
+                                        0,
+                                        2
+                                    )
+                                : [],
+
+                        imageUrl:
+                            String(
+                                generatedSource
+                                    .imageUrl ||
+                                ''
+                            ).trim()
                     }
                 };
 
@@ -12887,7 +12856,7 @@ function startCurrentAffairsReadMoreEnrichment() {
 
                 renderCurrentAffairsReadMore();
 
-                return reading;
+                return result.reading;
             } catch (error) {
                 console.warn(
                     '[Compass] Current Affairs Read more enrichment failed:',
