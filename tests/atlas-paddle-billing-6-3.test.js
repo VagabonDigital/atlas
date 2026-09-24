@@ -5,6 +5,11 @@ const fs = require('node:fs');
 
 const worker = fs.readFileSync('shared/worker.js', 'utf8');
 const pricing = fs.readFileSync('pricing/index.html', 'utf8');
+const checkout = fs.readFileSync('shared/atlas-pro-checkout.js', 'utf8');
+const subscription = fs.readFileSync(
+  'account/subscription/index.html',
+  'utf8'
+);
 const config = fs.readFileSync('shared/atlas-paddle-config.js', 'utf8');
 const migration = fs.readFileSync(
   'supabase/migrations/020_paddle_billing_foundation.sql',
@@ -31,8 +36,49 @@ assert.match(
   'Paddle raw body must be verified before JSON parsing.'
 );
 
-assert.match(config, /environment: 'sandbox'/);
-assert.match(config, /proMonthly: 'pri_01m32eh22evm0xjtcrm71yndnx'/);
+assert.match(config, /const environment = 'sandbox'/);
+assert.match(config, /const clientToken = 'test_/);
+assert.match(config, /const proMonthly = 'pri_01m32eh22evm0xjtcrm71yndnx'/);
+assert.match(
+  config,
+  /environment === 'sandbox'[\s\S]*clientToken\.startsWith\('test_'\)/
+);
+assert.match(
+  config,
+  /environment === 'live'[\s\S]*clientToken\.startsWith\('live_'\)/
+);
+assert.match(
+  pricing,
+  /config\.environment === 'sandbox'[\s\S]*Paddle\.Environment\.set\('sandbox'\)/
+);
+assert.match(
+  checkout,
+  /config\.environment ===[\s\S]*'sandbox'[\s\S]*Paddle\.Environment\.set\([\s\S]*'sandbox'/
+);
+assert.match(
+  subscription,
+  /config\.environment === 'sandbox'[\s\S]*Paddle\.Environment\.set\([\s\S]*'sandbox'/
+);
+assert.match(
+  worker,
+  /environment === 'sandbox'[\s\S]*'https:\/\/sandbox-api\.paddle\.com'[\s\S]*'https:\/\/api\.paddle\.com'/
+);
+assert.match(
+  pricing,
+  /atlas-paddle-config\.js\?v=20260924-cutover1/
+);
+assert.match(
+  checkout,
+  /atlas-paddle-config\.js\?v=20260924-cutover1/
+);
+assert.match(
+  subscription,
+  /atlas-paddle-config\.js\?v=20260924-cutover1/
+);
+assert.doesNotMatch(
+  pricing + checkout + subscription,
+  /20260921-sandbox1/
+);
 
 assert.match(pricing, /atlas_checkout_environment: config\.environment/);
 assert.match(pricing, /atlas_user_id: account\.userId/);
