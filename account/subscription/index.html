@@ -232,40 +232,6 @@
       display: none;
     }
 
-    .payment-return-success {
-      position: fixed;
-      inset: 0;
-      z-index: 2147483647;
-      display: none;
-      place-items: center;
-      padding: 32px;
-      background: var(--canvas);
-      text-align: center;
-      font-family:
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-    }
-
-    html[data-payment-return="success"]
-      .payment-return-success {
-      display: grid;
-    }
-
-    .payment-return-success-mark {
-      width: 82px;
-      height: 82px;
-      display: grid;
-      place-items: center;
-      margin: 0 auto 20px;
-      border-radius: 50%;
-      background: var(--success-surface);
-      color: var(--success);
-    }
-
-    .payment-return-success-mark::before,
     .mobile-payment-success-mark::before {
       content: "";
       width: 27px;
@@ -276,19 +242,6 @@
         translateY(-2px)
         rotate(-45deg);
       transform-origin: center;
-    }
-
-    .payment-return-success h2 {
-      margin: 0;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 2rem;
-      font-weight: 400;
-    }
-
-    .payment-return-success p {
-      margin: 10px 0 0;
-      color: var(--muted);
-      line-height: 1.5;
     }
 
     .mobile-payment-success {
@@ -819,14 +772,6 @@
   </style>
 </head>
 <body>
-  <div class="payment-return-success" aria-live="polite">
-    <div>
-      <div class="payment-return-success-mark" aria-hidden="true"></div>
-      <h2>Payment method updated</h2>
-      <p>Your Atlas Pro billing details are ready.</p>
-    </div>
-  </div>
-
   <section id="mobile-payment" class="mobile-payment" data-ready="false" data-open="false" data-success="false" aria-hidden="true">
     <div class="mobile-payment-shell">
       <div class="mobile-payment-topline">
@@ -963,9 +908,6 @@
       ).get('payment') === 'updated';
 
     if (paymentReturnSuccess) {
-      document.documentElement.dataset
-        .paymentReturn = 'success';
-
       const cleanUrl =
         new URL(
           window.location.href
@@ -981,14 +923,6 @@
         cleanUrl.pathname +
         cleanUrl.search +
         cleanUrl.hash
-      );
-
-      window.setTimeout(
-        () => {
-          delete document.documentElement
-            .dataset.paymentReturn;
-        },
-        1800
       );
     }
 
@@ -1239,19 +1173,6 @@
           MobilePayment.dataset.success =
             'false';
           setMobilePaymentOpen(false);
-        },
-        1800
-      );
-    }
-
-    function showDesktopPaymentSuccess() {
-      document.documentElement.dataset
-        .paymentReturn = 'success';
-
-      window.setTimeout(
-        () => {
-          delete document.documentElement
-            .dataset.paymentReturn;
         },
         1800
       );
@@ -1724,7 +1645,6 @@
               ) {
                 paymentCheckoutMode = null;
                 setActionBusy(false);
-                showDesktopPaymentSuccess();
               }
 
               void refreshPaymentMethodAfterUpdate();
