@@ -30,6 +30,7 @@ jobs:
             tests/atlas-key-language-resilience.test.js
             tests/atlas-ai-subject-quota-6-2.test.js
             tests/atlas-subject-build-resurrection.test.js
+            tests/atlas-subject-build-worker-reconnect.test.js
           )
 
           failed=0
