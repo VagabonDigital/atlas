@@ -572,8 +572,8 @@
 
     h1 {
       max-width: 860px;
-      font-size: clamp(40px, 5.2vw, 56px);
-      line-height: 1.06;
+      font-size: clamp(58px, 6.4vw, 88px);
+      line-height: 1.02;
     }
 
     h2 {
@@ -2167,6 +2167,19 @@
     }
 
 
+    @media (max-width: 1050px) {
+      h1 {
+        font-size: 64px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      h1 {
+        font-size: clamp(47px, 11.5vw, 72px);
+        line-height: 1.04;
+      }
+    }
+
     @media (max-width: 940px) {
 
       .why-grid,
@@ -2322,10 +2335,6 @@
     }
 
     @media (max-width: 480px) {
-      h1 {
-        font-size: 39px;
-      }
-
       h2 {
         font-size: 33px;
       }
@@ -2348,6 +2357,12 @@
 
       .compass-question {
         font-size: 21px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      h1 {
+        font-size: 39px;
       }
     }
 
