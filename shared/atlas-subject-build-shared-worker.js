@@ -26,10 +26,10 @@
 'use strict';
 
 const WORKER_VERSION =
-    '20260924-buildworker4';
+    '20260924-buildworker5';
 
 const DEPENDENCY_VERSION =
-    '20260924-workerbuild2';
+    '20260924-workerbuild3';
 
 const BROWSER_STATE_DB_NAME =
     'atlas-tutor-subjects';
