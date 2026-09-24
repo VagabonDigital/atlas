@@ -66,6 +66,11 @@ assert.match(
 );
 
 assert.match(pricing, /data-atlas-account-entry/);
+assert.match(
+  pricing,
+  /data-atlas-account-entry[\s\S]*?data-pricing-header-pro[\s\S]*?atlas-inside-account-explore/,
+  'Pricing Get Pro must live inside the same right-hand account-action cluster as Explore/Sign in/Create.'
+);
 assert.match(pricing, /data-atlas-inside-sign-in/);
 assert.match(pricing, /data-atlas-inside-create/);
 assert.match(pricing, /data-atlas-inside-account/);
@@ -158,13 +163,18 @@ assert.match(
 
 assert.match(
   pricingCss,
-  /\.footer-inner \{ min-height: 82px;[\s\S]*?gap: 20px;[\s\S]*?font-size: \.82rem; \}/,
-  'Pricing footer geometry should match Inside Atlas.'
+  /\.footer-inner \{[\s\S]*?width: min\(calc\(100% - 36px\), 1120px\);[\s\S]*?min-height: 82px;[\s\S]*?gap: 20px;[\s\S]*?font-size: \.82rem;/,
+  'Pricing footer geometry should match the legal footer.'
 );
 assert.match(
   pricingCss,
-  /\.footer-links \{ display: flex; align-items: center; gap: 16px;/,
-  'Pricing footer link spacing should match Inside Atlas.'
+  /@media \(max-width: 640px\)[\s\S]*?\.footer-inner \{[\s\S]*?padding: 22px 0;[\s\S]*?gap: 10px;/,
+  'Pricing mobile footer should match the legal footer rhythm.'
+);
+assert.match(
+  inside,
+  /\.footer-inner \{[\s\S]*?width: min\(calc\(100% - 36px\), 1120px\);[\s\S]*?min-height: 82px;[\s\S]*?gap: 20px;[\s\S]*?font-size: 0\.82rem;/,
+  'Inside Atlas footer geometry should match the legal footer.'
 );
 assert.match(
   pricing,
