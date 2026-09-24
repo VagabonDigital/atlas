@@ -1,7 +1,7 @@
 /* ============================================================
    ATLAS SUBJECT BUILD — SHARED WORKER
 
-   Batch 3 runtime.
+   Batch 4 runtime.
 
    Owns while at least one Atlas page is connected:
    - authenticated in-memory AI execution
@@ -26,10 +26,10 @@
 'use strict';
 
 const WORKER_VERSION =
-    '20260924-buildworker3';
+    '20260924-buildworker4';
 
 const DEPENDENCY_VERSION =
-    '20260924-workerbuild1';
+    '20260924-workerbuild2';
 
 const BROWSER_STATE_DB_NAME =
     'atlas-tutor-subjects';
