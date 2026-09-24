@@ -586,9 +586,14 @@ async function testSharedWorkerRuntime() {
         'Explicit sign-out/account switch must clear that user\'s in-memory worker queue.'
     );
 
-    assert.doesNotMatch(
+    assert.match(
         workerSource,
-        /AtlasAI|generateSubject|generateMoment|generateCulturalLens|importScripts\(|fetch\(/
+        /ensureGenerationDependencies\(\)/
+    );
+
+    assert.match(
+        workerSource,
+        /AtlasSubjectBuildRunner/
     );
 
     assert.match(
@@ -882,7 +887,7 @@ async function testWorkerClient() {
         supported
             .workerCalls[0]
             .url,
-        '/shared/atlas-subject-build-shared-worker.js?v=20260924-buildworker1'
+        '/shared/atlas-subject-build-shared-worker.js?v=20260924-buildworker2'
     );
 
     assert.equal(
@@ -935,7 +940,7 @@ async function testWorkerClient() {
                 reason:
                     'token-expiring',
                 workerVersion:
-                    '20260924-buildworker1'
+                    '20260924-buildworker2'
             }
         });
 
@@ -1003,7 +1008,7 @@ function testBootstrapContract() {
 
     assert.match(
         registrySource,
-        /atlas-subject-build-worker-client\.js\?v=20260924-buildworker1/
+        /atlas-subject-build-worker-client\.js\?v=20260924-buildworker2/
     );
 
     assert.match(
@@ -1021,8 +1026,8 @@ function testBootstrapContract() {
 
             assert.match(
                 source,
-                /atlas-content-registry\.js\?v=20260924-buildworker1/,
-                `${path} must load the shared Batch 2 bootstrap.`
+                /atlas-content-registry\.js\?v=20260924-buildworker2/,
+                `${path} must load the shared SharedWorker bootstrap.`
             );
         }
     );
