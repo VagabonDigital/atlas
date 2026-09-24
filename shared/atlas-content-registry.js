@@ -1034,6 +1034,43 @@
         document.head.appendChild(script);
     }
 
+    function writeAtlasSubjectBuildWorkerClientScript() {
+        if (
+            window.AtlasSubjectBuildWorkerClient ||
+            document.querySelector(
+                'script[data-atlas-subject-build-worker-client]'
+            )
+        ) {
+            return;
+        }
+
+        const src =
+            '/shared/atlas-subject-build-worker-client.js?v=20260924-buildworker1';
+
+        if (document.readyState === 'loading') {
+            document.write(
+                `<script data-atlas-subject-build-worker-client="true" src="${src}"><\/script>`
+            );
+            return;
+        }
+
+        const script =
+            document.createElement(
+                'script'
+            );
+
+        script.src = src;
+        script.async = false;
+        script.setAttribute(
+            'data-atlas-subject-build-worker-client',
+            'true'
+        );
+
+        document.head.appendChild(
+            script
+        );
+    }
+
     function shouldLoadAtlasAccountChrome() {
         const surface = String(
             document.body?.dataset?.atlasSurface || ''
@@ -1454,6 +1491,8 @@
         requestCompassHubRefresh,
         ensureCompassCloudAuthority:
             loadCompassCloudAuthorityScripts,
+        ensureSubjectBuildWorkerClient:
+            writeAtlasSubjectBuildWorkerClientScript,
         prewarmCompassCoverImages
     };
 
@@ -1462,6 +1501,7 @@
     installCompassLiveAccountBootstrap();
     writeCloudAuthorityScripts();
     writeAtlasAccessBootstrapScript();
+    writeAtlasSubjectBuildWorkerClientScript();
     writeAtlasAccountChromeScript();
     installTutorCreateHandoff();
     registerAll();
