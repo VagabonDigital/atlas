@@ -960,6 +960,8 @@
                     true,
                 ready:
                     false,
+                lastWorkerHeartbeat:
+                    Date.now(),
                 lastError:
                     null
             });
@@ -1031,7 +1033,9 @@
                 false,
             activeBuild:
                 null,
-            queue: []
+            queue: [],
+            lastWorkerHeartbeat:
+                null
         });
     }
 
