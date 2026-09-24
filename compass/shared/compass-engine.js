@@ -1579,11 +1579,77 @@ function saveMyVersionWorkingDraftNow(
     const patch = getMyVersionWorkingDraftPatch(overrides);
 
     return queueTutorContentWrite(async () => {
-        const saved = isOwnedSubjectRuntime()
-            ? await requireAtlasTutorSubjects()
-                .saveWorkingDraft(MODULE.id, patch)
-            : await requireAtlasTutorContent()
-                .saveWorkingDraft(contentId, patch);
+        let saved = null;
+
+        if (isOwnedSubjectRuntime()) {
+            const Subjects =
+                requireAtlasTutorSubjects();
+
+            const buildState =
+                typeof Subjects.getBuildState ===
+                    'function'
+                    ? await Subjects
+                        .getBuildState(
+                            MODULE.id
+                        )
+                    : null;
+
+            if (
+                buildState
+                    ?.kind ===
+                    'full-subject' &&
+                typeof Subjects
+                    .saveBuildCheckpoint ===
+                    'function'
+            ) {
+                const checkpoint =
+                    await Subjects
+                        .saveBuildCheckpoint(
+                            MODULE.id,
+                            {
+                                workingDraft:
+                                    patch,
+                                buildState: {
+                                    kind:
+                                        'full-subject',
+                                    completedStep:
+                                        Math.max(
+                                            0,
+                                            Math.floor(
+                                                Number(
+                                                    buildState
+                                                        .completedStep
+                                                ) || 0
+                                            )
+                                        ),
+                                    autoSaveOnComplete:
+                                        buildState
+                                            .autoSaveOnComplete !==
+                                        false
+                                }
+                            }
+                        );
+
+                saved =
+                    checkpoint
+                        ?.workingDraft ||
+                    null;
+            } else {
+                saved =
+                    await Subjects
+                        .saveWorkingDraft(
+                            MODULE.id,
+                            patch
+                        );
+            }
+        } else {
+            saved =
+                await requireAtlasTutorContent()
+                    .saveWorkingDraft(
+                        contentId,
+                        patch
+                    );
+        }
 
         if (saved && myVersionEditing) {
             tutorContentWorkingDraft = saved;
