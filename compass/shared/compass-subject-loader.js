@@ -594,12 +594,12 @@
             );
 
             await loadScript(
-                '../../shared/atlas-subject-build-document-operations.js?v=20260924-foreground1',
+                '../../shared/atlas-subject-build-document-operations.js?v=20260924-foreground2',
                 'Atlas subject build document operations could not be loaded.'
             );
 
             await loadScript(
-                '../shared/compass-engine.js?v=20260924-foreground1',
+                '../shared/compass-engine.js?v=20260924-foreground2',
                 'Compass engine could not be loaded.'
             );
 
