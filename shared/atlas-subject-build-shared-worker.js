@@ -1,29 +1,35 @@
 /* ============================================================
-   ATLAS SUBJECT BUILD — SHARED WORKER FOUNDATION
+   ATLAS SUBJECT BUILD — SHARED WORKER
 
-   Batch 2 only.
+   Batch 3 runtime.
 
-   Owns while Atlas pages are connected:
-   - page ports + liveness
-   - short-lived access tokens in memory
-   - IndexedDB checkpoint reads
-   - per-subject build-lock awareness
-   - one shared queue skeleton
+   Owns while at least one Atlas page is connected:
+   - authenticated in-memory AI execution
+   - exactly one background subject build at a time
+   - canonical BuildRunner sequencing
+   - canonical worker-neutral document operations
+   - IndexedDB build checkpoints
+   - Web Lock subject ownership
+   - transient build liveness / progress
 
-   Deliberately does NOT:
-   - run AtlasAI
-   - generate subject content
-   - mutate subject documents
-   - commit Supabase state
-   - hold a build lock for generation
+   Does NOT own:
+   - Supabase session refresh
+   - account / billing state
+   - final durable subject commit
+   - UI / tutor editing state
 
-   Real generation ownership arrives in Batch 3.
+   Foreground subject pages and this worker never mutate the same
+   subject concurrently. The existing atlas-subject-build:<id> Web
+   Lock remains the single-writer authority.
    ============================================================ */
 
 'use strict';
 
 const WORKER_VERSION =
-    '20260924-buildworker1';
+    '20260924-buildworker2';
+
+const DEPENDENCY_VERSION =
+    '20260924-workerbuild1';
 
 const BROWSER_STATE_DB_NAME =
     'atlas-tutor-subjects';
@@ -37,8 +43,13 @@ const BUILD_CHECKPOINT_KEY_PREFIX =
 const BUILD_LOCK_PREFIX =
     'atlas-subject-build:';
 
+const RUNTIME_CHANNEL_NAME =
+    'atlas-subject-runtime-v1';
+
 const PAGE_STALE_MS = 45000;
 const WORKER_HEARTBEAT_MS = 15000;
+const BUILD_HEARTBEAT_MS = 1500;
+const QUEUE_RETRY_MS = 1000;
 
 const connections = new Map();
 const authByUser = new Map();
@@ -46,13 +57,48 @@ const queueByKey = new Map();
 const queueOrder = [];
 
 let browserStateDbPromise = null;
+let dependenciesLoaded = false;
+let queuePumpTimer = null;
+let queuePumping = false;
+let activeBuild = null;
+
+const runtimeSourceId =
+    self.crypto &&
+    typeof self.crypto.randomUUID ===
+        'function'
+        ? 'shared-worker-' +
+            self.crypto.randomUUID()
+        : 'shared-worker-' +
+            Date.now().toString(36) +
+            '-' +
+            Math.random()
+                .toString(36)
+                .slice(2, 12);
+
+let runtimeChannel = null;
+
+try {
+    if (
+        typeof self.BroadcastChannel ===
+            'function'
+    ) {
+        runtimeChannel =
+            new self.BroadcastChannel(
+                RUNTIME_CHANNEL_NAME
+            );
+    }
+} catch {
+    runtimeChannel = null;
+}
 
 function now() {
     return Date.now();
 }
 
 function clean(value) {
-    return String(value || '').trim();
+    return String(
+        value || ''
+    ).trim();
 }
 
 function cloneJson(value) {
@@ -68,6 +114,14 @@ function cloneJson(value) {
     );
 }
 
+function isObject(value) {
+    return Boolean(
+        value &&
+        typeof value === 'object' &&
+        !Array.isArray(value)
+    );
+}
+
 function normalizeCompletedStep(value) {
     return Math.max(
         0,
@@ -80,8 +134,20 @@ function normalizeCompletedStep(value) {
     );
 }
 
-function queueKey(userId, subjectId) {
-    return `${clean(userId)}::${clean(subjectId)}`;
+function normalizeGenerationContext(value) {
+    return isObject(value)
+        ? cloneJson(value)
+        : null;
+}
+
+function queueKey(
+    userId,
+    subjectId
+) {
+    return [
+        clean(userId),
+        clean(subjectId)
+    ].join('::');
 }
 
 function buildLockName(subjectId) {
@@ -96,6 +162,59 @@ function buildCheckpointKey(subjectId) {
         BUILD_CHECKPOINT_KEY_PREFIX +
         clean(subjectId)
     );
+}
+
+function ensureGenerationDependencies() {
+    if (dependenciesLoaded) {
+        return true;
+    }
+
+    if (
+        typeof self.importScripts !==
+            'function'
+    ) {
+        throw new Error(
+            'Atlas SharedWorker cannot load subject-build dependencies.'
+        );
+    }
+
+    self.importScripts(
+        '/shared/atlas-structured-subject.js?v=' +
+            DEPENDENCY_VERSION,
+        '/shared/atlas-ai.js?v=' +
+            DEPENDENCY_VERSION,
+        '/shared/atlas-subject-build-document-operations.js?v=' +
+            DEPENDENCY_VERSION,
+        '/shared/atlas-subject-build-runner.js?v=' +
+            DEPENDENCY_VERSION
+    );
+
+    const valid =
+        self.AtlasStructuredSubject &&
+        self.AtlasAI &&
+        typeof self.AtlasAI
+            .configureRuntime ===
+            'function' &&
+        self
+            .AtlasSubjectBuildDocumentOperations &&
+        typeof self
+            .AtlasSubjectBuildDocumentOperations
+            .create ===
+            'function' &&
+        self.AtlasSubjectBuildRunner &&
+        typeof self
+            .AtlasSubjectBuildRunner
+            .run ===
+            'function';
+
+    if (!valid) {
+        throw new Error(
+            'Atlas SharedWorker loaded an incomplete subject-build runtime.'
+        );
+    }
+
+    dependenciesLoaded = true;
+    return true;
 }
 
 function safePost(
@@ -117,10 +236,7 @@ function safePost(
             workerVersion:
                 WORKER_VERSION,
             ...(
-                detail &&
-                typeof detail ===
-                    'object' &&
-                !Array.isArray(detail)
+                isObject(detail)
                     ? detail
                     : {}
             )
@@ -133,88 +249,15 @@ function safePost(
 }
 
 function pagesForUser(userId) {
-    const id = clean(userId);
+    const id =
+        clean(userId);
 
     return Array.from(
         connections.values()
     ).filter(connection =>
-        clean(connection.userId) === id
-    );
-}
-
-function clearQueueForUser(userId) {
-    const id =
-        clean(userId);
-
-    if (!id) return;
-
-    Array.from(
-        queueByKey.entries()
-    ).forEach(
-        ([key, job]) => {
-            if (
-                job?.userId ===
-                id
-            ) {
-                queueByKey.delete(
-                    key
-                );
-            }
-        }
-    );
-
-    for (
-        let index =
-            queueOrder.length - 1;
-        index >= 0;
-        index -= 1
-    ) {
-        if (
-            !queueByKey.has(
-                queueOrder[index]
-            )
-        ) {
-            queueOrder.splice(
-                index,
-                1
-            );
-        }
-    }
-}
-
-function pruneAuthForUser(userId) {
-    const id = clean(userId);
-
-    if (
-        !id ||
-        pagesForUser(id).length
-    ) {
-        return;
-    }
-
-    authByUser.delete(id);
-}
-
-function removeConnection(
-    connection,
-    reason = 'disconnect'
-) {
-    if (!connection) return;
-
-    const previousUserId =
-        clean(connection.userId);
-
-    connections.delete(
-        connection.port
-    );
-
-    connection.connected = false;
-    connection.lastSeenAt = now();
-    connection.disconnectReason =
-        clean(reason);
-
-    pruneAuthForUser(
-        previousUserId
+        clean(
+            connection.userId
+        ) === id
     );
 }
 
@@ -223,21 +266,23 @@ function broadcast(
     detail = {},
     predicate = null
 ) {
-    connections.forEach(connection => {
-        if (
-            typeof predicate ===
-                'function' &&
-            !predicate(connection)
-        ) {
-            return;
-        }
+    connections.forEach(
+        connection => {
+            if (
+                typeof predicate ===
+                    'function' &&
+                !predicate(connection)
+            ) {
+                return;
+            }
 
-        safePost(
-            connection.port,
-            type,
-            detail
-        );
-    });
+            safePost(
+                connection.port,
+                type,
+                detail
+            );
+        }
+    );
 }
 
 function broadcastToUser(
@@ -245,7 +290,8 @@ function broadcastToUser(
     type,
     detail = {}
 ) {
-    const id = clean(userId);
+    const id =
+        clean(userId);
 
     if (!id) return;
 
@@ -259,8 +305,185 @@ function broadcastToUser(
     );
 }
 
+function publishRuntimeSignal(
+    type,
+    subjectId,
+    detail = {}
+) {
+    const id =
+        clean(subjectId);
+
+    if (!id) return null;
+
+    const message = {
+        version: 1,
+        type:
+            clean(type),
+        subjectId:
+            id,
+        sourceId:
+            runtimeSourceId,
+        sentAt:
+            now(),
+        detail:
+            isObject(detail)
+                ? cloneJson(detail)
+                : {}
+    };
+
+    if (runtimeChannel) {
+        try {
+            runtimeChannel.postMessage(
+                message
+            );
+        } catch { }
+    }
+
+    if (activeBuild?.subjectId === id) {
+        broadcastToUser(
+            activeBuild.userId,
+            'build-liveness',
+            {
+                ...message,
+                detail:
+                    cloneJson(
+                        message.detail
+                    )
+            }
+        );
+    }
+
+    return message;
+}
+
+function publishActiveBuildHeartbeat(
+    extra = {}
+) {
+    if (!activeBuild) {
+        return null;
+    }
+
+    const progress =
+        activeBuild.progress || {};
+
+    return publishRuntimeSignal(
+        'build-heartbeat',
+        activeBuild.subjectId,
+        {
+            owner:
+                'shared-worker',
+            current:
+                progress.current ||
+                null,
+            total:
+                progress.total ||
+                self
+                    .AtlasSubjectBuildRunner
+                    ?.totalProgressStages ||
+                9,
+            label:
+                progress.label ||
+                'Building subject',
+            completedStep:
+                normalizeCompletedStep(
+                    activeBuild.completedStep
+                ),
+            ...(
+                isObject(extra)
+                    ? extra
+                    : {}
+            )
+        }
+    );
+}
+
+function startActiveBuildHeartbeat() {
+    if (!activeBuild) {
+        return () => {};
+    }
+
+    publishActiveBuildHeartbeat();
+
+    const timerId =
+        self.setInterval(
+            () => {
+                publishActiveBuildHeartbeat();
+            },
+            BUILD_HEARTBEAT_MS
+        );
+
+    let stopped = false;
+
+    return (
+        reason = 'ended'
+    ) => {
+        if (stopped) return;
+        stopped = true;
+
+        self.clearInterval(
+            timerId
+        );
+
+        if (activeBuild) {
+            publishRuntimeSignal(
+                'build-stop',
+                activeBuild.subjectId,
+                {
+                    reason,
+                    owner:
+                        'shared-worker'
+                }
+            );
+        }
+    };
+}
+
+if (runtimeChannel) {
+    const handleRuntimeMessage =
+        event => {
+            const message =
+                event?.data;
+
+            if (
+                !activeBuild ||
+                !isObject(message) ||
+                clean(message.type) !==
+                    'build-probe' ||
+                clean(message.subjectId) !==
+                    activeBuild.subjectId ||
+                clean(message.sourceId) ===
+                    runtimeSourceId
+            ) {
+                return;
+            }
+
+            publishActiveBuildHeartbeat({
+                respondingTo:
+                    clean(
+                        message.detail
+                            ?.probeId
+                    )
+            });
+        };
+
+    if (
+        typeof runtimeChannel
+            .addEventListener ===
+            'function'
+    ) {
+        runtimeChannel.addEventListener(
+            'message',
+            handleRuntimeMessage
+        );
+    } else {
+        runtimeChannel.onmessage =
+            handleRuntimeMessage;
+    }
+}
+
 function queueSnapshot(userId = '') {
-    const id = clean(userId);
+    const id =
+        clean(userId);
 
     return queueOrder
         .map(key =>
@@ -284,6 +507,11 @@ function queueSnapshot(userId = '') {
                 job.completedStep,
             lockState:
                 job.lockState,
+            progress:
+                cloneJson(
+                    job.progress ||
+                    null
+                ),
             enqueuedAt:
                 job.enqueuedAt,
             updatedAt:
@@ -313,11 +541,174 @@ function workerSnapshot(
             ),
         userId:
             userId || null,
+        activeBuild:
+            activeBuild
+                ? {
+                    userId:
+                        activeBuild.userId,
+                    subjectId:
+                        activeBuild.subjectId,
+                    completedStep:
+                        normalizeCompletedStep(
+                            activeBuild.completedStep
+                        ),
+                    progress:
+                        cloneJson(
+                            activeBuild.progress ||
+                            null
+                        )
+                }
+                : null,
         queue:
             queueSnapshot(
                 userId
             )
     };
+}
+
+function publishQueueState(userId) {
+    const id =
+        clean(userId);
+
+    if (!id) return;
+
+    broadcastToUser(
+        id,
+        'queue-state',
+        {
+            userId:
+                id,
+            activeBuild:
+                activeBuild &&
+                activeBuild.userId ===
+                    id
+                    ? {
+                        subjectId:
+                            activeBuild.subjectId,
+                        completedStep:
+                            normalizeCompletedStep(
+                                activeBuild.completedStep
+                            ),
+                        progress:
+                            cloneJson(
+                                activeBuild.progress ||
+                                null
+                            )
+                    }
+                    : null,
+            queue:
+                queueSnapshot(id)
+        }
+    );
+}
+
+function clearQueueForUser(userId) {
+    const id =
+        clean(userId);
+
+    if (!id) return;
+
+    Array.from(
+        queueByKey.entries()
+    ).forEach(
+        ([key, job]) => {
+            if (
+                job?.userId ===
+                id &&
+                (
+                    !activeBuild ||
+                    activeBuild.userId !==
+                        id ||
+                    activeBuild.subjectId !==
+                        job.subjectId
+                )
+            ) {
+                queueByKey.delete(
+                    key
+                );
+            }
+        }
+    );
+
+    for (
+        let index =
+            queueOrder.length - 1;
+        index >= 0;
+        index -= 1
+    ) {
+        if (
+            !queueByKey.has(
+                queueOrder[index]
+            )
+        ) {
+            queueOrder.splice(
+                index,
+                1
+            );
+        }
+    }
+}
+
+function pruneAuthForUser(userId) {
+    const id =
+        clean(userId);
+
+    if (
+        !id ||
+        pagesForUser(id).length
+    ) {
+        return;
+    }
+
+    authByUser.delete(id);
+}
+
+function removeConnection(
+    connection,
+    reason = 'disconnect'
+) {
+    if (!connection) return;
+
+    const previousUserId =
+        clean(
+            connection.userId
+        );
+
+    connections.delete(
+        connection.port
+    );
+
+    connection.connected = false;
+    connection.lastSeenAt =
+        now();
+    connection.disconnectReason =
+        clean(reason);
+
+    pruneAuthForUser(
+        previousUserId
+    );
+}
+
+function requestAuthForUser(
+    userId,
+    reason = 'worker'
+) {
+    const id =
+        clean(userId);
+
+    if (!id) return;
+
+    broadcastToUser(
+        id,
+        'auth-required',
+        {
+            userId:
+                id,
+            reason:
+                clean(reason) ||
+                'worker'
+        }
+    );
 }
 
 function openBrowserStateDb() {
@@ -472,9 +863,66 @@ async function readBrowserState(key) {
     );
 }
 
-async function readBuildCheckpoint(
-    subjectId
+async function writeBrowserState(
+    key,
+    value
 ) {
+    const db =
+        await openBrowserStateDb();
+
+    if (
+        !db.objectStoreNames
+            .contains(
+                BROWSER_STATE_STORE
+            )
+    ) {
+        throw new Error(
+            'Atlas build checkpoint store is unavailable.'
+        );
+    }
+
+    return new Promise(
+        (resolve, reject) => {
+            let transaction;
+
+            try {
+                transaction =
+                    db.transaction(
+                        BROWSER_STATE_STORE,
+                        'readwrite'
+                    );
+            } catch (error) {
+                reject(error);
+                return;
+            }
+
+            const request =
+                transaction
+                    .objectStore(
+                        BROWSER_STATE_STORE
+                    )
+                    .put(
+                        cloneJson(value),
+                        clean(key)
+                    );
+
+            request.onsuccess =
+                () => resolve(true);
+
+            request.onerror =
+                () =>
+                    reject(
+                        request.error ||
+                        transaction.error ||
+                        new Error(
+                            'Atlas build checkpoint could not be saved.'
+                        )
+                    );
+        }
+    );
+}
+
+async function readBuildCheckpoint(subjectId) {
     const id =
         clean(subjectId);
 
@@ -485,9 +933,165 @@ async function readBuildCheckpoint(
     );
 }
 
-async function inspectBuildLock(
-    subjectId
+async function writeBuildCheckpoint(
+    job,
+    document,
+    completedStep
 ) {
+    const id =
+        clean(
+            job?.subjectId
+        );
+
+    if (!id) {
+        throw new Error(
+            'Atlas worker checkpoint requires a subject ID.'
+        );
+    }
+
+    ensureGenerationDependencies();
+
+    const validation =
+        self.AtlasStructuredSubject
+            .validateDocument(
+                document
+            );
+
+    if (
+        !validation ||
+        validation.valid !==
+            true
+    ) {
+        throw new Error(
+            'Atlas worker refused to checkpoint an invalid Structured Subject.'
+        );
+    }
+
+    const previous =
+        await readBuildCheckpoint(
+            id
+        );
+
+    if (
+        !isObject(previous) ||
+        !isObject(
+            previous.workingDraft
+        ) ||
+        !isObject(
+            previous.buildState
+        )
+    ) {
+        throw new Error(
+            'Atlas worker cannot checkpoint without an existing foreground build journal.'
+        );
+    }
+
+    const timestamp =
+        now();
+
+    const workingDraft = {
+        ...cloneJson(
+            previous.workingDraft
+        ),
+        document:
+            cloneJson(document),
+        updatedAt:
+            timestamp
+    };
+
+    const buildState = {
+        ...cloneJson(
+            previous.buildState
+        ),
+        kind:
+            'full-subject',
+        completedStep:
+            normalizeCompletedStep(
+                completedStep
+            ),
+        autoSaveOnComplete:
+            typeof job
+                ?.build
+                ?.autoSaveOnComplete ===
+                'boolean'
+                ? job.build
+                    .autoSaveOnComplete
+                : previous
+                    .buildState
+                    .autoSaveOnComplete !==
+                    false,
+        updatedAt:
+            timestamp
+    };
+
+    const next = {
+        schemaVersion:
+            Math.max(
+                1,
+                Math.floor(
+                    Number(
+                        previous
+                            .schemaVersion
+                    ) || 1
+                )
+            ),
+        subjectId:
+            id,
+        workingDraft,
+        buildState,
+        updatedAt:
+            timestamp
+    };
+
+    await writeBrowserState(
+        buildCheckpointKey(id),
+        next
+    );
+
+    job.hasCheckpoint = true;
+    job.completedStep =
+        buildState.completedStep;
+    job.updatedAt =
+        timestamp;
+
+    publishRuntimeSignal(
+        'subject-changed',
+        id,
+        {
+            change:
+                'build-checkpoint',
+            completedStep:
+                buildState
+                    .completedStep,
+            updatedAt:
+                timestamp,
+            owner:
+                'shared-worker'
+        }
+    );
+
+    broadcastToUser(
+        job.userId,
+        'build-checkpoint',
+        {
+            subjectId:
+                id,
+            completedStep:
+                buildState
+                    .completedStep,
+            updatedAt:
+                timestamp
+        }
+    );
+
+    publishQueueState(
+        job.userId
+    );
+
+    return next;
+}
+
+async function inspectBuildLock(subjectId) {
     const id =
         clean(subjectId);
 
@@ -550,9 +1154,7 @@ async function inspectBuildLock(
                             ? 'pending'
                             : 'available'
             };
-        } catch {
-            // Fall through to a non-holding ifAvailable probe.
-        }
+        } catch { }
     }
 
     if (
@@ -599,49 +1201,943 @@ async function inspectBuildLock(
     };
 }
 
-function requestAuthForUser(
-    userId,
-    reason = 'worker'
+function normalizeBuildDescriptor(value) {
+    const candidate =
+        isObject(value)
+            ? value
+            : {};
+
+    const generationContext =
+        normalizeGenerationContext(
+            candidate.generationContext
+        );
+
+    return {
+        generationContext,
+        autoSaveOnComplete:
+            typeof candidate
+                .autoSaveOnComplete ===
+                'boolean'
+                ? candidate
+                    .autoSaveOnComplete
+                : null,
+        revision:
+            Math.max(
+                0,
+                Math.floor(
+                    Number(
+                        candidate.revision
+                    ) || 0
+                )
+            )
+    };
+}
+
+function mergeBuildDescriptor(
+    previous,
+    incoming
 ) {
-    const id =
-        clean(userId);
+    const next =
+        normalizeBuildDescriptor(
+            incoming
+        );
 
-    if (!id) return;
+    const current =
+        normalizeBuildDescriptor(
+            previous
+        );
 
-    broadcastToUser(
-        id,
-        'auth-required',
-        {
-            userId: id,
-            reason:
-                clean(reason) ||
-                'worker'
-        }
+    return {
+        generationContext:
+            next.generationContext ||
+            current.generationContext,
+        autoSaveOnComplete:
+            typeof next
+                .autoSaveOnComplete ===
+                'boolean'
+                ? next
+                    .autoSaveOnComplete
+                : current
+                    .autoSaveOnComplete,
+        revision:
+            Math.max(
+                next.revision || 0,
+                current.revision || 0
+            )
+    };
+}
+
+async function refreshJobReadiness(job) {
+    let checkpoint = null;
+    let checkpointError = null;
+    let lock = {
+        name:
+            buildLockName(
+                job.subjectId
+            ),
+        state:
+            'unknown'
+    };
+
+    try {
+        [
+            checkpoint,
+            lock
+        ] =
+            await Promise.all([
+                readBuildCheckpoint(
+                    job.subjectId
+                ),
+                inspectBuildLock(
+                    job.subjectId
+                )
+            ]);
+    } catch (error) {
+        checkpointError =
+            error;
+    }
+
+    job.hasCheckpoint =
+        Boolean(
+            checkpoint &&
+            isObject(checkpoint)
+        );
+
+    job.completedStep =
+        normalizeCompletedStep(
+            checkpoint
+                ?.buildState
+                ?.completedStep
+        );
+
+    job.lockState =
+        clean(
+            lock?.state
+        ) || 'unknown';
+
+    if (checkpointError) {
+        job.status =
+            'checkpoint-error';
+        job.error =
+            clean(
+                checkpointError
+                    ?.message ||
+                checkpointError
+            );
+    } else if (!job.hasCheckpoint) {
+        job.status =
+            'checkpoint-missing';
+        job.error = '';
+    } else if (
+        job.completedStep >= 18
+    ) {
+        job.status =
+            'ready-to-commit';
+        job.error = '';
+    } else if (
+        job.lockState ===
+            'unsupported' ||
+        job.lockState ===
+            'unknown'
+    ) {
+        job.status =
+            'lock-unavailable';
+        job.error = '';
+    } else if (
+        job.lockState ===
+            'held' ||
+        job.lockState ===
+            'pending'
+    ) {
+        job.status =
+            'blocked-by-owner';
+        job.error = '';
+    } else if (
+        !authByUser
+            .get(job.userId)
+            ?.accessToken
+    ) {
+        job.status =
+            'waiting-auth';
+        job.error = '';
+
+        requestAuthForUser(
+            job.userId,
+            'queue'
+        );
+    } else {
+        job.status =
+            'queued';
+        job.error = '';
+    }
+
+    job.updatedAt =
+        now();
+
+    return {
+        checkpoint,
+        lock
+    };
+}
+
+function jobHasExecutionContext(job) {
+    return Boolean(
+        isObject(
+            job
+                ?.build
+                ?.generationContext
+        )
     );
 }
 
-function publishQueueState(
-    userId
-) {
-    const id =
-        clean(userId);
+function jobMayRetry(job) {
+    return Boolean(
+        job &&
+        jobHasExecutionContext(job) &&
+        ![
+            'ready-to-commit',
+            'cancelled',
+            'failed',
+            'lock-unavailable'
+        ].includes(
+            job.status
+        )
+    );
+}
 
-    if (!id) return;
+function scheduleQueuePump(
+    delayMs = 0
+) {
+    if (queuePumpTimer !== null) {
+        return;
+    }
+
+    queuePumpTimer =
+        self.setTimeout(
+            () => {
+                queuePumpTimer =
+                    null;
+
+                void pumpQueue();
+            },
+            Math.max(
+                0,
+                Number(delayMs) || 0
+            )
+        );
+}
+
+function isAuthGenerationError(error) {
+    const code =
+        clean(
+            error?.code
+        );
+
+    const message =
+        clean(
+            error?.message ||
+            error
+        ).toLowerCase();
+
+    return (
+        code ===
+            'ATLAS_AI_AUTH_REQUIRED' ||
+        message.includes(
+            'status 401'
+        ) ||
+        message.includes(
+            'signed-in atlas account'
+        )
+    );
+}
+
+function configureAIForJob(job) {
+    self.AtlasAI
+        .configureRuntime({
+            getAccessToken() {
+                return (
+                    authByUser
+                        .get(job.userId)
+                        ?.accessToken ||
+                    ''
+                );
+            },
+
+            getSubjectId() {
+                return job.subjectId;
+            },
+
+            getGenerationContext() {
+                return (
+                    job
+                        .build
+                        .generationContext ||
+                    {}
+                );
+            },
+
+            fetch:
+                typeof self.fetch ===
+                    'function'
+                    ? self.fetch
+                        .bind(self)
+                    : null
+        });
+}
+
+function clearAIWorkerRuntime() {
+    try {
+        self.AtlasAI
+            ?.configureRuntime?.({
+                getAccessToken:
+                    null,
+                getSubjectId:
+                    null,
+                getGenerationContext:
+                    null,
+                fetch:
+                    null
+            });
+    } catch { }
+}
+
+function createWorkerOperations(
+    job,
+    getDocument,
+    commitDocument
+) {
+    const Operations =
+        self
+            .AtlasSubjectBuildDocumentOperations
+            .create({
+                ai:
+                    self.AtlasAI,
+                structured:
+                    self
+                        .AtlasStructuredSubject,
+
+                getDocument,
+
+                commit(mutator) {
+                    const current =
+                        cloneJson(
+                            getDocument()
+                        );
+
+                    const result =
+                        mutator(
+                            current,
+                            {}
+                        );
+
+                    if (!result) {
+                        return null;
+                    }
+
+                    commitDocument(
+                        current
+                    );
+
+                    return result;
+                }
+            });
+
+    return {
+        generateSubjectFraming:
+            () =>
+                Operations
+                    .generateSubjectFraming(),
+
+        generateOverview:
+            () =>
+                Operations
+                    .generateOverview(),
+
+        enrichCurrentAffairs:
+            async () => {
+                const result =
+                    await Operations
+                        .generateCurrentAffairsReading({
+                            generationContext:
+                                job
+                                    .build
+                                    .generationContext ||
+                                {}
+                        });
+
+                if (
+                    result &&
+                    result.alreadyComplete !==
+                        true &&
+                    isObject(
+                        result.generationContext
+                    )
+                ) {
+                    job.build
+                        .generationContext =
+                        cloneJson(
+                            result
+                                .generationContext
+                        );
+                }
+
+                return true;
+            },
+
+        generateDiscussionFraming:
+            () =>
+                Operations
+                    .generateDiscussionFraming(),
+
+        generateDiscussionSet:
+            ({ brief }) =>
+                Operations
+                    .generateDiscussionSet({
+                        brief
+                    }),
+
+        generateCulturalLensFraming:
+            () =>
+                Operations
+                    .generateCulturalLensFraming(),
+
+        generateCulturalLensCard:
+            () =>
+                Operations
+                    .generateCulturalLensCard(),
+
+        generateReflection:
+            () =>
+                Operations
+                    .generateReflection(),
+
+        enrichDiscussion:
+            async ({
+                languageSupport
+            }) => {
+                const result =
+                    await Operations
+                        .enrichDiscussion({
+                            languageMode:
+                                languageSupport,
+                            subjectSize:
+                                clean(
+                                    job
+                                        .build
+                                        .generationContext
+                                        ?.subjectSize
+                                ) ||
+                                'standard'
+                        });
+
+                return (
+                    result?.complete ===
+                    true
+                );
+            },
+
+        enrichCulturalLens:
+            async ({
+                languageSupport
+            }) => {
+                const result =
+                    await Operations
+                        .enrichCulturalLens({
+                            languageMode:
+                                languageSupport,
+                            subjectSize:
+                                clean(
+                                    job
+                                        .build
+                                        .generationContext
+                                        ?.subjectSize
+                                ) ||
+                                'standard'
+                        });
+
+                return (
+                    result?.complete ===
+                    true
+                );
+            }
+    };
+}
+
+async function executeBuild(job) {
+    ensureGenerationDependencies();
+
+    const latest =
+        await readBuildCheckpoint(
+            job.subjectId
+        );
+
+    if (
+        !isObject(latest) ||
+        !isObject(
+            latest.workingDraft
+        ) ||
+        !isObject(
+            latest.workingDraft
+                .document
+        ) ||
+        !isObject(
+            latest.buildState
+        )
+    ) {
+        throw new Error(
+            'Atlas worker cannot resume without a valid build checkpoint.'
+        );
+    }
+
+    let document =
+        cloneJson(
+            latest
+                .workingDraft
+                .document
+        );
+
+    const validation =
+        self.AtlasStructuredSubject
+            .validateDocument(
+                document
+            );
+
+    if (
+        !validation ||
+        validation.valid !==
+            true
+    ) {
+        throw new Error(
+            'Atlas worker checkpoint contains an invalid Structured Subject.'
+        );
+    }
+
+    const resumeFromStep =
+        normalizeCompletedStep(
+            latest
+                .buildState
+                .completedStep
+        );
+
+    if (resumeFromStep >= 18) {
+        job.status =
+            'ready-to-commit';
+        job.completedStep =
+            18;
+        job.updatedAt =
+            now();
+        publishQueueState(
+            job.userId
+        );
+        return {
+            completedStep: 18,
+            complete: true
+        };
+    }
+
+    configureAIForJob(job);
+
+    activeBuild = {
+        userId:
+            job.userId,
+        subjectId:
+            job.subjectId,
+        completedStep:
+            resumeFromStep,
+        progress: null,
+        cancelRequested:
+            false
+    };
+
+    job.status =
+        'building';
+    job.completedStep =
+        resumeFromStep;
+    job.progress = null;
+    job.updatedAt =
+        now();
+
+    publishQueueState(
+        job.userId
+    );
 
     broadcastToUser(
-        id,
-        'queue-state',
+        job.userId,
+        'build-started',
         {
-            userId: id,
-            queue:
-                queueSnapshot(id)
+            subjectId:
+                job.subjectId,
+            completedStep:
+                resumeFromStep
         }
     );
+
+    const stopHeartbeat =
+        startActiveBuildHeartbeat();
+
+    try {
+        const result =
+            await self
+                .AtlasSubjectBuildRunner
+                .run({
+                    resumeFromStep,
+                    subjectSize:
+                        clean(
+                            job
+                                .build
+                                .generationContext
+                                ?.subjectSize
+                        ) ||
+                        'standard',
+                    languageSupport:
+                        clean(
+                            job
+                                .build
+                                .generationContext
+                                ?.languageSupport
+                        ) ||
+                        'key',
+
+                    operations:
+                        createWorkerOperations(
+                            job,
+                            () =>
+                                document,
+                            nextDocument => {
+                                document =
+                                    cloneJson(
+                                        nextDocument
+                                    );
+                            }
+                        ),
+
+                    onProgress:
+                        ({
+                            current,
+                            total,
+                            label
+                        }) => {
+                            if (!activeBuild) {
+                                return;
+                            }
+
+                            activeBuild.progress = {
+                                current:
+                                    Number(
+                                        current
+                                    ) ||
+                                    null,
+                                total:
+                                    Number(
+                                        total
+                                    ) ||
+                                    9,
+                                label:
+                                    clean(label)
+                            };
+
+                            job.progress =
+                                cloneJson(
+                                    activeBuild.progress
+                                );
+
+                            job.updatedAt =
+                                now();
+
+                            publishActiveBuildHeartbeat();
+                            publishQueueState(
+                                job.userId
+                            );
+                        },
+
+                    onCheckpoint:
+                        async step => {
+                            await writeBuildCheckpoint(
+                                job,
+                                document,
+                                step
+                            );
+
+                            if (activeBuild) {
+                                activeBuild.completedStep =
+                                    normalizeCompletedStep(
+                                        step
+                                    );
+                            }
+
+                            if (
+                                activeBuild
+                                    ?.cancelRequested
+                            ) {
+                                const error =
+                                    new Error(
+                                        'Atlas worker build was cancelled after checkpoint.'
+                                    );
+
+                                error.code =
+                                    'ATLAS_WORKER_BUILD_CANCELLED';
+
+                                throw error;
+                            }
+                        }
+                });
+
+        job.status =
+            result.complete
+                ? 'ready-to-commit'
+                : 'queued';
+
+        job.completedStep =
+            normalizeCompletedStep(
+                result.completedStep
+            );
+
+        job.progress =
+            null;
+        job.updatedAt =
+            now();
+
+        broadcastToUser(
+            job.userId,
+            'build-ready',
+            {
+                subjectId:
+                    job.subjectId,
+                completedStep:
+                    job.completedStep,
+                generationContext:
+                    cloneJson(
+                        job
+                            .build
+                            .generationContext
+                    )
+            }
+        );
+
+        publishQueueState(
+            job.userId
+        );
+
+        return result;
+    } finally {
+        stopHeartbeat(
+            job.completedStep >= 18
+                ? 'generation-complete'
+                : 'generation-ended'
+        );
+
+        clearAIWorkerRuntime();
+
+        activeBuild = null;
+    }
+}
+
+async function runJobWithLock(job) {
+    const Locks =
+        self.navigator?.locks;
+
+    if (
+        !Locks ||
+        typeof Locks.request !==
+            'function'
+    ) {
+        job.status =
+            'lock-unavailable';
+        job.lockState =
+            'unsupported';
+        job.updatedAt =
+            now();
+
+        publishQueueState(
+            job.userId
+        );
+
+        return false;
+    }
+
+    let acquired =
+        false;
+
+    await Locks.request(
+        buildLockName(
+            job.subjectId
+        ),
+        {
+            mode:
+                'exclusive',
+            ifAvailable:
+                true
+        },
+        async lock => {
+            if (!lock) {
+                return;
+            }
+
+            acquired = true;
+            job.lockState =
+                'held-by-worker';
+            job.updatedAt =
+                now();
+
+            try {
+                await executeBuild(
+                    job
+                );
+            } catch (error) {
+                if (
+                    error?.code ===
+                        'ATLAS_WORKER_BUILD_CANCELLED'
+                ) {
+                    job.status =
+                        'cancelled';
+                } else if (
+                    isAuthGenerationError(
+                        error
+                    )
+                ) {
+                    job.status =
+                        'waiting-auth';
+
+                    requestAuthForUser(
+                        job.userId,
+                        'generation-auth'
+                    );
+                } else {
+                    job.status =
+                        'failed';
+                }
+
+                job.error =
+                    clean(
+                        error?.message ||
+                        error
+                    );
+
+                job.progress =
+                    null;
+                job.updatedAt =
+                    now();
+
+                broadcastToUser(
+                    job.userId,
+                    'build-failed',
+                    {
+                        subjectId:
+                            job.subjectId,
+                        completedStep:
+                            job.completedStep,
+                        retryable:
+                            job.status ===
+                                'waiting-auth',
+                        error:
+                            job.error
+                    }
+                );
+
+                publishQueueState(
+                    job.userId
+                );
+            } finally {
+                job.lockState =
+                    'available';
+            }
+        }
+    );
+
+    if (!acquired) {
+        job.status =
+            'blocked-by-owner';
+        job.lockState =
+            'held';
+        job.updatedAt =
+            now();
+
+        publishQueueState(
+            job.userId
+        );
+    }
+
+    return acquired;
+}
+
+async function pumpQueue() {
+    if (
+        queuePumping ||
+        activeBuild
+    ) {
+        return;
+    }
+
+    queuePumping = true;
+
+    try {
+        for (
+            const key of
+            queueOrder
+        ) {
+            const job =
+                queueByKey.get(key);
+
+            if (
+                !job ||
+                !jobHasExecutionContext(
+                    job
+                ) ||
+                [
+                    'ready-to-commit',
+                    'cancelled',
+                    'failed',
+                    'lock-unavailable'
+                ].includes(
+                    job.status
+                )
+            ) {
+                continue;
+            }
+
+            await refreshJobReadiness(
+                job
+            );
+
+            publishQueueState(
+                job.userId
+            );
+
+            if (
+                job.status !==
+                    'queued'
+            ) {
+                continue;
+            }
+
+            await runJobWithLock(
+                job
+            );
+
+            break;
+        }
+    } finally {
+        queuePumping =
+            false;
+
+        if (
+            Array.from(
+                queueByKey.values()
+            ).some(
+                job =>
+                    jobMayRetry(job)
+            )
+        ) {
+            scheduleQueuePump(
+                QUEUE_RETRY_MS
+            );
+        }
+    }
 }
 
 async function enqueueSubject(
     connection,
-    subjectId
+    message
 ) {
     const userId =
         clean(
@@ -649,7 +2145,9 @@ async function enqueueSubject(
         );
 
     const id =
-        clean(subjectId);
+        clean(
+            message?.subjectId
+        );
 
     if (!userId) {
         safePost(
@@ -689,119 +2187,44 @@ async function enqueueSubject(
     const existing =
         queueByKey.get(key);
 
-    const enqueuedAt =
-        existing?.enqueuedAt ||
-        now();
-
-    const inspecting = {
-        userId,
-        subjectId:
-            id,
-        status:
-            'inspecting',
-        hasCheckpoint:
-            false,
-        completedStep:
-            0,
-        lockState:
-            'unknown',
-        enqueuedAt,
-        updatedAt:
-            now()
-    };
-
-    queueByKey.set(
-        key,
-        inspecting
-    );
-
-    if (
-        !queueOrder.includes(key)
-    ) {
-        queueOrder.push(key);
-    }
-
-    publishQueueState(
-        userId
-    );
-
-    let checkpoint = null;
-    let checkpointError = null;
-    let lock = {
-        name:
-            buildLockName(id),
-        state:
-            'unknown'
-    };
-
-    try {
-        [
-            checkpoint,
-            lock
-        ] =
-            await Promise.all([
-                readBuildCheckpoint(id),
-                inspectBuildLock(id)
-            ]);
-    } catch (error) {
-        checkpointError =
-            error;
-    }
-
-    const completedStep =
-        normalizeCompletedStep(
-            checkpoint
-                ?.buildState
-                ?.completedStep
-        );
-
-    const hasCheckpoint =
-        Boolean(
-            checkpoint &&
-            typeof checkpoint ===
-                'object'
-        );
-
-    let status =
-        hasCheckpoint
-            ? 'queued'
-            : 'checkpoint-missing';
-
-    if (
-        lock?.state ===
-            'held' ||
-        lock?.state ===
-            'pending'
-    ) {
-        status =
-            'blocked-by-owner';
-    } else if (
-        lock?.state ===
-            'unsupported' ||
-        lock?.state ===
-            'unknown'
-    ) {
-        status =
-            'lock-unavailable';
-    }
-
-    if (checkpointError) {
-        status =
-            'checkpoint-error';
-    }
-
     const job = {
         userId,
         subjectId:
             id,
-        status,
-        hasCheckpoint,
-        completedStep,
+        status:
+            existing?.status ||
+            'inspecting',
+        hasCheckpoint:
+            existing
+                ?.hasCheckpoint ||
+            false,
+        completedStep:
+            normalizeCompletedStep(
+                existing
+                    ?.completedStep
+            ),
         lockState:
-            clean(
-                lock?.state
-            ) || 'unknown',
-        enqueuedAt,
+            existing
+                ?.lockState ||
+            'unknown',
+        progress:
+            cloneJson(
+                existing
+                    ?.progress ||
+                null
+            ),
+        build:
+            mergeBuildDescriptor(
+                existing?.build,
+                message?.build
+            ),
+        error:
+            existing?.error ||
+            '',
+        enqueuedAt:
+            existing
+                ?.enqueuedAt ||
+            now(),
         updatedAt:
             now()
     };
@@ -811,33 +2234,110 @@ async function enqueueSubject(
         job
     );
 
+    if (
+        !queueOrder.includes(key)
+    ) {
+        queueOrder.push(key);
+    }
+
+    await refreshJobReadiness(
+        job
+    );
+
     safePost(
         connection.port,
         'checkpoint-read',
         {
             subjectId:
                 id,
-            hasCheckpoint,
-            completedStep,
+            hasCheckpoint:
+                job.hasCheckpoint,
+            completedStep:
+                job.completedStep,
             error:
-                checkpointError
-                    ? String(
-                        checkpointError
-                            .message ||
-                        checkpointError
-                    )
+                job.status ===
+                    'checkpoint-error'
+                    ? job.error
                     : null
         }
     );
 
+    publishQueueState(
+        userId
+    );
+
     if (
-        !authByUser
-            .get(userId)
-            ?.accessToken
+        jobHasExecutionContext(
+            job
+        )
     ) {
-        requestAuthForUser(
+        scheduleQueuePump();
+    }
+
+    return job;
+}
+
+function cancelSubject(
+    connection,
+    message
+) {
+    const userId =
+        clean(
+            connection?.userId
+        );
+
+    const subjectId =
+        clean(
+            message?.subjectId
+        );
+
+    if (
+        !userId ||
+        !subjectId
+    ) {
+        return false;
+    }
+
+    if (
+        activeBuild &&
+        activeBuild.userId ===
+            userId &&
+        activeBuild.subjectId ===
+            subjectId
+    ) {
+        activeBuild.cancelRequested =
+            true;
+
+        safePost(
+            connection.port,
+            'cancel-pending',
+            {
+                subjectId
+            }
+        );
+
+        return true;
+    }
+
+    const key =
+        queueKey(
             userId,
-            'queue'
+            subjectId
+        );
+
+    queueByKey.delete(
+        key
+    );
+
+    const index =
+        queueOrder.indexOf(
+            key
+        );
+
+    if (index >= 0) {
+        queueOrder.splice(
+            index,
+            1
         );
     }
 
@@ -845,7 +2345,20 @@ async function enqueueSubject(
         userId
     );
 
-    return job;
+    safePost(
+        connection.port,
+        'subject-cancelled',
+        {
+            subjectId,
+            reason:
+                clean(
+                    message?.reason
+                ) ||
+                'cancelled'
+        }
+    );
+
+    return true;
 }
 
 async function handleCheckpointRequest(
@@ -872,9 +2385,11 @@ async function handleCheckpointRequest(
             'checkpoint-result',
             {
                 requestId:
-                    requestId || null,
+                    requestId ||
+                    null,
                 subjectId:
-                    subjectId || null,
+                    subjectId ||
+                    null,
                 checkpoint:
                     null,
                 error:
@@ -916,7 +2431,7 @@ async function handleCheckpointRequest(
                 checkpoint:
                     null,
                 error:
-                    String(
+                    clean(
                         error?.message ||
                         error
                     )
@@ -982,7 +2497,8 @@ function handleAuth(
             expiresAt:
                 Number(
                     message?.expiresAt
-                ) || null,
+                ) ||
+                null,
             account:
                 cloneJson(
                     message?.account ||
@@ -1003,9 +2519,12 @@ function handleAuth(
             expiresAt:
                 Number(
                     message?.expiresAt
-                ) || null
+                ) ||
+                null
         }
     );
+
+    scheduleQueuePump();
 }
 
 function handleAuthClear(
@@ -1057,10 +2576,9 @@ function handleMessage(
     event
 ) {
     const message =
-        event?.data &&
-        typeof event.data ===
-            'object' &&
-        !Array.isArray(event.data)
+        isObject(
+            event?.data
+        )
             ? event.data
             : {};
 
@@ -1081,7 +2599,8 @@ function handleMessage(
         connection.surface =
             clean(
                 message.surface
-            ) || 'atlas';
+            ) ||
+            'atlas';
 
         connection.visible =
             message.visible !==
@@ -1142,7 +2661,16 @@ function handleMessage(
     if (type === 'enqueue-subject') {
         void enqueueSubject(
             connection,
-            message.subjectId
+            message
+        );
+
+        return;
+    }
+
+    if (type === 'cancel-subject') {
+        cancelSubject(
+            connection,
+            message
         );
 
         return;
@@ -1171,7 +2699,8 @@ function handleMessage(
                 requestId:
                     clean(
                         message.requestId
-                    ) || null,
+                    ) ||
+                    null,
                 ...workerSnapshot(
                     connection
                 )
@@ -1336,9 +2865,25 @@ self.setInterval(
                 pageCount:
                     connections.size,
                 queueSize:
-                    queueByKey.size
+                    queueByKey.size,
+                activeSubjectId:
+                    activeBuild
+                        ?.subjectId ||
+                    null
             }
         );
+
+        if (
+            !activeBuild &&
+            Array.from(
+                queueByKey.values()
+            ).some(
+                job =>
+                    jobMayRetry(job)
+            )
+        ) {
+            scheduleQueuePump();
+        }
     },
     WORKER_HEARTBEAT_MS
 );
