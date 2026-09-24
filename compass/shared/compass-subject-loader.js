@@ -322,6 +322,68 @@
         };
     }
 
+    async function applyOwnedBuildGenerationContext(
+        subject,
+        fallbackContext = null
+    ) {
+        if (
+            subject
+                ?.runtime
+                ?.aiBuildIncomplete !==
+                true
+        ) {
+            return subject;
+        }
+
+        let generationContext =
+            fallbackContext &&
+            typeof fallbackContext ===
+                'object' &&
+            !Array.isArray(
+                fallbackContext
+            )
+                ? cloneJson(
+                    fallbackContext
+                )
+                : null;
+
+        try {
+            const buildState =
+                await requireAtlasTutorSubjects()
+                    .getBuildState(
+                        subject
+                            .runtime
+                            .subjectId
+                    );
+
+            if (
+                buildState
+                    ?.generationContext &&
+                typeof buildState
+                    .generationContext ===
+                    'object' &&
+                !Array.isArray(
+                    buildState
+                        .generationContext
+                )
+            ) {
+                generationContext =
+                    cloneJson(
+                        buildState
+                            .generationContext
+                    );
+            }
+        } catch { }
+
+        if (generationContext) {
+            subject.runtime
+                .generationContext =
+                generationContext;
+        }
+
+        return subject;
+    }
+
     async function requestForegroundBuildOwnership(
         subject
     ) {
@@ -654,6 +716,7 @@
         }
 
         let foregroundOwnershipSubjectId = '';
+        let foregroundGenerationContext = null;
 
         try {
             const record = await withTimeout(
@@ -698,6 +761,24 @@
                     await requestForegroundBuildOwnership(
                         subject
                     );
+
+                if (
+                    grant
+                        ?.generationContext &&
+                    typeof grant
+                        .generationContext ===
+                        'object' &&
+                    !Array.isArray(
+                        grant
+                            .generationContext
+                    )
+                ) {
+                    foregroundGenerationContext =
+                        cloneJson(
+                            grant
+                                .generationContext
+                        );
+                }
 
                 if (
                     grant &&
@@ -769,28 +850,6 @@
 
                     if (
                         subject.runtime
-                            ?.aiBuildIncomplete ===
-                            true &&
-                        grant
-                            ?.generationContext &&
-                        typeof grant
-                            .generationContext ===
-                            'object' &&
-                        !Array.isArray(
-                            grant
-                                .generationContext
-                        )
-                    ) {
-                        subject.runtime
-                            .generationContext =
-                            cloneJson(
-                                grant
-                                    .generationContext
-                            );
-                    }
-
-                    if (
-                        subject.runtime
                             ?.aiBuildIncomplete !==
                             true
                     ) {
@@ -810,6 +869,11 @@
                     }
                 }
             }
+
+            await applyOwnedBuildGenerationContext(
+                subject,
+                foregroundGenerationContext
+            );
 
             installRuntimeSubject(subject);
             await loadCompassEngine();
