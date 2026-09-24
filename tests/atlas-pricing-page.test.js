@@ -184,7 +184,16 @@ assert.match(pricing, /data-paddle-pro-price/);
 assert.match(pricing, /data-pro-repeat-price/);
 assert.match(pricing, /data-atlas-plan="pro"/);
 assert.match(pricing, /data-pricing-repeat-pro/);
-assert.match(pricing, /Paddle\.Environment\.set\('sandbox'\)/);
+assert.match(
+  pricing,
+  /config\.environment === 'sandbox'[\s\S]*?Paddle\.Environment\.set\('sandbox'\)/,
+  'Pricing must use Paddle sandbox mode only when the shared checkout config says sandbox.'
+);
+assert.doesNotMatch(
+  pricing,
+  /function initPaddle\(\)[\s\S]*?if \(!window\.Paddle \|\| !config\) return false;\s*Paddle\.Environment\.set\('sandbox'\)/,
+  'Pricing must not force Paddle sandbox mode independently of shared checkout config.'
+);
 assert.match(pricing, /Paddle\.PricePreview/);
 assert.match(pricing, /Paddle\.Checkout\.open/);
 assert.match(pricing, /checkout\.closed/);
