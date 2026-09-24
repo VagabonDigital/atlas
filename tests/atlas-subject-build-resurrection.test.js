@@ -1077,6 +1077,17 @@ async function testSignedOutLoadedAccountStaysDormant() {
             .isBootstrapping(),
         false
     );
+
+    assert.equal(
+        box.windowObject
+            .AtlasSubjectBuildResurrection
+            .isEstablishing(
+                'subject-resume',
+                'building'
+            ),
+        false,
+        'Unsupported SharedWorker browsers should project the emergency Continue building path immediately.'
+    );
 }
 
 async function testReadyCompletionIsSurfaceIndependent() {
@@ -1195,6 +1206,22 @@ async function testNoWebLocksFailsCompletionClosed() {
         box.cleared.length,
         0,
         'Without canonical Web Locks Atlas must preserve the checkpoint rather than guess at completion ownership.'
+    );
+
+    assert.equal(
+        box.enqueued.length,
+        0,
+        'Without Web Locks Atlas should not enqueue unsafe background ownership work.'
+    );
+
+    assert.equal(
+        box.windowObject
+            .AtlasSubjectBuildResurrection
+            .isEstablishing(
+                'subject-resume',
+                'building'
+            ),
+        false
     );
 }
 
