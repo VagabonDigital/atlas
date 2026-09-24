@@ -118,6 +118,12 @@ assert.match(
   /Free · \$\{resolved\.remaining\} left/
 );
 
+
+assert.match(
+  compass,
+  /resolved\.tier === 'free'[\s\S]*?resolved\.remaining <= 3/
+);
+
 assert.match(
   compass,
   /resolved\.tier === 'pro'[\s\S]*?resolved\.remaining <= 10/
