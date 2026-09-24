@@ -134,6 +134,22 @@ assert.match(
   /id="plan-includes"[\s\S]*?class="plan-includes"/
 );
 
+
+assert.match(
+  subscription,
+  /<p class="plan">[\s\S]*?Atlas Pro[\s\S]*?\$12\/month[\s\S]*?<\/p>[\s\S]*?<a id="plan-includes"/
+);
+
+assert.match(
+  subscription,
+  /\.loading \{[\s\S]*?min-height: 493px;/
+);
+
+assert.match(
+  subscription,
+  /@media \(max-width: 620px\)[\s\S]*?\.card \{[\s\S]*?min-height: 539px;[\s\S]*?\.loading \{[\s\S]*?min-height: 501px;/
+);
+
 assert.match(
   compass,
   /atlas-pro-checkout\.js\?v=20260923-contextual1/
