@@ -1802,19 +1802,41 @@ function createWorkerOperations(
                 }
             });
 
+    const yieldBeforeOperation =
+        async () => {
+            if (
+                shouldYieldActiveJob(
+                    job
+                )
+            ) {
+                await checkpointForegroundYield(
+                    job,
+                    getDocument()
+                );
+            }
+        };
+
     return {
         generateSubjectFraming:
-            () =>
-                Operations
-                    .generateSubjectFraming(),
+            async () => {
+                await yieldBeforeOperation();
+
+                return Operations
+                    .generateSubjectFraming();
+            },
 
         generateOverview:
-            () =>
-                Operations
-                    .generateOverview(),
+            async () => {
+                await yieldBeforeOperation();
+
+                return Operations
+                    .generateOverview();
+            },
 
         enrichCurrentAffairs:
             async () => {
+                await yieldBeforeOperation();
+
                 const result =
                     await Operations
                         .generateCurrentAffairsReading({
@@ -1856,36 +1878,53 @@ function createWorkerOperations(
             },
 
         generateDiscussionFraming:
-            () =>
-                Operations
-                    .generateDiscussionFraming(),
+            async () => {
+                await yieldBeforeOperation();
+
+                return Operations
+                    .generateDiscussionFraming();
+            },
 
         generateDiscussionSet:
-            ({ brief }) =>
-                Operations
+            async ({ brief }) => {
+                await yieldBeforeOperation();
+
+                return Operations
                     .generateDiscussionSet({
                         brief
-                    }),
+                    });
+            },
 
         generateCulturalLensFraming:
-            () =>
-                Operations
-                    .generateCulturalLensFraming(),
+            async () => {
+                await yieldBeforeOperation();
+
+                return Operations
+                    .generateCulturalLensFraming();
+            },
 
         generateCulturalLensCard:
-            () =>
-                Operations
-                    .generateCulturalLensCard(),
+            async () => {
+                await yieldBeforeOperation();
+
+                return Operations
+                    .generateCulturalLensCard();
+            },
 
         generateReflection:
-            () =>
-                Operations
-                    .generateReflection(),
+            async () => {
+                await yieldBeforeOperation();
+
+                return Operations
+                    .generateReflection();
+            },
 
         enrichDiscussion:
             async ({
                 languageSupport
             }) => {
+                await yieldBeforeOperation();
+
                 const result =
                     await Operations
                         .enrichDiscussion({
@@ -1929,6 +1968,8 @@ function createWorkerOperations(
             async ({
                 languageSupport
             }) => {
+                await yieldBeforeOperation();
+
                 const result =
                     await Operations
                         .enrichCulturalLens({
