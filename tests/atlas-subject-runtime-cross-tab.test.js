@@ -40,7 +40,12 @@ assert.match(
 
 assert.match(
     runtimeChannel,
-    /async function acquireFallbackLease\([\s\S]*?build-probe[\s\S]*?build-claim/
+    /async function probeActiveBuild\([\s\S]*?'build-probe'/
+);
+
+assert.match(
+    runtimeChannel,
+    /async function acquireFallbackLease\([\s\S]*?probeActiveBuild\(id\)[\s\S]*?'build-claim'/
 );
 
 assert.match(
