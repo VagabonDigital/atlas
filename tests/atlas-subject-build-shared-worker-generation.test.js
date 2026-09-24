@@ -1525,7 +1525,12 @@ function testBatchThreeStaticContracts() {
 
     assert.match(
         clientSource,
-        /enqueueSubject\([\s\S]*?generationContext/
+        /function normalizeBuildDescriptor\([\s\S]*?generationContext/
+    );
+
+    assert.match(
+        clientSource,
+        /function enqueueSubject\([\s\S]*?mergeBuildDescriptor\([\s\S]*?'enqueue-subject'/
     );
 
     assert.match(
