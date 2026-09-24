@@ -21866,6 +21866,14 @@ async function init() {
             await waitForOwnedSubjectRuntimeLayersReady();
 
         if (!runtimeLayersReady) {
+            if (
+                recoveringOwnedSubjectBuild
+            ) {
+                releaseMyVersionForegroundBuildHandoff(
+                    'runtime-layers-unavailable'
+                );
+            }
+
             /*
              * Fresh builds keep ?author=generate intact. Recovery builds keep
              * their durable incomplete marker, so either path can retry after
@@ -21900,7 +21908,19 @@ async function init() {
          * deliberately restarts generation from step 0 instead of exposing
          * the starter document as a finished lesson.
          */
-        await loadTutorContentState();
+        try {
+            await loadTutorContentState();
+        } catch (error) {
+            if (
+                recoveringOwnedSubjectBuild
+            ) {
+                releaseMyVersionForegroundBuildHandoff(
+                    'checkpoint-load-failed'
+                );
+            }
+
+            throw error;
+        }
     }
 
     const ownedSubjectAuthoringIntent =
