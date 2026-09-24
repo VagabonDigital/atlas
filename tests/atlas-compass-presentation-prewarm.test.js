@@ -206,27 +206,27 @@ assert.equal(
 
 assert.match(
     atlas,
-    /atlas-content-registry\.js\?v=20260924-buildworker8/,
+    /atlas-content-registry\.js\?v=20260924-buildworker9/,
     'Atlas must load the restored cover-warming Content Registry revision'
 );
 assert.match(
     compass,
-    /atlas-content-registry\.js\?v=20260924-buildworker8/,
+    /atlas-content-registry\.js\?v=20260924-buildworker9/,
     'Compass must load the restored cover-warming Content Registry revision'
 );
 assert.match(
     arcade,
-    /atlas-content-registry\.js\?v=20260924-buildworker8/,
+    /atlas-content-registry\.js\?v=20260924-buildworker9/,
     'Arcade must load the restored cover-warming Content Registry revision'
 );
 assert.match(
     ownedSubject,
-    /atlas-content-registry\.js\?v=20260924-buildworker8/,
+    /atlas-content-registry\.js\?v=20260924-buildworker9/,
     'Owned subject pages must load the restored cover-warming Content Registry revision'
 );
 assert.match(
     atlasOriginalEntry,
-    /atlas-content-registry\.js\?v=20260924-buildworker8/,
+    /atlas-content-registry\.js\?v=20260924-buildworker9/,
     'Atlas Original pages must load the restored cover-warming Content Registry revision'
 );
 
