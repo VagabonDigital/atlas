@@ -645,12 +645,17 @@
                     : null;
 
             if (runtimeMessage) {
-                window
-                    .AtlasSubjectRuntimeChannel
-                    ?.ingestExternalMessage
-                    ?.(
-                        runtimeMessage
-                    );
+                if (
+                    message.relayRequired ===
+                        true
+                ) {
+                    window
+                        .AtlasSubjectRuntimeChannel
+                        ?.ingestExternalMessage
+                        ?.(
+                            runtimeMessage
+                        );
+                }
 
                 const detail =
                     runtimeMessage
