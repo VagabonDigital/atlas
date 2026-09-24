@@ -3255,20 +3255,26 @@
     .owned-subject-dialog-upgrade.is-allowance {
       display: flex;
       align-items: baseline;
-      gap: 0.35rem;
-      padding: 0.65rem 0.8rem;
-      border-color: var(--border-subtle);
-      background: var(--surface-muted);
+      gap: 0.3rem;
+      margin: -0.15rem 0 0.95rem;
+      padding: 0 0.05rem;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
     }
 
-    .owned-subject-dialog-upgrade.is-allowance strong {
-      font-size: 0.78rem;
+    .owned-subject-dialog-upgrade.is-allowance strong,
+    .owned-subject-dialog-upgrade.is-allowance p {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .owned-subject-dialog-upgrade.is-allowance.is-low strong,
+    .owned-subject-dialog-upgrade.is-allowance.is-low p {
+      color: var(--accent);
       font-weight: 600;
-    }
-
-    .owned-subject-dialog-upgrade.is-allowance.is-low {
-      border-color: rgba(var(--accent-rgb), 0.22);
-      background: var(--accent-dim);
     }
 
     .owned-subject-dialog-actions {
@@ -8134,7 +8140,7 @@
 
       if (resolved.tier === 'free') {
         panelTitle.textContent =
-          `${resolved.remaining} of ${resolved.limit} free subject creations remaining.`;
+          `${resolved.remaining} of ${resolved.limit} free creations remaining`;
 
         panel.classList.add(
           'is-allowance'
@@ -8153,13 +8159,9 @@
         resolved.remaining <= 10
       ) {
         panelTitle.textContent =
-          `${resolved.remaining} of ${resolved.limit} subject creations remaining this billing month.`;
-
-        if (resolved.resetLabel) {
-          panelCopy.textContent =
-            `Resets ${resolved.resetLabel}.`;
-          panelCopy.hidden = false;
-        }
+          resolved.resetLabel
+            ? `${resolved.remaining} of ${resolved.limit} creations remaining · resets ${resolved.resetLabel}`
+            : `${resolved.remaining} of ${resolved.limit} creations remaining this billing month`;
 
         panel.classList.add(
           'is-allowance',
