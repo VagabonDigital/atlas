@@ -444,6 +444,9 @@ let myVersionFullSubjectGenerationError = '';
 let myVersionFullSubjectGenerationProgress = null;
 let myVersionFullSubjectGenerationNotice = '';
 let myVersionFullSubjectReadyForCommit = false;
+let myVersionFullSubjectWorkerRegistered = false;
+let myVersionFullSubjectPageExiting = false;
+let myVersionFullSubjectAutoSaveOnComplete = false;
 
 let myVersionBuildDocumentOperations = null;
 
@@ -1541,6 +1544,10 @@ async function checkpointMyVersionFullSubjectGeneration(
             'Could not save subject construction checkpoint.'
         );
     }
+
+    registerMyVersionFullSubjectWithWorker(
+        autoSaveOnComplete
+    );
 
     return savedState;
 }
@@ -6804,6 +6811,122 @@ function getMyVersionKeyLanguageLimit(section) {
         : limits.discussion;
 }
 
+function registerMyVersionFullSubjectWithWorker(
+    autoSaveOnComplete =
+        myVersionFullSubjectAutoSaveOnComplete
+) {
+    if (!isOwnedSubjectRuntime()) {
+        return false;
+    }
+
+    const Client =
+        window
+            .AtlasSubjectBuildWorkerClient;
+
+    if (
+        !Client ||
+        typeof Client.enqueueSubject !==
+            'function'
+    ) {
+        return false;
+    }
+
+    const generationContext =
+        window.AtlasGenerationContext &&
+        typeof window.AtlasGenerationContext ===
+            'object' &&
+        !Array.isArray(
+            window.AtlasGenerationContext
+        )
+            ? cloneTutorSubjectDocument(
+                window.AtlasGenerationContext
+            )
+            : null;
+
+    if (!generationContext) {
+        return false;
+    }
+
+    const registered =
+        Client.enqueueSubject(
+            MODULE.id,
+            {
+                generationContext,
+                autoSaveOnComplete:
+                    Boolean(
+                        autoSaveOnComplete
+                    ),
+                revision:
+                    Math.max(
+                        1,
+                        Math.floor(
+                            Number(
+                                getCompassSubjectRuntime()
+                                    .revision
+                            ) || 1
+                        )
+                    )
+            }
+        ) === true;
+
+    if (registered) {
+        myVersionFullSubjectWorkerRegistered =
+            true;
+    }
+
+    return registered;
+}
+
+function cancelMyVersionFullSubjectWorkerRegistration(
+    reason = 'foreground-ended'
+) {
+    const Client =
+        window
+            .AtlasSubjectBuildWorkerClient;
+
+    if (
+        Client &&
+        typeof Client.cancelSubject ===
+            'function'
+    ) {
+        Client.cancelSubject(
+            MODULE.id,
+            reason
+        );
+    }
+
+    myVersionFullSubjectWorkerRegistered =
+        false;
+}
+
+function noteMyVersionFullSubjectPageExit() {
+    if (
+        myVersionGeneratingFullSubject &&
+        myVersionFullSubjectWorkerRegistered
+    ) {
+        myVersionFullSubjectPageExiting =
+            true;
+    }
+}
+
+window.addEventListener(
+    'pagehide',
+    noteMyVersionFullSubjectPageExit
+);
+
+window.addEventListener(
+    'beforeunload',
+    noteMyVersionFullSubjectPageExit
+);
+
+window.addEventListener(
+    'pageshow',
+    () => {
+        myVersionFullSubjectPageExiting =
+            false;
+    }
+);
+
 async function setMyVersionAiBuildStatus(status) {
     if (!isOwnedSubjectRuntime()) {
         return null;
@@ -6934,6 +7057,13 @@ async function generateMyVersionFullSubject({
         );
 
     myVersionGeneratingFullSubject = true;
+    myVersionFullSubjectPageExiting = false;
+    myVersionFullSubjectAutoSaveOnComplete =
+        Boolean(autoSaveOnComplete);
+
+    registerMyVersionFullSubjectWithWorker(
+        autoSaveOnComplete
+    );
 
     if (
         RuntimeChannel &&
@@ -6970,6 +7100,10 @@ async function generateMyVersionFullSubject({
     try {
         await setMyVersionAiBuildStatus(
             'building'
+        );
+
+        registerMyVersionFullSubjectWithWorker(
+            autoSaveOnComplete
         );
 
         const buildResult =
@@ -7116,6 +7250,10 @@ async function generateMyVersionFullSubject({
                 myVersionFullSubjectGenerationError =
                     'Subject complete, but automatic save failed. Save manually.';
 
+                cancelMyVersionFullSubjectWorkerRegistration(
+                    'foreground-save-failed'
+                );
+
                 updateMyVersionAuthorBar();
 
                 return null;
@@ -7124,6 +7262,10 @@ async function generateMyVersionFullSubject({
             await clearMyVersionFullSubjectBuildState();
         }
 
+        cancelMyVersionFullSubjectWorkerRegistration(
+            'foreground-complete'
+        );
+
         return true;
     } catch (error) {
         console.error(
@@ -7131,12 +7273,20 @@ async function generateMyVersionFullSubject({
             error
         );
 
+        const handingOffToWorker =
+            !myVersionFullSubjectReadyForCommit &&
+            myVersionFullSubjectPageExiting &&
+            myVersionFullSubjectWorkerRegistered;
+
         /*
-         * A failed or incomplete build must not consume creation capacity.
-         * Pause releases the server reservation while the local checkpoint
-         * remains available for a later resume.
+         * Ordinary failures still release creation capacity. A real page-exit
+         * handoff deliberately keeps the durable status at building because
+         * the SharedWorker is about to continue under the same subject lock.
          */
-        if (!myVersionFullSubjectReadyForCommit) {
+        if (
+            !myVersionFullSubjectReadyForCommit &&
+            !handingOffToWorker
+        ) {
             try {
                 await setMyVersionAiBuildStatus(
                     'paused'
@@ -7147,6 +7297,10 @@ async function generateMyVersionFullSubject({
                     pauseError
                 );
             }
+
+            cancelMyVersionFullSubjectWorkerRegistration(
+                'foreground-generation-failed'
+            );
         }
 
         /*
