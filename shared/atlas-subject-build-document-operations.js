@@ -1,0 +1,1942 @@
+/* ============================================================
+   ATLAS SUBJECT BUILD DOCUMENT OPERATIONS
+   Worker-neutral AI generation primitives for Structured Subjects.
+
+   Owns:
+   - AI request context derived from a materialized document
+   - canonical AI calls used by full-subject construction
+   - atomic document mutations for generated results
+   - build-enrichment candidate planning
+
+   Does NOT own:
+   - DOM / rendering
+   - persistence
+   - lifecycle status
+   - checkpoints
+   - sequencing
+   - tutor history
+
+   A host supplies getDocument() and commit(). Compass and a future
+   SharedWorker can therefore execute exactly the same primitives.
+   ============================================================ */
+
+(function (root) {
+    'use strict';
+
+    if (root.AtlasSubjectBuildDocumentOperations) return;
+
+    const KEY_LANGUAGE_LIMITS = Object.freeze({
+        standard: Object.freeze({
+            discussion: 6,
+            culturalLens: 2
+        }),
+        compact: Object.freeze({
+            discussion: 4,
+            culturalLens: 1
+        })
+    });
+
+    function cloneJson(value) {
+        if (value === null || value === undefined) return value;
+        return JSON.parse(JSON.stringify(value));
+    }
+
+    function clean(value) {
+        return String(value ?? '').trim();
+    }
+
+    function isObject(value) {
+        return Boolean(
+            value &&
+            typeof value === 'object' &&
+            !Array.isArray(value)
+        );
+    }
+
+    function requireDocument(document) {
+        if (
+            !isObject(document) ||
+            !isObject(document.module) ||
+            !isObject(document.subjectCopy) ||
+            !Array.isArray(document.discussionSets) ||
+            !Array.isArray(document.culturalLensCards)
+        ) {
+            throw new Error(
+                'Atlas subject build requires a Structured Subject document.'
+            );
+        }
+
+        return document;
+    }
+
+    function getSubject(document) {
+        return {
+            title:
+                clean(document.module?.title),
+            description:
+                clean(
+                    document.module?.catalogDescription
+                ),
+            hook:
+                clean(
+                    document.subjectCopy?.cover?.hook
+                )
+        };
+    }
+
+    function getOverview(document) {
+        const overview =
+            document.subjectCopy?.overview || {};
+
+        return {
+            heading:
+                clean(overview.heading),
+            intro:
+                Array.isArray(overview.intro)
+                    ? overview.intro
+                        .map(clean)
+                        .filter(Boolean)
+                        .join('\n\n')
+                    : clean(overview.intro),
+            question:
+                clean(overview.question)
+        };
+    }
+
+    function getDiscussion(document) {
+        const discussion =
+            document.subjectCopy?.discussion || {};
+
+        return {
+            heading:
+                clean(
+                    discussion.heading ||
+                    'Discussion'
+                ),
+            intro:
+                clean(discussion.intro)
+        };
+    }
+
+    function getCulturalLens(document) {
+        const lens =
+            document.subjectCopy?.culturalLens || {};
+
+        return {
+            heading:
+                clean(
+                    lens.heading ||
+                    'Cultural Lens'
+                ),
+            intro:
+                clean(lens.intro)
+        };
+    }
+
+    function findMoment(document, momentId) {
+        for (const set of document.discussionSets || []) {
+            const moment =
+                (set.moments || []).find(
+                    item => item?.id === momentId
+                );
+
+            if (moment) {
+                return {
+                    set,
+                    moment
+                };
+            }
+        }
+
+        return null;
+    }
+
+    function getPristineDiscussionStarter(
+        document,
+        Structured
+    ) {
+        if (document.discussionSets.length !== 1) {
+            return null;
+        }
+
+        const set =
+            document.discussionSets[0];
+
+        if (
+            !Array.isArray(set?.moments) ||
+            set.moments.length !== 1
+        ) {
+            return null;
+        }
+
+        const starter =
+            Structured.createDiscussionSet({
+                id: set.id,
+                moments: [
+                    {
+                        id:
+                            set.moments[0].id
+                    }
+                ]
+            });
+
+        const moment = set.moments[0];
+        const starterMoment =
+            starter.moments[0];
+
+        const pristine =
+            set.title === starter.title &&
+            set.stage === starter.stage &&
+            set.icon === starter.icon &&
+            set.description ===
+                starter.description &&
+            !set.makeItReal &&
+            moment.preview ===
+                starterMoment.preview &&
+            moment.question ===
+                starterMoment.question &&
+            !moment.followUp &&
+            (
+                !Array.isArray(moment.followUps) ||
+                moment.followUps.length === 0
+            ) &&
+            !moment.upgrade;
+
+        return pristine
+            ? set
+            : null;
+    }
+
+    function getPristineCulturalLensStarter(
+        document,
+        Structured
+    ) {
+        if (
+            document.culturalLensCards.length !== 1
+        ) {
+            return null;
+        }
+
+        const card =
+            document.culturalLensCards[0];
+
+        const starter =
+            Structured.createCulturalLensCard({
+                id: card.id
+            });
+
+        const questions =
+            Array.isArray(card.questions)
+                ? card.questions
+                : [];
+
+        const followTheThread =
+            Array.isArray(card.followTheThread)
+                ? card.followTheThread
+                : [];
+
+        const pristine =
+            card.title === starter.title &&
+            card.contextLine ===
+                starter.contextLine &&
+            card.teaser === starter.teaser &&
+            card.context === starter.context &&
+            questions.length ===
+                starter.questions.length &&
+            questions.every(
+                (question, index) =>
+                    question ===
+                    starter.questions[index]
+            ) &&
+            (
+                card.questionLabel === undefined ||
+                card.questionLabel === 'Question'
+            ) &&
+            followTheThread.length === 0 &&
+            !card.upgrade;
+
+        return pristine
+            ? card
+            : null;
+    }
+
+    function getPristineMomentStarter(
+        set,
+        Structured
+    ) {
+        if (
+            !set ||
+            !Array.isArray(set.moments) ||
+            set.moments.length !== 1
+        ) {
+            return null;
+        }
+
+        const moment = set.moments[0];
+
+        const starter =
+            Structured.createMoment({
+                id: moment.id
+            });
+
+        const pristine =
+            moment.preview === starter.preview &&
+            moment.question === starter.question &&
+            !moment.followUp &&
+            (
+                !Array.isArray(moment.followUps) ||
+                moment.followUps.length === 0
+            ) &&
+            !moment.upgrade;
+
+        return pristine
+            ? moment
+            : null;
+    }
+
+    function getExistingLanguage(
+        document,
+        excludedContextId = ''
+    ) {
+        const excluded =
+            clean(excludedContextId);
+
+        const items = [];
+
+        document.discussionSets.forEach(set => {
+            (set.moments || []).forEach(moment => {
+                if (
+                    excluded ===
+                    'moment-' + moment.id
+                ) {
+                    return;
+                }
+
+                if (moment?.upgrade) {
+                    items.push({
+                        term:
+                            clean(
+                                moment.upgrade.term
+                            ),
+                        type:
+                            clean(
+                                moment.upgrade.type
+                            ),
+                        priority:
+                            clean(
+                                moment.upgrade.priority ||
+                                'standard'
+                            )
+                    });
+                }
+            });
+        });
+
+        document.culturalLensCards.forEach(card => {
+            if (
+                excluded ===
+                'cl-' + card.id
+            ) {
+                return;
+            }
+
+            if (card?.upgrade) {
+                items.push({
+                    term:
+                        clean(
+                            card.upgrade.term
+                        ),
+                    type:
+                        clean(
+                            card.upgrade.type
+                        ),
+                    priority:
+                        clean(
+                            card.upgrade.priority ||
+                            'standard'
+                        )
+                });
+            }
+        });
+
+        return items.filter(item => item.term);
+    }
+
+    function getDiscussionOpportunityIds(
+        document,
+        Structured
+    ) {
+        return document.discussionSets
+            .flatMap(set => {
+                const starter =
+                    getPristineMomentStarter(
+                        set,
+                        Structured
+                    );
+
+                return (
+                    Array.isArray(set.moments)
+                        ? set.moments
+                        : []
+                )
+                    .filter(moment =>
+                        !starter ||
+                        moment.id !== starter.id
+                    )
+                    .map(moment => moment.id);
+            });
+    }
+
+    function getCulturalLensOpportunityIds(
+        document,
+        Structured
+    ) {
+        const starter =
+            getPristineCulturalLensStarter(
+                document,
+                Structured
+            );
+
+        return document.culturalLensCards
+            .filter(card =>
+                !starter ||
+                card.id !== starter.id
+            )
+            .map(card => card.id);
+    }
+
+    function removeOverride(
+        controls,
+        key
+    ) {
+        controls?.deleteOverride?.(key);
+    }
+
+    function removeOverridePrefix(
+        controls,
+        prefix
+    ) {
+        controls
+            ?.deleteOverridesWithPrefix
+            ?.(prefix);
+    }
+
+    function create(options = {}) {
+        const config =
+            isObject(options)
+                ? options
+                : {};
+
+        const AI = config.ai;
+        const Structured =
+            config.structured;
+
+        if (!AI || !Structured) {
+            throw new Error(
+                'Atlas subject build operations require AI and Structured Subject adapters.'
+            );
+        }
+
+        if (
+            typeof config.getDocument !== 'function' ||
+            typeof config.commit !== 'function'
+        ) {
+            throw new Error(
+                'Atlas subject build operations require getDocument() and commit().'
+            );
+        }
+
+        const snapshotEditState =
+            typeof config.snapshotEditState ===
+                'function'
+                ? config.snapshotEditState
+                : () => null;
+
+        const hasEditStateChanged =
+            typeof config.hasEditStateChanged ===
+                'function'
+                ? config.hasEditStateChanged
+                : () => false;
+
+        async function readDocument() {
+            return requireDocument(
+                cloneJson(
+                    await config.getDocument()
+                )
+            );
+        }
+
+        async function commitMutation(mutator) {
+            return config.commit(
+                (document, controls = {}) =>
+                    mutator(
+                        requireDocument(document),
+                        controls
+                    )
+            );
+        }
+
+        async function generateSubjectFraming({
+            brief = ''
+        } = {}) {
+            const document =
+                await readDocument();
+
+            const editSnapshot =
+                snapshotEditState();
+
+            const generated =
+                await AI.generateSubjectFraming({
+                    subject: {
+                        title:
+                            getSubject(document).title
+                    },
+                    brief:
+                        clean(brief)
+                });
+
+            return commitMutation(
+                (current, controls) => {
+                    current.subjectCopy.cover =
+                        isObject(
+                            current.subjectCopy.cover
+                        )
+                            ? current.subjectCopy.cover
+                            : {};
+
+                    current.module.catalogDescription =
+                        generated.catalogDescription;
+
+                    current.subjectCopy.cover.hook =
+                        generated.hook;
+
+                    if (
+                        !hasEditStateChanged(
+                            editSnapshot,
+                            'module.catalogDescription'
+                        )
+                    ) {
+                        removeOverride(
+                            controls,
+                            'module.catalogDescription'
+                        );
+                    }
+
+                    if (
+                        !hasEditStateChanged(
+                            editSnapshot,
+                            'cover.hook'
+                        )
+                    ) {
+                        removeOverride(
+                            controls,
+                            'cover.hook'
+                        );
+                    }
+
+                    return {
+                        catalogDescription:
+                            generated.catalogDescription,
+                        hook:
+                            generated.hook
+                    };
+                }
+            );
+        }
+
+        async function generateOverview({
+            brief = ''
+        } = {}) {
+            const document =
+                await readDocument();
+
+            const generated =
+                await AI.generateOverview({
+                    subject:
+                        getSubject(document),
+                    brief:
+                        clean(brief)
+                });
+
+            return commitMutation(
+                (current, controls) => {
+                    current.subjectCopy.overview =
+                        isObject(
+                            current.subjectCopy.overview
+                        )
+                            ? current.subjectCopy.overview
+                            : {};
+
+                    current.subjectCopy.overview.heading =
+                        generated.heading;
+
+                    current.subjectCopy.overview.intro = [
+                        generated.intro
+                    ];
+
+                    current.subjectCopy.overview.question =
+                        generated.question;
+
+                    removeOverride(
+                        controls,
+                        'overview.heading'
+                    );
+                    removeOverride(
+                        controls,
+                        'overview.question'
+                    );
+                    removeOverridePrefix(
+                        controls,
+                        'overview.intro.'
+                    );
+
+                    return {
+                        heading:
+                            generated.heading,
+                        intro:
+                            generated.intro,
+                        question:
+                            generated.question
+                    };
+                }
+            );
+        }
+
+        async function generateDiscussionFraming({
+            brief = ''
+        } = {}) {
+            const document =
+                await readDocument();
+
+            const generated =
+                await AI
+                    .generateDiscussionFraming({
+                        subject:
+                            getSubject(document),
+                        overview:
+                            getOverview(document),
+                        brief:
+                            clean(brief)
+                    });
+
+            return commitMutation(
+                (current, controls) => {
+                    current.subjectCopy.discussion =
+                        isObject(
+                            current.subjectCopy.discussion
+                        )
+                            ? current.subjectCopy.discussion
+                            : {};
+
+                    current.subjectCopy.discussion.heading =
+                        generated.heading;
+
+                    current.subjectCopy.discussion.intro =
+                        generated.intro;
+
+                    current.subjectCopy.paths =
+                        isObject(
+                            current.subjectCopy.paths
+                        )
+                            ? current.subjectCopy.paths
+                            : {};
+
+                    current.subjectCopy.paths
+                        .discussionDescription =
+                            generated.pathDescription;
+
+                    [
+                        'discussion.heading',
+                        'discussion.intro',
+                        'paths.discussionDescription'
+                    ].forEach(key =>
+                        removeOverride(
+                            controls,
+                            key
+                        )
+                    );
+
+                    return {
+                        heading:
+                            generated.heading,
+                        intro:
+                            generated.intro,
+                        pathDescription:
+                            generated.pathDescription
+                    };
+                }
+            );
+        }
+
+        async function generateDiscussionSet({
+            brief = ''
+        } = {}) {
+            const document =
+                await readDocument();
+
+            const starter =
+                getPristineDiscussionStarter(
+                    document,
+                    Structured
+                );
+
+            const existingSets =
+                document.discussionSets
+                    .filter(set =>
+                        !starter ||
+                        set.id !== starter.id
+                    )
+                    .map(set => ({
+                        title:
+                            clean(set.title),
+                        stage:
+                            clean(set.stage),
+                        description:
+                            clean(set.description),
+                        moments:
+                            (set.moments || [])
+                                .map(moment => ({
+                                    preview:
+                                        clean(
+                                            moment.preview
+                                        ),
+                                    question:
+                                        clean(
+                                            moment.question
+                                        )
+                                }))
+                    }));
+
+            const generated =
+                await AI.generateDiscussionSet({
+                    subject:
+                        getSubject(document),
+                    discussion: {
+                        ...getDiscussion(document),
+                        sets:
+                            existingSets
+                    },
+                    brief:
+                        clean(brief)
+                });
+
+            const iconByStage = {
+                'First Look':
+                    'first-look',
+                'Look Closer':
+                    'closer-look',
+                'Wider View':
+                    'wider-view'
+            };
+
+            const nativeSet =
+                Structured.createDiscussionSet({
+                    ...generated,
+                    icon:
+                        iconByStage[
+                            generated.stage
+                        ] ||
+                        'first-look'
+                });
+
+            const starterId =
+                starter?.id || '';
+
+            const added =
+                await commitMutation(
+                    (current, controls) => {
+                        if (
+                            current.discussionSets
+                                .some(
+                                    set =>
+                                        set.id ===
+                                        nativeSet.id
+                                )
+                        ) {
+                            return null;
+                        }
+
+                        if (starterId) {
+                            const index =
+                                current.discussionSets
+                                    .findIndex(
+                                        set =>
+                                            set.id ===
+                                            starterId
+                                    );
+
+                            if (index >= 0) {
+                                const [removed] =
+                                    current
+                                        .discussionSets
+                                        .splice(
+                                            index,
+                                            1,
+                                            cloneJson(
+                                                nativeSet
+                                            )
+                                        );
+
+                                controls
+                                    ?.deleteDiscussionSetOverrides
+                                    ?.(removed);
+
+                                return {
+                                    setId:
+                                        nativeSet.id
+                                };
+                            }
+                        }
+
+                        current.discussionSets.push(
+                            cloneJson(nativeSet)
+                        );
+
+                        return {
+                            setId:
+                                nativeSet.id
+                        };
+                    }
+                );
+
+            return added
+                ? cloneJson(nativeSet)
+                : null;
+        }
+
+        async function generateCulturalLensFraming({
+            brief = ''
+        } = {}) {
+            const document =
+                await readDocument();
+
+            const generated =
+                await AI
+                    .generateCulturalLensFraming({
+                        subject:
+                            getSubject(document),
+                        overview:
+                            getOverview(document),
+                        brief:
+                            clean(brief)
+                    });
+
+            return commitMutation(
+                (current, controls) => {
+                    current.subjectCopy.culturalLens =
+                        isObject(
+                            current.subjectCopy.culturalLens
+                        )
+                            ? current.subjectCopy.culturalLens
+                            : {};
+
+                    current.subjectCopy.culturalLens.heading =
+                        generated.heading;
+
+                    current.subjectCopy.culturalLens.intro =
+                        generated.intro;
+
+                    current.subjectCopy.paths =
+                        isObject(
+                            current.subjectCopy.paths
+                        )
+                            ? current.subjectCopy.paths
+                            : {};
+
+                    current.subjectCopy.paths
+                        .culturalLensDescription =
+                            generated.pathDescription;
+
+                    [
+                        'culturalLens.heading',
+                        'culturalLens.intro',
+                        'paths.culturalLensDescription'
+                    ].forEach(key =>
+                        removeOverride(
+                            controls,
+                            key
+                        )
+                    );
+
+                    return {
+                        heading:
+                            generated.heading,
+                        intro:
+                            generated.intro,
+                        pathDescription:
+                            generated.pathDescription
+                    };
+                }
+            );
+        }
+
+        async function generateCulturalLensCard({
+            brief = ''
+        } = {}) {
+            const document =
+                await readDocument();
+
+            const starter =
+                getPristineCulturalLensStarter(
+                    document,
+                    Structured
+                );
+
+            const existingCards =
+                document.culturalLensCards
+                    .filter(card =>
+                        !starter ||
+                        card.id !== starter.id
+                    )
+                    .map(card => ({
+                        title:
+                            clean(card.title),
+                        contextLine:
+                            clean(card.contextLine),
+                        teaser:
+                            clean(card.teaser)
+                    }));
+
+            const existingTitles =
+                new Set(
+                    existingCards
+                        .map(card =>
+                            clean(card.title)
+                                .toLowerCase()
+                        )
+                        .filter(Boolean)
+                );
+
+            const baseBrief =
+                clean(brief);
+
+            const generate =
+                retryBrief =>
+                    AI.generateCulturalLensCard({
+                        subject:
+                            getSubject(document),
+                        culturalLens: {
+                            ...getCulturalLens(
+                                document
+                            ),
+                            cards:
+                                existingCards
+                        },
+                        brief:
+                            retryBrief
+                    });
+
+            let generated =
+                await generate(
+                    baseBrief
+                );
+
+            if (
+                existingTitles.has(
+                    clean(
+                        generated?.title
+                    ).toLowerCase()
+                )
+            ) {
+                generated =
+                    await generate(
+                        [
+                            baseBrief,
+                            'Do not reuse the existing Cultural Lens card title "' +
+                                generated.title +
+                                '". Choose a genuinely different angle and title.'
+                        ]
+                            .filter(Boolean)
+                            .join('\n')
+                    );
+            }
+
+            if (
+                existingTitles.has(
+                    clean(
+                        generated?.title
+                    ).toLowerCase()
+                )
+            ) {
+                return null;
+            }
+
+            const nativeCard =
+                Structured.createCulturalLensCard(
+                    generated
+                );
+
+            const starterId =
+                starter?.id || '';
+
+            const added =
+                await commitMutation(
+                    (current, controls) => {
+                        if (
+                            current.culturalLensCards
+                                .some(
+                                    card =>
+                                        card.id ===
+                                        nativeCard.id
+                                )
+                        ) {
+                            return null;
+                        }
+
+                        if (starterId) {
+                            const index =
+                                current.culturalLensCards
+                                    .findIndex(
+                                        card =>
+                                            card.id ===
+                                            starterId
+                                    );
+
+                            if (index >= 0) {
+                                const [removed] =
+                                    current
+                                        .culturalLensCards
+                                        .splice(
+                                            index,
+                                            1,
+                                            cloneJson(
+                                                nativeCard
+                                            )
+                                        );
+
+                                controls
+                                    ?.deleteCulturalLensCardOverrides
+                                    ?.(removed);
+
+                                return {
+                                    cardId:
+                                        nativeCard.id
+                                };
+                            }
+                        }
+
+                        current.culturalLensCards.push(
+                            cloneJson(nativeCard)
+                        );
+
+                        return {
+                            cardId:
+                                nativeCard.id
+                        };
+                    }
+                );
+
+            return added
+                ? cloneJson(nativeCard)
+                : null;
+        }
+
+        async function generateReflection({
+            brief = ''
+        } = {}) {
+            const document =
+                await readDocument();
+
+            const starterSet =
+                getPristineDiscussionStarter(
+                    document,
+                    Structured
+                );
+
+            const starterCard =
+                getPristineCulturalLensStarter(
+                    document,
+                    Structured
+                );
+
+            const generated =
+                await AI.generateReflection({
+                    subject:
+                        getSubject(document),
+                    overview:
+                        getOverview(document),
+                    discussion: {
+                        ...getDiscussion(
+                            document
+                        ),
+                        sets:
+                            document.discussionSets
+                                .filter(set =>
+                                    !starterSet ||
+                                    set.id !==
+                                        starterSet.id
+                                )
+                                .map(set => ({
+                                    title:
+                                        clean(set.title),
+                                    stage:
+                                        clean(set.stage),
+                                    description:
+                                        clean(
+                                            set.description
+                                        ),
+                                    moments:
+                                        (
+                                            set.moments ||
+                                            []
+                                        ).map(
+                                            moment => ({
+                                                preview:
+                                                    clean(
+                                                        moment.preview
+                                                    ),
+                                                question:
+                                                    clean(
+                                                        moment.question
+                                                    )
+                                            })
+                                        )
+                                }))
+                    },
+                    culturalLens: {
+                        ...getCulturalLens(
+                            document
+                        ),
+                        cards:
+                            document.culturalLensCards
+                                .filter(card =>
+                                    !starterCard ||
+                                    card.id !==
+                                        starterCard.id
+                                )
+                                .map(card => ({
+                                    title:
+                                        clean(card.title),
+                                    contextLine:
+                                        clean(
+                                            card.contextLine
+                                        ),
+                                    teaser:
+                                        clean(card.teaser),
+                                    questions:
+                                        (
+                                            card.questions ||
+                                            []
+                                        )
+                                            .map(clean)
+                                            .filter(Boolean)
+                                }))
+                    },
+                    brief:
+                        clean(brief)
+                });
+
+            return commitMutation(
+                (current, controls) => {
+                    current.subjectCopy.reflection =
+                        isObject(
+                            current.subjectCopy.reflection
+                        )
+                            ? current.subjectCopy.reflection
+                            : {};
+
+                    current.subjectCopy.reflection.title =
+                        generated.title;
+
+                    current.subjectCopy.reflection.summary =
+                        generated.summary;
+
+                    current.subjectCopy.reflection.questions =
+                        generated.questions.slice();
+
+                    current.subjectCopy.paths =
+                        isObject(
+                            current.subjectCopy.paths
+                        )
+                            ? current.subjectCopy.paths
+                            : {};
+
+                    current.subjectCopy.paths
+                        .reflectionDescription =
+                            generated.pathDescription;
+
+                    [
+                        'reflection.title',
+                        'reflection.summary',
+                        'paths.reflectionDescription'
+                    ].forEach(key =>
+                        removeOverride(
+                            controls,
+                            key
+                        )
+                    );
+
+                    controls
+                        ?.deleteReflectionQuestionOverrides
+                        ?.();
+
+                    return {
+                        title:
+                            generated.title,
+                        summary:
+                            generated.summary,
+                        questions:
+                            generated.questions.slice(),
+                        pathDescription:
+                            generated.pathDescription
+                    };
+                }
+            );
+        }
+
+        async function generateMomentUpgrade({
+            momentId,
+            brief = '',
+            replace = false,
+            priority = ''
+        } = {}) {
+            const id =
+                clean(momentId);
+
+            if (!id) return null;
+
+            const document =
+                await readDocument();
+
+            const found =
+                findMoment(
+                    document,
+                    id
+                );
+
+            if (
+                !found ||
+                (
+                    found.moment.upgrade &&
+                    replace !== true
+                )
+            ) {
+                return null;
+            }
+
+            const generated =
+                await AI.generateMomentUpgrade({
+                    subject:
+                        getSubject(document),
+                    set: {
+                        title:
+                            clean(found.set.title),
+                        stage:
+                            clean(found.set.stage),
+                        description:
+                            clean(
+                                found.set.description
+                            )
+                    },
+                    moment: {
+                        preview:
+                            clean(
+                                found.moment.preview
+                            ),
+                        question:
+                            clean(
+                                found.moment.question
+                            )
+                    },
+                    existingLanguage:
+                        getExistingLanguage(
+                            document,
+                            'moment-' + id
+                        ),
+                    brief:
+                        clean(brief)
+                });
+
+            const committed =
+                await commitMutation(
+                    (current, controls) => {
+                        const target =
+                            findMoment(
+                                current,
+                                id
+                            )?.moment;
+
+                        if (
+                            !target ||
+                            (
+                                target.upgrade &&
+                                replace !== true
+                            )
+                        ) {
+                            return null;
+                        }
+
+                        controls
+                            ?.deleteUpgradeOverrides
+                            ?.('moment-' + id);
+
+                        target.upgrade = {
+                            term:
+                                generated.term,
+                            type:
+                                generated.type,
+                            definition:
+                                generated.definition,
+                            ordinary:
+                                generated.ordinary,
+                            upgraded:
+                                generated.upgraded,
+                            priority:
+                                (
+                                    priority === 'key' ||
+                                    priority === 'standard'
+                                )
+                                    ? priority
+                                    : generated.priority,
+                            atlasPrompt:
+                                generated.atlasPrompt
+                        };
+
+                        return {
+                            contextId:
+                                'moment-' + id,
+                            upgrade:
+                                cloneJson(
+                                    target.upgrade
+                                )
+                        };
+                    }
+                );
+
+            return committed?.upgrade || null;
+        }
+
+        async function generateMakeItReal({
+            setId,
+            brief = ''
+        } = {}) {
+            const id =
+                clean(setId);
+
+            if (!id) return null;
+
+            const document =
+                await readDocument();
+
+            const set =
+                document.discussionSets
+                    .find(item =>
+                        item.id === id
+                    );
+
+            if (
+                !set ||
+                set.makeItReal
+            ) {
+                return null;
+            }
+
+            const existingActivities =
+                document.discussionSets
+                    .filter(item =>
+                        item.id !== id &&
+                        item.makeItReal
+                    )
+                    .map(item => ({
+                        setTitle:
+                            clean(item.title),
+                        title:
+                            clean(
+                                item.makeItReal.title
+                            ),
+                        prompt:
+                            clean(
+                                item.makeItReal.prompt
+                            )
+                    }));
+
+            const generated =
+                await AI.generateMakeItReal({
+                    subject:
+                        getSubject(document),
+                    set: {
+                        title:
+                            clean(set.title),
+                        stage:
+                            clean(set.stage),
+                        description:
+                            clean(set.description),
+                        moments:
+                            (set.moments || [])
+                                .map(moment => ({
+                                    preview:
+                                        clean(
+                                            moment.preview
+                                        ),
+                                    question:
+                                        clean(
+                                            moment.question
+                                        )
+                                }))
+                    },
+                    existingActivities,
+                    brief:
+                        clean(brief)
+                });
+
+            const committed =
+                await commitMutation(
+                    (current, controls) => {
+                        const target =
+                            current.discussionSets
+                                .find(item =>
+                                    item.id === id
+                                );
+
+                        if (
+                            !target ||
+                            target.makeItReal
+                        ) {
+                            return null;
+                        }
+
+                        controls
+                            ?.deleteSetActivityOverrides
+                            ?.(id);
+
+                        target.makeItReal = {
+                            label:
+                                'Make It Real',
+                            title:
+                                generated.title,
+                            prompt:
+                                generated.prompt
+                        };
+
+                        return {
+                            setId: id,
+                            makeItReal:
+                                cloneJson(
+                                    target.makeItReal
+                                )
+                        };
+                    }
+                );
+
+            return committed?.makeItReal || null;
+        }
+
+        async function generateCulturalLensUpgrade({
+            cardId,
+            brief = '',
+            replace = false,
+            priority = ''
+        } = {}) {
+            const id =
+                clean(cardId);
+
+            if (!id) return null;
+
+            const document =
+                await readDocument();
+
+            const card =
+                document.culturalLensCards
+                    .find(item =>
+                        item.id === id
+                    );
+
+            if (
+                !card ||
+                (
+                    card.upgrade &&
+                    replace !== true
+                )
+            ) {
+                return null;
+            }
+
+            const generated =
+                await AI
+                    .generateCulturalLensUpgrade({
+                        subject:
+                            getSubject(document),
+                        culturalLens:
+                            getCulturalLens(
+                                document
+                            ),
+                        card: {
+                            title:
+                                clean(card.title),
+                            contextLine:
+                                clean(
+                                    card.contextLine
+                                ),
+                            teaser:
+                                clean(card.teaser),
+                            context:
+                                clean(card.context),
+                            questions:
+                                Array.isArray(
+                                    card.questions
+                                )
+                                    ? card.questions.slice()
+                                    : [],
+                            followTheThread:
+                                Array.isArray(
+                                    card.followTheThread
+                                )
+                                    ? card
+                                        .followTheThread
+                                        .slice()
+                                    : []
+                        },
+                        existingLanguage:
+                            getExistingLanguage(
+                                document,
+                                'cl-' + id
+                            ),
+                        brief:
+                            clean(brief)
+                    });
+
+            const committed =
+                await commitMutation(
+                    (current, controls) => {
+                        const target =
+                            current.culturalLensCards
+                                .find(item =>
+                                    item.id === id
+                                );
+
+                        if (
+                            !target ||
+                            (
+                                target.upgrade &&
+                                replace !== true
+                            )
+                        ) {
+                            return null;
+                        }
+
+                        controls
+                            ?.deleteUpgradeOverrides
+                            ?.('cl-' + id);
+
+                        target.upgrade = {
+                            term:
+                                generated.term,
+                            type:
+                                generated.type,
+                            definition:
+                                generated.definition,
+                            ordinary:
+                                generated.ordinary,
+                            upgraded:
+                                generated.upgraded,
+                            priority:
+                                (
+                                    priority === 'key' ||
+                                    priority === 'standard'
+                                )
+                                    ? priority
+                                    : generated.priority,
+                            atlasPrompt:
+                                generated.atlasPrompt
+                        };
+
+                        return {
+                            contextId:
+                                'cl-' + id,
+                            upgrade:
+                                cloneJson(
+                                    target.upgrade
+                                )
+                        };
+                    }
+                );
+
+            return committed?.upgrade || null;
+        }
+
+        async function selectKeyLanguageOpportunities({
+            section,
+            candidates = [],
+            limit = 0
+        } = {}) {
+            return AI.selectKeyLanguageOpportunities({
+                section:
+                    clean(section),
+                candidates:
+                    Array.isArray(candidates)
+                        ? cloneJson(candidates)
+                        : [],
+                limit:
+                    Math.max(
+                        0,
+                        Math.floor(
+                            Number(limit) || 0
+                        )
+                    )
+            });
+        }
+
+        async function getDiscussionEnrichmentPlan({
+            languageMode = 'all',
+            subjectSize = 'standard'
+        } = {}) {
+            const document =
+                await readDocument();
+
+            const mode =
+                ['off', 'key', 'all']
+                    .includes(languageMode)
+                    ? languageMode
+                    : 'all';
+
+            const opportunityIds =
+                getDiscussionOpportunityIds(
+                    document,
+                    Structured
+                );
+
+            const candidateIds =
+                opportunityIds.filter(id =>
+                    !findMoment(
+                        document,
+                        id
+                    )?.moment?.upgrade
+                );
+
+            const keyCount =
+                opportunityIds.filter(id =>
+                    findMoment(
+                        document,
+                        id
+                    )?.moment?.upgrade
+                        ?.priority === 'key'
+                ).length;
+
+            const size =
+                clean(subjectSize) ===
+                    'compact'
+                    ? 'compact'
+                    : 'standard';
+
+            const remainingKeySlots =
+                Math.max(
+                    0,
+                    KEY_LANGUAGE_LIMITS[
+                        size
+                    ].discussion -
+                    keyCount
+                );
+
+            const keySelectionTarget =
+                mode === 'off'
+                    ? 0
+                    : Math.min(
+                        remainingKeySlots,
+                        candidateIds.length
+                    );
+
+            const allowed =
+                new Set(candidateIds);
+
+            const keyCandidates =
+                document.discussionSets
+                    .flatMap(set =>
+                        (set.moments || [])
+                            .filter(moment =>
+                                allowed.has(
+                                    moment.id
+                                )
+                            )
+                            .map(moment => ({
+                                id:
+                                    moment.id,
+                                stage:
+                                    clean(set.stage),
+                                title:
+                                    clean(set.title),
+                                preview:
+                                    clean(
+                                        moment.preview
+                                    ),
+                                question:
+                                    clean(
+                                        moment.question
+                                    )
+                            }))
+                    );
+
+            const starter =
+                getPristineDiscussionStarter(
+                    document,
+                    Structured
+                );
+
+            const makeItRealSetIds =
+                document.discussionSets
+                    .filter(set =>
+                        (
+                            !starter ||
+                            set.id !== starter.id
+                        ) &&
+                        !set.makeItReal
+                    )
+                    .map(set => set.id);
+
+            return {
+                mode,
+                candidateIds,
+                keyCandidates,
+                keySelectionTarget,
+                makeItRealSetIds
+            };
+        }
+
+        async function getCulturalLensEnrichmentPlan({
+            languageMode = 'all',
+            subjectSize = 'standard'
+        } = {}) {
+            const document =
+                await readDocument();
+
+            const mode =
+                ['off', 'key', 'all']
+                    .includes(languageMode)
+                    ? languageMode
+                    : 'all';
+
+            const opportunityIds =
+                getCulturalLensOpportunityIds(
+                    document,
+                    Structured
+                );
+
+            const candidateIds =
+                opportunityIds.filter(id =>
+                    !document.culturalLensCards
+                        .find(card =>
+                            card.id === id
+                        )?.upgrade
+                );
+
+            const keyCount =
+                opportunityIds.filter(id =>
+                    document.culturalLensCards
+                        .find(card =>
+                            card.id === id
+                        )?.upgrade?.priority ===
+                            'key'
+                ).length;
+
+            const size =
+                clean(subjectSize) ===
+                    'compact'
+                    ? 'compact'
+                    : 'standard';
+
+            const remainingKeySlots =
+                Math.max(
+                    0,
+                    KEY_LANGUAGE_LIMITS[
+                        size
+                    ].culturalLens -
+                    keyCount
+                );
+
+            const keySelectionTarget =
+                mode === 'off'
+                    ? 0
+                    : Math.min(
+                        remainingKeySlots,
+                        candidateIds.length
+                    );
+
+            const allowed =
+                new Set(candidateIds);
+
+            const keyCandidates =
+                document.culturalLensCards
+                    .filter(card =>
+                        allowed.has(card.id)
+                    )
+                    .map(card => ({
+                        id:
+                            card.id,
+                        title:
+                            clean(card.title),
+                        contextLine:
+                            clean(
+                                card.contextLine
+                            ),
+                        teaser:
+                            clean(card.teaser),
+                        context:
+                            clean(card.context),
+                        questions:
+                            Array.isArray(
+                                card.questions
+                            )
+                                ? card.questions.slice()
+                                : []
+                    }));
+
+            return {
+                mode,
+                candidateIds,
+                keyCandidates,
+                keySelectionTarget
+            };
+        }
+
+        async function generateCurrentAffairsReading({
+            generationContext = null
+        } = {}) {
+            const context =
+                isObject(generationContext)
+                    ? cloneJson(
+                        generationContext
+                    )
+                    : {};
+
+            const source =
+                isObject(context.source)
+                    ? context.source
+                    : null;
+
+            const ideaMode =
+                clean(context.ideaMode);
+
+            if (
+                !source ||
+                (
+                    ideaMode &&
+                    ideaMode !==
+                        'current-affairs'
+                )
+            ) {
+                return null;
+            }
+
+            const existingQuestions =
+                Array.isArray(
+                    source.readMoreQuestions
+                )
+                    ? source.readMoreQuestions
+                        .map(clean)
+                        .filter(Boolean)
+                        .slice(0, 2)
+                    : [];
+
+            if (
+                clean(source.readMore) &&
+                existingQuestions.length === 2
+            ) {
+                return {
+                    reading: {
+                        readMore:
+                            clean(
+                                source.readMore
+                            ),
+                        readMoreQuestions:
+                            existingQuestions,
+                        imageUrl:
+                            clean(
+                                source.imageUrl
+                            )
+                    },
+                    generationContext:
+                        context,
+                    alreadyComplete:
+                        true
+                };
+            }
+
+            const keyFacts =
+                Array.isArray(source.keyFacts)
+                    ? source.keyFacts
+                        .map(clean)
+                        .filter(Boolean)
+                        .slice(0, 4)
+                    : [];
+
+            if (
+                !clean(source.publisher) ||
+                !clean(source.title) ||
+                !clean(source.url) ||
+                !clean(source.summary) ||
+                keyFacts.length < 2
+            ) {
+                return null;
+            }
+
+            const reading =
+                await AI
+                    .generateCurrentAffairsReading({
+                        source: {
+                            ...source,
+                            keyFacts
+                        },
+                        languageLevel:
+                            clean(
+                                context.languageLevel
+                            ) || 'b2'
+                    });
+
+            return {
+                reading:
+                    cloneJson(reading),
+                generationContext: {
+                    ...context,
+                    source: {
+                        ...source,
+                        readMore:
+                            clean(
+                                reading.readMore
+                            ),
+                        readMoreQuestions:
+                            (
+                                reading.readMoreQuestions ||
+                                []
+                            )
+                                .map(clean)
+                                .filter(Boolean)
+                                .slice(0, 2),
+                        imageUrl:
+                            clean(
+                                reading.imageUrl
+                            )
+                    }
+                },
+                alreadyComplete:
+                    false
+            };
+        }
+
+        return Object.freeze({
+            generateSubjectFraming,
+            generateOverview,
+            generateDiscussionFraming,
+            generateDiscussionSet,
+            generateCulturalLensFraming,
+            generateCulturalLensCard,
+            generateReflection,
+            generateMomentUpgrade,
+            generateMakeItReal,
+            generateCulturalLensUpgrade,
+            selectKeyLanguageOpportunities,
+            getDiscussionEnrichmentPlan,
+            getCulturalLensEnrichmentPlan,
+            generateCurrentAffairsReading
+        });
+    }
+
+    root.AtlasSubjectBuildDocumentOperations =
+        Object.freeze({
+            keyLanguageLimits:
+                KEY_LANGUAGE_LIMITS,
+            create
+        });
+})(
+    typeof globalThis !== 'undefined'
+        ? globalThis
+        : self
+);
