@@ -226,7 +226,7 @@ assert.match(
 );
 assert.match(
   pricing,
-  /20000[\s\S]*?Paddle\.Checkout\.close\(\)[\s\S]*?Checkout took too long to load/,
+  /Paddle\.Checkout\.close\(\)[\s\S]*?Checkout took too long to load[\s\S]*?20000/,
   'Atlas must abort a checkout that never reaches the loaded state instead of exposing a partial provider shell.'
 );
 assert.match(
