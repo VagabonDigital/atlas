@@ -182,7 +182,9 @@ html[data-theme="night"] .proof-image { color-scheme: light; }
 }
 @media (max-width: 720px) {
   .frame { width: min(calc(100% - 30px), var(--frame)); }
-  .header-inner { width: 100%; height: 56px; min-height: 0; padding: 0 15px; }
+  .header-inner { width: 100%; height: 56px; min-height: 0; padding: 0 15px; gap: 4px; }
+  .pricing-header-pro { margin-left: auto; }
+  body[data-atlas-surface="inside-atlas"] .site-header .atlas-inside-account-entry { margin-left: 0; }
   .appearance-toggle { display: none; }
 }
 @media (max-width: 360px) {
