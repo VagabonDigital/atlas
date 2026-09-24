@@ -15,17 +15,69 @@
    - ownership
    ============================================================ */
 
-(function () {
+(function (root) {
     'use strict';
 
-    if (window.AtlasAI) return;
+    if (root.AtlasAI) return;
 
     const BASE_URL =
         'https://atlas-ai.savvy989.workers.dev';
 
     const REQUEST_TIMEOUT_MS = 45000;
     const REQUEST_RETRY_DELAYS_MS = [750, 2000];
-    const nativeFetch = window.fetch.bind(window);
+
+    const runtime = {
+        getAccessToken: null,
+        getSubjectId: null,
+        getGenerationContext: null,
+        fetch: null
+    };
+
+    function configureRuntime(options = {}) {
+        const candidate =
+            options &&
+            typeof options === 'object' &&
+            !Array.isArray(options)
+                ? options
+                : {};
+
+        [
+            'getAccessToken',
+            'getSubjectId',
+            'getGenerationContext',
+            'fetch'
+        ].forEach(key => {
+            if (
+                candidate[key] === null ||
+                typeof candidate[key] === 'function'
+            ) {
+                runtime[key] = candidate[key];
+            }
+        });
+
+        return root.AtlasAI || null;
+    }
+
+    function getNativeFetch() {
+        const fetchImpl =
+            runtime.fetch ||
+            (
+                typeof root.fetch === 'function'
+                    ? root.fetch.bind(root)
+                    : null
+            );
+
+        if (!fetchImpl) {
+            throw new Error(
+                'Atlas AI requires fetch support.'
+            );
+        }
+
+        return fetchImpl;
+    }
+
+    const nativeFetch = (...args) =>
+        getNativeFetch()(...args);
 
     function isTransientAtlasAIStatus(status) {
         const code = Number(status) || 0;
@@ -39,7 +91,7 @@
 
     function waitForAtlasAIRetry(delayMs) {
         return new Promise(resolve => {
-            window.setTimeout(
+            root.setTimeout(
                 resolve,
                 Math.max(0, Number(delayMs) || 0)
             );
@@ -72,10 +124,10 @@
 
     function createAtlasAIRequestId() {
         if (
-            window.crypto &&
-            typeof window.crypto.randomUUID === 'function'
+            root.crypto &&
+            typeof root.crypto.randomUUID === 'function'
         ) {
-            return window.crypto.randomUUID();
+            return root.crypto.randomUUID();
         }
 
         return [
@@ -86,19 +138,28 @@
     }
 
     function getAtlasAISubjectId() {
-        const runtime =
-            window.AtlasCompassSubjectRuntime;
+        if (
+            typeof runtime.getSubjectId ===
+                'function'
+        ) {
+            return cleanString(
+                runtime.getSubjectId()
+            );
+        }
+
+        const subjectRuntime =
+            root.AtlasCompassSubjectRuntime;
 
         if (
-            !runtime ||
-            runtime.source !== 'owned'
+            !subjectRuntime ||
+            subjectRuntime.source !== 'owned'
         ) {
             return '';
         }
 
         return cleanString(
-            runtime.subjectId ||
-            window.MODULE?.id ||
+            subjectRuntime.subjectId ||
+            root.MODULE?.id ||
             ''
         );
     }
@@ -109,30 +170,30 @@
         subjectIdOverride = '',
         allowAnonymous = false
     ) {
-        const Cloud = window.AtlasCloud;
+        const Cloud = root.AtlasCloud;
+
+        let accessToken = '';
 
         if (
-            (
-                !Cloud ||
-                typeof Cloud.getSession !== 'function'
-            ) &&
-            !allowAnonymous
+            typeof runtime.getAccessToken ===
+                'function'
         ) {
-            const error = new Error(
-                'Atlas AI requires a signed-in Atlas account.'
-            );
-            error.code = 'ATLAS_AI_AUTH_REQUIRED';
-            throw error;
-        }
-
-        const session =
+            accessToken =
+                cleanString(
+                    await runtime.getAccessToken()
+                );
+        } else if (
             Cloud &&
             typeof Cloud.getSession === 'function'
-                ? await Cloud.getSession()
-                : null;
+        ) {
+            const session =
+                await Cloud.getSession();
 
-        const accessToken =
-            cleanString(session?.access_token);
+            accessToken =
+                cleanString(
+                    session?.access_token
+                );
+        }
 
         if (!accessToken && !allowAnonymous) {
             const error = new Error(
@@ -260,7 +321,7 @@
             }
 
             const timeoutId =
-                window.setTimeout(
+                root.setTimeout(
                     () => {
                         timedOut = true;
                         controller.abort();
@@ -283,7 +344,7 @@
             } catch (error) {
                 requestError = error;
             } finally {
-                window.clearTimeout(timeoutId);
+                root.clearTimeout(timeoutId);
 
                 if (callerSignal) {
                     callerSignal.removeEventListener(
@@ -388,11 +449,17 @@
     }
 
     function buildGenerationBrief(localBrief = '') {
+        const providedContext =
+            typeof runtime.getGenerationContext ===
+                'function'
+                ? runtime.getGenerationContext()
+                : root.AtlasGenerationContext;
+
         const context =
-            window.AtlasGenerationContext &&
-            typeof window.AtlasGenerationContext === 'object' &&
-            !Array.isArray(window.AtlasGenerationContext)
-                ? window.AtlasGenerationContext
+            providedContext &&
+            typeof providedContext === 'object' &&
+            !Array.isArray(providedContext)
+                ? providedContext
                 : {};
 
         const levelGuidance = {
@@ -2896,7 +2963,8 @@
         };
     }
 
-    window.AtlasAI = {
+    root.AtlasAI = {
+        configureRuntime,
         generateMoment:
             withGenerationContext(generateMoment),
 
@@ -2946,4 +3014,8 @@
 
         suggestSubjectIdeas
     };
-})();
+})(
+    typeof globalThis !== 'undefined'
+        ? globalThis
+        : self
+);
