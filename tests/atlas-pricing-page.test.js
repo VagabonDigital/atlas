@@ -5,6 +5,7 @@ const fs = require('node:fs');
 
 const pricing = fs.readFileSync('pricing/index.html', 'utf8');
 const pricingCss = fs.readFileSync('pricing/pricing.css', 'utf8');
+const accountChromeCss = fs.readFileSync('shared/atlas-account-chrome.css', 'utf8');
 const inside = fs.readFileSync('tutors/index.html', 'utf8');
 
 assert.match(pricing, /https:\/\/atlasfortutors\.com\/pricing\//);
@@ -81,8 +82,13 @@ assert.match(
 );
 assert.match(
   pricing,
-  /atlas-account-chrome\.css\?v=20260924-enterlabel1/,
+  /atlas-account-chrome\.css\?v=20260924-mobilegap1/,
   'Pricing must load the current shared account chrome styles.'
+);
+assert.match(
+  accountChromeCss,
+  /@media \(max-width: 720px\)[\s\S]*?\.atlas-inside-account-entry \{[\s\S]*?gap: 6px;/,
+  'Mobile account actions must keep the same 6px spacing across Inside Atlas and Pricing.'
 );
 assert.match(
   pricing,
