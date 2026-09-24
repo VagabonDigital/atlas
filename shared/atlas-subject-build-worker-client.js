@@ -1035,6 +1035,19 @@
         });
     }
 
+    function cancelScheduledReconnect() {
+        if (
+            reconnectTimer !==
+                null
+        ) {
+            window.clearTimeout(
+                reconnectTimer
+            );
+
+            reconnectTimer = null;
+        }
+    }
+
     function scheduleReconnect(
         reason = 'worker-reconnect'
     ) {
@@ -1306,6 +1319,7 @@
             }
 
             registeredBuilds.clear();
+            cancelScheduledReconnect();
 
             publish({
                 authenticated:
@@ -1699,6 +1713,8 @@
     }
 
     function handlePageHide(event) {
+        cancelScheduledReconnect();
+
         disconnectWorker(
             event?.persisted
                 ? 'page-suspended'
@@ -1768,6 +1784,7 @@
 
         pendingRequests.clear();
         registeredBuilds.clear();
+        cancelScheduledReconnect();
 
         disconnectWorker(
             'destroy'
