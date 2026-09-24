@@ -293,7 +293,24 @@ async function testSharedWorkerRuntime() {
             });
 
             return intervals.length;
-        }
+        },
+
+        clearInterval() {},
+
+        setTimeout(
+            callback,
+            delay = 0
+        ) {
+            return setTimeout(
+                callback,
+                Math.min(
+                    Number(delay) || 0,
+                    5
+                )
+            );
+        },
+
+        clearTimeout
     };
 
     const context = {
