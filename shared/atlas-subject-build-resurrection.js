@@ -1379,10 +1379,18 @@
             isBootstrapping() {
                 return bootstrapping;
             },
-            isEstablishing(subjectId) {
+            isEstablishing(
+                subjectId,
+                lifecycleStatus = ''
+            ) {
                 const id =
                     String(
                         subjectId || ''
+                    ).trim();
+
+                const status =
+                    String(
+                        lifecycleStatus || ''
                     ).trim();
 
                 return Boolean(
@@ -1392,6 +1400,7 @@
                             .has(id) ||
                         (
                             bootstrapping &&
+                            status !== 'paused' &&
                             !blockedSubjects
                                 .has(id)
                         )
