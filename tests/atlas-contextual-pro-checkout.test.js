@@ -148,6 +148,22 @@ assert.doesNotMatch(
   /owned-subject-dialog-upgrade\.is-allowance/
 );
 
+
+assert.doesNotMatch(
+  compass,
+  /owned-subject-dialog-allowance-status\.is-low/
+);
+
+assert.match(
+  compass,
+  /owned-subject-dialog-action-buttons \.btn-primary,[\s\S]*?white-space: nowrap;/
+);
+
+assert.match(
+  compass,
+  /@media \(max-width: 680px\)[\s\S]*?owned-subject-dialog-action-buttons[\s\S]*?padding-inline: 0\.7rem/
+);
+
 assert.match(
   compass,
   /upgradePrompt =\s*'pro-exhausted'[\s\S]*?confirm\.hidden = true/
