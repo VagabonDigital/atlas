@@ -149,9 +149,29 @@ assert.doesNotMatch(
 );
 
 
-assert.doesNotMatch(
+assert.match(
   compass,
-  /owned-subject-dialog-allowance-status\.is-low/
+  /--allowance-low-text: #9a6a2f/
+);
+
+assert.match(
+  compass,
+  /--allowance-low-text: #d6a766/
+);
+
+assert.match(
+  compass,
+  /owned-subject-dialog-allowance-status\.is-low[\s\S]*?var\(--allowance-low-text\)/
+);
+
+assert.match(
+  compass,
+  /resolved\.remaining <= 2[\s\S]*?classList\.add\([\s\S]*?'is-low'/
+);
+
+assert.match(
+  compass,
+  /resolved\.tier === 'pro'[\s\S]*?resolved\.remaining <= 10[\s\S]*?classList\.add\([\s\S]*?'is-low'/
 );
 
 assert.match(
