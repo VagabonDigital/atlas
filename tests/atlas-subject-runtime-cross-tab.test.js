@@ -65,13 +65,13 @@ assert.match(
 
 assert.ok(
     subjectPage.includes(
-        'atlas-subject-runtime-channel.js?v=20260923-buildcoord1'
+        'atlas-subject-runtime-channel.js?v=20260924-workerrelay1'
     )
 );
 
 assert.ok(
     compassHub.includes(
-        'atlas-subject-runtime-channel.js?v=20260923-buildcoord1'
+        'atlas-subject-runtime-channel.js?v=20260924-workerrelay1'
     )
 );
 
