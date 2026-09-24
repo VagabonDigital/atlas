@@ -1809,6 +1809,12 @@
             kind: 'full-subject',
             completedStep: Math.max(0, Math.floor(Number(record.completedStep) || 0)),
             autoSaveOnComplete: record.autoSaveOnComplete !== false,
+            generationContext:
+                record.generationContext &&
+                typeof record.generationContext === 'object' &&
+                !Array.isArray(record.generationContext)
+                    ? cloneJson(record.generationContext)
+                    : null,
             startedAt: Math.max(0, Number(record.startedAt) || Number(record.updatedAt) || Date.now()),
             updatedAt: Math.max(0, Number(record.updatedAt) || 0)
         };
