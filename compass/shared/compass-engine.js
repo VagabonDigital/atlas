@@ -8833,8 +8833,7 @@ async function enrichMyVersionDiscussionFromUI({
                         ) {
                             myVersionEnrichingDiscussion = true;
                             myVersionDiscussionEnrichmentProgress = {
-                                phase:
-                                    'selecting-key',
+                                phase: 'selecting-key',
                                 mode
                             };
 
@@ -9078,8 +9077,7 @@ async function enrichMyVersionCulturalLensFromUI({
                         ) {
                             myVersionEnrichingCulturalLens = true;
                             myVersionCulturalLensEnrichmentProgress = {
-                                phase:
-                                    'selecting-key',
+                                phase: 'selecting-key',
                                 mode
                             };
 
