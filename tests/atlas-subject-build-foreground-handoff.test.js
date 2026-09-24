@@ -1005,6 +1005,11 @@ function testBatchFourStaticContracts() {
 
     assert.match(
         workerSource,
+        /yieldBeforeOperation[\s\S]*?checkpointForegroundYield/
+    );
+
+    assert.match(
+        workerSource,
         /finalizeForegroundGrant/
     );
 
