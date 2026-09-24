@@ -508,6 +508,21 @@
             type ===
                 'auth-required'
         ) {
+            const requestedUserId =
+                String(
+                    message.userId ||
+                    ''
+                ).trim();
+
+            if (
+                requestedUserId &&
+                state.userId &&
+                requestedUserId !==
+                    state.userId
+            ) {
+                return;
+            }
+
             void sendCurrentAuth(
                 'worker-request'
             );
