@@ -106,12 +106,12 @@ assert.match(
 
 assert.match(
     loader,
-    /compass-engine\.js\?v=20260924-foreground2/
+    /compass-engine\.js\?v=20260924-revisionguard1/
 );
 
 assert.match(
     subjectPage,
-    /compass-subject-loader\.js\?v=20260924-foreground2/
+    /compass-subject-loader\.js\?v=20260924-revisionguard1/
 );
 
 console.log(
