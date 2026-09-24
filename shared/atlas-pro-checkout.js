@@ -31,6 +31,9 @@
     let checkoutLoadingLayer = null;
     let checkoutLoadingTimer = null;
     let checkoutRevealTimer = null;
+    let checkoutPresentationRaf = null;
+    let checkoutFrameBaseline =
+        new Set();
 
     function clean(value) {
         return String(value || '').trim();
@@ -394,6 +397,13 @@
             );
             checkoutRevealTimer = null;
         }
+
+        if (checkoutPresentationRaf) {
+            window.cancelAnimationFrame(
+                checkoutPresentationRaf
+            );
+            checkoutPresentationRaf = null;
+        }
     }
 
     function hideCheckoutLoading() {
@@ -417,29 +427,286 @@
         );
     }
 
-    function scheduleCheckoutReveal() {
-        if (checkoutLoadingTimer) {
-            window.clearTimeout(
-                checkoutLoadingTimer
+    function captureCheckoutFrameBaseline() {
+        checkoutFrameBaseline =
+            new Set(
+                Array.from(
+                    document.querySelectorAll(
+                        'iframe'
+                    )
+                )
             );
-            checkoutLoadingTimer = null;
+    }
+
+    function isMobileCheckoutPresentation() {
+        return Boolean(
+            window.matchMedia?.(
+                '(max-width: 760px)'
+            ).matches ||
+            window.matchMedia?.(
+                '(hover: none) and (pointer: coarse)'
+            ).matches
+        );
+    }
+
+    function checkoutViewportBox() {
+        const viewport =
+            window.visualViewport;
+
+        return {
+            left:
+                Math.max(
+                    0,
+                    Number(
+                        viewport?.offsetLeft
+                    ) || 0
+                ),
+            top:
+                Math.max(
+                    0,
+                    Number(
+                        viewport?.offsetTop
+                    ) || 0
+                ),
+            width:
+                Math.max(
+                    1,
+                    Number(
+                        viewport?.width
+                    ) ||
+                    Number(
+                        window.innerWidth
+                    ) ||
+                    1
+                ),
+            height:
+                Math.max(
+                    1,
+                    Number(
+                        viewport?.height
+                    ) ||
+                    Number(
+                        window.innerHeight
+                    ) ||
+                    1
+                )
+        };
+    }
+
+    function findCheckoutFrame() {
+        const candidates =
+            Array.from(
+                document.querySelectorAll(
+                    'iframe'
+                )
+            )
+                .filter(frame =>
+                    !checkoutFrameBaseline
+                        .has(frame)
+                )
+                .map(frame => ({
+                    frame,
+                    rect:
+                        frame
+                            .getBoundingClientRect()
+                }))
+                .filter(candidate =>
+                    candidate.rect.width > 0 &&
+                    candidate.rect.height > 0
+                )
+                .sort(
+                    (a, b) =>
+                        (
+                            b.rect.width *
+                            b.rect.height
+                        ) -
+                        (
+                            a.rect.width *
+                            a.rect.height
+                        )
+                );
+
+        return candidates[0] || null;
+    }
+
+    function checkoutFrameCoversViewport(
+        rect
+    ) {
+        if (!rect) return false;
+
+        const viewport =
+            checkoutViewportBox();
+        const tolerance = 18;
+
+        return (
+            rect.width >=
+                viewport.width * 0.94 &&
+            rect.height >=
+                viewport.height * 0.94 &&
+            rect.left <=
+                viewport.left +
+                    tolerance &&
+            rect.top <=
+                viewport.top +
+                    tolerance &&
+            rect.right >=
+                viewport.left +
+                    viewport.width -
+                    tolerance &&
+            rect.bottom >=
+                viewport.top +
+                    viewport.height -
+                    tolerance
+        );
+    }
+
+    function rectIsStable(
+        previous,
+        current
+    ) {
+        if (!previous || !current) {
+            return false;
         }
 
-        if (checkoutRevealTimer) {
-            window.clearTimeout(
-                checkoutRevealTimer
-            );
-        }
+        const epsilon = 1.5;
 
-        window.requestAnimationFrame(() => {
-            window.requestAnimationFrame(() => {
+        return (
+            Math.abs(
+                previous.width -
+                current.width
+            ) <= epsilon &&
+            Math.abs(
+                previous.height -
+                current.height
+            ) <= epsilon &&
+            Math.abs(
+                previous.top -
+                current.top
+            ) <= epsilon &&
+            Math.abs(
+                previous.left -
+                current.left
+            ) <= epsilon
+        );
+    }
+
+    function waitForCheckoutPresentation() {
+        if (
+            !isMobileCheckoutPresentation()
+        ) {
+            return new Promise(resolve => {
                 checkoutRevealTimer =
                     window.setTimeout(
-                        hideCheckoutLoading,
-                        120
+                        () => resolve(true),
+                        180
                     );
             });
+        }
+
+        return new Promise(resolve => {
+            const startedAt =
+                performance.now();
+            const minimumSettle = 520;
+            const fallbackAfter = 1800;
+            let stableFrames = 0;
+            let previousRect = null;
+
+            function inspect() {
+                if (
+                    !activeCheckout ||
+                    activeCheckout
+                        .presentationSettled
+                ) {
+                    checkoutPresentationRaf =
+                        null;
+                    resolve(false);
+                    return;
+                }
+
+                const candidate =
+                    findCheckoutFrame();
+                const rect =
+                    candidate?.rect || null;
+                const covers =
+                    checkoutFrameCoversViewport(
+                        rect
+                    );
+
+                if (covers) {
+                    stableFrames =
+                        rectIsStable(
+                            previousRect,
+                            rect
+                        )
+                            ? stableFrames + 1
+                            : 1;
+                    previousRect = {
+                        width:
+                            rect.width,
+                        height:
+                            rect.height,
+                        top:
+                            rect.top,
+                        left:
+                            rect.left
+                    };
+
+                    if (
+                        stableFrames >= 4 &&
+                        performance.now() -
+                            startedAt >=
+                            minimumSettle
+                    ) {
+                        checkoutPresentationRaf =
+                            null;
+                        resolve(true);
+                        return;
+                    }
+                } else {
+                    stableFrames = 0;
+                    previousRect = null;
+                }
+
+                if (
+                    performance.now() -
+                        startedAt >=
+                    fallbackAfter
+                ) {
+                    checkoutPresentationRaf =
+                        null;
+                    resolve(true);
+                    return;
+                }
+
+                checkoutPresentationRaf =
+                    window.requestAnimationFrame(
+                        inspect
+                    );
+            }
+
+            checkoutPresentationRaf =
+                window.requestAnimationFrame(
+                    inspect
+                );
         });
+    }
+
+    async function revealCheckoutWhenReady() {
+        const ready =
+            await waitForCheckoutPresentation();
+
+        if (
+            !ready ||
+            !activeCheckout ||
+            activeCheckout.presentationSettled
+        ) {
+            return;
+        }
+
+        settleCheckoutPresentation(
+            true
+        );
+        hideCheckoutLoading();
     }
 
     function settleCheckoutPresentation(
@@ -884,10 +1151,7 @@
         if (
             name === 'checkout.loaded'
         ) {
-            settleCheckoutPresentation(
-                true
-            );
-            scheduleCheckoutReveal();
+            void revealCheckoutWhenReady();
             return;
         }
 
@@ -1119,6 +1383,7 @@
                             resolve;
                 });
 
+            captureCheckoutFrameBaseline();
             showCheckoutLoading();
 
             setCheckoutScrollLocked(
