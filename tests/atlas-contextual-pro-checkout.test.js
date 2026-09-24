@@ -149,6 +149,27 @@ assert.match(
   /owned-subject-dialog-allowance-status/
 );
 
+
+assert.match(
+  compass,
+  /owned-subject-dialog-allowance-label">Creation allowance/
+);
+
+assert.match(
+  compass,
+  /owned-subject-dialog-allowance-value/
+);
+
+assert.match(
+  compass,
+  /owned-subject-dialog-actions[\s\S]*?align-items: flex-end;/
+);
+
+assert.match(
+  compass,
+  /@media \(max-width: 680px\)[\s\S]*?owned-subject-dialog-allowance-status[\s\S]*?width: 100%;/
+);
+
 assert.doesNotMatch(
   compass,
   /owned-subject-dialog-upgrade\.is-allowance/
@@ -177,7 +198,7 @@ assert.match(
 
 assert.match(
   compass,
-  /resolved\.tier === 'pro'[\s\S]*?resolved\.remaining <= 10[\s\S]*?classList\.add\([\s\S]*?'is-low'/
+  /resolved\.tier === 'pro'[\s\S]*?resolved\.remaining <= 10[\s\S]*?resolved\.remaining <= 5[\s\S]*?classList\.add\([\s\S]*?'is-low'/
 );
 
 assert.match(
