@@ -509,12 +509,17 @@
     async function loadCompassEngine() {
         try {
             await loadScript(
-                '../../shared/atlas-subject-build-runner.js?v=20260923-swbuild1',
+                '../../shared/atlas-subject-build-runner.js?v=20260924-workerneutral1',
                 'Atlas subject build runner could not be loaded.'
             );
 
             await loadScript(
-                '../shared/compass-engine.js?v=20260923-swbuild1',
+                '../../shared/atlas-subject-build-document-operations.js?v=20260924-workerneutral1',
+                'Atlas subject build document operations could not be loaded.'
+            );
+
+            await loadScript(
+                '../shared/compass-engine.js?v=20260924-workerneutral1',
                 'Compass engine could not be loaded.'
             );
 
