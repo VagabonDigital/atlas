@@ -13,7 +13,7 @@
 
    Inside Atlas contract:
    - anonymous: Explore Atlas + Sign in + Create free account
-   - authenticated: Explore Atlas + compact account icon
+   - authenticated: Return to Atlas + compact account icon
    ============================================================ */
 
 (function () {
@@ -22,7 +22,7 @@
     if (window.AtlasAccountChrome) return;
 
     const STYLE_HREF =
-        '/shared/atlas-account-chrome.css?v=20260921-insideheader1';
+        '/shared/atlas-account-chrome.css?v=20260924-returnlabel1';
     const GATE_STYLE_HREF =
         '/shared/atlas-account-gate.css?v=20260923-prohierarchy1';
     const GATE_SRC =
@@ -290,7 +290,7 @@
 
         if (!container.querySelector('[data-atlas-inside-account]')) {
             container.innerHTML = `
-            <a class="atlas-inside-account-action atlas-inside-account-explore" href="/?entry=product" data-atlas-product-entry>Explore Atlas</a>
+            <a class="atlas-inside-account-action atlas-inside-account-explore" href="/?entry=product" data-atlas-product-entry><span class="atlas-inside-account-explore-label">Explore Atlas</span><span class="atlas-inside-account-return-label">Return to Atlas</span></a>
             <button class="atlas-inside-account-action atlas-inside-account-sign-in" type="button" data-atlas-inside-sign-in>
                 Sign in
             </button>

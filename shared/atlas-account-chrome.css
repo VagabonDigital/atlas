@@ -113,6 +113,32 @@ html[data-atlas-account-hint="anonymous"] .atlas-account-control[data-account-st
     padding: 0 12px;
 }
 
+.atlas-inside-account-return-label {
+    display: none;
+}
+
+.atlas-inside-account-entry[data-account-state="account"]
+.atlas-inside-account-explore-label {
+    display: none;
+}
+
+.atlas-inside-account-entry[data-account-state="account"]
+.atlas-inside-account-return-label {
+    display: inline;
+}
+
+html[data-atlas-account-hint="account"]
+.atlas-inside-account-entry[data-account-state="pending"]
+.atlas-inside-account-explore-label {
+    display: none;
+}
+
+html[data-atlas-account-hint="account"]
+.atlas-inside-account-entry[data-account-state="pending"]
+.atlas-inside-account-return-label {
+    display: inline;
+}
+
 .atlas-inside-account-create {
     padding: 0 13px;
     border: 1px solid var(--accent, #4d7184);
