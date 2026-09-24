@@ -1040,7 +1040,7 @@ function testBatchFourStaticContracts() {
 
     assert.match(
         loaderSource,
-        /async function applyOwnedBuildGenerationContext\([\s\S]*?getBuildState\([\s\S]*?buildState[\s\S]*?generationContext[\s\S]*?fallbackContext/
+        /async function applyOwnedBuildGenerationContext\([\s\S]*?fallbackContext[\s\S]*?getBuildState\([\s\S]*?buildState[\s\S]*?generationContext/
     );
 
     assert.match(
