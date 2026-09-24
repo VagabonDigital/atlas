@@ -1024,6 +1024,12 @@ async function testRepeatedWorkerFailurePausesDurableLifecycle() {
         'A terminal worker generation failure should release the durable AI-build reservation into paused recovery.'
     );
 
+    assert.equal(
+        box.entitlementRefreshes(),
+        1,
+        'Pausing a terminal worker failure should refresh entitlement so any reserved AI-build capacity is released promptly.'
+    );
+
     await box.windowObject
         .AtlasSubjectBuildResurrection
         .scan();
@@ -1156,6 +1162,103 @@ async function testMissingCheckpointPreservesManualRecovery() {
             ),
         false,
         'Once discovery completes, a missing checkpoint must fall back to Continue building rather than pretend the worker is live.'
+    );
+}
+
+async function testCheckpointErrorPreservesRecovery() {
+    const box =
+        createSandbox();
+
+    vm.runInNewContext(
+        resurrectionSource,
+        box.context
+    );
+
+    await flush();
+    await flush();
+
+    box.windowObject
+        .dispatchEvent(
+            new box.context
+                .CustomEvent(
+                    'atlas:subject-build-worker-state',
+                    {
+                        detail: {
+                            queue: [
+                                {
+                                    subjectId:
+                                        'subject-resume',
+                                    status:
+                                        'checkpoint-error'
+                                }
+                            ]
+                        }
+                    }
+                )
+        );
+
+    assert.equal(
+        box.updates.length,
+        0,
+        'IndexedDB/checkpoint failure must not mutate durable cloud state.'
+    );
+
+    assert.equal(
+        box.cleared.length,
+        0,
+        'IndexedDB/checkpoint failure must preserve the recovery journal.'
+    );
+
+    assert.equal(
+        box.windowObject
+            .AtlasSubjectBuildResurrection
+            .getState()
+            .blocked
+            .find(
+                item =>
+                    item.subjectId ===
+                    'subject-resume'
+            )
+            ?.reason,
+        'checkpoint-error'
+    );
+
+    assert.equal(
+        box.windowObject
+            .AtlasSubjectBuildResurrection
+            .isEstablishing(
+                'subject-resume',
+                'building'
+            ),
+        false,
+        'Checkpoint failure should expose the manual recovery path rather than pretend background execution is healthy.'
+    );
+
+    box.windowObject
+        .dispatchEvent(
+            new box.context
+                .CustomEvent(
+                    'atlas:subject-build-worker-message',
+                    {
+                        detail: {
+                            type:
+                                'build-started',
+                            subjectId:
+                                'subject-resume'
+                        }
+                    }
+                )
+        );
+
+    assert.equal(
+        box.windowObject
+            .AtlasSubjectBuildResurrection
+            .isEstablishing(
+                'subject-resume',
+                'building'
+            ),
+        true,
+        'If IndexedDB recovers and the worker genuinely restarts, the live Building projection should recover too.'
     );
 }
 
@@ -1445,6 +1548,7 @@ async function testSignOutClearsResurrectionProjection() {
     await testRepeatedWorkerFailurePausesDurableLifecycle();
     await testColdOpenOfflineRetriesAfterReconnect();
     await testMissingCheckpointPreservesManualRecovery();
+    await testCheckpointErrorPreservesRecovery();
     await testSignedOutLoadedAccountStaysDormant();
     await testReadyCompletionIsSurfaceIndependent();
     await testUnsupportedWorkerPreservesFallback();
