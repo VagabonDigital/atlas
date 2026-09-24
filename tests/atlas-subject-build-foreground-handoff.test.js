@@ -1075,7 +1075,17 @@ function testBatchFourStaticContracts() {
 
     assert.match(
         engineSource,
-        /function updateOwnedSubjectAtRuntimeRevision[\s\S]*?getCompassSubjectRuntime\(\)[\s\S]*?revision[\s\S]*?updateSubjectAtRevision\([\s\S]*?MODULE\.id[\s\S]*?expectedRevision/
+        /function requireOwnedSubjectRuntimeRevision\([\s\S]*?getCompassSubjectRuntime\(\)[\s\S]*?revision[\s\S]*?ATLAS_REVISION_REQUIRED/
+    );
+
+    assert.match(
+        engineSource,
+        /function updateOwnedSubjectAtRuntimeRevision[\s\S]*?updateSubjectAtRevision\([\s\S]*?MODULE\.id[\s\S]*?requireOwnedSubjectRuntimeRevision\(\)/
+    );
+
+    assert.match(
+        engineSource,
+        /function getMyVersionWorkingDraftPatch\([\s\S]*?baseRevision:[\s\S]*?requireOwnedSubjectRuntimeRevision\(\)/
     );
 
     assert.doesNotMatch(
