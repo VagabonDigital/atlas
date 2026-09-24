@@ -23,6 +23,10 @@ const pricing = fs.readFileSync(
   'pricing/index.html',
   'utf8'
 );
+const subscription = fs.readFileSync(
+  'account/subscription/index.html',
+  'utf8'
+);
 const compass = fs.readFileSync(
   'compass/index.html',
   'utf8'
@@ -41,6 +45,12 @@ assert.match(
 assert.match(
   gate,
   /data-account-menu-pricing[\s\S]*?View pricing/
+);
+
+
+assert.match(
+  gate,
+  /const pricingAction =[\s\S]*?data-account-menu-pricing[\s\S]*?access\.tier === 'pro'[\s\S]*?'none'/
 );
 
 assert.match(
@@ -106,6 +116,54 @@ assert.match(
 assert.match(
   pricing,
   /Welcome to Atlas Pro/
+);
+
+
+assert.match(
+  subscription,
+  /See what’s included/
+);
+
+assert.match(
+  subscription,
+  /const pricingUrl =[\s\S]*?\/pricing\/\?from=\$\{encodeURIComponent\(from\)\}[\s\S]*?'\/pricing\/'/
+);
+
+assert.match(
+  subscription,
+  /id="plan-includes"[\s\S]*?class="plan-includes"/
+);
+
+
+assert.match(
+  subscription,
+  /<p class="plan">[\s\S]*?Atlas Pro[\s\S]*?\$12\/month[\s\S]*?<\/p>[\s\S]*?<a id="plan-includes"/
+);
+
+assert.match(
+  subscription,
+  /\.loading \{[\s\S]*?min-height: 493px;/
+);
+
+assert.match(
+  subscription,
+  /@media \(max-width: 620px\)[\s\S]*?\.card \{[\s\S]*?min-height: 539px;[\s\S]*?\.loading \{[\s\S]*?min-height: 501px;/
+);
+
+
+assert.doesNotMatch(
+  subscription,
+  /payment-return-success|showDesktopPaymentSuccess|data-payment-return/
+);
+
+assert.match(
+  subscription,
+  /mobile-payment-success/
+);
+
+assert.match(
+  subscription,
+  /Payment method updated successfully\./
 );
 
 assert.match(
