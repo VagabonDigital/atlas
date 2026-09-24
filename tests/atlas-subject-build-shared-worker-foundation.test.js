@@ -537,6 +537,24 @@ async function testSharedWorkerRuntime() {
         'Expiring worker auth must request a fresh short-lived token from a connected Atlas page.'
     );
 
+    first.send({
+        type:
+            'auth-clear',
+        userId:
+            'user-one'
+    });
+
+    assert.equal(
+        second
+            .latest(
+                'queue-state'
+            )
+            .queue
+            .length,
+        0,
+        'Explicit sign-out/account switch must clear that user\'s in-memory worker queue.'
+    );
+
     assert.doesNotMatch(
         workerSource,
         /AtlasAI|generateSubject|generateMoment|generateCulturalLens|importScripts\(|fetch\(/
