@@ -84,6 +84,30 @@ assert.match(
 
 assert.match(
   checkout,
+  /name === 'checkout\.loaded'[\s\S]*?settleCheckoutPresentation\([\s\S]*?true[\s\S]*?scheduleCheckoutReveal\(\)/,
+  'Contextual Pro checkout must remain covered until Paddle reports checkout.loaded.'
+);
+
+assert.match(
+  checkout,
+  /showCheckoutLoading\(\)[\s\S]*?setCheckoutScrollLocked\([\s\S]*?true[\s\S]*?\.Checkout[\s\S]*?\.open\(\{/,
+  'Contextual Pro checkout must show the Atlas loading veil before Paddle mounts.'
+);
+
+assert.match(
+  checkout,
+  /return await presentationPromise/,
+  'Contextual checkout should report opened only after the Paddle presentation is ready.'
+);
+
+assert.doesNotMatch(
+  gate,
+  /Opening secure checkout…/,
+  'Opening checkout must not grow the bottom-anchored mobile account menu.'
+);
+
+assert.match(
+  checkout,
   /name ===[\s\S]*?'checkout\.completed'[\s\S]*?Checkout[\s\S]*?close/
 );
 
@@ -125,12 +149,12 @@ assert.match(
 
 assert.match(
   chrome,
-  /atlas-account-gate\.js\?v=20260923-prohierarchy1/
+  /atlas-account-gate\.js\?v=20260924-checkoutveil1/
 );
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260923-prohierarchy1/
+  /atlas-account-chrome\.js\?v=20260924-checkoutveil1/
 );
 
 assert.match(
@@ -203,7 +227,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260923-scroll1/
+  /atlas-pro-checkout\.js\?v=20260924-checkoutveil1/
 );
 
 assert.match(

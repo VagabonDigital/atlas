@@ -19,6 +19,8 @@
         'atlas-pro-checkout-success-style';
     const SCROLL_STYLE_ID =
         'atlas-pro-checkout-scroll-lock-style';
+    const LOADING_STYLE_ID =
+        'atlas-pro-checkout-loading-style';
 
     let paddlePromise = null;
     let configPromise = null;
@@ -26,6 +28,9 @@
     let activeCheckout = null;
     let activationPromise = null;
     let successLayer = null;
+    let checkoutLoadingLayer = null;
+    let checkoutLoadingTimer = null;
+    let checkoutRevealTimer = null;
 
     function clean(value) {
         return String(value || '').trim();
@@ -229,6 +234,287 @@
 
         delete document.documentElement
             .dataset.atlasProCheckoutOpen;
+    }
+
+    function ensureCheckoutLoadingStyles() {
+        if (
+            document.getElementById(
+                LOADING_STYLE_ID
+            )
+        ) {
+            return;
+        }
+
+        const style =
+            document.createElement('style');
+
+        style.id = LOADING_STYLE_ID;
+        style.textContent = `
+            .atlas-pro-checkout-loading {
+                position: fixed;
+                inset: 0;
+                width: 100vw;
+                max-width: none;
+                height: 100dvh;
+                max-height: none;
+                margin: 0;
+                padding: 0;
+                border: 0;
+                background:
+                    var(--atlas-modal-surface, var(--surface, #fffdf9));
+                color:
+                    var(--atlas-modal-heading, var(--text-heading, #211f1b));
+            }
+
+            .atlas-pro-checkout-loading[open] {
+                display: grid;
+                place-items: center;
+            }
+
+            .atlas-pro-checkout-loading::backdrop {
+                background:
+                    var(--atlas-modal-surface, var(--surface, #fffdf9));
+            }
+
+            .atlas-pro-checkout-loading-content {
+                display: grid;
+                justify-items: center;
+                gap: 18px;
+                padding: 32px 24px;
+                text-align: center;
+                font-family: "DM Sans", system-ui, sans-serif;
+            }
+
+            .atlas-pro-checkout-loading-brand {
+                margin: 0;
+                font-family: "DM Serif Display", Georgia, serif;
+                font-size: 2rem;
+                font-weight: 400;
+                color:
+                    var(--atlas-modal-heading, var(--text-heading, #211f1b));
+            }
+
+            .atlas-pro-checkout-loading-brand span {
+                color:
+                    var(--atlas-modal-accent, var(--accent, #59617d));
+            }
+
+            .atlas-pro-checkout-loading-spinner {
+                width: 42px;
+                height: 42px;
+                border: 3px solid
+                    var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .16)));
+                border-top-color:
+                    var(--atlas-modal-accent, var(--accent, #59617d));
+                border-radius: 50%;
+                animation:
+                    atlas-pro-checkout-loading-spin
+                    800ms linear infinite;
+            }
+
+            .atlas-pro-checkout-loading-copy {
+                margin: 0;
+                color:
+                    var(--atlas-modal-muted, var(--text-muted, #7b7469));
+                font-size: .9rem;
+            }
+
+            @keyframes atlas-pro-checkout-loading-spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                .atlas-pro-checkout-loading-spinner {
+                    animation: none;
+                }
+            }
+        `;
+
+        document.head.appendChild(style);
+    }
+
+    function ensureCheckoutLoadingLayer() {
+        if (checkoutLoadingLayer) {
+            return checkoutLoadingLayer;
+        }
+
+        ensureCheckoutLoadingStyles();
+
+        checkoutLoadingLayer =
+            document.createElement('dialog');
+
+        checkoutLoadingLayer.className =
+            'atlas-pro-checkout-loading';
+        checkoutLoadingLayer.setAttribute(
+            'aria-label',
+            'Preparing secure checkout'
+        );
+        checkoutLoadingLayer.innerHTML = `
+            <div class="atlas-pro-checkout-loading-content">
+                <p class="atlas-pro-checkout-loading-brand">
+                    Atlas<span>.</span>
+                </p>
+                <div
+                    class="atlas-pro-checkout-loading-spinner"
+                    aria-hidden="true"
+                ></div>
+                <p class="atlas-pro-checkout-loading-copy">
+                    Preparing secure checkout…
+                </p>
+            </div>
+        `;
+
+        checkoutLoadingLayer.addEventListener(
+            'cancel',
+            event => {
+                event.preventDefault();
+            }
+        );
+
+        document.body.appendChild(
+            checkoutLoadingLayer
+        );
+
+        return checkoutLoadingLayer;
+    }
+
+    function clearCheckoutLoadingTimers() {
+        if (checkoutLoadingTimer) {
+            window.clearTimeout(
+                checkoutLoadingTimer
+            );
+            checkoutLoadingTimer = null;
+        }
+
+        if (checkoutRevealTimer) {
+            window.clearTimeout(
+                checkoutRevealTimer
+            );
+            checkoutRevealTimer = null;
+        }
+    }
+
+    function hideCheckoutLoading() {
+        clearCheckoutLoadingTimers();
+
+        if (!checkoutLoadingLayer) {
+            return;
+        }
+
+        if (
+            typeof checkoutLoadingLayer.close ===
+                'function' &&
+            checkoutLoadingLayer.open
+        ) {
+            checkoutLoadingLayer.close();
+            return;
+        }
+
+        checkoutLoadingLayer.removeAttribute(
+            'open'
+        );
+    }
+
+    function scheduleCheckoutReveal() {
+        if (checkoutLoadingTimer) {
+            window.clearTimeout(
+                checkoutLoadingTimer
+            );
+            checkoutLoadingTimer = null;
+        }
+
+        if (checkoutRevealTimer) {
+            window.clearTimeout(
+                checkoutRevealTimer
+            );
+        }
+
+        window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => {
+                checkoutRevealTimer =
+                    window.setTimeout(
+                        hideCheckoutLoading,
+                        120
+                    );
+            });
+        });
+    }
+
+    function settleCheckoutPresentation(
+        presented
+    ) {
+        if (
+            !activeCheckout ||
+            activeCheckout.presentationSettled
+        ) {
+            return;
+        }
+
+        activeCheckout.presentationSettled =
+            true;
+
+        const resolve =
+            activeCheckout.resolvePresentation;
+
+        activeCheckout.resolvePresentation =
+            null;
+
+        resolve?.(Boolean(presented));
+    }
+
+    function showCheckoutLoading() {
+        const layer =
+            ensureCheckoutLoadingLayer();
+
+        if (
+            typeof layer.showModal ===
+                'function'
+        ) {
+            if (!layer.open) {
+                layer.showModal();
+            }
+        } else {
+            layer.setAttribute(
+                'open',
+                ''
+            );
+        }
+
+        clearCheckoutLoadingTimers();
+
+        checkoutLoadingTimer =
+            window.setTimeout(
+                () => {
+                    if (
+                        !activeCheckout ||
+                        activeCheckout.presentationSettled
+                    ) {
+                        return;
+                    }
+
+                    notifyStatus(
+                        'Checkout took too long to load. Please try again.',
+                        'error'
+                    );
+                    settleCheckoutPresentation(
+                        false
+                    );
+
+                    try {
+                        window.Paddle
+                            ?.Checkout
+                            ?.close?.();
+                    } catch { }
+
+                    hideCheckoutLoading();
+                    setCheckoutScrollLocked(
+                        false
+                    );
+                },
+                20000
+            );
     }
 
     function ensureSuccessStyles() {
@@ -596,9 +882,23 @@
             clean(event?.name);
 
         if (
+            name === 'checkout.loaded'
+        ) {
+            settleCheckoutPresentation(
+                true
+            );
+            scheduleCheckoutReveal();
+            return;
+        }
+
+        if (
             name ===
             'checkout.completed'
         ) {
+            settleCheckoutPresentation(
+                true
+            );
+            hideCheckoutLoading();
             if (activeCheckout) {
                 activeCheckout.completed = true;
             }
@@ -616,6 +916,10 @@
         if (
             name === 'checkout.closed'
         ) {
+            settleCheckoutPresentation(
+                false
+            );
+            hideCheckoutLoading();
             setCheckoutScrollLocked(
                 false
             );
@@ -641,10 +945,29 @@
         if (
             name === 'checkout.error'
         ) {
+            const presentationPending =
+                Boolean(
+                    activeCheckout &&
+                    !activeCheckout
+                        .presentationSettled
+                );
+
             notifyStatus(
-                'Checkout could not be completed. Please try again.',
+                presentationPending
+                    ? 'Checkout could not load. Please try again.'
+                    : 'Checkout could not be completed. Please try again.',
                 'error'
             );
+
+            if (presentationPending) {
+                settleCheckoutPresentation(
+                    false
+                );
+                hideCheckoutLoading();
+                setCheckoutScrollLocked(
+                    false
+                );
+            }
         }
     }
 
@@ -703,12 +1026,10 @@
             trigger,
             onStatus,
             onActivated,
-            completed: false
+            completed: false,
+            presentationSettled: false,
+            resolvePresentation: null
         };
-
-        notifyStatus(
-            'Opening secure checkout…'
-        );
 
         let access = null;
 
@@ -791,6 +1112,15 @@
 
             notifyStatus('');
 
+            const presentationPromise =
+                new Promise(resolve => {
+                    activeCheckout
+                        .resolvePresentation =
+                            resolve;
+                });
+
+            showCheckoutLoading();
+
             setCheckoutScrollLocked(
                 true
             );
@@ -837,8 +1167,12 @@
                     }
                 });
 
-            return true;
+            return await presentationPromise;
         } catch (error) {
+            settleCheckoutPresentation(
+                false
+            );
+            hideCheckoutLoading();
             setCheckoutScrollLocked(
                 false
             );

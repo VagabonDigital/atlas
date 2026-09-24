@@ -29,7 +29,7 @@
     const GOOGLE_IDENTITY_SRC =
         '/shared/atlas-google-identity.js?v=20260921-insideheader1';
     const PRO_CHECKOUT_SRC =
-        '/shared/atlas-pro-checkout.js?v=20260923-scroll1';
+        '/shared/atlas-pro-checkout.js?v=20260924-checkoutveil1';
 
     let gateLayer = null;
     let accountMenu = null;
@@ -559,9 +559,8 @@
         }
 
         if (status) {
-            status.textContent =
-                'Opening secure checkout…';
-            status.hidden = false;
+            status.textContent = '';
+            status.hidden = true;
         }
 
         try {

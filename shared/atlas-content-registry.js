@@ -1064,7 +1064,7 @@
         }
 
         const src =
-            '/shared/atlas-account-chrome.js?v=20260923-prohierarchy1';
+            '/shared/atlas-account-chrome.js?v=20260924-checkoutveil1';
 
         if (document.readyState === 'loading') {
             document.write(
