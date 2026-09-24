@@ -1092,6 +1092,32 @@ async function testRealWorkerGeneration() {
         'Worker must not execute AI while the foreground page owns the subject.'
     );
 
+    records
+        .get(
+            'build-checkpoint::subject-worker-resume'
+        )
+        .buildState
+        .generationContext = {
+            version:
+                1,
+            languageLevel:
+                'b2',
+            subjectSize:
+                'standard',
+            languageSupport:
+                'key',
+            style:
+                'balanced',
+            premise:
+                'Checkpoint context wins.',
+            brief:
+                '',
+            source: {
+                readMore:
+                    'Newest durable context'
+            }
+        };
+
     /*
      * Simulate the tutor leaving the subject while another Atlas surface
      * remains open. The browser releases the page Web Lock; the worker then
@@ -1182,8 +1208,8 @@ async function testRealWorkerGeneration() {
             .buildState
             .generationContext
             .premise,
-        'Resume safely.',
-        'Worker-owned generation context must remain inside the canonical checkpoint so all-pages-close recovery cannot lose it.'
+        'Checkpoint context wins.',
+        'The durable checkpoint must beat stale duplicate page descriptors when the worker resumes.'
     );
 
     const finalDocument =
