@@ -2394,9 +2394,7 @@ async function runJobWithLock(job) {
         acquired &&
         clean(
             job.foregroundOwnerPageId
-        ) &&
-        job.status ===
-            'foreground-owned'
+        )
     ) {
         finalizeForegroundGrant(
             job
