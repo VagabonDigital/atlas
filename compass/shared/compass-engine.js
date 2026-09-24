@@ -540,6 +540,29 @@ function isOwnedSubjectRuntime() {
     return getCompassSubjectRuntime().source === 'owned';
 }
 
+function requireOwnedSubjectRuntimeRevision() {
+    const revision =
+        Math.floor(
+            Number(
+                getCompassSubjectRuntime()
+                    ?.revision
+            ) || 0
+        );
+
+    if (revision < 1) {
+        const error = new Error(
+            'Atlas owned subject is missing its revision boundary.'
+        );
+
+        error.code =
+            'ATLAS_REVISION_REQUIRED';
+
+        throw error;
+    }
+
+    return revision;
+}
+
 async function updateOwnedSubjectAtRuntimeRevision(
     patch = {}
 ) {
@@ -565,30 +588,11 @@ async function updateOwnedSubjectAtRuntimeRevision(
         throw error;
     }
 
-    const expectedRevision =
-        Math.floor(
-            Number(
-                getCompassSubjectRuntime()
-                    ?.revision
-            ) || 0
-        );
-
-    if (expectedRevision < 1) {
-        const error = new Error(
-            'Atlas owned-subject save is missing its revision boundary.'
-        );
-
-        error.code =
-            'ATLAS_REVISION_REQUIRED';
-
-        throw error;
-    }
-
     return Subjects
         .updateSubjectAtRevision(
             MODULE.id,
             patch,
-            expectedRevision
+            requireOwnedSubjectRuntimeRevision()
         );
 }
 
@@ -1486,14 +1490,8 @@ function getActiveCompassViewId() {
 function getMyVersionWorkingDraftPatch(overrides) {
     if (isOwnedSubjectRuntime()) {
         return {
-            baseRevision: Math.max(
-                1,
-                Math.floor(
-                    Number(
-                        getCompassSubjectRuntime().revision
-                    ) || 1
-                )
-            ),
+            baseRevision:
+                requireOwnedSubjectRuntimeRevision(),
             document: materializeTutorSubjectDocument(
                 myVersionDraftDocument ||
                 getPublishedTutorSubjectDocument(),
