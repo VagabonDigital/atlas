@@ -1,14 +1,15 @@
 /* ============================================================
    ATLAS SUBJECT BUILD — SHARED WORKER CLIENT
 
-   Atlas-wide page bridge for Batch 2.
+   Atlas-wide page bridge for SharedWorker subject generation.
 
    Page owns:
    - authenticated account/session state
    - short-lived access-token refresh
-   - lifecycle/page identity
+   - page lifecycle / identity
+   - registering foreground builds for background continuation
 
-   SharedWorker owns only its in-memory runtime skeleton.
+   SharedWorker owns execution only while Atlas exists somewhere.
    ============================================================ */
 
 (function () {
@@ -22,7 +23,7 @@
     }
 
     const WORKER_URL =
-        '/shared/atlas-subject-build-shared-worker.js?v=20260924-buildworker1';
+        '/shared/atlas-subject-build-shared-worker.js?v=20260924-buildworker2';
 
     const WORKER_NAME =
         'atlas-subject-builds';
@@ -40,6 +41,9 @@
         new Set();
 
     const pendingRequests =
+        new Map();
+
+    const registeredBuilds =
         new Map();
 
     const pageId =
@@ -69,6 +73,8 @@
         surface,
         workerVersion:
             null,
+        activeBuild:
+            null,
         queue: [],
         lastWorkerHeartbeat:
             null,
@@ -89,9 +95,21 @@
         );
     }
 
+    function isObject(value) {
+        return Boolean(
+            value &&
+            typeof value === 'object' &&
+            !Array.isArray(value)
+        );
+    }
+
     function snapshot() {
         return {
             ...state,
+            activeBuild:
+                cloneJson(
+                    state.activeBuild
+                ),
             queue:
                 cloneJson(
                     state.queue
@@ -135,9 +153,7 @@
         } catch { }
     }
 
-    function emitWorkerMessage(
-        message
-    ) {
+    function emitWorkerMessage(message) {
         try {
             window.dispatchEvent(
                 new CustomEvent(
@@ -266,6 +282,81 @@
         }
     }
 
+    function normalizeBuildDescriptor(value) {
+        const candidate =
+            isObject(value)
+                ? value
+                : {};
+
+        return {
+            generationContext:
+                isObject(
+                    candidate
+                        .generationContext
+                )
+                    ? cloneJson(
+                        candidate
+                            .generationContext
+                    )
+                    : null,
+
+            autoSaveOnComplete:
+                typeof candidate
+                    .autoSaveOnComplete ===
+                    'boolean'
+                    ? candidate
+                        .autoSaveOnComplete
+                    : null,
+
+            revision:
+                Math.max(
+                    0,
+                    Math.floor(
+                        Number(
+                            candidate
+                                .revision
+                        ) || 0
+                    )
+                )
+        };
+    }
+
+    function mergeBuildDescriptor(
+        previous,
+        incoming
+    ) {
+        const current =
+            normalizeBuildDescriptor(
+                previous
+            );
+
+        const next =
+            normalizeBuildDescriptor(
+                incoming
+            );
+
+        return {
+            generationContext:
+                next.generationContext ||
+                current.generationContext,
+
+            autoSaveOnComplete:
+                typeof next
+                    .autoSaveOnComplete ===
+                    'boolean'
+                    ? next
+                        .autoSaveOnComplete
+                    : current
+                        .autoSaveOnComplete,
+
+            revision:
+                Math.max(
+                    current.revision,
+                    next.revision
+                )
+        };
+    }
+
     function safePost(message) {
         if (
             !port ||
@@ -291,6 +382,35 @@
 
             return false;
         }
+    }
+
+    function flushRegisteredBuilds() {
+        if (
+            !state.authenticated ||
+            !state.connected
+        ) {
+            return false;
+        }
+
+        let sent = false;
+
+        registeredBuilds.forEach(
+            (build, subjectId) => {
+                sent =
+                    safePost({
+                        type:
+                            'enqueue-subject',
+                        subjectId,
+                        build:
+                            cloneJson(
+                                build
+                            )
+                    }) ||
+                    sent;
+            }
+        );
+
+        return sent;
     }
 
     function startHeartbeat() {
@@ -328,7 +448,8 @@
                 heartbeatTimer
             );
 
-            heartbeatTimer = null;
+            heartbeatTimer =
+                null;
         }
     }
 
@@ -407,15 +528,10 @@
         return true;
     }
 
-    function handleWorkerMessage(
-        event
-    ) {
+    function handleWorkerMessage(event) {
         const message =
-            event?.data &&
-            typeof event.data ===
-                'object' &&
-            !Array.isArray(
-                event.data
+            isObject(
+                event?.data
             )
                 ? event.data
                 : {};
@@ -460,6 +576,11 @@
             publish({
                 ready:
                     true,
+                activeBuild:
+                    cloneJson(
+                        message.activeBuild ||
+                        null
+                    ),
                 queue:
                     Array.isArray(
                         message.queue
@@ -468,6 +589,7 @@
                         : state.queue
             });
 
+            flushRegisteredBuilds();
             return;
         }
 
@@ -495,6 +617,11 @@
                 'queue-state'
         ) {
             publish({
+                activeBuild:
+                    cloneJson(
+                        message.activeBuild ||
+                        null
+                    ),
                 queue:
                     Array.isArray(
                         message.queue
@@ -502,6 +629,49 @@
                         ? message.queue
                         : []
             });
+        }
+
+        if (
+            type ===
+                'build-liveness'
+        ) {
+            const detail =
+                message.detail;
+
+            if (
+                detail &&
+                typeof detail ===
+                    'object'
+            ) {
+                publish({
+                    activeBuild: {
+                        subjectId:
+                            message
+                                .subjectId ||
+                            state
+                                .activeBuild
+                                ?.subjectId ||
+                            null,
+                        completedStep:
+                            Number(
+                                detail
+                                    .completedStep
+                            ) ||
+                            0,
+                        progress: {
+                            current:
+                                detail.current ||
+                                null,
+                            total:
+                                detail.total ||
+                                9,
+                            label:
+                                detail.label ||
+                                'Building subject'
+                        }
+                    }
+                });
+            }
         }
 
         if (
@@ -560,22 +730,37 @@
             type ===
                 'worker-state'
         ) {
-            if (
-                Array.isArray(
-                    message.queue
-                )
-            ) {
-                publish({
-                    queue:
+            publish({
+                activeBuild:
+                    cloneJson(
+                        message.activeBuild ||
+                        null
+                    ),
+                queue:
+                    Array.isArray(
                         message.queue
-                });
-            }
+                    )
+                        ? message.queue
+                        : state.queue
+            });
 
             settleRequest(
                 message.requestId,
                 cloneJson(
                     message
                 )
+            );
+        }
+
+        if (
+            type ===
+                'subject-cancelled'
+        ) {
+            registeredBuilds.delete(
+                String(
+                    message.subjectId ||
+                    ''
+                ).trim()
             );
         }
 
@@ -684,10 +869,7 @@
     }
 
     function disconnectWorker(
-        reason = 'page-disconnect',
-        {
-            closePort = true
-        } = {}
+        reason = 'page-disconnect'
     ) {
         stopHeartbeat();
 
@@ -702,7 +884,6 @@
             } catch { }
 
             if (
-                closePort &&
                 typeof port.close ===
                     'function'
             ) {
@@ -712,18 +893,18 @@
             }
         }
 
-        if (closePort) {
-            worker = null;
-            port = null;
+        worker = null;
+        port = null;
 
-            publish({
-                connected:
-                    false,
-                ready:
-                    false,
-                queue: []
-            });
-        }
+        publish({
+            connected:
+                false,
+            ready:
+                false,
+            activeBuild:
+                null,
+            queue: []
+        });
     }
 
     async function ensureAccountRuntime() {
@@ -865,6 +1046,8 @@
                     reason:
                         'account-switch'
                 });
+
+                registeredBuilds.clear();
             }
 
             safePost({
@@ -899,6 +1082,7 @@
                     null
             });
 
+            flushRegisteredBuilds();
             return true;
         } catch (error) {
             publish({
@@ -917,9 +1101,7 @@
         detail = null
     ) {
         const accountState =
-            detail &&
-            typeof detail ===
-                'object'
+            isObject(detail)
                 ? detail
                 : window
                     .AtlasAccount
@@ -955,6 +1137,8 @@
                         'signed-out'
                 });
             }
+
+            registeredBuilds.clear();
 
             publish({
                 authenticated:
@@ -1099,7 +1283,8 @@
     }
 
     function enqueueSubject(
-        subjectId
+        subjectId,
+        build = {}
     ) {
         const id =
             String(
@@ -1108,23 +1293,82 @@
 
         if (
             !id ||
-            !state.authenticated ||
-            !connectWorker()
+            !state.supported
         ) {
             return false;
         }
 
-        return safePost({
+        const descriptor =
+            mergeBuildDescriptor(
+                registeredBuilds
+                    .get(id),
+                build
+            );
+
+        registeredBuilds.set(
+            id,
+            descriptor
+        );
+
+        if (
+            !state.authenticated
+        ) {
+            void initialize();
+            return true;
+        }
+
+        if (!connectWorker()) {
+            return true;
+        }
+
+        safePost({
             type:
                 'enqueue-subject',
             subjectId:
-                id
+                id,
+            build:
+                cloneJson(
+                    descriptor
+                )
+        });
+
+        return true;
+    }
+
+    function cancelSubject(
+        subjectId,
+        reason = 'cancelled'
+    ) {
+        const id =
+            String(
+                subjectId || ''
+            ).trim();
+
+        if (!id) return false;
+
+        registeredBuilds.delete(id);
+
+        if (
+            !state.authenticated ||
+            !state.connected
+        ) {
+            return true;
+        }
+
+        return safePost({
+            type:
+                'cancel-subject',
+            subjectId:
+                id,
+            reason:
+                String(
+                    reason || ''
+                ).trim() ||
+                'cancelled'
         });
     }
 
-    function requestCheckpoint(
-        subjectId
-    ) {
+    function requestCheckpoint(subjectId) {
         const id =
             String(
                 subjectId || ''
@@ -1189,9 +1433,7 @@
             );
     }
 
-    function handleAccountChange(
-        event
-    ) {
+    function handleAccountChange(event) {
         void syncAccount(
             event?.detail ||
             null
@@ -1209,9 +1451,7 @@
         });
     }
 
-    function handlePageHide(
-        event
-    ) {
+    function handlePageHide(event) {
         disconnectWorker(
             event?.persisted
                 ? 'page-suspended'
@@ -1280,6 +1520,7 @@
         );
 
         pendingRequests.clear();
+        registeredBuilds.clear();
 
         disconnectWorker(
             'destroy'
@@ -1315,6 +1556,7 @@
             connect:
                 connectWorker,
             enqueueSubject,
+            cancelSubject,
             requestCheckpoint,
             requestWorkerState,
             sendCurrentAuth,
