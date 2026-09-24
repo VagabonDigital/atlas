@@ -7021,34 +7021,29 @@ async function generateMyVersionFullSubject({
 
                     enrichDiscussion:
                         async ({ languageSupport }) => {
-                            await enrichMyVersionDiscussionFromUI({
-                                languageMode:
-                                    languageSupport
-                            });
+                            const result =
+                                await enrichMyVersionDiscussionFromUI({
+                                    languageMode:
+                                        languageSupport
+                                });
 
-                            const remaining =
-                                getMyVersionRemainingLanguageCount(
-                                    'discussion',
-                                    languageSupport
-                                ) +
-                                getMyVersionDiscussionMakeItRealCandidateSetIds()
-                                    .length;
-
-                            return remaining === 0;
+                            return (
+                                result?.complete ===
+                                true
+                            );
                         },
 
                     enrichCulturalLens:
                         async ({ languageSupport }) => {
-                            await enrichMyVersionCulturalLensFromUI({
-                                languageMode:
-                                    languageSupport
-                            });
+                            const result =
+                                await enrichMyVersionCulturalLensFromUI({
+                                    languageMode:
+                                        languageSupport
+                                });
 
                             return (
-                                getMyVersionRemainingLanguageCount(
-                                    'cultural-lens',
-                                    languageSupport
-                                ) === 0
+                                result?.complete ===
+                                true
                             );
                         }
                 },
@@ -8945,211 +8940,92 @@ async function enrichMyVersionDiscussionFromUI({
             ? languageMode
             : 'all';
 
-    const plan =
-        await getMyVersionBuildDocumentOperations()
-            .getDiscussionEnrichmentPlan({
-                languageMode:
-                    mode,
-                subjectSize:
-                    String(
-                        window.AtlasGenerationContext
-                            ?.subjectSize ||
-                        'standard'
-                    ).trim()
-            });
-
-    const languageCandidateIds =
-        Array.isArray(
-            plan?.candidateIds
-        )
-            ? plan.candidateIds
-            : [];
-
-    const keySelectionTarget =
-        Math.max(
-            0,
-            Math.floor(
-                Number(
-                    plan
-                        ?.keySelectionTarget
-                ) || 0
-            )
-        );
-
-    let selectedKeyIds = [];
-
-    if (keySelectionTarget > 0) {
-        myVersionDiscussionEnrichmentError = '';
-        myVersionEnrichingDiscussion = true;
-        myVersionDiscussionEnrichmentProgress = {
-            phase: 'selecting-key',
-            mode
-        };
-
-        updateMyVersionAuthorBar();
-
-        try {
-            selectedKeyIds =
-                await selectMyVersionKeyLanguageOpportunityIds(
-                    'discussion',
-                    Array.isArray(
-                        plan?.keyCandidates
-                    )
-                        ? plan.keyCandidates
-                        : [],
-                    keySelectionTarget
-                );
-        } catch (error) {
-            myVersionEnrichingDiscussion = false;
-            myVersionDiscussionEnrichmentProgress = null;
-            updateMyVersionAuthorBar();
-            throw error;
-        }
-    }
-
-    const selectedKeySet =
-        new Set(selectedKeyIds);
-
-    const languageIds =
-        mode === 'off'
-            ? []
-            : mode === 'key'
-                ? selectedKeyIds
-                : languageCandidateIds;
-
-    const operations = [
-        ...languageIds
-            .map(momentId => ({
-                kind: 'upgrade',
-                id: momentId,
-                priority:
-                    selectedKeySet.has(
-                        momentId
-                    )
-                        ? 'key'
-                        : 'standard'
-            })),
-
-        ...(
-            Array.isArray(
-                plan?.makeItRealSetIds
-            )
-                ? plan.makeItRealSetIds
-                : []
-        ).map(setId => ({
-            kind: 'make-it-real',
-            id: setId
-        }))
-    ];
-
-    if (!operations.length) {
-        refreshMyVersionFullSubjectReadyNotice(
-            false,
-            mode
-        );
-        return [];
-    }
-
-    const completedOperations = [];
-    const failedOperations = [];
-
-    const operationTotals = operations.reduce(
-        (totals, operation) => {
-            totals[operation.kind] =
-                (totals[operation.kind] || 0) + 1;
-
-            return totals;
-        },
-        {}
-    );
-
-    const completedByKind = {};
-
     myVersionDiscussionEnrichmentError = '';
-    myVersionEnrichingDiscussion = true;
-    myVersionDiscussionEnrichmentProgress = {
-        current: 0,
-        total:
-            operationTotals.upgrade || 0,
-        kind: 'upgrade',
-        mode
-    };
-
-    updateMyVersionAuthorBar();
 
     try {
-        for (
-            let index = 0;
-            index < operations.length;
-            index += 1
-        ) {
-            const operation =
-                operations[index];
+        const result =
+            await getMyVersionBuildDocumentOperations()
+                .enrichDiscussion({
+                    languageMode:
+                        mode,
+                    subjectSize:
+                        String(
+                            window.AtlasGenerationContext
+                                ?.subjectSize ||
+                            'standard'
+                        ).trim(),
 
-            completedByKind[operation.kind] =
-                (completedByKind[
-                    operation.kind
-                ] || 0) + 1;
+                    onEvent(event) {
+                        if (
+                            event?.type ===
+                                'selection-start'
+                        ) {
+                            myVersionEnrichingDiscussion = true;
+                            myVersionDiscussionEnrichmentProgress = {
+                                phase:
+                                    'selecting-key',
+                                mode
+                            };
 
-            myVersionDiscussionEnrichmentProgress = {
-                current:
-                    completedByKind[
-                        operation.kind
-                    ],
-                total:
-                    operationTotals[
-                        operation.kind
-                    ] || 0,
-                kind:
-                    operation.kind,
-                mode
-            };
+                            updateMyVersionAuthorBar();
+                            return;
+                        }
 
-            updateMyVersionAuthorBar();
+                        if (
+                            event?.type ===
+                                'operations-start'
+                        ) {
+                            myVersionEnrichingDiscussion = true;
+                            myVersionDiscussionEnrichmentProgress = {
+                                current: 0,
+                                total:
+                                    event
+                                        .operationTotals
+                                        ?.upgrade ||
+                                    0,
+                                kind:
+                                    'upgrade',
+                                mode
+                            };
 
-            const label =
-                operation.kind === 'upgrade'
-                    ? `Discussion language upgrade ${index + 1}`
-                    : `Discussion activity ${index + 1}`;
+                            updateMyVersionAuthorBar();
+                            return;
+                        }
 
-            const result =
-                await runMyVersionEnrichmentOperationWithRetry(
-                    () =>
-                        operation.kind === 'upgrade'
-                            ? generateMyVersionMomentUpgrade(
-                                operation.id,
-                                '',
-                                {
-                                    reveal:
-                                        false,
-                                    priority:
-                                        operation
-                                            .priority
-                                }
-                            )
-                            : generateMyVersionMakeItReal(
-                                operation.id
-                            ),
-                    label
-                );
+                        if (
+                            event?.type ===
+                                'operation-start'
+                        ) {
+                            myVersionEnrichingDiscussion = true;
+                            myVersionDiscussionEnrichmentProgress = {
+                                current:
+                                    event.current,
+                                total:
+                                    event.total,
+                                kind:
+                                    event.kind,
+                                mode
+                            };
 
-            if (result) {
-                completedOperations.push(
-                    operation
-                );
-            } else {
-                failedOperations.push(
-                    operation
-                );
-            }
-        }
+                            updateMyVersionAuthorBar();
+                        }
+                    }
+                });
 
-        if (failedOperations.length) {
+        const failedCount =
+            Array.isArray(
+                result?.failedOperations
+            )
+                ? result.failedOperations
+                    .length
+                : 0;
+
+        if (failedCount) {
             myVersionDiscussionEnrichmentError =
-                `${failedOperations.length} finishing touch${failedOperations.length === 1 ? '' : 'es'} still remaining.`;
+                `${failedCount} finishing touch${failedCount === 1 ? '' : 'es'} still remaining.`;
         }
 
-        return completedOperations;
+        return result;
     } finally {
         myVersionEnrichingDiscussion = false;
         myVersionDiscussionEnrichmentProgress = null;
@@ -9362,157 +9238,84 @@ async function enrichMyVersionCulturalLensFromUI({
             ? languageMode
             : 'all';
 
-    const plan =
-        await getMyVersionBuildDocumentOperations()
-            .getCulturalLensEnrichmentPlan({
-                languageMode:
-                    mode,
-                subjectSize:
-                    String(
-                        window.AtlasGenerationContext
-                            ?.subjectSize ||
-                        'standard'
-                    ).trim()
-            });
-
-    const candidateIds =
-        Array.isArray(
-            plan?.candidateIds
-        )
-            ? plan.candidateIds
-            : [];
-
-    const keySelectionTarget =
-        Math.max(
-            0,
-            Math.floor(
-                Number(
-                    plan
-                        ?.keySelectionTarget
-                ) || 0
-            )
-        );
-
-    let selectedKeyIds = [];
-
-    if (keySelectionTarget > 0) {
-        myVersionCulturalLensEnrichmentError = '';
-        myVersionEnrichingCulturalLens = true;
-        myVersionCulturalLensEnrichmentProgress = {
-            phase: 'selecting-key',
-            mode
-        };
-
-        updateMyVersionAuthorBar();
-
-        try {
-            selectedKeyIds =
-                await selectMyVersionKeyLanguageOpportunityIds(
-                    'cultural-lens',
-                    Array.isArray(
-                        plan?.keyCandidates
-                    )
-                        ? plan.keyCandidates
-                        : [],
-                    keySelectionTarget
-                );
-        } catch (error) {
-            myVersionEnrichingCulturalLens = false;
-            myVersionCulturalLensEnrichmentProgress = null;
-            updateMyVersionAuthorBar();
-            throw error;
-        }
-    }
-
-    const selectedKeySet =
-        new Set(selectedKeyIds);
-
-    const idsToGenerate =
-        mode === 'off'
-            ? []
-            : mode === 'key'
-                ? selectedKeyIds
-                : candidateIds;
-
-    if (!idsToGenerate.length) {
-        refreshMyVersionFullSubjectReadyNotice(
-            false,
-            mode
-        );
-        return [];
-    }
-
-    const completedIds = [];
-    const failedIds = [];
-
     myVersionCulturalLensEnrichmentError = '';
-    myVersionEnrichingCulturalLens = true;
-    myVersionCulturalLensEnrichmentProgress = {
-        current: 0,
-        total:
-            idsToGenerate.length,
-        mode
-    };
-
-    updateMyVersionAuthorBar();
 
     try {
-        for (
-            let index = 0;
-            index < idsToGenerate.length;
-            index += 1
-        ) {
-            const cardId =
-                idsToGenerate[index];
+        const result =
+            await getMyVersionBuildDocumentOperations()
+                .enrichCulturalLens({
+                    languageMode:
+                        mode,
+                    subjectSize:
+                        String(
+                            window.AtlasGenerationContext
+                                ?.subjectSize ||
+                            'standard'
+                        ).trim(),
 
-            myVersionCulturalLensEnrichmentProgress = {
-                current:
-                    index + 1,
-                total:
-                    idsToGenerate.length,
-                mode
-            };
+                    onEvent(event) {
+                        if (
+                            event?.type ===
+                                'selection-start'
+                        ) {
+                            myVersionEnrichingCulturalLens = true;
+                            myVersionCulturalLensEnrichmentProgress = {
+                                phase:
+                                    'selecting-key',
+                                mode
+                            };
 
-            updateMyVersionAuthorBar();
+                            updateMyVersionAuthorBar();
+                            return;
+                        }
 
-            const upgrade =
-                await runMyVersionEnrichmentOperationWithRetry(
-                    () =>
-                        generateMyVersionCulturalLensUpgrade(
-                            cardId,
-                            '',
-                            {
-                                reveal:
-                                    false,
-                                priority:
-                                    selectedKeySet
-                                        .has(
-                                            cardId
-                                        )
-                                        ? 'key'
-                                        : 'standard'
-                            }
-                        ),
-                    `Cultural Lens language upgrade ${index + 1}`
-                );
+                        if (
+                            event?.type ===
+                                'operations-start'
+                        ) {
+                            myVersionEnrichingCulturalLens = true;
+                            myVersionCulturalLensEnrichmentProgress = {
+                                current: 0,
+                                total:
+                                    event.total || 0,
+                                mode
+                            };
 
-            if (upgrade) {
-                completedIds.push(
-                    cardId
-                );
-            } else {
-                failedIds.push(
-                    cardId
-                );
-            }
-        }
+                            updateMyVersionAuthorBar();
+                            return;
+                        }
 
-        if (failedIds.length) {
+                        if (
+                            event?.type ===
+                                'operation-start'
+                        ) {
+                            myVersionEnrichingCulturalLens = true;
+                            myVersionCulturalLensEnrichmentProgress = {
+                                current:
+                                    event.current,
+                                total:
+                                    event.total,
+                                mode
+                            };
+
+                            updateMyVersionAuthorBar();
+                        }
+                    }
+                });
+
+        const failedCount =
+            Array.isArray(
+                result?.failedIds
+            )
+                ? result.failedIds.length
+                : 0;
+
+        if (failedCount) {
             myVersionCulturalLensEnrichmentError =
-                `${failedIds.length} finishing touch${failedIds.length === 1 ? '' : 'es'} still remaining.`;
+                `${failedCount} finishing touch${failedCount === 1 ? '' : 'es'} still remaining.`;
         }
 
-        return completedIds;
+        return result;
     } finally {
         myVersionEnrichingCulturalLens = false;
         myVersionCulturalLensEnrichmentProgress = null;
