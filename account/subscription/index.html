@@ -447,6 +447,25 @@
       font-weight: 500;
     }
 
+    .plan-includes {
+      margin-left: 8px;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 600;
+      text-decoration: underline;
+      text-decoration-color: transparent;
+      text-underline-offset: 3px;
+      transition:
+        color 160ms ease,
+        text-decoration-color 160ms ease;
+    }
+
+    .plan-includes:hover,
+    .plan-includes:focus-visible {
+      color: var(--accent);
+      text-decoration-color: currentColor;
+    }
+
     .status {
       flex: 0 0 auto;
       padding: 6px 10px;
@@ -864,7 +883,11 @@
           <div class="subscription-head">
             <div>
               <p class="kicker">Subscription</p>
-              <p class="plan">Atlas Pro <span class="price">· $12/month</span></p>
+              <p class="plan">
+                Atlas Pro
+                <span class="price">· $12/month</span>
+                <a id="plan-includes" class="plan-includes" href="/pricing/">See what’s included</a>
+              </p>
             </div>
             <span id="status" class="status">Active</span>
           </div>
@@ -1057,8 +1080,17 @@
         ? `/account/?from=${encodeURIComponent(from)}`
         : '/account/';
 
+    const pricingUrl =
+      from
+        ? `/pricing/?from=${encodeURIComponent(from)}`
+        : '/pricing/';
+
     document.getElementById('back').href =
       accountUrl;
+
+    document.getElementById(
+      'plan-includes'
+    ).href = pricingUrl;
 
     function formatDate(value) {
       const timestamp =
