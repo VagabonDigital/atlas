@@ -26,7 +26,7 @@
 'use strict';
 
 const WORKER_VERSION =
-    '20260924-buildworker6';
+    '20260924-buildworker9';
 
 const DEPENDENCY_VERSION =
     '20260924-workerbuild3';
