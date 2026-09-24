@@ -1879,7 +1879,7 @@
         const access = window.AtlasAccess?.getState?.() || {};
         const email = account.email || 'Atlas account';
         const tier = access.tier === 'pro'
-            ? 'Pro'
+            ? 'Atlas Pro'
             : access.tier === 'free'
                 ? 'Free account'
                 : 'Account';
