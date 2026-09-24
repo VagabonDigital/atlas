@@ -77,6 +77,8 @@ assert.match(
     'generateCulturalLensUpgrade',
     'getDiscussionEnrichmentPlan',
     'getCulturalLensEnrichmentPlan',
+    'enrichDiscussion',
+    'enrichCulturalLens',
     'generateCurrentAffairsReading'
 ].forEach(name => {
     assert.ok(
@@ -591,6 +593,175 @@ async function testDocumentOperations() {
     );
 }
 
+async function testWorkerNeutralEnrichment() {
+    let document =
+        Structured.createBlankDocument({
+            title:
+                'Worker Enrichment'
+        });
+
+    document.discussionSets = [
+        Structured.createDiscussionSet({
+            id:
+                'set-one',
+            title:
+                'Set One',
+            stage:
+                'First Look',
+            description:
+                'Discussion',
+            moments: [
+                Structured.createMoment({
+                    id:
+                        'moment-one',
+                    preview:
+                        'Preview one',
+                    question:
+                        'Question one'
+                })
+            ]
+        })
+    ];
+
+    document.culturalLensCards = [
+        Structured.createCulturalLensCard({
+            id:
+                'card-one',
+            title:
+                'Card One',
+            contextLine:
+                'Context',
+            teaser:
+                'Teaser',
+            context:
+                'Background',
+            questions: [
+                'Question'
+            ]
+        })
+    ];
+
+    const events = [];
+    let momentAttempts = 0;
+
+    const AI = {
+        ...FakeAI,
+
+        async generateMomentUpgrade(input) {
+            momentAttempts += 1;
+
+            if (momentAttempts === 1) {
+                throw new Error(
+                    'Transient failure'
+                );
+            }
+
+            return FakeAI
+                .generateMomentUpgrade(input);
+        }
+    };
+
+    const Enrichment =
+        Factory.create({
+            ai: AI,
+            structured:
+                Structured,
+
+            getDocument() {
+                return document;
+            },
+
+            commit(mutator) {
+                return mutator(
+                    document,
+                    {}
+                );
+            }
+        });
+
+    const originalSetTimeout =
+        buildRoot.setTimeout;
+
+    buildRoot.setTimeout =
+        callback => {
+            callback();
+            return 1;
+        };
+
+    try {
+        const discussion =
+            await Enrichment
+                .enrichDiscussion({
+                    languageMode:
+                        'all',
+                    subjectSize:
+                        'standard',
+                    onEvent(event) {
+                        events.push(event);
+                    }
+                });
+
+        assert.equal(
+            discussion.complete,
+            true
+        );
+
+        assert.equal(
+            momentAttempts,
+            2,
+            'Discussion enrichment should preserve the existing single retry.'
+        );
+
+        assert.ok(
+            events.some(
+                event =>
+                    event.type ===
+                        'operation-retry' &&
+                    event.section ===
+                        'discussion' &&
+                    event.delayMs === 600
+            ),
+            'Worker-neutral enrichment should expose retry progress without UI dependencies.'
+        );
+
+        const lens =
+            await Enrichment
+                .enrichCulturalLens({
+                    languageMode:
+                        'all',
+                    subjectSize:
+                        'standard'
+                });
+
+        assert.equal(
+            lens.complete,
+            true
+        );
+
+        assert.ok(
+            document
+                .discussionSets[0]
+                .moments[0]
+                .upgrade
+        );
+
+        assert.ok(
+            document
+                .discussionSets[0]
+                .makeItReal
+        );
+
+        assert.ok(
+            document
+                .culturalLensCards[0]
+                .upgrade
+        );
+    } finally {
+        buildRoot.setTimeout =
+            originalSetTimeout;
+    }
+}
+
 async function testWorkerNeutralAI() {
     let captured = null;
 
@@ -722,6 +893,7 @@ async function testWorkerNeutralAI() {
 
 (async () => {
     await testDocumentOperations();
+    await testWorkerNeutralEnrichment();
     await testWorkerNeutralAI();
 
     console.log(
