@@ -918,6 +918,130 @@ async function testRepeatedWorkerFailurePausesDurableLifecycle() {
     );
 }
 
+async function testColdOpenOfflineRetriesAfterReconnect() {
+    const box =
+        createSandbox();
+
+    box.navigatorObject
+        .onLine =
+        false;
+
+    const originalListSubjects =
+        box.windowObject
+            .AtlasTutorSubjects
+            .listSubjects;
+
+    box.windowObject
+        .AtlasTutorSubjects
+        .listSubjects =
+        async () => {
+            if (
+                box.navigatorObject
+                    .onLine ===
+                false
+            ) {
+                throw new Error(
+                    'Offline'
+                );
+            }
+
+            return originalListSubjects();
+        };
+
+    vm.runInNewContext(
+        resurrectionSource,
+        box.context
+    );
+
+    await flush();
+    await flush();
+
+    assert.equal(
+        box.enqueued.length,
+        0,
+        'A cold offline open must not invent a background job before authoritative subject discovery succeeds.'
+    );
+
+    assert.equal(
+        box.cleared.length,
+        0,
+        'Offline discovery failure must preserve browser recovery state.'
+    );
+
+    box.navigatorObject
+        .onLine =
+        true;
+
+    box.windowObject
+        .dispatchEvent(
+            new box.context
+                .CustomEvent(
+                    'online'
+                )
+        );
+
+    await flush();
+    await flush();
+    await flush();
+
+    assert.equal(
+        box.enqueued
+            .at(-1)
+            ?.subjectId,
+        'subject-resume',
+        'Reconnect should retry authoritative discovery and wake the unfinished build.'
+    );
+}
+
+async function testMissingCheckpointPreservesManualRecovery() {
+    const box =
+        createSandbox();
+
+    box.buildStates.delete(
+        'subject-resume'
+    );
+
+    box.drafts.delete(
+        'subject-resume'
+    );
+
+    vm.runInNewContext(
+        resurrectionSource,
+        box.context
+    );
+
+    await flush();
+    await flush();
+
+    assert.equal(
+        box.enqueued.length,
+        0,
+        'An unfinished durable marker without a recoverable checkpoint must not be auto-enqueued.'
+    );
+
+    assert.equal(
+        box.updates.length,
+        0
+    );
+
+    assert.equal(
+        box.cleared.length,
+        0,
+        'Missing checkpoint recovery must leave the durable subject untouched for the emergency foreground path.'
+    );
+
+    assert.equal(
+        box.windowObject
+            .AtlasSubjectBuildResurrection
+            .isEstablishing(
+                'subject-resume',
+                'building'
+            ),
+        false,
+        'Once discovery completes, a missing checkpoint must fall back to Continue building rather than pretend the worker is live.'
+    );
+}
+
 async function testSignedOutLoadedAccountStaysDormant() {
     const box =
         createSandbox();
@@ -1163,6 +1287,8 @@ async function testSignOutClearsResurrectionProjection() {
     await testOfflineFailureRetriesOnReconnect();
     await testSeveralUnfinishedSubjectsPreserveDiscoveryOrder();
     await testRepeatedWorkerFailurePausesDurableLifecycle();
+    await testColdOpenOfflineRetriesAfterReconnect();
+    await testMissingCheckpointPreservesManualRecovery();
     await testSignedOutLoadedAccountStaysDormant();
     await testReadyCompletionIsSurfaceIndependent();
     await testUnsupportedWorkerPreservesFallback();
