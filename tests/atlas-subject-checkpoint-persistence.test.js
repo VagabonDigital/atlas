@@ -269,6 +269,8 @@ async function loadAuthority({
         }
     };
 
+    const updateCalls = [];
+
     const cloud = {
         async getOwnedSubject(id) {
             return id === subject.id
@@ -288,6 +290,69 @@ async function loadAuthority({
                     )
                 )
             ];
+        },
+
+        async updateOwnedSubject(
+            record,
+            expectedRevision
+        ) {
+            if (
+                subject.revision !==
+                    expectedRevision
+            ) {
+                const error =
+                    new Error(
+                        'Revision conflict'
+                    );
+
+                error.code =
+                    'ATLAS_REVISION_CONFLICT';
+
+                throw error;
+            }
+
+            updateCalls.push({
+                record:
+                    JSON.parse(
+                        JSON.stringify(
+                            record
+                        )
+                    ),
+                expectedRevision
+            });
+
+            subject.metadata =
+                JSON.parse(
+                    JSON.stringify(
+                        record.metadata ||
+                        {}
+                    )
+                );
+
+            subject.document =
+                JSON.parse(
+                    JSON.stringify(
+                        record.document
+                    )
+                );
+
+            subject.provenance =
+                record.provenance
+                    ? JSON.parse(
+                        JSON.stringify(
+                            record.provenance
+                        )
+                    )
+                    : null;
+
+            subject.revision =
+                expectedRevision + 1;
+
+            return JSON.parse(
+                JSON.stringify(
+                    subject
+                )
+            );
         }
     };
 
@@ -347,7 +412,8 @@ async function loadAuthority({
     return {
         Subjects:
             window.AtlasTutorSubjects,
-        subject
+        subject,
+        updateCalls
     };
 }
 
@@ -538,6 +604,73 @@ async function verifyFullLocalStorageDoesNotBlockGeneration() {
     );
 }
 
+async function verifyExactRevisionBoundary() {
+    const storage =
+        new FullLocalStorage();
+
+    const indexedDB =
+        createFakeIndexedDB();
+
+    const {
+        Subjects,
+        subject,
+        updateCalls
+    } =
+        await loadAuthority({
+            storage,
+            indexedDB
+        });
+
+    const saved =
+        await Subjects
+            .updateSubjectAtRevision(
+                'subject-active',
+                {
+                    metadata: {
+                        aiBuildStatus:
+                            'complete'
+                    }
+                },
+                3
+            );
+
+    assert.equal(
+        saved?.revision,
+        4
+    );
+
+    assert.equal(
+        updateCalls[0]
+            ?.expectedRevision,
+        3,
+        'Automatic completion must send the checkpoint revision to the server-owned optimistic lock.'
+    );
+
+    await assert.rejects(
+        () =>
+            Subjects
+                .updateSubjectAtRevision(
+                    'subject-active',
+                    {
+                        metadata: {
+                            aiBuildStatus:
+                                'paused'
+                        }
+                    },
+                    3
+                ),
+        error =>
+            error?.code ===
+                'ATLAS_REVISION_CONFLICT',
+        'A stale checkpoint revision must fail closed instead of overwriting newer cloud state.'
+    );
+
+    assert.equal(
+        subject.revision,
+        4
+    );
+}
+
 assert.match(
     authoritySource,
     /BROWSER_STATE_DB_NAME = 'atlas-tutor-subjects'/
@@ -579,10 +712,13 @@ assert.match(
     /isCheckpointStorageFailure[\s\S]*?showRetryButton\(true\)[\s\S]*?return;/
 );
 
-verifyFullLocalStorageDoesNotBlockGeneration()
+Promise.all([
+    verifyFullLocalStorageDoesNotBlockGeneration(),
+    verifyExactRevisionBoundary()
+])
     .then(() => {
         console.log(
-            'Atlas subject persistence contract passed: full localStorage no longer blocks signed-in subject generation, legacy full-document state migrates to IndexedDB, cloud-backed legacy subject copies are reclaimed, and checkpoint recovery remains explicit.'
+            'Atlas subject persistence contract passed: full localStorage no longer blocks signed-in subject generation, generation context survives the canonical IndexedDB checkpoint, exact-revision completion fails closed on stale cloud state, legacy full-document state migrates safely, and cloud-backed legacy subject copies are reclaimed.'
         );
     })
     .catch(error => {
