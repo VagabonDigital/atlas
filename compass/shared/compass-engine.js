@@ -540,6 +540,61 @@ function isOwnedSubjectRuntime() {
     return getCompassSubjectRuntime().source === 'owned';
 }
 
+async function updateOwnedSubjectAtRuntimeRevision(
+    patch = {}
+) {
+    if (!isOwnedSubjectRuntime()) {
+        return null;
+    }
+
+    const Subjects =
+        requireAtlasTutorSubjects();
+
+    if (
+        typeof Subjects
+            .updateSubjectAtRevision !==
+            'function'
+    ) {
+        const error = new Error(
+            'Atlas owned-subject revision guard is unavailable.'
+        );
+
+        error.code =
+            'ATLAS_REVISION_GUARD_UNAVAILABLE';
+
+        throw error;
+    }
+
+    const expectedRevision =
+        Math.max(
+            1,
+            Math.floor(
+                Number(
+                    getCompassSubjectRuntime()
+                        ?.revision
+                ) || 0
+            )
+        );
+
+    if (!expectedRevision) {
+        const error = new Error(
+            'Atlas owned-subject save is missing its revision boundary.'
+        );
+
+        error.code =
+            'ATLAS_REVISION_REQUIRED';
+
+        throw error;
+    }
+
+    return Subjects
+        .updateSubjectAtRevision(
+            MODULE.id,
+            patch,
+            expectedRevision
+        );
+}
+
 function getCompassSubjectPublicAccess() {
     if (isOwnedSubjectRuntime()) {
         return 'full';
@@ -3049,9 +3104,7 @@ async function saveMyVersion(options = {}) {
             'My Subject'
         );
 
-        saved = await requireAtlasTutorSubjects()
-            .updateSubject(
-                MODULE.id,
+        saved = await updateOwnedSubjectAtRuntimeRevision(
                 {
                     metadata: {
                         title:
@@ -7165,16 +7218,14 @@ async function setMyVersionAiBuildStatus(status) {
     const saved =
         await queueTutorContentWrite(
             async () =>
-                requireAtlasTutorSubjects()
-                    .updateSubject(
-                        MODULE.id,
-                        {
-                            metadata: {
-                                aiBuildStatus:
-                                    nextStatus
-                            }
+                updateOwnedSubjectAtRuntimeRevision(
+                    {
+                        metadata: {
+                            aiBuildStatus:
+                                nextStatus
                         }
-                    )
+                    }
+                )
         );
 
     if (!saved) {
@@ -12816,16 +12867,14 @@ function startCurrentAffairsReadMoreEnrichment() {
                 const saved =
                     await queueTutorContentWrite(
                         async () =>
-                            requireAtlasTutorSubjects()
-                                .updateSubject(
-                                    MODULE.id,
-                                    {
-                                        metadata: {
-                                            generationContext:
-                                                nextGenerationContext
-                                        }
+                            updateOwnedSubjectAtRuntimeRevision(
+                                {
+                                    metadata: {
+                                        generationContext:
+                                            nextGenerationContext
                                     }
-                                )
+                                }
+                            )
                     );
 
                 if (!saved) {
