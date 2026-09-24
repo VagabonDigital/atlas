@@ -45,11 +45,7 @@
     let scanPromise = null;
     let currentUserId = '';
     let bootstrapping =
-        Boolean(
-            window.AtlasAccount ||
-            hasStoredSession() ||
-            hasOAuthSessionInUrl()
-        );
+        hasAuthenticatedRuntimeHint();
 
     function cloneJson(value) {
         if (value === null || value === undefined) {
@@ -99,19 +95,31 @@
     }
 
     function hasAuthenticatedRuntimeHint() {
-        if (
+        const accountState =
             window.AtlasAccount
-                ?.getState?.()
+                ?.getState?.() ||
+            null;
+
+        if (
+            accountState
                 ?.authenticated ===
             true
         ) {
             return true;
         }
 
+        if (
+            accountState
+                ?.ready ===
+            true
+        ) {
+            return false;
+        }
+
         return Boolean(
-            window.AtlasAccount ||
             hasStoredSession() ||
-            hasOAuthSessionInUrl()
+            hasOAuthSessionInUrl() ||
+            window.AtlasAccount
         );
     }
 
