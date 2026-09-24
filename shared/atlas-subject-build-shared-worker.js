@@ -142,6 +142,46 @@ function pagesForUser(userId) {
     );
 }
 
+function clearQueueForUser(userId) {
+    const id =
+        clean(userId);
+
+    if (!id) return;
+
+    Array.from(
+        queueByKey.entries()
+    ).forEach(
+        ([key, job]) => {
+            if (
+                job?.userId ===
+                id
+            ) {
+                queueByKey.delete(
+                    key
+                );
+            }
+        }
+    );
+
+    for (
+        let index =
+            queueOrder.length - 1;
+        index >= 0;
+        index -= 1
+    ) {
+        if (
+            !queueByKey.has(
+                queueOrder[index]
+            )
+        ) {
+            queueOrder.splice(
+                index,
+                1
+            );
+        }
+    }
+}
+
 function pruneAuthForUser(userId) {
     const id = clean(userId);
 
@@ -977,6 +1017,14 @@ function handleAuthClear(
 
     if (previousUserId) {
         authByUser.delete(
+            previousUserId
+        );
+
+        clearQueueForUser(
+            previousUserId
+        );
+
+        publishQueueState(
             previousUserId
         );
     }
