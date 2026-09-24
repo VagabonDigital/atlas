@@ -150,7 +150,12 @@ assert.match(
 
 assert.match(
     hub,
-    /atlas:subject-runtime-message[\s\S]*?build-heartbeat[\s\S]*?build-stop[\s\S]*?subject-changed/
+    /async function handleSubjectRuntimeMessage\([\s\S]*?build-heartbeat[\s\S]*?build-stop[\s\S]*?subject-changed/
+);
+
+assert.match(
+    hub,
+    /atlas:subject-runtime-message[\s\S]*?handleSubjectRuntimeMessage/
 );
 
 assert.match(
