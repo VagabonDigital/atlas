@@ -789,6 +789,137 @@ async function testOfflineFailureRetriesOnReconnect() {
     );
 }
 
+async function testUnsupportedWorkerPreservesFallback() {
+    const box =
+        createSandbox({
+            supported:
+                false
+        });
+
+    vm.runInNewContext(
+        resurrectionSource,
+        box.context
+    );
+
+    await flush();
+    await flush();
+
+    assert.equal(
+        box.enqueued.length,
+        0,
+        'Unsupported SharedWorker browsers must not attempt background resurrection.'
+    );
+
+    assert.equal(
+        box.windowObject
+            .AtlasSubjectBuildResurrection
+            .isBootstrapping(),
+        false
+    );
+}
+
+async function testNoWebLocksFailsCompletionClosed() {
+    const box =
+        createSandbox({
+            webLocks:
+                false
+        });
+
+    vm.runInNewContext(
+        resurrectionSource,
+        box.context
+    );
+
+    await flush();
+    await flush();
+
+    box.buildStates
+        .get('subject-resume')
+        .completedStep =
+        18;
+
+    const completed =
+        await box.windowObject
+            .AtlasSubjectBuildResurrection
+            .completeReadyBuild(
+                'subject-resume'
+            );
+
+    assert.equal(
+        completed,
+        false
+    );
+
+    assert.equal(
+        box.updates.length,
+        0
+    );
+
+    assert.equal(
+        box.cleared.length,
+        0,
+        'Without canonical Web Locks Atlas must preserve the checkpoint rather than guess at completion ownership.'
+    );
+}
+
+async function testSignOutClearsResurrectionProjection() {
+    const box =
+        createSandbox();
+
+    vm.runInNewContext(
+        resurrectionSource,
+        box.context
+    );
+
+    await flush();
+    await flush();
+
+    assert.ok(
+        box.windowObject
+            .AtlasSubjectBuildResurrection
+            .getState()
+            .userId
+    );
+
+    box.windowObject
+        .dispatchEvent(
+            new box.context
+                .CustomEvent(
+                    'atlas:account-change',
+                    {
+                        detail: {
+                            ready:
+                                true,
+                            authenticated:
+                                false,
+                            userId:
+                                null
+                        }
+                    }
+                )
+        );
+
+    const state =
+        box.windowObject
+            .AtlasSubjectBuildResurrection
+            .getState();
+
+    assert.equal(
+        state.userId,
+        null
+    );
+
+    assert.deepEqual(
+        state.establishing,
+        []
+    );
+
+    assert.deepEqual(
+        state.blocked,
+        []
+    );
+}
+
 (async () => {
     assert.match(
         resurrectionSource,
@@ -818,6 +949,9 @@ async function testOfflineFailureRetriesOnReconnect() {
     await testAutomaticWakeAndCompletion();
     await testRevisionConflictFailsClosed();
     await testOfflineFailureRetriesOnReconnect();
+    await testUnsupportedWorkerPreservesFallback();
+    await testNoWebLocksFailsCompletionClosed();
+    await testSignOutClearsResurrectionProjection();
 
     console.log(
         'Atlas Batch 5 resurrection passed: authenticated shared discovery wakes unfinished building subjects, paused recovery remains manual, worker generation context survives through checkpoint completion, exact cloud revisions guard automatic completion, and offline failure retries after reconnect.'
