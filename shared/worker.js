@@ -345,6 +345,34 @@ function getAtlasPaddleEnvironment(env) {
         .toLowerCase();
 }
 
+function getAtlasPaddleApiKey(
+    env,
+    paddleEnvironment = getAtlasPaddleEnvironment(env)
+) {
+    const keyName =
+        paddleEnvironment === 'live'
+            ? 'ATLAS_PADDLE_LIVE_API_KEY'
+            : 'ATLAS_PADDLE_API_KEY';
+
+    return String(
+        env[keyName] || ''
+    ).trim();
+}
+
+function getAtlasPaddleWebhookSecret(
+    env,
+    paddleEnvironment = getAtlasPaddleEnvironment(env)
+) {
+    const secretName =
+        paddleEnvironment === 'live'
+            ? 'ATLAS_PADDLE_LIVE_WEBHOOK_SECRET'
+            : 'ATLAS_PADDLE_WEBHOOK_SECRET';
+
+    return String(
+        env[secretName] || ''
+    ).trim();
+}
+
 function getAtlasPaddleApiBase(environment) {
     return environment === 'sandbox'
         ? 'https://sandbox-api.paddle.com'
@@ -898,9 +926,10 @@ async function createAtlasPaddlePortalSession(
     subscriptionId
 ) {
     const apiKey =
-        String(
-            env.ATLAS_PADDLE_API_KEY || ''
-        ).trim();
+        getAtlasPaddleApiKey(
+            env,
+            paddleEnvironment
+        );
 
     if (!apiKey) {
         throw new Error(
@@ -1007,9 +1036,10 @@ async function updateAtlasPaddleSubscription(
     action
 ) {
     const apiKey =
-        String(
-            env.ATLAS_PADDLE_API_KEY || ''
-        ).trim();
+        getAtlasPaddleApiKey(
+            env,
+            paddleEnvironment
+        );
 
     if (!apiKey) {
         throw new Error(
@@ -1131,9 +1161,10 @@ async function createAtlasPaddlePaymentMethodTransaction(
     subscriptionId
 ) {
     const apiKey =
-        String(
-            env.ATLAS_PADDLE_API_KEY || ''
-        ).trim();
+        getAtlasPaddleApiKey(
+            env,
+            paddleEnvironment
+        );
 
     if (!apiKey) {
         throw new Error(
@@ -1202,9 +1233,10 @@ async function cancelAtlasPaddlePaymentMethodPreparation(
     transactionId
 ) {
     const apiKey =
-        String(
-            env.ATLAS_PADDLE_API_KEY || ''
-        ).trim();
+        getAtlasPaddleApiKey(
+            env,
+            paddleEnvironment
+        );
 
     if (!apiKey) {
         throw new Error(
@@ -1378,9 +1410,10 @@ async function listAtlasPaddleSubscriptionPayments(
     subscriptionId
 ) {
     const apiKey =
-        String(
-            env.ATLAS_PADDLE_API_KEY || ''
-        ).trim();
+        getAtlasPaddleApiKey(
+            env,
+            paddleEnvironment
+        );
 
     if (!apiKey) {
         throw new Error(
@@ -1678,9 +1711,10 @@ async function createAtlasPaddleInvoiceUrl(
     }
 
     const apiKey =
-        String(
-            env.ATLAS_PADDLE_API_KEY || ''
-        ).trim();
+        getAtlasPaddleApiKey(
+            env,
+            paddleEnvironment
+        );
 
     const response =
         await fetch(
@@ -2176,10 +2210,10 @@ export default {
                     .toLowerCase();
 
             const webhookSecret =
-                String(
-                    env.ATLAS_PADDLE_WEBHOOK_SECRET ||
-                    ''
-                ).trim();
+                getAtlasPaddleWebhookSecret(
+                    env,
+                    paddleEnvironment
+                );
 
             if (
                 !['sandbox', 'live'].includes(
@@ -2547,10 +2581,10 @@ export default {
             }
 
             if (
-                !String(
-                    env.ATLAS_PADDLE_API_KEY ||
-                    ''
-                ).trim()
+                !getAtlasPaddleApiKey(
+                    env,
+                    paddleEnvironment
+                )
             ) {
                 return jsonNoStore(
                     {
