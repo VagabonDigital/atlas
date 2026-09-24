@@ -1077,7 +1077,7 @@ function testBootstrapContract() {
     await testWorkerClient();
 
     console.log(
-        'Atlas SharedWorker Batch 2 foundation passed: root/Compass/Arcade/subject share one client bootstrap, two tabs reach one worker, page-owned auth supplies only short-lived access tokens, worker checkpoint reads use the existing IndexedDB journal, page-held build locks block worker queue ownership, token refresh requests return to connected pages, and unsupported browsers preserve the existing recovery path without enabling background AI generation.'
+        'Atlas SharedWorker Batch 2 foundation passed: root/Compass/Arcade/subject share one client bootstrap, two tabs reach one worker, page-owned auth supplies only short-lived access tokens, worker checkpoint reads use the existing IndexedDB journal, page-held build locks block worker queue ownership, token refresh requests return to connected pages, and unsupported browsers preserve the existing page-owned recovery path.'
     );
 })().catch(error => {
     console.error(error);
