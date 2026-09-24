@@ -17,10 +17,10 @@
    - AI generation
    ============================================================ */
 
-(function () {
+(function (root) {
     'use strict';
 
-    if (window.AtlasStructuredSubject) return;
+    if (root.AtlasStructuredSubject) return;
 
     const SCHEMA_VERSION = 1;
     const DISCUSSION_FOLLOW_UP_LIMIT = 3;
@@ -45,9 +45,9 @@
 
     function createId(prefix) {
         const suffix =
-            window.crypto &&
-            typeof window.crypto.randomUUID === 'function'
-                ? window.crypto.randomUUID()
+            root.crypto &&
+            typeof root.crypto.randomUUID === 'function'
+                ? root.crypto.randomUUID()
                 : `${Date.now()}-${Math.random()
                     .toString(36)
                     .slice(2, 10)}`;
@@ -1046,7 +1046,7 @@
         ).trim() || 'https://thumbs.dreamstime.com/b/compass-gold-center-blue-arrow-purple-compass-rose-set-against-rainbow-colors-vintage-compass-colorful-background-359049338.jpg?w=992';
     }
 
-    window.AtlasStructuredSubject = {
+    root.AtlasStructuredSubject = {
         schemaVersion: SCHEMA_VERSION,
         resolveCoverImage,
 
@@ -1061,4 +1061,8 @@
 
         cloneDocument: cloneJson
     };
-})();
+})(
+    typeof globalThis !== 'undefined'
+        ? globalThis
+        : self
+);
