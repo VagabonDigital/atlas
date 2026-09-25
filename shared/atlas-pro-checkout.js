@@ -1412,6 +1412,8 @@
                             checkoutTheme,
                         showAddTaxId:
                             false,
+                        showAddDiscounts:
+                            false,
                         frameTarget:
                             'atlas-pro-checkout-inline-frame',
                         frameInitialHeight:
@@ -1427,6 +1429,8 @@
                         theme:
                             checkoutTheme,
                         showAddTaxId:
+                            false,
+                        showAddDiscounts:
                             false
                     };
 
