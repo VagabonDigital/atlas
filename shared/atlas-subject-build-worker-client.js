@@ -40,6 +40,12 @@
     const REQUEST_TIMEOUT_MS =
         5000;
 
+    const DEBUG_TRACE_STORAGE_KEY =
+        'atlas::batch5BuildTrace::v1';
+
+    const DEBUG_TRACE_LIMIT =
+        250;
+
     const listeners =
         new Set();
 
@@ -97,6 +103,79 @@
         return JSON.parse(
             JSON.stringify(value)
         );
+    }
+
+    function readDebugTrace() {
+        try {
+            const parsed =
+                JSON.parse(
+                    sessionStorage.getItem(
+                        DEBUG_TRACE_STORAGE_KEY
+                    ) ||
+                    '[]'
+                );
+
+            return Array.isArray(parsed)
+                ? parsed
+                : [];
+        } catch {
+            return [];
+        }
+    }
+
+    function traceDebug(
+        stage,
+        detail = {}
+    ) {
+        const entry = {
+            at:
+                Date.now(),
+            iso:
+                new Date()
+                    .toISOString(),
+            pageId,
+            surface,
+            stage:
+                String(
+                    stage || ''
+                ).trim(),
+            detail:
+                cloneJson(
+                    detail
+                ) || {}
+        };
+
+        try {
+            const trace =
+                readDebugTrace();
+
+            trace.push(entry);
+
+            sessionStorage.setItem(
+                DEBUG_TRACE_STORAGE_KEY,
+                JSON.stringify(
+                    trace.slice(
+                        -DEBUG_TRACE_LIMIT
+                    )
+                )
+            );
+        } catch { }
+
+        return entry;
+    }
+
+    function clearDebugTrace() {
+        try {
+            sessionStorage.removeItem(
+                DEBUG_TRACE_STORAGE_KEY
+            );
+        } catch { }
+
+        traceDebug(
+            'trace:cleared'
+        );
+
+        return true;
     }
 
     function isObject(value) {
@@ -562,6 +641,109 @@
             String(
                 message.type || ''
             ).trim();
+
+        if (
+            [
+                'worker-ready',
+                'queue-state',
+                'build-liveness',
+                'build-started',
+                'build-checkpoint',
+                'build-ready',
+                'build-failed',
+                'foreground-yield-pending',
+                'foreground-granted',
+                'foreground-denied',
+                'worker-state'
+            ].includes(type)
+        ) {
+            traceDebug(
+                'worker:' + type,
+                {
+                    subjectId:
+                        message.subjectId ||
+                        message
+                            .activeBuild
+                            ?.subjectId ||
+                        null,
+                    requestId:
+                        message.requestId ||
+                        null,
+                    completedStep:
+                        Number.isFinite(
+                            Number(
+                                message.completedStep
+                            )
+                        )
+                            ? Number(
+                                message.completedStep
+                            )
+                            : (
+                                Number.isFinite(
+                                    Number(
+                                        message
+                                            .activeBuild
+                                            ?.completedStep
+                                    )
+                                )
+                                    ? Number(
+                                        message
+                                            .activeBuild
+                                            .completedStep
+                                    )
+                                    : null
+                            ),
+                    readyToCommit:
+                        message.readyToCommit ===
+                        true,
+                    noWorkerJob:
+                        message.noWorkerJob ===
+                        true,
+                    reason:
+                        message.reason ||
+                        null,
+                    activeBuild:
+                        cloneJson(
+                            message.activeBuild ||
+                            null
+                        ),
+                    queue:
+                        Array.isArray(
+                            message.queue
+                        )
+                            ? message.queue.map(
+                                job => ({
+                                    subjectId:
+                                        job?.subjectId ||
+                                        null,
+                                    status:
+                                        job?.status ||
+                                        null,
+                                    completedStep:
+                                        Number.isFinite(
+                                            Number(
+                                                job
+                                                    ?.completedStep
+                                            )
+                                        )
+                                            ? Number(
+                                                job
+                                                    .completedStep
+                                            )
+                                            : null,
+                                    lockState:
+                                        job?.lockState ||
+                                        null,
+                                    foregroundOwnerPageId:
+                                        job
+                                            ?.foregroundOwnerPageId ||
+                                        null
+                                })
+                            )
+                            : null
+                }
+            );
+        }
 
         if (
             message.workerVersion
@@ -1598,6 +1780,19 @@
             );
         }
 
+        traceDebug(
+            'client:foreground-request',
+            {
+                subjectId:
+                    id,
+                reason:
+                    String(
+                        reason || ''
+                    ).trim() ||
+                    'subject-open'
+            }
+        );
+
         return request(
             'request-foreground-ownership',
             {
@@ -1611,6 +1806,47 @@
             },
             {
                 timeoutMs
+            }
+        ).then(
+            grant => {
+                traceDebug(
+                    'client:foreground-resolved',
+                    {
+                        subjectId:
+                            id,
+                        completedStep:
+                            grant
+                                ?.completedStep ??
+                            null,
+                        readyToCommit:
+                            grant
+                                ?.readyToCommit ===
+                            true,
+                        noWorkerJob:
+                            grant
+                                ?.noWorkerJob ===
+                            true
+                    }
+                );
+
+                return grant;
+            },
+            error => {
+                traceDebug(
+                    'client:foreground-rejected',
+                    {
+                        subjectId:
+                            id,
+                        error:
+                            String(
+                                error
+                                    ?.message ||
+                                error
+                            )
+                    }
+                );
+
+                throw error;
             }
         );
     }
@@ -1845,6 +2081,10 @@
             sendCurrentAuth,
             getState:
                 snapshot,
+            getDebugTrace:
+                readDebugTrace,
+            clearDebugTrace,
+            traceDebug,
             subscribe,
             destroy
         });
