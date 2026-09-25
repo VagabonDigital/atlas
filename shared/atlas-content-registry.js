@@ -1305,7 +1305,7 @@
 
             if (needsSubjects && !window.AtlasCloudCache) {
                 await loadRuntimeScript(
-                    '/shared/atlas-cloud-cache.js?v=20260924-browserstate2',
+                    '/shared/atlas-cloud-cache.js?v=20260925-storagehygiene1',
                     'AtlasCloudCache'
                 );
             }
@@ -1482,7 +1482,7 @@
 
         if (needsSubjects && !window.AtlasCloudCache) {
             scripts.push(
-                '<script src="/shared/atlas-cloud-cache.js?v=20260924-browserstate2"><\/script>'
+                '<script src="/shared/atlas-cloud-cache.js?v=20260925-storagehygiene1"><\/script>'
             );
         }
 

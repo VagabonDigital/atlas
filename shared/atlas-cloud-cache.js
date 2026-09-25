@@ -322,7 +322,7 @@
         const key = hubCacheKey(activeUserId);
         if (!key) return false;
 
-        const written =
+        let written =
             writeJson(
                 localStorage,
                 key,
@@ -331,9 +331,32 @@
 
         if (!written) {
             /*
+             * localStorage is only a hot presentation layer. Reclaim
+             * disposable account projections, drop the previous Compass
+             * snapshot, and retry once before accepting a cold-load fallback.
+             */
+            try {
+                window.AtlasPersistenceTrust
+                    ?.reclaimBrowserProjectionStorage
+                    ?.(activeUserId);
+            } catch { }
+
+            removePersistentHubCache(
+                activeUserId
+            );
+
+            written =
+                writeJson(
+                    localStorage,
+                    key,
+                    snapshot
+                );
+        }
+
+        if (!written) {
+            /*
              * A stale first-paint snapshot is worse than no snapshot.
-             * If browser storage cannot accept the authoritative mutation,
-             * remove the previous cache so Compass falls back to fresh data.
+             * If the rebuilt snapshot itself cannot fit, leave no stale cache.
              */
             removePersistentHubCache(
                 activeUserId
@@ -563,6 +586,164 @@
             .filter(Boolean);
     }
 
+    function reconcileOwnedSubjectRegistryProjection(
+        summaries
+    ) {
+        const Bridge =
+            window.AtlasBridge;
+
+        if (
+            !Bridge ||
+            typeof Bridge.readRegistry !==
+                'function' ||
+            typeof Bridge.writeRegistry !==
+                'function'
+        ) {
+            return false;
+        }
+
+        const ownedIds =
+            new Set(
+                (Array.isArray(summaries)
+                    ? summaries
+                    : []
+                )
+                    .map(summary =>
+                        String(
+                            summary?.id || ''
+                        ).trim()
+                    )
+                    .filter(Boolean)
+            );
+
+        try {
+            const registry =
+                Bridge.readRegistry();
+
+            const items =
+                registry?.items &&
+                typeof registry.items ===
+                    'object' &&
+                !Array.isArray(
+                    registry.items
+                )
+                    ? registry.items
+                    : {};
+
+            const staleRegistryIds =
+                new Set();
+
+            Object.entries(items)
+                .forEach(
+                    ([
+                        registryId,
+                        item
+                    ]) => {
+                        if (
+                            item?.world !==
+                                'compass' ||
+                            item?.type !==
+                                'subject' ||
+                            item
+                                ?.ownershipKind !==
+                                'my-subject'
+                        ) {
+                            return;
+                        }
+
+                        const subjectId =
+                            String(
+                                item.id || ''
+                            ).trim();
+
+                        if (
+                            subjectId &&
+                            !ownedIds.has(
+                                subjectId
+                            )
+                        ) {
+                            staleRegistryIds
+                                .add(
+                                    registryId
+                                );
+
+                            delete items[
+                                registryId
+                            ];
+                        }
+                    }
+                );
+
+            if (!staleRegistryIds.size) {
+                return false;
+            }
+
+            Object.keys(
+                registry.sessionStates || {}
+            ).forEach(sessionId => {
+                const states =
+                    registry.sessionStates[
+                        sessionId
+                    ];
+
+                if (
+                    !states ||
+                    typeof states !==
+                        'object'
+                ) {
+                    return;
+                }
+
+                staleRegistryIds
+                    .forEach(
+                        registryId => {
+                            delete states[
+                                registryId
+                            ];
+                        }
+                    );
+
+                if (
+                    Object.keys(states)
+                        .length === 0
+                ) {
+                    delete registry
+                        .sessionStates[
+                            sessionId
+                        ];
+                }
+            });
+
+            if (
+                Array.isArray(
+                    registry.recentActivity
+                )
+            ) {
+                registry.recentActivity =
+                    registry.recentActivity
+                        .filter(
+                            activity =>
+                                !staleRegistryIds
+                                    .has(
+                                        String(
+                                            activity
+                                                ?.registryId ||
+                                            ''
+                                        )
+                                    )
+                        );
+            }
+
+            Bridge.writeRegistry(
+                registry
+            );
+
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
     function revalidateHubInBackground() {
         const userId = activeUserId || fastStoredUserScope();
         if (!userId || revalidationPromise) return revalidationPromise;
@@ -582,6 +763,10 @@
                 ) {
                     return false;
                 }
+
+                reconcileOwnedSubjectRegistryProjection(
+                    summaries
+                );
 
                 const previousSummaries = JSON.stringify(
                     cachedSummaryList()
@@ -642,6 +827,10 @@
         const summaries =
             await fetchFreshSummaries(userId);
 
+        reconcileOwnedSubjectRegistryProjection(
+            summaries
+        );
+
         if (activeUserId !== userId) {
             return [];
         }
@@ -697,7 +886,15 @@
 
         if (!summaryListPromise) {
             summaryListPromise = fetchFreshSummaries(userId)
-                .then(summaries => storeSummaryList(summaries))
+                .then(summaries => {
+                    reconcileOwnedSubjectRegistryProjection(
+                        summaries
+                    );
+
+                    return storeSummaryList(
+                        summaries
+                    );
+                })
                 .catch(error => {
                     clearSummaryCache();
                     throw error;

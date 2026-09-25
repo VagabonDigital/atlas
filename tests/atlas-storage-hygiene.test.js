@@ -574,12 +574,22 @@ assert.match(
 
 assert.match(
     cloudCacheSource,
+    /reclaimBrowserProjectionStorage/
+);
+
+assert.match(
+    cloudCacheSource,
+    /reconcileOwnedSubjectRegistryProjection/
+);
+
+assert.match(
+    cloudCacheSource,
     /readSubjectBrowserState\([\s\S]*?'build-checkpoint'/
 );
 
 assert.match(
     registrySource,
-    /atlas-cloud-cache\.js\?v=20260922-delete1/
+    /atlas-cloud-cache\\.js\\?v=20260925-storagehygiene1/
 );
 
 assert.match(

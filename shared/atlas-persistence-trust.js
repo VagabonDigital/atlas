@@ -28,6 +28,24 @@
         'atlas::persistenceTrust::scopeOwner::v1';
     const SCOPED_PREFIX =
         'atlas::persistenceTrust::scoped::v1::';
+    const COMPASS_HUB_CACHE_PREFIX =
+        'atlas::compassHubCache::v1::';
+
+    /*
+     * These are signed-in browser projections, not durable authorities.
+     * They can be rebuilt from Atlas's static catalog + Supabase and are
+     * therefore safe to discard for inactive accounts.
+     *
+     * Deliberately excluded: working drafts, build checkpoints, pending
+     * deletes, and every other recovery / unfinished-work key.
+     */
+    const RECLAIMABLE_ACCOUNT_PROJECTION_KEYS =
+        new Set([
+            'atlas::registry',
+            'learning::ledger',
+            'atlas::learnerMemory'
+        ]);
+
     const RECOVERY_SESSION_KEY =
         'atlas::accountPasswordRecovery';
 
@@ -231,6 +249,141 @@
         } catch {
             return '';
         }
+    }
+
+    function parseScopedStorageKey(scopedKey) {
+        const value = String(scopedKey || '');
+
+        if (!value.startsWith(SCOPED_PREFIX)) {
+            return null;
+        }
+
+        const remainder =
+            value.slice(SCOPED_PREFIX.length);
+
+        const separatorIndex =
+            remainder.indexOf('::');
+
+        if (separatorIndex <= 0) {
+            return null;
+        }
+
+        try {
+            const scope =
+                decodeURIComponent(
+                    remainder.slice(
+                        0,
+                        separatorIndex
+                    )
+                );
+
+            const originalKey =
+                decodeURIComponent(
+                    remainder.slice(
+                        separatorIndex + 2
+                    )
+                );
+
+            return {
+                scope,
+                originalKey
+            };
+        } catch {
+            return null;
+        }
+    }
+
+    function reclaimBrowserProjectionStorage(
+        userId = storedSessionUserId()
+    ) {
+        const id =
+            String(userId || '').trim();
+
+        if (!id) {
+            return {
+                removedKeys: 0
+            };
+        }
+
+        const currentScope =
+            scopeForUserId(id);
+
+        let removedKeys = 0;
+
+        storageKeys(localStorage).forEach(key => {
+            /*
+             * A Compass hub snapshot is a pure presentation cache.
+             * Keep only the active account's snapshot.
+             */
+            if (
+                key.startsWith(
+                    COMPASS_HUB_CACHE_PREFIX
+                )
+            ) {
+                const ownerId =
+                    key.slice(
+                        COMPASS_HUB_CACHE_PREFIX
+                            .length
+                    );
+
+                if (
+                    ownerId &&
+                    ownerId !== id &&
+                    storageRemove(
+                        localStorage,
+                        key
+                    )
+                ) {
+                    removedKeys += 1;
+                }
+
+                return;
+            }
+
+            const parsed =
+                parseScopedStorageKey(key);
+
+            if (
+                !parsed ||
+                !RECLAIMABLE_ACCOUNT_PROJECTION_KEYS
+                    .has(parsed.originalKey)
+            ) {
+                return;
+            }
+
+            const isInactiveAccount =
+                parsed.scope.startsWith('user:') &&
+                parsed.scope !== currentScope;
+
+            /*
+             * While a scope is active, its generic key is the live projection.
+             * A same-scope stashed copy beside that live key is redundant and
+             * can otherwise survive a quota-constrained restore indefinitely.
+             */
+            const isDuplicateActiveProjection =
+                parsed.scope === currentScope &&
+                storageGet(
+                    localStorage,
+                    parsed.originalKey
+                ) !== null;
+
+            if (
+                (
+                    isInactiveAccount ||
+                    isDuplicateActiveProjection
+                ) &&
+                storageRemove(
+                    localStorage,
+                    key
+                )
+            ) {
+                removedKeys += 1;
+            }
+        });
+
+        return {
+            removedKeys
+        };
     }
 
     function recordFailure({
@@ -439,6 +592,9 @@
             if (previousScope === nextScope) {
                 activeScope = nextScope;
                 writeScopeOwner(nextScope);
+                reclaimBrowserProjectionStorage(
+                    userId
+                );
                 return getState();
             }
         }
@@ -446,6 +602,9 @@
         if (previousScope === nextScope) {
             activeScope = nextScope;
             writeScopeOwner(nextScope);
+            reclaimBrowserProjectionStorage(
+                userId
+            );
             return getState();
         }
 
@@ -455,6 +614,15 @@
 
         activeScope = nextScope;
         writeScopeOwner(nextScope);
+
+        /*
+         * Cloud-backed cold projections from inactive accounts are not worth
+         * reserving localStorage quota. Recovery-only state remains untouched.
+         */
+        reclaimBrowserProjectionStorage(
+            userId
+        );
+
         dispatchScopeChange(previousScope, nextScope);
 
         return getState();
@@ -600,6 +768,7 @@
     window.AtlasPersistenceTrust = Object.freeze({
         syncScope,
         syncScopeForUser,
+        reclaimBrowserProjectionStorage,
         refreshKnownAuthorities,
         getState,
         clearLastFailure

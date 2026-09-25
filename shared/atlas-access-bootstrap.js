@@ -21,7 +21,7 @@
         access: '/shared/atlas-access.js?v=20260916-access1',
         cloud: '/shared/atlas-cloud.js?v=20260916-access1',
         account: '/shared/atlas-account.js?v=20260921-insideheader1',
-        persistenceTrust: '/shared/atlas-persistence-trust.js?v=20260924-anonscoperepair1',
+        persistenceTrust: '/shared/atlas-persistence-trust.js?v=20260925-storagehygiene1',
         capabilityGate: '/shared/atlas-capability-gate.js?v=20260921-insideheader1'
     });
 
