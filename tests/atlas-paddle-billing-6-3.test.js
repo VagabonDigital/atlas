@@ -58,11 +58,11 @@ assert.match(
 );
 assert.match(
   config,
-  /environment === 'sandbox'[\s\S]*clientToken\.startsWith\('test_'\)/
+  /environment === 'sandbox'[\s\S]*selected\?\.clientToken[\s\S]*\?\.startsWith\('test_'\)/
 );
 assert.match(
   config,
-  /environment === 'live'[\s\S]*clientToken\.startsWith\('live_'\)/
+  /environment === 'live'[\s\S]*selected\?\.clientToken[\s\S]*\?\.startsWith\('live_'\)/
 );
 assert.match(
   checkout,
