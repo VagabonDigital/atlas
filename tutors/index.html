@@ -3089,10 +3089,22 @@
           </div>
 
           <svg class="continuity-thread" id="continuityThread" viewBox="0 0 1200 650" preserveAspectRatio="none" aria-hidden="true">
-            <circle class="continuity-halo" cx="1010" cy="150" r="96"/>
-            <path id="continuityThreadPath" pathLength="1" d="M185 410C320 430 390 240 540 220S760 250 865 330S1010 425 1080 430M240 432C255 500 335 540 430 548"/>
-            <circle class="continuity-thread-point" cx="615" cy="126" r="4"/>
-            <circle class="continuity-thread-point" cx="1083" cy="344" r="3.5"/>
+            <g id="continuityMemoryThread">
+              <circle class="continuity-halo" cx="1010" cy="150" r="96"/>
+              <path id="continuityMemoryThreadA" pathLength="1"
+                d="M477 345C520 315 560 315 601 345"/>
+              <path id="continuityMemoryThreadB" pathLength="1"
+                d="M837 396C827 430 790 460 734 477"/>
+            </g>
+            <g id="continuityIdeaThread">
+              <path id="continuityIdeaTrunk" pathLength="1"
+                d="M646 391C678 391 698 385 713 369"/>
+              <path id="continuityIdeaBranchTop" pathLength="1"
+                d="M713 369C740 338 754 280 773 234"/>
+              <path id="continuityIdeaBranchBottom" pathLength="1"
+                d="M713 369C744 397 772 445 793 483"/>
+              <circle class="continuity-thread-point continuity-idea-junction" cx="713" cy="369" r="4.5"/>
+            </g>
           </svg>
 
           <div class="continuity-memory-heading continuity-eyebrow" id="continuityMemoryHeading"><span class="continuity-dot"></span>New interests added · 3</div>
@@ -4297,18 +4309,37 @@
             );
           });
 
-          var draw = ramp(u, 7.8, 10.8);
-          var threadOut = 1 - ramp(u, 27.8, 29.4);
           var thread = byId("continuityThread");
-          setOpacity(thread, threadOut);
-          byId("continuityThreadPath").style.strokeDasharray = "1";
-          byId("continuityThreadPath").style.strokeDashoffset = 1 - draw;
-          setOpacity(thread.querySelector(".continuity-halo"), ramp(u, 8.4, 10.2) * .45);
-          Array.prototype.forEach.call(
-            thread.querySelectorAll(".continuity-thread-point"),
-            function (element, index) {
-              setOpacity(element, ramp(u, 8.8 + index * .7, 9.5 + index * .7) * .6);
-            }
+          var memoryThread = byId("continuityMemoryThread");
+          var ideaThread = byId("continuityIdeaThread");
+          var memoryDraw = ramp(u, 7.8, 9.7);
+          var memoryFade = 1 - ramp(u, 13.0, 14.0);
+          var ideaDraw = ramp(u, 15.0, 16.6);
+          var ideaFade = 1 - ramp(u, 27.8, 29.4);
+
+          setOpacity(thread, 1 - ramp(u, 29.0, 30.0));
+          setOpacity(memoryThread, memoryFade);
+          setOpacity(ideaThread, ideaFade);
+
+          ["continuityMemoryThreadA", "continuityMemoryThreadB"].forEach(function (id) {
+            var path = byId(id);
+            path.style.strokeDasharray = "1";
+            path.style.strokeDashoffset = 1 - memoryDraw;
+          });
+
+          ["continuityIdeaTrunk", "continuityIdeaBranchTop", "continuityIdeaBranchBottom"].forEach(function (id) {
+            var path = byId(id);
+            path.style.strokeDasharray = "1";
+            path.style.strokeDashoffset = 1 - ideaDraw;
+          });
+
+          setOpacity(
+            memoryThread.querySelector(".continuity-halo"),
+            ramp(u, 8.4, 10.2) * .42 * memoryFade
+          );
+          setOpacity(
+            ideaThread.querySelector(".continuity-idea-junction"),
+            ramp(u, 15.6, 16.5) * .72 * ideaFade
           );
 
           setOpacity(byId("continuityIdeasHeading"), ramp(u, 13.5, 14.3) * (1 - ramp(u, 28, 28.8)));
