@@ -1048,7 +1048,7 @@ function testBootstrapContract() {
 
     assert.match(
         registrySource,
-        /atlas-subject-build-worker-client\.js\?v=20260925-handofftrace2/
+        /atlas-subject-build-worker-client\.js\?v=20260925-coldreopen1/
     );
 
     assert.match(
@@ -1076,7 +1076,7 @@ function testBootstrapContract() {
 
             assert.match(
                 source,
-                /atlas-content-registry\.js\?v=20260925-handofftrace2/,
+                /atlas-content-registry\.js\?v=20260925-coldreopen1/,
                 `${path} must load the shared SharedWorker bootstrap.`
             );
         }
