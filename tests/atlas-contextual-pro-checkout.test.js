@@ -138,6 +138,12 @@ assert.match(
 
 assert.match(
   checkout,
+  /@media \(max-width: 920px\)[\s\S]*?atlas-pro-checkout-layout[\s\S]*?display: block[\s\S]*?atlas-pro-checkout-summary[\s\S]*?display: none/,
+  'Tablet and small-desktop checkout must collapse before the two-column layout can overflow.'
+);
+
+assert.match(
+  checkout,
   /@media \(max-width: 760px\)[\s\S]*?atlas-pro-checkout-summary[\s\S]*?display: none/,
   'Mobile checkout must preserve the focused single-card experience by hiding the desktop summary.'
 );
