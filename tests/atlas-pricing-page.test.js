@@ -113,8 +113,8 @@ assert.match(
 );
 assert.match(
   pricing,
-  /\.site-header \{[\s\S]*?border-bottom:1px solid var\(--border-faint\);[\s\S]*?color-mix\(in srgb,var\(--surface\) 72%,transparent\)/,
-  'Pricing sticky header surface must match Inside Atlas.'
+  /--header-surface:\s*#fffdf9;[\s\S]*?\.site-header \{[\s\S]*?border-bottom:1px solid var\(--border-faint\);[\s\S]*?color-mix\(in srgb,var\(--header-surface\) 86%,transparent\)[\s\S]*?backdrop-filter:blur\(22px\) saturate\(1\.08\)/,
+  'Pricing sticky header must use the #fffdf9-based Atlas Hub glass treatment.'
 );
 
 assert.doesNotMatch(

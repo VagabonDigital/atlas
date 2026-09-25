@@ -67,6 +67,7 @@
     :root {
       --surface: #f3f0e9;
       --surface-panel: #fffdf9;
+      --header-surface: #fffdf9;
       --surface-muted: #ebe7de;
       --surface-raised: #fffaf3;
       --border: rgba(33,31,27,.09);
@@ -106,6 +107,7 @@
     html[data-theme="night"] {
       --surface: #1b1d1c;
       --surface-panel: #252826;
+      --header-surface: #252826;
       --surface-muted: #212421;
       --surface-raised: #2a2d2a;
       --border: rgba(235,233,228,.08);
@@ -155,9 +157,9 @@
     .site-header {
       position:sticky; top:0; z-index:50;
       border-bottom:1px solid var(--border-faint);
-      background:color-mix(in srgb,var(--surface) 72%,transparent);
-      backdrop-filter:blur(16px) saturate(1.1);
-      -webkit-backdrop-filter:blur(16px) saturate(1.1);
+      background:color-mix(in srgb,var(--header-surface) 86%,transparent);
+      backdrop-filter:blur(22px) saturate(1.08);
+      -webkit-backdrop-filter:blur(22px) saturate(1.08);
     }
     .header-inner {
       width:100%;
