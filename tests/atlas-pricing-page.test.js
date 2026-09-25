@@ -92,7 +92,7 @@ assert.match(
 );
 assert.match(
   pricing,
-  /atlas-account-chrome\.js\?v=20260924-accountfast1/,
+  /atlas-account-chrome\.js\?v=20260924-inlinecheckout1/,
   'Pricing must load the current shared account chrome runtime.'
 );
 
@@ -194,59 +194,50 @@ assert.match(
 );
 
 assert.match(pricing, /atlas-access-bootstrap\.js/);
-assert.match(pricing, /cdn\.paddle\.com\/paddle\/v2\/paddle\.js/);
-assert.match(pricing, /atlas-paddle-config\.js/);
+assert.match(
+  pricing,
+  /atlas-pro-checkout\.js\?v=20260924-inlinecheckout1/,
+  'Pricing must load the shared Pro checkout runtime.'
+);
+assert.doesNotMatch(
+  pricing,
+  /cdn\.paddle\.com\/paddle\/v2\/paddle\.js/,
+  'Pricing must not initialize Paddle independently of the shared checkout runtime.'
+);
+assert.doesNotMatch(
+  pricing,
+  /atlas-paddle-config\.js/,
+  'Pricing must not own a second copy of Paddle environment configuration.'
+);
 assert.match(pricing, /data-paddle-pro-price/);
 assert.match(pricing, /data-pro-repeat-price/);
 assert.match(pricing, /data-atlas-plan="pro"/);
 assert.match(pricing, /data-pricing-repeat-pro/);
 assert.match(
   pricing,
-  /config\.environment === 'sandbox'[\s\S]*?Paddle\.Environment\.set\('sandbox'\)/,
-  'Pricing must use Paddle sandbox mode only when the shared checkout config says sandbox.'
+  /AtlasProCheckout\.previewPrice/,
+  'Pricing must delegate localized price preview to the shared checkout runtime.'
+);
+assert.match(
+  pricing,
+  /AtlasProCheckout\.open/,
+  'Pricing must delegate purchase presentation to the shared checkout runtime.'
 );
 assert.doesNotMatch(
   pricing,
-  /function initPaddle\(\)[\s\S]*?if \(!window\.Paddle \|\| !config\) return false;\s*Paddle\.Environment\.set\('sandbox'\)/,
-  'Pricing must not force Paddle sandbox mode independently of shared checkout config.'
-);
-assert.match(pricing, /Paddle\.PricePreview/);
-assert.match(pricing, /Paddle\.Checkout\.open/);
-assert.match(pricing, /checkout\.closed/);
-assert.match(pricing, /data-atlas-checkout-loading/);
-assert.match(
-  pricing,
-  /name === 'checkout\.loaded'[\s\S]*?scheduleCheckoutReveal\(\)/,
-  'Atlas must keep Paddle checkout covered until Paddle reports checkout.loaded.'
+  /Paddle\.Checkout\.open/,
+  'Pricing must never regress to its own Paddle overlay implementation.'
 );
 assert.match(
   pricing,
-  /lockPricingPage\(\);[\s\S]*?showCheckoutLoading\(\);[\s\S]*?Paddle\.Checkout\.open/,
-  'Atlas must show its checkout-loading veil before Paddle mounts the overlay.'
+  /continueLabel:[\s\S]*?destination\.label[\s\S]*?onContinue:/,
+  'Shared checkout completion must preserve Pricing return destinations.'
 );
 assert.match(
   pricing,
-  /Paddle\.Checkout\.close\(\)[\s\S]*?Checkout took too long to load[\s\S]*?20000/,
-  'Atlas must abort a checkout that never reaches the loaded state instead of exposing a partial provider shell.'
+  /Sign in or create a free Atlas account before choosing Pro/,
+  'Pricing must retain contextual account gating before checkout.'
 );
-assert.match(
-  pricing,
-  /window\.innerWidth - document\.documentElement\.clientWidth/,
-  'Atlas must measure the disappearing scrollbar before locking checkout.'
-);
-assert.match(
-  pricing,
-  /document\.body\.style\.paddingRight[\s\S]*?document\.body\.style\.overflow = 'hidden'[\s\S]*?Paddle\.Checkout\.open/,
-  'Atlas must preserve layout width, then lock host scrolling before Paddle mounts checkout.'
-);
-assert.match(
-  pricing,
-  /document\.body\.style\.paddingRight = checkoutScrollState\.bodyPaddingRight/,
-  'Atlas must restore the original layout after Paddle closes.'
-);
-assert.match(pricing, /atlas_user_id/);
-assert.match(pricing, /customer: \{ email: account\.email \}/);
-assert.match(pricing, /Sign in or create a free Atlas account before choosing Pro/);
 
 console.log(
   'Atlas pricing contract passed: Pro proposition, commercial behavior, and Inside Atlas sibling shell are aligned.'
