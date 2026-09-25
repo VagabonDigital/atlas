@@ -12560,7 +12560,7 @@ function publishAtlasCompassItem(action = 'updated') {
 
         const status = progress.lessonCompletedAt
             ? 'complete'
-            : exploredCount > 0
+            : exploredCount > 0 || savedLanguageCount > 0
                 ? 'in-progress'
                 : 'not-started';
 
