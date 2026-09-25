@@ -2346,7 +2346,7 @@
 
     @media (max-width: 900px) {
       .continuity-stage {
-        height: 950px;
+        height: 720px;
         min-height: 0;
         max-height: none;
         aspect-ratio: auto;
@@ -2354,90 +2354,113 @@
       }
 
       .continuity-learner {
-        left: 24px;
-        top: 26px;
-        gap: 11px;
+        left: 20px;
+        top: 20px;
+        gap: 10px;
       }
 
       .continuity-avatar {
-        width: 46px;
-        height: 46px;
-        font-size: 30px;
+        width: 42px;
+        height: 42px;
+        font-size: 28px;
       }
 
       .continuity-name {
-        font-size: 23px;
+        font-size: 21px;
+      }
+
+      .continuity-profile {
+        font-size: 11px;
       }
 
       .continuity-lesson {
-        left: 24px;
-        top: 152px;
-        width: calc(100% - 48px);
+        left: 20px;
+        top: 112px;
+        width: calc(100% - 40px);
       }
 
       .continuity-lesson h3 {
-        font-size: clamp(34px, 9.6vw, 44px);
-        line-height: 1.06;
+        margin: 14px 0 16px;
+        font-size: clamp(31px, 8.8vw, 39px);
+        line-height: 1.04;
+      }
+
+      .continuity-lesson p {
+        max-width: 300px;
+        font-size: 14px;
+        line-height: 1.5;
       }
 
       .continuity-landscape,
       .continuity-architecture {
-        right: -42px;
-        bottom: 58px;
-        width: 124%;
-        height: 340px;
+        right: -30px;
+        bottom: 18px;
+        width: 118%;
+        height: 235px;
       }
 
       .continuity-ideas-heading,
       .continuity-active-heading {
-        left: 24px;
-        top: 118px;
+        left: 20px;
+        top: 92px;
+      }
+
+      .continuity-ideas-heading .continuity-subline {
+        margin-top: 5px;
+        font-size: 12px;
       }
 
       .continuity-language > .continuity-eyebrow {
-        left: 24px;
-        top: 300px;
+        left: 20px;
+        top: 258px;
       }
 
       .continuity-expression {
-        padding: 14px 17px;
-        gap: 11px;
+        padding: 11px 14px;
+        gap: 10px;
       }
 
       .continuity-vocab-icon {
-        width: 42px;
-        height: 42px;
+        width: 38px;
+        height: 38px;
       }
 
       .continuity-vocab-icon svg {
-        width: 27px;
-        height: 27px;
+        width: 24px;
+        height: 24px;
       }
 
       .continuity-seed {
-        gap: 8px;
+        gap: 7px;
       }
 
       .continuity-seed-word {
-        font-size: 18px;
+        font-size: 16px;
       }
 
       .continuity-icon {
-        width: 34px;
-        height: 34px;
+        width: 30px;
+        height: 30px;
       }
 
       .continuity-icon svg {
-        width: 26px;
-        height: 26px;
+        width: 23px;
+        height: 23px;
       }
 
       .continuity-idea p {
-        font-size: 13px;
+        font-size: 12px;
+        line-height: 1.45;
       }
 
       .continuity-final-copy {
-        font-size: 15px;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .continuity-replay {
+        right: 14px;
+        bottom: 12px;
       }
     }
 
@@ -4279,15 +4302,15 @@
           setOpacity(byId("continuityLanguage"), memoryIn * (1 - memoryOut));
 
           var memoryHeading = byId("continuityMemoryHeading");
-          memoryHeading.style.left = (mobile ? pad : width * .405) + "px";
-          memoryHeading.style.top = (mobile ? 116 : 49) + "px";
+          memoryHeading.style.left = (mobile ? 20 : width * .405) + "px";
+          memoryHeading.style.top = (mobile ? 92 : 49) + "px";
           setOpacity(memoryHeading, ramp(u, 7.1, 8.0) * (1 - ramp(u, 13.2, 13.9)));
 
           var vocab = mobile
             ? [
-                [pad, 340, inner * .78, 72, Math.min(26, inner / 9.8)],
-                [pad + inner * .08, 454, inner * .84, 84, Math.min(25, inner / 10.2)],
-                [pad + inner * .03, 586, inner * .90, 84, Math.min(25, inner / 10.2)]
+                [20, 292, Math.min(280, width - 40), 64, Math.min(22, inner / 11)],
+                [44, 374, Math.min(302, width - 64), 70, Math.min(20, inner / 11.8)],
+                [28, 462, Math.min(310, width - 48), 70, Math.min(20, inner / 11.8)]
               ]
             : [
                 [pad + inner * .02, 248, inner * .37, 86, Math.min(34, inner / 29)],
@@ -4349,9 +4372,9 @@
           var memory;
           if (mobile) {
             memory = [
-              [pad, 164, Math.min(206, inner * .78), 58],
-              [pad + inner * .04, 236, Math.min(140, inner * .56), 56],
-              [pad + inner - 126, 212, 126, 56]
+              [20, 142, Math.min(186, width - 40), 52],
+              [20, 202, Math.min(126, width * .35), 50],
+              [160, 202, Math.min(124, width - 180), 50]
             ];
           } else {
             var interestWidths = [236, 174, 182];
@@ -4387,9 +4410,9 @@
 
           var rec = mobile
             ? [
-                [pad, 188, inner, 256],
-                [pad, 474, inner * .95, 215],
-                [pad + inner * .06, 716, inner * .94, 220]
+                [20, 150, width - 40, 190],
+                [20, 360, width - 40, 135],
+                [20, 512, width - 40, 145]
               ]
             : [
                 [pad, 218, inner * .54, 270],
@@ -4424,9 +4447,9 @@
 
             if (index === 0) {
               x = mix(x, pad, final);
-              y = mix(y, mobile ? 204 : 196, final);
-              cardWidth = mix(cardWidth, mobile ? inner : inner * .505, final);
-              cardHeight = mix(cardHeight, mobile ? 285 : 270, final);
+              y = mix(y, mobile ? 150 : 196, final);
+              cardWidth = mix(cardWidth, mobile ? width - 40 : inner * .505, final);
+              cardHeight = mix(cardHeight, mobile ? 190 : 270, final);
             }
 
             setBox(element, x, y, cardWidth, cardHeight);
@@ -4447,7 +4470,7 @@
               ? "rgba(66,136,109," + (.19 + .28 * focus) + ")"
               : "var(--continuity-line)";
 
-            var inset = mobile ? 18 : (index === 0 ? 25 : 24);
+            var inset = mobile ? 16 : (index === 0 ? 25 : 24);
             seed.style.left = mix(10, inset, travel) + "px";
             seed.style.top = mix(10, mobile ? 18 : 22, travel) + "px";
             setOpacity(seed, index === 0 ? 1 - ramp(u, 28.35, 29) : 1);
@@ -4458,9 +4481,9 @@
               setOpacity(seedWord, 1 - reveal);
             }
 
-            var titleY = mobile ? (index === 0 ? 82 : 63) : (index === 0 ? 94 : 70);
-            var supportTitleX = inset + (mobile ? 46 : 52);
-            var supportTitleTop = mobile ? 17 : 19;
+            var titleY = mobile ? (index === 0 ? 68 : 54) : (index === 0 ? 94 : 70);
+            var supportTitleX = inset + (mobile ? 40 : 52);
+            var supportTitleTop = mobile ? 14 : 19;
             var titleX = index === 0
               ? mix(inset, 0, final)
               : mix(inset, supportTitleX, reveal);
@@ -4473,18 +4496,18 @@
             title.style.fontSize = (
               index === 0
                 ? mix(
-                    mobile ? Math.min(31, inner / 8.8) : Math.min(42, inner / 25),
-                    mobile ? Math.min(41, inner / 7.4) : Math.min(56, inner / 18),
+                    mobile ? Math.min(28, inner / 9.8) : Math.min(42, inner / 25),
+                    mobile ? Math.min(36, inner / 8.4) : Math.min(56, inner / 18),
                     final
                   )
-                : (mobile ? Math.min(22, inner / 12) : 21)
+                : (mobile ? Math.min(18, inner / 14) : 21)
             ) + "px";
             setOpacity(title, reveal);
             move(title, rm ? 0 : (index === 1 ? 12 : 0) * (1 - reveal), rm ? 0 : (index === 0 ? 12 : index === 2 ? 8 : 0) * (1 - reveal));
 
             desc.style.left = inset + "px";
             desc.style.width = (index === 0 && !mobile ? Math.min(cardWidth - inset * 2, 440) : cardWidth - inset * 2) + "px";
-            desc.style.top = (titleTop + title.offsetHeight + (mobile ? 13 : 16)) + "px";
+            desc.style.top = (titleTop + title.offsetHeight + (mobile ? 10 : 16)) + "px";
             setOpacity(desc, textIn * (1 - ramp(u, 28.2, 29)));
             move(desc, 0, rm ? 0 : 5 * (1 - textIn));
 
@@ -4499,7 +4522,7 @@
             byId("continuityFinalCopy"),
             pad,
             architectureTitle.bottom - stageBox.top + 22,
-            mobile ? inner : Math.min(inner * .43, 400),
+            mobile ? width - 40 : Math.min(inner * .43, 400),
             96
           );
           setOpacity(byId("continuityFinalCopy"), ramp(u, 29.7, 30.5));
