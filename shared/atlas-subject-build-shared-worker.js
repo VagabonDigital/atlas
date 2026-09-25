@@ -26,7 +26,7 @@
 'use strict';
 
 const WORKER_VERSION =
-    '20260924-buildworker11';
+    '20260925-buildworker12';
 
 const DEPENDENCY_VERSION =
     '20260924-workerbuild3';
@@ -305,6 +305,63 @@ function broadcastToUser(
                 connection.userId
             ) === id
     );
+}
+
+function postDebugTrace(
+    connection,
+    stage,
+    detail = {}
+) {
+    const event =
+        clean(stage);
+
+    if (!event) {
+        return false;
+    }
+
+    return safePost(
+        connection?.port,
+        'worker-debug',
+        {
+            stage:
+                event,
+            detail:
+                isObject(detail)
+                    ? cloneJson(detail)
+                    : {}
+        }
+    );
+}
+
+function publishDebugTrace(
+    userId,
+    stage,
+    detail = {}
+) {
+    const id =
+        clean(userId);
+
+    const event =
+        clean(stage);
+
+    if (!id || !event) {
+        return false;
+    }
+
+    broadcastToUser(
+        id,
+        'worker-debug',
+        {
+            stage:
+                event,
+            detail:
+                isObject(detail)
+                    ? cloneJson(detail)
+                    : {}
+        }
+    );
+
+    return true;
 }
 
 function publishRuntimeSignal(
@@ -707,6 +764,40 @@ function releaseForegroundOwnershipForPage(
                 return;
             }
 
+            publishDebugTrace(
+                uid,
+                'foreground-ownership-release',
+                {
+                    subjectId:
+                        job.subjectId,
+                    pageId:
+                        pid,
+                    requestId:
+                        clean(
+                            job.foregroundRequestId
+                        ) ||
+                        null,
+                    reason:
+                        clean(reason),
+                    jobStatus:
+                        job.status,
+                    completedStep:
+                        normalizeCompletedStep(
+                            job.completedStep
+                        ),
+                    lockState:
+                        job.lockState,
+                    activeBuildMatches:
+                        Boolean(
+                            activeBuild &&
+                            activeBuild.userId ===
+                                uid &&
+                            activeBuild.subjectId ===
+                                job.subjectId
+                        )
+                }
+            );
+
             job.foregroundOwnerPageId = '';
             job.foregroundRequestId = '';
             job.foregroundReason =
@@ -778,6 +869,35 @@ function finalizeForegroundGrant(job) {
             pageId
         );
 
+    publishDebugTrace(
+        job.userId,
+        'foreground-grant-connection-lookup',
+        {
+            subjectId:
+                job.subjectId,
+            requestId,
+            pageId,
+            found:
+                Boolean(connection),
+            jobStatus:
+                job.status,
+            completedStep:
+                normalizeCompletedStep(
+                    job.completedStep
+                ),
+            lockState:
+                job.lockState,
+            connectedPageIds:
+                pagesForUser(
+                    job.userId
+                ).map(page =>
+                    clean(
+                        page.pageId
+                    )
+                )
+        }
+    );
+
     if (!connection) {
         releaseForegroundOwnershipForPage(
             job.userId,
@@ -797,26 +917,46 @@ function finalizeForegroundGrant(job) {
     job.updatedAt =
         now();
 
-    safePost(
-        connection.port,
-        'foreground-granted',
+    const grantPosted =
+        safePost(
+            connection.port,
+            'foreground-granted',
+            {
+                requestId,
+                subjectId:
+                    job.subjectId,
+                completedStep:
+                    normalizeCompletedStep(
+                        job.completedStep
+                    ),
+                readyToCommit:
+                    job.completedStep >= 18,
+                generationContext:
+                    cloneJson(
+                        job
+                            .build
+                            ?.generationContext ||
+                        null
+                    )
+            }
+        );
+
+    publishDebugTrace(
+        job.userId,
+        'foreground-grant-post-result',
         {
-            requestId,
             subjectId:
                 job.subjectId,
+            requestId,
+            pageId,
+            posted:
+                grantPosted,
             completedStep:
                 normalizeCompletedStep(
                     job.completedStep
                 ),
-            readyToCommit:
-                job.completedStep >= 18,
-            generationContext:
-                cloneJson(
-                    job
-                        .build
-                        ?.generationContext ||
-                    null
-                )
+            lockState:
+                job.lockState
         }
     );
 
@@ -851,6 +991,52 @@ function removeConnection(
         clean(
             connection.userId
         );
+
+    if (previousUserId) {
+        publishDebugTrace(
+            previousUserId,
+            'connection-removing',
+            {
+                pageId:
+                    clean(
+                        connection.pageId
+                    ) ||
+                    null,
+                surface:
+                    clean(
+                        connection.surface
+                    ) ||
+                    null,
+                reason:
+                    clean(reason),
+                connected:
+                    connection.connected !==
+                    false
+            }
+        );
+    } else {
+        postDebugTrace(
+            connection,
+            'connection-removing',
+            {
+                pageId:
+                    clean(
+                        connection.pageId
+                    ) ||
+                    null,
+                surface:
+                    clean(
+                        connection.surface
+                    ) ||
+                    null,
+                reason:
+                    clean(reason),
+                connected:
+                    connection.connected !==
+                    false
+            }
+        );
+    }
 
     connections.delete(
         connection.port
@@ -1708,15 +1894,110 @@ async function checkpointForegroundYield(
     job,
     document
 ) {
-    await writeBuildCheckpoint(
-        job,
-        document,
+    const completedStep =
         normalizeCompletedStep(
             activeBuild
                 ?.completedStep ||
             job
                 ?.completedStep
-        )
+        );
+
+    publishDebugTrace(
+        job?.userId,
+        'foreground-yield-checkpoint-start',
+        {
+            subjectId:
+                job?.subjectId ||
+                null,
+            requestId:
+                clean(
+                    activeBuild
+                        ?.yieldRequestId
+                ) ||
+                clean(
+                    job
+                        ?.foregroundRequestId
+                ) ||
+                null,
+            pageId:
+                clean(
+                    activeBuild
+                        ?.yieldPageId
+                ) ||
+                clean(
+                    job
+                        ?.foregroundOwnerPageId
+                ) ||
+                null,
+            completedStep,
+            jobCompletedStep:
+                normalizeCompletedStep(
+                    job?.completedStep
+                ),
+            lockState:
+                job?.lockState ||
+                null
+        }
+    );
+
+    await writeBuildCheckpoint(
+        job,
+        document,
+        completedStep
+    );
+
+    publishDebugTrace(
+        job?.userId,
+        'foreground-yield-checkpoint-written',
+        {
+            subjectId:
+                job?.subjectId ||
+                null,
+            requestId:
+                clean(
+                    activeBuild
+                        ?.yieldRequestId
+                ) ||
+                clean(
+                    job
+                        ?.foregroundRequestId
+                ) ||
+                null,
+            completedStep,
+            jobCompletedStep:
+                normalizeCompletedStep(
+                    job?.completedStep
+                ),
+            lockState:
+                job?.lockState ||
+                null
+        }
+    );
+
+    publishDebugTrace(
+        job?.userId,
+        'foreground-yield-throw',
+        {
+            subjectId:
+                job?.subjectId ||
+                null,
+            requestId:
+                clean(
+                    activeBuild
+                        ?.yieldRequestId
+                ) ||
+                clean(
+                    job
+                        ?.foregroundRequestId
+                ) ||
+                null,
+            completedStep:
+                normalizeCompletedStep(
+                    job?.completedStep
+                ),
+            source:
+                'checkpoint-foreground-yield'
+        }
     );
 
     throw createForegroundYieldError();
@@ -2259,6 +2540,67 @@ async function executeBuild(job) {
                                 activeBuild
                                     ?.yieldRequested
                             ) {
+                                publishDebugTrace(
+                                    job.userId,
+                                    'foreground-yield-runner-checkpoint',
+                                    {
+                                        subjectId:
+                                            job.subjectId,
+                                        requestId:
+                                            clean(
+                                                activeBuild
+                                                    .yieldRequestId
+                                            ) ||
+                                            clean(
+                                                job.foregroundRequestId
+                                            ) ||
+                                            null,
+                                        pageId:
+                                            clean(
+                                                activeBuild
+                                                    .yieldPageId
+                                            ) ||
+                                            clean(
+                                                job.foregroundOwnerPageId
+                                            ) ||
+                                            null,
+                                        completedStep:
+                                            normalizeCompletedStep(
+                                                step
+                                            ),
+                                        jobCompletedStep:
+                                            normalizeCompletedStep(
+                                                job.completedStep
+                                            ),
+                                        lockState:
+                                            job.lockState
+                                    }
+                                );
+
+                                publishDebugTrace(
+                                    job.userId,
+                                    'foreground-yield-throw',
+                                    {
+                                        subjectId:
+                                            job.subjectId,
+                                        requestId:
+                                            clean(
+                                                activeBuild
+                                                    .yieldRequestId
+                                            ) ||
+                                            clean(
+                                                job.foregroundRequestId
+                                            ) ||
+                                            null,
+                                        completedStep:
+                                            normalizeCompletedStep(
+                                                step
+                                            ),
+                                        source:
+                                            'runner-checkpoint'
+                                    }
+                                );
+
                                 throw createForegroundYieldError();
                             }
 
@@ -2386,6 +2728,31 @@ async function runJobWithLock(job) {
                         error
                     )
                 ) {
+                    publishDebugTrace(
+                        job.userId,
+                        'foreground-yield-caught',
+                        {
+                            subjectId:
+                                job.subjectId,
+                            requestId:
+                                clean(
+                                    job.foregroundRequestId
+                                ) ||
+                                null,
+                            pageId:
+                                clean(
+                                    job.foregroundOwnerPageId
+                                ) ||
+                                null,
+                            completedStep:
+                                normalizeCompletedStep(
+                                    job.completedStep
+                                ),
+                            lockState:
+                                job.lockState
+                        }
+                    );
+
                     job.status =
                         'foreground-owned';
                     job.error = '';
@@ -2455,7 +2822,66 @@ async function runJobWithLock(job) {
             } finally {
                 job.lockState =
                     'available';
+
+                publishDebugTrace(
+                    job.userId,
+                    'foreground-lock-callback-leaving',
+                    {
+                        subjectId:
+                            job.subjectId,
+                        requestId:
+                            clean(
+                                job.foregroundRequestId
+                            ) ||
+                            null,
+                        pageId:
+                            clean(
+                                job.foregroundOwnerPageId
+                            ) ||
+                            null,
+                        completedStep:
+                            normalizeCompletedStep(
+                                job.completedStep
+                            ),
+                        lockState:
+                            job.lockState,
+                        webLockCallbackActive:
+                            true
+                    }
+                );
             }
+        }
+    );
+
+    publishDebugTrace(
+        job.userId,
+        'foreground-lock-request-resolved',
+        {
+            subjectId:
+                job.subjectId,
+            requestId:
+                clean(
+                    job.foregroundRequestId
+                ) ||
+                null,
+            pageId:
+                clean(
+                    job.foregroundOwnerPageId
+                ) ||
+                null,
+            acquired,
+            completedStep:
+                normalizeCompletedStep(
+                    job.completedStep
+                ),
+            lockState:
+                job.lockState,
+            hasForegroundOwner:
+                Boolean(
+                    clean(
+                        job.foregroundOwnerPageId
+                    )
+                )
         }
     );
 
@@ -2465,6 +2891,31 @@ async function runJobWithLock(job) {
             job.foregroundOwnerPageId
         )
     ) {
+        publishDebugTrace(
+            job.userId,
+            'foreground-grant-finalize-call',
+            {
+                subjectId:
+                    job.subjectId,
+                requestId:
+                    clean(
+                        job.foregroundRequestId
+                    ) ||
+                    null,
+                pageId:
+                    clean(
+                        job.foregroundOwnerPageId
+                    ) ||
+                    null,
+                completedStep:
+                    normalizeCompletedStep(
+                        job.completedStep
+                    ),
+                lockState:
+                    job.lockState
+            }
+        );
+
         finalizeForegroundGrant(
             job
         );
@@ -2771,6 +3222,56 @@ function requestForegroundOwnership(
     const job =
         queueByKey.get(key);
 
+    postDebugTrace(
+        connection,
+        'foreground-request-received',
+        {
+            requestId,
+            subjectId,
+            pageId:
+                clean(
+                    connection.pageId
+                ) ||
+                null,
+            jobFound:
+                Boolean(job),
+            jobStatus:
+                job?.status ||
+                null,
+            completedStep:
+                job
+                    ? normalizeCompletedStep(
+                        job.completedStep
+                    )
+                    : null,
+            lockState:
+                job?.lockState ||
+                null,
+            foregroundOwnerPageId:
+                clean(
+                    job
+                        ?.foregroundOwnerPageId
+                ) ||
+                null,
+            activeBuildExists:
+                Boolean(activeBuild),
+            activeBuildMatches:
+                Boolean(
+                    activeBuild &&
+                    activeBuild.userId ===
+                        userId &&
+                    activeBuild.subjectId ===
+                        subjectId
+                ),
+            activeBuildCompletedStep:
+                activeBuild
+                    ? normalizeCompletedStep(
+                        activeBuild.completedStep
+                    )
+                    : null
+        }
+    );
+
     if (!job) {
         safePost(
             connection.port,
@@ -2863,6 +3364,36 @@ function requestForegroundOwnership(
                 job.foregroundOwnerPageId;
             activeBuild.yieldRequestId =
                 requestId;
+
+            publishDebugTrace(
+                userId,
+                'foreground-yield-requested',
+                {
+                    subjectId,
+                    requestId,
+                    pageId:
+                        clean(
+                            job.foregroundOwnerPageId
+                        ) ||
+                        null,
+                    jobStatus:
+                        job.status,
+                    completedStep:
+                        normalizeCompletedStep(
+                            job.completedStep
+                        ),
+                    activeBuildCompletedStep:
+                        normalizeCompletedStep(
+                            activeBuild.completedStep
+                        ),
+                    lockState:
+                        job.lockState,
+                    yieldRequested:
+                        activeBuild
+                            .yieldRequested ===
+                        true
+                }
+            );
         }
 
         safePost(
@@ -3300,6 +3831,23 @@ function handleMessage(
         connection.visible =
             message.visible !==
             false;
+
+        postDebugTrace(
+            connection,
+            'connection-connect',
+            {
+                pageId:
+                    connection.pageId ||
+                    null,
+                surface:
+                    connection.surface ||
+                    null,
+                visible:
+                    connection.visible,
+                pageCount:
+                    connections.size
+            }
+        );
 
         safePost(
             connection.port,
