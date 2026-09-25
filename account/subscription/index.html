@@ -1991,7 +1991,15 @@
       if (ready) {
         PaymentUpdate.dataset.ready =
           'true';
-        PaymentPreparing.hidden = true;
+
+        if (
+          paymentCheckoutMode ===
+            'inline'
+        ) {
+          setPaymentPreparing(false);
+        } else {
+          PaymentPreparing.hidden = true;
+        }
       }
 
       if (paymentPrewarmResolve) {

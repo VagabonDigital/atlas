@@ -250,21 +250,38 @@
     }
 
     function handoffReady() {
-        if (mode === 'payment') {
-            return (
-                document
-                    .getElementById(
-                        'payment-update'
-                    )
-                    ?.dataset
-                    ?.open === 'true'
-            );
+        if (mode !== 'payment') {
+            return false;
         }
 
-        return Boolean(
-            document.querySelector(
-                '.atlas-pro-checkout-loading[open]'
-            )
+        const paymentUpdate =
+            document.getElementById(
+                'payment-update'
+            );
+
+        if (
+            !paymentUpdate ||
+            paymentUpdate.dataset.open !==
+                'true'
+        ) {
+            return false;
+        }
+
+        const style =
+            window.getComputedStyle?.(
+                paymentUpdate
+            );
+
+        if (!style) {
+            return false;
+        }
+
+        return (
+            style.visibility !== 'hidden' &&
+            style.display !== 'none' &&
+            Number.parseFloat(
+                style.opacity || '0'
+            ) >= 0.999
         );
     }
 

@@ -520,6 +520,7 @@
                 margin: 0;
                 font-family: "DM Serif Display", Georgia, serif;
                 font-size: 2rem;
+                line-height: 1.1;
                 font-weight: 400;
                 color:
                     var(--atlas-modal-heading, var(--text-heading, #211f1b));
@@ -562,6 +563,7 @@
                 color:
                     var(--atlas-modal-muted, var(--text-muted, #7b7469));
                 font-size: .9rem;
+                line-height: 1.4;
             }
 
             @keyframes atlas-pro-checkout-loading-bounce {
@@ -652,8 +654,32 @@
 
     }
 
+    function activeCheckoutRecoveryBoot(
+        mode
+    ) {
+        const Boot =
+            window.AtlasCheckoutRecoveryBoot;
+
+        if (
+            !Boot ||
+            !Boot.active ||
+            Boot.mode !== mode ||
+            !document.getElementById(
+                'atlas-checkout-recovery-boot'
+            )
+        ) {
+            return null;
+        }
+
+        return Boot;
+    }
+
     function hideCheckoutLoading() {
         clearCheckoutLoadingTimers();
+
+        activeCheckoutRecoveryBoot(
+            'pro'
+        )?.release?.();
 
         if (!checkoutLoadingLayer) {
             return;
@@ -1381,21 +1407,28 @@
     }
 
     function showCheckoutLoading() {
-        const layer =
-            ensureCheckoutLoadingLayer();
-
-        if (
-            typeof layer.showModal ===
-                'function'
-        ) {
-            if (!layer.open) {
-                layer.showModal();
-            }
-        } else {
-            layer.setAttribute(
-                'open',
-                ''
+        const recoveryBoot =
+            activeCheckoutRecoveryBoot(
+                'pro'
             );
+
+        if (!recoveryBoot) {
+            const layer =
+                ensureCheckoutLoadingLayer();
+
+            if (
+                typeof layer.showModal ===
+                    'function'
+            ) {
+                if (!layer.open) {
+                    layer.showModal();
+                }
+            } else {
+                layer.setAttribute(
+                    'open',
+                    ''
+                );
+            }
         }
 
         clearCheckoutLoadingTimers();
