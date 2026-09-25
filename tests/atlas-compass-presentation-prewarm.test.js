@@ -197,7 +197,7 @@ assert.equal(
 assert.equal(
     (
         registry.match(
-            /atlas-cloud-cache\.js\?v=20260922-order1/g
+            /atlas-cloud-cache\.js\?v=20260924-browserstate2/g
         ) || []
     ).length,
     2,
