@@ -1064,7 +1064,7 @@
         }
 
         const src =
-            '/shared/atlas-account-chrome.js?v=20260924-inlinecheckout3';
+            '/shared/atlas-account-chrome.js?v=20260924-walletname1';
 
         if (document.readyState === 'loading') {
             document.write(

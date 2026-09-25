@@ -84,6 +84,24 @@ assert.match(
 
 assert.match(
   checkout,
+  /function setCanonicalCheckoutTitle\(\)[\s\S]*?document\.title = 'Atlas'/,
+  'Checkout must canonicalize the host page title to Atlas while Paddle/Google Pay is active.'
+);
+
+assert.match(
+  checkout,
+  /setCanonicalCheckoutTitle\(\);[\s\S]*?await initializePaddle\(\)/,
+  'Atlas title must be applied before Paddle initializes checkout.'
+);
+
+assert.match(
+  checkout,
+  /name ===[\s\S]*?'checkout\.completed'[\s\S]*?restoreCheckoutTitle\(\)[\s\S]*?name === 'checkout\.closed'[\s\S]*?restoreCheckoutTitle\(\)/,
+  'Checkout must restore the original hub title on completion and close.'
+);
+
+assert.match(
+  checkout,
   /name === 'checkout\.loaded'[\s\S]*?revealCheckoutWhenReady\(\)/,
   'Contextual Pro checkout must keep the Atlas loading veil until Paddle reports checkout.loaded.'
 );
@@ -174,7 +192,7 @@ assert.equal(
 
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260924-inlinecheckout3/,
+  /atlas-pro-checkout\.js\?v=20260924-walletname1/,
   'Pricing must load the same shared checkout runtime as contextual upgrade flows.'
 );
 
@@ -263,12 +281,12 @@ assert.match(
 
 assert.match(
   chrome,
-  /atlas-account-gate\.js\?v=20260924-inlinecheckout3/
+  /atlas-account-gate\.js\?v=20260924-walletname1/
 );
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260924-inlinecheckout3/
+  /atlas-account-chrome\.js\?v=20260924-walletname1/
 );
 
 assert.match(
@@ -325,7 +343,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260924-inlinecheckout3/
+  /atlas-pro-checkout\.js\?v=20260924-walletname1/
 );
 
 assert.match(

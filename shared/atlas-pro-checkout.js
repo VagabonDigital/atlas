@@ -37,6 +37,42 @@
     let checkoutRevealTimer = null;
     let checkoutShell = null;
 
+    function setCanonicalCheckoutTitle() {
+        if (!activeCheckout) {
+            return;
+        }
+
+        if (
+            typeof activeCheckout
+                .previousDocumentTitle !==
+                'string'
+        ) {
+            activeCheckout
+                .previousDocumentTitle =
+                    document.title;
+        }
+
+        document.title = 'Atlas';
+    }
+
+    function restoreCheckoutTitle() {
+        if (
+            !activeCheckout ||
+            typeof activeCheckout
+                .previousDocumentTitle !==
+                'string'
+        ) {
+            return;
+        }
+
+        document.title =
+            activeCheckout
+                .previousDocumentTitle;
+
+        activeCheckout
+            .previousDocumentTitle = null;
+    }
+
     function clean(value) {
         return String(value || '').trim();
     }
@@ -1370,6 +1406,7 @@
             );
             hideCheckoutLoading();
             hideCheckoutShell();
+            restoreCheckoutTitle();
             if (activeCheckout) {
                 activeCheckout.completed = true;
             }
@@ -1392,6 +1429,7 @@
             );
             hideCheckoutLoading();
             hideCheckoutShell();
+            restoreCheckoutTitle();
             setCheckoutScrollLocked(
                 false
             );
@@ -1437,6 +1475,7 @@
                 );
                 hideCheckoutLoading();
                 hideCheckoutShell();
+                restoreCheckoutTitle();
                 setCheckoutScrollLocked(
                     false
                 );
@@ -1586,6 +1625,7 @@
         }
 
         try {
+            setCanonicalCheckoutTitle();
             await initializePaddle();
 
             const config =
@@ -1673,6 +1713,7 @@
             );
             hideCheckoutLoading();
             hideCheckoutShell();
+            restoreCheckoutTitle();
             setCheckoutScrollLocked(
                 false
             );
