@@ -146,6 +146,11 @@ assert.match(
 );
 assert.match(
   subscription,
+  /\.payment-update-back-arrow \{[\s\S]*?width: 16px;[\s\S]*?height: 16px;[\s\S]*?font-size: 0;[\s\S]*?-webkit-mask: url\([\s\S]*?M7 3L2 8l5 5M2 8h12/,
+  'Update Payment must use the same drawn Atlas back arrow as Upgrade checkout.'
+);
+assert.match(
+  subscription,
   /aria-label="Back to Subscription"[\s\S]*?<span>Back to Subscription<\/span>/,
   'Update Payment back control must retain Subscription as the destination label.'
 );
