@@ -123,7 +123,7 @@ assert.match(
 
 assert.match(
     loader,
-    /compass-engine\.js\?v=20260925-handofftrace1/
+    /compass-engine\.js\?v=20260925-resumeux1/
 );
 
 assert.match(
@@ -157,13 +157,32 @@ assert.match(
 );
 
 assert.match(
+    loader,
+    /AtlasForegroundSubjectBuildHandoffPromise =[\s\S]*?requestForegroundBuildOwnership\([\s\S]*?subject[\s\S]*?\)[\s\S]*?installRuntimeSubject\(subject\)[\s\S]*?await loadCompassEngine\(\)/,
+    'Recovering subject entry must start foreground ownership asynchronously so the subject shell is not blocked by the worker handoff.'
+);
+
+const firstRenderIndex = engine.indexOf(
+    'renderDiscussionSets();'
+);
+const handoffAwaitIndex = engine.indexOf(
+    'await awaitMyVersionForegroundBuildHandoff();'
+);
+
+assert.ok(
+    firstRenderIndex >= 0 &&
+    handoffAwaitIndex > firstRenderIndex,
+    'The recovering subject must render before waiting for foreground ownership.'
+);
+
+assert.match(
     recovery,
     /if \(!state\) \{[\s\S]*?await refreshCompletedSubjectIfNeeded\(\)[\s\S]*?resetRecoveryState\(\)/
 );
 
 assert.match(
     subjectPage,
-    /compass-subject-loader\.js\?v=20260925-handofftrace1/
+    /compass-subject-loader\.js\?v=20260925-resumeux1/
 );
 
 console.log(
