@@ -6982,6 +6982,60 @@ function getMyVersionForegroundBuildHandoff() {
     return handoff;
 }
 
+async function awaitMyVersionForegroundBuildHandoff() {
+    const pending =
+        window
+            .AtlasForegroundSubjectBuildHandoffPromise;
+
+    if (
+        !pending ||
+        typeof pending.then !==
+            'function'
+    ) {
+        return getMyVersionForegroundBuildHandoff();
+    }
+
+    traceMyVersionBuild(
+        'handoff-await-start',
+        {}
+    );
+
+    try {
+        await pending;
+    } catch (error) {
+        console.warn(
+            '[Compass] Foreground build handoff promise failed:',
+            error
+        );
+    } finally {
+        if (
+            window
+                .AtlasForegroundSubjectBuildHandoffPromise ===
+            pending
+        ) {
+            delete window
+                .AtlasForegroundSubjectBuildHandoffPromise;
+        }
+    }
+
+    const handoff =
+        getMyVersionForegroundBuildHandoff();
+
+    traceMyVersionBuild(
+        'handoff-await-result',
+        {
+            granted:
+                Boolean(handoff),
+            completedStep:
+                handoff
+                    ?.completedStep ??
+                null
+        }
+    );
+
+    return handoff;
+}
+
 function releaseMyVersionForegroundBuildHandoff(
     reason =
         'foreground-handoff-ended'
@@ -22108,13 +22162,6 @@ async function init() {
         }
     }
 
-    if (
-        recoveringOwnedSubjectBuild &&
-        getMyVersionForegroundBuildHandoff()
-    ) {
-        await acquireMyVersionForegroundBuildHandoffLease();
-    }
-
     if (freshOwnedSubjectBuild) {
         /*
          * A freshly-created subject cannot already have a working draft,
@@ -22169,7 +22216,7 @@ async function init() {
                 : MODULE.id
     });
 
-    const ownedSubjectBuildState =
+    let ownedSubjectBuildState =
         isOwnedSubjectRuntime() &&
         !freshOwnedSubjectBuild
             ? await requireAtlasTutorSubjects()
@@ -22229,6 +22276,45 @@ async function init() {
                 'Atlas could not prepare account persistence to continue this subject. Reload and try again.'
             );
             return;
+        }
+    }
+
+    if (
+        freshOwnedSubjectBuild ||
+        recoveringOwnedSubjectBuild
+    ) {
+        /*
+         * The shell and latest durable checkpoint are already visible above.
+         * Only generation itself waits for foreground ownership. If the worker
+         * advanced while the page was opening, reload the checkpoint after the
+         * grant so the page continues from the newest completed operation.
+         */
+        await awaitMyVersionForegroundBuildHandoff();
+
+        if (recoveringOwnedSubjectBuild) {
+            try {
+                await loadTutorContentState();
+
+                ownedSubjectBuildState =
+                    await requireAtlasTutorSubjects()
+                        .getBuildState(
+                            MODULE.id
+                        );
+
+                renderAllTutorContentSurfaces();
+            } catch (error) {
+                releaseMyVersionForegroundBuildHandoff(
+                    'post-handoff-checkpoint-refresh-failed'
+                );
+
+                throw error;
+            }
+        }
+
+        if (
+            getMyVersionForegroundBuildHandoff()
+        ) {
+            await acquireMyVersionForegroundBuildHandoffLease();
         }
     }
 
@@ -22297,6 +22383,8 @@ async function init() {
 
     if (
         myVersionEditing &&
+        getCompassSubjectRuntime()
+            .aiBuildIncomplete === true &&
         (
             ownedSubjectAuthoringIntent === 'generate' ||
             resumableFullSubjectBuild
