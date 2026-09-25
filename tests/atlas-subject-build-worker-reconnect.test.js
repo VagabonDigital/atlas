@@ -315,7 +315,7 @@ async function testWorkerReconnectAndAccountSwitch() {
 
     assert.match(
         workers[0].url,
-        /buildworker9/
+        /buildworker11/
     );
 
     Client.enqueueSubject(
@@ -338,7 +338,7 @@ async function testWorkerReconnectAndAccountSwitch() {
         at:
             Date.now(),
         workerVersion:
-            '20260924-buildworker9'
+            '20260924-buildworker11'
     });
 
     workers[0].onerror?.({
@@ -480,7 +480,7 @@ async function testWorkerReconnectAndAccountSwitch() {
             'worker-ready',
         queue: [],
         workerVersion:
-            '20260924-buildworker9'
+            '20260924-buildworker11'
     });
 
     const enqueueCountAfterReady =
