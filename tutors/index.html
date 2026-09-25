@@ -2412,7 +2412,7 @@
 
       .continuity-language > .continuity-eyebrow {
         left: 20px;
-        top: 258px;
+        top: 286px;
       }
 
       .continuity-expression {
@@ -4303,14 +4303,14 @@
 
           var memoryHeading = byId("continuityMemoryHeading");
           memoryHeading.style.left = (mobile ? 20 : width * .405) + "px";
-          memoryHeading.style.top = (mobile ? 92 : 49) + "px";
+          memoryHeading.style.top = (mobile ? 112 : 49) + "px";
           setOpacity(memoryHeading, ramp(u, 7.1, 8.0) * (1 - ramp(u, 13.2, 13.9)));
 
           var vocab = mobile
             ? [
-                [20, 292, Math.min(280, width - 40), 64, Math.min(22, inner / 11)],
-                [44, 374, Math.min(302, width - 64), 70, Math.min(20, inner / 11.8)],
-                [28, 462, Math.min(310, width - 48), 70, Math.min(20, inner / 11.8)]
+                [20, 324, Math.min(280, width - 40), 64, Math.min(22, inner / 11)],
+                [44, 414, Math.min(302, width - 64), 70, Math.min(20, inner / 11.8)],
+                [28, 510, Math.min(310, width - 48), 70, Math.min(20, inner / 11.8)]
               ]
             : [
                 [pad + inner * .02, 248, inner * .37, 86, Math.min(34, inner / 29)],
@@ -4372,9 +4372,9 @@
           var memory;
           if (mobile) {
             memory = [
-              [20, 142, Math.min(186, width - 40), 52],
-              [20, 202, Math.min(126, width * .35), 50],
-              [160, 202, Math.min(124, width - 180), 50]
+              [20, 164, Math.min(186, width - 40), 52],
+              [20, 224, Math.min(126, width * .35), 50],
+              [160, 224, Math.min(124, width - 180), 50]
             ];
           } else {
             var interestWidths = [236, 174, 182];
