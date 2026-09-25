@@ -92,7 +92,7 @@ assert.match(
 );
 assert.match(
   pricing,
-  /atlas-account-chrome\.js\?v=20260924-mobilecheckout3/,
+  /atlas-account-chrome\.js\?v=20260924-checkoutclean1/,
   'Pricing must load the current shared account chrome runtime.'
 );
 
