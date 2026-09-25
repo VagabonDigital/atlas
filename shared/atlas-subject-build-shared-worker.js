@@ -26,7 +26,7 @@
 'use strict';
 
 const WORKER_VERSION =
-    '20260925-buildworker12';
+    '20260925-buildworker13';
 
 const DEPENDENCY_VERSION =
     '20260924-workerbuild3';
@@ -3169,7 +3169,7 @@ async function enqueueSubject(
     return job;
 }
 
-function requestForegroundOwnership(
+async function requestForegroundOwnership(
     connection,
     message
 ) {
@@ -3219,8 +3219,142 @@ function requestForegroundOwnership(
             subjectId
         );
 
-    const job =
+    let job =
         queueByKey.get(key);
+
+    let recoveredDurableCheckpoint =
+        false;
+
+    /*
+     * A cold SharedWorker can receive a foreground-open request before the
+     * account resurrection coordinator has re-enqueued the unfinished build.
+     * The queue is only in memory, but the checkpoint is durable. Consult that
+     * checkpoint before claiming there is no worker job so the foreground page
+     * can reserve ownership and continue the visible build itself.
+     */
+    if (!job) {
+        let checkpoint = null;
+
+        try {
+            checkpoint =
+                await readBuildCheckpoint(
+                    subjectId
+                );
+        } catch (error) {
+            postDebugTrace(
+                connection,
+                'foreground-checkpoint-read-failed',
+                {
+                    requestId,
+                    subjectId,
+                    error:
+                        clean(
+                            error?.message ||
+                            error
+                        ) ||
+                        'checkpoint-read-failed'
+                }
+            );
+        }
+
+        /*
+         * Resurrection may have enqueued the subject while IndexedDB was being
+         * read. Never replace that newer in-memory job.
+         */
+        job =
+            queueByKey.get(key);
+
+        if (
+            !job &&
+            isObject(checkpoint) &&
+            isObject(
+                checkpoint.workingDraft
+            ) &&
+            isObject(
+                checkpoint
+                    .workingDraft
+                    .document
+            ) &&
+            isObject(
+                checkpoint.buildState
+            ) &&
+            clean(
+                checkpoint
+                    .buildState
+                    .kind
+            ) === 'full-subject'
+        ) {
+            const buildState =
+                checkpoint.buildState;
+
+            const workingDraft =
+                checkpoint.workingDraft;
+
+            job = {
+                userId,
+                subjectId,
+                status:
+                    'checkpoint-ready-for-foreground',
+                hasCheckpoint:
+                    true,
+                completedStep:
+                    normalizeCompletedStep(
+                        buildState.completedStep
+                    ),
+                lockState:
+                    'unknown',
+                progress:
+                    null,
+                build:
+                    normalizeBuildDescriptor({
+                        generationContext:
+                            buildState
+                                .generationContext ||
+                            null,
+                        autoSaveOnComplete:
+                            buildState
+                                .autoSaveOnComplete !==
+                            false,
+                        revision:
+                            Math.max(
+                                0,
+                                Math.floor(
+                                    Number(
+                                        workingDraft
+                                            .baseRevision
+                                    ) || 0
+                                )
+                            )
+                    }),
+                error:
+                    '',
+                foregroundOwnerPageId:
+                    '',
+                foregroundRequestId:
+                    '',
+                foregroundReason:
+                    '',
+                enqueuedAt:
+                    now(),
+                updatedAt:
+                    now()
+            };
+
+            queueByKey.set(
+                key,
+                job
+            );
+
+            if (
+                !queueOrder.includes(key)
+            ) {
+                queueOrder.push(key);
+            }
+
+            recoveredDurableCheckpoint =
+                true;
+        }
+    }
 
     postDebugTrace(
         connection,
@@ -3235,6 +3369,7 @@ function requestForegroundOwnership(
                 null,
             jobFound:
                 Boolean(job),
+            recoveredDurableCheckpoint,
             jobStatus:
                 job?.status ||
                 null,
@@ -3914,7 +4049,7 @@ function handleMessage(
         type ===
             'request-foreground-ownership'
     ) {
-        requestForegroundOwnership(
+        void requestForegroundOwnership(
             connection,
             message
         );
