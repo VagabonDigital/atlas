@@ -47,7 +47,7 @@ assert.match(
   'Paddle raw body must be verified before JSON parsing.'
 );
 
-assert.match(config, /const environment = 'sandbox'/);
+assert.match(config, /const environment = 'live'/);
 assert.match(
   config,
   /sandbox:[\s\S]*clientToken:[\s\S]*'test_4daba62599c4c2a77ca0bed2f0e'[\s\S]*proMonthly:[\s\S]*'pri_01m32eh22evm0xjtcrm71yndnx'/
@@ -82,15 +82,15 @@ assert.match(
 );
 assert.match(
   pricing,
-  /atlas-paddle-config\.js\?v=20260924-livecredentials1/
+  /atlas-paddle-config\.js\?v=20260924-live1/
 );
 assert.match(
   checkout,
-  /atlas-paddle-config\.js\?v=20260924-livecredentials1/
+  /atlas-paddle-config\.js\?v=20260924-live1/
 );
 assert.match(
   subscription,
-  /atlas-paddle-config\.js\?v=20260924-livecredentials1/
+  /atlas-paddle-config\.js\?v=20260924-live1/
 );
 assert.doesNotMatch(
   pricing + checkout + subscription,
