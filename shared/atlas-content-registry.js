@@ -1064,7 +1064,7 @@
         }
 
         const src =
-            '/shared/atlas-account-chrome.js?v=20260924-checkouttrust1';
+            '/shared/atlas-account-chrome.js?v=20260924-checkoutfooter1';
 
         if (document.readyState === 'loading') {
             document.write(
