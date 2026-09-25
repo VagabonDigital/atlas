@@ -754,12 +754,12 @@ assert.match(
 
 assert.match(
     registrySource,
-    /atlas-cloud-cache\.js\?v=20260922-order1/
+    /atlas-cloud-cache\.js\?v=20260924-browserstate2/
 );
 
 assert.match(
     registrySource,
-    /atlas-tutor-subjects-cloud-authority\.js\?v=20260924-revisionguard1/
+    /atlas-tutor-subjects-cloud-authority\.js\?v=20260924-browserstate2/
 );
 
 Promise.resolve()
