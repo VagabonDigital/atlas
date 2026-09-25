@@ -81,6 +81,18 @@ assert.match(
 
 assert.match(
     engine,
+    /pendingOwnedSubjectAuthoringIntent ===[\s\S]*?'generate'[\s\S]*?!incompleteOwnedSubjectBuild[\s\S]*?consumeOwnedSubjectAuthoringIntent\(\)[\s\S]*?pendingOwnedSubjectAuthoringIntent =[\s\S]*?''/,
+    'A stale author=generate URL must be discarded after durable completion.'
+);
+
+assert.match(
+    engine,
+    /const freshOwnedSubjectBuild =[\s\S]*?incompleteOwnedSubjectBuild &&[\s\S]*?pendingOwnedSubjectAuthoringIntent ===[\s\S]*?'generate'/,
+    'Fresh generation intent is valid only while the owned subject is incomplete.'
+);
+
+assert.match(
+    engine,
     /recoveringOwnedSubjectBuild[\s\S]*?ensureSubjectAuthoringCloudAuthorityReady\([\s\S]*?'subjects'/
 );
 
@@ -111,12 +123,12 @@ assert.match(
 
 assert.match(
     loader,
-    /compass-engine\.js\?v=20260924-revisionguard2/
+    /compass-engine\.js\?v=20260925-completionstate1/
 );
 
 assert.match(
     loader,
-    /compass-generation-recovery\.js\?v=20260925-workeraware2/
+    /compass-generation-recovery\.js\?v=20260925-workeraware3/
 );
 
 assert.match(
@@ -151,7 +163,7 @@ assert.match(
 
 assert.match(
     subjectPage,
-    /compass-subject-loader\.js\?v=20260925-workeraware2/
+    /compass-subject-loader\.js\?v=20260925-workeraware3/
 );
 
 console.log(
