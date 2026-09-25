@@ -1958,155 +1958,469 @@
 
     #keep h2 {
       max-width: none;
-      margin-bottom: 34px;
+      margin-bottom: 18px;
     }
 
-    .learner-board {
-      width: min(100%, 1040px);
-      margin: 46px auto 0;
+    #keep .lede {
+      max-width: 760px;
+    }
+
+    .continuity-stage {
+      --continuity-cream: #fbf9f3;
+      --continuity-ink: #183732;
+      --continuity-muted: #63766f;
+      --continuity-teal: #278770;
+      --continuity-line: #d5ddd3;
+      --continuity-mint: #e2eee3;
+      position: relative;
+      height: 650px;
+      margin-top: 42px;
+      overflow: hidden;
+      isolation: isolate;
+      border: 1px solid rgba(54, 83, 71, .16);
+      border-radius: 24px;
+      background:
+        radial-gradient(ellipse at 80% 40%, transparent, rgba(255, 253, 247, .65)),
+        var(--continuity-cream);
+      box-shadow: 0 22px 65px -44px rgba(82, 99, 83, .34);
+      color: var(--continuity-ink);
+    }
+
+    html[data-theme="night"] .continuity-stage {
+      --continuity-cream: #222622;
+      --continuity-ink: #edf3ee;
+      --continuity-muted: #a9b6ad;
+      --continuity-teal: #84cabf;
+      --continuity-line: rgba(235, 243, 237, .13);
+      --continuity-mint: rgba(132, 202, 191, .13);
+      background:
+        radial-gradient(ellipse at 80% 40%, transparent, rgba(35, 42, 37, .52)),
+        var(--continuity-cream);
+      border-color: rgba(235, 243, 237, .11);
+      box-shadow: 0 22px 65px -44px rgba(0, 0, 0, .62);
+    }
+
+    .continuity-learner {
+      position: absolute;
+      left: 42px;
+      top: 34px;
+      z-index: 12;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .continuity-avatar {
       display: grid;
-      grid-template-columns: 300px minmax(0, 1fr);
-      gap: 64px;
-      align-items: start;
+      place-items: center;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--continuity-mint);
+      color: var(--continuity-ink);
+      font: 35px var(--font-display);
     }
 
-    .learner-card {
-      padding: 20px 0;
-      border-top: 1px solid var(--border-subtle);
-      border-bottom: 1px solid var(--border-subtle);
+    .continuity-name {
+      margin-bottom: 3px;
+      color: var(--continuity-ink);
+      font: 26px var(--font-display);
     }
 
-    .learner-card strong {
-      display: block;
-      color: var(--text-heading);
-      font-family: var(--font-display);
-      font-size: 27px;
-      font-weight: 400;
+    .continuity-profile {
+      color: var(--continuity-muted);
+      font-size: 12px;
     }
 
-    .learner-card span {
-      display: block;
-      margin-top: 4px;
-      color: var(--text-muted);
-      font-size: 13px;
-    }
-
-    .learner-card .memory {
-      margin-top: 18px;
-      color: var(--text-body);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .learner-history {
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border-faint);
-      display: grid;
-      gap: 20px;
-    }
-
-    .learner-history-label {
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: .09em;
+    .continuity-eyebrow {
+      color: var(--continuity-teal);
       font-size: 10px;
       font-weight: 700;
-    }
-
-    .learner-history-group.compass .learner-history-label {
-      color: var(--compass);
-    }
-
-    .learner-history-group.arcade .learner-history-label {
-      color: var(--arcade);
-    }
-
-    .learner-history-item {
-      margin-top: 7px;
-      color: var(--text-heading);
-      font-size: 12px;
-      line-height: 1.4;
-    }
-
-    .thread {
-      position: relative;
-      padding-left: 30px;
-    }
-
-    .thread::before {
-      content: "";
-      position: absolute;
-      left: 5px;
-      top: 10px;
-      bottom: 10px;
-      width: 1px;
-      background: var(--border-subtle);
-    }
-
-    .thread-step {
-      position: relative;
-      padding: 0 0 34px;
-    }
-
-    .thread-step:last-child {
-      padding-bottom: 0;
-    }
-
-    .thread-step::before {
-      content: "";
-      position: absolute;
-      left: -29px;
-      top: 7px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--surface-canvas);
-      border: 2px solid var(--accent);
-    }
-
-    .thread-step .time {
-      color: var(--text-muted);
-      font-size: 11px;
-      letter-spacing: .11em;
+      letter-spacing: .16em;
+      line-height: 1.5;
       text-transform: uppercase;
-      font-weight: 700;
     }
 
-    .thread-step h3 {
-      margin-top: 4px;
-      font-size: 24px;
+    .continuity-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin-right: 9px;
+      border-radius: 50%;
+      background: var(--continuity-teal);
+      vertical-align: 1px;
     }
 
-    .thread-details {
-      margin-top: 12px;
+    .continuity-lesson {
+      position: absolute;
+      left: 42px;
+      top: 205px;
+      z-index: 4;
+      width: 54%;
+    }
+
+    .continuity-lesson h3 {
+      max-width: 560px;
+      margin: 18px 0 22px;
+      color: var(--continuity-ink);
+      font: 400 clamp(42px, 4.9vw, 62px)/1.04 var(--font-display);
+      letter-spacing: -.035em;
+    }
+
+    .continuity-lesson p {
+      max-width: 445px;
+      color: var(--continuity-muted);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .continuity-art {
+      position: absolute;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .continuity-landscape,
+    .continuity-architecture {
+      right: -18px;
+      bottom: 36px;
+      width: 64%;
+      height: 430px;
+    }
+
+    .continuity-art svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .continuity-memory-heading,
+    .continuity-ideas-heading,
+    .continuity-active-heading {
+      position: absolute;
+      z-index: 8;
+    }
+
+    .continuity-ideas-heading {
+      left: 42px;
+      top: 142px;
+    }
+
+    .continuity-ideas-heading .continuity-subline {
+      margin-top: 7px;
+      color: var(--continuity-muted);
+      font-size: 14px;
+    }
+
+    .continuity-active-heading {
+      left: 42px;
+      top: 162px;
+    }
+
+    .continuity-language {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .continuity-language > .continuity-eyebrow {
+      position: absolute;
+      left: 42px;
+      top: 194px;
+    }
+
+    .continuity-expression {
+      position: absolute;
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .thread-details span {
-      min-height: 26px;
-      display: inline-flex;
       align-items: center;
-      padding: 5px 10px;
-      border: 0;
+      gap: 18px;
+      padding: 17px 24px;
+      border: 1px solid var(--continuity-line);
+      border-radius: 90px;
+      background: color-mix(in srgb, var(--continuity-cream) 93%, white);
+      box-shadow: 0 17px 35px -26px rgba(104, 123, 108, .38);
+      color: var(--continuity-ink);
+      font: 38px/1.12 var(--font-display);
+      letter-spacing: -.02em;
+      transform-origin: center;
+    }
+
+    html[data-theme="night"] .continuity-expression {
+      background: color-mix(in srgb, var(--continuity-cream) 88%, #303630);
+    }
+
+    .continuity-vocab-icon {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      background: var(--continuity-mint);
+      color: var(--continuity-teal);
+    }
+
+    .continuity-vocab-icon svg {
+      width: 40px;
+      height: 40px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .continuity-idea {
+      position: absolute;
+      z-index: 5;
+      transform-origin: top left;
+    }
+
+    .continuity-surface {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      border: 1px solid var(--continuity-line);
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--continuity-cream) 94%, white);
+      box-shadow: 0 24px 40px -32px rgba(104, 132, 114, .4);
+    }
+
+    html[data-theme="night"] .continuity-surface {
+      background: color-mix(in srgb, var(--continuity-cream) 88%, #303630);
+    }
+
+    .continuity-idea.is-primary .continuity-surface {
+      background: color-mix(in srgb, var(--continuity-mint) 38%, var(--continuity-cream));
+    }
+
+    .continuity-seed {
+      position: absolute;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      white-space: nowrap;
+    }
+
+    .continuity-seed-word {
+      color: var(--continuity-ink);
+      font: 21px var(--font-display);
+    }
+
+    .continuity-icon {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 41px;
+      height: 41px;
+      border-radius: 50%;
+      background: var(--continuity-mint);
+      color: var(--continuity-teal);
+    }
+
+    .continuity-icon svg {
+      width: 30px;
+      height: 30px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .continuity-idea h3 {
+      position: absolute;
+      z-index: 3;
+      margin: 0;
+      color: var(--continuity-ink);
+      font: 400 28px/1.1 var(--font-display);
+      letter-spacing: -.025em;
+    }
+
+    .continuity-idea p {
+      position: absolute;
+      z-index: 3;
+      margin: 0;
+      color: var(--continuity-muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .continuity-motif {
+      position: absolute;
+      right: -8px;
+      bottom: -4px;
+      width: 185px;
+      height: 115px;
+      color: var(--continuity-teal);
+      opacity: .2;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.3;
+    }
+
+    .continuity-thread {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .continuity-thread path {
+      fill: none;
+      stroke: color-mix(in srgb, var(--continuity-teal) 62%, transparent);
+      stroke-width: 1.15;
+    }
+
+    .continuity-thread circle {
+      fill: color-mix(in srgb, var(--continuity-teal) 76%, white);
+    }
+
+    .continuity-thread .continuity-halo {
+      fill: color-mix(in srgb, var(--continuity-mint) 70%, transparent);
+    }
+
+    .continuity-final-copy {
+      position: absolute;
+      z-index: 7;
+      max-width: 390px;
+      margin: 0;
+      color: var(--continuity-muted);
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .continuity-replay {
+      position: absolute;
+      right: 20px;
+      bottom: 18px;
+      z-index: 20;
+      min-height: 34px;
+      padding: 7px 11px;
+      border: 1px solid var(--continuity-line);
       border-radius: 999px;
-      background: rgba(var(--accent-rgb), .07);
-      color: var(--text-muted);
+      background: color-mix(in srgb, var(--continuity-cream) 90%, transparent);
+      color: var(--continuity-muted);
+      cursor: pointer;
       font-size: 11px;
-      font-weight: 500;
-      line-height: 1.2;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease, color 220ms ease, border-color 220ms ease;
     }
 
-    .thread-details .language {
-      color: var(--compass);
-      background: rgba(var(--compass-rgb), .10);
+    .continuity-stage.is-settled .continuity-replay {
+      opacity: .78;
+      pointer-events: auto;
     }
 
-    .thread-details .arcade {
-      color: var(--arcade);
-      background: rgba(var(--arcade-rgb), .10);
+    .continuity-replay:hover {
+      color: var(--continuity-ink);
+      border-color: color-mix(in srgb, var(--continuity-teal) 38%, var(--continuity-line));
+    }
+
+    @media (max-width: 900px) {
+      .continuity-stage {
+        height: 950px;
+        border-radius: 20px;
+      }
+
+      .continuity-learner {
+        left: 24px;
+        top: 26px;
+        gap: 11px;
+      }
+
+      .continuity-avatar {
+        width: 46px;
+        height: 46px;
+        font-size: 30px;
+      }
+
+      .continuity-name {
+        font-size: 23px;
+      }
+
+      .continuity-lesson {
+        left: 24px;
+        top: 152px;
+        width: calc(100% - 48px);
+      }
+
+      .continuity-lesson h3 {
+        font-size: clamp(34px, 9.6vw, 44px);
+        line-height: 1.06;
+      }
+
+      .continuity-landscape,
+      .continuity-architecture {
+        right: -42px;
+        bottom: 58px;
+        width: 124%;
+        height: 340px;
+      }
+
+      .continuity-ideas-heading,
+      .continuity-active-heading {
+        left: 24px;
+        top: 118px;
+      }
+
+      .continuity-language > .continuity-eyebrow {
+        left: 24px;
+        top: 300px;
+      }
+
+      .continuity-expression {
+        padding: 14px 17px;
+        gap: 11px;
+      }
+
+      .continuity-vocab-icon {
+        width: 42px;
+        height: 42px;
+      }
+
+      .continuity-vocab-icon svg {
+        width: 27px;
+        height: 27px;
+      }
+
+      .continuity-seed {
+        gap: 8px;
+      }
+
+      .continuity-seed-word {
+        font-size: 18px;
+      }
+
+      .continuity-icon {
+        width: 34px;
+        height: 34px;
+      }
+
+      .continuity-icon svg {
+        width: 26px;
+        height: 26px;
+      }
+
+      .continuity-idea p {
+        font-size: 13px;
+      }
+
+      .continuity-final-copy {
+        font-size: 15px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .continuity-replay {
+        display: none;
+      }
     }
 
     .product-entry-final {
@@ -2701,55 +3015,118 @@
     <section class="section" id="keep">
       <div class="frame">
         <p class="kicker">Continuity</p>
-        <h2>The learner doesn’t reset between lessons.</h2>
-        <p class="lede">Neither does your preparation. Atlas carries the learner context forward: About, interests and notes,
-          explored material, saved language, recent activity, Continue, Review and Arcade progress. Session Subjects give
-          each learner their own custom material; My Subjects is your reusable teaching library.</p>
-        <div class="learner-board">
-          <div class="learner-card"><strong>Maya</strong><span>From Istanbul, Türkiye · studying urban design · moving to
-              Berlin later this year.</span>
-            <div class="memory"><b>Into</b><br>brutalist buildings · live gigs · making playlists for places she’s never
-              been<br><br><b>Tutor note</b><br>Gets much more talkative when the conversation gets concrete or slightly
-              strange.</div>
-            <div class="learner-history">
-              <div class="learner-history-group compass">
-                <div class="learner-history-label">Previous Compass</div>
-                <div class="learner-history-item">Finding Your Crowd in Berlin’s Live Music Scene</div>
-                <div class="learner-history-item">The Brutalist Buildings People Love to Hate</div>
-              </div>
-              <div class="learner-history-group arcade">
-                <div class="learner-history-label">Arcade history</div>
-                <div class="learner-history-item">Would You Rather · 18 / 50</div>
-                <div class="learner-history-item">Tomorrow Got Weird · 16 / 25</div>
-              </div>
+        <h2>Every lesson leaves Atlas better prepared for the next one.</h2>
+        <p class="lede">Atlas carries useful language and learner context forward, then turns what you learn about someone into richer directions for what to teach next.</p>
+
+        <div class="continuity-stage" id="continuityStage" aria-label="How lessons with Yasmin inform future preparation">
+          <svg width="0" height="0" aria-hidden="true" style="position:absolute">
+            <defs>
+              <symbol id="continuityFlow" viewBox="0 0 48 48"><path d="M4 36C13 37 19 24 28 19S40 17 44 20M4 40C15 42 22 27 31 25S40 24 44 26M6 41H44M10 39V34M17 36V29M24 30V24M32 26V20M40 25V19"/></symbol>
+              <symbol id="continuityPalm" viewBox="0 0 48 48"><path d="M25 41V19M25 19C18 9 10 12 7 19C15 16 20 17 25 19ZM25 19C32 8 39 12 42 18C35 15 30 17 25 19ZM25 19C17 19 12 23 11 29M25 19C32 20 35 25 36 29M25 19C22 12 23 7 28 5"/></symbol>
+              <symbol id="continuityMatcha" viewBox="0 0 48 48"><ellipse cx="24" cy="23" rx="17" ry="5"/><path d="M7 23C8 36 13 41 24 41S40 34 41 23M23 21C22 11 28 6 37 5C36 14 30 18 23 17M23 17L33 9M23 22C23 14 17 10 12 9"/></symbol>
+            </defs>
+          </svg>
+
+          <div class="continuity-learner">
+            <span class="continuity-avatar" aria-hidden="true">Y</span>
+            <div>
+              <div class="continuity-name">Yasmin</div>
+              <div class="continuity-profile">B2 · Curious explorer</div>
             </div>
           </div>
-          <div class="thread">
-            <article class="thread-step">
-              <div class="time">Last lesson</div>
-              <h3>The Sound of a Place You’ve Never Visited</h3>
-              <div class="thread-details"><span>3 moments explored</span><span class="language">“evocative”
-                  saved</span></div>
-            </article>
-            <article class="thread-step">
-              <div class="time">Wrap Up</div>
-              <h3>This session is now part of Maya’s history.</h3>
-              <div class="thread-details"><span>where you stopped remembered</span><span class="language">“evocative”
-                  added to Review</span></div>
-            </article>
-            <article class="thread-step">
-              <div class="time">Next time</div>
-              <h3>Continue, review, or go somewhere else.</h3>
-              <div class="thread-details"><span>pick up from last lesson</span><span class="language">“evocative” in
-                  Review</span><span>Maya’s Session Subjects</span></div>
-            </article>
-            <article class="thread-step">
-              <div class="time">Another lesson</div>
-              <h3>Time for a game? Let’s jump into Arcade.</h3>
-              <div class="thread-details"><span class="arcade">Would You Rather · 18 / 50</span><span>Compass history
-                  still there</span></div>
-            </article>
+
+          <div class="continuity-lesson" id="continuityLesson">
+            <div class="continuity-eyebrow" id="continuityCategory"><span class="continuity-dot"></span>Travel</div>
+            <h3 id="continuityLessonTitle">Places That Feel<br> Like Another Planet</h3>
+            <p id="continuityLessonCopy">Deserts, salt flats, volcanic landscapes and places that barely look like Earth.</p>
           </div>
+
+          <div class="continuity-art continuity-landscape" id="continuityLandscape" aria-hidden="true">
+            <svg viewBox="0 0 800 490">
+              <defs>
+                <linearGradient id="continuitySand" x2=".2" y2="1"><stop stop-color="#e6ddbd"/><stop offset="1" stop-color="#f8f6ed"/></linearGradient>
+                <linearGradient id="continuitySage" x2=".5" y2="1"><stop stop-color="#779885"/><stop offset="1" stop-color="#dce3cc"/></linearGradient>
+              </defs>
+              <circle cx="573" cy="143" r="126" fill="#eee9d7"/>
+              <path d="M0 332C153 343 220 251 316 231S442 272 480 216L565 132Q586 102 610 144L700 211L800 242V440H0Z" fill="url(#continuitySage)"/>
+              <path d="M581 125C555 196 647 201 648 231C688 251 748 254 800 267V328C694 294 610 261 538 277C497 286 473 247 480 216Z" fill="#6d9180" opacity=".34"/>
+              <path d="M0 360C180 314 273 335 390 273S610 302 800 315V490H0Z" fill="url(#continuitySand)"/>
+              <path d="M198 354C307 357 450 402 721 396C543 435 285 422 198 354Z" fill="#9faf92" opacity=".45"/>
+              <path d="M0 313C215 325 236 122 418 172" fill="none" stroke="#b5c8b8" stroke-width="1"/>
+            </svg>
+          </div>
+
+          <svg class="continuity-thread" id="continuityThread" viewBox="0 0 1200 650" preserveAspectRatio="none" aria-hidden="true">
+            <circle class="continuity-halo" cx="1010" cy="150" r="96"/>
+            <path id="continuityThreadPath" pathLength="1" d="M190 448C381 454 435 126 701 112S1034 184 1090 365S985 594 842 566"/>
+            <circle class="continuity-thread-point" cx="615" cy="126" r="4"/>
+            <circle class="continuity-thread-point" cx="1083" cy="344" r="3.5"/>
+          </svg>
+
+          <div class="continuity-memory-heading continuity-eyebrow" id="continuityMemoryHeading"><span class="continuity-dot"></span>New interests added · 3</div>
+          <div class="continuity-ideas-heading" id="continuityIdeasHeading">
+            <div class="continuity-eyebrow"><span class="continuity-dot"></span>3 Atlas ideas for Yasmin</div>
+            <div class="continuity-subline">Based on her interests</div>
+          </div>
+          <div class="continuity-active-heading continuity-eyebrow" id="continuityActiveHeading"><span class="continuity-dot"></span>Active lesson</div>
+
+          <div class="continuity-language" id="continuityLanguage">
+            <div class="continuity-eyebrow">Saved language · 3</div>
+            <div class="continuity-expression">
+              <span class="continuity-vocab-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="13"/><ellipse cx="24" cy="24" rx="23" ry="7" transform="rotate(-30 24 24)"/></svg></span>
+              <span>otherworldly</span>
+            </div>
+            <div class="continuity-expression">
+              <span class="continuity-vocab-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M3 38L15 19L29 38ZM16 21L27 7L45 38H29"/></svg></span>
+              <span>in the middle of nowhere</span>
+            </div>
+            <div class="continuity-expression">
+              <span class="continuity-vocab-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 31H40M13 37H36M19 42H30M12 26A12 12 0 0124 14A12 12 0 0136 26M24 5V9M7 12L11 16M37 16L41 12"/></svg></span>
+              <span>as far as the eye can see</span>
+            </div>
+          </div>
+
+          <article class="continuity-idea is-primary" id="continuityArchitectureIdea">
+            <div class="continuity-surface"><svg class="continuity-motif" viewBox="0 0 200 120" aria-hidden="true"><path d="M0 106C51 119 63 43 110 54S144 56 165 18S201 8 212 11M0 112C50 126 64 56 112 65S157 57 176 23M14 104V113M40 87V112M68 61V103M95 53V84M121 57V84M148 41V75M176 10V52"/></svg></div>
+            <div class="continuity-seed"><span class="continuity-icon"><svg aria-hidden="true"><use href="#continuityFlow"/></svg></span><span class="continuity-seed-word">Architecture</span></div>
+            <h3><span>Nature-Inspired</span><br>Architecture</h3>
+            <p>From Zaha Hadid’s flowing forms to buildings shaped by dunes, waves and wind.</p>
+          </article>
+
+          <article class="continuity-idea" id="continuityThailandIdea">
+            <div class="continuity-surface"></div>
+            <div class="continuity-seed"><span class="continuity-icon"><svg aria-hidden="true"><use href="#continuityPalm"/></svg></span><span class="continuity-seed-word">Thailand</span></div>
+            <h3>Thailand Beyond<br>the Postcard</h3>
+            <p>Street food, temples, islands and the cultural details that make a place feel different.</p>
+          </article>
+
+          <article class="continuity-idea" id="continuityMatchaIdea">
+            <div class="continuity-surface"></div>
+            <div class="continuity-seed"><span class="continuity-icon"><svg aria-hidden="true"><use href="#continuityMatcha"/></svg></span><span class="continuity-seed-word">Matcha</span></div>
+            <h3>Matcha: From Tradition<br>to Café Culture</h3>
+            <p>From tea ceremony and ritual to the global café culture built around matcha.</p>
+          </article>
+
+          <p class="continuity-final-copy" id="continuityFinalCopy">A conversation about buildings shaped by dunes, waves and wind.</p>
+
+          <div class="continuity-art continuity-architecture" id="continuityArchitecture" aria-hidden="true">
+            <svg viewBox="0 0 800 490">
+              <defs>
+                <linearGradient id="continuitySky" x2="0" y2="1"><stop stop-color="#cfe5d9"/><stop offset="1" stop-color="#eef3e8"/></linearGradient>
+                <linearGradient id="continuityRoof" x1="0" y1="0" x2=".6" y2="1"><stop stop-color="#fffdf6"/><stop offset=".65" stop-color="#e6e4d4"/><stop offset="1" stop-color="#bdcfc0"/></linearGradient>
+                <linearGradient id="continuityGlass" x2=".4" y2="1"><stop stop-color="#729f91"/><stop offset="1" stop-color="#d7e5d8"/></linearGradient>
+              </defs>
+              <circle cx="575" cy="133" r="132" fill="url(#continuitySky)"/>
+              <path d="M20 306Q209 219 366 272T800 252V389H20Z" fill="#e4eadc"/>
+              <path d="M151 341C248 345 301 242 391 258S500 313 563 192S714 112 793 126V359H151Z" fill="url(#continuityGlass)"/>
+              <path d="M111 345C217 363 274 227 381 239S481 293 547 179S693 88 817 103L794 127C681 107 626 120 579 198S526 314 448 291S327 250 270 300S169 364 111 345Z" fill="url(#continuityRoof)" stroke="#a8bfb0" stroke-width="1"/>
+              <path d="M112 346C229 358 280 244 381 250S485 307 561 189S705 103 806 115" fill="none" stroke="#fffdf6" stroke-width="3"/>
+              <path d="M147 360H797L777 368H128Z" fill="#e3e3d2"/>
+            </svg>
+          </div>
+
+          <button class="continuity-replay" id="continuityReplay" type="button" aria-label="Replay continuity animation">Replay</button>
+          <p class="sr-only" id="continuityAccessibleState" aria-live="polite"></p>
         </div>
       </div>
     </section>
@@ -3727,6 +4104,353 @@
           reducedMotion.addEventListener("change", syncTeachLayout);
         }
       }
+
+      function setupContinuityStage() {
+        var stage = document.getElementById("continuityStage");
+        if (!stage) return;
+
+        function byId(id) { return document.getElementById(id); }
+        var cards = [
+          byId("continuityArchitectureIdea"),
+          byId("continuityThailandIdea"),
+          byId("continuityMatchaIdea")
+        ];
+        var expressions = Array.prototype.slice.call(
+          stage.querySelectorAll(".continuity-expression")
+        );
+        var media = window.matchMedia("(prefers-reduced-motion: reduce)");
+        var duration = 34;
+        var time = 0;
+        var playing = false;
+        var last = 0;
+        var raf = 0;
+        var announced = -1;
+
+        function clamp(value) {
+          return Math.max(0, Math.min(1, value));
+        }
+
+        function smooth(value) {
+          value = clamp(value);
+          return value * value * (3 - 2 * value);
+        }
+
+        function ramp(value, start, end) {
+          return smooth((value - start) / (end - start));
+        }
+
+        function mix(start, end, progress) {
+          return start + (end - start) * progress;
+        }
+
+        function setOpacity(element, value) {
+          if (!element) return;
+          element.style.opacity = value;
+          element.style.visibility = value < .001 ? "hidden" : "visible";
+          if (!element.matches("svg,.continuity-art,.continuity-motif")) {
+            element.setAttribute("aria-hidden", value < .12 ? "true" : "false");
+          }
+        }
+
+        function setBox(element, x, y, width, height) {
+          Object.assign(element.style, {
+            left: x + "px",
+            top: y + "px",
+            width: width + "px",
+            height: height + "px"
+          });
+        }
+
+        function move(element, x, y, scale) {
+          if (scale == null) scale = 1;
+          element.style.transform =
+            "translate(" + x + "px," + y + "px) scale(" + scale + ")";
+        }
+
+        function render(t) {
+          var mobile = window.matchMedia("(max-width: 900px)").matches;
+          var width = stage.clientWidth;
+          var pad = mobile ? 24 : 42;
+          var inner = width - pad * 2;
+          var rm = media.matches;
+          var u = rm
+            ? (t < 7 ? 3 : t < 14 ? (t < 11 ? 9 : 12.8) : t < 29 ? (t < 25 ? 21 : 27) : 34)
+            : t;
+          var attention = ramp(u, 10.5, 12.5);
+          var final = ramp(u, 28.4, 31.6);
+          var focus = ramp(u, 25, 26.2);
+
+          var titleIn = ramp(u, .2, 1.35);
+          var artIn = ramp(u, .55, 2.05);
+          var catIn = ramp(u, .85, 1.45);
+          var copyIn = ramp(u, 1.45, 2.2);
+          var titleOut = ramp(u, 6.15, 6.9);
+          var artOut = ramp(u, 6.5, 7.2);
+          var copyOut = ramp(u, 6.0, 6.65);
+
+          setOpacity(byId("continuityLessonTitle"), titleIn * (1 - titleOut));
+          move(byId("continuityLessonTitle"), rm ? 0 : -36 * (1 - titleIn) - 12 * titleOut, 0);
+          setOpacity(byId("continuityCategory"), catIn * (1 - ramp(u, 6.25, 6.8)));
+          move(byId("continuityCategory"), 0, rm ? 0 : -6 * (1 - catIn));
+          setOpacity(byId("continuityLessonCopy"), copyIn * (1 - copyOut));
+          move(byId("continuityLessonCopy"), 0, rm ? 0 : 10 * (1 - copyIn));
+          setOpacity(byId("continuityLandscape"), artIn * (1 - artOut));
+          move(byId("continuityLandscape"), 0, rm ? 0 : 48 * (1 - artIn) + 9 * artOut);
+          byId("continuityLandscape").style.clipPath =
+            "inset(" + (rm ? 0 : 38 * (1 - artIn)) + "% 0 0 0)";
+
+          var memoryIn = ramp(u, 7.05, 7.9);
+          var memoryOut = ramp(u, 13.1, 14.0);
+          setOpacity(byId("continuityLanguage"), memoryIn * (1 - .60 * attention) * (1 - memoryOut));
+
+          var memoryHeading = byId("continuityMemoryHeading");
+          memoryHeading.style.left = (mobile ? pad : width * .405) + "px";
+          memoryHeading.style.top = (mobile ? 116 : 46) + "px";
+          setOpacity(memoryHeading, ramp(u, 7.1, 8.0) * (1 - ramp(u, 13.2, 13.9)));
+
+          var vocab = mobile
+            ? [
+                [pad, 324, inner * .86, 82, Math.min(29, inner / 8.5)],
+                [pad + inner * .08, 458, inner * .92, 104, Math.min(27, inner / 8.8)],
+                [pad + inner * .03, 622, inner * .97, 108, Math.min(27, inner / 8.8)]
+              ]
+            : [
+                [pad, 244, inner * .43, 112, Math.min(50, inner / 22)],
+                [pad + inner * .48, 350, inner * .52, 110, Math.min(37, inner / 29)],
+                [pad + inner * .18, 505, inner * .62, 108, Math.min(41, inner / 27)]
+              ];
+
+          expressions.forEach(function (element, index) {
+            var values = vocab[index];
+            setBox(element, values[0], values[1], values[2], values[3]);
+            element.style.fontSize = values[4] + "px";
+            var arrive = ramp(u, 7.08 + index * .11, 7.85 + index * .11);
+            setOpacity(element, arrive);
+            move(
+              element,
+              rm ? 0 : (index === 1 ? 12 : -13) * (1 - arrive),
+              rm ? 0 : (index === 2 ? 12 : 0) * (1 - arrive) + mix(0, index === 1 ? 8 : 3, attention),
+              mix(1, .945, attention)
+            );
+          });
+
+          var draw = ramp(u, 13.6, 17.1);
+          var threadOut = 1 - ramp(u, 27.8, 29.4);
+          var thread = byId("continuityThread");
+          setOpacity(thread, threadOut);
+          byId("continuityThreadPath").style.strokeDasharray = "1";
+          byId("continuityThreadPath").style.strokeDashoffset = 1 - draw;
+          setOpacity(thread.querySelector(".continuity-halo"), ramp(u, 14.5, 16.5) * .65);
+          Array.prototype.forEach.call(
+            thread.querySelectorAll(".continuity-thread-point"),
+            function (element, index) {
+              setOpacity(element, ramp(u, 15.1 + index * 1.25, 15.8 + index * 1.25) * .65);
+            }
+          );
+
+          setOpacity(byId("continuityIdeasHeading"), ramp(u, 13.5, 14.3) * (1 - ramp(u, 28, 28.8)));
+          move(byId("continuityIdeasHeading"), rm ? 0 : -8 * (1 - ramp(u, 13.5, 14.3)), 0);
+          setOpacity(byId("continuityActiveHeading"), ramp(u, 29.4, 30.3));
+
+          var memory = mobile
+            ? [
+                [pad, 164, Math.min(206, inner * .78), 58],
+                [pad + inner * .04, 236, Math.min(140, inner * .56), 56],
+                [pad + inner - 126, 212, 126, 56]
+              ]
+            : [
+                [width * .405, 86, 224, 64],
+                [width * .655, 136, 166, 60],
+                [width * .813, 82, 154, 60]
+              ];
+
+          var rec = mobile
+            ? [
+                [pad, 188, inner, 256],
+                [pad, 474, inner * .95, 215],
+                [pad + inner * .06, 716, inner * .94, 220]
+              ]
+            : [
+                [pad, 258, inner * .52, 302],
+                [pad + inner * .615, 158, inner * .365, 216],
+                [pad + inner * .665, 402, inner * .335, 220]
+              ];
+
+          cards.forEach(function (element, index) {
+            var travel = ramp(u, [13.2, 13.8, 13.25][index], [14.65, 15.2, 14.8][index]);
+            var build = ramp(u, [14.1, 14.85, 14.5][index], [15.4, 15.8, 16][index]);
+            var reveal = ramp(u, [14.75, 15.1, 15.4][index], [15.65, 16.0, 16.3][index]);
+            var textIn = ramp(u, [15.7, 16.0, 16.35][index], [16.45, 16.75, 17.1][index]);
+            var from = memory[index];
+            var to = rec[index];
+            var x = mix(from[0], to[0], travel);
+            var y = mix(from[1], to[1], travel);
+            var cardWidth = mix(from[2], to[2], build);
+            var cardHeight = mix(from[3], to[3], build);
+
+            if (index === 2 && !mobile) {
+              x += Math.sin(travel * Math.PI) * width * .065;
+            }
+
+            if (index === 0) {
+              x = mix(x, pad, final);
+              y = mix(y, mobile ? 204 : 238, final);
+              cardWidth = mix(cardWidth, mobile ? inner : inner * .51, final);
+              cardHeight = mix(cardHeight, mobile ? 285 : 306, final);
+            }
+
+            setBox(element, x, y, cardWidth, cardHeight);
+            setOpacity(
+              element,
+              ramp(u, 7.15 + index * .12, 8.05 + index * .12) *
+              (index === 0 ? 1 : (1 - .23 * focus) * (1 - ramp(u, 28 + index * .12, 28.9 + index * .12)))
+            );
+
+            var surface = element.querySelector(".continuity-surface");
+            var seed = element.querySelector(".continuity-seed");
+            var title = element.querySelector("h3");
+            var desc = element.querySelector("p");
+
+            setOpacity(surface, (.30 + .70 * attention) * (1 - final));
+            surface.style.borderRadius = mix(42, 18, build) + "px";
+            surface.style.borderColor = index === 0
+              ? "rgba(66,136,109," + (.19 + .28 * focus) + ")"
+              : "var(--continuity-line)";
+
+            var inset = mobile ? 18 : 25;
+            seed.style.left = mix(10, inset, travel) + "px";
+            seed.style.top = mix(10, mobile ? 18 : 22, travel) + "px";
+            setOpacity(seed, (.57 + .43 * attention) * (index === 0 ? 1 - ramp(u, 28.35, 29) : 1));
+
+            var titleY = mobile ? (index === 0 ? 82 : 63) : (index === 0 ? 94 : 70);
+            var titleX = mix(inset, 0, index === 0 ? final : 0);
+            var titleTop = mix(titleY, 0, index === 0 ? final : 0);
+            title.style.left = titleX + "px";
+            title.style.top = titleTop + "px";
+            title.style.width = (cardWidth - titleX - inset * (1 - final)) + "px";
+            title.style.fontSize = (
+              index === 0
+                ? mix(
+                    mobile ? Math.min(31, inner / 8.8) : Math.min(42, inner / 25),
+                    mobile ? Math.min(41, inner / 7.4) : Math.min(56, inner / 18),
+                    final
+                  )
+                : (mobile ? Math.min(24, inner / 12) : Math.min(28, inner / 39))
+            ) + "px";
+            setOpacity(title, reveal);
+            move(title, rm ? 0 : (index === 1 ? 12 : 0) * (1 - reveal), rm ? 0 : (index === 0 ? 12 : index === 2 ? 8 : 0) * (1 - reveal));
+
+            desc.style.left = inset + "px";
+            desc.style.width = (index === 0 && !mobile ? Math.min(cardWidth - inset * 2, 440) : cardWidth - inset * 2) + "px";
+            desc.style.top = (titleTop + title.offsetHeight + (mobile ? 13 : 16)) + "px";
+            setOpacity(desc, textIn * (1 - ramp(u, 28.2, 29)));
+            move(desc, 0, rm ? 0 : 5 * (1 - textIn));
+
+            if (index === 0) {
+              setOpacity(element.querySelector(".continuity-motif"), reveal * .26 * (1 - ramp(u, 28, 28.9)));
+            }
+          });
+
+          var architectureTitle = cards[0].querySelector("h3").getBoundingClientRect();
+          var stageBox = stage.getBoundingClientRect();
+          setBox(
+            byId("continuityFinalCopy"),
+            pad,
+            architectureTitle.bottom - stageBox.top + 22,
+            mobile ? inner : Math.min(inner * .43, 400),
+            96
+          );
+          setOpacity(byId("continuityFinalCopy"), ramp(u, 29.7, 30.5));
+          move(byId("continuityFinalCopy"), 0, rm ? 0 : 6 * (1 - ramp(u, 29.7, 30.5)));
+
+          var architectureIn = ramp(u, 29.05, 31.7);
+          setOpacity(byId("continuityArchitecture"), architectureIn);
+          move(byId("continuityArchitecture"), rm ? 0 : 18 * (1 - architectureIn), rm ? 0 : 24 * (1 - architectureIn));
+          byId("continuityArchitecture").style.clipPath =
+            "inset(0 0 " + (rm ? 0 : 30 * (1 - architectureIn)) + "% 0)";
+
+          stage.classList.toggle("is-settled", t >= duration);
+
+          var beat = t < 7 ? 0 : t < 14 ? 1 : t < 29 ? 2 : 3;
+          if (announced !== beat) {
+            byId("continuityAccessibleState").textContent = [
+              "Yasmin’s current lesson: Places That Feel Like Another Planet.",
+              "Language saved. New interests: Architecture, Thailand and Matcha.",
+              "Atlas elaborates Yasmin’s interests into three richer lesson ideas.",
+              "Next active lesson: Nature-Inspired Architecture."
+            ][beat];
+            announced = beat;
+          }
+        }
+
+        function tick(now) {
+          if (!playing) return;
+          if (last) time = Math.min(duration, time + (now - last) / 1000);
+          last = now;
+          render(time);
+          if (time >= duration) {
+            playing = false;
+            return;
+          }
+          raf = window.requestAnimationFrame(tick);
+        }
+
+        function play(fromStart) {
+          if (fromStart) time = 0;
+          window.cancelAnimationFrame(raf);
+          playing = true;
+          last = 0;
+          stage.classList.remove("is-settled");
+          raf = window.requestAnimationFrame(tick);
+          render(time);
+        }
+
+        byId("continuityReplay").addEventListener("click", function () {
+          play(true);
+        });
+
+        render(0);
+
+        if (media.matches) {
+          time = duration;
+          render(time);
+          return;
+        }
+
+        if ("IntersectionObserver" in window) {
+          var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (!entry.isIntersecting || playing || time > 0) return;
+              play(true);
+              observer.disconnect();
+            });
+          }, { threshold: .3 });
+          observer.observe(stage);
+        } else {
+          play(true);
+        }
+
+        if ("ResizeObserver" in window) {
+          new ResizeObserver(function () {
+            render(time);
+          }).observe(stage);
+        }
+
+        if (typeof media.addEventListener === "function") {
+          media.addEventListener("change", function () {
+            if (media.matches) {
+              playing = false;
+              window.cancelAnimationFrame(raf);
+              time = duration;
+            } else {
+              time = 0;
+            }
+            render(time);
+          });
+        }
+      }
+
+      setupContinuityStage();
 
       setupTeachStage();
 
