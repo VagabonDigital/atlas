@@ -1967,13 +1967,20 @@
       max-width: 1200px;
     }
 
+    #keep h2,
+    #keep .lede {
+      width: min(100%, 1040px);
+      margin-left: auto;
+      margin-right: auto;
+    }
+
     #keep h2 {
-      max-width: 840px;
+      max-width: none;
       margin-bottom: 18px;
     }
 
     #keep .lede {
-      max-width: 760px;
+      max-width: 1040px;
     }
 
     html[data-theme="night"] #keep {
@@ -3132,7 +3139,7 @@
     <section class="section" id="keep">
       <div class="frame">
         <p class="kicker">Continuity</p>
-        <h2>Every lesson leaves Atlas better prepared for the next one.</h2>
+        <h2>Every lesson leaves Atlas<br>better prepared for the next one.</h2>
         <p class="lede">Atlas carries useful language and learner context forward, then turns what you learn about someone into richer directions for what to teach next.</p>
 
         <div class="continuity-stage" id="continuityStage" aria-label="How lessons with Yasmin inform future preparation">
