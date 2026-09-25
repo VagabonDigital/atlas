@@ -26,10 +26,13 @@
     const GATE_STYLE_HREF =
         '/shared/atlas-account-gate.css?v=20260923-prohierarchy1';
     const GATE_SRC =
-        '/shared/atlas-account-gate.js?v=20260925-paddlelight1';
+        '/shared/atlas-account-gate.js?v=20260925-checkoutresume1';
+    const PRO_CHECKOUT_SRC =
+        '/shared/atlas-pro-checkout.js?v=20260925-checkoutresume1';
 
     let gatePromise = null;
     let gateStylePromise = null;
+    let checkoutRecoveryPromise = null;
     let accessUnsubscribe = null;
     let initialized = false;
     let knownAccountPrewarmStarted = false;
@@ -150,6 +153,125 @@
         });
 
         return gatePromise;
+    }
+
+    function hasCheckoutRecoveryIntent() {
+        try {
+            return new URL(
+                window.location.href
+            ).searchParams.get(
+                'checkoutState'
+            ) === 'pro';
+        } catch {
+            return false;
+        }
+    }
+
+    function ensureCheckoutRecovery() {
+        if (!hasCheckoutRecoveryIntent()) {
+            return Promise.resolve(false);
+        }
+
+        if (
+            window.AtlasProCheckout &&
+            typeof window.AtlasProCheckout
+                .restore === 'function'
+        ) {
+            return Promise.resolve(
+                window.AtlasProCheckout.restore()
+            );
+        }
+
+        if (checkoutRecoveryPromise) {
+            return checkoutRecoveryPromise;
+        }
+
+        checkoutRecoveryPromise =
+            new Promise((resolve, reject) => {
+                const existing =
+                    existingScriptFor(
+                        PRO_CHECKOUT_SRC
+                    );
+
+                function complete() {
+                    const Checkout =
+                        window.AtlasProCheckout;
+
+                    if (
+                        Checkout &&
+                        typeof Checkout.restore ===
+                            'function'
+                    ) {
+                        Promise.resolve(
+                            Checkout.restore()
+                        ).then(
+                            resolve,
+                            reject
+                        );
+                        return;
+                    }
+
+                    reject(
+                        new Error(
+                            'Atlas checkout recovery could not initialize.'
+                        )
+                    );
+                }
+
+                function fail() {
+                    reject(
+                        new Error(
+                            'Atlas checkout recovery could not load.'
+                        )
+                    );
+                }
+
+                if (existing) {
+                    existing.addEventListener(
+                        'load',
+                        complete,
+                        { once: true }
+                    );
+                    existing.addEventListener(
+                        'error',
+                        fail,
+                        { once: true }
+                    );
+                    return;
+                }
+
+                const script =
+                    document.createElement(
+                        'script'
+                    );
+
+                script.src =
+                    PRO_CHECKOUT_SRC;
+                script.async = false;
+                script.setAttribute(
+                    'data-atlas-pro-checkout-runtime',
+                    'true'
+                );
+                script.addEventListener(
+                    'load',
+                    complete,
+                    { once: true }
+                );
+                script.addEventListener(
+                    'error',
+                    fail,
+                    { once: true }
+                );
+
+                document.head.appendChild(
+                    script
+                );
+            })
+                .finally(() => {
+                    checkoutRecoveryPromise = null;
+                });
+
+        return checkoutRecoveryPromise;
     }
 
     function getFirstPaintAccountHint() {
@@ -539,6 +661,16 @@
         mountInsideAtlasChrome();
         renderAll(window.AtlasAccess?.getState?.() || null);
         prewarmKnownAccountRuntime();
+
+        if (hasCheckoutRecoveryIntent()) {
+            void ensureCheckoutRecovery()
+                .catch(error => {
+                    console.error(
+                        '[AtlasAccountChrome] checkout recovery failed:',
+                        error
+                    );
+                });
+        }
 
         const Bootstrap = window.AtlasAccessBootstrap;
 

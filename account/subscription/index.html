@@ -1494,6 +1494,50 @@
         window.location.search
       );
 
+    function hasPaymentUpdateIntent() {
+      try {
+        return new URL(
+          window.location.href
+        ).searchParams.get(
+          'paymentState'
+        ) === 'update';
+      } catch {
+        return false;
+      }
+    }
+
+    function setPaymentUpdateIntent(
+      active
+    ) {
+      try {
+        const url =
+          new URL(
+            window.location.href
+          );
+
+        if (active) {
+          url.searchParams.set(
+            'paymentState',
+            'update'
+          );
+        } else {
+          url.searchParams.delete(
+            'paymentState'
+          );
+        }
+
+        window.history.replaceState(
+          window.history.state,
+          '',
+          url.pathname +
+            url.search +
+            url.hash
+        );
+      } catch {
+        // Recovery is progressive enhancement.
+      }
+    }
+
     const from =
       String(
         query.get('from') || ''
@@ -1714,6 +1758,7 @@
             }
 
             setPaymentPreparing(false);
+            setPaymentUpdateIntent(false);
 
             try {
               Paddle.Checkout.close();
@@ -2198,6 +2243,7 @@
                 paymentCheckoutMode ===
                   'inline'
               ) {
+                setPaymentUpdateIntent(false);
                 paymentUpdateCompleted = true;
                 paymentCheckoutMode = null;
 
@@ -2226,6 +2272,7 @@
                 paymentCheckoutMode ===
                   'inline'
               ) {
+                setPaymentUpdateIntent(false);
                 setPaymentUpdateOpen(false);
                 setActionBusy(false);
 
@@ -2250,6 +2297,13 @@
                 paymentCheckoutMode ===
                   'inline-prewarm'
               ) {
+                if (
+                  paymentCheckoutMode ===
+                    'inline'
+                ) {
+                  setPaymentUpdateIntent(false);
+                }
+
                 const wasOpen =
                   PaymentUpdate.dataset.open ===
                     'true';
@@ -2273,6 +2327,7 @@
     }
 
     async function updatePaymentMethod() {
+      setPaymentUpdateIntent(true);
       setActionBusy(true);
 
       if (
@@ -2343,6 +2398,7 @@
         setActionStatus('');
       } catch (error) {
         setPaymentPreparing(false);
+        setPaymentUpdateIntent(false);
         setPaymentUpdateOpen(false);
         await cleanupPaymentPreparation();
 
@@ -2871,6 +2927,7 @@
           AtlasAccount.getState();
 
         if (!state?.authenticated) {
+          setPaymentUpdateIntent(false);
           window.location.replace(
             accountUrl
           );
@@ -2913,6 +2970,10 @@
 
         show('content');
 
+        if (hasPaymentUpdateIntent()) {
+          await updatePaymentMethod();
+        }
+
         if (paymentReturnSuccess) {
           setActionStatus(
             'Payment method updated successfully.',
@@ -2920,6 +2981,7 @@
           );
         }
       } catch (error) {
+        setPaymentUpdateIntent(false);
         ErrorCopy.textContent =
           String(
             error?.message ||
@@ -2942,6 +3004,8 @@
       .addEventListener(
         'click',
         () => {
+          setPaymentUpdateIntent(false);
+
           if (
             paymentCheckoutMode !==
               'inline'

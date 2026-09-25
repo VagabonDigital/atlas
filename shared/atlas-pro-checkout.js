@@ -163,6 +163,109 @@
         return String(value || '').trim();
     }
 
+    const RECOVERY_PARAM =
+        'checkoutState';
+    const RECOVERY_SOURCE_PARAM =
+        'checkoutSource';
+
+    function readRecoverableCheckoutIntent() {
+        try {
+            const url =
+                new URL(
+                    window.location.href
+                );
+
+            if (
+                url.searchParams.get(
+                    RECOVERY_PARAM
+                ) !== 'pro'
+            ) {
+                return null;
+            }
+
+            return {
+                source:
+                    clean(
+                        url.searchParams.get(
+                            RECOVERY_SOURCE_PARAM
+                        )
+                    ) ||
+                    'contextual-upgrade'
+            };
+        } catch {
+            return null;
+        }
+    }
+
+    function replaceCheckoutUrl(url) {
+        window.history.replaceState(
+            window.history.state,
+            '',
+            url.pathname +
+                url.search +
+                url.hash
+        );
+    }
+
+    function setRecoverableCheckoutIntent(
+        source
+    ) {
+        try {
+            const url =
+                new URL(
+                    window.location.href
+                );
+
+            url.searchParams.set(
+                RECOVERY_PARAM,
+                'pro'
+            );
+
+            const safeSource =
+                clean(source)
+                    .replace(
+                        /[^A-Za-z0-9_-]/g,
+                        ''
+                    )
+                    .slice(0, 64);
+
+            if (safeSource) {
+                url.searchParams.set(
+                    RECOVERY_SOURCE_PARAM,
+                    safeSource
+                );
+            } else {
+                url.searchParams.delete(
+                    RECOVERY_SOURCE_PARAM
+                );
+            }
+
+            replaceCheckoutUrl(url);
+        } catch {
+            // Recovery is progressive enhancement.
+        }
+    }
+
+    function clearRecoverableCheckoutIntent() {
+        try {
+            const url =
+                new URL(
+                    window.location.href
+                );
+
+            url.searchParams.delete(
+                RECOVERY_PARAM
+            );
+            url.searchParams.delete(
+                RECOVERY_SOURCE_PARAM
+            );
+
+            replaceCheckoutUrl(url);
+        } catch {
+            // Recovery is progressive enhancement.
+        }
+    }
+
     function loadScript(src, marker, ready) {
         if (typeof ready === 'function' && ready()) {
             return Promise.resolve(true);
@@ -1183,6 +1286,8 @@
             ?.addEventListener(
                 'click',
                 () => {
+                    clearRecoverableCheckoutIntent();
+
                     try {
                         window.Paddle
                             ?.Checkout
@@ -1311,6 +1416,7 @@
                     settleCheckoutPresentation(
                         false
                     );
+                    clearRecoverableCheckoutIntent();
 
                     try {
                         window.Paddle
@@ -1726,6 +1832,7 @@
             hideCheckoutLoading();
             hideCheckoutShell();
             restoreCheckoutTitle();
+            clearRecoverableCheckoutIntent();
             if (activeCheckout) {
                 activeCheckout.completed = true;
             }
@@ -1749,6 +1856,7 @@
             hideCheckoutLoading();
             hideCheckoutShell();
             restoreCheckoutTitle();
+            clearRecoverableCheckoutIntent();
             setCheckoutScrollLocked(
                 false
             );
@@ -1795,6 +1903,7 @@
                 hideCheckoutLoading();
                 hideCheckoutShell();
                 restoreCheckoutTitle();
+                clearRecoverableCheckoutIntent();
                 setCheckoutScrollLocked(
                     false
                 );
@@ -1893,6 +2002,7 @@
             !account?.authenticated ||
             !account?.userId
         ) {
+            clearRecoverableCheckoutIntent();
             notifyStatus(
                 'Sign in before upgrading to Atlas Pro.',
                 'error'
@@ -1916,6 +2026,7 @@
                 error
             );
 
+            clearRecoverableCheckoutIntent();
             notifyStatus(
                 'Atlas could not confirm your current plan. Please try again.',
                 'error'
@@ -1927,6 +2038,7 @@
             !access?.ready ||
             !access?.authenticated
         ) {
+            clearRecoverableCheckoutIntent();
             notifyStatus(
                 'Atlas could not confirm your current plan. Please try again.',
                 'error'
@@ -1937,11 +2049,16 @@
         if (
             access.tier === 'pro'
         ) {
+            clearRecoverableCheckoutIntent();
             window.location.assign(
                 '/account/subscription/'
             );
             return true;
         }
+
+        setRecoverableCheckoutIntent(
+            activeCheckout.source
+        );
 
         try {
             setCanonicalCheckoutTitle();
@@ -2027,6 +2144,7 @@
             setCheckoutScrollLocked(
                 false
             );
+            clearRecoverableCheckoutIntent();
 
             console.error(
                 '[AtlasProCheckout] Checkout failed',
@@ -2069,9 +2187,66 @@
         ) || null;
     }
 
+    async function restoreRecoverableCheckout() {
+        if (activeCheckout) {
+            return false;
+        }
+
+        const intent =
+            readRecoverableCheckoutIntent();
+
+        if (!intent) {
+            return false;
+        }
+
+        try {
+            await window.AtlasAccessBootstrap
+                ?.prepareAccountRuntime?.();
+        } catch {
+            // open() will still perform canonical access checks.
+        }
+
+        return open({
+            source: intent.source
+        });
+    }
+
+    function scheduleRecoverableCheckoutRestore() {
+        if (!readRecoverableCheckoutIntent()) {
+            return;
+        }
+
+        const restore = () => {
+            if (!activeCheckout) {
+                void restoreRecoverableCheckout();
+            }
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener(
+                'DOMContentLoaded',
+                restore,
+                { once: true }
+            );
+            return;
+        }
+
+        window.setTimeout(
+            restore,
+            0
+        );
+    }
+
     window.AtlasProCheckout =
         Object.freeze({
             open,
-            previewPrice
+            previewPrice,
+            restore: restoreRecoverableCheckout,
+            hasRecoverableIntent: () =>
+                Boolean(
+                    readRecoverableCheckoutIntent()
+                )
         });
+
+    scheduleRecoverableCheckoutRestore();
 })();
