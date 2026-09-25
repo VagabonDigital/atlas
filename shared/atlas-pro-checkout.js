@@ -692,16 +692,16 @@
             }
 
             .atlas-pro-checkout-close-arrow {
-                display: inline-block;
+                width: 16px;
+                height: 16px;
+                display: block;
                 flex: 0 0 auto;
-                font-family:
-                    Inter, ui-sans-serif, system-ui,
-                    -apple-system, BlinkMacSystemFont,
-                    "Segoe UI", sans-serif;
-                font-size: .9rem;
-                line-height: 1;
-                font-weight: 600;
-                transform: translateY(-1px);
+                font-size: 0;
+                line-height: 0;
+                transform: none;
+                background: currentColor;
+                -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7 3L2 8l5 5M2 8h12' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 16px 16px no-repeat;
+                mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7 3L2 8l5 5M2 8h12' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 16px 16px no-repeat;
             }
 
             .atlas-pro-checkout-close:hover,
@@ -1016,19 +1016,6 @@
 
                 .atlas-pro-checkout-close {
                     font-size: .9rem;
-                }
-
-                .atlas-pro-checkout-close-arrow {
-                    width: 16px;
-                    height: 16px;
-                    display: block;
-                    flex: 0 0 auto;
-                    font-size: 0;
-                    line-height: 0;
-                    transform: none;
-                    background: currentColor;
-                    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7 3L2 8l5 5M2 8h12' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 16px 16px no-repeat;
-                    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7 3L2 8l5 5M2 8h12' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 16px 16px no-repeat;
                 }
 
                 .atlas-pro-checkout-layout {
