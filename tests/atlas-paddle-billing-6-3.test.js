@@ -122,8 +122,8 @@ assert.match(
 
 assert.match(
   checkout,
-  /--atlas-pro-checkout-canvas:[\s\S]*?#eceff3;[\s\S]*?--atlas-pro-checkout-header-surface:[\s\S]*?#f7f8fa;[\s\S]*?background:[\s\S]*?var\(--atlas-pro-checkout-canvas\)/,
-  'Upgrade checkout must use the exact Update Payment day canvas and header bases.'
+  /--atlas-pro-checkout-canvas:[\s\S]*?#eceff3;[\s\S]*?--atlas-pro-checkout-header-surface:[\s\S]*?#fffdf9;[\s\S]*?background:[\s\S]*?var\(--atlas-pro-checkout-canvas\)/,
+  'Upgrade checkout must keep the Update Payment blue canvas while using the warm Paddle-card surface as its day header base.'
 );
 
 assert.match(

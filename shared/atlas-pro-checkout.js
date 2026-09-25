@@ -738,7 +738,7 @@
                 --atlas-pro-checkout-canvas:
                     #eceff3;
                 --atlas-pro-checkout-header-surface:
-                    #f7f8fa;
+                    #fffdf9;
                 position: fixed;
                 inset: 0;
                 z-index: 2147483645;
