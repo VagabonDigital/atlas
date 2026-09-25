@@ -905,11 +905,9 @@
                 width: 100%;
                 min-width: 0;
                 overflow: hidden;
-                border: 1px solid
-                    var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .14)));
+                border: 1px solid rgba(49, 45, 38, .14);
                 border-radius: 20px;
-                background:
-                    var(--atlas-modal-surface, var(--surface, #fffdf9));
+                background: #fffdf9;
                 box-shadow:
                     0 18px 48px rgba(31, 28, 23, .09);
             }
@@ -917,8 +915,7 @@
             .atlas-pro-checkout-inline-frame {
                 width: 100%;
                 min-height: 0;
-                background:
-                    var(--atlas-modal-surface, var(--surface, #fffdf9));
+                background: #fffdf9;
             }
 
             .atlas-pro-checkout-footer {
