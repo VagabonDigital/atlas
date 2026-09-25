@@ -46,6 +46,11 @@ assert.match(
 );
 assert.match(
   html,
+  /--chrome-surface:\s*rgba\(27, 29, 28, 0\.72\);[\s\S]*?--chrome-surface-mobile:\s*rgba\(27, 29, 28, 0\.72\);/,
+  'Atlas night chrome must use the same canonical 72% glass opacity.'
+);
+assert.match(
+  html,
   /\.spine \{[\s\S]*?backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);[\s\S]*?-webkit-backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);/
 );
 assert.match(
@@ -60,6 +65,11 @@ assert.match(
 );
 assert.match(
   compassHtml,
+  /--chrome-surface:\s*rgba\(34, 31, 27, 0\.72\);[\s\S]*?--chrome-surface-mobile:\s*rgba\(34, 31, 27, 0\.72\);/,
+  'Compass night chrome must use the same canonical 72% glass opacity.'
+);
+assert.match(
+  compassHtml,
   /\.spine \{[\s\S]*?backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);[\s\S]*?-webkit-backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);/
 );
 assert.match(
@@ -71,6 +81,11 @@ assert.match(
   arcadeHtml,
   /--chrome-surface:\s*rgba\(251, 246, 240, 0\.72\);[\s\S]*?--chrome-surface-mobile:\s*rgba\(251, 246, 240, 0\.72\);/,
   'Arcade must preserve its palette while using the canonical 72% glass opacity.'
+);
+assert.match(
+  arcadeHtml,
+  /--chrome-surface:\s*rgba\(26, 22, 28, 0\.72\);[\s\S]*?--chrome-surface-mobile:\s*rgba\(26, 22, 28, 0\.72\);/,
+  'Arcade night chrome must use the same canonical 72% glass opacity.'
 );
 assert.match(
   arcadeHtml,
