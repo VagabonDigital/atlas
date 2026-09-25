@@ -1064,7 +1064,7 @@
         }
 
         const src =
-            '/shared/atlas-account-chrome.js?v=20260925-branddot1';
+            '/shared/atlas-account-chrome.js?v=20260925-paddlenight1';
 
         if (document.readyState === 'loading') {
             document.write(

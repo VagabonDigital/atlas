@@ -865,6 +865,20 @@
                 display: block;
             }
 
+            .atlas-pro-checkout-paddle-logo--night {
+                display: none;
+            }
+
+            html[data-theme="night"]
+                .atlas-pro-checkout-paddle-logo--light {
+                display: none;
+            }
+
+            html[data-theme="night"]
+                .atlas-pro-checkout-paddle-logo--night {
+                display: block;
+            }
+
             .atlas-pro-checkout-paddle-copy {
                 min-width: 0;
                 display: grid;
@@ -1094,9 +1108,15 @@
                     <div class="atlas-pro-checkout-payment-column">
                         <div class="atlas-pro-checkout-paddle-intro">
                             <img
-                                class="atlas-pro-checkout-paddle-logo"
+                                class="atlas-pro-checkout-paddle-logo atlas-pro-checkout-paddle-logo--light"
                                 src="https://1000logos.net/wp-content/uploads/2025/10/Paddle-Logo-1.png"
                                 alt="Paddle"
+                            >
+                            <img
+                                class="atlas-pro-checkout-paddle-logo atlas-pro-checkout-paddle-logo--night"
+                                src="https://pub-13d93423376c4822820635b75cfbea29.r2.dev/images/Paddle%20Logo%20Night%20Mode.png"
+                                alt=""
+                                aria-hidden="true"
                             >
                             <div class="atlas-pro-checkout-paddle-copy">
                                 <strong>Billing by Paddle</strong>
