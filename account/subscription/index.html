@@ -14,15 +14,44 @@
   >
   <script>
     (() => {
+      let mode = null;
+
       try {
-        const mode =
-          localStorage.getItem('atlas::appearanceMode') ||
-          'light';
-        document.documentElement.dataset.theme =
-          mode === 'night' ? 'night' : 'light';
+        const sessionId =
+          sessionStorage.getItem(
+            'atlas::activeSessionId'
+          ) || 'default';
+
+        const bySession = JSON.parse(
+          localStorage.getItem(
+            'atlas::appearanceBySession'
+          ) || '{}'
+        );
+
+        if (
+          bySession &&
+          typeof bySession === 'object' &&
+          !Array.isArray(bySession)
+        ) {
+          mode =
+            bySession[sessionId] || null;
+        }
+
+        if (
+          mode !== 'light' &&
+          mode !== 'night'
+        ) {
+          mode =
+            localStorage.getItem(
+              'atlas::appearanceMode'
+            );
+        }
       } catch {
-        document.documentElement.dataset.theme = 'light';
+        mode = null;
       }
+
+      document.documentElement.dataset.theme =
+        mode === 'night' ? 'night' : 'light';
     })();
 
     (() => {
