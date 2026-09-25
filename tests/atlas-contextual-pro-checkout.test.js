@@ -136,6 +136,18 @@ assert.equal(
   'Tax ID entry must be hidden in both mobile inline and desktop overlay checkout modes.'
 );
 
+assert.equal(
+  (checkout.match(/showAddDiscounts:/g) || []).length,
+  2,
+  'Discount entry must be hidden in both mobile inline and desktop overlay checkout modes.'
+);
+
+assert.match(
+  pricing,
+  /showAddTaxId:\s*false[\s\S]*showAddDiscounts:\s*false/,
+  'Pricing checkout must hide tax ID and discount entry too.'
+);
+
 assert.doesNotMatch(
   checkout,
   /captureCheckoutFrameBaseline|checkoutFrameCoversViewport|stableFrames >= 4/,
