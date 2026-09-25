@@ -123,7 +123,7 @@ assert.match(
 
 assert.match(
     loader,
-    /compass-engine\.js\?v=20260925-completionstate1/
+    /compass-engine\.js\?v=20260925-handofftrace1/
 );
 
 assert.match(
@@ -163,7 +163,7 @@ assert.match(
 
 assert.match(
     subjectPage,
-    /compass-subject-loader\.js\?v=20260925-workeraware3/
+    /compass-subject-loader\.js\?v=20260925-handofftrace1/
 );
 
 console.log(
