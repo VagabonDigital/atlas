@@ -726,7 +726,7 @@
             );
 
             await loadScript(
-                '../shared/compass-engine.js?v=20260925-completionstate1',
+                '../shared/compass-engine.js?v=20260925-handofftrace1',
                 'Compass engine could not be loaded.'
             );
 
