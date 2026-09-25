@@ -4561,9 +4561,13 @@
               ? raw.exploredIds.length
               : 0;
 
+            const savedLanguageCount =
+              Number(progress.savedLanguageCount) || 0;
+
             hasMeaningfulProgress =
               explored > 0 ||
-              exploredIds > 0;
+              exploredIds > 0 ||
+              savedLanguageCount > 0;
           }
 
           if (world === ARCADE_ID) {
@@ -4773,8 +4777,12 @@
         );
     }
 
-    function getReviewSet(ledger, sessionId) {
-      return getSavedLanguageEntries(ledger, sessionId).slice(0, REVIEW_MAX);
+    function getReviewSet(ledger, sessionId, sourceRegistryId) {
+      if (!sourceRegistryId) return [];
+
+      return getSavedLanguageEntries(ledger, sessionId)
+        .filter(entry => entry.sourceRegistryId === sourceRegistryId)
+        .slice(0, REVIEW_MAX);
     }
 
     // ================================================================
@@ -5002,7 +5010,12 @@
     function openLanguageReview() {
       const session = getActiveSession();
       const ledger = getLedger();
-      const set = getReviewSet(ledger, session.id);
+      const continueItem = getContinueItem(getRegistry(), session.id);
+      const set = getReviewSet(
+        ledger,
+        session.id,
+        continueItem?.registryId
+      );
       if (!set.length) { renderHome(); return; } // nothing to review; stay home
       reviewState = { set: set, idx: 0, revealed: false };
       renderReviewView();
@@ -5189,7 +5202,11 @@
       const continueHandoff = continueItem
         ? getContinueHandoff(session.id, continueItem)
         : null;
-      const reviewSet = getReviewSet(ledger, session.id);
+      const reviewSet = getReviewSet(
+        ledger,
+        session.id,
+        continueItem?.registryId
+      );
       const hasContinue = !!continueItem;
       const hasReview = reviewSet.length > 0;
 
