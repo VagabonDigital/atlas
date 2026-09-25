@@ -14,7 +14,7 @@
     const PADDLE_SRC =
         'https://cdn.paddle.com/paddle/v2/paddle.js';
     const CONFIG_SRC =
-        '/shared/atlas-paddle-config.js?v=20260924-livecredentials1';
+        '/shared/atlas-paddle-config.js?v=20260924-live1';
     const STYLE_ID =
         'atlas-pro-checkout-success-style';
     const SCROLL_STYLE_ID =
