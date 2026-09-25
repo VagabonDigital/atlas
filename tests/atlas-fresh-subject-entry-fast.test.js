@@ -40,6 +40,18 @@ assert.match(
 
 assert.match(
   engine,
+  /const freshOwnedSubjectBuild =\s*incompleteOwnedSubjectBuild &&[\s\S]*?pendingOwnedSubjectAuthoringIntent ===[\s\S]*?'generate'/,
+  'Fresh subject generation must require an actually incomplete owned subject.'
+);
+
+assert.match(
+  engine,
+  /pendingOwnedSubjectAuthoringIntent ===[\s\S]*?'generate'[\s\S]*?!incompleteOwnedSubjectBuild[\s\S]*?consumeOwnedSubjectAuthoringIntent\(\)/,
+  'Completed subjects must discard stale generate intent rather than re-enter authoring.'
+);
+
+assert.match(
+  engine,
   /freshBuildCloudAuthorityPromise[\s\S]*?ensureSubjectAuthoringCloudAuthorityReady\([\s\S]*?'subjects'[\s\S]*?\)/
 );
 
