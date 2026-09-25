@@ -649,7 +649,9 @@
 
             .atlas-pro-checkout-summary {
                 position: sticky;
-                top: 32px;
+                top: 44px;
+                align-self: start;
+                height: fit-content;
                 padding: 10px 0;
             }
 
@@ -722,9 +724,21 @@
                     var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .16)));
             }
 
+            .atlas-pro-checkout-value-label {
+                display: block;
+                margin: 0 0 9px;
+                color:
+                    var(--atlas-modal-accent, var(--accent, #59617d));
+                font-family:
+                    "DM Serif Display", Georgia, serif;
+                font-size: .95rem;
+                font-style: italic;
+                line-height: 1.2;
+            }
+
             .atlas-pro-checkout-value strong {
                 display: block;
-                margin-bottom: 8px;
+                margin-bottom: 10px;
                 font-family:
                     "DM Serif Display", Georgia, serif;
                 font-size: 1.45rem;
@@ -934,10 +948,13 @@
                             100 fresh subject creations each billing month.
                         </p>
                         <p class="atlas-pro-checkout-value">
+                            <span class="atlas-pro-checkout-value-label">
+                                The magic of Atlas Pro
+                            </span>
                             <strong>Make the lesson feel made for them.</strong>
                             <span>
-                                Personal lessons with lighter preparation.
-                                Your saved work and learner continuity stay with your account.
+                                Their interests. Their work. Their next big step.
+                                Create substantial material around the person you’re teaching—in minutes before a lesson, or together as it unfolds.
                             </span>
                         </p>
                     </aside>
