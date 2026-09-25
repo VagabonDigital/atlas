@@ -1722,12 +1722,6 @@
             }
 
             if (
-              Math.abs(height - 450) > 1
-            ) {
-              observedPaddleResize = true;
-            }
-
-            if (
               observedPaddleResize &&
               stableSince !== null &&
               now - stableSince >= 180
@@ -1866,7 +1860,7 @@
           variant: 'one-page',
           frameTarget:
             'atlas-paddle-payment-update',
-          frameInitialHeight: '450',
+          frameInitialHeight: '700',
           frameStyle:
             'width: 100%; min-width: 312px; background-color: transparent; border: none;',
           theme: 'light'
