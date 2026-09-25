@@ -1973,8 +1973,11 @@
       --continuity-line: #d5ddd3;
       --continuity-mint: #e2eee3;
       position: relative;
-      height: 650px;
-      margin-top: 42px;
+      height: auto;
+      aspect-ratio: 2.024 / 1;
+      min-height: 520px;
+      max-height: 560px;
+      margin-top: 36px;
       overflow: hidden;
       isolation: isolate;
       border: 1px solid rgba(54, 83, 71, .16);
@@ -2054,7 +2057,7 @@
     .continuity-lesson {
       position: absolute;
       left: 42px;
-      top: 205px;
+      top: 168px;
       z-index: 4;
       width: 54%;
     }
@@ -2083,9 +2086,9 @@
     .continuity-landscape,
     .continuity-architecture {
       right: -18px;
-      bottom: 36px;
+      bottom: 22px;
       width: 64%;
-      height: 430px;
+      height: 360px;
     }
 
     .continuity-art svg {
@@ -2103,7 +2106,7 @@
 
     .continuity-ideas-heading {
       left: 42px;
-      top: 142px;
+      top: 122px;
     }
 
     .continuity-ideas-heading .continuity-subline {
@@ -2114,7 +2117,7 @@
 
     .continuity-active-heading {
       left: 42px;
-      top: 162px;
+      top: 136px;
     }
 
     .continuity-language {
@@ -2127,7 +2130,7 @@
     .continuity-language > .continuity-eyebrow {
       position: absolute;
       left: 42px;
-      top: 194px;
+      top: 166px;
     }
 
     .continuity-expression {
@@ -2326,6 +2329,9 @@
     @media (max-width: 900px) {
       .continuity-stage {
         height: 950px;
+        min-height: 0;
+        max-height: none;
+        aspect-ratio: auto;
         border-radius: 20px;
       }
 
@@ -4119,7 +4125,7 @@
           stage.querySelectorAll(".continuity-expression")
         );
         var media = window.matchMedia("(prefers-reduced-motion: reduce)");
-        var duration = 34;
+        var duration = 22;
         var time = 0;
         var playing = false;
         var last = 0;
@@ -4141,6 +4147,16 @@
 
         function mix(start, end, progress) {
           return start + (end - start) * progress;
+        }
+
+        // Compress the Astra study's 34s clock into a tighter editorial pace.
+        // Beat 3 keeps enough reading time, but the old 25–29s dead hold is removed.
+        function compactTime(t) {
+          if (t <= 7) return t * (4.5 / 7);
+          if (t <= 14) return 4.5 + (t - 7) * (5 / 7);
+          if (t <= 25) return 9.5 + (t - 14) * (6 / 11);
+          if (t <= 29) return 15.5 + (t - 25) * (2 / 4);
+          return 17.5 + (t - 29) * (4.5 / 5);
         }
 
         function setOpacity(element, value) {
@@ -4173,9 +4189,17 @@
           var pad = mobile ? 24 : 42;
           var inner = width - pad * 2;
           var rm = media.matches;
-          var u = rm
-            ? (t < 7 ? 3 : t < 14 ? (t < 11 ? 9 : 12.8) : t < 29 ? (t < 25 ? 21 : 27) : 34)
-            : t;
+          var legacyTime = rm
+            ? (t < 4.5 ? 3 : t < 9.5 ? (t < 7.2 ? 9 : 12.8) : t < 17.5 ? (t < 15.5 ? 21 : 27) : 34)
+            : (function () {
+                // Invert the compact clock back into the original Astra timing space.
+                if (t <= 4.5) return t * (7 / 4.5);
+                if (t <= 9.5) return 7 + (t - 4.5) * (7 / 5);
+                if (t <= 15.5) return 14 + (t - 9.5) * (11 / 6);
+                if (t <= 17.5) return 25 + (t - 15.5) * 2;
+                return 29 + (t - 17.5) * (5 / 4.5);
+              })();
+          var u = legacyTime;
           var attention = ramp(u, 10.5, 12.5);
           var final = ramp(u, 28.4, 31.6);
           var focus = ramp(u, 25, 26.2);
@@ -4215,9 +4239,9 @@
                 [pad + inner * .03, 622, inner * .97, 108, Math.min(27, inner / 8.8)]
               ]
             : [
-                [pad, 244, inner * .43, 112, Math.min(50, inner / 22)],
-                [pad + inner * .48, 350, inner * .52, 110, Math.min(37, inner / 29)],
-                [pad + inner * .18, 505, inner * .62, 108, Math.min(41, inner / 27)]
+                [pad, 205, inner * .43, 104, Math.min(48, inner / 22)],
+                [pad + inner * .48, 292, inner * .52, 102, Math.min(36, inner / 29)],
+                [pad + inner * .18, 412, inner * .62, 100, Math.min(39, inner / 27)]
               ];
 
           expressions.forEach(function (element, index) {
@@ -4259,9 +4283,9 @@
                 [pad + inner - 126, 212, 126, 56]
               ]
             : [
-                [width * .405, 86, 224, 64],
-                [width * .655, 136, 166, 60],
-                [width * .813, 82, 154, 60]
+                [width * .405, 74, 224, 60],
+                [width * .655, 112, 166, 58],
+                [width * .813, 70, 154, 58]
               ];
 
           var rec = mobile
@@ -4271,9 +4295,9 @@
                 [pad + inner * .06, 716, inner * .94, 220]
               ]
             : [
-                [pad, 258, inner * .52, 302],
-                [pad + inner * .615, 158, inner * .365, 216],
-                [pad + inner * .665, 402, inner * .335, 220]
+                [pad, 218, inner * .52, 270],
+                [pad + inner * .615, 136, inner * .365, 198],
+                [pad + inner * .665, 348, inner * .335, 202]
               ];
 
           cards.forEach(function (element, index) {
@@ -4294,9 +4318,9 @@
 
             if (index === 0) {
               x = mix(x, pad, final);
-              y = mix(y, mobile ? 204 : 238, final);
+              y = mix(y, mobile ? 204 : 196, final);
               cardWidth = mix(cardWidth, mobile ? inner : inner * .51, final);
-              cardHeight = mix(cardHeight, mobile ? 285 : 306, final);
+              cardHeight = mix(cardHeight, mobile ? 285 : 274, final);
             }
 
             setBox(element, x, y, cardWidth, cardHeight);
@@ -4371,7 +4395,7 @@
 
           stage.classList.toggle("is-settled", t >= duration);
 
-          var beat = t < 7 ? 0 : t < 14 ? 1 : t < 29 ? 2 : 3;
+          var beat = t < 4.5 ? 0 : t < 9.5 ? 1 : t < 17.5 ? 2 : 3;
           if (announced !== beat) {
             byId("continuityAccessibleState").textContent = [
               "Yasmin’s current lesson: Places That Feel Like Another Planet.",
