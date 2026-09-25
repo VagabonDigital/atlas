@@ -3101,7 +3101,7 @@
           <div class="continuity-active-heading continuity-eyebrow" id="continuityActiveHeading"><span class="continuity-dot"></span>Active lesson</div>
 
           <div class="continuity-language" id="continuityLanguage">
-            <div class="continuity-eyebrow">Saved language · 3</div>
+            <div class="continuity-eyebrow"><span class="continuity-dot"></span>Saved language · 3</div>
             <div class="continuity-expression">
               <span class="continuity-vocab-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="13"/><ellipse cx="24" cy="24" rx="23" ry="7" transform="rotate(-30 24 24)"/></svg></span>
               <span>otherworldly</span>
@@ -4304,17 +4304,44 @@
           move(byId("continuityIdeasHeading"), rm ? 0 : -8 * (1 - ramp(u, 13.5, 14.3)), 0);
           setOpacity(byId("continuityActiveHeading"), ramp(u, 29.4, 30.3));
 
-          var memory = mobile
-            ? [
-                [pad, 164, Math.min(206, inner * .78), 58],
-                [pad + inner * .04, 236, Math.min(140, inner * .56), 56],
-                [pad + inner - 126, 212, 126, 56]
+          var memory;
+          if (mobile) {
+            memory = [
+              [pad, 164, Math.min(206, inner * .78), 58],
+              [pad + inner * .04, 236, Math.min(140, inner * .56), 56],
+              [pad + inner - 126, 212, 126, 56]
+            ];
+          } else {
+            var interestWidths = [236, 174, 182];
+            var interestRowLeft = width * .39;
+            var interestRowRight = width - pad - 36;
+            var interestTotalWidth =
+              interestWidths[0] + interestWidths[1] + interestWidths[2];
+            var interestGap = Math.max(
+              28,
+              (interestRowRight - interestRowLeft - interestTotalWidth) / 2
+            );
+
+            memory = [
+              [interestRowLeft, 84, interestWidths[0], 62],
+              [
+                interestRowLeft + interestWidths[0] + interestGap,
+                84,
+                interestWidths[1],
+                60
+              ],
+              [
+                interestRowLeft +
+                  interestWidths[0] +
+                  interestGap +
+                  interestWidths[1] +
+                  interestGap,
+                84,
+                interestWidths[2],
+                60
               ]
-            : [
-                [width * .39, 84, 236, 62],
-                [width * .615, 84, 174, 60],
-                [width * .825, 84, 182, 60]
-              ];
+            ];
+          }
 
           var rec = mobile
             ? [
