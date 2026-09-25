@@ -2804,14 +2804,18 @@
     }
 
     .archived-subject-row {
+      border: 1px solid var(--border-faint);
+      border-radius: var(--radius-sm);
+      background: var(--surface-muted);
+      overflow: hidden;
+    }
+
+    .archived-subject-row-main {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 0.75rem;
       padding: 0.6rem 0.7rem;
-      border: 1px solid var(--border-faint);
-      border-radius: var(--radius-sm);
-      background: var(--surface-muted);
     }
 
     .archived-subject-title {
@@ -2824,19 +2828,29 @@
       white-space: nowrap;
     }
 
-    .archived-subject-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      flex: 0 0 auto;
-    }
-
     .archived-subject-more {
       width: 2.35rem;
       padding-left: 0;
       padding-right: 0;
+      flex: 0 0 auto;
       font-size: 1rem;
       letter-spacing: 0.08em;
+    }
+
+    .archived-subject-secondary {
+      display: flex;
+      gap: 0.45rem;
+      padding: 0.55rem 0.7rem;
+      border-top: 1px solid var(--border-faint);
+      background: var(--surface-raised);
+    }
+
+    .archived-subject-secondary[hidden] {
+      display: none;
+    }
+
+    .archived-subject-secondary .btn-ghost {
+      padding: 0.45rem 0.75rem;
     }
 
     .archived-subject-delete {
@@ -5906,34 +5920,36 @@
         toggle.disabled = false;
 
         list.innerHTML =
-          subjects.map(subject =>
-            '<div class="archived-subject-row">' +
-            '<span class="archived-subject-title">' +
-            escHtml(subject.title) +
-            '</span>' +
-            '<div class="archived-subject-actions">' +
-            '<button class="btn-ghost" type="button" ' +
-            'data-archived-subject-id="' +
-            escAttr(subject.id) +
-            '" ' +
-            'data-archived-subject-kind="' +
-            escAttr(subject.kind || 'my-subject') +
-            '" ' +
-            'onclick="restoreArchivedSubjectFromSettings(this.dataset.archivedSubjectId, this.dataset.archivedSubjectKind, this)">' +
-            'Restore' +
-            '</button>' +
-            '<button class="btn-ghost archived-subject-more" type="button" ' +
-            'aria-label="More actions for ' + escAttr(subject.title) + '" aria-expanded="false" ' +
-            'data-archived-subject-id="' + escAttr(subject.id) + '" ' +
-            'data-archived-subject-kind="' + escAttr(subject.kind || 'my-subject') + '" ' +
-            'onclick="toggleArchivedSubjectActions(this)">•••</button>' +
-            '<button class="btn-ghost archived-subject-delete" type="button" hidden ' +
-            'data-archived-subject-id="' + escAttr(subject.id) + '" ' +
-            'data-archived-subject-kind="' + escAttr(subject.kind || 'my-subject') + '" ' +
-            'onclick="requestArchivedSubjectDelete(this)">Delete</button>' +
-            '</div>' +
-            '</div>'
-          ).join('');
+          subjects.map((subject, index) => {
+            const actionsId =
+              'archived-subject-actions-' + index;
+
+            return (
+              '<div class="archived-subject-row">' +
+              '<div class="archived-subject-row-main">' +
+              '<span class="archived-subject-title">' +
+              escHtml(subject.title) +
+              '</span>' +
+              '<button class="btn-ghost archived-subject-more" type="button" ' +
+              'aria-label="Show actions for ' + escAttr(subject.title) + '" ' +
+              'aria-expanded="false" aria-controls="' + actionsId + '" ' +
+              'onclick="toggleArchivedSubjectActions(this)">⋯</button>' +
+              '</div>' +
+              '<div class="archived-subject-secondary" id="' + actionsId + '" hidden ' +
+              'role="group" aria-label="Actions for ' + escAttr(subject.title) + '">' +
+              '<button class="btn-ghost" type="button" ' +
+              'data-archived-subject-id="' + escAttr(subject.id) + '" ' +
+              'data-archived-subject-kind="' + escAttr(subject.kind || 'my-subject') + '" ' +
+              'onclick="restoreArchivedSubjectFromSettings(this.dataset.archivedSubjectId, this.dataset.archivedSubjectKind, this)">' +
+              'Restore</button>' +
+              '<button class="btn-ghost archived-subject-delete" type="button" ' +
+              'data-archived-subject-id="' + escAttr(subject.id) + '" ' +
+              'data-archived-subject-kind="' + escAttr(subject.kind || 'my-subject') + '" ' +
+              'onclick="requestArchivedSubjectDelete(this)">Delete</button>' +
+              '</div>' +
+              '</div>'
+            );
+          }).join('');
       } catch {
         summary.textContent =
           'Archived subjects are unavailable.';
@@ -6038,43 +6054,55 @@
     }
 
     function toggleArchivedSubjectActions(button) {
-      const actions = button?.closest('.archived-subject-actions');
-      if (!actions) return;
-
-      const deleteButton = actions.querySelector(
-        '.archived-subject-delete'
+      const row = button?.closest('.archived-subject-row');
+      const secondary = row?.querySelector(
+        '.archived-subject-secondary'
       );
-      if (!deleteButton) return;
+      if (!secondary) return;
 
-      const opening = deleteButton.hidden;
+      const opening = secondary.hidden;
+
       document.querySelectorAll(
-        '.archived-subject-delete:not([hidden])'
+        '.archived-subject-secondary:not([hidden])'
       ).forEach(other => {
-        if (other !== deleteButton) {
+        if (other !== secondary) {
           other.hidden = true;
           const otherMore = other
-            .closest('.archived-subject-actions')
+            .closest('.archived-subject-row')
             ?.querySelector('.archived-subject-more');
-          otherMore?.setAttribute('aria-expanded', 'false');
+          if (otherMore) {
+            otherMore.setAttribute('aria-expanded', 'false');
+            otherMore.setAttribute(
+              'aria-label',
+              otherMore.getAttribute('aria-label')
+                ?.replace(/^Hide actions/, 'Show actions') ||
+                'Show actions'
+            );
+          }
         }
       });
 
-      deleteButton.hidden = !opening;
+      secondary.hidden = !opening;
       button.setAttribute(
         'aria-expanded',
         opening ? 'true' : 'false'
       );
+      button.setAttribute(
+        'aria-label',
+        (opening ? 'Hide' : 'Show') +
+        button.getAttribute('aria-label')
+          .replace(/^(?:Show|Hide)/, '')
+      );
     }
 
     function requestArchivedSubjectDelete(button) {
-      const actions = button?.closest('.archived-subject-actions');
-      if (!actions) return;
-
-      const restoreButton = actions.querySelector(
-        'button:not(.archived-subject-more):not(.archived-subject-delete)'
+      const secondary = button?.closest(
+        '.archived-subject-secondary'
       );
-      const moreButton = actions.querySelector(
-        '.archived-subject-more'
+      if (!secondary) return;
+
+      const restoreButton = secondary.querySelector(
+        'button:not(.archived-subject-delete):not(.archived-subject-delete-cancel)'
       );
 
       if (button.dataset.confirmDelete === 'true') {
@@ -6087,26 +6115,20 @@
       }
 
       if (restoreButton) restoreButton.hidden = true;
-      if (moreButton) moreButton.hidden = true;
       button.dataset.confirmDelete = 'true';
-      button.textContent = 'Delete';
 
       const cancel = document.createElement('button');
-      cancel.className = 'btn-ghost archived-subject-delete-cancel';
+      cancel.className =
+        'btn-ghost archived-subject-delete-cancel';
       cancel.type = 'button';
       cancel.textContent = 'Cancel';
       cancel.onclick = () => {
         cancel.remove();
         button.dataset.confirmDelete = '';
-        button.textContent = 'Delete';
-        button.hidden = true;
         if (restoreButton) restoreButton.hidden = false;
-        if (moreButton) {
-          moreButton.hidden = false;
-          moreButton.setAttribute('aria-expanded', 'false');
-        }
       };
-      actions.insertBefore(cancel, button);
+
+      secondary.insertBefore(cancel, button);
     }
 
     async function deleteArchivedSubjectFromSettings(
