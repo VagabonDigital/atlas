@@ -128,6 +128,12 @@ assert.match(
 
 assert.match(
   checkout,
+  /\.atlas-pro-checkout-body \{[\s\S]*?background:[\s\S]*?var\(--atlas-pro-checkout-canvas\);/,
+  'Upgrade checkout body must paint the payment canvas itself so no beige surface can cover the blue shell.'
+);
+
+assert.match(
+  checkout,
   /\.atlas-pro-checkout-head \{[\s\S]*?var\(--atlas-pro-checkout-header-surface\) 72%[\s\S]*?blur\(16px\) saturate\(1\.1\)/,
   'Upgrade checkout header must use the Update Payment glass surface recipe.'
 );

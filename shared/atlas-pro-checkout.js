@@ -855,7 +855,7 @@
                 scrollbar-color:
                     rgba(var(--accent-rgb), .46) transparent;
                 background:
-                    var(--atlas-modal-surface-low, var(--surface-muted, #f5f1e9));
+                    var(--atlas-pro-checkout-canvas);
             }
 
             .atlas-pro-checkout-body::-webkit-scrollbar {
