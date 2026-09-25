@@ -6937,6 +6937,26 @@ function getMyVersionKeyLanguageLimit(section) {
         : limits.discussion;
 }
 
+function traceMyVersionBuild(
+    stage,
+    detail = {}
+) {
+    window
+        .AtlasSubjectBuildWorkerClient
+        ?.traceDebug?.(
+            'engine:' + stage,
+            {
+                subjectId:
+                    String(
+                        window.MODULE?.id ||
+                        ''
+                    ).trim() ||
+                    null,
+                ...detail
+            }
+        );
+}
+
 function getMyVersionForegroundBuildHandoff() {
     const handoff =
         window
@@ -6966,6 +6986,13 @@ function releaseMyVersionForegroundBuildHandoff(
     reason =
         'foreground-handoff-ended'
 ) {
+    traceMyVersionBuild(
+        'handoff-release',
+        {
+            reason
+        }
+    );
+
     if (
         myVersionFullSubjectLeasePreacquired
     ) {
@@ -7001,8 +7028,30 @@ async function acquireMyVersionForegroundBuildHandoffLease() {
         getMyVersionForegroundBuildHandoff();
 
     if (!handoff) {
+        traceMyVersionBuild(
+            'handoff-lease-skipped',
+            {
+                reason:
+                    'no-handoff'
+            }
+        );
+
         return false;
     }
+
+    traceMyVersionBuild(
+        'handoff-lease-request',
+        {
+            completedStep:
+                handoff
+                    ?.completedStep ??
+                null,
+            readyToCommit:
+                handoff
+                    ?.readyToCommit ===
+                true
+        }
+    );
 
     if (
         myVersionFullSubjectBuildLease
@@ -7065,6 +7114,14 @@ async function acquireMyVersionForegroundBuildHandoffLease() {
         delete window
             .AtlasForegroundSubjectBuildHandoff;
 
+        traceMyVersionBuild(
+            'handoff-lease-result',
+            {
+                acquired:
+                    false
+            }
+        );
+
         return false;
     }
 
@@ -7073,6 +7130,14 @@ async function acquireMyVersionForegroundBuildHandoffLease() {
 
     myVersionFullSubjectLeasePreacquired =
         true;
+
+    traceMyVersionBuild(
+        'handoff-lease-result',
+        {
+            acquired:
+                true
+        }
+    );
 
     return true;
 }
@@ -7254,8 +7319,50 @@ async function generateMyVersionFullSubject({
         !isOwnedSubjectRuntime() ||
         myVersionGeneratingFullSubject
     ) {
+        traceMyVersionBuild(
+            'generator-blocked',
+            {
+                resumeFromStep:
+                    Number(
+                        resumeFromStep
+                    ) || 0,
+                myVersionEditing:
+                    Boolean(
+                        myVersionEditing
+                    ),
+                myVersionSaving:
+                    Boolean(
+                        myVersionSaving
+                    ),
+                ownedSubject:
+                    isOwnedSubjectRuntime(),
+                alreadyGenerating:
+                    Boolean(
+                        myVersionGeneratingFullSubject
+                    )
+            }
+        );
+
         return null;
     }
+
+    traceMyVersionBuild(
+        'generator-enter',
+        {
+            resumeFromStep:
+                Number(
+                    resumeFromStep
+                ) || 0,
+            autoSaveOnComplete:
+                Boolean(
+                    autoSaveOnComplete
+                ),
+            handoff:
+                Boolean(
+                    getMyVersionForegroundBuildHandoff()
+                )
+        }
+    );
 
     const RuntimeChannel =
         window.AtlasSubjectRuntimeChannel;
@@ -7297,9 +7404,35 @@ async function generateMyVersionFullSubject({
             releaseCompassSubjectBuildHandoff();
             updateMyVersionAuthorBar();
 
+            traceMyVersionBuild(
+                'generator-lock-result',
+                {
+                    acquired:
+                        false
+                }
+            );
+
             myVersionFullSubjectBuildLease = null;
             return null;
         }
+    }
+
+    if (
+        myVersionFullSubjectBuildLease
+            ?.acquired ===
+            true
+    ) {
+        traceMyVersionBuild(
+            'generator-lock-result',
+            {
+                acquired:
+                    true,
+                preacquired:
+                    Boolean(
+                        myVersionFullSubjectLeasePreacquired
+                    )
+            }
+        );
     }
 
     myVersionFullSubjectLeasePreacquired =
@@ -7333,6 +7466,18 @@ async function generateMyVersionFullSubject({
         );
 
     myVersionGeneratingFullSubject = true;
+
+    traceMyVersionBuild(
+        'generator-started',
+        {
+            completedStep,
+            autoSaveOnComplete:
+                Boolean(
+                    autoSaveOnComplete
+                )
+        }
+    );
+
     myVersionFullSubjectPageExiting = false;
     myVersionFullSubjectAutoSaveOnComplete =
         Boolean(autoSaveOnComplete);
@@ -21905,6 +22050,25 @@ async function init() {
         incompleteOwnedSubjectBuild &&
         !freshOwnedSubjectBuild;
 
+    traceMyVersionBuild(
+        'init-build-state',
+        {
+            pendingIntent:
+                pendingOwnedSubjectAuthoringIntent ||
+                null,
+            incomplete:
+                incompleteOwnedSubjectBuild,
+            fresh:
+                freshOwnedSubjectBuild,
+            recovering:
+                recoveringOwnedSubjectBuild,
+            handoff:
+                Boolean(
+                    getMyVersionForegroundBuildHandoff()
+                )
+        }
+    );
+
     const freshBuildCloudAuthorityPromise =
         freshOwnedSubjectBuild
             ? ensureSubjectAuthoringCloudAuthorityReady(
@@ -22138,6 +22302,23 @@ async function init() {
             resumableFullSubjectBuild
         )
     ) {
+        traceMyVersionBuild(
+            'resume-dispatched',
+            {
+                intent:
+                    ownedSubjectAuthoringIntent ||
+                    null,
+                completedStep:
+                    resumableFullSubjectBuild
+                        ?.completedStep ??
+                    0,
+                hasHandoff:
+                    Boolean(
+                        getMyVersionForegroundBuildHandoff()
+                    )
+            }
+        );
+
         void generateMyVersionFullSubject({
             autoSaveOnComplete:
                 resumableFullSubjectBuild
