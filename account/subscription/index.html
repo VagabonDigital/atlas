@@ -251,10 +251,21 @@
     }
 
     .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
       color: var(--text-secondary);
       text-decoration: none;
       font-size: .9rem;
       font-weight: 600;
+    }
+
+    .back-link-arrow,
+    .payment-update-back-arrow {
+      display: inline-block;
+      flex: 0 0 auto;
+      line-height: 1;
+      transform: translateY(-1px);
     }
 
     .back-link:hover { color: var(--accent); }
@@ -1163,7 +1174,7 @@
         <p class="payment-update-brand">Atlas<span>.</span></p>
         <span class="payment-update-context">Subscription</span>
       </div>
-      <button id="payment-update-close" class="payment-update-back" type="button">← Subscription</button>
+      <button id="payment-update-close" class="payment-update-back" type="button"><span class="payment-update-back-arrow" aria-hidden="true">←</span><span>Subscription</span></button>
     </header>
 
     <div class="payment-update-body">
@@ -1232,7 +1243,7 @@
 
   <main class="shell">
     <div class="topline">
-      <a id="back" class="back-link" href="/account/">← Account</a>
+      <a id="back" class="back-link" href="/account/"><span class="back-link-arrow" aria-hidden="true">←</span><span>Account</span></a>
     </div>
 
     <header class="brand">
