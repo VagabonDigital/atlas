@@ -116,7 +116,7 @@ assert.match(
 
 assert.match(
     loader,
-    /compass-generation-recovery\.js\?v=20260925-workeraware1/
+    /compass-generation-recovery\.js\?v=20260925-workeraware2/
 );
 
 assert.match(
@@ -140,8 +140,18 @@ assert.match(
 );
 
 assert.match(
+    recovery,
+    /async function refreshCompletedSubjectIfNeeded\(\)[\s\S]*?aiBuildStatus[\s\S]*?'complete'[\s\S]*?window\.location\.reload\(\)/
+);
+
+assert.match(
+    recovery,
+    /if \(!state\) \{[\s\S]*?await refreshCompletedSubjectIfNeeded\(\)[\s\S]*?resetRecoveryState\(\)/
+);
+
+assert.match(
     subjectPage,
-    /compass-subject-loader\.js\?v=20260925-workeraware1/
+    /compass-subject-loader\.js\?v=20260925-workeraware2/
 );
 
 console.log(
