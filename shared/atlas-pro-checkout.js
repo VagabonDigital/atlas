@@ -621,17 +621,29 @@
             }
 
             .atlas-pro-checkout-head {
-                min-height: 72px;
+                height: 56px;
                 display: flex;
-                flex: 0 0 auto;
+                flex: 0 0 56px;
                 align-items: center;
                 justify-content: space-between;
-                gap: 20px;
-                padding: 14px 28px;
+                gap: .5rem;
+                padding: 0 1.5rem;
                 border-bottom: 1px solid
-                    var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .16)));
+                    rgba(49, 45, 38, .10);
                 background:
-                    var(--atlas-modal-surface, var(--surface, #fffdf9));
+                    rgba(243, 240, 233, .84);
+                backdrop-filter:
+                    blur(22px) saturate(1.08);
+                -webkit-backdrop-filter:
+                    blur(22px) saturate(1.08);
+            }
+
+            html[data-theme="night"]
+                .atlas-pro-checkout-head {
+                border-bottom-color:
+                    rgba(255, 255, 255, .08);
+                background:
+                    rgba(27, 29, 28, .86);
             }
 
             .atlas-pro-checkout-identity {
@@ -645,9 +657,10 @@
                 margin: 0;
                 font-family:
                     "DM Serif Display", Georgia, serif;
-                font-size: 1.65rem;
+                font-size: 1.22rem;
                 line-height: 1;
                 font-weight: 400;
+                letter-spacing: -0.01em;
                 color:
                     var(--atlas-modal-heading, var(--text-heading, #211f1b));
             }
@@ -983,20 +996,24 @@
 
             @media (max-width: 760px) {
                 .atlas-pro-checkout-head {
-                    min-height: 64px;
-                    padding:
-                        max(10px, env(safe-area-inset-top))
-                        14px
-                        10px;
-                    gap: 16px;
+                    height: 56px;
+                    flex-basis: 56px;
+                    padding: 0 1rem;
+                    gap: .5rem;
+                    background:
+                        rgba(243, 240, 233, .88);
+                    backdrop-filter: blur(14px);
+                    -webkit-backdrop-filter: blur(14px);
+                }
+
+                html[data-theme="night"]
+                    .atlas-pro-checkout-head {
+                    background:
+                        rgba(27, 29, 28, .90);
                 }
 
                 .atlas-pro-checkout-brand {
-                    font-size: 1.45rem;
-                }
-
-                .atlas-pro-checkout-context {
-                    font-size: .78rem;
+                    font-size: 1.05rem;
                 }
 
                 .atlas-pro-checkout-close {
@@ -1069,9 +1086,6 @@
                     <p class="atlas-pro-checkout-brand">
                         Atlas<span>.</span>
                     </p>
-                    <span class="atlas-pro-checkout-context">
-                        Secure checkout
-                    </span>
                 </div>
                 <button
                     class="atlas-pro-checkout-close"
