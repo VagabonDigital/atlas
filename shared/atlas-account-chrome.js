@@ -32,6 +32,7 @@
     let gateStylePromise = null;
     let accessUnsubscribe = null;
     let initialized = false;
+    let knownAccountPrewarmStarted = false;
 
     const ACCOUNT_ICON = `
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -151,6 +152,22 @@
         return gatePromise;
     }
 
+    function getFirstPaintAccountHint() {
+        if (typeof document === 'undefined') {
+            return '';
+        }
+
+        const hint = String(
+            document.documentElement?.dataset
+                ?.atlasAccountHint || ''
+        ).trim();
+
+        return hint === 'account' ||
+            hint === 'anonymous'
+            ? hint
+            : '';
+    }
+
     function getPresentation(accessState) {
         const access =
             accessState && typeof accessState === 'object'
@@ -167,6 +184,27 @@
         }
 
         if (access.ready && access.tier === 'anonymous') {
+            return {
+                kind: 'sign-in',
+                label: 'Sign in',
+                title: 'Sign in to Atlas',
+                disabled: false
+            };
+        }
+
+        const firstPaintHint =
+            getFirstPaintAccountHint();
+
+        if (firstPaintHint === 'account') {
+            return {
+                kind: 'account',
+                label: 'Account',
+                title: 'Atlas account',
+                disabled: false
+            };
+        }
+
+        if (firstPaintHint === 'anonymous') {
             return {
                 kind: 'sign-in',
                 label: 'Sign in',
@@ -261,15 +299,15 @@
                         ) === 'Menu'
                 );
 
-                if (searchButton) {
-                    mobileActions.insertBefore(
-                        control,
-                        searchButton
-                    );
-                } else if (menuButton) {
+                if (menuButton) {
                     mobileActions.insertBefore(
                         control,
                         menuButton
+                    );
+                } else if (searchButton) {
+                    searchButton.insertAdjacentElement(
+                        'afterend',
+                        control
                     );
                 } else {
                     mobileActions.appendChild(control);
@@ -389,6 +427,43 @@
         return presentation;
     }
 
+    function prewarmKnownAccountRuntime() {
+        if (
+            knownAccountPrewarmStarted ||
+            getFirstPaintAccountHint() !== 'account'
+        ) {
+            return;
+        }
+
+        knownAccountPrewarmStarted = true;
+
+        void ensureGate()
+            .catch(error => {
+                console.error(
+                    '[AtlasAccountChrome] account menu prewarm failed:',
+                    error
+                );
+            });
+
+        const Bootstrap =
+            window.AtlasAccessBootstrap;
+
+        if (
+            Bootstrap &&
+            typeof Bootstrap.prepareAccountRuntime ===
+                'function'
+        ) {
+            void Bootstrap
+                .prepareAccountRuntime()
+                .catch(error => {
+                    console.error(
+                        '[AtlasAccountChrome] account runtime prewarm failed:',
+                        error
+                    );
+                });
+        }
+    }
+
     async function handleSignIn(trigger) {
         try {
             const Gate = await ensureGate();
@@ -463,6 +538,7 @@
         mountHubChrome();
         mountInsideAtlasChrome();
         renderAll(window.AtlasAccess?.getState?.() || null);
+        prewarmKnownAccountRuntime();
 
         const Bootstrap = window.AtlasAccessBootstrap;
 

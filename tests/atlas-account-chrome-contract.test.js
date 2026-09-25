@@ -71,6 +71,36 @@ function runPresentationProof() {
     presentation = Chrome.getPresentation(null);
     assert.equal(presentation.kind, 'pending');
     assert.equal(presentation.disabled, true);
+
+
+    global.document = {
+        documentElement: {
+            dataset: {
+                atlasAccountHint: 'account'
+            }
+        }
+    };
+
+    presentation = Chrome.getPresentation(null);
+    assert.equal(
+        presentation.kind,
+        'account',
+        'A stored account hint should make account chrome interactive before async access hydration finishes.'
+    );
+    assert.equal(presentation.disabled, false);
+
+    global.document.documentElement.dataset.atlasAccountHint =
+        'anonymous';
+
+    presentation = Chrome.getPresentation(null);
+    assert.equal(
+        presentation.kind,
+        'sign-in',
+        'A synchronous anonymous hint should make Sign in interactive immediately.'
+    );
+    assert.equal(presentation.disabled, false);
+
+    delete global.document;
 }
 
 function runPlacementProof() {
@@ -176,7 +206,7 @@ function runPlacementProof() {
     );
     assert.match(
         inside,
-        /atlas-account-chrome\\.js\\?v=20260924-checkoutclean2/,
+        /atlas-account-chrome\\.js\\?v=20260924-accountfast1/,
         'Inside Atlas must load shared account chrome.'
     );
     assert.match(
@@ -219,6 +249,30 @@ function runPlacementProof() {
         /MutationObserver/,
         'Account chrome must mount as soon as the header mount point exists, not wait for DOMContentLoaded.'
     );
+
+    assert.match(
+        chrome,
+        /getFirstPaintAccountHint/,
+        'Account chrome must use the synchronous first-paint account hint while canonical access state hydrates.'
+    );
+    assert.match(
+        chrome,
+        /prepareAccountRuntime/,
+        'Known signed-in account chrome must prewarm the account runtime without waiting for a first click.'
+    );
+    assert.match(
+        chrome,
+        /if \(menuButton\)[\s\S]*?insertBefore\([\s\S]*?control,[\s\S]*?menuButton/,
+        'Dynamically mounted mobile account chrome must sit immediately before the hamburger.'
+    );
+
+    [atlas, compass, arcade].forEach((source, index) => {
+        assert.match(
+            source,
+            /<div class="mobile-header-actions">[\s\S]*?(?:mobile-header-session|mobile-session-pill)[\s\S]*?data-atlas-search[\s\S]*?data-atlas-account-control="mobile"[\s\S]*?aria-label="Menu"/,
+            `Product hub ${index + 1} must order mobile controls as learner, search, account, menu.`
+        );
+    });
     assert.match(
         chrome,
         /if \(gateState\.menuOpen\)[\s\S]*?Gate\.closeAccountMenu\(\)/,

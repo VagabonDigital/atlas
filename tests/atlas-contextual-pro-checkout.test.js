@@ -220,7 +220,7 @@ assert.match(
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260924-checkoutclean2/
+  /atlas-account-chrome\.js\?v=20260924-accountfast1/
 );
 
 assert.match(
