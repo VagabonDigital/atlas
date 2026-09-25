@@ -84,7 +84,7 @@ assert.match(
 );
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260925-paddlelight1/
+  /atlas-pro-checkout\.js\?v=20260925-glassfix1/
 );
 assert.match(
   checkout,
@@ -93,6 +93,21 @@ assert.match(
 assert.match(
   subscription,
   /atlas-paddle-config\.js\?v=20260924-live1/
+);
+assert.match(
+  checkout,
+  /\.atlas-pro-checkout-body \{[\s\S]*?overflow-y: auto;[\s\S]*?<div class="atlas-pro-checkout-body">\s*<header class="atlas-pro-checkout-head">/,
+  'Upgrade checkout header must live inside the scrolling checkout body so backdrop-filter samples moving content.'
+);
+assert.match(
+  checkout,
+  /\.atlas-pro-checkout-head \{[\s\S]*?position: sticky;[\s\S]*?top: 0;[\s\S]*?z-index: 3;[\s\S]*?rgba\(255, 253, 249, \.72\)[\s\S]*?backdrop-filter:[\s\S]*?blur\(22px\) saturate\(1\.08\)/,
+  'Upgrade checkout desktop header must use visible sticky glass within its scroll container.'
+);
+assert.match(
+  checkout,
+  /@media \(max-width: 760px\)[\s\S]*?\.atlas-pro-checkout-head \{[\s\S]*?rgba\(255, 253, 249, \.78\)[\s\S]*?backdrop-filter: blur\(14px\)/,
+  'Upgrade checkout mobile header must retain visible mobile glass.'
 );
 assert.match(
   subscription,
@@ -111,13 +126,23 @@ assert.match(
 );
 assert.match(
   subscription,
-  /\.payment-update-head \{[\s\S]*?position: sticky;[\s\S]*?top: 0;[\s\S]*?z-index: 3;[\s\S]*?color-mix\(in srgb, var\(--payment-update-header-surface\) 84%, transparent\)[\s\S]*?backdrop-filter: blur\(22px\) saturate\(1\.08\)/,
-  'Update Payment desktop header must use real sticky glass within its scroll container.'
+  /\.payment-update-head \{[\s\S]*?position: sticky;[\s\S]*?top: 0;[\s\S]*?z-index: 3;[\s\S]*?color-mix\(in srgb, var\(--payment-update-header-surface\) 72%, transparent\)[\s\S]*?backdrop-filter: blur\(22px\) saturate\(1\.08\)/,
+  'Update Payment desktop header must use visible sticky glass within its scroll container.'
 );
 assert.match(
   subscription,
-  /@media \(max-width: 620px\)[\s\S]*?\.payment-update-head \{[\s\S]*?color-mix\(in srgb, var\(--payment-update-header-surface\) 88%, transparent\)[\s\S]*?backdrop-filter: blur\(14px\)/,
-  'Update Payment mobile header must retain the lighter Hub-style mobile glass treatment.'
+  /@media \(max-width: 620px\)[\s\S]*?\.payment-update-head \{[\s\S]*?color-mix\(in srgb, var\(--payment-update-header-surface\) 78%, transparent\)[\s\S]*?backdrop-filter: blur\(14px\)/,
+  'Update Payment mobile header must retain visible mobile glass.'
+);
+assert.match(
+  subscription,
+  /\.payment-update-back \{[\s\S]*?gap: 5px;[\s\S]*?color: var\(--muted\);[\s\S]*?font: 600 \.9rem\/1\.2 "DM Sans", system-ui, sans-serif;/,
+  'Update Payment back control must match the Upgrade checkout Back to Atlas styling.'
+);
+assert.match(
+  subscription,
+  /aria-label="Back to Subscription"[\s\S]*?<span>Back to Subscription<\/span>/,
+  'Update Payment back control must retain Subscription as the destination label.'
 );
 assert.doesNotMatch(
   pricing + checkout + subscription,
