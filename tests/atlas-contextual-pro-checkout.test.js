@@ -138,6 +138,12 @@ assert.match(
 
 assert.match(
   checkout,
+  /grid-template-columns:[\s\S]*?minmax\(300px, 1fr\)[\s\S]*?minmax\(0, 680px\)[\s\S]*?atlas-pro-checkout-stage[\s\S]*?width: min\(100%, 680px\)/,
+  'Desktop checkout must deliberately constrain Paddle to a compact payment column.'
+);
+
+assert.match(
+  checkout,
   /@media \(max-width: 920px\)[\s\S]*?atlas-pro-checkout-layout[\s\S]*?display: block[\s\S]*?atlas-pro-checkout-summary[\s\S]*?display: none/,
   'Tablet and small-desktop checkout must collapse before the two-column layout can overflow.'
 );
