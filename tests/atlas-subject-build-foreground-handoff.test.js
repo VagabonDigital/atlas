@@ -1029,6 +1029,26 @@ function testBatchFourStaticContracts() {
     );
 
     assert.match(
+        clientSource,
+        /atlas::batch5BuildTrace::v1/
+    );
+
+    assert.match(
+        clientSource,
+        /client:foreground-request[\s\S]*?client:foreground-resolved/
+    );
+
+    assert.match(
+        loaderSource,
+        /loader:[\s\S]*?handoff-installed/
+    );
+
+    assert.match(
+        engineSource,
+        /engine:[\s\S]*?handoff-lease-result[\s\S]*?generator-started/
+    );
+
+    assert.match(
         loaderSource,
         /requestForegroundBuildOwnership\([\s\S]*?installRuntimeSubject\(subject\)/
     );
