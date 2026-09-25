@@ -6414,7 +6414,12 @@
       if (reviewState) {
         const session = getActiveSession();
         const ledger = getLedger();
-        const set = getReviewSet(ledger, session.id);
+        const continueItem = getContinueItem(getRegistry(), session.id);
+        const set = getReviewSet(
+          ledger,
+          session.id,
+          continueItem?.registryId
+        );
         if (!set.length) { closeLanguageReview(); return; }
         // Keep position where possible.
         reviewState.set = set;
