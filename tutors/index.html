@@ -4199,7 +4199,7 @@
           stage.querySelectorAll(".continuity-expression")
         );
         var media = window.matchMedia("(prefers-reduced-motion: reduce)");
-        var duration = 19.0;
+        var duration = 18.0;
         var time = 0;
         var playing = false;
         var last = 0;
@@ -4229,9 +4229,9 @@
           if (t <= 7) return t * (4.5 / 7);
           if (t <= 14) return 4.5 + (t - 7) * (5 / 7);
           if (t <= 18) return 9.5 + (t - 14) * (6 / 11);
-          if (t <= 25) return 11.6818 + (t - 18) * (2.3182 / 7);
-          if (t <= 29) return 14.0 + (t - 25) * (.5 / 4);
-          return 14.5 + (t - 29) * (4.5 / 5);
+          if (t <= 25) return 11.6818 + (t - 18) * (1.3182 / 7);
+          if (t <= 29) return 13.0 + (t - 25) * (.5 / 4);
+          return 13.5 + (t - 29) * (4.5 / 5);
         }
 
         function setOpacity(element, value) {
@@ -4265,15 +4265,15 @@
           var inner = width - pad * 2;
           var rm = media.matches;
           var legacyTime = rm
-            ? (t < 4.5 ? 3 : t < 9.5 ? (t < 7.2 ? 9 : 12.8) : t < 14.5 ? (t < 14.0 ? 21 : 27) : 34)
+            ? (t < 4.5 ? 3 : t < 9.5 ? (t < 7.2 ? 9 : 12.8) : t < 13.5 ? (t < 13.0 ? 21 : 27) : 34)
             : (function () {
                 // Invert the compact clock back into the original Astra timing space.
                 if (t <= 4.5) return t * (7 / 4.5);
                 if (t <= 9.5) return 7 + (t - 4.5) * (7 / 5);
                 if (t <= 11.6818) return 14 + (t - 9.5) * (11 / 6);
-                if (t <= 14.0) return 18 + (t - 11.6818) * (7 / 2.3182);
-                if (t <= 14.5) return 25 + (t - 14.0) * 8;
-                return 29 + (t - 14.5) * (5 / 4.5);
+                if (t <= 13.0) return 18 + (t - 11.6818) * (7 / 1.3182);
+                if (t <= 13.5) return 25 + (t - 13.0) * 8;
+                return 29 + (t - 13.5) * (5 / 4.5);
               })();
           var u = legacyTime;
           var attention = ramp(u, 10.5, 12.5);
@@ -4396,7 +4396,7 @@
 
           setOpacity(
             memoryThread.querySelector(".continuity-halo"),
-            ramp(u, 8.4, 10.2) * .42 * memoryFade
+            mobile ? 0 : ramp(u, 8.4, 10.2) * .42 * memoryFade
           );
           setOpacity(
             ideaThread.querySelector(".continuity-idea-junction"),
@@ -4574,7 +4574,7 @@
 
           stage.classList.toggle("is-settled", t >= duration);
 
-          var beat = t < 4.5 ? 0 : t < 9.5 ? 1 : t < 14.5 ? 2 : 3;
+          var beat = t < 4.5 ? 0 : t < 9.5 ? 1 : t < 13.5 ? 2 : 3;
           if (announced !== beat) {
             byId("continuityAccessibleState").textContent = [
               "Yasmin’s current lesson: Places That Feel Like Another Planet.",
