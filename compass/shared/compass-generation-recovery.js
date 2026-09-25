@@ -269,6 +269,88 @@
         }
     }
 
+    async function refreshCompletedSubjectIfNeeded() {
+        const Subjects = getSubjectsStore();
+        const subjectId = getSubjectId();
+
+        if (
+            !Subjects ||
+            !subjectId ||
+            typeof Subjects.getSubject !== 'function'
+        ) {
+            return false;
+        }
+
+        let subject = null;
+
+        try {
+            subject =
+                await Subjects.getSubject(
+                    subjectId
+                );
+        } catch {
+            return false;
+        }
+
+        if (
+            String(
+                subject
+                    ?.metadata
+                    ?.aiBuildStatus ||
+                ''
+            ).trim() !== 'complete'
+        ) {
+            return false;
+        }
+
+        resetRecoveryState();
+
+        myVersionFullSubjectGenerationError = '';
+        myVersionFullSubjectGenerationNotice = '';
+
+        if (
+            window.AtlasCompassSubjectRuntime
+                ?.aiBuildIncomplete !== true
+        ) {
+            originalUpdateMyVersionAuthorBar?.();
+            return true;
+        }
+
+        const revision = Math.max(
+            0,
+            Math.floor(
+                Number(
+                    subject?.revision
+                ) || 0
+            )
+        );
+
+        const refreshKey =
+            'atlas::completedSubjectRefresh::' +
+            subjectId +
+            '::' +
+            revision;
+
+        try {
+            if (
+                sessionStorage.getItem(
+                    refreshKey
+                ) === '1'
+            ) {
+                originalUpdateMyVersionAuthorBar?.();
+                return true;
+            }
+
+            sessionStorage.setItem(
+                refreshKey,
+                '1'
+            );
+        } catch { }
+
+        window.location.reload();
+        return true;
+    }
+
     /*
      * A generated mutation can land in memory immediately before a storage
      * failure. Retry that exact checkpoint before regenerating the step so
@@ -386,6 +468,12 @@
         state = await repairLatestCheckpoint(state);
 
         if (!state) {
+            if (
+                await refreshCompletedSubjectIfNeeded()
+            ) {
+                return;
+            }
+
             resetRecoveryState();
             return;
         }
@@ -513,8 +601,15 @@
 
         if (!state || !isRecoveryEligible()) {
             if (!state) {
+                if (
+                    await refreshCompletedSubjectIfNeeded()
+                ) {
+                    return true;
+                }
+
                 resetRecoveryState();
             }
+
             return false;
         }
 
