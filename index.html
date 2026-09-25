@@ -382,8 +382,8 @@
       --atmosphere-filter: blur(4px) saturate(0.86) brightness(1) contrast(1);
 
       /* Hub chrome and controls */
-      --chrome-surface: rgba(243, 240, 233, 0.84);
-      --chrome-surface-mobile: rgba(243, 240, 233, 0.88);
+      --chrome-surface: rgba(243, 240, 233, 0.72);
+      --chrome-surface-mobile: rgba(243, 240, 233, 0.72);
       --world-nav-surface: var(--surface-muted);
       --world-nav-border: var(--border-faint);
       --world-nav-hover: rgba(255, 253, 249, 0.72);
@@ -497,8 +497,8 @@
       --atmosphere-filter: blur(4px) saturate(0.8) brightness(0.68) contrast(0.98);
 
       /* Hub chrome and controls */
-      --chrome-surface: rgba(27, 29, 28, 0.86);
-      --chrome-surface-mobile: rgba(27, 29, 28, 0.90);
+      --chrome-surface: rgba(27, 29, 28, 0.72);
+      --chrome-surface-mobile: rgba(27, 29, 28, 0.72);
       --world-nav-hover: rgba(255, 255, 255, 0.055);
       --world-nav-hover-border: rgba(255, 255, 255, 0.10);
       --world-nav-hover-shadow: none;
@@ -813,7 +813,8 @@
       top: 0;
       z-index: 200;
       background: var(--chrome-surface);
-      backdrop-filter: blur(22px) saturate(1.08);
+      backdrop-filter: blur(16px) saturate(1.1);
+      -webkit-backdrop-filter: blur(16px) saturate(1.1);
       border-bottom: 1px solid var(--border-faint);
       display: flex;
       align-items: center;
@@ -995,7 +996,8 @@
       top: 0;
       z-index: 200;
       background: var(--chrome-surface-mobile);
-      backdrop-filter: blur(14px);
+      backdrop-filter: blur(16px) saturate(1.1);
+      -webkit-backdrop-filter: blur(16px) saturate(1.1);
       border-bottom: 1px solid var(--border-faint);
       height: 56px;
       padding: 0 1rem;
@@ -1340,8 +1342,10 @@
       position: relative;
       overflow: hidden;
       box-shadow: var(--continue-shadow);
-      backdrop-filter: blur(22px) saturate(1.08);
-      -webkit-backdrop-filter: blur(22px) saturate(1.08);
+      backdrop-filter: blur(16px) saturate(1.1);
+      -webkit-backdrop-filter: blur(16px) saturate(1.1);
+      -webkit-backdrop-filter: blur(16px) saturate(1.1);
+      -webkit-backdrop-filter: blur(16px) saturate(1.1);
       transform: translateY(0);
     }
 
@@ -1669,8 +1673,10 @@
       text-align: left;
       font-family: var(--font-body);
       box-shadow: var(--review-row-shadow);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(16px) saturate(1.1);
+      -webkit-backdrop-filter: blur(16px) saturate(1.1);
+      -webkit-backdrop-filter: blur(16px) saturate(1.1);
+      -webkit-backdrop-filter: blur(16px) saturate(1.1);
     }
 
     .review-row:hover {
