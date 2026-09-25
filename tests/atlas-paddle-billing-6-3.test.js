@@ -84,7 +84,7 @@ assert.match(
 );
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260925-arrowglass2/
+  /atlas-pro-checkout\.js\?v=20260925-arrowonly1/
 );
 assert.match(
   checkout,
