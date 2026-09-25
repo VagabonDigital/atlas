@@ -13,7 +13,7 @@
 
     if (window.AtlasPaddleConfig) return;
 
-    const environment = 'sandbox';
+    const environment = 'live';
 
     const environments = Object.freeze({
         sandbox: Object.freeze({
