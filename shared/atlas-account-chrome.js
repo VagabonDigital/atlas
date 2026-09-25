@@ -26,9 +26,9 @@
     const GATE_STYLE_HREF =
         '/shared/atlas-account-gate.css?v=20260923-prohierarchy1';
     const GATE_SRC =
-        '/shared/atlas-account-gate.js?v=20260925-paymentworld2';
+        '/shared/atlas-account-gate.js?v=20260925-paymentcream1';
     const PRO_CHECKOUT_SRC =
-        '/shared/atlas-pro-checkout.js?v=20260925-paymentworld2';
+        '/shared/atlas-pro-checkout.js?v=20260925-paymentcream1';
 
     let gatePromise = null;
     let gateStylePromise = null;

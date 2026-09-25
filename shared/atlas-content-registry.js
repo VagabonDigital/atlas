@@ -1064,7 +1064,7 @@
         }
 
         const src =
-            '/shared/atlas-account-chrome.js?v=20260925-paymentworld2';
+            '/shared/atlas-account-chrome.js?v=20260925-paymentcream1';
 
         if (document.readyState === 'loading') {
             document.write(
