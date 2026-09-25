@@ -113,8 +113,8 @@ assert.match(
 );
 assert.match(
   pricing,
-  /--header-surface:\s*#fffdf9;[\s\S]*?\.site-header \{[\s\S]*?border-bottom:1px solid var\(--border-faint\);[\s\S]*?color-mix\(in srgb,var\(--header-surface\) 86%,transparent\)[\s\S]*?backdrop-filter:blur\(22px\) saturate\(1\.08\)/,
-  'Pricing sticky header must use the #fffdf9-based Atlas Hub glass treatment.'
+  /--header-surface:\s*#fffdf9;[\s\S]*?\.site-header \{[\s\S]*?border-bottom:1px solid var\(--border-faint\);[\s\S]*?color-mix\(in srgb,var\(--header-surface\) 72%,transparent\)[\s\S]*?backdrop-filter:blur\(16px\) saturate\(1\.1\)[\s\S]*?-webkit-backdrop-filter:blur\(16px\) saturate\(1\.1\)/,
+  'Pricing sticky header must match the Inside Atlas 72% / 16px / 1.1 glass treatment.'
 );
 
 assert.doesNotMatch(
@@ -196,8 +196,8 @@ assert.match(
 assert.match(pricing, /atlas-access-bootstrap\.js/);
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260925-paddlelight1/,
-  'Pricing must load the shared Pro checkout runtime.'
+  /atlas-pro-checkout\.js\?v=20260925-arrowglass2/,
+  'Pricing must load the current shared Pro checkout runtime.'
 );
 assert.doesNotMatch(
   pricing,
