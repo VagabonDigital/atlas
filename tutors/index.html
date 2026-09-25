@@ -4313,14 +4313,14 @@
             ];
           } else {
             var interestWidths = [236, 174, 182];
-            var interestRowLeft = width * .39;
-            var interestRowRight = width - pad - 36;
             var interestTotalWidth =
               interestWidths[0] + interestWidths[1] + interestWidths[2];
-            var interestGap = Math.max(
-              28,
-              (interestRowRight - interestRowLeft - interestTotalWidth) / 2
-            );
+            var interestGap = 32;
+            var interestSafeRight = width - pad - 34;
+            var interestRowLeft =
+              interestSafeRight -
+              interestTotalWidth -
+              interestGap * 2;
 
             memory = [
               [interestRowLeft, 84, interestWidths[0], 62],
@@ -4373,7 +4373,7 @@
               x += Math.sin(travel * Math.PI) * width * .035;
             }
 
-            if (!mobile && index > 0) {
+            if (!mobile && index > 0 && travel > .05) {
               var safeRight = width - pad - 34;
               if (x + cardWidth > safeRight) {
                 x = safeRight - cardWidth;
