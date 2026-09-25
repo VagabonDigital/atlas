@@ -84,6 +84,24 @@ assert.match(
 
 assert.match(
   checkout,
+  /RECOVERY_PARAM[\s\S]*?'checkoutState'[\s\S]*?setRecoverableCheckoutIntent[\s\S]*?clearRecoverableCheckoutIntent[\s\S]*?restoreRecoverableCheckout/,
+  'Upgrade checkout must preserve active purchase intent across refresh without persisting Paddle iframe state.'
+);
+
+assert.match(
+  chrome,
+  /checkoutState[\s\S]*?ensureCheckoutRecovery[\s\S]*?AtlasProCheckout\.restore/,
+  'Shared account chrome must recover an active Pro checkout opened from a lazy account menu.'
+);
+
+assert.match(
+  subscription,
+  /paymentState[\s\S]*?hasPaymentUpdateIntent[\s\S]*?setPaymentUpdateIntent[\s\S]*?await updatePaymentMethod\(\)/,
+  'Update Payment must reconstruct a fresh payment update after refresh while intent is active.'
+);
+
+assert.match(
+  checkout,
   /function setCanonicalCheckoutTitle\(\)[\s\S]*?document\.title = 'Atlas'/,
   'Checkout must canonicalize the host page title to Atlas while Paddle/Google Pay is active.'
 );
@@ -306,7 +324,7 @@ assert.equal(
 
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260925-paddlelight1/,
+  /atlas-pro-checkout\.js\?v=20260925-checkoutresume1/,
   'Pricing must load the same shared checkout runtime as contextual upgrade flows.'
 );
 
@@ -395,12 +413,12 @@ assert.match(
 
 assert.match(
   chrome,
-  /atlas-account-gate\.js\?v=20260925-paddlelight1/
+  /atlas-account-gate\.js\?v=20260925-checkoutresume1/
 );
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260925-paddlelight1/
+  /atlas-account-chrome\.js\?v=20260925-checkoutresume1/
 );
 
 assert.match(
@@ -457,7 +475,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260925-paddlelight1/
+  /atlas-pro-checkout\.js\?v=20260925-checkoutresume1/
 );
 
 assert.match(

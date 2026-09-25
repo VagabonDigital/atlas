@@ -84,7 +84,7 @@ assert.match(
 );
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260925-arrowonly1/
+  /atlas-pro-checkout\.js\?v=20260925-checkoutresume1/
 );
 assert.match(
   checkout,
@@ -153,6 +153,18 @@ assert.match(
   subscription,
   /aria-label="Back to Subscription"[\s\S]*?<span>Back to Subscription<\/span>/,
   'Update Payment back control must retain Subscription as the destination label.'
+);
+
+assert.match(
+  checkout,
+  /checkoutState[\s\S]*?restoreRecoverableCheckout[\s\S]*?scheduleRecoverableCheckoutRestore/,
+  'Upgrade checkout must recover the active purchase journey after refresh.'
+);
+
+assert.match(
+  subscription,
+  /paymentState[\s\S]*?setPaymentUpdateIntent\(true\)[\s\S]*?hasPaymentUpdateIntent\(\)[\s\S]*?await updatePaymentMethod\(\)/,
+  'Update Payment must preserve intent across refresh and rebuild a fresh Paddle transaction.'
 );
 assert.match(
   subscription,
