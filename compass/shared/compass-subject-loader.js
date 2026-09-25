@@ -661,7 +661,7 @@
             );
 
             await loadScript(
-                '../shared/compass-engine.js?v=20260924-revisionguard2',
+                '../shared/compass-engine.js?v=20260925-completionstate1',
                 'Compass engine could not be loaded.'
             );
 
