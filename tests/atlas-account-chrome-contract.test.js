@@ -206,7 +206,7 @@ function runPlacementProof() {
     );
     assert.match(
         inside,
-        /atlas-account-chrome\.js\?v=20260925-checkoutfinal1/,
+        /atlas-account-chrome\.js\?v=20260925-paymentworld1/,
         'Inside Atlas must load shared account chrome.'
     );
     assert.match(
