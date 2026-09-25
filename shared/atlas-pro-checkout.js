@@ -629,9 +629,9 @@
                 gap: .5rem;
                 padding: 0 1.5rem;
                 border-bottom: 1px solid
-                    rgba(49, 45, 38, .10);
+                    var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .16)));
                 background:
-                    rgba(243, 240, 233, .84);
+                    rgba(255, 253, 249, .84);
                 backdrop-filter:
                     blur(22px) saturate(1.08);
                 -webkit-backdrop-filter:
@@ -640,10 +640,8 @@
 
             html[data-theme="night"]
                 .atlas-pro-checkout-head {
-                border-bottom-color:
-                    rgba(255, 255, 255, .08);
                 background:
-                    rgba(27, 29, 28, .86);
+                    rgba(37, 40, 38, .86);
             }
 
             .atlas-pro-checkout-identity {
@@ -1001,7 +999,7 @@
                     padding: 0 1rem;
                     gap: .5rem;
                     background:
-                        rgba(243, 240, 233, .88);
+                        rgba(255, 253, 249, .88);
                     backdrop-filter: blur(14px);
                     -webkit-backdrop-filter: blur(14px);
                 }
@@ -1009,7 +1007,7 @@
                 html[data-theme="night"]
                     .atlas-pro-checkout-head {
                     background:
-                        rgba(27, 29, 28, .90);
+                        rgba(37, 40, 38, .90);
                 }
 
                 .atlas-pro-checkout-brand {
