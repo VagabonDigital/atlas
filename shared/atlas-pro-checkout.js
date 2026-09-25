@@ -684,6 +684,13 @@
                 font: 600 .82rem/1 "DM Sans", system-ui, sans-serif;
             }
 
+            .atlas-pro-checkout-close-arrow {
+                display: inline-block;
+                flex: 0 0 auto;
+                line-height: 1;
+                transform: translateY(-1px);
+            }
+
             .atlas-pro-checkout-close:hover,
             .atlas-pro-checkout-close:focus-visible {
                 border-color:
@@ -1064,7 +1071,11 @@
                     aria-label="Close checkout"
                     data-atlas-pro-checkout-close
                 >
-                    Back to Atlas
+                    <span
+                        class="atlas-pro-checkout-close-arrow"
+                        aria-hidden="true"
+                    >←</span>
+                    <span>Back to Atlas</span>
                 </button>
             </header>
             <div class="atlas-pro-checkout-body">
