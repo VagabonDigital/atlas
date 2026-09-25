@@ -84,7 +84,7 @@ assert.match(
 );
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260925-glassfix1/
+  /atlas-pro-checkout\.js\?v=20260925-insideglass1/
 );
 assert.match(
   checkout,
@@ -101,13 +101,13 @@ assert.match(
 );
 assert.match(
   checkout,
-  /\.atlas-pro-checkout-head \{[\s\S]*?position: sticky;[\s\S]*?top: 0;[\s\S]*?z-index: 3;[\s\S]*?rgba\(255, 253, 249, \.72\)[\s\S]*?backdrop-filter:[\s\S]*?blur\(22px\) saturate\(1\.08\)/,
-  'Upgrade checkout desktop header must use visible sticky glass within its scroll container.'
+  /\.atlas-pro-checkout-head \{[\s\S]*?position: sticky;[\s\S]*?top: 0;[\s\S]*?z-index: 3;[\s\S]*?color-mix\([\s\S]*?72%[\s\S]*?transparent[\s\S]*?backdrop-filter:[\s\S]*?blur\(16px\) saturate\(1\.1\)/,
+  'Upgrade checkout desktop header must match the Inside Atlas 72% / 16px / 1.1 glass recipe.'
 );
 assert.match(
   checkout,
-  /@media \(max-width: 760px\)[\s\S]*?\.atlas-pro-checkout-head \{[\s\S]*?rgba\(255, 253, 249, \.78\)[\s\S]*?backdrop-filter: blur\(14px\)/,
-  'Upgrade checkout mobile header must retain visible mobile glass.'
+  /@media \(max-width: 760px\)[\s\S]*?\.atlas-pro-checkout-head \{[\s\S]*?color-mix\([\s\S]*?72%[\s\S]*?transparent[\s\S]*?backdrop-filter:[\s\S]*?blur\(16px\) saturate\(1\.1\)/,
+  'Upgrade checkout mobile header must match the Inside Atlas glass recipe too.'
 );
 assert.match(
   subscription,
@@ -126,13 +126,13 @@ assert.match(
 );
 assert.match(
   subscription,
-  /\.payment-update-head \{[\s\S]*?position: sticky;[\s\S]*?top: 0;[\s\S]*?z-index: 3;[\s\S]*?color-mix\(in srgb, var\(--payment-update-header-surface\) 72%, transparent\)[\s\S]*?backdrop-filter: blur\(22px\) saturate\(1\.08\)/,
-  'Update Payment desktop header must use visible sticky glass within its scroll container.'
+  /\.payment-update-head \{[\s\S]*?position: sticky;[\s\S]*?top: 0;[\s\S]*?z-index: 3;[\s\S]*?color-mix\(in srgb, var\(--payment-update-header-surface\) 72%, transparent\)[\s\S]*?backdrop-filter: blur\(16px\) saturate\(1\.1\)/,
+  'Update Payment desktop header must match the Inside Atlas 72% / 16px / 1.1 glass recipe.'
 );
 assert.match(
   subscription,
-  /@media \(max-width: 620px\)[\s\S]*?\.payment-update-head \{[\s\S]*?color-mix\(in srgb, var\(--payment-update-header-surface\) 78%, transparent\)[\s\S]*?backdrop-filter: blur\(14px\)/,
-  'Update Payment mobile header must retain visible mobile glass.'
+  /@media \(max-width: 620px\)[\s\S]*?\.payment-update-head \{[\s\S]*?color-mix\(in srgb, var\(--payment-update-header-surface\) 72%, transparent\)[\s\S]*?backdrop-filter: blur\(16px\) saturate\(1\.1\)/,
+  'Update Payment mobile header must match the Inside Atlas glass recipe too.'
 );
 assert.match(
   subscription,
