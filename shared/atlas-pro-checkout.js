@@ -735,6 +735,10 @@
             }
 
             .atlas-pro-checkout-shell {
+                --atlas-pro-checkout-canvas:
+                    #eceff3;
+                --atlas-pro-checkout-header-surface:
+                    #f7f8fa;
                 position: fixed;
                 inset: 0;
                 z-index: 2147483645;
@@ -743,7 +747,7 @@
                 flex-direction: column;
                 overflow: hidden;
                 background:
-                    var(--atlas-modal-surface, var(--surface, #fffdf9));
+                    var(--atlas-pro-checkout-canvas);
                 color:
                     var(--atlas-modal-heading, var(--text-heading, #211f1b));
                 font-family:
@@ -766,7 +770,7 @@
                 background:
                     color-mix(
                         in srgb,
-                        var(--atlas-modal-surface, var(--surface, #fffdf9)) 72%,
+                        var(--atlas-pro-checkout-header-surface) 72%,
                         transparent
                     );
                 backdrop-filter:
@@ -1032,15 +1036,35 @@
                 min-width: 0;
                 display: grid;
                 gap: 2px;
+                font-family:
+                    Inter,
+                    ui-sans-serif,
+                    system-ui,
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    sans-serif;
                 font-size: .79rem;
                 line-height: 1.35;
             }
 
             .atlas-pro-checkout-paddle-copy strong {
-                color:
-                    var(--atlas-modal-heading, var(--text-heading, #211f1b));
+                color: #2b2926;
                 font-size: .82rem;
                 font-weight: 700;
+            }
+
+            html[data-theme="night"]
+                .atlas-pro-checkout-shell {
+                --atlas-pro-checkout-canvas:
+                    #1b1d1c;
+                --atlas-pro-checkout-header-surface:
+                    #252826;
+            }
+
+            html[data-theme="night"]
+                .atlas-pro-checkout-paddle-copy strong {
+                color: #ebe9e4;
             }
 
             .atlas-pro-checkout-stage {
@@ -1131,7 +1155,7 @@
                     background:
                         color-mix(
                             in srgb,
-                            var(--atlas-modal-surface, var(--surface, #fffdf9)) 72%,
+                            var(--atlas-pro-checkout-header-surface) 72%,
                             transparent
                         );
                     backdrop-filter:

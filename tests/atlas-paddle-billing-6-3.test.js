@@ -121,6 +121,30 @@ assert.match(
 );
 
 assert.match(
+  checkout,
+  /--atlas-pro-checkout-canvas:[\s\S]*?#eceff3;[\s\S]*?--atlas-pro-checkout-header-surface:[\s\S]*?#f7f8fa;[\s\S]*?background:[\s\S]*?var\(--atlas-pro-checkout-canvas\)/,
+  'Upgrade checkout must use the exact Update Payment day canvas and header bases.'
+);
+
+assert.match(
+  checkout,
+  /\.atlas-pro-checkout-head \{[\s\S]*?var\(--atlas-pro-checkout-header-surface\) 72%[\s\S]*?blur\(16px\) saturate\(1\.1\)/,
+  'Upgrade checkout header must use the Update Payment glass surface recipe.'
+);
+
+assert.match(
+  checkout,
+  /html\[data-theme="night"\][\s\S]*?\.atlas-pro-checkout-shell \{[\s\S]*?--atlas-pro-checkout-canvas:[\s\S]*?#1b1d1c;[\s\S]*?--atlas-pro-checkout-header-surface:[\s\S]*?#252826;/,
+  'Upgrade checkout must use the exact Update Payment night canvas and header bases.'
+);
+
+assert.match(
+  checkout,
+  /\.atlas-pro-checkout-paddle-copy \{[\s\S]*?font-family:[\s\S]*?Inter,[\s\S]*?ui-sans-serif,[\s\S]*?system-ui,[\s\S]*?"Segoe UI"[\s\S]*?\.atlas-pro-checkout-paddle-copy strong \{[\s\S]*?color: #2b2926;[\s\S]*?font-size: \.82rem;[\s\S]*?font-weight: 700;/,
+  'Upgrade Billing by Paddle must match Update Payment typography rather than inheriting DM Sans.'
+);
+
+assert.match(
   subscription,
   /\.brand h1 \{[\s\S]*?font-family: "DM Serif Display", Georgia, serif;[\s\S]*?\.payment-update-summary h2 \{[\s\S]*?font-family: "DM Serif Display", Georgia, serif;[\s\S]*?\.payment-update-success h2 \{[\s\S]*?font-family: "DM Serif Display", Georgia, serif;[\s\S]*?\.error h2 \{[\s\S]*?font-family: "DM Serif Display", Georgia, serif;/,
   'Subscription and payment-update major headings must use the canonical Atlas display typeface.'
