@@ -30,12 +30,14 @@ assert.match(
 
 assert.match(
     operations,
-    /const operationTotals =[\s\S]*?operations\.reduce\([\s\S]*?totals\[[\s\S]*?operation\.kind/
+    /languageTargetTotal[\s\S]*?makeItRealTotalCount[\s\S]*?const operationTotals = \{[\s\S]*?upgrade:[\s\S]*?plan\.languageTargetTotal[\s\S]*?'make-it-real':[\s\S]*?plan\.makeItRealTotalCount/,
+    'Resume progress must retain the original enrichment totals rather than shrinking to only remaining work.'
 );
 
 assert.match(
     operations,
-    /completedByKind\[[\s\S]*?operation\.kind[\s\S]*?current:[\s\S]*?completedByKind[\s\S]*?total:[\s\S]*?operationTotals/
+    /const completedByKind = \{[\s\S]*?operationTotals\.upgrade -[\s\S]*?languageIds\.length[\s\S]*?'make-it-real'[\s\S]*?plan\.makeItRealSetIds[\s\S]*?completedByKind\[[\s\S]*?operation\.kind[\s\S]*?current:[\s\S]*?completedByKind[\s\S]*?total:[\s\S]*?operationTotals/,
+    'Resume progress must seed counters with work already present in the checkpoint.'
 );
 
 assert.match(
@@ -75,17 +77,17 @@ assert.match(
 
 assert.match(
     loader,
-    /atlas-subject-build-document-operations\.js\?v=20260924-foreground2/
+    /atlas-subject-build-document-operations\.js\?v=20260925-resumeux1/
 );
 
 assert.match(
     loader,
-    /compass-engine\.js\?v=20260924-revisionguard2/
+    /compass-engine\.js\?v=20260925-resumeux1/
 );
 
 assert.match(
     subjectPage,
-    /compass-subject-loader\.js\?v=20260924-revisionguard2/
+    /compass-subject-loader\.js\?v=20260925-resumeux1/
 );
 
 console.log(
