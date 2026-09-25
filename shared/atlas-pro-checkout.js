@@ -666,22 +666,17 @@
             }
 
             .atlas-pro-checkout-close {
-                min-height: 42px;
                 display: inline-flex;
                 align-items: center;
-                justify-content: center;
-                gap: 6px;
+                gap: 5px;
                 flex: 0 0 auto;
-                padding: 0 14px;
-                border: 1px solid
-                    var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .16)));
-                border-radius: 12px;
-                background:
-                    var(--atlas-modal-control-surface, transparent);
+                padding: 0;
+                border: 0;
+                background: transparent;
                 color:
-                    var(--atlas-modal-heading, var(--text-heading, #211f1b));
+                    var(--atlas-modal-muted, var(--text-muted, #7b7469));
                 cursor: pointer;
-                font: 600 .82rem/1 "DM Sans", system-ui, sans-serif;
+                font: 600 .9rem/1.2 "DM Sans", system-ui, sans-serif;
             }
 
             .atlas-pro-checkout-close-arrow {
@@ -693,10 +688,9 @@
 
             .atlas-pro-checkout-close:hover,
             .atlas-pro-checkout-close:focus-visible {
-                border-color:
-                    var(--atlas-modal-border-strong, rgba(49, 45, 38, .26));
-                background:
-                    var(--atlas-modal-control-hover, rgba(49, 45, 38, .05));
+                color:
+                    var(--accent, #4d7184);
+                outline: none;
             }
 
             .atlas-pro-checkout-body {
@@ -1000,9 +994,7 @@
                 }
 
                 .atlas-pro-checkout-close {
-                    min-height: 40px;
-                    padding: 0 12px;
-                    font-size: .78rem;
+                    font-size: .9rem;
                 }
 
                 .atlas-pro-checkout-close-arrow {
@@ -1078,7 +1070,7 @@
                 <button
                     class="atlas-pro-checkout-close"
                     type="button"
-                    aria-label="Close checkout"
+                    aria-label="Back to Atlas"
                     data-atlas-pro-checkout-close
                 >
                     <span
