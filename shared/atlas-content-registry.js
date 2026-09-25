@@ -1064,7 +1064,7 @@
         }
 
         const src =
-            '/shared/atlas-account-chrome.js?v=20260924-valuewidth1';
+            '/shared/atlas-account-chrome.js?v=20260924-valuewidth2';
 
         if (document.readyState === 'loading') {
             document.write(
