@@ -119,6 +119,18 @@ assert.match(
   /--payment-update-canvas:\s*#eceff3;[\s\S]*?--payment-update-header-surface:\s*#f7f8fa;/,
   'Update Payment must retain the cool-grey checkout canvas and header palette.'
 );
+
+assert.match(
+  subscription,
+  /\.brand h1 \{[\s\S]*?font-family: "DM Serif Display", Georgia, serif;[\s\S]*?\.payment-update-summary h2 \{[\s\S]*?font-family: "DM Serif Display", Georgia, serif;[\s\S]*?\.payment-update-success h2 \{[\s\S]*?font-family: "DM Serif Display", Georgia, serif;[\s\S]*?\.error h2 \{[\s\S]*?font-family: "DM Serif Display", Georgia, serif;/,
+  'Subscription and payment-update major headings must use the canonical Atlas display typeface.'
+);
+
+assert.doesNotMatch(
+  subscription,
+  /font-family: Georgia, "Times New Roman", serif;/,
+  'Subscription must not reintroduce the foreign plain-Georgia heading stack.'
+);
 assert.match(
   subscription,
   /\.payment-update \{[\s\S]*?background: var\(--payment-update-canvas\);/,
