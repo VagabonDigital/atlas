@@ -235,6 +235,12 @@ assert.match(
 );
 assert.match(
   pricing,
+  /async function openCheckout[\s\S]*?AtlasAccessBootstrap[\s\S]*?initialize[\s\S]*?AtlasAccount[\s\S]*?getState/,
+  'Pricing must hydrate canonical account state before deciding that the tutor is a guest.'
+);
+
+assert.match(
+  pricing,
   /Sign in or create a free Atlas account before choosing Pro/,
   'Pricing must retain contextual account gating before checkout.'
 );
