@@ -218,7 +218,7 @@
                 : '') +
             '<script src="../../shared/compass-catalog-data.js"><\/script>' +
             '<script src="../../shared/atlas-resource-share.js?v=20260918-share1"><\/script>' +
-            '<script src="../../shared/atlas-content-registry.js?v=20260925-paymentworld1"><\/script>' +
+            '<script src="../../shared/atlas-content-registry.js?v=20260925-paymentworld2"><\/script>' +
             '<link rel="stylesheet" href="../shared/compass-subject.css">' +
             '<link rel="stylesheet" href="../../shared/atlas-modal-theme.css?v=20260919-tapfix1">' +
             '<link rel="stylesheet" href="../../shared/atlas-search.css?v=20260721-world-modals">' +
