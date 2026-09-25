@@ -29,7 +29,7 @@
     const GOOGLE_IDENTITY_SRC =
         '/shared/atlas-google-identity.js?v=20260921-insideheader1';
     const PRO_CHECKOUT_SRC =
-        '/shared/atlas-pro-checkout.js?v=20260925-checkoutresume1';
+        '/shared/atlas-pro-checkout.js?v=20260925-checkoutfinal1';
 
     let gateLayer = null;
     let accountMenu = null;
