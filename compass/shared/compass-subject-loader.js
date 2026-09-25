@@ -39,6 +39,18 @@
         }
     }
 
+    function traceBuild(
+        stage,
+        detail = {}
+    ) {
+        window
+            .AtlasSubjectBuildWorkerClient
+            ?.traceDebug?.(
+                'loader:' + stage,
+                detail
+            );
+    }
+
     function escapeHtml(value) {
         return String(value ?? '')
             .replace(/&/g, '&amp;')
@@ -395,6 +407,17 @@
             return null;
         }
 
+        traceBuild(
+            'foreground-request-start',
+            {
+                subjectId:
+                    subject
+                        ?.runtime
+                        ?.subjectId ||
+                    null
+            }
+        );
+
         const Client =
             window
                 .AtlasSubjectBuildWorkerClient;
@@ -453,8 +476,50 @@
                     );
             }
 
+            traceBuild(
+                'foreground-request-result',
+                {
+                    subjectId:
+                        subject
+                            ?.runtime
+                            ?.subjectId ||
+                        null,
+                    granted:
+                        Boolean(grant),
+                    completedStep:
+                        grant
+                            ?.completedStep ??
+                        null,
+                    readyToCommit:
+                        grant
+                            ?.readyToCommit ===
+                        true,
+                    noWorkerJob:
+                        grant
+                            ?.noWorkerJob ===
+                        true
+                }
+            );
+
             return grant || null;
         } catch (error) {
+            traceBuild(
+                'foreground-request-error',
+                {
+                    subjectId:
+                        subject
+                            ?.runtime
+                            ?.subjectId ||
+                        null,
+                    error:
+                        String(
+                            error
+                                ?.message ||
+                            error
+                        )
+                }
+            );
+
             console.warn(
                 '[Compass] SharedWorker foreground handoff was unavailable:',
                 error
@@ -752,6 +817,32 @@
                 getBuildPresentationRequest() ||
                 subject.runtime?.aiBuildIncomplete === true;
 
+            traceBuild(
+                'subject-loaded',
+                {
+                    subjectId:
+                        subject
+                            .runtime
+                            ?.subjectId ||
+                        subjectId,
+                    revision:
+                        subject
+                            .runtime
+                            ?.revision ??
+                        null,
+                    aiBuildIncomplete:
+                        subject
+                            .runtime
+                            ?.aiBuildIncomplete ===
+                        true,
+                    aiBuildStatus:
+                        subject
+                            .runtime
+                            ?.aiBuildStatus ||
+                        null
+                }
+            );
+
             if (
                 subject.runtime
                     ?.aiBuildIncomplete ===
@@ -813,6 +904,24 @@
                                 true
                         };
 
+                    traceBuild(
+                        'handoff-installed',
+                        {
+                            subjectId:
+                                foregroundOwnershipSubjectId,
+                            completedStep:
+                                window
+                                    .AtlasForegroundSubjectBuildHandoff
+                                    ?.completedStep ??
+                                null,
+                            readyToCommit:
+                                window
+                                    .AtlasForegroundSubjectBuildHandoff
+                                    ?.readyToCommit ===
+                                true
+                        }
+                    );
+
                     /*
                      * A non-subject Atlas page may have completed step 18
                      * while this page was negotiating foreground ownership.
@@ -868,6 +977,24 @@
                             .AtlasForegroundSubjectBuildHandoff;
                     }
                 }
+            }
+
+            if (
+                subject.runtime
+                    ?.aiBuildIncomplete ===
+                    true &&
+                !foregroundOwnershipSubjectId
+            ) {
+                traceBuild(
+                    'no-foreground-handoff',
+                    {
+                        subjectId:
+                            subject
+                                .runtime
+                                ?.subjectId ||
+                            subjectId
+                    }
+                );
             }
 
             await applyOwnedBuildGenerationContext(
