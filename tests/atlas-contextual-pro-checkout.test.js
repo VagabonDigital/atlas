@@ -108,6 +108,18 @@ assert.match(
 
 assert.match(
   checkout,
+  /atlas-pro-checkout-loading-dots[\s\S]*?atlas-pro-checkout-loading-dot:nth-child\(2\)[\s\S]*?animation-delay: 0\.12s[\s\S]*?atlas-pro-checkout-loading-dot:nth-child\(3\)[\s\S]*?animation-delay: 0\.24s[\s\S]*?translateY\(-4px\)/,
+  'Checkout loading must reuse the canonical Atlas three-dot bounce instead of a checkout-specific spinner.'
+);
+
+assert.doesNotMatch(
+  checkout,
+  /atlas-pro-checkout-loading-spinner|atlas-pro-checkout-loading-spin/,
+  'Checkout must not reintroduce the old ring spinner.'
+);
+
+assert.match(
+  checkout,
   /inlineMobile:[\s\S]*?isMobileCheckoutPresentation\(\)/,
   'Contextual checkout must choose its presentation mode from the current device layout.'
 );
@@ -162,8 +174,8 @@ assert.match(
 
 assert.match(
   checkout,
-  /atlas-pro-checkout-legal[\s\S]*?href="\/privacy\/"[\s\S]*?href="\/terms\/"[\s\S]*?href="\/refunds\/"[\s\S]*?target="_blank"/,
-  'Checkout must expose quiet Atlas legal links without replacing the live checkout tab.'
+  /atlas-pro-checkout-footer[\s\S]*?min-height: 82px[\s\S]*?Atlas · Create\. Shape\. Teach\.[\s\S]*?href="\/privacy\/"[\s\S]*?href="\/terms\/"[\s\S]*?href="\/refunds\/"[\s\S]*?target="_blank"/,
+  'Checkout must use the intentional Atlas footer contract while keeping policy links out of the live checkout tab.'
 );
 
 assert.match(
