@@ -96,32 +96,50 @@ assert.match(
 
 assert.match(
   checkout,
-  /activeCheckout\.inlineMobile[\s\S]*?displayMode:[\s\S]*?'inline'[\s\S]*?frameTarget:[\s\S]*?'atlas-pro-checkout-inline-frame'/,
-  'Mobile checkout must use Paddle inline mode inside the Atlas-owned full-screen shell.'
+  /displayMode:[\s\S]*?'inline'[\s\S]*?frameTarget:[\s\S]*?'atlas-pro-checkout-inline-frame'/,
+  'Every Pro checkout must use Paddle inline mode inside the Atlas-owned shell.'
+);
+
+assert.doesNotMatch(
+  checkout,
+  /displayMode:[\s\S]*?'overlay'/,
+  'Desktop Pro checkout must never fall back to Paddle overlay presentation.'
 );
 
 assert.match(
   checkout,
-  /displayMode:[\s\S]*?'overlay'[\s\S]*?variant:[\s\S]*?'one-page'/,
-  'Desktop checkout must retain the working Paddle overlay presentation.'
+  /atlas-pro-checkout-shell[\s\S]*?position: fixed;[\s\S]*?inset: 0;/,
+  'Atlas must own the entire checkout viewport on desktop and mobile.'
 );
 
 assert.match(
   checkout,
-  /atlas-pro-checkout-mobile-shell[\s\S]*?position: fixed;[\s\S]*?inset: 0;/,
-  'Atlas must own the entire mobile checkout viewport while Paddle is inline.'
+  /activeCheckout\?\.inlineMobile[\s\S]*?\? 1600[\s\S]*?: 700/,
+  'Inline checkout reveal timing must protect both mobile and desktop from partial Paddle rendering.'
 );
 
 assert.match(
   checkout,
-  /activeCheckout\?\.inlineMobile[\s\S]*?\? 1600[\s\S]*?: 120/,
-  'Mobile inline checkout must keep the Atlas veil up through Paddle’s internal loading-to-form transition.'
+  /atlas-pro-checkout-context[\s\S]*?Secure checkout[\s\S]*?atlas-pro-checkout-layout/,
+  'Checkout shell must provide stable Atlas-owned context around the Paddle frame.'
 );
 
 assert.match(
   checkout,
-  /atlas-pro-checkout-mobile-context[\s\S]*?Secure checkout[\s\S]*?atlas-pro-checkout-mobile-stage/,
-  'Mobile checkout shell must provide stable Atlas-owned context and a centered checkout surface.'
+  /atlas-pro-checkout-summary[\s\S]*?Atlas Pro[\s\S]*?100 fresh subject creations each billing month/,
+  'Desktop checkout must use its extra space for an Atlas-owned Pro summary.'
+);
+
+assert.match(
+  checkout,
+  /Atlas%20Logo\.png/,
+  'Desktop checkout summary must use the Atlas product icon.'
+);
+
+assert.match(
+  checkout,
+  /@media \(max-width: 760px\)[\s\S]*?atlas-pro-checkout-summary[\s\S]*?display: none/,
+  'Mobile checkout must preserve the focused single-card experience by hiding the desktop summary.'
 );
 
 assert.match(
@@ -132,20 +150,38 @@ assert.match(
 
 assert.equal(
   (checkout.match(/showAddTaxId:/g) || []).length,
-  2,
-  'Tax ID entry must be hidden in both mobile inline and desktop overlay checkout modes.'
+  1,
+  'Tax ID entry must be hidden by the single shared checkout configuration.'
 );
 
 assert.equal(
   (checkout.match(/showAddDiscounts:/g) || []).length,
-  2,
-  'Discount entry must be hidden in both mobile inline and desktop overlay checkout modes.'
+  1,
+  'Discount entry must be hidden by the single shared checkout configuration.'
 );
 
 assert.match(
   pricing,
-  /showAddTaxId:\s*false[\s\S]*showAddDiscounts:\s*false/,
-  'Pricing checkout must hide tax ID and discount entry too.'
+  /atlas-pro-checkout\.js\?v=20260924-inlinecheckout1/,
+  'Pricing must load the same shared checkout runtime as contextual upgrade flows.'
+);
+
+assert.match(
+  pricing,
+  /AtlasProCheckout\.previewPrice/,
+  'Pricing must delegate localized Paddle price preview to the shared checkout runtime.'
+);
+
+assert.match(
+  pricing,
+  /AtlasProCheckout\.open/,
+  'Pricing must delegate purchase presentation to the shared checkout runtime.'
+);
+
+assert.doesNotMatch(
+  pricing,
+  /Paddle\.Checkout\.open/,
+  'Pricing must not own a second Paddle checkout implementation.'
 );
 
 assert.doesNotMatch(
@@ -215,34 +251,18 @@ assert.match(
 
 assert.match(
   chrome,
-  /atlas-account-gate\.js\?v=20260924-checkoutclean2/
+  /atlas-account-gate\\.js\\?v=20260924-inlinecheckout1/
 );
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260924-accountfast1/
-);
-
-assert.match(
-  pricing,
-  /data-atlas-pro-activation/
-);
-
-assert.match(
-  pricing,
-  /Paddle\.Checkout\.close\(\)/
+  /atlas-account-chrome\\.js\\?v=20260924-inlinecheckout1/
 );
 
 assert.match(
   pricing,
   /getPricingReturnDestination[\s\S]*?Return to Compass[\s\S]*?Return to Arcade[\s\S]*?Return to Inside Atlas[\s\S]*?Return to Atlas/
 );
-
-assert.match(
-  pricing,
-  /Welcome to Atlas Pro/
-);
-
 
 assert.match(
   subscription,
@@ -293,7 +313,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260924-checkoutclean2/
+  /atlas-pro-checkout\\.js\\?v=20260924-inlinecheckout1/
 );
 
 assert.match(
