@@ -26,13 +26,15 @@
 'use strict';
 
 const WORKER_VERSION =
-    '20260924-buildworker9';
+    '20260924-buildworker11';
 
 const DEPENDENCY_VERSION =
     '20260924-workerbuild3';
 
 const BROWSER_STATE_DB_NAME =
     'atlas-tutor-subjects';
+
+const BROWSER_STATE_DB_VERSION = 2;
 
 const BROWSER_STATE_STORE =
     'browser-state';
@@ -914,7 +916,8 @@ function openBrowserStateDb() {
                 try {
                     request =
                         self.indexedDB.open(
-                            BROWSER_STATE_DB_NAME
+                            BROWSER_STATE_DB_NAME,
+                            BROWSER_STATE_DB_VERSION
                         );
                 } catch (error) {
                     reject(error);
