@@ -1047,7 +1047,7 @@
                             </strong>
                             <span class="atlas-pro-checkout-value-copy">
                                 Their interests. Their work. Their next big step.
-                                Turn whatever matters to them into lesson-ready material—before the lesson, or together in the moment.
+                                Turn whatever matters to them into lesson-ready material—minutes before a lesson, or together in the moment.
                             </span>
                         </p>
                     </aside>

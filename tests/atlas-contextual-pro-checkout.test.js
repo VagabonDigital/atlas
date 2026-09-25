@@ -180,7 +180,7 @@ assert.match(
 
 assert.match(
   checkout,
-  /The magic of Atlas Pro[\s\S]*?Make the lesson feel made for them\.[\s\S]*?Their interests\. Their work\. Their next big step\.[\s\S]*?Turn whatever matters to them into lesson-ready material—before the lesson, or together in the moment\./,
+  /The magic of Atlas Pro[\s\S]*?Make the lesson feel made for them\.[\s\S]*?Their interests\. Their work\. Their next big step\.[\s\S]*?Turn whatever matters to them into lesson-ready material—minutes before a lesson, or together in the moment\./,
   'Checkout reassurance must reuse the proven Pricing promise instead of generic account-state reassurance.'
 );
 
@@ -258,7 +258,7 @@ assert.equal(
 
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260924-valuecopy1/,
+  /atlas-pro-checkout\.js\?v=20260924-valuecopy2/,
   'Pricing must load the same shared checkout runtime as contextual upgrade flows.'
 );
 
@@ -347,12 +347,12 @@ assert.match(
 
 assert.match(
   chrome,
-  /atlas-account-gate\.js\?v=20260924-valuecopy1/
+  /atlas-account-gate\.js\?v=20260924-valuecopy2/
 );
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260924-valuecopy1/
+  /atlas-account-chrome\.js\?v=20260924-valuecopy2/
 );
 
 assert.match(
@@ -409,7 +409,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260924-valuecopy1/
+  /atlas-pro-checkout\.js\?v=20260924-valuecopy2/
 );
 
 assert.match(
