@@ -40,7 +40,7 @@ html[data-theme="night"] {
   --accent-rgb: 143, 178, 194;
   --accent-soft: rgba(143, 178, 194, 0.10);
   --accent-hover: #aac6d2;
-  --header-surface: rgba(27, 29, 28, 0.76);
+  --header-surface: rgba(27, 29, 28, 0.72);
   --shadow-sm: 0 6px 20px rgba(0, 0, 0, 0.16);
   --shadow-md: 0 16px 42px rgba(0, 0, 0, 0.22);
   --control-surface: #2a2d2a;
