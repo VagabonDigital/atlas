@@ -211,7 +211,7 @@ function runPlacementProof() {
     );
     assert.match(
         inside,
-        /atlas-account-chrome\\.css\\?v=20260924-enterlabel1[\s\S]*?data-atlas-account-chrome-styles/,
+        /atlas-account-chrome\.css\?v=20260924-mobilegap1[\s\S]*?data-atlas-account-chrome-styles/,
         'Inside Atlas must load account chrome styles in the document head before hydration.'
     );
     assert.match(
