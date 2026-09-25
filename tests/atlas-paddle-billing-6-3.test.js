@@ -22,6 +22,12 @@ assert.match(worker, /crypto\.subtle\.importKey/);
 assert.match(worker, /crypto\.subtle\.sign/);
 assert.match(worker, /\`\$\{timestamp\}:\$\{rawBody\}\`/);
 assert.match(worker, /Math\.abs\([\s\S]*nowSeconds - unixTime[\s\S]*\) > 5/);
+assert.match(worker, /timestamp_out_of_tolerance/);
+assert.match(worker, /hmac_mismatch/);
+assert.match(
+  worker,
+  /diagnostic:[\s\S]*environment:[\s\S]*paddleEnvironment[\s\S]*reason:/
+);
 assert.match(worker, /ATLAS_PADDLE_WEBHOOK_SECRET/);
 assert.match(worker, /ATLAS_PADDLE_LIVE_WEBHOOK_SECRET/);
 assert.match(worker, /ATLAS_PADDLE_API_KEY/);

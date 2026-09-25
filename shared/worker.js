@@ -1807,11 +1807,18 @@ async function verifyPaddleWebhookSignature(
     const secretValue =
         String(secret || '').trim();
 
-    if (
-        !signatureHeader ||
-        !secretValue
-    ) {
-        return false;
+    if (!signatureHeader) {
+        return {
+            ok: false,
+            reason: 'missing_signature_header'
+        };
+    }
+
+    if (!secretValue) {
+        return {
+            ok: false,
+            reason: 'missing_webhook_secret'
+        };
     }
 
     let timestamp = '';
@@ -1849,18 +1856,25 @@ async function verifyPaddleWebhookSignature(
         unixTime <= 0 ||
         signatures.length === 0
     ) {
-        return false;
+        return {
+            ok: false,
+            reason: 'malformed_signature_header'
+        };
     }
 
     const nowSeconds =
         Math.floor(Date.now() / 1000);
-
-    if (
+    const ageSeconds =
         Math.abs(
             nowSeconds - unixTime
-        ) > 5
-    ) {
-        return false;
+        );
+
+    if (ageSeconds > 5) {
+        return {
+            ok: false,
+            reason: 'timestamp_out_of_tolerance',
+            ageSeconds
+        };
     }
 
     const encoder =
@@ -1898,12 +1912,23 @@ async function verifyPaddleWebhookSignature(
             )
             .join('');
 
-    return signatures.some(signature =>
-        constantTimeEqualText(
-            expected,
-            signature
-        )
-    );
+    const matched =
+        signatures.some(signature =>
+            constantTimeEqualText(
+                expected,
+                signature
+            )
+        );
+
+    return matched
+        ? {
+            ok: true,
+            reason: 'verified'
+        }
+        : {
+            ok: false,
+            reason: 'hmac_mismatch'
+        };
 }
 
 function atlasAIGuardrailResponse(reason) {
@@ -2234,10 +2259,13 @@ export default {
             const rawBody =
                 await request.text();
 
-            let verified = false;
+            let verification = {
+                ok: false,
+                reason: 'verification_error'
+            };
 
             try {
-                verified =
+                verification =
                     await verifyPaddleWebhookSignature(
                         request,
                         webhookSecret,
@@ -2250,12 +2278,27 @@ export default {
                 );
             }
 
-            if (!verified) {
+            if (verification.ok !== true) {
                 return json(
                     {
                         ok: false,
                         error:
-                            'Invalid Paddle webhook signature.'
+                            'Invalid Paddle webhook signature.',
+                        diagnostic: {
+                            environment:
+                                paddleEnvironment,
+                            reason:
+                                verification.reason ||
+                                'verification_error',
+                            ...(Number.isFinite(
+                                verification.ageSeconds
+                            )
+                                ? {
+                                    ageSeconds:
+                                        verification.ageSeconds
+                                }
+                                : {})
+                        }
                     },
                     401
                 );
