@@ -4394,6 +4394,7 @@
 
             var surface = element.querySelector(".continuity-surface");
             var seed = element.querySelector(".continuity-seed");
+            var seedWord = seed.querySelector(".continuity-seed-word");
             var title = element.querySelector("h3");
             var desc = element.querySelector("p");
 
@@ -4409,9 +4410,21 @@
             seed.style.top = mix(10, mobile ? 18 : 22, travel) + "px";
             setOpacity(seed, index === 0 ? 1 - ramp(u, 28.35, 29) : 1);
 
+            // Support recommendations hand the simple interest label over to the
+            // enriched title while keeping the icon as the persistent anchor.
+            if (index > 0) {
+              setOpacity(seedWord, 1 - reveal);
+            }
+
             var titleY = mobile ? (index === 0 ? 82 : 63) : (index === 0 ? 94 : 70);
-            var titleX = mix(inset, 0, index === 0 ? final : 0);
-            var titleTop = mix(titleY, 0, index === 0 ? final : 0);
+            var supportTitleX = inset + (mobile ? 46 : 52);
+            var supportTitleTop = mobile ? 17 : 19;
+            var titleX = index === 0
+              ? mix(inset, 0, final)
+              : mix(inset, supportTitleX, reveal);
+            var titleTop = index === 0
+              ? mix(titleY, 0, final)
+              : mix(titleY, supportTitleTop, reveal);
             title.style.left = titleX + "px";
             title.style.top = titleTop + "px";
             title.style.width = (cardWidth - titleX - inset * (1 - final)) + "px";
