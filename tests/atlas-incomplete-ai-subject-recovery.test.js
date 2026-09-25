@@ -18,6 +18,11 @@ const subjectPage = fs.readFileSync(
     'utf8'
 );
 
+const recovery = fs.readFileSync(
+    'compass/shared/compass-generation-recovery.js',
+    'utf8'
+);
+
 // Owned-subject loading must distinguish a durable unfinished AI build from
 // a normal Structured Subject. The loader delegates to the shared lifecycle
 // classifier; its inline fallback exists only for a partially cached deploy.
@@ -110,10 +115,35 @@ assert.match(
 );
 
 assert.match(
+    loader,
+    /compass-generation-recovery\.js\?v=20260925-workeraware1/
+);
+
+assert.match(
+    recovery,
+    /function hasLiveBackgroundBuild\(\)[\s\S]*?AtlasSubjectBuildWorkerClient[\s\S]*?activeBuild[\s\S]*?AtlasSubjectRuntimeChannel[\s\S]*?isBuildActive/
+);
+
+assert.match(
+    recovery,
+    /if \(hasLiveBackgroundBuild\(\)\) \{\s*showLiveContinuation\(\);\s*return;\s*\}[\s\S]*?Generation interrupted · continuing…/
+);
+
+assert.match(
+    recovery,
+    /async function resumeFromCheckpoint[\s\S]*?if \(hasLiveBackgroundBuild\(\)\) \{\s*showLiveContinuation\(\);\s*return false;/
+);
+
+assert.match(
+    recovery,
+    /myVersionFullSubjectGenerationNotice =\s*'Continuing generation…'/
+);
+
+assert.match(
     subjectPage,
-    /compass-subject-loader\.js\?v=20260924-revisionguard2/
+    /compass-subject-loader\.js\?v=20260925-workeraware1/
 );
 
 console.log(
-    'Atlas incomplete AI subject recovery contract passed: unfinished cloud markers activate build presentation and recovery, browser checkpoints resume when available, and missing checkpoints restart from the durable generation context rather than exposing a blank teaching shell.'
+    'Atlas incomplete AI subject recovery contract passed: unfinished cloud markers activate build presentation and recovery, live Batch 5 background builds suppress legacy interruption recovery, browser checkpoints resume when available, and missing checkpoints restart from the durable generation context rather than exposing a blank teaching shell.'
 );
