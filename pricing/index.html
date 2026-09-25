@@ -7,8 +7,6 @@
   <meta name="description" content="Make personally relevant lessons part of everyday teaching. Atlas Pro: $12 USD per month, with 100 fresh subject creations each billing month.">
   <meta name="color-scheme" content="light dark">
   <link rel="canonical" href="https://atlasfortutors.com/pricing/">
-  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
-  <script src="/shared/atlas-paddle-config.js?v=20260924-live1"></script>
   <link rel="icon" type="image/svg+xml" href="/shared/atlas-favicon.svg?v=20260920-legal1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -664,6 +662,7 @@
   <script src="/shared/atlas-return-intent.js?v=20260916-access1"></script>
   <script src="/shared/atlas-access-bootstrap.js?v=20260921-insideheader1"></script>
   <script src="/shared/atlas-account-chrome.js?v=20260924-accountfast1"></script>
+  <script src="/shared/atlas-pro-checkout.js?v=20260924-inlinecheckout1"></script>
   <script>
     (function () {
       'use strict';
@@ -673,8 +672,6 @@
         document.querySelector('[data-pricing-header-pro]');
       var repeatProButton = document.querySelector('[data-pricing-repeat-pro]');
       var status = document.querySelector('[data-paddle-status]');
-      var config = window.AtlasPaddleConfig;
-      var paddleReady = false;
       var proActivationPromise = null;
       var accessUnsubscribe = null;
       var autoCheckoutConsumed = false;
@@ -935,404 +932,147 @@
         );
       }
 
-      async function waitForProActivation() {
-        if (proActivationPromise) return proActivationPromise;
-
-        proActivationPromise = (async function () {
-          setStatus('Payment completed. Activating Atlas Pro…');
-
-          try {
-            await window.AtlasAccessBootstrap.initialize();
-          } catch (error) {
-            console.warn(
-              '[AtlasPricing] Atlas access refresh unavailable',
-              error
-            );
-          }
-
-          var account =
-            window.AtlasAccount &&
-            typeof window.AtlasAccount.getState === 'function'
-              ? window.AtlasAccount.getState()
-              : null;
-
-          if (!account || !account.authenticated || !account.userId) {
-            setStatus(
-              'Payment received. Sign in again to finish activating Atlas Pro.'
-            );
-            return false;
-          }
-
-          var startedAt = Date.now();
-          var deadline = startedAt + (2 * 60 * 1000);
-          var slowNoticeShown = false;
-
-          while (Date.now() < deadline) {
-            try {
-              if (
-                window.AtlasAccount &&
-                typeof window.AtlasAccount.refreshEntitlement === 'function'
-              ) {
-                await window.AtlasAccount.refreshEntitlement(account.userId);
-              }
-
-              var access =
-                window.AtlasAccess &&
-                typeof window.AtlasAccess.getState === 'function'
-                  ? window.AtlasAccess.getState()
-                  : null;
-
-              if (
-                access &&
-                access.ready &&
-                access.tier === 'pro'
-              ) {
-                syncPlanAction(access);
-
-                if (pricingContext.source === 'compass-create') {
-                  if (!queueCompassCreateResume()) {
-                    showProActivationState(
-                      'Atlas Pro is active',
-                      'Return to Compass to continue your subject.',
-                      { action: true }
-                    );
-                    return true;
-                  }
-
-                  showProActivationState(
-                    'Atlas Pro is active',
-                    'Returning to your subject…'
-                  );
-                  window.location.assign('/compass/');
-                  return true;
-                }
-
-                showProActivationState(
-                  'Welcome to Atlas Pro',
-                  'Your Pro creation allowance is ready.',
-                  { action: true }
-                );
-                return true;
-              }
-            } catch (error) {
-              console.warn(
-                '[AtlasPricing] Pro activation check failed',
-                error
-              );
-            }
-
-            if (
-              !slowNoticeShown &&
-              Date.now() - startedAt >= 15000
-            ) {
-              slowNoticeShown = true;
-              showProActivationState(
-                'Payment received',
-                'Atlas Pro is still activating. This can take a moment.'
-              );
-            }
-
-            await delay(
-              Date.now() - startedAt < 15000
-                ? 1200
-                : 3000
-            );
-          }
-
-          showProActivationState(
-            'Payment received',
-            'Atlas Pro is still activating. You can return to Atlas and refresh in a moment if your plan has not updated yet.',
-            { action: true }
-          );
-          return false;
-        })().finally(function () {
-          proActivationPromise = null;
-        });
-
-        return proActivationPromise;
-      }
-
-      var checkoutScrollState = null;
-
-      function lockPricingPage() {
-        if (checkoutScrollState) return;
-
-        var scrollbarWidth =
-          Math.max(0, window.innerWidth - document.documentElement.clientWidth);
-
-        checkoutScrollState = {
-          bodyOverflow: document.body.style.overflow,
-          bodyPaddingRight: document.body.style.paddingRight
-        };
-
-        document.documentElement.dataset.paddleCheckoutOpen = 'true';
-
-        if (scrollbarWidth > 0) {
-          var currentPadding =
-            parseFloat(window.getComputedStyle(document.body).paddingRight) || 0;
-          document.body.style.paddingRight =
-            (currentPadding + scrollbarWidth) + 'px';
-        }
-
-        document.body.style.overflow = 'hidden';
-      }
-
-      function unlockPricingPage() {
-        if (!checkoutScrollState) return;
-
-        delete document.documentElement.dataset.paddleCheckoutOpen;
-        document.body.style.overflow = checkoutScrollState.bodyOverflow;
-        document.body.style.paddingRight = checkoutScrollState.bodyPaddingRight;
-        checkoutScrollState = null;
-      }
-
-      function hideCheckoutLoading() {
-        if (checkoutLoadingTimer) {
-          window.clearTimeout(checkoutLoadingTimer);
-          checkoutLoadingTimer = null;
-        }
-
-        if (!checkoutLoadingDialog) return;
-
-        if (
-          typeof checkoutLoadingDialog.close === 'function' &&
-          checkoutLoadingDialog.open
-        ) {
-          checkoutLoadingDialog.close();
-          return;
-        }
-
-        checkoutLoadingDialog.removeAttribute('open');
-      }
-
-      function scheduleCheckoutReveal() {
-        if (checkoutLoadingTimer) {
-          window.clearTimeout(checkoutLoadingTimer);
-        }
-
-        checkoutLoadingTimer = window.setTimeout(
-          hideCheckoutLoading,
-          120
-        );
-      }
-
-      function showCheckoutLoading() {
-        if (!checkoutLoadingDialog) return;
-
-        if (
-          typeof checkoutLoadingDialog.showModal === 'function'
-        ) {
-          if (!checkoutLoadingDialog.open) {
-            checkoutLoadingDialog.showModal();
-          }
-        } else {
-          checkoutLoadingDialog.setAttribute('open', '');
-        }
-
-        if (checkoutLoadingTimer) {
-          window.clearTimeout(checkoutLoadingTimer);
-        }
-
-        checkoutLoadingTimer = window.setTimeout(
-          function () {
-            try {
-              Paddle.Checkout.close();
-            } catch { }
-
-            hideCheckoutLoading();
-            unlockPricingPage();
-            setStatus(
-              'Checkout took too long to load. Please try again.'
-            );
-          },
-          20000
-        );
-      }
-
-      function initPaddle() {
-        if (paddleReady) return true;
-        if (!window.Paddle || !config) return false;
-
-        if (config.environment === 'sandbox') {
-          Paddle.Environment.set('sandbox');
-        }
-        Paddle.Initialize({
-          token: config.clientToken,
-          eventCallback: function (event) {
-            var name = String(event && event.name || '');
-
-            if (name === 'checkout.loaded') {
-              scheduleCheckoutReveal();
-            }
-
-            if (
-              name === 'checkout.closed' ||
-              name === 'checkout.completed' ||
-              name === 'checkout.error'
-            ) {
-              hideCheckoutLoading();
-              unlockPricingPage();
-            }
-
-            if (name === 'checkout.completed') {
-              try {
-                Paddle.Checkout.close();
-              } catch { }
-
-              showProActivationState(
-                'Payment received',
-                'Activating Atlas Pro…'
-              );
-
-              void waitForProActivation();
-            }
-
-            if (name === 'checkout.error') {
-              setStatus(
-                'Checkout could not load. Please try again.'
-              );
-            }
-          }
-        });
-        paddleReady = true;
-        return true;
-      }
-
       async function localizePrice() {
         try {
-          if (!initPaddle()) return;
-          var result = await Paddle.PricePreview({
-            items: [{ priceId: config.prices.proMonthly, quantity: 1 }]
-          });
-          var item = result && result.data && result.data.details &&
-            result.data.details.lineItems && result.data.details.lineItems[0];
-          var formatted = item && item.formattedTotals && item.formattedTotals.total;
+          if (
+            !window.AtlasProCheckout ||
+            typeof window.AtlasProCheckout.previewPrice !== 'function'
+          ) {
+            return;
+          }
+
+          var formatted =
+            await window.AtlasProCheckout.previewPrice();
+
           if (!formatted) return;
 
-          var amount = document.querySelector('[data-paddle-pro-price]');
-          var note = document.querySelector('[data-paddle-pro-price-note]');
-          if (amount) amount.textContent = formatted;
-          var repeatPrice = document.querySelector('[data-pro-repeat-price]');
-          if (repeatPrice) repeatPrice.textContent = formatted;
-          if (note) note.textContent = '/ month';
+          var amount =
+            document.querySelector(
+              '[data-paddle-pro-price]'
+            );
+          var note =
+            document.querySelector(
+              '[data-paddle-pro-price-note]'
+            );
+          var repeatPrice =
+            document.querySelector(
+              '[data-pro-repeat-price]'
+            );
+
+          if (amount) {
+            amount.textContent = formatted;
+          }
+
+          if (repeatPrice) {
+            repeatPrice.textContent =
+              formatted;
+          }
+
+          if (note) {
+            note.textContent = '/ month';
+          }
         } catch (error) {
-          console.warn('[AtlasPricing] Paddle price preview unavailable', error);
+          console.warn(
+            '[AtlasPricing] Paddle price preview unavailable',
+            error
+          );
         }
       }
 
-      async function openCheckout() {
-        if (proActivationPromise) {
+      async function openCheckout(event) {
+        var account =
+          window.AtlasAccount &&
+          typeof window.AtlasAccount.getState === 'function'
+            ? window.AtlasAccount.getState()
+            : null;
+
+        if (
+          !account ||
+          !account.authenticated ||
+          !account.userId
+        ) {
           setStatus(
-            'Payment received. Atlas Pro is still activating…'
+            'Sign in or create a free Atlas account before choosing Pro.'
           );
-          return;
-        }
 
-        var access = null;
-
-        try {
-          access =
-            await window.AtlasAccessBootstrap.initialize();
-        } catch (error) {
-          console.error('[AtlasPricing] Atlas account bootstrap failed', error);
-        }
-
-        var account = window.AtlasAccount && window.AtlasAccount.getState
-          ? window.AtlasAccount.getState()
-          : null;
-
-        if (!account || !account.authenticated || !account.userId) {
-          setStatus('Sign in or create a free Atlas account before choosing Pro.');
-          var create = document.querySelector('[data-atlas-inside-create]');
-          var signIn = document.querySelector('[data-atlas-inside-sign-in]');
-          if (create && !create.hidden) create.click();
-          else if (signIn && !signIn.hidden) signIn.click();
-          return;
-        }
-
-        try {
-          if (
-            window.AtlasAccount &&
-            typeof window.AtlasAccount.refreshEntitlement === 'function'
-          ) {
-            await window.AtlasAccount.refreshEntitlement(
-              account.userId
+          var create =
+            document.querySelector(
+              '[data-atlas-inside-create]'
             );
+          var signIn =
+            document.querySelector(
+              '[data-atlas-inside-sign-in]'
+            );
+
+          if (create && !create.hidden) {
+            create.click();
+          } else if (
+            signIn &&
+            !signIn.hidden
+          ) {
+            signIn.click();
           }
 
-          access =
-            window.AtlasAccess &&
-            typeof window.AtlasAccess.getState === 'function'
-              ? window.AtlasAccess.getState()
-              : access;
-        } catch (error) {
-          console.error(
-            '[AtlasPricing] Current plan check failed',
-            error
-          );
-          setStatus(
-            'Atlas could not confirm your current plan. Please try again.'
-          );
-          return;
+          return false;
         }
 
         if (
-          !access ||
-          !access.ready ||
-          !access.authenticated
+          !window.AtlasProCheckout ||
+          typeof window.AtlasProCheckout.open !==
+            'function'
         ) {
           setStatus(
-            'Atlas could not confirm your current plan. Please try again.'
+            'Checkout could not initialize. Please try again.'
           );
-          return;
+          return false;
         }
 
-        syncPlanAction(access);
+        var source =
+          pricingContext.source ===
+            'compass-create'
+            ? 'compass-create'
+            : 'pricing';
 
-        if (access.tier === 'pro') {
-          window.location.assign(
-            '/account/subscription/'
-          );
-          return;
-        }
-
-        if (!initPaddle()) {
-          setStatus('Checkout could not initialize. Please try again.');
-          return;
-        }
+        var destination =
+          getPricingReturnDestination();
 
         setStatus('');
 
-        lockPricingPage();
-        showCheckoutLoading();
+        return await window.AtlasProCheckout.open({
+          source: source,
+          trigger:
+            event &&
+            event.currentTarget instanceof
+              HTMLElement
+              ? event.currentTarget
+              : button,
+          onStatus: setStatus,
+          continueLabel:
+            destination.label,
+          onContinue: function () {
+            window.location.assign(
+              destination.href
+            );
+          },
+          onActivated: function (access) {
+            syncPlanAction(access);
 
-        try {
-          Paddle.Checkout.open({
-            settings: {
-              displayMode: 'overlay',
-              variant: 'one-page',
-              theme: document.documentElement.dataset.theme === 'night' ? 'dark' : 'light',
-              showAddTaxId: false,
-              showAddDiscounts: false
-            },
-          items: [{ priceId: config.prices.proMonthly, quantity: 1 }],
-          customer: { email: account.email },
-            customData: {
-              atlas_user_id: account.userId,
-              atlas_plan_code: 'pro',
-              atlas_checkout_environment: config.environment,
-              atlas_checkout_source:
-                pricingContext.source === 'compass-create'
-                  ? 'compass-create'
-                  : 'pricing'
+            if (
+              pricingContext.source !==
+                'compass-create'
+            ) {
+              return;
             }
-          });
-        } catch (error) {
-          hideCheckoutLoading();
-          unlockPricingPage();
-          setStatus('Checkout could not open. Please try again.');
-          console.error('[AtlasPricing] Paddle checkout failed', error);
-        }
+
+            if (
+              queueCompassCreateResume()
+            ) {
+              window.location.assign(
+                '/compass/'
+              );
+            }
+          }
+        });
       }
 
       if (button) {
