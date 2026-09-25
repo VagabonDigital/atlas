@@ -84,6 +84,28 @@
 
     * { box-sizing: border-box; }
 
+    html {
+      scrollbar-gutter: stable;
+      scrollbar-width: thin;
+      scrollbar-color:
+        rgba(var(--accent-rgb), .46) transparent;
+    }
+
+    html::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    html::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    html::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background: rgba(var(--accent-rgb), .46);
+      background-clip: padding-box;
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -163,88 +185,333 @@
       font-size: .9rem;
     }
 
-    .mobile-payment {
+    .payment-update {
       position: fixed;
       inset: 0;
       z-index: 2147483647;
-      overflow-y: auto;
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      overflow: hidden;
       background: var(--canvas);
+      color: var(--text);
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
       transition: opacity .12s ease;
     }
 
-    .mobile-payment[data-open="true"] {
+    .payment-update[data-open="true"] {
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
     }
 
-    .mobile-payment-shell {
-      width: min(560px, 100%);
-      min-height: 100%;
-      margin: 0 auto;
-      padding: 18px;
+    .payment-update-head {
+      min-height: 72px;
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 14px 28px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
     }
 
-    .mobile-payment-topline {
-      min-height: 28px;
-      margin-bottom: 18px;
+    .payment-update-identity {
+      min-width: 0;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
     }
 
-    .mobile-payment-back {
-      padding: 0;
-      border: 0;
+    .payment-update-brand {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.65rem;
+      line-height: 1;
+      font-weight: 400;
+    }
+
+    .payment-update-brand span {
+      color: var(--accent);
+    }
+
+    .payment-update-context {
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .payment-update-back {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex: 0 0 auto;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
       background: transparent;
-      color: var(--text-secondary);
+      color: var(--text);
       font-weight: 600;
       cursor: pointer;
     }
 
-    .mobile-payment-heading {
-      margin-bottom: 18px;
-      text-align: center;
+    .payment-update-back:hover,
+    .payment-update-back:focus-visible {
+      border-color: var(--accent);
+      background: var(--accent-ring);
     }
 
-    .mobile-payment-heading h2 {
+    .payment-update-body {
+      min-height: 0;
+      flex: 1 1 auto;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color:
+        rgba(var(--accent-rgb), .46) transparent;
+    }
+
+    .payment-update-body::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .payment-update-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .payment-update-body::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background: rgba(var(--accent-rgb), .46);
+      background-clip: padding-box;
+    }
+
+    .payment-update-layout {
+      width: min(calc(100% - 56px), 1120px);
+      margin: 0 auto;
+      padding: 44px 0 56px;
+      display: grid;
+      grid-template-columns:
+        minmax(300px, 1fr)
+        minmax(0, 520px);
+      gap: clamp(40px, 5vw, 64px);
+      align-items: start;
+    }
+
+    .payment-update-summary {
+      position: sticky;
+      top: 44px;
+      align-self: start;
+      padding: 10px 0;
+    }
+
+    .payment-update-kicker {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: .76rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .payment-update-summary h2 {
+      max-width: 430px;
       margin: 0;
       font-family: Georgia, "Times New Roman", serif;
-      font-size: 2rem;
+      font-size: clamp(2.3rem, 4vw, 3.35rem);
+      line-height: 1.02;
       font-weight: 400;
     }
 
-    .mobile-payment-heading p {
-      margin: 8px 0 0;
+    .payment-update-summary-copy {
+      max-width: 430px;
+      margin: 18px 0 0;
       color: var(--muted);
-      font-size: .88rem;
-      line-height: 1.5;
+      font-size: .98rem;
+      line-height: 1.6;
     }
 
-    .mobile-payment-current {
-      margin: 8px 0 0;
-      color: var(--text-secondary);
-      font-size: .88rem;
+    .payment-update-plan {
+      margin: 30px 0 0;
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+    }
+
+    .payment-update-plan-name {
+      margin: 0;
+      font-size: 1rem;
       font-weight: 700;
     }
 
-    .mobile-payment-current[hidden] {
+    .payment-update-plan-price {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .payment-update-current {
+      margin-top: 16px;
+      padding: 13px 15px;
+      display: grid;
+      gap: 4px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+    }
+
+    .payment-update-current-label {
+      color: var(--muted);
+      font-size: .76rem;
+      font-weight: 600;
+    }
+
+    .payment-update-current strong {
+      color: var(--text-secondary);
+      font-size: .92rem;
+    }
+
+    .payment-update-current strong[hidden] {
       display: none;
     }
 
-    .mobile-payment-success-mark::before {
-      content: "";
-      width: 27px;
-      height: 14px;
-      border-left: 5px solid currentColor;
-      border-bottom: 5px solid currentColor;
-      transform:
-        translateY(-2px)
-        rotate(-45deg);
-      transform-origin: center;
+    .payment-update-payment-column {
+      width: min(100%, 520px);
+      min-width: 0;
+      justify-self: end;
     }
 
-    .mobile-payment-success {
+    .payment-update-paddle-intro {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 4px 14px;
+      color: var(--muted);
+    }
+
+    .payment-update-paddle-logo {
+      width: 82px;
+      height: auto;
+      flex: 0 0 auto;
+      display: block;
+    }
+
+    .payment-update-paddle-logo--night {
+      display: none;
+    }
+
+    html[data-theme="night"]
+      .payment-update-paddle-logo--light {
+      display: none;
+    }
+
+    html[data-theme="night"]
+      .payment-update-paddle-logo--night {
+      display: block;
+    }
+
+    .payment-update-paddle-copy {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+      font-size: .79rem;
+      line-height: 1.35;
+    }
+
+    .payment-update-paddle-copy strong {
+      color: var(--text);
+      font-size: .82rem;
+      font-weight: 700;
+    }
+
+    .payment-update-stage {
+      position: relative;
+      width: 100%;
+      min-width: 0;
+      min-height: 700px;
+      overflow: hidden;
+      border: 1px solid rgba(49,45,38,.14);
+      border-radius: 20px;
+      background: #fffdf9;
+      box-shadow: 0 18px 48px rgba(31,28,23,.09);
+    }
+
+    .payment-preparing {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: #fffdf9;
+      color: #7b7469;
+    }
+
+    .payment-preparing[hidden] {
+      display: none;
+    }
+
+    .payment-preparing .loading-state {
+      color: #7b7469;
+      text-align: center;
+    }
+
+    .atlas-paddle-payment-update {
+      width: 100%;
+      min-height: 700px;
+      opacity: 0;
+      visibility: hidden;
+      background: #fffdf9;
+    }
+
+    .payment-update[data-ready="true"]
+      .atlas-paddle-payment-update {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .payment-update-footer {
+      flex: 0 0 auto;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+    }
+
+    .payment-update-footer-inner {
+      width: min(calc(100% - 36px), 1120px);
+      min-height: 72px;
+      margin-inline: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: .82rem;
+    }
+
+    .payment-update-footer-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .payment-update-footer-links a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .payment-update-footer-links a:hover,
+    .payment-update-footer-links a:focus-visible {
+      color: var(--text);
+    }
+
+    .payment-update-success {
       position: absolute;
       inset: 0;
       z-index: 2;
@@ -261,12 +528,24 @@
         sans-serif;
     }
 
-    .mobile-payment[data-success="true"]
-      .mobile-payment-success {
+    .payment-update[data-success="true"]
+      .payment-update-success {
       display: grid;
     }
 
-    .mobile-payment-success-mark {
+    .payment-update-success-mark::before {
+      content: "";
+      width: 27px;
+      height: 14px;
+      border-left: 5px solid currentColor;
+      border-bottom: 5px solid currentColor;
+      transform:
+        translateY(-2px)
+        rotate(-45deg);
+      transform-origin: center;
+    }
+
+    .payment-update-success-mark {
       width: 82px;
       height: 82px;
       display: grid;
@@ -277,67 +556,94 @@
       color: var(--success);
     }
 
-    .mobile-payment-success h2 {
+    .payment-update-success h2 {
       margin: 0;
       font-family: Georgia, "Times New Roman", serif;
       font-size: 2rem;
       font-weight: 400;
     }
 
-    .mobile-payment-success p {
+    .payment-update-success p {
       margin: 10px 0 0;
       color: var(--muted);
       line-height: 1.5;
     }
 
-    .mobile-payment-stage {
-      position: relative;
-      height: 520px;
-      min-height: 520px;
-      max-height: 520px;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      background: var(--surface);
-      overflow: hidden;
+    @media (max-width: 920px) {
+      .payment-update-layout {
+        width: min(calc(100% - 32px), 620px);
+        padding: 30px 0 42px;
+        display: block;
+      }
+
+      .payment-update-summary {
+        position: static;
+        padding: 0;
+        margin-bottom: 28px;
+      }
+
+      .payment-update-summary h2 {
+        font-size: 2.25rem;
+      }
+
+      .payment-update-plan {
+        margin-top: 22px;
+        padding-top: 20px;
+      }
+
+      .payment-update-payment-column {
+        margin: 0 auto;
+        justify-self: auto;
+      }
     }
 
-    .mobile-payment[data-ready="true"] .mobile-payment-stage {
-      height: 560px;
-      min-height: 560px;
-      max-height: 560px;
-    }
+    @media (max-width: 620px) {
+      .payment-update-head {
+        min-height: 64px;
+        padding: 11px 16px;
+      }
 
-    .payment-preparing {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      background: var(--surface);
-    }
+      .payment-update-context {
+        display: none;
+      }
 
-    .payment-preparing[hidden] {
-      display: none;
-    }
+      .payment-update-brand {
+        font-size: 1.5rem;
+      }
 
-    .payment-preparing .loading-state {
-      text-align: center;
-    }
+      .payment-update-back {
+        min-height: 40px;
+        padding-inline: 12px;
+        font-size: .8rem;
+      }
 
-    .atlas-paddle-mobile-checkout {
-      height: 520px;
-      min-height: 520px;
-      max-height: 520px;
-      opacity: 0;
-      visibility: hidden;
-    }
+      .payment-update-layout {
+        width: min(calc(100% - 28px), 520px);
+        padding: 24px 0 34px;
+      }
 
-    .mobile-payment[data-ready="true"] .atlas-paddle-mobile-checkout {
-      height: 560px;
-      min-height: 560px;
-      max-height: 560px;
-      opacity: 1;
-      visibility: visible;
+      .payment-update-summary h2 {
+        font-size: 2rem;
+      }
+
+      .payment-update-paddle-intro {
+        align-items: flex-start;
+      }
+
+      .payment-update-stage,
+      .atlas-paddle-payment-update {
+        min-height: 620px;
+      }
+
+      .payment-update-footer-inner {
+        min-height: 68px;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .payment-update-footer-inner > span {
+        display: none;
+      }
     }
 
     .dots {
@@ -772,35 +1078,86 @@
   </style>
 </head>
 <body>
-  <section id="mobile-payment" class="mobile-payment" data-ready="false" data-open="false" data-success="false" aria-hidden="true">
-    <div class="mobile-payment-shell">
-      <div class="mobile-payment-topline">
-        <button id="mobile-payment-close" class="mobile-payment-back" type="button">← Subscription</button>
+  <section id="payment-update" class="payment-update" data-ready="false" data-open="false" data-success="false" aria-hidden="true">
+    <header class="payment-update-head">
+      <div class="payment-update-identity">
+        <p class="payment-update-brand">Atlas<span>.</span></p>
+        <span class="payment-update-context">Subscription</span>
       </div>
+      <button id="payment-update-close" class="payment-update-back" type="button">← Subscription</button>
+    </header>
 
-      <header class="mobile-payment-heading">
-        <h2>Update payment method</h2>
-        <p>Payments securely processed by Paddle.</p>
-        <p id="mobile-payment-current" class="mobile-payment-current" hidden></p>
-      </header>
+    <div class="payment-update-body">
+      <div class="payment-update-layout">
+        <aside class="payment-update-summary">
+          <p class="payment-update-kicker">Atlas Pro</p>
+          <h2>Update payment method</h2>
+          <p class="payment-update-summary-copy">
+            Choose the payment method Atlas Pro should use for future renewals.
+          </p>
 
-      <div class="mobile-payment-stage">
-        <div id="payment-preparing" class="payment-preparing" role="status" aria-live="polite">
-          <div class="loading-state">
-            <div class="dots" aria-hidden="true">
-              <span></span><span></span><span></span>
+          <div class="payment-update-plan">
+            <p class="payment-update-plan-name">
+              Atlas Pro
+              <span class="payment-update-plan-price">· $12/month</span>
+            </p>
+            <div class="payment-update-current">
+              <span class="payment-update-current-label">Current payment method</span>
+              <strong id="payment-update-current" hidden></strong>
             </div>
-            <span>Preparing secure payment…</span>
+          </div>
+        </aside>
+
+        <div class="payment-update-payment-column">
+          <div class="payment-update-paddle-intro">
+            <img
+              class="payment-update-paddle-logo payment-update-paddle-logo--light"
+              src="https://1000logos.net/wp-content/uploads/2025/10/Paddle-Logo-1.png"
+              alt="Paddle"
+            >
+            <img
+              class="payment-update-paddle-logo payment-update-paddle-logo--night"
+              src="https://pub-13d93423376c4822820635b75cfbea29.r2.dev/images/Paddle%20Logo%20Night%20Mode.png"
+              alt=""
+              aria-hidden="true"
+            >
+            <div class="payment-update-paddle-copy">
+              <strong>Billing by Paddle</strong>
+              <span>Secure payments and subscription billing for Atlas Pro.</span>
+            </div>
+          </div>
+
+          <div class="payment-update-stage">
+            <div id="payment-preparing" class="payment-preparing" role="status" aria-live="polite">
+              <div class="loading-state">
+                <div class="dots" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </div>
+                <span>Preparing secure payment…</span>
+              </div>
+            </div>
+            <div class="atlas-paddle-payment-update"></div>
           </div>
         </div>
-        <div class="atlas-paddle-mobile-checkout"></div>
       </div>
-      <div class="mobile-payment-success" aria-live="polite">
-        <div>
-          <div class="mobile-payment-success-mark" aria-hidden="true"></div>
-          <h2>Payment method updated</h2>
-          <p>Your Atlas Pro billing details are ready.</p>
-        </div>
+    </div>
+
+    <footer class="payment-update-footer">
+      <div class="payment-update-footer-inner">
+        <span>Atlas · Subscription settings</span>
+        <nav class="payment-update-footer-links" aria-label="Atlas billing policies">
+          <a href="/privacy/" target="_blank" rel="noopener">Privacy</a>
+          <a href="/terms/" target="_blank" rel="noopener">Terms</a>
+          <a href="/refunds/" target="_blank" rel="noopener">Refunds</a>
+        </nav>
+      </div>
+    </footer>
+
+    <div class="payment-update-success" aria-live="polite">
+      <div>
+        <div class="payment-update-success-mark" aria-hidden="true"></div>
+        <h2>Payment method updated</h2>
+        <p>Your Atlas Pro billing details are ready.</p>
       </div>
     </div>
   </section>
@@ -975,15 +1332,15 @@
       document.getElementById('billing-history-empty');
     const PaymentPreparing =
       document.getElementById('payment-preparing');
-    const MobilePayment =
+    const PaymentUpdate =
       document.getElementById('mobile-payment');
-    const MobilePaymentClose =
+    const PaymentUpdateClose =
       document.getElementById('mobile-payment-close');
-    const MobilePaymentFrame =
+    const PaymentUpdateFrame =
       document.querySelector(
         '.atlas-paddle-mobile-checkout'
       );
-    const MobilePaymentCurrent =
+    const PaymentUpdateCurrent =
       document.getElementById(
         'mobile-payment-current'
       );
@@ -1139,18 +1496,16 @@
       });
     }
 
-    function usesMobileInlinePayment() {
-      return window.matchMedia(
-        '(max-width: 620px)'
-      ).matches;
+    function usesAtlasOwnedPaymentUpdate() {
+      return true;
     }
 
-    function setMobilePaymentOpen(
+    function setPaymentUpdateOpen(
       open
     ) {
-      MobilePayment.dataset.open =
+      PaymentUpdate.dataset.open =
         open ? 'true' : 'false';
-      MobilePayment.setAttribute(
+      PaymentUpdate.setAttribute(
         'aria-hidden',
         open ? 'false' : 'true'
       );
@@ -1158,21 +1513,21 @@
         open ? 'hidden' : '';
 
       if (!open) {
-        MobilePayment.dataset.success =
+        PaymentUpdate.dataset.success =
           'false';
       }
     }
 
-    function showMobilePaymentSuccess() {
-      MobilePayment.dataset.success =
+    function showPaymentUpdateSuccess() {
+      PaymentUpdate.dataset.success =
         'true';
-      setMobilePaymentOpen(true);
+      setPaymentUpdateOpen(true);
 
       window.setTimeout(
         () => {
-          MobilePayment.dataset.success =
+          PaymentUpdate.dataset.success =
             'false';
-          setMobilePaymentOpen(false);
+          setPaymentUpdateOpen(false);
         },
         1800
       );
@@ -1210,7 +1565,7 @@
             if (
               !paymentCheckoutPending ||
               paymentCheckoutMode !==
-                'mobile-inline'
+                'inline'
             ) {
               return;
             }
@@ -1223,7 +1578,7 @@
               // Paddle may not have created a checkout yet.
             }
 
-            setMobilePaymentOpen(false);
+            setPaymentUpdateOpen(false);
             paymentCheckoutMode = null;
             setActionBusy(false);
             setActionStatus(
@@ -1237,7 +1592,7 @@
     function revealLoadedPaymentCheckout() {
       if (
         paymentCheckoutMode !==
-          'mobile-inline'
+          'inline'
       ) {
         return;
       }
@@ -1246,7 +1601,7 @@
         () => {
           window.requestAnimationFrame(
             () => {
-              MobilePayment.dataset.ready =
+              PaymentUpdate.dataset.ready =
                 'true';
               setPaymentPreparing(false);
             }
@@ -1328,26 +1683,26 @@
       return result.billing;
     }
 
-    function openMobilePaymentCheckout(
+    function openPaymentUpdateCheckout(
       transactionId
     ) {
+      const compact =
+        window.matchMedia(
+          '(max-width: 620px)'
+        ).matches;
+
       Paddle.Checkout.open({
         transactionId,
         settings: {
           displayMode: 'inline',
           variant: 'one-page',
           frameTarget:
-            'atlas-paddle-mobile-checkout',
+            'atlas-paddle-payment-update',
           frameInitialHeight:
-            '520',
+            compact ? '620' : '700',
           frameStyle:
             'width: 100%; min-width: 312px; background-color: transparent; border: none;',
-          theme:
-            document.documentElement
-              .dataset.theme ===
-            'night'
-              ? 'dark'
-              : 'light'
+          theme: 'light'
         }
       });
     }
@@ -1365,7 +1720,7 @@
       }
 
       if (ready) {
-        MobilePayment.dataset.ready =
+        PaymentUpdate.dataset.ready =
           'true';
         PaymentPreparing.hidden = true;
       }
@@ -1399,10 +1754,10 @@
       }
 
       paymentPrewarmResolve = null;
-      MobilePayment.dataset.ready =
+      PaymentUpdate.dataset.ready =
         'false';
       PaymentPreparing.hidden = false;
-      MobilePaymentFrame
+      PaymentUpdateFrame
         .replaceChildren();
     }
 
@@ -1459,7 +1814,7 @@
 
     function prewarmPaymentMethod() {
       if (
-        !usesMobileInlinePayment()
+        !usesAtlasOwnedPaymentUpdate()
       ) {
         return Promise.resolve(false);
       }
@@ -1477,8 +1832,8 @@
       }
 
       paymentCheckoutMode =
-        'mobile-inline-prewarm';
-      MobilePayment.dataset.ready =
+        'inline-prewarm';
+      PaymentUpdate.dataset.ready =
         'false';
       PaymentPreparing.hidden = false;
 
@@ -1525,7 +1880,7 @@
                 15000
               );
 
-            openMobilePaymentCheckout(
+            openPaymentUpdateCheckout(
               transactionId
             );
 
@@ -1588,16 +1943,16 @@
                 'checkout.loaded' &&
               (
                 paymentCheckoutMode ===
-                  'mobile-inline' ||
+                  'inline' ||
                 paymentCheckoutMode ===
-                  'mobile-inline-prewarm'
+                  'inline-prewarm'
               )
             ) {
               settlePaymentPrewarm(true);
 
               if (
                 paymentCheckoutMode ===
-                  'mobile-inline'
+                  'inline'
               ) {
                 revealLoadedPaymentCheckout();
               }
@@ -1624,7 +1979,7 @@
 
               if (
                 paymentCheckoutMode ===
-                  'mobile-inline'
+                  'inline'
               ) {
                 paymentUpdateCompleted = true;
                 paymentCheckoutMode = null;
@@ -1638,14 +1993,8 @@
                 setPaymentPreparing(false);
                 setActionBusy(false);
                 resetPaymentPreparation();
-                showMobilePaymentSuccess();
-              } else if (
-                paymentCheckoutMode ===
-                  'desktop-overlay'
-              ) {
-                paymentCheckoutMode = null;
-                setActionBusy(false);
-              }
+                showPaymentUpdateSuccess();
+              } 
 
               void refreshPaymentMethodAfterUpdate();
             }
@@ -1658,9 +2007,9 @@
 
               if (
                 paymentCheckoutMode ===
-                  'mobile-inline'
+                  'inline'
               ) {
-                setMobilePaymentOpen(false);
+                setPaymentUpdateOpen(false);
                 setActionBusy(false);
 
                 if (!paymentUpdateCompleted) {
@@ -1680,15 +2029,15 @@
 
               if (
                 paymentCheckoutMode ===
-                  'mobile-inline' ||
+                  'inline' ||
                 paymentCheckoutMode ===
-                  'mobile-inline-prewarm'
+                  'inline-prewarm'
               ) {
                 const wasOpen =
-                  MobilePayment.dataset.open ===
+                  PaymentUpdate.dataset.open ===
                     'true';
 
-                setMobilePaymentOpen(false);
+                setPaymentUpdateOpen(false);
                 setActionBusy(false);
                 void cleanupPaymentPreparation();
 
@@ -1707,45 +2056,36 @@
     }
 
     async function updatePaymentMethod() {
-      const mobileInline =
-        usesMobileInlinePayment();
-
       setActionBusy(true);
 
       if (
-        mobileInline &&
         paymentPrewarmReady &&
         preparedPaymentTransactionId
       ) {
         paymentCheckoutMode =
-          'mobile-inline';
-        setMobilePaymentOpen(true);
+          'inline';
+        setPaymentUpdateOpen(true);
         setActionStatus('');
         return;
       }
 
-      if (mobileInline) {
-        paymentCheckoutMode =
-          'mobile-inline';
-        setMobilePaymentOpen(true);
-        setPaymentPreparing(true);
+      paymentCheckoutMode =
+        'inline';
+      setPaymentUpdateOpen(true);
+      setPaymentPreparing(true);
 
-        if (paymentPrewarmPromise) {
-          const ready =
-            await paymentPrewarmPromise;
+      if (paymentPrewarmPromise) {
+        const ready =
+          await paymentPrewarmPromise;
 
-          if (
-            ready &&
-            preparedPaymentTransactionId
-          ) {
-            setPaymentPreparing(false);
-            setActionStatus('');
-            return;
-          }
+        if (
+          ready &&
+          preparedPaymentTransactionId
+        ) {
+          setPaymentPreparing(false);
+          setActionStatus('');
+          return;
         }
-      } else {
-        paymentCheckoutMode =
-          'desktop-overlay';
       }
 
       try {
@@ -1775,53 +2115,19 @@
           );
         }
 
-        if (mobileInline) {
-          preparedPaymentTransactionId =
-            transactionId;
-          paymentUpdateCompleted = false;
-          openMobilePaymentCheckout(
-            transactionId
-          );
-        } else {
-          const successUrl =
-            new URL(
-              window.location.href
-            );
+        preparedPaymentTransactionId =
+          transactionId;
+        paymentUpdateCompleted = false;
 
-          successUrl.search = '';
-          successUrl.hash = '';
-          successUrl.searchParams.set(
-            'payment',
-            'updated'
-          );
-
-          Paddle.Checkout.open({
-            transactionId,
-            settings: {
-              displayMode: 'overlay',
-              variant: 'one-page',
-              successUrl:
-                successUrl.toString(),
-              theme:
-                document.documentElement
-                  .dataset.theme ===
-                'night'
-                  ? 'dark'
-                  : 'light'
-            }
-          });
-        }
+        openPaymentUpdateCheckout(
+          transactionId
+        );
 
         setActionStatus('');
       } catch (error) {
         setPaymentPreparing(false);
-
-        if (mobileInline) {
-          setMobilePaymentOpen(false);
-          await cleanupPaymentPreparation();
-        } else {
-          paymentCheckoutMode = null;
-        }
+        setPaymentUpdateOpen(false);
+        await cleanupPaymentPreparation();
 
         setActionStatus(
           String(
@@ -1829,10 +2135,8 @@
             'Atlas could not start the payment-method update.'
           )
         );
-      } finally {
-        if (!mobileInline) {
-          setActionBusy(false);
-        }
+
+        setActionBusy(false);
       }
     }
 
@@ -1934,11 +2238,9 @@
       PaymentMethodSummary.hidden =
         !display;
 
-      MobilePaymentCurrent.textContent =
-        display
-          ? `Current · ${display}`
-          : '';
-      MobilePaymentCurrent.hidden =
+      PaymentUpdateCurrent.textContent =
+        display;
+      PaymentUpdateCurrent.hidden =
         !display;
 
       return display;
@@ -2376,7 +2678,7 @@
         }
 
         if (
-          usesMobileInlinePayment() &&
+          usesAtlasOwnedPaymentUpdate() &&
           String(
             result.billing?.status || ''
           )
@@ -2419,15 +2721,15 @@
         }
       );
 
-    MobilePaymentClose
+    PaymentUpdateClose
       .addEventListener(
         'click',
         () => {
           if (
             paymentCheckoutMode !==
-              'mobile-inline'
+              'inline'
           ) {
-            setMobilePaymentOpen(false);
+            setPaymentUpdateOpen(false);
             return;
           }
 
@@ -2438,7 +2740,7 @@
           }
 
           setPaymentPreparing(false);
-          setMobilePaymentOpen(false);
+          setPaymentUpdateOpen(false);
           setActionBusy(false);
           setActionStatus('');
 
