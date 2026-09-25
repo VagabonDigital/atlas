@@ -96,13 +96,28 @@ assert.match(
 );
 assert.match(
   subscription,
-  /--payment-update-header-surface:\s*#fffdf9;[\s\S]*?\.payment-update-head \{[\s\S]*?color-mix\(in srgb, var\(--payment-update-header-surface\) 86%, transparent\)[\s\S]*?backdrop-filter: blur\(22px\) saturate\(1\.08\)/,
-  'Update Payment must use the same #fffdf9-based desktop glass treatment as Atlas Hub chrome.'
+  /--payment-update-canvas:\s*#eceff3;[\s\S]*?--payment-update-header-surface:\s*#f7f8fa;/,
+  'Update Payment must retain the cool-grey checkout canvas and header palette.'
+);
+assert.match(
+  subscription,
+  /\.payment-update \{[\s\S]*?background: var\(--payment-update-canvas\);/,
+  'Update Payment must use its own checkout-grey canvas without changing the surrounding Subscription page.'
+);
+assert.match(
+  subscription,
+  /\.payment-update-head \{[\s\S]*?position: absolute;[\s\S]*?z-index: 3;[\s\S]*?color-mix\(in srgb, var\(--payment-update-header-surface\) 84%, transparent\)[\s\S]*?backdrop-filter: blur\(22px\) saturate\(1\.08\)/,
+  'Update Payment desktop header must be a translucent overlay so scrolling content can actually blur beneath it.'
+);
+assert.match(
+  subscription,
+  /\.payment-update-body \{[\s\S]*?padding-top: 56px;[\s\S]*?overflow-y: auto;/,
+  'Update Payment scrolling content must pass beneath the fixed glass header.'
 );
 assert.match(
   subscription,
   /@media \(max-width: 620px\)[\s\S]*?\.payment-update-head \{[\s\S]*?color-mix\(in srgb, var\(--payment-update-header-surface\) 88%, transparent\)[\s\S]*?backdrop-filter: blur\(14px\)/,
-  'Update Payment mobile header must retain the Hub-style mobile glass treatment.'
+  'Update Payment mobile header must retain the lighter Hub-style mobile glass treatment.'
 );
 assert.doesNotMatch(
   pricing + checkout + subscription,
