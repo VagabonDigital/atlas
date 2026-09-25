@@ -33,7 +33,7 @@
 
     const SUBJECT_BROWSER_STATE_DB_NAME =
         'atlas-tutor-subjects';
-    const SUBJECT_BROWSER_STATE_DB_VERSION = 1;
+    const SUBJECT_BROWSER_STATE_DB_VERSION = 2;
     const SUBJECT_BROWSER_STATE_STORE =
         'browser-state';
 
@@ -919,8 +919,32 @@
                     return;
                 }
 
+                request.onupgradeneeded = () => {
+                    const db = request.result;
+
+                    if (
+                        !db.objectStoreNames.contains(
+                            SUBJECT_BROWSER_STATE_STORE
+                        )
+                    ) {
+                        db.createObjectStore(
+                            SUBJECT_BROWSER_STATE_STORE
+                        );
+                    }
+                };
+
                 request.onsuccess = () => {
-                    resolve(request.result);
+                    const db = request.result;
+
+                    db.onversionchange = () => {
+                        try {
+                            db.close();
+                        } catch { }
+
+                        subjectBrowserStateDbPromise = null;
+                    };
+
+                    resolve(db);
                 };
 
                 request.onerror = () => {
