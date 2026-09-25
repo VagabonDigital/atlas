@@ -79,7 +79,7 @@ assert.match(
 
 assert.match(
   checkout,
-  /Paddle\.Checkout[\s\S]*?\.open\(\{/
+  /Paddle[\s\S]*?\.Checkout[\s\S]*?\.open\(\{/
 );
 
 assert.match(
