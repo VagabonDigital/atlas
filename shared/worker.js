@@ -2255,22 +2255,7 @@ export default {
                     {
                         ok: false,
                         error:
-                            'Invalid Paddle webhook signature.',
-                        diagnostic: {
-                            environment:
-                                paddleEnvironment,
-                            reason:
-                                verification.reason ||
-                                'verification_error',
-                            ...(Number.isFinite(
-                                verification.ageSeconds
-                            )
-                                ? {
-                                    ageSeconds:
-                                        verification.ageSeconds
-                                }
-                                : {})
-                        }
+                            'Invalid Paddle webhook signature.'
                     },
                     401
                 );
