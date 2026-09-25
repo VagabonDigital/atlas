@@ -78,7 +78,7 @@ assert.match(
 );
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260924-inlinecheckout3/
+  /atlas-pro-checkout\.js\?v=20260924-checkoutfooter1/
 );
 assert.match(
   checkout,
