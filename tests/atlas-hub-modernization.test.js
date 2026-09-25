@@ -39,9 +39,6 @@ assert.match(
   /\.welcome-line \{ font-size: clamp\(2rem, var\(--atlas-mobile-welcome-fluid-size\), 2\.65rem\); \}/
 );
 
-const canonicalHeaderGlass =
-  /backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);[\s\S]*?-webkit-backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);/;
-
 assert.match(
   html,
   /--chrome-surface:\s*rgba\(243, 240, 233, 0\.72\);[\s\S]*?--chrome-surface-mobile:\s*rgba\(243, 240, 233, 0\.72\);/,
@@ -49,11 +46,11 @@ assert.match(
 );
 assert.match(
   html,
-  /\.spine \{[\s\S]*?${canonicalHeaderGlass.source}/
+  /\.spine \{[\s\S]*?backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);[\s\S]*?-webkit-backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);/
 );
 assert.match(
   html,
-  /\.mobile-header \{[\s\S]*?${canonicalHeaderGlass.source}/
+  /\.mobile-header \{[\s\S]*?backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);[\s\S]*?-webkit-backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);/
 );
 
 assert.match(
@@ -63,11 +60,11 @@ assert.match(
 );
 assert.match(
   compassHtml,
-  /\.spine \{[\s\S]*?${canonicalHeaderGlass.source}/
+  /\.spine \{[\s\S]*?backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);[\s\S]*?-webkit-backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);/
 );
 assert.match(
   compassHtml,
-  /\.mobile-header \{[\s\S]*?${canonicalHeaderGlass.source}/
+  /\.mobile-header \{[\s\S]*?backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);[\s\S]*?-webkit-backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);/
 );
 
 assert.match(
@@ -77,16 +74,16 @@ assert.match(
 );
 assert.match(
   arcadeHtml,
-  /\.spine \{[\s\S]*?${canonicalHeaderGlass.source}/
+  /\.spine \{[\s\S]*?backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);[\s\S]*?-webkit-backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);/
 );
 assert.match(
   arcadeHtml,
-  /\.mobile-header \{[\s\S]*?${canonicalHeaderGlass.source}/
+  /\.mobile-header \{[\s\S]*?backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);[\s\S]*?-webkit-backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);/
 );
 
 assert.match(
   insideHtml,
-  /\.site-header \{[\s\S]*?background:\s*color-mix\(in srgb, var\(--surface-canvas\) 72%, transparent\);[\s\S]*?${canonicalHeaderGlass.source}/,
+  /\.site-header \{[\s\S]*?background:\s*color-mix\(in srgb, var\(--surface-canvas\) 72%, transparent\);[\s\S]*?backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);[\s\S]*?-webkit-backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);/,
   'Inside Atlas remains the canonical header-glass reference.'
 );
 // Compile every inline script as well as exercising the actual selectors.
