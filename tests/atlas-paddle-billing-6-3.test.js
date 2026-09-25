@@ -15,6 +15,10 @@ const migration = fs.readFileSync(
   'supabase/migrations/020_paddle_billing_foundation.sql',
   'utf8'
 );
+const communicationCleanup = fs.readFileSync(
+  'supabase/migrations/029_billing_communication_ownership_cleanup.sql',
+  'utf8'
+);
 
 assert.match(worker, /url\.pathname === '\/paddle\/webhook'/);
 assert.match(worker, /Paddle-Signature/);
@@ -45,6 +49,26 @@ assert.match(worker, /atlas_apply_paddle_event_v1/);
 assert.match(worker, /transaction\.completed/);
 assert.match(worker, /Atlas Pro is active\./);
 assert.match(worker, /100 fresh subject creations each billing month/);
+assert.doesNotMatch(
+  worker,
+  /Atlas Pro payment received/,
+  'Atlas must leave routine payment confirmation to Paddle.'
+);
+assert.doesNotMatch(
+  worker,
+  /Atlas Pro will continue/,
+  'Atlas must leave cancellation-reversal confirmation to Paddle.'
+);
+assert.doesNotMatch(
+  communicationCleanup,
+  /v_email_kind := 'payment_received'/,
+  'Billing classification must not queue routine payment confirmation.'
+);
+assert.doesNotMatch(
+  communicationCleanup,
+  /v_email_kind := 'cancellation_reversed'/,
+  'Billing classification must not queue cancellation-reversal confirmation.'
+);
 assert.doesNotMatch(worker, /You’re in\./);
 assert.match(worker, /eventType\.startsWith\([\s\S]*'subscription\.'/);
 assert.match(
