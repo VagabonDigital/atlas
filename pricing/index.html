@@ -710,6 +710,16 @@
       }
 
       async function openCheckout(event) {
+        try {
+          await window.AtlasAccessBootstrap
+            ?.initialize?.();
+        } catch (error) {
+          console.error(
+            '[AtlasPricing] Atlas account bootstrap failed',
+            error
+          );
+        }
+
         var account =
           window.AtlasAccount &&
           typeof window.AtlasAccount.getState === 'function'
