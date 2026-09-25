@@ -588,8 +588,27 @@
                 overflow-y: auto;
                 overscroll-behavior: contain;
                 -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+                scrollbar-color:
+                    rgba(var(--accent-rgb), .46) transparent;
                 background:
                     var(--atlas-modal-surface-low, var(--surface-muted, #f5f1e9));
+            }
+
+            .atlas-pro-checkout-body::-webkit-scrollbar {
+                width: 10px;
+            }
+
+            .atlas-pro-checkout-body::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .atlas-pro-checkout-body::-webkit-scrollbar-thumb {
+                border: 2px solid transparent;
+                border-radius: 999px;
+                background:
+                    rgba(var(--accent-rgb), .46);
+                background-clip: padding-box;
             }
 
             .atlas-pro-checkout-layout {
@@ -717,6 +736,30 @@
                     var(--atlas-modal-surface, var(--surface, #fffdf9));
             }
 
+            .atlas-pro-checkout-legal {
+                width: min(calc(100% - 56px), 1120px);
+                margin: -18px auto 0;
+                padding: 0 0 28px;
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                gap: 14px;
+                color:
+                    var(--atlas-modal-muted, var(--text-muted, #7b7469));
+                font-size: .74rem;
+            }
+
+            .atlas-pro-checkout-legal a {
+                color: inherit;
+                text-decoration: none;
+            }
+
+            .atlas-pro-checkout-legal a:hover,
+            .atlas-pro-checkout-legal a:focus-visible {
+                color:
+                    var(--atlas-modal-heading, var(--text-heading, #211f1b));
+            }
+
             @media (max-width: 920px) {
                 .atlas-pro-checkout-layout {
                     width: min(calc(100% - 32px), 620px);
@@ -732,6 +775,12 @@
                     width: min(100%, 520px);
                     margin: 0 auto;
                     justify-self: auto;
+                }
+
+                .atlas-pro-checkout-legal {
+                    width: min(calc(100% - 32px), 520px);
+                    margin-top: -10px;
+                    justify-content: center;
                 }
             }
 
@@ -854,6 +903,26 @@
                         <div class="atlas-pro-checkout-inline-frame"></div>
                     </div>
                 </div>
+                <nav
+                    class="atlas-pro-checkout-legal"
+                    aria-label="Atlas checkout policies"
+                >
+                    <a
+                        href="/privacy/"
+                        target="_blank"
+                        rel="noopener"
+                    >Privacy</a>
+                    <a
+                        href="/terms/"
+                        target="_blank"
+                        rel="noopener"
+                    >Terms</a>
+                    <a
+                        href="/refunds/"
+                        target="_blank"
+                        rel="noopener"
+                    >Refunds</a>
+                </nav>
             </div>
         `;
 
