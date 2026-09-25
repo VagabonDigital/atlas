@@ -2085,9 +2085,9 @@
 
     .continuity-landscape,
     .continuity-architecture {
-      right: -18px;
+      right: 8px;
       bottom: 22px;
-      width: 64%;
+      width: 61%;
       height: 360px;
     }
 
@@ -2102,6 +2102,13 @@
     .continuity-active-heading {
       position: absolute;
       z-index: 8;
+    }
+
+    .continuity-memory-heading,
+    .continuity-language > .continuity-eyebrow {
+      font-size: 12px;
+      letter-spacing: .14em;
+      font-weight: 700;
     }
 
     .continuity-ideas-heading {
@@ -2138,13 +2145,13 @@
       display: flex;
       align-items: center;
       gap: 18px;
-      padding: 17px 24px;
+      padding: 13px 18px;
       border: 1px solid var(--continuity-line);
       border-radius: 90px;
       background: color-mix(in srgb, var(--continuity-cream) 93%, white);
       box-shadow: 0 17px 35px -26px rgba(104, 123, 108, .38);
       color: var(--continuity-ink);
-      font: 38px/1.12 var(--font-display);
+      font: 30px/1.12 var(--font-display);
       letter-spacing: -.02em;
       transform-origin: center;
     }
@@ -2157,16 +2164,16 @@
       flex: none;
       display: grid;
       place-items: center;
-      width: 66px;
-      height: 66px;
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
       background: var(--continuity-mint);
       color: var(--continuity-teal);
     }
 
     .continuity-vocab-icon svg {
-      width: 40px;
-      height: 40px;
+      width: 32px;
+      height: 32px;
       fill: none;
       stroke: currentColor;
       stroke-width: 1.6;
@@ -2263,12 +2270,12 @@
 
     .continuity-motif {
       position: absolute;
-      right: 14px;
-      bottom: 8px;
-      width: 168px;
-      height: 104px;
+      right: 18px;
+      bottom: 12px;
+      width: 208px;
+      height: 128px;
       color: var(--continuity-teal);
-      opacity: .14;
+      opacity: .16;
       fill: none;
       stroke: currentColor;
       stroke-width: 1.15;
@@ -3037,7 +3044,13 @@
         <div class="continuity-stage" id="continuityStage" aria-label="How lessons with Yasmin inform future preparation">
           <svg width="0" height="0" aria-hidden="true" style="position:absolute">
             <defs>
-              <symbol id="continuityFlow" viewBox="0 0 48 48"><path d="M5 37C12 37 16 31 21 25C26 19 31 15 38 16C41 16 43 18 45 20"/><path d="M5 41H45"/><path d="M8 37C15 38 20 34 25 28C30 22 35 21 43 24"/><path d="M13 38V34M19 35V30M25 29V24M31 24V20M37 22V18"/></symbol>
+              <symbol id="continuityFlow" viewBox="0 0 48 48">
+  <path d="M4 35C12 36 16 28 22 21C27 15 33 12 39 14C42 15 44 17 46 20"/>
+  <path d="M4 40C13 42 20 34 26 27C32 20 38 19 46 23"/>
+  <path d="M7 41H46"/>
+  <path d="M12 36V40M18 30V40M24 24V40M30 19V40M36 16V40M42 18V40"/>
+  <path d="M10 34C15 35 19 31 23 26C28 20 33 17 39 18C42 18 44 20 46 22"/>
+</symbol>
               <symbol id="continuityPalm" viewBox="0 0 48 48"><path d="M25 41V19M25 19C18 9 10 12 7 19C15 16 20 17 25 19ZM25 19C32 8 39 12 42 18C35 15 30 17 25 19ZM25 19C17 19 12 23 11 29M25 19C32 20 35 25 36 29M25 19C22 12 23 7 28 5"/></symbol>
               <symbol id="continuityMatcha" viewBox="0 0 48 48"><ellipse cx="24" cy="23" rx="17" ry="5"/><path d="M7 23C8 36 13 41 24 41S40 34 41 23M23 21C22 11 28 6 37 5C36 14 30 18 23 17M23 17L33 9M23 22C23 14 17 10 12 9"/></symbol>
             </defs>
@@ -3103,7 +3116,11 @@
           </div>
 
           <article class="continuity-idea is-primary" id="continuityArchitectureIdea">
-            <div class="continuity-surface"><svg class="continuity-motif" viewBox="0 0 200 120" aria-hidden="true"><path d="M8 103C38 105 55 86 72 65C89 44 108 35 131 38C151 40 160 51 177 32C188 20 197 15 205 18"/><path d="M8 109H206"/><path d="M31 99V108M55 83V108M81 59V104M108 40V92M136 41V84M163 37V73M190 20V60"/></svg></div>
+            <div class="continuity-surface"><svg class="continuity-motif" viewBox="0 0 200 120" aria-hidden="true"><path d="M4 104C31 108 49 91 67 69C84 48 101 39 120 41C140 43 149 54 166 35C179 20 191 14 205 17"/>
+ <path d="M4 111C34 117 55 96 74 76C92 56 109 51 128 53C146 55 158 62 175 44C188 30 198 24 208 26"/>
+ <path d="M6 114H210"/>
+ <path d="M26 102V113M47 88V113M70 70V111M94 51V107M119 43V101M145 48V91M171 38V79M196 21V65"/>
+ <path d="M23 100C48 106 59 78 80 60C101 41 119 38 139 43C154 47 165 49 181 31C193 18 202 15 211 18"/></svg></div>
             <div class="continuity-seed"><span class="continuity-icon"><svg aria-hidden="true"><use href="#continuityFlow"/></svg></span><span class="continuity-seed-word">Architecture</span></div>
             <h3><span>Nature-Inspired</span><br>Architecture</h3>
             <p>From Zaha Hadid’s flowing forms to buildings shaped by dunes, waves and wind.</p>
@@ -4249,9 +4266,9 @@
                 [pad + inner * .03, 622, inner * .97, 108, Math.min(27, inner / 8.8)]
               ]
             : [
-                [pad, 205, inner * .43, 104, Math.min(48, inner / 22)],
-                [pad + inner * .48, 292, inner * .52, 102, Math.min(36, inner / 29)],
-                [pad + inner * .18, 412, inner * .62, 100, Math.min(39, inner / 27)]
+                [pad, 218, inner * .35, 82, Math.min(34, inner / 28)],
+                [pad + inner * .43, 300, inner * .40, 82, Math.min(30, inner / 34)],
+                [pad + inner * .17, 406, inner * .46, 82, Math.min(31, inner / 32)]
               ];
 
           expressions.forEach(function (element, index) {
@@ -4293,9 +4310,9 @@
                 [pad + inner - 126, 212, 126, 56]
               ]
             : [
-                [width * .405, 74, 224, 60],
-                [width * .655, 112, 166, 58],
-                [width * .813, 70, 154, 58]
+                [width * .39, 72, 250, 66],
+                [width * .64, 122, 186, 62],
+                [width * .80, 72, 172, 62]
               ];
 
           var rec = mobile
@@ -4305,9 +4322,9 @@
                 [pad + inner * .06, 716, inner * .94, 220]
               ]
             : [
-                [pad, 218, inner * .515, 270],
-                [pad + inner * .60, 142, inner * .335, 188],
-                [pad + inner * .625, 354, inner * .315, 190]
+                [pad, 218, inner * .53, 270],
+                [pad + inner * .59, 142, inner * .29, 184],
+                [pad + inner * .62, 344, inner * .27, 180]
               ];
 
           cards.forEach(function (element, index) {
@@ -4323,7 +4340,14 @@
             var cardHeight = mix(from[3], to[3], build);
 
             if (index === 2 && !mobile) {
-              x += Math.sin(travel * Math.PI) * width * .065;
+              x += Math.sin(travel * Math.PI) * width * .035;
+            }
+
+            if (!mobile && index > 0) {
+              var safeRight = width - pad - 34;
+              if (x + cardWidth > safeRight) {
+                x = safeRight - cardWidth;
+              }
             }
 
             if (index === 0) {
@@ -4351,7 +4375,7 @@
               ? "rgba(66,136,109," + (.19 + .28 * focus) + ")"
               : "var(--continuity-line)";
 
-            var inset = mobile ? 18 : 25;
+            var inset = mobile ? 18 : (index === 0 ? 25 : 22);
             seed.style.left = mix(10, inset, travel) + "px";
             seed.style.top = mix(10, mobile ? 18 : 22, travel) + "px";
             setOpacity(seed, (.57 + .43 * attention) * (index === 0 ? 1 - ramp(u, 28.35, 29) : 1));
@@ -4369,7 +4393,7 @@
                     mobile ? Math.min(41, inner / 7.4) : Math.min(56, inner / 18),
                     final
                   )
-                : (mobile ? Math.min(23, inner / 12) : Math.min(25, inner / 42))
+                : (mobile ? Math.min(22, inner / 12) : Math.min(23, inner / 46))
             ) + "px";
             setOpacity(title, reveal);
             move(title, rm ? 0 : (index === 1 ? 12 : 0) * (1 - reveal), rm ? 0 : (index === 0 ? 12 : index === 2 ? 8 : 0) * (1 - reveal));
