@@ -843,10 +843,46 @@
                 line-height: 1.55;
             }
 
-            .atlas-pro-checkout-stage {
+            .atlas-pro-checkout-payment-column {
                 width: min(100%, 520px);
                 min-width: 0;
                 justify-self: end;
+            }
+
+            .atlas-pro-checkout-paddle-intro {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin: 0 4px 14px;
+                color:
+                    var(--atlas-modal-muted, var(--text-muted, #7b7469));
+            }
+
+            .atlas-pro-checkout-paddle-logo {
+                width: 82px;
+                height: auto;
+                flex: 0 0 auto;
+                display: block;
+            }
+
+            .atlas-pro-checkout-paddle-copy {
+                min-width: 0;
+                display: grid;
+                gap: 2px;
+                font-size: .79rem;
+                line-height: 1.35;
+            }
+
+            .atlas-pro-checkout-paddle-copy strong {
+                color:
+                    var(--atlas-modal-heading, var(--text-heading, #211f1b));
+                font-size: .82rem;
+                font-weight: 700;
+            }
+
+            .atlas-pro-checkout-stage {
+                width: 100%;
+                min-width: 0;
                 overflow: hidden;
                 border: 1px solid
                     var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .14)));
@@ -914,10 +950,14 @@
                     display: none;
                 }
 
-                .atlas-pro-checkout-stage {
+                .atlas-pro-checkout-payment-column {
                     width: min(100%, 520px);
                     margin: 0 auto;
                     justify-self: auto;
+                }
+
+                .atlas-pro-checkout-paddle-intro {
+                    margin-bottom: 12px;
                 }
 
 
@@ -1051,8 +1091,23 @@
                             </span>
                         </p>
                     </aside>
-                    <div class="atlas-pro-checkout-stage">
-                        <div class="atlas-pro-checkout-inline-frame"></div>
+                    <div class="atlas-pro-checkout-payment-column">
+                        <div class="atlas-pro-checkout-paddle-intro">
+                            <img
+                                class="atlas-pro-checkout-paddle-logo"
+                                src="https://1000logos.net/wp-content/uploads/2025/10/Paddle-Logo-1.png"
+                                alt="Paddle"
+                            >
+                            <div class="atlas-pro-checkout-paddle-copy">
+                                <strong>Billing by Paddle</strong>
+                                <span>
+                                    Paddle securely handles payments, receipts and subscription billing for Atlas Pro.
+                                </span>
+                            </div>
+                        </div>
+                        <div class="atlas-pro-checkout-stage">
+                            <div class="atlas-pro-checkout-inline-frame"></div>
+                        </div>
                     </div>
                 </div>
                 <footer class="atlas-pro-checkout-footer">

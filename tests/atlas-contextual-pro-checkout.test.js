@@ -244,6 +244,18 @@ assert.match(
   'Checkout value label must use the Atlas accent rather than inherit muted body-copy styling.'
 );
 
+assert.match(
+  checkout,
+  /atlas-pro-checkout-paddle-intro[\s\S]*?Billing by Paddle[\s\S]*?Paddle securely handles payments, receipts and subscription billing for Atlas Pro\./,
+  'Checkout must introduce Paddle clearly before the embedded payment surface.'
+);
+
+assert.match(
+  checkout,
+  /Paddle-Logo-1\.png/,
+  'Checkout Paddle introduction must include the Paddle wordmark.'
+);
+
 assert.equal(
   (checkout.match(/showAddTaxId:/g) || []).length,
   1,
@@ -258,7 +270,7 @@ assert.equal(
 
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260924-valuedivider1/,
+  /atlas-pro-checkout\.js\?v=20260925-paddleintro1/,
   'Pricing must load the same shared checkout runtime as contextual upgrade flows.'
 );
 
@@ -347,12 +359,12 @@ assert.match(
 
 assert.match(
   chrome,
-  /atlas-account-gate\.js\?v=20260924-valuedivider1/
+  /atlas-account-gate\.js\?v=20260925-paddleintro1/
 );
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260924-valuedivider1/
+  /atlas-account-chrome\.js\?v=20260925-paddleintro1/
 );
 
 assert.match(
@@ -409,7 +421,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260924-valuedivider1/
+  /atlas-pro-checkout\.js\?v=20260925-paddleintro1/
 );
 
 assert.match(
