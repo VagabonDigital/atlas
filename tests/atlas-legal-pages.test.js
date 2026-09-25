@@ -200,6 +200,16 @@ assert.match(
 );
 assert.match(
   css,
+  /--header-surface:\s*rgba\(243, 240, 233, 0\.72\);[\s\S]*?html\[data-theme="night"\][\s\S]*?--header-surface:\s*rgba\(27, 29, 28, 0\.72\);/,
+  'Legal headers must use the canonical 72% glass opacity in both themes.'
+);
+assert.match(
+  css,
+  /\.site-header \{[\s\S]*?backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);[\s\S]*?-webkit-backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);/,
+  'Legal headers must match the Inside Atlas blur and saturation recipe.'
+);
+assert.match(
+  css,
   /--theme-motion:\s*280ms cubic-bezier\(0\.4, 0, 0\.2, 1\)/
 );
 assert.match(
