@@ -38,6 +38,7 @@
     let checkoutLoadingTimer = null;
     let checkoutRevealTimer = null;
     let checkoutShell = null;
+    let recoveryPromise = null;
 
     function setCanonicalCheckoutTitle() {
         if (!activeCheckout) {
@@ -2192,6 +2193,10 @@
             return false;
         }
 
+        if (recoveryPromise) {
+            return recoveryPromise;
+        }
+
         const intent =
             readRecoverableCheckoutIntent();
 
@@ -2199,16 +2204,29 @@
             return false;
         }
 
-        try {
-            await window.AtlasAccessBootstrap
-                ?.prepareAccountRuntime?.();
-        } catch {
-            // open() will still perform canonical access checks.
-        }
+        recoveryPromise =
+            (async () => {
+                try {
+                    await window
+                        .AtlasAccessBootstrap
+                        ?.prepareAccountRuntime?.();
+                } catch {
+                    // open() will still perform canonical access checks.
+                }
 
-        return open({
-            source: intent.source
-        });
+                if (activeCheckout) {
+                    return false;
+                }
+
+                return open({
+                    source: intent.source
+                });
+            })()
+                .finally(() => {
+                    recoveryPromise = null;
+                });
+
+        return recoveryPromise;
     }
 
     function scheduleRecoverableCheckoutRestore() {

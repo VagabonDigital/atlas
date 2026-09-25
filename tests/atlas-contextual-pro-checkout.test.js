@@ -89,6 +89,12 @@ assert.match(
 );
 
 assert.match(
+  checkout,
+  /recoveryPromise[\s\S]*?if \(recoveryPromise\)[\s\S]*?return recoveryPromise[\s\S]*?finally\(\(\) => \{[\s\S]*?recoveryPromise = null/,
+  'Checkout refresh recovery must collapse concurrent restore requests into one Paddle open.'
+);
+
+assert.match(
   chrome,
   /checkoutState[\s\S]*?ensureCheckoutRecovery[\s\S]*?AtlasProCheckout\.restore/,
   'Shared account chrome must recover an active Pro checkout opened from a lazy account menu.'
