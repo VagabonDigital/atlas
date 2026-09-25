@@ -23,7 +23,7 @@
     }
 
     const WORKER_URL =
-        '/shared/atlas-subject-build-shared-worker.js?v=20260924-buildworker11';
+        '/shared/atlas-subject-build-shared-worker.js?v=20260925-buildworker12';
 
     const WORKER_NAME =
         'atlas-subject-builds';
@@ -641,6 +641,25 @@
             String(
                 message.type || ''
             ).trim();
+
+        if (
+            type ===
+                'worker-debug'
+        ) {
+            traceDebug(
+                'worker-internal:' +
+                    (
+                        String(
+                            message.stage ||
+                            'event'
+                        ).trim() ||
+                        'event'
+                    ),
+                cloneJson(
+                    message.detail
+                ) || {}
+            );
+        }
 
         if (
             [
