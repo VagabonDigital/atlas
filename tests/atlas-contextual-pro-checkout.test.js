@@ -90,6 +90,18 @@ assert.match(
 
 assert.match(
   checkout,
+  /ATLAS_FAVICON_HREF[\s\S]*?link\[rel~="icon"\][\s\S]*?icon\.href = ATLAS_FAVICON_HREF/,
+  'Checkout must canonicalize the host favicon to Atlas while Paddle/Google Pay is active.'
+);
+
+assert.match(
+  checkout,
+  /previousFavicons[\s\S]*?setAttribute\([\s\S]*?'href'[\s\S]*?href/,
+  'Checkout must restore the hub favicon after payment UI closes.'
+);
+
+assert.match(
+  checkout,
   /setCanonicalCheckoutTitle\(\);[\s\S]*?await initializePaddle\(\)/,
   'Atlas title must be applied before Paddle initializes checkout.'
 );
@@ -234,7 +246,7 @@ assert.equal(
 
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260924-checkoutreassure1/,
+  /atlas-pro-checkout\.js\?v=20260924-walleticon1/,
   'Pricing must load the same shared checkout runtime as contextual upgrade flows.'
 );
 
@@ -323,12 +335,12 @@ assert.match(
 
 assert.match(
   chrome,
-  /atlas-account-gate\.js\?v=20260924-checkoutreassure1/
+  /atlas-account-gate\.js\?v=20260924-walleticon1/
 );
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260924-checkoutreassure1/
+  /atlas-account-chrome\.js\?v=20260924-walleticon1/
 );
 
 assert.match(
@@ -385,7 +397,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260924-checkoutreassure1/
+  /atlas-pro-checkout\.js\?v=20260924-walleticon1/
 );
 
 assert.match(

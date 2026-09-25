@@ -25,6 +25,8 @@
         'atlas-pro-checkout-shell-style';
     const PRODUCT_ICON_URL =
         'https://pub-13d93423376c4822820635b75cfbea29.r2.dev/images/Atlas%20Logo.png';
+    const ATLAS_FAVICON_HREF =
+        "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20100%20100%27%3E%3Crect%20x%3D%275%27%20y%3D%275%27%20width%3D%2790%27%20height%3D%2790%27%20rx%3D%2724%27%20fill%3D%27%233F7FA3%27%2F%3E%3Cpath%20d%3D%27M20%2080V48C20%2028%2033%2015%2050%2015S80%2028%2080%2048V80H65V49C65%2039%2059%2033%2050%2033S35%2039%2035%2049V80Z%27%20fill%3D%27%23FFFFFF%27%2F%3E%3Cpath%20d%3D%27M16%2080H84%27%20stroke%3D%27%23DFF4FC%27%20stroke-width%3D%278%27%20stroke-linecap%3D%27round%27%2F%3E%3C%2Fsvg%3E";
 
     let paddlePromise = null;
     let configPromise = null;
@@ -53,6 +55,42 @@
         }
 
         document.title = 'Atlas';
+
+        const icons =
+            Array.from(
+                document.querySelectorAll(
+                    'link[rel~="icon"]'
+                )
+            );
+
+        activeCheckout.previousFavicons =
+            icons.map(icon => ({
+                icon,
+                href: icon.getAttribute('href'),
+                type: icon.getAttribute('type')
+            }));
+
+        if (!icons.length) {
+            const icon =
+                document.createElement('link');
+
+            icon.rel = 'icon';
+            icon.type = 'image/svg+xml';
+            icon.href = ATLAS_FAVICON_HREF;
+            icon.dataset
+                .atlasCheckoutFavicon = 'true';
+
+            document.head.appendChild(icon);
+
+            activeCheckout.checkoutFavicon =
+                icon;
+            return;
+        }
+
+        icons.forEach(icon => {
+            icon.type = 'image/svg+xml';
+            icon.href = ATLAS_FAVICON_HREF;
+        });
     }
 
     function restoreCheckoutTitle() {
@@ -71,6 +109,54 @@
 
         activeCheckout
             .previousDocumentTitle = null;
+
+        const previousFavicons =
+            Array.isArray(
+                activeCheckout.previousFavicons
+            )
+                ? activeCheckout.previousFavicons
+                : [];
+
+        previousFavicons.forEach(
+            ({ icon, href, type }) => {
+                if (!icon?.isConnected) {
+                    return;
+                }
+
+                if (href === null) {
+                    icon.removeAttribute('href');
+                } else {
+                    icon.setAttribute(
+                        'href',
+                        href
+                    );
+                }
+
+                if (type === null) {
+                    icon.removeAttribute('type');
+                } else {
+                    icon.setAttribute(
+                        'type',
+                        type
+                    );
+                }
+            }
+        );
+
+        activeCheckout.previousFavicons =
+            null;
+
+        if (
+            activeCheckout.checkoutFavicon
+                ?.isConnected
+        ) {
+            activeCheckout
+                .checkoutFavicon
+                .remove();
+        }
+
+        activeCheckout.checkoutFavicon =
+            null;
     }
 
     function clean(value) {
