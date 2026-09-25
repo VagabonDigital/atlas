@@ -55,6 +55,87 @@
     })();
 
     (() => {
+      function readAtlasAppearance() {
+        let mode = null;
+
+        try {
+          const sessionId =
+            sessionStorage.getItem(
+              'atlas::activeSessionId'
+            ) || 'default';
+
+          const bySession = JSON.parse(
+            localStorage.getItem(
+              'atlas::appearanceBySession'
+            ) || '{}'
+          );
+
+          if (
+            bySession &&
+            typeof bySession === 'object' &&
+            !Array.isArray(bySession)
+          ) {
+            mode =
+              bySession[sessionId] || null;
+          }
+
+          if (
+            mode !== 'light' &&
+            mode !== 'night'
+          ) {
+            mode =
+              localStorage.getItem(
+                'atlas::appearanceMode'
+              );
+          }
+        } catch {
+          mode = null;
+        }
+
+        return mode === 'night'
+          ? 'night'
+          : 'light';
+      }
+
+      function refreshSubscriptionAppearance() {
+        document.documentElement.dataset.theme =
+          readAtlasAppearance();
+      }
+
+      window.addEventListener(
+        'pageshow',
+        refreshSubscriptionAppearance
+      );
+
+      window.addEventListener(
+        'focus',
+        refreshSubscriptionAppearance
+      );
+
+      window.addEventListener(
+        'storage',
+        event => {
+          if (
+            !event ||
+            event.key === 'atlas::appearanceMode' ||
+            event.key === 'atlas::appearanceBySession'
+          ) {
+            refreshSubscriptionAppearance();
+          }
+        }
+      );
+
+      document.addEventListener(
+        'visibilitychange',
+        () => {
+          if (!document.hidden) {
+            refreshSubscriptionAppearance();
+          }
+        }
+      );
+    })();
+
+    (() => {
       try {
         if (
           new URLSearchParams(
