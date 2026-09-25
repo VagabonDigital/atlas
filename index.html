@@ -2816,11 +2816,37 @@
 
     .archived-subject-title {
       min-width: 0;
+      flex: 1;
       color: var(--text-body);
       font-size: 0.78rem;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    .archived-subject-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex: 0 0 auto;
+    }
+
+    .archived-subject-more {
+      width: 2.35rem;
+      padding-left: 0;
+      padding-right: 0;
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+    }
+
+    .archived-subject-delete {
+      color: var(--danger-text);
+    }
+
+    .archived-subject-delete:hover {
+      color: var(--danger-text);
+      border-color: var(--danger-border);
+      background: var(--danger-bg);
     }
 
     .data-backup-section {
@@ -5885,6 +5911,7 @@
             '<span class="archived-subject-title">' +
             escHtml(subject.title) +
             '</span>' +
+            '<div class="archived-subject-actions">' +
             '<button class="btn-ghost" type="button" ' +
             'data-archived-subject-id="' +
             escAttr(subject.id) +
@@ -5895,6 +5922,16 @@
             'onclick="restoreArchivedSubjectFromSettings(this.dataset.archivedSubjectId, this.dataset.archivedSubjectKind, this)">' +
             'Restore' +
             '</button>' +
+            '<button class="btn-ghost archived-subject-more" type="button" ' +
+            'aria-label="More actions for ' + escAttr(subject.title) + '" aria-expanded="false" ' +
+            'data-archived-subject-id="' + escAttr(subject.id) + '" ' +
+            'data-archived-subject-kind="' + escAttr(subject.kind || 'my-subject') + '" ' +
+            'onclick="toggleArchivedSubjectActions(this)">•••</button>' +
+            '<button class="btn-ghost archived-subject-delete" type="button" hidden ' +
+            'data-archived-subject-id="' + escAttr(subject.id) + '" ' +
+            'data-archived-subject-kind="' + escAttr(subject.kind || 'my-subject') + '" ' +
+            'onclick="requestArchivedSubjectDelete(this)">Delete</button>' +
+            '</div>' +
             '</div>'
           ).join('');
       } catch {
@@ -5998,6 +6035,129 @@
         list.hidden
           ? 'View'
           : 'Hide';
+    }
+
+    function toggleArchivedSubjectActions(button) {
+      const actions = button?.closest('.archived-subject-actions');
+      if (!actions) return;
+
+      const deleteButton = actions.querySelector(
+        '.archived-subject-delete'
+      );
+      if (!deleteButton) return;
+
+      const opening = deleteButton.hidden;
+      document.querySelectorAll(
+        '.archived-subject-delete:not([hidden])'
+      ).forEach(other => {
+        if (other !== deleteButton) {
+          other.hidden = true;
+          const otherMore = other
+            .closest('.archived-subject-actions')
+            ?.querySelector('.archived-subject-more');
+          otherMore?.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      deleteButton.hidden = !opening;
+      button.setAttribute(
+        'aria-expanded',
+        opening ? 'true' : 'false'
+      );
+    }
+
+    function requestArchivedSubjectDelete(button) {
+      const actions = button?.closest('.archived-subject-actions');
+      if (!actions) return;
+
+      const restoreButton = actions.querySelector(
+        'button:not(.archived-subject-more):not(.archived-subject-delete)'
+      );
+      const moreButton = actions.querySelector(
+        '.archived-subject-more'
+      );
+
+      if (button.dataset.confirmDelete === 'true') {
+        void deleteArchivedSubjectFromSettings(
+          button.dataset.archivedSubjectId,
+          button.dataset.archivedSubjectKind,
+          button
+        );
+        return;
+      }
+
+      if (restoreButton) restoreButton.hidden = true;
+      if (moreButton) moreButton.hidden = true;
+      button.dataset.confirmDelete = 'true';
+      button.textContent = 'Delete';
+
+      const cancel = document.createElement('button');
+      cancel.className = 'btn-ghost archived-subject-delete-cancel';
+      cancel.type = 'button';
+      cancel.textContent = 'Cancel';
+      cancel.onclick = () => {
+        cancel.remove();
+        button.dataset.confirmDelete = '';
+        button.textContent = 'Delete';
+        button.hidden = true;
+        if (restoreButton) restoreButton.hidden = false;
+        if (moreButton) {
+          moreButton.hidden = false;
+          moreButton.setAttribute('aria-expanded', 'false');
+        }
+      };
+      actions.insertBefore(cancel, button);
+    }
+
+    async function deleteArchivedSubjectFromSettings(
+      subjectId,
+      subjectKind,
+      button
+    ) {
+      const Subjects = window.AtlasTutorSubjects;
+      const Curation = window.AtlasOriginalCuration;
+      const id = String(subjectId || '').trim();
+      const kind = String(subjectKind || 'my-subject').trim();
+
+      if (!id) {
+        showToast('Archived subjects are unavailable.');
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = 'Deleting…';
+
+      try {
+        if (kind === 'atlas-original') {
+          if (!Curation || typeof Curation.deleteOriginal !== 'function') {
+            throw new Error('Atlas Original curation is unavailable.');
+          }
+
+          if (!Curation.deleteOriginal(id)) {
+            throw new Error('Delete operation failed.');
+          }
+        } else {
+          if (!Subjects || typeof Subjects.deleteSubject !== 'function') {
+            throw new Error('My Subjects deletion is unavailable.');
+          }
+
+          const deleted = await Subjects.deleteSubject(id);
+          if (!deleted) {
+            throw new Error('Delete operation failed.');
+          }
+
+          if (typeof Bridge.removeItem === 'function') {
+            Bridge.removeItem('compass:' + id);
+          }
+        }
+
+        await renderArchivedSubjectsSettings();
+        renderRestoreAllAtlasOriginalsSetting();
+        showToast('Subject deleted.');
+      } catch {
+        showToast('Couldn’t delete this subject.');
+        await renderArchivedSubjectsSettings();
+      }
     }
 
     async function restoreArchivedSubjectFromSettings(
