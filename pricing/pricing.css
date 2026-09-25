@@ -10,6 +10,7 @@ body { background: var(--surface); }
 }
 
 html {
+  -webkit-tap-highlight-color: transparent;
   scrollbar-width: thin;
   scrollbar-color: rgba(var(--accent-rgb), .46) transparent;
 }

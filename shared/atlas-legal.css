@@ -58,6 +58,7 @@ html[data-theme="night"] {
 
 html {
   min-height: 100%;
+  -webkit-tap-highlight-color: transparent;
   background-color: var(--surface);
   background-image:
     radial-gradient(circle at 12% -10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 34rem);
