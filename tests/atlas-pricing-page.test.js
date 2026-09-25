@@ -13,7 +13,7 @@ assert.match(pricing, /The magic of Atlas Pro/);
 assert.match(pricing, /Make the lesson[\s\S]*feel made[\s\S]*for them/);
 assert.match(
   pricing,
-  /Turn whatever matters to them into lesson-ready material—minutes before a lesson, or together in the moment/,
+  /Turn whatever matters to them into lesson-ready material — minutes before a lesson, or together in the moment/,
   'Pricing should express both prepared and in-the-moment creation through learner relevance.'
 );
 
@@ -92,7 +92,7 @@ assert.match(
 );
 assert.match(
   pricing,
-  /atlas-account-chrome\.js\?v=20260924-valuecopy2/,
+  /atlas-account-chrome\.js\?v=20260924-valuecopy3/,
   'Pricing must load the current shared account chrome runtime.'
 );
 
@@ -196,7 +196,7 @@ assert.match(
 assert.match(pricing, /atlas-access-bootstrap\.js/);
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260924-valuecopy2/,
+  /atlas-pro-checkout\.js\?v=20260924-valuecopy3/,
   'Pricing must load the shared Pro checkout runtime.'
 );
 assert.doesNotMatch(
