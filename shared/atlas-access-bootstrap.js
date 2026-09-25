@@ -21,6 +21,7 @@
         access: '/shared/atlas-access.js?v=20260916-access1',
         cloud: '/shared/atlas-cloud.js?v=20260916-access1',
         account: '/shared/atlas-account.js?v=20260921-insideheader1',
+        persistenceTrust: '/shared/atlas-persistence-trust.js?v=20260924-anonscoperepair1',
         capabilityGate: '/shared/atlas-capability-gate.js?v=20260921-insideheader1'
     });
 
@@ -54,6 +55,43 @@
         } catch {
             return false;
         }
+    }
+
+    function hasStaleAuthenticatedPersistenceScope() {
+        if (
+            hasStoredAccountSession() ||
+            hasOAuthSessionInUrl()
+        ) {
+            return false;
+        }
+
+        try {
+            return String(
+                localStorage.getItem(
+                    'atlas::persistenceTrust::scopeOwner::v1'
+                ) || ''
+            ).trim().startsWith('user:');
+        } catch {
+            return false;
+        }
+    }
+
+    async function repairAnonymousPersistenceScopeIfNeeded() {
+        if (!hasStaleAuthenticatedPersistenceScope()) {
+            return false;
+        }
+
+        if (!window.AtlasPersistenceTrust) {
+            await loadScript(
+                SOURCES.persistenceTrust,
+                'data-atlas-persistence-trust'
+            );
+        }
+
+        window.AtlasPersistenceTrust
+            ?.syncScopeForUser?.(null);
+
+        return true;
     }
 
     function isHubSurface() {
@@ -278,6 +316,14 @@
         if (initPromise) return initPromise;
 
         initPromise = (async () => {
+            /*
+             * Repair a stale signed-in persistence scope before Hub first-paint
+             * gating. Otherwise a browser with no auth token but a leftover
+             * user:<id> scope can wait forever for the very persistence module
+             * that anonymous startup normally avoids loading.
+             */
+            await repairAnonymousPersistenceScopeIfNeeded();
+
             await waitForHubPresentationPaint();
 
             const Access = await ensureAccess();
