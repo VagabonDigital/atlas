@@ -512,17 +512,6 @@ function renderAtlasBillingEmail(job) {
             buttonUrl:
                 atlasUrl
         };
-    } else if (emailKind === 'payment_received') {
-        message = {
-            subject:
-                'Atlas Pro payment received',
-            title:
-                'Payment received',
-            paragraphs: [
-                'We received your latest Atlas Pro payment.',
-                'You’re all set for another month of Atlas Pro.'
-            ]
-        };
     } else if (emailKind === 'payment_recovered') {
         message = {
             subject:
@@ -548,21 +537,6 @@ function renderAtlasBillingEmail(job) {
             ],
             buttonLabel:
                 'Keep Pro',
-            buttonUrl:
-                accountUrl
-        };
-    } else if (emailKind === 'cancellation_reversed') {
-        message = {
-            subject:
-                'Atlas Pro will continue',
-            title:
-                'Atlas Pro will continue',
-            paragraphs: [
-                'Your cancellation is no longer scheduled.',
-                'Your Pro access will continue, and your subscription will renew as usual.'
-            ],
-            buttonLabel:
-                'View subscription',
             buttonUrl:
                 accountUrl
         };
@@ -820,11 +794,9 @@ async function sendAtlasBillingEmailGallery(
 
     const emailKinds = [
         'pro_welcome',
-        'payment_received',
         'payment_issue',
         'payment_recovered',
         'cancellation_scheduled',
-        'cancellation_reversed',
         'pro_ended',
         'payment_method_updated'
     ];
