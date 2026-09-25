@@ -315,10 +315,20 @@
     }
 
     .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
       color: var(--back-link);
       text-decoration: none;
       font-size: .9rem;
       font-weight: 600;
+    }
+
+    .back-link-arrow {
+      display: inline-block;
+      flex: 0 0 auto;
+      line-height: 1;
+      transform: translateY(-1px);
     }
 
     .back-link:hover { color: var(--accent); }
@@ -1151,7 +1161,7 @@
 
   <main class="shell">
     <div class="topline">
-      <a class="back-link" href="/">← Back</a>
+      <a class="back-link" href="/"><span class="back-link-arrow" aria-hidden="true">←</span><span>Back</span></a>
     </div>
 
     <div class="brand">
