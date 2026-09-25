@@ -162,6 +162,24 @@ assert.match(
 
 assert.match(
   checkout,
+  /atlas-pro-checkout-summary[\s\S]*?position: sticky;[\s\S]*?top: 44px;[\s\S]*?height: fit-content;/,
+  'Desktop Pro summary must lock at its natural starting position without a visible pre-stick slide.'
+);
+
+assert.match(
+  checkout,
+  /The magic of Atlas Pro[\s\S]*?Make the lesson feel made for them\.[\s\S]*?Their interests\. Their work\. Their next big step\.[\s\S]*?minutes before a lesson, or together as it unfolds\./,
+  'Checkout reassurance must reuse the proven Pricing promise instead of generic account-state reassurance.'
+);
+
+assert.doesNotMatch(
+  checkout,
+  /Your saved work and learner continuity stay with your account/,
+  'Checkout must not waste reassurance space explaining obvious upgrade continuity.'
+);
+
+assert.match(
+  checkout,
   /Atlas%20Logo\.png/,
   'Desktop checkout summary must use the Atlas product icon.'
 );
