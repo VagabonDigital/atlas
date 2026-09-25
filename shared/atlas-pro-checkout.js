@@ -1111,13 +1111,27 @@
             ?.addEventListener(
                 'click',
                 () => {
+                    const checkout =
+                        activeCheckout;
+
                     successLayer.hidden = true;
                     setCheckoutScrollLocked(
                         false
                     );
-                    activeCheckout?.trigger
-                        ?.focus?.();
+
                     activeCheckout = null;
+
+                    if (
+                        typeof checkout
+                            ?.onContinue ===
+                            'function'
+                    ) {
+                        checkout.onContinue();
+                        return;
+                    }
+
+                    checkout?.trigger
+                        ?.focus?.();
                 }
             );
 
@@ -1150,6 +1164,10 @@
             );
 
         button.hidden = !action;
+        button.textContent =
+            clean(
+                activeCheckout?.continueLabel
+            ) || 'Continue';
         layer.hidden = false;
 
         if (action) {
@@ -1453,7 +1471,9 @@
             'contextual-upgrade',
         trigger = null,
         onStatus = null,
-        onActivated = null
+        onActivated = null,
+        continueLabel = 'Continue',
+        onContinue = null
     } = {}) {
         activeCheckout = {
             source:
@@ -1462,6 +1482,10 @@
             trigger,
             onStatus,
             onActivated,
+            continueLabel:
+                clean(continueLabel) ||
+                'Continue',
+            onContinue,
             completed: false,
             presentationSettled: false,
             resolvePresentation: null,
