@@ -562,9 +562,9 @@
                 padding: 44px 0 56px;
                 display: grid;
                 grid-template-columns:
-                    minmax(280px, .78fr)
-                    minmax(500px, 1.22fr);
-                gap: clamp(34px, 5vw, 68px);
+                    minmax(300px, 1fr)
+                    minmax(0, 680px);
+                gap: clamp(40px, 5vw, 64px);
                 align-items: start;
             }
 
@@ -661,8 +661,9 @@
             }
 
             .atlas-pro-checkout-stage {
-                width: 100%;
+                width: min(100%, 680px);
                 min-width: 0;
+                justify-self: end;
                 overflow: hidden;
                 border: 1px solid
                     var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .14)));
@@ -692,8 +693,9 @@
                 }
 
                 .atlas-pro-checkout-stage {
-                    width: 100%;
+                    width: min(100%, 620px);
                     margin: 0 auto;
+                    justify-self: auto;
                 }
             }
 
