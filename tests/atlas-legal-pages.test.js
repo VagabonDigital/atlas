@@ -152,15 +152,15 @@ assert.match(
 
 assert.match(
   privacy,
-  /atlas-legal\.css\?v=20260925-glass1/
+  /atlas-legal\.css\?v=20260925-tap1/
 );
 assert.match(
   terms,
-  /atlas-legal\.css\?v=20260925-glass1/
+  /atlas-legal\.css\?v=20260925-tap1/
 );
 assert.match(
   refunds,
-  /atlas-legal\.css\?v=20260925-glass1/
+  /atlas-legal\.css\?v=20260925-tap1/
 );
 assert.match(
   privacy,
@@ -185,6 +185,11 @@ assert.match(
 assert.match(
   refunds,
   /atlas-legal-appearance\.js\?v=20260920-legal-theme1/
+);
+assert.match(
+  css,
+  /-webkit-tap-highlight-color:\s*transparent;/,
+  'Legal pages must suppress the native mobile tap highlight globally.'
 );
 assert.match(
   css,
