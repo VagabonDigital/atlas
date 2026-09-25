@@ -822,7 +822,7 @@
                 line-height: 1.2;
             }
 
-            .atlas-pro-checkout-value strong {
+            .atlas-pro-checkout-value-title {
                 display: block;
                 margin-bottom: 10px;
                 font-family:
@@ -832,7 +832,18 @@
                 line-height: 1.15;
             }
 
-            .atlas-pro-checkout-value span {
+            .atlas-pro-checkout-value-title > span,
+            .atlas-pro-checkout-value-title > em {
+                display: block;
+            }
+
+            .atlas-pro-checkout-value-title > em {
+                color:
+                    var(--compass, var(--accent, #4a7c78));
+                font-style: normal;
+            }
+
+            .atlas-pro-checkout-value-copy {
                 color:
                     var(--atlas-modal-muted, var(--text-muted, #7b7469));
                 font-size: .9rem;
@@ -1037,8 +1048,12 @@
                             <span class="atlas-pro-checkout-value-label">
                                 The magic of Atlas Pro
                             </span>
-                            <strong>Make the lesson feel made for them.</strong>
-                            <span>
+                            <strong class="atlas-pro-checkout-value-title">
+                                <span>Make the lesson</span>
+                                <span>feel made</span>
+                                <em>for them.</em>
+                            </strong>
+                            <span class="atlas-pro-checkout-value-copy">
                                 Their interests. Their work. Their next big step.
                                 Create substantial material around the person you’re teaching—in minutes before a lesson, or together as it unfolds.
                             </span>
