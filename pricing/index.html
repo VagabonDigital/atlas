@@ -1311,7 +1311,9 @@
             settings: {
               displayMode: 'overlay',
               variant: 'one-page',
-              theme: document.documentElement.dataset.theme === 'night' ? 'dark' : 'light'
+              theme: document.documentElement.dataset.theme === 'night' ? 'dark' : 'light',
+              showAddTaxId: false,
+              showAddDiscounts: false
             },
           items: [{ priceId: config.prices.proMonthly, quantity: 1 }],
           customer: { email: account.email },
