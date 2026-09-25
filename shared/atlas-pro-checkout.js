@@ -682,7 +682,13 @@
             .atlas-pro-checkout-close-arrow {
                 display: inline-block;
                 flex: 0 0 auto;
+                font-family:
+                    Inter, ui-sans-serif, system-ui,
+                    -apple-system, BlinkMacSystemFont,
+                    "Segoe UI", sans-serif;
+                font-size: .9rem;
                 line-height: 1;
+                font-weight: 600;
                 transform: translateY(-1px);
             }
 
