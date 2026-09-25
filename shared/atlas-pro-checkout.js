@@ -803,7 +803,7 @@
             }
 
             .atlas-pro-checkout-value {
-                max-width: 360px;
+                max-width: 390px;
                 margin: 32px 0 0;
                 padding-top: 26px;
                 border-top: 1px solid
