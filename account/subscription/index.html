@@ -1315,6 +1315,7 @@
     let paymentPrewarmTimeout = null;
     let paymentPrewarmReady = false;
     let paymentUpdateCompleted = false;
+    let paymentFrameSettleToken = 0;
 
     const query =
       new URLSearchParams(
@@ -1559,25 +1560,117 @@
         );
     }
 
-    function revealLoadedPaymentCheckout() {
+    function waitForPaymentFrameStability(
+      token
+    ) {
+      return new Promise(resolve => {
+        const startedAt =
+          performance.now();
+        const deadline =
+          startedAt + 2500;
+
+        let lastHeight = null;
+        let stableSince = null;
+        let observedPaddleResize = false;
+
+        function sample(now) {
+          if (
+            token !== paymentFrameSettleToken
+          ) {
+            resolve(false);
+            return;
+          }
+
+          const frame =
+            PaymentUpdateFrame.querySelector(
+              'iframe'
+            );
+
+          const height =
+            frame
+              ? Math.round(
+                  frame.getBoundingClientRect()
+                    .height
+                )
+              : 0;
+
+          if (height > 0) {
+            if (
+              lastHeight === null ||
+              Math.abs(
+                height - lastHeight
+              ) > 1
+            ) {
+              if (
+                lastHeight !== null
+              ) {
+                observedPaddleResize = true;
+              }
+
+              lastHeight = height;
+              stableSince = now;
+            }
+
+            if (
+              Math.abs(height - 450) > 1
+            ) {
+              observedPaddleResize = true;
+            }
+
+            if (
+              observedPaddleResize &&
+              stableSince !== null &&
+              now - stableSince >= 180
+            ) {
+              resolve(true);
+              return;
+            }
+          }
+
+          if (now >= deadline) {
+            resolve(
+              Boolean(
+                frame &&
+                height > 0
+              )
+            );
+            return;
+          }
+
+          window.requestAnimationFrame(
+            sample
+          );
+        }
+
+        window.requestAnimationFrame(
+          sample
+        );
+      });
+    }
+
+    async function settleLoadedPaymentCheckout() {
+      const token =
+        ++paymentFrameSettleToken;
+
+      const stable =
+        await waitForPaymentFrameStability(
+          token
+        );
+
       if (
-        paymentCheckoutMode !==
-          'inline'
+        !stable ||
+        token !== paymentFrameSettleToken ||
+        (
+          paymentCheckoutMode !==
+            'inline' &&
+          paymentCheckoutMode !==
+            'inline-prewarm'
+        )
       ) {
         return;
       }
 
-      window.requestAnimationFrame(
-        () => {
-          window.requestAnimationFrame(
-            () => {
-              PaymentUpdate.dataset.ready =
-                'true';
-              setPaymentPreparing(false);
-            }
-          );
-        }
-      );
+      settlePaymentPrewarm(true);
     }
 
     async function requestSubscriptionAction(
@@ -1656,11 +1749,6 @@
     function openPaymentUpdateCheckout(
       transactionId
     ) {
-      const compact =
-        window.matchMedia(
-          '(max-width: 620px)'
-        ).matches;
-
       Paddle.Checkout.open({
         transactionId,
         settings: {
@@ -1668,8 +1756,7 @@
           variant: 'one-page',
           frameTarget:
             'atlas-paddle-payment-update',
-          frameInitialHeight:
-            compact ? '620' : '600',
+          frameInitialHeight: '450',
           frameStyle:
             'width: 100%; min-width: 312px; background-color: transparent; border: none;',
           theme: 'light'
@@ -1702,6 +1789,7 @@
     }
 
     function resetPaymentPreparation() {
+      paymentFrameSettleToken += 1;
       preparedPaymentTransactionId = '';
       paymentPrewarmPromise = null;
       paymentPrewarmReady = false;
@@ -1918,14 +2006,7 @@
                   'inline-prewarm'
               )
             ) {
-              settlePaymentPrewarm(true);
-
-              if (
-                paymentCheckoutMode ===
-                  'inline'
-              ) {
-                revealLoadedPaymentCheckout();
-              }
+              void settleLoadedPaymentCheckout();
             }
 
             if (
