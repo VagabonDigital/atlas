@@ -2298,6 +2298,11 @@
       stroke-width: 1.15;
     }
 
+    .continuity-thread .continuity-thread-echo {
+      stroke: color-mix(in srgb, var(--continuity-teal) 34%, transparent);
+      stroke-width: .9;
+    }
+
     .continuity-thread circle {
       fill: color-mix(in srgb, var(--continuity-teal) 76%, white);
     }
@@ -3092,18 +3097,25 @@
             <g id="continuityMemoryThread">
               <circle class="continuity-halo" cx="1010" cy="150" r="96"/>
               <path id="continuityMemoryThreadA" pathLength="1"
-                d="M477 345C520 315 560 315 601 345"/>
+                d="M333 396C411 358 512 345 612 362"/>
+              <path class="continuity-thread-echo" d="M345 404C419 372 504 362 596 373"/>
+              <circle class="continuity-thread-point" cx="612" cy="362" r="3"/>
               <path id="continuityMemoryThreadB" pathLength="1"
-                d="M837 396C827 430 790 460 734 477"/>
+                d="M861 408C838 455 760 497 670 515"/>
+              <path class="continuity-thread-echo" d="M850 417C822 459 756 484 690 501"/>
+              <circle class="continuity-thread-point" cx="670" cy="515" r="3"/>
             </g>
             <g id="continuityIdeaThread">
               <path id="continuityIdeaTrunk" pathLength="1"
-                d="M646 391C678 391 698 385 713 369"/>
+                d="M659 341C713 338 752 322 777 292"/>
+              <path class="continuity-thread-echo" d="M671 349C719 348 747 335 767 313"/>
               <path id="continuityIdeaBranchTop" pathLength="1"
-                d="M713 369C740 338 754 280 773 234"/>
+                d="M777 292C797 260 823 233 848 222"/>
               <path id="continuityIdeaBranchBottom" pathLength="1"
-                d="M713 369C744 397 772 445 793 483"/>
-              <circle class="continuity-thread-point continuity-idea-junction" cx="713" cy="369" r="4.5"/>
+                d="M777 292C800 323 830 376 867 423"/>
+              <circle class="continuity-thread-point continuity-idea-junction" cx="777" cy="292" r="4.5"/>
+              <circle class="continuity-thread-point continuity-idea-endpoint" cx="848" cy="222" r="2.5"/>
+              <circle class="continuity-thread-point continuity-idea-endpoint" cx="867" cy="423" r="2.5"/>
             </g>
           </svg>
 
