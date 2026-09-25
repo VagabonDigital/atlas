@@ -634,17 +634,15 @@
                 border-bottom: 1px solid
                     var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .16)));
                 background:
-                    rgba(255, 253, 249, .72);
+                    color-mix(
+                        in srgb,
+                        var(--atlas-modal-surface, var(--surface, #fffdf9)) 72%,
+                        transparent
+                    );
                 backdrop-filter:
-                    blur(22px) saturate(1.08);
+                    blur(16px) saturate(1.1);
                 -webkit-backdrop-filter:
-                    blur(22px) saturate(1.08);
-            }
-
-            html[data-theme="night"]
-                .atlas-pro-checkout-head {
-                background:
-                    rgba(37, 40, 38, .74);
+                    blur(16px) saturate(1.1);
             }
 
             .atlas-pro-checkout-identity {
@@ -1001,15 +999,15 @@
                     padding: 0 1rem;
                     gap: .5rem;
                     background:
-                        rgba(255, 253, 249, .78);
-                    backdrop-filter: blur(14px);
-                    -webkit-backdrop-filter: blur(14px);
-                }
-
-                html[data-theme="night"]
-                    .atlas-pro-checkout-head {
-                    background:
-                        rgba(37, 40, 38, .82);
+                        color-mix(
+                            in srgb,
+                            var(--atlas-modal-surface, var(--surface, #fffdf9)) 72%,
+                            transparent
+                        );
+                    backdrop-filter:
+                        blur(16px) saturate(1.1);
+                    -webkit-backdrop-filter:
+                        blur(16px) saturate(1.1);
                 }
 
                 .atlas-pro-checkout-brand {
