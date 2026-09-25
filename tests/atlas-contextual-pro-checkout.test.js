@@ -267,7 +267,7 @@ assert.match(
 
 assert.match(
   pricing,
-  /getPricingReturnDestination[\s\S]*?Return to Compass[\s\S]*?Return to Arcade[\s\S]*?Return to Inside Atlas[\s\S]*?Return to Atlas/
+  /getPricingReturnDestination[\s\S]*?Return to Compass[\s\S]*?Return to Arcade[\s\S]*?Return to Inside Atlas[\s\S]*?Enter Atlas/
 );
 
 assert.match(
