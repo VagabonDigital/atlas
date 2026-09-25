@@ -46,7 +46,7 @@
     const PENDING_DELETE_PREFIX = 'atlas::tutorSubjects::pendingDelete::';
 
     const BROWSER_STATE_DB_NAME = 'atlas-tutor-subjects';
-    const BROWSER_STATE_DB_VERSION = 1;
+    const BROWSER_STATE_DB_VERSION = 2;
     const BROWSER_STATE_STORE = 'browser-state';
 
     const pendingDeleteTimers = new Map();
@@ -245,7 +245,17 @@
                 };
 
                 request.onsuccess = () => {
-                    resolve(request.result);
+                    const db = request.result;
+
+                    db.onversionchange = () => {
+                        try {
+                            db.close();
+                        } catch { }
+
+                        browserStateDbPromise = null;
+                    };
+
+                    resolve(db);
                 };
 
                 request.onerror = () => {
