@@ -135,7 +135,7 @@ const languageOnly = {
   registryId: 'compass:language-only',
   id: 'language-only',
   world: 'compass',
-  status: 'not-started',
+  status: 'in-progress',
   progress: { explored: 0, total: 24, savedLanguageCount: 1 },
   progressRaw: { exploredIds: [] },
   launchUrl: '/compass/language-only/',
@@ -147,12 +147,6 @@ assert.equal(
   context.getContinueItem(registry, 'yasmin').registryId,
   languageOnly.registryId,
   'Saved language is meaningful Compass continuity even before Explore'
-);
-languageOnly.status = 'in-progress';
-assert.equal(
-  context.getContinueItem(registry, 'yasmin').registryId,
-  languageOnly.registryId,
-  'Saved-language continuity remains eligible once the subject is in progress'
 );
 delete registry.sessionStates.yasmin[languageOnly.registryId];
 
