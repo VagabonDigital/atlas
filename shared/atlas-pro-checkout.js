@@ -1101,7 +1101,7 @@
                             <div class="atlas-pro-checkout-paddle-copy">
                                 <strong>Billing by Paddle</strong>
                                 <span>
-                                    Paddle securely handles payments, receipts and subscription billing for Atlas Pro.
+                                    Secure payments, receipts and subscription billing for Atlas Pro.
                                 </span>
                             </div>
                         </div>

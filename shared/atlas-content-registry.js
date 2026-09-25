@@ -1064,7 +1064,7 @@
         }
 
         const src =
-            '/shared/atlas-account-chrome.js?v=20260925-paddleintro1';
+            '/shared/atlas-account-chrome.js?v=20260925-paddleintro2';
 
         if (document.readyState === 'loading') {
             document.write(
