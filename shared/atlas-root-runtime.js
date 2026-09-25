@@ -689,14 +689,16 @@
 
         function patchedGetReviewSet(
             ledger,
-            sessionId
+            sessionId,
+            sourceRegistryId
         ) {
             const reviewedThrough =
                 readReviewedThrough(sessionId);
 
             return original(
                 ledger,
-                sessionId
+                sessionId,
+                sourceRegistryId
             ).filter(entry =>
                 entryTimestamp(entry) >
                 reviewedThrough
