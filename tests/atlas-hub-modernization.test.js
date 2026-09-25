@@ -5,6 +5,9 @@ const vm = require('node:vm');
 const { execFileSync } = require('node:child_process');
 const html = fs.readFileSync('index.html', 'utf8').replace(/\r\n/g, '\n');
 const hubCss = fs.readFileSync('shared/atlas-hub.css', 'utf8').replace(/\r\n/g, '\n');
+const compassHtml = fs.readFileSync('compass/index.html', 'utf8').replace(/\r\n/g, '\n');
+const arcadeHtml = fs.readFileSync('arcade/index.html', 'utf8').replace(/\r\n/g, '\n');
+const insideHtml = fs.readFileSync('tutors/index.html', 'utf8').replace(/\r\n/g, '\n');
 
 assert.match(
   html,
@@ -34,6 +37,57 @@ assert.match(
 assert.match(
   hubCss,
   /\.welcome-line \{ font-size: clamp\(2rem, var\(--atlas-mobile-welcome-fluid-size\), 2\.65rem\); \}/
+);
+
+const canonicalHeaderGlass =
+  /backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);[\s\S]*?-webkit-backdrop-filter:\s*blur\(16px\) saturate\(1\.1\);/;
+
+assert.match(
+  html,
+  /--chrome-surface:\s*rgba\(243, 240, 233, 0\.72\);[\s\S]*?--chrome-surface-mobile:\s*rgba\(243, 240, 233, 0\.72\);/,
+  'Atlas desktop and mobile chrome must use the canonical 72% glass opacity.'
+);
+assert.match(
+  html,
+  /\.spine \{[\s\S]*?${canonicalHeaderGlass.source}/
+);
+assert.match(
+  html,
+  /\.mobile-header \{[\s\S]*?${canonicalHeaderGlass.source}/
+);
+
+assert.match(
+  compassHtml,
+  /--chrome-surface:\s*rgba\(247, 244, 238, 0\.72\);[\s\S]*?--chrome-surface-mobile:\s*rgba\(247, 244, 238, 0\.72\);/,
+  'Compass must preserve its palette while using the canonical 72% glass opacity.'
+);
+assert.match(
+  compassHtml,
+  /\.spine \{[\s\S]*?${canonicalHeaderGlass.source}/
+);
+assert.match(
+  compassHtml,
+  /\.mobile-header \{[\s\S]*?${canonicalHeaderGlass.source}/
+);
+
+assert.match(
+  arcadeHtml,
+  /--chrome-surface:\s*rgba\(251, 246, 240, 0\.72\);[\s\S]*?--chrome-surface-mobile:\s*rgba\(251, 246, 240, 0\.72\);/,
+  'Arcade must preserve its palette while using the canonical 72% glass opacity.'
+);
+assert.match(
+  arcadeHtml,
+  /\.spine \{[\s\S]*?${canonicalHeaderGlass.source}/
+);
+assert.match(
+  arcadeHtml,
+  /\.mobile-header \{[\s\S]*?${canonicalHeaderGlass.source}/
+);
+
+assert.match(
+  insideHtml,
+  /\.site-header \{[\s\S]*?background:\s*color-mix\(in srgb, var\(--surface-canvas\) 72%, transparent\);[\s\S]*?${canonicalHeaderGlass.source}/,
+  'Inside Atlas remains the canonical header-glass reference.'
 );
 // Compile every inline script as well as exercising the actual selectors.
 for (const match of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)) new vm.Script(match[1]);
