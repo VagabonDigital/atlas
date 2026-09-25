@@ -234,8 +234,8 @@ assert.match(
 
 assert.match(
   checkout,
-  /atlas-pro-checkout-value-title[\s\S]*?Make the lesson[\s\S]*?feel made[\s\S]*?for them\./,
-  'Checkout value reassurance must preserve the intentional three-line Pricing composition.'
+  /atlas-pro-checkout-value-title[\s\S]*?Make the lesson[\s\S]*?feel made for them\./,
+  'Checkout value reassurance must preserve the intentional two-line checkout composition.'
 );
 
 assert.match(
@@ -258,7 +258,7 @@ assert.equal(
 
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260924-title3line1/,
+  /atlas-pro-checkout\.js\?v=20260924-title2line1/,
   'Pricing must load the same shared checkout runtime as contextual upgrade flows.'
 );
 
@@ -347,12 +347,12 @@ assert.match(
 
 assert.match(
   chrome,
-  /atlas-account-gate\.js\?v=20260924-title3line1/
+  /atlas-account-gate\.js\?v=20260924-title2line1/
 );
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260924-title3line1/
+  /atlas-account-chrome\.js\?v=20260924-title2line1/
 );
 
 assert.match(
@@ -409,7 +409,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260924-title3line1/
+  /atlas-pro-checkout\.js\?v=20260924-title2line1/
 );
 
 assert.match(

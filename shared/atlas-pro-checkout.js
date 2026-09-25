@@ -832,15 +832,8 @@
                 line-height: 1.15;
             }
 
-            .atlas-pro-checkout-value-title > span,
-            .atlas-pro-checkout-value-title > em {
+            .atlas-pro-checkout-value-title > span {
                 display: block;
-            }
-
-            .atlas-pro-checkout-value-title > em {
-                color:
-                    var(--compass, var(--accent, #4a7c78));
-                font-style: normal;
             }
 
             .atlas-pro-checkout-value-copy {
@@ -1050,8 +1043,7 @@
                             </span>
                             <strong class="atlas-pro-checkout-value-title">
                                 <span>Make the lesson</span>
-                                <span>feel made</span>
-                                <em>for them.</em>
+                                <span>feel made for them.</span>
                             </strong>
                             <span class="atlas-pro-checkout-value-copy">
                                 Their interests. Their work. Their next big step.
