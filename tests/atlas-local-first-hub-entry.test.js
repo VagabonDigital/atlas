@@ -13,6 +13,11 @@ const arcade = fs.readFileSync(
     'utf8'
 );
 
+const accessBootstrap = fs.readFileSync(
+    'shared/atlas-access-bootstrap.js',
+    'utf8'
+);
+
 for (const [name, html] of [
     ['Atlas', atlas],
     ['Compass', compass],
@@ -113,6 +118,22 @@ assert.doesNotMatch(
 assert.match(
     arcade,
     /renderHub\(\);\s*markLocalPresentationReady\(\);/
+);
+
+assert.match(
+    accessBootstrap,
+    /persistenceTrust:\s*'\/shared\/atlas-persistence-trust\.js\?v=20260924-anonscoperepair1'/
+);
+
+assert.match(
+    accessBootstrap,
+    /function hasStaleAuthenticatedPersistenceScope\(\)[\s\S]*?!hasStoredAccountSession[\s\S]*?startsWith\('user:'\)/
+);
+
+assert.match(
+    accessBootstrap,
+    /await repairAnonymousPersistenceScopeIfNeeded\(\);[\s\S]*?await waitForHubPresentationPaint\(\);/,
+    'stale signed-in persistence scope must repair before Hub first-paint gating'
 );
 
 console.log(
