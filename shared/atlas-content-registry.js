@@ -1064,7 +1064,7 @@
         }
 
         const src =
-            '/shared/atlas-account-chrome.js?v=20260924-walleticon1';
+            '/shared/atlas-account-chrome.js?v=20260924-proaccent1';
 
         if (document.readyState === 'loading') {
             document.write(

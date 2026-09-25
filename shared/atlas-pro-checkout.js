@@ -814,7 +814,7 @@
                 display: block;
                 margin: 0 0 9px;
                 color:
-                    var(--atlas-modal-accent, var(--accent, #59617d));
+                    var(--accent, #4d7184);
                 font-family:
                     "DM Serif Display", Georgia, serif;
                 font-size: .95rem;
