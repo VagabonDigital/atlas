@@ -1515,8 +1515,8 @@
       right: 12px;
       display: grid;
       place-items: center;
-      width: 25px;
-      height: 25px;
+      width: 33px;
+      height: 33px;
       border: 1px solid rgba(255, 255, 255, .72);
       border-radius: 10px;
       background: #fffefa;
@@ -2106,8 +2106,8 @@
 
     .continuity-memory-heading,
     .continuity-language > .continuity-eyebrow {
-      font-size: 13px;
-      letter-spacing: .13em;
+      font-size: 11px;
+      letter-spacing: .16em;
       font-weight: 700;
       color: var(--continuity-teal);
     }
@@ -2138,7 +2138,7 @@
     .continuity-language > .continuity-eyebrow {
       position: absolute;
       left: 42px;
-      top: 182px;
+      top: 194px;
     }
 
     .continuity-expression {
@@ -2146,13 +2146,13 @@
       display: flex;
       align-items: center;
       gap: 18px;
-      padding: 10px 14px;
+      padding: 14px 20px;
       border: 1px solid var(--continuity-line);
       border-radius: 90px;
       background: color-mix(in srgb, var(--continuity-cream) 93%, white);
       box-shadow: 0 17px 35px -26px rgba(104, 123, 108, .38);
       color: var(--continuity-ink);
-      font: 23px/1.12 var(--font-display);
+      font: 31px/1.12 var(--font-display);
       letter-spacing: -.02em;
       transform-origin: center;
     }
@@ -2165,8 +2165,8 @@
       flex: none;
       display: grid;
       place-items: center;
-      width: 42px;
-      height: 42px;
+      width: 54px;
+      height: 54px;
       border-radius: 50%;
       background: var(--continuity-mint);
       color: var(--continuity-teal);
@@ -3088,7 +3088,7 @@
 
           <svg class="continuity-thread" id="continuityThread" viewBox="0 0 1200 650" preserveAspectRatio="none" aria-hidden="true">
             <circle class="continuity-halo" cx="1010" cy="150" r="96"/>
-            <path id="continuityThreadPath" pathLength="1" d="M190 448C381 454 435 126 701 112S1034 184 1090 365S985 594 842 566"/>
+            <path id="continuityThreadPath" pathLength="1" d="M185 410C320 430 390 240 540 220S760 250 865 330S1010 425 1080 430M240 432C255 500 335 540 430 548"/>
             <circle class="continuity-thread-point" cx="615" cy="126" r="4"/>
             <circle class="continuity-thread-point" cx="1083" cy="344" r="3.5"/>
           </svg>
@@ -4257,19 +4257,19 @@
 
           var memoryHeading = byId("continuityMemoryHeading");
           memoryHeading.style.left = (mobile ? pad : width * .405) + "px";
-          memoryHeading.style.top = (mobile ? 116 : 58) + "px";
+          memoryHeading.style.top = (mobile ? 116 : 49) + "px";
           setOpacity(memoryHeading, ramp(u, 7.1, 8.0) * (1 - ramp(u, 13.2, 13.9)));
 
           var vocab = mobile
             ? [
-                [pad, 340, inner * .78, 68, Math.min(24, inner / 10)],
-                [pad + inner * .08, 445, inner * .84, 68, Math.min(23, inner / 10.5)],
-                [pad + inner * .03, 550, inner * .90, 68, Math.min(23, inner / 10.5)]
+                [pad, 340, inner * .78, 72, Math.min(26, inner / 9.8)],
+                [pad + inner * .08, 454, inner * .84, 84, Math.min(25, inner / 10.2)],
+                [pad + inner * .03, 586, inner * .90, 84, Math.min(25, inner / 10.2)]
               ]
             : [
-                [pad, 240, inner * .30, 66, Math.min(24, inner / 34)],
-                [pad + inner * .335, 240, inner * .34, 66, Math.min(23, inner / 36)],
-                [pad + inner * .70, 240, inner * .30, 66, Math.min(23, inner / 36)]
+                [pad + inner * .02, 248, inner * .37, 86, Math.min(34, inner / 29)],
+                [pad + inner * .50, 252, inner * .43, 84, Math.min(31, inner / 31)],
+                [pad + inner * .27, 404, inner * .45, 84, Math.min(32, inner / 30)]
               ];
 
           expressions.forEach(function (element, index) {
@@ -4286,17 +4286,17 @@
             );
           });
 
-          var draw = ramp(u, 13.6, 17.1);
+          var draw = ramp(u, 7.8, 10.8);
           var threadOut = 1 - ramp(u, 27.8, 29.4);
           var thread = byId("continuityThread");
           setOpacity(thread, threadOut);
           byId("continuityThreadPath").style.strokeDasharray = "1";
           byId("continuityThreadPath").style.strokeDashoffset = 1 - draw;
-          setOpacity(thread.querySelector(".continuity-halo"), ramp(u, 14.5, 16.5) * .65);
+          setOpacity(thread.querySelector(".continuity-halo"), ramp(u, 8.4, 10.2) * .45);
           Array.prototype.forEach.call(
             thread.querySelectorAll(".continuity-thread-point"),
             function (element, index) {
-              setOpacity(element, ramp(u, 15.1 + index * 1.25, 15.8 + index * 1.25) * .65);
+              setOpacity(element, ramp(u, 8.8 + index * .7, 9.5 + index * .7) * .6);
             }
           );
 
@@ -4306,14 +4306,14 @@
 
           var memory = mobile
             ? [
-                [pad, 160, Math.min(190, inner * .72), 58],
-                [pad + inner * .39, 214, Math.min(150, inner * .56), 58],
-                [pad + inner * .08, 270, Math.min(180, inner * .64), 58]
+                [pad, 164, Math.min(206, inner * .78), 58],
+                [pad + inner * .04, 236, Math.min(140, inner * .56), 56],
+                [pad + inner - 126, 212, 126, 56]
               ]
             : [
-                [pad, 102, inner * .30, 64],
-                [pad + inner * .35, 102, inner * .26, 64],
-                [pad + inner * .66, 102, inner * .29, 64]
+                [width * .39, 84, 236, 62],
+                [width * .64, 84, 174, 60],
+                [width * .80, 84, 182, 60]
               ];
 
           var rec = mobile
