@@ -70,6 +70,63 @@
         );
     }
 
+    function hasLiveBackgroundBuild() {
+        const subjectId = getSubjectId();
+
+        if (!subjectId) {
+            return false;
+        }
+
+        const Client =
+            window.AtlasSubjectBuildWorkerClient;
+
+        const clientState =
+            Client?.getState?.() ||
+            null;
+
+        if (
+            String(
+                clientState
+                    ?.activeBuild
+                    ?.subjectId ||
+                ''
+            ).trim() === subjectId
+        ) {
+            return true;
+        }
+
+        const Runtime =
+            window.AtlasSubjectRuntimeChannel;
+
+        return Boolean(
+            Runtime &&
+            typeof Runtime.isBuildActive ===
+                'function' &&
+            Runtime.isBuildActive(
+                subjectId
+            )
+        );
+    }
+
+    function showLiveContinuation() {
+        recoveryPending = true;
+        setRecoveryPresentationActive(true);
+        showRetryButton(false);
+
+        myVersionFullSubjectGenerationError = '';
+        myVersionFullSubjectGenerationNotice =
+            'Continuing generation…';
+
+        if (
+            typeof originalUpdateMyVersionAuthorBar ===
+                'function'
+        ) {
+            originalUpdateMyVersionAuthorBar();
+        }
+
+        scheduleRetry(2000);
+    }
+
     function clearRecoveryTimer() {
         if (recoveryTimer === null) return;
 
@@ -357,6 +414,11 @@
 
         if (recoveryTimer !== null) return;
 
+        if (hasLiveBackgroundBuild()) {
+            showLiveContinuation();
+            return;
+        }
+
         const failedAt =
             getFailedStageLabel() ||
             'this step';
@@ -397,6 +459,11 @@
             setRecoveryStatus(
                 'Connection lost · generation will continue when you reconnect.'
             );
+            return false;
+        }
+
+        if (hasLiveBackgroundBuild()) {
+            showLiveContinuation();
             return false;
         }
 
