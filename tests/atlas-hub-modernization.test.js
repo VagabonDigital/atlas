@@ -107,7 +107,7 @@ execFileSync(process.execPath, ['scripts/sync-compass-covers.js', '--check'], { 
 let registry = { items: {}, sessionStates: {}, recentActivity: [] };
 let snapshot = null;
 const window = { location: { href: 'https://atlas.test/' }, AtlasCloudCache: { getCompassPresentationSnapshot: () => snapshot } };
-const context = vm.createContext({ window, console, URL, Date, COMPASS_ID: 'compass', ARCADE_ID: 'arcade',
+const context = vm.createContext({ window, console, URL, Date, COMPASS_ID: 'compass', ARCADE_ID: 'arcade', REVIEW_MAX: 5,
   getRegistry: () => registry, getStoredPresentationUserId: () => 'tutor-a',
   WORLDS: { compass: { name: 'Compass' }, arcade: { name: 'Arcade' } }
 });
