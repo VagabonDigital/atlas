@@ -1515,8 +1515,8 @@
       right: 12px;
       display: grid;
       place-items: center;
-      width: 32px;
-      height: 32px;
+      width: 25px;
+      height: 25px;
       border: 1px solid rgba(255, 255, 255, .72);
       border-radius: 10px;
       background: #fffefa;
@@ -2106,9 +2106,10 @@
 
     .continuity-memory-heading,
     .continuity-language > .continuity-eyebrow {
-      font-size: 12px;
-      letter-spacing: .14em;
+      font-size: 13px;
+      letter-spacing: .13em;
       font-weight: 700;
+      color: var(--continuity-teal);
     }
 
     .continuity-ideas-heading {
@@ -2137,7 +2138,7 @@
     .continuity-language > .continuity-eyebrow {
       position: absolute;
       left: 42px;
-      top: 166px;
+      top: 182px;
     }
 
     .continuity-expression {
@@ -2145,13 +2146,13 @@
       display: flex;
       align-items: center;
       gap: 18px;
-      padding: 13px 18px;
+      padding: 10px 14px;
       border: 1px solid var(--continuity-line);
       border-radius: 90px;
       background: color-mix(in srgb, var(--continuity-cream) 93%, white);
       box-shadow: 0 17px 35px -26px rgba(104, 123, 108, .38);
       color: var(--continuity-ink);
-      font: 30px/1.12 var(--font-display);
+      font: 23px/1.12 var(--font-display);
       letter-spacing: -.02em;
       transform-origin: center;
     }
@@ -2164,8 +2165,8 @@
       flex: none;
       display: grid;
       place-items: center;
-      width: 52px;
-      height: 52px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       background: var(--continuity-mint);
       color: var(--continuity-teal);
@@ -4252,23 +4253,23 @@
 
           var memoryIn = ramp(u, 7.05, 7.9);
           var memoryOut = ramp(u, 13.1, 14.0);
-          setOpacity(byId("continuityLanguage"), memoryIn * (1 - .60 * attention) * (1 - memoryOut));
+          setOpacity(byId("continuityLanguage"), memoryIn * (1 - memoryOut));
 
           var memoryHeading = byId("continuityMemoryHeading");
           memoryHeading.style.left = (mobile ? pad : width * .405) + "px";
-          memoryHeading.style.top = (mobile ? 116 : 46) + "px";
+          memoryHeading.style.top = (mobile ? 116 : 58) + "px";
           setOpacity(memoryHeading, ramp(u, 7.1, 8.0) * (1 - ramp(u, 13.2, 13.9)));
 
           var vocab = mobile
             ? [
-                [pad, 324, inner * .86, 82, Math.min(29, inner / 8.5)],
-                [pad + inner * .08, 458, inner * .92, 104, Math.min(27, inner / 8.8)],
-                [pad + inner * .03, 622, inner * .97, 108, Math.min(27, inner / 8.8)]
+                [pad, 340, inner * .78, 68, Math.min(24, inner / 10)],
+                [pad + inner * .08, 445, inner * .84, 68, Math.min(23, inner / 10.5)],
+                [pad + inner * .03, 550, inner * .90, 68, Math.min(23, inner / 10.5)]
               ]
             : [
-                [pad, 218, inner * .35, 82, Math.min(34, inner / 28)],
-                [pad + inner * .43, 300, inner * .40, 82, Math.min(30, inner / 34)],
-                [pad + inner * .17, 406, inner * .46, 82, Math.min(31, inner / 32)]
+                [pad, 240, inner * .30, 66, Math.min(24, inner / 34)],
+                [pad + inner * .335, 240, inner * .34, 66, Math.min(23, inner / 36)],
+                [pad + inner * .70, 240, inner * .30, 66, Math.min(23, inner / 36)]
               ];
 
           expressions.forEach(function (element, index) {
@@ -4281,7 +4282,7 @@
               element,
               rm ? 0 : (index === 1 ? 12 : -13) * (1 - arrive),
               rm ? 0 : (index === 2 ? 12 : 0) * (1 - arrive) + mix(0, index === 1 ? 8 : 3, attention),
-              mix(1, .945, attention)
+              1
             );
           });
 
@@ -4305,14 +4306,14 @@
 
           var memory = mobile
             ? [
-                [pad, 164, Math.min(206, inner * .78), 58],
-                [pad + inner * .04, 236, Math.min(140, inner * .56), 56],
-                [pad + inner - 126, 212, 126, 56]
+                [pad, 160, Math.min(190, inner * .72), 58],
+                [pad + inner * .39, 214, Math.min(150, inner * .56), 58],
+                [pad + inner * .08, 270, Math.min(180, inner * .64), 58]
               ]
             : [
-                [width * .39, 72, 250, 66],
-                [width * .64, 122, 186, 62],
-                [width * .80, 72, 172, 62]
+                [pad, 102, inner * .30, 64],
+                [pad + inner * .35, 102, inner * .26, 64],
+                [pad + inner * .66, 102, inner * .29, 64]
               ];
 
           var rec = mobile
@@ -4358,19 +4359,18 @@
             }
 
             setBox(element, x, y, cardWidth, cardHeight);
-            setOpacity(
-              element,
-              ramp(u, 7.15 + index * .12, 8.05 + index * .12) *
-              (index === 0 ? 1 : (1 - .23 * focus) * (1 - ramp(u, 28 + index * .12, 28.9 + index * .12)))
-            );
+            var interestPresence = ramp(u, 7.15 + index * .12, 8.05 + index * .12);
+            var recommendationExit = index === 0 ? 1 : (1 - ramp(u, 28 + index * .12, 28.9 + index * .12));
+            setOpacity(element, interestPresence * recommendationExit);
 
             var surface = element.querySelector(".continuity-surface");
             var seed = element.querySelector(".continuity-seed");
             var title = element.querySelector("h3");
             var desc = element.querySelector("p");
 
-            setOpacity(surface, (.30 + .70 * attention) * (1 - final));
-            surface.style.borderRadius = mix(42, 18, build) + "px";
+            var surfacePresence = index === 0 ? 1 : 1;
+            setOpacity(surface, surfacePresence * (1 - final));
+            surface.style.borderRadius = mix(34, 18, build) + "px";
             surface.style.borderColor = index === 0
               ? "rgba(66,136,109," + (.19 + .28 * focus) + ")"
               : "var(--continuity-line)";
@@ -4378,7 +4378,7 @@
             var inset = mobile ? 18 : (index === 0 ? 25 : 22);
             seed.style.left = mix(10, inset, travel) + "px";
             seed.style.top = mix(10, mobile ? 18 : 22, travel) + "px";
-            setOpacity(seed, (.57 + .43 * attention) * (index === 0 ? 1 - ramp(u, 28.35, 29) : 1));
+            setOpacity(seed, index === 0 ? 1 - ramp(u, 28.35, 29) : 1);
 
             var titleY = mobile ? (index === 0 ? 82 : 63) : (index === 0 ? 94 : 70);
             var titleX = mix(inset, 0, index === 0 ? final : 0);
