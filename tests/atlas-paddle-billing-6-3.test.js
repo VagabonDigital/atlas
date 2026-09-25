@@ -106,13 +106,13 @@ assert.match(
 );
 assert.match(
   subscription,
-  /\.payment-update-head \{[\s\S]*?position: absolute;[\s\S]*?z-index: 3;[\s\S]*?color-mix\(in srgb, var\(--payment-update-header-surface\) 84%, transparent\)[\s\S]*?backdrop-filter: blur\(22px\) saturate\(1\.08\)/,
-  'Update Payment desktop header must be a translucent overlay so scrolling content can actually blur beneath it.'
+  /\.payment-update-body \{[\s\S]*?overflow-y: auto;[\s\S]*?<header class="payment-update-head">/,
+  'Update Payment header must live inside the scrolling layer so backdrop-filter samples moving content.'
 );
 assert.match(
   subscription,
-  /\.payment-update-body \{[\s\S]*?padding-top: 56px;[\s\S]*?overflow-y: auto;/,
-  'Update Payment scrolling content must pass beneath the fixed glass header.'
+  /\.payment-update-head \{[\s\S]*?position: sticky;[\s\S]*?top: 0;[\s\S]*?z-index: 3;[\s\S]*?color-mix\(in srgb, var\(--payment-update-header-surface\) 84%, transparent\)[\s\S]*?backdrop-filter: blur\(22px\) saturate\(1\.08\)/,
+  'Update Payment desktop header must use real sticky glass within its scroll container.'
 );
 assert.match(
   subscription,

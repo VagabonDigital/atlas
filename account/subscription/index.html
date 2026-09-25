@@ -350,8 +350,8 @@
     }
 
     .payment-update-head {
-      position: absolute;
-      inset: 0 0 auto;
+      position: sticky;
+      top: 0;
       z-index: 3;
       width: 100%;
       height: 56px;
@@ -417,7 +417,6 @@
     .payment-update-body {
       min-height: 0;
       flex: 1 1 auto;
-      padding-top: 56px;
       overflow-y: auto;
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
@@ -455,7 +454,7 @@
 
     .payment-update-summary {
       position: sticky;
-      top: 44px;
+      top: 100px;
       align-self: start;
       padding: 10px 0;
     }
@@ -1196,14 +1195,14 @@
 </head>
 <body>
   <section id="payment-update" class="payment-update" data-ready="false" data-open="false" data-success="false" aria-hidden="true">
-    <header class="payment-update-head">
-      <div class="payment-update-identity">
-        <p class="payment-update-brand">Atlas<span>.</span></p>
-      </div>
-      <button id="payment-update-close" class="payment-update-back" type="button" aria-label="Back to Subscription"><span class="payment-update-back-arrow" aria-hidden="true">←</span><span>Back to Subscription</span></button>
-    </header>
-
     <div class="payment-update-body">
+      <header class="payment-update-head">
+        <div class="payment-update-identity">
+          <p class="payment-update-brand">Atlas<span>.</span></p>
+        </div>
+        <button id="payment-update-close" class="payment-update-back" type="button" aria-label="Back to Subscription"><span class="payment-update-back-arrow" aria-hidden="true">←</span><span>Back to Subscription</span></button>
+      </header>
+
       <div class="payment-update-layout">
         <aside class="payment-update-summary">
           <p class="payment-update-kicker">Atlas Pro</p>
