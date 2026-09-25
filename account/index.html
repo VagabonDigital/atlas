@@ -194,7 +194,8 @@
       margin: 0;
       min-height: 100vh;
       display: grid;
-      place-items: center;
+      justify-items: center;
+      align-items: start;
       padding: 24px;
       background:
         radial-gradient(circle at 20% 0%, var(--page-glow), transparent 28rem),
@@ -300,6 +301,8 @@
 
     .shell {
       width: min(520px, 100%);
+      padding-top: 48px;
+      padding-bottom: 48px;
     }
 
     .shell.account-shell-authenticated {
@@ -320,6 +323,7 @@
       gap: 5px;
       color: var(--back-link);
       text-decoration: none;
+      font-family: "DM Sans", system-ui, sans-serif;
       font-size: .9rem;
       font-weight: 600;
     }
@@ -1098,7 +1102,10 @@
       }
 
       body { padding: 18px; align-items: start; }
-      .shell { padding-top: 0; }
+      .shell {
+        padding-top: 0;
+        padding-bottom: 0;
+      }
       .card { padding: 20px; }
 
       .account-loading-view {
