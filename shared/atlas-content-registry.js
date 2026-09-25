@@ -1045,7 +1045,7 @@
         }
 
         const src =
-            '/shared/atlas-subject-build-worker-client.js?v=20260925-handofftrace1';
+            '/shared/atlas-subject-build-worker-client.js?v=20260925-handofftrace2';
 
         if (document.readyState === 'loading') {
             document.write(
