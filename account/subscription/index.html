@@ -378,25 +378,24 @@
     }
 
     .payment-update-back {
-      min-height: 42px;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 6px;
+      gap: 5px;
       flex: 0 0 auto;
-      padding: 0 14px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      padding: 0;
+      border: 0;
       background: transparent;
-      color: var(--text);
+      color: var(--text-secondary);
+      font: inherit;
+      font-size: .9rem;
       font-weight: 600;
       cursor: pointer;
     }
 
     .payment-update-back:hover,
     .payment-update-back:focus-visible {
-      border-color: var(--accent);
-      background: var(--accent-ring);
+      color: var(--accent);
+      outline: none;
     }
 
     .payment-update-body {
@@ -726,9 +725,7 @@
       }
 
       .payment-update-back {
-        min-height: 40px;
-        padding-inline: 12px;
-        font-size: .8rem;
+        font-size: .9rem;
       }
 
       .payment-update-layout {
@@ -1188,7 +1185,7 @@
         <p class="payment-update-brand">Atlas<span>.</span></p>
         <span class="payment-update-context">Subscription</span>
       </div>
-      <button id="payment-update-close" class="payment-update-back" type="button"><span class="payment-update-back-arrow" aria-hidden="true">←</span><span>Subscription</span></button>
+      <button id="payment-update-close" class="payment-update-back" type="button" aria-label="Back to Subscription"><span class="payment-update-back-arrow" aria-hidden="true">←</span><span>Back to Subscription</span></button>
     </header>
 
     <div class="payment-update-body">
