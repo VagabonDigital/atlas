@@ -340,17 +340,31 @@
                     var(--atlas-modal-accent, var(--accent, #59617d));
             }
 
-            .atlas-pro-checkout-loading-spinner {
-                width: 42px;
-                height: 42px;
-                border: 3px solid
-                    var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .16)));
-                border-top-color:
-                    var(--atlas-modal-accent, var(--accent, #59617d));
+            .atlas-pro-checkout-loading-dots {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.42rem;
+                height: 1rem;
+            }
+
+            .atlas-pro-checkout-loading-dot {
+                width: 0.46rem;
+                height: 0.46rem;
                 border-radius: 50%;
+                background:
+                    var(--atlas-modal-accent, var(--accent, #59617d));
                 animation:
-                    atlas-pro-checkout-loading-spin
-                    800ms linear infinite;
+                    atlas-pro-checkout-loading-bounce
+                    0.9s ease-in-out infinite;
+            }
+
+            .atlas-pro-checkout-loading-dot:nth-child(2) {
+                animation-delay: 0.12s;
+            }
+
+            .atlas-pro-checkout-loading-dot:nth-child(3) {
+                animation-delay: 0.24s;
             }
 
             .atlas-pro-checkout-loading-copy {
@@ -360,14 +374,20 @@
                 font-size: .9rem;
             }
 
-            @keyframes atlas-pro-checkout-loading-spin {
-                to {
-                    transform: rotate(360deg);
+            @keyframes atlas-pro-checkout-loading-bounce {
+                0%,
+                60%,
+                100% {
+                    transform: translateY(0);
+                }
+
+                30% {
+                    transform: translateY(-4px);
                 }
             }
 
             @media (prefers-reduced-motion: reduce) {
-                .atlas-pro-checkout-loading-spinner {
+                .atlas-pro-checkout-loading-dot {
                     animation: none;
                 }
             }
@@ -398,9 +418,13 @@
                     Atlas<span>.</span>
                 </p>
                 <div
-                    class="atlas-pro-checkout-loading-spinner"
+                    class="atlas-pro-checkout-loading-dots"
                     aria-hidden="true"
-                ></div>
+                >
+                    <span class="atlas-pro-checkout-loading-dot"></span>
+                    <span class="atlas-pro-checkout-loading-dot"></span>
+                    <span class="atlas-pro-checkout-loading-dot"></span>
+                </div>
                 <p class="atlas-pro-checkout-loading-copy">
                     Preparing secure checkout…
                 </p>
@@ -736,26 +760,41 @@
                     var(--atlas-modal-surface, var(--surface, #fffdf9));
             }
 
-            .atlas-pro-checkout-legal {
-                width: min(calc(100% - 56px), 1120px);
-                margin: -18px auto 0;
-                padding: 0 0 28px;
-                display: flex;
-                justify-content: flex-end;
-                align-items: center;
-                gap: 14px;
+            .atlas-pro-checkout-footer {
+                border-top: 1px solid
+                    var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .16)));
                 color:
                     var(--atlas-modal-muted, var(--text-muted, #7b7469));
-                font-size: .74rem;
+                background:
+                    var(--atlas-modal-surface-low, var(--surface-muted, #f5f1e9));
             }
 
-            .atlas-pro-checkout-legal a {
+            .atlas-pro-checkout-footer-inner {
+                width: min(calc(100% - 36px), 1120px);
+                min-height: 82px;
+                margin-inline: auto;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 20px;
+                flex-wrap: wrap;
+                font-size: .82rem;
+            }
+
+            .atlas-pro-checkout-footer-links {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                flex-wrap: wrap;
+            }
+
+            .atlas-pro-checkout-footer-links a {
                 color: inherit;
                 text-decoration: none;
             }
 
-            .atlas-pro-checkout-legal a:hover,
-            .atlas-pro-checkout-legal a:focus-visible {
+            .atlas-pro-checkout-footer-links a:hover,
+            .atlas-pro-checkout-footer-links a:focus-visible {
                 color:
                     var(--atlas-modal-heading, var(--text-heading, #211f1b));
             }
@@ -777,11 +816,7 @@
                     justify-self: auto;
                 }
 
-                .atlas-pro-checkout-legal {
-                    width: min(calc(100% - 32px), 520px);
-                    margin-top: -10px;
-                    justify-content: center;
-                }
+
             }
 
             @media (max-width: 760px) {
@@ -824,6 +859,13 @@
                     border-radius: 18px;
                     box-shadow:
                         0 10px 34px rgba(31, 28, 23, .08);
+                }
+
+                .atlas-pro-checkout-footer-inner {
+                    padding: 22px 0;
+                    align-items: flex-start;
+                    flex-direction: column;
+                    gap: 10px;
                 }
             }
         `;
@@ -903,26 +945,31 @@
                         <div class="atlas-pro-checkout-inline-frame"></div>
                     </div>
                 </div>
-                <nav
-                    class="atlas-pro-checkout-legal"
-                    aria-label="Atlas checkout policies"
-                >
-                    <a
-                        href="/privacy/"
-                        target="_blank"
-                        rel="noopener"
-                    >Privacy</a>
-                    <a
-                        href="/terms/"
-                        target="_blank"
-                        rel="noopener"
-                    >Terms</a>
-                    <a
-                        href="/refunds/"
-                        target="_blank"
-                        rel="noopener"
-                    >Refunds</a>
-                </nav>
+                <footer class="atlas-pro-checkout-footer">
+                    <div class="atlas-pro-checkout-footer-inner">
+                        <span>Atlas · Create. Shape. Teach.</span>
+                        <nav
+                            class="atlas-pro-checkout-footer-links"
+                            aria-label="Atlas checkout policies"
+                        >
+                            <a
+                                href="/privacy/"
+                                target="_blank"
+                                rel="noopener"
+                            >Privacy</a>
+                            <a
+                                href="/terms/"
+                                target="_blank"
+                                rel="noopener"
+                            >Terms</a>
+                            <a
+                                href="/refunds/"
+                                target="_blank"
+                                rel="noopener"
+                            >Refunds</a>
+                        </nav>
+                    </div>
+                </footer>
             </div>
         `;
 
