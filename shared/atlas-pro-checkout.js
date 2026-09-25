@@ -680,6 +680,23 @@
                     var(--atlas-modal-surface, var(--surface, #fffdf9));
             }
 
+            @media (max-width: 920px) {
+                .atlas-pro-checkout-layout {
+                    width: min(calc(100% - 32px), 620px);
+                    padding: 30px 0 42px;
+                    display: block;
+                }
+
+                .atlas-pro-checkout-summary {
+                    display: none;
+                }
+
+                .atlas-pro-checkout-stage {
+                    width: 100%;
+                    margin: 0 auto;
+                }
+            }
+
             @media (max-width: 760px) {
                 .atlas-pro-checkout-head {
                     min-height: 64px;
@@ -782,7 +799,7 @@
                             </div>
                         </div>
                         <p class="atlas-pro-checkout-price">
-                            <strong>$12</strong> / month
+                            <strong>US$12</strong> / month
                         </p>
                         <p class="atlas-pro-checkout-allowance">
                             100 fresh subject creations each billing month.
