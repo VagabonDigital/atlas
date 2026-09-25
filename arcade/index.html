@@ -98,8 +98,8 @@
       --page-bg: var(--page-bg-day);
 
       /* Hub chrome and navigation */
-      --chrome-surface: rgba(251, 246, 240, 0.88);
-      --chrome-surface-mobile: rgba(251, 246, 240, 0.90);
+      --chrome-surface: rgba(251, 246, 240, 0.72);
+      --chrome-surface-mobile: rgba(251, 246, 240, 0.72);
       --chrome-border: rgba(var(--accent-rgb), 0.12);
       --world-nav-surface: rgba(240, 231, 222, 0.68);
       --world-nav-border: rgba(93, 57, 86, 0.11);
@@ -216,8 +216,8 @@
       --accent-ink: #211418;
 
       /* Hub chrome and navigation */
-      --chrome-surface: rgba(26, 22, 28, 0.96);
-      --chrome-surface-mobile: rgba(26, 22, 28, 0.97);
+      --chrome-surface: rgba(26, 22, 28, 0.72);
+      --chrome-surface-mobile: rgba(26, 22, 28, 0.72);
       --chrome-border: rgba(var(--accent-rgb), 0.13);
       --world-nav-surface: rgba(42, 33, 48, 0.76);
       --world-nav-border: rgba(255, 255, 255, 0.13);
@@ -487,7 +487,8 @@
       right: 0;
       z-index: 200;
       background: var(--chrome-surface);
-      backdrop-filter: blur(22px) saturate(1.12);
+      backdrop-filter: blur(16px) saturate(1.1);
+      -webkit-backdrop-filter: blur(16px) saturate(1.1);
       border-bottom: 1px solid var(--chrome-border);
       display: flex;
       align-items: center;
@@ -671,7 +672,8 @@
       right: 0;
       z-index: 200;
       background: var(--chrome-surface-mobile);
-      backdrop-filter: blur(20px) saturate(1.1);
+      backdrop-filter: blur(16px) saturate(1.1);
+      -webkit-backdrop-filter: blur(16px) saturate(1.1);
       border-bottom: 1px solid var(--chrome-border);
       height: 56px;
       padding: 0 1rem;
