@@ -156,6 +156,18 @@ assert.match(
 
 assert.match(
   checkout,
+  /atlas-pro-checkout-body::\-webkit-scrollbar[\s\S]*?width: 10px[\s\S]*?atlas-pro-checkout-body::\-webkit-scrollbar-thumb[\s\S]*?border: 2px solid transparent[\s\S]*?background-clip: padding-box/,
+  'Checkout must use the canonical Atlas 10px scrollbar with the same inset thumb treatment.'
+);
+
+assert.match(
+  checkout,
+  /atlas-pro-checkout-legal[\s\S]*?href="\/privacy\/"[\s\S]*?href="\/terms\/"[\s\S]*?href="\/refunds\/"[\s\S]*?target="_blank"/,
+  'Checkout must expose quiet Atlas legal links without replacing the live checkout tab.'
+);
+
+assert.match(
+  checkout,
   /grid-template-columns:[\s\S]*?minmax\(300px, 1fr\)[\s\S]*?minmax\(0, 520px\)[\s\S]*?atlas-pro-checkout-stage[\s\S]*?width: min\(100%, 520px\)/,
   'Desktop checkout must deliberately constrain Paddle to a stacked compact payment column.'
 );
