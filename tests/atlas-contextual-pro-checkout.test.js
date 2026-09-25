@@ -204,7 +204,7 @@ assert.equal(
 
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260924-stackedform1/,
+  /atlas-pro-checkout\.js\?v=20260924-checkouttrust1/,
   'Pricing must load the same shared checkout runtime as contextual upgrade flows.'
 );
 
@@ -293,12 +293,12 @@ assert.match(
 
 assert.match(
   chrome,
-  /atlas-account-gate\.js\?v=20260924-stackedform1/
+  /atlas-account-gate\.js\?v=20260924-checkouttrust1/
 );
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260924-stackedform1/
+  /atlas-account-chrome\.js\?v=20260924-checkouttrust1/
 );
 
 assert.match(
@@ -355,7 +355,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260924-stackedform1/
+  /atlas-pro-checkout\.js\?v=20260924-checkouttrust1/
 );
 
 assert.match(
