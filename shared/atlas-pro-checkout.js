@@ -621,9 +621,12 @@
             }
 
             .atlas-pro-checkout-head {
+                position: sticky;
+                top: 0;
+                z-index: 3;
+                width: 100%;
                 height: 56px;
                 display: flex;
-                flex: 0 0 56px;
                 align-items: center;
                 justify-content: space-between;
                 gap: .5rem;
@@ -631,7 +634,7 @@
                 border-bottom: 1px solid
                     var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .16)));
                 background:
-                    rgba(255, 253, 249, .84);
+                    rgba(255, 253, 249, .72);
                 backdrop-filter:
                     blur(22px) saturate(1.08);
                 -webkit-backdrop-filter:
@@ -641,7 +644,7 @@
             html[data-theme="night"]
                 .atlas-pro-checkout-head {
                 background:
-                    rgba(37, 40, 38, .86);
+                    rgba(37, 40, 38, .74);
             }
 
             .atlas-pro-checkout-identity {
@@ -753,7 +756,7 @@
 
             .atlas-pro-checkout-summary {
                 position: sticky;
-                top: 44px;
+                top: 100px;
                 align-self: start;
                 height: fit-content;
                 padding: 10px 0;
@@ -995,11 +998,10 @@
             @media (max-width: 760px) {
                 .atlas-pro-checkout-head {
                     height: 56px;
-                    flex-basis: 56px;
                     padding: 0 1rem;
                     gap: .5rem;
                     background:
-                        rgba(255, 253, 249, .88);
+                        rgba(255, 253, 249, .78);
                     backdrop-filter: blur(14px);
                     -webkit-backdrop-filter: blur(14px);
                 }
@@ -1007,7 +1009,7 @@
                 html[data-theme="night"]
                     .atlas-pro-checkout-head {
                     background:
-                        rgba(37, 40, 38, .90);
+                        rgba(37, 40, 38, .82);
                 }
 
                 .atlas-pro-checkout-brand {
@@ -1079,26 +1081,26 @@
             'Atlas Pro checkout'
         );
         checkoutShell.innerHTML = `
-            <header class="atlas-pro-checkout-head">
-                <div class="atlas-pro-checkout-identity">
-                    <p class="atlas-pro-checkout-brand">
-                        Atlas<span>.</span>
-                    </p>
-                </div>
-                <button
-                    class="atlas-pro-checkout-close"
-                    type="button"
-                    aria-label="Back to Atlas"
-                    data-atlas-pro-checkout-close
-                >
-                    <span
-                        class="atlas-pro-checkout-close-arrow"
-                        aria-hidden="true"
-                    >←</span>
-                    <span>Back to Atlas</span>
-                </button>
-            </header>
             <div class="atlas-pro-checkout-body">
+                <header class="atlas-pro-checkout-head">
+                    <div class="atlas-pro-checkout-identity">
+                        <p class="atlas-pro-checkout-brand">
+                            Atlas<span>.</span>
+                        </p>
+                    </div>
+                    <button
+                        class="atlas-pro-checkout-close"
+                        type="button"
+                        aria-label="Back to Atlas"
+                        data-atlas-pro-checkout-close
+                    >
+                        <span
+                            class="atlas-pro-checkout-close-arrow"
+                            aria-hidden="true"
+                        >←</span>
+                        <span>Back to Atlas</span>
+                    </button>
+                </header>
                 <div class="atlas-pro-checkout-layout">
                     <aside class="atlas-pro-checkout-summary">
                         <div class="atlas-pro-checkout-product">
