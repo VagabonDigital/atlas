@@ -423,7 +423,7 @@
 
             .atlas-pro-checkout-loading-brand span {
                 color:
-                    var(--atlas-modal-accent, var(--accent, #59617d));
+                    var(--accent, #4d7184);
             }
 
             .atlas-pro-checkout-loading-dots {
@@ -654,7 +654,7 @@
 
             .atlas-pro-checkout-brand span {
                 color:
-                    var(--atlas-modal-accent, var(--accent, #59617d));
+                    var(--accent, #4d7184);
             }
 
             .atlas-pro-checkout-context {

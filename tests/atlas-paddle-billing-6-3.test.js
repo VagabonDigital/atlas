@@ -84,7 +84,7 @@ assert.match(
 );
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260925-paddleintro2/
+  /atlas-pro-checkout\.js\?v=20260925-branddot1/
 );
 assert.match(
   checkout,

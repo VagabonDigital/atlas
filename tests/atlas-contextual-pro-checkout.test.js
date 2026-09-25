@@ -252,6 +252,18 @@ assert.match(
 
 assert.match(
   checkout,
+  /atlas-pro-checkout-loading-brand span[\s\S]*?var\(--accent, #4d7184\)/,
+  'Checkout loading Atlas dot must use the canonical Atlas accent.'
+);
+
+assert.match(
+  checkout,
+  /atlas-pro-checkout-brand span[\s\S]*?var\(--accent, #4d7184\)/,
+  'Checkout header Atlas dot must use the canonical Atlas accent.'
+);
+
+assert.match(
+  checkout,
   /Paddle-Logo-1\.png/,
   'Checkout Paddle introduction must include the Paddle wordmark.'
 );
@@ -270,7 +282,7 @@ assert.equal(
 
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260925-paddleintro2/,
+  /atlas-pro-checkout\.js\?v=20260925-branddot1/,
   'Pricing must load the same shared checkout runtime as contextual upgrade flows.'
 );
 
@@ -359,12 +371,12 @@ assert.match(
 
 assert.match(
   chrome,
-  /atlas-account-gate\.js\?v=20260925-paddleintro2/
+  /atlas-account-gate\.js\?v=20260925-branddot1/
 );
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260925-paddleintro2/
+  /atlas-account-chrome\.js\?v=20260925-branddot1/
 );
 
 assert.match(
@@ -421,7 +433,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260925-paddleintro2/
+  /atlas-pro-checkout\.js\?v=20260925-branddot1/
 );
 
 assert.match(
