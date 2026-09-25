@@ -9,6 +9,16 @@ const authoritySource = fs.readFileSync(
     'utf8'
 );
 
+const cloudCacheSource = fs.readFileSync(
+    'shared/atlas-cloud-cache.js',
+    'utf8'
+);
+
+const sharedWorkerSource = fs.readFileSync(
+    'shared/atlas-subject-build-shared-worker.js',
+    'utf8'
+);
+
 const engineSource = fs.readFileSync(
     'compass/shared/compass-engine.js',
     'utf8'
@@ -75,19 +85,51 @@ function createFakeIndexedDB() {
     const records =
         new Map();
 
+    let version = 1;
+    let hasBrowserStateStore = false;
+
     const db = {
+        get version() {
+            return version;
+        },
+
         objectStoreNames: {
             contains(name) {
                 return (
                     name ===
-                    'browser-state'
+                        'browser-state' &&
+                    hasBrowserStateStore
                 );
             }
         },
 
-        createObjectStore() {},
+        createObjectStore(name) {
+            if (name === 'browser-state') {
+                hasBrowserStateStore = true;
+            }
 
-        transaction() {
+            return {};
+        },
+
+        close() {},
+
+        transaction(storeName) {
+            if (
+                storeName !==
+                    'browser-state' ||
+                !hasBrowserStateStore
+            ) {
+                const error =
+                    new Error(
+                        'One of the specified object stores was not found.'
+                    );
+
+                error.name =
+                    'NotFoundError';
+
+                throw error;
+            }
+
             const transaction = {
                 error: null,
                 oncomplete: null,
@@ -157,7 +199,22 @@ function createFakeIndexedDB() {
     return {
         records,
 
-        open() {
+        get version() {
+            return version;
+        },
+
+        hasStore(name) {
+            return (
+                name ===
+                    'browser-state' &&
+                hasBrowserStateStore
+            );
+        },
+
+        open(
+            _name,
+            requestedVersion
+        ) {
             const request = {
                 result: db,
                 error: null,
@@ -168,7 +225,29 @@ function createFakeIndexedDB() {
             };
 
             setTimeout(
-                () => request.onsuccess?.(),
+                () => {
+                    const targetVersion =
+                        Math.max(
+                            version,
+                            Number(
+                                requestedVersion
+                            ) ||
+                            version
+                        );
+
+                    if (
+                        targetVersion >
+                        version
+                    ) {
+                        version =
+                            targetVersion;
+
+                        request
+                            .onupgradeneeded?.();
+                    }
+
+                    request.onsuccess?.();
+                },
                 0
             );
 
@@ -468,6 +547,20 @@ async function verifyFullLocalStorageDoesNotBlockGeneration() {
             indexedDB
         });
 
+    assert.equal(
+        indexedDB.version,
+        2,
+        'An existing v1 subject database must upgrade to the Batch 5 browser-state schema.'
+    );
+
+    assert.equal(
+        indexedDB.hasStore(
+            'browser-state'
+        ),
+        true,
+        'The v2 upgrade must create the browser-state object store before checkpoint access.'
+    );
+
     const migrated =
         await Subjects
             .getBuildState(
@@ -678,6 +771,31 @@ assert.match(
 
 assert.match(
     authoritySource,
+    /BROWSER_STATE_DB_VERSION = 2/
+);
+
+assert.match(
+    cloudCacheSource,
+    /SUBJECT_BROWSER_STATE_DB_VERSION = 2/
+);
+
+assert.match(
+    cloudCacheSource,
+    /request\.onupgradeneeded[\s\S]*?createObjectStore\([\s\S]*?SUBJECT_BROWSER_STATE_STORE/
+);
+
+assert.match(
+    sharedWorkerSource,
+    /BROWSER_STATE_DB_VERSION = 2/
+);
+
+assert.match(
+    sharedWorkerSource,
+    /indexedDB\.open\([\s\S]*?BROWSER_STATE_DB_NAME,[\s\S]*?BROWSER_STATE_DB_VERSION/
+);
+
+assert.match(
+    authoritySource,
     /writeIndexedBrowserState[\s\S]*?BROWSER_STATE_STORE/
 );
 
@@ -718,7 +836,7 @@ Promise.all([
 ])
     .then(() => {
         console.log(
-            'Atlas subject persistence contract passed: full localStorage no longer blocks signed-in subject generation, generation context survives the canonical IndexedDB checkpoint, exact-revision completion fails closed on stale cloud state, legacy full-document state migrates safely, and cloud-backed legacy subject copies are reclaimed.'
+            'Atlas subject persistence contract passed: existing v1 browser databases upgrade to the v2 browser-state store, full localStorage no longer blocks signed-in subject generation, generation context survives the canonical IndexedDB checkpoint, exact-revision completion fails closed on stale cloud state, legacy full-document state migrates safely, and cloud-backed legacy subject copies are reclaimed.'
         );
     })
     .catch(error => {
