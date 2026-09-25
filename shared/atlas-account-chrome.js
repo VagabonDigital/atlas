@@ -26,7 +26,7 @@
     const GATE_STYLE_HREF =
         '/shared/atlas-account-gate.css?v=20260923-prohierarchy1';
     const GATE_SRC =
-        '/shared/atlas-account-gate.js?v=20260924-inlinecheckout2';
+        '/shared/atlas-account-gate.js?v=20260924-inlinecheckout3';
 
     let gatePromise = null;
     let gateStylePromise = null;
