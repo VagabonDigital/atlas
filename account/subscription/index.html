@@ -242,8 +242,7 @@
       min-height: 100vh;
       padding: 24px;
       display: grid;
-      justify-items: center;
-      align-items: start;
+      place-items: center;
       background:
         radial-gradient(circle at 20% 0%, var(--page-glow), transparent 28rem),
         var(--canvas);
@@ -254,8 +253,6 @@
 
     .shell {
       width: min(860px, 100%);
-      padding-top: 48px;
-      padding-bottom: 48px;
     }
 
     .topline {
@@ -1156,11 +1153,6 @@
       body {
         padding: 18px;
         align-items: start;
-      }
-
-      .shell {
-        padding-top: 0;
-        padding-bottom: 0;
       }
 
       .card {
