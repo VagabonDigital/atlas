@@ -21871,18 +21871,35 @@ async function init() {
     loadSessions();
     loadProgress();
 
-    const pendingOwnedSubjectAuthoringIntent =
+    let pendingOwnedSubjectAuthoringIntent =
         getOwnedSubjectAuthoringIntent();
-
-    const freshOwnedSubjectBuild =
-        isOwnedSubjectRuntime() &&
-        pendingOwnedSubjectAuthoringIntent ===
-            'generate';
 
     const incompleteOwnedSubjectBuild =
         isOwnedSubjectRuntime() &&
         getCompassSubjectRuntime()
             .aiBuildIncomplete === true;
+
+    /*
+     * A completed owned subject can retain ?author=generate after a build
+     * finishes in another Atlas surface. That URL hint is not durable build
+     * authority. Once the canonical subject is complete, discard the stale
+     * generation intent before authoring state is derived so the subject
+     * opens as an ordinary completed My Subject.
+     */
+    if (
+        pendingOwnedSubjectAuthoringIntent ===
+            'generate' &&
+        !incompleteOwnedSubjectBuild
+    ) {
+        consumeOwnedSubjectAuthoringIntent();
+        pendingOwnedSubjectAuthoringIntent =
+            '';
+    }
+
+    const freshOwnedSubjectBuild =
+        incompleteOwnedSubjectBuild &&
+        pendingOwnedSubjectAuthoringIntent ===
+            'generate';
 
     const recoveringOwnedSubjectBuild =
         incompleteOwnedSubjectBuild &&
