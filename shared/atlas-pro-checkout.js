@@ -1949,22 +1949,13 @@
                 true
             );
 
-            const checkoutTheme =
-                document
-                    .documentElement
-                    .dataset
-                    .theme ===
-                'night'
-                    ? 'dark'
-                    : 'light';
-
             const checkoutSettings = {
                 displayMode:
                     'inline',
                 variant:
                     'one-page',
                 theme:
-                    checkoutTheme,
+                    'light',
                 showAddTaxId:
                     false,
                 showAddDiscounts:

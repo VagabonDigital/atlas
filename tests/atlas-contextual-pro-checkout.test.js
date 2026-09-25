@@ -280,6 +280,18 @@ assert.match(
   'Paddle branding must swap from the dark wordmark to the white wordmark in night mode.'
 );
 
+assert.match(
+  checkout,
+  /theme:\s*'light'/,
+  'Embedded Paddle checkout must remain light in both Atlas themes for visual stability.'
+);
+
+assert.doesNotMatch(
+  checkout,
+  /checkoutTheme/,
+  'Embedded Paddle checkout must not inherit Atlas night mode.'
+);
+
 assert.equal(
   (checkout.match(/showAddTaxId:/g) || []).length,
   1,
@@ -294,7 +306,7 @@ assert.equal(
 
 assert.match(
   pricing,
-  /atlas-pro-checkout\.js\?v=20260925-paddlenight1/,
+  /atlas-pro-checkout\.js\?v=20260925-paddlelight1/,
   'Pricing must load the same shared checkout runtime as contextual upgrade flows.'
 );
 
@@ -383,12 +395,12 @@ assert.match(
 
 assert.match(
   chrome,
-  /atlas-account-gate\.js\?v=20260925-paddlenight1/
+  /atlas-account-gate\.js\?v=20260925-paddlelight1/
 );
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260925-paddlenight1/
+  /atlas-account-chrome\.js\?v=20260925-paddlelight1/
 );
 
 assert.match(
@@ -445,7 +457,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260925-paddlenight1/
+  /atlas-pro-checkout\.js\?v=20260925-paddlelight1/
 );
 
 assert.match(
