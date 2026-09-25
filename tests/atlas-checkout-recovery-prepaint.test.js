@@ -25,7 +25,7 @@ for (const path of recoveryHosts) {
 
   assert.match(
     source,
-    /<meta name="viewport"[^>]*>\s*<script src="\/shared\/atlas-checkout-recovery-boot\.js\?v=20260925-prepaint1"><\/script>/,
+    /<meta name="viewport"[^>]*>\s*<script src="\/shared\/atlas-checkout-recovery-boot\.js\?v=20260925-checkoutfinal1"><\/script>/,
     `${path} must install checkout recovery before normal page paint.`
   );
 }
