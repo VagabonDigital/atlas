@@ -1671,6 +1671,14 @@
                     Structured
                 );
 
+            const makeItRealEligibleSetIds =
+                document.discussionSets
+                    .filter(set =>
+                        !starter ||
+                        set.id !== starter.id
+                    )
+                    .map(set => set.id);
+
             const makeItRealSetIds =
                 document.discussionSets
                     .filter(set =>
@@ -1682,12 +1690,23 @@
                     )
                     .map(set => set.id);
 
+            const languageTargetTotal =
+                mode === 'off'
+                    ? 0
+                    : mode === 'key'
+                        ? keyCount +
+                            keySelectionTarget
+                        : opportunityIds.length;
+
             return {
                 mode,
                 candidateIds,
                 keyCandidates,
                 keySelectionTarget,
-                makeItRealSetIds
+                languageTargetTotal,
+                makeItRealSetIds,
+                makeItRealTotalCount:
+                    makeItRealEligibleSetIds.length
             };
         }
 
@@ -1779,11 +1798,20 @@
                                 : []
                     }));
 
+            const languageTargetTotal =
+                mode === 'off'
+                    ? 0
+                    : mode === 'key'
+                        ? keyCount +
+                            keySelectionTarget
+                        : opportunityIds.length;
+
             return {
                 mode,
                 candidateIds,
                 keyCandidates,
-                keySelectionTarget
+                keySelectionTarget,
+                languageTargetTotal
             };
         }
 
@@ -2005,24 +2033,56 @@
             const completedOperations = [];
             const failedOperations = [];
 
-            const operationTotals =
-                operations.reduce(
-                    (totals, operation) => {
-                        totals[
-                            operation.kind
-                        ] =
-                            (
-                                totals[
-                                    operation.kind
-                                ] || 0
-                            ) + 1;
+            const operationTotals = {
+                upgrade:
+                    Math.max(
+                        0,
+                        Math.floor(
+                            Number(
+                                plan.languageTargetTotal
+                            ) || 0
+                        )
+                    ),
+                'make-it-real':
+                    Math.max(
+                        0,
+                        Math.floor(
+                            Number(
+                                plan.makeItRealTotalCount
+                            ) || 0
+                        )
+                    )
+            };
 
-                        return totals;
-                    },
-                    {}
-                );
-
-            const completedByKind = {};
+            /*
+             * A resumed enrichment plan contains only work that is still
+             * missing. Seed the counters with work already present in the
+             * checkpoint so "1 of 15" becomes "14 of 15", not "1 of 2".
+             */
+            const completedByKind = {
+                upgrade:
+                    Math.max(
+                        0,
+                        operationTotals.upgrade -
+                        languageIds.length
+                    ),
+                'make-it-real':
+                    Math.max(
+                        0,
+                        operationTotals[
+                            'make-it-real'
+                        ] -
+                        (
+                            Array.isArray(
+                                plan.makeItRealSetIds
+                            )
+                                ? plan
+                                    .makeItRealSetIds
+                                    .length
+                                : 0
+                        )
+                    )
+            };
 
             if (operations.length) {
                 onEvent?.({
@@ -2303,6 +2363,23 @@
             const completedIds = [];
             const failedIds = [];
 
+            const languageTargetTotal =
+                Math.max(
+                    0,
+                    Math.floor(
+                        Number(
+                            plan.languageTargetTotal
+                        ) || 0
+                    )
+                );
+
+            const completedBeforeRun =
+                Math.max(
+                    0,
+                    languageTargetTotal -
+                    idsToGenerate.length
+                );
+
             if (idsToGenerate.length) {
                 onEvent?.({
                     type:
@@ -2311,7 +2388,7 @@
                         'cultural-lens',
                     mode,
                     total:
-                        idsToGenerate.length
+                        languageTargetTotal
                 });
             }
 
@@ -2332,9 +2409,10 @@
                     id:
                         cardId,
                     current:
+                        completedBeforeRun +
                         index + 1,
                     total:
-                        idsToGenerate.length,
+                        languageTargetTotal,
                     operationIndex:
                         index + 1,
                     operationCount:
