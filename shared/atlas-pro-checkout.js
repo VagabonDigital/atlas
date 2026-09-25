@@ -599,7 +599,7 @@
                 display: grid;
                 grid-template-columns:
                     minmax(300px, 1fr)
-                    minmax(0, 680px);
+                    minmax(0, 520px);
                 gap: clamp(40px, 5vw, 64px);
                 align-items: start;
             }
@@ -697,7 +697,7 @@
             }
 
             .atlas-pro-checkout-stage {
-                width: min(100%, 680px);
+                width: min(100%, 520px);
                 min-width: 0;
                 justify-self: end;
                 overflow: hidden;
@@ -729,7 +729,7 @@
                 }
 
                 .atlas-pro-checkout-stage {
-                    width: min(100%, 620px);
+                    width: min(100%, 520px);
                     margin: 0 auto;
                     justify-self: auto;
                 }
