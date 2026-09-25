@@ -215,12 +215,12 @@ assert.match(
 
 assert.match(
   chrome,
-  /atlas-account-gate\.js\?v=20260924-checkoutclean1/
+  /atlas-account-gate\.js\?v=20260924-checkoutclean2/
 );
 
 assert.match(
   registry,
-  /atlas-account-chrome\.js\?v=20260924-checkoutclean1/
+  /atlas-account-chrome\.js\?v=20260924-checkoutclean2/
 );
 
 assert.match(
@@ -293,7 +293,7 @@ assert.match(
 
 assert.match(
   compass,
-  /atlas-pro-checkout\.js\?v=20260924-checkoutclean1/
+  /atlas-pro-checkout\.js\?v=20260924-checkoutclean2/
 );
 
 assert.match(

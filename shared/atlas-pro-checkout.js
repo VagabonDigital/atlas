@@ -614,7 +614,6 @@
                     aria-label="Close checkout"
                     data-atlas-pro-checkout-mobile-close
                 >
-                    <span aria-hidden="true">←</span>
                     Back to Atlas
                 </button>
             </header>
