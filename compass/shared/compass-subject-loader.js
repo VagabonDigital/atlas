@@ -721,12 +721,12 @@
             );
 
             await loadScript(
-                '../../shared/atlas-subject-build-document-operations.js?v=20260924-foreground2',
+                '../../shared/atlas-subject-build-document-operations.js?v=20260925-resumeux1',
                 'Atlas subject build document operations could not be loaded.'
             );
 
             await loadScript(
-                '../shared/compass-engine.js?v=20260925-handofftrace1',
+                '../shared/compass-engine.js?v=20260925-resumeux1',
                 'Compass engine could not be loaded.'
             );
 
@@ -848,153 +848,199 @@
                     ?.aiBuildIncomplete ===
                     true
             ) {
-                const grant =
-                    await requestForegroundBuildOwnership(
-                        subject
-                    );
-
-                if (
-                    grant
-                        ?.generationContext &&
-                    typeof grant
-                        .generationContext ===
-                        'object' &&
-                    !Array.isArray(
-                        grant
-                            .generationContext
-                    )
-                ) {
-                    foregroundGenerationContext =
-                        cloneJson(
-                            grant
-                                .generationContext
-                        );
-                }
-
-                if (
-                    grant &&
-                    grant.noWorkerJob !==
-                        true
-                ) {
-                    foregroundOwnershipSubjectId =
-                        subject.runtime
-                            .subjectId;
-
-                    window
-                        .AtlasForegroundSubjectBuildHandoff = {
-                            subjectId:
-                                foregroundOwnershipSubjectId,
-                            completedStep:
-                                Number.isFinite(
-                                    Number(
-                                        grant.completedStep
-                                    )
-                                )
-                                    ? Math.max(
-                                        0,
-                                        Math.floor(
-                                            Number(
-                                                grant.completedStep
-                                            )
-                                        )
-                                    )
-                                    : null,
-                            readyToCommit:
-                                grant.readyToCommit ===
-                                true
-                        };
-
-                    traceBuild(
-                        'handoff-installed',
-                        {
-                            subjectId:
-                                foregroundOwnershipSubjectId,
-                            completedStep:
-                                window
-                                    .AtlasForegroundSubjectBuildHandoff
-                                    ?.completedStep ??
-                                null,
-                            readyToCommit:
-                                window
-                                    .AtlasForegroundSubjectBuildHandoff
-                                    ?.readyToCommit ===
-                                true
-                        }
-                    );
-
-                    /*
-                     * A non-subject Atlas page may have completed step 18
-                     * while this page was negotiating foreground ownership.
-                     * Revalidate the durable row after the worker handoff so
-                     * an old "incomplete" read cannot restart a subject that
-                     * has just been committed elsewhere.
-                     */
-                    window.AtlasCloudCache
-                        ?.clear?.();
-
-                    window
-                        .AtlasTutorSubjectsCloudAuthority
-                        ?.refresh?.();
-
-                    const latestRecord =
-                        await withTimeout(
-                            requireAtlasTutorSubjects()
-                                .getSubject(subjectId),
-                            'Subject refresh timed out.'
-                        );
-
-                    const latestSubject =
-                        normalizeOwnedStructuredSubject(
-                            latestRecord
-                        );
-
-                    if (!latestSubject) {
-                        throw new Error(
-                            'Atlas could not revalidate subject ownership after build handoff.'
-                        );
-                    }
-
-                    subject =
-                        latestSubject;
-
-                    if (
-                        subject.runtime
-                            ?.aiBuildIncomplete !==
-                            true
-                    ) {
-                        window
-                            .AtlasSubjectBuildWorkerClient
-                            ?.releaseForegroundOwnership
-                            ?.(
-                                foregroundOwnershipSubjectId,
-                                'subject-completed-during-handoff'
+                /*
+                 * Opening an unfinished subject must not sit behind a worker
+                 * handoff. Start ownership negotiation now, render the latest
+                 * durable checkpoint immediately, and let the engine await the
+                 * grant only before it resumes generation.
+                 */
+                window
+                    .AtlasForegroundSubjectBuildHandoffPromise =
+                    (async () => {
+                        const grant =
+                            await requestForegroundBuildOwnership(
+                                subject
                             );
 
+                        if (
+                            grant
+                                ?.generationContext &&
+                            typeof grant
+                                .generationContext ===
+                            'object' &&
+                            !Array.isArray(
+                                grant
+                                    .generationContext
+                            )
+                        ) {
+                            foregroundGenerationContext =
+                                cloneJson(
+                                    grant
+                                        .generationContext
+                                );
+
+                            window.AtlasGenerationContext =
+                                cloneJson(
+                                    foregroundGenerationContext
+                                ) || {};
+                        }
+
+                        if (
+                            !grant ||
+                            grant.noWorkerJob ===
+                                true
+                        ) {
+                            traceBuild(
+                                'no-foreground-handoff',
+                                {
+                                    subjectId:
+                                        subject
+                                            .runtime
+                                            ?.subjectId ||
+                                        subjectId
+                                }
+                            );
+
+                            return null;
+                        }
+
                         foregroundOwnershipSubjectId =
-                            '';
+                            subject.runtime
+                                .subjectId;
 
-                        delete window
-                            .AtlasForegroundSubjectBuildHandoff;
-                    }
-                }
-            }
+                        window
+                            .AtlasForegroundSubjectBuildHandoff = {
+                                subjectId:
+                                    foregroundOwnershipSubjectId,
+                                completedStep:
+                                    Number.isFinite(
+                                        Number(
+                                            grant.completedStep
+                                        )
+                                    )
+                                        ? Math.max(
+                                            0,
+                                            Math.floor(
+                                                Number(
+                                                    grant.completedStep
+                                                )
+                                            )
+                                        )
+                                        : null,
+                                readyToCommit:
+                                    grant.readyToCommit ===
+                                    true
+                            };
 
-            if (
-                subject.runtime
-                    ?.aiBuildIncomplete ===
-                    true &&
-                !foregroundOwnershipSubjectId
-            ) {
-                traceBuild(
-                    'no-foreground-handoff',
-                    {
-                        subjectId:
+                        traceBuild(
+                            'handoff-installed',
+                            {
+                                subjectId:
+                                    foregroundOwnershipSubjectId,
+                                completedStep:
+                                    window
+                                        .AtlasForegroundSubjectBuildHandoff
+                                        ?.completedStep ??
+                                    null,
+                                readyToCommit:
+                                    window
+                                        .AtlasForegroundSubjectBuildHandoff
+                                        ?.readyToCommit ===
+                                    true
+                            }
+                        );
+
+                        /*
+                         * Another Atlas surface may have completed the build
+                         * while ownership was moving. Revalidate after the
+                         * grant without holding the subject loading screen.
+                         */
+                        window.AtlasCloudCache
+                            ?.clear?.();
+
+                        window
+                            .AtlasTutorSubjectsCloudAuthority
+                            ?.refresh?.();
+
+                        const latestRecord =
+                            await withTimeout(
+                                requireAtlasTutorSubjects()
+                                    .getSubject(subjectId),
+                                'Subject refresh timed out.'
+                            );
+
+                        const latestSubject =
+                            normalizeOwnedStructuredSubject(
+                                latestRecord
+                            );
+
+                        if (!latestSubject) {
+                            throw new Error(
+                                'Atlas could not revalidate subject ownership after build handoff.'
+                            );
+                        }
+
+                        subject =
+                            latestSubject;
+
+                        await applyOwnedBuildGenerationContext(
+                            subject,
+                            foregroundGenerationContext
+                        );
+
+                        installRuntimeSubject(
                             subject
-                                .runtime
-                                ?.subjectId ||
-                            subjectId
-                    }
-                );
+                        );
+
+                        if (
+                            subject.runtime
+                                ?.aiBuildIncomplete !==
+                                true
+                        ) {
+                            window
+                                .AtlasSubjectBuildWorkerClient
+                                ?.releaseForegroundOwnership
+                                ?.(
+                                    foregroundOwnershipSubjectId,
+                                    'subject-completed-during-handoff'
+                                );
+
+                            foregroundOwnershipSubjectId =
+                                '';
+
+                            delete window
+                                .AtlasForegroundSubjectBuildHandoff;
+
+                            return null;
+                        }
+
+                        return window
+                            .AtlasForegroundSubjectBuildHandoff ||
+                            null;
+                    })().catch(error => {
+                        traceBuild(
+                            'foreground-handoff-background-error',
+                            {
+                                subjectId:
+                                    subject
+                                        ?.runtime
+                                        ?.subjectId ||
+                                    subjectId,
+                                error:
+                                    String(
+                                        error?.message ||
+                                        error
+                                    )
+                            }
+                        );
+
+                        console.warn(
+                            '[Compass] Background foreground handoff failed:',
+                            error
+                        );
+
+                        return null;
+                    });
             }
 
             await applyOwnedBuildGenerationContext(
