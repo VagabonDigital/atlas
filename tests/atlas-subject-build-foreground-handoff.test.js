@@ -977,6 +977,296 @@ async function testAtomicForegroundYield() {
     );
 }
 
+
+async function testColdCheckpointForegroundReservation() {
+    const timestamp =
+        Date.now();
+
+    const records =
+        new Map([
+            [
+                'build-checkpoint::subject-cold-reopen',
+                {
+                    schemaVersion: 1,
+                    subjectId:
+                        'subject-cold-reopen',
+                    workingDraft: {
+                        schemaVersion: 1,
+                        subjectId:
+                            'subject-cold-reopen',
+                        baseRevision: 4,
+                        document: {
+                            schemaVersion: 1
+                        },
+                        updatedAt:
+                            timestamp
+                    },
+                    buildState: {
+                        schemaVersion: 1,
+                        subjectId:
+                            'subject-cold-reopen',
+                        kind:
+                            'full-subject',
+                        completedStep: 9,
+                        autoSaveOnComplete:
+                            true,
+                        generationContext: {
+                            version: 1,
+                            languageLevel:
+                                'b2',
+                            subjectSize:
+                                'standard',
+                            languageSupport:
+                                'all',
+                            style:
+                                'balanced',
+                            premise:
+                                'Cold reopen'
+                        },
+                        updatedAt:
+                            timestamp
+                    },
+                    updatedAt:
+                        timestamp
+                }
+            ]
+        ]);
+
+    const workerContext = {
+        console,
+        Date,
+        Math,
+        JSON,
+        Promise,
+        Map,
+        Set,
+        Array,
+        Object,
+        Number,
+        String,
+        Boolean,
+        Error,
+        AbortController,
+
+        crypto: {
+            randomUUID() {
+                return 'cold-worker';
+            }
+        },
+
+        navigator: {
+            locks: {
+                async query() {
+                    return {
+                        held: [],
+                        pending: []
+                    };
+                }
+            }
+        },
+
+        indexedDB:
+            createFakeIndexedDB(
+                records
+            ),
+
+        BroadcastChannel:
+            FakeBroadcastChannel,
+
+        setTimeout(
+            callback,
+            delay = 0
+        ) {
+            return setTimeout(
+                callback,
+                Math.min(
+                    Number(delay) || 0,
+                    5
+                )
+            );
+        },
+
+        clearTimeout,
+
+        setInterval() {
+            return 1;
+        },
+
+        clearInterval() {},
+
+        importScripts() {
+            throw new Error(
+                'Cold foreground reservation must not start worker generation.'
+            );
+        }
+    };
+
+    workerContext.self =
+        workerContext;
+    workerContext.globalThis =
+        workerContext;
+
+    vm.createContext(
+        workerContext
+    );
+
+    vm.runInContext(
+        workerSource,
+        workerContext,
+        {
+            filename:
+                'atlas-subject-build-shared-worker.js'
+        }
+    );
+
+    const subject =
+        new FakePort(
+            'cold-subject'
+        );
+
+    workerContext.onconnect({
+        ports: [subject]
+    });
+
+    subject.send({
+        type:
+            'connect',
+        pageId:
+            'cold-subject-page',
+        surface:
+            'compass-subject'
+    });
+
+    subject.send({
+        type:
+            'auth',
+        userId:
+            'user-one',
+        accessToken:
+            'subject-token'
+    });
+
+    subject.send({
+        type:
+            'request-foreground-ownership',
+        requestId:
+            'cold-foreground-1',
+        subjectId:
+            'subject-cold-reopen',
+        reason:
+            'subject-open'
+    });
+
+    assert.equal(
+        await waitUntil(
+            () =>
+                Boolean(
+                    subject.latest(
+                        'foreground-granted'
+                    )
+                )
+        ),
+        true,
+        'Cold subject reopen did not receive foreground ownership.'
+    );
+
+    const grant =
+        subject.latest(
+            'foreground-granted'
+        );
+
+    assert.notEqual(
+        grant.noWorkerJob,
+        true,
+        'A durable checkpoint must not be mistaken for a missing worker job.'
+    );
+
+    assert.equal(
+        grant.completedStep,
+        9,
+        'Cold subject reopen must continue from the durable checkpoint.'
+    );
+
+    assert.equal(
+        grant
+            .generationContext
+            ?.premise,
+        'Cold reopen'
+    );
+
+    assert.equal(
+        subject
+            .latest(
+                'queue-state'
+            )
+            ?.queue?.[0]
+            ?.status,
+        'foreground-owned',
+        'The reopened subject page must reserve the checkpoint before resurrection catches up.'
+    );
+
+    /*
+     * Simulate the account resurrection scan arriving after the subject page.
+     * It must merge execution context into the reserved job without stealing
+     * the build back from the visible foreground page.
+     */
+    subject.send({
+        type:
+            'enqueue-subject',
+        subjectId:
+            'subject-cold-reopen',
+        build: {
+            generationContext: {
+                version: 1,
+                languageLevel:
+                    'b2',
+                subjectSize:
+                    'standard',
+                languageSupport:
+                    'all',
+                style:
+                    'balanced',
+                premise:
+                    'Cold reopen'
+            },
+            autoSaveOnComplete:
+                true,
+            revision: 4
+        }
+    });
+
+    await wait(30);
+
+    assert.equal(
+        subject.latest(
+            'build-started'
+        ),
+        null,
+        'Late resurrection must not start the worker after foreground ownership is reserved.'
+    );
+
+    assert.equal(
+        subject
+            .latest(
+                'queue-state'
+            )
+            ?.queue?.[0]
+            ?.status,
+        'foreground-owned',
+        'Late resurrection must preserve foreground ownership.'
+    );
+
+    assert.equal(
+        subject
+            .latest(
+                'queue-state'
+            )
+            ?.queue?.[0]
+            ?.completedStep,
+        9
+    );
+}
+
 function testBatchFourStaticContracts() {
     assert.match(
         operationsSource,
@@ -1123,6 +1413,7 @@ function testBatchFourStaticContracts() {
     testBatchFourStaticContracts();
 
     await testAtomicForegroundYield();
+    await testColdCheckpointForegroundReservation();
 
     console.log(
         'Atlas SharedWorker Batch 4 passed: a foreground subject request waits for the worker\'s current atomic AI operation, checkpoints that completed mutation without advancing the runner step, receives ownership only after the canonical Web Lock is released, carries current generation context back to the page, preserves real foreground edits through active build checkpoints, returns unfinished work to the SharedWorker when the page leaves, and keeps final durable completion page/cloud-owned.'
