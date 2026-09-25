@@ -65,10 +65,6 @@ assert.match(
   /environment === 'live'[\s\S]*clientToken\.startsWith\('live_'\)/
 );
 assert.match(
-  pricing,
-  /config\.environment === 'sandbox'[\s\S]*Paddle\.Environment\.set\('sandbox'\)/
-);
-assert.match(
   checkout,
   /config\.environment ===[\s\S]*'sandbox'[\s\S]*Paddle\.Environment\.set\([\s\S]*'sandbox'/
 );
@@ -82,7 +78,7 @@ assert.match(
 );
 assert.match(
   pricing,
-  /atlas-paddle-config\.js\?v=20260924-live1/
+  /atlas-pro-checkout\.js\?v=20260924-inlinecheckout1/
 );
 assert.match(
   checkout,
@@ -97,8 +93,13 @@ assert.doesNotMatch(
   /20260921-sandbox1/
 );
 
-assert.match(pricing, /atlas_checkout_environment: config\.environment/);
-assert.match(pricing, /atlas_user_id: account\.userId/);
+assert.match(checkout, /atlas_checkout_environment:[\s\S]*config\.environment/);
+assert.match(checkout, /atlas_user_id:[\s\S]*account\.userId/);
+assert.doesNotMatch(
+  pricing,
+  /Paddle\.Checkout\.open/,
+  'Pricing must delegate checkout ownership to the shared Paddle runtime.'
+);
 
 assert.match(migration, /private\.paddle_billing_policy/);
 assert.match(migration, /private\.paddle_billing_events/);
