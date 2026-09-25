@@ -110,6 +110,11 @@ assert.match(
   'Upgrade checkout mobile header must match the Inside Atlas glass recipe too.'
 );
 assert.match(
+  checkout,
+  /\.atlas-pro-checkout-close-arrow \{[\s\S]*?width: 16px;[\s\S]*?height: 16px;[\s\S]*?font-size: 0;[\s\S]*?-webkit-mask: url\([\s\S]*?M7 3L2 8l5 5M2 8h12/,
+  'Upgrade checkout must use the drawn Atlas back arrow rather than the Unicode arrow glyph.'
+);
+assert.match(
   subscription,
   /--payment-update-canvas:\s*#eceff3;[\s\S]*?--payment-update-header-surface:\s*#f7f8fa;/,
   'Update Payment must retain the cool-grey checkout canvas and header palette.'
@@ -143,6 +148,11 @@ assert.match(
   subscription,
   /aria-label="Back to Subscription"[\s\S]*?<span>Back to Subscription<\/span>/,
   'Update Payment back control must retain Subscription as the destination label.'
+);
+assert.match(
+  subscription,
+  /\.payment-update-back-arrow \{[\s\S]*?width: 16px;[\s\S]*?height: 16px;[\s\S]*?font-size: 0;[\s\S]*?-webkit-mask: url\([\s\S]*?M7 3L2 8l5 5M2 8h12/,
+  'Update Payment must use the same drawn Atlas back arrow as the Upgrade checkout.'
 );
 assert.doesNotMatch(
   pricing + checkout + subscription,
