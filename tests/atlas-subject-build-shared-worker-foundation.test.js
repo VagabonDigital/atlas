@@ -927,7 +927,7 @@ async function testWorkerClient() {
         supported
             .workerCalls[0]
             .url,
-        '/shared/atlas-subject-build-shared-worker.js?v=20260925-buildworker12'
+        '/shared/atlas-subject-build-shared-worker.js?v=20260925-buildworker13'
     );
 
     assert.equal(
@@ -980,7 +980,7 @@ async function testWorkerClient() {
                 reason:
                     'token-expiring',
                 workerVersion:
-                    '20260925-buildworker12'
+                    '20260925-buildworker13'
             }
         });
 
