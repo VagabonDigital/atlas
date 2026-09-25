@@ -94,6 +94,16 @@ assert.match(
   subscription,
   /atlas-paddle-config\.js\?v=20260924-live1/
 );
+assert.match(
+  subscription,
+  /--payment-update-header-surface:\s*#fffdf9;[\s\S]*?\.payment-update-head \{[\s\S]*?color-mix\(in srgb, var\(--payment-update-header-surface\) 86%, transparent\)[\s\S]*?backdrop-filter: blur\(22px\) saturate\(1\.08\)/,
+  'Update Payment must use the same #fffdf9-based desktop glass treatment as Atlas Hub chrome.'
+);
+assert.match(
+  subscription,
+  /@media \(max-width: 620px\)[\s\S]*?\.payment-update-head \{[\s\S]*?color-mix\(in srgb, var\(--payment-update-header-surface\) 88%, transparent\)[\s\S]*?backdrop-filter: blur\(14px\)/,
+  'Update Payment mobile header must retain the Hub-style mobile glass treatment.'
+);
 assert.doesNotMatch(
   pricing + checkout + subscription,
   /20260921-sandbox1/
