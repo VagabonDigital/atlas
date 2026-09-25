@@ -128,7 +128,7 @@ assert.match(
 
 assert.match(
     loader,
-    /compass-generation-recovery\.js\?v=20260925-workeraware3/
+    /compass-generation-recovery\.js\?v=20260925-workeraware2/
 );
 
 assert.match(
