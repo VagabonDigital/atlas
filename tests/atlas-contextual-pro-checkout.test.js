@@ -156,8 +156,8 @@ assert.match(
 
 assert.match(
   checkout,
-  /grid-template-columns:[\s\S]*?minmax\(300px, 1fr\)[\s\S]*?minmax\(0, 680px\)[\s\S]*?atlas-pro-checkout-stage[\s\S]*?width: min\(100%, 680px\)/,
-  'Desktop checkout must deliberately constrain Paddle to a compact payment column.'
+  /grid-template-columns:[\s\S]*?minmax\(300px, 1fr\)[\s\S]*?minmax\(0, 520px\)[\s\S]*?atlas-pro-checkout-stage[\s\S]*?width: min\(100%, 520px\)/,
+  'Desktop checkout must deliberately constrain Paddle to a stacked compact payment column.'
 );
 
 assert.match(
