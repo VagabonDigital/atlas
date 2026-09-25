@@ -28,9 +28,10 @@ assert.match(worker, /\`\$\{timestamp\}:\$\{rawBody\}\`/);
 assert.match(worker, /Math\.abs\([\s\S]*nowSeconds - unixTime[\s\S]*\) > 5/);
 assert.match(worker, /timestamp_out_of_tolerance/);
 assert.match(worker, /hmac_mismatch/);
-assert.match(
+assert.doesNotMatch(
   worker,
-  /diagnostic:[\s\S]*environment:[\s\S]*paddleEnvironment[\s\S]*reason:/
+  /diagnostic:[\s\S]*environment:[\s\S]*paddleEnvironment[\s\S]*reason:/,
+  'Paddle signature failures must not expose internal diagnostics.'
 );
 assert.match(worker, /ATLAS_PADDLE_WEBHOOK_SECRET/);
 assert.match(worker, /ATLAS_PADDLE_LIVE_WEBHOOK_SECRET/);
