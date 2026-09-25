@@ -827,13 +827,13 @@
         const summaries =
             await fetchFreshSummaries(userId);
 
-        reconcileOwnedSubjectRegistryProjection(
-            summaries
-        );
-
         if (activeUserId !== userId) {
             return [];
         }
+
+        reconcileOwnedSubjectRegistryProjection(
+            summaries
+        );
 
         clearSubjectCache();
         storeSummaryList(summaries);
@@ -887,6 +887,13 @@
         if (!summaryListPromise) {
             summaryListPromise = fetchFreshSummaries(userId)
                 .then(summaries => {
+                    if (
+                        activeUserId !==
+                        userId
+                    ) {
+                        return [];
+                    }
+
                     reconcileOwnedSubjectRegistryProjection(
                         summaries
                     );
