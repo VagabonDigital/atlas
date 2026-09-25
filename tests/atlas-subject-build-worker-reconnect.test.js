@@ -315,7 +315,7 @@ async function testWorkerReconnectAndAccountSwitch() {
 
     assert.match(
         workers[0].url,
-        /buildworker12/
+        /buildworker13/
     );
 
     Client.enqueueSubject(
