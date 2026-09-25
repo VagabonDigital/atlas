@@ -302,151 +302,6 @@
         stroke var(--theme-motion);
     }
 
-    .atlas-checkout-loading {
-      width: 100vw;
-      max-width: none;
-      height: 100dvh;
-      max-height: none;
-      margin: 0;
-      padding: 0;
-      border: 0;
-      background: var(--surface);
-      color: var(--text-heading);
-    }
-
-    .atlas-checkout-loading[open] {
-      display: grid;
-      place-items: center;
-    }
-
-    .atlas-checkout-loading::backdrop {
-      background: var(--surface);
-    }
-
-    .atlas-checkout-loading-content {
-      display: grid;
-      justify-items: center;
-      gap: 18px;
-      padding: 32px 24px;
-      text-align: center;
-    }
-
-    .atlas-checkout-loading-brand {
-      margin: 0;
-      font-family: var(--font-display);
-      font-size: 2rem;
-      color: var(--text-heading);
-    }
-
-    .atlas-checkout-loading-brand span {
-      color: var(--accent);
-    }
-
-    .atlas-checkout-loading-spinner {
-      width: 42px;
-      height: 42px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: atlas-checkout-loading-spin 800ms linear infinite;
-    }
-
-    .atlas-checkout-loading-copy {
-      margin: 0;
-      color: var(--text-muted);
-      font-size: .9rem;
-    }
-
-    @keyframes atlas-checkout-loading-spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .atlas-checkout-loading-spinner {
-        animation: none;
-      }
-    }
-
-    .atlas-pro-activation[hidden] {
-      display: none;
-    }
-
-    .atlas-pro-activation {
-      position: fixed;
-      inset: 0;
-      z-index: 2147483646;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      background: var(--surface);
-    }
-
-    .atlas-pro-activation-card {
-      width: min(430px, 100%);
-      padding: 38px 32px 32px;
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      background: var(--surface-panel);
-      box-shadow: var(--shadow-lg);
-      text-align: center;
-    }
-
-    .atlas-pro-activation-brand {
-      margin: 0 0 24px;
-      font-family: var(--font-display);
-      font-size: 2rem;
-      color: var(--text-heading);
-    }
-
-    .atlas-pro-activation-brand span {
-      color: var(--accent);
-    }
-
-    .atlas-pro-activation-mark {
-      width: 62px;
-      height: 62px;
-      display: grid;
-      place-items: center;
-      margin: 0 auto 20px;
-      border-radius: 50%;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-size: 1.9rem;
-      font-weight: 700;
-    }
-
-    .atlas-pro-activation-title {
-      margin: 0;
-      font-family: var(--font-display);
-      font-size: 1.9rem;
-      font-weight: 400;
-      color: var(--text-heading);
-    }
-
-    .atlas-pro-activation-copy {
-      margin: 12px auto 0;
-      max-width: 340px;
-      color: var(--text-body);
-      line-height: 1.6;
-    }
-
-    .atlas-pro-activation-action {
-      width: 100%;
-      min-height: 48px;
-      margin-top: 26px;
-      border: 0;
-      border-radius: 12px;
-      background: var(--accent);
-      color: #fff;
-      font: 600 .95rem var(--font-body);
-      cursor: pointer;
-    }
-
-    .atlas-pro-activation-action[hidden] {
-      display: none;
-    }
 
   </style>
   <link rel="stylesheet" href="pricing.css?v=20260924-mobilecanonical1">
@@ -604,60 +459,6 @@
     </div>
   </footer>
 
-  <dialog
-    class="atlas-checkout-loading"
-    data-atlas-checkout-loading
-    aria-labelledby="atlas-checkout-loading-copy"
-  >
-    <div class="atlas-checkout-loading-content">
-      <p class="atlas-checkout-loading-brand">Atlas<span>.</span></p>
-      <div class="atlas-checkout-loading-spinner" aria-hidden="true"></div>
-      <p
-        id="atlas-checkout-loading-copy"
-        class="atlas-checkout-loading-copy"
-      >
-        Preparing secure checkout…
-      </p>
-    </div>
-  </dialog>
-
-  <div
-    class="atlas-pro-activation"
-    data-atlas-pro-activation
-    hidden
-  >
-    <section
-      class="atlas-pro-activation-card"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="atlas-pro-activation-title"
-    >
-      <p class="atlas-pro-activation-brand">Atlas<span>.</span></p>
-      <div class="atlas-pro-activation-mark" aria-hidden="true">✓</div>
-      <h2
-        id="atlas-pro-activation-title"
-        class="atlas-pro-activation-title"
-        data-atlas-pro-activation-title
-      >
-        Payment received
-      </h2>
-      <p
-        class="atlas-pro-activation-copy"
-        data-atlas-pro-activation-copy
-      >
-        Activating Atlas Pro…
-      </p>
-      <button
-        class="atlas-pro-activation-action"
-        type="button"
-        data-atlas-pro-activation-action
-        hidden
-      >
-        Enter Atlas
-      </button>
-    </section>
-  </div>
-
   <script src="/shared/atlas-legal-appearance.js?v=20260920-legal-theme1"></script>
   <script src="/shared/atlas-return-intent.js?v=20260916-access1"></script>
   <script src="/shared/atlas-access-bootstrap.js?v=20260921-insideheader1"></script>
@@ -672,21 +473,9 @@
         document.querySelector('[data-pricing-header-pro]');
       var repeatProButton = document.querySelector('[data-pricing-repeat-pro]');
       var status = document.querySelector('[data-paddle-status]');
-      var proActivationPromise = null;
       var accessUnsubscribe = null;
       var autoCheckoutConsumed = false;
       var pricingContext = readPricingContext();
-      var checkoutLoadingDialog =
-        document.querySelector('[data-atlas-checkout-loading]');
-      var checkoutLoadingTimer = null;
-      var proActivationLayer =
-        document.querySelector('[data-atlas-pro-activation]');
-      var proActivationTitle =
-        document.querySelector('[data-atlas-pro-activation-title]');
-      var proActivationCopy =
-        document.querySelector('[data-atlas-pro-activation-copy]');
-      var proActivationAction =
-        document.querySelector('[data-atlas-pro-activation-action]');
 
       function setStatus(message) {
         if (status) status.textContent = message || '';
@@ -848,65 +637,6 @@
               label: 'Enter Atlas'
             };
         }
-      }
-
-      function showProActivationState(
-        title,
-        copy,
-        options
-      ) {
-        if (!proActivationLayer) return;
-
-        var action =
-          Boolean(options && options.action);
-
-        if (proActivationTitle) {
-          proActivationTitle.textContent =
-            title;
-        }
-
-        if (proActivationCopy) {
-          proActivationCopy.textContent =
-            copy;
-        }
-
-        if (proActivationAction) {
-          var destination =
-            getPricingReturnDestination();
-
-          proActivationAction.textContent =
-            destination.label;
-          proActivationAction.hidden =
-            !action;
-          proActivationAction.onclick =
-            action
-              ? function () {
-                  window.location.assign(
-                    destination.href
-                  );
-                }
-              : null;
-        }
-
-        proActivationLayer.hidden = false;
-
-        if (
-          action &&
-          proActivationAction
-        ) {
-          window.setTimeout(
-            function () {
-              proActivationAction.focus();
-            },
-            0
-          );
-        }
-      }
-
-      function delay(ms) {
-        return new Promise(function (resolve) {
-          window.setTimeout(resolve, ms);
-        });
       }
 
       function queueCompassCreateResume() {
