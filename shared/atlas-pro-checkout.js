@@ -21,8 +21,10 @@
         'atlas-pro-checkout-scroll-lock-style';
     const LOADING_STYLE_ID =
         'atlas-pro-checkout-loading-style';
-    const MOBILE_SHELL_STYLE_ID =
-        'atlas-pro-checkout-mobile-shell-style';
+    const CHECKOUT_SHELL_STYLE_ID =
+        'atlas-pro-checkout-shell-style';
+    const PRODUCT_ICON_URL =
+        'https://pub-13d93423376c4822820635b75cfbea29.r2.dev/images/Atlas%20Logo.png';
 
     let paddlePromise = null;
     let configPromise = null;
@@ -33,7 +35,7 @@
     let checkoutLoadingLayer = null;
     let checkoutLoadingTimer = null;
     let checkoutRevealTimer = null;
-    let mobileCheckoutShell = null;
+    let checkoutShell = null;
 
     function clean(value) {
         return String(value || '').trim();
@@ -432,14 +434,16 @@
         );
     }
 
-    function mobileCheckoutFrameHeight() {
-        return '620';
+    function checkoutFrameHeight() {
+        return isMobileCheckoutPresentation()
+            ? '620'
+            : '700';
     }
 
-    function ensureMobileCheckoutShellStyles() {
+    function ensureCheckoutShellStyles() {
         if (
             document.getElementById(
-                MOBILE_SHELL_STYLE_ID
+                CHECKOUT_SHELL_STYLE_ID
             )
         ) {
             return;
@@ -448,13 +452,13 @@
         const style =
             document.createElement('style');
 
-        style.id = MOBILE_SHELL_STYLE_ID;
+        style.id = CHECKOUT_SHELL_STYLE_ID;
         style.textContent = `
-            .atlas-pro-checkout-mobile-shell[hidden] {
+            .atlas-pro-checkout-shell[hidden] {
                 display: none !important;
             }
 
-            .atlas-pro-checkout-mobile-shell {
+            .atlas-pro-checkout-shell {
                 position: fixed;
                 inset: 0;
                 z-index: 2147483645;
@@ -470,62 +474,59 @@
                     "DM Sans", system-ui, sans-serif;
             }
 
-            .atlas-pro-checkout-mobile-head {
-                min-height: 64px;
+            .atlas-pro-checkout-head {
+                min-height: 72px;
                 display: flex;
                 flex: 0 0 auto;
                 align-items: center;
                 justify-content: space-between;
-                gap: 16px;
-                padding:
-                    max(10px, env(safe-area-inset-top))
-                    14px
-                    10px;
+                gap: 20px;
+                padding: 14px 28px;
                 border-bottom: 1px solid
                     var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .16)));
                 background:
                     var(--atlas-modal-surface, var(--surface, #fffdf9));
             }
 
-            .atlas-pro-checkout-mobile-identity {
+            .atlas-pro-checkout-identity {
                 min-width: 0;
                 display: flex;
                 align-items: baseline;
-                gap: 9px;
+                gap: 10px;
             }
 
-            .atlas-pro-checkout-mobile-brand {
+            .atlas-pro-checkout-brand {
                 margin: 0;
                 font-family:
                     "DM Serif Display", Georgia, serif;
-                font-size: 1.45rem;
+                font-size: 1.65rem;
                 line-height: 1;
                 font-weight: 400;
                 color:
                     var(--atlas-modal-heading, var(--text-heading, #211f1b));
             }
 
-            .atlas-pro-checkout-mobile-brand span {
+            .atlas-pro-checkout-brand span {
                 color:
                     var(--atlas-modal-accent, var(--accent, #59617d));
             }
 
-            .atlas-pro-checkout-mobile-context {
+            .atlas-pro-checkout-context {
                 color:
                     var(--atlas-modal-muted, var(--text-muted, #7b7469));
-                font-size: .78rem;
+                font-size: .82rem;
                 font-weight: 600;
                 white-space: nowrap;
             }
 
-            .atlas-pro-checkout-mobile-close {
-                min-height: 40px;
+            .atlas-pro-checkout-close {
+                min-height: 42px;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
                 gap: 6px;
                 flex: 0 0 auto;
-                padding: 0 12px;
+                padding: 0 14px;
                 border: 1px solid
                     var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .16)));
                 border-radius: 12px;
@@ -534,21 +535,20 @@
                 color:
                     var(--atlas-modal-heading, var(--text-heading, #211f1b));
                 cursor: pointer;
-                font: 600 .78rem/1 "DM Sans", system-ui, sans-serif;
+                font: 600 .82rem/1 "DM Sans", system-ui, sans-serif;
             }
 
-            .atlas-pro-checkout-mobile-close:hover,
-            .atlas-pro-checkout-mobile-close:focus-visible {
+            .atlas-pro-checkout-close:hover,
+            .atlas-pro-checkout-close:focus-visible {
                 border-color:
                     var(--atlas-modal-border-strong, rgba(49, 45, 38, .26));
                 background:
                     var(--atlas-modal-control-hover, rgba(49, 45, 38, .05));
             }
 
-            .atlas-pro-checkout-mobile-body {
+            .atlas-pro-checkout-body {
                 min-height: 0;
                 flex: 1 1 auto;
-                padding: 12px 10px 28px;
                 overflow-y: auto;
                 overscroll-behavior: contain;
                 -webkit-overflow-scrolling: touch;
@@ -556,18 +556,121 @@
                     var(--atlas-modal-surface-low, var(--surface-muted, #f5f1e9));
             }
 
-            .atlas-pro-checkout-mobile-stage {
-                width: min(100%, 520px);
-                min-height: 0;
+            .atlas-pro-checkout-layout {
+                width: min(calc(100% - 56px), 1120px);
                 margin: 0 auto;
+                padding: 44px 0 56px;
+                display: grid;
+                grid-template-columns:
+                    minmax(280px, .78fr)
+                    minmax(500px, 1.22fr);
+                gap: clamp(34px, 5vw, 68px);
+                align-items: start;
+            }
+
+            .atlas-pro-checkout-summary {
+                position: sticky;
+                top: 32px;
+                padding: 10px 0;
+            }
+
+            .atlas-pro-checkout-product {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+            }
+
+            .atlas-pro-checkout-product-icon {
+                width: 68px;
+                height: 68px;
+                flex: 0 0 auto;
+                border-radius: 18px;
+                object-fit: cover;
+                box-shadow:
+                    0 10px 24px rgba(31, 28, 23, .12);
+            }
+
+            .atlas-pro-checkout-product-label {
+                margin: 0 0 3px;
+                color:
+                    var(--atlas-modal-muted, var(--text-muted, #7b7469));
+                font-size: .72rem;
+                font-weight: 800;
+                letter-spacing: .12em;
+                text-transform: uppercase;
+            }
+
+            .atlas-pro-checkout-product-name {
+                margin: 0;
+                font-family:
+                    "DM Serif Display", Georgia, serif;
+                font-size: clamp(2rem, 3vw, 2.7rem);
+                line-height: 1.04;
+                font-weight: 400;
+                color:
+                    var(--atlas-modal-heading, var(--text-heading, #211f1b));
+            }
+
+            .atlas-pro-checkout-price {
+                margin: 30px 0 0;
+                font-size: 1.05rem;
+                font-weight: 700;
+                color:
+                    var(--atlas-modal-heading, var(--text-heading, #211f1b));
+            }
+
+            .atlas-pro-checkout-price strong {
+                font-family:
+                    "DM Serif Display", Georgia, serif;
+                font-size: 2rem;
+                font-weight: 400;
+            }
+
+            .atlas-pro-checkout-allowance {
+                max-width: 340px;
+                margin: 10px 0 0;
+                color:
+                    var(--atlas-modal-muted, var(--text-muted, #7b7469));
+                font-size: .94rem;
+                line-height: 1.55;
+            }
+
+            .atlas-pro-checkout-value {
+                max-width: 360px;
+                margin: 32px 0 0;
+                padding-top: 26px;
+                border-top: 1px solid
+                    var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .16)));
+            }
+
+            .atlas-pro-checkout-value strong {
+                display: block;
+                margin-bottom: 8px;
+                font-family:
+                    "DM Serif Display", Georgia, serif;
+                font-size: 1.45rem;
+                font-weight: 400;
+                line-height: 1.15;
+            }
+
+            .atlas-pro-checkout-value span {
+                color:
+                    var(--atlas-modal-muted, var(--text-muted, #7b7469));
+                font-size: .9rem;
+                line-height: 1.55;
+            }
+
+            .atlas-pro-checkout-stage {
+                width: 100%;
+                min-width: 0;
                 overflow: hidden;
                 border: 1px solid
                     var(--atlas-modal-border, var(--border-subtle, rgba(49, 45, 38, .14)));
-                border-radius: 18px;
+                border-radius: 20px;
                 background:
                     var(--atlas-modal-surface, var(--surface, #fffdf9));
                 box-shadow:
-                    0 10px 34px rgba(31, 28, 23, .08);
+                    0 18px 48px rgba(31, 28, 23, .09);
             }
 
             .atlas-pro-checkout-inline-frame {
@@ -576,57 +679,132 @@
                 background:
                     var(--atlas-modal-surface, var(--surface, #fffdf9));
             }
+
+            @media (max-width: 760px) {
+                .atlas-pro-checkout-head {
+                    min-height: 64px;
+                    padding:
+                        max(10px, env(safe-area-inset-top))
+                        14px
+                        10px;
+                    gap: 16px;
+                }
+
+                .atlas-pro-checkout-brand {
+                    font-size: 1.45rem;
+                }
+
+                .atlas-pro-checkout-context {
+                    font-size: .78rem;
+                }
+
+                .atlas-pro-checkout-close {
+                    min-height: 40px;
+                    padding: 0 12px;
+                    font-size: .78rem;
+                }
+
+                .atlas-pro-checkout-layout {
+                    width: 100%;
+                    padding: 12px 10px 28px;
+                    display: block;
+                }
+
+                .atlas-pro-checkout-summary {
+                    display: none;
+                }
+
+                .atlas-pro-checkout-stage {
+                    width: min(100%, 520px);
+                    margin: 0 auto;
+                    border-radius: 18px;
+                    box-shadow:
+                        0 10px 34px rgba(31, 28, 23, .08);
+                }
+            }
         `;
 
         document.head.appendChild(style);
     }
 
-    function ensureMobileCheckoutShell() {
-        if (mobileCheckoutShell) {
-            return mobileCheckoutShell;
+    function ensureCheckoutShell() {
+        if (checkoutShell) {
+            return checkoutShell;
         }
 
-        ensureMobileCheckoutShellStyles();
+        ensureCheckoutShellStyles();
 
-        mobileCheckoutShell =
+        checkoutShell =
             document.createElement('section');
 
-        mobileCheckoutShell.className =
-            'atlas-pro-checkout-mobile-shell';
-        mobileCheckoutShell.hidden = true;
-        mobileCheckoutShell.setAttribute(
+        checkoutShell.className =
+            'atlas-pro-checkout-shell';
+        checkoutShell.hidden = true;
+        checkoutShell.setAttribute(
             'aria-label',
             'Atlas Pro checkout'
         );
-        mobileCheckoutShell.innerHTML = `
-            <header class="atlas-pro-checkout-mobile-head">
-                <div class="atlas-pro-checkout-mobile-identity">
-                    <p class="atlas-pro-checkout-mobile-brand">
+        checkoutShell.innerHTML = `
+            <header class="atlas-pro-checkout-head">
+                <div class="atlas-pro-checkout-identity">
+                    <p class="atlas-pro-checkout-brand">
                         Atlas<span>.</span>
                     </p>
-                    <span class="atlas-pro-checkout-mobile-context">
+                    <span class="atlas-pro-checkout-context">
                         Secure checkout
                     </span>
                 </div>
                 <button
-                    class="atlas-pro-checkout-mobile-close"
+                    class="atlas-pro-checkout-close"
                     type="button"
                     aria-label="Close checkout"
-                    data-atlas-pro-checkout-mobile-close
+                    data-atlas-pro-checkout-close
                 >
                     Back to Atlas
                 </button>
             </header>
-            <div class="atlas-pro-checkout-mobile-body">
-                <div class="atlas-pro-checkout-mobile-stage">
-                    <div class="atlas-pro-checkout-inline-frame"></div>
+            <div class="atlas-pro-checkout-body">
+                <div class="atlas-pro-checkout-layout">
+                    <aside class="atlas-pro-checkout-summary">
+                        <div class="atlas-pro-checkout-product">
+                            <img
+                                class="atlas-pro-checkout-product-icon"
+                                src="${PRODUCT_ICON_URL}"
+                                alt=""
+                            >
+                            <div>
+                                <p class="atlas-pro-checkout-product-label">
+                                    Your plan
+                                </p>
+                                <h2 class="atlas-pro-checkout-product-name">
+                                    Atlas Pro
+                                </h2>
+                            </div>
+                        </div>
+                        <p class="atlas-pro-checkout-price">
+                            <strong>$12</strong> / month
+                        </p>
+                        <p class="atlas-pro-checkout-allowance">
+                            100 fresh subject creations each billing month.
+                        </p>
+                        <p class="atlas-pro-checkout-value">
+                            <strong>Make the lesson feel made for them.</strong>
+                            <span>
+                                Personal lessons with lighter preparation.
+                                Your saved work and learner continuity stay with your account.
+                            </span>
+                        </p>
+                    </aside>
+                    <div class="atlas-pro-checkout-stage">
+                        <div class="atlas-pro-checkout-inline-frame"></div>
+                    </div>
                 </div>
             </div>
         `;
 
-        mobileCheckoutShell
+        checkoutShell
             .querySelector(
-                '[data-atlas-pro-checkout-mobile-close]'
+                '[data-atlas-pro-checkout-close]'
             )
             ?.addEventListener(
                 'click',
@@ -636,7 +814,7 @@
                             ?.Checkout
                             ?.close?.();
                     } catch {
-                        hideMobileCheckoutShell();
+                        hideCheckoutShell();
                         hideCheckoutLoading();
                         setCheckoutScrollLocked(
                             false
@@ -646,32 +824,32 @@
             );
 
         document.body.appendChild(
-            mobileCheckoutShell
+            checkoutShell
         );
 
-        return mobileCheckoutShell;
+        return checkoutShell;
     }
 
-    function showMobileCheckoutShell() {
+    function showCheckoutShell() {
         const shell =
-            ensureMobileCheckoutShell();
+            ensureCheckoutShell();
 
         shell.hidden = false;
     }
 
-    function hideMobileCheckoutShell() {
-        if (!mobileCheckoutShell) {
+    function hideCheckoutShell() {
+        if (!checkoutShell) {
             return;
         }
 
-        mobileCheckoutShell.hidden = true;
+        checkoutShell.hidden = true;
     }
 
     function waitForCheckoutPresentation() {
         const delay =
             activeCheckout?.inlineMobile
                 ? 1600
-                : 120;
+                : 700;
 
         return new Promise(resolve => {
             checkoutRevealTimer =
@@ -1154,7 +1332,7 @@
                 true
             );
             hideCheckoutLoading();
-            hideMobileCheckoutShell();
+            hideCheckoutShell();
             if (activeCheckout) {
                 activeCheckout.completed = true;
             }
@@ -1176,7 +1354,7 @@
                 false
             );
             hideCheckoutLoading();
-            hideMobileCheckoutShell();
+            hideCheckoutShell();
             setCheckoutScrollLocked(
                 false
             );
@@ -1221,7 +1399,7 @@
                     false
                 );
                 hideCheckoutLoading();
-                hideMobileCheckoutShell();
+                hideCheckoutShell();
                 setCheckoutScrollLocked(
                     false
                 );
@@ -1379,11 +1557,7 @@
                             resolve;
                 });
 
-            if (
-                activeCheckout.inlineMobile
-            ) {
-                showMobileCheckoutShell();
-            }
+            showCheckoutShell();
 
             showCheckoutLoading();
 
@@ -1400,38 +1574,24 @@
                     ? 'dark'
                     : 'light';
 
-            const checkoutSettings =
-                activeCheckout.inlineMobile
-                    ? {
-                        displayMode:
-                            'inline',
-                        variant:
-                            'one-page',
-                        theme:
-                            checkoutTheme,
-                        showAddTaxId:
-                            false,
-                        showAddDiscounts:
-                            false,
-                        frameTarget:
-                            'atlas-pro-checkout-inline-frame',
-                        frameInitialHeight:
-                            mobileCheckoutFrameHeight(),
-                        frameStyle:
-                            'width:100%;min-width:312px;background-color:transparent;border:none;'
-                    }
-                    : {
-                        displayMode:
-                            'overlay',
-                        variant:
-                            'one-page',
-                        theme:
-                            checkoutTheme,
-                        showAddTaxId:
-                            false,
-                        showAddDiscounts:
-                            false
-                    };
+            const checkoutSettings = {
+                displayMode:
+                    'inline',
+                variant:
+                    'one-page',
+                theme:
+                    checkoutTheme,
+                showAddTaxId:
+                    false,
+                showAddDiscounts:
+                    false,
+                frameTarget:
+                    'atlas-pro-checkout-inline-frame',
+                frameInitialHeight:
+                    checkoutFrameHeight(),
+                frameStyle:
+                    'width:100%;min-width:312px;background-color:transparent;border:none;'
+            };
 
             window.Paddle
                 .Checkout
@@ -1469,7 +1629,7 @@
                 false
             );
             hideCheckoutLoading();
-            hideMobileCheckoutShell();
+            hideCheckoutShell();
             setCheckoutScrollLocked(
                 false
             );
@@ -1488,8 +1648,36 @@
         }
     }
 
+    async function previewPrice() {
+        await initializePaddle();
+
+        const config =
+            window.AtlasPaddleConfig;
+
+        const result =
+            await window.Paddle.PricePreview({
+                items: [
+                    {
+                        priceId:
+                            config.prices.proMonthly,
+                        quantity: 1
+                    }
+                ]
+            });
+
+        const item =
+            result?.data
+                ?.details
+                ?.lineItems?.[0];
+
+        return clean(
+            item?.formattedTotals?.total
+        ) || null;
+    }
+
     window.AtlasProCheckout =
         Object.freeze({
-            open
+            open,
+            previewPrice
         });
 })();
