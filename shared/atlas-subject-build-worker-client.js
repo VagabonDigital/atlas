@@ -23,7 +23,7 @@
     }
 
     const WORKER_URL =
-        '/shared/atlas-subject-build-shared-worker.js?v=20260925-buildworker12';
+        '/shared/atlas-subject-build-shared-worker.js?v=20260925-buildworker13';
 
     const WORKER_NAME =
         'atlas-subject-builds';
