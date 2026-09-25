@@ -129,6 +129,64 @@ arcade.status = 'complete';
 assert.equal(context.getContinueItem(registry, 'yasmin').registryId, travel.registryId);
 arcade.status = 'in-progress'; arcade.progress.covered = 0;
 assert.equal(context.getContinueItem(registry, 'yasmin').registryId, travel.registryId, 'An opened game is not meaningful progress');
+
+const languageOnly = {
+  ...sourceTravel,
+  registryId: 'compass:language-only',
+  id: 'language-only',
+  world: 'compass',
+  status: 'not-started',
+  progress: { explored: 0, total: 24, savedLanguageCount: 1 },
+  progressRaw: { exploredIds: [] },
+  launchUrl: '/compass/language-only/',
+  lastTouchedAt: 110
+};
+registry.items[languageOnly.registryId] = languageOnly;
+registry.sessionStates.yasmin[languageOnly.registryId] = languageOnly;
+assert.equal(
+  context.getContinueItem(registry, 'yasmin').registryId,
+  languageOnly.registryId,
+  'Saved language is meaningful Compass continuity even before Explore'
+);
+languageOnly.status = 'in-progress';
+assert.equal(
+  context.getContinueItem(registry, 'yasmin').registryId,
+  languageOnly.registryId,
+  'Saved-language continuity remains eligible once the subject is in progress'
+);
+delete registry.sessionStates.yasmin[languageOnly.registryId];
+
+const ledger = {
+  entries: {
+    travelLanguage: {
+      id: 'travelLanguage',
+      sessionId: 'yasmin',
+      kind: 'language',
+      status: 'saved',
+      sourceRegistryId: travel.registryId,
+      savedAt: 200
+    },
+    otherLanguage: {
+      id: 'otherLanguage',
+      sessionId: 'yasmin',
+      kind: 'language',
+      status: 'saved',
+      sourceRegistryId: 'compass:other',
+      savedAt: 300
+    }
+  }
+};
+assert.deepEqual(
+  Array.from(context.getReviewSet(ledger, 'yasmin', travel.registryId), entry => entry.id),
+  ['travelLanguage'],
+  'Review language is scoped to the selected Continue subject'
+);
+assert.equal(
+  context.getReviewSet(ledger, 'yasmin', null).length,
+  0,
+  'Review language never renders without a Continue subject'
+);
+
 assert.equal(context.continueCoverage(travel), 8);
 assert.equal(context.getHubItemCover({ ...travel, coverImage: undefined }), sourceTravel.coverImage);
 registry.items[travel.registryId] = { ...sourceTravel, coverImage: 'https://atlas.test/my-version.jpg', hasMyVersion: true };
