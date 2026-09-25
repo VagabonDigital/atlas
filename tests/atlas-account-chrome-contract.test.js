@@ -273,6 +273,19 @@ function runPlacementProof() {
             `Product hub ${index + 1} must order mobile controls as learner, search, account, menu.`
         );
     });
+
+    [compass, arcade].forEach((source, index) => {
+        assert.match(
+            source,
+            /\.mobile-header-btn\s*\{[\s\S]*?width:\s*40px;[\s\S]*?height:\s*40px;[\s\S]*?border:\s*1px solid var\(--control-border\);[\s\S]*?background:\s*var\(--control-surface\);[\s\S]*?color:\s*var\(--control-icon\);/,
+            `${index === 0 ? 'Compass' : 'Arcade'} mobile utility buttons must match Atlas geometry and control tokens.`
+        );
+        assert.match(
+            source,
+            /\.mobile-session-pill\s*\{[\s\S]*?color:\s*var\(--text-body\);[\s\S]*?border:\s*1px solid var\(--control-border\);[\s\S]*?background:\s*var\(--control-surface\);[\s\S]*?height:\s*40px;/,
+            `${index === 0 ? 'Compass' : 'Arcade'} learner control must match Atlas mobile pill styling.`
+        );
+    });
     assert.match(
         chrome,
         /if \(gateState\.menuOpen\)[\s\S]*?Gate\.closeAccountMenu\(\)/,

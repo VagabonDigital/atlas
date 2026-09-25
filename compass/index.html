@@ -1198,39 +1198,38 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 38px;
-      height: 38px;
+      width: 40px;
+      height: 40px;
       border-radius: 12px;
-      border: 1px solid var(--mobile-control-border);
-      background: var(--mobile-control-surface);
-      color: var(--text-muted);
+      border: 1px solid var(--control-border);
+      background: var(--control-surface);
+      color: var(--control-icon);
       cursor: pointer;
-      transition: var(--t);
+      transition: var(--motion-standard);
       flex-shrink: 0;
     }
 
     .mobile-header-btn:hover {
-      color: var(--text-body);
-      background: var(--mobile-control-hover);
+      color: var(--control-text-hover);
     }
 
     .mobile-session-pill {
       display: flex;
       align-items: center;
       gap: 0.35rem;
-      padding: 0.25rem 0.7rem;
-      border-radius: 20px;
-      border: 1px solid var(--mobile-control-border);
-      background: var(--mobile-control-surface);
       font-size: 0.76rem;
       font-weight: 500;
-      color: var(--text-muted);
+      color: var(--text-body);
       cursor: pointer;
+      padding: 0.25rem 0.7rem;
+      border: 1px solid var(--control-border);
+      border-radius: 20px;
+      background: var(--control-surface);
       max-width: 130px;
-      height: 40px;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
+      height: 40px;
     }
 
     .mobile-session-pill span {
