@@ -104,8 +104,20 @@ assert.doesNotMatch(
 
 assert.match(
     memory,
-    /Choose what Compass can use when suggesting subjects\./,
-    'Learner Memory must explain suggestion-source controls once at page level.'
+    /The things worth carrying into future sessions — and the context Atlas can use to make suggestions feel genuinely relevant\./,
+    'Learner Memory must confidently explain the value of Atlas personalization.'
+);
+
+assert.match(
+    memory,
+    /Choose which parts of this learner’s memory Atlas can draw on when suggesting subjects\.[\s\S]*?Notes stay just for your teaching continuity\./,
+    'Learner Memory must explain both suggestion-source choice and the Notes boundary.'
+);
+
+assert.doesNotMatch(
+    memory,
+    /Compass can use|for Compass suggestions/,
+    'Learner Memory personalization copy must use Atlas-level language rather than leaking Compass architecture.'
 );
 
 assert.doesNotMatch(
@@ -122,16 +134,34 @@ for (const field of [
     assert.match(
         memory,
         new RegExp(
-            `aria-label="Use ${field} for Compass suggestions"`
+            `aria-label="Use ${field} for Atlas suggestions"`
         ),
-        `${field} suggestion toggle must retain an accessible label.`
+        `${field} suggestion toggle must retain an accessible Atlas label.`
     );
 }
 
+assert.doesNotMatch(
+    memory,
+    /memory-count|\/ 500|updateSuggestionTextCounts/,
+    'Learner Memory must not expose character-count UI.'
+);
+
 assert.match(
     memory,
-    /length >= 450[\s\S]*?\? 'true'[\s\S]*?: 'false'/,
-    'Character counts must stay hidden until a suggestion field is close to its limit.'
+    /function resizeSuggestionTextarea\([\s\S]*?style\.height = 'auto'[\s\S]*?scrollHeight \+ 'px'/,
+    'Learner suggestion fields must auto-grow to fit their content.'
+);
+
+assert.match(
+    memory,
+    /memory-textarea--about,[\s\S]*?memory-textarea--interests,[\s\S]*?memory-textarea--goals[\s\S]*?overflow-y: hidden;[\s\S]*?resize: none;/,
+    'Learner suggestion fields must not use internal scrolling or manual resize controls.'
+);
+
+assert.match(
+    memory,
+    /function showToast\([\s\S]*?memory-toast[\s\S]*?showToast\('Saving…'\)[\s\S]*?showToast\('Saved'\)/,
+    'Learner Memory save feedback must use the bottom toast flow.'
 );
 
 assert.match(
