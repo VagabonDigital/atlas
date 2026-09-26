@@ -5165,25 +5165,13 @@ export default {
                         body?.recentSuggestions
                     )
                         ? body.recentSuggestions
-                            .slice(-18)
-                            .map(idea => ({
-                                title:
-                                    String(
-                                        idea?.title || ''
-                                    )
-                                        .trim()
-                                        .slice(0, 120),
-
-                                reason:
-                                    String(
-                                        idea?.reason || ''
-                                    )
-                                        .trim()
-                                        .slice(0, 500)
-                            }))
-                            .filter(idea =>
-                                idea.title
+                            .slice(-36)
+                            .map(title =>
+                                String(title || '')
+                                    .trim()
+                                    .slice(0, 120)
                             )
+                            .filter(Boolean)
                         : [];
 
                 const modeInstructions = {
