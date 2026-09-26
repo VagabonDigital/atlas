@@ -9017,6 +9017,47 @@
       }
     }
 
+    function syncCreateSeedIntroduction(
+      dialog = document.getElementById(
+        'owned-subject-dialog'
+      )
+    ) {
+      const state = ownedSubjectDialogState;
+
+      if (
+        !dialog ||
+        state?.mode !== 'create' ||
+        !state.seedIntroduction
+      ) {
+        return;
+      }
+
+      const title =
+        String(
+          dialog.querySelector(
+            '#owned-subject-dialog-input'
+          )?.value || ''
+        ).trim();
+
+      const brief =
+        String(
+          dialog.querySelector(
+            '#owned-subject-dialog-brief'
+          )?.value || ''
+        ).trim();
+
+      if (
+        title !== String(
+          state.seedTitle || ''
+        ).trim() ||
+        brief !== String(
+          state.seedBrief || ''
+        ).trim()
+      ) {
+        state.seedIntroduction = '';
+      }
+    }
+
     function toggleOwnedSubjectDialogLanguageHelp(
       button,
       event
@@ -9233,6 +9274,20 @@
         'input',
         () => {
           syncAnonymousCreatePreviewState(
+            dialog
+          );
+          syncCreateSeedIntroduction(
+            dialog
+          );
+        }
+      );
+
+      dialog.querySelector(
+        '#owned-subject-dialog-brief'
+      )?.addEventListener(
+        'input',
+        () => {
+          syncCreateSeedIntroduction(
             dialog
           );
         }
@@ -9929,6 +9984,108 @@
       'atlas::compassCreatePreviewDraft::v1::';
     const COMPASS_CREATE_PREVIEW_DRAFT_MAX_AGE_MS =
       24 * 60 * 60 * 1000;
+    const COMPASS_CREATE_ENTRY_DRAFT_KEY =
+      'atlas::compassCreateEntryDraft::v1';
+    const COMPASS_CREATE_ENTRY_DRAFT_MAX_AGE_MS =
+      30 * 60 * 1000;
+
+    function consumeCompassCreateEntryDraft() {
+      let requested = false;
+
+      try {
+        requested =
+          new URL(window.location.href)
+            .searchParams
+            .get('create') === 'tutor';
+      } catch {
+        requested = false;
+      }
+
+      if (!requested) {
+        return null;
+      }
+
+      let draft = null;
+
+      try {
+        const raw =
+          sessionStorage.getItem(
+            COMPASS_CREATE_ENTRY_DRAFT_KEY
+          );
+
+        sessionStorage.removeItem(
+          COMPASS_CREATE_ENTRY_DRAFT_KEY
+        );
+
+        draft = raw
+          ? JSON.parse(raw)
+          : null;
+      } catch {
+        draft = null;
+      }
+
+      try {
+        const url =
+          new URL(window.location.href);
+
+        url.searchParams.delete('create');
+
+        window.history.replaceState(
+          window.history.state,
+          '',
+          url.href
+        );
+      } catch { }
+
+      if (
+        !draft ||
+        draft.version !== 1 ||
+        !Number.isFinite(
+          Number(draft.createdAt)
+        ) ||
+        Date.now() -
+          Number(draft.createdAt) >
+            COMPASS_CREATE_ENTRY_DRAFT_MAX_AGE_MS
+      ) {
+        return null;
+      }
+
+      const title =
+        String(
+          draft.title || ''
+        ).trim().slice(0, 120);
+
+      const brief =
+        String(
+          draft.brief || ''
+        ).trim().slice(0, 2400);
+
+      const seedIntroduction =
+        String(
+          draft.seedIntroduction || ''
+        ).trim().slice(0, 1800);
+
+      if (
+        !title ||
+        !brief ||
+        !seedIntroduction
+      ) {
+        return null;
+      }
+
+      return {
+        version: 1,
+        createdAt: Date.now(),
+        createMode: 'generate',
+        title,
+        brief,
+        seedIntroduction,
+        languageLevel: 'b2',
+        style: 'balanced',
+        subjectSize: 'standard',
+        languageSupport: 'key'
+      };
+    }
 
     function createCompassCreatePreviewDraftId() {
       try {
@@ -10027,7 +10184,11 @@
           state.suggestion &&
           typeof state.suggestion === 'object'
             ? state.suggestion
-            : null
+            : null,
+        seedIntroduction:
+          String(
+            state.seedIntroduction || ''
+          ).trim().slice(0, 1800)
       };
     }
 
@@ -10355,6 +10516,18 @@
           typeof initialDraft.suggestion === 'object'
             ? initialDraft.suggestion
             : null,
+        seedIntroduction:
+          String(
+            initialDraft?.seedIntroduction || ''
+          ).trim().slice(0, 1800),
+        seedTitle:
+          String(
+            initialDraft?.title || ''
+          ).trim().slice(0, 120),
+        seedBrief:
+          String(
+            initialDraft?.brief || ''
+          ).trim().slice(0, 2400),
         silentResume:
           options.silentResume === true,
         upgradePrompt: false
@@ -11504,7 +11677,12 @@
 
           brief: String(
             briefInput?.value || ''
-          ).trim()
+          ).trim(),
+
+          seedIntroduction:
+            String(
+              state.seedIntroduction || ''
+            ).trim().slice(0, 1800)
         };
 
         if (
@@ -19112,6 +19290,24 @@
         initialSnapshot,
         diagnosticSource: 'initial'
       });
+
+      const createEntryDraft =
+        consumeCompassCreateEntryDraft();
+
+      if (createEntryDraft) {
+        await openCreateSubjectDialog(
+          null,
+          '',
+          null,
+          '',
+          {
+            initialDraft:
+              createEntryDraft,
+            anonymousPreview:
+              !getStoredCompassAccountUserId()
+          }
+        );
+      }
 
       /*
        * Cached-first rendering must not leave Atlas's registry projection
