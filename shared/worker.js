@@ -5437,7 +5437,7 @@ export default {
                                     ),
 
                                 max_output_tokens:
-                                    1400,
+                                    1800,
 
                                 text: {
                                     format: {
