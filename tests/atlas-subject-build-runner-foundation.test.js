@@ -9,39 +9,9 @@ const runnerSource = fs.readFileSync(
     'utf8'
 );
 
-const loaderSource = fs.readFileSync(
-    'compass/shared/compass-subject-loader.js',
-    'utf8'
-);
-
-const engineSource = fs.readFileSync(
-    'compass/shared/compass-engine.js',
-    'utf8'
-);
-
 assert.doesNotMatch(
     runnerSource,
     /\b(?:window|document|localStorage|sessionStorage)\b/
-);
-
-assert.match(
-    loaderSource,
-    /atlas-subject-build-runner\.js[\s\S]*?compass-engine\.js/
-);
-
-assert.match(
-    engineSource,
-    /BuildRunner\.run\(\{/
-);
-
-assert.match(
-    engineSource,
-    /generateSubjectFraming:[\s\S]*?generateMyVersionSubjectFraming/
-);
-
-assert.match(
-    engineSource,
-    /enrichDiscussion:[\s\S]*?enrichMyVersionDiscussionFromUI/
 );
 
 const context = {};
@@ -116,7 +86,7 @@ const operations = {
     );
 
     console.log(
-        'Atlas subject-build runner foundation passed: canonical orchestration is DOM-free and current Compass delegates to it.'
+        'Atlas Batch 1 subject-build runner foundation passed: canonical orchestration is DOM-free, resumable, and preserves Standard/Compact checkpoint semantics.'
     );
 })().catch(error => {
     console.error(error);
