@@ -18,6 +18,7 @@
     }
 
     const TABLE = 'compass_suggestion_state';
+    const AUTH_STORAGE_KEY = 'sb-jnhjfpagectprceswvqn-auth-token';
     const CACHE_KEY = 'atlas::compassSuggestionHistory::v1';
     const CACHE_OWNER_KEY = 'atlas::compassSuggestionHistoryOwner::v1';
     const SCHEMA_VERSION = 1;
@@ -41,6 +42,26 @@
     let remoteRecord = null;
     let initializePromise = null;
     let syncChain = Promise.resolve();
+    const anonymousHistory = new Map();
+
+    function storedAccountUserId() {
+        try {
+            const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+            if (!raw) return '';
+            const parsed = JSON.parse(raw);
+            const candidates = [
+                parsed,
+                parsed?.session,
+                parsed?.currentSession,
+                parsed?.data?.session
+            ];
+            for (const candidate of candidates) {
+                const id = String(candidate?.user?.id || '').trim();
+                if (id) return id;
+            }
+        } catch { }
+        return '';
+    }
 
     function cleanMode(value) {
         const mode = String(value || '').trim();
@@ -218,7 +239,17 @@
         }
     }
 
-    async function initialize() {
+    async function initialize({ force = false } = {}) {
+        const storedUserId = storedAccountUserId();
+
+        if (
+            initialized &&
+            !force &&
+            storedUserId === currentUserId
+        ) {
+            return getState();
+        }
+
         if (initializePromise) return initializePromise;
         initializePromise = (async () => {
             const session = await AtlasCloud.getSession();
@@ -265,12 +296,32 @@
     function getTitles(modeId) {
         const mode = cleanMode(modeId);
         if (!mode) return [];
-        return normalizeTitles(readLocalState().historyByMode[mode]);
+
+        if (!authenticated) {
+            return normalizeTitles(
+                anonymousHistory.get(mode) || []
+            );
+        }
+
+        return normalizeTitles(
+            readLocalState().historyByMode[mode]
+        );
     }
 
     function remember(modeId, titles) {
         const mode = cleanMode(modeId);
         if (!mode) return Promise.resolve(false);
+
+        if (!authenticated) {
+            anonymousHistory.set(
+                mode,
+                normalizeTitles([
+                    ...(anonymousHistory.get(mode) || []),
+                    ...(Array.isArray(titles) ? titles : [])
+                ])
+            );
+            return Promise.resolve(true);
+        }
 
         const state = readLocalState();
         state.historyByMode[mode] = normalizeTitles([
@@ -278,8 +329,6 @@
             ...(Array.isArray(titles) ? titles : [])
         ]);
         writeLocalState(state);
-
-        if (!authenticated) return Promise.resolve(true);
 
         syncChain = syncChain
             .catch(() => undefined)
