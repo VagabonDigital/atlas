@@ -1230,42 +1230,68 @@
       margin-top: 12px;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: 20px;
+      gap: 10px;
     }
 
     .subject-title {
       width: 100%;
       min-width: 0;
-      padding: 12px 0;
-      border: 0;
-      border-top: 1px solid var(--border-faint);
-      background: transparent;
+      min-height: 68px;
+      padding: 13px 40px 13px 14px;
+      position: relative;
+      border: 1px solid var(--border-faint);
+      border-radius: 12px;
+      background: var(--surface-panel);
+      box-shadow: var(--shadow-sm);
       text-align: left;
       cursor: pointer;
-      transition: border-color var(--motion), transform var(--motion), color var(--motion);
+      transition: border-color var(--motion), background var(--motion), box-shadow var(--motion), transform var(--motion);
+    }
+
+    .subject-title::after {
+      content: "→";
+      position: absolute;
+      top: 50%;
+      right: 14px;
+      color: var(--text-muted);
+      font-size: 14px;
+      transform: translateY(-50%);
+      transition: color var(--motion), transform var(--motion);
     }
 
     .subject-name {
       display: block;
       color: var(--text-heading);
-      font-family: var(--font-display);
-      font-size: 1rem;
-      font-weight: 400;
-      line-height: 1.3;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.35;
     }
 
-    .subject-title:hover {
-      border-top-color: rgba(var(--accent-rgb), .38);
-      transform: translateY(-1px);
+    .subject-title:hover,
+    .subject-title:focus-visible {
+      border-color: rgba(var(--accent-rgb), .32);
+      background: var(--accent-pale);
+      box-shadow: 0 12px 26px rgba(24, 29, 27, .08);
+      transform: translateY(-2px);
+    }
+
+    .subject-title:hover::after,
+    .subject-title:focus-visible::after,
+    .subject-title.is-selected::after {
+      color: var(--accent-ink);
+      transform: translate(2px, -50%);
     }
 
     .subject-title:hover .subject-name,
+    .subject-title:focus-visible .subject-name,
     .subject-title.is-selected .subject-name {
       color: var(--accent-ink);
     }
 
     .subject-title.is-selected {
-      border-top-color: rgba(var(--accent-rgb), .55);
+      border-color: rgba(var(--accent-rgb), .42);
+      background: var(--accent-soft);
+      box-shadow: 0 12px 26px rgba(24, 29, 27, .07);
     }
 
     .direction-demo {
@@ -3136,28 +3162,23 @@
                 class="create-button" id="createButton" href="../compass/index.html">Continue in Compass</a></div>
           </div>
           <div class="direction-picker">
-            <div class="direction-head"><strong>A few starting points</strong><span>Pick one, or ask Atlas below.</span>
+            <div class="direction-head"><strong>Start with what your learner needs</strong><span>Choose a common goal, or ask Atlas for a fresh direction below.</span>
             </div>
             <div class="direction-list" id="subjectField">
+              <button class="subject-title" data-title="Fluency in Everyday Conversations"><span
+                  class="subject-name">Fluency in Everyday Conversations</span></button>
+              <button class="subject-title" data-title="Clear Communication at Work"><span
+                  class="subject-name">Clear Communication at Work</span></button>
+
+              <button class="subject-title" data-title="Preparing for a Job Interview"><span
+                  class="subject-name">Preparing for a Job Interview</span></button>
+              <button class="subject-title" data-title="IELTS Speaking: Stronger Answers"><span
+                  class="subject-name">IELTS Speaking: Stronger Answers</span></button>
+
+              <button class="subject-title" data-title="Settling Into Life Abroad"><span
+                  class="subject-name">Settling Into Life Abroad</span></button>
               <button class="subject-title" data-title="Using Modal Verbs in Real Situations"><span
                   class="subject-name">Using Modal Verbs in Real Situations</span></button>
-              <button class="subject-title" data-title="The Wild Future of the Internet"><span
-                  class="subject-name">The Wild Future of the Internet</span></button>
-
-              <button class="subject-title" data-title="Explaining Projects to Senior Leaders"><span
-                  class="subject-name">Explaining Projects to Senior Leaders</span></button>
-              <button class="subject-title" data-title="How the Suez Canal Changed Trade"><span
-                  class="subject-name">How the Suez Canal Changed Trade</span></button>
-
-              <button class="subject-title" data-title="IELTS: Building Stronger Answers"><span
-                  class="subject-name">IELTS: Building Stronger Answers</span></button>
-              <button class="subject-title" data-title="Who Owns a Stolen Masterpiece?"><span
-                  class="subject-name">Who Owns a Stolen Masterpiece?</span></button>
-
-              <button class="subject-title" data-title="Settling Into Your First Month Abroad"><span
-                  class="subject-name">Settling Into Your First Month Abroad</span></button>
-              <button class="subject-title" data-title="Why Time Feels Faster as We Age"><span
-                  class="subject-name">Why Time Feels Faster as We Age</span></button>
             </div>
           </div>
         </div>
@@ -3484,115 +3505,87 @@
       var selectedCuratedSeed = null;
 
       var curatedSubjectSeeds = {
-        "Using Modal Verbs in Real Situations": {
-          title: "Modal Verbs in Real Life",
-          brief: "Explore modal verbs through realistic everyday and professional situations. Focus on how can, could, should, must, have to, might and may express ability, permission, advice, obligation, possibility and certainty. Keep the grammar explicit but conversation-led rather than worksheet-like.",
+        "Fluency in Everyday Conversations": {
+          title: "Fluency in Everyday Conversations",
+          brief: "Build smoother everyday speaking through realistic conversation. Focus on responding naturally, keeping ideas moving, reducing hesitation and handling unexpected turns without relying on memorised language.",
           framing: {
-            catalogDescription: "A practical look at how small changes in modal verbs can completely change what we mean.",
-            hook: "Small verbs. Very different meanings."
+            catalogDescription: "Practical speaking work for making everyday conversation feel more natural and less effortful.",
+            hook: "Fluency is what happens when the conversation stops feeling like a test."
+          },
+          overview: {
+            heading: "What keeps a conversation moving?",
+            intro: "Everyday conversation moves quickly. This subject explores how to respond more naturally, keep ideas moving, and speak with less hesitation when the conversation takes an unexpected turn.",
+            question: "What usually makes you hesitate when a conversation moves in an unexpected direction?"
+          }
+        },
+
+        "Clear Communication at Work": {
+          title: "Clear Communication at Work",
+          brief: "Develop clearer workplace communication across meetings, updates, questions and everyday professional conversations. Focus on concise explanations, confident participation, appropriate tone and making the main point easy to understand.",
+          framing: {
+            catalogDescription: "Clearer workplace English for explaining ideas, contributing confidently and handling everyday professional communication.",
+            hook: "At work, clarity often matters more than complexity."
+          },
+          overview: {
+            heading: "What makes workplace communication feel clear?",
+            intro: "Workplace conversations often depend on clarity, timing and tone. This subject explores how to explain ideas, contribute confidently and handle everyday professional communication without overcomplicating the message.",
+            question: "When do you find it hardest to make your point clearly at work?"
+          }
+        },
+
+        "Preparing for a Job Interview": {
+          title: "Preparing for a Job Interview",
+          brief: "Prepare for a job interview through realistic questions and follow-up pressure. Focus on explaining experience clearly, developing examples, handling difficult questions and sounding confident without memorising scripted answers.",
+          framing: {
+            catalogDescription: "Interview preparation built around clear examples, difficult questions and confident unscripted answers.",
+            hook: "The strongest answer sounds prepared without sounding memorised."
+          },
+          overview: {
+            heading: "What makes an interview answer convincing?",
+            intro: "Interviews reward more than correct answers. This subject explores how to explain your experience clearly, respond to difficult questions and sound confident without relying on memorised responses.",
+            question: "Which interview question is hardest for you to answer naturally?"
+          }
+        },
+
+        "IELTS Speaking: Stronger Answers": {
+          title: "IELTS Speaking: Stronger Answers",
+          brief: "Build stronger IELTS Speaking responses by answering directly, developing ideas with reasons and examples, and extending naturally without rambling. Include familiar and unexpected prompts and prioritise communication over memorised formulas.",
+          framing: {
+            catalogDescription: "IELTS Speaking practice for developing clear, relevant answers without sounding rehearsed.",
+            hook: "A strong answer needs more than good vocabulary."
+          },
+          overview: {
+            heading: "What makes an IELTS answer stronger?",
+            intro: "Strong IELTS answers need more than vocabulary. This subject explores how to develop ideas, add useful detail and respond naturally while keeping answers clear, relevant and well structured.",
+            question: "What usually makes it difficult to extend an IELTS answer naturally?"
+          }
+        },
+
+        "Settling Into Life Abroad": {
+          title: "Settling Into Life Abroad",
+          brief: "Explore the practical and social language needed when starting life in another country. Include everyday services, housing, transport, meeting people, unfamiliar systems, cultural differences and asking for help.",
+          framing: {
+            catalogDescription: "The everyday conversations and unfamiliar situations that come with building a life somewhere new.",
+            hook: "Arriving is one thing. Building an ordinary life is another."
+          },
+          overview: {
+            heading: "When does a new place start feeling normal?",
+            intro: "Starting life in a new country brings hundreds of small conversations. This subject explores the language, confidence and cultural situations that make everyday life easier to navigate.",
+            question: "Which everyday situation would you want to feel confident handling first in a new country?"
+          }
+        },
+
+        "Using Modal Verbs in Real Situations": {
+          title: "Using Modal Verbs in Real Situations",
+          brief: "Explore modal verbs through realistic everyday and professional situations. Focus on how can, could, should, must, have to, might and may change ability, permission, advice, obligation, possibility, certainty and tone.",
+          framing: {
+            catalogDescription: "Real situations where a small change in modal verb changes meaning, certainty, politeness or pressure.",
+            hook: "Small verbs can completely change the message."
           },
           overview: {
             heading: "What changes when the verb changes?",
-            intro: "Modal verbs can make the same idea sound certain, doubtful, polite, necessary or optional. Choosing between should, must, might, could and can often changes much more than the grammar.",
+            intro: "Modal verbs change how direct, polite or certain you sound. This subject explores everyday situations where small language choices can completely change the meaning and tone.",
             question: "Which sounds stronger: 'You should go' or 'You must go'? What changes?"
-          }
-        },
-
-        "The Wild Future of the Internet": {
-          title: "The Wild Future of the Internet",
-          brief: "Explore how the internet may change over the coming decades, including AI agents, immersive digital spaces, decentralisation, identity, privacy, ownership and new ways of interacting online. Avoid treating any single prediction as inevitable. Use competing possibilities and their consequences to drive discussion.",
-          framing: {
-            catalogDescription: "A look beyond today’s websites and apps at what the next internet might actually become.",
-            hook: "The internet we know may only be version one."
-          },
-          overview: {
-            heading: "What comes after the internet we know?",
-            intro: "The internet has already transformed communication, work, entertainment and commerce. But AI, new interfaces and changing ideas about identity and ownership could make tomorrow’s online world feel radically different from today’s.",
-            question: "What part of today’s internet do you think will seem primitive in twenty years?"
-          }
-        },
-
-        "Explaining Projects to Senior Leaders": {
-          title: "Explaining Projects to Senior Leaders",
-          brief: "Develop the ability to explain projects clearly and concisely to senior leaders. Focus on purpose, progress, priorities, risks, decisions and next steps rather than unnecessary operational detail. Explore how to structure updates, answer executive questions and communicate uncertainty with confidence.",
-          framing: {
-            catalogDescription: "How to turn a complicated project into the information senior leaders actually need.",
-            hook: "They don’t need every detail. They need the right ones."
-          },
-          overview: {
-            heading: "What does a senior leader actually need to know?",
-            intro: "The closer we are to a project, the easier it is to explain too much. Senior leaders usually need a different view: what matters, what has changed, where the risks are and what decision comes next.",
-            question: "If you had sixty seconds to explain your current project, what would you include?"
-          }
-        },
-
-        "How the Suez Canal Changed Trade": {
-          title: "How the Suez Canal Changed Trade",
-          brief: "Explore why the Suez Canal transformed global trade by connecting the Mediterranean and Red Seas and dramatically shortening major shipping routes. Examine its strategic importance, effects on commerce and empire, modern dependence on shipping chokepoints and what happens when the canal is disrupted.",
-          framing: {
-            catalogDescription: "How one narrow waterway reshaped global trade and became one of the world’s most important chokepoints.",
-            hook: "A shortcut through Egypt changed the world economy."
-          },
-          overview: {
-            heading: "Why does one narrow canal matter so much?",
-            intro: "Before the Suez Canal, ships travelling between Europe and Asia often had to sail around Africa. Opening a direct route through Egypt changed journey times, trade networks and geopolitical power — and made one narrow passage extraordinarily important.",
-            question: "Why can shortening a journey by a few thousand kilometres change much more than travel time?"
-          }
-        },
-
-        "IELTS: Building Stronger Answers": {
-          title: "IELTS: Building Stronger Answers",
-          brief: "Build stronger IELTS Speaking responses by answering questions directly, developing ideas with reasons and examples, and extending naturally without rambling. Include both familiar and unexpected questions that require the learner to organise an answer quickly. Prioritise communication and development over memorised formulas.",
-          framing: {
-            catalogDescription: "Practical IELTS Speaking work for turning short reactions into clear, developed answers.",
-            hook: "A good answer needs somewhere to go."
-          },
-          overview: {
-            heading: "What makes an answer feel complete?",
-            intro: "IELTS Speaking is not about giving the longest possible answer. Strong responses usually make a clear point, develop it naturally and give the listener enough detail to understand why the idea matters.",
-            question: "When you get a difficult question, what usually makes answering it harder?"
-          }
-        },
-
-        "Who Owns a Stolen Masterpiece?": {
-          title: "Who Owns a Stolen Masterpiece?",
-          brief: "Explore disputes over ownership of valuable artworks that were stolen, looted or transferred under questionable circumstances. Examine museums, collectors, governments, descendants, restitution, provenance and the tension between legal ownership and moral claims. Use realistic dilemmas rather than turning the subject into a legal lecture.",
-          framing: {
-            catalogDescription: "A journey through stolen art, disputed ownership and the question of who has the strongest claim.",
-            hook: "A masterpiece can have more than one rightful owner."
-          },
-          overview: {
-            heading: "Can ownership survive theft?",
-            intro: "A famous artwork may pass through countries, collectors and museums for generations before someone discovers that it was once stolen or taken under coercion. Returning it can sound simple — until several people can make convincing claims to it.",
-            question: "If someone legally buys a painting without knowing it was stolen decades earlier, should they have to give it back?"
-          }
-        },
-
-        "Settling Into Your First Month Abroad": {
-          title: "Settling Into Your First Month Abroad",
-          brief: "Explore the practical and social challenges of settling into another country during the first month. Include housing, transport, everyday services, meeting people, unfamiliar systems, cultural differences, loneliness, independence and asking for help. Keep the situations grounded in real decisions and experiences rather than generic travel advice.",
-          framing: {
-            catalogDescription: "The strange, practical and exciting first weeks of trying to build an ordinary life somewhere new.",
-            hook: "Arriving is easy. Living there is different."
-          },
-          overview: {
-            heading: "When does a new country start feeling normal?",
-            intro: "The first month abroad is full of small problems that tourists rarely notice: finding groceries, understanding transport, dealing with paperwork, meeting people and working out how everyday life actually functions.",
-            question: "What would be the first thing you would want to understand after arriving somewhere new?"
-          }
-        },
-
-        "Why Time Feels Faster as We Age": {
-          title: "Why Time Feels Faster as We Age",
-          brief: "Explore why the subjective experience of time often seems to accelerate as people get older. Examine novelty, routine, attention, memory, proportional theories of time and how memorable periods differ from repetitive ones. Clearly distinguish plausible psychological explanations from facts that remain uncertain.",
-          framing: {
-            catalogDescription: "Why childhood summers can feel enormous while entire adult years seem to disappear.",
-            hook: "The clock stays the same. Our experience of it doesn’t."
-          },
-          overview: {
-            heading: "Where did the year go?",
-            intro: "A year is always the same length, yet it rarely feels that way. Childhood periods can seem enormous in memory while months of adult routine disappear almost instantly. The difference may tell us something surprising about attention and memory.",
-            question: "What period of your life feels much longer in memory than it really was?"
           }
         }
       };
