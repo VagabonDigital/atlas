@@ -160,6 +160,24 @@ assert.match(
 
 assert.match(
     memory,
+    /content\.hidden = false;[\s\S]*?suggestionTextareas\.forEach\([\s\S]*?resizeSuggestionTextarea/,
+    'Learner Memory must reveal suggestion fields before measuring their rendered height.'
+);
+
+assert.match(
+    memory,
+    /window\.requestAnimationFrame\([\s\S]*?suggestionTextareas\.forEach\([\s\S]*?resizeSuggestionTextarea/,
+    'Learner Memory must confirm suggestion field sizing after the reveal frame.'
+);
+
+assert.match(
+    memory,
+    /window\.addEventListener\([\s\S]*?'resize'[\s\S]*?suggestionTextareas\.forEach\([\s\S]*?resizeSuggestionTextarea/,
+    'Learner Memory must remeasure suggestion fields when wrapping changes with viewport width.'
+);
+
+assert.match(
+    memory,
     /memory-textarea--about,[\s\S]*?memory-textarea--interests,[\s\S]*?memory-textarea--goals[\s\S]*?overflow-y: hidden;[\s\S]*?resize: none;/,
     'Learner suggestion fields must not use internal scrolling or manual resize controls.'
 );
