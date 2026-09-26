@@ -82,12 +82,12 @@ assert.match(
 
 assert.match(
     loader,
-    /compass-engine\.js\?v=20260925-resumeux1/
+    /compass-engine\.js\?v=20260925-handoffdoc1/
 );
 
 assert.match(
     subjectPage,
-    /compass-subject-loader\.js\?v=20260925-resumeux1/
+    /compass-subject-loader\.js\?v=20260925-handoffdoc1/
 );
 
 console.log(
