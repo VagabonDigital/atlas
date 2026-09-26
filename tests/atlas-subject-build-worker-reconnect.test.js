@@ -315,7 +315,7 @@ async function testWorkerReconnectAndAccountSwitch() {
 
     assert.match(
         workers[0].url,
-        /buildworker14/
+        /buildworker15/
     );
 
     assert.equal(
