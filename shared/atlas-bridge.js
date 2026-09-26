@@ -480,12 +480,44 @@
         return renamed;
     }
 
+    const LEARNER_MEMORY_SUGGESTION_TEXT_MAX = 500;
+
+    function normalizeLearnerSuggestionText(value) {
+        return typeof value === 'string'
+            ? value.slice(
+                0,
+                LEARNER_MEMORY_SUGGESTION_TEXT_MAX
+            )
+            : '';
+    }
+
+    function normalizeLearnerSuggestionSources(value) {
+        const candidate =
+            value &&
+            typeof value === 'object' &&
+            !Array.isArray(value)
+                ? value
+                : {};
+
+        return {
+            about:
+                candidate.about === true,
+            interests:
+                candidate.interests !== false,
+            goals:
+                candidate.goals !== false
+        };
+    }
+
     function createEmptyLearnerMemory(sessionId) {
         return {
-            schemaVersion: 1,
+            schemaVersion: 2,
             sessionId,
             about: '',
             interests: '',
+            goals: '',
+            suggestionSources:
+                normalizeLearnerSuggestionSources(),
             notes: '',
             nextTime: '',
             updatedAt: 0
@@ -500,14 +532,24 @@
         }
 
         return {
-            schemaVersion: 1,
+            schemaVersion: 2,
             sessionId,
-            about: typeof record.about === 'string'
-                ? record.about
-                : '',
-            interests: typeof record.interests === 'string'
-                ? record.interests
-                : '',
+            about:
+                normalizeLearnerSuggestionText(
+                    record.about
+                ),
+            interests:
+                normalizeLearnerSuggestionText(
+                    record.interests
+                ),
+            goals:
+                normalizeLearnerSuggestionText(
+                    record.goals
+                ),
+            suggestionSources:
+                normalizeLearnerSuggestionSources(
+                    record.suggestionSources
+                ),
             notes: typeof record.notes === 'string'
                 ? record.notes
                 : '',
@@ -566,6 +608,7 @@
         if (
             !next.about.trim() &&
             !next.interests.trim() &&
+            !next.goals.trim() &&
             !next.notes.trim() &&
             !next.nextTime.trim()
         ) {
