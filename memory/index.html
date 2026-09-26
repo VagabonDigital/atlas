@@ -348,6 +348,28 @@
                 1.45;
         }
 
+        .memory-suggestion-guidance {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+
+            margin-top: 1.45rem;
+
+            color:
+                var(--text-muted);
+
+            font-size:
+                0.76rem;
+            line-height:
+                1.5;
+        }
+
+        .memory-suggestion-guidance +
+        .memory-notes {
+            margin-top: 1rem;
+        }
+
         .memory-status {
             min-width: 4rem;
 
@@ -365,22 +387,13 @@
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            gap: 0.8rem;
-            flex-wrap: wrap;
+            gap: 0.65rem;
+            flex-shrink: 0;
         }
 
         .memory-source-toggle {
             display: inline-flex;
             align-items: center;
-            gap: 0.45rem;
-
-            color:
-                var(--text-muted);
-
-            font-size:
-                0.7rem;
-            font-weight:
-                500;
 
             cursor: pointer;
             user-select: none;
@@ -395,20 +408,36 @@
         .memory-source-switch {
             position: relative;
 
-            width: 1.9rem;
-            height: 1.08rem;
+            width: 2.15rem;
+            height: 1.22rem;
 
             border:
-                1px solid var(--border-faint);
+                1px solid rgba(49, 45, 38, 0.14);
             border-radius:
                 999px;
 
             background:
-                var(--surface-canvas);
+                rgba(49, 45, 38, 0.06);
+
+            box-shadow:
+                inset 0 1px 2px rgba(42, 37, 29, 0.05);
 
             transition:
                 background 0.18s ease,
-                border-color 0.18s ease;
+                border-color 0.18s ease,
+                box-shadow 0.18s ease;
+        }
+
+        html[data-theme="night"]
+        .memory-source-switch {
+            border-color:
+                rgba(255, 255, 255, 0.10);
+
+            background:
+                rgba(255, 255, 255, 0.06);
+
+            box-shadow:
+                inset 0 1px 2px rgba(0, 0, 0, 0.18);
         }
 
         .memory-source-switch::after {
@@ -418,20 +447,33 @@
             top: 50%;
             left: 0.16rem;
 
-            width: 0.7rem;
-            height: 0.7rem;
+            width: 0.78rem;
+            height: 0.78rem;
 
             border-radius: 50%;
 
             background:
                 var(--text-muted);
 
+            box-shadow:
+                0 1px 3px rgba(42, 37, 29, 0.18);
+
             transform:
                 translateY(-50%);
 
             transition:
                 transform 0.18s ease,
-                background 0.18s ease;
+                background 0.18s ease,
+                box-shadow 0.18s ease;
+        }
+
+        .memory-source-toggle:hover
+        .memory-source-switch {
+            border-color:
+                rgba(var(--accent-rgb), 0.30);
+
+            background:
+                rgba(var(--accent-rgb), 0.07);
         }
 
         .memory-source-toggle input:checked +
@@ -440,7 +482,11 @@
                 rgba(var(--accent-rgb), 0.42);
 
             background:
-                rgba(var(--accent-rgb), 0.14);
+                rgba(var(--accent-rgb), 0.16);
+
+            box-shadow:
+                inset 0 0 0 1px
+                rgba(var(--accent-rgb), 0.03);
         }
 
         .memory-source-toggle input:checked +
@@ -448,8 +494,12 @@
             background:
                 var(--accent);
 
+            box-shadow:
+                0 1px 4px
+                rgba(var(--accent-rgb), 0.30);
+
             transform:
-                translate(0.78rem, -50%);
+                translate(0.99rem, -50%);
         }
 
         .memory-source-toggle input:focus-visible +
@@ -457,10 +507,12 @@
             outline:
                 2px solid rgba(var(--accent-rgb), 0.28);
             outline-offset:
-                2px;
+                3px;
         }
 
         .memory-count {
+            display: none;
+
             min-width: 3.6rem;
 
             color:
@@ -471,6 +523,10 @@
 
             text-align:
                 right;
+        }
+
+        .memory-count[data-visible="true"] {
+            display: inline-block;
         }
 
         .memory-textarea {
@@ -631,6 +687,17 @@
                 The things worth carrying into future sessions.
             </p>
 
+            <div class="memory-suggestion-guidance">
+                <span>
+                    Choose what Compass can use when suggesting subjects.
+                </span>
+
+                <span
+                    class="memory-status"
+                    aria-live="polite"
+                ></span>
+            </div>
+
             <section class="memory-notes">
                 <div class="memory-notes-header">
                     <div>
@@ -644,27 +711,25 @@
                     </div>
 
                     <div class="memory-source-tools">
-                        <label class="memory-source-toggle">
-                            <input
-                                id="memory-about-suggestions"
-                                type="checkbox"
-                            >
-                            <span
-                                class="memory-source-switch"
-                                aria-hidden="true"
-                            ></span>
-                            <span>Use for suggestions</span>
-                        </label>
-
                         <span
                             class="memory-count"
                             id="memory-about-count"
                         ></span>
 
-                        <div
-                            class="memory-status"
-                            aria-live="polite"
-                        ></div>
+                        <label
+                            class="memory-source-toggle"
+                            title="Use About for Compass suggestions"
+                        >
+                            <input
+                                id="memory-about-suggestions"
+                                type="checkbox"
+                                aria-label="Use About for Compass suggestions"
+                            >
+                            <span
+                                class="memory-source-switch"
+                                aria-hidden="true"
+                            ></span>
+                        </label>
                     </div>
                 </div>
 
@@ -690,28 +755,26 @@
                     </div>
 
                     <div class="memory-source-tools">
-                        <label class="memory-source-toggle">
-                            <input
-                                id="memory-interests-suggestions"
-                                type="checkbox"
-                                checked
-                            >
-                            <span
-                                class="memory-source-switch"
-                                aria-hidden="true"
-                            ></span>
-                            <span>Use for suggestions</span>
-                        </label>
-
                         <span
                             class="memory-count"
                             id="memory-interests-count"
                         ></span>
 
-                        <div
-                            class="memory-status"
-                            aria-live="polite"
-                        ></div>
+                        <label
+                            class="memory-source-toggle"
+                            title="Use Interests for Compass suggestions"
+                        >
+                            <input
+                                id="memory-interests-suggestions"
+                                type="checkbox"
+                                checked
+                                aria-label="Use Interests for Compass suggestions"
+                            >
+                            <span
+                                class="memory-source-switch"
+                                aria-hidden="true"
+                            ></span>
+                        </label>
                     </div>
                 </div>
 
@@ -737,28 +800,26 @@
                     </div>
 
                     <div class="memory-source-tools">
-                        <label class="memory-source-toggle">
-                            <input
-                                id="memory-goals-suggestions"
-                                type="checkbox"
-                                checked
-                            >
-                            <span
-                                class="memory-source-switch"
-                                aria-hidden="true"
-                            ></span>
-                            <span>Use for suggestions</span>
-                        </label>
-
                         <span
                             class="memory-count"
                             id="memory-goals-count"
                         ></span>
 
-                        <div
-                            class="memory-status"
-                            aria-live="polite"
-                        ></div>
+                        <label
+                            class="memory-source-toggle"
+                            title="Use Goals for Compass suggestions"
+                        >
+                            <input
+                                id="memory-goals-suggestions"
+                                type="checkbox"
+                                checked
+                                aria-label="Use Goals for Compass suggestions"
+                            >
+                            <span
+                                class="memory-source-switch"
+                                aria-hidden="true"
+                            ></span>
+                        </label>
                     </div>
                 </div>
 
@@ -776,11 +837,6 @@
                     <h2 class="memory-notes-label">
                         Notes
                     </h2>
-
-                    <div
-                        class="memory-status"
-                        aria-live="polite"
-                    ></div>
                 </div>
 
                 <textarea
@@ -925,9 +981,16 @@
                 ({ textarea, count }) => {
                     if (!textarea || !count) return;
 
+                    const length =
+                        textarea.value.length;
+
                     count.textContent =
-                        textarea.value.length +
-                        ' / 500';
+                        length + ' / 500';
+
+                    count.dataset.visible =
+                        length >= 450
+                            ? 'true'
+                            : 'false';
                 }
             );
         }
