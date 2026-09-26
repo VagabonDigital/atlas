@@ -208,7 +208,7 @@
         if (isLightweightAction()) return;
 
         document.write(
-            '<script src="../../shared/atlas-bridge.js"><\/script>' +
+            '<script src="../../shared/atlas-bridge.js?v=20260926-learnercontext1"><\/script>' +
             '<script src="/shared/atlas-analytics.js?v=20260919-observability1"><\/script>' +
             '<script src="../../shared/atlas-tutor-content.js"><\/script>' +
             '<script src="../../shared/atlas-tutor-subjects.js"><\/script>' +
@@ -245,7 +245,7 @@
         document.write(
             '<script src="../shared/compass-subject-shell.js"><\/script>' +
             '<script src="../../shared/atlas-search.js"><\/script>' +
-            '<script src="../../shared/atlas-session-panel.js?v=20260916-runtime3"><\/script>' +
+            '<script src="../../shared/atlas-session-panel.js?v=20260926-learnercontext1"><\/script>' +
             '<script src="../shared/compass-engine.js?v=20260926-coverfallback2"><\/script>'
         );
     }
