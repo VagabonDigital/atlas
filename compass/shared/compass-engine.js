@@ -7746,6 +7746,50 @@ async function generateMyVersionFullSubject({
                 );
             }
 
+            const seedCatalogDescription =
+                String(
+                    window.AtlasGenerationContext
+                        ?.seedCatalogDescription ||
+                    window.AtlasGenerationContext
+                        ?.seedIntroduction ||
+                    ''
+                ).trim().slice(0, 300);
+
+            if (seedCatalogDescription) {
+                const seededFraming =
+                    commitMyVersionDocumentMutation(
+                        (document, overrides) => {
+                            if (
+                                !document.module ||
+                                typeof document.module !==
+                                    'object' ||
+                                Array.isArray(document.module)
+                            ) {
+                                return null;
+                            }
+
+                            document.module
+                                .catalogDescription =
+                                    seedCatalogDescription;
+
+                            delete overrides[
+                                'module.catalogDescription'
+                            ];
+
+                            return {
+                                catalogDescription:
+                                    seedCatalogDescription
+                            };
+                        }
+                    );
+
+                if (!seededFraming) {
+                    throw new Error(
+                        'Seed card introduction could not be preserved.'
+                    );
+                }
+            }
+
             completedStep = 1;
 
             await checkpointMyVersionFullSubjectGeneration(
@@ -7768,72 +7812,6 @@ async function generateMyVersionFullSubject({
                 throw new Error(
                     'Overview generation failed.'
                 );
-            }
-
-            const seedIntroduction =
-                String(
-                    window.AtlasGenerationContext
-                        ?.seedIntroduction || ''
-                ).trim();
-
-            if (seedIntroduction) {
-                const seededOverview =
-                    commitMyVersionDocumentMutation(
-                        (document, overrides) => {
-                            if (
-                                !document.subjectCopy ||
-                                typeof document.subjectCopy !==
-                                    'object' ||
-                                Array.isArray(
-                                    document.subjectCopy
-                                )
-                            ) {
-                                return null;
-                            }
-
-                            document.subjectCopy.overview =
-                                document.subjectCopy.overview &&
-                                typeof document.subjectCopy
-                                    .overview === 'object' &&
-                                !Array.isArray(
-                                    document.subjectCopy
-                                        .overview
-                                )
-                                    ? document.subjectCopy
-                                        .overview
-                                    : {};
-
-                            document.subjectCopy.overview
-                                .intro = [
-                                    seedIntroduction
-                                ];
-
-                            Object.keys(
-                                overrides
-                            ).forEach(fieldKey => {
-                                if (
-                                    fieldKey.startsWith(
-                                        'overview.intro.'
-                                    )
-                                ) {
-                                    delete overrides[
-                                        fieldKey
-                                    ];
-                                }
-                            });
-
-                            return {
-                                intro:
-                                    seedIntroduction
-                            };
-                        }
-                    );
-
-                if (!seededOverview) {
-                    throw new Error(
-                        'Seed introduction could not be preserved.'
-                    );
-                }
             }
 
             completedStep = 2;
