@@ -14558,7 +14558,7 @@
       const session = getActiveSession();
 
       return isDefaultSession(session)
-        ? 'Session Subjects'
+        ? 'Shared Subjects'
         : session.name + '’s Subjects';
     }
 
@@ -14622,7 +14622,8 @@
         mode: 'session-add-choice'
       };
 
-      kicker.textContent = 'Session Subjects';
+      kicker.textContent =
+        getActiveSessionSubjectCollectionTitle();
 
       title.textContent =
         'Add to ' +
@@ -14809,7 +14810,8 @@
           mode: 'session-add'
         };
 
-        kicker.textContent = 'Session Subjects';
+        kicker.textContent =
+        getActiveSessionSubjectCollectionTitle();
 
         title.textContent =
           'Add to ' +
