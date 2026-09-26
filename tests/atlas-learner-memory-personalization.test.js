@@ -104,8 +104,14 @@ assert.doesNotMatch(
 
 assert.match(
     memory,
-    /The things worth remembering for future lessons\. Choose what Atlas can use to suggest better subjects\./,
+    /Keep useful details here for future lessons\. Choose what Atlas can use when suggesting subjects\./,
     'Learner Memory guidance must explain the feature in simple tutor-facing language.'
+);
+
+assert.match(
+    memory,
+    /\.memory-intro \{[\s\S]*?text-wrap: balance;/,
+    'Learner Memory intro must balance line wrapping to avoid orphaned words.'
 );
 
 assert.doesNotMatch(
