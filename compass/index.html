@@ -16545,17 +16545,97 @@
       }
     ];
 
+    function getCompassLearnerSuggestionContext(
+      session
+    ) {
+      const emptyContext = {
+        about: '',
+        interests: '',
+        goals: ''
+      };
+
+      if (
+        !session ||
+        isDefaultSession(session) ||
+        typeof Bridge
+          .readLearnerMemory !==
+        'function'
+      ) {
+        return emptyContext;
+      }
+
+      try {
+        const memory =
+          Bridge.readLearnerMemory(
+            session.id
+          );
+
+        const sources =
+          memory?.suggestionSources &&
+          typeof memory.suggestionSources ===
+            'object' &&
+          !Array.isArray(
+            memory.suggestionSources
+          )
+            ? memory.suggestionSources
+            : {};
+
+        return {
+          about:
+            sources.about === true
+              ? String(
+                  memory?.about || ''
+                ).trim()
+              : '',
+
+          interests:
+            sources.interests !== false
+              ? String(
+                  memory?.interests || ''
+                ).trim()
+              : '',
+
+          goals:
+            sources.goals !== false
+              ? String(
+                  memory?.goals || ''
+                ).trim()
+              : ''
+        };
+      } catch {
+        return emptyContext;
+      }
+    }
+
+    function hasCompassLearnerSuggestionContext(
+      context
+    ) {
+      return Boolean(
+        context?.about ||
+        context?.interests ||
+        context?.goals
+      );
+    }
+
     function getAvailableCompassIdeaModes(
       session
     ) {
       const learnerName =
         String(session?.name || '').trim();
 
+      const learnerModeAvailable =
+        !isDefaultSession(session) &&
+        hasCompassLearnerSuggestionContext(
+          getCompassLearnerSuggestionContext(
+            session
+          )
+        );
+
       return COMPASS_IDEA_MODES
         .filter(
           mode =>
             !mode.namedSessionOnly ||
-            !isDefaultSession(session)
+            learnerModeAvailable
         )
         .map(mode =>
           mode.id === 'learner' &&
@@ -16665,30 +16745,6 @@
           'Change idea type. Current: ' +
             mode.label
         );
-      }
-    }
-
-    function getCompassLearnerInterests(
-      session
-    ) {
-      if (
-        !session ||
-        isDefaultSession(session) ||
-        typeof Bridge
-          .readLearnerMemory !==
-        'function'
-      ) {
-        return '';
-      }
-
-      try {
-        return String(
-          Bridge.readLearnerMemory(
-            session.id
-          )?.interests || ''
-        ).trim();
-      } catch {
-        return '';
       }
     }
 
@@ -17393,13 +17449,17 @@
             )
           : [];
 
-      const interests =
+      const learnerContext =
         selectedMode.id ===
           'learner'
-          ? getCompassLearnerInterests(
+          ? getCompassLearnerSuggestionContext(
               activeSession
             )
-          : '';
+          : {
+              about: '',
+              interests: '',
+              goals: ''
+            };
 
       try {
         const result =
@@ -17408,7 +17468,10 @@
               mode:
                 selectedMode.id,
 
-              interests,
+              learnerContext,
+
+              interests:
+                learnerContext.interests,
 
               topicFocus,
 
