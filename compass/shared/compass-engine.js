@@ -341,6 +341,7 @@ let myVersionCoverPickerPage = 1;
 let myVersionCoverPickerPhotos = [];
 let myVersionCoverPickerSelectedPhoto = null;
 let myVersionCoverPickerLoading = false;
+let myVersionCoverPickerResolvingPhoto = false;
 let myVersionCoverPickerHasMore = false;
 let myVersionCoverPickerPendingCustomImage = null;
 const myVersionCoverPickerCache = new Map();
@@ -3435,6 +3436,114 @@ function updateMyVersionCoverPickerProviderUI() {
     }
 }
 
+async function resolveMyVersionCoverPickerSearchImageUrl(
+    photo
+) {
+    const candidates =
+        Array.from(
+            new Set(
+                [
+                    String(
+                        photo?.imageUrl || ''
+                    ).trim(),
+                    String(
+                        photo?.previewUrl || ''
+                    ).trim()
+                ].filter(Boolean)
+            )
+        );
+
+    for (const candidate of candidates) {
+        try {
+            await loadMyVersionCoverPreviewImage(
+                candidate
+            );
+
+            return candidate;
+        } catch { }
+    }
+
+    throw new Error(
+        'That image could not be loaded.'
+    );
+}
+
+async function applyMyVersionCoverPickerSearchPhoto(
+    photo
+) {
+    if (
+        !myVersionEditing ||
+        myVersionSaving ||
+        myVersionCoverPickerResolvingPhoto
+    ) {
+        return;
+    }
+
+    const error = document.getElementById(
+        'atlas-cover-picker-error'
+    );
+
+    const status = document.getElementById(
+        'atlas-cover-picker-status'
+    );
+
+    if (error) {
+        error.hidden = true;
+        error.textContent = '';
+    }
+
+    if (status) {
+        status.textContent =
+            'Checking cover…';
+    }
+
+    myVersionCoverPickerResolvingPhoto = true;
+
+    try {
+        const imageUrl =
+            await resolveMyVersionCoverPickerSearchImageUrl(
+                photo
+            );
+
+        if (
+            !myVersionEditing ||
+            myVersionSaving
+        ) {
+            return;
+        }
+
+        applyMyVersionCoverPickerPhoto({
+            ...photo,
+            imageUrl
+        });
+    } catch (coverError) {
+        console.error(
+            '[Compass] Cover image could not be loaded:',
+            coverError
+        );
+
+        if (error) {
+            error.textContent =
+                'That image could not be loaded. Try another one.';
+            error.hidden = false;
+        }
+    } finally {
+        myVersionCoverPickerResolvingPhoto = false;
+
+        const dialog =
+            document.getElementById(
+                'atlas-cover-picker-dialog'
+            );
+
+        if (
+            dialog &&
+            !dialog.hidden
+        ) {
+            renderMyVersionCoverPickerResults();
+        }
+    }
+}
+
 function applyMyVersionCoverPickerPhoto(
     photo
 ) {
@@ -4024,10 +4133,13 @@ function renderMyVersionCoverPickerResults() {
             meta
         );
 
+        button.disabled =
+            myVersionCoverPickerResolvingPhoto;
+
         button.addEventListener(
             'click',
             () => {
-                applyMyVersionCoverPickerPhoto(
+                void applyMyVersionCoverPickerSearchPhoto(
                     photo
                 );
             }
@@ -4041,7 +4153,8 @@ function renderMyVersionCoverPickerResults() {
         !myVersionCoverPickerHasMore;
 
     moreButton.disabled =
-        myVersionCoverPickerLoading;
+        myVersionCoverPickerLoading ||
+        myVersionCoverPickerResolvingPhoto;
 }
 
 async function performMyVersionCoverPickerSearch({
