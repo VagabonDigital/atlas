@@ -1258,6 +1258,13 @@
       transform: translateY(0);
     }
 
+    .create-button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
     html[data-theme="night"] .create-console {
       border-color: rgba(185, 213, 205, .14);
       background: rgba(34, 42, 40, .66);
@@ -3402,7 +3409,7 @@
                 </div>
               </div>
             </div>
-            <div class="create-actions"><a class="create-button" id="createButton" href="../compass/index.html">Build in Compass</a></div>
+            <div class="create-actions"><button class="create-button" id="createButton" type="button">Try your own idea</button></div>
           </div>
           <div class="direction-picker">
             <div class="direction-head"><strong>Start with what your learner needs</strong>
@@ -3841,6 +3848,11 @@
       var demoIdeaRequestId = 0;
       var activePreviewTitle = String(resultTitle.textContent || "").trim();
       var activePreviewBrief = subjectBrief ? subjectBrief.value.trim() : "";
+      var previewSource = "default";
+      var titleIsTutorAuthored = false;
+      var briefIsTutorAuthored = false;
+      var openingRequestId = 0;
+      var createActionMode = "prompt";
 
       var demoCategories = [
         { label: "Surprise me", cue: "Something unexpected", mode: "surprise" },
@@ -3905,15 +3917,63 @@
         }
       }
 
+      function syncCreateAction() {
+        if (!createButton) return;
+
+        var title = subjectInput.value.trim();
+        var brief = subjectBrief ? subjectBrief.value.trim() : "";
+        var matchesPreview =
+          title === activePreviewTitle &&
+          brief === activePreviewBrief &&
+          !resultShell.classList.contains("is-custom");
+
+        if (resultShell.classList.contains("is-active")) {
+          createActionMode = "working";
+          createButton.textContent = "Creating the opening…";
+          createButton.disabled = true;
+          return;
+        }
+
+        if (previewSource === "default" && matchesPreview) {
+          createActionMode = "prompt";
+          createButton.textContent = "Try your own idea";
+          createButton.disabled = false;
+          return;
+        }
+
+        if (matchesPreview) {
+          createActionMode = "continue";
+          createButton.textContent = "Continue in Compass";
+          createButton.disabled = false;
+          return;
+        }
+
+        createActionMode = "opening";
+        createButton.textContent = "Create the opening";
+        createButton.disabled = !(
+          title &&
+          brief &&
+          titleIsTutorAuthored &&
+          briefIsTutorAuthored
+        );
+      }
+
       function showDemoIdeaInSubjectCard(idea) {
         if (!idea) return;
 
-        if (subjectBrief) subjectBrief.value = "";
+        var brief = String(idea.brief || idea.reason || "").trim();
+        var intro = String(idea.intro || idea.reason || "").trim();
+
+        if (subjectBrief) subjectBrief.value = brief;
         resultTitle.textContent = idea.title;
-        resultIntro.textContent = idea.reason;
+        resultIntro.textContent = intro;
         activePreviewTitle = idea.title;
-        activePreviewBrief = "";
+        activePreviewBrief = brief;
+        previewSource = "suggested";
+        titleIsTutorAuthored = false;
+        briefIsTutorAuthored = false;
         resultShell.classList.remove("is-custom");
+        syncCreateAction();
       }
 
       function showCuratedSubjectInCard(seed) {
@@ -3924,13 +3984,27 @@
         resultIntro.textContent = seed.overview.intro;
         activePreviewTitle = seed.title;
         activePreviewBrief = subjectBrief ? subjectBrief.value.trim() : "";
+        previewSource = "curated";
+        titleIsTutorAuthored = false;
+        briefIsTutorAuthored = false;
         resultShell.classList.remove("is-custom");
+        syncCreateAction();
       }
 
-      function syncCustomCreatePreview() {
+      function syncCustomCreatePreview(changedField) {
         var title = subjectInput.value.trim();
         var brief = subjectBrief ? subjectBrief.value.trim() : "";
-        var matchesPreview = title === activePreviewTitle && brief === activePreviewBrief;
+        var matchesPreview =
+          title === activePreviewTitle &&
+          brief === activePreviewBrief;
+
+        if (changedField === "title") {
+          titleIsTutorAuthored = true;
+        }
+
+        if (changedField === "brief") {
+          briefIsTutorAuthored = true;
+        }
 
         if (!matchesPreview) {
           resultTitle.textContent = title || "Your subject";
@@ -3944,6 +4018,125 @@
         } else {
           resultShell.classList.remove("is-custom");
         }
+
+        syncCreateAction();
+      }
+
+      function startOwnIdea() {
+        openingRequestId += 1;
+        previewSource = "custom";
+        activePreviewTitle = "";
+        activePreviewBrief = "";
+        titleIsTutorAuthored = false;
+        briefIsTutorAuthored = false;
+        selectedCuratedSeed = null;
+        setSelectedDemoIdea(null, null);
+        activeDemoCategory = null;
+        demoIdeaQueue = [];
+        syncDemoCategoryControls();
+        subjectButtons.forEach(function (item) { item.classList.remove("is-selected"); });
+
+        subjectInput.value = "";
+        if (subjectBrief) subjectBrief.value = "";
+        resultTitle.textContent = "Your subject";
+        resultShell.classList.add("is-custom");
+        setResultCardStatus("Compass subject", false);
+        syncCreateAction();
+
+        subjectInput.focus();
+      }
+
+      async function createCustomOpening() {
+        var title = subjectInput.value.trim();
+        var brief = subjectBrief ? subjectBrief.value.trim() : "";
+
+        if (
+          !title ||
+          !brief ||
+          !titleIsTutorAuthored ||
+          !briefIsTutorAuthored ||
+          !window.AtlasAI ||
+          typeof window.AtlasAI.createSubjectOpening !== "function"
+        ) {
+          syncCreateAction();
+          return;
+        }
+
+        var requestId = ++openingRequestId;
+
+        resultTitle.textContent = title;
+        setResultCardStatus("Creating the opening…", true);
+        syncCreateAction();
+
+        try {
+          var response = await window.AtlasAI.createSubjectOpening({
+            title: title,
+            brief: brief
+          });
+
+          if (requestId !== openingRequestId) return;
+
+          resultTitle.textContent = title;
+          resultIntro.textContent = response.opening;
+          activePreviewTitle = title;
+          activePreviewBrief = brief;
+          previewSource = "custom";
+          resultShell.classList.remove("is-custom");
+          setResultCardStatus("Compass subject", false);
+        } catch (error) {
+          if (requestId !== openingRequestId) return;
+
+          console.error("Atlas opening creation failed:", error);
+          setResultCardStatus(
+            Number(error && error.status) === 429
+              ? "Opening limit reached · try again shortly"
+              : "Couldn’t create the opening · try again",
+            false
+          );
+        } finally {
+          if (requestId === openingRequestId) {
+            syncCreateAction();
+          }
+        }
+      }
+
+      function continueCreateInCompass() {
+        var title = subjectInput.value.trim();
+        var brief = subjectBrief ? subjectBrief.value.trim() : "";
+        var opening =
+          title === activePreviewTitle &&
+          brief === activePreviewBrief &&
+          !resultShell.classList.contains("is-custom")
+            ? String(resultIntro.textContent || "").trim()
+            : "";
+
+        if (!title || !brief || !opening) {
+          syncCreateAction();
+          return;
+        }
+
+        try {
+          sessionStorage.setItem(
+            "atlas::compassCreateEntryDraft::v1",
+            JSON.stringify({
+              version: 1,
+              createdAt: Date.now(),
+              title: title,
+              brief: brief,
+              seedIntroduction: opening
+            })
+          );
+
+          sessionStorage.removeItem(
+            "atlas::tutorCreateHandoff::v1"
+          );
+        } catch (e) { }
+
+        var destination =
+          new URL("../compass/index.html", window.location.href);
+
+        destination.searchParams.set("create", "tutor");
+        window.location.href = destination.href;
       }
 
       function scrollToCreateResult() {
@@ -4053,7 +4246,8 @@
             languageLevel: "b2",
             sessionSubjects: [],
             existingSubjects: subjectButtons.map(function (item) { return { title: item.getAttribute("data-title") }; }),
-            recentSuggestions: demoIdeaHistory.slice(-18).map(function (title) { return { title: title }; })
+            recentSuggestions: demoIdeaHistory.slice(-18).map(function (title) { return { title: title }; }),
+            allowAnonymous: true
           });
 
           if (requestId !== demoIdeaRequestId) return;
@@ -4097,44 +4291,36 @@
         renderDemoCategories();
       }
 
-      subjectInput.addEventListener("input", syncCustomCreatePreview);
-      if (subjectBrief) subjectBrief.addEventListener("input", syncCustomCreatePreview);
-
       var createButton = document.getElementById("createButton");
 
+      subjectInput.addEventListener("input", function () {
+        syncCustomCreatePreview("title");
+      });
+
+      if (subjectBrief) {
+        subjectBrief.addEventListener("input", function () {
+          syncCustomCreatePreview("brief");
+        });
+      }
+
       if (createButton) {
-        createButton.addEventListener("click", function (event) {
-          event.preventDefault();
-
-          var title = subjectInput.value.trim();
-
-          if (!title) {
-            subjectInput.focus();
+        createButton.addEventListener("click", function () {
+          if (createActionMode === "prompt") {
+            startOwnIdea();
             return;
           }
 
-          var brief = subjectBrief ? subjectBrief.value.trim() : "";
-          var previewTitle = String(resultTitle.textContent || "").trim();
-          var introduction = previewTitle === title && !resultShell.classList.contains("is-custom")
-            ? String(resultIntro.textContent || "").trim()
-            : "";
+          if (createActionMode === "opening") {
+            void createCustomOpening();
+            return;
+          }
 
-          try {
-            sessionStorage.setItem(
-              "atlas::tutorCreateHandoff::v1",
-              JSON.stringify({
-                version: 1,
-                title: title,
-                brief: brief,
-                introduction: introduction
-              })
-            );
-          } catch (e) { }
-
-          var destination = new URL("../compass/index.html", window.location.href);
-          destination.searchParams.set("create", "tutor");
-          window.location.href = destination.href;
+          if (createActionMode === "continue") {
+            continueCreateInCompass();
+          }
         });
+
+        syncCreateAction();
       }
 
       var teachCompassSubjects = [
