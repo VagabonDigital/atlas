@@ -26,7 +26,7 @@
 'use strict';
 
 const WORKER_VERSION =
-    '20260925-buildworker13';
+    '20260925-buildworker14';
 
 const DEPENDENCY_VERSION =
     '20260924-workerbuild3';
@@ -590,6 +590,8 @@ function workerSnapshot(
     return {
         version:
             WORKER_VERSION,
+        workerInstanceId:
+            runtimeSourceId,
         pageCount:
             connections.size,
         authenticated:
