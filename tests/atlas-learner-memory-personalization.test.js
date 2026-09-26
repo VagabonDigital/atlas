@@ -28,6 +28,26 @@ const sessionPanel = fs.readFileSync(
     'utf8'
 );
 
+const originalEntry = fs.readFileSync(
+    'compass/shared/atlas-original-entry.js',
+    'utf8'
+);
+
+const atlasHome = fs.readFileSync(
+    'index.html',
+    'utf8'
+);
+
+const compassHome = fs.readFileSync(
+    'compass/index.html',
+    'utf8'
+);
+
+const ownedSubjectEntry = fs.readFileSync(
+    'compass/subject/index.html',
+    'utf8'
+);
+
 assert.match(
     memory,
     /id="memory-goals"/,
@@ -143,6 +163,30 @@ assert.match(
     /atlas-learner-sessions-cloud-authority\.js\?v=20260926-learnercontext1/,
     'Shared learner runtime must load the learner-context authority revision.'
 );
+
+assert.match(
+    originalEntry,
+    /atlas-bridge\.js\?v=20260926-learnercontext1/,
+    'Atlas Original subjects must refresh the learner-memory Bridge revision.'
+);
+
+for (const [label, source] of [
+    ['Atlas home', atlasHome],
+    ['Compass home', compassHome],
+    ['Owned subject entry', ownedSubjectEntry]
+]) {
+    assert.match(
+        source,
+        /atlas-bridge\.js\?v=20260926-learnercontext1/,
+        `${label} must refresh the learner-memory Bridge revision.`
+    );
+
+    assert.match(
+        source,
+        /atlas-session-panel\.js\?v=20260926-learnercontext1/,
+        `${label} must refresh the learner-session runtime revision.`
+    );
+}
 
 console.log(
     'Atlas learner-memory personalization contract verified.'
