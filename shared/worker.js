@@ -645,7 +645,7 @@ function renderAtlasBillingEmail(job) {
         ) +
         htmlFootnote +
         '</div>' +
-        '<div style="padding:20px 42px;border-top:1px solid #ece7df;font-size:12px;color:#9a9389;">Atlas · atlasfortutors.com</div>' +
+        '<div style="padding:20px 42px;border-top:1px solid #ece7df;font-size:12px;color:#9a9389;">Atlas · Create and teach.</div>' +
         '</div>' +
         '</div>';
 
@@ -672,7 +672,7 @@ function renderAtlasBillingEmail(job) {
             ]
             : []),
         '',
-        'Atlas · atlasfortutors.com'
+        'Atlas · Create and teach.'
     ].join('\n');
 
     return {
