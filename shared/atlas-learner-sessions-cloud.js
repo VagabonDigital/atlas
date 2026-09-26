@@ -41,6 +41,36 @@
         return user;
     }
 
+    const LEARNER_MEMORY_SUGGESTION_TEXT_MAX =
+        500;
+
+    function normalizeSuggestionText(value) {
+        return typeof value === 'string'
+            ? value.slice(
+                0,
+                LEARNER_MEMORY_SUGGESTION_TEXT_MAX
+            )
+            : '';
+    }
+
+    function normalizeSuggestionSources(value) {
+        const candidate =
+            value &&
+            typeof value === 'object' &&
+            !Array.isArray(value)
+                ? value
+                : {};
+
+        return {
+            about:
+                candidate.about === true,
+            interests:
+                candidate.interests !== false,
+            goals:
+                candidate.goals !== false
+        };
+    }
+
     function normalizeMemory(memory, sessionId) {
         const candidate =
             memory &&
@@ -50,14 +80,24 @@
                 : {};
 
         return {
-            schemaVersion: 1,
+            schemaVersion: 2,
             sessionId,
-            about: typeof candidate.about === 'string'
-                ? candidate.about
-                : '',
-            interests: typeof candidate.interests === 'string'
-                ? candidate.interests
-                : '',
+            about:
+                normalizeSuggestionText(
+                    candidate.about
+                ),
+            interests:
+                normalizeSuggestionText(
+                    candidate.interests
+                ),
+            goals:
+                normalizeSuggestionText(
+                    candidate.goals
+                ),
+            suggestionSources:
+                normalizeSuggestionSources(
+                    candidate.suggestionSources
+                ),
             notes: typeof candidate.notes === 'string'
                 ? candidate.notes
                 : '',
