@@ -108,7 +108,7 @@
         capabilityGatePromise = (async () => {
             if (!window.AtlasAccessBootstrap) {
                 await loadScript(
-                    '/shared/atlas-access-bootstrap.js?v=20260918-publicaccess1',
+                    '/shared/atlas-access-bootstrap.js?v=20260926-duplicatesignup1',
                     'data-atlas-access-bootstrap'
                 );
             }
