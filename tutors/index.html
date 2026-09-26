@@ -1607,7 +1607,9 @@
       font-size: .94rem;
       font-weight: 400;
       line-height: 1.24;
-      overflow-wrap: anywhere;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .teach-compass-hook {
@@ -3485,7 +3487,7 @@
 
       var curatedSubjectSeeds = {
         "Using Modal Verbs in Real Situations": {
-          title: "Using Modal Verbs in Real Situations",
+          title: "Modal Verbs in Real Life",
           brief: "Explore modal verbs through realistic everyday and professional situations. Focus on how can, could, should, must, have to, might and may express ability, permission, advice, obligation, possibility and certainty. Keep the grammar explicit but conversation-led rather than worksheet-like.",
           framing: {
             catalogDescription: "A practical look at how small changes in modal verbs can completely change what we mean.",
@@ -3928,21 +3930,21 @@
 
       var teachCompassSubjects = [
         {
-          title: "The Trees That Share Resources",
+          title: "The Trees That Share",
           hook: "Beneath the forest floor, fungal networks connect trees, prompting questions about how plants exchange resources and signals—and whether cooperation and competition can coexist in an ecosystem.",
           cover: "https://media.istockphoto.com/id/1659684092/photo/a-view-up-into-the-trees-direction-sky.jpg?s=612x612&w=0&k=20&c=ct8yVwNCts5oyYSdUrq7BBGUX5pumjpdIpChM7qOn7Y=",
           owned: true,
           action: "Explore"
         },
         {
-          title: "When Buildings Flow: Zaha Hadid And Nature-Inspired Architecture",
+          title: "Zaha Hadid & Nature",
           hook: "Zaha Hadid’s flowing architecture opens a conversation about buildings shaped by dunes, waves and wind—and whether dramatic beauty can also create practical, comfortable spaces.",
           cover: "https://miro.medium.com/v2/resize:fit:1400/1*fLrOihZ3vRwswPcyELAc7w.jpeg",
           owned: true,
           action: "Explore"
         },
         {
-          title: "The Forests That Glow at Night",
+          title: "The Forests That Glow",
           hook: "Explore the eerie world of fungi that glow in the dark — what their light reveals about forests, hidden ecosystems, and nature’s stranger forms of beauty.",
           cover: "https://www.planetnatural.com/wp-content/uploads/2024/10/Plants-That-Glow-In-The-Dark.jpg",
           owned: true,
@@ -3961,7 +3963,7 @@
           action: "Preview"
         },
         {
-          title: "TOEFL Writing: From Sentence to Argument",
+          title: "TOEFL Writing",
           hook: "A practical look at turning clear sentences into organised, developed responses, with attention to tone, accuracy, structure and the decisions strong timed writing demands.",
           cover: "https://thumbs.dreamstime.com/b/woman-hands-laptop-student-typing-education-writing-report-essay-studying-exam-university-scholarship-college-266007255.jpg",
           action: "Preview"
@@ -3979,13 +3981,13 @@
           action: "Preview"
         },
         {
-          title: "The Odyssey: Worth the Hype?",
+          title: "The Odyssey",
           hook: "Explore why a film adaptation of The Odyssey might capture our imagination — through epic journeys, unforgettable characters, and timeless questions about home, loyalty, temptation, and survival.",
           cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2AfNTRW3tus24aRHMr7-C-SizCaIZWt6S5WfFslYLurTBVD-IxBa-zjx3&s=10",
           action: "Explore"
         },
         {
-          title: "Understanding Game Theory: Strategy, Trust & Choice",
+          title: "Game Theory",
           hook: "Game theory reveals how incentives, trust, cooperation and competition shape choices in everyday relationships, business and society—and why the best strategy is not always obvious.",
           cover: "https://static.wixstatic.com/media/3eee0b_f7fae24af2bf4fdc8b705e7f35e943f7~mv2.png/v1/fill/w_568,h_316,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/3eee0b_f7fae24af2bf4fdc8b705e7f35e943f7~mv2.png",
           action: "Preview"
@@ -4059,29 +4061,14 @@
       }
 
       function renderTeachCompassCard(subject, focusable) {
-        var ownership = subject.owned
-          ? '<span class="teach-compass-ownership">My Subject</span>'
-          : '';
-
-        var menu = subject.owned
-          ? '<span class="teach-compass-menu" aria-hidden="true">' +
-            '<svg width="16" height="16" viewBox="0 0 16 16" fill="none">' +
-            '<circle cx="3.2" cy="8" r="1.15" fill="currentColor"></circle>' +
-            '<circle cx="8" cy="8" r="1.15" fill="currentColor"></circle>' +
-            '<circle cx="12.8" cy="8" r="1.15" fill="currentColor"></circle>' +
-            '</svg></span>'
-          : '';
-
         return '<article class="teach-card teach-compass-card"' +
           (focusable ? ' tabindex="0"' : ' tabindex="-1"') +
           ' aria-label="' + teachEscape(subject.title) + '">' +
           '<div class="teach-compass-cover">' +
           '<img src="' + teachEscape(subject.cover) + '" alt="" loading="lazy" decoding="async">' +
-          menu +
           '</div>' +
           '<div class="teach-compass-content">' +
           '<header class="teach-compass-header">' +
-          ownership +
           '<h3 class="teach-compass-title">' + teachEscape(subject.title) + '</h3>' +
           '</header>' +
           '<p class="teach-compass-hook">' + teachEscape(subject.hook) + '</p>' +
