@@ -823,7 +823,7 @@
     .power-rail {
       margin-top: 46px;
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       border-top: 1px solid var(--border-subtle);
       border-bottom: 1px solid var(--border-subtle);
     }
@@ -2853,6 +2853,21 @@
       color: var(--text-muted);
     }
 
+    .product-entry-final-action {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .product-entry-final-note {
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.4;
+      text-align: center;
+    }
+
     .footer {
       --atlas-footer-border: rgba(49, 45, 38, 0.14);
       --atlas-footer-soft: #7b7469;
@@ -2984,12 +2999,13 @@
         grid-template-columns: 1fr 1fr;
       }
 
-      .power:nth-child(odd) {
+      .power:first-child {
         border-left: 0;
       }
 
-      .power:last-child {
+      .power:nth-child(3) {
         grid-column: 1 / -1;
+        border-left: 0;
         border-top: 1px solid var(--border-faint);
       }
 
@@ -3061,6 +3077,11 @@
         align-items: stretch;
         flex-direction: column;
         gap: 22px;
+      }
+
+      .product-entry-final-action {
+        width: 100%;
+        align-items: stretch;
       }
 
       .product-entry-final .product-entry-primary {
@@ -3152,8 +3173,7 @@
       }
 
       .power,
-      .power:nth-child(odd),
-      .power:last-child {
+      .power:nth-child(3) {
         grid-column: auto;
         border-left: 0;
         border-top: 1px solid var(--border-faint);
@@ -3241,16 +3261,9 @@
           <a class="product-entry-primary" href="/?entry=product" data-atlas-product-entry>Explore Atlas</a>
         </div>
         <div class="power-rail" aria-label="Core Atlas capabilities">
-          <div class="power"><strong>Create</strong><span>Turn any topic, question, goal or spark into lesson-ready material in
-              seconds.</span></div>
-          <div class="power"><strong>Shape</strong><span>Rewrite questions, change direction and adapt the lesson as it
-              unfolds.</span></div>
-          <div class="power"><strong>Teach</strong><span>Go deep with structured material or change the energy with a
-              conversation game.</span></div>
-          <div class="power"><strong>Build</strong><span>Save what you create and grow a library of material you’ll actually
-              want to teach again.</span></div>
-          <div class="power"><strong>Remember</strong><span>Come back next lesson with context, language and progress already
-              there.</span></div>
+          <div class="power"><strong>Teach</strong><span>Choose from ready-to-teach Compass subjects and Arcade games.</span></div>
+          <div class="power"><strong>Create</strong><span>Turn a learner need, topic or idea into a beautifully presented subject in seconds.</span></div>
+          <div class="power"><strong>Continuity</strong><span>Carry language, interests and lesson context forward into what comes next.</span></div>
         </div>
       </div>
     </section>
@@ -3443,7 +3456,7 @@
       <div class="frame">
         <p class="kicker">Continuity</p>
         <h2>Every lesson leaves Atlas<br>better prepared for the next one.</h2>
-        <p class="lede">Atlas carries useful language and learner context forward, then turns what you learn about someone<br>into richer directions for what to teach next.</p>
+        <p class="lede">Atlas carries the language that came up and learner context forward, then turns what you learn about someone<br>into richer directions for what to teach next.</p>
 
         <div class="continuity-stage" id="continuityStage" aria-label="How lessons with Yasmin inform future preparation">
           <div class="continuity-scene" id="continuityScene">
@@ -3600,7 +3613,10 @@
           <h2 id="product-entry-final-title">Ready to try it?</h2>
           <p>Open Atlas, choose a subject or game, and use it in your next lesson.</p>
         </div>
-        <a class="product-entry-primary" href="/?entry=product" data-atlas-product-entry>Explore Atlas</a>
+        <div class="product-entry-final-action">
+          <a class="product-entry-primary" href="/?entry=product" data-atlas-product-entry>Explore Atlas</a>
+          <span class="product-entry-final-note">Free to start. No card required.</span>
+        </div>
       </div>
     </section>
   </main>
