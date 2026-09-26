@@ -27,7 +27,7 @@
         rel="stylesheet"
     >
 
-    <script src="../shared/atlas-bridge.js"></script>
+    <script src="../shared/atlas-bridge.js?v=20260926-learnercontext1"></script>
 
     <script>
         (function () {
@@ -46,8 +46,8 @@
 
             document.write(
                 '<script src="../shared/atlas-cloud.js?v=20260915-learner1"><\/script>' +
-                '<script src="../shared/atlas-learner-sessions-cloud.js?v=20260915-learner1"><\/script>' +
-                '<script src="../shared/atlas-learner-sessions-cloud-authority.js?v=20260915-learner1"><\/script>'
+                '<script src="../shared/atlas-learner-sessions-cloud.js?v=20260926-learnercontext1"><\/script>' +
+                '<script src="../shared/atlas-learner-sessions-cloud-authority.js?v=20260926-learnercontext1"><\/script>'
             );
         })();
     </script>
@@ -361,6 +361,118 @@
                 right;
         }
 
+        .memory-source-tools {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .memory-source-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+
+            color:
+                var(--text-muted);
+
+            font-size:
+                0.7rem;
+            font-weight:
+                500;
+
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .memory-source-toggle input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .memory-source-switch {
+            position: relative;
+
+            width: 1.9rem;
+            height: 1.08rem;
+
+            border:
+                1px solid var(--border-faint);
+            border-radius:
+                999px;
+
+            background:
+                var(--surface-canvas);
+
+            transition:
+                background 0.18s ease,
+                border-color 0.18s ease;
+        }
+
+        .memory-source-switch::after {
+            content: '';
+
+            position: absolute;
+            top: 50%;
+            left: 0.16rem;
+
+            width: 0.7rem;
+            height: 0.7rem;
+
+            border-radius: 50%;
+
+            background:
+                var(--text-muted);
+
+            transform:
+                translateY(-50%);
+
+            transition:
+                transform 0.18s ease,
+                background 0.18s ease;
+        }
+
+        .memory-source-toggle input:checked +
+        .memory-source-switch {
+            border-color:
+                rgba(var(--accent-rgb), 0.42);
+
+            background:
+                rgba(var(--accent-rgb), 0.14);
+        }
+
+        .memory-source-toggle input:checked +
+        .memory-source-switch::after {
+            background:
+                var(--accent);
+
+            transform:
+                translate(0.78rem, -50%);
+        }
+
+        .memory-source-toggle input:focus-visible +
+        .memory-source-switch {
+            outline:
+                2px solid rgba(var(--accent-rgb), 0.28);
+            outline-offset:
+                2px;
+        }
+
+        .memory-count {
+            min-width: 3.6rem;
+
+            color:
+                var(--text-muted);
+
+            font-size:
+                0.68rem;
+
+            text-align:
+                right;
+        }
+
         .memory-textarea {
             display: block;
 
@@ -394,7 +506,8 @@
             min-height: 105px;
         }
 
-        .memory-textarea.memory-textarea--interests {
+        .memory-textarea.memory-textarea--interests,
+        .memory-textarea.memory-textarea--goals {
             min-height: 150px;
         }
 
@@ -530,15 +643,35 @@
                         </div>
                     </div>
 
-                    <div
-                        class="memory-status"
-                        aria-live="polite"
-                    ></div>
+                    <div class="memory-source-tools">
+                        <label class="memory-source-toggle">
+                            <input
+                                id="memory-about-suggestions"
+                                type="checkbox"
+                            >
+                            <span
+                                class="memory-source-switch"
+                                aria-hidden="true"
+                            ></span>
+                            <span>Use for suggestions</span>
+                        </label>
+
+                        <span
+                            class="memory-count"
+                            id="memory-about-count"
+                        ></span>
+
+                        <div
+                            class="memory-status"
+                            aria-live="polite"
+                        ></div>
+                    </div>
                 </div>
 
                 <textarea
                     class="memory-textarea memory-textarea--about"
                     id="memory-about"
+                    maxlength="500"
                     placeholder="Where they’re from, what they do, what’s changing…"
                     aria-label="About learner"
                 ></textarea>
@@ -552,21 +685,89 @@
                         </h2>
 
                         <div class="memory-notes-hint">
-                            Used by Compass when suggesting subjects.
+                            Topics and things they enjoy talking about.
                         </div>
                     </div>
 
-                    <div
-                        class="memory-status"
-                        aria-live="polite"
-                    ></div>
+                    <div class="memory-source-tools">
+                        <label class="memory-source-toggle">
+                            <input
+                                id="memory-interests-suggestions"
+                                type="checkbox"
+                                checked
+                            >
+                            <span
+                                class="memory-source-switch"
+                                aria-hidden="true"
+                            ></span>
+                            <span>Use for suggestions</span>
+                        </label>
+
+                        <span
+                            class="memory-count"
+                            id="memory-interests-count"
+                        ></span>
+
+                        <div
+                            class="memory-status"
+                            aria-live="polite"
+                        ></div>
+                    </div>
                 </div>
 
                 <textarea
                     class="memory-textarea memory-textarea--interests"
                     id="memory-interests"
+                    maxlength="500"
                     placeholder="Topics, hobbies, interests, or things they enjoy talking about…"
                     aria-label="Learner interests"
+                ></textarea>
+            </section>
+
+            <section class="memory-notes">
+                <div class="memory-notes-header">
+                    <div>
+                        <h2 class="memory-notes-label">
+                            Goals
+                        </h2>
+
+                        <div class="memory-notes-hint">
+                            What they want to improve or become more confident doing.
+                        </div>
+                    </div>
+
+                    <div class="memory-source-tools">
+                        <label class="memory-source-toggle">
+                            <input
+                                id="memory-goals-suggestions"
+                                type="checkbox"
+                                checked
+                            >
+                            <span
+                                class="memory-source-switch"
+                                aria-hidden="true"
+                            ></span>
+                            <span>Use for suggestions</span>
+                        </label>
+
+                        <span
+                            class="memory-count"
+                            id="memory-goals-count"
+                        ></span>
+
+                        <div
+                            class="memory-status"
+                            aria-live="polite"
+                        ></div>
+                    </div>
+                </div>
+
+                <textarea
+                    class="memory-textarea memory-textarea--goals"
+                    id="memory-goals"
+                    maxlength="500"
+                    placeholder="Speaking goals, work situations, confidence, language priorities…"
+                    aria-label="Learner goals"
                 ></textarea>
             </section>
 
@@ -640,10 +841,54 @@
                 'memory-interests'
             );
 
+        const goalsTextarea =
+            document.getElementById(
+                'memory-goals'
+            );
+
+        const aboutSuggestionsToggle =
+            document.getElementById(
+                'memory-about-suggestions'
+            );
+
+        const interestsSuggestionsToggle =
+            document.getElementById(
+                'memory-interests-suggestions'
+            );
+
+        const goalsSuggestionsToggle =
+            document.getElementById(
+                'memory-goals-suggestions'
+            );
+
         const notesTextarea =
             document.getElementById(
                 'memory-textarea'
             );
+
+        const suggestionTextFields = [
+            {
+                textarea: aboutTextarea,
+                count:
+                    document.getElementById(
+                        'memory-about-count'
+                    )
+            },
+            {
+                textarea: interestsTextarea,
+                count:
+                    document.getElementById(
+                        'memory-interests-count'
+                    )
+            },
+            {
+                textarea: goalsTextarea,
+                count:
+                    document.getElementById(
+                        'memory-goals-count'
+                    )
+            }
+        ];
 
         const statuses =
             Array.from(
@@ -664,12 +909,39 @@
             });
         }
 
+        function getSuggestionSources() {
+            return {
+                about:
+                    aboutSuggestionsToggle.checked,
+                interests:
+                    interestsSuggestionsToggle.checked,
+                goals:
+                    goalsSuggestionsToggle.checked
+            };
+        }
+
+        function updateSuggestionTextCounts() {
+            suggestionTextFields.forEach(
+                ({ textarea, count }) => {
+                    if (!textarea || !count) return;
+
+                    count.textContent =
+                        textarea.value.length +
+                        ' / 500';
+                }
+            );
+        }
+
         function getMemoryValue() {
             return JSON.stringify({
                 about:
                     aboutTextarea.value,
                 interests:
                     interestsTextarea.value,
+                goals:
+                    goalsTextarea.value,
+                suggestionSources:
+                    getSuggestionSources(),
                 notes:
                     notesTextarea.value
             });
@@ -689,6 +961,12 @@
             const interests =
                 interestsTextarea.value;
 
+            const goals =
+                goalsTextarea.value;
+
+            const suggestionSources =
+                getSuggestionSources();
+
             const notes =
                 notesTextarea.value;
 
@@ -696,6 +974,8 @@
                 JSON.stringify({
                     about,
                     interests,
+                    goals,
+                    suggestionSources,
                     notes
                 });
 
@@ -723,6 +1003,8 @@
                         {
                             about,
                             interests,
+                            goals,
+                            suggestionSources,
                             notes
                         }
                     );
@@ -732,6 +1014,8 @@
                         {
                             about,
                             interests,
+                            goals,
+                            suggestionSources,
                             notes
                         }
                     );
@@ -833,8 +1117,25 @@
             interestsTextarea.value =
                 memory.interests || '';
 
+            goalsTextarea.value =
+                memory.goals || '';
+
+            aboutSuggestionsToggle.checked =
+                memory.suggestionSources?.about ===
+                true;
+
+            interestsSuggestionsToggle.checked =
+                memory.suggestionSources?.interests !==
+                false;
+
+            goalsSuggestionsToggle.checked =
+                memory.suggestionSources?.goals !==
+                false;
+
             notesTextarea.value =
                 memory.notes || '';
+
+            updateSuggestionTextCounts();
 
             lastSavedValue =
                 getMemoryValue();
@@ -842,16 +1143,31 @@
             [
                 aboutTextarea,
                 interestsTextarea,
+                goalsTextarea,
                 notesTextarea
             ].forEach(textarea => {
                 textarea.addEventListener(
                     'input',
-                    queueSave
+                    () => {
+                        updateSuggestionTextCounts();
+                        queueSave();
+                    }
                 );
 
                 textarea.addEventListener(
                     'blur',
                     saveMemory
+                );
+            });
+
+            [
+                aboutSuggestionsToggle,
+                interestsSuggestionsToggle,
+                goalsSuggestionsToggle
+            ].forEach(toggle => {
+                toggle.addEventListener(
+                    'change',
+                    queueSave
                 );
             });
 
