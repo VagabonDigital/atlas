@@ -10063,7 +10063,7 @@
       const seedIntroduction =
         String(
           draft.seedIntroduction || ''
-        ).trim().slice(0, 1800);
+        ).trim().slice(0, 300);
 
       if (
         !title ||
@@ -10188,7 +10188,7 @@
         seedIntroduction:
           String(
             state.seedIntroduction || ''
-          ).trim().slice(0, 1800)
+          ).trim().slice(0, 300)
       };
     }
 
@@ -10519,7 +10519,7 @@
         seedIntroduction:
           String(
             initialDraft?.seedIntroduction || ''
-          ).trim().slice(0, 1800),
+          ).trim().slice(0, 300),
         seedTitle:
           String(
             initialDraft?.title || ''
@@ -11682,7 +11682,7 @@
           seedIntroduction:
             String(
               state.seedIntroduction || ''
-            ).trim().slice(0, 1800)
+            ).trim().slice(0, 300)
         };
 
         if (
