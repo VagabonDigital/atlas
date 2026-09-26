@@ -172,14 +172,14 @@
 
             if (!window.AtlasLearnerSessionsCloud) {
                 await loadScript(
-                    '/shared/atlas-learner-sessions-cloud.js?v=20260916-runtime3',
+                    '/shared/atlas-learner-sessions-cloud.js?v=20260926-learnercontext1',
                     'data-atlas-learner-cloud-adapter'
                 );
             }
 
             if (!window.AtlasLearnerSessionsCloudAuthority) {
                 await loadScript(
-                    '/shared/atlas-learner-sessions-cloud-authority.js?v=20260916-runtime3',
+                    '/shared/atlas-learner-sessions-cloud-authority.js?v=20260926-learnercontext1',
                     'data-atlas-learner-cloud-authority'
                 );
             }
