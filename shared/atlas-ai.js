@@ -2090,20 +2090,11 @@
                 candidate.recentSuggestions
             )
                 ? candidate.recentSuggestions
-                    .map(idea => ({
-                        title:
-                            cleanString(
-                                idea?.title
-                            ),
-
-                        reason:
-                            cleanString(
-                                idea?.reason
-                            )
-                    }))
-                    .filter(idea =>
-                        idea.title
+                    .map(title =>
+                        cleanString(title)
                     )
+                    .filter(Boolean)
+                    .slice(-36)
                 : [];
 
         const response = await requestAtlasAI(
