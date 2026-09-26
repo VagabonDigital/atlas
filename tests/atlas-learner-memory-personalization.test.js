@@ -104,14 +104,14 @@ assert.doesNotMatch(
 
 assert.match(
     memory,
-    /The things worth carrying into future sessions — and the context Atlas can use to make suggestions feel genuinely relevant\./,
-    'Learner Memory must confidently explain the value of Atlas personalization.'
+    /The things worth remembering for future lessons\. Choose what Atlas can use to suggest better subjects\./,
+    'Learner Memory guidance must explain the feature in simple tutor-facing language.'
 );
 
-assert.match(
+assert.doesNotMatch(
     memory,
-    /Choose which parts of this learner’s memory Atlas can draw on when suggesting subjects\.[\s\S]*?Notes stay just for your teaching continuity\./,
-    'Learner Memory must explain both suggestion-source choice and the Notes boundary.'
+    /teaching continuity|Notes stay just for you|Notes stay just for/,
+    'Learner Memory guidance must not narrate obvious Notes behavior.'
 );
 
 assert.doesNotMatch(
