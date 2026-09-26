@@ -946,9 +946,7 @@
       position: relative;
       border: 1px solid color-mix(in srgb, var(--border-subtle) 72%, #d9d2c6);
       border-radius: 22px;
-      background:
-        radial-gradient(circle at 88% 0%, rgba(var(--compass-rgb), .11), transparent 17rem),
-        color-mix(in srgb, var(--surface-panel) 84%, #f3f0e9);
+      background: #f1ede4;
       box-shadow:
         0 30px 58px -28px rgba(34, 31, 25, .38),
         0 12px 24px -18px rgba(34, 31, 25, .26),
@@ -1167,9 +1165,7 @@
 
     html[data-theme="night"] .create-console {
       border-color: rgba(255, 255, 255, .09);
-      background:
-        radial-gradient(circle at 88% 0%, rgba(var(--compass-rgb), .13), transparent 17rem),
-        #262b2a;
+      background: #272924;
       box-shadow:
         0 30px 64px -30px rgba(0, 0, 0, .72),
         0 10px 26px -20px rgba(0, 0, 0, .68),
@@ -1280,9 +1276,7 @@
       padding: 14px 15px;
       border: 1px solid color-mix(in srgb, var(--border-faint) 82%, #d9d2c6);
       border-radius: 13px;
-      background:
-        linear-gradient(145deg, rgba(255, 255, 255, .46), transparent 70%),
-        var(--surface-panel);
+      background: #fff;
       box-shadow:
         0 12px 26px -24px rgba(24, 29, 27, .46),
         inset 0 1px 0 rgba(255, 255, 255, .68);
@@ -1302,9 +1296,7 @@
     .subject-title:hover,
     .subject-title:focus-visible {
       border-color: rgba(var(--accent-rgb), .28);
-      background:
-        linear-gradient(145deg, rgba(255, 255, 255, .54), transparent 70%),
-        var(--accent-pale);
+      background: #f7faf9;
       box-shadow:
         0 16px 30px -23px rgba(24, 29, 27, .34),
         inset 0 1px 0 rgba(255, 255, 255, .74);
@@ -1319,9 +1311,7 @@
 
     .subject-title.is-selected {
       border-color: rgba(var(--accent-rgb), .38);
-      background:
-        linear-gradient(145deg, rgba(255, 255, 255, .42), transparent 70%),
-        var(--accent-soft);
+      background: #eef6f3;
       box-shadow:
         0 14px 28px -24px rgba(var(--accent-rgb), .5),
         inset 0 1px 0 rgba(255, 255, 255, .7);
@@ -3180,7 +3170,7 @@
               <div class="create-field">
                 <label class="create-prompt" for="subjectBrief">Optional brief</label>
                 <textarea class="create-brief" id="subjectBrief" rows="3"
-                  placeholder="Add learner context, goals or a specific direction…">Preparing for an upcoming LEGO product design interview. Focus on explaining creative choices, balancing user needs with practical constraints, and responding to challenging feedback.</textarea>
+                  placeholder="Add learner context, goals or a specific direction…">My student is interviewing for a product designer role at LEGO. He needs practice explaining his design decisions, balancing creativity with user needs and practical constraints, and responding confidently when his ideas are challenged.</textarea>
               </div>
             </div>
             <div class="create-result" aria-live="polite">
