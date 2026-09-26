@@ -2830,10 +2830,15 @@
 
     .archived-subject-more {
       width: 2.35rem;
-      padding-left: 0;
-      padding-right: 0;
-      flex: 0 0 auto;
+      height: 2.35rem;
+      min-height: 2.35rem;
+      padding: 0;
+      flex: 0 0 2.35rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       font-size: 1rem;
+      line-height: 1;
       letter-spacing: 0.08em;
     }
 
@@ -3075,6 +3080,17 @@
     .atlas-toast.visible {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
+    }
+
+    .atlas-toast-action {
+      margin-left: 0.75rem;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--accent-strong);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
     }
 
     /* ============================================================
@@ -4882,7 +4898,7 @@
     }
 
     let toastTimer = null;
-    function showToast(text) {
+    function showToast(text, options = {}) {
       let el = document.getElementById('atlas-toast');
       if (!el) {
         el = document.createElement('div');
@@ -4891,12 +4907,35 @@
         el.setAttribute('role', 'status');
         document.body.appendChild(el);
       }
-      el.textContent = text;
+
+      el.replaceChildren(
+        document.createTextNode(String(text || ''))
+      );
+
+      if (
+        options.actionLabel &&
+        typeof options.onAction === 'function'
+      ) {
+        const action = document.createElement('button');
+        action.type = 'button';
+        action.className = 'atlas-toast-action';
+        action.textContent = options.actionLabel;
+        action.onclick = async () => {
+          action.disabled = true;
+          try {
+            await options.onAction();
+          } finally {
+            el.classList.remove('visible');
+          }
+        };
+        el.appendChild(action);
+      }
+
       requestAnimationFrame(() => el.classList.add('visible'));
       if (toastTimer) clearTimeout(toastTimer);
       toastTimer = setTimeout(() => {
         el.classList.remove('visible');
-      }, 3200);
+      }, Number(options.durationMs) || 3200);
     }
 
     // ================================================================
@@ -6159,18 +6198,42 @@
             throw new Error('Delete operation failed.');
           }
         } else {
-          if (!Subjects || typeof Subjects.deleteSubject !== 'function') {
+          if (
+            !Subjects ||
+            typeof Subjects.beginPendingDelete !== 'function' ||
+            typeof Subjects.cancelPendingDelete !== 'function'
+          ) {
             throw new Error('My Subjects deletion is unavailable.');
           }
 
-          const deleted = await Subjects.deleteSubject(id);
-          if (!deleted) {
+          const pending =
+            await Subjects.beginPendingDelete(id, 7000);
+
+          if (!pending) {
             throw new Error('Delete operation failed.');
           }
 
-          if (typeof Bridge.removeItem === 'function') {
-            Bridge.removeItem('compass:' + id);
-          }
+          await renderArchivedSubjectsSettings();
+          renderRestoreAllAtlasOriginalsSetting();
+
+          showToast('Subject deleted.', {
+            actionLabel: 'Undo',
+            durationMs: 7000,
+            onAction: async () => {
+              const restored =
+                await Subjects.cancelPendingDelete(id);
+
+              if (!restored) {
+                showToast('Couldn’t undo deletion.');
+                return;
+              }
+
+              await renderArchivedSubjectsSettings();
+              showToast('Subject restored.');
+            }
+          });
+
+          return;
         }
 
         await renderArchivedSubjectsSettings();
