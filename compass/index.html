@@ -12668,19 +12668,33 @@
     }
 
     async function resolveHubCoverPickerSearchImageUrl(
-      photo
+      photo,
+      provider = hubCoverPickerProvider
     ) {
+      const imageUrl =
+        String(
+          photo?.imageUrl || ''
+        ).trim();
+
+      const previewUrl =
+        String(
+          photo?.previewUrl || ''
+        ).trim();
+
       const candidates =
         Array.from(
           new Set(
-            [
-              String(
-                photo?.imageUrl || ''
-              ).trim(),
-              String(
-                photo?.previewUrl || ''
-              ).trim()
-            ].filter(Boolean)
+            (
+              provider === 'web'
+                ? [
+                    previewUrl,
+                    imageUrl
+                  ]
+                : [
+                    imageUrl,
+                    previewUrl
+                  ]
+            ).filter(Boolean)
           )
         );
 
@@ -12730,7 +12744,8 @@
       try {
         const imageUrl =
           await resolveHubCoverPickerSearchImageUrl(
-            photo
+            photo,
+            hubCoverPickerProvider
           );
 
         if (
