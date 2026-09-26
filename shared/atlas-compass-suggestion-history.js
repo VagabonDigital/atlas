@@ -18,6 +18,7 @@
     const AUTH_STORAGE_KEY = 'sb-jnhjfpagectprceswvqn-auth-token';
     const CACHE_KEY = 'atlas::compassSuggestionHistory::v1';
     const CACHE_OWNER_KEY = 'atlas::compassSuggestionHistoryOwner::v1';
+    const DIRTY_OWNER_KEY = 'atlas::compassSuggestionHistoryDirtyOwner::v1';
     const CLOUD_SCRIPT_PATH = '/shared/atlas-cloud.js';
     const CLOUD_SCRIPT_VERSION = '20260916-runtime3';
     const SCHEMA_VERSION = 1;
@@ -212,6 +213,36 @@
             } else {
                 localStorage.removeItem(
                     CACHE_OWNER_KEY
+                );
+            }
+        } catch { }
+    }
+
+    function readDirtyOwner() {
+        try {
+            return String(
+                localStorage.getItem(
+                    DIRTY_OWNER_KEY
+                ) || ''
+            ).trim();
+        } catch {
+            return '';
+        }
+    }
+
+    function writeDirtyOwner(userId) {
+        try {
+            const id =
+                String(userId || '').trim();
+
+            if (id) {
+                localStorage.setItem(
+                    DIRTY_OWNER_KEY,
+                    id
+                );
+            } else {
+                localStorage.removeItem(
+                    DIRTY_OWNER_KEY
                 );
             }
         } catch { }
@@ -544,10 +575,6 @@
                 latest.revision
             );
 
-        writeLocalState(
-            remoteRecord.state
-        );
-
         writeCacheOwner(userId);
 
         return remoteRecord;
@@ -581,17 +608,24 @@
                         throw error;
                     }
 
-                    return await mergeAndRetry(
-                        userId,
-                        snapshot
-                    );
+                    remoteRecord =
+                        await mergeAndRetry(
+                            userId,
+                            snapshot
+                        );
                 }
             } else {
+                const desired =
+                    mergeStates(
+                        remoteRecord.state,
+                        snapshot
+                    );
+
                 try {
                     remoteRecord =
                         await updateRemote(
                             userId,
-                            snapshot,
+                            desired,
                             remoteRecord.revision
                         );
                 } catch (error) {
@@ -602,18 +636,34 @@
                         throw error;
                     }
 
-                    return await mergeAndRetry(
-                        userId,
-                        snapshot
-                    );
+                    remoteRecord =
+                        await mergeAndRetry(
+                            userId,
+                            desired
+                        );
                 }
             }
 
-            writeLocalState(
-                remoteRecord.state
-            );
-
             writeCacheOwner(userId);
+
+            if (
+                remoteRecord &&
+                statesEqual(
+                    readLocalState(),
+                    snapshot
+                )
+            ) {
+                writeLocalState(
+                    remoteRecord.state
+                );
+
+                if (
+                    readDirtyOwner() ===
+                    userId
+                ) {
+                    writeDirtyOwner('');
+                }
+            }
 
             return remoteRecord;
         } catch (error) {
@@ -653,6 +703,7 @@
                 );
 
                 writeCacheOwner('');
+                writeDirtyOwner('');
             }
 
             return getState();
@@ -711,6 +762,7 @@
                 writeLocalState(
                     emptyState()
                 );
+                writeDirtyOwner('');
             }
 
             authenticated = true;
@@ -741,6 +793,7 @@
                     );
 
                     writeCacheOwner('');
+                    writeDirtyOwner('');
 
                     return getState();
                 }
@@ -752,15 +805,21 @@
                     writeLocalState(
                         emptyState()
                     );
+                    writeDirtyOwner('');
                 }
 
                 authenticated = true;
                 currentUserId =
                     liveUserId;
 
-                const localBefore =
+                const localIsDirty =
                     readCacheOwner() ===
-                        liveUserId
+                        liveUserId &&
+                    readDirtyOwner() ===
+                        liveUserId;
+
+                const localBefore =
+                    localIsDirty
                         ? readLocalState()
                         : emptyState();
 
@@ -777,6 +836,7 @@
                         );
 
                     if (
+                        localIsDirty &&
                         hasMeaningfulState(
                             localBefore
                         ) &&
@@ -813,6 +873,7 @@
                         merged
                     );
                 } else if (
+                    localIsDirty &&
                     hasMeaningfulState(
                         localBefore
                     )
@@ -852,6 +913,13 @@
                     liveUserId
                 );
 
+                if (
+                    readDirtyOwner() ===
+                    liveUserId
+                ) {
+                    writeDirtyOwner('');
+                }
+
                 initialized = true;
                 return getState();
             } catch (error) {
@@ -872,6 +940,7 @@
                     writeCacheOwner(
                         storedUserId
                     );
+                    writeDirtyOwner('');
                 }
 
                 initialized = true;
@@ -959,6 +1028,9 @@
 
         writeLocalState(state);
         writeCacheOwner(
+            currentUserId
+        );
+        writeDirtyOwner(
             currentUserId
         );
 
