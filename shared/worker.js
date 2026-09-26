@@ -119,7 +119,7 @@ async function allowAtlasAnonymousOpening(
         `compass-opening:${address}`;
 
     const configuredLimiter =
-        env.ATLAS_ANONYMOUS_SUGGESTION_RATE_LIMITER;
+        env.ATLAS_ANONYMOUS_OPENING_RATE_LIMITER;
 
     if (
         configuredLimiter &&
