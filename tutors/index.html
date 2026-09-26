@@ -794,7 +794,7 @@
       justify-content: center;
       padding: 10px 15px;
       border: 1px solid var(--accent);
-      border-radius: 9px;
+      border-radius: 7px;
       background: var(--accent);
       color: white;
       font-size: 14px;
@@ -869,7 +869,7 @@
     .overview-video-player {
       overflow: hidden;
       border: 1px solid var(--border-subtle);
-      border-radius: 16px;
+      border-radius: 14px;
       background: #000;
       box-shadow: var(--shadow-md);
     }
@@ -1382,10 +1382,10 @@
     }
 
     .teach-stage {
-      --teach-card-width: 248px;
-      --teach-gap: 14px;
-      margin-top: 26px;
-      padding: 11px 0 12px;
+      --teach-card-width: 202px;
+      --teach-gap: 12px;
+      margin-top: 24px;
+      padding: 10px 0 11px;
       overflow: hidden;
       border: 1px solid #e8e3d9;
       border-radius: 26px;
@@ -1401,8 +1401,8 @@
     }
 
     .teach-lane + .teach-lane {
-      margin-top: 8px;
-      padding-top: 8px;
+      margin-top: 12px;
+      padding-top: 13px;
       border-top: 1px solid var(--border-faint);
     }
 
@@ -1410,12 +1410,12 @@
       display: flex;
       align-items: baseline;
       gap: 8px;
-      padding: 0 15px 7px;
+      padding: 4px 16px 11px;
     }
 
     .teach-world-name {
       font-family: var(--font-display);
-      font-size: 18px;
+      font-size: 17px;
       line-height: 1;
       letter-spacing: -.015em;
     }
@@ -1492,9 +1492,9 @@
 
     /* Compass cards: scaled directly from the real Compass Hub cover-card contract. */
     .teach-compass-card {
-      --teach-compass-card-height: 242px;
-      --teach-cover-rest: 112px;
-      --teach-cover-expanded: 52px;
+      --teach-compass-card-height: 198px;
+      --teach-cover-rest: 92px;
+      --teach-cover-expanded: 43px;
       --teach-cover-shift: calc(var(--teach-cover-rest) - var(--teach-cover-expanded));
       --teach-hook-hidden: 0px;
       position: relative;
@@ -1503,7 +1503,7 @@
       padding: 0;
       overflow: hidden;
       border: 1px solid rgba(74, 91, 84, .09);
-      border-radius: 16px;
+      border-radius: 14px;
       background: #fffefa;
       color: #211f1b;
       box-shadow: 0 7px 24px rgba(52, 58, 48, .055);
@@ -1529,7 +1529,7 @@
       height: var(--teach-cover-rest);
       min-height: 0;
       overflow: hidden;
-      border-radius: 15px 15px 0 0;
+      border-radius: 13px 13px 0 0;
       background: #ebe7de;
     }
 
@@ -1546,13 +1546,13 @@
 
     .teach-compass-menu {
       position: absolute;
-      top: 9px;
-      right: 9px;
+      top: 7px;
+      right: 7px;
       z-index: 4;
       display: grid;
       place-items: center;
-      width: 28px;
-      height: 28px;
+      width: 23px;
+      height: 23px;
       border: 1px solid rgba(255, 255, 255, .72);
       border-radius: 9px;
       background: #fffefa;
@@ -1571,7 +1571,7 @@
       display: flex;
       flex-direction: column;
       min-height: 0;
-      padding: .78rem .84rem .8rem;
+      padding: .63rem .68rem .65rem;
       background: transparent;
       isolation: isolate;
     }
@@ -1594,7 +1594,7 @@
     }
 
     .teach-compass-header {
-      margin: 0 0 .38rem;
+      margin: 0 0 .3rem;
       transform: translate3d(0, var(--teach-cover-shift), 0);
       transition: transform 420ms cubic-bezier(.25,.8,.25,1);
       will-change: transform;
@@ -1614,7 +1614,7 @@
       margin: 0;
       color: #211f1b;
       font-family: var(--font-display);
-      font-size: .94rem;
+      font-size: .78rem;
       font-weight: 400;
       line-height: 1.24;
       overflow: hidden;
@@ -1629,8 +1629,8 @@
       max-width: none;
       overflow: hidden;
       color: #7b7469;
-      font-size: .68rem;
-      line-height: 1.45;
+      font-size: .58rem;
+      line-height: 1.42;
       clip-path: inset(0 0 var(--teach-hook-hidden) 0);
       transform: translate3d(0, var(--teach-cover-shift), 0);
       transition:
@@ -1643,9 +1643,9 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: .7rem;
+      gap: .55rem;
       margin-top: auto;
-      padding-top: .45rem;
+      padding-top: .36rem;
     }
 
     .teach-compass-action {
@@ -1653,14 +1653,14 @@
       align-items: center;
       justify-content: center;
       gap: .3rem;
-      min-width: 82px;
-      min-height: 30px;
-      padding: .32rem .7rem;
+      min-width: 68px;
+      min-height: 25px;
+      padding: .26rem .56rem;
       border: 1px solid rgba(var(--compass-rgb), .24);
       border-radius: 999px;
       background: rgba(var(--compass-rgb), .10);
       color: #4a7c78;
-      font-size: .68rem;
+      font-size: .58rem;
       font-weight: 500;
       line-height: 1;
       white-space: nowrap;
@@ -1740,14 +1740,14 @@
       display: flex;
       flex: 1;
       flex-direction: column;
-      padding: .78rem .84rem .82rem;
+      padding: .63rem .68rem .66rem;
     }
 
     .teach-arcade-title {
-      margin: 0 0 .4rem;
+      margin: 0 0 .32rem;
       color: #2d1f3d;
       font-family: var(--font-display);
-      font-size: clamp(1rem, 1.12vw, 1.12rem);
+      font-size: clamp(.84rem, .94vw, .96rem);
       font-weight: 400;
       line-height: 1.2;
       letter-spacing: -.025em;
@@ -1756,22 +1756,22 @@
     .teach-arcade-premise {
       margin: 0;
       color: #5a4a6e;
-      font-size: .69rem;
-      line-height: 1.42;
+      font-size: .59rem;
+      line-height: 1.4;
     }
 
     .teach-arcade-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: .5rem;
+      gap: .4rem;
       margin-top: auto;
-      padding-top: .68rem;
+      padding-top: .54rem;
     }
 
     .teach-arcade-unit {
       color: #5a4a6e;
-      font-size: .7rem;
+      font-size: .6rem;
       font-weight: 500;
       line-height: 1.4;
     }
@@ -1781,14 +1781,14 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      gap: .4rem;
-      min-height: 31px;
-      padding: .34rem .68rem;
+      gap: .32rem;
+      min-height: 26px;
+      padding: .27rem .55rem;
       border: 1px solid rgba(var(--arcade-rgb), .2);
       border-radius: 999px;
       background: #fdf0eb;
       color: #bb3f1d;
-      font-size: .74rem;
+      font-size: .62rem;
       font-weight: 600;
       transition: background-color 220ms ease, box-shadow 220ms ease;
     }
@@ -4160,7 +4160,7 @@
 
         cards.forEach(function (card) {
           var width = card.getBoundingClientRect().width || 310;
-          var height = Math.max(232, Math.min(258, Math.round(width * .975)));
+          var height = Math.max(194, Math.min(214, Math.round(width * .975)));
           var coverRest = Math.round(height * (170 / 370));
           var coverExpanded = Math.round(height * (80 / 370));
           var hook = card.querySelector(".teach-compass-hook");
