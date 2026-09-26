@@ -10312,6 +10312,8 @@
         ) {
           ownedSubjectDialogState
             .anonymousPreview = false;
+          ownedSubjectDialogState
+            .deferCreateCapabilityGate = false;
         }
 
         return true;
@@ -10491,6 +10493,8 @@
       ownedSubjectDialogState = {
         mode: 'create',
         anonymousPreview,
+        deferCreateCapabilityGate:
+          options.skipCapabilityGate === true,
         sessionId:
           String(
             initialDraft?.sessionId ||
@@ -11551,7 +11555,10 @@
           return;
         }
 
-        if (state.anonymousPreview) {
+        if (
+          state.anonymousPreview ||
+          state.deferCreateCapabilityGate
+        ) {
           const allowed =
             await requireAnonymousCreatePreviewAccess(
               createMode,
