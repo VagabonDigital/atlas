@@ -726,7 +726,7 @@
             );
 
             await loadScript(
-                '../shared/compass-engine.js?v=20260925-resumeux1',
+                '../shared/compass-engine.js?v=20260925-handoffdoc1',
                 'Compass engine could not be loaded.'
             );
 
