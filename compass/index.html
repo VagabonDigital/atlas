@@ -9017,7 +9017,7 @@
       }
     }
 
-    function syncCreateSeedIntroduction(
+    function syncCreateSeedCatalogDescription(
       dialog = document.getElementById(
         'owned-subject-dialog'
       )
@@ -9276,7 +9276,7 @@
           syncAnonymousCreatePreviewState(
             dialog
           );
-          syncCreateSeedIntroduction(
+          syncCreateSeedCatalogDescription(
             dialog
           );
         }
@@ -9287,7 +9287,7 @@
       )?.addEventListener(
         'input',
         () => {
-          syncCreateSeedIntroduction(
+          syncCreateSeedCatalogDescription(
             dialog
           );
         }
