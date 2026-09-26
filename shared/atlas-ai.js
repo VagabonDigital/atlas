@@ -360,6 +360,15 @@
         return String(value ?? '').trim();
     }
 
+    const LEARNER_SUGGESTION_TEXT_MAX = 500;
+
+    function cleanLearnerSuggestionText(value) {
+        return cleanString(value).slice(
+            0,
+            LEARNER_SUGGESTION_TEXT_MAX
+        );
+    }
+
     function buildLanguageUpgradeBrief(
         localBrief = '',
         existingLanguage = []
@@ -2170,6 +2179,38 @@
                     .slice(-36)
                 : [];
 
+        const learnerContextCandidate =
+            candidate.learnerContext &&
+            typeof candidate.learnerContext ===
+                'object' &&
+            !Array.isArray(
+                candidate.learnerContext
+            )
+                ? candidate.learnerContext
+                : null;
+
+        const learnerContext = {
+            about:
+                cleanLearnerSuggestionText(
+                    learnerContextCandidate
+                        ?.about
+                ),
+
+            interests:
+                cleanLearnerSuggestionText(
+                    learnerContextCandidate
+                        ? learnerContextCandidate
+                            .interests
+                        : candidate.interests
+                ),
+
+            goals:
+                cleanLearnerSuggestionText(
+                    learnerContextCandidate
+                        ?.goals
+                )
+        };
+
         const response = await requestAtlasAI(
             `${BASE_URL}/suggest-subject-ideas`,
             {
@@ -2186,10 +2227,15 @@
                             candidate.mode
                         ),
 
+                    learnerContext,
+
+                    /*
+                     * Temporary transport compatibility for a previously
+                     * deployed Worker that still reads top-level interests.
+                     * The canonical client contract is learnerContext.
+                     */
                     interests:
-                        cleanString(
-                            candidate.interests
-                        ),
+                        learnerContext.interests,
 
                     topicFocus:
                         cleanString(
