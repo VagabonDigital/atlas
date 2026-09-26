@@ -258,6 +258,8 @@
     }
 
     async function prepareCapabilityGate() {
+        await ensureAccess();
+
         if (!window.AtlasCapabilityGate) {
             await loadScript(
                 SOURCES.capabilityGate,
