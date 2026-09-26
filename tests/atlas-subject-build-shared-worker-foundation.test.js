@@ -383,6 +383,19 @@ async function testSharedWorkerRuntime() {
             'compass'
     });
 
+    const firstWorkerInstanceId =
+        first
+            .latest(
+                'worker-ready'
+            )
+            ?.workerInstanceId;
+
+    assert.match(
+        firstWorkerInstanceId,
+        /^shared-worker-/,
+        'SharedWorker ready state must expose a stable runtime instance identity for navigation QA.'
+    );
+
     first.send({
         type:
             'auth',
@@ -543,6 +556,16 @@ async function testSharedWorkerRuntime() {
         surface:
             'arcade'
     });
+
+    assert.equal(
+        second
+            .latest(
+                'worker-ready'
+            )
+            ?.workerInstanceId,
+        firstWorkerInstanceId,
+        'Two pages connected to one live SharedWorker must observe the same runtime instance identity.'
+    );
 
     second.send({
         type:
@@ -848,6 +871,29 @@ function createClientSandbox({
                 return null;
             }
         },
+        sessionStorage: (() => {
+            const values =
+                new Map();
+
+            return {
+                getItem(key) {
+                    return values.has(key)
+                        ? values.get(key)
+                        : null;
+                },
+
+                setItem(key, value) {
+                    values.set(
+                        key,
+                        String(value)
+                    );
+                },
+
+                removeItem(key) {
+                    values.delete(key);
+                }
+            };
+        })(),
         URLSearchParams,
         CustomEvent:
             class CustomEvent {
@@ -927,7 +973,7 @@ async function testWorkerClient() {
         supported
             .workerCalls[0]
             .url,
-        '/shared/atlas-subject-build-shared-worker.js?v=20260925-buildworker13'
+        '/shared/atlas-subject-build-shared-worker.js?v=20260925-buildworker14'
     );
 
     assert.equal(
@@ -945,6 +991,35 @@ async function testWorkerClient() {
             .extendedLifetime,
         true,
         'Atlas must request extended SharedWorker lifetime so normal same-origin page navigation does not needlessly restart an in-flight subject build.'
+    );
+
+    supported.clientPort
+        .onmessage({
+            data: {
+                type:
+                    'worker-ready',
+                workerVersion:
+                    '20260925-buildworker14',
+                workerInstanceId:
+                    'shared-worker-test-instance',
+                activeBuild:
+                    null,
+                queue: []
+            }
+        });
+
+    assert.ok(
+        Client
+            .getDebugTrace()
+            .some(
+                entry =>
+                    entry.stage ===
+                        'worker:worker-ready' &&
+                    entry.detail
+                        ?.workerInstanceId ===
+                        'shared-worker-test-instance'
+            ),
+        'Debug trace must preserve the SharedWorker runtime instance identity so same-worker navigation can be proven rather than inferred.'
     );
 
     const firstAuth =
@@ -989,7 +1064,7 @@ async function testWorkerClient() {
                 reason:
                     'token-expiring',
                 workerVersion:
-                    '20260925-buildworker13'
+                    '20260925-buildworker14'
             }
         });
 
@@ -1057,7 +1132,7 @@ function testBootstrapContract() {
 
     assert.match(
         registrySource,
-        /atlas-subject-build-worker-client\.js\?v=20260925-navlifetime1/
+        /atlas-subject-build-worker-client\.js\?v=20260925-workerinstance1/
     );
 
     assert.match(
