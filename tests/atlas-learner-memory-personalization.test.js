@@ -166,6 +166,13 @@ assert.match(
 
 assert.match(
     memory,
+    /memory-textarea--about,[\s\S]*?memory-textarea--interests,[\s\S]*?memory-textarea--goals[\s\S]*?padding-bottom: 1\.8rem;/,
+    'Learner suggestion fields must keep clear breathing room below saved text.'
+);
+
+
+assert.match(
+    memory,
     /function showToast\([\s\S]*?memory-toast[\s\S]*?showToast\('Saving…'\)[\s\S]*?showToast\('Saved'\)/,
     'Learner Memory save feedback must use the bottom toast flow.'
 );
