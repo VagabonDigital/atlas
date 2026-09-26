@@ -3883,6 +3883,10 @@
       function setResultCardStatus(text, active) {
         if (resultStateText) resultStateText.textContent = text;
         resultShell.classList.toggle("is-active", !!active);
+
+        if (typeof syncCreateAction === "function") {
+          syncCreateAction();
+        }
       }
 
       function syncDemoCategoryControls() {
@@ -4246,7 +4250,7 @@
             languageLevel: "b2",
             sessionSubjects: [],
             existingSubjects: subjectButtons.map(function (item) { return { title: item.getAttribute("data-title") }; }),
-            recentSuggestions: demoIdeaHistory.slice(-18).map(function (title) { return { title: title }; }),
+            recentSuggestions: demoIdeaHistory.slice(-18),
             allowAnonymous: true
           });
 
