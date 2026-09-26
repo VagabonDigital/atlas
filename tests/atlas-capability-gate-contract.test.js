@@ -471,12 +471,17 @@ async function run() {
 
     assert.match(
         bootstrap,
-        /atlas-capability-gate\\.js\\?v=20260920-googleid1/
+        /atlas-capability-gate\\.js\\?v=20260921-insideheader1/
     );
     assert.match(bootstrap, /prepareCapabilityGate/);
     assert.match(
+        bootstrap,
+        /async function prepareCapabilityGate\(\) \{[\s\S]*?await ensureAccess\(\);[\s\S]*?SOURCES\.capabilityGate/,
+        'Capability gate loading must wait for the canonical AtlasAccess runtime.'
+    );
+    assert.match(
         registry,
-        /atlas-access-bootstrap\.js\?v=20260920-googleid1/
+        /atlas-access-bootstrap\.js\?v=20260926-capabilityorder1/
     );
 
     console.log(
