@@ -19309,10 +19309,14 @@
              * Do not capability-gate the modal during Compass startup:
              * the shared access bootstrap intentionally waits for first
              * paint, so gating here can deadlock first paint against itself.
+             * This must be explicit rather than relying on anonymousPreview,
+             * because signed-in visitors still need the startup gate skipped.
              * Creation capability is enforced when the tutor commits via
              * "Create this subject".
              */
-            anonymousPreview: true
+            skipCapabilityGate: true,
+            anonymousPreview:
+              !getStoredCompassAccountUserId()
           }
         );
       }
