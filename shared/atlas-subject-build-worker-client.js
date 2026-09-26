@@ -578,7 +578,17 @@
                     name:
                         WORKER_NAME,
                     type:
-                        'classic'
+                        'classic',
+                    /*
+                     * Normal Atlas navigation replaces one document with the
+                     * next. There can be a brief moment with no live page
+                     * owning this SharedWorker even though the tutor never
+                     * left Atlas. Ask supporting browsers to bridge that gap
+                     * so an in-flight subject build does not needlessly
+                     * resurrect between same-origin Atlas surfaces.
+                     */
+                    extendedLifetime:
+                        true
                 }
             );
         } catch {
