@@ -3437,19 +3437,33 @@ function updateMyVersionCoverPickerProviderUI() {
 }
 
 async function resolveMyVersionCoverPickerSearchImageUrl(
-    photo
+    photo,
+    provider = myVersionCoverPickerProvider
 ) {
+    const imageUrl =
+        String(
+            photo?.imageUrl || ''
+        ).trim();
+
+    const previewUrl =
+        String(
+            photo?.previewUrl || ''
+        ).trim();
+
     const candidates =
         Array.from(
             new Set(
-                [
-                    String(
-                        photo?.imageUrl || ''
-                    ).trim(),
-                    String(
-                        photo?.previewUrl || ''
-                    ).trim()
-                ].filter(Boolean)
+                (
+                    provider === 'web'
+                        ? [
+                            previewUrl,
+                            imageUrl
+                        ]
+                        : [
+                            imageUrl,
+                            previewUrl
+                        ]
+                ).filter(Boolean)
             )
         );
 
@@ -3502,7 +3516,8 @@ async function applyMyVersionCoverPickerSearchPhoto(
     try {
         const imageUrl =
             await resolveMyVersionCoverPickerSearchImageUrl(
-                photo
+                photo,
+                myVersionCoverPickerProvider
             );
 
         if (
