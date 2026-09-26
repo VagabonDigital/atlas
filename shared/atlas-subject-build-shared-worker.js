@@ -237,6 +237,8 @@ function safePost(
             type,
             workerVersion:
                 WORKER_VERSION,
+            workerInstanceId:
+                runtimeSourceId,
             ...(
                 isObject(detail)
                     ? detail
