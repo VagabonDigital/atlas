@@ -336,6 +336,38 @@ assert.match(
 
 assert.match(
   pricing,
+  /atlas-analytics\.js\?v=20260919-observability1/,
+  'Pricing must load the shared Atlas analytics adapter before commercial checkout events are emitted.'
+);
+
+for (const eventName of [
+  'atlas_upgrade_intent',
+  'atlas_checkout_opened',
+  'atlas_checkout_abandoned',
+  'atlas_checkout_completed',
+  'atlas_pro_activated',
+  'atlas_commercial_failure'
+]) {
+  assert.ok(
+    checkout.includes(eventName),
+    'Missing commercial analytics event ' + eventName
+  );
+}
+
+assert.match(
+  checkout,
+  /AtlasAnalytics[\s\S]*?\.send[\s\S]*?checkout_source/,
+  'Commercial events must flow through the existing privacy-filtered Atlas analytics adapter.'
+);
+
+assert.match(
+  checkout,
+  /restoreRecoverableCheckout[\s\S]*?recovered: true/,
+  'Recovering an already-active checkout must not create a second upgrade-intent event.'
+);
+
+assert.match(
+  pricing,
   /AtlasProCheckout\.previewPrice/,
   'Pricing must delegate localized Paddle price preview to the shared checkout runtime.'
 );
