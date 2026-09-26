@@ -415,10 +415,10 @@
     html.theme-changing .power strong,
     html.theme-changing .power span,
     html.theme-changing .overview-video-copy p:not(.kicker),
-    html.theme-changing .why-column-label,
+    html.theme-changing .why-label,
     html.theme-changing .why-problem,
-    html.theme-changing .why-fix,
-    html.theme-changing .why-fix strong,
+    html.theme-changing .why-fix-line,
+    html.theme-changing .why-fix-body,
     html.theme-changing .create-label,
     html.theme-changing .create-prompt,
     html.theme-changing .create-input,
@@ -882,59 +882,145 @@
       background: #000;
     }
 
+    /* Why Atlas exists.
+       The usual week sits on bare canvas; the Atlas version sits on one
+       continuous working surface. The change of surface and type carries
+       the argument, so nothing else here needs to decorate. */
     .why-title {
-      max-width: none;
+      max-width: 15.5em;
       font-size: clamp(32px, 3.7vw, 41px);
+      text-wrap: balance;
     }
 
-    .why-pairs {
-      margin-top: 34px;
-      border-top: 1px solid var(--border-faint);
+    .why-ledger {
+      --why-gap: clamp(32px, 5vw, 64px);
+      --why-inset: clamp(24px, 3.4vw, 44px);
+      position: relative;
+      isolation: isolate;
+      margin-top: 44px;
     }
 
-    .why-pair-head,
+    .why-ledger::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      inset: 0 0 0 calc((100% - var(--why-gap)) * 5 / 12 + var(--why-gap));
+      border: 1px solid var(--border-faint);
+      border-radius: 22px;
+      background: var(--surface-panel);
+      box-shadow:
+        0 30px 60px -38px rgba(33, 31, 27, .26),
+        0 10px 22px -18px rgba(33, 31, 27, .16),
+        inset 0 1px 0 rgba(255, 255, 255, .9);
+    }
+
+    html[data-theme="night"] .why-ledger::before {
+      box-shadow:
+        0 32px 64px -34px rgba(0, 0, 0, .62),
+        0 10px 24px -18px rgba(0, 0, 0, .5),
+        inset 0 1px 0 rgba(255, 255, 255, .045);
+    }
+
+    .why-ledger-head,
     .why-pair {
       display: grid;
-      grid-template-columns: .95fr 1.05fr;
-      column-gap: 46px;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      column-gap: var(--why-gap);
     }
 
-    .why-pair-head {
-      padding: 0 0 10px;
-      border-bottom: 1px solid var(--border-faint);
+    .why-ledger-head {
+      padding-top: 28px;
     }
 
-    .why-column-label {
+    .why-label {
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .why-label--usual {
       color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      font-size: 10px;
-      font-weight: 700;
+      font-weight: 500;
+    }
+
+    .why-label--atlas {
+      margin-inline: var(--why-inset);
+      color: var(--accent-ink);
+      font-weight: 600;
+    }
+
+    .why-rows {
+      margin: 0;
+      padding: 0;
+      list-style: none;
     }
 
     .why-pair {
-      padding: 22px 0;
-      border-bottom: 1px solid var(--border-faint);
       align-items: start;
     }
 
     .why-problem {
-      max-width: 520px;
-      color: var(--text-heading);
+      max-width: 30em;
+      padding: 30px 0 34px;
+      color: color-mix(in srgb, var(--text-body) 72%, var(--text-muted));
       font-size: 17px;
-      line-height: 1.55;
+      line-height: 1.6;
     }
 
     .why-fix {
-      max-width: 560px;
-      color: var(--text-body);
-      font-size: 17px;
-      line-height: 1.55;
+      margin-inline: var(--why-inset);
+      padding: 27px 0 34px;
     }
 
-    .why-fix strong {
+    .why-pair:first-child .why-problem {
+      padding-top: 18px;
+    }
+
+    .why-pair:first-child .why-fix {
+      padding-top: 15px;
+    }
+
+    .why-pair + .why-pair .why-problem,
+    .why-pair + .why-pair .why-fix {
+      border-top: 1px solid var(--border-faint);
+    }
+
+    .why-pair:last-child .why-fix {
+      padding-bottom: 40px;
+    }
+
+    .why-fix-line {
+      display: block;
       color: var(--text-heading);
-      font-weight: 600;
+      font-family: var(--font-display);
+      font-size: clamp(23px, 2.15vw, 27px);
+      font-weight: 400;
+      line-height: 1.16;
+      letter-spacing: -.012em;
+    }
+
+    .why-fix-body {
+      max-width: 34em;
+      margin-top: 10px;
+      color: var(--text-body);
+      font-size: 16px;
+      line-height: 1.62;
+    }
+
+    .section-reveal .why-ledger::before,
+    .section-reveal .why-label--atlas,
+    .section-reveal .why-fix {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    .section-reveal.is-visible .why-ledger::before,
+    .section-reveal.is-visible .why-label--atlas,
+    .section-reveal.is-visible .why-fix {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 640ms ease 320ms,
+        transform 760ms cubic-bezier(.2, .7, .2, 1) 320ms;
     }
 
     .create-layout {
@@ -2982,30 +3068,64 @@
         gap: 28px;
       }
 
-      .why-pair-head {
-        display: block;
-        padding-bottom: 12px;
+      /* Stacked: each problem sits directly above its own Atlas surface,
+         so the pairing survives without column labels. */
+      .why-ledger {
+        margin-top: 32px;
       }
 
-      .why-pair-head .why-column-label:last-child {
+      .why-ledger::before,
+      .why-ledger-head {
         display: none;
       }
 
       .why-pair {
         grid-template-columns: 1fr;
-        gap: 9px;
-        padding: 18px 0;
+        row-gap: 12px;
+      }
+
+      .why-pair + .why-pair {
+        margin-top: 30px;
+      }
+
+      .why-pair + .why-pair .why-problem,
+      .why-pair + .why-pair .why-fix {
+        border-top: 0;
       }
 
       .why-problem,
-      .why-fix {
+      .why-pair:first-child .why-problem {
         max-width: none;
+        padding: 0 2px;
         font-size: 16px;
       }
 
-      .why-fix {
-        padding-left: 16px;
-        border-left: 2px solid var(--accent);
+      .why-fix,
+      .why-pair:first-child .why-fix,
+      .why-pair:last-child .why-fix {
+        margin: 0;
+        padding: 20px 20px 22px;
+        border: 1px solid var(--border-faint);
+        border-radius: 18px;
+        background: var(--surface-panel);
+        box-shadow:
+          0 22px 40px -30px rgba(33, 31, 27, .24),
+          inset 0 1px 0 rgba(255, 255, 255, .9);
+      }
+
+      html[data-theme="night"] .why-fix {
+        box-shadow:
+          0 24px 44px -28px rgba(0, 0, 0, .6),
+          inset 0 1px 0 rgba(255, 255, 255, .045);
+      }
+
+      .why-fix-line {
+        font-size: 23px;
+      }
+
+      .why-fix-body {
+        margin-top: 8px;
+        font-size: 15px;
       }
     }
 
@@ -3169,27 +3289,35 @@
     <section class="section" id="why">
       <div class="frame">
         <p class="kicker">Why Atlas exists</p>
-        <h2 class="why-title">The lesson is live. Most of what surrounds it isn’t.</h2>
-        <div class="why-pairs">
-          <div class="why-pair-head" aria-hidden="true">
-            <span class="why-column-label">What gets lost</span>
-            <span class="why-column-label">What Atlas changes</span>
+        <h2 class="why-title">The lesson you’d prepare if you had all evening. Ready in seconds.</h2>
+        <div class="why-ledger">
+          <div class="why-ledger-head" aria-hidden="true">
+            <span class="why-label why-label--usual">Usually</span>
+            <span class="why-label why-label--atlas">With Atlas</span>
           </div>
-
-          <div class="why-pair">
-            <div class="why-problem">Prep time spent searching for something that’s only close enough.</div>
-            <div class="why-fix"><strong>Structured subjects and conversation games, ready to teach.</strong></div>
-          </div>
-
-          <div class="why-pair">
-            <div class="why-problem">More time adapting material to fit the person in front of you.</div>
-            <div class="why-fix"><strong>Create material around that person in minutes.</strong></div>
-          </div>
-
-          <div class="why-pair">
-            <div class="why-problem">What you learn about a learner — and the language that comes up — can be easy to lose between lessons.</div>
-            <div class="why-fix"><strong>Atlas carries both forward, so the next lesson starts with more already there.</strong></div>
-          </div>
+          <ul class="why-rows" role="list">
+            <li class="why-pair">
+              <p class="why-problem"><span class="sr-only">Usually: </span>Personalising a lesson means unpaid time searching, choosing and piecing material together.</p>
+              <div class="why-fix">
+                <strong class="why-fix-line"><span class="sr-only">With Atlas: </span>Walk in with nothing prepared.</strong>
+                <p class="why-fix-body">Pick a direction and have a full, beautifully presented subject ready to teach in seconds.</p>
+              </div>
+            </li>
+            <li class="why-pair">
+              <p class="why-problem"><span class="sr-only">Usually: </span>A fixed library eventually becomes the same subjects with different learners.</p>
+              <div class="why-fix">
+                <strong class="why-fix-line"><span class="sr-only">With Atlas: </span>The range never runs dry.</strong>
+                <p class="why-fix-body">Their goals, their interests, something from work, a question from last week, an idea of yours or an Atlas suggestion — almost anything can become the next subject.</p>
+              </div>
+            </li>
+            <li class="why-pair">
+              <p class="why-problem"><span class="sr-only">Usually: </span>A topic and a handful of safe questions can only take a conversation so far.</p>
+              <div class="why-fix">
+                <strong class="why-fix-line"><span class="sr-only">With Atlas: </span>Every subject goes deep.</strong>
+                <p class="why-fix-body">Strong questions, fresh perspectives and language to work with keep the conversation opening up instead of running out.</p>
+              </div>
+            </li>
+          </ul>
         </div>
       </div>
     </section>
