@@ -5396,6 +5396,7 @@ export default {
                                     'Reasons are descriptions of why the subject is interesting, not instructions to the learner. Prefer natural declarative framing and vary the sentence construction across the three ideas. Do not default to formulaic openings such as “Explore…” or “Discover…”.',
                                     'For each idea, brief should be one concise tutor-facing instruction describing the teaching direction Atlas should build around.',
                                     'For each idea, intro should be one learner-facing paragraph of two or three clear sentences that can serve as the subject opening. Keep it consistent with the title and brief, specific rather than generic, and easy to enter in conversation.',
+                                    'Each intro must be 300 characters or fewer, including spaces.',
                                     'message should be one short natural invitation to the tutor.',
                                     '',
                                     ...(mode === 'current-affairs'
@@ -5488,7 +5489,9 @@ export default {
 
                                                             intro: {
                                                                 type:
-                                                                    'string'
+                                                                    'string',
+                                                                maxLength:
+                                                                    300
                                                             },
 
                                                             ...(mode === 'current-affairs'
@@ -5769,7 +5772,8 @@ export default {
                         !idea.title ||
                         !idea.reason ||
                         !idea.brief ||
-                        !idea.intro
+                        !idea.intro ||
+                        idea.intro.length > 300
                     ) ||
                     (
                         mode === 'current-affairs' &&
@@ -9642,6 +9646,7 @@ export default {
                                     '',
                                     'Use the tutor\'s title and brief as the chosen subject direction.',
                                     'Write one concise learner-facing paragraph of two or three clear sentences.',
+                                    'The complete opening must be 300 characters or fewer, including spaces.',
                                     'The opening should make the subject feel immediately interesting and easy to enter in conversation.',
                                     'Respect the specificity of the brief. Do not broaden it into a generic topic.',
                                     'Do not invent facts, statistics, research, events, laws, or named examples that are not supplied.',
@@ -9683,7 +9688,9 @@ export default {
                                             properties: {
                                                 opening: {
                                                     type:
-                                                        'string'
+                                                        'string',
+                                                    maxLength:
+                                                        300
                                                 }
                                             },
 
@@ -9793,7 +9800,10 @@ export default {
                         generated.opening || ''
                     ).trim();
 
-                if (!opening) {
+                if (
+                    !opening ||
+                    opening.length > 300
+                ) {
                     return json(
                         {
                             ok: false,
