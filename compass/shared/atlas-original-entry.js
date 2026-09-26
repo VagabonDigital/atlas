@@ -208,6 +208,7 @@
         if (isLightweightAction()) return;
 
         document.write(
+            '<link rel="icon" type="image/svg+xml" href="/shared/atlas-favicon.svg?v=20260920-legal1">' +
             '<script src="../../shared/atlas-bridge.js?v=20260926-learnercontext1"><\/script>' +
             '<script src="/shared/atlas-analytics.js?v=20260919-observability1"><\/script>' +
             '<script src="../../shared/atlas-tutor-content.js"><\/script>' +
