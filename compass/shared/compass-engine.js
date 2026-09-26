@@ -1173,7 +1173,7 @@ function resolveTutorContentValue(originalValue, fieldKey) {
     return value;
 }
 
-async function loadTutorContentState() {
+async function loadTutorContentState({ forceOwnedWorkingDraft = false } = {}) {
     const Store = requireAtlasTutorContent();
     const contentId = getTutorContentId();
 
@@ -1193,7 +1193,13 @@ async function loadTutorContentState() {
         tutorContentLiveDraft = liveDraft;
         liveTutorMutationRevision += 1;
 
-        if (!myVersionEditing && workingDraft) {
+        if (
+            workingDraft &&
+            (
+                !myVersionEditing ||
+                forceOwnedWorkingDraft === true
+            )
+        ) {
             resumeMyVersionWorkingDraft(workingDraft);
         } else if (myVersionEditing) {
             applyTutorSubjectDocument(
@@ -22293,7 +22299,10 @@ async function init() {
 
         if (recoveringOwnedSubjectBuild) {
             try {
-                await loadTutorContentState();
+                await loadTutorContentState({
+                    forceOwnedWorkingDraft:
+                        true
+                });
 
                 ownedSubjectBuildState =
                     await requireAtlasTutorSubjects()
