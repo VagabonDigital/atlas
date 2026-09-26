@@ -1892,13 +1892,58 @@
 
     .compass-idea-focus-label {
       color: var(--text-heading);
-      font-size: 0.76rem;
+      font-size: 0.8rem;
       font-weight: 700;
+    }
+
+    .compass-idea-focus-optional {
+      color: var(--text-muted);
+      font-weight: 600;
     }
 
     .compass-idea-focus-field--refine {
       margin-top: 0.35rem;
       margin-bottom: 1.1rem;
+    }
+
+    .compass-idea-focus-refine-row {
+      display: flex;
+      align-items: stretch;
+      gap: 0.55rem;
+    }
+
+    .compass-idea-focus-refine-row
+    .compass-idea-focus-input {
+      width: auto;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .compass-idea-focus-refine-btn {
+      flex: 0 0 auto;
+      min-height: 42px;
+      padding: 0.62rem 0.85rem;
+      border: 1px solid rgba(var(--accent-rgb), 0.34);
+      border-radius: 10px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--t);
+    }
+
+    .compass-idea-focus-refine-btn:hover:not(:disabled),
+    .compass-idea-focus-refine-btn:focus-visible:not(:disabled) {
+      border-color: rgba(var(--accent-rgb), 0.5);
+      background: var(--accent-pale);
+      outline: none;
+    }
+
+    .compass-idea-focus-refine-btn:disabled {
+      opacity: 0.45;
+      cursor: default;
     }
 
     .compass-idea-focus-input {
@@ -16387,6 +16432,76 @@
       };
     }
 
+    function syncCompassTopicFocus(
+      input
+    ) {
+      const value =
+        String(
+          input?.value || ''
+        )
+          .trim()
+          .slice(0, 240);
+
+      if (
+        ownedSubjectDialogState?.mode ===
+        'create'
+      ) {
+        ownedSubjectDialogState.topicFocus =
+          value;
+      }
+
+      const field =
+        input?.closest(
+          '.compass-idea-focus-field'
+        );
+
+      const refineButton =
+        field?.querySelector(
+          '[data-compass-refine]'
+        );
+
+      if (refineButton) {
+        refineButton.disabled = !value;
+      }
+
+      return value;
+    }
+
+    function refineCompassSuggestions(
+      button
+    ) {
+      const dialog =
+        button?.closest(
+          '.owned-subject-dialog-panel'
+        );
+
+      const input =
+        dialog?.querySelector(
+          '#compass-idea-topic-focus'
+        );
+
+      const topicFocus =
+        syncCompassTopicFocus(
+          input
+        );
+
+      if (!topicFocus) {
+        input?.focus();
+        return;
+      }
+
+      const ideaButton =
+        dialog?.querySelector(
+          '.owned-subject-dialog-idea-btn'
+        );
+
+      if (ideaButton) {
+        void askCompassForSubjects(
+          ideaButton
+        );
+      }
+    }
+
     function renderCompassRecommendationResult(
       result,
       topicFocus = ''
@@ -16469,15 +16584,28 @@
             '</span>' +
             '</button>'
         ).join('') +
-        '<label class="compass-idea-focus-field compass-idea-focus-field--refine">' +
-        '<span class="compass-idea-focus-label">Narrow your suggestions — optional</span>' +
+        '<div class="compass-idea-focus-field compass-idea-focus-field--refine">' +
+        '<label class="compass-idea-focus-label" for="compass-idea-topic-focus">' +
+        'Narrow your suggestions <span class="compass-idea-focus-optional">— optional</span>' +
+        '</label>' +
+        '<div class="compass-idea-focus-refine-row">' +
         '<input class="compass-idea-focus-input" id="compass-idea-topic-focus" ' +
         'type="text" maxlength="240" autocomplete="off" ' +
         'placeholder="e.g. a place, theme, industry, person or idea" ' +
+        'oninput="syncCompassTopicFocus(this)" ' +
         'value="' +
         escHtml(topicFocus) +
         '">' +
-        '</label>' +
+        '<button class="compass-idea-focus-refine-btn" data-compass-refine type="button" ' +
+        'onclick="refineCompassSuggestions(this)"' +
+        (
+          topicFocus
+            ? ''
+            : ' disabled'
+        ) +
+        '>Refine ideas</button>' +
+        '</div>' +
+        '</div>' +
         '</div>' +
         '</section>'
       );
@@ -16557,10 +16685,11 @@
         ).join('') +
         '</div>' +
         '<label class="compass-idea-focus-field">' +
-        '<span class="compass-idea-focus-label">Narrow your suggestions — optional</span>' +
+        '<span class="compass-idea-focus-label">Narrow your suggestions <span class="compass-idea-focus-optional">— optional</span></span>' +
         '<input class="compass-idea-focus-input" id="compass-idea-topic-focus" ' +
         'type="text" maxlength="240" autocomplete="off" ' +
         'placeholder="e.g. a place, theme, industry, person or idea" ' +
+        'oninput="syncCompassTopicFocus(this)" ' +
         'value="' +
         escHtml(topicFocus) +
         '">' +
