@@ -3082,17 +3082,6 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    .atlas-toast-action {
-      margin-left: 0.75rem;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      color: var(--accent-strong);
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
     /* ============================================================
        UTILITIES AND KEYFRAMES
        ============================================================ */
@@ -4898,7 +4887,7 @@
     }
 
     let toastTimer = null;
-    function showToast(text, options = {}) {
+    function showToast(text) {
       let el = document.getElementById('atlas-toast');
       if (!el) {
         el = document.createElement('div');
@@ -4907,35 +4896,12 @@
         el.setAttribute('role', 'status');
         document.body.appendChild(el);
       }
-
-      el.replaceChildren(
-        document.createTextNode(String(text || ''))
-      );
-
-      if (
-        options.actionLabel &&
-        typeof options.onAction === 'function'
-      ) {
-        const action = document.createElement('button');
-        action.type = 'button';
-        action.className = 'atlas-toast-action';
-        action.textContent = options.actionLabel;
-        action.onclick = async () => {
-          action.disabled = true;
-          try {
-            await options.onAction();
-          } finally {
-            el.classList.remove('visible');
-          }
-        };
-        el.appendChild(action);
-      }
-
+      el.textContent = text;
       requestAnimationFrame(() => el.classList.add('visible'));
       if (toastTimer) clearTimeout(toastTimer);
       toastTimer = setTimeout(() => {
         el.classList.remove('visible');
-      }, Number(options.durationMs) || 3200);
+      }, 3200);
     }
 
     // ================================================================
@@ -5984,7 +5950,7 @@
               '<button class="btn-ghost archived-subject-delete" type="button" ' +
               'data-archived-subject-id="' + escAttr(subject.id) + '" ' +
               'data-archived-subject-kind="' + escAttr(subject.kind || 'my-subject') + '" ' +
-              'onclick="requestArchivedSubjectDelete(this)">Delete</button>' +
+              'onclick="deleteArchivedSubjectFromSettings(this.dataset.archivedSubjectId, this.dataset.archivedSubjectKind, this)">Delete</button>' +
               '</div>' +
               '</div>'
             );
@@ -6134,42 +6100,6 @@
       );
     }
 
-    function requestArchivedSubjectDelete(button) {
-      const secondary = button?.closest(
-        '.archived-subject-secondary'
-      );
-      if (!secondary) return;
-
-      const restoreButton = secondary.querySelector(
-        'button:not(.archived-subject-delete):not(.archived-subject-delete-cancel)'
-      );
-
-      if (button.dataset.confirmDelete === 'true') {
-        void deleteArchivedSubjectFromSettings(
-          button.dataset.archivedSubjectId,
-          button.dataset.archivedSubjectKind,
-          button
-        );
-        return;
-      }
-
-      if (restoreButton) restoreButton.hidden = true;
-      button.dataset.confirmDelete = 'true';
-
-      const cancel = document.createElement('button');
-      cancel.className =
-        'btn-ghost archived-subject-delete-cancel';
-      cancel.type = 'button';
-      cancel.textContent = 'Cancel';
-      cancel.onclick = () => {
-        cancel.remove();
-        button.dataset.confirmDelete = '';
-        if (restoreButton) restoreButton.hidden = false;
-      };
-
-      secondary.insertBefore(cancel, button);
-    }
-
     async function deleteArchivedSubjectFromSettings(
       subjectId,
       subjectKind,
@@ -6200,40 +6130,20 @@
         } else {
           if (
             !Subjects ||
-            typeof Subjects.beginPendingDelete !== 'function' ||
-            typeof Subjects.cancelPendingDelete !== 'function'
+            typeof Subjects.deleteSubject !== 'function'
           ) {
             throw new Error('My Subjects deletion is unavailable.');
           }
 
-          const pending =
-            await Subjects.beginPendingDelete(id, 7000);
+          const deleted = await Subjects.deleteSubject(id);
 
-          if (!pending) {
+          if (!deleted) {
             throw new Error('Delete operation failed.');
           }
 
-          await renderArchivedSubjectsSettings();
-          renderRestoreAllAtlasOriginalsSetting();
-
-          showToast('Subject deleted.', {
-            actionLabel: 'Undo',
-            durationMs: 7000,
-            onAction: async () => {
-              const restored =
-                await Subjects.cancelPendingDelete(id);
-
-              if (!restored) {
-                showToast('Couldn’t undo deletion.');
-                return;
-              }
-
-              await renderArchivedSubjectsSettings();
-              showToast('Subject restored.');
-            }
-          });
-
-          return;
+          if (typeof Bridge.removeItem === 'function') {
+            Bridge.removeItem('compass:' + id);
+          }
         }
 
         await renderArchivedSubjectsSettings();
