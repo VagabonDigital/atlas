@@ -1003,6 +1003,79 @@
         };
     }
 
+    async function createSubjectOpening(
+        input = {}
+    ) {
+        const candidate =
+            input &&
+            typeof input === 'object' &&
+            !Array.isArray(input)
+                ? input
+                : {};
+
+        const response = await requestAtlasAI(
+            `${BASE_URL}/create-subject-opening`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type':
+                        'application/json'
+                },
+
+                body: JSON.stringify({
+                    title:
+                        cleanString(
+                            candidate.title
+                        ),
+
+                    brief:
+                        cleanString(
+                            candidate.brief
+                        )
+                })
+            },
+            {
+                allowAnonymous: true
+            }
+        );
+
+        let result = null;
+
+        try {
+            result =
+                await response.json();
+        } catch { }
+
+        if (
+            !response.ok ||
+            result?.ok !== true
+        ) {
+            const error = new Error(
+                result?.error ||
+                `Atlas AI request failed with status ${response.status}.`
+            );
+
+            error.status = response.status;
+            throw error;
+        }
+
+        const opening =
+            cleanString(
+                result.payload?.opening
+            );
+
+        if (!opening) {
+            throw new Error(
+                'Atlas AI returned an invalid subject opening.'
+            );
+        }
+
+        return {
+            opening
+        };
+    }
+
     async function generateOverview(
         input = {}
     ) {
@@ -2177,6 +2250,16 @@
                                 idea?.reason
                             ),
 
+                        brief:
+                            cleanString(
+                                idea?.brief
+                            ),
+
+                        intro:
+                            cleanString(
+                                idea?.intro
+                            ),
+
                         source:
                             idea?.source &&
                             typeof idea.source === 'object' &&
@@ -2226,7 +2309,9 @@
             ideas.length !== 3 ||
             ideas.some(idea =>
                 !idea.title ||
-                !idea.reason
+                !idea.reason ||
+                !idea.brief ||
+                !idea.intro
             ) ||
             (
                 cleanString(candidate.mode) ===
@@ -2935,6 +3020,8 @@
 
         recommendSubjects,
 
-        suggestSubjectIdeas
+        suggestSubjectIdeas,
+
+        createSubjectOpening
     };
 })();
