@@ -104,6 +104,38 @@ assert.doesNotMatch(
 
 assert.match(
     memory,
+    /Choose what Compass can use when suggesting subjects\./,
+    'Learner Memory must explain suggestion-source controls once at page level.'
+);
+
+assert.doesNotMatch(
+    memory,
+    />Use for suggestions<\/span>/,
+    'Learner Memory must not repeat visible suggestion-source labels on every card.'
+);
+
+for (const field of [
+    'About',
+    'Interests',
+    'Goals'
+]) {
+    assert.match(
+        memory,
+        new RegExp(
+            `aria-label="Use ${field} for Compass suggestions"`
+        ),
+        `${field} suggestion toggle must retain an accessible label.`
+    );
+}
+
+assert.match(
+    memory,
+    /length >= 450[\s\S]*?\? 'true'[\s\S]*?: 'false'/,
+    'Character counts must stay hidden until a suggestion field is close to its limit.'
+);
+
+assert.match(
+    memory,
     /suggestionSources:\s*getSuggestionSources\(\)/,
     'Learner Memory saves suggestion-source permissions.'
 );
