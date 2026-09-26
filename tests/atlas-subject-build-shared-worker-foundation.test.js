@@ -1160,7 +1160,7 @@ function testBootstrapContract() {
 
             assert.match(
                 source,
-                /atlas-content-registry\.js\?v=20260925-coldreopen1/,
+                /atlas-content-registry\.js\?v=20260925-workerinstance1/,
                 `${path} must load the shared SharedWorker bootstrap.`
             );
         }
