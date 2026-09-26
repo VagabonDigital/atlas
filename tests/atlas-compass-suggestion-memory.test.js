@@ -58,6 +58,48 @@ assert.doesNotMatch(
 );
 
 assert.match(
+    authority,
+    /const CLOUD_SCRIPT_PATH = '\/shared\/atlas-cloud\.js';/
+);
+assert.doesNotMatch(
+    authority,
+    /if \(!window\.AtlasCloud\) \{[\s\S]*?return;[\s\S]*?const TABLE/
+);
+assert.match(
+    authority,
+    /function mergeStates\(base, incoming\)/
+);
+assert.match(
+    authority,
+    /function mergeAndRetry\(/
+);
+assert.match(
+    authority,
+    /hasMeaningfulState\(\s*localBefore\s*\)/
+);
+
+assert.match(
+    compass,
+    /function syncCompassTopicFocus\(/
+);
+assert.match(
+    compass,
+    /function refineCompassSuggestions\(/
+);
+assert.match(
+    compass,
+    /data-compass-refine/
+);
+assert.match(
+    compass,
+    /oninput="syncCompassTopicFocus\(this\)"/
+);
+assert.match(
+    compass,
+    />Refine ideas<\/button>/
+);
+
+assert.match(
     ai,
     /candidate\.recentSuggestions[\s\S]*?\.slice\(-36\)/
 );
