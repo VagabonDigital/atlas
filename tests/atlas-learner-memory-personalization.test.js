@@ -147,6 +147,58 @@ assert.match(
 );
 
 assert.match(
+    compassHome,
+    /function getCompassLearnerSuggestionContext\([\s\S]*?sources\.about === true[\s\S]*?memory\?\.about[\s\S]*?sources\.interests !== false[\s\S]*?memory\?\.interests[\s\S]*?sources\.goals !== false[\s\S]*?memory\?\.goals/,
+    'Compass must assemble About, Interests, and Goals as distinct enabled learner suggestion sources.'
+);
+
+assert.match(
+    compassHome,
+    /function hasCompassLearnerSuggestionContext\([\s\S]*?context\?\.about \|\|[\s\S]*?context\?\.interests \|\|[\s\S]*?context\?\.goals/,
+    'Compass learner mode must require at least one usable personalization source.'
+);
+
+assert.match(
+    compassHome,
+    /const learnerModeAvailable =[\s\S]*?hasCompassLearnerSuggestionContext\([\s\S]*?getCompassLearnerSuggestionContext\([\s\S]*?session[\s\S]*?\)[\s\S]*?\)[\s\S]*?\.filter\([\s\S]*?!mode\.namedSessionOnly \|\|[\s\S]*?learnerModeAvailable/,
+    'Compass must hide learner suggestion mode when enabled learner context is empty.'
+);
+
+assert.doesNotMatch(
+    compassHome,
+    /function getCompassLearnerInterests\(/,
+    'Compass must not collapse learner personalization back to Interests-only lookup.'
+);
+
+assert.match(
+    compassHome,
+    /const learnerContext =[\s\S]*?getCompassLearnerSuggestionContext\([\s\S]*?activeSession[\s\S]*?\)[\s\S]*?suggestSubjectIdeas\(\{[\s\S]*?learnerContext,/,
+    'Compass must pass structured learner context into subject ideation.'
+);
+
+assert.match(
+    compassHome,
+    /learnerContext,[\s\S]*?interests:[\s\S]*?learnerContext\.interests/,
+    'Compass must preserve Interests-only compatibility until the AI request contract accepts learnerContext.'
+);
+
+const learnerResolverMatch =
+    compassHome.match(
+        /function getCompassLearnerSuggestionContext\([\s\S]*?function hasCompassLearnerSuggestionContext\(/
+    );
+
+assert.ok(
+    learnerResolverMatch,
+    'Compass learner context resolver must be inspectable.'
+);
+
+assert.doesNotMatch(
+    learnerResolverMatch[0],
+    /memory(?:\?\.|\.)notes/,
+    'Learner Notes must not participate in Compass suggestion context.'
+);
+
+assert.match(
     memory,
     /atlas-learner-sessions-cloud\.js\?v=20260926-learnercontext1/,
     'Learner Memory must load the learner-context cloud adapter revision.'
