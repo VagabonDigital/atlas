@@ -744,6 +744,25 @@
             accountReturnUrl({ returnIntentId })
         );
         const session = data?.session || null;
+        const identities =
+            Array.isArray(
+                data?.user?.identities
+            )
+                ? data.user.identities
+                : null;
+
+        if (
+            !session &&
+            identities &&
+            identities.length === 0
+        ) {
+            const error = new Error(
+                'You may already have an Atlas account with this email. Try signing in instead.'
+            );
+            error.code =
+                'ATLAS_ACCOUNT_MAY_EXIST';
+            throw error;
+        }
 
         if (session?.user) {
             syncPersistenceScopeForSession(session);
