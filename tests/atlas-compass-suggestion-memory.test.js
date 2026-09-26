@@ -75,6 +75,18 @@ assert.match(
 );
 assert.match(
     authority,
+    /const DIRTY_OWNER_KEY = 'atlas::compassSuggestionHistoryDirtyOwner::v1';/
+);
+assert.match(
+    authority,
+    /function writeDirtyOwner\(userId\)/
+);
+assert.match(
+    authority,
+    /writeDirtyOwner\(\s*currentUserId\s*\)/
+);
+assert.match(
+    authority,
     /hasMeaningfulState\(\s*localBefore\s*\)/
 );
 
