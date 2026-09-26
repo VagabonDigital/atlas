@@ -1360,8 +1360,16 @@
       margin-bottom: 18px;
     }
 
+    #teach > .frame > .kicker,
+    #teach h2,
     #teach .lede {
-      max-width: 760px;
+      width: min(100%, 1040px);
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #teach .lede {
+      max-width: 1040px;
     }
 
     #teach {
@@ -1375,10 +1383,6 @@
     #teach > .frame {
       width: min(calc(100% - 48px), 1540px);
       max-width: 1540px;
-    }
-
-    #teach .lede {
-      max-width: 720px;
     }
 
     .teach-stage {
@@ -1440,8 +1444,8 @@
     .teach-marquee {
       overflow: hidden;
       padding: 1px 0 4px;
-      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 3%, #000 97%, transparent 100%);
-      mask-image: linear-gradient(to right, transparent 0, #000 2.5%, #000 97.5%, transparent 100%);
+      -webkit-mask-image: none;
+      mask-image: none;
     }
 
     .teach-track {
