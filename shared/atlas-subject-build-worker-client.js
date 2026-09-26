@@ -665,9 +665,16 @@
                         ).trim() ||
                         'event'
                     ),
-                cloneJson(
-                    message.detail
-                ) || {}
+                {
+                    workerInstanceId:
+                        message.workerInstanceId ||
+                        null,
+                    ...(
+                        cloneJson(
+                            message.detail
+                        ) || {}
+                    )
+                }
             );
         }
 
