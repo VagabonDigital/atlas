@@ -318,6 +318,7 @@
                 (
                     String(memory.about || '').trim() ||
                     String(memory.interests || '').trim() ||
+                    String(memory.goals || '').trim() ||
                     String(memory.notes || '').trim() ||
                     String(memory.nextTime || '').trim()
                 )
