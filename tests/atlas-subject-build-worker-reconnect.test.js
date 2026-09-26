@@ -315,7 +315,15 @@ async function testWorkerReconnectAndAccountSwitch() {
 
     assert.match(
         workers[0].url,
-        /buildworker13/
+        /buildworker14/
+    );
+
+    assert.equal(
+        workers[0]
+            .options
+            ?.extendedLifetime,
+        true,
+        'Initial SharedWorker connection must request extended lifetime.'
     );
 
     Client.enqueueSubject(
@@ -376,6 +384,14 @@ async function testWorkerReconnectAndAccountSwitch() {
         workers[0].port.closed,
         true,
         'Reconnect should close the stale MessagePort.'
+    );
+
+    assert.equal(
+        workers[1]
+            .options
+            ?.extendedLifetime,
+        true,
+        'Crash reconnect must preserve the extended-lifetime SharedWorker option.'
     );
 
     assert.ok(
@@ -619,6 +635,14 @@ async function testWorkerReconnectAndAccountSwitch() {
         'BFCache restore should reconnect the page to the SharedWorker.'
     );
 
+    assert.equal(
+        workers.at(-1)
+            .options
+            ?.extendedLifetime,
+        true,
+        'BFCache restore must reconnect with the same extended-lifetime request.'
+    );
+
     const restoredMessages =
         workers.at(-1)
             .port
@@ -674,6 +698,14 @@ async function testWorkerReconnectAndAccountSwitch() {
         workers.length,
         workerCountBeforeRapidNav + 1,
         'Rapid leave/return navigation should reconnect cleanly without losing the build registration.'
+    );
+
+    assert.equal(
+        workers.at(-1)
+            .options
+            ?.extendedLifetime,
+        true,
+        'Rapid navigation reconnect must continue requesting extended lifetime.'
     );
 
     assert.equal(
