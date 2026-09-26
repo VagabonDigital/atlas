@@ -1045,7 +1045,7 @@
         }
 
         const src =
-            '/shared/atlas-subject-build-worker-client.js?v=20260925-coldreopen1';
+            '/shared/atlas-subject-build-worker-client.js?v=20260925-navlifetime1';
 
         if (document.readyState === 'loading') {
             document.write(
