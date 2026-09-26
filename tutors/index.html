@@ -1290,6 +1290,35 @@
       color: #172124;
     }
 
+    html[data-theme="night"] .subject-title,
+    html[data-theme="night"] .direction-category {
+      border-color: rgba(235, 233, 228, .10);
+      background: var(--surface-raised);
+      box-shadow:
+        0 12px 26px -24px rgba(0, 0, 0, .72),
+        inset 0 1px 0 rgba(255, 255, 255, .055);
+    }
+
+    html[data-theme="night"] .subject-title:hover,
+    html[data-theme="night"] .subject-title:focus-visible,
+    html[data-theme="night"] .direction-category:hover,
+    html[data-theme="night"] .direction-category:focus-visible {
+      border-color: rgba(var(--accent-rgb), .34);
+      background: rgba(255, 255, 255, .075);
+      box-shadow:
+        0 16px 30px -23px rgba(0, 0, 0, .72),
+        inset 0 1px 0 rgba(255, 255, 255, .07);
+    }
+
+    html[data-theme="night"] .subject-title.is-selected,
+    html[data-theme="night"] .direction-category.is-active {
+      border-color: rgba(var(--accent-rgb), .42);
+      background: rgba(var(--accent-rgb), .13);
+      box-shadow:
+        0 14px 28px -24px rgba(0, 0, 0, .72),
+        inset 0 1px 0 rgba(255, 255, 255, .06);
+    }
+
     /* Creation continues in Compass; this card demonstrates the input and resulting subject. */
 
     .create-buckets {
@@ -3391,7 +3420,7 @@
                 <input class="create-input" id="subjectInput" value="Your Interview for a Product Designer Role at LEGO">
               </div>
               <div class="create-field">
-                <label class="create-prompt" for="subjectBrief">Optional brief</label>
+                <label class="create-prompt" for="subjectBrief">Brief</label>
                 <textarea class="create-brief" id="subjectBrief" rows="3"
                   placeholder="Add learner context, goals or a specific direction…">My student has a product designer interview at LEGO. Focus on explaining design choices, balancing creativity with user needs, and responding confidently when ideas are challenged.</textarea>
               </div>
@@ -4178,7 +4207,11 @@
         var title = document.createElement("strong");
         title.textContent = "Or point Atlas somewhere.";
 
+        directionDemoStatus = document.createElement("span");
+        directionDemoStatus.textContent = "One live idea at a time";
+
         head.appendChild(title);
+        head.appendChild(directionDemoStatus);
         directionDemo.appendChild(head);
 
         var grid = document.createElement("div");
