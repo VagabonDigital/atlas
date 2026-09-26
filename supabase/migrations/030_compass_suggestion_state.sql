@@ -31,7 +31,7 @@ create policy compass_suggestion_state_select_own
     on public.compass_suggestion_state
     for select
     to authenticated
-    using (auth.uid() = owner_user_id);
+    using ((select auth.uid()) = owner_user_id);
 
 drop policy if exists compass_suggestion_state_insert_own
     on public.compass_suggestion_state;
@@ -39,7 +39,7 @@ create policy compass_suggestion_state_insert_own
     on public.compass_suggestion_state
     for insert
     to authenticated
-    with check (auth.uid() = owner_user_id);
+    with check ((select auth.uid()) = owner_user_id);
 
 drop policy if exists compass_suggestion_state_update_own
     on public.compass_suggestion_state;
@@ -47,8 +47,8 @@ create policy compass_suggestion_state_update_own
     on public.compass_suggestion_state
     for update
     to authenticated
-    using (auth.uid() = owner_user_id)
-    with check (auth.uid() = owner_user_id);
+    using ((select auth.uid()) = owner_user_id)
+    with check ((select auth.uid()) = owner_user_id);
 
 drop policy if exists compass_suggestion_state_delete_own
     on public.compass_suggestion_state;
@@ -56,7 +56,7 @@ create policy compass_suggestion_state_delete_own
     on public.compass_suggestion_state
     for delete
     to authenticated
-    using (auth.uid() = owner_user_id);
+    using ((select auth.uid()) = owner_user_id);
 
 revoke all on table public.compass_suggestion_state from anon;
 grant select, insert, update, delete
