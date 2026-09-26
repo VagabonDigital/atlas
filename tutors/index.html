@@ -1374,8 +1374,8 @@
     }
 
     .teach-stage {
-      --teach-card-width: 238px;
-      --teach-gap: 16px;
+      --teach-card-width: 310px;
+      --teach-gap: 18px;
       margin-top: 30px;
       padding: 14px 0 16px;
       overflow: hidden;
@@ -1480,28 +1480,30 @@
       to { transform: translate3d(0, 0, 0); }
     }
 
-    /* Compass cards: same image-led Hub contract. */
+    /* Compass cards: scaled directly from the real Compass Hub cover-card contract. */
     .teach-compass-card {
-      --teach-compass-card-height: 296px;
-      --teach-compass-hover-cover: 82px;
+      --teach-compass-card-height: 302px;
+      --teach-cover-rest: 140px;
+      --teach-cover-expanded: 66px;
+      --teach-cover-shift: calc(var(--teach-cover-rest) - var(--teach-cover-expanded));
+      --teach-hook-hidden: 0px;
       position: relative;
-      display: flex;
-      flex-direction: column;
       height: var(--teach-compass-card-height);
       min-height: 0;
+      padding: 0;
       overflow: hidden;
       border: 1px solid rgba(74, 91, 84, .09);
       border-radius: 18px;
       background: #fffefa;
       color: #211f1b;
       box-shadow: 0 7px 24px rgba(52, 58, 48, .055);
-      transition: box-shadow 320ms ease, border-color 320ms ease, transform 320ms ease;
+      transition: box-shadow 320ms ease, border-color 320ms ease;
     }
 
     .teach-compass-card:is(:hover, :focus-within) {
-      border-color: rgba(var(--compass-rgb), .45);
+      border-color: rgba(var(--compass-rgb), .40);
       box-shadow: 0 12px 30px rgba(35, 58, 48, .13);
-      transform: translateY(-2px);
+      transform: none;
     }
 
     .teach-compass-card:focus-visible {
@@ -1510,30 +1512,33 @@
     }
 
     .teach-compass-cover {
-      position: relative;
-      flex: 0 0 132px;
+      position: absolute;
+      inset: 0 0 auto;
+      z-index: 0;
+      width: 100%;
+      height: var(--teach-cover-rest);
       min-height: 0;
       overflow: hidden;
       border-radius: 17px 17px 0 0;
       background: #ebe7de;
-      transition: flex-basis 360ms cubic-bezier(.22, 1, .36, 1);
-    }
-
-    .teach-compass-card:is(:hover, :focus-within) .teach-compass-cover {
-      flex-basis: var(--teach-compass-hover-cover);
     }
 
     .teach-compass-cover img {
+      display: block;
       width: 100%;
       height: 100%;
       object-fit: cover;
       object-position: center 45%;
+      transform: scale(1.035);
+      transition: transform 420ms cubic-bezier(.25,.8,.25,1);
+      will-change: transform;
     }
 
     .teach-compass-menu {
       position: absolute;
       top: 12px;
       right: 12px;
+      z-index: 4;
       display: grid;
       place-items: center;
       width: 33px;
@@ -1550,20 +1555,44 @@
     }
 
     .teach-compass-content {
+      position: absolute;
+      inset: var(--teach-cover-expanded) 0 0;
+      z-index: 1;
       display: flex;
-      flex: 1;
-      min-height: 0;
       flex-direction: column;
-      padding: .82rem .95rem .9rem;
+      min-height: 0;
+      padding: 1rem 1.08rem 1rem;
+      background: transparent;
+      isolation: isolate;
+    }
+
+    .teach-compass-content::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: #fffefa;
+      transform: translate3d(0, var(--teach-cover-shift), 0);
+      transition: transform 420ms cubic-bezier(.25,.8,.25,1);
+      will-change: transform;
+    }
+
+    .teach-compass-content > * {
+      position: relative;
+      z-index: 1;
     }
 
     .teach-compass-header {
-      margin: 0 0 .4rem;
+      margin: 0 0 .5rem;
+      transform: translate3d(0, var(--teach-cover-shift), 0);
+      transition: transform 420ms cubic-bezier(.25,.8,.25,1);
+      will-change: transform;
     }
 
     .teach-compass-ownership {
       display: block;
-      margin-bottom: .28rem;
+      margin-bottom: .32rem;
       color: #4a7c78;
       font-size: .62rem;
       font-weight: 600;
@@ -1575,30 +1604,27 @@
       margin: 0;
       color: #211f1b;
       font-family: var(--font-display);
-      font-size: 1.02rem;
+      font-size: 1.12rem;
       font-weight: 400;
       line-height: 1.24;
       overflow-wrap: anywhere;
     }
 
     .teach-compass-hook {
-      display: -webkit-box;
+      display: block;
       flex-shrink: 0;
       margin: 0;
+      max-width: none;
       overflow: hidden;
       color: #7b7469;
-      font-size: .75rem;
-      line-height: 1.45;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
-    }
-
-    .teach-compass-card:is(:hover, :focus-within) .teach-compass-hook {
-      display: block;
-      overflow: visible;
-      -webkit-line-clamp: unset;
-      line-clamp: unset;
+      font-size: .79rem;
+      line-height: 1.52;
+      clip-path: inset(0 0 var(--teach-hook-hidden) 0);
+      transform: translate3d(0, var(--teach-cover-shift), 0);
+      transition:
+        transform 420ms cubic-bezier(.25,.8,.25,1),
+        clip-path 420ms cubic-bezier(.25,.8,.25,1);
+      will-change: transform, clip-path;
     }
 
     .teach-compass-footer {
@@ -1607,7 +1633,7 @@
       justify-content: flex-end;
       gap: 1rem;
       margin-top: auto;
-      padding-top: .6rem;
+      padding-top: .72rem;
     }
 
     .teach-compass-action {
@@ -1615,9 +1641,9 @@
       align-items: center;
       justify-content: center;
       gap: .3rem;
-      min-width: 90px;
-      min-height: 34px;
-      padding: .36rem .82rem;
+      min-width: 96px;
+      min-height: 36px;
+      padding: .4rem .88rem;
       border: 1px solid rgba(var(--compass-rgb), .24);
       border-radius: 999px;
       background: rgba(var(--compass-rgb), .10);
@@ -1627,7 +1653,21 @@
       line-height: 1;
       white-space: nowrap;
       box-shadow: none;
-      transition: 220ms cubic-bezier(.4, 0, .2, 1);
+      transition: 220ms cubic-bezier(.4,0,.2,1);
+    }
+
+    .teach-compass-card:is(:hover, :focus-within) .teach-compass-cover img {
+      transform: scale(1);
+    }
+
+    .teach-compass-card:is(:hover, :focus-within) .teach-compass-content::before,
+    .teach-compass-card:is(:hover, :focus-within) .teach-compass-header,
+    .teach-compass-card:is(:hover, :focus-within) .teach-compass-hook {
+      transform: translate3d(0, 0, 0);
+    }
+
+    .teach-compass-card:is(:hover, :focus-within) .teach-compass-hook {
+      clip-path: inset(0 0 0 0);
     }
 
     .teach-compass-card:is(:hover, :focus-within) .teach-compass-action {
@@ -1635,7 +1675,6 @@
       background: #4a7c78;
       color: #fff;
       box-shadow: 0 7px 17px rgba(var(--compass-rgb), .17);
-      transform: translateY(-1px);
     }
 
 
@@ -1644,7 +1683,7 @@
       display: flex;
       flex-direction: column;
       height: auto;
-      min-height: 286px;
+      min-height: 0;
       overflow: hidden;
       isolation: isolate;
       border: 1px solid rgba(58, 36, 63, .07);
@@ -1689,14 +1728,14 @@
       display: flex;
       flex: 1;
       flex-direction: column;
-      padding: .9rem 1rem 1rem;
+      padding: 1rem 1.08rem 1.05rem;
     }
 
     .teach-arcade-title {
       margin: 0 0 .55rem;
       color: #2d1f3d;
       font-family: var(--font-display);
-      font-size: clamp(1.08rem, 1.35vw, 1.28rem);
+      font-size: clamp(1.18rem, 1.45vw, 1.38rem);
       font-weight: 400;
       line-height: 1.2;
       letter-spacing: -.025em;
@@ -1705,8 +1744,8 @@
     .teach-arcade-premise {
       margin: 0;
       color: #5a4a6e;
-      font-size: .78rem;
-      line-height: 1.45;
+      font-size: .82rem;
+      line-height: 1.5;
     }
 
     .teach-arcade-footer {
@@ -1715,7 +1754,7 @@
       justify-content: space-between;
       gap: .65rem;
       margin-top: auto;
-      padding-top: .9rem;
+      padding-top: 1rem;
     }
 
     .teach-arcade-unit {
@@ -1818,7 +1857,7 @@
 
     @media (max-width: 760px) {
       .teach-stage {
-        --teach-card-width: 260px;
+        --teach-card-width: 272px;
         margin-top: 28px;
         padding-block: 16px 18px;
         border-radius: 22px;
@@ -4098,58 +4137,44 @@
 
         if (!cards.length) return;
 
-        var sizes = cards.map(function (card) {
-          var content = card.querySelector(".teach-compass-content");
-          var style = window.getComputedStyle(content);
-          var header = card.querySelector(".teach-compass-header");
+        cards.forEach(function (card) {
+          var width = card.getBoundingClientRect().width || 310;
+          var height = Math.max(286, Math.min(318, Math.round(width * .975)));
+          var coverRest = Math.round(height * (170 / 370));
+          var coverExpanded = Math.round(height * (80 / 370));
           var hook = card.querySelector(".teach-compass-hook");
-          var footer = card.querySelector(".teach-compass-footer");
-          var fullHookHeight = hook ? hook.scrollHeight : 0;
-          var compactHookHeight = hook
-            ? Math.min(
-                fullHookHeight,
-                parseFloat(window.getComputedStyle(hook).lineHeight) * 2
-              )
-            : 0;
+          var hookHidden = 0;
 
-          return {
-            card: card,
-            extraCopy: fullHookHeight - compactHookHeight,
-            body:
-              parseFloat(style.paddingTop) +
-              parseFloat(style.paddingBottom) +
-              header.offsetHeight +
-              parseFloat(window.getComputedStyle(header).marginBottom) +
-              fullHookHeight +
-              footer.offsetHeight
-          };
-        });
+          if (hook) {
+            var lineHeight = parseFloat(
+              window.getComputedStyle(hook).lineHeight
+            ) || 19;
+            var fullHookHeight = hook.scrollHeight || 0;
+            var compactHookHeight = Math.min(
+              fullHookHeight,
+              lineHeight * 2
+            );
+            hookHidden = Math.max(
+              0,
+              fullHookHeight - compactHookHeight
+            );
+          }
 
-        var sharedHeight = Math.ceil(
-          Math.max.apply(
-            Math,
-            [370].concat(
-              sizes.map(function (size) {
-                return Math.max(
-                  size.body + 82,
-                  size.body - size.extraCopy + 172
-                );
-              })
-            )
-          )
-        );
-
-        sizes.forEach(function (size) {
-          size.card.style.setProperty(
+          card.style.setProperty(
             "--teach-compass-card-height",
-            sharedHeight + "px"
+            height + "px"
           );
-          size.card.style.setProperty(
-            "--teach-compass-hover-cover",
-            Math.max(
-              80,
-              Math.min(124, sharedHeight - size.body - 2)
-            ) + "px"
+          card.style.setProperty(
+            "--teach-cover-rest",
+            coverRest + "px"
+          );
+          card.style.setProperty(
+            "--teach-cover-expanded",
+            coverExpanded + "px"
+          );
+          card.style.setProperty(
+            "--teach-hook-hidden",
+            hookHidden + "px"
           );
         });
       }
