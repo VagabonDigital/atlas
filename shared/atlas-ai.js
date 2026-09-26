@@ -2252,12 +2252,14 @@
 
                         brief:
                             cleanString(
-                                idea?.brief
+                                idea?.brief ||
+                                idea?.reason
                             ),
 
                         intro:
                             cleanString(
-                                idea?.intro
+                                idea?.intro ||
+                                idea?.reason
                             ),
 
                         source:
