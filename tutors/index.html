@@ -1193,57 +1193,76 @@
 
     /* Creation continues in Compass; this card demonstrates the input and resulting subject. */
 
-    .create-copy {
-      margin-top: 46px;
-      padding-top: 30px;
-      border-top: 1px solid var(--border-subtle);
+    .create-buckets {
+      margin-top: 52px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .34);
+      overflow: hidden;
     }
 
-    .create-copy-text {
-      width: min(100%, 720px);
-      margin: 0 auto 0 0;
+    .create-buckets-head {
+      padding: 28px 30px 26px;
+      border-bottom: 1px solid var(--border-subtle);
     }
 
-    .create-copy-text h3 {
-      margin-bottom: 22px;
-      font-size: 30px;
+    .create-buckets-head .kicker {
+      margin-bottom: 8px;
     }
 
-    .create-copy-text p {
-      margin: 0;
+    .create-buckets-head h3 {
+      max-width: 760px;
+      font-size: clamp(27px, 3vw, 36px);
+      line-height: 1.16;
     }
 
-    .create-copy-text p + p {
-      margin-top: 14px;
-    }
-
-    .at-fingertips {
-      margin-top: 38px;
+    .create-buckets-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 28px 36px;
     }
 
-    .starting-point {
+    .create-bucket {
       min-width: 0;
-      padding-top: 13px;
-      border-top: 1px solid var(--border-faint);
+      padding: 26px 30px 30px;
     }
 
-    .starting-point strong {
+    .create-bucket + .create-bucket {
+      border-left: 1px solid var(--border-subtle);
+    }
+
+    .create-bucket-index {
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 18px;
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+    }
+
+    .create-bucket h4 {
+      margin: 0;
       color: var(--text-heading);
-      font-size: 13px;
-      font-weight: 600;
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 400;
+      line-height: 1.2;
     }
 
-    .starting-point span {
-      display: block;
-      max-width: 220px;
+    .create-bucket p {
+      margin: 12px 0 0;
       color: var(--text-muted);
-      font-size: 11px;
-      line-height: 1.45;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    html[data-theme="night"] .create-buckets {
+      background: rgba(255, 255, 255, .025);
+      border-color: rgba(255, 255, 255, .08);
+    }
+
+    html[data-theme="night"] .create-buckets-head,
+    html[data-theme="night"] .create-bucket + .create-bucket {
+      border-color: rgba(255, 255, 255, .08);
     }
 
     .direction-picker {
@@ -2797,9 +2816,6 @@
         grid-template-columns: 1fr;
       }
 
-      .create-copy {
-        order: -1;
-      }
 
       .worlds {
         grid-template-columns: 1fr;
@@ -2889,6 +2905,23 @@
 
       .direction-list {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .create-buckets-head {
+        padding: 24px 22px 22px;
+      }
+
+      .create-buckets-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .create-bucket {
+        padding: 22px;
+      }
+
+      .create-bucket + .create-bucket {
+        border-left: 0;
+        border-top: 1px solid var(--border-subtle);
       }
 
       .direction-head {
@@ -3219,40 +3252,27 @@
           </div>
         </div>
 
-        <div class="create-copy">
-          <div class="create-copy-text">
-            <h3>The creative range is the point.</h3>
-            <p>Atlas is not asking you to work inside a fixed syllabus. You can build around exactly what your learner needs,
-              cares about, is studying, is curious about, or simply wants to talk about.</p>
-            <p>You can also open something already ready, continue previous material, search, ask for an idea, or return
-              to your own library. It is all in the same environment.</p>
+        <div class="create-buckets" aria-label="Three ways to create in Atlas">
+          <div class="create-buckets-head">
+            <p class="kicker">Three ways in</p>
+            <h3>Whatever you want to create, it starts in one of three places.</h3>
           </div>
-
-          <div class="at-fingertips" aria-label="Other Atlas starting points">
-            <div class="starting-point">
-              <strong>Continue</strong>
-              <span>Pick up where you left off.</span>
-            </div>
-            <div class="starting-point">
-              <strong>Browse</strong>
-              <span>Open something ready to teach.</span>
-            </div>
-            <div class="starting-point">
-              <strong>Search</strong>
-              <span>Find material for a topic, goal or moment.</span>
-            </div>
-            <div class="starting-point">
-              <strong>Give me an idea</strong>
-              <span>Let Atlas suggest a fresh direction.</span>
-            </div>
-            <div class="starting-point">
-              <strong>My Versions</strong>
-              <span>Return to material you’ve shaped.</span>
-            </div>
-            <div class="starting-point">
-              <strong>My Subjects</strong>
-              <span>Open material you created yourself.</span>
-            </div>
+          <div class="create-buckets-grid">
+            <article class="create-bucket">
+              <span class="create-bucket-index">01</span>
+              <h4>A learner need</h4>
+              <p>Build around what they need right now — fluency, work, interviews, exams, grammar, life abroad or something entirely different.</p>
+            </article>
+            <article class="create-bucket">
+              <span class="create-bucket-index">02</span>
+              <h4>You + your learner</h4>
+              <p>Bring a topic, question, interest, goal or moment from either side of the lesson — or make it dangerously specific to one person.</p>
+            </article>
+            <article class="create-bucket">
+              <span class="create-bucket-index">03</span>
+              <h4>An Atlas suggestion</h4>
+              <p>Point Atlas somewhere and let it suggest a direction worth teaching. Keep it, reshape it or use it as the spark for something else.</p>
+            </article>
           </div>
         </div>
       </div>
