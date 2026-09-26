@@ -263,14 +263,16 @@
         }
 
         .memory-intro {
+            max-width: 680px;
+
             margin:
-                1rem 0 0;
+                1.05rem 0 0;
 
-            color: var(--text-muted);
+            color: var(--text-body);
 
-            font-size: 0.91rem;
+            font-size: 0.96rem;
             font-weight: 300;
-            line-height: 1.6;
+            line-height: 1.68;
         }
 
         .memory-notes {
@@ -346,41 +348,6 @@
 
             line-height:
                 1.45;
-        }
-
-        .memory-suggestion-guidance {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-
-            margin-top: 1.45rem;
-
-            color:
-                var(--text-muted);
-
-            font-size:
-                0.76rem;
-            line-height:
-                1.5;
-        }
-
-        .memory-suggestion-guidance +
-        .memory-notes {
-            margin-top: 1rem;
-        }
-
-        .memory-status {
-            min-width: 4rem;
-
-            color:
-                var(--text-muted);
-
-            font-size:
-                0.72rem;
-
-            text-align:
-                right;
         }
 
         .memory-source-tools {
@@ -510,25 +477,6 @@
                 3px;
         }
 
-        .memory-count {
-            display: none;
-
-            min-width: 3.6rem;
-
-            color:
-                var(--text-muted);
-
-            font-size:
-                0.68rem;
-
-            text-align:
-                right;
-        }
-
-        .memory-count[data-visible="true"] {
-            display: inline-block;
-        }
-
         .memory-textarea {
             display: block;
 
@@ -558,13 +506,12 @@
                 1.7;
         }
 
-        .memory-textarea.memory-textarea--about {
-            min-height: 105px;
-        }
-
+        .memory-textarea.memory-textarea--about,
         .memory-textarea.memory-textarea--interests,
         .memory-textarea.memory-textarea--goals {
-            min-height: 150px;
+            min-height: 104px;
+            overflow-y: hidden;
+            resize: none;
         }
 
         .memory-textarea::placeholder {
@@ -573,6 +520,56 @@
 
             opacity:
                 0.5;
+        }
+
+        .memory-toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            z-index: 900;
+
+            max-width:
+                calc(100vw - 2rem);
+
+            padding:
+                0.65rem 1.15rem;
+
+            border:
+                1px solid var(--border-faint);
+            border-radius:
+                14px;
+
+            background:
+                var(--surface-raised);
+
+            color:
+                var(--text-muted);
+
+            font-size:
+                0.84rem;
+
+            box-shadow:
+                var(--shadow);
+
+            opacity: 0;
+
+            pointer-events: none;
+
+            transform:
+                translateX(-50%)
+                translateY(8px);
+
+            transition:
+                opacity 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .memory-toast.visible {
+            opacity: 1;
+
+            transform:
+                translateX(-50%)
+                translateY(0);
         }
 
         .memory-empty {
@@ -648,6 +645,13 @@
                 padding:
                     1.15rem;
             }
+
+            .memory-textarea.memory-textarea--about,
+            .memory-textarea.memory-textarea--interests,
+            .memory-textarea.memory-textarea--goals {
+                min-height:
+                    96px;
+            }
         }
     </style>
 </head>
@@ -684,19 +688,8 @@
             ></h1>
 
             <p class="memory-intro">
-                The things worth carrying into future sessions.
+                The things worth carrying into future sessions — and the context Atlas can use to make suggestions feel genuinely relevant. Choose which parts of this learner’s memory Atlas can draw on when suggesting subjects. Notes stay just for your teaching continuity.
             </p>
-
-            <div class="memory-suggestion-guidance">
-                <span>
-                    Choose what Compass can use when suggesting subjects.
-                </span>
-
-                <span
-                    class="memory-status"
-                    aria-live="polite"
-                ></span>
-            </div>
 
             <section class="memory-notes">
                 <div class="memory-notes-header">
@@ -711,19 +704,14 @@
                     </div>
 
                     <div class="memory-source-tools">
-                        <span
-                            class="memory-count"
-                            id="memory-about-count"
-                        ></span>
-
                         <label
                             class="memory-source-toggle"
-                            title="Use About for Compass suggestions"
+                            title="Use About for Atlas suggestions"
                         >
                             <input
                                 id="memory-about-suggestions"
                                 type="checkbox"
-                                aria-label="Use About for Compass suggestions"
+                                aria-label="Use About for Atlas suggestions"
                             >
                             <span
                                 class="memory-source-switch"
@@ -755,20 +743,15 @@
                     </div>
 
                     <div class="memory-source-tools">
-                        <span
-                            class="memory-count"
-                            id="memory-interests-count"
-                        ></span>
-
                         <label
                             class="memory-source-toggle"
-                            title="Use Interests for Compass suggestions"
+                            title="Use Interests for Atlas suggestions"
                         >
                             <input
                                 id="memory-interests-suggestions"
                                 type="checkbox"
                                 checked
-                                aria-label="Use Interests for Compass suggestions"
+                                aria-label="Use Interests for Atlas suggestions"
                             >
                             <span
                                 class="memory-source-switch"
@@ -800,20 +783,15 @@
                     </div>
 
                     <div class="memory-source-tools">
-                        <span
-                            class="memory-count"
-                            id="memory-goals-count"
-                        ></span>
-
                         <label
                             class="memory-source-toggle"
-                            title="Use Goals for Compass suggestions"
+                            title="Use Goals for Atlas suggestions"
                         >
                             <input
                                 id="memory-goals-suggestions"
                                 type="checkbox"
                                 checked
-                                aria-label="Use Goals for Compass suggestions"
+                                aria-label="Use Goals for Atlas suggestions"
                             >
                             <span
                                 class="memory-source-switch"
@@ -922,47 +900,76 @@
                 'memory-textarea'
             );
 
-        const suggestionTextFields = [
-            {
-                textarea: aboutTextarea,
-                count:
-                    document.getElementById(
-                        'memory-about-count'
-                    )
-            },
-            {
-                textarea: interestsTextarea,
-                count:
-                    document.getElementById(
-                        'memory-interests-count'
-                    )
-            },
-            {
-                textarea: goalsTextarea,
-                count:
-                    document.getElementById(
-                        'memory-goals-count'
-                    )
-            }
+        const suggestionTextareas = [
+            aboutTextarea,
+            interestsTextarea,
+            goalsTextarea
         ];
-
-        const statuses =
-            Array.from(
-                document.querySelectorAll(
-                    '.memory-status'
-                )
-            );
 
         let session = null;
         let saveTimer = null;
+        let toastTimer = null;
         let lastSavedValue = '';
         let savingPromise = null;
 
-        function setStatus(message) {
-            statuses.forEach(status => {
-                status.textContent =
-                    message;
-            });
+        function showToast(message) {
+            let toast =
+                document.getElementById(
+                    'memory-toast'
+                );
+
+            if (!toast) {
+                toast =
+                    document.createElement(
+                        'div'
+                    );
+
+                toast.id = 'memory-toast';
+                toast.className =
+                    'memory-toast';
+                toast.setAttribute(
+                    'role',
+                    'status'
+                );
+
+                document.body.appendChild(
+                    toast
+                );
+            }
+
+            toast.textContent = message;
+
+            window.requestAnimationFrame(
+                () => {
+                    toast.classList.add(
+                        'visible'
+                    );
+                }
+            );
+
+            window.clearTimeout(
+                toastTimer
+            );
+
+            toastTimer =
+                window.setTimeout(
+                    () => {
+                        toast.classList.remove(
+                            'visible'
+                        );
+                    },
+                    2200
+                );
+        }
+
+        function resizeSuggestionTextarea(
+            textarea
+        ) {
+            if (!textarea) return;
+
+            textarea.style.height = 'auto';
+            textarea.style.height =
+                textarea.scrollHeight + 'px';
         }
 
         function getSuggestionSources() {
@@ -974,25 +981,6 @@
                 goals:
                     goalsSuggestionsToggle.checked
             };
-        }
-
-        function updateSuggestionTextCounts() {
-            suggestionTextFields.forEach(
-                ({ textarea, count }) => {
-                    if (!textarea || !count) return;
-
-                    const length =
-                        textarea.value.length;
-
-                    count.textContent =
-                        length + ' / 500';
-
-                    count.dataset.visible =
-                        length >= 450
-                            ? 'true'
-                            : 'false';
-                }
-            );
         }
 
         function getMemoryValue() {
@@ -1046,11 +1034,10 @@
                 nextSavedValue ===
                 lastSavedValue
             ) {
-                setStatus('');
                 return;
             }
 
-            setStatus('Saving…');
+            showToast('Saving…');
 
             const Authority =
                 window.AtlasLearnerSessionsCloudAuthority ||
@@ -1088,30 +1075,16 @@
             try {
                 await savingPromise;
                 lastSavedValue = nextSavedValue;
-                setStatus('Saved');
-
-                window.setTimeout(
-                    () => {
-                        if (
-                            statuses.some(status =>
-                                status.textContent ===
-                                'Saved'
-                            )
-                        ) {
-                            setStatus('');
-                        }
-                    },
-                    1400
-                );
+                showToast('Saved');
             } catch {
-                setStatus('Not saved');
+                showToast('Couldn’t save changes');
             } finally {
                 savingPromise = null;
             }
         }
 
         function queueSave() {
-            setStatus('Saving…');
+            showToast('Saving…');
 
             window.clearTimeout(
                 saveTimer
@@ -1133,7 +1106,9 @@
                 try {
                     await Authority.initialize();
                 } catch {
-                    setStatus('Couldn’t connect to your Atlas account');
+                    showToast(
+                        'Couldn’t connect to your Atlas account'
+                    );
                 }
             }
 
@@ -1198,7 +1173,9 @@
             notesTextarea.value =
                 memory.notes || '';
 
-            updateSuggestionTextCounts();
+            suggestionTextareas.forEach(
+                resizeSuggestionTextarea
+            );
 
             lastSavedValue =
                 getMemoryValue();
@@ -1212,7 +1189,15 @@
                 textarea.addEventListener(
                     'input',
                     () => {
-                        updateSuggestionTextCounts();
+                        if (
+                            suggestionTextareas
+                                .includes(textarea)
+                        ) {
+                            resizeSuggestionTextarea(
+                                textarea
+                            );
+                        }
+
                         queueSave();
                     }
                 );
